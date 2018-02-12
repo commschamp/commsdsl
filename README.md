@@ -1,1 +1,2 @@
-# bbmp2comms
+This is personal research project, not for general use.
+
