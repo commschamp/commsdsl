@@ -20,6 +20,8 @@
 
 //#include <boost/filesystem.hpp>
 
+#include "bbmp/Protocol.h"
+
 #include "ProgramOptions.h"
 
 //namespace bf = boost::filesystem;
@@ -46,8 +48,13 @@ int main(int argc, const char* argv[])
     }
 
     std::cout << "Files count: " << files.size() << std::endl;
+    bbmp::Protocol protocol;
     for (auto& f : files) {
         std::cout << "\t" << f << '\n';
+        if (!protocol.parse(f)) {
+            std::cerr << "ERROR: Failed to parse " << f << std::endl;
+            return -1;
+        }
     }
     std::cout << std::endl;
 
