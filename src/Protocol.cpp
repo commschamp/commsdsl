@@ -11,6 +11,11 @@ Protocol::Protocol()
 
 }
 
+void Protocol::setErrorReportCallback(Protocol::ErrorReportFunction&& cb)
+{
+    m_pImpl->setErrorReportCallback(std::move(cb));
+}
+
 Protocol::~Protocol() = default;
 
 bool Protocol::parse(const std::string& input)
