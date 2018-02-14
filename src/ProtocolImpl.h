@@ -9,6 +9,9 @@
 #include <libxml/xmlerror.h>
 
 #include "bbmp/Protocol.h"
+#include "bbmp/ErrorLevel.h"
+#include "Logger.h"
+#include "SchemaImpl.h"
 
 namespace bbmp
 {
@@ -20,6 +23,7 @@ public:
 
     ProtocolImpl();
     bool parse(const std::string& input);
+    bool validate();
 
     void setErrorReportCallback(ErrorReportFunction&& cb)
     {
@@ -37,12 +41,22 @@ private:
 
     using XmlDocPtr = std::unique_ptr<::xmlDoc, XmlDocFree>;
     using DocsList = std::vector<XmlDocPtr>;
+    using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
 
     static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
     void handleXmlError(xmlErrorPtr err);
+    bool validateDoc(::xmlDocPtr doc);
+    bool validateSchema(::xmlNodePtr node);
+    bool validateNewSchema(::xmlNodePtr node);
+
+    LogWrapper logError();
 
     ErrorReportFunction m_errorReportCb;
     DocsList m_docs;
+    bool m_validated = false;
+    ErrorLevel m_minLevel = ErrorLevel_Info;
+    Logger m_logger;
+    SchemaImplPtr m_schema;
 };
 
 } // namespace bbmp

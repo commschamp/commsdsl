@@ -23,4 +23,9 @@ bool Protocol::parse(const std::string& input)
     return m_pImpl->parse(input);
 }
 
+bool Protocol::validate()
+{
+    return m_pImpl->validate();
+}
+
 } // namespace bbmp

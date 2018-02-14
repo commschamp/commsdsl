@@ -22,6 +22,8 @@ public:
     void setErrorReportCallback(ErrorReportFunction&& cb);
 
     bool parse(const std::string& input);
+    bool validate();
+
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;
 };
