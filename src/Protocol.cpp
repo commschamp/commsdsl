@@ -28,4 +28,9 @@ bool Protocol::validate()
     return m_pImpl->validate();
 }
 
+Schema Protocol::schema() const
+{
+    return m_pImpl->schema();
+}
+
 } // namespace bbmp

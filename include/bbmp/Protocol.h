@@ -6,6 +6,7 @@
 
 #include "BbmpApi.h"
 #include "ErrorLevel.h"
+#include "Schema.h"
 
 namespace bbmp
 {
@@ -23,6 +24,8 @@ public:
 
     bool parse(const std::string& input);
     bool validate();
+
+    Schema schema() const;
 
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;

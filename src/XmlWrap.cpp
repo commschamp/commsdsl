@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <iostream>
 
 namespace bbmp
 {
@@ -120,6 +121,42 @@ bool XmlWrap::parseChildrenAsProps(
     }
 
     return true;
+}
+
+XmlWrap::PropsMap XmlWrap::getUnknownProps(::xmlNodePtr node, const XmlWrap::NamesList& names)
+{
+    auto props = parseNodeProps(node);
+    for (auto& n : names) {
+        auto iter = props.find(n);
+        if (iter == props.end()) {
+            continue;
+        }
+
+        props.erase(iter);
+    }
+    return props;
+}
+
+XmlWrap::ContentsList XmlWrap::getUnknownChildren(::xmlNodePtr node, const XmlWrap::NamesList& names)
+{
+    ContentsList result;
+    auto children = getChildren(node);
+    for (auto* c : children) {
+        std::string cName(reinterpret_cast<const char*>(c->name));
+        auto iter = std::find(names.begin(), names.end(), cName);
+        if (iter != names.end()) {
+            continue;
+        }
+
+        BufferPtr buf(::xmlBufferCreate());
+        auto bufLen = ::xmlNodeDump(buf.get(), c->doc, c, 0, 0);
+        if (bufLen == 0U) {
+            continue;
+        }
+
+        result.emplace_back(reinterpret_cast<const char*>(::xmlBufferContent(buf.get())));
+    }
+    return result;
 }
 
 

@@ -10,6 +10,7 @@
 
 #include "bbmp/Protocol.h"
 #include "bbmp/ErrorLevel.h"
+#include "bbmp/Schema.h"
 #include "Logger.h"
 #include "SchemaImpl.h"
 
@@ -24,6 +25,8 @@ public:
     ProtocolImpl();
     bool parse(const std::string& input);
     bool validate();
+
+    Schema schema() const;
 
     void setErrorReportCallback(ErrorReportFunction&& cb)
     {
@@ -49,13 +52,14 @@ private:
     bool validateSchema(::xmlNodePtr node);
     bool validateNewSchema(::xmlNodePtr node);
 
-    LogWrapper logError();
+    LogWrapper logError() const;
+    LogWrapper logWarning() const;
 
     ErrorReportFunction m_errorReportCb;
     DocsList m_docs;
     bool m_validated = false;
     ErrorLevel m_minLevel = ErrorLevel_Info;
-    Logger m_logger;
+    mutable Logger m_logger;
     SchemaImplPtr m_schema;
 };
 

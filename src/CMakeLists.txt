@@ -60,6 +60,8 @@ set (
     "ProtocolImpl.cpp"
     "XmlWrap.cpp"
     "SchemaImpl.cpp"
+    "Schema.cpp"
+    "common.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

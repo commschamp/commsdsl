@@ -9,6 +9,7 @@
 #include <libxml/parser.h>
 
 #include "Logger.h"
+#include "common.h"
 
 namespace bbmp
 {
@@ -24,18 +25,31 @@ struct XmlWrap
         }
     };
 
+    struct BufferFree
+    {
+        void operator()(::xmlBuffer* p) const
+        {
+            ::xmlBufferFree(p);
+        }
+    };
+
     using StringPtr = std::unique_ptr<::xmlChar, CharFree>;
+    using BufferPtr = std::unique_ptr<::xmlBuffer, BufferFree>;
     using NamesList = std::vector<std::string>;
     using NodesList = std::vector<::xmlNodePtr>;
+    using ContentsList = std::vector<std::string>;
 
     static PropsMap parseNodeProps(::xmlNodePtr node);
-    static NodesList getChildren(::xmlNodePtr node, const std::string& name = std::string());
+    static NodesList getChildren(::xmlNodePtr node, const std::string& name = common::emptyString());
     static std::string getText(::xmlNodePtr node);
     static bool parseChildrenAsProps(
         ::xmlNodePtr node,
         const NamesList& names,
         Logger& logger,
         PropsMap& props);
+
+    static PropsMap getUnknownProps(::xmlNodePtr node, const NamesList& names);
+    static ContentsList getUnknownChildren(::xmlNodePtr node, const NamesList& names);
 };
 
 } // namespace bbmp

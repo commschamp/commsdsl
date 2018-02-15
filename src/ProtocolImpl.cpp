@@ -73,6 +73,16 @@ bool ProtocolImpl::validate()
     return true;
 }
 
+Schema ProtocolImpl::schema() const
+{
+    if ((!m_validated) && (!m_schema)) {
+        logError() << "Invalid access to schema object.";
+        return Schema(nullptr);
+    }
+
+    return Schema(m_schema.get());
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);
@@ -125,11 +135,54 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
 
 bool ProtocolImpl::validateSchema(::xmlNodePtr node)
 {
-    if (!m_schema) {
-        return validateNewSchema(node);
+    SchemaImplPtr schema(new SchemaImpl(node, m_logger));
+    if (!schema->processNode()) {
+        return false;
     }
 
-    // TODO
+    if (!m_schema) {
+        m_schema = std::move(schema);
+        return true;
+    }
+
+    auto& props = schema->props();
+    auto& origProps = m_schema->props();
+    for (auto& p : props) {
+        auto iter = origProps.find(p.first);
+        if ((iter == origProps.end()) ||
+            (iter->second != p.second)) {
+
+            logError() << node->doc->URL << ':' << node->line <<
+                ": Value of \"" << p.first <<
+                "\" property of \"" << node->name << "\" element differs from the first one.";
+            return false;
+        }
+    }
+
+    auto& attrs = schema->unknownAttributes();
+    auto& origAttrs = m_schema->unknownAttributes();
+    for (auto& a : attrs) {
+        auto iter = origAttrs.find(a.first);
+        if (iter == origAttrs.end()) {
+            origAttrs.insert(a);
+            continue;
+        }
+
+        if (iter->second == a.second) {
+            continue;
+        }
+
+        logWarning() << node->doc->URL << ':' << node->line <<
+            ": Value of \"" << a.first <<
+            "\" attribubes of \"" << node->name << "\" element differs from the previous one.";
+    }
+
+    auto& children = schema->unknownChiltren();
+    auto& origChildren = m_schema->unknownChiltren();
+    for (auto& c : children) {
+        origChildren.push_back(c);
+    }
+
     return true;
 }
 
@@ -139,10 +192,14 @@ bool ProtocolImpl::validateNewSchema(::xmlNodePtr node)
     return m_schema->processNode();
 }
 
-LogWrapper ProtocolImpl::logError()
+LogWrapper ProtocolImpl::logError() const
 {
     return bbmp::logError(m_logger);
 }
 
+LogWrapper ProtocolImpl::logWarning() const
+{
+    return bbmp::logWarning(m_logger);
+}
 
 } // namespace bbmp
