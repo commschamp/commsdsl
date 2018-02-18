@@ -62,6 +62,8 @@ set (
     "SchemaImpl.cpp"
     "Schema.cpp"
     "common.cpp"
+    "FieldImpl.cpp"
+    "IntFieldImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

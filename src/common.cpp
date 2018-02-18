@@ -18,6 +18,12 @@ const std::string& nameStr()
     return Str;
 }
 
+const std::string& displayNameStr()
+{
+    static const std::string Str("displayName");
+    return Str;
+}
+
 const std::string& idStr()
 {
     static const std::string Str("id");
@@ -84,6 +90,11 @@ const std::string& framesStr()
     return Str;
 }
 
+const std::string& intStr()
+{
+    static const std::string Str("int");
+    return Str;
+}
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
@@ -102,6 +113,18 @@ unsigned strToUnsigned(const std::string& str, bool* ok, int base)
     return result;
 }
 
+const std::string& getStringProp(
+    const PropsMap& map,
+    const std::string prop,
+    const std::string& defaultValue)
+{
+    auto iter = map.find(prop);
+    if (iter != map.end()) {
+        return iter->second;
+    }
+
+    return defaultValue;
+}
 
 } // namespace common
 

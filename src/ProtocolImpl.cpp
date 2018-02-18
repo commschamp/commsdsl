@@ -4,6 +4,7 @@
 #include <type_traits>
 
 #include "XmlWrap.h"
+#include "FieldImpl.h"
 
 namespace bbmp
 {
@@ -129,7 +130,31 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
         return false;
     }
 
-    // TODO
+
+    using ProcessFunc = bool (ProtocolImpl::*)(::xmlNodePtr node);
+    static const std::map<std::string, ProcessFunc> ParseFuncMap = {
+        std::make_pair(common::fieldsStr(), &ProtocolImpl::processMultipleFields),
+        std::make_pair(common::messageStr(), &ProtocolImpl::processMessage),
+        std::make_pair(common::messagesStr(), &ProtocolImpl::processMultipleMessages),
+        std::make_pair(common::frameStr(), &ProtocolImpl::processFrame),
+        std::make_pair(common::framesStr(), &ProtocolImpl::processMultipleFrames),
+    };
+
+    auto childrenNodes = XmlWrap::getChildren(root);
+    for (auto* c : childrenNodes) {
+        std::string cName(reinterpret_cast<const char*>(c->name));
+        auto iter = ParseFuncMap.find(cName);
+        if (iter == ParseFuncMap.end()) {
+            continue;
+        }
+
+        auto func = iter->second;
+        bool result = (this->*func)(c);
+        if (!result) {
+            return false;
+        }
+    }
+
     return true;
 }
 
@@ -152,8 +177,8 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
         if ((iter == origProps.end()) ||
             (iter->second != p.second)) {
 
-            logError() << node->doc->URL << ':' << node->line <<
-                ": Value of \"" << p.first <<
+            logError() << XmlWrap::logPrefix(node) <<
+                "Value of \"" << p.first <<
                 "\" property of \"" << node->name << "\" element differs from the first one.";
             return false;
         }
@@ -172,8 +197,8 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
             continue;
         }
 
-        logWarning() << node->doc->URL << ':' << node->line <<
-            ": Value of \"" << a.first <<
+        logWarning() << XmlWrap::logPrefix(node) <<
+            "Value of \"" << a.first <<
             "\" attribubes of \"" << node->name << "\" element differs from the previous one.";
     }
 
@@ -190,6 +215,73 @@ bool ProtocolImpl::validateNewSchema(::xmlNodePtr node)
 {
     m_schema.reset(new SchemaImpl(node, m_logger));
     return m_schema->processNode();
+}
+
+bool ProtocolImpl::processMultipleFields(::xmlNodePtr node)
+{
+    auto childrenNodes = XmlWrap::getChildren(node);
+    for (auto* c : childrenNodes) {
+        std::string cName(reinterpret_cast<const char*>(c->name));
+        auto field = FieldImpl::create(cName, c, m_logger);
+        if (!field) {
+            logError() << XmlWrap::logPrefix(c) << "Invalid field type \"" << cName << "\"";
+            return false;
+        }
+
+        if (!field->parse()) {
+            logError() << XmlWrap::logPrefix(c) << "Parsing of \"" << cName << "\" has failed.";
+            return false;
+        }
+
+        auto& name = field->name();
+        if (name.empty()) {
+            logError() << XmlWrap::logPrefix(c) << "Field \"" << cName << "\" doesn't have any name.";
+            return false;
+        }
+
+        auto iter = m_fields.find(name);
+        if (iter != m_fields.end()) {
+            logError() << XmlWrap::logPrefix(c) << "Field with name \"" << name << "\" has been already defined at " <<
+                          iter->second->getNode()->doc->URL << ":" << iter->second->getNode()->line << '.';
+            return false;
+        }
+
+        m_fields.insert(std::make_pair(name, std::move(field)));
+    }
+
+    return true;
+}
+
+bool ProtocolImpl::processMessage(::xmlNodePtr node)
+{
+    static_cast<void>(node);
+    // TODO:
+    logError() << __FUNCTION__ << ": NYI!";
+    return false;
+}
+
+bool ProtocolImpl::processMultipleMessages(::xmlNodePtr node)
+{
+    static_cast<void>(node);
+    // TODO:
+    logError() << __FUNCTION__ << ": NYI!";
+    return false;
+}
+
+bool ProtocolImpl::processFrame(::xmlNodePtr node)
+{
+    static_cast<void>(node);
+    // TODO:
+    logError() << __FUNCTION__ << ": NYI!";
+    return false;
+}
+
+bool ProtocolImpl::processMultipleFrames(::xmlNodePtr node)
+{
+    static_cast<void>(node);
+    // TODO:
+    logError() << __FUNCTION__ << ": NYI!";
+    return false;
 }
 
 LogWrapper ProtocolImpl::logError() const

@@ -159,6 +159,14 @@ XmlWrap::ContentsList XmlWrap::getUnknownChildren(::xmlNodePtr node, const XmlWr
     return result;
 }
 
+std::string XmlWrap::logPrefix(::xmlNodePtr node)
+{
+    assert(node != nullptr);
+    assert(node->doc != nullptr);
+    assert(node->doc->URL != nullptr);
+    return std::string(reinterpret_cast<const char*>(node->doc->URL)) + ":" + std::to_string(node->line) + ": ";
+}
+
 
 
 } // namespace bbmp
