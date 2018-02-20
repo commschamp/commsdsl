@@ -29,9 +29,18 @@ public:
 
     Schema schema() const;
 
+    SchemaImpl& schemaImpl();
+    const SchemaImpl& schemaImpl() const;
+
+
     void setErrorReportCallback(ErrorReportFunction&& cb)
     {
         m_errorReportCb = std::move(cb);
+    }
+
+    Logger& logger() const
+    {
+        return m_logger;
     }
 
 private:

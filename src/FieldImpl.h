@@ -8,12 +8,14 @@
 namespace bbmp
 {
 
+class ProtocolImpl;
 class FieldImpl
 {
 public:
     using Ptr = std::unique_ptr<FieldImpl>;
+    using PropsMap = XmlWrap::PropsMap;
 
-    static Ptr create(const std::string& kind, ::xmlNodePtr node, Logger& logger);
+    static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
 
     ::xmlNodePtr getNode() const
     {
@@ -22,25 +24,41 @@ public:
 
     bool parse();
 
+    const PropsMap& props() const
+    {
+        return m_props;
+    }
+
     const std::string& name() const;
     const std::string& displayName() const;
     const std::string& description() const;
 
 protected:
-    explicit FieldImpl(::xmlNodePtr node, Logger& logger)
+    explicit FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
       : m_node(node),
-        m_logger(logger)
+        m_protocol(protocol)
     {
     }
+
+    ProtocolImpl& protocol()
+    {
+        return m_protocol;
+    }
+
+    const ProtocolImpl& protocol() const
+    {
+        return m_protocol;
+    }
+
+    LogWrapper logError() const;
 
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
     virtual bool parseImpl();
 
 private:
-    using PropsMap = XmlWrap::PropsMap;
 
     ::xmlNodePtr m_node = nullptr;
-    Logger& m_logger;
+    ProtocolImpl& m_protocol;
     PropsMap m_props;
 };
 

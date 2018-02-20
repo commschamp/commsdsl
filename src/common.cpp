@@ -1,5 +1,8 @@
 #include "common.h"
 
+#include <algorithm>
+#include <iterator>
+
 namespace bbmp
 {
 
@@ -96,11 +99,75 @@ const std::string& intStr()
     return Str;
 }
 
+const std::string& typeStr()
+{
+    static const std::string Str("type");
+    return Str;
+}
+
+const std::string& defaultValueStr()
+{
+    static const std::string Str("defaultValue");
+    return Str;
+}
+
+const std::string& unitsStr()
+{
+    static const std::string Str("units");
+    return Str;
+}
+
+const std::string& scalingStr()
+{
+    static const std::string Str("scaling");
+    return Str;
+}
+
+const std::string& defaultStr()
+{
+    static const std::string Str("default");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
     try {
         result = std::stoul(str, 0, base);
+        if (ok != nullptr) {
+            *ok = true;
+        }
+
+    } catch (...) {
+        if (ok != nullptr) {
+            *ok = false;
+        }
+    }
+    return result;
+}
+
+std::intmax_t strToIntMax(const std::string& str, bool* ok, int base)
+{
+    std::intmax_t result = 0;
+    try {
+        result = std::stoll(str, 0, base);
+        if (ok != nullptr) {
+            *ok = true;
+        }
+
+    } catch (...) {
+        if (ok != nullptr) {
+            *ok = false;
+        }
+    }
+    return result;
+}
+
+std::uintmax_t strToUintMax(const std::string& str, bool* ok, int base)
+{
+    std::uintmax_t result = 0U;
+    try {
+        result = std::stoull(str, 0, base);
         if (ok != nullptr) {
             *ok = true;
         }
@@ -124,6 +191,28 @@ const std::string& getStringProp(
     }
 
     return defaultValue;
+}
+
+Endian parseEndian(const std::string& value, Endian defaultEndian)
+{
+    if (value.empty()) {
+        return defaultEndian;
+    }
+
+    static const std::string Map[] = {
+        /* Endian_Little */ common::littleStr(),
+        /* Endian_Big */ common::bigStr()
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == Endian_NumOfValues, "Invalid map");
+
+    auto mapIter = std::find(std::begin(Map), std::end(Map), value);
+    if (mapIter == std::end(Map)) {
+        return Endian_NumOfValues;
+    }
+
+    return static_cast<Endian>(std::distance(std::begin(Map), mapIter));
 }
 
 } // namespace common

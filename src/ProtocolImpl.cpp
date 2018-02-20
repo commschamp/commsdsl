@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <type_traits>
+#include <cassert>
 
 #include "XmlWrap.h"
 #include "FieldImpl.h"
@@ -82,6 +83,18 @@ Schema ProtocolImpl::schema() const
     }
 
     return Schema(m_schema.get());
+}
+
+SchemaImpl& ProtocolImpl::schemaImpl()
+{
+    assert(m_schema);
+    return *m_schema;
+}
+
+const SchemaImpl& ProtocolImpl::schemaImpl() const
+{
+    assert(m_schema);
+    return *m_schema;
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
@@ -222,7 +235,7 @@ bool ProtocolImpl::processMultipleFields(::xmlNodePtr node)
     auto childrenNodes = XmlWrap::getChildren(node);
     for (auto* c : childrenNodes) {
         std::string cName(reinterpret_cast<const char*>(c->name));
-        auto field = FieldImpl::create(cName, c, m_logger);
+        auto field = FieldImpl::create(cName, c, *this);
         if (!field) {
             logError() << XmlWrap::logPrefix(c) << "Invalid field type \"" << cName << "\"";
             return false;

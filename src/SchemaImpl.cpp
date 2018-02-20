@@ -91,28 +91,14 @@ bool SchemaImpl::updateUnsignedProperty(const PropsMap& map, const std::string& 
 
 bool SchemaImpl::updateEndianProperty(const PropsMap& map, const std::string& name, Endian& prop)
 {
-    auto iter = map.find(name);
-    if (iter == map.end()) {
-        prop = Endian_Little;
-        return true;
-    }
-
-    static const std::string Map[] = {
-        /* Endian_Little */ common::littleStr(),
-        /* Endian_Big */ common::bigStr()
-    };
-
-    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-
-    static_assert(MapSize == Endian_NumOfValues, "Invalid map");
-    auto mapIter = std::find(std::begin(Map), std::end(Map), iter->second);
-    if (mapIter == std::end(Map)) {
-        logError(m_logger) << m_node->doc->URL << ':' << m_node->line <<
-            ": Invalid value of \"" << name << "\" property for \"" << m_node->name << "\" element.";
+    auto& endianStr = common::getStringProp(map, name);
+    prop = common::parseEndian(endianStr, Endian_Little);
+    if (prop == Endian_NumOfValues) {
+        logError(m_logger) << XmlWrap::logPrefix(m_node) <<
+            "Invalid value of \"" << name << "\" property for \"" << m_node->name << "\" element.";
         return false;
     }
 
-    prop = static_cast<Endian>(std::distance(std::begin(Map), mapIter));
     return true;
 }
 

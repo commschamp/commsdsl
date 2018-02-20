@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 
+#include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
 #include "common.h"
 
@@ -13,15 +14,15 @@ namespace bbmp
 FieldImpl::Ptr FieldImpl::create(
     const std::string& kind,
     ::xmlNodePtr node,
-    Logger& logger)
+    ProtocolImpl& protocol)
 {
-    using CreateFunc = std::function<Ptr (::xmlNodePtr n, Logger& l)>;
+    using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
     static const std::map<std::string, CreateFunc> CreateMap = {
         std::make_pair(
             common::intStr(),
-            [](::xmlNodePtr n, Logger& l)
+            [](::xmlNodePtr n, ProtocolImpl& p)
             {
-                return Ptr(new IntFieldImpl(n, l));
+                return Ptr(new IntFieldImpl(n, p));
             })
     };
 
@@ -30,7 +31,7 @@ FieldImpl::Ptr FieldImpl::create(
         return Ptr();
     }
 
-    return iter->second(node, logger);
+    return iter->second(node, protocol);
 }
 
 bool FieldImpl::parse()
@@ -43,7 +44,7 @@ bool FieldImpl::parse()
         common::descriptionStr()
     };
 
-    if (!XmlWrap::parseChildrenAsProps(m_node, CommonNames, m_logger, m_props)) {
+    if (!XmlWrap::parseChildrenAsProps(m_node, CommonNames, m_protocol.logger(), m_props)) {
         return false;
     }
 
@@ -53,7 +54,7 @@ bool FieldImpl::parse()
             break;
         }
 
-        if (!XmlWrap::parseChildrenAsProps(m_node, extraPropsNames, m_logger, m_props)) {
+        if (!XmlWrap::parseChildrenAsProps(m_node, extraPropsNames, m_protocol.logger(), m_props)) {
             return false;
         }
 
@@ -75,6 +76,11 @@ const std::string& FieldImpl::displayName() const
 const std::string& FieldImpl::description() const
 {
     return common::getStringProp(m_props, common::descriptionStr());
+}
+
+LogWrapper FieldImpl::logError() const
+{
+    return bbmp::logError(m_protocol.logger());
 }
 
 const XmlWrap::NamesList& FieldImpl::extraPropsNamesImpl() const
