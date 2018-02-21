@@ -123,9 +123,9 @@ const std::string& scalingStr()
     return Str;
 }
 
-const std::string& defaultStr()
+const std::string& lengthStr()
 {
-    static const std::string Str("default");
+    static const std::string Str("length");
     return Str;
 }
 

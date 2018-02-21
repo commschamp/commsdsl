@@ -51,6 +51,7 @@ protected:
     }
 
     LogWrapper logError() const;
+    LogWrapper logWarning() const;
 
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
     virtual bool parseImpl();

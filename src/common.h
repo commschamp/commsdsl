@@ -33,7 +33,7 @@ const std::string& typeStr();
 const std::string& defaultValueStr();
 const std::string& unitsStr();
 const std::string& scalingStr();
-const std::string& defaultStr();
+const std::string& lengthStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

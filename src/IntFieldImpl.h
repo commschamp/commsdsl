@@ -35,11 +35,13 @@ protected:
 private:
     bool updateType();
     bool updateEndian();
+    bool updateLength();
     bool updateDefaultValue();
 
     Type m_type = Type_numOfValues;
     Endian m_endian = Endian_NumOfValues;
-    std::uintmax_t m_defaultValue;
+    std::uintmax_t m_defaultValue = 0;
+    std::size_t m_length = 0;
 };
 
 } // namespace bbmp

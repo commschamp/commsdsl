@@ -83,6 +83,11 @@ LogWrapper FieldImpl::logError() const
     return bbmp::logError(m_protocol.logger());
 }
 
+LogWrapper FieldImpl::logWarning() const
+{
+    return bbmp::logWarning(m_protocol.logger());
+}
+
 const XmlWrap::NamesList& FieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList Names;
