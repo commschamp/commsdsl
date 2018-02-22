@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <utility>
 
 #include "FieldImpl.h"
 
@@ -40,6 +41,7 @@ private:
     bool updateSerOffset();
     bool updateMinMaxValues();
     bool updateDefaultValue();
+    bool updateScaling();
 
     Type m_type = Type_numOfValues;
     Endian m_endian = Endian_NumOfValues;
@@ -48,6 +50,7 @@ private:
     std::intmax_t m_minValue = 0;
     std::intmax_t m_maxValue = 0;
     std::intmax_t m_defaultValue = 0;
+    std::pair<std::intmax_t, std::intmax_t> m_scaling;
 };
 
 } // namespace bbmp

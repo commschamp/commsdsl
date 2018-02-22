@@ -271,7 +271,8 @@ bool IntFieldImpl::parseImpl()
         updateLength() &&
         updateSerOffset() &&
         updateMinMaxValues() &&
-        updateDefaultValue();
+        updateDefaultValue() &&
+        updateScaling();
 }
 
 std::size_t IntFieldImpl::lengthImpl() const
@@ -469,6 +470,80 @@ bool IntFieldImpl::updateDefaultValue()
         (m_maxValue < m_defaultValue)) {
         reportWarningFunc();
     }
+
+    return true;
+}
+
+bool IntFieldImpl::updateScaling()
+{
+    std::intmax_t num = 1;
+    std::intmax_t denom = 1;
+
+
+    do {
+        auto& valueStr = common::getStringProp(props(), common::scalingStr());
+        if (valueStr.empty()) {
+            break;
+        }
+
+        auto reportErrorFunc =
+            [this, &valueStr]()
+            {
+                logError() << XmlWrap::logPrefix(getNode()) << "The scaling ratio value of the \"" << name() <<
+                              "\" is not of expected format (" << valueStr << ").";
+            };
+
+        static const char Sep = '/';
+        auto sepPos = valueStr.find(Sep);
+
+        if (sepPos == std::string::npos) {
+            denom = 1;
+
+            bool ok = false;
+            num = common::strToIntMax(valueStr, &ok);
+            if (!ok) {
+                reportErrorFunc();
+                return false;
+            }
+            break;
+        }
+
+        if (valueStr.find(Sep, sepPos + 1) != std::string::npos) {
+            reportErrorFunc();
+            return false;
+        }
+
+        std::string numStr(valueStr.begin(), valueStr.begin() + sepPos);
+        std::string denomStr(valueStr.begin() + sepPos + 1, valueStr.end());
+
+        if (numStr.empty() || denomStr.empty()) {
+            reportErrorFunc();
+            return false;
+        }
+
+        bool ok = false;
+        num = common::strToIntMax(numStr, &ok);
+        if (!ok) {
+            reportErrorFunc();
+            return false;
+        }
+
+        denom = common::strToIntMax(denomStr, &ok);
+        if (!ok) {
+            reportErrorFunc();
+            return false;
+        }
+
+    } while (false);
+
+    if ((num == 0) || (denom == 0)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Neither part of scaling fraction is allowed to be 0.";
+        return false;
+    }
+
+    logError() << "num=" << num << "; denom=" << denom;
+    m_scaling = std::make_pair(num, denom);
 
     return true;
 }
