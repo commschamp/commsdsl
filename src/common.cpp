@@ -129,6 +129,12 @@ const std::string& lengthStr()
     return Str;
 }
 
+const std::string& serOffsetStr()
+{
+    static const std::string Str("serOffset");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

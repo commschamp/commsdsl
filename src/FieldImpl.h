@@ -33,6 +33,11 @@ public:
     const std::string& displayName() const;
     const std::string& description() const;
 
+    std::size_t length() const
+    {
+        return lengthImpl();
+    }
+
 protected:
     explicit FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
       : m_node(node),
@@ -55,6 +60,7 @@ protected:
 
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
     virtual bool parseImpl();
+    virtual std::size_t lengthImpl() const = 0;
 
 private:
 

@@ -31,17 +31,23 @@ public:
 protected:
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
     virtual bool parseImpl() override;
+    virtual std::size_t lengthImpl() const override;
 
 private:
     bool updateType();
     bool updateEndian();
     bool updateLength();
+    bool updateSerOffset();
+    bool updateMinMaxValues();
     bool updateDefaultValue();
 
     Type m_type = Type_numOfValues;
     Endian m_endian = Endian_NumOfValues;
-    std::uintmax_t m_defaultValue = 0;
-    std::size_t m_length = 0;
+    std::size_t m_length = 0U;
+    std::intmax_t m_serOffset = 0;
+    std::intmax_t m_minValue = 0;
+    std::intmax_t m_maxValue = 0;
+    std::intmax_t m_defaultValue = 0;
 };
 
 } // namespace bbmp

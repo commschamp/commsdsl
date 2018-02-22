@@ -15,6 +15,15 @@ namespace bbmp
 namespace
 {
 
+static_assert(
+    static_cast<std::intmax_t>(std::numeric_limits<std::uintmax_t>::max()) == -1,
+    "The code expects 2's compliment negative integers representation.");
+
+static_assert(
+    static_cast<std::uintmax_t>(std::intmax_t(-1)) == std::numeric_limits<std::uintmax_t>::max(),
+    "The code expects 2's compliment negative integers representation.");
+
+
 template <typename T>
 constexpr std::intmax_t minValueForType()
 {
@@ -70,9 +79,9 @@ std::intmax_t maxTypeValue(IntFieldImpl::Type t)
         /* Type_int32 */ maxValueForType<std::int32_t>(),
         /* Type_uint32 */ maxValueForType<std::uint32_t>(),
         /* Type_int64 */ maxValueForType<std::int64_t>(),
-        /* Type_uint64 */ minValueForType<std::intmax_t>(), // should not be used
-        /* Type_intvar */ maxValueForType<std::int64_t>(),
-        /* Type_uintvar */ minValueForType<std::intmax_t>(), // should not be used
+        /* Type_uint64 */ maxValueForType<std::uint64_t>(),
+        /* Type_intvar */ maxValueForType<std::intmax_t>(),
+        /* Type_uintvar */ maxValueForType<std::uintmax_t>(),
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -87,15 +96,6 @@ std::intmax_t maxTypeValue(IntFieldImpl::Type t)
     return Map[t];
 }
 
-std::uintmax_t maxUnsignedTypeValue(IntFieldImpl::Type t)
-{
-    if ((t == IntFieldImpl::Type_uint64) || (t == IntFieldImpl::Type_uintvar)) {
-        return maxValueForBigUnsignedType<std::uint64_t>();
-    }
-
-    return static_cast<std::uintmax_t>(maxTypeValue(t));
-}
-
 std::size_t maxTypeLength(IntFieldImpl::Type t)
 {
     static const std::size_t Map[] = {
@@ -106,9 +106,9 @@ std::size_t maxTypeLength(IntFieldImpl::Type t)
         /* Type_int32 */ sizeof(std::int32_t),
         /* Type_uint32 */ sizeof(std::uint32_t),
         /* Type_int64 */ sizeof(std::int64_t),
-        /* Type_uint64 */ sizeof(std::intmax_t),
-        /* Type_intvar */ (((sizeof(std::int64_t) * 8) - 1) / 7) + 1,
-        /* Type_uintvar */(((sizeof(std::uint64_t) * 8) - 1) / 7) + 1
+        /* Type_uint64 */ sizeof(std::uint64_t),
+        /* Type_intvar */ (((sizeof(std::intmax_t) * 8) - 1) / 7) + 1,
+        /* Type_uintvar */(((sizeof(std::uintmax_t) * 8) - 1) / 7) + 1
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -196,6 +196,11 @@ bool isTypeUnsigned(IntFieldImpl::Type t)
     return (iter != std::end(UnsignedTypes));
 }
 
+bool isBigUnsigned(IntFieldImpl::Type t)
+{
+    return (t == IntFieldImpl::Type_uint64) || (t == IntFieldImpl::Type_uintvar);
+}
+
 std::intmax_t calcMinValue(IntFieldImpl::Type t, std::size_t len)
 {
     if (isTypeUnsigned(t)) {
@@ -220,9 +225,8 @@ std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t len)
 
 std::intmax_t calcMaxValue(IntFieldImpl::Type t, std::size_t len)
 {
-    if ((t == IntFieldImpl::Type_uint64) || (t == IntFieldImpl::Type_uintvar)) {
-        assert(!"Should not be called");
-        return std::numeric_limits<std::intmax_t>::min();
+    if (isBigUnsigned(t)) {
+        return static_cast<std::intmax_t>(calcMaxUnsignedValue(t, len));
     }
 
     if (t == IntFieldImpl::Type_intvar) {
@@ -251,7 +255,9 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::defaultValueStr(),
         common::unitsStr(),
         common::scalingStr(),
-        common::endianStr()
+        common::endianStr(),
+        common::lengthStr(),
+        common::serOffsetStr()
     };
 
     return List;
@@ -263,7 +269,14 @@ bool IntFieldImpl::parseImpl()
         updateType() &&
         updateEndian() &&
         updateLength() &&
+        updateSerOffset() &&
+        updateMinMaxValues() &&
         updateDefaultValue();
+}
+
+std::size_t IntFieldImpl::lengthImpl() const
+{
+    return m_length;
 }
 
 bool IntFieldImpl::updateType()
@@ -344,6 +357,40 @@ bool IntFieldImpl::updateLength()
     return true;
 }
 
+bool IntFieldImpl::updateSerOffset()
+{
+    auto& valueStr = common::getStringProp(props(), common::serOffsetStr());
+
+    if (valueStr.empty()) {
+        assert(m_serOffset == 0);
+        return true;
+    }
+
+    bool ok = false;
+    m_serOffset = common::strToIntMax(valueStr, &ok);
+
+    if (!ok) {
+        logError() << XmlWrap::logPrefix(getNode()) << "The serialisation offset value of the \"" <<
+                      name() << "\" element has unexpected value.";
+        return false;
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::updateMinMaxValues()
+{
+    m_minValue = calcMinValue(m_type, m_length) - m_serOffset;
+    if (isTypeUnsigned(m_type)) {
+        m_maxValue = static_cast<decltype(m_maxValue)>(calcMaxUnsignedValue(m_type, m_length)) - m_serOffset;
+    }
+    else {
+        m_maxValue = calcMaxValue(m_type, m_length) - m_serOffset;
+    }
+
+    return true;
+}
+
 bool IntFieldImpl::updateDefaultValue()
 {
     auto& valueStr = common::getStringProp(props(), common::defaultValueStr());
@@ -362,76 +409,69 @@ bool IntFieldImpl::updateDefaultValue()
                           "\" is too small or big and will not be serialised correctly (" << valueStr << ").";
         };
 
+    auto minValueOfType = minTypeValue(m_type);
+    auto maxValueOfType = maxTypeValue(m_type);
 
-    assert(m_type != Type_numOfValues);
-    if (isTypeUnsigned(m_type)) {
+    if (isBigUnsigned(m_type)) {
         bool ok = false;
-        m_defaultValue = common::strToUintMax(valueStr, &ok);
+        auto unsignedDefaultValue = common::strToUintMax(valueStr, &ok);
+
         if (!ok) {
             reportErrorFunc();
             return false;
         }
 
-        auto minValue = static_cast<decltype(m_defaultValue)>(minTypeValue(m_type));
-        if (m_defaultValue < minValue) {
+        auto unsignedMinValueOfType = static_cast<std::uintmax_t>(minValueOfType);
+        auto unsignedMaxValueOfType = static_cast<std::uintmax_t>(maxValueOfType);
+        assert(unsignedMinValueOfType == 0U);
+
+        if (unsignedDefaultValue < unsignedMinValueOfType) {
             reportErrorFunc();
             return false;
         }
 
-        auto maxValue = maxUnsignedTypeValue(m_type);
-        if (maxValue < m_defaultValue) {
+        if (unsignedMaxValueOfType < unsignedDefaultValue) {
             reportErrorFunc();
             return false;
         }
 
-        assert(0 < m_length);
-        if (maxTypeLength(m_type) <= m_length) {
-            return true;
-        }
-
-        auto maxSerValue = calcMaxUnsignedValue(m_type, m_length);
-        if (maxSerValue < m_defaultValue) {
+        auto unsignedMinValue = static_cast<std::uintmax_t>(m_minValue);
+        auto unsignedMaxValue = static_cast<std::uintmax_t>(m_maxValue);
+        if ((unsignedDefaultValue < unsignedMinValue) ||
+            (unsignedMaxValue < unsignedDefaultValue)) {
             reportWarningFunc();
         }
 
+        m_defaultValue = static_cast<decltype(m_defaultValue)>(unsignedDefaultValue);
         return true;
     }
 
-    // signed type
     bool ok = false;
-    std::intmax_t defaultValue = common::strToIntMax(valueStr, &ok);
+    m_defaultValue = common::strToIntMax(valueStr, &ok);
 
     if (!ok) {
         reportErrorFunc();
         return false;
     }
 
-    auto minValue = minTypeValue(m_type);
-    if (defaultValue < minValue) {
+    if (m_defaultValue < minValueOfType) {
         reportErrorFunc();
         return false;
     }
 
-    auto maxValue = maxTypeValue(m_type);
-    if (maxValue < defaultValue) {
+
+    if (maxValueOfType < m_defaultValue) {
         reportErrorFunc();
         return false;
     }
 
-    m_defaultValue = *(reinterpret_cast<std::uintmax_t*>(&defaultValue));
-    assert(0U < m_length);
-    if (maxTypeLength(m_type) <= m_length) {
-        return true;
-    }
-
-    auto minSerValue = calcMinValue(m_type, m_length);
-    auto maxSerValue = calcMaxValue(m_type, m_length);
-
-    if ((defaultValue < minSerValue) ||
-        (maxSerValue < defaultValue)) {
+    if ((m_defaultValue < m_minValue) ||
+        (m_maxValue < m_defaultValue)) {
         reportWarningFunc();
     }
+
     return true;
 }
+
 
 } // namespace bbmp
