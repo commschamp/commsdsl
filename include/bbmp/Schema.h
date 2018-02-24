@@ -13,7 +13,7 @@ class SchemaImpl;
 class Schema
 {
 public:
-    using AttributesMap = std::map<std::string, std::string>;
+    using AttributesMap = std::multimap<std::string, std::string>;
     using ElementsList = std::vector<std::string>;
 
     explicit Schema(const SchemaImpl* impl);

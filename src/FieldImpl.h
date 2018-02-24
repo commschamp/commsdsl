@@ -39,11 +39,7 @@ public:
     }
 
 protected:
-    explicit FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
-      : m_node(node),
-        m_protocol(protocol)
-    {
-    }
+    FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
     ProtocolImpl& protocol()
     {
@@ -62,11 +58,22 @@ protected:
     virtual bool parseImpl();
     virtual std::size_t lengthImpl() const = 0;
 
+    bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
+    bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
+
 private:
+
+    bool updateName();
+    bool updateDescription();
+    bool updateDisplayName();
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
     PropsMap m_props;
+
+    const std::string* m_name = nullptr;
+    const std::string* m_displayName = nullptr;
+    const std::string* m_description = nullptr;
 };
 
 using FieldImplPtr = FieldImpl::Ptr;

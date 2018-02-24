@@ -135,6 +135,18 @@ const std::string& serOffsetStr()
     return Str;
 }
 
+const std::string& validRangeStr()
+{
+    static const std::string Str("validRange");
+    return Str;
+}
+
+const std::string& validValueStr()
+{
+    static const std::string Str("validValue");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
@@ -191,12 +203,12 @@ const std::string& getStringProp(
     const std::string prop,
     const std::string& defaultValue)
 {
-    auto iter = map.find(prop);
-    if (iter != map.end()) {
-        return iter->second;
+    auto iter = map.lower_bound(prop);
+    if ((iter == map.end()) || (iter->first != prop)) {
+        return defaultValue;
     }
 
-    return defaultValue;
+    return iter->second;
 }
 
 Endian parseEndian(const std::string& value, Endian defaultEndian)

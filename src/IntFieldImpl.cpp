@@ -257,7 +257,9 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::scalingStr(),
         common::endianStr(),
         common::lengthStr(),
-        common::serOffsetStr()
+        common::serOffsetStr(),
+        common::validRangeStr(),
+        common::validValueStr()
     };
 
     return List;
@@ -272,7 +274,8 @@ bool IntFieldImpl::parseImpl()
         updateSerOffset() &&
         updateMinMaxValues() &&
         updateDefaultValue() &&
-        updateScaling();
+        updateScaling() &&
+        updateValidRanges();
 }
 
 std::size_t IntFieldImpl::lengthImpl() const
@@ -282,11 +285,12 @@ std::size_t IntFieldImpl::lengthImpl() const
 
 bool IntFieldImpl::updateType()
 {
-    auto propsIter = props().find(common::typeStr());
-    if (propsIter == props().end()) {
-        logError() << XmlWrap::logPrefix(getNode()) << "Type of the \"" << name() << "\" element hasn't been specified.";
+    if (!validateSinglePropInstance(common::typeStr(), true)) {
         return false;
     }
+
+    auto propsIter = props().find(common::typeStr());
+    assert (propsIter != props().end());
 
     static const std::string Map[] = {
         /* Type_int8 */ "int8",
@@ -317,6 +321,10 @@ bool IntFieldImpl::updateType()
 
 bool IntFieldImpl::updateEndian()
 {
+    if (!validateSinglePropInstance(common::endianStr())) {
+        return false;
+    }
+
     auto& endianStr = common::getStringProp(props(), common::endianStr());
     m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
     if (m_endian == Endian_NumOfValues) {
@@ -328,6 +336,10 @@ bool IntFieldImpl::updateEndian()
 
 bool IntFieldImpl::updateLength()
 {
+    if (!validateSinglePropInstance(common::lengthStr())) {
+        return false;
+    }
+
     auto& lengthStr = common::getStringProp(props(), common::lengthStr());
     if (lengthStr.empty()) {
         m_length = maxTypeLength(m_type);
@@ -360,6 +372,10 @@ bool IntFieldImpl::updateLength()
 
 bool IntFieldImpl::updateSerOffset()
 {
+    if (!validateSinglePropInstance(common::serOffsetStr())) {
+        return false;
+    }
+
     auto& valueStr = common::getStringProp(props(), common::serOffsetStr());
 
     if (valueStr.empty()) {
@@ -394,6 +410,10 @@ bool IntFieldImpl::updateMinMaxValues()
 
 bool IntFieldImpl::updateDefaultValue()
 {
+    if (!validateSinglePropInstance(common::defaultValueStr())) {
+        return false;
+    }
+
     auto& valueStr = common::getStringProp(props(), common::defaultValueStr());
 
     auto reportErrorFunc =
@@ -476,6 +496,10 @@ bool IntFieldImpl::updateDefaultValue()
 
 bool IntFieldImpl::updateScaling()
 {
+    if (!validateSinglePropInstance(common::scalingStr())) {
+        return false;
+    }
+
     std::intmax_t num = 1;
     std::intmax_t denom = 1;
 
@@ -542,9 +566,236 @@ bool IntFieldImpl::updateScaling()
         return false;
     }
 
-    logError() << "num=" << num << "; denom=" << denom;
     m_scaling = std::make_pair(num, denom);
 
+    return true;
+}
+
+bool IntFieldImpl::updateValidRanges()
+{
+    auto validRangersIters = props().equal_range(common::validRangeStr());
+    for (auto iter = validRangersIters.first; iter != validRangersIters.second; ++iter) {
+        if (!validateValidRangeStr(iter->second)) {
+            return false;
+        }
+    }
+
+    auto validValuesIters = props().equal_range(common::validValueStr());
+    for (auto iter = validValuesIters.first; iter != validValuesIters.second; ++iter) {
+        if (!validateValidValueStr(iter->second)) {
+            return false;
+        }
+    }
+
+    auto sortFunc =
+        [](auto& ranges)
+        {
+            std::sort(
+                ranges.begin(), ranges.end(),
+                [](auto& elem1, auto& elem2)
+                {
+                    return elem1.first < elem2.first;
+                });
+        };
+
+    bool intersectingRanges = false;
+    auto unifyFunc =
+        [this, &intersectingRanges](auto& ranges)
+        {
+            if (ranges.size() < 2U) {
+                return;
+            }
+
+            std::size_t idx = 0U;
+            while ((idx + 2U) <= ranges.size()) {
+                auto& thisRange = ranges[idx];
+                auto& nextRange = ranges[idx + 1];
+
+                if (nextRange.first < thisRange.first) {
+
+                }
+                assert(thisRange.first <= nextRange.first);
+                if ((thisRange.second + 1) < nextRange.first) {
+                    ++idx;
+                    continue;
+                }
+
+                if (nextRange.first <= thisRange.second) {
+                    intersectingRanges = true;
+                }
+
+                if (thisRange.second < nextRange.second) {
+                    thisRange.second = nextRange.second;
+                }
+
+                ranges.erase(ranges.begin() + idx + 1);
+            }
+        };
+
+    if (isBigUnsigned(m_type)) {
+        using UnsignedValidRange = std::pair<std::uintmax_t, std::uintmax_t>;
+        using UnsignedValidRangesList = std::vector<UnsignedValidRange>;
+
+        UnsignedValidRangesList unsignedRanges;
+        unsignedRanges.reserve(m_validRanges.size());
+        std::transform(
+            m_validRanges.begin(), m_validRanges.end(), std::back_inserter(unsignedRanges),
+            [](auto& r)
+            {
+                return UnsignedValidRange(
+                            static_cast<std::uintmax_t>(r.first),
+                            static_cast<std::uintmax_t>(r.second));
+            });
+
+        sortFunc(unsignedRanges);
+        unifyFunc(unsignedRanges);
+
+        m_validRanges.clear();
+
+        std::transform(
+            unsignedRanges.begin(), unsignedRanges.end(), std::back_inserter(m_validRanges),
+            [](auto& r)
+            {
+                return ValidRange(
+                            static_cast<std::intmax_t>(r.first),
+                            static_cast<std::intmax_t>(r.second));
+            });
+    }
+    else {
+        sortFunc(m_validRanges);
+        unifyFunc(m_validRanges);
+    }
+
+    if (intersectingRanges) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << "Some valid values ranges of \"" << name() <<
+                        "\" are intersecting.";
+    }
+
+    logError() << "Ranges:";
+    for (auto& r : m_validRanges) {
+        logError() << '[' << r.first << ", " << r.second << "]";
+    }
+    return true;
+}
+
+bool IntFieldImpl::validateValidRangeStr(const std::string& str)
+{
+    static const char Beg = '[';
+    static const char End = ']';
+    static const char Sep = ',';
+
+    do {
+        if (str.size() <= 3U) {
+            break;
+        }
+
+        static const std::string WhiteChars(" \t\r\n");
+        auto firstNonWhitePos = str.find_first_not_of(WhiteChars);
+        if (firstNonWhitePos == std::string::npos) {
+            break;
+        }
+
+        auto lastNonWhitePos = str.find_last_not_of(WhiteChars);
+        assert(lastNonWhitePos != std::string::npos);
+        if (lastNonWhitePos <= (firstNonWhitePos + 2)) {
+            break;
+        }
+
+        auto begPos = str.find(Beg, firstNonWhitePos);
+        if (begPos != firstNonWhitePos) {
+            break;
+        }
+
+        auto sepPos = str.find(Sep, begPos + 1);
+        if (sepPos == std::string::npos) {
+            break;
+        }
+
+        if (str.find(Sep, sepPos + 1) != std::string::npos) {
+            break;
+        }
+
+        auto endPos = str.find(End, sepPos + 1);
+        if ((endPos == std::string::npos) ||
+            (endPos != lastNonWhitePos)) {
+            break;
+        }
+
+
+        assert(begPos < str.size());
+        assert(sepPos < str.size());
+        assert(endPos < str.size());
+        std::string minStr(str.begin() + begPos + 1, str.begin() + sepPos);
+        std::string maxStr(str.begin() + sepPos + 1, str.begin() + endPos);
+
+        if (isBigUnsigned(m_type)) {
+            bool ok = false;
+            std::uintmax_t minVal = common::strToUintMax(minStr, &ok);
+            if (!ok) {
+                break;
+            }
+
+            std::uintmax_t maxVal = common::strToUintMax(maxStr, &ok);
+            if (!ok) {
+                break;
+            }
+
+            if (maxVal < minVal) {
+                logError() << XmlWrap::logPrefix(getNode()) << "The min value is expected to be less or euqal to max in valid range of \"" << name() <<
+                              "\" (" << str << ").";
+                break;
+            }
+
+            m_validRanges.emplace_back(static_cast<std::intmax_t>(minVal), static_cast<std::intmax_t>(maxVal));
+        }
+        else {
+            bool ok = false;
+            std::intmax_t minVal = common::strToIntMax(minStr, &ok);
+            if (!ok) {
+                break;
+            }
+
+            std::intmax_t maxVal = common::strToIntMax(maxStr, &ok);
+            if (!ok) {
+                break;
+            }
+
+            if (maxVal < minVal) {
+                logError() << XmlWrap::logPrefix(getNode()) << "The min value is expected to be less or euqal to max in valid range of \"" << name() <<
+                              "\" (" << str << ").";
+                break;
+            }
+
+            m_validRanges.emplace_back(minVal, maxVal);
+        }
+
+        return true;
+
+    } while (false);
+
+    logError() << XmlWrap::logPrefix(getNode()) << "The valid range of the \"" << name() <<
+                  "\" is not of expected format (" << str << ").";
+    return false;
+}
+
+bool IntFieldImpl::validateValidValueStr(const std::string& str)
+{
+    bool ok = false;
+    std::intmax_t val = 0;
+    if (isBigUnsigned(m_type)) {
+        val = static_cast<decltype(val)>(common::strToUintMax(str, &ok));
+    }
+    else {
+        val = common::strToIntMax(str, &ok);
+    }
+
+    if (!ok) {
+        logError() << XmlWrap::logPrefix(getNode()) << "The valid value of the \"" << name() <<
+                      "\" is not of expected format (" << str << ").";
+        return false;
+    }
+
+    m_validRanges.emplace_back(val, val);
     return true;
 }
 

@@ -4,9 +4,7 @@ project ("bbmp")
 option (BBMP_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 option (BBMP_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 
-if (NOT CMAKE_CXX_STANDARD)
-    set (CMAKE_CXX_STANDARD 11)
-endif()
+set (CMAKE_CXX_STANDARD 14)
 
 if ("${BBMP_INSTALL_DIR}" STREQUAL "")
     set (BBMP_INSTALL_DIR "${CMAKE_BINARY_DIR}/install")

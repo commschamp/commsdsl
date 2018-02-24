@@ -12,7 +12,7 @@ namespace bbmp
 namespace common
 {
 
-using PropsMap = std::map<std::string, std::string>;
+using PropsMap = std::multimap<std::string, std::string>;
 
 const std::string& emptyString();
 const std::string& nameStr();
@@ -35,6 +35,8 @@ const std::string& unitsStr();
 const std::string& scalingStr();
 const std::string& lengthStr();
 const std::string& serOffsetStr();
+const std::string& validRangeStr();
+const std::string& validValueStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

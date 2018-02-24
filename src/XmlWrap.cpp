@@ -65,6 +65,39 @@ std::string XmlWrap::getText(::xmlNodePtr node)
     return std::string();
 }
 
+bool XmlWrap::parseNodeValue(::xmlNodePtr node, Logger& logger, std::string& value)
+{
+    auto props = parseNodeProps(node);
+    static const std::string ValueAttr("value");
+    auto valIter = props.find(ValueAttr);
+    std::string valueTmp;
+    if (valIter != props.end()) {
+        valueTmp = valIter->second;
+    }
+
+    auto text = getText(node);
+    if (valueTmp.empty() && text.empty()) {
+        logError(logger) << logPrefix(node) <<
+            "No value for \"" << node->name << "\" element.";
+        return false;
+    }
+
+    if ((!valueTmp.empty()) && (!text.empty())) {
+        logError(logger) << logPrefix(node) <<
+            ": Incorrect value format for \"" << node->name << "\" element.";
+        return false;
+    }
+
+    if (!valueTmp.empty()) {
+        value = std::move(valueTmp);
+        return true;
+    }
+
+    assert(!text.empty());
+    value = std::move(text);
+    return true;
+}
+
 
 bool XmlWrap::parseChildrenAsProps(
     ::xmlNodePtr node,
@@ -80,44 +113,12 @@ bool XmlWrap::parseChildrenAsProps(
             continue;
         }
 
-        auto resultIter = result.find(cName);
-        if (resultIter != result.end()) {
-            logError(logger) << node->doc->URL << ":" << node->line <<
-                ": Multiple values of \"" << cName << "\" properties for \"" <<
-                node->name << "\"";
-            return false;
-        }
-
-        auto chProps = parseNodeProps(c);
-        static const std::string ValueAttr("value");
-        auto valIter = chProps.find(ValueAttr);
         std::string value;
-        if (valIter != chProps.end()) {
-            value = valIter->second;
-        }
-
-        auto text = getText(c);
-        if (value.empty() && text.empty()) {
-            logError(logger) << node->doc->URL << ":" << node->line <<
-                ": No value for \"" << cName << "\" inside \"" << node->name << "\" element.";
+        if (!parseNodeValue(c, logger, value)) {
             return false;
         }
 
-        if ((!value.empty()) && (!text.empty())) {
-            logError(logger) << node->doc->URL << ":" << node->line <<
-                ": Incorrect value format for \"" << cName << "\" inside \"" << node->name << "\" element.";
-            return false;
-        }
-
-        if (!value.empty()) {
-            result.insert(std::make_pair(cName, value));
-            continue;
-        }
-
-        if (!text.empty()) {
-            result.insert(std::make_pair(cName, text));
-            continue;
-        }
+        result.insert(std::make_pair(cName, std::move(value)));
     }
 
     return true;
@@ -127,12 +128,12 @@ XmlWrap::PropsMap XmlWrap::getUnknownProps(::xmlNodePtr node, const XmlWrap::Nam
 {
     auto props = parseNodeProps(node);
     for (auto& n : names) {
-        auto iter = props.find(n);
-        if (iter == props.end()) {
+        auto iters = props.equal_range(n);
+        if (iters.first == iters.second) {
             continue;
         }
 
-        props.erase(iter);
+        props.erase(iters.first, iters.second);
     }
     return props;
 }
@@ -166,7 +167,6 @@ std::string XmlWrap::logPrefix(::xmlNodePtr node)
     assert(node->doc->URL != nullptr);
     return std::string(reinterpret_cast<const char*>(node->doc->URL)) + ":" + std::to_string(node->line) + ": ";
 }
-
 
 
 } // namespace bbmp

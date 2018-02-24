@@ -16,7 +16,7 @@ namespace bbmp
 
 struct XmlWrap
 {
-    using PropsMap = std::map<std::string, std::string>;
+    using PropsMap = std::multimap<std::string, std::string>;
     struct CharFree
     {
         void operator()(::xmlChar* p) const
@@ -42,6 +42,11 @@ struct XmlWrap
     static PropsMap parseNodeProps(::xmlNodePtr node);
     static NodesList getChildren(::xmlNodePtr node, const std::string& name = common::emptyString());
     static std::string getText(::xmlNodePtr node);
+    static bool parseNodeValue(
+        ::xmlNodePtr node,
+        Logger& logger,
+        std::string& value);
+
     static bool parseChildrenAsProps(
         ::xmlNodePtr node,
         const NamesList& names,

@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <utility>
+#include <vector>
 
 #include "FieldImpl.h"
 
@@ -27,6 +28,10 @@ public:
         Type_numOfValues
     };
 
+    using ValidRange = std::pair<std::intmax_t, std::intmax_t>;
+    using ValidRangesList = std::vector<ValidRange>;
+    using ScalingRatio = std::pair<std::intmax_t, std::intmax_t>;
+
     IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
 protected:
@@ -42,6 +47,9 @@ private:
     bool updateMinMaxValues();
     bool updateDefaultValue();
     bool updateScaling();
+    bool updateValidRanges();
+    bool validateValidRangeStr(const std::string& str);
+    bool validateValidValueStr(const std::string& str);
 
     Type m_type = Type_numOfValues;
     Endian m_endian = Endian_NumOfValues;
@@ -50,7 +58,8 @@ private:
     std::intmax_t m_minValue = 0;
     std::intmax_t m_maxValue = 0;
     std::intmax_t m_defaultValue = 0;
-    std::pair<std::intmax_t, std::intmax_t> m_scaling;
+    ScalingRatio m_scaling;
+    ValidRangesList m_validRanges;
 };
 
 } // namespace bbmp
