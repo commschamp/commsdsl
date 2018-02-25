@@ -31,11 +31,14 @@ public:
     using ValidRange = std::pair<std::intmax_t, std::intmax_t>;
     using ValidRangesList = std::vector<ValidRange>;
     using ScalingRatio = std::pair<std::intmax_t, std::intmax_t>;
+    using SpecialValue = std::pair<std::string, std::intmax_t>;
+    using SpecialValuesList = std::vector<SpecialValue>;
 
     IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
 protected:
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool parseImpl() override;
     virtual std::size_t lengthImpl() const override;
 
@@ -48,18 +51,23 @@ private:
     bool updateDefaultValue();
     bool updateScaling();
     bool updateValidRanges();
+    bool updateSpecials();
     bool validateValidRangeStr(const std::string& str);
     bool validateValidValueStr(const std::string& str);
+    bool strToNumeric(const std::string& str, std::intmax_t& val);
 
     Type m_type = Type_numOfValues;
     Endian m_endian = Endian_NumOfValues;
     std::size_t m_length = 0U;
     std::intmax_t m_serOffset = 0;
+    std::intmax_t m_typeAllowedMinValue = 0;
+    std::intmax_t m_typeAllowedMaxValue = 0;
     std::intmax_t m_minValue = 0;
     std::intmax_t m_maxValue = 0;
     std::intmax_t m_defaultValue = 0;
     ScalingRatio m_scaling;
     ValidRangesList m_validRanges;
+    SpecialValuesList m_specials;
 };
 
 } // namespace bbmp

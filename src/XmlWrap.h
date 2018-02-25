@@ -56,6 +56,12 @@ struct XmlWrap
     static PropsMap getUnknownProps(::xmlNodePtr node, const NamesList& names);
     static ContentsList getUnknownChildren(::xmlNodePtr node, const NamesList& names);
     static std::string logPrefix(::xmlNodePtr node);
+    static bool validateSinglePropInstance(
+        ::xmlNodePtr node,
+        const PropsMap& props,
+        const std::string& str,
+        Logger& logger,
+        bool mustHave = false);
 };
 
 } // namespace bbmp

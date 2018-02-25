@@ -14,6 +14,7 @@ class FieldImpl
 public:
     using Ptr = std::unique_ptr<FieldImpl>;
     using PropsMap = XmlWrap::PropsMap;
+    using ContentsList = XmlWrap::ContentsList;
 
     static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -55,6 +56,7 @@ protected:
     LogWrapper logWarning() const;
 
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
+    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool parseImpl();
     virtual std::size_t lengthImpl() const = 0;
 
@@ -74,6 +76,8 @@ private:
     const std::string* m_name = nullptr;
     const std::string* m_displayName = nullptr;
     const std::string* m_description = nullptr;
+    PropsMap m_unknownAttrs;
+    ContentsList m_unknownChildren;
 };
 
 using FieldImplPtr = FieldImpl::Ptr;

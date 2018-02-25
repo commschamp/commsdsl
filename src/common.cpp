@@ -147,6 +147,24 @@ const std::string& validValueStr()
     return Str;
 }
 
+const std::string& specialStr()
+{
+    static const std::string Str("special");
+    return Str;
+}
+
+const std::string& valStr()
+{
+    static const std::string Str("val");
+    return Str;
+}
+
+const std::string& metaStr()
+{
+    static const std::string Str("meta");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

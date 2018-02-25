@@ -168,5 +168,27 @@ std::string XmlWrap::logPrefix(::xmlNodePtr node)
     return std::string(reinterpret_cast<const char*>(node->doc->URL)) + ":" + std::to_string(node->line) + ": ";
 }
 
+bool XmlWrap::validateSinglePropInstance(
+    ::xmlNodePtr node,
+    const PropsMap& props,
+    const std::string& str,
+    Logger& logger,
+    bool mustHave)
+{
+    auto count = props.count(str);
+    if (1U < count) {
+        bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
+                      "Too many values of \"" << str << "\" property for \"" << node->name << "\" element.";
+        return false;
+    }
+
+    if ((count == 0U) && mustHave) {
+        bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
+                      "Missing value for mandatory property \"" << str << "\" for \"" << node->name << "\" element.";
+        return false;
+    }
+
+    return true;
+}
 
 } // namespace bbmp

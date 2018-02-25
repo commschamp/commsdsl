@@ -70,7 +70,25 @@ bool FieldImpl::parse()
         return false;
     }
 
-    return parseImpl();
+    if (!parseImpl()) {
+        return false;
+    }
+
+    XmlWrap::NamesList expectedProps = CommonNames;
+    expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
+    m_unknownAttrs = XmlWrap::getUnknownProps(m_node, expectedProps);
+
+    static const XmlWrap::NamesList CommonChildren = {
+        common::metaStr()
+    };
+
+    auto& extraChildren = extraChildrenNamesImpl();
+    XmlWrap::NamesList expectedChildren = CommonNames;
+    expectedChildren.insert(expectedChildren.end(), CommonChildren.begin(), CommonChildren.end());
+    expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
+    expectedChildren.insert(expectedChildren.end(), extraChildren.begin(), extraChildren.end());
+    m_unknownChildren = XmlWrap::getUnknownChildren(m_node, expectedChildren);
+    return true;
 }
 
 const std::string& FieldImpl::name() const
@@ -116,6 +134,12 @@ const XmlWrap::NamesList& FieldImpl::extraPropsNamesImpl() const
     return Names;
 }
 
+const XmlWrap::NamesList&FieldImpl::extraChildrenNamesImpl() const
+{
+    static const XmlWrap::NamesList Names;
+    return Names;
+}
+
 bool FieldImpl::parseImpl()
 {
     return true;
@@ -123,20 +147,7 @@ bool FieldImpl::parseImpl()
 
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
-    auto count = m_props.count(str);
-    if (1U < count) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-                      "Too many values of \"" << str << "\" property for \"" << m_node->name << "\" element.";
-        return false;
-    }
-
-    if ((count == 0U) && mustHave) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-                      "Missing value for mandatory property \"" << str << "\" for \"" << m_node->name << "\" element.";
-        return false;
-    }
-
-    return true;
+    return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);
 }
 
 bool FieldImpl::validateAndUpdateStringPropValue(
