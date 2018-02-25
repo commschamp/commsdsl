@@ -54,6 +54,8 @@ private:
     bool updateSpecials();
     bool validateValidRangeStr(const std::string& str);
     bool validateValidValueStr(const std::string& str);
+    bool validateValidMinValueStr(const std::string& str);
+    bool validateValidMaxValueStr(const std::string& str);
     bool strToNumeric(const std::string& str, std::intmax_t& val);
 
     Type m_type = Type_numOfValues;

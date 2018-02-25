@@ -40,6 +40,8 @@ const std::string& validValueStr();
 const std::string& specialStr();
 const std::string& valStr();
 const std::string& metaStr();
+const std::string& validMinStr();
+const std::string& validMaxStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

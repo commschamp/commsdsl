@@ -259,7 +259,9 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::lengthStr(),
         common::serOffsetStr(),
         common::validRangeStr(),
-        common::validValueStr()
+        common::validValueStr(),
+        common::validMinStr(),
+        common::validMaxStr()
     };
 
     return List;
@@ -578,6 +580,20 @@ bool IntFieldImpl::updateValidRanges()
         }
     }
 
+    auto validMinValuesIters = props().equal_range(common::validMinStr());
+    for (auto iter = validMinValuesIters.first; iter != validMinValuesIters.second; ++iter) {
+        if (!validateValidMinValueStr(iter->second)) {
+            return false;
+        }
+    }
+
+    auto validMaxValuesIters = props().equal_range(common::validMaxStr());
+    for (auto iter = validMaxValuesIters.first; iter != validMaxValuesIters.second; ++iter) {
+        if (!validateValidMaxValueStr(iter->second)) {
+            return false;
+        }
+    }
+
     auto sortFunc =
         [](auto& ranges)
         {
@@ -854,22 +870,106 @@ bool IntFieldImpl::validateValidRangeStr(const std::string& str)
 
 bool IntFieldImpl::validateValidValueStr(const std::string& str)
 {
-    bool ok = false;
     std::intmax_t val = 0;
-    if (isBigUnsigned(m_type)) {
-        val = static_cast<decltype(val)>(common::strToUintMax(str, &ok));
-    }
-    else {
-        val = common::strToIntMax(str, &ok);
-    }
-
-    if (!ok) {
-        logError() << XmlWrap::logPrefix(getNode()) << "The valid value of the \"" << name() <<
-                      "\" is not of expected format (" << str << ").";
+    if (!strToNumeric(str, val)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Property value \"" << common::validValueStr() << "\" of int element \"" <<
+                      name() << "\" cannot be properly parsed.";
         return false;
     }
 
+    auto validateFunc =
+        [this](auto v)
+        {
+             if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
+                 logWarning() << "Property value \"" << common::validValueStr() <<
+                                 "\" is below the type's minimal value.";
+             }
+
+             if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
+                 logWarning() << "Property value \"" << common::validValueStr() <<
+                                 "\" is above the type's maximal value.";
+             }
+        };
+
+    if (isBigUnsigned(m_type)) {
+        validateFunc(static_cast<std::uintmax_t>(val));
+    }
+    else {
+        validateFunc(val);
+    }
+
     m_validRanges.emplace_back(val, val);
+    return true;
+}
+
+bool IntFieldImpl::validateValidMinValueStr(const std::string& str)
+{
+    std::intmax_t val = 0;
+    if (!strToNumeric(str, val)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Property value \"" << common::validMinStr() << "\" of int element \"" <<
+                      name() << "\" cannot be properly parsed.";
+        return false;
+    }
+
+    auto validateFunc =
+        [this](auto v)
+        {
+             if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
+                 logWarning() << "Property value \"" << common::validMinStr() <<
+                                 "\" is below the type's minimal value, will have no effect";
+             }
+
+             if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
+                 logWarning() << "Property value \"" << common::validMinStr() <<
+                                 "\" is above the type's maximal value, will result in always invalid value.";
+             }
+        };
+
+    if (isBigUnsigned(m_type)) {
+        validateFunc(static_cast<std::uintmax_t>(val));
+    }
+    else {
+        validateFunc(val);
+    }
+
+    m_validRanges.emplace_back(val, m_typeAllowedMaxValue);
+    return true;
+}
+
+bool IntFieldImpl::validateValidMaxValueStr(const std::string& str)
+{
+    std::intmax_t val = 0;
+    if (!strToNumeric(str, val)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Property value \"" << common::validMaxStr() << "\" of int element \"" <<
+                      name() << "\" cannot be properly parsed.";
+        return false;
+    }
+
+    auto validateFunc =
+        [this](auto v)
+        {
+             if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
+                 logWarning() << "Property value \"" << common::validMaxStr() <<
+                                 "\" is above the type's maximal value, will have no effect";
+             }
+
+             if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
+                 logWarning() << "Property value \"" << common::validMaxStr() <<
+                                 "\" is below the type's minimal value, will result in always invalid value.";
+             }
+        };
+
+    if (isBigUnsigned(m_type)) {
+        validateFunc(static_cast<std::uintmax_t>(val));
+    }
+    else {
+        validateFunc(val);
+    }
+
+    m_validRanges.emplace_back(m_typeAllowedMinValue, val);
     return true;
 }
 

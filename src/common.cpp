@@ -165,6 +165,18 @@ const std::string& metaStr()
     return Str;
 }
 
+const std::string& validMinStr()
+{
+    static const std::string Str("validMin");
+    return Str;
+}
+
+const std::string& validMaxStr()
+{
+    static const std::string Str("validMax");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
