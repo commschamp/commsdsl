@@ -282,6 +282,7 @@ bool IntFieldImpl::parseImpl()
         updateType() &&
         updateEndian() &&
         updateLength() &&
+        updateBitLength() &&
         updateSerOffset() &&
         updateMinMaxValues() &&
         updateDefaultValue() &&
@@ -377,6 +378,48 @@ bool IntFieldImpl::updateLength()
 
     if (m_length == 0) {
         m_length = maxLength;
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::updateBitLength()
+{
+    if (!validateSinglePropInstance(common::bitLengthStr())) {
+        return false;
+    }
+
+    static const std::size_t BitsInByte =
+         std::numeric_limits<std::uint8_t>::digits;
+    static_assert(BitsInByte == 8U, "Invalid assumption");
+
+    auto maxBitLength = m_length * BitsInByte;
+    auto& valStr = common::getStringProp(props(), common::bitLengthStr());
+    if (valStr.empty()) {
+        assert(0 < m_length);
+        m_bitLength = maxBitLength;
+        return true;
+    }
+
+    bool ok = false;
+    m_bitLength = common::strToUnsigned(valStr, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
+        return false;
+    }
+
+    if (maxBitLength < m_bitLength) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
+                      "maximal length available by the type and/or forced serialisation length.";
+        return false;
+    }
+
+    auto* parent = getParent();
+    if ((parent == nullptr) || (parent->objKind() != ObjKind::Bitfield)) {
+        logWarning() << XmlWrap::logPrefix((getNode())) <<
+                        "The property \"" << common::bitLengthStr() << "\" is "
+                        "applicable only to the members of \"" << common::bitfieldStr() << "\"";
     }
 
     return true;

@@ -4,13 +4,15 @@
 
 #include "XmlWrap.h"
 #include "Logger.h"
+#include "Object.h"
 
 namespace bbmp
 {
 
 class ProtocolImpl;
-class FieldImpl
+class FieldImpl : public Object
 {
+    using Base = Object;
 public:
     using Ptr = std::unique_ptr<FieldImpl>;
     using PropsMap = XmlWrap::PropsMap;
@@ -55,6 +57,7 @@ protected:
     LogWrapper logError() const;
     LogWrapper logWarning() const;
 
+    virtual ObjKind objKindImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool parseImpl();
@@ -72,6 +75,7 @@ private:
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
+    Object* m_parent;
     PropsMap m_props;
 
     const std::string* m_name = nullptr;

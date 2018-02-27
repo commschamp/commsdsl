@@ -36,6 +36,7 @@ const std::string& defaultValueStr();
 const std::string& unitsStr();
 const std::string& scalingStr();
 const std::string& lengthStr();
+const std::string& bitLengthStr();
 const std::string& serOffsetStr();
 const std::string& validRangeStr();
 const std::string& validFullRangeStr();
@@ -48,6 +49,7 @@ const std::string& validMaxStr();
 const std::string& nanStr();
 const std::string& infStr();
 const std::string& negInfStr();
+const std::string& bitfieldStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

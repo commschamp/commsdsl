@@ -47,6 +47,7 @@ private:
     bool updateType();
     bool updateEndian();
     bool updateLength();
+    bool updateBitLength();
     bool updateSerOffset();
     bool updateMinMaxValues();
     bool updateDefaultValue();
@@ -62,6 +63,7 @@ private:
     Type m_type = Type_numOfValues;
     Endian m_endian = Endian_NumOfValues;
     std::size_t m_length = 0U;
+    std::size_t m_bitLength = 0U;
     std::intmax_t m_serOffset = 0;
     std::intmax_t m_typeAllowedMinValue = 0;
     std::intmax_t m_typeAllowedMaxValue = 0;

@@ -135,6 +135,11 @@ LogWrapper FieldImpl::logWarning() const
     return bbmp::logWarning(m_protocol.logger());
 }
 
+Object::ObjKind FieldImpl::objKindImpl() const
+{
+    return ObjKind::SimpleField;
+}
+
 const XmlWrap::NamesList& FieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList Names;

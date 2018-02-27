@@ -138,6 +138,12 @@ const std::string& lengthStr()
     return Str;
 }
 
+const std::string& bitLengthStr()
+{
+    static const std::string Str("bitLength");
+    return Str;
+}
+
 const std::string& serOffsetStr()
 {
     static const std::string Str("serOffset");
@@ -210,6 +216,11 @@ const std::string& negInfStr()
     return Str;
 }
 
+const std::string& bitfieldStr()
+{
+    static const std::string Str("bitfield");
+    return Str;
+}
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
