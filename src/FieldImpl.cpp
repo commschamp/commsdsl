@@ -7,6 +7,7 @@
 
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
+#include "FloatFieldImpl.h"
 #include "common.h"
 
 namespace bbmp
@@ -24,6 +25,12 @@ FieldImpl::Ptr FieldImpl::create(
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new IntFieldImpl(n, p));
+            }),
+        std::make_pair(
+            common::floatStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new FloatFieldImpl(n, p));
             })
     };
 
@@ -166,6 +173,13 @@ bool FieldImpl::validateAndUpdateStringPropValue(
 
     assert(iter != m_props.end() || (!mustHave));
     return true;
+}
+
+void FieldImpl::reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
+{
+    logError() << XmlWrap::logPrefix(m_node) <<
+                  "Property \"" << propName << "\" of element \"" << name() <<
+                  "\" has unexpected value (" << propValue << ").";
 }
 
 bool FieldImpl::updateName()

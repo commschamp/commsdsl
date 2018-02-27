@@ -2,6 +2,9 @@
 
 #include <algorithm>
 #include <iterator>
+#include <cctype>
+#include <cmath>
+#include <cassert>
 
 namespace bbmp
 {
@@ -99,6 +102,12 @@ const std::string& intStr()
     return Str;
 }
 
+const std::string& floatStr()
+{
+    static const std::string Str("float");
+    return Str;
+}
+
 const std::string& typeStr()
 {
     static const std::string Str("type");
@@ -141,6 +150,12 @@ const std::string& validRangeStr()
     return Str;
 }
 
+const std::string& validFullRangeStr()
+{
+    static const std::string Str("validFullRange");
+    return Str;
+}
+
 const std::string& validValueStr()
 {
     static const std::string Str("validValue");
@@ -176,6 +191,25 @@ const std::string& validMaxStr()
     static const std::string Str("validMax");
     return Str;
 }
+
+const std::string& nanStr()
+{
+    static const std::string Str("nan");
+    return Str;
+}
+
+const std::string& infStr()
+{
+    static const std::string Str("inf");
+    return Str;
+}
+
+const std::string& negInfStr()
+{
+    static const std::string Str("-inf");
+    return Str;
+}
+
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
@@ -228,6 +262,57 @@ std::uintmax_t strToUintMax(const std::string& str, bool* ok, int base)
     return result;
 }
 
+double strToDouble(const std::string& str, bool* ok, bool allowSpecials)
+{
+    auto updateOk =
+        [ok](bool val)
+        {
+            if (ok != nullptr) {
+                *ok = val;
+            }
+        };
+
+    if (allowSpecials) {
+        static const std::map<std::string, double> Map = {
+            std::make_pair(nanStr(), std::numeric_limits<double>::quiet_NaN()),
+            std::make_pair(infStr(), std::numeric_limits<double>::infinity()),
+            std::make_pair(negInfStr(), -(std::numeric_limits<double>::infinity()))
+        };
+
+        auto iter = Map.find(str);
+        if (iter != Map.end()) {
+            updateOk(true);
+            return iter->second;
+        }
+    }
+
+    double result = 0.0;
+    try {
+        result = std::stod(str, 0);
+        updateOk(true);
+
+    } catch (...) {
+        updateOk(false);
+    }
+    return result;
+}
+
+bool strToBool(const std::string& str)
+{
+    static const std::string Map[] = {
+        "true",
+        "1"
+    };
+
+    auto strCopy = toLowerCopy(str);
+    auto iter = std::find(std::begin(Map), std::end(Map), strCopy);
+    if (iter != std::end(Map)) {
+        return true;
+    }
+
+    return false;
+}
+
 const std::string& getStringProp(
     const PropsMap& map,
     const std::string prop,
@@ -261,6 +346,80 @@ Endian parseEndian(const std::string& value, Endian defaultEndian)
     }
 
     return static_cast<Endian>(std::distance(std::begin(Map), mapIter));
+}
+
+void toLower(std::string& str)
+{
+    std::transform(
+        str.begin(), str.end(), str.begin(),
+        [](char ch)
+        {
+            return static_cast<char>(std::tolower(ch));
+        });
+}
+
+std::string toLowerCopy(const std::string& str)
+{
+    std::string result;
+    result.reserve(str.size());
+    std::transform(
+        str.begin(), str.end(), std::back_inserter(result),
+        [](char ch)
+        {
+            return static_cast<char>(std::tolower(ch));
+        });
+    return result;
+}
+
+std::pair<std::string, std::string> parseRange(const std::string& str, bool* ok)
+{
+    bool status = false;
+    std::pair<std::string, std::string> result;
+    do {
+        static const char Beg = '[';
+        static const char End = ']';
+        static const char Sep = ',';
+
+        if (str.size() <= 3U) {
+            break;
+        }
+
+        auto begPos = str.find(Beg, 0);
+        if (begPos != 0) {
+            break;
+        }
+
+        auto sepPos = str.find(Sep, begPos + 1);
+        if (sepPos == std::string::npos) {
+            break;
+        }
+
+        if (str.find(Sep, sepPos + 1) != std::string::npos) {
+            break;
+        }
+
+        auto endPos = str.find(End, sepPos + 1);
+        if ((endPos == std::string::npos) ||
+            (endPos != (str.size() - 1))) {
+            break;
+        }
+
+        static const std::string WhiteChars(" \t");
+        auto beforeSepPos = str.find_last_not_of(WhiteChars, sepPos - 1);
+        assert(beforeSepPos != std::string::npos);
+        auto afterSepPos = str.find_first_not_of(WhiteChars, sepPos + 1);
+        assert(afterSepPos != std::string::npos);
+
+        result.first.assign(str.begin() + begPos + 1, str.begin() + beforeSepPos + 1);
+        result.second.assign(str.begin() + afterSepPos, str.begin() + endPos);
+        status = true;
+    } while (false);
+
+    if (ok != nullptr) {
+        *ok = status;
+    }
+
+    return result;
 }
 
 } // namespace common

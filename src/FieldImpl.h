@@ -62,6 +62,7 @@ protected:
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
+    void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
 
 private:
 

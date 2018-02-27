@@ -64,6 +64,7 @@ set (
     "common.cpp"
     "FieldImpl.cpp"
     "IntFieldImpl.cpp"
+    "FloatFieldImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

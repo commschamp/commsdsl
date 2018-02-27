@@ -323,7 +323,7 @@ bool IntFieldImpl::updateType()
 
     auto iter = std::find(std::begin(Map), std::end(Map), propsIter->second);
     if (iter == std::end(Map)) {
-        logError() << XmlWrap::logPrefix(getNode()) << "Type of the \"" << name() << "\" element has unknown value (\"" << propsIter->second << "\")";
+        reportUnexpectedPropertyValue(common::typeStr(), propsIter->second);
         return false;
     }
 
@@ -340,7 +340,7 @@ bool IntFieldImpl::updateEndian()
     auto& endianStr = common::getStringProp(props(), common::endianStr());
     m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
     if (m_endian == Endian_NumOfValues) {
-        logError() << XmlWrap::logPrefix(getNode()) << "Endian of the \"" << name() << "\" element has unknown value (\"" << endianStr << "\")";
+        reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
     }
     return true;
@@ -409,6 +409,9 @@ bool IntFieldImpl::updateSerOffset()
 
 bool IntFieldImpl::updateMinMaxValues()
 {
+    m_typeAllowedMinValue = minTypeValue(m_type);
+    m_typeAllowedMaxValue = maxTypeValue(m_type);
+
     m_minValue = calcMinValue(m_type, m_length) - m_serOffset;
     if (isTypeUnsigned(m_type)) {
         m_maxValue = static_cast<decltype(m_maxValue)>(calcMaxUnsignedValue(m_type, m_length)) - m_serOffset;
@@ -441,9 +444,6 @@ bool IntFieldImpl::updateDefaultValue()
             logWarning() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
                           "\" is too small or big and will not be serialised correctly (" << valueStr << ").";
         };
-
-    m_typeAllowedMinValue = minTypeValue(m_type);
-    m_typeAllowedMaxValue = maxTypeValue(m_type);
 
     auto checkValueFunc =
         [this, &reportErrorFunc, &reportWarningFunc](auto v, bool ok) -> bool
@@ -618,9 +618,6 @@ bool IntFieldImpl::updateValidRanges()
                 auto& thisRange = ranges[idx];
                 auto& nextRange = ranges[idx + 1];
 
-                if (nextRange.first < thisRange.first) {
-
-                }
                 assert(thisRange.first <= nextRange.first);
                 if ((thisRange.second + 1) < nextRange.first) {
                     ++idx;
@@ -758,114 +755,51 @@ bool IntFieldImpl::updateSpecials()
             return false;
         }
 
-        specialsMap.insert(std::make_pair(nameIter->second, val));
+        specialsMap.emplace(nameIter->second, val);
     }
 
     m_specials.clear();
     m_specials.reserve(specialsMap.size());
     std::copy(specialsMap.begin(), specialsMap.end(), std::back_inserter(m_specials));
-
     return true;
 }
 
 bool IntFieldImpl::validateValidRangeStr(const std::string& str)
 {
-    static const char Beg = '[';
-    static const char End = ']';
-    static const char Sep = ',';
+    bool ok = false;
+    auto range = common::parseRange(str, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::validRangeStr(), str);
+        return false;
+    }
 
-    do {
-        if (str.size() <= 3U) {
-            break;
-        }
+    std::intmax_t minVal = 0;
+    if (!strToNumeric(range.first, minVal)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Invalid min value in valid range (" << str << ").";
+        return false;
+    }
 
-        static const std::string WhiteChars(" \t\r\n");
-        auto firstNonWhitePos = str.find_first_not_of(WhiteChars);
-        if (firstNonWhitePos == std::string::npos) {
-            break;
-        }
+    std::intmax_t maxVal = 0;
+    if (!strToNumeric(range.second, maxVal)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Invalid max value in valid range (" << str << ").";
+        return false;
+    }
 
-        auto lastNonWhitePos = str.find_last_not_of(WhiteChars);
-        assert(lastNonWhitePos != std::string::npos);
-        if (lastNonWhitePos <= (firstNonWhitePos + 2)) {
-            break;
-        }
+    bool validComparison = (minVal <= maxVal);
+    if (isBigUnsigned(m_type)) {
+        validComparison = (static_cast<std::uintmax_t>(minVal) <= static_cast<std::uintmax_t>(maxVal));
+    }
 
-        auto begPos = str.find(Beg, firstNonWhitePos);
-        if (begPos != firstNonWhitePos) {
-            break;
-        }
+    if (!validComparison) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Min value must be less than max in valid range (" << str << ").";
+        return false;
+    }
 
-        auto sepPos = str.find(Sep, begPos + 1);
-        if (sepPos == std::string::npos) {
-            break;
-        }
-
-        if (str.find(Sep, sepPos + 1) != std::string::npos) {
-            break;
-        }
-
-        auto endPos = str.find(End, sepPos + 1);
-        if ((endPos == std::string::npos) ||
-            (endPos != lastNonWhitePos)) {
-            break;
-        }
-
-
-        assert(begPos < str.size());
-        assert(sepPos < str.size());
-        assert(endPos < str.size());
-        std::string minStr(str.begin() + begPos + 1, str.begin() + sepPos);
-        std::string maxStr(str.begin() + sepPos + 1, str.begin() + endPos);
-
-        if (isBigUnsigned(m_type)) {
-            bool ok = false;
-            std::uintmax_t minVal = common::strToUintMax(minStr, &ok);
-            if (!ok) {
-                break;
-            }
-
-            std::uintmax_t maxVal = common::strToUintMax(maxStr, &ok);
-            if (!ok) {
-                break;
-            }
-
-            if (maxVal < minVal) {
-                logError() << XmlWrap::logPrefix(getNode()) << "The min value is expected to be less or euqal to max in valid range of \"" << name() <<
-                              "\" (" << str << ").";
-                break;
-            }
-
-            m_validRanges.emplace_back(static_cast<std::intmax_t>(minVal), static_cast<std::intmax_t>(maxVal));
-        }
-        else {
-            bool ok = false;
-            std::intmax_t minVal = common::strToIntMax(minStr, &ok);
-            if (!ok) {
-                break;
-            }
-
-            std::intmax_t maxVal = common::strToIntMax(maxStr, &ok);
-            if (!ok) {
-                break;
-            }
-
-            if (maxVal < minVal) {
-                logError() << XmlWrap::logPrefix(getNode()) << "The min value is expected to be less or euqal to max in valid range of \"" << name() <<
-                              "\" (" << str << ").";
-                break;
-            }
-
-            m_validRanges.emplace_back(minVal, maxVal);
-        }
-
-        return true;
-
-    } while (false);
-
-    logError() << XmlWrap::logPrefix(getNode()) << "The valid range of the \"" << name() <<
-                  "\" is not of expected format (" << str << ").";
-    return false;
+    m_validRanges.emplace_back(minVal, maxVal);
+    return true;
 }
 
 bool IntFieldImpl::validateValidValueStr(const std::string& str)
@@ -914,24 +848,33 @@ bool IntFieldImpl::validateValidMinValueStr(const std::string& str)
     }
 
     auto validateFunc =
-        [this](auto v)
+        [this](auto v) -> bool
         {
-             if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
-                 logWarning() << "Property value \"" << common::validMinStr() <<
-                                 "\" is below the type's minimal value, will have no effect";
+             if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
+                 this->logError() << "Value of property \"" << common::validMinStr() <<
+                                 "\" is greater than the type's maximal value.";
+                 return false;
              }
 
-             if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
-                 logWarning() << "Property value \"" << common::validMinStr() <<
-                                 "\" is above the type's maximal value, will result in always invalid value.";
+             if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
+                 this->logError() << "Value of property \"" << common::validMinStr() <<
+                                 "\" is less than the type's minimal value.";
+                 return false;
              }
+
+             return true;
         };
 
+    bool validateResult = false;
     if (isBigUnsigned(m_type)) {
-        validateFunc(static_cast<std::uintmax_t>(val));
+        validateResult = validateFunc(static_cast<std::uintmax_t>(val));
     }
     else {
-        validateFunc(val);
+        validateResult = validateFunc(val);
+    }
+
+    if (!validateResult) {
+        return false;
     }
 
     m_validRanges.emplace_back(val, m_typeAllowedMaxValue);
@@ -949,24 +892,32 @@ bool IntFieldImpl::validateValidMaxValueStr(const std::string& str)
     }
 
     auto validateFunc =
-        [this](auto v)
+        [this](auto v) -> bool
         {
              if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
-                 logWarning() << "Property value \"" << common::validMaxStr() <<
-                                 "\" is above the type's maximal value, will have no effect";
+                 this->logError() << "Value of property \"" << common::validMaxStr() <<
+                                 "\" is greater than the type's maximal value.";
+                 return false;
              }
 
              if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
-                 logWarning() << "Property value \"" << common::validMaxStr() <<
-                                 "\" is below the type's minimal value, will result in always invalid value.";
+                 this->logError() << "Value of property \"" << common::validMaxStr() <<
+                                 "\" is less than the type's minimal value.";
+                 return false;
              }
+             return true;
         };
 
+    bool validateResult = false;
     if (isBigUnsigned(m_type)) {
-        validateFunc(static_cast<std::uintmax_t>(val));
+        validateResult = validateFunc(static_cast<std::uintmax_t>(val));
     }
     else {
-        validateFunc(val);
+        validateResult = validateFunc(val);
+    }
+
+    if (!validateResult) {
+        return false;
     }
 
     m_validRanges.emplace_back(m_typeAllowedMinValue, val);
