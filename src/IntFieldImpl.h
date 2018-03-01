@@ -42,6 +42,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool parseImpl() override;
     virtual std::size_t lengthImpl() const override;
+    virtual std::size_t bitLengthImpl() const override;
 
 private:
     bool updateType();
@@ -59,6 +60,7 @@ private:
     bool validateValidMinValueStr(const std::string& str);
     bool validateValidMaxValueStr(const std::string& str);
     bool strToNumeric(const std::string& str, std::intmax_t& val);
+    bool isBitfieldMember() const;
 
     Type m_type = Type_numOfValues;
     Endian m_endian = Endian_NumOfValues;

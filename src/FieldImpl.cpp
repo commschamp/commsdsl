@@ -4,10 +4,12 @@
 #include <map>
 #include <string>
 #include <cassert>
+#include <limits>
 
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
 #include "FloatFieldImpl.h"
+#include "BitfieldFieldImpl.h"
 #include "common.h"
 
 namespace bbmp
@@ -31,6 +33,12 @@ FieldImpl::Ptr FieldImpl::create(
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new FloatFieldImpl(n, p));
+            }),
+        std::make_pair(
+            common::bitfieldStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new BitfieldFieldImpl(n, p));
             })
     };
 
@@ -46,13 +54,7 @@ bool FieldImpl::parse()
 {
     m_props = XmlWrap::parseNodeProps(m_node);
 
-    static const XmlWrap::NamesList CommonNames = {
-        common::nameStr(),
-        common::displayNameStr(),
-        common::descriptionStr()
-    };
-
-    if (!XmlWrap::parseChildrenAsProps(m_node, CommonNames, m_protocol.logger(), m_props)) {
+    if (!XmlWrap::parseChildrenAsProps(m_node, commonProps(), m_protocol.logger(), m_props)) {
         return false;
     }
 
@@ -81,20 +83,17 @@ bool FieldImpl::parse()
         return false;
     }
 
-    XmlWrap::NamesList expectedProps = CommonNames;
+    XmlWrap::NamesList expectedProps = commonProps();
     expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
     m_unknownAttrs = XmlWrap::getUnknownProps(m_node, expectedProps);
 
-    static const XmlWrap::NamesList CommonChildren = {
-        common::metaStr()
-    };
-
+    auto& commonCh = commonChildren();
     auto& extraChildren = extraChildrenNamesImpl();
-    XmlWrap::NamesList expectedChildren = CommonNames;
-    expectedChildren.insert(expectedChildren.end(), CommonChildren.begin(), CommonChildren.end());
+    XmlWrap::NamesList expectedChildren = commonProps();
+    expectedChildren.insert(expectedChildren.end(), commonCh.begin(), commonCh.end());
     expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraChildren.begin(), extraChildren.end());
-    m_unknownChildren = XmlWrap::getUnknownChildren(m_node, expectedChildren);
+    m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, expectedChildren);
     return true;
 }
 
@@ -157,6 +156,16 @@ bool FieldImpl::parseImpl()
     return true;
 }
 
+bool FieldImpl::validateImpl()
+{
+    return true;
+}
+
+std::size_t FieldImpl::bitLengthImpl() const
+{
+    return length() * std::numeric_limits<std::uint8_t>::digits;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);
@@ -185,6 +194,26 @@ void FieldImpl::reportUnexpectedPropertyValue(const std::string& propName, const
     logError() << XmlWrap::logPrefix(m_node) <<
                   "Property \"" << propName << "\" of element \"" << name() <<
                   "\" has unexpected value (" << propValue << ").";
+}
+
+const XmlWrap::NamesList& FieldImpl::commonProps()
+{
+    static const XmlWrap::NamesList CommonNames = {
+        common::nameStr(),
+        common::displayNameStr(),
+        common::descriptionStr()
+    };
+
+    return CommonNames;
+}
+
+const XmlWrap::NamesList& FieldImpl::commonChildren()
+{
+    static const XmlWrap::NamesList CommonChildren = {
+        common::metaStr()
+    };
+
+    return CommonChildren;
 }
 
 bool FieldImpl::updateName()

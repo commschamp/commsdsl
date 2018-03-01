@@ -262,6 +262,13 @@ bool ProtocolImpl::processMultipleFields(::xmlNodePtr node)
         m_fields.insert(std::make_pair(name, std::move(field)));
     }
 
+    for (auto& f : m_fields) {
+        if (!f.second->validate()) {
+            logError() << XmlWrap::logPrefix(f.second->getNode()) << "Validation of \"" << f.first << "\" has failed.";
+            return false;
+        }
+    }
+
     return true;
 }
 

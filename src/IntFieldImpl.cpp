@@ -123,35 +123,35 @@ std::size_t maxTypeLength(IntFieldImpl::Type t)
     return Map[t];
 }
 
-std::intmax_t calcMaxFixedSignedValue(std::size_t len) {
-    assert(0U < len);
-    std::uintmax_t result = 0x7f;
-    while (1U < len) {
-        result = (result << 8U) | 0xff;
-        --len;
+std::intmax_t calcMaxFixedSignedValue(std::size_t bitsLen) {
+    assert(0U < bitsLen);
+    if (64U <= bitsLen) {
+        return std::numeric_limits<std::int64_t>::max();
     }
+
+    auto result = (std::uintmax_t(1) << (bitsLen - 1)) - 1;
     return static_cast<std::intmax_t>(result);
 }
 
-std::intmax_t calcMinFixedSignedValue(std::size_t len) {
-    assert(0U < len);
-    std::uintmax_t result = ~(static_cast<std::uintmax_t>(calcMaxFixedSignedValue(len)));
-    return *(reinterpret_cast<std::intmax_t*>(&result));
+std::intmax_t calcMinFixedSignedValue(std::size_t bitsLen) {
+    assert(0U < bitsLen);
+    std::uintmax_t result = ~(static_cast<std::uintmax_t>(calcMaxFixedSignedValue(bitsLen)));
+    return static_cast<std::intmax_t>(result);
 }
 
-std::uintmax_t calcMaxFixedUnsignedValue(std::size_t len) {
-    assert(0U < len);
-    std::uintmax_t result = 0xff;
-    while (1U < len) {
-        result = (result << 8U) | 0xff;
-        --len;
+std::uintmax_t calcMaxFixedUnsignedValue(std::size_t bitsLen) {
+    assert(0U < bitsLen);
+    if (64U <= bitsLen) {
+        return std::numeric_limits<std::uint64_t>::max();
     }
+
+    auto result = (std::uintmax_t(1) << bitsLen) - 1;
     return result;
 }
 
-std::uintmax_t calcMaxVarUnsignedValue(std::size_t len) {
-    assert(0U < len);
-    auto totalValueBits = std::min(len * 7U, std::size_t(64U));
+std::uintmax_t calcMaxVarUnsignedValue(std::size_t bitsLen) {
+    assert(0U < bitsLen);
+    auto totalValueBits = std::min((bitsLen / 8) * 7, std::size_t(64U));
     if (totalValueBits == 64U) {
         return std::numeric_limits<std::uint64_t>::max();
     }
@@ -159,27 +159,27 @@ std::uintmax_t calcMaxVarUnsignedValue(std::size_t len) {
     return (static_cast<std::uint64_t>(1U) << totalValueBits) - 1U;
 }
 
-std::intmax_t calcMaxVarSignedValue(std::size_t len) {
-    assert(0U < len);
-    auto totalValueBits = std::min(len * 7U, std::size_t(64U));
+std::intmax_t calcMaxVarSignedValue(std::size_t bitsLen) {
+    assert(0U < bitsLen);
+    auto totalValueBits = std::min((bitsLen / 8U) * 7U, std::size_t(64U));
     if (totalValueBits == 64U) {
         return std::numeric_limits<std::int64_t>::max();
     }
 
-    auto result = calcMaxVarUnsignedValue(len);
+    auto result = calcMaxVarUnsignedValue(bitsLen);
     auto mask = (result + 1) >> 1U;
     return static_cast<std::intmax_t>(result ^ mask);
 }
 
-std::intmax_t calcMinVarSignedValue(std::size_t len) {
-    assert(0U < len);
-    auto totalValueBits = std::min(len * 7U, std::size_t(64U));
+std::intmax_t calcMinVarSignedValue(std::size_t bitsLen) {
+    assert(0U < bitsLen);
+    auto totalValueBits = std::min((bitsLen / 8U) * 7U, std::size_t(64U));
     if (totalValueBits == 64U) {
         return std::numeric_limits<std::int64_t>::min();
     }
 
-    std::uintmax_t result = ~(calcMaxVarSignedValue(len));
-    return *(reinterpret_cast<std::intmax_t*>(&result));
+    std::uintmax_t result = ~(calcMaxVarSignedValue(bitsLen));
+    return static_cast<std::intmax_t>(result);
 }
 
 bool isTypeUnsigned(IntFieldImpl::Type t)
@@ -201,43 +201,43 @@ bool isBigUnsigned(IntFieldImpl::Type t)
     return (t == IntFieldImpl::Type_uint64) || (t == IntFieldImpl::Type_uintvar);
 }
 
-std::intmax_t calcMinValue(IntFieldImpl::Type t, std::size_t len)
+std::intmax_t calcMinValue(IntFieldImpl::Type t, std::size_t bitsLen)
 {
     if (isTypeUnsigned(t)) {
         return 0;
     }
 
     if (t == IntFieldImpl::Type_intvar) {
-        return calcMinVarSignedValue(len);
+        return calcMinVarSignedValue(bitsLen);
     }
 
-    return calcMinFixedSignedValue(len);
+    return calcMinFixedSignedValue(bitsLen);
 }
 
-std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t len)
+std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t bitsLen)
 {
     if (t == IntFieldImpl::Type_uintvar) {
-        return calcMaxVarUnsignedValue(len);
+        return calcMaxVarUnsignedValue(bitsLen);
     }
 
-    return calcMaxFixedUnsignedValue(len);
+    return calcMaxFixedUnsignedValue(bitsLen);
 }
 
-std::intmax_t calcMaxValue(IntFieldImpl::Type t, std::size_t len)
+std::intmax_t calcMaxValue(IntFieldImpl::Type t, std::size_t bitsLen)
 {
     if (isBigUnsigned(t)) {
-        return static_cast<std::intmax_t>(calcMaxUnsignedValue(t, len));
+        return static_cast<std::intmax_t>(calcMaxUnsignedValue(t, bitsLen));
     }
 
     if (t == IntFieldImpl::Type_intvar) {
-        return calcMaxVarSignedValue(len);
+        return calcMaxVarSignedValue(bitsLen);
     }
 
     if (isTypeUnsigned(t)) {
-        return static_cast<std::intmax_t>(calcMaxUnsignedValue(t, len));
+        return static_cast<std::intmax_t>(calcMaxUnsignedValue(t, bitsLen));
     }
 
-    return calcMaxFixedSignedValue(len);
+    return calcMaxFixedSignedValue(bitsLen);
 }
 
 
@@ -294,6 +294,11 @@ bool IntFieldImpl::parseImpl()
 std::size_t IntFieldImpl::lengthImpl() const
 {
     return m_length;
+}
+
+std::size_t IntFieldImpl::bitLengthImpl() const
+{
+    return m_bitLength;
 }
 
 bool IntFieldImpl::updateType()
@@ -401,6 +406,20 @@ bool IntFieldImpl::updateBitLength()
         return true;
     }
 
+    if (!isBitfieldMember()) {
+        logWarning() << XmlWrap::logPrefix((getNode())) <<
+                        "The property \"" << common::bitLengthStr() << "\" is "
+                        "applicable only to the members of \"" << common::bitfieldStr() << "\"";
+        m_bitLength = maxBitLength;
+        return true;
+    }
+
+    if ((m_type == Type_intvar) || (m_type == Type_uintvar)) {
+        logError() << XmlWrap::logPrefix((getNode())) <<
+                      "Bitfield member cannot have variable length type.";
+        return false;
+    }
+
     bool ok = false;
     m_bitLength = common::strToUnsigned(valStr, &ok);
     if (!ok) {
@@ -413,13 +432,6 @@ bool IntFieldImpl::updateBitLength()
                       "Value of property \"" << common::bitLengthStr() << "\" exceeds "
                       "maximal length available by the type and/or forced serialisation length.";
         return false;
-    }
-
-    auto* parent = getParent();
-    if ((parent == nullptr) || (parent->objKind() != ObjKind::Bitfield)) {
-        logWarning() << XmlWrap::logPrefix((getNode())) <<
-                        "The property \"" << common::bitLengthStr() << "\" is "
-                        "applicable only to the members of \"" << common::bitfieldStr() << "\"";
     }
 
     return true;
@@ -455,12 +467,12 @@ bool IntFieldImpl::updateMinMaxValues()
     m_typeAllowedMinValue = minTypeValue(m_type);
     m_typeAllowedMaxValue = maxTypeValue(m_type);
 
-    m_minValue = calcMinValue(m_type, m_length) - m_serOffset;
+    m_minValue = calcMinValue(m_type, m_bitLength) - m_serOffset;
     if (isTypeUnsigned(m_type)) {
-        m_maxValue = static_cast<decltype(m_maxValue)>(calcMaxUnsignedValue(m_type, m_length)) - m_serOffset;
+        m_maxValue = static_cast<decltype(m_maxValue)>(calcMaxUnsignedValue(m_type, m_bitLength)) - m_serOffset;
     }
     else {
-        m_maxValue = calcMaxValue(m_type, m_length) - m_serOffset;
+        m_maxValue = calcMaxValue(m_type, m_bitLength) - m_serOffset;
     }
 
     return true;
@@ -472,7 +484,10 @@ bool IntFieldImpl::updateDefaultValue()
         return false;
     }
 
-    auto& valueStr = common::getStringProp(props(), common::defaultValueStr());
+    auto valueStr = common::getStringProp(props(), common::defaultValueStr());
+    if (valueStr.empty()) {
+        valueStr = "0";
+    }
 
     auto reportErrorFunc =
         [this, &valueStr]()
@@ -894,15 +909,33 @@ bool IntFieldImpl::validateValidMinValueStr(const std::string& str)
         [this](auto v) -> bool
         {
              if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
-                 this->logError() << "Value of property \"" << common::validMinStr() <<
-                                 "\" is greater than the type's maximal value.";
+                 this->logError() << XmlWrap::logPrefix(this->getNode()) <<
+                        "Value of property \"" << common::validMinStr() <<
+                        "\" (" << v << ") is greater than the type's maximal "
+                        "value (" << m_typeAllowedMaxValue << ").";
                  return false;
              }
 
              if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
-                 this->logError() << "Value of property \"" << common::validMinStr() <<
-                                 "\" is less than the type's minimal value.";
+                 this->logError() << XmlWrap::logPrefix(this->getNode()) <<
+                        "Value of property \"" << common::validMinStr() <<
+                        "\" (" << v << ") is less than the type's minimal "
+                        "value (" << m_typeAllowedMinValue << ").";
                  return false;
+             }
+
+             if (static_cast<decltype(v)>(m_maxValue) < v) {
+                 this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
+                        "Value of property \"" << common::validMinStr() <<
+                        "\" (" << v << ") is greater than the correctly "
+                        "serialisable maximal value (" << m_maxValue << ").";
+             }
+
+             if (v < static_cast<decltype(v)>(m_minValue)) {
+                 this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
+                        "Value of property \"" << common::validMinStr() <<
+                        "\" (" << v << ") is less than the correctly "
+                        "serialisable minimal value (" << m_minValue << ").";
              }
 
              return true;
@@ -938,16 +971,35 @@ bool IntFieldImpl::validateValidMaxValueStr(const std::string& str)
         [this](auto v) -> bool
         {
              if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
-                 this->logError() << "Value of property \"" << common::validMaxStr() <<
-                                 "\" is greater than the type's maximal value.";
+                 this->logError() << XmlWrap::logPrefix(this->getNode()) <<
+                        "Value of property \"" << common::validMaxStr() <<
+                        "\" (" << v << ") is greater than the type's maximal "
+                        "value (" << m_typeAllowedMaxValue << ").";
                  return false;
              }
 
              if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
-                 this->logError() << "Value of property \"" << common::validMaxStr() <<
-                                 "\" is less than the type's minimal value.";
+                 this->logError() << XmlWrap::logPrefix(this->getNode()) <<
+                        "Value of property \"" << common::validMaxStr() <<
+                        "\" (" << v << ") is less than the type's minimal "
+                        "value (" << m_typeAllowedMinValue << ").";
                  return false;
              }
+
+             if (static_cast<decltype(v)>(m_maxValue) < v) {
+                 this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
+                        "Value of property \"" << common::validMaxStr() <<
+                        "\" (" << v << ") is greater than the correctly "
+                        "serialisable maximal value (" << m_maxValue << ").";
+             }
+
+             if (v < static_cast<decltype(v)>(m_minValue)) {
+                 this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
+                        "Value of property \"" << common::validMaxStr() <<
+                        "\" (" << v << ") is less than the correctly "
+                        "serialisable minimal value (" << m_minValue << ").";
+             }
+
              return true;
         };
 
@@ -977,6 +1029,11 @@ bool IntFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
         val = common::strToIntMax(str, &ok);
     }
     return ok;
+}
+
+bool IntFieldImpl::isBitfieldMember() const
+{
+    return (getParent() != nullptr) && (getParent()->objKind() == ObjKind::Bitfield);
 }
 
 

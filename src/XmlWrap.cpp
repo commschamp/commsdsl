@@ -26,6 +26,15 @@ XmlWrap::PropsMap XmlWrap::parseNodeProps(::xmlNodePtr node)
 
 XmlWrap::NodesList XmlWrap::getChildren(::xmlNodePtr node, const std::string& name)
 {
+    NamesList names;
+    if (!name.empty()) {
+        names.push_back(name);
+    }
+    return getChildren(node, names);
+}
+
+XmlWrap::NodesList XmlWrap::getChildren(::xmlNodePtr node, const NamesList& names)
+{
     NodesList result;
     auto* cur = node->children;
     while (cur != nullptr) {
@@ -34,13 +43,14 @@ XmlWrap::NodesList XmlWrap::getChildren(::xmlNodePtr node, const std::string& na
                 break;
             }
 
-            if (name.empty()) {
+            if (names.empty()) {
                 result.push_back(cur);
                 break;
             }
 
             std::string elemName(reinterpret_cast<const char*>(cur->name));
-            if (elemName == name) {
+            auto iter = std::find(names.begin(), names.end(), elemName);
+            if (iter != names.end()) {
                 result.push_back(cur);
                 break;
             }
@@ -138,17 +148,25 @@ XmlWrap::PropsMap XmlWrap::getUnknownProps(::xmlNodePtr node, const XmlWrap::Nam
     return props;
 }
 
-XmlWrap::ContentsList XmlWrap::getUnknownChildren(::xmlNodePtr node, const XmlWrap::NamesList& names)
+XmlWrap::NodesList XmlWrap::getUnknownChildren(::xmlNodePtr node, const XmlWrap::NamesList& names)
 {
-    ContentsList result;
+    NodesList result;
     auto children = getChildren(node);
     for (auto* c : children) {
         std::string cName(reinterpret_cast<const char*>(c->name));
         auto iter = std::find(names.begin(), names.end(), cName);
-        if (iter != names.end()) {
-            continue;
+        if (iter == names.end()) {
+            result.push_back(c);
         }
+    }
+    return result;
+}
 
+XmlWrap::ContentsList XmlWrap::getUnknownChildrenContents(::xmlNodePtr node, const XmlWrap::NamesList& names)
+{
+    ContentsList result;
+    auto children = getUnknownChildren(node, names);
+    for (auto* c : children) {
         BufferPtr buf(::xmlBufferCreate());
         auto bufLen = ::xmlNodeDump(buf.get(), c->doc, c, 0, 0);
         if (bufLen == 0U) {
@@ -189,6 +207,20 @@ bool XmlWrap::validateSinglePropInstance(
     }
 
     return true;
+}
+
+bool XmlWrap::hasAnyChild(::xmlNodePtr node, const XmlWrap::NamesList& names)
+{
+    ContentsList result;
+    auto children = getChildren(node);
+    for (auto* c : children) {
+        std::string cName(reinterpret_cast<const char*>(c->name));
+        auto iter = std::find(names.begin(), names.end(), cName);
+        if (iter != names.end()) {
+            return true;
+        }
+    }
+    return false;
 }
 
 } // namespace bbmp

@@ -26,6 +26,10 @@ public:
     }
 
     bool parse();
+    bool validate()
+    {
+        return validateImpl();
+    }
 
     const PropsMap& props() const
     {
@@ -39,6 +43,11 @@ public:
     std::size_t length() const
     {
         return lengthImpl();
+    }
+
+    std::size_t bitLength() const
+    {
+        return bitLengthImpl();
     }
 
 protected:
@@ -61,11 +70,16 @@ protected:
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool parseImpl();
+    virtual bool validateImpl();
     virtual std::size_t lengthImpl() const = 0;
+    virtual std::size_t bitLengthImpl() const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
+
+    static const XmlWrap::NamesList& commonProps();
+    static const XmlWrap::NamesList& commonChildren();
 
 private:
 

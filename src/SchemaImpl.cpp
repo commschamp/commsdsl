@@ -53,7 +53,7 @@ bool SchemaImpl::processNode()
         common::framesStr()
     };
 
-    m_unknownChildren = XmlWrap::getUnknownChildren(m_node, ChildrenNames);
+    m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, ChildrenNames);
     return true;
 }
 

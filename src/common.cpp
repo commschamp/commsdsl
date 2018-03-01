@@ -222,6 +222,12 @@ const std::string& bitfieldStr()
     return Str;
 }
 
+const std::string& membersStr()
+{
+    static const std::string Str("members");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
