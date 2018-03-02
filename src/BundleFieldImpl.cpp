@@ -1,4 +1,4 @@
-#include "BitfieldFieldImpl.h"
+#include "BundleFieldImpl.h"
 
 #include <cassert>
 #include <limits>
@@ -14,9 +14,7 @@ namespace
 
 const XmlWrap::NamesList& supportedTypes()
 {
-    static const XmlWrap::NamesList Names = {
-        common::intStr()
-    };
+    static const XmlWrap::NamesList Names = FieldImpl::supportedTypes();
 
     return Names;
 }
@@ -30,36 +28,36 @@ XmlWrap::NamesList getExtraNames()
 
 } // namespace
 
-BitfieldFieldImpl::BitfieldFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
+BundleFieldImpl::BundleFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
 }
 
-Object::ObjKind BitfieldFieldImpl::objKindImpl() const
+Object::ObjKind BundleFieldImpl::objKindImpl() const
 {
-    return ObjKind::Bitfield;
+    return ObjKind::Bundle;
 }
 
-const XmlWrap::NamesList& BitfieldFieldImpl::extraChildrenNamesImpl() const
+const XmlWrap::NamesList& BundleFieldImpl::extraChildrenNamesImpl() const
 {
     static const XmlWrap::NamesList Names = getExtraNames();
     return Names;
 }
 
-bool BitfieldFieldImpl::parseImpl()
+bool BundleFieldImpl::parseImpl()
 {
     auto membersNodes = XmlWrap::getChildren(getNode(), common::membersStr());
     if (1U < membersNodes.size()) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Only single \"" << common::membersStr() << "\" child element is "
-                      "supported for \"" << common::bitfieldStr() << "\".";
+                      "supported for \"" << common::bundleStr() << "\".";
         return false;
     }
 
     auto memberFieldsTypes = XmlWrap::getChildren(getNode(), supportedTypes());
     if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "The \"" << common::bitfieldStr() << "\" element does not support "
+                      "The \"" << common::bundleStr() << "\" element does not support "
                       "list of stand member fields as child elements together with \"" <<
                       common::membersStr() << "\" child element.";
         return false;
@@ -67,7 +65,7 @@ bool BitfieldFieldImpl::parseImpl()
 
     if ((0U == membersNodes.size()) && (0U == memberFieldsTypes.size())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "The \"" << common::bitfieldStr() << "\" must contain member fields.";
+                      "The \"" << common::bundleStr() << "\" must contain member fields.";
         return false;
     }
 
@@ -76,7 +74,7 @@ bool BitfieldFieldImpl::parseImpl()
         auto allChildren = XmlWrap::getChildren(getNode());
         if (allChildren.size() != memberFieldsTypes.size()) {
             logError() << XmlWrap::logPrefix(getNode()) <<
-                          "The member types of \"" << common::bitfieldStr() <<
+                          "The member types of \"" << common::bundleStr() <<
                           "\" must be defined inside \"<" << common::membersStr() << ">\" child element "
                           "when there are other property describing children.";
             return false;
@@ -90,7 +88,7 @@ bool BitfieldFieldImpl::parseImpl()
         if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
             logError() << XmlWrap::logPrefix(membersNodes.front()) <<
                           "The \"" << common::membersStr() << "\" child node of \"" <<
-                          common::bitfieldStr() << "\" element must contain only supported types.";
+                          common::bundleStr() << "\" element must contain only supported types.";
             return false;
         }
 
@@ -118,7 +116,7 @@ bool BitfieldFieldImpl::parseImpl()
     return true;
 }
 
-bool BitfieldFieldImpl::validateImpl()
+bool BundleFieldImpl::validateImpl()
 {
     for (auto& mem : m_members) {
         if (!mem->validate()) {
@@ -126,42 +124,18 @@ bool BitfieldFieldImpl::validateImpl()
         }
     }
 
-    auto totalBitLength =
-        std::accumulate(
-            m_members.begin(), m_members.end(), 0U,
-            [this](std::size_t soFar, auto& elem)
-            {
-                return soFar + elem->bitLength();
-            });
-
-    static const std::size_t BitsInByte = std::numeric_limits<std::uint8_t>::digits;
-    static const std::size_t SupportedBitLengths[] = {
-        sizeof(std::uint8_t) * BitsInByte,
-        sizeof(std::uint16_t) * BitsInByte,
-        sizeof(std::uint32_t) * BitsInByte,
-        sizeof(std::uint64_t) * BitsInByte
-    };
-
-    auto iter = std::find(std::begin(SupportedBitLengths), std::end(SupportedBitLengths), totalBitLength);
-    if (iter == std::end(SupportedBitLengths)) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "The summary of member's bit lengths (" << totalBitLength <<
-                      ") is expected to be one of the following: 8, 16, 32, 64.";
-        return false;
-    }
-
     return true;
 }
 
-std::size_t BitfieldFieldImpl::lengthImpl() const
+std::size_t BundleFieldImpl::lengthImpl() const
 {
     return
         std::accumulate(
             m_members.begin(), m_members.end(), 0U,
             [](std::size_t soFar, auto& m)
             {
-                return soFar + m->bitLength();
-            }) / 8U;
+                return soFar + m->length();
+            });
 }
 
 

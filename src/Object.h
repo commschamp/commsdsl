@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits>
+
 namespace bbmp
 {
 
@@ -35,11 +37,44 @@ public:
         return objKindImpl();
     }
 
+    unsigned getMinSinceVersion() const
+    {
+        return m_minSinceVersion;
+    }
+
+    unsigned getMaxSinceVersion() const
+    {
+        return m_maxSinceVersion;
+    }
+
+    unsigned getDeprecated() const
+    {
+        return m_deprecated;
+    }
+
 protected:
     virtual ObjKind objKindImpl() const = 0;
 
+    void setMinSinceVersion(unsigned val)
+    {
+        m_minSinceVersion = val;
+    }
+
+    void setMaxSinceVersion(unsigned val)
+    {
+        m_maxSinceVersion = val;
+    }
+
+    void setDeprecated(unsigned val)
+    {
+        m_deprecated = val;
+    }
+
 private:
     Object* m_parent = nullptr;
+    unsigned m_minSinceVersion = 0U;
+    unsigned m_maxSinceVersion = 0U;
+    unsigned m_deprecated = std::numeric_limits<unsigned>::max();
 };
 
 } // namespace bbmp

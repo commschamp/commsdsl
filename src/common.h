@@ -50,6 +50,7 @@ const std::string& nanStr();
 const std::string& infStr();
 const std::string& negInfStr();
 const std::string& bitfieldStr();
+const std::string& bundleStr();
 const std::string& membersStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);

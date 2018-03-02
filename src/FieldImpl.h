@@ -1,6 +1,9 @@
 #pragma once
 
 #include <memory>
+#include <map>
+#include <functional>
+#include <string>
 
 #include "XmlWrap.h"
 #include "Logger.h"
@@ -50,6 +53,8 @@ public:
         return bitLengthImpl();
     }
 
+    static XmlWrap::NamesList supportedTypes();
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -83,9 +88,13 @@ protected:
 
 private:
 
+    using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
+    using CreateMap = std::map<std::string, CreateFunc>;
+
     bool updateName();
     bool updateDescription();
     bool updateDisplayName();
+    static const CreateMap& createMap();
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;

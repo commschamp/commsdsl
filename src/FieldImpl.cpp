@@ -1,15 +1,14 @@
 #include "FieldImpl.h"
 
-#include <functional>
-#include <map>
-#include <string>
 #include <cassert>
 #include <limits>
+#include <algorithm>
 
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
 #include "FloatFieldImpl.h"
 #include "BitfieldFieldImpl.h"
+#include "BundleFieldImpl.h"
 #include "common.h"
 
 namespace bbmp
@@ -20,30 +19,10 @@ FieldImpl::Ptr FieldImpl::create(
     ::xmlNodePtr node,
     ProtocolImpl& protocol)
 {
-    using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
-    static const std::map<std::string, CreateFunc> CreateMap = {
-        std::make_pair(
-            common::intStr(),
-            [](::xmlNodePtr n, ProtocolImpl& p)
-            {
-                return Ptr(new IntFieldImpl(n, p));
-            }),
-        std::make_pair(
-            common::floatStr(),
-            [](::xmlNodePtr n, ProtocolImpl& p)
-            {
-                return Ptr(new FloatFieldImpl(n, p));
-            }),
-        std::make_pair(
-            common::bitfieldStr(),
-            [](::xmlNodePtr n, ProtocolImpl& p)
-            {
-                return Ptr(new BitfieldFieldImpl(n, p));
-            })
-    };
+    auto& map = createMap();
 
-    auto iter = CreateMap.find(kind);
-    if (iter == CreateMap.end()) {
+    auto iter = map.find(kind);
+    if (iter == map.end()) {
         return Ptr();
     }
 
@@ -113,6 +92,20 @@ const std::string& FieldImpl::description() const
 {
     assert(m_description != nullptr);
     return *m_description;
+}
+
+XmlWrap::NamesList FieldImpl::supportedTypes()
+{
+    XmlWrap::NamesList result;
+    auto& map = createMap();
+    result.reserve(map.size());
+    std::transform(
+        map.begin(), map.end(), std::back_inserter(result),
+        [](auto& elem)
+        {
+            return elem.first;
+        });
+    return result;
 }
 
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -229,6 +222,38 @@ bool FieldImpl::updateDescription()
 bool FieldImpl::updateDisplayName()
 {
     return validateAndUpdateStringPropValue(common::displayNameStr(), m_displayName);
+}
+
+const FieldImpl::CreateMap& FieldImpl::createMap()
+{
+    static const CreateMap Map = {
+        std::make_pair(
+            common::intStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new IntFieldImpl(n, p));
+            }),
+        std::make_pair(
+            common::floatStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new FloatFieldImpl(n, p));
+            }),
+        std::make_pair(
+            common::bitfieldStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new BitfieldFieldImpl(n, p));
+            }),
+        std::make_pair(
+            common::bundleStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new BundleFieldImpl(n, p));
+            })
+    };
+
+    return Map;
 }
 
 } // namespace bbmp

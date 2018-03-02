@@ -66,6 +66,7 @@ set (
     "IntFieldImpl.cpp"
     "FloatFieldImpl.cpp"
     "BitfieldFieldImpl.cpp"
+    "BundleFieldImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

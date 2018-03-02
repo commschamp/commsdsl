@@ -222,6 +222,12 @@ const std::string& bitfieldStr()
     return Str;
 }
 
+const std::string& bundleStr()
+{
+    static const std::string Str("bundle");
+    return Str;
+}
+
 const std::string& membersStr()
 {
     static const std::string Str("members");
