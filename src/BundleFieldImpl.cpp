@@ -113,6 +113,11 @@ bool BundleFieldImpl::parseImpl()
 
         m_members.push_back(std::move(mem));
     }
+
+    if (!validateMembersNames(m_members)) {
+        return false;
+    }
+
     return true;
 }
 
@@ -122,6 +127,23 @@ bool BundleFieldImpl::validateImpl()
         if (!mem->validate()) {
             return false;
         }
+    }
+
+    assert(!m_members.empty());
+    auto& firstMem = m_members.front();
+    if (getMinSinceVersion() < firstMem->getMinSinceVersion()) {
+        logError() << XmlWrap::logPrefix(firstMem->getNode()) <<
+                      "First member mustn't have value of \"" << common::sinceVersionStr() <<
+                      "\" property (" << firstMem->getMinSinceVersion() << ") to be greater "
+                      "than value of the containing \"" << common::bundleStr() << "\" (" <<
+                      getMinSinceVersion() << ").";
+        return false;
+    }
+
+    assert(firstMem->getMinSinceVersion() == getMinSinceVersion());
+
+    if (!validateMembersVersions(m_members)) {
+        return false;
     }
 
     return true;

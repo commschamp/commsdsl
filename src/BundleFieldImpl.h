@@ -20,8 +20,7 @@ protected:
     virtual std::size_t lengthImpl() const override;
 
 private:
-    using MembersList = std::vector<FieldImplPtr>;
-    MembersList m_members;
+    FieldsList m_members;
 };
 
 } // namespace bbmp

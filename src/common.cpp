@@ -234,6 +234,18 @@ const std::string& membersStr()
     return Str;
 }
 
+const std::string& sinceVersionStr()
+{
+    static const std::string Str("sinceVersion");
+    return Str;
+}
+
+const std::string& deprecatedStr()
+{
+    static const std::string Str("deprecated");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

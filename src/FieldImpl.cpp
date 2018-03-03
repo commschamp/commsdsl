@@ -3,6 +3,7 @@
 #include <cassert>
 #include <limits>
 #include <algorithm>
+#include <set>
 
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
@@ -52,7 +53,9 @@ bool FieldImpl::parse()
     bool result =
         updateName() &&
         updateDisplayName() &&
-        updateDescription();
+        updateDescription() &&
+        updateSinceVersion() &&
+        updateDeprecated();
 
     if (!result) {
         return false;
@@ -106,6 +109,60 @@ XmlWrap::NamesList FieldImpl::supportedTypes()
             return elem.first;
         });
     return result;
+}
+
+bool FieldImpl::validateMembersVersions(
+    const Object& obj,
+    const FieldImpl::FieldsList& fields,
+    Logger& logger)
+{
+    if (fields.size() < 2U) {
+        return true;
+    }
+
+    for (auto idx = 0U; idx < (fields.size() - 1); ++idx) {
+        auto& thisMem = fields[idx];
+        auto& nextMem = fields[idx + 1];
+
+        assert(obj.getMinSinceVersion() <= thisMem->getMinSinceVersion());
+
+        if (nextMem->getMinSinceVersion() < thisMem->getMaxSinceVersion()) {
+            bbmp::logError(logger) << XmlWrap::logPrefix(nextMem->getNode()) <<
+                "Version of the member \"" << nextMem->name() << "\" (" <<
+                nextMem->getMinSinceVersion() << ") must't be less than previous "
+                " member's one (" << thisMem->getMaxSinceVersion() << ").";
+            return false;
+        }
+
+        assert(thisMem->getMaxSinceVersion() <= obj.getMaxSinceVersion());
+    }
+    return true;
+}
+
+bool FieldImpl::validateMembersVersions(const FieldImpl::FieldsList& fields)
+{
+    return validateMembersVersions(*this, fields, protocol().logger());
+}
+
+bool FieldImpl::validateMembersNames(
+    const FieldImpl::FieldsList& fields,
+    Logger& logger)
+{
+    std::set<std::string> usedNames;
+    for (auto& f : fields) {
+        if (usedNames.find(f->name()) != usedNames.end()) {
+            bbmp::logError(logger) << XmlWrap::logPrefix(f->getNode()) <<
+                "Member field with name \"" << f->name() << "\" has already been defined.";
+            return false;
+        }
+        usedNames.insert(f->name());
+    }
+    return true;
+}
+
+bool FieldImpl::validateMembersNames(const FieldImpl::FieldsList& fields)
+{
+    return validateMembersNames(fields, protocol().logger());
 }
 
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -194,7 +251,9 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
     static const XmlWrap::NamesList CommonNames = {
         common::nameStr(),
         common::displayNameStr(),
-        common::descriptionStr()
+        common::descriptionStr(),
+        common::sinceVersionStr(),
+        common::deprecatedStr()
     };
 
     return CommonNames;
@@ -222,6 +281,90 @@ bool FieldImpl::updateDescription()
 bool FieldImpl::updateDisplayName()
 {
     return validateAndUpdateStringPropValue(common::displayNameStr(), m_displayName);
+}
+
+bool FieldImpl::updateSinceVersion()
+{
+    if (!validateSinglePropInstance(common::sinceVersionStr())) {
+        return false;
+    }
+
+    auto parentMinVersion = 0U;
+    if (getParent() != nullptr) {
+        parentMinVersion = getParent()->getMinSinceVersion();
+        assert(parentMinVersion <= getParent()->getMaxSinceVersion());
+    }
+
+    unsigned value = parentMinVersion;
+    do {
+        auto iter = m_props.find(common::sinceVersionStr());
+        if (iter == m_props.end()) {
+            break;
+        }
+
+        bool ok = false;
+        value = common::strToUnsigned(iter->second, &ok);
+        if (!ok) {
+            reportUnexpectedPropertyValue(common::sinceVersionStr(), iter->second);
+            return false;
+        }
+    } while (false);
+
+    auto schemaVersion = protocol().schemaImpl().version();
+    if (schemaVersion < value) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+                      "The value of property \"" << common::sinceVersionStr() << "\" (" <<
+                      value << ") cannot greater then version of the schema (" <<
+                      schemaVersion << ").";
+        return false;
+    }
+
+    if (value < parentMinVersion) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+                      "The value of property \"" << common::sinceVersionStr() << "\" (" <<
+                      value << ") cannot less then specified or inherited version of the parent (" <<
+                      parentMinVersion << ").";
+        return false;
+    }
+
+    setMinSinceVersion(value);
+    setMaxSinceVersion(value);
+
+    if (getParent() != nullptr) {
+        getParent()->setMaxSinceVersion(std::max(getParent()->getMaxSinceVersion(), value));
+    }
+    return true;
+}
+
+bool FieldImpl::updateDeprecated()
+{
+    if (!validateSinglePropInstance(common::deprecatedStr())) {
+        return false;
+    }
+
+    unsigned value = std::numeric_limits<unsigned>::max();
+    do {
+        auto iter = m_props.find(common::deprecatedStr());
+        if (iter == m_props.end()) {
+            break;
+        }
+
+        bool ok = false;
+        value = common::strToUnsigned(iter->second, &ok);
+        if (!ok) {
+            reportUnexpectedPropertyValue(common::deprecatedStr(), iter->second);
+            return false;
+        }
+    } while (false);
+
+    if (value <= getMaxSinceVersion()) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+                        "The value of \"" << common::deprecatedStr() << "\" property is not greater than "
+                        "specified or inherited \"" << common::sinceVersionStr() << "\" one.";
+    }
+
+    setDeprecated(value);
+    return true;
 }
 
 const FieldImpl::CreateMap& FieldImpl::createMap()

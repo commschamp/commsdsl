@@ -20,6 +20,7 @@ public:
     using Ptr = std::unique_ptr<FieldImpl>;
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
+    using FieldsList = std::vector<Ptr>;
 
     static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -54,6 +55,17 @@ public:
     }
 
     static XmlWrap::NamesList supportedTypes();
+    static bool validateMembersVersions(
+            const Object& obj,
+            const FieldsList& fields,
+            Logger& logger);
+    bool validateMembersVersions(const FieldsList& fields);
+
+    static bool validateMembersNames(
+            const FieldsList& fields,
+            Logger& logger);
+
+    bool validateMembersNames(const FieldsList& fields);
 
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
@@ -94,6 +106,9 @@ private:
     bool updateName();
     bool updateDescription();
     bool updateDisplayName();
+    bool updateSinceVersion();
+    bool updateDeprecated();
+
     static const CreateMap& createMap();
 
     ::xmlNodePtr m_node = nullptr;

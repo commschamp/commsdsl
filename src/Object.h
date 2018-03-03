@@ -52,17 +52,17 @@ public:
         return m_deprecated;
     }
 
+    void setMaxSinceVersion(unsigned val)
+    {
+        m_maxSinceVersion = val;
+    }
+
 protected:
     virtual ObjKind objKindImpl() const = 0;
 
     void setMinSinceVersion(unsigned val)
     {
         m_minSinceVersion = val;
-    }
-
-    void setMaxSinceVersion(unsigned val)
-    {
-        m_maxSinceVersion = val;
     }
 
     void setDeprecated(unsigned val)
