@@ -18,7 +18,6 @@ protected:
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool parseImpl() override;
-    virtual bool validateImpl() override;
     virtual std::size_t lengthImpl() const override;
 
 private:

@@ -34,10 +34,6 @@ public:
     }
 
     bool parse();
-    bool validate()
-    {
-        return validateImpl();
-    }
 
     const PropsMap& props() const
     {
@@ -94,7 +90,6 @@ protected:
     virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool parseImpl();
-    virtual bool validateImpl();
     virtual std::size_t lengthImpl() const = 0;
     virtual std::size_t bitLengthImpl() const;
 

@@ -132,17 +132,6 @@ bool BundleFieldImpl::parseImpl()
         return false;
     }
 
-    return true;
-}
-
-bool BundleFieldImpl::validateImpl()
-{
-    for (auto& mem : m_members) {
-        if (!mem->validate()) {
-            return false;
-        }
-    }
-
     assert(!m_members.empty());
     auto& firstMem = m_members.front();
     if (getMinSinceVersion() < firstMem->getMinSinceVersion()) {

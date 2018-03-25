@@ -226,11 +226,6 @@ bool FieldImpl::parseImpl()
     return true;
 }
 
-bool FieldImpl::validateImpl()
-{
-    return true;
-}
-
 std::size_t FieldImpl::bitLengthImpl() const
 {
     return length() * std::numeric_limits<std::uint8_t>::digits;

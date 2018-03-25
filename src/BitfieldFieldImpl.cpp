@@ -134,17 +134,6 @@ bool BitfieldFieldImpl::parseImpl()
         return false;
     }
 
-    return true;
-}
-
-bool BitfieldFieldImpl::validateImpl()
-{
-    for (auto& mem : m_members) {
-        if (!mem->validate()) {
-            return false;
-        }
-    }
-
     auto totalBitLength =
         std::accumulate(
             m_members.begin(), m_members.end(), 0U,
