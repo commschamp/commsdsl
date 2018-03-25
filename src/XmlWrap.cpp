@@ -7,6 +7,12 @@
 namespace bbmp
 {
 
+const XmlWrap::NamesList& XmlWrap::emptyNamesList()
+{
+    static const NamesList List;
+    return List;
+}
+
 XmlWrap::PropsMap XmlWrap::parseNodeProps(::xmlNodePtr node)
 {
     assert(node != nullptr);
@@ -75,7 +81,11 @@ std::string XmlWrap::getText(::xmlNodePtr node)
     return std::string();
 }
 
-bool XmlWrap::parseNodeValue(::xmlNodePtr node, Logger& logger, std::string& value)
+bool XmlWrap::parseNodeValue(
+    ::xmlNodePtr node,
+    Logger& logger,
+    std::string& value,
+    bool mustHaveValue)
 {
     auto props = parseNodeProps(node);
     static const std::string ValueAttr("value");
@@ -87,6 +97,10 @@ bool XmlWrap::parseNodeValue(::xmlNodePtr node, Logger& logger, std::string& val
 
     auto text = getText(node);
     if (valueTmp.empty() && text.empty()) {
+        if (!mustHaveValue) {
+            return false;
+        }
+
         logError(logger) << logPrefix(node) <<
             "No value for \"" << node->name << "\" element.";
         return false;
@@ -113,7 +127,8 @@ bool XmlWrap::parseChildrenAsProps(
     ::xmlNodePtr node,
     const NamesList& names,
     Logger& logger,
-    PropsMap& result)
+    PropsMap& result,
+    bool mustHaveValue)
 {
     auto children = getChildren(node);
     for (auto* c : children) {
@@ -124,8 +139,12 @@ bool XmlWrap::parseChildrenAsProps(
         }
 
         std::string value;
-        if (!parseNodeValue(c, logger, value)) {
+        if ((!parseNodeValue(c, logger, value, mustHaveValue)) && (mustHaveValue)) {
             return false;
+        }
+
+        if (value.empty()) {
+            continue;
         }
 
         result.insert(std::make_pair(cName, std::move(value)));

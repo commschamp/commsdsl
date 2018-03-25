@@ -23,6 +23,10 @@ public:
     using FieldsList = std::vector<Ptr>;
 
     static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
+    Ptr clone() const
+    {
+        return cloneImpl();
+    }
 
     ::xmlNodePtr getNode() const
     {
@@ -69,6 +73,7 @@ public:
 
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
+    FieldImpl(const FieldImpl&);
 
     ProtocolImpl& protocol()
     {
@@ -84,7 +89,9 @@ protected:
     LogWrapper logWarning() const;
 
     virtual ObjKind objKindImpl() const override;
+    virtual Ptr cloneImpl() const = 0;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
+    virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool parseImpl();
     virtual bool validateImpl();

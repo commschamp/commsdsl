@@ -53,6 +53,13 @@ FloatFieldImpl::FloatFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
+FloatFieldImpl::FloatFieldImpl(const FloatFieldImpl&) = default;
+
+FieldImpl::Ptr FloatFieldImpl::cloneImpl() const
+{
+    return Ptr(new FloatFieldImpl(*this));
+}
+
 const XmlWrap::NamesList&FloatFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {

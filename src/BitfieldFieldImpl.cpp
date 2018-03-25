@@ -35,9 +35,23 @@ BitfieldFieldImpl::BitfieldFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
+BitfieldFieldImpl::BitfieldFieldImpl(const BitfieldFieldImpl& other)
+  : Base(other)
+{
+    m_members.reserve(other.m_members.size());
+    for (auto& m : other.m_members) {
+        m_members.push_back(m->clone());
+    }
+}
+
 Object::ObjKind BitfieldFieldImpl::objKindImpl() const
 {
     return ObjKind::Bitfield;
+}
+
+FieldImpl::Ptr BitfieldFieldImpl::cloneImpl() const
+{
+    return Ptr(new BitfieldFieldImpl(*this));
 }
 
 const XmlWrap::NamesList& BitfieldFieldImpl::extraChildrenNamesImpl() const

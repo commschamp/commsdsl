@@ -50,6 +50,18 @@ bool FieldImpl::parse()
 
     } while (false);
 
+    auto& extraPossiblePropsNames = extraPossiblePropsNamesImpl();
+    do {
+        if (extraPossiblePropsNames.empty()) {
+            break;
+        }
+
+        if (!XmlWrap::parseChildrenAsProps(m_node, extraPossiblePropsNames, m_protocol.logger(), m_props, false)) {
+            return false;
+        }
+
+    } while (false);
+
     bool result =
         updateName() &&
         updateDisplayName() &&
@@ -67,6 +79,7 @@ bool FieldImpl::parse()
 
     XmlWrap::NamesList expectedProps = commonProps();
     expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
+    expectedProps.insert(expectedProps.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
     m_unknownAttrs = XmlWrap::getUnknownProps(m_node, expectedProps);
 
     auto& commonCh = commonChildren();
@@ -74,6 +87,7 @@ bool FieldImpl::parse()
     XmlWrap::NamesList expectedChildren = commonProps();
     expectedChildren.insert(expectedChildren.end(), commonCh.begin(), commonCh.end());
     expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
+    expectedChildren.insert(expectedChildren.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraChildren.begin(), extraChildren.end());
     m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, expectedChildren);
     return true;
@@ -174,6 +188,8 @@ FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
+FieldImpl::FieldImpl(const FieldImpl&) = default;
+
 LogWrapper FieldImpl::logError() const
 {
     return bbmp::logError(m_protocol.logger());
@@ -191,8 +207,12 @@ Object::ObjKind FieldImpl::objKindImpl() const
 
 const XmlWrap::NamesList& FieldImpl::extraPropsNamesImpl() const
 {
-    static const XmlWrap::NamesList Names;
-    return Names;
+    return XmlWrap::emptyNamesList();
+}
+
+const XmlWrap::NamesList&FieldImpl::extraPossiblePropsNamesImpl() const
+{
+    return XmlWrap::emptyNamesList();
 }
 
 const XmlWrap::NamesList&FieldImpl::extraChildrenNamesImpl() const

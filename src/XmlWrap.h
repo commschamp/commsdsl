@@ -39,6 +39,7 @@ struct XmlWrap
     using NodesList = std::vector<::xmlNodePtr>;
     using ContentsList = std::vector<std::string>;
 
+    static const NamesList& emptyNamesList();
     static PropsMap parseNodeProps(::xmlNodePtr node);
     static NodesList getChildren(::xmlNodePtr node, const std::string& name = common::emptyString());
     static NodesList getChildren(::xmlNodePtr node, const NamesList& names);
@@ -46,13 +47,15 @@ struct XmlWrap
     static bool parseNodeValue(
         ::xmlNodePtr node,
         Logger& logger,
-        std::string& value);
+        std::string& value,
+        bool mustHaveValue = true);
 
     static bool parseChildrenAsProps(
         ::xmlNodePtr node,
         const NamesList& names,
         Logger& logger,
-        PropsMap& props);
+        PropsMap& props,
+        bool mustHaveValues = true);
 
     static PropsMap getUnknownProps(::xmlNodePtr node, const NamesList& names);
     static NodesList getUnknownChildren(::xmlNodePtr node, const NamesList& names);

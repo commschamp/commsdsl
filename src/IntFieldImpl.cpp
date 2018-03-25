@@ -248,6 +248,13 @@ IntFieldImpl::IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
+IntFieldImpl::IntFieldImpl(const IntFieldImpl&) = default;
+
+FieldImpl::Ptr IntFieldImpl::cloneImpl() const
+{
+    return Ptr(new IntFieldImpl(*this));
+}
+
 const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {

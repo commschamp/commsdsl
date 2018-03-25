@@ -27,8 +27,10 @@ public:
 
 
     FloatFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
+    FloatFieldImpl(const FloatFieldImpl&);
 
 protected:
+    virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool parseImpl() override;

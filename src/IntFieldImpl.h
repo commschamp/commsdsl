@@ -36,8 +36,10 @@ public:
     using SpecialValuesList = std::vector<SpecialValue>;
 
     IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
+    IntFieldImpl(const IntFieldImpl&);
 
 protected:
+    virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool parseImpl() override;

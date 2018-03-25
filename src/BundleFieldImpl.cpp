@@ -33,9 +33,23 @@ BundleFieldImpl::BundleFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
+BundleFieldImpl::BundleFieldImpl(const BundleFieldImpl& other)
+  : Base(other)
+{
+    m_members.reserve(other.m_members.size());
+    for (auto& m : other.m_members) {
+        m_members.push_back(m->clone());
+    }
+}
+
 Object::ObjKind BundleFieldImpl::objKindImpl() const
 {
     return ObjKind::Bundle;
+}
+
+FieldImpl::Ptr BundleFieldImpl::cloneImpl() const
+{
+    return Ptr(new BundleFieldImpl(*this));
 }
 
 const XmlWrap::NamesList& BundleFieldImpl::extraChildrenNamesImpl() const
@@ -157,9 +171,7 @@ std::size_t BundleFieldImpl::lengthImpl() const
             [](std::size_t soFar, auto& m)
             {
                 return soFar + m->length();
-            });
+    });
 }
-
-
 
 } // namespace bbmp
