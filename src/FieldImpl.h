@@ -33,6 +33,11 @@ public:
         return m_node;
     }
 
+    void setNode(::xmlNodePtr val)
+    {
+        m_node = val;
+    }
+
     bool parse();
 
     const PropsMap& props() const
@@ -67,6 +72,21 @@ public:
 
     bool validateMembersNames(const FieldsList& fields);
 
+    const XmlWrap::NamesList& extraPropsNames() const
+    {
+        return extraPropsNamesImpl();
+    }
+
+    const XmlWrap::NamesList& extraPossiblePropsNames() const
+    {
+        return extraPossiblePropsNamesImpl();
+    }
+
+    const XmlWrap::NamesList& extraChildrenNames() const
+    {
+        return extraChildrenNamesImpl();
+    }
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -94,6 +114,7 @@ protected:
     virtual std::size_t bitLengthImpl() const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
+    bool validateNoPropInstance(const std::string& str);
     bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
 

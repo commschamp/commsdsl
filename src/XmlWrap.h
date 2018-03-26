@@ -68,6 +68,12 @@ struct XmlWrap
         Logger& logger,
         bool mustHave = false);
 
+    static bool validateNoPropInstance(
+        ::xmlNodePtr node,
+        const PropsMap& props,
+        const std::string& str,
+        Logger& logger);
+
     static bool hasAnyChild(::xmlNodePtr node, const NamesList& names);
 };
 

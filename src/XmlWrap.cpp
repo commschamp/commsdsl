@@ -228,6 +228,18 @@ bool XmlWrap::validateSinglePropInstance(
     return true;
 }
 
+bool XmlWrap::validateNoPropInstance(::xmlNodePtr node, const XmlWrap::PropsMap& props, const std::__cxx11::string& str, Logger& logger)
+{
+    auto iter = props.find(str);
+    if (iter != props.end()) {
+        bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
+                      "Preperty \"" << str << "\" defined when should not.";
+        return false;
+    }
+
+    return true;
+}
+
 bool XmlWrap::hasAnyChild(::xmlNodePtr node, const XmlWrap::NamesList& names)
 {
     ContentsList result;

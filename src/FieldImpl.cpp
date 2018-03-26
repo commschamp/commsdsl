@@ -10,6 +10,7 @@
 #include "FloatFieldImpl.h"
 #include "BitfieldFieldImpl.h"
 #include "BundleFieldImpl.h"
+#include "RefFieldImpl.h"
 #include "common.h"
 
 namespace bbmp
@@ -236,6 +237,11 @@ bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);
 }
 
+bool FieldImpl::validateNoPropInstance(const std::string& str)
+{
+    return XmlWrap::validateNoPropInstance(m_node, m_props, str, protocol().logger());
+}
+
 bool FieldImpl::validateAndUpdateStringPropValue(
     const std::string& str,
     const std::string*& valuePtr,
@@ -408,6 +414,12 @@ const FieldImpl::CreateMap& FieldImpl::createMap()
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new BundleFieldImpl(n, p));
+            }),
+        std::make_pair(
+            common::refStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new RefFieldImpl(n, p));
             })
     };
 

@@ -12,7 +12,7 @@ namespace bbmp
 namespace
 {
 
-const XmlWrap::NamesList& supportedTypes()
+const XmlWrap::NamesList& bitfieldSupportedTypes()
 {
     static const XmlWrap::NamesList Names = {
         common::intStr()
@@ -23,7 +23,7 @@ const XmlWrap::NamesList& supportedTypes()
 
 XmlWrap::NamesList getExtraNames()
 {
-    auto names = supportedTypes();
+    auto names = bitfieldSupportedTypes();
     names.push_back(common::membersStr());
     return names;
 }
@@ -70,7 +70,7 @@ bool BitfieldFieldImpl::parseImpl()
         return false;
     }
 
-    auto memberFieldsTypes = XmlWrap::getChildren(getNode(), supportedTypes());
+    auto memberFieldsTypes = XmlWrap::getChildren(getNode(), bitfieldSupportedTypes());
     if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "The \"" << common::bitfieldStr() << "\" element does not support "
@@ -100,7 +100,7 @@ bool BitfieldFieldImpl::parseImpl()
     if (0U < membersNodes.size()) {
         assert(0U == memberFieldsTypes.size());
         memberFieldsTypes = XmlWrap::getChildren(membersNodes.front());
-        auto cleanMemberFieldsTypes = XmlWrap::getChildren(membersNodes.front(), supportedTypes());
+        auto cleanMemberFieldsTypes = XmlWrap::getChildren(membersNodes.front(), bitfieldSupportedTypes());
         if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
             logError() << XmlWrap::logPrefix(membersNodes.front()) <<
                           "The \"" << common::membersStr() << "\" child node of \"" <<

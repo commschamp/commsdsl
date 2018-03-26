@@ -246,6 +246,18 @@ const std::string& deprecatedStr()
     return Str;
 }
 
+const std::string& refStr()
+{
+    static const std::string Str("ref");
+    return Str;
+}
+
+const std::string& origStr()
+{
+    static const std::string Str("orig");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

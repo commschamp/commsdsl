@@ -310,12 +310,16 @@ std::size_t IntFieldImpl::bitLengthImpl() const
 
 bool IntFieldImpl::updateType()
 {
-    if (!validateSinglePropInstance(common::typeStr(), true)) {
+    bool mustHave = (m_type == Type_numOfValues);
+    if (!validateSinglePropInstance(common::typeStr(), mustHave)) {
         return false;
     }
 
     auto propsIter = props().find(common::typeStr());
-    assert (propsIter != props().end());
+    if (propsIter == props().end()) {
+        assert(m_type != Type_numOfValues);
+        return true;
+    }
 
     static const std::string Map[] = {
         /* Type_int8 */ "int8",
@@ -351,6 +355,10 @@ bool IntFieldImpl::updateEndian()
     }
 
     auto& endianStr = common::getStringProp(props(), common::endianStr());
+    if ((endianStr.empty()) && (m_endian != Endian_NumOfValues)) {
+        return true;
+    }
+
     m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
     if (m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
@@ -366,10 +374,17 @@ bool IntFieldImpl::updateLength()
     }
 
     auto& lengthStr = common::getStringProp(props(), common::lengthStr());
-    if (lengthStr.empty()) {
-        m_length = maxTypeLength(m_type);
+    do {
+        if (!lengthStr.empty()) {
+            break;
+        }
+
+        if (m_length == 0) {
+            m_length = maxTypeLength(m_type);
+        }
+
         return true;
-    }
+    } while (false);
 
     bool ok = false;
     m_length = static_cast<decltype(m_length)>(common::strToUintMax(lengthStr, &ok));
@@ -409,6 +424,10 @@ bool IntFieldImpl::updateBitLength()
     auto& valStr = common::getStringProp(props(), common::bitLengthStr());
     if (valStr.empty()) {
         assert(0 < m_length);
+        if ((m_bitLength != 0) && (m_bitLength < maxBitLength)) {
+            return true;
+        }
+
         m_bitLength = maxBitLength;
         return true;
     }
@@ -453,7 +472,6 @@ bool IntFieldImpl::updateSerOffset()
     auto& valueStr = common::getStringProp(props(), common::serOffsetStr());
 
     if (valueStr.empty()) {
-        assert(m_serOffset == 0);
         return true;
     }
 
@@ -493,6 +511,10 @@ bool IntFieldImpl::updateDefaultValue()
 
     auto valueStr = common::getStringProp(props(), common::defaultValueStr());
     if (valueStr.empty()) {
+        if (m_defaultValue != 0) {
+            return true;
+        }
+
         valueStr = "0";
     }
 
@@ -558,9 +580,14 @@ bool IntFieldImpl::updateScaling()
         return false;
     }
 
-    std::intmax_t num = 1;
-    std::intmax_t denom = 1;
-
+    std::intmax_t num = m_scaling.first;
+    if (num == 0) {
+        num = 1;
+    }
+    std::intmax_t denom = m_scaling.second;
+    if (denom == 0) {
+        denom = 1;
+    }
 
     do {
         auto& valueStr = common::getStringProp(props(), common::scalingStr());

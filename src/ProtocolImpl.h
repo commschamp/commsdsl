@@ -43,6 +43,8 @@ public:
         return m_logger;
     }
 
+    FieldImpl* findField(const std::string& name);
+
 private:
     struct XmlDocFree
     {

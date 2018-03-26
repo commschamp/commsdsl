@@ -97,6 +97,16 @@ const SchemaImpl& ProtocolImpl::schemaImpl() const
     return *m_schema;
 }
 
+FieldImpl* ProtocolImpl::findField(const std::string& name)
+{
+    auto iter = m_fields.find(name);
+    if (iter == m_fields.end()) {
+        return nullptr;
+    }
+
+    return iter->second.get();
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);
