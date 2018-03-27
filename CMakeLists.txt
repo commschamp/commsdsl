@@ -70,6 +70,7 @@ install (
 )
 
 add_subdirectory(src)
+add_subdirectory(test)
 
 FILE(GLOB_RECURSE all_headers "*.h")
 add_custom_target(all_headers_tgt SOURCES ${all_headers})

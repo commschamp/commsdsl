@@ -130,7 +130,21 @@ void ProtocolImpl::handleXmlError(xmlErrorPtr err)
     }
 
     m_logger.setCurrLevel(level);
-    m_logger << std::string(err->file) << ':' << err->line << ": " << err->message;
+    do {
+        if (err == nullptr) {
+            break;
+        }
+
+        if (err->file != nullptr) {
+            m_logger << std::string(err->file) << ':';
+        }
+
+        if (err->line != 0) {
+            m_logger << err->line << ": ";
+        }
+
+        m_logger << err->message;
+    } while (false);
     m_logger.flush();
 }
 
