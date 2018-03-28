@@ -13,7 +13,7 @@
 #include "bbmp/Schema.h"
 #include "Logger.h"
 #include "SchemaImpl.h"
-#include "FieldImpl.h"
+#include "NamespaceImpl.h"
 
 namespace bbmp
 {
@@ -22,6 +22,7 @@ class ProtocolImpl
 {
 public:
     using ErrorReportFunction = Protocol::ErrorReportFunction;
+    using NamespacesList = Protocol::NamespacesList;
 
     ProtocolImpl();
     bool parse(const std::string& input);
@@ -45,6 +46,11 @@ public:
 
     FieldImpl* findField(const std::string& name);
 
+    const NamespacesList& namespacesList() const
+    {
+        return m_namespacesList;
+    }
+
 private:
     struct XmlDocFree
     {
@@ -57,18 +63,13 @@ private:
     using XmlDocPtr = std::unique_ptr<::xmlDoc, XmlDocFree>;
     using DocsList = std::vector<XmlDocPtr>;
     using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
-    using FieldsMap = std::map<std::string, FieldImplPtr>;
+    using NamespacesMap = std::map<std::string, NamespaceImplPtr>;
 
     static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
     void handleXmlError(xmlErrorPtr err);
     bool validateDoc(::xmlDocPtr doc);
     bool validateSchema(::xmlNodePtr node);
     bool validateNewSchema(::xmlNodePtr node);
-    bool processMultipleFields(::xmlNodePtr node);
-    bool processMessage(::xmlNodePtr node);
-    bool processMultipleMessages(::xmlNodePtr node);
-    bool processFrame(::xmlNodePtr node);
-    bool processMultipleFrames(::xmlNodePtr node);
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;
@@ -79,7 +80,8 @@ private:
     ErrorLevel m_minLevel = ErrorLevel_Info;
     mutable Logger m_logger;
     SchemaImplPtr m_schema;
-    FieldsMap m_fields;
+    NamespacesMap m_namespaces;
+    NamespacesList m_namespacesList;
 };
 
 } // namespace bbmp

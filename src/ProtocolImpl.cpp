@@ -3,6 +3,7 @@
 #include <iostream>
 #include <type_traits>
 #include <cassert>
+#include <algorithm>
 
 #include "XmlWrap.h"
 #include "FieldImpl.h"
@@ -71,6 +72,16 @@ bool ProtocolImpl::validate()
         }
     }
 
+    m_namespacesList.clear();
+    m_namespacesList.reserve(m_namespaces.size());
+    for (auto& n : m_namespaces) {
+        if (!n.second->finalise()) {
+            return false;
+        }
+
+        m_namespacesList.emplace_back(n.second.get());
+    }
+
     m_validated = true;
     return true;
 }
@@ -99,12 +110,16 @@ const SchemaImpl& ProtocolImpl::schemaImpl() const
 
 FieldImpl* ProtocolImpl::findField(const std::string& name)
 {
-    auto iter = m_fields.find(name);
-    if (iter == m_fields.end()) {
-        return nullptr;
-    }
+    static_cast<void>(name);
+    logError() << __FUNCTION__ << ": NYI";
+    // TODO: find among namespaces
+    return nullptr;
+//    auto iter = m_fields.find(name);
+//    if (iter == m_fields.end()) {
+//        return nullptr;
+//    }
 
-    return iter->second.get();
+//    return iter->second.get();
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
@@ -167,31 +182,54 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
         return false;
     }
 
+    auto namespaces = XmlWrap::getChildren(root, common::nsStr());
+    for (auto& n : namespaces) {
+        NamespaceImplPtr ns(new NamespaceImpl(n, *this));
+        if (!ns->parse()) {
+            return false;
+        }
 
-    using ProcessFunc = bool (ProtocolImpl::*)(::xmlNodePtr node);
-    static const std::map<std::string, ProcessFunc> ParseFuncMap = {
-        std::make_pair(common::fieldsStr(), &ProtocolImpl::processMultipleFields),
-        std::make_pair(common::messageStr(), &ProtocolImpl::processMessage),
-        std::make_pair(common::messagesStr(), &ProtocolImpl::processMultipleMessages),
-        std::make_pair(common::frameStr(), &ProtocolImpl::processFrame),
-        std::make_pair(common::framesStr(), &ProtocolImpl::processMultipleFrames),
-    };
-
-    auto childrenNodes = XmlWrap::getChildren(root);
-    for (auto* c : childrenNodes) {
-        std::string cName(reinterpret_cast<const char*>(c->name));
-        auto iter = ParseFuncMap.find(cName);
-        if (iter == ParseFuncMap.end()) {
+        auto iter = m_namespaces.find(ns->name());
+        if (iter == m_namespaces.end()) {
+            auto& nsName = ns->name();
+            m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
             continue;
         }
 
-        auto func = iter->second;
-        bool result = (this->*func)(c);
-        if (!result) {
+        assert(iter->second);
+        if (!iter->second->merge(*ns)) {
             return false;
         }
     }
 
+    auto& nsChildren = NamespaceImpl::supportedChildren();
+    auto globalNsChildren = XmlWrap::getChildren(root, nsChildren);
+    do {
+        if (globalNsChildren.empty()) {
+            break;
+        }
+
+        NamespaceImplPtr ns(new NamespaceImpl(nullptr, *this));
+
+        for (auto c : globalNsChildren) {
+            if (!ns->processChild(c)) {
+                return false;
+            }
+        }
+
+        auto& globalNsPtr = m_namespaces[std::string()]; // create if needed
+        if (!globalNsPtr) {
+            globalNsPtr = std::move(ns);
+            break;
+        }
+
+        if (!globalNsPtr->merge(*ns)) {
+            return false;
+        }
+
+    } while (false);
+
+    // TODO: store unexpected children
     return true;
 }
 
@@ -252,73 +290,6 @@ bool ProtocolImpl::validateNewSchema(::xmlNodePtr node)
 {
     m_schema.reset(new SchemaImpl(node, m_logger));
     return m_schema->processNode();
-}
-
-bool ProtocolImpl::processMultipleFields(::xmlNodePtr node)
-{
-    auto childrenNodes = XmlWrap::getChildren(node);
-    for (auto* c : childrenNodes) {
-        std::string cName(reinterpret_cast<const char*>(c->name));
-        auto field = FieldImpl::create(cName, c, *this);
-        if (!field) {
-            logError() << XmlWrap::logPrefix(c) << "Invalid field type \"" << cName << "\"";
-            return false;
-        }
-
-        if (!field->parse()) {
-            logError() << XmlWrap::logPrefix(c) << "Parsing of \"" << cName << "\" has failed.";
-            return false;
-        }
-
-        auto& name = field->name();
-        if (name.empty()) {
-            logError() << XmlWrap::logPrefix(c) << "Field \"" << cName << "\" doesn't have any name.";
-            return false;
-        }
-
-        auto iter = m_fields.find(name);
-        if (iter != m_fields.end()) {
-            logError() << XmlWrap::logPrefix(c) << "Field with name \"" << name << "\" has been already defined at " <<
-                          iter->second->getNode()->doc->URL << ":" << iter->second->getNode()->line << '.';
-            return false;
-        }
-
-        m_fields.insert(std::make_pair(name, std::move(field)));
-    }
-
-    return true;
-}
-
-bool ProtocolImpl::processMessage(::xmlNodePtr node)
-{
-    static_cast<void>(node);
-    // TODO:
-    logError() << __FUNCTION__ << ": NYI!";
-    return false;
-}
-
-bool ProtocolImpl::processMultipleMessages(::xmlNodePtr node)
-{
-    static_cast<void>(node);
-    // TODO:
-    logError() << __FUNCTION__ << ": NYI!";
-    return false;
-}
-
-bool ProtocolImpl::processFrame(::xmlNodePtr node)
-{
-    static_cast<void>(node);
-    // TODO:
-    logError() << __FUNCTION__ << ": NYI!";
-    return false;
-}
-
-bool ProtocolImpl::processMultipleFrames(::xmlNodePtr node)
-{
-    static_cast<void>(node);
-    // TODO:
-    logError() << __FUNCTION__ << ": NYI!";
-    return false;
 }
 
 LogWrapper ProtocolImpl::logError() const

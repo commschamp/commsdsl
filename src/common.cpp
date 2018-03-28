@@ -258,6 +258,12 @@ const std::string& origStr()
     return Str;
 }
 
+const std::string& nsStr()
+{
+    static const std::string Str("ns");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

@@ -57,7 +57,10 @@ add_definitions (-DBBMP_LIB_EXPORT)
 set (
     src
     "Protocol.cpp"
+    "Field.cpp"
+    "Namespace.cpp"
     "ProtocolImpl.cpp"
+    "NamespaceImpl.cpp"
     "XmlWrap.cpp"
     "SchemaImpl.cpp"
     "Schema.cpp"
