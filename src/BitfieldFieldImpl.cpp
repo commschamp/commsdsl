@@ -49,6 +49,11 @@ Object::ObjKind BitfieldFieldImpl::objKindImpl() const
     return ObjKind::Bitfield;
 }
 
+FieldImpl::Kind BitfieldFieldImpl::kindImpl() const
+{
+    return Kind::Bitfield;
+}
+
 FieldImpl::Ptr BitfieldFieldImpl::cloneImpl() const
 {
     return Ptr(new BitfieldFieldImpl(*this));

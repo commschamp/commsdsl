@@ -8,6 +8,7 @@
 
 #include "common.h"
 #include "ProtocolImpl.h"
+#include "util.h"
 
 namespace bbmp
 {
@@ -59,14 +60,14 @@ std::intmax_t minTypeValue(IntFieldImpl::Type t)
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == IntFieldImpl::Type_numOfValues, "Invalid map");
+    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues), "Invalid map");
 
-    if (MapSize <= t) {
+    if (MapSize <= util::toUnsigned(t)) {
         assert(!"Mustn't happen");
         return maxValueForType<std::intmax_t>();
     }
 
-    return Map[t];
+    return Map[util::toUnsigned(t)];
 }
 
 std::intmax_t maxTypeValue(IntFieldImpl::Type t)
@@ -86,14 +87,15 @@ std::intmax_t maxTypeValue(IntFieldImpl::Type t)
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == IntFieldImpl::Type_numOfValues, "Invalid map");
+    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues),
+                  "Invalid map");
 
-    if (MapSize <= t) {
+    if (MapSize <= util::toUnsigned(t)) {
         assert(!"Mustn't happen");
         return minValueForType<std::intmax_t>();
     }
 
-    return Map[t];
+    return Map[util::toUnsigned(t)];
 }
 
 std::size_t maxTypeLength(IntFieldImpl::Type t)
@@ -113,14 +115,15 @@ std::size_t maxTypeLength(IntFieldImpl::Type t)
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == IntFieldImpl::Type_numOfValues, "Invalid map");
+    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues),
+                  "Invalid map");
 
-    if (MapSize <= t) {
+    if (MapSize <= util::toUnsigned(t)) {
         assert(!"Mustn't happen");
         return 0U;
     }
 
-    return Map[t];
+    return Map[util::toUnsigned(t)];
 }
 
 std::intmax_t calcMaxFixedSignedValue(std::size_t bitsLen) {
@@ -185,11 +188,11 @@ std::intmax_t calcMinVarSignedValue(std::size_t bitsLen) {
 bool isTypeUnsigned(IntFieldImpl::Type t)
 {
     static const IntFieldImpl::Type UnsignedTypes[] = {
-        IntFieldImpl::Type_uint8,
-        IntFieldImpl::Type_uint16,
-        IntFieldImpl::Type_uint32,
-        IntFieldImpl::Type_uint64,
-        IntFieldImpl::Type_uintvar
+        IntFieldImpl::Type::Uint8,
+        IntFieldImpl::Type::Uint16,
+        IntFieldImpl::Type::Uint32,
+        IntFieldImpl::Type::Uint64,
+        IntFieldImpl::Type::Uintvar
     };
 
     auto iter = std::find(std::begin(UnsignedTypes), std::end(UnsignedTypes), t);
@@ -198,7 +201,7 @@ bool isTypeUnsigned(IntFieldImpl::Type t)
 
 bool isBigUnsigned(IntFieldImpl::Type t)
 {
-    return (t == IntFieldImpl::Type_uint64) || (t == IntFieldImpl::Type_uintvar);
+    return (t == IntFieldImpl::Type::Uint64) || (t == IntFieldImpl::Type::Uintvar);
 }
 
 std::intmax_t calcMinValue(IntFieldImpl::Type t, std::size_t bitsLen)
@@ -207,7 +210,7 @@ std::intmax_t calcMinValue(IntFieldImpl::Type t, std::size_t bitsLen)
         return 0;
     }
 
-    if (t == IntFieldImpl::Type_intvar) {
+    if (t == IntFieldImpl::Type::Intvar) {
         return calcMinVarSignedValue(bitsLen);
     }
 
@@ -216,7 +219,7 @@ std::intmax_t calcMinValue(IntFieldImpl::Type t, std::size_t bitsLen)
 
 std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t bitsLen)
 {
-    if (t == IntFieldImpl::Type_uintvar) {
+    if (t == IntFieldImpl::Type::Uintvar) {
         return calcMaxVarUnsignedValue(bitsLen);
     }
 
@@ -229,7 +232,7 @@ std::intmax_t calcMaxValue(IntFieldImpl::Type t, std::size_t bitsLen)
         return static_cast<std::intmax_t>(calcMaxUnsignedValue(t, bitsLen));
     }
 
-    if (t == IntFieldImpl::Type_intvar) {
+    if (t == IntFieldImpl::Type::Intvar) {
         return calcMaxVarSignedValue(bitsLen);
     }
 
@@ -246,6 +249,11 @@ std::intmax_t calcMaxValue(IntFieldImpl::Type t, std::size_t bitsLen)
 IntFieldImpl::IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
+}
+
+FieldImpl::Kind IntFieldImpl::kindImpl() const
+{
+    return Kind::Int;
 }
 
 IntFieldImpl::IntFieldImpl(const IntFieldImpl&) = default;
@@ -310,14 +318,14 @@ std::size_t IntFieldImpl::bitLengthImpl() const
 
 bool IntFieldImpl::updateType()
 {
-    bool mustHave = (m_type == Type_numOfValues);
+    bool mustHave = (m_type == Type::NumOfValues);
     if (!validateSinglePropInstance(common::typeStr(), mustHave)) {
         return false;
     }
 
     auto propsIter = props().find(common::typeStr());
     if (propsIter == props().end()) {
-        assert(m_type != Type_numOfValues);
+        assert(m_type != Type::NumOfValues);
         return true;
     }
 
@@ -336,7 +344,7 @@ bool IntFieldImpl::updateType()
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == Type_numOfValues, "Invalid map");
+    static_assert(MapSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
 
     auto iter = std::find(std::begin(Map), std::end(Map), propsIter->second);
     if (iter == std::end(Map)) {
@@ -440,7 +448,7 @@ bool IntFieldImpl::updateBitLength()
         return true;
     }
 
-    if ((m_type == Type_intvar) || (m_type == Type_uintvar)) {
+    if ((m_type == Type::Intvar) || (m_type == Type::Uintvar)) {
         logError() << XmlWrap::logPrefix((getNode())) <<
                       "Bitfield member cannot have variable length type.";
         return false;
@@ -773,10 +781,6 @@ bool IntFieldImpl::updateValidRanges()
 bool IntFieldImpl::updateSpecials()
 {
     auto specials = XmlWrap::getChildren(getNode(), common::specialStr());
-    std::map<std::string, std::intmax_t> specialsMap;
-
-    std::copy(m_specials.begin(), m_specials.end(), std::inserter(specialsMap, specialsMap.end()));
-
     for (auto* s : specials) {
         static const XmlWrap::NamesList PropNames = {
             common::nameStr(),
@@ -799,8 +803,8 @@ bool IntFieldImpl::updateSpecials()
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
-        auto specialsIter = specialsMap.find(nameIter->second);
-        if (specialsIter != specialsMap.end()) {
+        auto specialsIter = m_specials.find(nameIter->second);
+        if (specialsIter != m_specials.end()) {
             logError() << XmlWrap::logPrefix(s) << "Special with name \"" << nameIter->second <<
                           "\" was already assigned to \"" << name() << "\" element.";
             return false;
@@ -847,12 +851,9 @@ bool IntFieldImpl::updateSpecials()
             return false;
         }
 
-        specialsMap.emplace(nameIter->second, val);
+        m_specials.emplace(nameIter->second, val);
     }
 
-    m_specials.clear();
-    m_specials.reserve(specialsMap.size());
-    std::copy(specialsMap.begin(), specialsMap.end(), std::back_inserter(m_specials));
     return true;
 }
 

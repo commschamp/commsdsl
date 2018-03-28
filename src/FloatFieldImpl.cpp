@@ -53,6 +53,11 @@ FloatFieldImpl::FloatFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
+FieldImpl::Kind FloatFieldImpl::kindImpl() const
+{
+    return Kind::Float;
+}
+
 FloatFieldImpl::FloatFieldImpl(const FloatFieldImpl&) = default;
 
 FieldImpl::Ptr FloatFieldImpl::cloneImpl() const

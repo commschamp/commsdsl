@@ -21,6 +21,7 @@ public:
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
     using FieldsList = std::vector<Ptr>;
+    using Kind = Field::Kind;
 
     static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
     Ptr clone() const
@@ -48,6 +49,11 @@ public:
     const std::string& name() const;
     const std::string& displayName() const;
     const std::string& description() const;
+
+    Kind kind() const
+    {
+        return kindImpl();
+    }
 
     std::size_t length() const
     {
@@ -105,6 +111,7 @@ protected:
     LogWrapper logWarning() const;
 
     virtual ObjKind objKindImpl() const override;
+    virtual Kind kindImpl() const = 0;
     virtual Ptr cloneImpl() const = 0;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const;

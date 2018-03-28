@@ -59,6 +59,7 @@ set (
     "Protocol.cpp"
     "Field.cpp"
     "Namespace.cpp"
+    "IntField.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"

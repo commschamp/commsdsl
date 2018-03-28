@@ -18,6 +18,7 @@ public:
     RefFieldImpl(const RefFieldImpl& other);
 
 protected:
+    virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;

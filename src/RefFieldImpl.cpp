@@ -18,6 +18,11 @@ RefFieldImpl::RefFieldImpl(const RefFieldImpl& other)
 {
 }
 
+FieldImpl::Kind RefFieldImpl::kindImpl() const
+{
+    return Kind::Ref;
+}
+
 FieldImpl::Ptr RefFieldImpl::cloneImpl() const
 {
     return Ptr(new RefFieldImpl(*this));

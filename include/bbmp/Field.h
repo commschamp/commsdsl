@@ -13,12 +13,26 @@ class BBMP_API Field
 {
 public:
 
+    enum class Kind
+    {
+        Int,
+        Float,
+        Bitfield,
+        Bundle,
+        Ref,
+        NumOfValues
+    };
+
     explicit Field(const FieldImpl* impl);
     Field(const Field& other);
     ~Field();
 
     const std::string& name() const;
-private:
+    const std::string& displayName() const;
+    const std::string& description() const;
+    Kind kind() const;
+
+protected:
     const FieldImpl* m_pImpl;
 };
 

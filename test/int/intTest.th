@@ -1,9 +1,10 @@
 #include <type_traits>
 #include <memory>
 #include <vector>
+#include <limits>
 
 #include "cxxtest/TestSuite.h"
-#include "bbmp/Protocol.h"
+#include "bbmp/bbmp.h"
 
 #ifndef SCHEMAS_DIR
 #define SCHEMAS_DIR "."
@@ -47,6 +48,28 @@ void IntTestSuite::test1()
     auto& fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Int);
+
+    bbmp::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(intField.length(), 1U);
+    TS_ASSERT_EQUALS(intField.bitLength(), 8U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), 0);
+    TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint8_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 0);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 1);
+    TS_ASSERT(validRanges.empty());
+    TS_ASSERT(specialValues.empty());
 }
 
 IntTestSuite::ProtocolPtr IntTestSuite::prepareProtocol(const std::string& schema)

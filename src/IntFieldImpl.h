@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "bbmp/Endian.h"
+#include "bbmp/IntField.h"
 #include "FieldImpl.h"
 
 namespace bbmp
@@ -14,31 +15,73 @@ class IntFieldImpl : public FieldImpl
 {
     using Base = FieldImpl;
 public:
-    enum Type
-    {
-        Type_int8,
-        Type_uint8,
-        Type_int16,
-        Type_uint16,
-        Type_int32,
-        Type_uint32,
-        Type_int64,
-        Type_uint64,
-        Type_intvar,
-        Type_uintvar,
-        Type_numOfValues
-    };
+    using Type = IntField::Type;
 
-    using ValidRange = std::pair<std::intmax_t, std::intmax_t>;
-    using ValidRangesList = std::vector<ValidRange>;
-    using ScalingRatio = std::pair<std::intmax_t, std::intmax_t>;
-    using SpecialValue = std::pair<std::string, std::intmax_t>;
-    using SpecialValuesList = std::vector<SpecialValue>;
+    using ValidRange = IntField::ValidRange;
+    using ValidRangesList = IntField::ValidRangesList;
+    using ScalingRatio = IntField::ScalingRatio;
+    using SpecialValues = IntField::SpecialValues;
 
     IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     IntFieldImpl(const IntFieldImpl&);
 
+    Type type() const
+    {
+        return m_type;
+    }
+
+    Endian endian() const
+    {
+        return m_endian;
+    }
+
+    std::size_t length() const
+    {
+        return m_length;
+    }
+
+    std::size_t bitLength() const
+    {
+        return m_bitLength;
+    }
+
+    std::intmax_t serOffset() const
+    {
+        return m_serOffset;
+    }
+
+    std::intmax_t minValue() const
+    {
+        return m_minValue;
+    }
+
+    std::intmax_t maxValue() const
+    {
+        return m_maxValue;
+    }
+
+    std::intmax_t defaultValue() const
+    {
+        return m_defaultValue;
+    }
+
+    ScalingRatio scaling() const
+    {
+        return m_scaling;
+    }
+
+    const ValidRangesList& validRanges() const
+    {
+        return m_validRanges;
+    }
+
+    const SpecialValues& specialValues() const
+    {
+        return m_specials;
+    }
+
 protected:
+    virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
@@ -64,7 +107,7 @@ private:
     bool strToNumeric(const std::string& str, std::intmax_t& val);
     bool isBitfieldMember() const;
 
-    Type m_type = Type_numOfValues;
+    Type m_type = Type::NumOfValues;
     Endian m_endian = Endian_NumOfValues;
     std::size_t m_length = 0U;
     std::size_t m_bitLength = 0U;
@@ -76,7 +119,7 @@ private:
     std::intmax_t m_defaultValue = 0;
     ScalingRatio m_scaling;
     ValidRangesList m_validRanges;
-    SpecialValuesList m_specials;
+    SpecialValues m_specials;
 };
 
 } // namespace bbmp

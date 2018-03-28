@@ -47,6 +47,11 @@ Object::ObjKind BundleFieldImpl::objKindImpl() const
     return ObjKind::Bundle;
 }
 
+FieldImpl::Kind BundleFieldImpl::kindImpl() const
+{
+    return Kind::Bundle;
+}
+
 FieldImpl::Ptr BundleFieldImpl::cloneImpl() const
 {
     return Ptr(new BundleFieldImpl(*this));
