@@ -1,4 +1,5 @@
 #include "bbmp/Field.h"
+#include <cassert>
 
 #include "FieldImpl.h"
 
@@ -16,21 +17,25 @@ Field::~Field() = default;
 
 const std::string& Field::name() const
 {
+    assert(m_pImpl != nullptr);
     return m_pImpl->name();
 }
 
 const std::string& Field::displayName() const
 {
+    assert(m_pImpl != nullptr);
     return m_pImpl->displayName();
 }
 
 const std::string& Field::description() const
 {
+    assert(m_pImpl != nullptr);
     return m_pImpl->description();
 }
 
 Field::Kind Field::kind() const
 {
+    assert(m_pImpl != nullptr);
     return m_pImpl->kind();
 }
 

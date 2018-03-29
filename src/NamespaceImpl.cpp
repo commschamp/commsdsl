@@ -68,7 +68,12 @@ bool NamespaceImpl::parse()
 
     m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, ChildrenNames);
 
-    // TODO: parse fields, messages, frames
+    auto children = XmlWrap::getChildren(m_node, ChildrenNames);
+    for (auto* c : children) {
+        if (!processChild(c)) {
+            return false;
+        }
+    }
     return true;
 }
 

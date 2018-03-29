@@ -12,6 +12,7 @@ namespace
 
 const IntFieldImpl* cast(const FieldImpl* ptr)
 {
+    assert(ptr != nullptr);
     return static_cast<const IntFieldImpl*>(ptr);
 }
 
