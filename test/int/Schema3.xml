@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="big">
+        
+    <ns name="my_ns1">
+        <fields>
+            <int name="Year" type="int16" units="years" defaultValue="2000" validRange="[2000, 2100]" serOffset="-2000" length="1"/>
+        </fields>
+    </ns>
+    <ns name="my_ns2">
+        <fields>
+            <int>
+                <name value="Year" />
+                <type value="int16" />
+                <units value="years" />
+                <defaultValue value="2000" />
+                <validRange value="[2000, 2100]" />
+                <serOffset value="-2000" />
+                <length value="1" />
+            </int>
+        </fields>
+    </ns>
+    <ns name="my_ns3">
+        <fields>
+            <int>
+                <name>Year</name>
+                <type>int16</type>
+                <units>years</units>
+                <defaultValue>2000</defaultValue>
+                <validRange>[2000, 2100]</validRange>
+                <serOffset>-2000</serOffset>
+                <length>1</length>
+            </int>
+        </fields>
+    </ns>    
+</schema>

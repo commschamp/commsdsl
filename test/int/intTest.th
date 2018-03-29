@@ -16,6 +16,9 @@ public:
     void setUp();
     void test1();
     void test2();
+    void test3();
+    void test4();
+
 private:
     using ProtocolPtr = std::unique_ptr<bbmp::Protocol>;
     using ErrLevelList = std::vector<bbmp::ErrorLevel>;
@@ -124,6 +127,7 @@ void IntTestSuite::test2()
     TS_ASSERT_EQUALS(intField1.length(), intField3.length());
     TS_ASSERT_EQUALS(intField1.bitLength(), 16U);
     TS_ASSERT_EQUALS(intField1.bitLength(), intField2.bitLength());
+    TS_ASSERT_EQUALS(intField1.bitLength(), intField3.bitLength());
     TS_ASSERT_EQUALS(intField1.serOffset(), 0);
     TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
     TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
@@ -148,6 +152,182 @@ void IntTestSuite::test2()
     TS_ASSERT(specialValues1.empty());
     TS_ASSERT(specialValues2.empty());
     TS_ASSERT(specialValues3.empty());
+}
+
+void IntTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 3U);
+
+    auto& ns1 = namespaces[0];
+    auto& ns2 = namespaces[1];
+    auto& ns3 = namespaces[2];
+
+    TS_ASSERT_EQUALS(ns1.name(), "my_ns1");
+    TS_ASSERT_EQUALS(ns2.name(), "my_ns2");
+    TS_ASSERT_EQUALS(ns3.name(), "my_ns3");
+
+    auto& fields1 = ns1.fields();
+    auto& fields2 = ns2.fields();
+    auto& fields3 = ns3.fields();
+
+    TS_ASSERT_EQUALS(fields1.size(), 1U);
+    TS_ASSERT_EQUALS(fields2.size(), 1U);
+    TS_ASSERT_EQUALS(fields3.size(), 1U);
+
+    auto& field1 = fields1.front();
+    auto& field2 = fields2.front();
+    auto& field3 = fields3.front();
+
+    TS_ASSERT_EQUALS(field1.name(), "Year");
+    TS_ASSERT_EQUALS(field1.name(), field2.name());
+    TS_ASSERT_EQUALS(field1.name(), field3.name());
+    TS_ASSERT(field1.displayName().empty());
+    TS_ASSERT(field2.displayName().empty());
+    TS_ASSERT(field3.displayName().empty());
+    TS_ASSERT_EQUALS(field1.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field1.kind(), field2.kind());
+    TS_ASSERT_EQUALS(field1.kind(), field3.kind());
+
+    bbmp::IntField intField1(field1);
+    bbmp::IntField intField2(field2);
+    bbmp::IntField intField3(field3);
+    auto scaling1 = intField1.scaling();
+    auto scaling2 = intField2.scaling();
+    auto scaling3 = intField3.scaling();
+    auto& validRanges1 = intField1.validRanges();
+    auto& validRanges2 = intField2.validRanges();
+    auto& validRanges3 = intField3.validRanges();
+    auto& specialValues1 = intField1.specialValues();
+    auto& specialValues2 = intField2.specialValues();
+    auto& specialValues3 = intField3.specialValues();
+
+    TS_ASSERT_EQUALS(intField1.type(), bbmp::IntField::Type::Int16);
+    TS_ASSERT_EQUALS(intField1.type(), intField2.type());
+    TS_ASSERT_EQUALS(intField1.type(), intField3.type());
+    TS_ASSERT_EQUALS(intField1.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(intField1.endian(), intField2.endian());
+    TS_ASSERT_EQUALS(intField1.endian(), intField3.endian());
+    TS_ASSERT_EQUALS(intField1.length(), 1U);
+    TS_ASSERT_EQUALS(intField1.length(), intField2.length());
+    TS_ASSERT_EQUALS(intField1.length(), intField3.length());
+    TS_ASSERT_EQUALS(intField1.bitLength(), 8U);
+    TS_ASSERT_EQUALS(intField1.bitLength(), intField2.bitLength());
+    TS_ASSERT_EQUALS(intField1.bitLength(), intField3.bitLength());
+    TS_ASSERT_EQUALS(intField1.serOffset(), -2000);
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
+    TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min() + 2000);
+    TS_ASSERT_EQUALS(intField1.minValue(), intField2.minValue());
+    TS_ASSERT_EQUALS(intField1.minValue(), intField3.minValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max() + 2000);
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField2.maxValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField3.maxValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), 2000);
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField2.defaultValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField3.defaultValue());
+    TS_ASSERT_EQUALS(scaling1.first, 1);
+    TS_ASSERT_EQUALS(scaling1.second, 1);
+    TS_ASSERT_EQUALS(scaling1, scaling2);
+    TS_ASSERT_EQUALS(scaling1, scaling3);
+    TS_ASSERT_EQUALS(validRanges1.size(), 1U);
+    TS_ASSERT_EQUALS(validRanges1.front().first, 2000);
+    TS_ASSERT_EQUALS(validRanges1.front().second, 2100);
+    TS_ASSERT_EQUALS(validRanges1, validRanges2);
+    TS_ASSERT_EQUALS(validRanges1, validRanges3);
+    TS_ASSERT(specialValues1.empty());
+    TS_ASSERT(specialValues2.empty());
+    TS_ASSERT(specialValues3.empty());
+}
+
+void IntTestSuite::test4()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field1 = fields[0];
+    auto& field2 = fields[1];
+    auto& field3 = fields[2];
+
+    TS_ASSERT_EQUALS(field1.name(), "Int1");
+    TS_ASSERT_EQUALS(field2.name(), "Int2");
+    TS_ASSERT_EQUALS(field3.name(), "Int3");
+    TS_ASSERT_EQUALS(field1.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field1.kind(), field2.kind());
+    TS_ASSERT_EQUALS(field1.kind(), field3.kind());
+
+    bbmp::IntField intField1(field1);
+    bbmp::IntField intField2(field2);
+    bbmp::IntField intField3(field3);
+    auto scaling1 = intField1.scaling();
+    auto scaling2 = intField2.scaling();
+    auto scaling3 = intField3.scaling();
+    auto& validRanges1 = intField1.validRanges();
+    auto& validRanges2 = intField2.validRanges();
+    auto& validRanges3 = intField3.validRanges();
+    auto& specialValues1 = intField1.specialValues();
+    auto& specialValues2 = intField2.specialValues();
+    auto& specialValues3 = intField3.specialValues();
+
+    TS_ASSERT_EQUALS(intField1.type(), bbmp::IntField::Type::Int8);
+    TS_ASSERT_EQUALS(intField1.type(), intField2.type());
+    TS_ASSERT_EQUALS(intField1.type(), intField3.type());
+    TS_ASSERT_EQUALS(intField1.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(intField1.endian(), intField2.endian());
+    TS_ASSERT_EQUALS(intField1.endian(), intField3.endian());
+    TS_ASSERT_EQUALS(intField1.length(), 1U);
+    TS_ASSERT_EQUALS(intField1.length(), intField2.length());
+    TS_ASSERT_EQUALS(intField1.length(), intField3.length());
+    TS_ASSERT_EQUALS(intField1.bitLength(), 8U);
+    TS_ASSERT_EQUALS(intField1.bitLength(), intField2.bitLength());
+    TS_ASSERT_EQUALS(intField1.bitLength(), intField3.bitLength());
+    TS_ASSERT_EQUALS(intField1.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
+    TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min());
+    TS_ASSERT_EQUALS(intField1.minValue(), intField2.minValue());
+    TS_ASSERT_EQUALS(intField1.minValue(), intField3.minValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max());
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField2.maxValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField3.maxValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), 10);
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField2.defaultValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField3.defaultValue());
+    TS_ASSERT_EQUALS(scaling1.first, 1);
+    TS_ASSERT_EQUALS(scaling1.second, 1);
+    TS_ASSERT_EQUALS(scaling1, scaling2);
+    TS_ASSERT_EQUALS(scaling1, scaling3);
+    TS_ASSERT_EQUALS(validRanges1.size(), 3U);
+    auto& range1 = validRanges1[0];
+    auto& range2 = validRanges1[1];
+    auto& range3 = validRanges1[2];
+    TS_ASSERT_EQUALS(range1.first, 10);
+    TS_ASSERT_EQUALS(range1.second, 10);
+    TS_ASSERT_EQUALS(range2.first, 100);
+    TS_ASSERT_EQUALS(range2.second, 120);
+    TS_ASSERT_EQUALS(range3.first, 130);
+    TS_ASSERT_EQUALS(range3.second, 140);
+    TS_ASSERT_EQUALS(validRanges1, validRanges2);
+    TS_ASSERT_EQUALS(validRanges1, validRanges3);
+    TS_ASSERT_EQUALS(specialValues1.size(), 2U);
+    auto& special1 = *specialValues1.begin();
+    auto& special2 = *(++specialValues1.begin());
+    TS_ASSERT_EQUALS(special1.first, "val1");
+    TS_ASSERT_EQUALS(special1.second, 100);
+    TS_ASSERT_EQUALS(special2.first, "val2");
+    TS_ASSERT_EQUALS(special2.second, 101);
+    TS_ASSERT_EQUALS(specialValues1, specialValues2);
+    TS_ASSERT_EQUALS(specialValues1, specialValues3);
 }
 
 IntTestSuite::ProtocolPtr IntTestSuite::prepareProtocol(const std::string& schema)

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="little">
+        
+    <fields>
+        <int name="Int1" type="int8" defaultValue="10" validValue="10" validRange="[100, 110]">
+            <special name="val1" val="100" />
+            <special name="val2" val="101" />
+            <validRange value="[111, 120]" />
+            <validRange value="[130, 140]" />
+        </int>
+        <int>
+            <name value="Int2" />
+            <type value="int8" />
+            <special>
+                <name value="val1" />
+                <val value="100" />
+            </special>
+            <special>
+                <name value="val2" />
+                <val value="101" />
+            </special>
+            <validValue value="10" />
+            <defaultValue value="10" />
+            <validRange value="[111, 120]" />
+            <validRange value="[130, 140]" />
+            <validRange value="[100, 110]" />            
+        </int>
+        <int>
+            <name>Int3</name>
+            <type>int8</type>
+            <special>
+                <name>val1</name>
+                <val>100</val>
+            </special>
+            <special>
+                <name>val2</name>
+                <val>101</val>
+            </special>
+            <validValue>10</validValue>
+            <defaultValue>10</defaultValue>
+            <validRange>[111, 120]</validRange>
+            <validRange>[130, 140]</validRange>
+            <validRange>[100, 110]</validRange>            
+        </int>        
+    </fields>
+</schema>
