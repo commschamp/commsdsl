@@ -56,7 +56,7 @@ private:
     {
         void operator()(::xmlDocPtr p) const
         {
-            ::xmlFree(p);
+            ::xmlFreeDoc(p);
         }
     };
 
