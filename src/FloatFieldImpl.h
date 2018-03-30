@@ -2,8 +2,10 @@
 
 #include <utility>
 #include <vector>
+#include <map>
 
 #include "bbmp/Endian.h"
+#include "bbmp/FloatField.h"
 #include "FieldImpl.h"
 
 namespace bbmp
@@ -13,21 +15,45 @@ class FloatFieldImpl : public FieldImpl
 {
     using Base = FieldImpl;
 public:
-    enum Type
-    {
-        Type_float,
-        Type_double,
-        Type_numOfValues
-    };
+    using Type = FloatField::Type;
 
-    using ValidRange = std::pair<double, double>;
-    using ValidRangesList = std::vector<ValidRange>;
-    using SpecialValue = std::pair<std::string, double>;
-    using SpecialValuesList = std::vector<SpecialValue>;
+    using ValidRange = FloatField::ValidRange;
+    using ValidRangesList = FloatField::ValidRangesList;
+    using SpecialValues = FloatField::SpecialValues;
 
 
     FloatFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FloatFieldImpl(const FloatFieldImpl&);
+
+    Type type() const
+    {
+        return m_type;
+    }
+
+    Endian endian() const
+    {
+        return m_endian;
+    }
+
+    std::size_t length() const
+    {
+        return m_length;
+    }
+
+    double defaultValue() const
+    {
+        return m_defaultValue;
+    }
+
+    const ValidRangesList& validRanges() const
+    {
+        return m_validRanges;
+    }
+
+    const SpecialValues& specialValues() const
+    {
+        return m_specials;
+    }
 
 protected:
     virtual Kind kindImpl() const override;
@@ -50,14 +76,14 @@ private:
     bool validateValidMinValueStr(const std::string& str);
     bool validateValidMaxValueStr(const std::string& str);
 
-    Type m_type = Type_numOfValues;
+    Type m_type = Type::NumOfValues;
     Endian m_endian = Endian_NumOfValues;
     std::size_t m_length = 0U;
     double m_typeAllowedMinValue = 0.0;
     double m_typeAllowedMaxValue = 0.0;
     double m_defaultValue = 0.0;
     ValidRangesList m_validRanges;
-    SpecialValuesList m_specials;
+    SpecialValues m_specials;
 };
 
 } // namespace bbmp

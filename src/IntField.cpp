@@ -74,12 +74,12 @@ IntField::ScalingRatio IntField::scaling() const
     return cast(m_pImpl)->scaling();
 }
 
-const IntField::ValidRangesList&IntField::validRanges() const
+const IntField::ValidRangesList& IntField::validRanges() const
 {
     return cast(m_pImpl)->validRanges();
 }
 
-const IntField::SpecialValues&IntField::specialValues() const
+const IntField::SpecialValues& IntField::specialValues() const
 {
     return cast(m_pImpl)->specialValues();
 }

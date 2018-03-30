@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema1"
+        id="1"
+        endian="big">
+    <description>
+        Schema1 description
+    </description>
+    <fields>
+        <float name="Float1" type="double" displayName="Float 1"/>
+        <float name="Float2" type="float" description="Float 2" endian="little"/>        
+    </fields>
+</schema>

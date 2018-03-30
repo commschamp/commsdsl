@@ -1,0 +1,65 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class FloatTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void test1();
+};
+
+void FloatTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void FloatTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.displayName(), "Float 1");
+        TS_ASSERT(field.description().empty());
+        TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Float);
+
+        bbmp::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), bbmp::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.length(), 8U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT(validRanges.empty());
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+
+    do {
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Float2");
+        TS_ASSERT(field.displayName().empty());
+        TS_ASSERT_EQUALS(field.description(), "Float 2");
+        TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Float);
+
+        bbmp::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), bbmp::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.length(), 4U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT(validRanges.empty());
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+}

@@ -36,7 +36,7 @@ function (test_func name)
 
     CXXTEST_ADD_TEST (${testName} ${runner} ${tests})
     target_compile_definitions (${testName} PRIVATE "-DSCHEMAS_DIR=\"${testDir}\"")
-    target_link_libraries(${testName} ${PROJECT_NAME})
+    target_link_libraries(${testName} ${COMMON_TEST_LIB_NAME} ${PROJECT_NAME})
 
 endfunction ()
 
@@ -58,6 +58,18 @@ if (NOT CXXTEST_FOUND)
     return()
 endif ()
 
-include_directories ("${CXXTEST_INCLUDE_DIR}")
+include_directories (
+    "${CXXTEST_INCLUDE_DIR}"
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+)
+
+set (COMMON_TEST_LIB_NAME "CommonTest")
+set (common_test_src
+    "CommonTestSuite.cpp"
+)
+
+add_library(${COMMON_TEST_LIB_NAME} STATIC ${common_test_src})
+target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME})
 
 test_func (int)
+test_func (float)

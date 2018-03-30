@@ -60,6 +60,7 @@ set (
     "Field.cpp"
     "Namespace.cpp"
     "IntField.cpp"
+    "FloatField.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"

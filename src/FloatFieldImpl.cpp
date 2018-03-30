@@ -7,6 +7,7 @@
 #include <cmath>
 
 #include "common.h"
+#include "util.h"
 #include "ProtocolImpl.h"
 
 namespace bbmp
@@ -123,7 +124,7 @@ bool FloatFieldImpl::updateType()
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == Type_numOfValues, "Invalid map");
+    static_assert(MapSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
 
     auto iter = std::find(std::begin(Map), std::end(Map), propsIter->second);
     if (iter == std::end(Map)) {
@@ -160,16 +161,16 @@ bool FloatFieldImpl::updateLength()
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == Type_numOfValues, "Invalid map");
+    static_assert(MapSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
     static_assert(sizeof(float) == 4U, "Invalid size assumption");
     static_assert(sizeof(double) == 8U, "Invalid size assumption");
 
-    if (MapSize <= m_type) {
+    if (MapSize <= util::toUnsigned(m_type)) {
         assert(!"Mustn't happen");
         return false;
     }
 
-    m_length = Map[m_type];
+    m_length = Map[util::toUnsigned(m_type)];
     return true;
 }
 
@@ -182,14 +183,14 @@ bool FloatFieldImpl::updateMinMaxValues()
 
     static const std::size_t MinValuesSize = std::extent<decltype(MinValues)>::value;
 
-    static_assert(MinValuesSize == Type_numOfValues, "Invalid map");
+    static_assert(MinValuesSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
 
-    if (MinValuesSize <= m_type) {
+    if (MinValuesSize <= util::toUnsigned(m_type)) {
         assert(!"Mustn't happen");
         return false;
     }
 
-    m_typeAllowedMinValue = MinValues[m_type];
+    m_typeAllowedMinValue = MinValues[util::toUnsigned(m_type)];
 
     static const double MaxValues[] = {
         /* Type_float */ std::numeric_limits<float>::max(),
@@ -198,14 +199,14 @@ bool FloatFieldImpl::updateMinMaxValues()
 
     static const std::size_t MaxValuesSize = std::extent<decltype(MaxValues)>::value;
 
-    static_assert(MaxValuesSize == Type_numOfValues, "Invalid map");
+    static_assert(MaxValuesSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
 
-    if (MaxValuesSize <= m_type) {
+    if (MaxValuesSize <= util::toUnsigned(m_type)) {
         assert(!"Mustn't happen");
         return false;
     }
 
-    m_typeAllowedMaxValue = MaxValues[m_type];
+    m_typeAllowedMaxValue = MaxValues[util::toUnsigned(m_type)];
     return true;
 }
 
@@ -333,9 +334,6 @@ bool FloatFieldImpl::updateValidRanges()
 bool FloatFieldImpl::updateSpecials()
 {
     auto specials = XmlWrap::getChildren(getNode(), common::specialStr());
-    std::map<std::string, double> specialsMap;
-
-    std::copy(m_specials.begin(), m_specials.end(), std::inserter(specialsMap, specialsMap.end()));
 
     for (auto* s : specials) {
         static const XmlWrap::NamesList PropNames = {
@@ -359,8 +357,8 @@ bool FloatFieldImpl::updateSpecials()
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
-        auto specialsIter = specialsMap.find(nameIter->second);
-        if (specialsIter != specialsMap.end()) {
+        auto specialsIter = m_specials.find(nameIter->second);
+        if (specialsIter != m_specials.end()) {
             logError() << XmlWrap::logPrefix(s) << "Special with name \"" << nameIter->second <<
                           "\" was already assigned to \"" << name() << "\" element.";
             return false;
@@ -385,12 +383,8 @@ bool FloatFieldImpl::updateSpecials()
             return false;
         }
 
-        specialsMap.emplace(nameIter->second, val);
+        m_specials.emplace(nameIter->second, val);
     }
-
-    m_specials.clear();
-    m_specials.reserve(specialsMap.size());
-    std::copy(specialsMap.begin(), specialsMap.end(), std::back_inserter(m_specials));
 
     return true;
 }
