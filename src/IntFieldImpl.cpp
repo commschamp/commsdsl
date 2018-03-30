@@ -500,13 +500,59 @@ bool IntFieldImpl::updateMinMaxValues()
     m_typeAllowedMinValue = minTypeValue(m_type);
     m_typeAllowedMaxValue = maxTypeValue(m_type);
 
-    m_minValue = calcMinValue(m_type, m_bitLength) - m_serOffset;
-    if (isTypeUnsigned(m_type)) {
-        m_maxValue = static_cast<decltype(m_maxValue)>(calcMaxUnsignedValue(m_type, m_bitLength)) - m_serOffset;
+    m_minValue = calcMinValue(m_type, m_bitLength);
+    m_maxValue = calcMaxValue(m_type, m_bitLength);
+
+    if (m_serOffset == 0) {
+        return true;
     }
-    else {
-        m_maxValue = calcMaxValue(m_type, m_bitLength) - m_serOffset;
+
+    auto updateMinValueFunc =
+        [this](auto& val)
+        {
+            using ValType = std::decay_t<decltype(val)>;
+            if (m_serOffset < 0) {
+                val -= m_serOffset;
+                return;
+            }
+
+            assert(0 < m_serOffset);
+            auto limit = std::numeric_limits<ValType>::min() + m_serOffset;
+            if (static_cast<ValType>(limit) < val) {
+                val -= m_serOffset;
+            }
+        };
+
+    auto updateMaxValueFunc =
+        [this](auto& val)
+        {
+            using ValType = std::decay_t<decltype(val)>;
+            if (m_serOffset < 0) {
+                auto limit = std::numeric_limits<ValType>::max() + m_serOffset;
+                if (val < static_cast<ValType>(limit)) {
+                    val -= m_serOffset;
+                }
+                return;
+            }
+
+            assert(0 < m_serOffset);
+            val -= m_serOffset;
+        };
+
+    if (!isTypeUnsigned(m_type)) {
+        updateMinValueFunc(m_minValue);
+        updateMaxValueFunc(m_maxValue);
+        return true;
     }
+
+    auto minValueTmp = static_cast<std::uint64_t>(m_minValue);
+    auto maxValueTmp = static_cast<std::uint64_t>(m_maxValue);
+
+    updateMinValueFunc(minValueTmp);
+    updateMaxValueFunc(maxValueTmp);
+
+    m_minValue = static_cast<std::uint64_t>(minValueTmp);
+    m_maxValue = static_cast<std::uint64_t>(maxValueTmp);
 
     return true;
 }
@@ -565,6 +611,7 @@ bool IntFieldImpl::updateDefaultValue()
             auto castedMaxValue = static_cast<decltype(v)>(m_maxValue);
             if ((v < castedMinValue) ||
                 (castedMaxValue < v)) {
+                this->logWarning() << v << " is not in range [" << castedMinValue << ", " << castedMaxValue << "]";
                 reportWarningFunc();
             }
 
