@@ -393,7 +393,8 @@ Endian parseEndian(const std::string& value, Endian defaultEndian)
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == Endian_NumOfValues, "Invalid map");
 
-    auto mapIter = std::find(std::begin(Map), std::end(Map), value);
+    auto valueCpy = toLowerCopy(value);
+    auto mapIter = std::find(std::begin(Map), std::end(Map), valueCpy);
     if (mapIter == std::end(Map)) {
         return Endian_NumOfValues;
     }

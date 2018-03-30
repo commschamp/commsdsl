@@ -1,4 +1,5 @@
 #include <limits>
+#include <cfloat>
 
 #include "CommonTestSuite.h"
 
@@ -7,6 +8,7 @@ class FloatTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 public:
     void setUp();
     void test1();
+    void test2();
 };
 
 void FloatTestSuite::setUp()
@@ -60,6 +62,74 @@ void FloatTestSuite::test1()
         TS_ASSERT_EQUALS(floatField.length(), 4U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
         TS_ASSERT(validRanges.empty());
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+}
+
+void FloatTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "my_ns");
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT(field.displayName().empty());
+        TS_ASSERT(field.description().empty());
+        TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Float);
+
+        bbmp::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), bbmp::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.length(), 8U);
+        TS_ASSERT(std::isnan(floatField.defaultValue()));
+        TS_ASSERT(validRanges.empty());
+        TS_ASSERT_EQUALS(specialValues.size(), 3U);
+        TS_ASSERT(std::isnan(specialValues.find("Null")->second));
+        auto s1 = specialValues.find("S1")->second;
+        auto s2 = specialValues.find("S2")->second;
+        TS_ASSERT_LESS_THAN(s1, std::numeric_limits<double>::min());
+        TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), s2);
+        TS_ASSERT(std::isinf(s1));
+        TS_ASSERT(std::isinf(s2));
+    } while (false);
+
+    do {
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Float2");
+        TS_ASSERT(field.displayName().empty());
+        TS_ASSERT(field.description().empty());
+        TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Float);
+
+        bbmp::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), bbmp::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.length(), 4U);
+        TS_ASSERT(std::isinf(floatField.defaultValue()));
+        TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), floatField.defaultValue());
+        TS_ASSERT_EQUALS(validRanges.size(), 3U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        auto& r3 = validRanges[2];
+        TS_ASSERT_LESS_THAN(std::abs(r1.first - std::numeric_limits<float>::lowest()), std::numeric_limits<float>::epsilon());
+        TS_ASSERT_LESS_THAN(std::abs(r1.second - std::numeric_limits<float>::max()), std::numeric_limits<float>::epsilon());
+        TS_ASSERT(std::isinf(r2.first));
+        TS_ASSERT_EQUALS(r2.first, r2.second);
+        TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), r2.first);
+        TS_ASSERT(std::isnan(r3.first));
+        TS_ASSERT(std::isnan(r3.second));
         TS_ASSERT(specialValues.empty());
     } while (false);
 }

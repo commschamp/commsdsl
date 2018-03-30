@@ -47,6 +47,44 @@ bool compareLess(double val1, double val2)
     return val1 < val2;
 }
 
+double minValueForType(FloatFieldImpl::Type value)
+{
+    static const double Values[] = {
+        /* Type::Float */ std::numeric_limits<float>::lowest(),
+        /* Type::Double */ std::numeric_limits<double>::lowest(),
+    };
+
+    static const std::size_t ValuesSize = std::extent<decltype(Values)>::value;
+
+    static_assert(ValuesSize == util::toUnsigned(FloatFieldImpl::Type::NumOfValues), "Invalid map");
+
+    if (ValuesSize <= util::toUnsigned(value)) {
+        assert(!"Mustn't happen");
+        value = FloatFieldImpl::Type::Float;
+    }
+
+    return Values[util::toUnsigned(value)];
+}
+
+double maxValueForType(FloatFieldImpl::Type value)
+{
+    static const double Values[] = {
+        /* Type::Float */ std::numeric_limits<float>::max(),
+        /* Type::Double */ std::numeric_limits<double>::max(),
+    };
+
+    static const std::size_t ValuesSize = std::extent<decltype(Values)>::value;
+
+    static_assert(ValuesSize == util::toUnsigned(FloatFieldImpl::Type::NumOfValues), "Invalid map");
+
+    if (ValuesSize <= util::toUnsigned(value)) {
+        assert(!"Mustn't happen");
+        value = FloatFieldImpl::Type::Float;
+    }
+
+    return Values[util::toUnsigned(value)];
+}
+
 } // namespace
 
 FloatFieldImpl::FloatFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
@@ -118,8 +156,8 @@ bool FloatFieldImpl::updateType()
     assert (propsIter != props().end());
 
     static const std::string Map[] = {
-        /* Type_float */ "float",
-        /* Type_double */ "double"
+        /* Type::Float */ "float",
+        /* Type::Double */ "double"
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -155,8 +193,8 @@ bool FloatFieldImpl::updateEndian()
 bool FloatFieldImpl::updateLength()
 {
     static const std::size_t Map[] = {
-        /* Type_float */ sizeof(float),
-        /* Type_double */ sizeof(double),
+        /* Type::Float */ sizeof(float),
+        /* Type::Double */ sizeof(double),
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -176,37 +214,8 @@ bool FloatFieldImpl::updateLength()
 
 bool FloatFieldImpl::updateMinMaxValues()
 {
-    static const double MinValues[] = {
-        /* Type_float */ std::numeric_limits<float>::min(),
-        /* Type_double */ std::numeric_limits<double>::min(),
-    };
-
-    static const std::size_t MinValuesSize = std::extent<decltype(MinValues)>::value;
-
-    static_assert(MinValuesSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
-
-    if (MinValuesSize <= util::toUnsigned(m_type)) {
-        assert(!"Mustn't happen");
-        return false;
-    }
-
-    m_typeAllowedMinValue = MinValues[util::toUnsigned(m_type)];
-
-    static const double MaxValues[] = {
-        /* Type_float */ std::numeric_limits<float>::max(),
-        /* Type_double */ std::numeric_limits<double>::max(),
-    };
-
-    static const std::size_t MaxValuesSize = std::extent<decltype(MaxValues)>::value;
-
-    static_assert(MaxValuesSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
-
-    if (MaxValuesSize <= util::toUnsigned(m_type)) {
-        assert(!"Mustn't happen");
-        return false;
-    }
-
-    m_typeAllowedMaxValue = MaxValues[util::toUnsigned(m_type)];
+    m_typeAllowedMinValue = minValueForType(m_type);
+    m_typeAllowedMaxValue = maxValueForType(m_type);
     return true;
 }
 
@@ -258,7 +267,7 @@ bool FloatFieldImpl::updateValidRanges()
 
     auto fullRangeIter = props().find(common::validFullRangeStr());
     if ((fullRangeIter != props().end()) && (common::strToBool(fullRangeIter->second))) {
-        m_validRanges.emplace_back(std::numeric_limits<double>::min(), std::numeric_limits<double>::max());
+        m_validRanges.emplace_back(m_typeAllowedMinValue, m_typeAllowedMaxValue);
     }
 
     auto validRangersIters = props().equal_range(common::validRangeStr());
