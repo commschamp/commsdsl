@@ -19,7 +19,6 @@ public:
     void test3();
     void test4();
     void test5();
-    void test6();
 
 private:
     using ProtocolPtr = std::unique_ptr<bbmp::Protocol>;
@@ -560,15 +559,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(validRanges8.front().second, (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
         TS_ASSERT(specialValues8.empty());
     } while (false);
-}
-
-void IntTestSuite::test6()
-{
-    using MyVec = std::vector<std::pair<std::intmax_t, std::intmax_t> >;
-    MyVec vec;
-    for (int idx = 0; idx < 1024; ++idx) {
-        vec.emplace_back(idx, idx);
-    }
 }
 
 IntTestSuite::ProtocolPtr IntTestSuite::prepareProtocol(const std::string& schema)

@@ -23,6 +23,8 @@ public:
     using FieldsList = std::vector<Ptr>;
     using Kind = Field::Kind;
 
+    virtual ~FieldImpl() = default;
+
     static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
     Ptr clone() const
     {
