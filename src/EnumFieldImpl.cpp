@@ -65,6 +65,7 @@ bool EnumFieldImpl::parseImpl()
         updateEndian() &&
         updateLength() &&
         updateBitLength() &&
+        updateNonUniqueAllowed() &&
         updateMinMaxValues() &&
         updateValues() &&
         updateDefaultValue() &&
