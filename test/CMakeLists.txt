@@ -73,3 +73,4 @@ target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME})
 
 test_func (int)
 test_func (float)
+test_func (enum)

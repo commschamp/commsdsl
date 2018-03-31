@@ -264,6 +264,12 @@ const std::string& nsStr()
     return Str;
 }
 
+const std::string& enumStr()
+{
+    static const std::string Str("enum");
+    return Str;
+}
+
 const std::string& nonUniqueAllowedStr()
 {
     static const std::string Str("nonUniqueAllowed");

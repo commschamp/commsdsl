@@ -1,0 +1,57 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class EnumTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void test1();
+};
+
+void EnumTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void EnumTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Enum1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+
+    bbmp::EnumField enumField(field);
+    auto& values = enumField.values();
+    auto& revValues = enumField.revValues();
+    auto& validRanges = enumField.validRanges();
+    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(enumField.length(), 1U);
+    TS_ASSERT_EQUALS(enumField.bitLength(), 8U);
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 0);
+    TS_ASSERT_EQUALS(values.size(), 3);
+    TS_ASSERT_EQUALS(revValues.size(), values.size());
+    TS_ASSERT_EQUALS(values.find("V1")->second, 1);
+    TS_ASSERT_EQUALS(values.find("V2")->second, 2);
+    TS_ASSERT_EQUALS(values.find("V3")->second, 3);
+    TS_ASSERT_EQUALS(revValues.find(1)->second, "V1");
+    TS_ASSERT_EQUALS(revValues.find(2)->second, "V2");
+    TS_ASSERT_EQUALS(revValues.find(3)->second, "V3");
+    TS_ASSERT_EQUALS(validRanges.size(), 1);
+    auto& r1 = validRanges.front();
+    TS_ASSERT_EQUALS(r1.first, 1);
+    TS_ASSERT_EQUALS(r1.second, 3);
+}
