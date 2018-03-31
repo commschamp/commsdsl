@@ -57,6 +57,7 @@ const std::string& deprecatedStr();
 const std::string& refStr();
 const std::string& origStr();
 const std::string& nsStr();
+const std::string& nonUniqueAllowedStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

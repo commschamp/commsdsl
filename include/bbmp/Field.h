@@ -16,6 +16,7 @@ public:
     enum class Kind
     {
         Int,
+        Enum,
         Float,
         Bitfield,
         Bundle,

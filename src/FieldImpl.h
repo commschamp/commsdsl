@@ -95,6 +95,8 @@ public:
         return extraChildrenNamesImpl();
     }
 
+    bool isBitfieldMember() const;
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);

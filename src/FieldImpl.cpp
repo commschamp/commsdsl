@@ -180,6 +180,11 @@ bool FieldImpl::validateMembersNames(const FieldImpl::FieldsList& fields)
     return validateMembersNames(fields, protocol().logger());
 }
 
+bool FieldImpl::isBitfieldMember() const
+{
+    return (m_parent != nullptr) && (m_parent->objKind() == ObjKind::Bitfield);
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol),

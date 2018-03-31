@@ -5,25 +5,25 @@
 #include <vector>
 
 #include "bbmp/Endian.h"
-#include "bbmp/IntField.h"
+#include "bbmp/EnumField.h"
 #include "FieldImpl.h"
 
 namespace bbmp
 {
 
-class IntFieldImpl : public FieldImpl
+class EnumFieldImpl : public FieldImpl
 {
     using Base = FieldImpl;
 public:
-    using Type = IntField::Type;
+    using Type = EnumField::Type;
 
-    using ValidRange = IntField::ValidRange;
-    using ValidRangesList = IntField::ValidRangesList;
-    using ScalingRatio = IntField::ScalingRatio;
-    using SpecialValues = IntField::SpecialValues;
+    using ValidRange = EnumField::ValidRange;
+    using ValidRangesList = EnumField::ValidRangesList;
+    using Values = EnumField::Values;
+    using RevValues = EnumField::RevValues;
 
-    IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
-    IntFieldImpl(const IntFieldImpl&);
+    EnumFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
+    EnumFieldImpl(const EnumFieldImpl&);
 
     Type type() const
     {
@@ -45,29 +45,9 @@ public:
         return m_bitLength;
     }
 
-    std::intmax_t serOffset() const
-    {
-        return m_serOffset;
-    }
-
-    std::intmax_t minValue() const
-    {
-        return m_minValue;
-    }
-
-    std::intmax_t maxValue() const
-    {
-        return m_maxValue;
-    }
-
     std::intmax_t defaultValue() const
     {
         return m_defaultValue;
-    }
-
-    ScalingRatio scaling() const
-    {
-        return m_scaling;
     }
 
     const ValidRangesList& validRanges() const
@@ -75,23 +55,21 @@ public:
         return m_validRanges;
     }
 
-    const SpecialValues& specialValues() const
+    const Values& values() const
     {
-        return m_specials;
+        return m_values;
     }
 
-    static Type parseTypeValue(const std::string& value);
-
-    static std::size_t maxTypeLength(Type t);
-    static std::intmax_t minTypeValue(Type t);
-    static std::intmax_t maxTypeValue(Type t);
-    static std::intmax_t calcMinValue(Type t, std::size_t bitsLen);
-    static std::intmax_t calcMaxValue(Type t, std::size_t bitsLen);
-    static bool isBigUnsigned(Type t)
+    const RevValues& revValues() const
     {
-        return (t == Type::Uint64) || (t == Type::Uintvar);
+        return m_revValues;
     }
 
+
+    bool isNonUniqueAllowed() const
+    {
+        return m_nonUniqueAllowed;
+    }
 
 protected:
     virtual Kind kindImpl() const override;
@@ -107,31 +85,27 @@ private:
     bool updateEndian();
     bool updateLength();
     bool updateBitLength();
-    bool updateSerOffset();
+    bool updateNonUniqueAllowed();
     bool updateMinMaxValues();
+    bool updateValues();
     bool updateDefaultValue();
     bool updateScaling();
     bool updateValidRanges();
-    bool updateSpecials();
-    bool validateValidRangeStr(const std::string& str);
-    bool validateValidValueStr(const std::string& str);
-    bool validateValidMinValueStr(const std::string& str);
-    bool validateValidMaxValueStr(const std::string& str);
     bool strToNumeric(const std::string& str, std::intmax_t& val);
 
     Type m_type = Type::NumOfValues;
     Endian m_endian = Endian_NumOfValues;
     std::size_t m_length = 0U;
     std::size_t m_bitLength = 0U;
-    std::intmax_t m_serOffset = 0;
     std::intmax_t m_typeAllowedMinValue = 0;
     std::intmax_t m_typeAllowedMaxValue = 0;
     std::intmax_t m_minValue = 0;
     std::intmax_t m_maxValue = 0;
     std::intmax_t m_defaultValue = 0;
-    ScalingRatio m_scaling;
+    Values m_values;
+    RevValues m_revValues;
     ValidRangesList m_validRanges;
-    SpecialValues m_specials;
+    bool m_nonUniqueAllowed = false;
 };
 
 } // namespace bbmp

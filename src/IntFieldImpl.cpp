@@ -43,89 +43,6 @@ constexpr std::uintmax_t maxValueForBigUnsignedType()
     return static_cast<std::uintmax_t>(std::numeric_limits<T>::max());
 }
 
-std::intmax_t minTypeValue(IntFieldImpl::Type t)
-{
-    static const std::intmax_t Map[] = {
-        /* Type_int8 */ minValueForType<std::int8_t>(),
-        /* Type_uint8 */ minValueForType<std::uint8_t>(),
-        /* Type_int16 */ minValueForType<std::int16_t>(),
-        /* Type_uint16 */ minValueForType<std::uint16_t>(),
-        /* Type_int32 */ minValueForType<std::int32_t>(),
-        /* Type_uint32 */ minValueForType<std::uint32_t>(),
-        /* Type_int64 */ minValueForType<std::int64_t>(),
-        /* Type_uint64 */ minValueForType<std::uint64_t>(),
-        /* Type_intvar */ minValueForType<std::int64_t>(),
-        /* Type_uintvar */ minValueForType<std::uint64_t>()
-    };
-
-    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-
-    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues), "Invalid map");
-
-    if (MapSize <= util::toUnsigned(t)) {
-        assert(!"Mustn't happen");
-        return maxValueForType<std::intmax_t>();
-    }
-
-    return Map[util::toUnsigned(t)];
-}
-
-std::intmax_t maxTypeValue(IntFieldImpl::Type t)
-{
-    static const std::intmax_t Map[] = {
-        /* Type_int8 */ maxValueForType<std::int8_t>(),
-        /* Type_uint8 */ maxValueForType<std::uint8_t>(),
-        /* Type_int16 */ maxValueForType<std::int16_t>(),
-        /* Type_uint16 */ maxValueForType<std::uint16_t>(),
-        /* Type_int32 */ maxValueForType<std::int32_t>(),
-        /* Type_uint32 */ maxValueForType<std::uint32_t>(),
-        /* Type_int64 */ maxValueForType<std::int64_t>(),
-        /* Type_uint64 */ maxValueForType<std::uint64_t>(),
-        /* Type_intvar */ maxValueForType<std::intmax_t>(),
-        /* Type_uintvar */ maxValueForType<std::uintmax_t>(),
-    };
-
-    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-
-    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues),
-                  "Invalid map");
-
-    if (MapSize <= util::toUnsigned(t)) {
-        assert(!"Mustn't happen");
-        return minValueForType<std::intmax_t>();
-    }
-
-    return Map[util::toUnsigned(t)];
-}
-
-std::size_t maxTypeLength(IntFieldImpl::Type t)
-{
-    static const std::size_t Map[] = {
-        /* Type_int8 */ sizeof(std::int8_t),
-        /* Type_uint8 */ sizeof(std::uint8_t),
-        /* Type_int16 */ sizeof(std::int16_t),
-        /* Type_uint16 */ sizeof(std::uint16_t),
-        /* Type_int32 */ sizeof(std::int32_t),
-        /* Type_uint32 */ sizeof(std::uint32_t),
-        /* Type_int64 */ sizeof(std::int64_t),
-        /* Type_uint64 */ sizeof(std::uint64_t),
-        /* Type_intvar */ (((sizeof(std::intmax_t) * 8) - 1) / 7) + 1,
-        /* Type_uintvar */(((sizeof(std::uintmax_t) * 8) - 1) / 7) + 1
-    };
-
-    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-
-    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues),
-                  "Invalid map");
-
-    if (MapSize <= util::toUnsigned(t)) {
-        assert(!"Mustn't happen");
-        return 0U;
-    }
-
-    return Map[util::toUnsigned(t)];
-}
-
 std::intmax_t calcMaxFixedSignedValue(std::size_t bitsLen) {
     assert(0U < bitsLen);
     if (64U <= bitsLen) {
@@ -199,12 +116,129 @@ bool isTypeUnsigned(IntFieldImpl::Type t)
     return (iter != std::end(UnsignedTypes));
 }
 
-bool isBigUnsigned(IntFieldImpl::Type t)
+std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t bitsLen)
 {
-    return (t == IntFieldImpl::Type::Uint64) || (t == IntFieldImpl::Type::Uintvar);
+    if (t == IntFieldImpl::Type::Uintvar) {
+        return calcMaxVarUnsignedValue(bitsLen);
+    }
+
+    return calcMaxFixedUnsignedValue(bitsLen);
 }
 
-std::intmax_t calcMinValue(IntFieldImpl::Type t, std::size_t bitsLen)
+} // namespace
+
+IntFieldImpl::IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
+  : Base(node, protocol)
+{
+}
+
+IntFieldImpl::Type IntFieldImpl::parseTypeValue(const std::string& value)
+{
+    static const std::map<std::string, Type> Map = {
+        std::make_pair("int8", Type::Int8),
+        std::make_pair("uint8", Type::Uint8),
+        std::make_pair("int16", Type::Int16),
+        std::make_pair("uint16", Type::Uint16),
+        std::make_pair("int32", Type::Int32),
+        std::make_pair("uint32", Type::Uint32),
+        std::make_pair("int64", Type::Int64),
+        std::make_pair("uint64", Type::Uint64),
+        std::make_pair("intvar", Type::Intvar),
+        std::make_pair("uintvar", Type::Uintvar)
+    };
+
+    auto iter = Map.find(common::toLowerCopy(value));
+    if (iter == Map.end()) {
+        return Type::NumOfValues;
+    }
+
+    return iter->second;
+}
+
+std::size_t IntFieldImpl::maxTypeLength(Type t)
+{
+    static const std::size_t Map[] = {
+        /* Type::Int8 */ sizeof(std::int8_t),
+        /* Type::Uint8 */ sizeof(std::uint8_t),
+        /* Type::Int16 */ sizeof(std::int16_t),
+        /* Type::Uint16 */ sizeof(std::uint16_t),
+        /* Type::Int32 */ sizeof(std::int32_t),
+        /* Type::Uint32 */ sizeof(std::uint32_t),
+        /* Type::Int64 */ sizeof(std::int64_t),
+        /* Type::Uint64 */ sizeof(std::uint64_t),
+        /* Type::Intvar */ (((sizeof(std::intmax_t) * 8) - 1) / 7) + 1,
+        /* Type::Uintvar */(((sizeof(std::uintmax_t) * 8) - 1) / 7) + 1
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+
+    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues),
+                  "Invalid map");
+
+    if (MapSize <= util::toUnsigned(t)) {
+        assert(!"Mustn't happen");
+        return 0U;
+    }
+
+    return Map[util::toUnsigned(t)];
+}
+
+std::intmax_t IntFieldImpl::minTypeValue(Type t)
+{
+    static const std::intmax_t Map[] = {
+        /* Type::Int8 */ minValueForType<std::int8_t>(),
+        /* Type::Uint8 */ minValueForType<std::uint8_t>(),
+        /* Type::Int16 */ minValueForType<std::int16_t>(),
+        /* Type::Uint16 */ minValueForType<std::uint16_t>(),
+        /* Type::Int32 */ minValueForType<std::int32_t>(),
+        /* Type::Uint32 */ minValueForType<std::uint32_t>(),
+        /* Type::Int64 */ minValueForType<std::int64_t>(),
+        /* Type::Uint64 */ minValueForType<std::uint64_t>(),
+        /* Type::Intvar */ minValueForType<std::int64_t>(),
+        /* Type::Uintvar */ minValueForType<std::uint64_t>()
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+
+    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues), "Invalid map");
+
+    if (MapSize <= util::toUnsigned(t)) {
+        assert(!"Mustn't happen");
+        return maxValueForType<std::intmax_t>();
+    }
+
+    return Map[util::toUnsigned(t)];
+}
+
+std::intmax_t IntFieldImpl::maxTypeValue(Type t)
+{
+    static const std::intmax_t Map[] = {
+        /* Type::Int8 */ maxValueForType<std::int8_t>(),
+        /* Type::Uint8 */ maxValueForType<std::uint8_t>(),
+        /* Type::Int16 */ maxValueForType<std::int16_t>(),
+        /* Type::Uint16 */ maxValueForType<std::uint16_t>(),
+        /* Type::Int32 */ maxValueForType<std::int32_t>(),
+        /* Type::Uint32 */ maxValueForType<std::uint32_t>(),
+        /* Type::Int64 */ maxValueForType<std::int64_t>(),
+        /* Type::Uint64 */ maxValueForType<std::uint64_t>(),
+        /* Type::Intvar */ maxValueForType<std::intmax_t>(),
+        /* Type::Uintvar */ maxValueForType<std::uintmax_t>(),
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+
+    static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues),
+                  "Invalid map");
+
+    if (MapSize <= util::toUnsigned(t)) {
+        assert(!"Mustn't happen");
+        return minValueForType<std::intmax_t>();
+    }
+
+    return Map[util::toUnsigned(t)];
+}
+
+std::intmax_t IntFieldImpl::calcMinValue(Type t, std::size_t bitsLen)
 {
     if (isTypeUnsigned(t)) {
         return 0;
@@ -217,16 +251,7 @@ std::intmax_t calcMinValue(IntFieldImpl::Type t, std::size_t bitsLen)
     return calcMinFixedSignedValue(bitsLen);
 }
 
-std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t bitsLen)
-{
-    if (t == IntFieldImpl::Type::Uintvar) {
-        return calcMaxVarUnsignedValue(bitsLen);
-    }
-
-    return calcMaxFixedUnsignedValue(bitsLen);
-}
-
-std::intmax_t calcMaxValue(IntFieldImpl::Type t, std::size_t bitsLen)
+std::intmax_t IntFieldImpl::calcMaxValue(Type t, std::size_t bitsLen)
 {
     if (isBigUnsigned(t)) {
         return static_cast<std::intmax_t>(calcMaxUnsignedValue(t, bitsLen));
@@ -243,13 +268,6 @@ std::intmax_t calcMaxValue(IntFieldImpl::Type t, std::size_t bitsLen)
     return calcMaxFixedSignedValue(bitsLen);
 }
 
-
-} // namespace
-
-IntFieldImpl::IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
-  : Base(node, protocol)
-{
-}
 
 FieldImpl::Kind IntFieldImpl::kindImpl() const
 {
@@ -272,6 +290,7 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::scalingStr(),
         common::endianStr(),
         common::lengthStr(),
+        common::bitLengthStr(),
         common::serOffsetStr(),
         common::validRangeStr(),
         common::validValueStr(),
@@ -329,30 +348,12 @@ bool IntFieldImpl::updateType()
         return true;
     }
 
-    static const std::string Map[] = {
-        /* Type_int8 */ "int8",
-        /* Type_uint8 */ "uint8",
-        /* Type_int16 */ "int16",
-        /* Type_uint16 */ "uint16",
-        /* Type_int32 */ "int32",
-        /* Type_uint32 */ "uint32",
-        /* Type_int64 */ "int64",
-        /* Type_uint64 */ "uint64",
-        /* Type_intvar */ "intvar",
-        /* Type_uintvar */ "uintvar",
-    };
-
-    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-
-    static_assert(MapSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
-
-    auto iter = std::find(std::begin(Map), std::end(Map), propsIter->second);
-    if (iter == std::end(Map)) {
+    m_type = parseTypeValue(propsIter->second);
+    if (m_type == Type::NumOfValues) {
         reportUnexpectedPropertyValue(common::typeStr(), propsIter->second);
         return false;
     }
 
-    m_type = static_cast<decltype(m_type)>(std::distance(std::begin(Map), iter));
     return true;
 }
 
@@ -1111,11 +1112,6 @@ bool IntFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
         val = common::strToIntMax(str, &ok);
     }
     return ok;
-}
-
-bool IntFieldImpl::isBitfieldMember() const
-{
-    return (getParent() != nullptr) && (getParent()->objKind() == ObjKind::Bitfield);
 }
 
 
