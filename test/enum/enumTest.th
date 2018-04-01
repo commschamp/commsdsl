@@ -48,6 +48,8 @@ void EnumTestSuite::test1()
     TS_ASSERT_EQUALS(enumField.length(), 1U);
     TS_ASSERT_EQUALS(enumField.bitLength(), 8U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0);
+    TS_ASSERT(!enumField.isNonUniqueAllowed());
+    TS_ASSERT(enumField.isUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second, 1);
@@ -100,6 +102,8 @@ void EnumTestSuite::test3()
     TS_ASSERT_EQUALS(enumField.length(), 2U);
     TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 2);
+    TS_ASSERT(enumField.isNonUniqueAllowed());
+    TS_ASSERT(!enumField.isUnique());
     TS_ASSERT_EQUALS(values.size(), 5);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second, 1);
@@ -150,6 +154,8 @@ void EnumTestSuite::test4()
     TS_ASSERT_EQUALS(enumField.length(), 8U);
     TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
+    TS_ASSERT(!enumField.isNonUniqueAllowed());
+    TS_ASSERT(enumField.isUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second, 0x0123456789abcdef);
@@ -197,6 +203,8 @@ void EnumTestSuite::test5()
     TS_ASSERT_EQUALS(enumField.length(), 10U);
     TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
+    TS_ASSERT(!enumField.isNonUniqueAllowed());
+    TS_ASSERT(enumField.isUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second, 0x0123456789abcdef);
@@ -244,6 +252,8 @@ void EnumTestSuite::test6()
     TS_ASSERT_EQUALS(enumField.length(), 6U);
     TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
+    TS_ASSERT(!enumField.isNonUniqueAllowed());
+    TS_ASSERT(enumField.isUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second, (std::intmax_t)0x0123456789ab);
@@ -294,6 +304,8 @@ void EnumTestSuite::test7()
     TS_ASSERT_EQUALS(enumField.length(), 6U);
     TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
+    TS_ASSERT(!enumField.isNonUniqueAllowed());
+    TS_ASSERT(enumField.isUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second, (std::intmax_t)0x0123456789ab);

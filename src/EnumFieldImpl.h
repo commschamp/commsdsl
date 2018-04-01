@@ -71,6 +71,8 @@ public:
         return m_nonUniqueAllowed;
     }
 
+    bool isUnique() const;
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;

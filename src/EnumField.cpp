@@ -69,4 +69,14 @@ const EnumField::ValidRangesList& EnumField::validRanges() const
     return cast(m_pImpl)->validRanges();
 }
 
+bool EnumField::isNonUniqueAllowed() const
+{
+    return cast(m_pImpl)->isNonUniqueAllowed();
+}
+
+bool EnumField::isUnique() const
+{
+    return cast(m_pImpl)->isUnique();
+}
+
 } // namespace bbmp

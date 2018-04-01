@@ -24,6 +24,28 @@ EnumFieldImpl::EnumFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
+bool EnumFieldImpl::isUnique() const
+{
+    std::intmax_t prevKey = 0;
+    bool firstElem = true;
+    for (auto& v : m_revValues) {
+        if (firstElem) {
+            prevKey = v.first;
+            firstElem = false;
+            continue;
+        }
+
+        if (prevKey == v.first) {
+            assert(isNonUniqueAllowed());
+            return false;
+        }
+
+        prevKey = v.first;
+    }
+
+    return true;
+}
+
 FieldImpl::Kind EnumFieldImpl::kindImpl() const
 {
     return Kind::Enum;

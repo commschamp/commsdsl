@@ -28,6 +28,8 @@ public:
     const Values& values() const;
     const RevValues& revValues() const;
     const ValidRangesList& validRanges() const;
+    bool isNonUniqueAllowed() const;
+    bool isUnique() const;
 };
 
 } // namespace bbmp
