@@ -566,11 +566,7 @@ bool IntFieldImpl::updateDefaultValue()
 
     auto valueStr = common::getStringProp(props(), common::defaultValueStr());
     if (valueStr.empty()) {
-        if (m_defaultValue != 0) {
-            return true;
-        }
-
-        valueStr = "0";
+        valueStr = std::to_string(m_defaultValue);
     }
 
     auto reportErrorFunc =

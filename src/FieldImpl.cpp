@@ -273,9 +273,7 @@ bool FieldImpl::validateAndUpdateStringPropValue(
 
 void FieldImpl::reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
-    logError() << XmlWrap::logPrefix(m_node) <<
-                  "Property \"" << propName << "\" of element \"" << name() <<
-                  "\" has unexpected value (" << propValue << ").";
+    XmlWrap::reportUnexpectedPropertyValue(m_node, name(), propName, propValue, protocol().logger());
 }
 
 const XmlWrap::NamesList& FieldImpl::commonProps()

@@ -5,25 +5,23 @@
 #include <vector>
 
 #include "bbmp/Endian.h"
-#include "bbmp/EnumField.h"
+#include "bbmp/SetField.h"
 #include "FieldImpl.h"
 
 namespace bbmp
 {
 
-class EnumFieldImpl : public FieldImpl
+class SetFieldImpl : public FieldImpl
 {
     using Base = FieldImpl;
 public:
-    using Type = EnumField::Type;
+    using Type = SetField::Type;
 
-    using ValidRange = EnumField::ValidRange;
-    using ValidRangesList = EnumField::ValidRangesList;
-    using Values = EnumField::Values;
-    using RevValues = EnumField::RevValues;
+    using Bits = SetField::Bits;
+    using RevBits = SetField::RevBits;
 
-    EnumFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
-    EnumFieldImpl(const EnumFieldImpl&);
+    SetFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
+    SetFieldImpl(const SetFieldImpl&);
 
     Type type() const
     {
@@ -45,26 +43,30 @@ public:
         return m_bitLength;
     }
 
-    std::intmax_t defaultValue() const
+    std::uintmax_t defaultValue() const
     {
         return m_defaultValue;
     }
 
-    const ValidRangesList& validRanges() const
+    std::uintmax_t reservedValue() const
     {
-        return m_validRanges;
+        return m_reservedValue;
     }
 
-    const Values& values() const
+    std::uintmax_t reservedBits() const
     {
-        return m_values;
+        return m_reservedValue | m_implicitReserved;
     }
 
-    const RevValues& revValues() const
+    const Bits& bits() const
     {
-        return m_revValues;
+        return m_bits;
     }
 
+    const RevBits& revBits() const
+    {
+        return m_revBits;
+    }
 
     bool isNonUniqueAllowed() const
     {
@@ -83,30 +85,26 @@ protected:
     virtual std::size_t bitLengthImpl() const override;
 
 private:
-    bool updateType();
     bool updateEndian();
     bool updateLength();
-    bool updateBitLength();
     bool updateNonUniqueAllowed();
-    bool updateMinMaxValues();
-    bool updateValues();
     bool updateDefaultValue();
-    bool updateValidRanges();
-    bool strToNumeric(const std::string& str, std::intmax_t& val);
+    bool updateReservedValue();
+    bool updateBits();
 
     Type m_type = Type::NumOfValues;
     Endian m_endian = Endian_NumOfValues;
     std::size_t m_length = 0U;
     std::size_t m_bitLength = 0U;
-    std::intmax_t m_typeAllowedMinValue = 0;
-    std::intmax_t m_typeAllowedMaxValue = 0;
-    std::intmax_t m_minValue = 0;
-    std::intmax_t m_maxValue = 0;
-    std::intmax_t m_defaultValue = 0;
-    Values m_values;
-    RevValues m_revValues;
-    ValidRangesList m_validRanges;
+    std::uintmax_t m_defaultValue = 0U;
+    std::uintmax_t m_reservedValue = 0U;
+    std::uintmax_t m_reservedBits = 0U;
+    std::uintmax_t m_implicitReserved = 0U;
+    Bits m_bits;
+    RevBits m_revBits;
     bool m_nonUniqueAllowed = false;
+    bool m_defaultBitValue = false;
+    bool m_reservedBitValue = false;
 };
 
 } // namespace bbmp

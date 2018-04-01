@@ -17,6 +17,7 @@ public:
     {
         Int,
         Enum,
+        Set,
         Float,
         Bitfield,
         Bundle,

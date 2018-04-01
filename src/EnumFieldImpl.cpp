@@ -253,7 +253,13 @@ bool EnumFieldImpl::updateNonUniqueAllowed()
         return true;
     }
 
-    m_nonUniqueAllowed = common::strToBool(valueStr);
+    bool ok = false;
+    m_nonUniqueAllowed = common::strToBool(valueStr, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::nonUniqueAllowedStr(), valueStr);
+        return false;
+    }
+
     return true;
 }
 
@@ -383,11 +389,7 @@ bool EnumFieldImpl::updateDefaultValue()
 
     auto valueStr = common::getStringProp(props(), common::defaultValueStr());
     if (valueStr.empty()) {
-        if (m_defaultValue != 0) {
-            return true;
-        }
-
-        valueStr = "0";
+        valueStr = std::to_string(m_defaultValue);
     }
 
     auto reportErrorFunc =

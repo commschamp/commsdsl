@@ -59,12 +59,16 @@ const std::string& origStr();
 const std::string& nsStr();
 const std::string& enumStr();
 const std::string& nonUniqueAllowedStr();
+const std::string& reservedValueStr();
+const std::string& reservedStr();
+const std::string& bitStr();
+const std::string& idxStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);
 std::uintmax_t strToUintMax(const std::string& str, bool* ok = nullptr, int base = 0);
 double strToDouble(const std::string& str, bool* ok = nullptr, bool allowSpecials = true);
-bool strToBool(const std::string& str);
+bool strToBool(const std::string& str, bool* ok = nullptr);
 
 
 const std::string& getStringProp(

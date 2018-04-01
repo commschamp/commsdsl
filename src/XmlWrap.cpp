@@ -254,4 +254,16 @@ bool XmlWrap::hasAnyChild(::xmlNodePtr node, const XmlWrap::NamesList& names)
     return false;
 }
 
+void XmlWrap::reportUnexpectedPropertyValue(
+    ::xmlNodePtr node,
+    const std::string& elemName,
+    const std::string& propName,
+    const std::string& propValue,
+    Logger& logger)
+{
+    bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
+                  "Property \"" << propName << "\" of element \"" << elemName <<
+                  "\" has unexpected value (" << propValue << ").";
+}
+
 } // namespace bbmp

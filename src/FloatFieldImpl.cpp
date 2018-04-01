@@ -266,7 +266,14 @@ bool FloatFieldImpl::updateValidRanges()
     }
 
     auto fullRangeIter = props().find(common::validFullRangeStr());
-    if ((fullRangeIter != props().end()) && (common::strToBool(fullRangeIter->second))) {
+    bool ok = false;
+    bool hasValidFullRange = common::strToBool(fullRangeIter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::validFullRangeStr(), fullRangeIter->second);
+        return false;
+    }
+
+    if ((fullRangeIter != props().end()) && hasValidFullRange) {
         m_validRanges.emplace_back(m_typeAllowedMinValue, m_typeAllowedMaxValue);
     }
 

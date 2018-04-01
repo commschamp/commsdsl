@@ -75,6 +75,13 @@ struct XmlWrap
         Logger& logger);
 
     static bool hasAnyChild(::xmlNodePtr node, const NamesList& names);
+
+    static void reportUnexpectedPropertyValue(
+        ::xmlNodePtr node,
+        const std::string& elemName,
+        const std::string& propName,
+        const std::string& propValue,
+        Logger& logger);
 };
 
 } // namespace bbmp

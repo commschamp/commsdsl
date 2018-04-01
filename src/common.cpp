@@ -276,6 +276,30 @@ const std::string& nonUniqueAllowedStr()
     return Str;
 }
 
+const std::string& reservedValueStr()
+{
+    static const std::string Str("reservedValue");
+    return Str;
+}
+
+const std::string& reservedStr()
+{
+    static const std::string Str("reserved");
+    return Str;
+}
+
+const std::string& bitStr()
+{
+    static const std::string Str("bit");
+    return Str;
+}
+
+const std::string& idxStr()
+{
+    static const std::string Str("idx");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
@@ -362,19 +386,39 @@ double strToDouble(const std::string& str, bool* ok, bool allowSpecials)
     return result;
 }
 
-bool strToBool(const std::string& str)
+bool strToBool(const std::string& str, bool* ok)
 {
-    static const std::string Map[] = {
+    auto updateOkFunc =
+        [&ok](bool val)
+        {
+            if (ok != nullptr) {
+                *ok = val;
+            }
+        };
+
+    static const std::string TrueMap[] = {
         "true",
         "1"
     };
 
     auto strCopy = toLowerCopy(str);
-    auto iter = std::find(std::begin(Map), std::end(Map), strCopy);
-    if (iter != std::end(Map)) {
+    auto trueIter = std::find(std::begin(TrueMap), std::end(TrueMap), strCopy);
+    if (trueIter != std::end(TrueMap)) {
+        updateOkFunc(true);
         return true;
     }
 
+    static const std::string FalseMap[] = {
+        "false",
+        "0"
+    };
+
+    auto falseIter = std::find(std::begin(FalseMap), std::end(FalseMap), strCopy);
+    bool okValue = false;
+    if (falseIter != std::end(FalseMap)) {
+        okValue = true;
+    }
+    updateOkFunc(okValue);
     return false;
 }
 
