@@ -9,6 +9,10 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
+    void test5();
+    void test6();
+    void test7();
 };
 
 void EnumTestSuite::setUp()
@@ -118,3 +122,193 @@ void EnumTestSuite::test3()
     TS_ASSERT_EQUALS(r2.second, 5);
 }
 
+void EnumTestSuite::test4()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Enum1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+
+    bbmp::EnumField enumField(field);
+    auto& values = enumField.values();
+    auto& revValues = enumField.revValues();
+    auto& validRanges = enumField.validRanges();
+    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint64);
+    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(enumField.length(), 8U);
+    TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
+    TS_ASSERT_EQUALS(values.size(), 3);
+    TS_ASSERT_EQUALS(revValues.size(), values.size());
+    TS_ASSERT_EQUALS(values.find("V1")->second, 0x0123456789abcdef);
+    TS_ASSERT_EQUALS(values.find("V2")->second, 0xabcd);
+    TS_ASSERT_EQUALS(values.find("Null")->second, 0xffffffffffffffff);
+    TS_ASSERT_EQUALS(revValues.find(0x0123456789abcdef)->second, "V1");
+    TS_ASSERT_EQUALS(revValues.find(0xabcd)->second, "V2");
+    TS_ASSERT_EQUALS(revValues.find(0xffffffffffffffff)->second, "Null");
+    auto& r1 = validRanges[0];
+    auto& r2 = validRanges[1];
+    auto& r3 = validRanges[2];
+    TS_ASSERT_EQUALS(r1.first, 0xabcd);
+    TS_ASSERT_EQUALS(r1.second, r1.first);
+    TS_ASSERT_EQUALS(r2.first, 0x0123456789abcdef);
+    TS_ASSERT_EQUALS(r2.second, r2.first);
+    TS_ASSERT_EQUALS(r3.first, static_cast<std::intmax_t>(0xffffffffffffffff));
+    TS_ASSERT_EQUALS(r3.second, r3.first);
+}
+
+void EnumTestSuite::test5()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Enum1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+
+    bbmp::EnumField enumField(field);
+    auto& values = enumField.values();
+    auto& revValues = enumField.revValues();
+    auto& validRanges = enumField.validRanges();
+    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField.length(), 10U);
+    TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
+    TS_ASSERT_EQUALS(values.size(), 3);
+    TS_ASSERT_EQUALS(revValues.size(), values.size());
+    TS_ASSERT_EQUALS(values.find("V1")->second, 0x0123456789abcdef);
+    TS_ASSERT_EQUALS(values.find("V2")->second, 0xabcd);
+    TS_ASSERT_EQUALS(values.find("Null")->second, 0xffffffffffffffff);
+    TS_ASSERT_EQUALS(revValues.find(0x0123456789abcdef)->second, "V1");
+    TS_ASSERT_EQUALS(revValues.find(0xabcd)->second, "V2");
+    TS_ASSERT_EQUALS(revValues.find(0xffffffffffffffff)->second, "Null");
+    auto& r1 = validRanges[0];
+    auto& r2 = validRanges[1];
+    auto& r3 = validRanges[2];
+    TS_ASSERT_EQUALS(r1.first, 0xabcd);
+    TS_ASSERT_EQUALS(r1.second, r1.first);
+    TS_ASSERT_EQUALS(r2.first, 0x0123456789abcdef);
+    TS_ASSERT_EQUALS(r2.second, r2.first);
+    TS_ASSERT_EQUALS(r3.first, static_cast<std::intmax_t>(0xffffffffffffffff));
+    TS_ASSERT_EQUALS(r3.second, r3.first);
+}
+
+void EnumTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Enum1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+
+    bbmp::EnumField enumField(field);
+    auto& values = enumField.values();
+    auto& revValues = enumField.revValues();
+    auto& validRanges = enumField.validRanges();
+    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField.length(), 6U);
+    TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
+    TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
+    TS_ASSERT_EQUALS(values.size(), 3);
+    TS_ASSERT_EQUALS(revValues.size(), values.size());
+    TS_ASSERT_EQUALS(values.find("V1")->second, (std::intmax_t)0x0123456789ab);
+    TS_ASSERT_EQUALS(values.find("V2")->second, 0xabcd);
+    TS_ASSERT_EQUALS(values.find("Null")->second, (std::intmax_t)0x3ffffffffff);
+    TS_ASSERT_EQUALS(revValues.find(0x0123456789ab)->second, "V1");
+    TS_ASSERT_EQUALS(revValues.find(0xabcd)->second, "V2");
+    TS_ASSERT_EQUALS(revValues.find(0x3ffffffffff)->second, "Null");
+    auto& r1 = validRanges[0];
+    auto& r2 = validRanges[1];
+    auto& r3 = validRanges[2];
+    TS_ASSERT_EQUALS(r1.first, 0xabcd);
+    TS_ASSERT_EQUALS(r1.second, r1.first);
+    TS_ASSERT_EQUALS(r2.first, 0x0123456789ab);
+    TS_ASSERT_EQUALS(r2.second, r2.first);
+    TS_ASSERT_EQUALS(r3.first, static_cast<std::intmax_t>(0x3ffffffffff));
+    TS_ASSERT_EQUALS(r3.second, r3.first);
+}
+
+void EnumTestSuite::test7()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Enum1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+
+    bbmp::EnumField enumField(field);
+    auto& values = enumField.values();
+    auto& revValues = enumField.revValues();
+    auto& validRanges = enumField.validRanges();
+    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Intvar);
+    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField.length(), 6U);
+    TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
+    TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
+    TS_ASSERT_EQUALS(values.size(), 3);
+    TS_ASSERT_EQUALS(revValues.size(), values.size());
+    TS_ASSERT_EQUALS(values.find("V1")->second, (std::intmax_t)0x0123456789ab);
+    TS_ASSERT_EQUALS(values.find("V2")->second, 0xabcd);
+    TS_ASSERT_EQUALS(values.find("Null")->second, (std::intmax_t)0x3ffffffffff);
+    TS_ASSERT_EQUALS(revValues.find(0x0123456789ab)->second, "V1");
+    TS_ASSERT_EQUALS(revValues.find(0xabcd)->second, "V2");
+    TS_ASSERT_EQUALS(revValues.find(0x3ffffffffff)->second, "Null");
+    auto& r1 = validRanges[0];
+    auto& r2 = validRanges[1];
+    auto& r3 = validRanges[2];
+    TS_ASSERT_EQUALS(r1.first, 0xabcd);
+    TS_ASSERT_EQUALS(r1.second, r1.first);
+    TS_ASSERT_EQUALS(r2.first, 0x0123456789ab);
+    TS_ASSERT_EQUALS(r2.second, r2.first);
+    TS_ASSERT_EQUALS(r3.first, static_cast<std::intmax_t>(0x3ffffffffff));
+    TS_ASSERT_EQUALS(r3.second, r3.first);
+}

@@ -89,6 +89,12 @@ LogWrapper logWarning(Logger& logger)
     return LogWrapper(logger);
 }
 
+inline
+LogWrapper logInfo(Logger& logger)
+{
+    logger.setCurrLevel(ErrorLevel_Info);
+    return LogWrapper(logger);
+}
 
 } // namespace bbmp
 

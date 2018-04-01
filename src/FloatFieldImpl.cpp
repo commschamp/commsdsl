@@ -366,6 +366,13 @@ bool FloatFieldImpl::updateSpecials()
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
+        if (!common::isValidName(nameIter->second)) {
+            logError() << XmlWrap::logPrefix(s) <<
+                  "Property \"" << common::nameStr() <<
+                  "\" has unexpected value (" << nameIter->second << ").";
+            return false;
+        }
+
         auto specialsIter = m_specials.find(nameIter->second);
         if (specialsIter != m_specials.end()) {
             logError() << XmlWrap::logPrefix(s) << "Special with name \"" << nameIter->second <<

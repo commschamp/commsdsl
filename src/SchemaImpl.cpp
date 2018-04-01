@@ -38,6 +38,12 @@ bool SchemaImpl::processNode()
         return false;
     }
 
+    if (!common::isValidName(m_name)) {
+        logError(m_logger) << XmlWrap::logPrefix(m_node) <<
+              "Property \"" << common::nameStr() << "\" has unexpected value (" << m_name << ").";
+        return false;
+    }
+
     m_unknownAttrs = XmlWrap::getUnknownProps(m_node, Names);
 
     static const XmlWrap::NamesList ChildrenNames = {

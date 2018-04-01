@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema6"
+        id="1"
+        endian="Little">
+    <fields>
+        <enum name="Enum1" type="uintvar" defaultValue="Null" >
+            <validValue name="V1" val="0x0123456789ab" />
+            <validValue name="Null" val="0x3ffffffffff" />
+            <validValue name="V2" val="0xabcd" />
+            <length>6</length>
+        </enum>
+    </fields>
+</schema>

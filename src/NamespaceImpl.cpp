@@ -64,6 +64,12 @@ bool NamespaceImpl::parse()
         return false;
     }
 
+    if (!common::isValidName(m_name)) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+              "Property \"" << common::nameStr() << "\" has unexpected value (" << m_name << ").";
+        return false;
+    }
+
     m_unknownAttrs = XmlWrap::getUnknownProps(m_node, Names);
 
     m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, ChildrenNames);

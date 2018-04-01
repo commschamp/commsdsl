@@ -207,6 +207,11 @@ LogWrapper FieldImpl::logWarning() const
     return bbmp::logWarning(m_protocol.logger());
 }
 
+LogWrapper FieldImpl::logInfo() const
+{
+    return bbmp::logInfo(m_protocol.logger());
+}
+
 Object::ObjKind FieldImpl::objKindImpl() const
 {
     return ObjKind::SimpleField;
@@ -297,7 +302,17 @@ const XmlWrap::NamesList& FieldImpl::commonChildren()
 
 bool FieldImpl::updateName()
 {
-    return validateAndUpdateStringPropValue(common::nameStr(), m_name, true);
+    if (!validateAndUpdateStringPropValue(common::nameStr(), m_name, true)) {
+        return false;
+    }
+
+    if (!common::isValidName(*m_name)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Invalid value for name property \"" << m_name << "\".";
+        return false;
+    }
+
+    return true;
 }
 
 bool FieldImpl::updateDescription()

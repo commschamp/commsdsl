@@ -612,7 +612,6 @@ bool IntFieldImpl::updateDefaultValue()
             auto castedMaxValue = static_cast<decltype(v)>(m_maxValue);
             if ((v < castedMinValue) ||
                 (castedMaxValue < v)) {
-                this->logWarning() << v << " is not in range [" << castedMinValue << ", " << castedMaxValue << "]";
                 reportWarningFunc();
             }
 
@@ -850,6 +849,13 @@ bool IntFieldImpl::updateSpecials()
 
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
+
+        if (!common::isValidName(nameIter->second)) {
+            logError() << XmlWrap::logPrefix(s) <<
+                  "Property \"" << common::nameStr() <<
+                  "\" has unexpected value (" << nameIter->second << ").";
+            return false;
+        }
 
         auto specialsIter = m_specials.find(nameIter->second);
         if (specialsIter != m_specials.end()) {

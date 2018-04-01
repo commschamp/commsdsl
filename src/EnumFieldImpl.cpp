@@ -282,6 +282,13 @@ bool EnumFieldImpl::updateValues()
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
+        if (!common::isValidName(nameIter->second)) {
+            logError() << XmlWrap::logPrefix(vNode) <<
+                  "Property \"" << common::nameStr() <<
+                  "\" has unexpected value (" << nameIter->second << ").";
+            return false;
+        }
+
         auto valuesIter = m_values.find(nameIter->second);
         if (valuesIter != m_values.end()) {
             logError() << XmlWrap::logPrefix(vNode) << "Value with name \"" << nameIter->second <<
@@ -395,7 +402,6 @@ bool EnumFieldImpl::updateDefaultValue()
             auto castedMaxValue = static_cast<decltype(v)>(m_maxValue);
             if ((v < castedMinValue) ||
                 (castedMaxValue < v)) {
-                this->logWarning() << v << " is not in range [" << castedMinValue << ", " << castedMaxValue << "]";
                 reportWarningFunc();
             }
 
@@ -403,61 +409,91 @@ bool EnumFieldImpl::updateDefaultValue()
             return true;
         };
 
-    do {
-        bool ok = false;
-        if (IntFieldImpl::isBigUnsigned(m_type)) {
-            auto val = common::strToUintMax(valueStr, &ok);
-            if (!ok) {
-                break;
-            }
-
-            return checkValueFunc(val);
+    if (common::isValidName(valueStr)) {
+        auto valIter = m_values.find(valueStr);
+        if (valIter == m_values.end()) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                          "Default value cannot be recognised (" << valueStr << ").";
+            return false;
         }
 
-        auto val = common::strToIntMax(valueStr, &ok);
+        if (IntFieldImpl::isBigUnsigned(m_type)) {
+            return checkValueFunc(static_cast<std::uint64_t>(valIter->second));
+        }
+
+        return checkValueFunc(valIter->second);
+    }
+
+    bool ok = false;
+    if (IntFieldImpl::isBigUnsigned(m_type)) {
+        auto val = common::strToUintMax(valueStr, &ok);
         if (!ok) {
-            break;
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                          "Default value cannot be recognised (" << valueStr << ").";
+            return false;
         }
 
         return checkValueFunc(val);
-    } while (false);
+    }
 
-    // Try name
-    auto valIter = m_values.find(valueStr);
-    if (valIter == m_values.end()) {
+    auto val = common::strToIntMax(valueStr, &ok);
+    if (!ok) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Default value cannot be recognised (" << valueStr << ").";
         return false;
     }
 
-    return checkValueFunc(valIter->second);
+    return checkValueFunc(val);
 }
 
 bool EnumFieldImpl::updateValidRanges()
 {
     m_validRanges.clear();
-    for (auto& v : m_revValues) {
-        if (m_validRanges.empty()) {
-            m_validRanges.emplace_back(v.first, v.first);
-            continue;
-        }
+    auto updateRangesFunc =
+        [this](auto& revValues)
+        {
+            using MapType = std::decay_t<decltype(revValues)>;
+            using ValType = typename MapType::value_type::first_type;
+            for (auto& v : revValues) {
+                if (m_validRanges.empty()) {
+                    auto val = static_cast<std::intmax_t>(v.first);
+                    m_validRanges.emplace_back(val, val);
+                    continue;
+                }
 
-        auto& lastRange = m_validRanges.back();
-        if (lastRange.second == v.first) {
-            // repeating value
-            assert(m_nonUniqueAllowed);
-            continue;
-        }
+                auto& lastRange = m_validRanges.back();
+                if (static_cast<ValType>(lastRange.second) == v.first) {
+                    // repeating value
+                    assert(m_nonUniqueAllowed);
+                    continue;
+                }
 
-        if ((lastRange.second + 1) == v.first) {
-            lastRange.second = v.first;
-            continue;
-        }
+                if ((static_cast<ValType>(lastRange.second) + 1U) == v.first) {
+                    lastRange.second = static_cast<std::intmax_t>(v.first);
+                    continue;
+                }
 
-        assert((lastRange.second + 1) < v.first);
-        m_validRanges.emplace_back(v.first, v.first);
+                assert((static_cast<ValType>(lastRange.second) + 1U) < v.first);
+                auto val = static_cast<std::intmax_t>(v.first);
+                m_validRanges.emplace_back(val, val);
+            }
+        };
+
+    if (!IntFieldImpl::isBigUnsigned(m_type)) {
+        updateRangesFunc(m_revValues);
+        return true;
     }
 
+    using UnsignedRevValues = std::multimap<std::uintmax_t, std::nullptr_t>;
+    UnsignedRevValues unsigedRevValues;
+    std::transform(
+        m_revValues.begin(), m_revValues.end(), std::inserter(unsigedRevValues, unsigedRevValues.end()),
+        [](auto& elem)
+        {
+            return std::make_pair(static_cast<std::uintmax_t>(elem.first), nullptr);
+        });
+
+    updateRangesFunc(unsigedRevValues);
     return true;
 }
 bool EnumFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)

@@ -32,7 +32,7 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
             TS_TRACE(errMsg);
 
             if (m_status.m_expErrors.empty()) {
-                TS_ASSERT(level < bbmp::ErrorLevel_Error);
+                TS_ASSERT(level < bbmp::ErrorLevel_Warning);
                 return;
             }
 

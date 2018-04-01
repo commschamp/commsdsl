@@ -488,6 +488,24 @@ std::pair<std::string, std::string> parseRange(const std::string& str, bool* ok)
     return result;
 }
 
+bool isValidName(const std::string& value)
+{
+    if (value.empty()) {
+        return false;
+    }
+
+    if ((std::isalpha(value[0]) == 0) && (value[0] != '_')) {
+        return false;
+    }
+
+    return std::all_of(
+                value.begin(), value.end(),
+                [](char ch)
+                {
+                    return (std::isalnum(ch) != 0) || (ch == '_');
+                });
+}
+
 } // namespace common
 
 } // namespace bbmp

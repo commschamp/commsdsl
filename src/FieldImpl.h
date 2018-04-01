@@ -113,6 +113,7 @@ protected:
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;
+    LogWrapper logInfo() const;
 
     virtual ObjKind objKindImpl() const override;
     virtual Kind kindImpl() const = 0;
