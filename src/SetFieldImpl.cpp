@@ -398,6 +398,26 @@ bool SetFieldImpl::updateBits()
                 XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::defaultValueStr(), bitDefaultValueStr, protocol().logger());
                 return false;
             }
+
+            if (!m_nonUniqueAllowed) {
+                // The bit hasn't been processed earlier
+                assert(m_revBits.find(idx) == m_revBits.end());
+                break;
+            }
+
+            auto iter = m_revBits.find(idx);
+            if (iter == m_revBits.end()) {
+                // The bit hasn't been processed earlier
+                break;
+            }
+
+            auto prevBitValue = (m_defaultValue & bitMask) != 0;
+            if (bitValue != prevBitValue) {
+                logError() << XmlWrap::logPrefix(b) <<
+                              "Inconsistent value of \"" << common::defaultValueStr() << "\" property "
+                              "for bit " << idx << ".";
+                return false;
+            }
         } while (false);
 
         if (bitValue) {
@@ -501,7 +521,7 @@ bool SetFieldImpl::updateBits()
         m_defaultValue |= m_implicitReserved;
     }
     else {
-        m_defaultValue &= m_implicitReserved;
+        m_defaultValue &= (~m_implicitReserved);
     }
 
     if (m_reservedBitValue) {

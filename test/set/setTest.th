@@ -8,6 +8,9 @@ public:
     void setUp();
     void test1();
     void test2();
+    void test3();
+    void test4();
+    void test5();
 };
 
 void SetTestSuite::setUp()
@@ -97,4 +100,67 @@ void SetTestSuite::test2()
     TS_ASSERT_EQUALS(revBits.find(1)->second, "res1");
     TS_ASSERT_EQUALS(revBits.find(2)->second, "B2");
     TS_ASSERT_EQUALS(revBits.find(8)->second, "B3");
+}
+
+void SetTestSuite::test3()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test5()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Set1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Set);
+
+    bbmp::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint32);
+    TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(setField.length(), 3U);
+    TS_ASSERT_EQUALS(setField.bitLength(), setField.length() * 8U);
+    TS_ASSERT_EQUALS(setField.defaultValue(), 0x4);
+    TS_ASSERT_EQUALS(setField.reservedValue(), 0x0);
+    TS_ASSERT_EQUALS(setField.reservedBits(), 0xfefefa);
+    TS_ASSERT(setField.isNonUniqueAllowed());
+    TS_ASSERT(!setField.isUnique());
+    TS_ASSERT_EQUALS(bits.size(), 5);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    TS_ASSERT_EQUALS(bits.find("B0")->second, 0);
+    TS_ASSERT_EQUALS(bits.find("B2")->second, 2);
+    TS_ASSERT_EQUALS(bits.find("B8")->second, 8);
+    TS_ASSERT_EQUALS(bits.find("B16")->second, 16);
+    TS_ASSERT_EQUALS(bits.find("otherB2")->second, 2);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
+    TS_ASSERT_EQUALS(revBits.find(8)->second, "B8");
+    TS_ASSERT_EQUALS(revBits.find(16)->second, "B16");
+    auto b2 = revBits.equal_range(2);
+    TS_ASSERT_EQUALS(std::distance(b2.first, b2.second), 2);
 }
