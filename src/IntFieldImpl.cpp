@@ -1117,10 +1117,9 @@ bool IntFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
     }
 
     if (common::isValidRefName(str)) {
-        // Check among global enums
-        assert(!"NYI");
-        return false;
+        return protocol().strToEnumValue(str, val, false);
     }
+
 
     bool ok = false;
     if (isBigUnsigned(m_type)) {

@@ -73,11 +73,11 @@ bool NamespaceImpl::parseProps()
     return true;
 }
 
-bool NamespaceImpl::parseChildren()
+bool NamespaceImpl::parseChildren(NamespaceImpl* realNs)
 {
     auto children = XmlWrap::getChildren(m_node, ChildrenNames);
     for (auto* c : children) {
-        if (!processChild(c)) {
+        if (!processChild(c, realNs)) {
             return false;
         }
     }
@@ -98,7 +98,7 @@ bool NamespaceImpl::parse()
     return parseChildren();
 }
 
-bool NamespaceImpl::processChild(::xmlNodePtr node)
+bool NamespaceImpl::processChild(::xmlNodePtr node, NamespaceImpl* realNs)
 {
     using ProcessFunc = bool (NamespaceImpl::*)(::xmlNodePtr node);
     static const std::map<std::string, ProcessFunc> ParseFuncMap = {
@@ -116,8 +116,11 @@ bool NamespaceImpl::processChild(::xmlNodePtr node)
         return false;
     }
 
+    if (realNs == nullptr) {
+        realNs = this;
+    }
     auto func = iter->second;
-    return (this->*func)(node);
+    return (realNs->*func)(node);
 }
 
 bool NamespaceImpl::merge(NamespaceImpl& other)
@@ -126,6 +129,22 @@ bool NamespaceImpl::merge(NamespaceImpl& other)
     if (m_description.empty()) {
         m_description = std::move(other.m_description);
     }
+
+    for (auto& n : other.m_namespaces) {
+        auto iter = m_namespaces.find(n.first);
+        if (iter == m_namespaces.end()) {
+            m_namespaces.emplace(n.first, std::move(n.second));
+            continue;
+        }
+
+        assert(iter->second);
+        if (!iter->second->merge(*n.second)) {
+            return false;
+        }
+    }
+
+    other.m_namespaces.clear();
+    other.m_namespacesList.clear();
 
     for (auto& f : other.m_fields) {
         auto iter = m_fields.find(f.first);
@@ -141,6 +160,7 @@ bool NamespaceImpl::merge(NamespaceImpl& other)
         m_fields.insert(std::move(f));
     }
     other.m_fields.clear();
+    other.m_fieldsList.clear();
 
 
     // TODO: merge messages and frames
@@ -149,11 +169,18 @@ bool NamespaceImpl::merge(NamespaceImpl& other)
 
 bool NamespaceImpl::finalise()
 {
+    m_namespacesList.clear();
+    m_namespacesList.reserve(m_namespaces.size());
+    for (auto& n : m_namespaces) {
+        assert(n.second);
+        m_namespacesList.emplace_back(n.second.get());
+    }
+
     m_fieldsList.clear();
     m_fieldsList.reserve(m_fields.size());
     for (auto& f : m_fields) {
         assert(f.second);
-        m_fieldsList.push_back(Field(f.second.get()));
+        m_fieldsList.emplace_back(f.second.get());
     }
 
     // TODO: finalise messages and frames
@@ -163,6 +190,17 @@ bool NamespaceImpl::finalise()
 const XmlWrap::NamesList& NamespaceImpl::supportedChildren()
 {
     return ChildrenNames;
+}
+
+const FieldImpl* NamespaceImpl::findField(const std::string& fieldName) const
+{
+    auto iter = m_fields.find(fieldName);
+    if (iter == m_fields.end()) {
+        return nullptr;
+    }
+
+    assert(iter->second);
+    return iter->second.get();
 }
 
 Object::ObjKind NamespaceImpl::objKindImpl() const

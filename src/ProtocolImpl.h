@@ -51,6 +51,8 @@ public:
         return m_namespacesList;
     }
 
+    bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
+
 private:
     struct XmlDocFree
     {

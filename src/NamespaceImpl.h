@@ -21,6 +21,8 @@ public:
     using ContentsList = XmlWrap::ContentsList;
     using NamespacesList = Namespace::NamespacesList;
     using FieldsList = Namespace::FieldsList;
+    using NamespacesMap = std::map<std::string, Ptr>;
+    using FieldsMap = std::map<std::string, FieldImplPtr>;
 
     NamespaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     virtual ~NamespaceImpl() = default;
@@ -32,11 +34,11 @@ public:
 
     bool parseProps();
 
-    bool parseChildren();
+    bool parseChildren(NamespaceImpl* realNs = nullptr);
 
     bool parse();
 
-    bool processChild(::xmlNodePtr node);
+    bool processChild(::xmlNodePtr node, NamespaceImpl* realNs = nullptr);
 
     bool merge(NamespaceImpl& other);
 
@@ -84,12 +86,17 @@ public:
         return m_unknownChildren;
     }
 
+    const NamespacesMap& namespacesMap() const
+    {
+        return m_namespaces;
+    }
+
+    const FieldImpl* findField(const std::string& fieldName) const;
+
 protected:
     virtual ObjKind objKindImpl() const override;
 
 private:
-    using NamespacesMap = std::map<std::string, Ptr>;
-    using FieldsMap = std::map<std::string, FieldImplPtr>;
 
     bool processNamespace(::xmlNodePtr node);
     bool processMultipleFields(::xmlNodePtr node);

@@ -7,6 +7,7 @@
 
 #include "XmlWrap.h"
 #include "FieldImpl.h"
+#include "EnumFieldImpl.h"
 
 namespace bbmp
 {
@@ -119,7 +120,106 @@ FieldImpl* ProtocolImpl::findField(const std::string& name)
 //        return nullptr;
 //    }
 
-//    return iter->second.get();
+    //    return iter->second.get();
+}
+
+bool ProtocolImpl::strToEnumValue(
+    const std::string& ref,
+    std::intmax_t& val,
+    bool checkRef) const
+{
+    if (checkRef) {
+        if (!common::isValidRefName(ref)) {
+            return false;
+        }
+    }
+    else {
+        assert(common::isValidRefName(ref));
+    }
+
+    auto dotCount = static_cast<std::size_t>(std::count(ref.begin(), ref.end(), '.'));
+    if (dotCount < 1U) {
+        return false;
+    }
+
+    auto nameSepPos = ref.find_last_of('.');
+    assert(nameSepPos != std::string::npos);
+    assert(0U < nameSepPos);
+
+    auto enumNameSepPos = ref.find_last_of('.', nameSepPos - 1);
+    assert((enumNameSepPos == std::string::npos) || ((enumNameSepPos + 1U) < nameSepPos));
+    std::string elemName(ref.begin() + nameSepPos + 1, ref.end());
+    std::string enumName;
+    std::string remNamespaces;
+    if (enumNameSepPos == std::string::npos) {
+        enumName.assign(ref.begin(), ref.begin() + nameSepPos);
+    }
+    else {
+        enumName.assign(ref.begin() + enumNameSepPos + 1, ref.begin() + nameSepPos);
+        remNamespaces.assign(ref.begin(), ref.begin() + enumNameSepPos);
+    }
+
+
+    const NamespaceImpl* ns = nullptr;
+    do {
+        if (remNamespaces.empty()) {
+            auto iter = m_namespaces.find(common::emptyString());
+            if (iter == m_namespaces.end()) {
+                assert(0);
+                return false;
+            }
+
+            ns = iter->second.get();
+            assert(ns != nullptr);
+            break;
+        }
+
+        std::size_t nsNamePos = 0;
+        assert(enumNameSepPos != std::string::npos);
+        while (nsNamePos < enumNameSepPos) {
+            auto nextDotPos = ref.find_first_of('.', nsNamePos);
+            assert(nextDotPos != std::string::npos);
+            std::string nsName(ref.begin() + nsNamePos, ref.begin() + nextDotPos);
+            if (nsName.empty()) {
+                return false;
+            }
+
+            auto* nsMap = &m_namespaces;
+            if (ns != nullptr) {
+                nsMap = &(ns->namespacesMap());
+            }
+
+            auto iter = nsMap->find(nsName);
+            if (iter == nsMap->end()) {
+                return false;
+            }
+
+            assert(iter->second);
+            ns = iter->second.get();
+            nsNamePos = nextDotPos + 1;
+        }
+
+    } while (false);
+
+    assert(ns != nullptr);
+    auto* field = ns->findField(enumName);
+    if (field == nullptr) {
+        return false;
+    }
+
+    if (field->kind() != Field::Kind::Enum) {
+        return false;
+    }
+
+    auto* enumField = static_cast<const EnumFieldImpl*>(field);
+    auto& enumValues = enumField->values();
+    auto enumValueIter = enumValues.find(elemName);
+    if (enumValueIter == enumValues.end()) {
+        return false;
+    }
+
+    val = enumValueIter->second;
+    return true;
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
@@ -185,19 +285,27 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
     auto namespaces = XmlWrap::getChildren(root, common::nsStr());
     for (auto& n : namespaces) {
         NamespaceImplPtr ns(new NamespaceImpl(n, *this));
-        if (!ns->parse()) {
+        if (!ns->parseProps()) {
             return false;
         }
 
-        auto iter = m_namespaces.find(ns->name());
+        auto& nsName = ns->name();
+        auto iter = m_namespaces.find(nsName);
+        NamespaceImpl* nsToProcess = nullptr;
+        NamespaceImpl* realNs = nullptr;
         if (iter == m_namespaces.end()) {
-            auto& nsName = ns->name();
             m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
-            continue;
+            iter = m_namespaces.find(nsName);
+            assert(iter != m_namespaces.end());
+            nsToProcess = iter->second.get();
+        }
+        else {
+            nsToProcess = ns.get();
+            realNs = iter->second.get();
         }
 
         assert(iter->second);
-        if (!iter->second->merge(*ns)) {
+        if (!nsToProcess->parseChildren(realNs)) {
             return false;
         }
     }
@@ -209,22 +317,15 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
             break;
         }
 
-        NamespaceImplPtr ns(new NamespaceImpl(nullptr, *this));
+        auto& globalNsPtr = m_namespaces[common::emptyString()]; // create if needed
+        if (!globalNsPtr) {
+            globalNsPtr.reset(new NamespaceImpl(nullptr, *this));
+        }
 
         for (auto c : globalNsChildren) {
-            if (!ns->processChild(c)) {
+            if (!globalNsPtr->processChild(c)) {
                 return false;
             }
-        }
-
-        auto& globalNsPtr = m_namespaces[std::string()]; // create if needed
-        if (!globalNsPtr) {
-            globalNsPtr = std::move(ns);
-            break;
-        }
-
-        if (!globalNsPtr->merge(*ns)) {
-            return false;
         }
 
     } while (false);

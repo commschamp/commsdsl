@@ -583,8 +583,8 @@ bool isValidRefName(const std::string& value)
 
     auto dotPos = value.find_first_of('.');
     while (dotPos != std::string::npos) {
-        auto nextPos = value.find_first_of('.', dotPos);
-        if ((dotPos + 1) <= nextPos) {
+        auto nextPos = value.find_first_of('.', dotPos + 1);
+        if (nextPos <= (dotPos + 1)) {
             return false; // sequential dots without name in the middle
         }
         dotPos = nextPos;
