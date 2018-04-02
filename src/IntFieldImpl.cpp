@@ -317,12 +317,12 @@ bool IntFieldImpl::parseImpl()
         updateEndian() &&
         updateLength() &&
         updateBitLength() &&
+        updateScaling() &&
         updateSerOffset() &&
         updateMinMaxValues() &&
+        updateSpecials() &&
         updateDefaultValue() &&
-        updateScaling() &&
-        updateValidRanges() &&
-        updateSpecials();
+        updateValidRanges();
 }
 
 std::size_t IntFieldImpl::lengthImpl() const
@@ -584,13 +584,8 @@ bool IntFieldImpl::updateDefaultValue()
         };
 
     auto checkValueFunc =
-        [this, &reportErrorFunc, &reportWarningFunc](auto v, bool ok) -> bool
+        [this, &reportErrorFunc, &reportWarningFunc](auto v) -> bool
         {
-            if (!ok) {
-                reportErrorFunc();
-                return false;
-            }
-
             auto castedTypeAllowedMinValue = static_cast<decltype(v)>(m_typeAllowedMinValue);
             auto castedTypeAllowedMaxValue = static_cast<decltype(v)>(m_typeAllowedMaxValue);
 
@@ -615,14 +610,18 @@ bool IntFieldImpl::updateDefaultValue()
             return true;
         };
 
-    bool ok = false;
-    if (isBigUnsigned(m_type)) {
-        auto val = common::strToUintMax(valueStr, &ok);
-        return checkValueFunc(val, ok);
+    std::intmax_t val = 0;
+    if (!strToNumeric(valueStr, val)) {
+        logError() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
+                      "\" cannot be recongized (" << valueStr << ").";
+        return false;
     }
 
-    auto val = common::strToIntMax(valueStr, &ok);
-    return checkValueFunc(val, ok);
+    if (isBigUnsigned(m_type)) {
+        return checkValueFunc(static_cast<std::uint64_t>(val));
+    }
+
+    return checkValueFunc(val);
 }
 
 bool IntFieldImpl::updateScaling()
@@ -1106,6 +1105,23 @@ bool IntFieldImpl::validateValidMaxValueStr(const std::string& str)
 
 bool IntFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
 {
+    if (common::isValidName(str)) {
+        // Check among specials
+        auto iter = m_specials.find(str);
+        if (iter == m_specials.end()) {
+            return false;
+        }
+
+        val = iter->second;
+        return true;
+    }
+
+    if (common::isValidRefName(str)) {
+        // Check among global enums
+        assert(!"NYI");
+        return false;
+    }
+
     bool ok = false;
     if (isBigUnsigned(m_type)) {
         val = static_cast<std::intmax_t>(common::strToUintMax(str, &ok));

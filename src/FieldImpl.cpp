@@ -184,7 +184,9 @@ bool FieldImpl::validateMembersNames(const FieldImpl::FieldsList& fields)
 
 bool FieldImpl::isBitfieldMember() const
 {
-    return (m_parent != nullptr) && (m_parent->objKind() == ObjKind::Bitfield);
+    return (m_parent != nullptr) &&
+           (m_parent->objKind() == ObjKind::Field) &&
+           (static_cast<const FieldImpl*>(m_parent)->kind() == Kind::Bitfield);
 }
 
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -215,7 +217,7 @@ LogWrapper FieldImpl::logInfo() const
 
 Object::ObjKind FieldImpl::objKindImpl() const
 {
-    return ObjKind::SimpleField;
+    return ObjKind::Field;
 }
 
 const XmlWrap::NamesList& FieldImpl::extraPropsNamesImpl() const

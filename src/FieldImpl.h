@@ -115,7 +115,7 @@ protected:
     LogWrapper logWarning() const;
     LogWrapper logInfo() const;
 
-    virtual ObjKind objKindImpl() const override;
+    virtual ObjKind objKindImpl() const override final;
     virtual Kind kindImpl() const = 0;
     virtual Ptr cloneImpl() const = 0;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;

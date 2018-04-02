@@ -7,20 +7,32 @@
 #include "XmlWrap.h"
 #include "Logger.h"
 #include "FieldImpl.h"
+#include "Object.h"
 
 namespace bbmp
 {
 
 class ProtocolImpl;
-class NamespaceImpl
+class NamespaceImpl : public Object
 {
 public:
     using Ptr = std::unique_ptr<NamespaceImpl>;
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
+    using NamespacesList = Namespace::NamespacesList;
     using FieldsList = Namespace::FieldsList;
 
     NamespaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
+    virtual ~NamespaceImpl() = default;
+
+    ::xmlNodePtr getNode() const
+    {
+        return m_node;
+    }
+
+    bool parseProps();
+
+    bool parseChildren();
 
     bool parse();
 
@@ -72,9 +84,14 @@ public:
         return m_unknownChildren;
     }
 
+protected:
+    virtual ObjKind objKindImpl() const override;
+
 private:
+    using NamespacesMap = std::map<std::string, Ptr>;
     using FieldsMap = std::map<std::string, FieldImplPtr>;
 
+    bool processNamespace(::xmlNodePtr node);
     bool processMultipleFields(::xmlNodePtr node);
     bool processMessage(::xmlNodePtr node);
     bool processMultipleMessages(::xmlNodePtr node);
@@ -94,6 +111,8 @@ private:
     std::string m_name;
     std::string m_description;
 
+    NamespacesMap m_namespaces;
+    NamespacesList m_namespacesList;
     FieldsMap m_fields;
     FieldsList m_fieldsList;
 };

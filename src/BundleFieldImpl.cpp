@@ -42,11 +42,6 @@ BundleFieldImpl::BundleFieldImpl(const BundleFieldImpl& other)
     }
 }
 
-Object::ObjKind BundleFieldImpl::objKindImpl() const
-{
-    return ObjKind::Bundle;
-}
-
 FieldImpl::Kind BundleFieldImpl::kindImpl() const
 {
     return Kind::Bundle;

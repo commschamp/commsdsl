@@ -10,9 +10,8 @@ class Object
 public:
     enum class ObjKind
     {
-        SimpleField,
-        Bitfield,
-        Bundle,
+        Namespace,
+        Field,
         Message,
         NumOfValues
     };

@@ -44,11 +44,6 @@ BitfieldFieldImpl::BitfieldFieldImpl(const BitfieldFieldImpl& other)
     }
 }
 
-Object::ObjKind BitfieldFieldImpl::objKindImpl() const
-{
-    return ObjKind::Bitfield;
-}
-
 FieldImpl::Kind BitfieldFieldImpl::kindImpl() const
 {
     return Kind::Bitfield;

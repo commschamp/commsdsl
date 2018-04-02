@@ -84,6 +84,7 @@ std::string toLowerCopy(const std::string& str);
 std::pair<std::string, std::string> parseRange(const std::string& str, bool* ok = nullptr);
 
 bool isValidName(const std::string& value);
+bool isValidRefName(const std::string& value);
 
 } // namespace common
 

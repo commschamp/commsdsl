@@ -13,7 +13,7 @@ class NamespaceImpl;
 class BBMP_API Namespace
 {
 public:
-
+    using NamespacesList = std::vector<Namespace>;
     using FieldsList = std::vector<Field>;
 
     explicit Namespace(const NamespaceImpl* impl);
@@ -21,6 +21,7 @@ public:
     ~Namespace();
 
     const std::string& name() const;
+    const NamespacesList& namespaces() const;
     const FieldsList& fields() const;
 
 private:

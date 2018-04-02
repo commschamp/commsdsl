@@ -556,6 +556,43 @@ bool isValidName(const std::string& value)
                 });
 }
 
+bool isValidRefName(const std::string& value)
+{
+    if (value.empty()) {
+        return false;
+    }
+
+    if ((std::isalpha(value[0]) == 0) && (value[0] != '_')) {
+        return false;
+    }
+
+    bool validChars =
+        std::all_of(
+            value.begin(), value.end(),
+            [](char ch)
+            {
+                return (std::isalnum(ch) != 0) || (ch == '_') || (ch == '.');
+            });
+    if (!validChars) {
+        return false;
+    }
+
+    if (value[value.size() - 1] == '.') {
+        return false;
+    }
+
+    auto dotPos = value.find_first_of('.');
+    while (dotPos != std::string::npos) {
+        auto nextPos = value.find_first_of('.', dotPos);
+        if ((dotPos + 1) <= nextPos) {
+            return false; // sequential dots without name in the middle
+        }
+        dotPos = nextPos;
+    }
+
+    return true;
+}
+
 } // namespace common
 
 } // namespace bbmp

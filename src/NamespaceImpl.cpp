@@ -42,12 +42,9 @@ NamespaceImpl::NamespaceImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
-bool NamespaceImpl::parse()
+bool NamespaceImpl::parseProps()
 {
-    if (m_node == nullptr) {
-        // default namespace
-        return true;
-    }
+    assert (m_node != nullptr);
 
     static const XmlWrap::NamesList Names = {
         common::nameStr(),
@@ -73,7 +70,11 @@ bool NamespaceImpl::parse()
     m_unknownAttrs = XmlWrap::getUnknownProps(m_node, Names);
 
     m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, ChildrenNames);
+    return true;
+}
 
+bool NamespaceImpl::parseChildren()
+{
     auto children = XmlWrap::getChildren(m_node, ChildrenNames);
     for (auto* c : children) {
         if (!processChild(c)) {
@@ -83,10 +84,25 @@ bool NamespaceImpl::parse()
     return true;
 }
 
+bool NamespaceImpl::parse()
+{
+    if (m_node == nullptr) {
+        // default namespace
+        return true;
+    }
+
+    if (!parseProps()) {
+        return false;
+    }
+
+    return parseChildren();
+}
+
 bool NamespaceImpl::processChild(::xmlNodePtr node)
 {
     using ProcessFunc = bool (NamespaceImpl::*)(::xmlNodePtr node);
     static const std::map<std::string, ProcessFunc> ParseFuncMap = {
+        std::make_pair(common::nsStr(), &NamespaceImpl::processNamespace),
         std::make_pair(common::fieldsStr(), &NamespaceImpl::processMultipleFields),
         std::make_pair(common::messageStr(), &NamespaceImpl::processMessage),
         std::make_pair(common::messagesStr(), &NamespaceImpl::processMultipleMessages),
@@ -149,6 +165,37 @@ const XmlWrap::NamesList& NamespaceImpl::supportedChildren()
     return ChildrenNames;
 }
 
+Object::ObjKind NamespaceImpl::objKindImpl() const
+{
+    return ObjKind::Namespace;
+}
+
+bool NamespaceImpl::processNamespace(::xmlNodePtr node)
+{
+    Ptr ns(new NamespaceImpl(node, m_protocol));
+    ns->setParent(this);
+
+    if (!ns->parseProps()) {
+        return false;
+    }
+
+    auto iter = m_namespaces.find(ns->name());
+    if (iter != m_namespaces.end()) {
+        logError() << XmlWrap::logPrefix(ns->getNode()) <<
+                      "Namespace with the same local name (" << ns->name() << ") "
+                      "was already defined.";
+        return false;
+    }
+
+    auto& nameStr = ns->name();
+    m_namespaces.emplace(nameStr, std::move(ns));
+
+    iter = m_namespaces.find(nameStr);
+    assert(iter != m_namespaces.end());
+    assert(iter->second);
+    return iter->second->parseChildren();
+}
+
 bool NamespaceImpl::processMultipleFields(::xmlNodePtr node)
 {
     auto childrenNodes = XmlWrap::getChildren(node);
@@ -159,6 +206,8 @@ bool NamespaceImpl::processMultipleFields(::xmlNodePtr node)
             logError() << XmlWrap::logPrefix(c) << "Invalid field type \"" << cName << "\"";
             return false;
         }
+
+        field->setParent(this);
 
         if (!field->parse()) {
             logError() << XmlWrap::logPrefix(c) << "Parsing of \"" << cName << "\" has failed.";
