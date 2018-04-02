@@ -55,7 +55,7 @@ public:
 
     std::uintmax_t reservedBits() const
     {
-        return m_reservedValue | m_implicitReserved;
+        return m_reservedBits | m_implicitReserved;
     }
 
     const Bits& bits() const

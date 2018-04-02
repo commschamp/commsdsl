@@ -9,6 +9,7 @@
 #include "IntFieldImpl.h"
 #include "FloatFieldImpl.h"
 #include "EnumFieldImpl.h"
+#include "SetFieldImpl.h"
 #include "BitfieldFieldImpl.h"
 #include "BundleFieldImpl.h"
 #include "RefFieldImpl.h"
@@ -427,6 +428,12 @@ const FieldImpl::CreateMap& FieldImpl::createMap()
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new EnumFieldImpl(n, p));
+            }),
+        std::make_pair(
+            common::setStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new SetFieldImpl(n, p));
             }),
         std::make_pair(
             common::bitfieldStr(),

@@ -24,6 +24,8 @@ SetFieldImpl::SetFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
+SetFieldImpl::SetFieldImpl(const SetFieldImpl&) = default;
+
 bool SetFieldImpl::isUnique() const
 {
     unsigned prevIdx = 0;
@@ -50,8 +52,6 @@ FieldImpl::Kind SetFieldImpl::kindImpl() const
 {
     return Kind::Set;
 }
-
-SetFieldImpl::SetFieldImpl(const SetFieldImpl&) = default;
 
 FieldImpl::Ptr SetFieldImpl::cloneImpl() const
 {
@@ -220,7 +220,7 @@ bool SetFieldImpl::updateLength()
     static_assert(MapSize == MaxLength, "Invalid map");
 
     assert(m_length < MapSize);
-    m_type = Map[m_length];
+    m_type = Map[m_length - 1];
 
     if (m_revBits.empty()) {
         assert(m_bits.empty());
@@ -407,7 +407,7 @@ bool SetFieldImpl::updateBits()
             m_defaultValue &= (~bitMask);
         }
 
-        bool reserved = m_reservedBitValue;
+        bool reserved = false;
         do{
             auto& bitReservedStr = common::getStringProp(props, common::reservedStr());
             if (bitReservedStr.empty()) {
@@ -469,7 +469,7 @@ bool SetFieldImpl::updateBits()
             }
         } while (false);
 
-        if (reservedValue) {
+        if (reservedValue && reserved) {
             m_reservedValue |= bitMask;
         }
         else {
@@ -495,6 +495,13 @@ bool SetFieldImpl::updateBits()
         assert(b.first < m_bitLength);
         auto mask = static_cast<decltype(m_implicitReserved)>(1U) << b.first;
         m_implicitReserved &= ~mask;
+    }
+
+    if (m_defaultBitValue) {
+        m_defaultValue |= m_implicitReserved;
+    }
+    else {
+        m_defaultValue &= m_implicitReserved;
     }
 
     if (m_reservedBitValue) {

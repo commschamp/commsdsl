@@ -300,6 +300,12 @@ const std::string& idxStr()
     return Str;
 }
 
+const std::string& setStr()
+{
+    static const std::string Str("set");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

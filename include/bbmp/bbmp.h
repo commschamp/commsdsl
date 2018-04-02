@@ -4,3 +4,4 @@
 #include "IntField.h"
 #include "FloatField.h"
 #include "EnumField.h"
+#include "SetField.h"

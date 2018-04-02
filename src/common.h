@@ -63,6 +63,7 @@ const std::string& reservedValueStr();
 const std::string& reservedStr();
 const std::string& bitStr();
 const std::string& idxStr();
+const std::string& setStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);
