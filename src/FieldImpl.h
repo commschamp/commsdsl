@@ -121,6 +121,7 @@ protected:
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
+    virtual bool reuseImpl(const FieldImpl& other);
     virtual bool parseImpl();
     virtual std::size_t lengthImpl() const = 0;
     virtual std::size_t bitLengthImpl() const;
@@ -138,6 +139,7 @@ private:
     using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
     using CreateMap = std::map<std::string, CreateFunc>;
 
+    bool checkReuse();
     bool updateName();
     bool updateDescription();
     bool updateDisplayName();

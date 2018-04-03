@@ -23,7 +23,7 @@ public:
     using SpecialValues = IntField::SpecialValues;
 
     IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
-    IntFieldImpl(const IntFieldImpl&);
+    IntFieldImpl(const IntFieldImpl&) = default;
 
     Type type() const
     {
@@ -98,6 +98,7 @@ protected:
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
+    virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t lengthImpl() const override;
     virtual std::size_t bitLengthImpl() const override;

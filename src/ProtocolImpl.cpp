@@ -109,18 +109,64 @@ const SchemaImpl& ProtocolImpl::schemaImpl() const
     return *m_schema;
 }
 
-FieldImpl* ProtocolImpl::findField(const std::string& name)
+const FieldImpl* ProtocolImpl::findField(const std::string& ref, bool checkRef) const
 {
-    static_cast<void>(name);
-    logError() << __FUNCTION__ << ": NYI";
-    // TODO: find among namespaces
-    return nullptr;
-//    auto iter = m_fields.find(name);
-//    if (iter == m_fields.end()) {
-//        return nullptr;
-//    }
+    if (checkRef) {
+        if (!common::isValidRefName(ref)) {
+            return nullptr;
+        }
+    }
+    else {
+        assert(common::isValidRefName(ref));
+    }
 
-    //    return iter->second.get();
+
+    auto nameSepPos = ref.find_last_of('.');
+    std::string fieldName;
+    const NamespaceImpl* ns = nullptr;
+    do {
+        if (nameSepPos == std::string::npos) {
+            auto iter = m_namespaces.find(common::emptyString());
+            if (iter == m_namespaces.end()) {
+                return nullptr;
+            }
+
+            fieldName = ref;
+            ns = iter->second.get();
+            assert(ns != nullptr);
+            break;
+        }
+
+        fieldName.assign(ref.begin() + nameSepPos + 1, ref.end());
+        std::size_t nsNamePos = 0;
+        assert(nameSepPos != std::string::npos);
+        while (nsNamePos < nameSepPos) {
+            auto nextDotPos = ref.find_first_of('.', nsNamePos);
+            assert(nextDotPos != std::string::npos);
+            std::string nsName(ref.begin() + nsNamePos, ref.begin() + nextDotPos);
+            if (nsName.empty()) {
+                return nullptr;
+            }
+
+            auto* nsMap = &m_namespaces;
+            if (ns != nullptr) {
+                nsMap = &(ns->namespacesMap());
+            }
+
+            auto iter = nsMap->find(nsName);
+            if (iter == nsMap->end()) {
+                return nullptr;
+            }
+
+            assert(iter->second);
+            ns = iter->second.get();
+            nsNamePos = nextDotPos + 1;
+        }
+
+    } while (false);
+
+    assert(ns != nullptr);
+    return ns->findField(fieldName);
 }
 
 bool ProtocolImpl::strToEnumValue(
@@ -145,69 +191,10 @@ bool ProtocolImpl::strToEnumValue(
     auto nameSepPos = ref.find_last_of('.');
     assert(nameSepPos != std::string::npos);
     assert(0U < nameSepPos);
-
-    auto enumNameSepPos = ref.find_last_of('.', nameSepPos - 1);
-    assert((enumNameSepPos == std::string::npos) || ((enumNameSepPos + 1U) < nameSepPos));
     std::string elemName(ref.begin() + nameSepPos + 1, ref.end());
-    std::string enumName;
-    std::string remNamespaces;
-    if (enumNameSepPos == std::string::npos) {
-        enumName.assign(ref.begin(), ref.begin() + nameSepPos);
-    }
-    else {
-        enumName.assign(ref.begin() + enumNameSepPos + 1, ref.begin() + nameSepPos);
-        remNamespaces.assign(ref.begin(), ref.begin() + enumNameSepPos);
-    }
-
-
-    const NamespaceImpl* ns = nullptr;
-    do {
-        if (remNamespaces.empty()) {
-            auto iter = m_namespaces.find(common::emptyString());
-            if (iter == m_namespaces.end()) {
-                assert(0);
-                return false;
-            }
-
-            ns = iter->second.get();
-            assert(ns != nullptr);
-            break;
-        }
-
-        std::size_t nsNamePos = 0;
-        assert(enumNameSepPos != std::string::npos);
-        while (nsNamePos < enumNameSepPos) {
-            auto nextDotPos = ref.find_first_of('.', nsNamePos);
-            assert(nextDotPos != std::string::npos);
-            std::string nsName(ref.begin() + nsNamePos, ref.begin() + nextDotPos);
-            if (nsName.empty()) {
-                return false;
-            }
-
-            auto* nsMap = &m_namespaces;
-            if (ns != nullptr) {
-                nsMap = &(ns->namespacesMap());
-            }
-
-            auto iter = nsMap->find(nsName);
-            if (iter == nsMap->end()) {
-                return false;
-            }
-
-            assert(iter->second);
-            ns = iter->second.get();
-            nsNamePos = nextDotPos + 1;
-        }
-
-    } while (false);
-
-    assert(ns != nullptr);
-    auto* field = ns->findField(enumName);
-    if (field == nullptr) {
-        return false;
-    }
-
-    if (field->kind() != Field::Kind::Enum) {
+    std::string fieldRefPath(ref.begin(), ref.begin() + nameSepPos);
+    auto* field = findField(fieldRefPath, false);
+    if ((field == nullptr) || (field->kind() != Field::Kind::Enum)) {
         return false;
     }
 
@@ -310,7 +297,10 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
         }
     }
 
-    auto& nsChildren = NamespaceImpl::supportedChildren();
+    auto nsChildren = NamespaceImpl::supportedChildren();
+    nsChildren.erase(
+        std::remove(nsChildren.begin(), nsChildren.end(), common::nsStr()),
+        nsChildren.end());
     auto globalNsChildren = XmlWrap::getChildren(root, nsChildren);
     do {
         if (globalNsChildren.empty()) {

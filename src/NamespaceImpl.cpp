@@ -20,6 +20,7 @@ static const XmlWrap::NamesList ChildrenNames = {
     common::messageStr(),
     common::framesStr(),
     common::frameStr(),
+    common::nsStr()
 };
 
 bool updateStringProperty(const XmlWrap::PropsMap& map, const std::string& name, std::string& prop)
@@ -312,5 +313,11 @@ LogWrapper NamespaceImpl::logWarning() const
 {
     return bbmp::logWarning(m_protocol.logger());
 }
+
+LogWrapper NamespaceImpl::logInfo() const
+{
+    return bbmp::logInfo(m_protocol.logger());
+}
+
 
 } // namespace bbmp

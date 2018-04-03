@@ -306,6 +306,12 @@ const std::string& setStr()
     return Str;
 }
 
+const std::string& reuseStr()
+{
+    static const std::string Str("reuse");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

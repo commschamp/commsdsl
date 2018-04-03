@@ -107,6 +107,7 @@ private:
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;
+    LogWrapper logInfo() const;
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;

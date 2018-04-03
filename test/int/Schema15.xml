@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="little">
+
+    <ns name="ns2">
+        <fields>
+            <int name="Int1" type="uint16" serOffset="10" scaling="1/10" displayName="Int 1">
+                <special name="S1" val="1" />
+                <defaultValue value="100" />
+            </int>
+        </fields>
+    </ns> 
+           
+    <ns name="ns1">
+        <fields>
+            <int reuse="ns2.Int1" serOffset="0" endian="big" defaultValue="0">
+                <validRange value="[0, 10]" />
+                <validValue value="20" />
+                <scaling value="1/20" />
+                <special name="S2" val="2" />
+            </int>
+        </fields>
+    </ns>
+</schema>

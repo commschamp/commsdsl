@@ -44,12 +44,13 @@ public:
         return m_logger;
     }
 
-    FieldImpl* findField(const std::string& name);
 
     const NamespacesList& namespacesList() const
     {
         return m_namespacesList;
     }
+
+    const FieldImpl* findField(const std::string& ref, bool checkRef = true) const;
 
     bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
@@ -65,7 +66,7 @@ private:
     using XmlDocPtr = std::unique_ptr<::xmlDoc, XmlDocFree>;
     using DocsList = std::vector<XmlDocPtr>;
     using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
-    using NamespacesMap = std::map<std::string, NamespaceImplPtr>;
+    using NamespacesMap = NamespaceImpl::NamespacesMap;
 
     static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
     void handleXmlError(xmlErrorPtr err);

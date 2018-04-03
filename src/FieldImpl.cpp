@@ -66,6 +66,7 @@ bool FieldImpl::parse()
     } while (false);
 
     bool result =
+        checkReuse() &&
         updateName() &&
         updateDisplayName() &&
         updateDescription() &&
@@ -236,6 +237,13 @@ const XmlWrap::NamesList&FieldImpl::extraChildrenNamesImpl() const
     return Names;
 }
 
+bool FieldImpl::reuseImpl(const FieldImpl& other)
+{
+    static_cast<void>(other);
+    assert(!"NYI, this function should not be called");
+    return false;
+}
+
 bool FieldImpl::parseImpl()
 {
     return true;
@@ -301,9 +309,45 @@ const XmlWrap::NamesList& FieldImpl::commonChildren()
     return CommonChildren;
 }
 
+bool FieldImpl::checkReuse()
+{
+    if (!validateSinglePropInstance(common::reuseStr())) {
+        return false;
+    }
+
+    auto iter = m_props.find(common::reuseStr());
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    auto& valueStr = iter->second;
+    auto* field = m_protocol.findField(valueStr);
+    if (field == nullptr) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "The field \"" << valueStr << "\" hasn't been recorded yet.";
+        return false;
+    }
+
+    if (field->kind() != kind()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Cannot reuse field of different kind (\"" << valueStr << "\").";
+        return false;
+    }
+
+    assert(field != this);
+    m_name = field->m_name;
+    m_displayName = field->m_displayName;
+    m_description = field->m_description;
+    m_unknownAttrs = field->m_unknownAttrs;
+    m_unknownChildren = field->m_unknownChildren;
+
+    return reuseImpl(*field);
+}
+
 bool FieldImpl::updateName()
 {
-    if (!validateAndUpdateStringPropValue(common::nameStr(), m_name, true)) {
+    bool mustHave = m_name->empty();
+    if (!validateAndUpdateStringPropValue(common::nameStr(), m_name, mustHave)) {
         return false;
     }
 

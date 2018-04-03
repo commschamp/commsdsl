@@ -274,7 +274,6 @@ FieldImpl::Kind IntFieldImpl::kindImpl() const
     return Kind::Int;
 }
 
-IntFieldImpl::IntFieldImpl(const IntFieldImpl&) = default;
 
 FieldImpl::Ptr IntFieldImpl::cloneImpl() const
 {
@@ -308,6 +307,27 @@ const XmlWrap::NamesList& IntFieldImpl::extraChildrenNamesImpl() const
     };
 
     return List;
+}
+
+bool IntFieldImpl::reuseImpl(const FieldImpl& other)
+{
+    assert(other.kind() == kind());
+    auto& castedOther = static_cast<const IntFieldImpl&>(other);
+    m_type = castedOther.m_type;
+    m_endian = castedOther.m_endian;
+    m_length = castedOther.m_length;
+    m_bitLength = castedOther.m_bitLength;
+    m_serOffset = castedOther.m_serOffset;
+    m_typeAllowedMinValue = castedOther.m_typeAllowedMinValue;
+    m_typeAllowedMaxValue = castedOther.m_typeAllowedMaxValue;
+    m_minValue = castedOther.m_minValue;
+    m_maxValue = castedOther.m_maxValue;
+    m_defaultValue = castedOther.m_defaultValue;
+    m_scaling = castedOther.m_scaling;
+    m_validRanges = castedOther.m_validRanges;
+    m_specials = castedOther.m_specials;
+
+    return true;
 }
 
 bool IntFieldImpl::parseImpl()
