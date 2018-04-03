@@ -313,20 +313,7 @@ bool IntFieldImpl::reuseImpl(const FieldImpl& other)
 {
     assert(other.kind() == kind());
     auto& castedOther = static_cast<const IntFieldImpl&>(other);
-    m_type = castedOther.m_type;
-    m_endian = castedOther.m_endian;
-    m_length = castedOther.m_length;
-    m_bitLength = castedOther.m_bitLength;
-    m_serOffset = castedOther.m_serOffset;
-    m_typeAllowedMinValue = castedOther.m_typeAllowedMinValue;
-    m_typeAllowedMaxValue = castedOther.m_typeAllowedMaxValue;
-    m_minValue = castedOther.m_minValue;
-    m_maxValue = castedOther.m_maxValue;
-    m_defaultValue = castedOther.m_defaultValue;
-    m_scaling = castedOther.m_scaling;
-    m_validRanges = castedOther.m_validRanges;
-    m_specials = castedOther.m_specials;
-
+    m_state = castedOther.m_state;
     return true;
 }
 
@@ -347,29 +334,29 @@ bool IntFieldImpl::parseImpl()
 
 std::size_t IntFieldImpl::lengthImpl() const
 {
-    return m_length;
+    return m_state.m_length;
 }
 
 std::size_t IntFieldImpl::bitLengthImpl() const
 {
-    return m_bitLength;
+    return m_state.m_bitLength;
 }
 
 bool IntFieldImpl::updateType()
 {
-    bool mustHave = (m_type == Type::NumOfValues);
+    bool mustHave = (m_state.m_type == Type::NumOfValues);
     if (!validateSinglePropInstance(common::typeStr(), mustHave)) {
         return false;
     }
 
     auto propsIter = props().find(common::typeStr());
     if (propsIter == props().end()) {
-        assert(m_type != Type::NumOfValues);
+        assert(m_state.m_type != Type::NumOfValues);
         return true;
     }
 
-    m_type = parseTypeValue(propsIter->second);
-    if (m_type == Type::NumOfValues) {
+    m_state.m_type = parseTypeValue(propsIter->second);
+    if (m_state.m_type == Type::NumOfValues) {
         reportUnexpectedPropertyValue(common::typeStr(), propsIter->second);
         return false;
     }
@@ -384,12 +371,12 @@ bool IntFieldImpl::updateEndian()
     }
 
     auto& endianStr = common::getStringProp(props(), common::endianStr());
-    if ((endianStr.empty()) && (m_endian != Endian_NumOfValues)) {
+    if ((endianStr.empty()) && (m_state.m_endian != Endian_NumOfValues)) {
         return true;
     }
 
-    m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
-    if (m_endian == Endian_NumOfValues) {
+    m_state.m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    if (m_state.m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
     }
@@ -408,32 +395,32 @@ bool IntFieldImpl::updateLength()
             break;
         }
 
-        if (m_length == 0) {
-            m_length = maxTypeLength(m_type);
+        if (m_state.m_length == 0) {
+            m_state.m_length = maxTypeLength(m_state.m_type);
         }
 
         return true;
     } while (false);
 
     bool ok = false;
-    m_length = static_cast<decltype(m_length)>(common::strToUintMax(lengthStr, &ok));
+    m_state.m_length = static_cast<decltype(m_state.m_length)>(common::strToUintMax(lengthStr, &ok));
 
     if (!ok) {
         logError() << XmlWrap::logPrefix(getNode()) << "Length of the \"" << name() << "\" element has unexpected value (\"" << lengthStr << "\")";
         return false;
     }
 
-    auto maxLength = maxTypeLength(m_type);
+    auto maxLength = maxTypeLength(m_state.m_type);
     assert(0U < maxLength);
 
-    if (maxLength < m_length) {
+    if (maxLength < m_state.m_length) {
         logError() << XmlWrap::logPrefix(getNode()) << "Length of the \"" << name() << "\" element (" << lengthStr << ") cannot execeed "
                       "max length allowed by the type (" << maxLength << ").";
         return false;
     }
 
-    if (m_length == 0) {
-        m_length = maxLength;
+    if (m_state.m_length == 0) {
+        m_state.m_length = maxLength;
     }
 
     return true;
@@ -449,15 +436,15 @@ bool IntFieldImpl::updateBitLength()
          std::numeric_limits<std::uint8_t>::digits;
     static_assert(BitsInByte == 8U, "Invalid assumption");
 
-    auto maxBitLength = m_length * BitsInByte;
+    auto maxBitLength = m_state.m_length * BitsInByte;
     auto& valStr = common::getStringProp(props(), common::bitLengthStr());
     if (valStr.empty()) {
-        assert(0 < m_length);
-        if ((m_bitLength != 0) && (m_bitLength < maxBitLength)) {
+        assert(0 < m_state.m_length);
+        if ((m_state.m_bitLength != 0) && (m_state.m_bitLength < maxBitLength)) {
             return true;
         }
 
-        m_bitLength = maxBitLength;
+        m_state.m_bitLength = maxBitLength;
         return true;
     }
 
@@ -465,24 +452,24 @@ bool IntFieldImpl::updateBitLength()
         logWarning() << XmlWrap::logPrefix((getNode())) <<
                         "The property \"" << common::bitLengthStr() << "\" is "
                         "applicable only to the members of \"" << common::bitfieldStr() << "\"";
-        m_bitLength = maxBitLength;
+        m_state.m_bitLength = maxBitLength;
         return true;
     }
 
-    if ((m_type == Type::Intvar) || (m_type == Type::Uintvar)) {
+    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
         logError() << XmlWrap::logPrefix((getNode())) <<
                       "Bitfield member cannot have variable length type.";
         return false;
     }
 
     bool ok = false;
-    m_bitLength = common::strToUnsigned(valStr, &ok);
+    m_state.m_bitLength = common::strToUnsigned(valStr, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
         return false;
     }
 
-    if (maxBitLength < m_bitLength) {
+    if (maxBitLength < m_state.m_bitLength) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Value of property \"" << common::bitLengthStr() << "\" exceeds "
                       "maximal length available by the type and/or forced serialisation length.";
@@ -505,7 +492,7 @@ bool IntFieldImpl::updateSerOffset()
     }
 
     bool ok = false;
-    m_serOffset = common::strToIntMax(valueStr, &ok);
+    m_state.m_serOffset = common::strToIntMax(valueStr, &ok);
 
     if (!ok) {
         logError() << XmlWrap::logPrefix(getNode()) << "The serialisation offset value of the \"" <<
@@ -518,13 +505,13 @@ bool IntFieldImpl::updateSerOffset()
 
 bool IntFieldImpl::updateMinMaxValues()
 {
-    m_typeAllowedMinValue = minTypeValue(m_type);
-    m_typeAllowedMaxValue = maxTypeValue(m_type);
+    m_state.m_typeAllowedMinValue = minTypeValue(m_state.m_type);
+    m_state.m_typeAllowedMaxValue = maxTypeValue(m_state.m_type);
 
-    m_minValue = calcMinValue(m_type, m_bitLength);
-    m_maxValue = calcMaxValue(m_type, m_bitLength);
+    m_state.m_minValue = calcMinValue(m_state.m_type, m_state.m_bitLength);
+    m_state.m_maxValue = calcMaxValue(m_state.m_type, m_state.m_bitLength);
 
-    if (m_serOffset == 0) {
+    if (m_state.m_serOffset == 0) {
         return true;
     }
 
@@ -532,15 +519,15 @@ bool IntFieldImpl::updateMinMaxValues()
         [this](auto& val)
         {
             using ValType = std::decay_t<decltype(val)>;
-            if (m_serOffset < 0) {
-                val -= m_serOffset;
+            if (m_state.m_serOffset < 0) {
+                val -= m_state.m_serOffset;
                 return;
             }
 
-            assert(0 < m_serOffset);
-            auto limit = std::numeric_limits<ValType>::min() + m_serOffset;
+            assert(0 < m_state.m_serOffset);
+            auto limit = std::numeric_limits<ValType>::min() + m_state.m_serOffset;
             if (static_cast<ValType>(limit) < val) {
-                val -= m_serOffset;
+                val -= m_state.m_serOffset;
             }
         };
 
@@ -548,32 +535,32 @@ bool IntFieldImpl::updateMinMaxValues()
         [this](auto& val)
         {
             using ValType = std::decay_t<decltype(val)>;
-            if (m_serOffset < 0) {
-                auto limit = std::numeric_limits<ValType>::max() + m_serOffset;
+            if (m_state.m_serOffset < 0) {
+                auto limit = std::numeric_limits<ValType>::max() + m_state.m_serOffset;
                 if (val < static_cast<ValType>(limit)) {
-                    val -= m_serOffset;
+                    val -= m_state.m_serOffset;
                 }
                 return;
             }
 
-            assert(0 < m_serOffset);
-            val -= m_serOffset;
+            assert(0 < m_state.m_serOffset);
+            val -= m_state.m_serOffset;
         };
 
-    if (!isTypeUnsigned(m_type)) {
-        updateMinValueFunc(m_minValue);
-        updateMaxValueFunc(m_maxValue);
+    if (!isTypeUnsigned(m_state.m_type)) {
+        updateMinValueFunc(m_state.m_minValue);
+        updateMaxValueFunc(m_state.m_maxValue);
         return true;
     }
 
-    auto minValueTmp = static_cast<std::uint64_t>(m_minValue);
-    auto maxValueTmp = static_cast<std::uint64_t>(m_maxValue);
+    auto minValueTmp = static_cast<std::uint64_t>(m_state.m_minValue);
+    auto maxValueTmp = static_cast<std::uint64_t>(m_state.m_maxValue);
 
     updateMinValueFunc(minValueTmp);
     updateMaxValueFunc(maxValueTmp);
 
-    m_minValue = static_cast<std::uint64_t>(minValueTmp);
-    m_maxValue = static_cast<std::uint64_t>(maxValueTmp);
+    m_state.m_minValue = static_cast<std::uint64_t>(minValueTmp);
+    m_state.m_maxValue = static_cast<std::uint64_t>(maxValueTmp);
 
     return true;
 }
@@ -586,7 +573,7 @@ bool IntFieldImpl::updateDefaultValue()
 
     auto valueStr = common::getStringProp(props(), common::defaultValueStr());
     if (valueStr.empty()) {
-        valueStr = std::to_string(m_defaultValue);
+        valueStr = std::to_string(m_state.m_defaultValue);
     }
 
     auto reportErrorFunc =
@@ -606,8 +593,8 @@ bool IntFieldImpl::updateDefaultValue()
     auto checkValueFunc =
         [this, &reportErrorFunc, &reportWarningFunc](auto v) -> bool
         {
-            auto castedTypeAllowedMinValue = static_cast<decltype(v)>(m_typeAllowedMinValue);
-            auto castedTypeAllowedMaxValue = static_cast<decltype(v)>(m_typeAllowedMaxValue);
+            auto castedTypeAllowedMinValue = static_cast<decltype(v)>(m_state.m_typeAllowedMinValue);
+            auto castedTypeAllowedMaxValue = static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue);
 
             if (v < castedTypeAllowedMinValue) {
                 reportErrorFunc();
@@ -619,14 +606,14 @@ bool IntFieldImpl::updateDefaultValue()
                 return false;
             }
 
-            auto castedMinValue = static_cast<decltype(v)>(m_minValue);
-            auto castedMaxValue = static_cast<decltype(v)>(m_maxValue);
+            auto castedMinValue = static_cast<decltype(v)>(m_state.m_minValue);
+            auto castedMaxValue = static_cast<decltype(v)>(m_state.m_maxValue);
             if ((v < castedMinValue) ||
                 (castedMaxValue < v)) {
                 reportWarningFunc();
             }
 
-            m_defaultValue = static_cast<decltype(m_defaultValue)>(v);
+            m_state.m_defaultValue = static_cast<decltype(m_state.m_defaultValue)>(v);
             return true;
         };
 
@@ -637,7 +624,7 @@ bool IntFieldImpl::updateDefaultValue()
         return false;
     }
 
-    if (isBigUnsigned(m_type)) {
+    if (isBigUnsigned(m_state.m_type)) {
         return checkValueFunc(static_cast<std::uint64_t>(val));
     }
 
@@ -650,11 +637,11 @@ bool IntFieldImpl::updateScaling()
         return false;
     }
 
-    std::intmax_t num = m_scaling.first;
+    std::intmax_t num = m_state.m_scaling.first;
     if (num == 0) {
         num = 1;
     }
-    std::intmax_t denom = m_scaling.second;
+    std::intmax_t denom = m_state.m_scaling.second;
     if (denom == 0) {
         denom = 1;
     }
@@ -721,7 +708,7 @@ bool IntFieldImpl::updateScaling()
         return false;
     }
 
-    m_scaling = std::make_pair(num, denom);
+    m_state.m_scaling = std::make_pair(num, denom);
 
     return true;
 }
@@ -798,14 +785,14 @@ bool IntFieldImpl::updateValidRanges()
             }
         };
 
-    if (isBigUnsigned(m_type)) {
+    if (isBigUnsigned(m_state.m_type)) {
         using UnsignedValidRange = std::pair<std::uintmax_t, std::uintmax_t>;
         using UnsignedValidRangesList = std::vector<UnsignedValidRange>;
 
         UnsignedValidRangesList unsignedRanges;
-        unsignedRanges.reserve(m_validRanges.size());
+        unsignedRanges.reserve(m_state.m_validRanges.size());
         std::transform(
-            m_validRanges.begin(), m_validRanges.end(), std::back_inserter(unsignedRanges),
+            m_state.m_validRanges.begin(), m_state.m_validRanges.end(), std::back_inserter(unsignedRanges),
             [](auto& r)
             {
                 return UnsignedValidRange(
@@ -816,10 +803,10 @@ bool IntFieldImpl::updateValidRanges()
         sortFunc(unsignedRanges);
         unifyFunc(unsignedRanges);
 
-        m_validRanges.clear();
+        m_state.m_validRanges.clear();
 
         std::transform(
-            unsignedRanges.begin(), unsignedRanges.end(), std::back_inserter(m_validRanges),
+            unsignedRanges.begin(), unsignedRanges.end(), std::back_inserter(m_state.m_validRanges),
             [](auto& r)
             {
                 return ValidRange(
@@ -828,8 +815,8 @@ bool IntFieldImpl::updateValidRanges()
             });
     }
     else {
-        sortFunc(m_validRanges);
-        unifyFunc(m_validRanges);
+        sortFunc(m_state.m_validRanges);
+        unifyFunc(m_state.m_validRanges);
     }
 
     if (intersectingRanges) {
@@ -872,8 +859,8 @@ bool IntFieldImpl::updateSpecials()
             return false;
         }
 
-        auto specialsIter = m_specials.find(nameIter->second);
-        if (specialsIter != m_specials.end()) {
+        auto specialsIter = m_state.m_specials.find(nameIter->second);
+        if (specialsIter != m_state.m_specials.end()) {
             logError() << XmlWrap::logPrefix(s) << "Special with name \"" << nameIter->second <<
                           "\" was already assigned to \"" << name() << "\" element.";
             return false;
@@ -892,15 +879,15 @@ bool IntFieldImpl::updateSpecials()
         auto checkSpecialInRangeFunc =
             [this, s, &nameIter](auto v) -> bool
             {
-                if ((v < static_cast<decltype(v)>(m_typeAllowedMinValue)) ||
-                    (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v)) {
+                if ((v < static_cast<decltype(v)>(m_state.m_typeAllowedMinValue)) ||
+                    (static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue) < v)) {
                     this->logError() << XmlWrap::logPrefix(s) <<
                                     "Special value \"" << nameIter->second << "\" is outside the range of available values within a type.";
                     return false;
                 }
 
-                if ((v < static_cast<decltype(v)>(m_minValue)) ||
-                    (static_cast<decltype(v)>(m_maxValue) < v)) {
+                if ((v < static_cast<decltype(v)>(m_state.m_minValue)) ||
+                    (static_cast<decltype(v)>(m_state.m_maxValue) < v)) {
                     this->logWarning() << XmlWrap::logPrefix(s) <<
                                     "Special value \"" << nameIter->second << "\" is outside the range of correctly serializable values.";
                 }
@@ -909,7 +896,7 @@ bool IntFieldImpl::updateSpecials()
             };
 
         bool checkResult = false;
-        if (isBigUnsigned(m_type)) {
+        if (isBigUnsigned(m_state.m_type)) {
             checkResult = checkSpecialInRangeFunc(static_cast<std::uintmax_t>(val));
         }
         else {
@@ -920,7 +907,7 @@ bool IntFieldImpl::updateSpecials()
             return false;
         }
 
-        m_specials.emplace(nameIter->second, val);
+        m_state.m_specials.emplace(nameIter->second, val);
     }
 
     return true;
@@ -950,7 +937,7 @@ bool IntFieldImpl::validateValidRangeStr(const std::string& str)
     }
 
     bool validComparison = (minVal <= maxVal);
-    if (isBigUnsigned(m_type)) {
+    if (isBigUnsigned(m_state.m_type)) {
         validComparison = (static_cast<std::uintmax_t>(minVal) <= static_cast<std::uintmax_t>(maxVal));
     }
 
@@ -960,7 +947,7 @@ bool IntFieldImpl::validateValidRangeStr(const std::string& str)
         return false;
     }
 
-    m_validRanges.emplace_back(minVal, maxVal);
+    m_state.m_validRanges.emplace_back(minVal, maxVal);
     return true;
 }
 
@@ -977,25 +964,25 @@ bool IntFieldImpl::validateValidValueStr(const std::string& str)
     auto validateFunc =
         [this](auto v)
         {
-             if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
+             if (v < static_cast<decltype(v)>(m_state.m_typeAllowedMinValue)) {
                  logWarning() << "Property value \"" << common::validValueStr() <<
                                  "\" is below the type's minimal value.";
              }
 
-             if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
+             if (static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue) < v) {
                  logWarning() << "Property value \"" << common::validValueStr() <<
                                  "\" is above the type's maximal value.";
              }
         };
 
-    if (isBigUnsigned(m_type)) {
+    if (isBigUnsigned(m_state.m_type)) {
         validateFunc(static_cast<std::uintmax_t>(val));
     }
     else {
         validateFunc(val);
     }
 
-    m_validRanges.emplace_back(val, val);
+    m_state.m_validRanges.emplace_back(val, val);
     return true;
 }
 
@@ -1012,41 +999,41 @@ bool IntFieldImpl::validateValidMinValueStr(const std::string& str)
     auto validateFunc =
         [this](auto v) -> bool
         {
-             if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
+             if (static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue) < v) {
                  this->logError() << XmlWrap::logPrefix(this->getNode()) <<
                         "Value of property \"" << common::validMinStr() <<
                         "\" (" << v << ") is greater than the type's maximal "
-                        "value (" << m_typeAllowedMaxValue << ").";
+                        "value (" << m_state.m_typeAllowedMaxValue << ").";
                  return false;
              }
 
-             if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
+             if (v < static_cast<decltype(v)>(m_state.m_typeAllowedMinValue)) {
                  this->logError() << XmlWrap::logPrefix(this->getNode()) <<
                         "Value of property \"" << common::validMinStr() <<
                         "\" (" << v << ") is less than the type's minimal "
-                        "value (" << m_typeAllowedMinValue << ").";
+                        "value (" << m_state.m_typeAllowedMinValue << ").";
                  return false;
              }
 
-             if (static_cast<decltype(v)>(m_maxValue) < v) {
+             if (static_cast<decltype(v)>(m_state.m_maxValue) < v) {
                  this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
                         "Value of property \"" << common::validMinStr() <<
                         "\" (" << v << ") is greater than the correctly "
-                        "serialisable maximal value (" << m_maxValue << ").";
+                        "serialisable maximal value (" << m_state.m_maxValue << ").";
              }
 
-             if (v < static_cast<decltype(v)>(m_minValue)) {
+             if (v < static_cast<decltype(v)>(m_state.m_minValue)) {
                  this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
                         "Value of property \"" << common::validMinStr() <<
                         "\" (" << v << ") is less than the correctly "
-                        "serialisable minimal value (" << m_minValue << ").";
+                        "serialisable minimal value (" << m_state.m_minValue << ").";
              }
 
              return true;
         };
 
     bool validateResult = false;
-    if (isBigUnsigned(m_type)) {
+    if (isBigUnsigned(m_state.m_type)) {
         validateResult = validateFunc(static_cast<std::uintmax_t>(val));
     }
     else {
@@ -1057,7 +1044,7 @@ bool IntFieldImpl::validateValidMinValueStr(const std::string& str)
         return false;
     }
 
-    m_validRanges.emplace_back(val, m_typeAllowedMaxValue);
+    m_state.m_validRanges.emplace_back(val, m_state.m_typeAllowedMaxValue);
     return true;
 }
 
@@ -1074,41 +1061,41 @@ bool IntFieldImpl::validateValidMaxValueStr(const std::string& str)
     auto validateFunc =
         [this](auto v) -> bool
         {
-             if (static_cast<decltype(v)>(m_typeAllowedMaxValue) < v) {
+             if (static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue) < v) {
                  this->logError() << XmlWrap::logPrefix(this->getNode()) <<
                         "Value of property \"" << common::validMaxStr() <<
                         "\" (" << v << ") is greater than the type's maximal "
-                        "value (" << m_typeAllowedMaxValue << ").";
+                        "value (" << m_state.m_typeAllowedMaxValue << ").";
                  return false;
              }
 
-             if (v < static_cast<decltype(v)>(m_typeAllowedMinValue)) {
+             if (v < static_cast<decltype(v)>(m_state.m_typeAllowedMinValue)) {
                  this->logError() << XmlWrap::logPrefix(this->getNode()) <<
                         "Value of property \"" << common::validMaxStr() <<
                         "\" (" << v << ") is less than the type's minimal "
-                        "value (" << m_typeAllowedMinValue << ").";
+                        "value (" << m_state.m_typeAllowedMinValue << ").";
                  return false;
              }
 
-             if (static_cast<decltype(v)>(m_maxValue) < v) {
+             if (static_cast<decltype(v)>(m_state.m_maxValue) < v) {
                  this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
                         "Value of property \"" << common::validMaxStr() <<
                         "\" (" << v << ") is greater than the correctly "
-                        "serialisable maximal value (" << m_maxValue << ").";
+                        "serialisable maximal value (" << m_state.m_maxValue << ").";
              }
 
-             if (v < static_cast<decltype(v)>(m_minValue)) {
+             if (v < static_cast<decltype(v)>(m_state.m_minValue)) {
                  this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
                         "Value of property \"" << common::validMaxStr() <<
                         "\" (" << v << ") is less than the correctly "
-                        "serialisable minimal value (" << m_minValue << ").";
+                        "serialisable minimal value (" << m_state.m_minValue << ").";
              }
 
              return true;
         };
 
     bool validateResult = false;
-    if (isBigUnsigned(m_type)) {
+    if (isBigUnsigned(m_state.m_type)) {
         validateResult = validateFunc(static_cast<std::uintmax_t>(val));
     }
     else {
@@ -1119,7 +1106,7 @@ bool IntFieldImpl::validateValidMaxValueStr(const std::string& str)
         return false;
     }
 
-    m_validRanges.emplace_back(m_typeAllowedMinValue, val);
+    m_state.m_validRanges.emplace_back(m_state.m_typeAllowedMinValue, val);
     return true;
 }
 
@@ -1127,8 +1114,8 @@ bool IntFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
 {
     if (common::isValidName(str)) {
         // Check among specials
-        auto iter = m_specials.find(str);
-        if (iter == m_specials.end()) {
+        auto iter = m_state.m_specials.find(str);
+        if (iter == m_state.m_specials.end()) {
             return false;
         }
 
@@ -1142,7 +1129,7 @@ bool IntFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
 
 
     bool ok = false;
-    if (isBigUnsigned(m_type)) {
+    if (isBigUnsigned(m_state.m_type)) {
         val = static_cast<std::intmax_t>(common::strToUintMax(str, &ok));
     }
     else {

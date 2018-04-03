@@ -27,57 +27,57 @@ public:
 
     Type type() const
     {
-        return m_type;
+        return m_state.m_type;
     }
 
     Endian endian() const
     {
-        return m_endian;
+        return m_state.m_endian;
     }
 
     std::size_t length() const
     {
-        return m_length;
+        return m_state.m_length;
     }
 
     std::size_t bitLength() const
     {
-        return m_bitLength;
+        return m_state.m_bitLength;
     }
 
     std::intmax_t serOffset() const
     {
-        return m_serOffset;
+        return m_state.m_serOffset;
     }
 
     std::intmax_t minValue() const
     {
-        return m_minValue;
+        return m_state.m_minValue;
     }
 
     std::intmax_t maxValue() const
     {
-        return m_maxValue;
+        return m_state.m_maxValue;
     }
 
     std::intmax_t defaultValue() const
     {
-        return m_defaultValue;
+        return m_state.m_defaultValue;
     }
 
     ScalingRatio scaling() const
     {
-        return m_scaling;
+        return m_state.m_scaling;
     }
 
     const ValidRangesList& validRanges() const
     {
-        return m_validRanges;
+        return m_state.m_validRanges;
     }
 
     const SpecialValues& specialValues() const
     {
-        return m_specials;
+        return m_state.m_specials;
     }
 
     static Type parseTypeValue(const std::string& value);
@@ -104,6 +104,23 @@ protected:
     virtual std::size_t bitLengthImpl() const override;
 
 private:
+    struct State
+    {
+        Type m_type = Type::NumOfValues;
+        Endian m_endian = Endian_NumOfValues;
+        std::size_t m_length = 0U;
+        std::size_t m_bitLength = 0U;
+        std::intmax_t m_serOffset = 0;
+        std::intmax_t m_typeAllowedMinValue = 0;
+        std::intmax_t m_typeAllowedMaxValue = 0;
+        std::intmax_t m_minValue = 0;
+        std::intmax_t m_maxValue = 0;
+        std::intmax_t m_defaultValue = 0;
+        ScalingRatio m_scaling;
+        ValidRangesList m_validRanges;
+        SpecialValues m_specials;
+    };
+
     bool updateType();
     bool updateEndian();
     bool updateLength();
@@ -120,19 +137,7 @@ private:
     bool validateValidMaxValueStr(const std::string& str);
     bool strToNumeric(const std::string& str, std::intmax_t& val);
 
-    Type m_type = Type::NumOfValues;
-    Endian m_endian = Endian_NumOfValues;
-    std::size_t m_length = 0U;
-    std::size_t m_bitLength = 0U;
-    std::intmax_t m_serOffset = 0;
-    std::intmax_t m_typeAllowedMinValue = 0;
-    std::intmax_t m_typeAllowedMaxValue = 0;
-    std::intmax_t m_minValue = 0;
-    std::intmax_t m_maxValue = 0;
-    std::intmax_t m_defaultValue = 0;
-    ScalingRatio m_scaling;
-    ValidRangesList m_validRanges;
-    SpecialValues m_specials;
+    State m_state;
 };
 
 } // namespace bbmp

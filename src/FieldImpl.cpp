@@ -84,7 +84,7 @@ bool FieldImpl::parse()
     XmlWrap::NamesList expectedProps = commonProps();
     expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedProps.insert(expectedProps.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
-    m_unknownAttrs = XmlWrap::getUnknownProps(m_node, expectedProps);
+    m_state.m_unknownAttrs = XmlWrap::getUnknownProps(m_node, expectedProps);
 
     auto& commonCh = commonChildren();
     auto& extraChildren = extraChildrenNamesImpl();
@@ -93,26 +93,26 @@ bool FieldImpl::parse()
     expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraChildren.begin(), extraChildren.end());
-    m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, expectedChildren);
+    m_state.m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, expectedChildren);
     return true;
 }
 
 const std::string& FieldImpl::name() const
 {
-    assert(m_name != nullptr);
-    return *m_name;
+    assert(m_state.m_name != nullptr);
+    return *m_state.m_name;
 }
 
 const std::string& FieldImpl::displayName() const
 {
-    assert(m_displayName != nullptr);
-    return *m_displayName;
+    assert(m_state.m_displayName != nullptr);
+    return *m_state.m_displayName;
 }
 
 const std::string& FieldImpl::description() const
 {
-    assert(m_description != nullptr);
-    return *m_description;
+    assert(m_state.m_description != nullptr);
+    return *m_state.m_description;
 }
 
 XmlWrap::NamesList FieldImpl::supportedTypes()
@@ -192,11 +192,11 @@ bool FieldImpl::isBitfieldMember() const
 
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
-    m_protocol(protocol),
-    m_name(&common::emptyString()),
-    m_displayName(&common::emptyString()),
-    m_description(&common::emptyString())
+    m_protocol(protocol)
 {
+    m_state.m_name = &common::emptyString();
+    m_state.m_displayName = &common::emptyString();
+    m_state.m_description = &common::emptyString();
 }
 
 FieldImpl::FieldImpl(const FieldImpl&) = default;
@@ -335,25 +335,20 @@ bool FieldImpl::checkReuse()
     }
 
     assert(field != this);
-    m_name = field->m_name;
-    m_displayName = field->m_displayName;
-    m_description = field->m_description;
-    m_unknownAttrs = field->m_unknownAttrs;
-    m_unknownChildren = field->m_unknownChildren;
-
+    m_state = field->m_state;
     return reuseImpl(*field);
 }
 
 bool FieldImpl::updateName()
 {
-    bool mustHave = m_name->empty();
-    if (!validateAndUpdateStringPropValue(common::nameStr(), m_name, mustHave)) {
+    bool mustHave = m_state.m_name->empty();
+    if (!validateAndUpdateStringPropValue(common::nameStr(), m_state.m_name, mustHave)) {
         return false;
     }
 
-    if (!common::isValidName(*m_name)) {
+    if (!common::isValidName(*m_state.m_name)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Invalid value for name property \"" << m_name << "\".";
+                      "Invalid value for name property \"" << m_state.m_name << "\".";
         return false;
     }
 
@@ -362,12 +357,12 @@ bool FieldImpl::updateName()
 
 bool FieldImpl::updateDescription()
 {
-    return validateAndUpdateStringPropValue(common::descriptionStr(), m_description);
+    return validateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description);
 }
 
 bool FieldImpl::updateDisplayName()
 {
-    return validateAndUpdateStringPropValue(common::displayNameStr(), m_displayName);
+    return validateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName);
 }
 
 bool FieldImpl::updateSinceVersion()

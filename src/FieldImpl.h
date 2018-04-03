@@ -139,6 +139,15 @@ private:
     using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
     using CreateMap = std::map<std::string, CreateFunc>;
 
+    struct ReusableState
+    {
+        const std::string* m_name = nullptr;
+        const std::string* m_displayName = nullptr;
+        const std::string* m_description = nullptr;
+        PropsMap m_unknownAttrs;
+        ContentsList m_unknownChildren;
+    };
+
     bool checkReuse();
     bool updateName();
     bool updateDescription();
@@ -152,12 +161,7 @@ private:
     ProtocolImpl& m_protocol;
     Object* m_parent = nullptr;
     PropsMap m_props;
-
-    const std::string* m_name = nullptr;
-    const std::string* m_displayName = nullptr;
-    const std::string* m_description = nullptr;
-    PropsMap m_unknownAttrs;
-    ContentsList m_unknownChildren;
+    ReusableState m_state;
 };
 
 using FieldImplPtr = FieldImpl::Ptr;
