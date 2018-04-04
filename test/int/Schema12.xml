@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema11"
+<schema name="Schema12"
         id="1"
         endian="little">
         
@@ -12,7 +12,7 @@
             <special name="val2" val="Enum1.Val1" />
             <special name="otherVal2" val="val2" />
             <validRange value="[val1, val2]" />
-            <validRange value="[130, 140]" />
+            <validRange value="[110, 120]" />
         </int>
     </fields>
 </schema>

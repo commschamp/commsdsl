@@ -21,6 +21,9 @@ public:
     void test13();
     void test14();
     void test15();
+    void test16();
+    void test17();
+    void test18();
 };
 
 void IntTestSuite::setUp()
@@ -233,6 +236,12 @@ void IntTestSuite::test3()
 
 void IntTestSuite::test4()
 {
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
     auto& namespaces = protocol->namespaces();
@@ -1022,8 +1031,8 @@ void IntTestSuite::test11()
     auto& r2 = validRanges[1];
     TS_ASSERT_EQUALS(r1.first, 100);
     TS_ASSERT_EQUALS(r1.second, 101);
-    TS_ASSERT_EQUALS(r2.first, 130);
-    TS_ASSERT_EQUALS(r2.second, 140);
+    TS_ASSERT_EQUALS(r2.first, 110);
+    TS_ASSERT_EQUALS(r2.second, 120);
     TS_ASSERT_EQUALS(specialValues.size(), 3U);
     auto s1 = specialValues.find("val1");
     auto s2 = specialValues.find("val2");
@@ -1069,8 +1078,8 @@ void IntTestSuite::test12()
     auto& r2 = validRanges[1];
     TS_ASSERT_EQUALS(r1.first, 100);
     TS_ASSERT_EQUALS(r1.second, 101);
-    TS_ASSERT_EQUALS(r2.first, 130);
-    TS_ASSERT_EQUALS(r2.second, 140);
+    TS_ASSERT_EQUALS(r2.first, 110);
+    TS_ASSERT_EQUALS(r2.second, 120);
     TS_ASSERT_EQUALS(specialValues.size(), 3U);
     auto s1 = specialValues.find("val1");
     auto s2 = specialValues.find("val2");
@@ -1121,42 +1130,11 @@ void IntTestSuite::test13()
 
 void IntTestSuite::test14()
 {
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
-    TS_ASSERT_EQUALS(namespaces.size(), 1U);
-
-    auto& ns = namespaces.front();
-    TS_ASSERT_EQUALS(ns.name(), "ns1");
-
-    auto& fields = ns.fields();
-    TS_ASSERT_EQUALS(fields.size(), 1U);
-
-    auto& field = fields[0];
-
-    TS_ASSERT_EQUALS(field.name(), "Int2");
-    TS_ASSERT_EQUALS(field.displayName(), "Int 1");
-    TS_ASSERT_EQUALS(field.description(), "new desc");
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Int);
-
-    bbmp::IntField intField(field);
-    auto scaling = intField.scaling();
-    auto& validRanges = intField.validRanges();
-    auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Uint16);
-    TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Big);
-    TS_ASSERT_EQUALS(intField.length(), 2U);
-    TS_ASSERT_EQUALS(intField.bitLength(), intField.length() * 8U);
-    TS_ASSERT_EQUALS(intField.serOffset(), 0);
-    TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::uint16_t>::min());
-    TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::uint16_t>::max());
-    TS_ASSERT_EQUALS(intField.defaultValue(), 400);
-    TS_ASSERT_EQUALS(scaling.first, 1);
-    TS_ASSERT_EQUALS(scaling.second, 10);
-    TS_ASSERT_EQUALS(validRanges.size(), 1U);
-    TS_ASSERT_EQUALS(validRanges.front().first, 300);
-    TS_ASSERT_EQUALS(validRanges.front().second, std::numeric_limits<std::int16_t>::max());
-    TS_ASSERT(specialValues.empty());
 }
 
 void IntTestSuite::test15()
@@ -1199,4 +1177,31 @@ void IntTestSuite::test15()
     TS_ASSERT_EQUALS(specialValues.size(), 2U);
     TS_ASSERT_EQUALS(specialValues.find("S1")->second, 1U);
     TS_ASSERT_EQUALS(specialValues.find("S2")->second, 2U);
+}
+
+void IntTestSuite::test16()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test18()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
 }
