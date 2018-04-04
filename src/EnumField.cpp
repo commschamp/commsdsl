@@ -64,11 +64,6 @@ const EnumField::RevValues& EnumField::revValues() const
     return cast(m_pImpl)->revValues();
 }
 
-const EnumField::ValidRangesList& EnumField::validRanges() const
-{
-    return cast(m_pImpl)->validRanges();
-}
-
 bool EnumField::isNonUniqueAllowed() const
 {
     return cast(m_pImpl)->isNonUniqueAllowed();

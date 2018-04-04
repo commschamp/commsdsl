@@ -17,8 +17,7 @@ class EnumFieldImpl : public FieldImpl
 public:
     using Type = EnumField::Type;
 
-    using ValidRange = EnumField::ValidRange;
-    using ValidRangesList = EnumField::ValidRangesList;
+    using ValueInfo = EnumField::ValueInfo;
     using Values = EnumField::Values;
     using RevValues = EnumField::RevValues;
 
@@ -48,11 +47,6 @@ public:
     std::intmax_t defaultValue() const
     {
         return m_defaultValue;
-    }
-
-    const ValidRangesList& validRanges() const
-    {
-        return m_validRanges;
     }
 
     const Values& values() const
@@ -91,7 +85,6 @@ private:
     bool updateMinMaxValues();
     bool updateValues();
     bool updateDefaultValue();
-    bool updateValidRanges();
     bool strToNumeric(const std::string& str, std::intmax_t& val);
 
     Type m_type = Type::NumOfValues;
@@ -105,7 +98,6 @@ private:
     std::intmax_t m_defaultValue = 0;
     Values m_values;
     RevValues m_revValues;
-    ValidRangesList m_validRanges;
     bool m_nonUniqueAllowed = false;
 };
 

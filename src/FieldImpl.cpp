@@ -335,6 +335,7 @@ bool FieldImpl::checkReuse()
     }
 
     assert(field != this);
+    Base::reuseState(*field);
     m_state = field->m_state;
     return reuseImpl(*field);
 }

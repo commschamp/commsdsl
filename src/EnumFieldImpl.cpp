@@ -90,8 +90,7 @@ bool EnumFieldImpl::parseImpl()
         updateNonUniqueAllowed() &&
         updateMinMaxValues() &&
         updateValues() &&
-        updateDefaultValue() &&
-        updateValidRanges();
+        updateDefaultValue();
 }
 
 std::size_t EnumFieldImpl::lengthImpl() const
@@ -307,6 +306,14 @@ bool EnumFieldImpl::updateValues()
             return false;
         }
 
+        if (!XmlWrap::validateSinglePropInstance(vNode, props, common::sinceVersionStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(vNode, props, common::deprecatedStr(), protocol().logger())) {
+            return false;
+        }
+
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
@@ -375,7 +382,60 @@ bool EnumFieldImpl::updateValues()
             }
         }
 
-        m_values.emplace(nameIter->second, val);
+        ValueInfo info;
+        info.m_value = val;
+
+        auto sinceVerIter = props.find(common::sinceVersionStr());
+        do {
+            if (sinceVerIter == props.end()) {
+                info.m_sinceVersion = getMaxSinceVersion();
+                assert(info.m_sinceVersion <= protocol().schemaImpl().version());
+                break;
+            }
+
+            auto& sinceVerStr = sinceVerIter->second;
+            bool ok = false;
+            info.m_sinceVersion = common::strToUnsigned(sinceVerStr, &ok);
+            if (!ok) {
+                XmlWrap::reportUnexpectedPropertyValue(vNode, nameIter->second, common::sinceVersionStr(), sinceVerStr, protocol().logger());
+                return false;
+            }
+
+            if (protocol().schemaImpl().version() < info.m_sinceVersion) {
+                logError() << XmlWrap::logPrefix(vNode) <<
+                              "The value of \"" << common::sinceVersionStr() << "\" property cannot "
+                              "be greater than value of \"" << common::versionStr() << "\" property of the schema.";
+                return false;
+            }
+
+        } while (false);
+
+        auto deprecatedIter = props.find(common::deprecatedStr());
+        do {
+            if (deprecatedIter == props.end()) {
+                info.m_deprecatedSince = getDeprecated();
+                assert(info.m_sinceVersion < info.m_deprecatedSince);
+                break;
+            }
+
+            auto& deprecatedStr = deprecatedIter->second;
+            bool ok = false;
+            info.m_deprecatedSince = common::strToUnsigned(deprecatedStr, &ok);
+            if (!ok) {
+                XmlWrap::reportUnexpectedPropertyValue(vNode, nameIter->second, common::deprecatedStr(), deprecatedStr, protocol().logger());
+                return false;
+            }
+
+            if (info.m_deprecatedSince <= info.m_sinceVersion) {
+                logError() << XmlWrap::logPrefix(vNode) <<
+                              "The value of \"" << common::deprecatedStr() << "\" property must "
+                              "be greater than value of \"" << common::sinceVersionStr() << "\" property of the value.";
+                return false;
+            }
+
+        } while (false);
+
+        m_values.emplace(nameIter->second, info);
         m_revValues.emplace(val, nameIter->second);
     }
     return true;
@@ -442,10 +502,10 @@ bool EnumFieldImpl::updateDefaultValue()
         }
 
         if (IntFieldImpl::isBigUnsigned(m_type)) {
-            return checkValueFunc(static_cast<std::uint64_t>(valIter->second));
+            return checkValueFunc(static_cast<std::uintmax_t>(valIter->second.m_value));
         }
 
-        return checkValueFunc(valIter->second);
+        return checkValueFunc(valIter->second.m_value);
     }
 
     bool ok = false;
@@ -470,56 +530,6 @@ bool EnumFieldImpl::updateDefaultValue()
     return checkValueFunc(val);
 }
 
-bool EnumFieldImpl::updateValidRanges()
-{
-    m_validRanges.clear();
-    auto updateRangesFunc =
-        [this](auto& revValues)
-        {
-            using MapType = std::decay_t<decltype(revValues)>;
-            using ValType = typename MapType::value_type::first_type;
-            for (auto& v : revValues) {
-                if (m_validRanges.empty()) {
-                    auto val = static_cast<std::intmax_t>(v.first);
-                    m_validRanges.emplace_back(val, val);
-                    continue;
-                }
-
-                auto& lastRange = m_validRanges.back();
-                if (static_cast<ValType>(lastRange.second) == v.first) {
-                    // repeating value
-                    assert(m_nonUniqueAllowed);
-                    continue;
-                }
-
-                if ((static_cast<ValType>(lastRange.second) + 1U) == v.first) {
-                    lastRange.second = static_cast<std::intmax_t>(v.first);
-                    continue;
-                }
-
-                assert((static_cast<ValType>(lastRange.second) + 1U) < v.first);
-                auto val = static_cast<std::intmax_t>(v.first);
-                m_validRanges.emplace_back(val, val);
-            }
-        };
-
-    if (!IntFieldImpl::isBigUnsigned(m_type)) {
-        updateRangesFunc(m_revValues);
-        return true;
-    }
-
-    using UnsignedRevValues = std::multimap<std::uintmax_t, std::nullptr_t>;
-    UnsignedRevValues unsigedRevValues;
-    std::transform(
-        m_revValues.begin(), m_revValues.end(), std::inserter(unsigedRevValues, unsigedRevValues.end()),
-        [](auto& elem)
-        {
-            return std::make_pair(static_cast<std::uintmax_t>(elem.first), nullptr);
-        });
-
-    updateRangesFunc(unsigedRevValues);
-    return true;
-}
 bool EnumFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
 {
     bool ok = false;

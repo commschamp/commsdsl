@@ -2,6 +2,8 @@
 
 #include <limits>
 
+#include "bbmp/Protocol.h"
+
 namespace bbmp
 {
 
@@ -38,22 +40,22 @@ public:
 
     unsigned getMinSinceVersion() const
     {
-        return m_minSinceVersion;
+        return m_rState.m_minSinceVersion;
     }
 
     unsigned getMaxSinceVersion() const
     {
-        return m_maxSinceVersion;
+        return m_rState.m_maxSinceVersion;
     }
 
     unsigned getDeprecated() const
     {
-        return m_deprecated;
+        return m_rState.m_deprecated;
     }
 
     void setMaxSinceVersion(unsigned val)
     {
-        m_maxSinceVersion = val;
+        m_rState.m_maxSinceVersion = val;
     }
 
 protected:
@@ -61,19 +63,30 @@ protected:
 
     void setMinSinceVersion(unsigned val)
     {
-        m_minSinceVersion = val;
+        m_rState.m_minSinceVersion = val;
     }
 
     void setDeprecated(unsigned val)
     {
-        m_deprecated = val;
+        m_rState.m_deprecated = val;
     }
 
+    void reuseState(const Object& other)
+    {
+        m_rState = other.m_rState;
+    }
+
+
 private:
+    struct ReusableState
+    {
+        unsigned m_minSinceVersion = 0U;
+        unsigned m_maxSinceVersion = 0U;
+        unsigned m_deprecated = Protocol::notYetDeprecated();
+    };
+
     Object* m_parent = nullptr;
-    unsigned m_minSinceVersion = 0U;
-    unsigned m_maxSinceVersion = 0U;
-    unsigned m_deprecated = std::numeric_limits<unsigned>::max();
+    ReusableState m_rState;
 };
 
 } // namespace bbmp

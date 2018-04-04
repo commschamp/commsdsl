@@ -4,6 +4,7 @@
 #include <string>
 #include <functional>
 #include <vector>
+#include <limits>
 
 #include "BbmpApi.h"
 #include "ErrorLevel.h"
@@ -30,6 +31,11 @@ public:
 
     Schema schema() const;
     const NamespacesList& namespaces() const;
+
+    static constexpr unsigned notYetDeprecated()
+    {
+        return std::numeric_limits<unsigned>::max();
+    }
 
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;

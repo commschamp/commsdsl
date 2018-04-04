@@ -205,7 +205,7 @@ bool ProtocolImpl::strToEnumValue(
         return false;
     }
 
-    val = enumValueIter->second;
+    val = enumValueIter->second.m_value;
     return true;
 }
 
