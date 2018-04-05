@@ -887,6 +887,14 @@ bool IntFieldImpl::updateSpecials()
             return false;
         }
 
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::sinceVersionStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::deprecatedStr(), protocol().logger())) {
+            return false;
+        }
+
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
@@ -945,7 +953,50 @@ bool IntFieldImpl::updateSpecials()
             return false;
         }
 
-        m_state.m_specials.emplace(nameIter->second, val);
+        SpecialValueInfo info;
+        info.m_value = val;
+
+        auto sinceVerIter = props.find(common::sinceVersionStr());
+        do {
+            if (sinceVerIter == props.end()) {
+                info.m_sinceVersion = getMaxSinceVersion();
+                assert(info.m_sinceVersion <= protocol().schemaImpl().version());
+                break;
+            }
+
+            auto& sinceVerStr = sinceVerIter->second;
+            bool ok = false;
+            info.m_sinceVersion = common::strToUnsigned(sinceVerStr, &ok);
+            if (!ok) {
+                XmlWrap::reportUnexpectedPropertyValue(s, nameIter->second, common::sinceVersionStr(), sinceVerStr, protocol().logger());
+                return false;
+            }
+
+        } while (false);
+
+        auto deprecatedIter = props.find(common::deprecatedStr());
+        do {
+            if (deprecatedIter == props.end()) {
+                info.m_deprecatedSince = getDeprecated();
+                assert(info.m_sinceVersion < info.m_deprecatedSince);
+                break;
+            }
+
+            auto& deprecatedStr = deprecatedIter->second;
+            bool ok = false;
+            info.m_deprecatedSince = common::strToUnsigned(deprecatedStr, &ok);
+            if (!ok) {
+                XmlWrap::reportUnexpectedPropertyValue(s, nameIter->second, common::deprecatedStr(), deprecatedStr, protocol().logger());
+                return false;
+            }
+
+        } while (false);
+
+        if (!XmlWrap::checkVersions(s, info.m_sinceVersion, info.m_deprecatedSince, protocol(), getMaxSinceVersion())) {
+            return false;
+        }
+
+        m_state.m_specials.emplace(nameIter->second, info);
     }
 
     return true;
@@ -1159,7 +1210,7 @@ bool IntFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
             return false;
         }
 
-        val = iter->second;
+        val = iter->second.m_value;
         return true;
     }
 

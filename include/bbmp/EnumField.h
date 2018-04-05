@@ -37,4 +37,12 @@ public:
     bool isUnique() const;
 };
 
+inline
+bool operator==(const EnumField::ValueInfo& i1, const EnumField::ValueInfo& i2)
+{
+    return (i1.m_value == i2.m_value) &&
+           (i1.m_sinceVersion == i2.m_sinceVersion) &&
+           (i1.m_deprecatedSince == i2.m_deprecatedSince);
+}
+
 } // namespace bbmp

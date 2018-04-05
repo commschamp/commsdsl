@@ -20,6 +20,7 @@ public:
     using ValidRange = IntField::ValidRange;
     using ValidRangesList = IntField::ValidRangesList;
     using ScalingRatio = IntField::ScalingRatio;
+    using SpecialValueInfo = IntField::SpecialValueInfo;
     using SpecialValues = IntField::SpecialValues;
 
     IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);

@@ -328,9 +328,9 @@ void IntTestSuite::test4()
     auto& special1 = *specialValues1.begin();
     auto& special2 = *(++specialValues1.begin());
     TS_ASSERT_EQUALS(special1.first, "val1");
-    TS_ASSERT_EQUALS(special1.second, 100);
+    TS_ASSERT_EQUALS(special1.second.m_value, 100);
     TS_ASSERT_EQUALS(special2.first, "val2");
-    TS_ASSERT_EQUALS(special2.second, 101);
+    TS_ASSERT_EQUALS(special2.second.m_value, 101);
     TS_ASSERT_EQUALS(specialValues1, specialValues2);
     TS_ASSERT_EQUALS(specialValues1, specialValues3);
 }
@@ -602,7 +602,7 @@ void IntTestSuite::test6()
     TS_ASSERT_EQUALS(specialValues.size(), 1U);
     auto iter = specialValues.find("Null");
     TS_ASSERT_DIFFERS(iter, specialValues.end());
-    TS_ASSERT_EQUALS(iter->second, (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
+    TS_ASSERT_EQUALS(iter->second.m_value, (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
 }
 
 void IntTestSuite::test7()
@@ -1044,9 +1044,9 @@ void IntTestSuite::test11()
     auto s1 = specialValues.find("val1");
     auto s2 = specialValues.find("val2");
     auto s3 = specialValues.find("otherVal2");
-    TS_ASSERT_EQUALS(s1->second, 100);
-    TS_ASSERT_EQUALS(s2->second, 101);
-    TS_ASSERT_EQUALS(s3->second, 101);
+    TS_ASSERT_EQUALS(s1->second.m_value, 100);
+    TS_ASSERT_EQUALS(s2->second.m_value, 101);
+    TS_ASSERT_EQUALS(s3->second.m_value, 101);
 }
 
 void IntTestSuite::test12()
@@ -1091,9 +1091,9 @@ void IntTestSuite::test12()
     auto s1 = specialValues.find("val1");
     auto s2 = specialValues.find("val2");
     auto s3 = specialValues.find("otherVal2");
-    TS_ASSERT_EQUALS(s1->second, 100);
-    TS_ASSERT_EQUALS(s2->second, 101);
-    TS_ASSERT_EQUALS(s3->second, 101);
+    TS_ASSERT_EQUALS(s1->second.m_value, 100);
+    TS_ASSERT_EQUALS(s2->second.m_value, 101);
+    TS_ASSERT_EQUALS(s3->second.m_value, 101);
 }
 
 void IntTestSuite::test13()
@@ -1182,8 +1182,8 @@ void IntTestSuite::test15()
     TS_ASSERT_EQUALS(validRanges.back().first, 20);
     TS_ASSERT_EQUALS(validRanges.back().second, 20);
     TS_ASSERT_EQUALS(specialValues.size(), 2U);
-    TS_ASSERT_EQUALS(specialValues.find("S1")->second, 1U);
-    TS_ASSERT_EQUALS(specialValues.find("S2")->second, 2U);
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1U);
+    TS_ASSERT_EQUALS(specialValues.find("S2")->second.m_value, 2U);
 }
 
 void IntTestSuite::test16()
@@ -1250,6 +1250,6 @@ void IntTestSuite::test19()
     TS_ASSERT_EQUALS(validRanges.front().first, 0);
     TS_ASSERT_EQUALS(validRanges.front().second, 2000);
     TS_ASSERT_EQUALS(specialValues.size(), 2U);
-    TS_ASSERT_EQUALS(specialValues.find("S1")->second, 1000);
-    TS_ASSERT_EQUALS(specialValues.find("S2")->second, 2000);
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1000);
+    TS_ASSERT_EQUALS(specialValues.find("S2")->second.m_value, 2000);
 }

@@ -8,6 +8,7 @@
 
 #include "Field.h"
 #include "Endian.h"
+#include "Protocol.h"
 
 namespace bbmp
 {
@@ -35,7 +36,15 @@ public:
     using ScalingRatio = std::pair<std::intmax_t, std::intmax_t>;
     using ValidRange = std::pair<std::intmax_t, std::intmax_t>;
     using ValidRangesList = std::vector<ValidRange>;
-    using SpecialValues = std::map<std::string, std::intmax_t>;
+
+    struct SpecialValueInfo
+    {
+        std::intmax_t m_value = 0;
+        unsigned m_sinceVersion = 0;
+        unsigned m_deprecatedSince = Protocol::notYetDeprecated();
+    };
+
+    using SpecialValues = std::map<std::string, SpecialValueInfo>;
 
     explicit IntField(const IntFieldImpl* impl);
     explicit IntField(Field field);
@@ -52,5 +61,13 @@ public:
     const ValidRangesList& validRanges() const;
     const SpecialValues& specialValues() const;
 };
+
+inline
+bool operator==(const IntField::SpecialValueInfo& i1, const IntField::SpecialValueInfo& i2)
+{
+    return (i1.m_value == i2.m_value) &&
+           (i1.m_sinceVersion == i2.m_sinceVersion) &&
+           (i1.m_deprecatedSince == i2.m_deprecatedSince);
+}
 
 } // namespace bbmp
