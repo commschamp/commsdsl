@@ -5,6 +5,11 @@ void CommonTestSuite::commonSetUp()
     m_status = TestStatus();
 }
 
+void CommonTestSuite::commonTearDown()
+{
+    TS_ASSERT(m_status.m_expErrors.empty());
+}
+
 CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string& schema)
 {
     static_cast<void>(schema);

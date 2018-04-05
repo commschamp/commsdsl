@@ -6,6 +6,7 @@ class EnumTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
     void setUp();
+    void tearDown();
     void test1();
     void test2();
     void test3();
@@ -15,11 +16,23 @@ public:
     void test7();
     void test8();
     void test9();
+    void test10();
+    void test11();
+    void test12();
+    void test13();
+    void test14();
+    void test15();
+    void test16();
 };
 
 void EnumTestSuite::setUp()
 {
     CommonTestSuite::commonSetUp();
+}
+
+void EnumTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
 }
 
 void EnumTestSuite::test1()
@@ -63,7 +76,6 @@ void EnumTestSuite::test1()
 
 void EnumTestSuite::test2()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
@@ -388,4 +400,107 @@ void EnumTestSuite::test9()
     TS_ASSERT_EQUALS(revValues2.find(2)->second, "V2");
     TS_ASSERT_EQUALS(revValues2.find(3)->second, "V3");
     TS_ASSERT_EQUALS(revValues2.find(0xff)->second, "Null");
+}
+
+void EnumTestSuite::test10()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test11()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test12()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test13()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test15()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test16()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Enum1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+
+    bbmp::EnumField enumField(field);
+    auto& values = enumField.values();
+    auto& revValues = enumField.revValues();
+    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint32);
+    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField.length(), 3U);
+    TS_ASSERT_EQUALS(enumField.bitLength(), enumField.length() * 8U);
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 2);
+    TS_ASSERT(enumField.isNonUniqueAllowed());
+    TS_ASSERT(!enumField.isUnique());
+    TS_ASSERT_EQUALS(values.size(), 3);
+    TS_ASSERT_EQUALS(revValues.size(), values.size());
+    TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 1);
+    TS_ASSERT_EQUALS(values.find("V2")->second.m_value, 2);
+    TS_ASSERT_EQUALS(values.find("V3")->second.m_value, 2);
+    TS_ASSERT_EQUALS(revValues.find(1)->second, "V1");
+    auto er = revValues.equal_range(2);
+    TS_ASSERT_EQUALS(std::distance(er.first, er.second), 2);
+}
+
+void EnumTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
 }

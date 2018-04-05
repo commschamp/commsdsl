@@ -66,6 +66,7 @@ const XmlWrap::NamesList& EnumFieldImpl::extraPropsNamesImpl() const
         common::endianStr(),
         common::lengthStr(),
         common::bitLengthStr(),
+        common::nonUniqueAllowedStr()
     };
 
     return List;
@@ -429,8 +430,15 @@ bool EnumFieldImpl::updateValues()
 
             if (protocol().schemaImpl().version() < info.m_sinceVersion) {
                 logError() << XmlWrap::logPrefix(vNode) <<
-                              "The value of \"" << common::sinceVersionStr() << "\" property cannot "
-                              "be greater than value of \"" << common::versionStr() << "\" property of the schema.";
+                              "The value of \"" << common::sinceVersionStr() << "\" property (" << info.m_sinceVersion << ") cannot "
+                              "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol().schemaImpl().version() << ").";
+                return false;
+            }
+
+            if (info.m_sinceVersion < getMaxSinceVersion()) {
+                logError() << XmlWrap::logPrefix(vNode) <<
+                              "The value of \"" << common::sinceVersionStr() << "\" property (" << info.m_sinceVersion << ") cannot "
+                              "be less than value of \"" << common::versionStr() << "\" property of the field itself (" << getMaxSinceVersion() << ").";
                 return false;
             }
 
@@ -454,8 +462,16 @@ bool EnumFieldImpl::updateValues()
 
             if (info.m_deprecatedSince <= info.m_sinceVersion) {
                 logError() << XmlWrap::logPrefix(vNode) <<
-                              "The value of \"" << common::deprecatedStr() << "\" property must "
-                              "be greater than value of \"" << common::sinceVersionStr() << "\" property of the value.";
+                              "The value of \"" << common::deprecatedStr() << "\" property (" << info.m_deprecatedSince << ") must "
+                              "be greater than value of \"" << common::sinceVersionStr() << "\" property of the value (" << info.m_sinceVersion << ").";
+                return false;
+            }
+
+            if ((info.m_deprecatedSince < bbmp::Protocol::notYetDeprecated()) &&
+                (protocol().schemaImpl().version() < info.m_deprecatedSince)) {
+                logError() << XmlWrap::logPrefix(vNode) <<
+                              "The value of \"" << common::deprecatedStr() << "\" property (" << info.m_deprecatedSince << ") cannot "
+                              "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol().schemaImpl().version() << ").";
                 return false;
             }
 

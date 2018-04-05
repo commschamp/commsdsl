@@ -6,6 +6,7 @@ class IntTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
     void setUp();
+    void tearDown();
     void test1();
     void test2();
     void test3();
@@ -30,6 +31,11 @@ public:
 void IntTestSuite::setUp()
 {
     CommonTestSuite::commonSetUp();
+}
+
+void IntTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
 }
 
 void IntTestSuite::test1()

@@ -441,9 +441,10 @@ bool FieldImpl::updateDeprecated()
     } while (false);
 
     if (value <= getMaxSinceVersion()) {
-        logWarning() << XmlWrap::logPrefix(m_node) <<
+        logError() << XmlWrap::logPrefix(m_node) <<
                         "The value of \"" << common::deprecatedStr() << "\" property is not greater than "
                         "specified or inherited \"" << common::sinceVersionStr() << "\" one.";
+        return false;
     }
 
     setDeprecated(value);

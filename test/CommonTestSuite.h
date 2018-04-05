@@ -16,6 +16,7 @@ class CommonTestSuite
 {
 public:
     void commonSetUp();
+    void commonTearDown();
 
 protected:
     using ProtocolPtr = std::unique_ptr<bbmp::Protocol>;
