@@ -23,6 +23,7 @@ public:
     void test14();
     void test15();
     void test16();
+    void test17();
 };
 
 void EnumTestSuite::setUp()
