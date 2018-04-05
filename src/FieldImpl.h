@@ -152,8 +152,7 @@ private:
     bool updateName();
     bool updateDescription();
     bool updateDisplayName();
-    bool updateSinceVersion();
-    bool updateDeprecated();
+    bool updateVersions();
 
     static const CreateMap& createMap();
 

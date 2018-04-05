@@ -14,6 +14,7 @@
 namespace bbmp
 {
 
+class ProtocolImpl;
 struct XmlWrap
 {
     using PropsMap = std::multimap<std::string, std::string>;
@@ -82,6 +83,12 @@ struct XmlWrap
         const std::string& propName,
         const std::string& propValue,
         Logger& logger);
+
+    static bool checkVersions(::xmlNodePtr node,
+        unsigned sinceVersion,
+        unsigned deprecatedSince,
+        ProtocolImpl& protocol,
+        unsigned continainingVersion = 0);
 };
 
 } // namespace bbmp

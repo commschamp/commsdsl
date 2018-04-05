@@ -56,6 +56,9 @@ public:
     void setMaxSinceVersion(unsigned val)
     {
         m_rState.m_maxSinceVersion = val;
+        if (m_parent != nullptr) {
+            m_parent->setMaxSinceVersion(val);
+        }
     }
 
 protected:

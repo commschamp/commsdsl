@@ -70,8 +70,7 @@ bool FieldImpl::parse()
         updateName() &&
         updateDisplayName() &&
         updateDescription() &&
-        updateSinceVersion() &&
-        updateDeprecated();
+        updateVersions();
 
     if (!result) {
         return false;
@@ -366,9 +365,13 @@ bool FieldImpl::updateDisplayName()
     return validateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName);
 }
 
-bool FieldImpl::updateSinceVersion()
+bool FieldImpl::updateVersions()
 {
     if (!validateSinglePropInstance(common::sinceVersionStr())) {
+        return false;
+    }
+
+    if (!validateSinglePropInstance(common::deprecatedStr())) {
         return false;
     }
 
@@ -378,7 +381,7 @@ bool FieldImpl::updateSinceVersion()
         assert(parentMinVersion <= getParent()->getMaxSinceVersion());
     }
 
-    unsigned value = parentMinVersion;
+    unsigned sinceVersion = parentMinVersion;
     do {
         auto iter = m_props.find(common::sinceVersionStr());
         if (iter == m_props.end()) {
@@ -386,46 +389,14 @@ bool FieldImpl::updateSinceVersion()
         }
 
         bool ok = false;
-        value = common::strToUnsigned(iter->second, &ok);
+        sinceVersion = common::strToUnsigned(iter->second, &ok);
         if (!ok) {
             reportUnexpectedPropertyValue(common::sinceVersionStr(), iter->second);
             return false;
         }
     } while (false);
 
-    auto schemaVersion = protocol().schemaImpl().version();
-    if (schemaVersion < value) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-                      "The value of property \"" << common::sinceVersionStr() << "\" (" <<
-                      value << ") cannot greater then version of the schema (" <<
-                      schemaVersion << ").";
-        return false;
-    }
-
-    if (value < parentMinVersion) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-                      "The value of property \"" << common::sinceVersionStr() << "\" (" <<
-                      value << ") cannot less then specified or inherited version of the parent (" <<
-                      parentMinVersion << ").";
-        return false;
-    }
-
-    setMinSinceVersion(value);
-    setMaxSinceVersion(value);
-
-    if (getParent() != nullptr) {
-        getParent()->setMaxSinceVersion(std::max(getParent()->getMaxSinceVersion(), value));
-    }
-    return true;
-}
-
-bool FieldImpl::updateDeprecated()
-{
-    if (!validateSinglePropInstance(common::deprecatedStr())) {
-        return false;
-    }
-
-    unsigned value = std::numeric_limits<unsigned>::max();
+    unsigned depreacated = std::numeric_limits<unsigned>::max();
     do {
         auto iter = m_props.find(common::deprecatedStr());
         if (iter == m_props.end()) {
@@ -433,21 +404,20 @@ bool FieldImpl::updateDeprecated()
         }
 
         bool ok = false;
-        value = common::strToUnsigned(iter->second, &ok);
+        depreacated = common::strToUnsigned(iter->second, &ok);
         if (!ok) {
             reportUnexpectedPropertyValue(common::deprecatedStr(), iter->second);
             return false;
         }
     } while (false);
 
-    if (value <= getMaxSinceVersion()) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-                        "The value of \"" << common::deprecatedStr() << "\" property is not greater than "
-                        "specified or inherited \"" << common::sinceVersionStr() << "\" one.";
+    if (!XmlWrap::checkVersions(m_node, sinceVersion, depreacated, m_protocol, parentMinVersion)) {
         return false;
     }
 
-    setDeprecated(value);
+    setMinSinceVersion(sinceVersion);
+    setMaxSinceVersion(sinceVersion);
+    setDeprecated(depreacated);
     return true;
 }
 

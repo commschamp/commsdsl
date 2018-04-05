@@ -428,20 +428,6 @@ bool EnumFieldImpl::updateValues()
                 return false;
             }
 
-            if (protocol().schemaImpl().version() < info.m_sinceVersion) {
-                logError() << XmlWrap::logPrefix(vNode) <<
-                              "The value of \"" << common::sinceVersionStr() << "\" property (" << info.m_sinceVersion << ") cannot "
-                              "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol().schemaImpl().version() << ").";
-                return false;
-            }
-
-            if (info.m_sinceVersion < getMaxSinceVersion()) {
-                logError() << XmlWrap::logPrefix(vNode) <<
-                              "The value of \"" << common::sinceVersionStr() << "\" property (" << info.m_sinceVersion << ") cannot "
-                              "be less than value of \"" << common::versionStr() << "\" property of the field itself (" << getMaxSinceVersion() << ").";
-                return false;
-            }
-
         } while (false);
 
         auto deprecatedIter = props.find(common::deprecatedStr());
@@ -460,22 +446,11 @@ bool EnumFieldImpl::updateValues()
                 return false;
             }
 
-            if (info.m_deprecatedSince <= info.m_sinceVersion) {
-                logError() << XmlWrap::logPrefix(vNode) <<
-                              "The value of \"" << common::deprecatedStr() << "\" property (" << info.m_deprecatedSince << ") must "
-                              "be greater than value of \"" << common::sinceVersionStr() << "\" property of the value (" << info.m_sinceVersion << ").";
-                return false;
-            }
-
-            if ((info.m_deprecatedSince < bbmp::Protocol::notYetDeprecated()) &&
-                (protocol().schemaImpl().version() < info.m_deprecatedSince)) {
-                logError() << XmlWrap::logPrefix(vNode) <<
-                              "The value of \"" << common::deprecatedStr() << "\" property (" << info.m_deprecatedSince << ") cannot "
-                              "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol().schemaImpl().version() << ").";
-                return false;
-            }
-
         } while (false);
+
+        if (!XmlWrap::checkVersions(vNode, info.m_sinceVersion, info.m_deprecatedSince, protocol(), getMaxSinceVersion())) {
+            return false;
+        }
 
         m_state.m_values.emplace(nameIter->second, info);
         m_state.m_revValues.emplace(val, nameIter->second);

@@ -4,6 +4,8 @@
 #include <algorithm>
 #include <iostream>
 
+#include "ProtocolImpl.h"
+
 namespace bbmp
 {
 
@@ -263,7 +265,45 @@ void XmlWrap::reportUnexpectedPropertyValue(
 {
     bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
                   "Property \"" << propName << "\" of element \"" << elemName <<
-                  "\" has unexpected value (" << propValue << ").";
+                              "\" has unexpected value (" << propValue << ").";
+}
+
+bool XmlWrap::checkVersions(::xmlNodePtr node,
+    unsigned sinceVersion,
+    unsigned deprecatedSince,
+    ProtocolImpl& protocol,
+    unsigned continainingVersion)
+{
+    if (protocol.schemaImpl().version() < sinceVersion) {
+        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+            "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
+            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.schemaImpl().version() << ").";
+        return false;
+    }
+
+    if (sinceVersion < continainingVersion) {
+        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+            "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
+            "be less than " << continainingVersion << ".";
+        return false;
+    }
+
+    if (deprecatedSince <= sinceVersion) {
+        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+            "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") must "
+            "be greater than value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ").";
+        return false;
+    }
+
+    if ((deprecatedSince < bbmp::Protocol::notYetDeprecated()) &&
+        (protocol.schemaImpl().version() < deprecatedSince)) {
+        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+            "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
+            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.schemaImpl().version() << ").";
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace bbmp
