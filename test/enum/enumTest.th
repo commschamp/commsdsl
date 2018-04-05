@@ -13,6 +13,8 @@ public:
     void test5();
     void test6();
     void test7();
+    void test8();
+    void test9();
 };
 
 void EnumTestSuite::setUp()
@@ -270,4 +272,120 @@ void EnumTestSuite::test7()
     TS_ASSERT_EQUALS(revValues.find(0x0123456789ab)->second, "V1");
     TS_ASSERT_EQUALS(revValues.find(0xabcd)->second, "V2");
     TS_ASSERT_EQUALS(revValues.find(0x3ffffffffff)->second, "Null");
+}
+
+void EnumTestSuite::test8()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field1 = fields.front();
+    auto& field2 = fields.back();
+
+    TS_ASSERT_EQUALS(field1.name(), "Enum1");
+    TS_ASSERT_EQUALS(field2.name(), "Enum2");
+    TS_ASSERT_EQUALS(field1.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field1.kind(), field2.kind());
+
+    bbmp::EnumField enumField1(field1);
+    auto& values1 = enumField1.values();
+    auto& revValues1 = enumField1.revValues();
+
+    bbmp::EnumField enumField2(field2);
+    auto& values2 = enumField2.values();
+    auto& revValues2 = enumField2.revValues();
+
+    TS_ASSERT_EQUALS(enumField1.type(), bbmp::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField1.type(), enumField2.type());
+    TS_ASSERT_EQUALS(enumField1.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField1.endian(), enumField2.endian());
+    TS_ASSERT_EQUALS(enumField1.length(), 1U);
+    TS_ASSERT_EQUALS(enumField1.length(), enumField2.length());
+    TS_ASSERT_EQUALS(enumField1.bitLength(), enumField1.length() * 8U);
+    TS_ASSERT_EQUALS(enumField1.bitLength(), enumField2.bitLength());
+    TS_ASSERT_EQUALS(enumField1.defaultValue(), (std::intmax_t)0xff);
+    TS_ASSERT(!enumField1.isNonUniqueAllowed());
+    TS_ASSERT(!enumField2.isNonUniqueAllowed());
+    TS_ASSERT(enumField1.isUnique());
+    TS_ASSERT(enumField2.isUnique());
+    TS_ASSERT_EQUALS(values1.size(), 3);
+    TS_ASSERT_EQUALS(values2.size(), 4);
+    TS_ASSERT_EQUALS(revValues1.size(), values1.size());
+    TS_ASSERT_EQUALS(values1.find("V1")->second.m_value, 1);
+    TS_ASSERT_EQUALS(values1.find("V2")->second.m_value, 2);
+    TS_ASSERT_EQUALS(values1.find("Null")->second.m_value, (std::intmax_t)0xff);
+    TS_ASSERT_EQUALS(values2.find("V1")->second.m_value, 1);
+    TS_ASSERT_EQUALS(values2.find("V2")->second.m_value, 2);
+    TS_ASSERT_EQUALS(values2.find("V3")->second.m_value, 3);
+    TS_ASSERT_EQUALS(values2.find("Null")->second.m_value, (std::intmax_t)0xff);
+    TS_ASSERT_EQUALS(revValues1.find(1)->second, "V1");
+    TS_ASSERT_EQUALS(revValues1.find(2)->second, "V2");
+    TS_ASSERT_EQUALS(revValues1.find(0xff)->second, "Null");
+    TS_ASSERT_EQUALS(revValues2.find(1)->second, "V1");
+    TS_ASSERT_EQUALS(revValues2.find(2)->second, "V2");
+    TS_ASSERT_EQUALS(revValues2.find(3)->second, "V3");
+    TS_ASSERT_EQUALS(revValues2.find(0xff)->second, "Null");
+}
+
+void EnumTestSuite::test9()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 2U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field2 = fields.back();
+
+    TS_ASSERT_EQUALS(field2.name(), "Enum2");
+    TS_ASSERT_EQUALS(field2.kind(), bbmp::Field::Kind::Enum);
+
+    bbmp::EnumField enumField2(field2);
+    auto& values2 = enumField2.values();
+    auto& revValues2 = enumField2.revValues();
+
+    TS_ASSERT_EQUALS(enumField2.type(), bbmp::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField2.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(enumField2.length(), 1U);
+    TS_ASSERT_EQUALS(enumField2.bitLength(), enumField2.length() * 8U);
+    TS_ASSERT_EQUALS(enumField2.defaultValue(), 1);
+    TS_ASSERT(!enumField2.isNonUniqueAllowed());
+    TS_ASSERT(enumField2.isUnique());
+    TS_ASSERT_EQUALS(values2.size(), 4);
+    TS_ASSERT_EQUALS(revValues2.size(), values2.size());
+    auto v1Iter = values2.find("V1");
+    auto v2Iter = values2.find("V2");
+    auto v3Iter = values2.find("V3");
+    auto nullIter = values2.find("Null");
+    TS_ASSERT_EQUALS(v1Iter->second.m_value, 1);
+    TS_ASSERT_EQUALS(v1Iter->second.m_sinceVersion, 1);
+    TS_ASSERT_EQUALS(v1Iter->second.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(v2Iter->second.m_value, 2);
+    TS_ASSERT_EQUALS(v2Iter->second.m_sinceVersion, 1);
+    TS_ASSERT_EQUALS(v2Iter->second.m_deprecatedSince, 2);
+    TS_ASSERT_EQUALS(v3Iter->second.m_value, 3);
+    TS_ASSERT_EQUALS(v3Iter->second.m_sinceVersion, 2);
+    TS_ASSERT_EQUALS(v3Iter->second.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(nullIter->second.m_value, (std::intmax_t)0xff);
+    TS_ASSERT_EQUALS(nullIter->second.m_sinceVersion, 1);
+    TS_ASSERT_EQUALS(nullIter->second.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(revValues2.find(1)->second, "V1");
+    TS_ASSERT_EQUALS(revValues2.find(2)->second, "V2");
+    TS_ASSERT_EQUALS(revValues2.find(3)->second, "V3");
+    TS_ASSERT_EQUALS(revValues2.find(0xff)->second, "Null");
 }

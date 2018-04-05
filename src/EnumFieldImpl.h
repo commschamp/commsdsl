@@ -26,43 +26,43 @@ public:
 
     Type type() const
     {
-        return m_type;
+        return m_state.m_type;
     }
 
     Endian endian() const
     {
-        return m_endian;
+        return m_state.m_endian;
     }
 
     std::size_t length() const
     {
-        return m_length;
+        return m_state.m_length;
     }
 
     std::size_t bitLength() const
     {
-        return m_bitLength;
+        return m_state.m_bitLength;
     }
 
     std::intmax_t defaultValue() const
     {
-        return m_defaultValue;
+        return m_state.m_defaultValue;
     }
 
     const Values& values() const
     {
-        return m_values;
+        return m_state.m_values;
     }
 
     const RevValues& revValues() const
     {
-        return m_revValues;
+        return m_state.m_revValues;
     }
 
 
     bool isNonUniqueAllowed() const
     {
-        return m_nonUniqueAllowed;
+        return m_state.m_nonUniqueAllowed;
     }
 
     bool isUnique() const;
@@ -72,6 +72,7 @@ protected:
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
+    virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t lengthImpl() const override;
     virtual std::size_t bitLengthImpl() const override;
@@ -87,18 +88,23 @@ private:
     bool updateDefaultValue();
     bool strToNumeric(const std::string& str, std::intmax_t& val);
 
-    Type m_type = Type::NumOfValues;
-    Endian m_endian = Endian_NumOfValues;
-    std::size_t m_length = 0U;
-    std::size_t m_bitLength = 0U;
-    std::intmax_t m_typeAllowedMinValue = 0;
-    std::intmax_t m_typeAllowedMaxValue = 0;
-    std::intmax_t m_minValue = 0;
-    std::intmax_t m_maxValue = 0;
-    std::intmax_t m_defaultValue = 0;
-    Values m_values;
-    RevValues m_revValues;
-    bool m_nonUniqueAllowed = false;
+    struct State
+    {
+        Type m_type = Type::NumOfValues;
+        Endian m_endian = Endian_NumOfValues;
+        std::size_t m_length = 0U;
+        std::size_t m_bitLength = 0U;
+        std::intmax_t m_typeAllowedMinValue = 0;
+        std::intmax_t m_typeAllowedMaxValue = 0;
+        std::intmax_t m_minValue = 0;
+        std::intmax_t m_maxValue = 0;
+        std::intmax_t m_defaultValue = 0;
+        Values m_values;
+        RevValues m_revValues;
+        bool m_nonUniqueAllowed = false;
+    };
+
+    State m_state;
 };
 
 } // namespace bbmp

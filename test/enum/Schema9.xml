@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9"
+        id="1"
+        endian="Little"
+        version="2">
+    <ns name="ns2">
+        <fields>
+            <enum name="Enum1" type="uint16">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="2" />
+            </enum>
+        </fields>
+    </ns>
+    <ns name="ns1">
+        <fields>
+            <enum name="Enum1" type="uint8" defaultValue="Null" sinceVersion="1">
+                <validValue name="V1" val="ns2.Enum1.V1" />
+                <validValue name="Null" val="0xff" />
+                <validValue name="V2" val="ns2.Enum1.V2" deprecated="2"/>
+            </enum>
+            <enum reuse="ns1.Enum1" name="Enum2" defaultValue="ns2.Enum1.V1">
+                <validValue name="V3" val="3" sinceVersion="2"/>
+                <endian>big</endian>
+            </enum>
+        </fields>
+    </ns>
+</schema>
