@@ -144,8 +144,8 @@ void IntTestSuite::test2()
     TS_ASSERT_EQUALS(scaling1, scaling2);
     TS_ASSERT_EQUALS(scaling1, scaling3);
     TS_ASSERT_EQUALS(validRanges1.size(), 1U);
-    TS_ASSERT_EQUALS(validRanges1.front().first, 400);
-    TS_ASSERT_EQUALS(validRanges1.front().second, intField1.maxValue());
+    TS_ASSERT_EQUALS(validRanges1.front().m_min, 400);
+    TS_ASSERT_EQUALS(validRanges1.front().m_max, intField1.maxValue());
     TS_ASSERT_EQUALS(validRanges1, validRanges2);
     TS_ASSERT_EQUALS(validRanges1, validRanges3);
     TS_ASSERT(specialValues1.empty());
@@ -232,8 +232,8 @@ void IntTestSuite::test3()
     TS_ASSERT_EQUALS(scaling1, scaling2);
     TS_ASSERT_EQUALS(scaling1, scaling3);
     TS_ASSERT_EQUALS(validRanges1.size(), 1U);
-    TS_ASSERT_EQUALS(validRanges1.front().first, 2000);
-    TS_ASSERT_EQUALS(validRanges1.front().second, 2100);
+    TS_ASSERT_EQUALS(validRanges1.front().m_min, 2000);
+    TS_ASSERT_EQUALS(validRanges1.front().m_max, 2100);
     TS_ASSERT_EQUALS(validRanges1, validRanges2);
     TS_ASSERT_EQUALS(validRanges1, validRanges3);
     TS_ASSERT(specialValues1.empty());
@@ -316,12 +316,14 @@ void IntTestSuite::test4()
     auto& range1 = validRanges1[0];
     auto& range2 = validRanges1[1];
     auto& range3 = validRanges1[2];
-    TS_ASSERT_EQUALS(range1.first, 10);
-    TS_ASSERT_EQUALS(range1.second, 10);
-    TS_ASSERT_EQUALS(range2.first, 100);
-    TS_ASSERT_EQUALS(range2.second, 120);
-    TS_ASSERT_EQUALS(range3.first, 130);
-    TS_ASSERT_EQUALS(range3.second, 140);
+    TS_ASSERT_EQUALS(range1.m_min, 10);
+    TS_ASSERT_EQUALS(range1.m_max, 10);
+    TS_ASSERT_EQUALS(range1.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(range1.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(range2.m_min, 100);
+    TS_ASSERT_EQUALS(range2.m_max, 120);
+    TS_ASSERT_EQUALS(range3.m_min, 130);
+    TS_ASSERT_EQUALS(range3.m_max, 140);
     TS_ASSERT_EQUALS(validRanges1, validRanges2);
     TS_ASSERT_EQUALS(validRanges1, validRanges3);
     TS_ASSERT_EQUALS(specialValues1.size(), 2U);
@@ -370,8 +372,8 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(scaling1.first, 1);
         TS_ASSERT_EQUALS(scaling1.second, 1);
         TS_ASSERT_EQUALS(validRanges1.size(), 1U);
-        TS_ASSERT_EQUALS(validRanges1.front().first, std::numeric_limits<std::int8_t>::min());
-        TS_ASSERT_EQUALS(validRanges1.front().second, 10);
+        TS_ASSERT_EQUALS(validRanges1.front().m_min, std::numeric_limits<std::int8_t>::min());
+        TS_ASSERT_EQUALS(validRanges1.front().m_max, 10);
         TS_ASSERT(specialValues1.empty());
     } while (false);
 
@@ -397,8 +399,8 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(scaling2.first, 1);
         TS_ASSERT_EQUALS(scaling2.second, 1);
         TS_ASSERT_EQUALS(validRanges2.size(), 1U);
-        TS_ASSERT_EQUALS(validRanges2.front().first, 10);
-        TS_ASSERT_EQUALS(validRanges2.front().second, std::numeric_limits<std::uint8_t>::max());
+        TS_ASSERT_EQUALS(validRanges2.front().m_min, 10);
+        TS_ASSERT_EQUALS(validRanges2.front().m_max, std::numeric_limits<std::uint8_t>::max());
         TS_ASSERT(specialValues2.empty());
     } while (false);
 
@@ -424,8 +426,8 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(scaling3.first, 1);
         TS_ASSERT_EQUALS(scaling3.second, 1);
         TS_ASSERT_EQUALS(validRanges3.size(), 1U);
-        TS_ASSERT_EQUALS(validRanges3.front().first, std::numeric_limits<std::int16_t>::min());
-        TS_ASSERT_EQUALS(validRanges3.front().second, 1000);
+        TS_ASSERT_EQUALS(validRanges3.front().m_min, std::numeric_limits<std::int16_t>::min());
+        TS_ASSERT_EQUALS(validRanges3.front().m_max, 1000);
         TS_ASSERT(specialValues3.empty());
     } while (false);
 
@@ -451,8 +453,8 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(scaling4.first, 1);
         TS_ASSERT_EQUALS(scaling4.second, 1);
         TS_ASSERT_EQUALS(validRanges4.size(), 1U);
-        TS_ASSERT_EQUALS(validRanges4.front().first, 1000);
-        TS_ASSERT_EQUALS(validRanges4.front().second, std::numeric_limits<std::uint16_t>::max());
+        TS_ASSERT_EQUALS(validRanges4.front().m_min, 1000);
+        TS_ASSERT_EQUALS(validRanges4.front().m_max, std::numeric_limits<std::uint16_t>::max());
         TS_ASSERT(specialValues4.empty());
     } while (false);
 
@@ -478,8 +480,8 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(scaling5.first, 1);
         TS_ASSERT_EQUALS(scaling5.second, 1);
         TS_ASSERT_EQUALS(validRanges5.size(), 1U);
-        TS_ASSERT_EQUALS(validRanges5.front().first, std::numeric_limits<std::int32_t>::min());
-        TS_ASSERT_EQUALS(validRanges5.front().second, 100000);
+        TS_ASSERT_EQUALS(validRanges5.front().m_min, std::numeric_limits<std::int32_t>::min());
+        TS_ASSERT_EQUALS(validRanges5.front().m_max, 100000);
         TS_ASSERT(specialValues5.empty());
     } while (false);
 
@@ -505,8 +507,8 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(scaling6.first, 1);
         TS_ASSERT_EQUALS(scaling6.second, 1);
         TS_ASSERT_EQUALS(validRanges6.size(), 1U);
-        TS_ASSERT_EQUALS(validRanges6.front().first, 100000);
-        TS_ASSERT_EQUALS(validRanges6.front().second, std::numeric_limits<std::uint32_t>::max());
+        TS_ASSERT_EQUALS(validRanges6.front().m_min, 100000);
+        TS_ASSERT_EQUALS(validRanges6.front().m_max, std::numeric_limits<std::uint32_t>::max());
         TS_ASSERT(specialValues6.empty());
     } while (false);
 
@@ -532,8 +534,8 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(scaling7.first, 1);
         TS_ASSERT_EQUALS(scaling7.second, 1);
         TS_ASSERT_EQUALS(validRanges7.size(), 1U);
-        TS_ASSERT_EQUALS(validRanges7.front().first, std::numeric_limits<std::int64_t>::min());
-        TS_ASSERT_EQUALS(validRanges7.front().second, 0xffffffffff);
+        TS_ASSERT_EQUALS(validRanges7.front().m_min, std::numeric_limits<std::int64_t>::min());
+        TS_ASSERT_EQUALS(validRanges7.front().m_max, 0xffffffffff);
         TS_ASSERT(specialValues7.empty());
     } while (false);
 
@@ -559,8 +561,8 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(scaling8.first, 1);
         TS_ASSERT_EQUALS(scaling8.second, 1);
         TS_ASSERT_EQUALS(validRanges8.size(), 1U);
-        TS_ASSERT_EQUALS(validRanges8.front().first, 0xffffffffff);
-        TS_ASSERT_EQUALS(validRanges8.front().second, (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
+        TS_ASSERT_EQUALS(validRanges8.front().m_min, 0xffffffffff);
+        TS_ASSERT_EQUALS(validRanges8.front().m_max, (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
         TS_ASSERT(specialValues8.empty());
     } while (false);
 }
@@ -1036,10 +1038,10 @@ void IntTestSuite::test11()
     TS_ASSERT_EQUALS(validRanges.size(), 2U);
     auto& r1 = validRanges[0];
     auto& r2 = validRanges[1];
-    TS_ASSERT_EQUALS(r1.first, 100);
-    TS_ASSERT_EQUALS(r1.second, 101);
-    TS_ASSERT_EQUALS(r2.first, 110);
-    TS_ASSERT_EQUALS(r2.second, 120);
+    TS_ASSERT_EQUALS(r1.m_min, 100);
+    TS_ASSERT_EQUALS(r1.m_max, 101);
+    TS_ASSERT_EQUALS(r2.m_min, 110);
+    TS_ASSERT_EQUALS(r2.m_max, 120);
     TS_ASSERT_EQUALS(specialValues.size(), 3U);
     auto s1 = specialValues.find("val1");
     auto s2 = specialValues.find("val2");
@@ -1083,10 +1085,10 @@ void IntTestSuite::test12()
     TS_ASSERT_EQUALS(validRanges.size(), 2U);
     auto& r1 = validRanges[0];
     auto& r2 = validRanges[1];
-    TS_ASSERT_EQUALS(r1.first, 100);
-    TS_ASSERT_EQUALS(r1.second, 101);
-    TS_ASSERT_EQUALS(r2.first, 110);
-    TS_ASSERT_EQUALS(r2.second, 120);
+    TS_ASSERT_EQUALS(r1.m_min, 100);
+    TS_ASSERT_EQUALS(r1.m_max, 101);
+    TS_ASSERT_EQUALS(r2.m_min, 110);
+    TS_ASSERT_EQUALS(r2.m_max, 120);
     TS_ASSERT_EQUALS(specialValues.size(), 3U);
     auto s1 = specialValues.find("val1");
     auto s2 = specialValues.find("val2");
@@ -1130,8 +1132,8 @@ void IntTestSuite::test13()
     TS_ASSERT_EQUALS(scaling.first, 1);
     TS_ASSERT_EQUALS(scaling.second, 10);
     TS_ASSERT_EQUALS(validRanges.size(), 1U);
-    TS_ASSERT_EQUALS(validRanges.front().first, 400);
-    TS_ASSERT_EQUALS(validRanges.front().second, intField.maxValue());
+    TS_ASSERT_EQUALS(validRanges.front().m_min, 400);
+    TS_ASSERT_EQUALS(validRanges.front().m_max, intField.maxValue());
     TS_ASSERT(specialValues.empty());
 }
 
@@ -1177,10 +1179,10 @@ void IntTestSuite::test15()
     TS_ASSERT_EQUALS(scaling.first, 1);
     TS_ASSERT_EQUALS(scaling.second, 20);
     TS_ASSERT_EQUALS(validRanges.size(), 2U);
-    TS_ASSERT_EQUALS(validRanges.front().first, 0);
-    TS_ASSERT_EQUALS(validRanges.front().second, 10);
-    TS_ASSERT_EQUALS(validRanges.back().first, 20);
-    TS_ASSERT_EQUALS(validRanges.back().second, 20);
+    TS_ASSERT_EQUALS(validRanges.front().m_min, 0);
+    TS_ASSERT_EQUALS(validRanges.front().m_max, 10);
+    TS_ASSERT_EQUALS(validRanges.back().m_min, 20);
+    TS_ASSERT_EQUALS(validRanges.back().m_max, 20);
     TS_ASSERT_EQUALS(specialValues.size(), 2U);
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1U);
     TS_ASSERT_EQUALS(specialValues.find("S2")->second.m_value, 2U);
@@ -1215,7 +1217,6 @@ void IntTestSuite::test18()
 
 void IntTestSuite::test19()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
     auto& namespaces = protocol->namespaces();
@@ -1247,8 +1248,8 @@ void IntTestSuite::test19()
     TS_ASSERT_EQUALS(scaling.first, 1);
     TS_ASSERT_EQUALS(scaling.second, 1);
     TS_ASSERT_EQUALS(validRanges.size(), 1U);
-    TS_ASSERT_EQUALS(validRanges.front().first, 0);
-    TS_ASSERT_EQUALS(validRanges.front().second, 2000);
+    TS_ASSERT_EQUALS(validRanges.front().m_min, 0);
+    TS_ASSERT_EQUALS(validRanges.front().m_max, 2000);
     TS_ASSERT_EQUALS(specialValues.size(), 2U);
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1000);
     TS_ASSERT_EQUALS(specialValues.find("S2")->second.m_value, 2000);

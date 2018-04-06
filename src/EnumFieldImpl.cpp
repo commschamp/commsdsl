@@ -411,44 +411,10 @@ bool EnumFieldImpl::updateValues()
 
         ValueInfo info;
         info.m_value = val;
+        info.m_sinceVersion = getMinSinceVersion();
+        info.m_deprecatedSince = getDeprecated();
 
-        auto sinceVerIter = props.find(common::sinceVersionStr());
-        do {
-            if (sinceVerIter == props.end()) {
-                info.m_sinceVersion = getMaxSinceVersion();
-                assert(info.m_sinceVersion <= protocol().schemaImpl().version());
-                break;
-            }
-
-            auto& sinceVerStr = sinceVerIter->second;
-            bool ok = false;
-            info.m_sinceVersion = common::strToUnsigned(sinceVerStr, &ok);
-            if (!ok) {
-                XmlWrap::reportUnexpectedPropertyValue(vNode, nameIter->second, common::sinceVersionStr(), sinceVerStr, protocol().logger());
-                return false;
-            }
-
-        } while (false);
-
-        auto deprecatedIter = props.find(common::deprecatedStr());
-        do {
-            if (deprecatedIter == props.end()) {
-                info.m_deprecatedSince = getDeprecated();
-                assert(info.m_sinceVersion < info.m_deprecatedSince);
-                break;
-            }
-
-            auto& deprecatedStr = deprecatedIter->second;
-            bool ok = false;
-            info.m_deprecatedSince = common::strToUnsigned(deprecatedStr, &ok);
-            if (!ok) {
-                XmlWrap::reportUnexpectedPropertyValue(vNode, nameIter->second, common::deprecatedStr(), deprecatedStr, protocol().logger());
-                return false;
-            }
-
-        } while (false);
-
-        if (!XmlWrap::checkVersions(vNode, info.m_sinceVersion, info.m_deprecatedSince, protocol(), getMaxSinceVersion())) {
+        if (!XmlWrap::getAndCheckVersions(vNode, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
             return false;
         }
 

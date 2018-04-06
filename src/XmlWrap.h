@@ -84,11 +84,28 @@ struct XmlWrap
         const std::string& propValue,
         Logger& logger);
 
-    static bool checkVersions(::xmlNodePtr node,
+    static bool checkVersions(
+        ::xmlNodePtr node,
         unsigned sinceVersion,
         unsigned deprecatedSince,
         ProtocolImpl& protocol,
-        unsigned continainingVersion = 0);
+        unsigned parentVersion,
+        unsigned parentDeprecated);
+
+    static bool getAndCheckVersions(
+        ::xmlNodePtr node,
+        const std::string& name,
+        const PropsMap& props,
+        unsigned& sinceVersion,
+        unsigned& deprecatedSince,
+        ProtocolImpl& protocol);
+
+    static bool getAndCheckVersions(
+        ::xmlNodePtr node,
+        const std::string& name,
+        unsigned& sinceVersion,
+        unsigned& deprecatedSince,
+        ProtocolImpl& protocol);
 };
 
 } // namespace bbmp

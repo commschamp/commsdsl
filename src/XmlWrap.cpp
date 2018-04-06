@@ -100,7 +100,7 @@ bool XmlWrap::parseNodeValue(
     auto text = getText(node);
     if (valueTmp.empty() && text.empty()) {
         if (!mustHaveValue) {
-            return false;
+            return true;
         }
 
         logError(logger) << logPrefix(node) <<
@@ -268,12 +268,15 @@ void XmlWrap::reportUnexpectedPropertyValue(
                               "\" has unexpected value (" << propValue << ").";
 }
 
-bool XmlWrap::checkVersions(::xmlNodePtr node,
+bool XmlWrap::checkVersions(
+    ::xmlNodePtr node,
     unsigned sinceVersion,
     unsigned deprecatedSince,
     ProtocolImpl& protocol,
-    unsigned continainingVersion)
+    unsigned parentVersion,
+    unsigned parentDeprecated)
 {
+    assert(parentVersion < parentDeprecated);
     if (protocol.schemaImpl().version() < sinceVersion) {
         bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
@@ -281,10 +284,17 @@ bool XmlWrap::checkVersions(::xmlNodePtr node,
         return false;
     }
 
-    if (sinceVersion < continainingVersion) {
+    if (sinceVersion < parentVersion) {
         bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
-            "be less than " << continainingVersion << ".";
+            "be less than " << parentVersion << ".";
+        return false;
+    }
+
+    if (parentDeprecated <= sinceVersion) {
+        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+            "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") must "
+            "be less than " << parentDeprecated << ".";
         return false;
     }
 
@@ -304,6 +314,76 @@ bool XmlWrap::checkVersions(::xmlNodePtr node,
     }
 
     return true;
+}
+
+bool XmlWrap::getAndCheckVersions(
+    ::xmlNodePtr node,
+    const std::string& name,
+    const PropsMap& props,
+    unsigned& sinceVersion,
+    unsigned& deprecatedSince,
+    ProtocolImpl& protocol)
+{
+    auto parentVersion = sinceVersion;
+    auto parentDeprecated = deprecatedSince;
+    auto sinceVerIter = props.find(common::sinceVersionStr());
+    do {
+        if (sinceVerIter == props.end()) {
+            assert(sinceVersion <= protocol.schemaImpl().version());
+            break;
+        }
+
+        auto& sinceVerStr = sinceVerIter->second;
+        bool ok = false;
+        sinceVersion = common::strToUnsigned(sinceVerStr, &ok);
+        if (!ok) {
+            reportUnexpectedPropertyValue(node, name, common::sinceVersionStr(), sinceVerStr, protocol.logger());
+            return false;
+        }
+
+    } while (false);
+
+    auto deprecatedIter = props.find(common::deprecatedStr());
+    do {
+        if (deprecatedIter == props.end()) {
+            break;
+        }
+
+        auto& deprecatedStr = deprecatedIter->second;
+        bool ok = false;
+        deprecatedSince = common::strToUnsigned(deprecatedStr, &ok);
+        if (!ok) {
+            XmlWrap::reportUnexpectedPropertyValue(node, name, common::deprecatedStr(), deprecatedStr, protocol.logger());
+            return false;
+        }
+
+    } while (false);
+
+    if (!checkVersions(node, sinceVersion, deprecatedSince, protocol, parentVersion, parentDeprecated)) {
+        return false;
+    }
+
+    return true;
+}
+
+bool XmlWrap::getAndCheckVersions(
+    ::xmlNodePtr node,
+    const std::string& name,
+    unsigned& sinceVersion,
+    unsigned& deprecatedSince,
+    ProtocolImpl& protocol)
+{
+    auto props = parseNodeProps(node);
+    static const NamesList Names = {
+        common::sinceVersionStr(),
+        common::deprecatedStr()
+    };
+
+    if (!parseChildrenAsProps(node, Names, protocol.logger(), props)) {
+        return false;
+    }
+
+    return getAndCheckVersions(node, name, props, sinceVersion, deprecatedSince, protocol);
 }
 
 } // namespace bbmp

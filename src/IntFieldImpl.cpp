@@ -752,114 +752,110 @@ bool IntFieldImpl::updateScaling()
 
 bool IntFieldImpl::updateValidRanges()
 {
-    auto validRangersIters = props().equal_range(common::validRangeStr());
-    for (auto iter = validRangersIters.first; iter != validRangersIters.second; ++iter) {
-        if (!validateValidRangeStr(iter->second)) {
-            return false;
-        }
+    auto attrs = XmlWrap::parseNodeProps(getNode());
+    bool result =
+        checkValidRangeProps(attrs) &&
+        checkValidValueProps(attrs) &&
+        checkValidMinProps(attrs) &&
+        checkValidMaxProps(attrs);
+    if (!result) {
+        return false;
     }
 
-    auto validValuesIters = props().equal_range(common::validValueStr());
-    for (auto iter = validValuesIters.first; iter != validValuesIters.second; ++iter) {
-        if (!validateValidValueStr(iter->second)) {
-            return false;
-        }
-    }
-
-    auto validMinValuesIters = props().equal_range(common::validMinStr());
-    for (auto iter = validMinValuesIters.first; iter != validMinValuesIters.second; ++iter) {
-        if (!validateValidMinValueStr(iter->second)) {
-            return false;
-        }
-    }
-
-    auto validMaxValuesIters = props().equal_range(common::validMaxStr());
-    for (auto iter = validMaxValuesIters.first; iter != validMaxValuesIters.second; ++iter) {
-        if (!validateValidMaxValueStr(iter->second)) {
-            return false;
-        }
-    }
-
-    auto sortFunc =
-        [](auto& ranges)
+    // Sort by version first
+    bool bigUnsigned = isBigUnsigned(m_state.m_type);
+    std::sort(
+        m_state.m_validRanges.begin(), m_state.m_validRanges.end(),
+        [bigUnsigned](auto& elem1, auto& elem2)
         {
-            std::sort(
-                ranges.begin(), ranges.end(),
-                [](auto& elem1, auto& elem2)
-                {
-                    return elem1.first < elem2.first;
-                });
-        };
-
-    bool intersectingRanges = false;
-    auto unifyFunc =
-        [this, &intersectingRanges](auto& ranges)
-        {
-            if (ranges.size() < 2U) {
-                return;
+            assert(elem1.m_deprecatedSince != 0U);
+            assert(elem2.m_deprecatedSince != 0U);
+            if (elem1.m_sinceVersion != elem2.m_sinceVersion) {
+                return elem1.m_sinceVersion < elem2.m_sinceVersion;
             }
 
-            std::size_t idx = 0U;
-            while ((idx + 2U) <= ranges.size()) {
-                auto& thisRange = ranges[idx];
-                auto& nextRange = ranges[idx + 1];
-
-                assert(thisRange.first <= nextRange.first);
-                if ((thisRange.second + 1) < nextRange.first) {
-                    ++idx;
-                    continue;
-                }
-
-                if (nextRange.first <= thisRange.second) {
-                    intersectingRanges = true;
-                }
-
-                if (thisRange.second < nextRange.second) {
-                    thisRange.second = nextRange.second;
-                }
-
-                ranges.erase(ranges.begin() + idx + 1);
+            if (elem1.m_deprecatedSince != elem2.m_deprecatedSince) {
+                return elem1.m_deprecatedSince < elem2.m_deprecatedSince;
             }
-        };
 
-    if (isBigUnsigned(m_state.m_type)) {
-        using UnsignedValidRange = std::pair<std::uintmax_t, std::uintmax_t>;
-        using UnsignedValidRangesList = std::vector<UnsignedValidRange>;
+            if (bigUnsigned) {
+                if (elem1.m_min != elem2.m_min) {
+                    return static_cast<std::uintmax_t>(elem1.m_min) < static_cast<std::uintmax_t>(elem2.m_min);
+                }
 
-        UnsignedValidRangesList unsignedRanges;
-        unsignedRanges.reserve(m_state.m_validRanges.size());
-        std::transform(
-            m_state.m_validRanges.begin(), m_state.m_validRanges.end(), std::back_inserter(unsignedRanges),
-            [](auto& r)
-            {
-                return UnsignedValidRange(
-                            static_cast<std::uintmax_t>(r.first),
-                            static_cast<std::uintmax_t>(r.second));
-            });
+                return static_cast<std::uintmax_t>(elem1.m_max) < static_cast<std::uintmax_t>(elem2.m_max);
+            }
 
-        sortFunc(unsignedRanges);
-        unifyFunc(unsignedRanges);
+            if (elem1.m_min != elem2.m_min) {
+                return elem1.m_min < elem2.m_min;
+            }
 
-        m_state.m_validRanges.clear();
+            return elem1.m_max < elem2.m_max;
+        });
 
-        std::transform(
-            unsignedRanges.begin(), unsignedRanges.end(), std::back_inserter(m_state.m_validRanges),
-            [](auto& r)
-            {
-                return ValidRange(
-                            static_cast<std::intmax_t>(r.first),
-                            static_cast<std::intmax_t>(r.second));
-            });
+    // Merge
+    for (auto iter = m_state.m_validRanges.begin(); iter != m_state.m_validRanges.end(); ++iter) {
+        if (iter->m_deprecatedSince == 0U) {
+            continue;
+        }
+
+        for (auto nextIter = iter + 1; nextIter != m_state.m_validRanges.end(); ++nextIter) {
+            if (nextIter->m_deprecatedSince == 0U) {
+                continue;
+            }
+
+            if ((iter->m_sinceVersion != nextIter->m_sinceVersion) ||
+                (iter->m_deprecatedSince != nextIter->m_deprecatedSince) ||
+                ((iter->m_max + 1) < nextIter->m_min)) {
+                break;
+            }
+
+            assert(iter->m_min <= nextIter->m_min);
+            nextIter->m_deprecatedSince = 0U; // invalidate next range
+            iter->m_max = std::max(iter->m_max, nextIter->m_max);
+        }
     }
-    else {
-        sortFunc(m_state.m_validRanges);
-        unifyFunc(m_state.m_validRanges);
-    }
 
-    if (intersectingRanges) {
-        logWarning() << XmlWrap::logPrefix(getNode()) << "Some valid values ranges of \"" << name() <<
-                        "\" are intersecting.";
-    }
+    // Remove invalid
+    m_state.m_validRanges.erase(
+        std::remove_if(m_state.m_validRanges.begin(), m_state.m_validRanges.end(),
+                    [](auto& elem)
+                    {
+                        return elem.m_deprecatedSince == 0U;
+                    }),
+        m_state.m_validRanges.end());
+
+    // Sort by min/max value
+    std::sort(
+        m_state.m_validRanges.begin(), m_state.m_validRanges.end(),
+        [bigUnsigned](auto& elem1, auto& elem2)
+        {
+            assert(elem1.m_deprecatedSince != 0U);
+            assert(elem2.m_deprecatedSince != 0U);
+            if (elem1.m_min != elem2.m_min) {
+                if (bigUnsigned) {
+                    return static_cast<std::uintmax_t>(elem1.m_min) < static_cast<std::uintmax_t>(elem2.m_min);
+                }
+                else {
+                    return elem1.m_min < elem2.m_min;
+                }
+            }
+
+            if (elem1.m_max != elem2.m_max) {
+                if (bigUnsigned) {
+                    return static_cast<std::uintmax_t>(elem1.m_max) < static_cast<std::uintmax_t>(elem2.m_max);
+                }
+                else {
+                    return elem1.m_max < elem2.m_max;
+                }
+            }
+
+            if (elem1.m_sinceVersion != elem2.m_sinceVersion) {
+                return elem1.m_sinceVersion < elem2.m_sinceVersion;
+            }
+
+            return elem1.m_deprecatedSince < elem2.m_deprecatedSince;
+        });
 
     return true;
 }
@@ -955,44 +951,7 @@ bool IntFieldImpl::updateSpecials()
 
         SpecialValueInfo info;
         info.m_value = val;
-
-        auto sinceVerIter = props.find(common::sinceVersionStr());
-        do {
-            if (sinceVerIter == props.end()) {
-                info.m_sinceVersion = getMaxSinceVersion();
-                assert(info.m_sinceVersion <= protocol().schemaImpl().version());
-                break;
-            }
-
-            auto& sinceVerStr = sinceVerIter->second;
-            bool ok = false;
-            info.m_sinceVersion = common::strToUnsigned(sinceVerStr, &ok);
-            if (!ok) {
-                XmlWrap::reportUnexpectedPropertyValue(s, nameIter->second, common::sinceVersionStr(), sinceVerStr, protocol().logger());
-                return false;
-            }
-
-        } while (false);
-
-        auto deprecatedIter = props.find(common::deprecatedStr());
-        do {
-            if (deprecatedIter == props.end()) {
-                info.m_deprecatedSince = getDeprecated();
-                assert(info.m_sinceVersion < info.m_deprecatedSince);
-                break;
-            }
-
-            auto& deprecatedStr = deprecatedIter->second;
-            bool ok = false;
-            info.m_deprecatedSince = common::strToUnsigned(deprecatedStr, &ok);
-            if (!ok) {
-                XmlWrap::reportUnexpectedPropertyValue(s, nameIter->second, common::deprecatedStr(), deprecatedStr, protocol().logger());
-                return false;
-            }
-
-        } while (false);
-
-        if (!XmlWrap::checkVersions(s, info.m_sinceVersion, info.m_deprecatedSince, protocol(), getMaxSinceVersion())) {
+        if (!XmlWrap::getAndCheckVersions(s, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
             return false;
         }
 
@@ -1002,7 +961,248 @@ bool IntFieldImpl::updateSpecials()
     return true;
 }
 
-bool IntFieldImpl::validateValidRangeStr(const std::string& str)
+bool IntFieldImpl::checkValidRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validRangeStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+
+    if (!validateValidRangeStr(iter->second, info.m_min, info.m_max)) {
+        return false;
+    }
+
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+    m_state.m_validRanges.push_back(info);
+    return true;
+}
+
+bool IntFieldImpl::checkValidRangeAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!validateValidRangeStr(str, info.m_min, info.m_max)) {
+        return false;
+    }
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_state.m_validRanges.push_back(info);
+    return true;
+}
+
+bool IntFieldImpl::checkValidRangeProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!checkValidRangeAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validRangeStr());
+    for (auto* c : children) {
+        if (!checkValidRangeAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::checkValidValueAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validValueStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+    if (!validateValidValueStr(iter->second, common::validValueStr(), info.m_min)) {
+        return false;
+    }
+
+    info.m_max = info.m_min;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    m_state.m_validRanges.push_back(info);
+    return true;
+}
+
+bool IntFieldImpl::checkValidValueAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+
+    if (!validateValidValueStr(str, common::validValueStr(), info.m_min)) {
+        return false;
+    }
+
+    info.m_max = info.m_min;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_state.m_validRanges.push_back(info);
+    return true;
+}
+
+bool IntFieldImpl::checkValidValueProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!checkValidValueAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validValueStr());
+    for (auto* c : children) {
+        if (!checkValidValueAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::checkValidMinAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validMinStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+    if (!validateValidValueStr(iter->second, common::validMinStr(), info.m_min)) {
+        return false;
+    }
+
+    info.m_max = m_state.m_maxValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    m_state.m_validRanges.push_back(info);
+    return true;
+}
+
+bool IntFieldImpl::checkValidMinAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+
+    if (!validateValidValueStr(str, common::validMinStr(), info.m_min)) {
+        return false;
+    }
+
+    info.m_max = m_state.m_maxValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_state.m_validRanges.push_back(info);
+    return true;
+}
+
+bool IntFieldImpl::checkValidMinProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!checkValidMinAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validMinStr());
+    for (auto* c : children) {
+        if (!checkValidMinAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::checkValidMaxAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validMaxStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+    if (!validateValidValueStr(iter->second, common::validMaxStr(), info.m_max)) {
+        return false;
+    }
+
+    info.m_min = m_state.m_minValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    m_state.m_validRanges.push_back(info);
+    return true;
+}
+
+bool IntFieldImpl::checkValidMaxAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+
+    if (!validateValidValueStr(str, common::validMaxStr(), info.m_max)) {
+        return false;
+    }
+
+    info.m_min = m_state.m_minValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_state.m_validRanges.push_back(info);
+    return true;
+}
+
+bool IntFieldImpl::checkValidMaxProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!checkValidMaxAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validMaxStr());
+    for (auto* c : children) {
+        if (!checkValidMaxAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::validateValidRangeStr(const std::string& str, std::intmax_t& minVal, std::intmax_t& maxVal)
 {
     bool ok = false;
     auto range = common::parseRange(str, &ok);
@@ -1011,14 +1211,14 @@ bool IntFieldImpl::validateValidRangeStr(const std::string& str)
         return false;
     }
 
-    std::intmax_t minVal = 0;
+    minVal = 0;
     if (!strToNumeric(range.first, minVal)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Invalid min value in valid range (" << str << ").";
         return false;
     }
 
-    std::intmax_t maxVal = 0;
+    maxVal = 0;
     if (!strToNumeric(range.second, maxVal)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Invalid max value in valid range (" << str << ").";
@@ -1064,32 +1264,34 @@ bool IntFieldImpl::validateValidRangeStr(const std::string& str)
 
     }
 
-    m_state.m_validRanges.emplace_back(minVal, maxVal);
     return true;
 }
 
-bool IntFieldImpl::validateValidValueStr(const std::string& str)
+bool IntFieldImpl::validateValidValueStr(
+    const std::string& str,
+    const std::string& type,
+    std::intmax_t& val)
 {
-    std::intmax_t val = 0;
+    val = 0;
     if (!strToNumeric(str, val)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Property value \"" << common::validValueStr() << "\" of int element \"" <<
+                      "Property value \"" << type << "\" of int element \"" <<
                       name() << "\" cannot be properly parsed.";
         return false;
     }
 
     auto validateFunc =
-        [this](auto v)
+        [this, &type](auto v)
         {
              if (v < static_cast<decltype(v)>(m_state.m_typeAllowedMinValue)) {
                  logWarning() << XmlWrap::logPrefix(getNode()) <<
-                                 "Property value \"" << common::validValueStr() <<
+                                 "Property value \"" << type <<
                                  "\" is below the type's minimal value.";
              }
 
              if (static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue) < v) {
                  logWarning() << XmlWrap::logPrefix(getNode()) <<
-                                 "Property value \"" << common::validValueStr() <<
+                                 "Property value \"" << type <<
                                  "\" is above the type's maximal value.";
              }
         };
@@ -1101,103 +1303,6 @@ bool IntFieldImpl::validateValidValueStr(const std::string& str)
         validateFunc(val);
     }
 
-    m_state.m_validRanges.emplace_back(val, val);
-    return true;
-}
-
-bool IntFieldImpl::validateValidMinValueStr(const std::string& str)
-{
-    std::intmax_t val = 0;
-    if (!strToNumeric(str, val)) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Property value \"" << common::validMinStr() << "\" of int element \"" <<
-                      name() << "\" cannot be properly parsed.";
-        return false;
-    }
-
-    auto validateFunc =
-        [this](auto v) -> bool
-        {
-             if (static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue) < v) {
-                 this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
-                        "Value of property \"" << common::validMinStr() <<
-                        "\" (" << v << ") is greater than the type's maximal "
-                        "value (" << m_state.m_typeAllowedMaxValue << ").";
-                 return false;
-             }
-
-             if (v < static_cast<decltype(v)>(m_state.m_typeAllowedMinValue)) {
-                 this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
-                        "Value of property \"" << common::validMinStr() <<
-                        "\" (" << v << ") is less than the type's minimal "
-                        "value (" << m_state.m_typeAllowedMinValue << ").";
-                 return false;
-             }
-
-             return true;
-        };
-
-    bool validateResult = false;
-    if (isBigUnsigned(m_state.m_type)) {
-        validateResult = validateFunc(static_cast<std::uintmax_t>(val));
-    }
-    else {
-        validateResult = validateFunc(val);
-    }
-
-    if (!validateResult) {
-        return false;
-    }
-
-    m_state.m_validRanges.emplace_back(val, m_state.m_typeAllowedMaxValue);
-    return true;
-}
-
-bool IntFieldImpl::validateValidMaxValueStr(const std::string& str)
-{
-    std::intmax_t val = 0;
-    if (!strToNumeric(str, val)) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Property value \"" << common::validMaxStr() << "\" of int element \"" <<
-                      name() << "\" cannot be properly parsed.";
-        return false;
-    }
-
-    auto validateFunc =
-        [this](auto v) -> bool
-        {
-             if (static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue) < v) {
-                 this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
-                        "Value of property \"" << common::validMaxStr() <<
-                        "\" (" << v << ") is greater than the type's maximal "
-                        "value (" << m_state.m_typeAllowedMaxValue << ").";
-                 return false;
-             }
-
-             if (v < static_cast<decltype(v)>(m_state.m_typeAllowedMinValue)) {
-                 this->logWarning() << XmlWrap::logPrefix(this->getNode()) <<
-                        "Value of property \"" << common::validMaxStr() <<
-                        "\" (" << v << ") is less than the type's minimal "
-                        "value (" << m_state.m_typeAllowedMinValue << ").";
-                 return false;
-             }
-
-             return true;
-        };
-
-    bool validateResult = false;
-    if (isBigUnsigned(m_state.m_type)) {
-        validateResult = validateFunc(static_cast<std::uintmax_t>(val));
-    }
-    else {
-        validateResult = validateFunc(val);
-    }
-
-    if (!validateResult) {
-        return false;
-    }
-
-    m_state.m_validRanges.emplace_back(m_state.m_typeAllowedMinValue, val);
     return true;
 }
 

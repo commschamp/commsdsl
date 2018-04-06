@@ -375,49 +375,26 @@ bool FieldImpl::updateVersions()
         return false;
     }
 
-    auto parentMinVersion = 0U;
+    unsigned sinceVersion = 0U;
     if (getParent() != nullptr) {
-        parentMinVersion = getParent()->getMinSinceVersion();
-        assert(parentMinVersion <= getParent()->getMaxSinceVersion());
+        sinceVersion = getParent()->getMaxSinceVersion();
     }
 
-    unsigned sinceVersion = parentMinVersion;
-    do {
-        auto iter = m_props.find(common::sinceVersionStr());
-        if (iter == m_props.end()) {
-            break;
-        }
+    unsigned deprecated = bbmp::Protocol::notYetDeprecated();
+    if (getParent() != nullptr) {
+        deprecated = getParent()->getDeprecated();
+    }
 
-        bool ok = false;
-        sinceVersion = common::strToUnsigned(iter->second, &ok);
-        if (!ok) {
-            reportUnexpectedPropertyValue(common::sinceVersionStr(), iter->second);
-            return false;
-        }
-    } while (false);
-
-    unsigned depreacated = std::numeric_limits<unsigned>::max();
-    do {
-        auto iter = m_props.find(common::deprecatedStr());
-        if (iter == m_props.end()) {
-            break;
-        }
-
-        bool ok = false;
-        depreacated = common::strToUnsigned(iter->second, &ok);
-        if (!ok) {
-            reportUnexpectedPropertyValue(common::deprecatedStr(), iter->second);
-            return false;
-        }
-    } while (false);
-
-    if (!XmlWrap::checkVersions(m_node, sinceVersion, depreacated, m_protocol, parentMinVersion)) {
+    if (!XmlWrap::getAndCheckVersions(m_node, name(), m_props, sinceVersion, deprecated, protocol())) {
         return false;
     }
 
     setMinSinceVersion(sinceVersion);
     setMaxSinceVersion(sinceVersion);
-    setDeprecated(depreacated);
+    setDeprecated(deprecated);
+    if (m_parent != nullptr) {
+        m_parent->setMaxSinceVersion(sinceVersion);
+    }
     return true;
 }
 

@@ -17,7 +17,7 @@ class IntFieldImpl : public FieldImpl
 public:
     using Type = IntField::Type;
 
-    using ValidRange = IntField::ValidRange;
+    using ValidRangeInfo = IntField::ValidRangeInfo;
     using ValidRangesList = IntField::ValidRangesList;
     using ScalingRatio = IntField::ScalingRatio;
     using SpecialValueInfo = IntField::SpecialValueInfo;
@@ -132,10 +132,20 @@ private:
     bool updateScaling();
     bool updateValidRanges();
     bool updateSpecials();
-    bool validateValidRangeStr(const std::string& str);
-    bool validateValidValueStr(const std::string& str);
-    bool validateValidMinValueStr(const std::string& str);
-    bool validateValidMaxValueStr(const std::string& str);
+    bool checkValidRangeAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidRangeAsChild(::xmlNodePtr child);
+    bool checkValidRangeProps(const PropsMap& xmlAttrs);
+    bool checkValidValueAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidValueAsChild(::xmlNodePtr child);
+    bool checkValidValueProps(const PropsMap& xmlAttrs);
+    bool checkValidMinAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidMinAsChild(::xmlNodePtr child);
+    bool checkValidMinProps(const PropsMap& xmlAttrs);
+    bool checkValidMaxAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidMaxAsChild(::xmlNodePtr child);
+    bool checkValidMaxProps(const PropsMap& xmlAttrs);
+    bool validateValidRangeStr(const std::string& str, std::intmax_t& minVal, std::intmax_t& maxVal);
+    bool validateValidValueStr(const std::string& str, const std::string& type, std::intmax_t& val);
     bool strToNumeric(const std::string& str, std::intmax_t& val);
 
     State m_state;

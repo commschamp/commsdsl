@@ -34,8 +34,16 @@ public:
         NumOfValues
     };
     using ScalingRatio = std::pair<std::intmax_t, std::intmax_t>;
-    using ValidRange = std::pair<std::intmax_t, std::intmax_t>;
-    using ValidRangesList = std::vector<ValidRange>;
+
+    struct ValidRangeInfo
+    {
+        std::intmax_t m_min = 0;
+        std::intmax_t m_max = 0;
+        unsigned m_sinceVersion = 0;
+        unsigned m_deprecatedSince = Protocol::notYetDeprecated();
+    };
+
+    using ValidRangesList = std::vector<ValidRangeInfo>;
 
     struct SpecialValueInfo
     {
@@ -68,6 +76,27 @@ bool operator==(const IntField::SpecialValueInfo& i1, const IntField::SpecialVal
     return (i1.m_value == i2.m_value) &&
            (i1.m_sinceVersion == i2.m_sinceVersion) &&
            (i1.m_deprecatedSince == i2.m_deprecatedSince);
+}
+
+inline
+bool operator!=(const IntField::SpecialValueInfo& i1, const IntField::SpecialValueInfo& i2)
+{
+    return !(i1 == i2);
+}
+
+inline
+bool operator==(const IntField::ValidRangeInfo& i1, const IntField::ValidRangeInfo& i2)
+{
+    return (i1.m_min == i2.m_min) &&
+           (i1.m_max == i2.m_max) &&
+           (i1.m_sinceVersion == i2.m_sinceVersion) &&
+           (i1.m_deprecatedSince == i2.m_deprecatedSince);
+}
+
+inline
+bool operator!=(const IntField::ValidRangeInfo& i1, const IntField::ValidRangeInfo& i2)
+{
+    return !(i1 == i2);
 }
 
 } // namespace bbmp
