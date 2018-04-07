@@ -377,7 +377,7 @@ bool FieldImpl::updateVersions()
 
     unsigned sinceVersion = 0U;
     if (getParent() != nullptr) {
-        sinceVersion = getParent()->getMaxSinceVersion();
+        sinceVersion = getParent()->getMinSinceVersion();
     }
 
     unsigned deprecated = bbmp::Protocol::notYetDeprecated();
@@ -390,11 +390,8 @@ bool FieldImpl::updateVersions()
     }
 
     setMinSinceVersion(sinceVersion);
-    setMaxSinceVersion(sinceVersion);
+    setRecursiveMaxSinceVersion(sinceVersion);
     setDeprecated(deprecated);
-    if (m_parent != nullptr) {
-        m_parent->setMaxSinceVersion(sinceVersion);
-    }
     return true;
 }
 

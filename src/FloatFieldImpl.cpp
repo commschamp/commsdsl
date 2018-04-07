@@ -372,6 +372,14 @@ bool FloatFieldImpl::updateSpecials()
             return false;
         }
 
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::sinceVersionStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::deprecatedStr(), protocol().logger())) {
+            return false;
+        }
+
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
@@ -408,7 +416,16 @@ bool FloatFieldImpl::updateSpecials()
             return false;
         }
 
-        m_specials.emplace(nameIter->second, val);
+        SpecialValueInfo info;
+        info.m_value = val;
+        info.m_sinceVersion = getMinSinceVersion();
+        info.m_deprecatedSince = getDeprecated();
+
+        if (!XmlWrap::getAndCheckVersions(s, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+            return false;
+        }
+
+        m_specials.emplace(nameIter->second, info);
     }
 
     return true;

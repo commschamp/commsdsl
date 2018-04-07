@@ -58,6 +58,14 @@ public:
         m_rState.m_maxSinceVersion = val;
     }
 
+    void setRecursiveMaxSinceVersion(unsigned val)
+    {
+        setMaxSinceVersion(val);
+        if (m_parent != nullptr) {
+            m_parent->setRecursiveMaxSinceVersion(val);
+        }
+    }
+
 protected:
     virtual ObjKind objKindImpl() const = 0;
 

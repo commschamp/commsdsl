@@ -951,6 +951,8 @@ bool IntFieldImpl::updateSpecials()
 
         SpecialValueInfo info;
         info.m_value = val;
+        info.m_sinceVersion = getMinSinceVersion();
+        info.m_deprecatedSince = getDeprecated();
         if (!XmlWrap::getAndCheckVersions(s, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
             return false;
         }

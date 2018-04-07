@@ -19,6 +19,7 @@ public:
 
     using ValidRange = FloatField::ValidRange;
     using ValidRangesList = FloatField::ValidRangesList;
+    using SpecialValueInfo = FloatField::SpecialValueInfo;
     using SpecialValues = FloatField::SpecialValues;
 
 

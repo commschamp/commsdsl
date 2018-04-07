@@ -101,9 +101,9 @@ void FloatTestSuite::test2()
         TS_ASSERT(std::isnan(floatField.defaultValue()));
         TS_ASSERT(validRanges.empty());
         TS_ASSERT_EQUALS(specialValues.size(), 3U);
-        TS_ASSERT(std::isnan(specialValues.find("Null")->second));
-        auto s1 = specialValues.find("S1")->second;
-        auto s2 = specialValues.find("S2")->second;
+        TS_ASSERT(std::isnan(specialValues.find("Null")->second.m_value));
+        auto s1 = specialValues.find("S1")->second.m_value;
+        auto s2 = specialValues.find("S2")->second.m_value;
         TS_ASSERT_LESS_THAN(s1, std::numeric_limits<double>::min());
         TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), s2);
         TS_ASSERT(std::isinf(s1));
