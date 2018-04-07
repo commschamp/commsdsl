@@ -10,6 +10,9 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
+    void test5();
+    void test6();
 
 private:
     static const double Epsilon;
@@ -169,7 +172,7 @@ void FloatTestSuite::test3()
         auto& r1 = validRanges[0];
         auto& r2 = validRanges[1];
         TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-100.123)), Epsilon);
-        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (210.111)), Epsilon);
         TS_ASSERT(std::isnan(r2.m_min));
         TS_ASSERT(std::isnan(r2.m_max));
         TS_ASSERT(specialValues.empty());
@@ -208,4 +211,140 @@ void FloatTestSuite::test3()
         TS_ASSERT(specialValues.empty());
     } while (false);
 }
+
+void FloatTestSuite::test4()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    do {
+        auto& ns = namespaces.front();
+        TS_ASSERT(ns.name().empty());
+
+        auto& fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Float);
+
+        bbmp::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), bbmp::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.length(), 8U);
+        TS_ASSERT(std::isnan(floatField.defaultValue()));
+        TS_ASSERT_EQUALS(validRanges.size(), 4U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        auto& r3 = validRanges[2];
+        auto& r4 = validRanges[3];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (std::numeric_limits<double>::max())), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, 2U);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_max - (210.111)), Epsilon);
+        TS_ASSERT_LESS_THAN(0.0, r3.m_min);
+        TS_ASSERT(std::isinf(r3.m_min));
+        TS_ASSERT(std::isinf(r3.m_max));
+        TS_ASSERT_EQUALS(r3.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r3.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+        TS_ASSERT(std::isnan(r4.m_min));
+        TS_ASSERT(std::isnan(r4.m_max));
+        TS_ASSERT_EQUALS(r4.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r4.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(specialValues.size(), 3U);
+    } while (false);
+}
+
+void FloatTestSuite::test5()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    do {
+        auto& ns = namespaces.front();
+        TS_ASSERT(ns.name().empty());
+
+        auto& fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Float);
+
+        bbmp::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), bbmp::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.length(), 8U);
+        TS_ASSERT(std::isnan(floatField.defaultValue()));
+        TS_ASSERT_EQUALS(validRanges.size(), 3U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        auto& r3 = validRanges[2];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (std::numeric_limits<double>::max())), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+        TS_ASSERT_LESS_THAN(0.0, r2.m_min);
+        TS_ASSERT(std::isinf(r2.m_min));
+        TS_ASSERT(std::isinf(r2.m_max));
+        TS_ASSERT_EQUALS(r2.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r2.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+        TS_ASSERT(std::isnan(r3.m_min));
+        TS_ASSERT(std::isnan(r3.m_max));
+        TS_ASSERT_EQUALS(r3.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r3.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(specialValues.size(), 3U);
+    } while (false);
+}
+
+void FloatTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    do {
+        auto& ns = namespaces.front();
+        TS_ASSERT(ns.name().empty());
+
+        auto& fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Float);
+
+        bbmp::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), bbmp::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.length(), 8U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT_EQUALS(validRanges.size(), 2U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (std::numeric_limits<double>::lowest())), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (std::numeric_limits<double>::max())), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, 1U);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_max - (210.111)), Epsilon);
+        TS_ASSERT_EQUALS(r2.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r2.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+}
+
 

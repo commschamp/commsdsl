@@ -225,14 +225,13 @@ bool FloatFieldImpl::updateDefaultValue()
         return false;
     }
 
-    auto& origValueStr = common::getStringProp(props(), common::defaultValueStr());
-    if (origValueStr.empty()) {
+    auto& valueStr = common::getStringProp(props(), common::defaultValueStr());
+    if (valueStr.empty()) {
         return true;
     }
 
-    auto valueStr = common::toLowerCopy(origValueStr);
     if (!strToValue(valueStr, m_defaultValue)) {
-        reportUnexpectedPropertyValue(common::defaultValueStr(), origValueStr);
+        reportUnexpectedPropertyValue(common::defaultValueStr(), valueStr);
         return false;
     }
 

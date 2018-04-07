@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema4"
+        id="1"
+        endian="little"
+        version="2">
+    <fields>
+        <float name="Float1" type="double" defaultValue="S1" validValue="S1" >
+            <special name="S1" val="naN" />
+            <special name="S2" val="-200" />
+            <special name="S3" val="Inf" />
+            <validRange value="[-100.123, 210.111]" />
+            <validValue value="S3"/>
+            <validMin value="S2"/>
+            <sinceVersion value="1" />
+        </float>
+    </fields>
+</schema>

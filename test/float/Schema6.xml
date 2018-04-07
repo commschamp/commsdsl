@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema6"
+        id="1"
+        endian="little"
+        version="2">
+    <fields>
+        <float name="Float1" type="double">
+            <validFullRange value="true" deprecated="1" />
+            <validRange value="[-100.123, 210.111]" sinceVersion="1"/>
+        </float>
+    </fields>
+</schema>
