@@ -854,6 +854,7 @@ bool IntFieldImpl::updateValidRanges()
                 return elem1.m_sinceVersion < elem2.m_sinceVersion;
             }
 
+            assert(elem1.m_deprecatedSince != elem2.m_deprecatedSince);
             return elem1.m_deprecatedSince < elem2.m_deprecatedSince;
         });
 

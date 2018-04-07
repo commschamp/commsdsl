@@ -23,8 +23,15 @@ public:
         Double,
         NumOfValues
     };
-    using ValidRange = std::pair<double, double>;
-    using ValidRangesList = std::vector<ValidRange>;
+
+    struct ValidRangeInfo
+    {
+        double m_min = 0.0;
+        double m_max = 0.0;
+        unsigned m_sinceVersion = 0;
+        unsigned m_deprecatedSince = Protocol::notYetDeprecated();
+    };
+    using ValidRangesList = std::vector<ValidRangeInfo>;
 
     struct SpecialValueInfo
     {
@@ -59,5 +66,19 @@ bool operator!=(const FloatField::SpecialValueInfo& i1, const FloatField::Specia
     return !(i1 == i2);
 }
 
+inline
+bool operator==(const FloatField::ValidRangeInfo& i1, const FloatField::ValidRangeInfo& i2)
+{
+    return (i1.m_min == i2.m_min) &&
+           (i1.m_max == i2.m_max) &&
+           (i1.m_sinceVersion == i2.m_sinceVersion) &&
+           (i1.m_deprecatedSince == i2.m_deprecatedSince);
+}
+
+inline
+bool operator!=(const FloatField::ValidRangeInfo& i1, const FloatField::ValidRangeInfo& i2)
+{
+    return !(i1 == i2);
+}
 
 } // namespace bbmp

@@ -434,6 +434,18 @@ bool strToBool(const std::string& str, bool* ok)
     return false;
 }
 
+bool isFpSpecial(const std::string& str)
+{
+    static const std::string Map[] = {
+        nanStr(),
+        infStr(),
+        negInfStr()
+    };
+
+    auto iter = std::find(std::begin(Map), std::end(Map), str);
+    return iter != std::end(Map);
+}
+
 const std::string& getStringProp(
     const PropsMap& map,
     const std::string prop,

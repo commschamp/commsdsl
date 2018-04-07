@@ -136,9 +136,9 @@ bool FloatFieldImpl::parseImpl()
         updateEndian() &&
         updateLength() &&
         updateMinMaxValues() &&
+        updateSpecials() &&
         updateDefaultValue() &&
-        updateValidRanges() &&
-        updateSpecials();
+        updateValidRanges();
 }
 
 std::size_t FloatFieldImpl::lengthImpl() const
@@ -231,10 +231,7 @@ bool FloatFieldImpl::updateDefaultValue()
     }
 
     auto valueStr = common::toLowerCopy(origValueStr);
-    bool ok = false;
-    m_defaultValue = common::strToDouble(valueStr, &ok);
-
-    if (!ok) {
+    if (!strToValue(valueStr, m_defaultValue)) {
         reportUnexpectedPropertyValue(common::defaultValueStr(), origValueStr);
         return false;
     }
@@ -261,90 +258,114 @@ bool FloatFieldImpl::updateDefaultValue()
 
 bool FloatFieldImpl::updateValidRanges()
 {
-    if (!validateSinglePropInstance(common::validFullRangeStr())) {
+    auto attrs = XmlWrap::parseNodeProps(getNode());
+    bool result =
+        checkFullRangeProps(attrs) &&
+        checkValidRangeProps(attrs) &&
+        checkValidValueProps(attrs) &&
+        checkValidMinProps(attrs) &&
+        checkValidMaxProps(attrs);
+    if (!result) {
         return false;
     }
 
-    auto fullRangeIter = props().find(common::validFullRangeStr());
-    if (fullRangeIter != props().end()) {
-        bool ok = false;
-        bool hasValidFullRange = common::strToBool(fullRangeIter->second, &ok);
-        if (!ok) {
-            reportUnexpectedPropertyValue(common::validFullRangeStr(), fullRangeIter->second);
-            return false;
-        }
-
-        if (hasValidFullRange) {
-            m_validRanges.emplace_back(m_typeAllowedMinValue, m_typeAllowedMaxValue);
-        }
-    }
-
-    auto validRangersIters = props().equal_range(common::validRangeStr());
-    for (auto iter = validRangersIters.first; iter != validRangersIters.second; ++iter) {
-        if (!validateValidRangeStr(iter->second)) {
-            return false;
-        }
-    }
-
-    auto validValuesIters = props().equal_range(common::validValueStr());
-    for (auto iter = validValuesIters.first; iter != validValuesIters.second; ++iter) {
-        if (!validateValidValueStr(iter->second)) {
-            return false;
-        }
-    }
-
-    auto validMinValuesIters = props().equal_range(common::validMinStr());
-    for (auto iter = validMinValuesIters.first; iter != validMinValuesIters.second; ++iter) {
-        if (!validateValidMinValueStr(iter->second)) {
-            return false;
-        }
-    }
-
-    auto validMaxValuesIters = props().equal_range(common::validMaxStr());
-    for (auto iter = validMaxValuesIters.first; iter != validMaxValuesIters.second; ++iter) {
-        if (!validateValidMaxValueStr(iter->second)) {
-            return false;
-        }
-    }
-
+    // sort by version
     assert(std::isinf(-std::numeric_limits<double>::infinity()));
     std::sort(
         m_validRanges.begin(), m_validRanges.end(),
         [](auto& elem1, auto& elem2)
         {
-            return compareLess(elem1.first, elem2.first);
+            assert(elem1.m_deprecatedSince != 0U);
+            assert(elem2.m_deprecatedSince != 0U);
+            if (elem1.m_sinceVersion != elem2.m_sinceVersion) {
+                return elem1.m_sinceVersion < elem2.m_sinceVersion;
+            }
+
+            if (elem1.m_deprecatedSince != elem2.m_deprecatedSince) {
+                return elem1.m_deprecatedSince < elem2.m_deprecatedSince;
+            }
+
+            if (compareLess(elem1.m_min, elem2.m_min)) {
+                return true;
+            }
+
+            if (compareLess(elem2.m_min, elem1.m_min)) {
+                return false;
+            }
+
+            return compareLess(elem1.m_max, elem2.m_max);
         });
 
-    bool intersectingRanges = false;
-
-    std::size_t idx = 0U;
-    while ((idx + 2U) <= m_validRanges.size()) {
-        auto& thisRange = m_validRanges[idx];
-        auto& nextRange = m_validRanges[idx + 1];
-
-        assert(!compareLess(nextRange.first, thisRange.first));
-        if (compareLess(thisRange.second, nextRange.first)) {
-            ++idx;
+    // Merge
+    for (auto iter = m_validRanges.begin(); iter != m_validRanges.end(); ++iter) {
+        if (iter->m_deprecatedSince == 0U) {
             continue;
         }
 
-        if (compareLess(nextRange.first, thisRange.second)) {
-            intersectingRanges = true;
-        }
+        for (auto nextIter = iter + 1; nextIter != m_validRanges.end(); ++nextIter) {
+            if (nextIter->m_deprecatedSince == 0U) {
+                continue;
+            }
 
-        if (compareLess(thisRange.second, nextRange.second)) {
-            thisRange.second = nextRange.second;
-            assert((!std::isinf(thisRange.second)) || (std::isinf(thisRange.first)));
-            assert((!std::isnan(thisRange.second)) || (std::isnan(thisRange.first)));
-        }
+            auto isSpecial =
+                    [](double val)
+                    {
+                        return std::isinf(val) || std::isnan(val);
+                    };
 
-        m_validRanges.erase(m_validRanges.begin() + idx + 1);
+            if ((iter->m_sinceVersion != nextIter->m_sinceVersion) ||
+                (iter->m_deprecatedSince != nextIter->m_deprecatedSince) ||
+                (isSpecial(iter->m_max)) ||
+                (isSpecial(nextIter->m_min)) ||
+                (compareLess(iter->m_max, nextIter->m_min))) {
+                break;
+            }
+
+            assert(!isSpecial(nextIter->m_max));
+            nextIter->m_deprecatedSince = 0U; // invalidate next range
+            iter->m_max = std::max(iter->m_max, nextIter->m_max);
+        }
     }
 
-    if (intersectingRanges) {
-        logWarning() << XmlWrap::logPrefix(getNode()) << "Some valid values ranges of \"" << name() <<
-                        "\" are intersecting.";
-    }
+    // Remove invalid
+    m_validRanges.erase(
+        std::remove_if(m_validRanges.begin(), m_validRanges.end(),
+                    [](auto& elem)
+                    {
+                        return elem.m_deprecatedSince == 0U;
+                    }),
+        m_validRanges.end());
+
+    // Sort by min/max value
+    std::sort(
+        m_validRanges.begin(), m_validRanges.end(),
+        [](auto& elem1, auto& elem2)
+        {
+            assert(elem1.m_deprecatedSince != 0U);
+            assert(elem2.m_deprecatedSince != 0U);
+            if (compareLess(elem1.m_min, elem2.m_min)) {
+                return true;
+            }
+
+            if (compareLess(elem2.m_min, elem1.m_min)) {
+                return false;
+            }
+
+            if (compareLess(elem1.m_max, elem2.m_max)) {
+                return true;
+            }
+
+            if (compareLess(elem2.m_max, elem1.m_max)) {
+                return false;
+            }
+
+            if (elem1.m_sinceVersion != elem2.m_sinceVersion) {
+                return elem1.m_sinceVersion < elem2.m_sinceVersion;
+            }
+
+            assert(elem1.m_deprecatedSince != elem2.m_deprecatedSince);
+            return elem1.m_deprecatedSince < elem2.m_deprecatedSince;
+        });
 
     return true;
 }
@@ -431,7 +452,327 @@ bool FloatFieldImpl::updateSpecials()
     return true;
 }
 
-bool FloatFieldImpl::validateValidRangeStr(const std::string& str)
+bool FloatFieldImpl::checkFullRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validFullRangeStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    bool ok = false;
+    bool fullRange = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::validFullRangeStr(), iter->second);
+        return false;
+    }
+
+    if (!fullRange) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+    info.m_min = m_typeAllowedMinValue;
+    info.m_max = m_typeAllowedMaxValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkFullRangeAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    bool ok = false;
+    bool fullRange = common::strToBool(str, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::validFullRangeStr(), str);
+        return false;
+    }
+
+    if (!fullRange) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+    info.m_min = m_typeAllowedMinValue;
+    info.m_max = m_typeAllowedMaxValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkFullRangeProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!validateSinglePropInstance(common::validFullRangeStr())) {
+        return false;
+    }
+
+    if (!checkFullRangeAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validFullRangeStr());
+    for (auto* c : children) {
+        if (!checkFullRangeAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool FloatFieldImpl::checkValidRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validRangeStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+
+    if (!validateValidRangeStr(iter->second, info.m_min, info.m_max)) {
+        return false;
+    }
+
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkValidRangeAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!validateValidRangeStr(str, info.m_min, info.m_max)) {
+        return false;
+    }
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkValidRangeProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!checkValidRangeAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validRangeStr());
+    for (auto* c : children) {
+        if (!checkValidRangeAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool FloatFieldImpl::checkValidValueAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validValueStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+    if (!validateValidValueStr(iter->second, common::validValueStr(), info.m_min)) {
+        return false;
+    }
+
+    info.m_max = info.m_min;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkValidValueAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+
+    if (!validateValidValueStr(str, common::validValueStr(), info.m_min)) {
+        return false;
+    }
+
+    info.m_max = info.m_min;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkValidValueProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!checkValidValueAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validValueStr());
+    for (auto* c : children) {
+        if (!checkValidValueAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool FloatFieldImpl::checkValidMinAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validMinStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+    if (!validateValidValueStr(iter->second, common::validMinStr(), info.m_min, false)) {
+        return false;
+    }
+
+    info.m_max = m_typeAllowedMaxValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkValidMinAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+
+    if (!validateValidValueStr(str, common::validMinStr(), info.m_min, false)) {
+        return false;
+    }
+
+    info.m_max = m_typeAllowedMaxValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkValidMinProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!checkValidMinAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validMinStr());
+    for (auto* c : children) {
+        if (!checkValidMinAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool FloatFieldImpl::checkValidMaxAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validMaxStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    ValidRangeInfo info;
+    if (!validateValidValueStr(iter->second, common::validMaxStr(), info.m_max, false)) {
+        return false;
+    }
+
+    info.m_min = m_typeAllowedMinValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkValidMaxAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+
+    if (!validateValidValueStr(str, common::validMaxStr(), info.m_max, false)) {
+        return false;
+    }
+
+    info.m_min = m_typeAllowedMinValue;
+    info.m_sinceVersion = getMinSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_validRanges.push_back(info);
+    return true;
+}
+
+bool FloatFieldImpl::checkValidMaxProps(const FieldImpl::PropsMap& xmlAttrs)
+{
+    if (!checkValidMaxAsAttr(xmlAttrs)) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validMaxStr());
+    for (auto* c : children) {
+        if (!checkValidMaxAsChild(c)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool FloatFieldImpl::validateValidRangeStr(const std::string& str, double& min, double& max)
 {
     bool ok = false;
     auto range = common::parseRange(str, &ok);
@@ -440,92 +781,84 @@ bool FloatFieldImpl::validateValidRangeStr(const std::string& str)
         return false;
     }
 
-    auto minVal = common::strToDouble(range.first, &ok, false);
-    if (!ok) {
+    if (!strToValue(range.first, min, false)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Invalid min value in valid range (" << str << ").";
         return false;
     }
 
-    auto maxVal = common::strToDouble(range.second, &ok, false);
-    if (!ok) {
+    if (!strToValue(range.second, max, false)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Invalid max value in valid range (" << str << ").";
         return false;
     }
 
-    if (maxVal < minVal) {
+    if (max < min) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Min value must be less than max in valid range (" << str << ").";
         return false;
     }
 
-    m_validRanges.emplace_back(minVal, maxVal);
     return true;
 }
 
-bool FloatFieldImpl::validateValidValueStr(const std::string& str)
+bool FloatFieldImpl::validateValidValueStr(
+    const std::string& str,
+    const std::string& type,
+    double& val,
+    bool allowSpecials)
 {
-    bool ok = false;
-    double val = common::strToDouble(str, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::validValueStr(), str);
+    if (!strToValue(str, val, allowSpecials)) {
+        reportUnexpectedPropertyValue(type, str);
         return false;
     }
 
-    m_validRanges.emplace_back(val, val);
-    return true;
-}
-
-bool FloatFieldImpl::validateValidMinValueStr(const std::string& str)
-{
-    bool ok = false;
-    double val = common::strToDouble(str, &ok, false);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::validMinStr(), str);
-        return false;
+    if (std::isnan(val) || std::isinf(val)) {
+        return true;
     }
 
     if (m_typeAllowedMaxValue < val) {
-        logError() << "Value of property \"" << common::validMinStr() <<
+        logError() << "Value of property \"" << type <<
                         "\" is greater than the type's maximal value.";
         return false;
     }
 
     if (val < m_typeAllowedMinValue) {
-        logError() << "Value of property \"" << common::validMinStr() <<
+        logError() << "Value of property \"" << type <<
                         "\" is less than the type's minimal value.";
         return false;
     }
 
-
-    m_validRanges.emplace_back(val, m_typeAllowedMaxValue);
     return true;
 }
 
-bool FloatFieldImpl::validateValidMaxValueStr(const std::string& str)
+bool FloatFieldImpl::strToValue(
+    const std::string& str,
+    double& val,
+    bool allowSpecials)
 {
+    auto strCpy = common::toLowerCopy(str);
+    do {
+        if (allowSpecials && common::isFpSpecial(strCpy)) {
+            break;
+        }
+
+        if (!common::isValidName(str)) {
+            break;
+        }
+
+        auto iter = m_specials.find(str);
+        if (iter == m_specials.end()) {
+            return false;
+        }
+
+        val = iter->second.m_value;
+        return true;
+    } while (false);
+
     bool ok = false;
-    double val = common::strToDouble(str, &ok, false);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::validMaxStr(), str);
-        return false;
-    }
-
-    if (m_typeAllowedMaxValue < val) {
-        logError() << "Value of property \"" << common::validMaxStr() <<
-                        "\" is greater than the type's maximal value.";
-        return false;
-    }
-
-    if (val < m_typeAllowedMinValue) {
-        logError() << "Value of property \"" << common::validMaxStr() <<
-                        "\" is less than the type's minimal value.";
-        return false;
-    }
-
-    m_validRanges.emplace_back(m_typeAllowedMinValue, val);
-    return true;
+    val = common::strToDouble(strCpy, &ok, allowSpecials);
+    return ok;
 }
 
 } // namespace bbmp

@@ -17,7 +17,7 @@ class FloatFieldImpl : public FieldImpl
 public:
     using Type = FloatField::Type;
 
-    using ValidRange = FloatField::ValidRange;
+    using ValidRangeInfo = FloatField::ValidRangeInfo;
     using ValidRangesList = FloatField::ValidRangesList;
     using SpecialValueInfo = FloatField::SpecialValueInfo;
     using SpecialValues = FloatField::SpecialValues;
@@ -72,10 +72,28 @@ private:
     bool updateDefaultValue();
     bool updateValidRanges();
     bool updateSpecials();
-    bool validateValidRangeStr(const std::string& str);
-    bool validateValidValueStr(const std::string& str);
-    bool validateValidMinValueStr(const std::string& str);
-    bool validateValidMaxValueStr(const std::string& str);
+    bool checkFullRangeAsAttr(const PropsMap& xmlAttrs);
+    bool checkFullRangeAsChild(::xmlNodePtr child);
+    bool checkFullRangeProps(const PropsMap& xmlAttrs);
+    bool checkValidRangeAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidRangeAsChild(::xmlNodePtr child);
+    bool checkValidRangeProps(const PropsMap& xmlAttrs);
+    bool checkValidValueAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidValueAsChild(::xmlNodePtr child);
+    bool checkValidValueProps(const PropsMap& xmlAttrs);
+    bool checkValidMinAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidMinAsChild(::xmlNodePtr child);
+    bool checkValidMinProps(const PropsMap& xmlAttrs);
+    bool checkValidMaxAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidMaxAsChild(::xmlNodePtr child);
+    bool checkValidMaxProps(const PropsMap& xmlAttrs);
+    bool validateValidRangeStr(const std::string& str, double& min, double& max);
+    bool validateValidValueStr(
+            const std::string& str,
+            const std::string& type,
+            double& val,
+            bool allowSpecials = true);
+    bool strToValue(const std::string& str, double& val, bool allowSpecials = true);
 
     Type m_type = Type::NumOfValues;
     Endian m_endian = Endian_NumOfValues;
