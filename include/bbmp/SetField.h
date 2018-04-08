@@ -32,9 +32,8 @@ public:
     Endian endian() const;
     std::size_t length() const;
     std::size_t bitLength() const;
-    std::uint64_t defaultValue() const;
-    std::uint64_t reservedBits() const;
-    std::uint64_t reservedValue() const;
+    bool defaultBitValue() const;
+    bool reservedBitValue() const;
     const Bits& bits() const;
     const RevBits& revBits() const;
     bool isNonUniqueAllowed() const;

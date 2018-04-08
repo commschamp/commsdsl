@@ -49,19 +49,14 @@ std::size_t SetField::bitLength() const
     return cast(m_pImpl)->bitLength();
 }
 
-std::uint64_t SetField::defaultValue() const
+bool SetField::defaultBitValue() const
 {
-    return cast(m_pImpl)->defaultValue();
+    return cast(m_pImpl)->defaultBitValue();
 }
 
-std::uint64_t SetField::reservedBits() const
+bool SetField::reservedBitValue() const
 {
-    return cast(m_pImpl)->reservedBits();
-}
-
-std::uint64_t SetField::reservedValue() const
-{
-    return cast(m_pImpl)->reservedValue();
+    return cast(m_pImpl)->reservedBitValue();
 }
 
 const SetField::Bits& SetField::bits() const

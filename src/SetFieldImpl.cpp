@@ -14,82 +14,12 @@
 namespace bbmp
 {
 
-namespace
-{
-
-std::uint64_t bitsMask(std::size_t bitsLength)
-{
-    if (64U <= bitsLength) {
-        return ~(static_cast<std::uint64_t>(0));
-    }
-
-    return (static_cast<std::uint64_t>(1U) << bitsLength) - 1U;
-}
-
-void updateBit(unsigned idx, bool bitValue, std::uint64_t& val)
-{
-    assert(idx < 64);
-    auto bitMask = (static_cast<std::uint64_t>(1U) << idx);
-    if (bitValue) {
-        val |= bitMask;
-    }
-    else {
-        val &= ~bitMask;
-    }
-}
-
-} // namespace
-
 SetFieldImpl::SetFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
 }
 
 SetFieldImpl::SetFieldImpl(const SetFieldImpl&) = default;
-
-std::uint64_t SetFieldImpl::defaultValue() const
-{
-    std::uint64_t result = 0U;
-    if (m_defaultBitValue) {
-        result = (~result) & bitsMask(m_bitLength);
-    }
-
-    for (auto& b : m_bits) {
-        updateBit(b.second.m_idx, b.second.m_defaultValue, result);
-    }
-    return result;
-}
-
-std::uint64_t SetFieldImpl::reservedValue() const
-{
-    std::uint64_t result = 0U;
-    if (m_reservedBitValue) {
-        result = (~result) & bitsMask(m_bitLength);
-    }
-
-    for (auto& b : m_bits) {
-        if (!b.second.m_reserved) {
-            updateBit(b.second.m_idx, false, result);
-        }
-        else {
-            updateBit(b.second.m_idx, b.second.m_reservedValue, result);
-        }
-    }
-    return result;
-}
-
-std::uintmax_t SetFieldImpl::reservedBits() const
-{
-    std::uint64_t result = (~static_cast<std::uint64_t>(0U)) & bitsMask(m_bitLength);
-
-    for (auto& b : m_bits) {
-        if (!b.second.m_reserved) {
-            updateBit(b.second.m_idx, false, result);
-        }
-    }
-    return result;
-}
-
 
 bool SetFieldImpl::isUnique() const
 {
@@ -508,6 +438,7 @@ bool SetFieldImpl::updateBits()
 
         do {
             if (!info.m_reserved) {
+                info.m_reservedValue = false;
                 break;
             }
 

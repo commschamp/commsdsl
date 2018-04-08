@@ -43,11 +43,16 @@ public:
         return m_bitLength;
     }
 
-    std::uint64_t defaultValue() const;
+    bool defaultBitValue() const
+    {
+        return m_defaultBitValue;
+    }
 
-    std::uint64_t reservedValue() const;
+    bool reservedBitValue() const
+    {
+        return m_reservedBitValue;
+    }
 
-    std::uintmax_t reservedBits() const;
 
     const Bits& bits() const
     {
