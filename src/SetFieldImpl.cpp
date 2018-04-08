@@ -17,6 +17,27 @@ namespace bbmp
 namespace
 {
 
+std::uint64_t bitsMask(std::size_t bitsLength)
+{
+    if (64U <= bitsLength) {
+        return ~(static_cast<std::uint64_t>(0));
+    }
+
+    return (static_cast<std::uint64_t>(1U) << bitsLength) - 1U;
+}
+
+void updateBit(unsigned idx, bool bitValue, std::uint64_t& val)
+{
+    assert(idx < 64);
+    auto bitMask = (static_cast<std::uint64_t>(1U) << idx);
+    if (bitValue) {
+        val |= bitMask;
+    }
+    else {
+        val &= ~bitMask;
+    }
+}
+
 } // namespace
 
 SetFieldImpl::SetFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -25,6 +46,50 @@ SetFieldImpl::SetFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 }
 
 SetFieldImpl::SetFieldImpl(const SetFieldImpl&) = default;
+
+std::uint64_t SetFieldImpl::defaultValue() const
+{
+    std::uint64_t result = 0U;
+    if (m_defaultBitValue) {
+        result = (~result) & bitsMask(m_bitLength);
+    }
+
+    for (auto& b : m_bits) {
+        updateBit(b.second.m_idx, b.second.m_defaultValue, result);
+    }
+    return result;
+}
+
+std::uint64_t SetFieldImpl::reservedValue() const
+{
+    std::uint64_t result = 0U;
+    if (m_reservedBitValue) {
+        result = (~result) & bitsMask(m_bitLength);
+    }
+
+    for (auto& b : m_bits) {
+        if (!b.second.m_reserved) {
+            updateBit(b.second.m_idx, false, result);
+        }
+        else {
+            updateBit(b.second.m_idx, b.second.m_reservedValue, result);
+        }
+    }
+    return result;
+}
+
+std::uintmax_t SetFieldImpl::reservedBits() const
+{
+    std::uint64_t result = (~static_cast<std::uint64_t>(0U)) & bitsMask(m_bitLength);
+
+    for (auto& b : m_bits) {
+        if (!b.second.m_reserved) {
+            updateBit(b.second.m_idx, false, result);
+        }
+    }
+    return result;
+}
+
 
 bool SetFieldImpl::isUnique() const
 {
@@ -324,7 +389,9 @@ bool SetFieldImpl::updateBits()
             common::idxStr(),
             common::defaultValueStr(),
             common::reservedValueStr(),
-            common::reservedStr()
+            common::reservedStr(),
+            common::sinceVersionStr(),
+            common::deprecatedStr()
         };
 
         auto props = XmlWrap::parseNodeProps(b);
@@ -337,6 +404,26 @@ bool SetFieldImpl::updateBits()
         }
 
         if (!XmlWrap::validateSinglePropInstance(b, props, common::idxStr(), protocol().logger(), true)) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(b, props, common::defaultValueStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(b, props, common::reservedValueStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(b, props, common::reservedStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(b, props, common::sinceVersionStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(b, props, common::deprecatedStr(), protocol().logger())) {
             return false;
         }
 
@@ -384,8 +471,10 @@ bool SetFieldImpl::updateBits()
             }
         }
 
-        auto bitMask = static_cast<std::uintmax_t>(1U) << idx;
-        bool bitValue = m_defaultBitValue;
+        BitInfo info;
+        info.m_idx = idx;
+        info.m_defaultValue = m_defaultBitValue;
+        info.m_reservedValue = m_reservedBitValue;
         do {
             auto& bitDefaultValueStr = common::getStringProp(props, common::defaultValueStr());
             if (bitDefaultValueStr.empty()) {
@@ -393,41 +482,14 @@ bool SetFieldImpl::updateBits()
             }
 
             ok = false;
-            bitValue = common::strToBool(bitDefaultValueStr, &ok);
+            info.m_defaultValue = common::strToBool(bitDefaultValueStr, &ok);
             if (!ok) {
                 XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::defaultValueStr(), bitDefaultValueStr, protocol().logger());
                 return false;
             }
 
-            if (!m_nonUniqueAllowed) {
-                // The bit hasn't been processed earlier
-                assert(m_revBits.find(idx) == m_revBits.end());
-                break;
-            }
-
-            auto iter = m_revBits.find(idx);
-            if (iter == m_revBits.end()) {
-                // The bit hasn't been processed earlier
-                break;
-            }
-
-            auto prevBitValue = (m_defaultValue & bitMask) != 0;
-            if (bitValue != prevBitValue) {
-                logError() << XmlWrap::logPrefix(b) <<
-                              "Inconsistent value of \"" << common::defaultValueStr() << "\" property "
-                              "for bit " << idx << ".";
-                return false;
-            }
         } while (false);
 
-        if (bitValue) {
-            m_defaultValue |= bitMask;
-        }
-        else {
-            m_defaultValue &= (~bitMask);
-        }
-
-        bool reserved = false;
         do{
             auto& bitReservedStr = common::getStringProp(props, common::reservedStr());
             if (bitReservedStr.empty()) {
@@ -435,101 +497,77 @@ bool SetFieldImpl::updateBits()
             }
 
             ok = false;
-            reserved = common::strToBool(bitReservedStr, &ok);
+            info.m_reserved = common::strToBool(bitReservedStr, &ok);
             if (!ok) {
                 XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::reservedStr(), bitReservedStr, protocol().logger());
                 return false;
             }
 
-            if (!m_nonUniqueAllowed) {
-                // The bit hasn't been processed earlier
-                assert(m_revBits.find(idx) == m_revBits.end());
-                break;
-            }
-
-            auto iter = m_revBits.find(idx);
-            if (iter == m_revBits.end()) {
-                // The bit hasn't been processed earlier
-                break;
-            }
-
-            std::uint64_t andResult = 0U;
-            if (reserved) {
-                andResult = bitMask;
-            }
-
-            if ((m_reservedBits & bitMask) != andResult) {
-                logError() << XmlWrap::logPrefix(b) <<
-                              "Inconsistent value of \"" << common::reservedStr() << "\" property "
-                              "for bit " << idx << ".";
-                return false;
-            }
-
         } while (false);
 
-        if (reserved) {
-            m_reservedBits |= bitMask;
-        }
-        else {
-            assert((m_reservedBits & bitMask) == 0U);
-        }
 
-        bool reservedValue = m_reservedBitValue;
         do {
+            if (!info.m_reserved) {
+                break;
+            }
+
             auto& bitReservedValueStr = common::getStringProp(props, common::reservedValueStr());
             if (bitReservedValueStr.empty()) {
                 break;
             }
 
             ok = false;
-            reservedValue = common::strToBool(bitReservedValueStr, &ok);
+            info.m_reservedValue = common::strToBool(bitReservedValueStr, &ok);
             if (!ok) {
                 XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::reservedValueStr(), bitReservedValueStr, protocol().logger());
                 return false;
             }
         } while (false);
 
-        if (reservedValue && reserved) {
-            m_reservedValue |= bitMask;
-        }
-        else {
-            m_reservedValue &= (~bitMask);
-        }
+        // Check consistency with previous definitions
+        do {
+            if (!m_nonUniqueAllowed) {
+                // The bit hasn't been processed earlier
+                assert(m_revBits.find(idx) == m_revBits.end());
+                break;
+            }
 
-        m_bits.emplace(nameIter->second, idx);
+            auto revIters = m_revBits.equal_range(idx);
+            if (revIters.first == revIters.second) {
+                // The bit hasn't been processed earlier
+                break;
+            }
+
+            for (auto rIter = revIters.first; rIter != revIters.second; ++rIter) {
+                auto iter = m_bits.find(rIter->second);
+                assert(iter != m_bits.end());
+                if (info.m_defaultValue != iter->second.m_defaultValue) {
+                    logError() << XmlWrap::logPrefix(b) <<
+                          "Inconsistent value of \"" << common::defaultValueStr() << "\" property "
+                          "for bit " << idx << ".";
+                    return false;
+                }
+
+                if (info.m_reserved != iter->second.m_reserved) {
+                    logError() << XmlWrap::logPrefix(b) <<
+                          "Inconsistent value of \"" << common::reservedStr() << "\" property "
+                          "for bit " << idx << ".";
+                    return false;
+                }
+
+                if (info.m_reservedValue != iter->second.m_reservedValue) {
+                    logError() << XmlWrap::logPrefix(b) <<
+                          "Inconsistent value of \"" << common::reservedValueStr() << "\" property "
+                          "for bit " << idx << ".";
+                    return false;
+                }
+            }
+        } while(false);
+
+        m_bits.emplace(nameIter->second, info);
         m_revBits.emplace(idx, nameIter->second);
     }
 
-    auto allBitsMask = ~(static_cast<decltype(m_implicitReserved)>(0U));
-    if (m_bitLength < 64) {
-        allBitsMask = (static_cast<std::uint64_t>(1U) << m_bitLength) - 1;
-    }
-
-    m_implicitReserved = allBitsMask;
-    assert((m_defaultValue & allBitsMask) == m_defaultValue);
-    assert((m_reservedValue & allBitsMask) == m_reservedValue);
-//    m_defaultValue &= allBitsMask;
-//    m_reservedValue &= allBitsMask;
-
-    for (auto& b : m_revBits) {
-        assert(b.first < m_bitLength);
-        auto mask = static_cast<decltype(m_implicitReserved)>(1U) << b.first;
-        m_implicitReserved &= ~mask;
-    }
-
-    if (m_defaultBitValue) {
-        m_defaultValue |= m_implicitReserved;
-    }
-    else {
-        m_defaultValue &= (~m_implicitReserved);
-    }
-
-    if (m_reservedBitValue) {
-        m_reservedValue |= m_implicitReserved;
-    }
-    else {
-        m_reservedValue &= ~m_implicitReserved;
-    }
     return true;
 }
 

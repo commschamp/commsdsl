@@ -16,7 +16,7 @@ class SetFieldImpl : public FieldImpl
     using Base = FieldImpl;
 public:
     using Type = SetField::Type;
-
+    using BitInfo = SetField::BitInfo;
     using Bits = SetField::Bits;
     using RevBits = SetField::RevBits;
 
@@ -43,20 +43,11 @@ public:
         return m_bitLength;
     }
 
-    std::uintmax_t defaultValue() const
-    {
-        return m_defaultValue;
-    }
+    std::uint64_t defaultValue() const;
 
-    std::uintmax_t reservedValue() const
-    {
-        return m_reservedValue;
-    }
+    std::uint64_t reservedValue() const;
 
-    std::uintmax_t reservedBits() const
-    {
-        return m_reservedBits | m_implicitReserved;
-    }
+    std::uintmax_t reservedBits() const;
 
     const Bits& bits() const
     {
@@ -96,10 +87,6 @@ private:
     Endian m_endian = Endian_NumOfValues;
     std::size_t m_length = 0U;
     std::size_t m_bitLength = 0U;
-    std::uintmax_t m_defaultValue = 0U;
-    std::uintmax_t m_reservedValue = 0U;
-    std::uintmax_t m_reservedBits = 0U;
-    std::uintmax_t m_implicitReserved = 0U;
     Bits m_bits;
     RevBits m_revBits;
     bool m_nonUniqueAllowed = false;

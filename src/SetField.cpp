@@ -54,16 +54,6 @@ std::uint64_t SetField::defaultValue() const
     return cast(m_pImpl)->defaultValue();
 }
 
-const SetField::Bits& SetField::bits() const
-{
-    return cast(m_pImpl)->bits();
-}
-
-const SetField::RevBits& SetField::revBits() const
-{
-    return cast(m_pImpl)->revBits();
-}
-
 std::uint64_t SetField::reservedBits() const
 {
     return cast(m_pImpl)->reservedBits();
@@ -72,6 +62,16 @@ std::uint64_t SetField::reservedBits() const
 std::uint64_t SetField::reservedValue() const
 {
     return cast(m_pImpl)->reservedValue();
+}
+
+const SetField::Bits& SetField::bits() const
+{
+    return cast(m_pImpl)->bits();
+}
+
+const SetField::RevBits& SetField::revBits() const
+{
+    return cast(m_pImpl)->revBits();
 }
 
 bool SetField::isNonUniqueAllowed() const
