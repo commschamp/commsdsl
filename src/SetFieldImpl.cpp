@@ -390,7 +390,6 @@ bool SetFieldImpl::updateBits()
                           m_state.m_bitLength << ").";
             return false;
         }
-
         if (!m_state.m_nonUniqueAllowed) {
             auto revBitsIter = m_state.m_revBits.find(idx);
             if (revBitsIter != m_state.m_revBits.end()) {
@@ -405,6 +404,8 @@ bool SetFieldImpl::updateBits()
         info.m_idx = idx;
         info.m_defaultValue = m_state.m_defaultBitValue;
         info.m_reservedValue = m_state.m_reservedBitValue;
+        info.m_sinceVersion = getMinSinceVersion();
+        info.m_deprecatedSince = getDeprecated();
         do {
             auto& bitDefaultValueStr = common::getStringProp(props, common::defaultValueStr());
             if (bitDefaultValueStr.empty()) {
@@ -455,6 +456,10 @@ bool SetFieldImpl::updateBits()
             }
         } while (false);
 
+        if (!XmlWrap::getAndCheckVersions(b, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+            return false;
+        }
+
         // Check consistency with previous definitions
         do {
             if (!m_state.m_nonUniqueAllowed) {
@@ -472,6 +477,17 @@ bool SetFieldImpl::updateBits()
             for (auto rIter = revIters.first; rIter != revIters.second; ++rIter) {
                 auto iter = m_state.m_bits.find(rIter->second);
                 assert(iter != m_state.m_bits.end());
+
+                if (iter->second.m_deprecatedSince <= info.m_sinceVersion) {
+                    assert(iter->second.m_sinceVersion < info.m_sinceVersion);
+                    continue;
+                }
+
+                if (info.m_deprecatedSince <= iter->second.m_sinceVersion) {
+                    assert(info.m_sinceVersion < iter->second.m_sinceVersion);
+                    continue;
+                }
+
                 if (info.m_defaultValue != iter->second.m_defaultValue) {
                     logError() << XmlWrap::logPrefix(b) <<
                           "Inconsistent value of \"" << common::defaultValueStr() << "\" property "
