@@ -351,6 +351,7 @@ void EnumTestSuite::test8()
 
 void EnumTestSuite::test9()
 {
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
 
@@ -405,6 +406,7 @@ void EnumTestSuite::test9()
 
 void EnumTestSuite::test10()
 {
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
@@ -414,6 +416,7 @@ void EnumTestSuite::test10()
 
 void EnumTestSuite::test11()
 {
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);

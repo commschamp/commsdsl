@@ -129,6 +129,14 @@ const XmlWrap::NamesList&FloatFieldImpl::extraChildrenNamesImpl() const
     return List;
 }
 
+bool FloatFieldImpl::reuseImpl(const FieldImpl& other)
+{
+    assert(other.kind() == kind());
+    auto& castedOther = static_cast<const FloatFieldImpl&>(other);
+    m_state = castedOther.m_state;
+    return true;
+}
+
 bool FloatFieldImpl::parseImpl()
 {
     return
@@ -148,12 +156,16 @@ std::size_t FloatFieldImpl::lengthImpl() const
 
 bool FloatFieldImpl::updateType()
 {
-    if (!validateSinglePropInstance(common::typeStr(), true)) {
+    bool mustHave = (m_state.m_type == Type::NumOfValues);
+    if (!validateSinglePropInstance(common::typeStr(), mustHave)) {
         return false;
     }
 
     auto propsIter = props().find(common::typeStr());
-    assert (propsIter != props().end());
+    if (propsIter == props().end()) {
+        assert(!mustHave);
+        return true;
+    }
 
     static const std::string Map[] = {
         /* Type::Float */ "float",
@@ -164,14 +176,26 @@ bool FloatFieldImpl::updateType()
 
     static_assert(MapSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
 
-    auto iter = std::find(std::begin(Map), std::end(Map), propsIter->second);
+    auto typeStr = common::toLowerCopy(propsIter->second);
+    auto iter = std::find(std::begin(Map), std::end(Map), typeStr);
     if (iter == std::end(Map)) {
         reportUnexpectedPropertyValue(common::typeStr(), propsIter->second);
         return false;
     }
 
-    m_state.m_type = static_cast<decltype(m_state.m_type)>(std::distance(std::begin(Map), iter));
-    return true;
+    auto newType = static_cast<decltype(m_state.m_type)>(std::distance(std::begin(Map), iter));
+    if (m_state.m_type == Type::NumOfValues) {
+        m_state.m_type = newType;
+        return true;
+    }
+
+    if (newType == m_state.m_type) {
+        return true;
+    }
+
+    logError() << XmlWrap::logPrefix(getNode()) <<
+                  "Type cannot be changed after reuse";
+    return false;
 }
 
 bool FloatFieldImpl::updateEndian()

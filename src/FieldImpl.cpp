@@ -333,6 +333,11 @@ bool FieldImpl::checkReuse()
         return false;
     }
 
+    if (getMinSinceVersion() < field->getMinSinceVersion()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+                "Reusing field that was introduced in later version";
+    }
+
     assert(field != this);
     Base::reuseState(*field);
     m_state = field->m_state;

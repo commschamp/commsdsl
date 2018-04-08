@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9"
+        id="1"
+        endian="big"
+        version="2">
+    <fields>
+        <float name="Float1" type="float">
+            <special name="S1" val="-100.123" />
+            <validRange value="[S1, 210.111]"/>
+        </float>
+        <float reuse="Float1" name="Float2" validValue="NaN" >
+            <special name="S2" val="-200" />
+            <validRange value="[S2, S1]" />
+            <defaultValue value="S1" />
+            <endian value="little" />
+        </float>
+    </fields>
+</schema>
