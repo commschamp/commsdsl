@@ -25,48 +25,47 @@ public:
 
     Type type() const
     {
-        return m_type;
+        return m_state.m_type;
     }
 
     Endian endian() const
     {
-        return m_endian;
+        return m_state.m_endian;
     }
 
     std::size_t length() const
     {
-        return m_length;
+        return m_state.m_length;
     }
 
     std::size_t bitLength() const
     {
-        return m_bitLength;
+        return m_state.m_bitLength;
     }
 
     bool defaultBitValue() const
     {
-        return m_defaultBitValue;
+        return m_state.m_defaultBitValue;
     }
 
     bool reservedBitValue() const
     {
-        return m_reservedBitValue;
+        return m_state.m_reservedBitValue;
     }
-
 
     const Bits& bits() const
     {
-        return m_bits;
+        return m_state.m_bits;
     }
 
     const RevBits& revBits() const
     {
-        return m_revBits;
+        return m_state.m_revBits;
     }
 
     bool isNonUniqueAllowed() const
     {
-        return m_nonUniqueAllowed;
+        return m_state.m_nonUniqueAllowed;
     }
 
     bool isUnique() const;
@@ -88,15 +87,19 @@ private:
     bool updateReservedValue();
     bool updateBits();
 
-    Type m_type = Type::NumOfValues;
-    Endian m_endian = Endian_NumOfValues;
-    std::size_t m_length = 0U;
-    std::size_t m_bitLength = 0U;
-    Bits m_bits;
-    RevBits m_revBits;
-    bool m_nonUniqueAllowed = false;
-    bool m_defaultBitValue = false;
-    bool m_reservedBitValue = false;
+    struct State
+    {
+        Type m_type = Type::NumOfValues;
+        Endian m_endian = Endian_NumOfValues;
+        std::size_t m_length = 0U;
+        std::size_t m_bitLength = 0U;
+        Bits m_bits;
+        RevBits m_revBits;
+        bool m_nonUniqueAllowed = false;
+        bool m_defaultBitValue = false;
+        bool m_reservedBitValue = false;
+    };
+    State m_state;
 };
 
 } // namespace bbmp

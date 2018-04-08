@@ -25,7 +25,7 @@ bool SetFieldImpl::isUnique() const
 {
     unsigned prevIdx = 0;
     bool firstElem = true;
-    for (auto& b : m_revBits) {
+    for (auto& b : m_state.m_revBits) {
         if (firstElem) {
             prevIdx = b.first;
             firstElem = false;
@@ -88,12 +88,12 @@ bool SetFieldImpl::parseImpl()
 
 std::size_t SetFieldImpl::lengthImpl() const
 {
-    return m_length;
+    return m_state.m_length;
 }
 
 std::size_t SetFieldImpl::bitLengthImpl() const
 {
-    return m_bitLength;
+    return m_state.m_bitLength;
 }
 
 bool SetFieldImpl::updateEndian()
@@ -103,12 +103,12 @@ bool SetFieldImpl::updateEndian()
     }
 
     auto& endianStr = common::getStringProp(props(), common::endianStr());
-    if ((endianStr.empty()) && (m_endian != Endian_NumOfValues)) {
+    if ((endianStr.empty()) && (m_state.m_endian != Endian_NumOfValues)) {
         return true;
     }
 
-    m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
-    if (m_endian == Endian_NumOfValues) {
+    m_state.m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    if (m_state.m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
     }
@@ -117,7 +117,7 @@ bool SetFieldImpl::updateEndian()
 
 bool SetFieldImpl::updateLength()
 {
-    bool mustHaveLength = (m_length == 0U) && (!isBitfieldMember());
+    bool mustHaveLength = (m_state.m_length == 0U) && (!isBitfieldMember());
     if (!validateSinglePropInstance(common::lengthStr(), mustHaveLength)) {
         return false;
     }
@@ -130,16 +130,16 @@ bool SetFieldImpl::updateLength()
         }
 
         bool ok = false;
-        m_length = static_cast<decltype(m_length)>(common::strToUintMax(lengthStr, &ok));
+        m_state.m_length = static_cast<decltype(m_state.m_length)>(common::strToUintMax(lengthStr, &ok));
 
-        if ((!ok) || (m_length == 0U) || (MaxLength < m_length)) {
+        if ((!ok) || (m_state.m_length == 0U) || (MaxLength < m_state.m_length)) {
             reportUnexpectedPropertyValue(common::lengthStr(), lengthStr);
             return false;
         }
 
     } while (false);
 
-    bool mustHaveBitLength = (isBitfieldMember() && m_bitLength == 0U && (m_length == 0U));
+    bool mustHaveBitLength = (isBitfieldMember() && m_state.m_bitLength == 0U && (m_state.m_length == 0U));
     if (!validateSinglePropInstance(common::bitLengthStr(), mustHaveBitLength)) {
         return false;
     }
@@ -151,51 +151,51 @@ bool SetFieldImpl::updateLength()
         }
 
         bool ok = false;
-        m_bitLength = static_cast<decltype(m_length)>(common::strToUintMax(lengthStr, &ok));
-        if ((!ok) || (m_bitLength == 0U)) {
+        m_state.m_bitLength = static_cast<decltype(m_state.m_length)>(common::strToUintMax(lengthStr, &ok));
+        if ((!ok) || (m_state.m_bitLength == 0U)) {
             reportUnexpectedPropertyValue(common::bitLengthStr(), bitLengthStr);
             return false;
         }
     } while (false);
 
     if (lengthStr.empty() && bitLengthStr.empty()) {
-        assert(m_length != 0U);
-        assert(m_bitLength != 0U);
-        assert(m_bitLength <= (m_length * 8U));
-        assert(m_type < Type::NumOfValues);
+        assert(m_state.m_length != 0U);
+        assert(m_state.m_bitLength != 0U);
+        assert(m_state.m_bitLength <= (m_state.m_length * 8U));
+        assert(m_state.m_type < Type::NumOfValues);
         return true;
     }
 
     do {
         if (!bitLengthStr.empty()) {
-            assert(0U < m_bitLength);
-            auto minLength = ((m_bitLength - 1U) / 8U) + 1U;
-            if (m_length == 0U) {
+            assert(0U < m_state.m_bitLength);
+            auto minLength = ((m_state.m_bitLength - 1U) / 8U) + 1U;
+            if (m_state.m_length == 0U) {
                 assert(lengthStr.empty());
-                m_length = minLength;
+                m_state.m_length = minLength;
                 break;
             }
 
-            if (m_length < minLength) {
+            if (m_state.m_length < minLength) {
                 logError() << XmlWrap::logPrefix(getNode()) <<
-                    "Specified bit length (" << m_bitLength << ") doesn't fit into "
-                    "field length (" << m_length << ").";
+                    "Specified bit length (" << m_state.m_bitLength << ") doesn't fit into "
+                    "field length (" << m_state.m_length << ").";
                 return false;
             }
             break;
         }
 
-        auto maxBitLength = m_length * std::numeric_limits<std::uint8_t>::digits;
-        if (m_bitLength == 0U) {
-            assert(0U < m_length);
-            m_bitLength = maxBitLength;
+        auto maxBitLength = m_state.m_length * std::numeric_limits<std::uint8_t>::digits;
+        if (m_state.m_bitLength == 0U) {
+            assert(0U < m_state.m_length);
+            m_state.m_bitLength = maxBitLength;
             break;
         }
 
-        if (maxBitLength < m_bitLength) {
+        if (maxBitLength < m_state.m_bitLength) {
             logError() << XmlWrap::logPrefix(getNode()) <<
-                "Inherited bit length (" << m_bitLength << ") doesn't fit into "
-                "field length (" << m_length << ").";
+                "Inherited bit length (" << m_state.m_bitLength << ") doesn't fit into "
+                "field length (" << m_state.m_length << ").";
             return false;
         }
     } while (false);
@@ -214,17 +214,17 @@ bool SetFieldImpl::updateLength()
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == MaxLength, "Invalid map");
 
-    assert(m_length < MapSize);
-    m_type = Map[m_length - 1];
+    assert(m_state.m_length < MapSize);
+    m_state.m_type = Map[m_state.m_length - 1];
 
-    if (m_revBits.empty()) {
-        assert(m_bits.empty());
+    if (m_state.m_revBits.empty()) {
+        assert(m_state.m_bits.empty());
         return true;
     }
 
-    auto lastIdx = m_revBits.rbegin()->first;
+    auto lastIdx = m_state.m_revBits.rbegin()->first;
     assert(lastIdx < 64U);
-    if (m_bitLength < lastIdx) {
+    if (m_state.m_bitLength < lastIdx) {
         logError() << XmlWrap::logPrefix(getNode()) << "The set field cannot contain all the listed bits.";
         return false;
     }
@@ -242,15 +242,15 @@ bool SetFieldImpl::updateNonUniqueAllowed()
         return true;
     }
 
-    bool wasAllowed = m_nonUniqueAllowed;
+    bool wasAllowed = m_state.m_nonUniqueAllowed;
     bool ok = false;
-    m_nonUniqueAllowed = common::strToBool(valueStr, &ok);
+    m_state.m_nonUniqueAllowed = common::strToBool(valueStr, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::nonUniqueAllowedStr(), valueStr);
         return false;
     }
 
-    if (wasAllowed && (!m_nonUniqueAllowed)) {
+    if (wasAllowed && (!m_state.m_nonUniqueAllowed)) {
         assert(!"NYI");
         // TODO: check non duplicates
     }
@@ -269,7 +269,7 @@ bool SetFieldImpl::updateDefaultValue()
     }
 
     bool ok = false;
-    m_defaultBitValue = common::strToBool(valueStr, &ok);
+    m_state.m_defaultBitValue = common::strToBool(valueStr, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::defaultValueStr(), valueStr);
         return false;
@@ -290,7 +290,7 @@ bool SetFieldImpl::updateReservedValue()
     }
 
     bool ok = false;
-    m_reservedBitValue = common::strToBool(valueStr, &ok);
+    m_state.m_reservedBitValue = common::strToBool(valueStr, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::reservedValueStr(), valueStr);
         return false;
@@ -303,8 +303,8 @@ bool SetFieldImpl::updateBits()
 {
     auto bits = XmlWrap::getChildren(getNode(), common::bitStr());
     if (bits.empty()) {
-        if (!m_bits.empty()) {
-            assert(!m_revBits.empty());
+        if (!m_state.m_bits.empty()) {
+            assert(!m_state.m_revBits.empty());
             return true; // already has values
         }
 
@@ -367,8 +367,8 @@ bool SetFieldImpl::updateBits()
             return false;
         }
 
-        auto bitsIter = m_bits.find(nameIter->second);
-        if (bitsIter != m_bits.end()) {
+        auto bitsIter = m_state.m_bits.find(nameIter->second);
+        if (bitsIter != m_state.m_bits.end()) {
             logError() << XmlWrap::logPrefix(b) << "Bit with name \"" << nameIter->second <<
                           "\" has already been defined for set \"" << name() << "\".";
             return false;
@@ -384,16 +384,16 @@ bool SetFieldImpl::updateBits()
             return false;
         }
 
-        if (m_bitLength <= idx) {
+        if (m_state.m_bitLength <= idx) {
             logError() << XmlWrap::logPrefix(b) <<
                           "Index of the bit (" << idx << ") cannot exceed number of available bits (" <<
-                          m_bitLength << ").";
+                          m_state.m_bitLength << ").";
             return false;
         }
 
-        if (!m_nonUniqueAllowed) {
-            auto revBitsIter = m_revBits.find(idx);
-            if (revBitsIter != m_revBits.end()) {
+        if (!m_state.m_nonUniqueAllowed) {
+            auto revBitsIter = m_state.m_revBits.find(idx);
+            if (revBitsIter != m_state.m_revBits.end()) {
                 logError() << XmlWrap::logPrefix(b) <<
                       "Bit \"" << revBitsIter->first << "\" has been already defined "
                       "as \"" << revBitsIter->second << "\".";
@@ -403,8 +403,8 @@ bool SetFieldImpl::updateBits()
 
         BitInfo info;
         info.m_idx = idx;
-        info.m_defaultValue = m_defaultBitValue;
-        info.m_reservedValue = m_reservedBitValue;
+        info.m_defaultValue = m_state.m_defaultBitValue;
+        info.m_reservedValue = m_state.m_reservedBitValue;
         do {
             auto& bitDefaultValueStr = common::getStringProp(props, common::defaultValueStr());
             if (bitDefaultValueStr.empty()) {
@@ -457,21 +457,21 @@ bool SetFieldImpl::updateBits()
 
         // Check consistency with previous definitions
         do {
-            if (!m_nonUniqueAllowed) {
+            if (!m_state.m_nonUniqueAllowed) {
                 // The bit hasn't been processed earlier
-                assert(m_revBits.find(idx) == m_revBits.end());
+                assert(m_state.m_revBits.find(idx) == m_state.m_revBits.end());
                 break;
             }
 
-            auto revIters = m_revBits.equal_range(idx);
+            auto revIters = m_state.m_revBits.equal_range(idx);
             if (revIters.first == revIters.second) {
                 // The bit hasn't been processed earlier
                 break;
             }
 
             for (auto rIter = revIters.first; rIter != revIters.second; ++rIter) {
-                auto iter = m_bits.find(rIter->second);
-                assert(iter != m_bits.end());
+                auto iter = m_state.m_bits.find(rIter->second);
+                assert(iter != m_state.m_bits.end());
                 if (info.m_defaultValue != iter->second.m_defaultValue) {
                     logError() << XmlWrap::logPrefix(b) <<
                           "Inconsistent value of \"" << common::defaultValueStr() << "\" property "
@@ -495,8 +495,8 @@ bool SetFieldImpl::updateBits()
             }
         } while(false);
 
-        m_bits.emplace(nameIter->second, info);
-        m_revBits.emplace(idx, nameIter->second);
+        m_state.m_bits.emplace(nameIter->second, info);
+        m_state.m_revBits.emplace(idx, nameIter->second);
     }
 
     return true;
