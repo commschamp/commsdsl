@@ -28,32 +28,32 @@ public:
 
     Type type() const
     {
-        return m_type;
+        return m_state.m_type;
     }
 
     Endian endian() const
     {
-        return m_endian;
+        return m_state.m_endian;
     }
 
     std::size_t length() const
     {
-        return m_length;
+        return m_state.m_length;
     }
 
     double defaultValue() const
     {
-        return m_defaultValue;
+        return m_state.m_defaultValue;
     }
 
     const ValidRangesList& validRanges() const
     {
-        return m_validRanges;
+        return m_state.m_validRanges;
     }
 
     const SpecialValues& specialValues() const
     {
-        return m_specials;
+        return m_state.m_specials;
     }
 
 protected:
@@ -95,14 +95,19 @@ private:
             bool allowSpecials = true);
     bool strToValue(const std::string& str, double& val, bool allowSpecials = true);
 
-    Type m_type = Type::NumOfValues;
-    Endian m_endian = Endian_NumOfValues;
-    std::size_t m_length = 0U;
-    double m_typeAllowedMinValue = 0.0;
-    double m_typeAllowedMaxValue = 0.0;
-    double m_defaultValue = 0.0;
-    ValidRangesList m_validRanges;
-    SpecialValues m_specials;
+    struct State
+    {
+        Type m_type = Type::NumOfValues;
+        Endian m_endian = Endian_NumOfValues;
+        std::size_t m_length = 0U;
+        double m_typeAllowedMinValue = 0.0;
+        double m_typeAllowedMaxValue = 0.0;
+        double m_defaultValue = 0.0;
+        ValidRangesList m_validRanges;
+        SpecialValues m_specials;
+    };
+
+    State m_state;
 };
 
 } // namespace bbmp

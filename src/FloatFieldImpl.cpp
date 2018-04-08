@@ -143,7 +143,7 @@ bool FloatFieldImpl::parseImpl()
 
 std::size_t FloatFieldImpl::lengthImpl() const
 {
-    return m_length;
+    return m_state.m_length;
 }
 
 bool FloatFieldImpl::updateType()
@@ -170,7 +170,7 @@ bool FloatFieldImpl::updateType()
         return false;
     }
 
-    m_type = static_cast<decltype(m_type)>(std::distance(std::begin(Map), iter));
+    m_state.m_type = static_cast<decltype(m_state.m_type)>(std::distance(std::begin(Map), iter));
     return true;
 }
 
@@ -181,8 +181,8 @@ bool FloatFieldImpl::updateEndian()
     }
 
     auto& endianStr = common::getStringProp(props(), common::endianStr());
-    m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
-    if (m_endian == Endian_NumOfValues) {
+    m_state.m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    if (m_state.m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
     }
@@ -203,19 +203,19 @@ bool FloatFieldImpl::updateLength()
     static_assert(sizeof(float) == 4U, "Invalid size assumption");
     static_assert(sizeof(double) == 8U, "Invalid size assumption");
 
-    if (MapSize <= util::toUnsigned(m_type)) {
+    if (MapSize <= util::toUnsigned(m_state.m_type)) {
         assert(!"Mustn't happen");
         return false;
     }
 
-    m_length = Map[util::toUnsigned(m_type)];
+    m_state.m_length = Map[util::toUnsigned(m_state.m_type)];
     return true;
 }
 
 bool FloatFieldImpl::updateMinMaxValues()
 {
-    m_typeAllowedMinValue = minValueForType(m_type);
-    m_typeAllowedMaxValue = maxValueForType(m_type);
+    m_state.m_typeAllowedMinValue = minValueForType(m_state.m_type);
+    m_state.m_typeAllowedMaxValue = maxValueForType(m_state.m_type);
     return true;
 }
 
@@ -230,23 +230,23 @@ bool FloatFieldImpl::updateDefaultValue()
         return true;
     }
 
-    if (!strToValue(valueStr, m_defaultValue)) {
+    if (!strToValue(valueStr, m_state.m_defaultValue)) {
         reportUnexpectedPropertyValue(common::defaultValueStr(), valueStr);
         return false;
     }
 
-    bool isSpecial = std::isnan(m_defaultValue) || std::isinf(m_defaultValue);
+    bool isSpecial = std::isnan(m_state.m_defaultValue) || std::isinf(m_state.m_defaultValue);
     if (isSpecial) {
         return true;
     }
 
-    if (m_typeAllowedMaxValue < m_defaultValue) {
+    if (m_state.m_typeAllowedMaxValue < m_state.m_defaultValue) {
         logError() << "Value of property \"" << common::defaultValueStr() <<
                         "\" is greater than the type's maximal value.";
         return false;
     }
 
-    if (m_defaultValue < m_typeAllowedMinValue) {
+    if (m_state.m_defaultValue < m_state.m_typeAllowedMinValue) {
         logError() << "Value of property \"" << common::defaultValueStr() <<
                         "\" is less than the type's minimal value.";
         return false;
@@ -271,7 +271,7 @@ bool FloatFieldImpl::updateValidRanges()
     // sort by version
     assert(std::isinf(-std::numeric_limits<double>::infinity()));
     std::sort(
-        m_validRanges.begin(), m_validRanges.end(),
+        m_state.m_validRanges.begin(), m_state.m_validRanges.end(),
         [](auto& elem1, auto& elem2)
         {
             assert(elem1.m_deprecatedSince != 0U);
@@ -296,12 +296,12 @@ bool FloatFieldImpl::updateValidRanges()
         });
 
     // Merge
-    for (auto iter = m_validRanges.begin(); iter != m_validRanges.end(); ++iter) {
+    for (auto iter = m_state.m_validRanges.begin(); iter != m_state.m_validRanges.end(); ++iter) {
         if (iter->m_deprecatedSince == 0U) {
             continue;
         }
 
-        for (auto nextIter = iter + 1; nextIter != m_validRanges.end(); ++nextIter) {
+        for (auto nextIter = iter + 1; nextIter != m_state.m_validRanges.end(); ++nextIter) {
             if (nextIter->m_deprecatedSince == 0U) {
                 continue;
             }
@@ -327,17 +327,17 @@ bool FloatFieldImpl::updateValidRanges()
     }
 
     // Remove invalid
-    m_validRanges.erase(
-        std::remove_if(m_validRanges.begin(), m_validRanges.end(),
+    m_state.m_validRanges.erase(
+        std::remove_if(m_state.m_validRanges.begin(), m_state.m_validRanges.end(),
                     [](auto& elem)
                     {
                         return elem.m_deprecatedSince == 0U;
                     }),
-        m_validRanges.end());
+        m_state.m_validRanges.end());
 
     // Sort by min/max value
     std::sort(
-        m_validRanges.begin(), m_validRanges.end(),
+        m_state.m_validRanges.begin(), m_state.m_validRanges.end(),
         [](auto& elem1, auto& elem2)
         {
             assert(elem1.m_deprecatedSince != 0U);
@@ -410,8 +410,8 @@ bool FloatFieldImpl::updateSpecials()
             return false;
         }
 
-        auto specialsIter = m_specials.find(nameIter->second);
-        if (specialsIter != m_specials.end()) {
+        auto specialsIter = m_state.m_specials.find(nameIter->second);
+        if (specialsIter != m_state.m_specials.end()) {
             logError() << XmlWrap::logPrefix(s) << "Special with name \"" << nameIter->second <<
                           "\" was already assigned to \"" << name() << "\" element.";
             return false;
@@ -430,7 +430,7 @@ bool FloatFieldImpl::updateSpecials()
 
         bool isSpecial = std::isnan(val) || std::isinf(val);
         if ((!isSpecial) &&
-            ((val < m_typeAllowedMinValue) || (m_typeAllowedMaxValue < val))) {
+            ((val < m_state.m_typeAllowedMinValue) || (m_state.m_typeAllowedMaxValue < val))) {
             this->logError() << XmlWrap::logPrefix(s) <<
                             "Special value \"" << nameIter->second << "\" is outside the range of available values within a type.";
             return false;
@@ -445,7 +445,7 @@ bool FloatFieldImpl::updateSpecials()
             return false;
         }
 
-        m_specials.emplace(nameIter->second, info);
+        m_state.m_specials.emplace(nameIter->second, info);
     }
 
     return true;
@@ -470,11 +470,11 @@ bool FloatFieldImpl::checkFullRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
     }
 
     ValidRangeInfo info;
-    info.m_min = m_typeAllowedMinValue;
-    info.m_max = m_typeAllowedMaxValue;
+    info.m_min = m_state.m_typeAllowedMinValue;
+    info.m_max = m_state.m_typeAllowedMaxValue;
     info.m_sinceVersion = getMinSinceVersion();
     info.m_deprecatedSince = getDeprecated();
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -497,8 +497,8 @@ bool FloatFieldImpl::checkFullRangeAsChild(::xmlNodePtr child)
     }
 
     ValidRangeInfo info;
-    info.m_min = m_typeAllowedMinValue;
-    info.m_max = m_typeAllowedMaxValue;
+    info.m_min = m_state.m_typeAllowedMinValue;
+    info.m_max = m_state.m_typeAllowedMaxValue;
     info.m_sinceVersion = getMinSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
@@ -506,7 +506,7 @@ bool FloatFieldImpl::checkFullRangeAsChild(::xmlNodePtr child)
         return false;
     }
 
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -545,7 +545,7 @@ bool FloatFieldImpl::checkValidRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
 
     info.m_sinceVersion = getMinSinceVersion();
     info.m_deprecatedSince = getDeprecated();
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -568,7 +568,7 @@ bool FloatFieldImpl::checkValidRangeAsChild(::xmlNodePtr child)
         return false;
     }
 
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -604,7 +604,7 @@ bool FloatFieldImpl::checkValidValueAsAttr(const FieldImpl::PropsMap& xmlAttrs)
     info.m_sinceVersion = getMinSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -629,7 +629,7 @@ bool FloatFieldImpl::checkValidValueAsChild(::xmlNodePtr child)
         return false;
     }
 
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -661,11 +661,11 @@ bool FloatFieldImpl::checkValidMinAsAttr(const FieldImpl::PropsMap& xmlAttrs)
         return false;
     }
 
-    info.m_max = m_typeAllowedMaxValue;
+    info.m_max = m_state.m_typeAllowedMaxValue;
     info.m_sinceVersion = getMinSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -682,7 +682,7 @@ bool FloatFieldImpl::checkValidMinAsChild(::xmlNodePtr child)
         return false;
     }
 
-    info.m_max = m_typeAllowedMaxValue;
+    info.m_max = m_state.m_typeAllowedMaxValue;
     info.m_sinceVersion = getMinSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
@@ -690,7 +690,7 @@ bool FloatFieldImpl::checkValidMinAsChild(::xmlNodePtr child)
         return false;
     }
 
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -722,11 +722,11 @@ bool FloatFieldImpl::checkValidMaxAsAttr(const FieldImpl::PropsMap& xmlAttrs)
         return false;
     }
 
-    info.m_min = m_typeAllowedMinValue;
+    info.m_min = m_state.m_typeAllowedMinValue;
     info.m_sinceVersion = getMinSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -743,7 +743,7 @@ bool FloatFieldImpl::checkValidMaxAsChild(::xmlNodePtr child)
         return false;
     }
 
-    info.m_min = m_typeAllowedMinValue;
+    info.m_min = m_state.m_typeAllowedMinValue;
     info.m_sinceVersion = getMinSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
@@ -751,7 +751,7 @@ bool FloatFieldImpl::checkValidMaxAsChild(::xmlNodePtr child)
         return false;
     }
 
-    m_validRanges.push_back(info);
+    m_state.m_validRanges.push_back(info);
     return true;
 }
 
@@ -816,13 +816,13 @@ bool FloatFieldImpl::validateValidValueStr(
         return true;
     }
 
-    if (m_typeAllowedMaxValue < val) {
+    if (m_state.m_typeAllowedMaxValue < val) {
         logError() << "Value of property \"" << type <<
                         "\" is greater than the type's maximal value.";
         return false;
     }
 
-    if (val < m_typeAllowedMinValue) {
+    if (val < m_state.m_typeAllowedMinValue) {
         logError() << "Value of property \"" << type <<
                         "\" is less than the type's minimal value.";
         return false;
@@ -846,8 +846,8 @@ bool FloatFieldImpl::strToValue(
             break;
         }
 
-        auto iter = m_specials.find(str);
-        if (iter == m_specials.end()) {
+        auto iter = m_state.m_specials.find(str);
+        if (iter == m_state.m_specials.end()) {
             return false;
         }
 
