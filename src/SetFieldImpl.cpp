@@ -87,6 +87,7 @@ bool SetFieldImpl::parseImpl()
 {
     return
         updateEndian() &&
+        updateType() &&
         updateLength() &&
         updateNonUniqueAllowed() &&
         updateDefaultValue() &&
@@ -424,7 +425,7 @@ bool SetFieldImpl::updateBits()
 
         if (m_state.m_bitLength <= idx) {
             logError() << XmlWrap::logPrefix(b) <<
-                          "Index of the bit (" << idx << ") cannot exceed number of available bits (" <<
+                          "Index of the bit (" << idx << ") must be less than number of available bits (" <<
                           m_state.m_bitLength << ").";
             return false;
         }

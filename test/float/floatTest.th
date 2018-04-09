@@ -7,6 +7,7 @@ class FloatTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
     void setUp();
+    void tearDown();
     void test1();
     void test2();
     void test3();
@@ -27,6 +28,11 @@ const double FloatTestSuite::Epsilon = std::numeric_limits<double>::epsilon();
 void FloatTestSuite::setUp()
 {
     CommonTestSuite::commonSetUp();
+}
+
+void FloatTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
 }
 
 void FloatTestSuite::test1()
@@ -362,7 +368,6 @@ void FloatTestSuite::test7()
 
 void FloatTestSuite::test8()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
