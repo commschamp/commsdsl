@@ -75,12 +75,14 @@ protected:
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
+    virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t lengthImpl() const override;
     virtual std::size_t bitLengthImpl() const override;
 
 private:
     bool updateEndian();
+    bool updateType();
     bool updateLength();
     bool updateNonUniqueAllowed();
     bool updateDefaultValue();

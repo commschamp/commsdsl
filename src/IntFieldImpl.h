@@ -93,6 +93,7 @@ public:
         return (t == Type::Uint64) || (t == Type::Uintvar);
     }
 
+    static bool isTypeUnsigned(IntFieldImpl::Type t);
 
 protected:
     virtual Kind kindImpl() const override;

@@ -75,6 +75,14 @@ const XmlWrap::NamesList& SetFieldImpl::extraChildrenNamesImpl() const
     return List;
 }
 
+bool SetFieldImpl::reuseImpl(const FieldImpl& other)
+{
+    assert(other.kind() == kind());
+    auto& castedOther = static_cast<const SetFieldImpl&>(other);
+    m_state = castedOther.m_state;
+    return true;
+}
+
 bool SetFieldImpl::parseImpl()
 {
     return
@@ -115,28 +123,81 @@ bool SetFieldImpl::updateEndian()
     return true;
 }
 
+bool SetFieldImpl::updateType()
+{
+    if (!validateSinglePropInstance(common::typeStr())) {
+        return false;
+    }
+
+    auto typeIter = props().find(common::typeStr());
+    if (typeIter == props().end()) {
+        return true;
+    }
+
+    auto typeVal = IntFieldImpl::parseTypeValue(typeIter->second);
+    if ((Type::NumOfValues <= typeVal) ||
+        (!IntFieldImpl::isTypeUnsigned(typeVal))) {
+        reportUnexpectedPropertyValue(common::typeStr(), typeIter->second);
+        return false;
+    }
+
+    if (m_state.m_type == typeVal) {
+        return true;
+    }
+
+    if (m_state.m_type != Type::NumOfValues) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Type cannot be changed after reuse";
+        return false;
+    }
+
+    m_state.m_type = typeVal;
+    return true;
+}
+
 bool SetFieldImpl::updateLength()
 {
-    bool mustHaveLength = (m_state.m_length == 0U) && (!isBitfieldMember());
+    bool mustHaveLength =
+            (m_state.m_type == Type::NumOfValues) &&
+            (m_state.m_length == 0U) &&
+            (!isBitfieldMember());
     if (!validateSinglePropInstance(common::lengthStr(), mustHaveLength)) {
         return false;
     }
 
-    static const std::size_t MaxLength = sizeof(std::uint64_t);
+    std::size_t maxLength = sizeof(std::uint64_t);
+    if (m_state.m_type != Type::NumOfValues) {
+        maxLength = IntFieldImpl::maxTypeLength(m_state.m_type);
+    }
+
     auto& lengthStr = common::getStringProp(props(), common::lengthStr());
     do {
         if (lengthStr.empty()) {
+            if ((m_state.m_length == 0U) && (m_state.m_type != Type::NumOfValues)) {
+                m_state.m_length = maxLength;
+            }
             break;
         }
 
         bool ok = false;
-        m_state.m_length = static_cast<decltype(m_state.m_length)>(common::strToUintMax(lengthStr, &ok));
+        auto newLen = static_cast<decltype(m_state.m_length)>(common::strToUintMax(lengthStr, &ok));
 
-        if ((!ok) || (m_state.m_length == 0U) || (MaxLength < m_state.m_length)) {
+        if ((!ok) || (newLen == 0U) || (maxLength < newLen)) {
             reportUnexpectedPropertyValue(common::lengthStr(), lengthStr);
             return false;
         }
 
+        if (m_state.m_length == newLen) {
+            break;
+        }
+
+        if (m_state.m_length != 0U) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                          "Length cannot be changed after reuse";
+            return false;
+        }
+
+        m_state.m_length = newLen;
     } while (false);
 
     bool mustHaveBitLength = (isBitfieldMember() && m_state.m_bitLength == 0U && (m_state.m_length == 0U));
@@ -147,87 +208,64 @@ bool SetFieldImpl::updateLength()
     auto& bitLengthStr = common::getStringProp(props(), common::bitLengthStr());
     do {
         if (bitLengthStr.empty()) {
+            if (m_state.m_bitLength == 0U) {
+                assert(m_state.m_length != 0U);
+                m_state.m_bitLength = m_state.m_length * 8U;
+            }
+            break;
+        }
+
+        if (!isBitfieldMember()) {
+            logWarning() << XmlWrap::logPrefix((getNode())) <<
+                            "The property \"" << common::bitLengthStr() << "\" is "
+                            "applicable only to the members of \"" << common::bitfieldStr() << "\"";
+            assert(m_state.m_length != 0U);
+            m_state.m_bitLength = m_state.m_length * 8U;
             break;
         }
 
         bool ok = false;
-        m_state.m_bitLength = static_cast<decltype(m_state.m_length)>(common::strToUintMax(lengthStr, &ok));
+        m_state.m_bitLength = static_cast<decltype(m_state.m_bitLength)>(common::strToUintMax(lengthStr, &ok));
         if ((!ok) || (m_state.m_bitLength == 0U)) {
             reportUnexpectedPropertyValue(common::bitLengthStr(), bitLengthStr);
             return false;
         }
-    } while (false);
 
-    if (lengthStr.empty() && bitLengthStr.empty()) {
-        assert(m_state.m_length != 0U);
-        assert(m_state.m_bitLength != 0U);
-        assert(m_state.m_bitLength <= (m_state.m_length * 8U));
-        assert(m_state.m_type < Type::NumOfValues);
-        return true;
-    }
-
-    do {
-        if (!bitLengthStr.empty()) {
-            assert(0U < m_state.m_bitLength);
-            auto minLength = ((m_state.m_bitLength - 1U) / 8U) + 1U;
-            if (m_state.m_length == 0U) {
-                assert(lengthStr.empty());
-                m_state.m_length = minLength;
-                break;
-            }
-
-            if (m_state.m_length < minLength) {
-                logError() << XmlWrap::logPrefix(getNode()) <<
-                    "Specified bit length (" << m_state.m_bitLength << ") doesn't fit into "
-                    "field length (" << m_state.m_length << ").";
-                return false;
-            }
-            break;
-        }
-
-        auto maxBitLength = m_state.m_length * std::numeric_limits<std::uint8_t>::digits;
-        if (m_state.m_bitLength == 0U) {
-            assert(0U < m_state.m_length);
-            m_state.m_bitLength = maxBitLength;
-            break;
-        }
-
-        if (maxBitLength < m_state.m_bitLength) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Inherited bit length (" << m_state.m_bitLength << ") doesn't fit into "
-                "field length (" << m_state.m_length << ").";
+        if ((m_state.m_length != 0) && ((m_state.m_length * 8U) < m_state.m_bitLength)) {
+            reportUnexpectedPropertyValue(common::bitLengthStr(), bitLengthStr);
             return false;
         }
+
     } while (false);
 
-    static const Type Map[] {
-        Type::Uint8,
-        Type::Uint16,
-        Type::Uint32,
-        Type::Uint32,
-        Type::Uint64,
-        Type::Uint64,
-        Type::Uint64,
-        Type::Uint64,
-    };
-
-    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == MaxLength, "Invalid map");
-
-    assert(m_state.m_length < MapSize);
-    m_state.m_type = Map[m_state.m_length - 1];
-
-    if (m_state.m_revBits.empty()) {
-        assert(m_state.m_bits.empty());
-        return true;
+    if ((m_state.m_length == 0U) && (m_state.m_bitLength != 0U)) {
+        m_state.m_length = ((m_state.m_bitLength - 1U) / 8U) + 1U;
     }
 
-    auto lastIdx = m_state.m_revBits.rbegin()->first;
-    assert(lastIdx < 64U);
-    if (m_state.m_bitLength < lastIdx) {
-        logError() << XmlWrap::logPrefix(getNode()) << "The set field cannot contain all the listed bits.";
-        return false;
+    if (m_state.m_type == Type::NumOfValues) {
+        assert(m_state.m_length != 0U);
+
+        static const Type Map[] {
+            Type::Uint8,
+            Type::Uint16,
+            Type::Uint32,
+            Type::Uint32,
+            Type::Uint64,
+            Type::Uint64,
+            Type::Uint64,
+            Type::Uint64,
+        };
+
+        static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+        static_assert(MapSize == sizeof(std::uint64_t), "Invalid map");
+
+        assert(m_state.m_length < MapSize);
+        m_state.m_type = Map[m_state.m_length - 1];
     }
+
+    assert(m_state.m_type != Type::NumOfValues);
+    assert(m_state.m_length != 0U);
+    assert(m_state.m_bitLength != 0U);
     return true;
 }
 

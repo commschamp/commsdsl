@@ -102,20 +102,6 @@ std::intmax_t calcMinVarSignedValue(std::size_t bitsLen) {
     return static_cast<std::intmax_t>(result);
 }
 
-bool isTypeUnsigned(IntFieldImpl::Type t)
-{
-    static const IntFieldImpl::Type UnsignedTypes[] = {
-        IntFieldImpl::Type::Uint8,
-        IntFieldImpl::Type::Uint16,
-        IntFieldImpl::Type::Uint32,
-        IntFieldImpl::Type::Uint64,
-        IntFieldImpl::Type::Uintvar
-    };
-
-    auto iter = std::find(std::begin(UnsignedTypes), std::end(UnsignedTypes), t);
-    return (iter != std::end(UnsignedTypes));
-}
-
 std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t bitsLen)
 {
     if (t == IntFieldImpl::Type::Uintvar) {
@@ -268,6 +254,19 @@ std::intmax_t IntFieldImpl::calcMaxValue(Type t, std::size_t bitsLen)
     return calcMaxFixedSignedValue(bitsLen);
 }
 
+bool IntFieldImpl::isTypeUnsigned(Type t)
+{
+    static const IntFieldImpl::Type UnsignedTypes[] = {
+        IntFieldImpl::Type::Uint8,
+        IntFieldImpl::Type::Uint16,
+        IntFieldImpl::Type::Uint32,
+        IntFieldImpl::Type::Uint64,
+        IntFieldImpl::Type::Uintvar
+    };
+
+    auto iter = std::find(std::begin(UnsignedTypes), std::end(UnsignedTypes), t);
+    return (iter != std::end(UnsignedTypes));
+}
 
 FieldImpl::Kind IntFieldImpl::kindImpl() const
 {
