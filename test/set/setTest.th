@@ -19,6 +19,10 @@ public:
     void test10();
     void test11();
     void test12();
+    void test13();
+    void test14();
+    void test15();
+    void test16();
 };
 
 void SetTestSuite::setUp()
@@ -398,5 +402,124 @@ void SetTestSuite::test12()
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test13()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "Set2");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Set);
+
+    bbmp::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(setField.length(), 1U);
+    TS_ASSERT_EQUALS(setField.bitLength(), 8U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), true);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT(!setField.isNonUniqueAllowed());
+    TS_ASSERT(setField.isUnique());
+    TS_ASSERT_EQUALS(bits.size(), 3);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    auto& b2 = bits.find("B2")->second;
+    TS_ASSERT_EQUALS(b0.m_idx, 0);
+    TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b0.m_reserved, false);
+    TS_ASSERT_EQUALS(b0.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b1.m_idx, 1);
+    TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b1.m_reserved, false);
+    TS_ASSERT_EQUALS(b1.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b2.m_idx, 2);
+    TS_ASSERT_EQUALS(b2.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b2.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b2.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b2.m_reserved, false);
+    TS_ASSERT_EQUALS(b2.m_reservedValue, false);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
+    TS_ASSERT_EQUALS(revBits.find(1)->second, "B1");
+    TS_ASSERT_EQUALS(revBits.find(2)->second, "B2");
+}
+
+void SetTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test15()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "Set2");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Set);
+
+    bbmp::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(setField.length(), 1U);
+    TS_ASSERT_EQUALS(setField.bitLength(), 8U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT(setField.isNonUniqueAllowed());
+    TS_ASSERT(!setField.isUnique());
+    TS_ASSERT_EQUALS(bits.size(), 3);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    auto& otherB1 = bits.find("otherB1")->second;
+    TS_ASSERT_EQUALS(b0.m_idx, 0);
+    TS_ASSERT_EQUALS(b1.m_idx, 1);
+    TS_ASSERT_EQUALS(otherB1.m_idx, 1);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
+    auto r1 = revBits.equal_range(1);
+    TS_ASSERT_EQUALS(std::distance(r1.first, r1.second), 2);
+}
+
+void SetTestSuite::test16()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
 }

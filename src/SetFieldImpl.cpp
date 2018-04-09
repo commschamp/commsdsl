@@ -283,16 +283,19 @@ bool SetFieldImpl::updateNonUniqueAllowed()
 
     bool wasAllowed = m_state.m_nonUniqueAllowed;
     bool ok = false;
-    m_state.m_nonUniqueAllowed = common::strToBool(valueStr, &ok);
+    bool newAllowed = common::strToBool(valueStr, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::nonUniqueAllowedStr(), valueStr);
         return false;
     }
 
-    if (wasAllowed && (!m_state.m_nonUniqueAllowed)) {
-        assert(!"NYI");
-        // TODO: check non duplicates
+    if (wasAllowed && (!newAllowed) && (!isUnique())) {
+        logError() << "Cannot clear \"" << common::nonUniqueAllowedStr() << "\" property value "
+                      "while having multiple names for the same bit(s).";
+        return false;
     }
+
+    m_state.m_nonUniqueAllowed = newAllowed;
     return true;
 }
 
