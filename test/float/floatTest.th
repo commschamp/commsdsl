@@ -302,16 +302,16 @@ void FloatTestSuite::test5()
         auto& r3 = validRanges[2];
         TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200)), Epsilon);
         TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (std::numeric_limits<double>::max())), Epsilon);
-        TS_ASSERT_EQUALS(r1.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
         TS_ASSERT_EQUALS(r1.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
         TS_ASSERT_LESS_THAN(0.0, r2.m_min);
         TS_ASSERT(std::isinf(r2.m_min));
         TS_ASSERT(std::isinf(r2.m_max));
-        TS_ASSERT_EQUALS(r2.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r2.m_sinceVersion, 0U);
         TS_ASSERT_EQUALS(r2.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
         TS_ASSERT(std::isnan(r3.m_min));
         TS_ASSERT(std::isnan(r3.m_max));
-        TS_ASSERT_EQUALS(r3.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r3.m_sinceVersion, 0U);
         TS_ASSERT_EQUALS(r3.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
         TS_ASSERT_EQUALS(specialValues.size(), 3U);
     } while (false);
@@ -481,7 +481,7 @@ void FloatTestSuite::test10()
         auto& s1 = specialValues.find("S1")->second;
         auto& s2 = specialValues.find("S2")->second;
         TS_ASSERT_EQUALS(s1.m_value, -100.123);
-        TS_ASSERT_EQUALS(s1.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(s1.m_sinceVersion, 0U);
         TS_ASSERT_EQUALS(s1.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
         TS_ASSERT_EQUALS(s2.m_value, -200);
         TS_ASSERT_EQUALS(s2.m_sinceVersion, 0U);

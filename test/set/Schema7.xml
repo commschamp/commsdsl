@@ -4,7 +4,7 @@
         endian="Little"
         version="5">
     <fields>
-        <set name="Set1" length="3" nonUniqueAllowed="True" sinceVersion="1">
+        <set name="Set1" length="3" nonUniqueAllowed="True">
             <bit name="B0" idx="0" />
             <bit name="B2" idx="2" sinceVersion="2" deprecated="3" />
             <bit name="otherB2" idx="2" defaultValue="true" sinceVersion="3"/>

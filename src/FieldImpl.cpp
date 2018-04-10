@@ -381,18 +381,39 @@ bool FieldImpl::updateVersions()
     }
 
     unsigned sinceVersion = 0U;
-    if (getParent() != nullptr) {
+    if ((getParent() != nullptr) && (getParent()->objKind() != ObjKind::Namespace)) {
         sinceVersion = getParent()->getMinSinceVersion();
     }
 
     unsigned deprecated = bbmp::Protocol::notYetDeprecated();
-    if (getParent() != nullptr) {
+    if ((getParent() != nullptr) && (getParent()->objKind() != ObjKind::Namespace)) {
         deprecated = getParent()->getDeprecated();
     }
 
     if (!XmlWrap::getAndCheckVersions(m_node, name(), m_props, sinceVersion, deprecated, protocol())) {
         return false;
     }
+
+    do {
+        if ((getParent() != nullptr) && (getParent()->objKind() != ObjKind::Namespace)) {
+            break;
+        }
+
+        if (sinceVersion != 0U) {
+            logWarning() << XmlWrap::logPrefix(getNode()) <<
+                "Property \"" << common::sinceVersionStr() << "\" is not applicable to "
+                "stand alone fields, ignoring provided value";
+            sinceVersion = 0U;
+        }
+
+        if (deprecated != bbmp::Protocol::notYetDeprecated()) {
+            logWarning() << XmlWrap::logPrefix(getNode()) <<
+                "Property \"" << common::deprecatedStr() << "\" is not applicable to "
+                "stand alone fields, ignoring provided value";
+            deprecated = bbmp::Protocol::notYetDeprecated();
+        }
+
+    } while (false);
 
     setMinSinceVersion(sinceVersion);
     setRecursiveMaxSinceVersion(sinceVersion);

@@ -11,7 +11,6 @@
             <validRange value="[-100.123, 210.111]" />
             <validValue value="S3"/>
             <validMin value="S2"/>
-            <sinceVersion value="1" />
         </float>
     </fields>
 </schema>

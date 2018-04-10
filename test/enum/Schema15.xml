@@ -5,7 +5,7 @@
         version="2">
     <ns name="ns1">
         <fields>
-            <enum name="Enum1" type="uint16" defaultValue="Null" sinceVersion="1">
+            <enum name="Enum1" type="uint16" defaultValue="Null">
                 <validValue name="V1" val="1" />
                 <validValue name="Null" val="0xff" />
                 <validValue name="V2" val="3" sinceVersion="1" deprecated="1"/>

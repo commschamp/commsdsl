@@ -277,7 +277,7 @@ void SetTestSuite::test7()
     auto& b2 = bits.find("B2")->second;
     auto& otherB2 = bits.find("otherB2")->second;
     TS_ASSERT_EQUALS(b0.m_idx, 0);
-    TS_ASSERT_EQUALS(b0.m_sinceVersion, 1);
+    TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
     TS_ASSERT_EQUALS(b0.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(b0.m_defaultValue, false);
     TS_ASSERT_EQUALS(b0.m_reserved, false);
