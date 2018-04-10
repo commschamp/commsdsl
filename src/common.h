@@ -66,6 +66,7 @@ const std::string& bitStr();
 const std::string& idxStr();
 const std::string& setStr();
 const std::string& reuseStr();
+const std::string& validCheckVersionStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);
@@ -77,7 +78,7 @@ bool isFpSpecial(const std::string& str);
 
 const std::string& getStringProp(
     const PropsMap& map,
-    const std::string prop,
+    const std::string& prop,
     const std::string& defaultValue = emptyString());
 
 Endian parseEndian(const std::string& value, Endian defaultEndian);

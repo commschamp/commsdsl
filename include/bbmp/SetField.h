@@ -38,6 +38,7 @@ public:
     const RevBits& revBits() const;
     bool isNonUniqueAllowed() const;
     bool isUnique() const;
+    bool validCheckVersion() const;
 };
 
 inline

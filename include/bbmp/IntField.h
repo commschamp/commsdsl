@@ -68,6 +68,7 @@ public:
     ScalingRatio scaling() const;
     const ValidRangesList& validRanges() const;
     const SpecialValues& specialValues() const;
+    bool validCheckVersion() const;
 };
 
 inline

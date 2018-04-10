@@ -81,6 +81,11 @@ public:
         return m_state.m_specials;
     }
 
+    bool validCheckVersion() const
+    {
+        return m_state.m_validCheckVersion;
+    }
+
     static Type parseTypeValue(const std::string& value);
 
     static std::size_t maxTypeLength(Type t);
@@ -106,23 +111,6 @@ protected:
     virtual std::size_t bitLengthImpl() const override;
 
 private:
-    struct State
-    {
-        Type m_type = Type::NumOfValues;
-        Endian m_endian = Endian_NumOfValues;
-        std::size_t m_length = 0U;
-        std::size_t m_bitLength = 0U;
-        std::intmax_t m_serOffset = 0;
-        std::intmax_t m_typeAllowedMinValue = 0;
-        std::intmax_t m_typeAllowedMaxValue = 0;
-        std::intmax_t m_minValue = 0;
-        std::intmax_t m_maxValue = 0;
-        std::intmax_t m_defaultValue = 0;
-        ScalingRatio m_scaling;
-        ValidRangesList m_validRanges;
-        SpecialValues m_specials;
-    };
-
     bool updateType();
     bool updateEndian();
     bool updateLength();
@@ -131,6 +119,7 @@ private:
     bool updateMinMaxValues();
     bool updateDefaultValue();
     bool updateScaling();
+    bool updateValidCheckVersion();
     bool updateValidRanges();
     bool updateSpecials();
     bool checkValidRangeAsAttr(const PropsMap& xmlAttrs);
@@ -148,6 +137,24 @@ private:
     bool validateValidRangeStr(const std::string& str, std::intmax_t& minVal, std::intmax_t& maxVal);
     bool validateValidValueStr(const std::string& str, const std::string& type, std::intmax_t& val);
     bool strToNumeric(const std::string& str, std::intmax_t& val);
+
+    struct State
+    {
+        Type m_type = Type::NumOfValues;
+        Endian m_endian = Endian_NumOfValues;
+        std::size_t m_length = 0U;
+        std::size_t m_bitLength = 0U;
+        std::intmax_t m_serOffset = 0;
+        std::intmax_t m_typeAllowedMinValue = 0;
+        std::intmax_t m_typeAllowedMaxValue = 0;
+        std::intmax_t m_minValue = 0;
+        std::intmax_t m_maxValue = 0;
+        std::intmax_t m_defaultValue = 0;
+        ScalingRatio m_scaling;
+        ValidRangesList m_validRanges;
+        SpecialValues m_specials;
+        bool m_validCheckVersion = false;
+    };
 
     State m_state;
 };

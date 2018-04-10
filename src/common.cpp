@@ -318,6 +318,12 @@ const std::string& reuseStr()
     return Str;
 }
 
+const std::string& validCheckVersionStr()
+{
+    static const std::string Str("validCheckVersion");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
@@ -454,7 +460,7 @@ bool isFpSpecial(const std::string& str)
 
 const std::string& getStringProp(
     const PropsMap& map,
-    const std::string prop,
+    const std::string& prop,
     const std::string& defaultValue)
 {
     auto iter = map.lower_bound(prop);

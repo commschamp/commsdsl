@@ -56,6 +56,11 @@ public:
         return m_state.m_specials;
     }
 
+    bool validCheckVersion() const
+    {
+        return m_state.m_validCheckVersion;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -71,6 +76,7 @@ private:
     bool updateLength();
     bool updateMinMaxValues();
     bool updateDefaultValue();
+    bool updateValidCheckVersion();
     bool updateValidRanges();
     bool updateSpecials();
     bool checkFullRangeAsAttr(const PropsMap& xmlAttrs);
@@ -106,6 +112,7 @@ private:
         double m_defaultValue = 0.0;
         ValidRangesList m_validRanges;
         SpecialValues m_specials;
+        bool m_validCheckVersion = false;
     };
 
     State m_state;

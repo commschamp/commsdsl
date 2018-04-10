@@ -21,6 +21,7 @@
             <enum reuse="ns1.Enum1" name="Enum2" defaultValue="ns2.Enum1.V1">
                 <validValue name="V3" val="3" sinceVersion="2"/>
                 <endian>big</endian>
+                <validCheckVersion value="1" />
             </enum>
         </fields>
     </ns>

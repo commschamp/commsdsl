@@ -84,4 +84,9 @@ const IntField::SpecialValues& IntField::specialValues() const
     return cast(m_pImpl)->specialValues();
 }
 
+bool IntField::validCheckVersion() const
+{
+    return cast(m_pImpl)->validCheckVersion();
+}
+
 } // namespace bbmp

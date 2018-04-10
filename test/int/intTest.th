@@ -26,6 +26,8 @@ public:
     void test17();
     void test18();
     void test19();
+    void test20();
+
 };
 
 void IntTestSuite::setUp()
@@ -69,6 +71,7 @@ void IntTestSuite::test1()
     TS_ASSERT_EQUALS(intField.minValue(), 0);
     TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint8_t>::max());
     TS_ASSERT_EQUALS(intField.defaultValue(), 0);
+    TS_ASSERT_EQUALS(intField.validCheckVersion(), false);
     TS_ASSERT_EQUALS(scaling.first, 1);
     TS_ASSERT_EQUALS(scaling.second, 1);
     TS_ASSERT(validRanges.empty());
@@ -1253,4 +1256,58 @@ void IntTestSuite::test19()
     TS_ASSERT_EQUALS(specialValues.size(), 2U);
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1000);
     TS_ASSERT_EQUALS(specialValues.find("S2")->second.m_value, 2000);
+}
+
+void IntTestSuite::test20()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Int);
+
+    bbmp::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(intField.length(), 2U);
+    TS_ASSERT_EQUALS(intField.bitLength(), intField.length() * 8U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), 0);
+    TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint16_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 1000);
+    TS_ASSERT_EQUALS(intField.validCheckVersion(), true);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 1);
+    TS_ASSERT_EQUALS(validRanges.size(), 2U);
+    auto& r1 = validRanges[0];
+    auto& r2 = validRanges[1];
+    TS_ASSERT_EQUALS(r1.m_min, 0);
+    TS_ASSERT_EQUALS(r1.m_max, 1000);
+    TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+    TS_ASSERT_EQUALS(r1.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(r2.m_min, 1000);
+    TS_ASSERT_EQUALS(r2.m_max, 2000);
+    TS_ASSERT_EQUALS(r2.m_sinceVersion, 2U);
+    TS_ASSERT_EQUALS(r2.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(specialValues.size(), 2U);
+    auto& s1 = specialValues.find("S1")->second;
+    auto& s2 = specialValues.find("S2")->second;
+    TS_ASSERT_EQUALS(s1.m_value, 1000);
+    TS_ASSERT_EQUALS(s1.m_sinceVersion, 0U);
+    TS_ASSERT_EQUALS(s1.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(s2.m_value, 2000);
+    TS_ASSERT_EQUALS(s2.m_sinceVersion, 2U);
+    TS_ASSERT_EQUALS(s2.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
 }

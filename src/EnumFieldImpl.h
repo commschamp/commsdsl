@@ -59,13 +59,17 @@ public:
         return m_state.m_revValues;
     }
 
-
     bool isNonUniqueAllowed() const
     {
         return m_state.m_nonUniqueAllowed;
     }
 
     bool isUnique() const;
+
+    bool validCheckVersion() const
+    {
+        return m_state.m_validCheckVersion;
+    }
 
 protected:
     virtual Kind kindImpl() const override;
@@ -83,6 +87,7 @@ private:
     bool updateLength();
     bool updateBitLength();
     bool updateNonUniqueAllowed();
+    bool updateValidCheckVersion();
     bool updateMinMaxValues();
     bool updateValues();
     bool updateDefaultValue();
@@ -102,6 +107,7 @@ private:
         Values m_values;
         RevValues m_revValues;
         bool m_nonUniqueAllowed = false;
+        bool m_validCheckVersion = false;
     };
 
     State m_state;

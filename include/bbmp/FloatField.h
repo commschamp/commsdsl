@@ -50,6 +50,7 @@ public:
     double defaultValue() const;
     const ValidRangesList& validRanges() const;
     const SpecialValues& specialValues() const;
+    bool validCheckVersion() const;
 };
 
 inline

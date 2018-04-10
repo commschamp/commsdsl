@@ -59,4 +59,9 @@ const FloatField::SpecialValues& FloatField::specialValues() const
     return cast(m_pImpl)->specialValues();
 }
 
+bool FloatField::validCheckVersion() const
+{
+    return cast(m_pImpl)->validCheckVersion();
+}
+
 } // namespace bbmp

@@ -114,7 +114,8 @@ const XmlWrap::NamesList&FloatFieldImpl::extraPropsNamesImpl() const
         common::validFullRangeStr(),
         common::validValueStr(),
         common::validMinStr(),
-        common::validMaxStr()
+        common::validMaxStr(),
+        common::validCheckVersionStr()
     };
 
     return List;
@@ -146,6 +147,7 @@ bool FloatFieldImpl::parseImpl()
         updateMinMaxValues() &&
         updateSpecials() &&
         updateDefaultValue() &&
+        updateValidCheckVersion() &&
         updateValidRanges();
 }
 
@@ -273,6 +275,27 @@ bool FloatFieldImpl::updateDefaultValue()
     if (m_state.m_defaultValue < m_state.m_typeAllowedMinValue) {
         logError() << "Value of property \"" << common::defaultValueStr() <<
                         "\" is less than the type's minimal value.";
+        return false;
+    }
+
+    return true;
+}
+
+bool FloatFieldImpl::updateValidCheckVersion()
+{
+    if (!validateSinglePropInstance(common::validCheckVersionStr())) {
+        return false;
+    }
+
+    auto& valueStr = common::getStringProp(props(), common::validCheckVersionStr());
+    if (valueStr.empty()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_validCheckVersion = common::strToBool(valueStr, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::validCheckVersionStr(), valueStr);
         return false;
     }
 

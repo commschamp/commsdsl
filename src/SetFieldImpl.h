@@ -70,6 +70,11 @@ public:
 
     bool isUnique() const;
 
+    bool validCheckVersion() const
+    {
+        return m_state.m_validCheckVersion;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -85,6 +90,7 @@ private:
     bool updateType();
     bool updateLength();
     bool updateNonUniqueAllowed();
+    bool updateValidCheckVersion();
     bool updateDefaultValue();
     bool updateReservedValue();
     bool updateBits();
@@ -100,6 +106,7 @@ private:
         bool m_nonUniqueAllowed = false;
         bool m_defaultBitValue = false;
         bool m_reservedBitValue = false;
+        bool m_validCheckVersion = false;
     };
     State m_state;
 };

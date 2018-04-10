@@ -35,6 +35,7 @@ public:
     const RevValues& revValues() const;
     bool isNonUniqueAllowed() const;
     bool isUnique() const;
+    bool validCheckVersion() const;
 };
 
 inline

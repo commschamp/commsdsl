@@ -66,7 +66,8 @@ const XmlWrap::NamesList& EnumFieldImpl::extraPropsNamesImpl() const
         common::endianStr(),
         common::lengthStr(),
         common::bitLengthStr(),
-        common::nonUniqueAllowedStr()
+        common::nonUniqueAllowedStr(),
+        common::validCheckVersionStr()
     };
 
     return List;
@@ -97,6 +98,7 @@ bool EnumFieldImpl::parseImpl()
         updateLength() &&
         updateBitLength() &&
         updateNonUniqueAllowed() &&
+        updateValidCheckVersion() &&
         updateMinMaxValues() &&
         updateValues() &&
         updateDefaultValue();
@@ -283,6 +285,27 @@ bool EnumFieldImpl::updateNonUniqueAllowed()
     m_state.m_nonUniqueAllowed = common::strToBool(valueStr, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::nonUniqueAllowedStr(), valueStr);
+        return false;
+    }
+
+    return true;
+}
+
+bool EnumFieldImpl::updateValidCheckVersion()
+{
+    if (!validateSinglePropInstance(common::validCheckVersionStr())) {
+        return false;
+    }
+
+    auto& valueStr = common::getStringProp(props(), common::validCheckVersionStr());
+    if (valueStr.empty()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_validCheckVersion = common::strToBool(valueStr, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::validCheckVersionStr(), valueStr);
         return false;
     }
 

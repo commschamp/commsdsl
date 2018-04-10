@@ -62,6 +62,7 @@ void FloatTestSuite::test1()
         TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(floatField.length(), 8U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT_EQUALS(floatField.validCheckVersion(), false);
         TS_ASSERT(validRanges.empty());
         TS_ASSERT(specialValues.empty());
     } while (false);
@@ -342,6 +343,7 @@ void FloatTestSuite::test6()
         TS_ASSERT_EQUALS(floatField.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(floatField.length(), 8U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT_EQUALS(floatField.validCheckVersion(), true);
         TS_ASSERT_EQUALS(validRanges.size(), 2U);
         auto& r1 = validRanges[0];
         auto& r2 = validRanges[1];

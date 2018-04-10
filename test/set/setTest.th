@@ -65,6 +65,7 @@ void SetTestSuite::test1()
     TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
     TS_ASSERT(!setField.isNonUniqueAllowed());
     TS_ASSERT(setField.isUnique());
+    TS_ASSERT(!setField.validCheckVersion());
     TS_ASSERT_EQUALS(bits.size(), 3);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b1 = bits.find("B1")->second;
@@ -271,6 +272,7 @@ void SetTestSuite::test7()
     TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
     TS_ASSERT(setField.isNonUniqueAllowed());
     TS_ASSERT(!setField.isUnique());
+    TS_ASSERT(setField.validCheckVersion());
     TS_ASSERT_EQUALS(bits.size(), 3);
     TS_ASSERT_EQUALS(revBits.size(), bits.size());
     auto& b0 = bits.find("B0")->second;

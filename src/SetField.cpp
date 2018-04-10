@@ -79,4 +79,9 @@ bool SetField::isUnique() const
     return cast(m_pImpl)->isUnique();
 }
 
+bool SetField::validCheckVersion() const
+{
+    return cast(m_pImpl)->validCheckVersion();
+}
+
 } // namespace bbmp

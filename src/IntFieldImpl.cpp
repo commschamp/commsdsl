@@ -293,7 +293,8 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::validRangeStr(),
         common::validValueStr(),
         common::validMinStr(),
-        common::validMaxStr()
+        common::validMaxStr(),
+        common::validCheckVersionStr()
     };
 
     return List;
@@ -328,6 +329,7 @@ bool IntFieldImpl::parseImpl()
         updateMinMaxValues() &&
         updateSpecials() &&
         updateDefaultValue() &&
+        updateValidCheckVersion() &&
         updateValidRanges();
 }
 
@@ -745,6 +747,27 @@ bool IntFieldImpl::updateScaling()
     }
 
     m_state.m_scaling = std::make_pair(num, denom);
+
+    return true;
+}
+
+bool IntFieldImpl::updateValidCheckVersion()
+{
+    if (!validateSinglePropInstance(common::validCheckVersionStr())) {
+        return false;
+    }
+
+    auto& valueStr = common::getStringProp(props(), common::validCheckVersionStr());
+    if (valueStr.empty()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_validCheckVersion = common::strToBool(valueStr, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::validCheckVersionStr(), valueStr);
+        return false;
+    }
 
     return true;
 }

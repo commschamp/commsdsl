@@ -74,4 +74,9 @@ bool EnumField::isUnique() const
     return cast(m_pImpl)->isUnique();
 }
 
+bool bbmp::EnumField::validCheckVersion() const
+{
+    return cast(m_pImpl)->validCheckVersion();
+}
+
 } // namespace bbmp
