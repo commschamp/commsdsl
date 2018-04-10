@@ -951,7 +951,7 @@ bool IntFieldImpl::updateSpecials()
 
         SpecialValueInfo info;
         info.m_value = val;
-        info.m_sinceVersion = getMinSinceVersion();
+        info.m_sinceVersion = getSinceVersion();
         info.m_deprecatedSince = getDeprecated();
         if (!XmlWrap::getAndCheckVersions(s, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
             return false;
@@ -976,7 +976,7 @@ bool IntFieldImpl::checkValidRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
         return false;
     }
 
-    info.m_sinceVersion = getMinSinceVersion();
+    info.m_sinceVersion = getSinceVersion();
     info.m_deprecatedSince = getDeprecated();
     m_state.m_validRanges.push_back(info);
     return true;
@@ -990,7 +990,7 @@ bool IntFieldImpl::checkValidRangeAsChild(::xmlNodePtr child)
     }
 
     ValidRangeInfo info;
-    info.m_sinceVersion = getMinSinceVersion();
+    info.m_sinceVersion = getSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
     if (!validateValidRangeStr(str, info.m_min, info.m_max)) {
@@ -1034,7 +1034,7 @@ bool IntFieldImpl::checkValidValueAsAttr(const FieldImpl::PropsMap& xmlAttrs)
     }
 
     info.m_max = info.m_min;
-    info.m_sinceVersion = getMinSinceVersion();
+    info.m_sinceVersion = getSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
     m_state.m_validRanges.push_back(info);
@@ -1055,7 +1055,7 @@ bool IntFieldImpl::checkValidValueAsChild(::xmlNodePtr child)
     }
 
     info.m_max = info.m_min;
-    info.m_sinceVersion = getMinSinceVersion();
+    info.m_sinceVersion = getSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
     if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
@@ -1095,7 +1095,7 @@ bool IntFieldImpl::checkValidMinAsAttr(const FieldImpl::PropsMap& xmlAttrs)
     }
 
     info.m_max = m_state.m_maxValue;
-    info.m_sinceVersion = getMinSinceVersion();
+    info.m_sinceVersion = getSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
     m_state.m_validRanges.push_back(info);
@@ -1116,7 +1116,7 @@ bool IntFieldImpl::checkValidMinAsChild(::xmlNodePtr child)
     }
 
     info.m_max = m_state.m_maxValue;
-    info.m_sinceVersion = getMinSinceVersion();
+    info.m_sinceVersion = getSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
     if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
@@ -1156,7 +1156,7 @@ bool IntFieldImpl::checkValidMaxAsAttr(const FieldImpl::PropsMap& xmlAttrs)
     }
 
     info.m_min = m_state.m_minValue;
-    info.m_sinceVersion = getMinSinceVersion();
+    info.m_sinceVersion = getSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
     m_state.m_validRanges.push_back(info);
@@ -1177,7 +1177,7 @@ bool IntFieldImpl::checkValidMaxAsChild(::xmlNodePtr child)
     }
 
     info.m_min = m_state.m_minValue;
-    info.m_sinceVersion = getMinSinceVersion();
+    info.m_sinceVersion = getSinceVersion();
     info.m_deprecatedSince = getDeprecated();
 
     if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {

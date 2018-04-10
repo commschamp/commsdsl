@@ -38,14 +38,9 @@ public:
         return objKindImpl();
     }
 
-    unsigned getMinSinceVersion() const
+    unsigned getSinceVersion() const
     {
-        return m_rState.m_minSinceVersion;
-    }
-
-    unsigned getMaxSinceVersion() const
-    {
-        return m_rState.m_maxSinceVersion;
+        return m_rState.m_sinceVersion;
     }
 
     unsigned getDeprecated() const
@@ -53,30 +48,27 @@ public:
         return m_rState.m_deprecated;
     }
 
-    void setMaxSinceVersion(unsigned val)
+    bool isDeprecatedRemoved() const
     {
-        m_rState.m_maxSinceVersion = val;
-    }
-
-    void setRecursiveMaxSinceVersion(unsigned val)
-    {
-        setMaxSinceVersion(val);
-        if (m_parent != nullptr) {
-            m_parent->setRecursiveMaxSinceVersion(val);
-        }
+        return m_rState.m_deprecatedRemoved;
     }
 
 protected:
     virtual ObjKind objKindImpl() const = 0;
 
-    void setMinSinceVersion(unsigned val)
+    void setSinceVersion(unsigned val)
     {
-        m_rState.m_minSinceVersion = val;
+        m_rState.m_sinceVersion = val;
     }
 
     void setDeprecated(unsigned val)
     {
         m_rState.m_deprecated = val;
+    }
+
+    void setDeprecatedRemoved(bool val)
+    {
+        m_rState.m_deprecatedRemoved = val;
     }
 
     void reuseState(const Object& other)
@@ -88,9 +80,9 @@ protected:
 private:
     struct ReusableState
     {
-        unsigned m_minSinceVersion = 0U;
-        unsigned m_maxSinceVersion = 0U;
+        unsigned m_sinceVersion = 0U;
         unsigned m_deprecated = Protocol::notYetDeprecated();
+        bool m_deprecatedRemoved = false;
     };
 
     Object* m_parent = nullptr;

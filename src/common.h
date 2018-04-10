@@ -54,6 +54,7 @@ const std::string& bundleStr();
 const std::string& membersStr();
 const std::string& sinceVersionStr();
 const std::string& deprecatedStr();
+const std::string& removedStr();
 const std::string& refStr();
 const std::string& origStr();
 const std::string& nsStr();

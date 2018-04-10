@@ -134,20 +134,20 @@ bool BundleFieldImpl::parseImpl()
 
     assert(!m_members.empty());
     auto& firstMem = m_members.front();
-    if (getMinSinceVersion() < firstMem->getMinSinceVersion()) {
+    if (getSinceVersion() < firstMem->getSinceVersion()) {
         logError() << XmlWrap::logPrefix(firstMem->getNode()) <<
                       "First member mustn't have value of \"" << common::sinceVersionStr() <<
-                      "\" property (" << firstMem->getMinSinceVersion() << ") to be greater "
+                      "\" property (" << firstMem->getSinceVersion() << ") to be greater "
                       "than value of the containing \"" << common::bundleStr() << "\" (" <<
-                      getMinSinceVersion() << ").";
+                      getSinceVersion() << ").";
         return false;
     }
 
-    assert(firstMem->getMinSinceVersion() == getMinSinceVersion());
+    assert(firstMem->getSinceVersion() == getSinceVersion());
 
-    if (!validateMembersVersions(m_members)) {
-        return false;
-    }
+//    if (!validateMembersVersions(m_members)) {
+//        return false;
+//    }
 
     return true;
 }

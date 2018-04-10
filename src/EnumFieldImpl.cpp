@@ -411,7 +411,7 @@ bool EnumFieldImpl::updateValues()
 
         ValueInfo info;
         info.m_value = val;
-        info.m_sinceVersion = getMinSinceVersion();
+        info.m_sinceVersion = getSinceVersion();
         info.m_deprecatedSince = getDeprecated();
 
         if (!XmlWrap::getAndCheckVersions(vNode, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {

@@ -68,11 +68,11 @@ public:
     }
 
     static XmlWrap::NamesList supportedTypes();
-    static bool validateMembersVersions(
-            const Object& obj,
-            const FieldsList& fields,
-            Logger& logger);
-    bool validateMembersVersions(const FieldsList& fields);
+//    static bool validateMembersVersions(
+//            const Object& obj,
+//            const FieldsList& fields,
+//            Logger& logger);
+//    bool validateMembersVersions(const FieldsList& fields);
 
     static bool validateMembersNames(
             const FieldsList& fields,

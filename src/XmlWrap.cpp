@@ -298,6 +298,14 @@ bool XmlWrap::checkVersions(
         return false;
     }
 
+    if (parentDeprecated < deprecatedSince) {
+        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+            "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
+            "be greater than " << parentDeprecated << ".";
+        return false;
+    }
+
+
     if (deprecatedSince <= sinceVersion) {
         bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") must "

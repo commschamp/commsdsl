@@ -246,6 +246,12 @@ const std::string& deprecatedStr()
     return Str;
 }
 
+const std::string& removedStr()
+{
+    static const std::string Str("removed");
+    return Str;
+}
+
 const std::string& refStr()
 {
     static const std::string Str("ref");

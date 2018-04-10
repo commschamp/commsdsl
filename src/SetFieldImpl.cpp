@@ -446,7 +446,7 @@ bool SetFieldImpl::updateBits()
         info.m_idx = idx;
         info.m_defaultValue = m_state.m_defaultBitValue;
         info.m_reservedValue = m_state.m_reservedBitValue;
-        info.m_sinceVersion = getMinSinceVersion();
+        info.m_sinceVersion = getSinceVersion();
         info.m_deprecatedSince = getDeprecated();
         do {
             auto& bitDefaultValueStr = common::getStringProp(props, common::defaultValueStr());

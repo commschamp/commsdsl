@@ -128,38 +128,38 @@ XmlWrap::NamesList FieldImpl::supportedTypes()
     return result;
 }
 
-bool FieldImpl::validateMembersVersions(
-    const Object& obj,
-    const FieldImpl::FieldsList& fields,
-    Logger& logger)
-{
-    if (fields.size() < 2U) {
-        return true;
-    }
+//bool FieldImpl::validateMembersVersions(
+//    const Object& obj,
+//    const FieldImpl::FieldsList& fields,
+//    Logger& logger)
+//{
+//    if (fields.size() < 2U) {
+//        return true;
+//    }
 
-    for (auto idx = 0U; idx < (fields.size() - 1); ++idx) {
-        auto& thisMem = fields[idx];
-        auto& nextMem = fields[idx + 1];
+//    for (auto idx = 0U; idx < (fields.size() - 1); ++idx) {
+//        auto& thisMem = fields[idx];
+//        auto& nextMem = fields[idx + 1];
 
-        assert(obj.getMinSinceVersion() <= thisMem->getMinSinceVersion());
+//        assert(obj.getSinceVersion() <= thisMem->getMinSinceVersion());
 
-        if (nextMem->getMinSinceVersion() < thisMem->getMaxSinceVersion()) {
-            bbmp::logError(logger) << XmlWrap::logPrefix(nextMem->getNode()) <<
-                "Version of the member \"" << nextMem->name() << "\" (" <<
-                nextMem->getMinSinceVersion() << ") must't be less than previous "
-                " member's one (" << thisMem->getMaxSinceVersion() << ").";
-            return false;
-        }
+//        if (nextMem->getMinSinceVersion() < thisMem->getMaxSinceVersion()) {
+//            bbmp::logError(logger) << XmlWrap::logPrefix(nextMem->getNode()) <<
+//                "Version of the member \"" << nextMem->name() << "\" (" <<
+//                nextMem->getMinSinceVersion() << ") must't be less than previous "
+//                " member's one (" << thisMem->getMaxSinceVersion() << ").";
+//            return false;
+//        }
 
-        assert(thisMem->getMaxSinceVersion() <= obj.getMaxSinceVersion());
-    }
-    return true;
-}
+//        assert(thisMem->getMaxSinceVersion() <= obj.getMaxSinceVersion());
+//    }
+//    return true;
+//}
 
-bool FieldImpl::validateMembersVersions(const FieldImpl::FieldsList& fields)
-{
-    return validateMembersVersions(*this, fields, protocol().logger());
-}
+//bool FieldImpl::validateMembersVersions(const FieldImpl::FieldsList& fields)
+//{
+//    return validateMembersVersions(*this, fields, protocol().logger());
+//}
 
 bool FieldImpl::validateMembersNames(
     const FieldImpl::FieldsList& fields,
@@ -293,7 +293,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::displayNameStr(),
         common::descriptionStr(),
         common::sinceVersionStr(),
-        common::deprecatedStr()
+        common::deprecatedStr(),
+        common::removedStr()
     };
 
     return CommonNames;
@@ -333,14 +334,13 @@ bool FieldImpl::checkReuse()
         return false;
     }
 
-    if (getMinSinceVersion() < field->getMinSinceVersion()) {
-        logWarning() << XmlWrap::logPrefix(getNode()) <<
-                "Reusing field that was introduced in later version";
-    }
-
     assert(field != this);
     Base::reuseState(*field);
     m_state = field->m_state;
+
+    assert(getSinceVersion() == 0U);
+    assert(getDeprecated() == bbmp::Protocol::notYetDeprecated());
+    assert(!isDeprecatedRemoved());
     return reuseImpl(*field);
 }
 
@@ -380,9 +380,13 @@ bool FieldImpl::updateVersions()
         return false;
     }
 
+    if (!validateSinglePropInstance(common::removedStr())) {
+        return false;
+    }
+
     unsigned sinceVersion = 0U;
     if ((getParent() != nullptr) && (getParent()->objKind() != ObjKind::Namespace)) {
-        sinceVersion = getParent()->getMinSinceVersion();
+        sinceVersion = getParent()->getSinceVersion();
     }
 
     unsigned deprecated = bbmp::Protocol::notYetDeprecated();
@@ -415,9 +419,34 @@ bool FieldImpl::updateVersions()
 
     } while (false);
 
-    setMinSinceVersion(sinceVersion);
-    setRecursiveMaxSinceVersion(sinceVersion);
+    bool deprecatedRemoved = false;
+    do {
+        auto deprecatedRemovedIter = m_props.find(common::removedStr());
+        if (deprecatedRemovedIter == m_props.end()) {
+            break;
+        }
+
+        bool ok = false;
+        deprecatedRemoved = common::strToBool(deprecatedRemovedIter->second, &ok);
+        if (!ok) {
+            reportUnexpectedPropertyValue(common::removedStr(), deprecatedRemovedIter->second);
+            return false;
+        }
+
+        if (!deprecatedRemoved) {
+            break;
+        }
+
+        if (deprecated == bbmp::Protocol::notYetDeprecated()) {
+            logWarning() << XmlWrap::logPrefix(getNode()) <<
+                "Property \"" << common::removedStr() << "\" is not applicable to "
+                "non deprecated fields";
+        }
+    } while (false);
+
+    setSinceVersion(sinceVersion);
     setDeprecated(deprecated);
+    setDeprecatedRemoved(deprecatedRemoved);
     return true;
 }
 
