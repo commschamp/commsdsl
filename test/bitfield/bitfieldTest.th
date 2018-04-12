@@ -12,6 +12,10 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
 };
 
 void BitfieldTestSuite::setUp()
@@ -170,4 +174,78 @@ void BitfieldTestSuite::test5()
     TS_ASSERT_EQUALS(bbmp::SetField(mem2).bitLength(), 8U);
     TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
     TS_ASSERT_EQUALS(bbmp::IntField(mem3).bitLength(), 12U);
+}
+
+void BitfieldTestSuite::test6()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+}
+
+void BitfieldTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+
+    bbmp::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(bitfieldField.length(), 3U);
+    TS_ASSERT_EQUALS(bitfieldField.bitLength(), bitfieldField.length() * 8U);
+    auto& members = bitfieldField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+}
+
+void BitfieldTestSuite::test8()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+
+    bbmp::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(bitfieldField.length(), 1U);
+    TS_ASSERT_EQUALS(bitfieldField.bitLength(), bitfieldField.length() * 8U);
+    auto& members = bitfieldField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+}
+
+void BitfieldTestSuite::test9()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
 }
