@@ -8,6 +8,10 @@ public:
     void setUp();
     void tearDown();
     void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
 };
 
 void BitfieldTestSuite::setUp()
@@ -54,3 +58,116 @@ void BitfieldTestSuite::test1()
     TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
 }
 
+void BitfieldTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+
+    bbmp::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(bitfieldField.length(), 1U);
+    TS_ASSERT_EQUALS(bitfieldField.bitLength(), bitfieldField.length() * 8U);
+    auto& members = bitfieldField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
+}
+
+void BitfieldTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 5U);
+
+    auto& field = fields[1];
+    TS_ASSERT_EQUALS(field.name(), "Bitfield2");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+
+    bbmp::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(bitfieldField.length(), 1U);
+    TS_ASSERT_EQUALS(bitfieldField.bitLength(), bitfieldField.length() * 8U);
+    auto& members = bitfieldField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
+}
+
+void BitfieldTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void BitfieldTestSuite::test5()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bitfield1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+
+    bbmp::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(bitfieldField.length(), 3U);
+    TS_ASSERT_EQUALS(bitfieldField.bitLength(), bitfieldField.length() * 8U);
+    auto& members = bitfieldField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(bbmp::EnumField(mem1).bitLength(), 4U);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(bbmp::SetField(mem2).bitLength(), 8U);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(bbmp::IntField(mem3).bitLength(), 12U);
+}

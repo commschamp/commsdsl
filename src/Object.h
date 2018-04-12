@@ -43,6 +43,11 @@ public:
         return m_rState.m_sinceVersion;
     }
 
+    void setSinceVersion(unsigned val)
+    {
+        m_rState.m_sinceVersion = val;
+    }
+
     unsigned getDeprecated() const
     {
         return m_rState.m_deprecated;
@@ -55,11 +60,6 @@ public:
 
 protected:
     virtual ObjKind objKindImpl() const = 0;
-
-    void setSinceVersion(unsigned val)
-    {
-        m_rState.m_sinceVersion = val;
-    }
 
     void setDeprecated(unsigned val)
     {
