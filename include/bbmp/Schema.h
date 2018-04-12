@@ -4,13 +4,14 @@
 #include <map>
 #include <vector>
 
+#include "BbmpApi.h"
 #include "Endian.h"
 
 namespace bbmp
 {
 
 class SchemaImpl;
-class Schema
+class BBMP_API Schema
 {
 public:
     using AttributesMap = std::multimap<std::string, std::string>;

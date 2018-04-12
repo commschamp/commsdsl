@@ -39,5 +39,17 @@ Field::Kind Field::kind() const
     return m_pImpl->kind();
 }
 
+std::size_t Field::length() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->length();
+}
+
+std::size_t Field::bitLength() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->bitLength();
+}
+
 
 } // namespace bbmp

@@ -39,16 +39,6 @@ Endian IntField::endian() const
     return cast(m_pImpl)->endian();
 }
 
-std::size_t IntField::length() const
-{
-    return cast(m_pImpl)->length();
-}
-
-std::size_t IntField::bitLength() const
-{
-    return cast(m_pImpl)->bitLength();
-}
-
 std::intmax_t IntField::serOffset() const
 {
     return cast(m_pImpl)->serOffset();

@@ -39,16 +39,6 @@ Endian EnumField::endian() const
     return cast(m_pImpl)->endian();
 }
 
-std::size_t EnumField::length() const
-{
-    return cast(m_pImpl)->length();
-}
-
-std::size_t EnumField::bitLength() const
-{
-    return cast(m_pImpl)->bitLength();
-}
-
 std::intmax_t EnumField::defaultValue() const
 {
     return cast(m_pImpl)->defaultValue();

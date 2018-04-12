@@ -36,11 +36,6 @@ public:
         return m_state.m_endian;
     }
 
-    std::size_t length() const
-    {
-        return m_state.m_length;
-    }
-
     double defaultValue() const
     {
         return m_state.m_defaultValue;

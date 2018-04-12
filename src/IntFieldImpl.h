@@ -36,16 +36,6 @@ public:
         return m_state.m_endian;
     }
 
-    std::size_t length() const
-    {
-        return m_state.m_length;
-    }
-
-    std::size_t bitLength() const
-    {
-        return m_state.m_bitLength;
-    }
-
     std::intmax_t serOffset() const
     {
         return m_state.m_serOffset;

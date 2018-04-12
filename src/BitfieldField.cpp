@@ -34,16 +34,6 @@ Endian BitfieldField::endian() const
     return cast(m_pImpl)->endian();
 }
 
-std::size_t BitfieldField::length() const
-{
-    return cast(m_pImpl)->length();
-}
-
-std::size_t BitfieldField::bitLength() const
-{
-    return cast(m_pImpl)->bitLength();
-}
-
 const BitfieldField::Members& BitfieldField::members() const
 {
     return cast(m_pImpl)->members();

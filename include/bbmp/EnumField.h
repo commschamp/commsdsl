@@ -7,7 +7,7 @@ namespace bbmp
 {
 
 class EnumFieldImpl;
-class EnumField : public Field
+class BBMP_API EnumField : public Field
 {
     using Base = Field;
 public:
@@ -28,8 +28,6 @@ public:
 
     Type type() const;
     Endian endian() const;
-    std::size_t length() const;
-    std::size_t bitLength() const;
     std::intmax_t defaultValue() const;
     const Values& values() const;
     const RevValues& revValues() const;

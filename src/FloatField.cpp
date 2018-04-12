@@ -39,11 +39,6 @@ Endian FloatField::endian() const
     return cast(m_pImpl)->endian();
 }
 
-std::size_t FloatField::length() const
-{
-    return cast(m_pImpl)->length();
-}
-
 double FloatField::defaultValue() const
 {
     return cast(m_pImpl)->defaultValue();

@@ -12,7 +12,7 @@ namespace bbmp
 {
 
 class FloatFieldImpl;
-class FloatField : public Field
+class BBMP_API FloatField : public Field
 {
     using Base = Field;
 public:
@@ -46,7 +46,6 @@ public:
 
     Type type() const;
     Endian endian() const;
-    std::size_t length() const;
     double defaultValue() const;
     const ValidRangesList& validRanges() const;
     const SpecialValues& specialValues() const;

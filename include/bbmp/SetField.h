@@ -6,7 +6,7 @@ namespace bbmp
 {
 
 class SetFieldImpl;
-class SetField : public Field
+class BBMP_API SetField : public Field
 {
     using Base = Field;
 public:
@@ -30,8 +30,6 @@ public:
 
     Type type() const;
     Endian endian() const;
-    std::size_t length() const;
-    std::size_t bitLength() const;
     bool defaultBitValue() const;
     bool reservedBitValue() const;
     const Bits& bits() const;

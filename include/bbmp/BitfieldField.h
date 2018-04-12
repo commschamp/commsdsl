@@ -6,7 +6,7 @@ namespace bbmp
 {
 
 class BitfieldFieldImpl;
-class BitfieldField : public Field
+class BBMP_API BitfieldField : public Field
 {
     using Base = Field;
 public:
@@ -17,8 +17,6 @@ public:
     explicit BitfieldField(Field field);
 
     Endian endian() const;
-    std::size_t length() const;
-    std::size_t bitLength() const;
     const Members& members() const;
 };
 

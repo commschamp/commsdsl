@@ -39,16 +39,6 @@ Endian SetField::endian() const
     return cast(m_pImpl)->endian();
 }
 
-std::size_t SetField::length() const
-{
-    return cast(m_pImpl)->length();
-}
-
-std::size_t SetField::bitLength() const
-{
-    return cast(m_pImpl)->bitLength();
-}
-
 bool SetField::defaultBitValue() const
 {
     return cast(m_pImpl)->defaultBitValue();
