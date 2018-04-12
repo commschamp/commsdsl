@@ -228,7 +228,7 @@ bool SetFieldImpl::updateLength()
         }
 
         bool ok = false;
-        m_state.m_bitLength = static_cast<decltype(m_state.m_bitLength)>(common::strToUintMax(lengthStr, &ok));
+        m_state.m_bitLength = static_cast<decltype(m_state.m_bitLength)>(common::strToUintMax(bitLengthStr, &ok));
         if ((!ok) || (m_state.m_bitLength == 0U)) {
             reportUnexpectedPropertyValue(common::bitLengthStr(), bitLengthStr);
             return false;

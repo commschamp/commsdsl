@@ -184,9 +184,9 @@ bool FieldImpl::validateMembersNames(const FieldImpl::FieldsList& fields)
 
 bool FieldImpl::isBitfieldMember() const
 {
-    return (m_parent != nullptr) &&
-           (m_parent->objKind() == ObjKind::Field) &&
-           (static_cast<const FieldImpl*>(m_parent)->kind() == Kind::Bitfield);
+    return (getParent() != nullptr) &&
+           (getParent()->objKind() == ObjKind::Field) &&
+           (static_cast<const FieldImpl*>(getParent())->kind() == Kind::Bitfield);
 }
 
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)

@@ -63,6 +63,7 @@ set (
     "FloatField.cpp"
     "EnumField.cpp"
     "SetField.cpp"
+    "BitfieldField.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"

@@ -158,7 +158,6 @@ private:
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
-    Object* m_parent = nullptr;
     PropsMap m_props;
     ReusableState m_state;
 };

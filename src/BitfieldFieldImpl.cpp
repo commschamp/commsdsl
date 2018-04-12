@@ -6,6 +6,8 @@
 #include <utility>
 #include <algorithm>
 
+#include "ProtocolImpl.h"
+
 namespace bbmp
 {
 
@@ -15,7 +17,9 @@ namespace
 const XmlWrap::NamesList& bitfieldSupportedTypes()
 {
     static const XmlWrap::NamesList Names = {
-        common::intStr()
+        common::intStr(),
+        common::enumStr(),
+        common::setStr()
     };
 
     return Names;
@@ -54,6 +58,15 @@ FieldImpl::Ptr BitfieldFieldImpl::cloneImpl() const
     return Ptr(new BitfieldFieldImpl(*this));
 }
 
+const XmlWrap::NamesList&BitfieldFieldImpl::extraPropsNamesImpl() const
+{
+    static const XmlWrap::NamesList List = {
+        common::endianStr(),
+    };
+
+    return List;
+}
+
 const XmlWrap::NamesList& BitfieldFieldImpl::extraChildrenNamesImpl() const
 {
     static const XmlWrap::NamesList Names = getExtraNames();
@@ -62,6 +75,47 @@ const XmlWrap::NamesList& BitfieldFieldImpl::extraChildrenNamesImpl() const
 
 bool BitfieldFieldImpl::parseImpl()
 {
+    return
+        updateEndian() &&
+        updateMembers();
+}
+
+std::size_t BitfieldFieldImpl::lengthImpl() const
+{
+    return
+        std::accumulate(
+            m_members.begin(), m_members.end(), 0U,
+            [](std::size_t soFar, auto& m)
+            {
+                return soFar + m->bitLength();
+    }) / 8U;
+}
+
+bool BitfieldFieldImpl::updateEndian()
+{
+    if (!validateSinglePropInstance(common::endianStr())) {
+        return false;
+    }
+
+    auto& endianStr = common::getStringProp(props(), common::endianStr());
+    if ((endianStr.empty()) && (m_endian != Endian_NumOfValues)) {
+        return true;
+    }
+
+    m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    if (m_endian == Endian_NumOfValues) {
+        reportUnexpectedPropertyValue(common::endianStr(), endianStr);
+        return false;
+    }
+    return true;
+}
+
+bool BitfieldFieldImpl::updateMembers()
+{
+    if (!m_members.empty()) {
+        assert(!"NYI: update versions");
+    }
+
     auto membersNodes = XmlWrap::getChildren(getNode(), common::membersStr());
     if (1U < membersNodes.size()) {
         logError() << XmlWrap::logPrefix(getNode()) <<
@@ -80,8 +134,17 @@ bool BitfieldFieldImpl::parseImpl()
     }
 
     if ((0U == membersNodes.size()) && (0U == memberFieldsTypes.size())) {
+        if (m_members.empty()) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                          "The \"" << common::bitfieldStr() << "\" must contain member fields.";
+            return false;
+        }
+
+        return true;
+    }
+    else if (!m_members.empty()) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "The \"" << common::bitfieldStr() << "\" must contain member fields.";
+                      "The \"" << common::bitfieldStr() << "\" cannot add member fields after reuse.";
         return false;
     }
 
@@ -127,6 +190,14 @@ bool BitfieldFieldImpl::parseImpl()
             return false;
         }
 
+        if ((mem->getSinceVersion() != getSinceVersion()) ||
+            (mem->getDeprecated() != getDeprecated())) {
+            logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                "Bitfield members are not allowed to update \"" << common::sinceVersionStr() << "\" and "
+                "\"" << common::deprecatedStr() << "\" properties.";
+            return false;
+        }
+
         m_members.push_back(std::move(mem));
     }
 
@@ -142,51 +213,31 @@ bool BitfieldFieldImpl::parseImpl()
                 return soFar + elem->bitLength();
             });
 
-    static const std::size_t BitsInByte = std::numeric_limits<std::uint8_t>::digits;
-    static const std::size_t SupportedBitLengths[] = {
-        sizeof(std::uint8_t) * BitsInByte,
-        sizeof(std::uint16_t) * BitsInByte,
-        sizeof(std::uint32_t) * BitsInByte,
-        sizeof(std::uint64_t) * BitsInByte
-    };
-
-    auto iter = std::find(std::begin(SupportedBitLengths), std::end(SupportedBitLengths), totalBitLength);
-    if (iter == std::end(SupportedBitLengths)) {
+    if ((totalBitLength % 8U) != 0) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "The summary of member's bit lengths (" << totalBitLength <<
-                      ") is expected to be one of the following: 8, 16, 32, 64.";
+                      ") is expected to be devisable by 8.";
         return false;
     }
 
-    assert(!m_members.empty());
-    auto& firstMem = m_members.front();
-    if (getSinceVersion() < firstMem->getSinceVersion()) {
-        logError() << XmlWrap::logPrefix(firstMem->getNode()) <<
-                      "First member mustn't have value of \"" << common::sinceVersionStr() <<
-                      "\" property (" << firstMem->getSinceVersion() << ") to be greater "
-                      "than value of the containing \"" << common::bitfieldStr() << "\" (" <<
-                      getSinceVersion() << ").";
+    static const std::size_t MaxBits = std::numeric_limits<std::uint64_t>::digits;
+    if (MaxBits < totalBitLength) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "The summary of member's bit lengths (" << totalBitLength <<
+                      ") cannot be greater than " << MaxBits << '.';
         return false;
     }
 
-    assert(firstMem->getSinceVersion() == getSinceVersion());
-
-//    if (!validateMembersVersions(m_members)) {
-//        return false;
-//    }
+    m_membersList.clear();
+    m_membersList.reserve(m_members.size());
+    std::transform(
+        m_members.begin(), m_members.end(), std::back_inserter(m_membersList),
+        [](auto& elem)
+        {
+            return Field(elem.get());
+        });
 
     return true;
-}
-
-std::size_t BitfieldFieldImpl::lengthImpl() const
-{
-    return
-        std::accumulate(
-            m_members.begin(), m_members.end(), 0U,
-            [](std::size_t soFar, auto& m)
-            {
-                return soFar + m->bitLength();
-            }) / 8U;
 }
 
 
