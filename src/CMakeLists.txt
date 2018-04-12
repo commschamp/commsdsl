@@ -64,6 +64,7 @@ set (
     "EnumField.cpp"
     "SetField.cpp"
     "BitfieldField.cpp"
+    "BundleField.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"

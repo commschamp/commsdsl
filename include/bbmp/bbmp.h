@@ -6,3 +6,4 @@
 #include "EnumField.h"
 #include "SetField.h"
 #include "BitfieldField.h"
+#include "BundleField.h"
