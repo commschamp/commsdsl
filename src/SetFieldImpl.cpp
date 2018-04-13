@@ -104,7 +104,11 @@ std::size_t SetFieldImpl::lengthImpl() const
 
 std::size_t SetFieldImpl::bitLengthImpl() const
 {
-    return m_state.m_bitLength;
+    if (isBitfieldMember()) {
+        return m_state.m_bitLength;
+    }
+
+    return Base::bitLengthImpl();
 }
 
 bool SetFieldImpl::updateEndian()

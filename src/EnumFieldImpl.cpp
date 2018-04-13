@@ -111,7 +111,10 @@ std::size_t EnumFieldImpl::lengthImpl() const
 
 std::size_t EnumFieldImpl::bitLengthImpl() const
 {
-    return m_state.m_bitLength;
+    if (isBitfieldMember()) {
+        return m_state.m_bitLength;
+    }
+    return Base::bitLengthImpl();
 }
 
 bool EnumFieldImpl::updateType()

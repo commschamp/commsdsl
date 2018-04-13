@@ -60,7 +60,7 @@ void SetTestSuite::test1()
     TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint8);
     TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(setField.length(), 1U);
-    TS_ASSERT_EQUALS(setField.bitLength(), 8U);
+    TS_ASSERT_EQUALS(setField.bitLength(), 0U);
     TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
     TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
     TS_ASSERT(!setField.isNonUniqueAllowed());
@@ -119,7 +119,6 @@ void SetTestSuite::test2()
     TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint16);
     TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(setField.length(), 2U);
-    TS_ASSERT_EQUALS(setField.bitLength(), 16U);
     TS_ASSERT_EQUALS(setField.defaultBitValue(), true);
     TS_ASSERT_EQUALS(setField.reservedBitValue(), true);
     TS_ASSERT(!setField.isNonUniqueAllowed());
@@ -203,7 +202,6 @@ void SetTestSuite::test5()
     TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint32);
     TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(setField.length(), 3U);
-    TS_ASSERT_EQUALS(setField.bitLength(), setField.length() * 8U);
     TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
     TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
     TS_ASSERT(setField.isNonUniqueAllowed());
@@ -267,7 +265,6 @@ void SetTestSuite::test7()
     TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint32);
     TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(setField.length(), 3U);
-    TS_ASSERT_EQUALS(setField.bitLength(), setField.length() * 8U);
     TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
     TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
     TS_ASSERT(setField.isNonUniqueAllowed());
@@ -327,7 +324,6 @@ void SetTestSuite::test8()
     TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint16);
     TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(setField.length(), 2U);
-    TS_ASSERT_EQUALS(setField.bitLength(), setField.length() * 8U);
     TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
     TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
     TS_ASSERT(!setField.isNonUniqueAllowed());
@@ -376,7 +372,6 @@ void SetTestSuite::test9()
     TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint32);
     TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(setField.length(), 3U);
-    TS_ASSERT_EQUALS(setField.bitLength(), setField.length() * 8U);
     // Other checks are irrelevant
 }
 
@@ -432,7 +427,6 @@ void SetTestSuite::test13()
     TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint8);
     TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(setField.length(), 1U);
-    TS_ASSERT_EQUALS(setField.bitLength(), 8U);
     TS_ASSERT_EQUALS(setField.defaultBitValue(), true);
     TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
     TS_ASSERT(!setField.isNonUniqueAllowed());
@@ -499,7 +493,6 @@ void SetTestSuite::test15()
     TS_ASSERT_EQUALS(setField.type(), bbmp::IntField::Type::Uint8);
     TS_ASSERT_EQUALS(setField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(setField.length(), 1U);
-    TS_ASSERT_EQUALS(setField.bitLength(), 8U);
     TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
     TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
     TS_ASSERT(setField.isNonUniqueAllowed());

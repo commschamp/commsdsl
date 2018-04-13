@@ -250,7 +250,7 @@ bool FieldImpl::parseImpl()
 
 std::size_t FieldImpl::bitLengthImpl() const
 {
-    return length() * std::numeric_limits<std::uint8_t>::digits;
+    return 0U;
 }
 
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)

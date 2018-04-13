@@ -340,7 +340,10 @@ std::size_t IntFieldImpl::lengthImpl() const
 
 std::size_t IntFieldImpl::bitLengthImpl() const
 {
-    return m_state.m_bitLength;
+    if (isBitfieldMember()) {
+        return m_state.m_bitLength;
+    }
+    return Base::bitLengthImpl();
 }
 
 bool IntFieldImpl::updateType()

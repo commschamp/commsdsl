@@ -66,7 +66,7 @@ void IntTestSuite::test1()
     TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Uint8);
     TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(intField.length(), 1U);
-    TS_ASSERT_EQUALS(intField.bitLength(), 8U);
+    TS_ASSERT_EQUALS(intField.bitLength(), 0U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), 0);
     TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint8_t>::max());
@@ -127,9 +127,6 @@ void IntTestSuite::test2()
     TS_ASSERT_EQUALS(intField1.length(), 2U);
     TS_ASSERT_EQUALS(intField1.length(), intField2.length());
     TS_ASSERT_EQUALS(intField1.length(), intField3.length());
-    TS_ASSERT_EQUALS(intField1.bitLength(), 16U);
-    TS_ASSERT_EQUALS(intField1.bitLength(), intField2.bitLength());
-    TS_ASSERT_EQUALS(intField1.bitLength(), intField3.bitLength());
     TS_ASSERT_EQUALS(intField1.serOffset(), 0);
     TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
     TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
@@ -215,9 +212,6 @@ void IntTestSuite::test3()
     TS_ASSERT_EQUALS(intField1.length(), 1U);
     TS_ASSERT_EQUALS(intField1.length(), intField2.length());
     TS_ASSERT_EQUALS(intField1.length(), intField3.length());
-    TS_ASSERT_EQUALS(intField1.bitLength(), 8U);
-    TS_ASSERT_EQUALS(intField1.bitLength(), intField2.bitLength());
-    TS_ASSERT_EQUALS(intField1.bitLength(), intField3.bitLength());
     TS_ASSERT_EQUALS(intField1.serOffset(), -2000);
     TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
     TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
@@ -296,9 +290,6 @@ void IntTestSuite::test4()
     TS_ASSERT_EQUALS(intField1.length(), 1U);
     TS_ASSERT_EQUALS(intField1.length(), intField2.length());
     TS_ASSERT_EQUALS(intField1.length(), intField3.length());
-    TS_ASSERT_EQUALS(intField1.bitLength(), 8U);
-    TS_ASSERT_EQUALS(intField1.bitLength(), intField2.bitLength());
-    TS_ASSERT_EQUALS(intField1.bitLength(), intField3.bitLength());
     TS_ASSERT_EQUALS(intField1.serOffset(), 0);
     TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
     TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
@@ -367,7 +358,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(intField1.type(), bbmp::IntField::Type::Int8);
         TS_ASSERT_EQUALS(intField1.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField1.length(), 1U);
-        TS_ASSERT_EQUALS(intField1.bitLength(), 8U);
         TS_ASSERT_EQUALS(intField1.serOffset(), 0);
         TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min());
         TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max());
@@ -394,7 +384,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(intField2.type(), bbmp::IntField::Type::Uint8);
         TS_ASSERT_EQUALS(intField2.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField2.length(), 1U);
-        TS_ASSERT_EQUALS(intField2.bitLength(), 8U);
         TS_ASSERT_EQUALS(intField2.serOffset(), 0);
         TS_ASSERT_EQUALS(intField2.minValue(), 0);
         TS_ASSERT_EQUALS(intField2.maxValue(), (std::intmax_t)std::numeric_limits<std::uint8_t>::max());
@@ -421,7 +410,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(intField3.type(), bbmp::IntField::Type::Int16);
         TS_ASSERT_EQUALS(intField3.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField3.length(), 2U);
-        TS_ASSERT_EQUALS(intField3.bitLength(), 16U);
         TS_ASSERT_EQUALS(intField3.serOffset(), 0);
         TS_ASSERT_EQUALS(intField3.minValue(), std::numeric_limits<std::int16_t>::min());
         TS_ASSERT_EQUALS(intField3.maxValue(), std::numeric_limits<std::int16_t>::max());
@@ -448,7 +436,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(intField4.type(), bbmp::IntField::Type::Uint16);
         TS_ASSERT_EQUALS(intField4.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField4.length(), 2U);
-        TS_ASSERT_EQUALS(intField4.bitLength(), 16U);
         TS_ASSERT_EQUALS(intField4.serOffset(), 0);
         TS_ASSERT_EQUALS(intField4.minValue(), 0);
         TS_ASSERT_EQUALS(intField4.maxValue(), (std::intmax_t)std::numeric_limits<std::uint16_t>::max());
@@ -475,7 +462,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(intField5.type(), bbmp::IntField::Type::Int32);
         TS_ASSERT_EQUALS(intField5.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField5.length(), 4U);
-        TS_ASSERT_EQUALS(intField5.bitLength(), 32U);
         TS_ASSERT_EQUALS(intField5.serOffset(), 0);
         TS_ASSERT_EQUALS(intField5.minValue(), std::numeric_limits<std::int32_t>::min());
         TS_ASSERT_EQUALS(intField5.maxValue(), std::numeric_limits<std::int32_t>::max());
@@ -502,7 +488,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(intField6.type(), bbmp::IntField::Type::Uint32);
         TS_ASSERT_EQUALS(intField6.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField6.length(), 4U);
-        TS_ASSERT_EQUALS(intField6.bitLength(), 32U);
         TS_ASSERT_EQUALS(intField6.serOffset(), 0);
         TS_ASSERT_EQUALS(intField6.minValue(), 0);
         TS_ASSERT_EQUALS(intField6.maxValue(), (std::intmax_t)std::numeric_limits<std::uint32_t>::max());
@@ -529,7 +514,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(intField7.type(), bbmp::IntField::Type::Int64);
         TS_ASSERT_EQUALS(intField7.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField7.length(), 8U);
-        TS_ASSERT_EQUALS(intField7.bitLength(), 64U);
         TS_ASSERT_EQUALS(intField7.serOffset(), 0);
         TS_ASSERT_EQUALS(intField7.minValue(), std::numeric_limits<std::int64_t>::min());
         TS_ASSERT_EQUALS(intField7.maxValue(), std::numeric_limits<std::int64_t>::max());
@@ -556,7 +540,6 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(intField8.type(), bbmp::IntField::Type::Uint64);
         TS_ASSERT_EQUALS(intField8.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField8.length(), 8U);
-        TS_ASSERT_EQUALS(intField8.bitLength(), 64U);
         TS_ASSERT_EQUALS(intField8.serOffset(), 0);
         TS_ASSERT_EQUALS(intField8.minValue(), 0);
         TS_ASSERT_EQUALS(intField8.maxValue(), (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
@@ -596,7 +579,6 @@ void IntTestSuite::test6()
     TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Uint64);
     TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(intField.length(), 8U);
-    TS_ASSERT_EQUALS(intField.bitLength(), 64U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), 0);
     TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
@@ -637,7 +619,6 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(intField1.type(), bbmp::IntField::Type::Int16);
         TS_ASSERT_EQUALS(intField1.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField1.length(), 1U);
-        TS_ASSERT_EQUALS(intField1.bitLength(), 8U);
         TS_ASSERT_EQUALS(intField1.serOffset(), 100);
         TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min() - intField1.serOffset());
         TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max() - intField1.serOffset());
@@ -662,7 +643,6 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(intField2.type(), bbmp::IntField::Type::Uint16);
         TS_ASSERT_EQUALS(intField2.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField2.length(), 1U);
-        TS_ASSERT_EQUALS(intField2.bitLength(), 8U);
         TS_ASSERT_EQUALS(intField2.serOffset(), 100);
         TS_ASSERT_EQUALS(intField2.minValue(), 0);
         TS_ASSERT_EQUALS(intField2.maxValue(), std::numeric_limits<std::uint8_t>::max() - intField2.serOffset());
@@ -687,7 +667,6 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(intField3.type(), bbmp::IntField::Type::Int32);
         TS_ASSERT_EQUALS(intField3.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField3.length(), 3U);
-        TS_ASSERT_EQUALS(intField3.bitLength(), intField3.length() * 8);
         TS_ASSERT_EQUALS(intField3.serOffset(), 100);
         TS_ASSERT_EQUALS(intField3.minValue(), -8388608LL - intField3.serOffset());
         TS_ASSERT_EQUALS(intField3.maxValue(), 0x7fffff - intField3.serOffset());
@@ -712,7 +691,6 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(intField4.type(), bbmp::IntField::Type::Uint32);
         TS_ASSERT_EQUALS(intField4.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField4.length(), 3U);
-        TS_ASSERT_EQUALS(intField4.bitLength(), intField4.length() * 8U);
         TS_ASSERT_EQUALS(intField4.serOffset(), 100);
         TS_ASSERT_EQUALS(intField4.minValue(), 0);
         TS_ASSERT_EQUALS(intField4.maxValue(), 0xffffff - intField4.serOffset());
@@ -737,7 +715,6 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(intField5.type(), bbmp::IntField::Type::Int64);
         TS_ASSERT_EQUALS(intField5.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField5.length(), 5U);
-        TS_ASSERT_EQUALS(intField5.bitLength(), intField5.length() * 8);
         TS_ASSERT_EQUALS(intField5.serOffset(), 100);
         TS_ASSERT_EQUALS(intField5.minValue(), -549755813888LL - intField5.serOffset());
         TS_ASSERT_EQUALS(intField5.maxValue(), 0x7fffffffff - intField5.serOffset());
@@ -762,7 +739,6 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(intField6.type(), bbmp::IntField::Type::Uint64);
         TS_ASSERT_EQUALS(intField6.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField6.length(), 5U);
-        TS_ASSERT_EQUALS(intField6.bitLength(), intField6.length() * 8U);
         TS_ASSERT_EQUALS(intField6.serOffset(), 100);
         TS_ASSERT_EQUALS(intField6.minValue(), 0);
         TS_ASSERT_EQUALS(intField6.maxValue(), 0xffffffffff - intField6.serOffset());
@@ -795,7 +771,6 @@ void IntTestSuite::test8()
         TS_ASSERT_EQUALS(intField1.type(), bbmp::IntField::Type::Int16);
         TS_ASSERT_EQUALS(intField1.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField1.length(), 1U);
-        TS_ASSERT_EQUALS(intField1.bitLength(), 8U);
         TS_ASSERT_EQUALS(intField1.serOffset(), -100);
         TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min() - intField1.serOffset());
         TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max() - intField1.serOffset());
@@ -812,7 +787,6 @@ void IntTestSuite::test8()
         TS_ASSERT_EQUALS(intField2.type(), bbmp::IntField::Type::Uint16);
         TS_ASSERT_EQUALS(intField2.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField2.length(), 1U);
-        TS_ASSERT_EQUALS(intField2.bitLength(), 8U);
         TS_ASSERT_EQUALS(intField2.serOffset(), -100);
         TS_ASSERT_EQUALS(intField2.minValue(), -intField2.serOffset());
         TS_ASSERT_EQUALS(intField2.maxValue(), std::numeric_limits<std::uint8_t>::max() - intField2.serOffset());
@@ -829,7 +803,6 @@ void IntTestSuite::test8()
         TS_ASSERT_EQUALS(intField3.type(), bbmp::IntField::Type::Int32);
         TS_ASSERT_EQUALS(intField3.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField3.length(), 3U);
-        TS_ASSERT_EQUALS(intField3.bitLength(), intField3.length() * 8);
         TS_ASSERT_EQUALS(intField3.serOffset(), -100);
         TS_ASSERT_EQUALS(intField3.minValue(), -8388608LL - intField3.serOffset());
         TS_ASSERT_EQUALS(intField3.maxValue(), 0x7fffff - intField3.serOffset());
@@ -844,7 +817,6 @@ void IntTestSuite::test8()
         TS_ASSERT_EQUALS(intField4.type(), bbmp::IntField::Type::Uint32);
         TS_ASSERT_EQUALS(intField4.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField4.length(), 3U);
-        TS_ASSERT_EQUALS(intField4.bitLength(), intField4.length() * 8U);
         TS_ASSERT_EQUALS(intField4.serOffset(), -100);
         TS_ASSERT_EQUALS(intField4.minValue(), -intField4.serOffset());
         TS_ASSERT_EQUALS(intField4.maxValue(), 0xffffff - intField4.serOffset());
@@ -859,7 +831,6 @@ void IntTestSuite::test8()
         TS_ASSERT_EQUALS(intField5.type(), bbmp::IntField::Type::Int64);
         TS_ASSERT_EQUALS(intField5.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField5.length(), 5U);
-        TS_ASSERT_EQUALS(intField5.bitLength(), intField5.length() * 8);
         TS_ASSERT_EQUALS(intField5.serOffset(), -100);
         TS_ASSERT_EQUALS(intField5.minValue(), -549755813888LL - intField5.serOffset());
         TS_ASSERT_EQUALS(intField5.maxValue(), 0x7fffffffff - intField5.serOffset());
@@ -874,7 +845,6 @@ void IntTestSuite::test8()
         TS_ASSERT_EQUALS(intField6.type(), bbmp::IntField::Type::Uint64);
         TS_ASSERT_EQUALS(intField6.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField6.length(), 5U);
-        TS_ASSERT_EQUALS(intField6.bitLength(), intField6.length() * 8U);
         TS_ASSERT_EQUALS(intField6.serOffset(), -100);
         TS_ASSERT_EQUALS(intField6.minValue(), -intField6.serOffset());
         TS_ASSERT_EQUALS(intField6.maxValue(), 0xffffffffff - intField6.serOffset());
@@ -903,7 +873,6 @@ void IntTestSuite::test9()
         TS_ASSERT_EQUALS(intField1.type(), bbmp::IntField::Type::Intvar);
         TS_ASSERT_EQUALS(intField1.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField1.length(), 10U);
-        TS_ASSERT_EQUALS(intField1.bitLength(), intField1.length() * 8U);
         TS_ASSERT_EQUALS(intField1.serOffset(), -100);
         TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int64_t>::min() - intField1.serOffset());
         TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int64_t>::max());
@@ -918,7 +887,6 @@ void IntTestSuite::test9()
         TS_ASSERT_EQUALS(intField2.type(), bbmp::IntField::Type::Intvar);
         TS_ASSERT_EQUALS(intField2.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField2.length(), 8U);
-        TS_ASSERT_EQUALS(intField2.bitLength(), intField2.length() * 8U);
         TS_ASSERT_EQUALS(intField2.serOffset(), -100);
         TS_ASSERT_EQUALS(intField2.minValue(), static_cast<std::intmax_t>(0xff80000000000000ULL) - intField2.serOffset());
         TS_ASSERT_EQUALS(intField2.maxValue(), 0x7fffffffffffffLL - intField2.serOffset());
@@ -935,7 +903,6 @@ void IntTestSuite::test9()
         TS_ASSERT_EQUALS(intField3.type(), bbmp::IntField::Type::Intvar);
         TS_ASSERT_EQUALS(intField3.endian(), bbmp::Endian_Big);
         TS_ASSERT_EQUALS(intField3.length(), 3U);
-        TS_ASSERT_EQUALS(intField3.bitLength(), intField3.length() * 8);
         TS_ASSERT_EQUALS(intField3.serOffset(), -100);
         TS_ASSERT_EQUALS(intField3.minValue(), -1048576LL - intField3.serOffset());
         TS_ASSERT_EQUALS(intField3.maxValue(), 0xfffff - intField3.serOffset());
@@ -965,7 +932,6 @@ void IntTestSuite::test10()
         TS_ASSERT_EQUALS(intField1.type(), bbmp::IntField::Type::Uintvar);
         TS_ASSERT_EQUALS(intField1.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField1.length(), 10U);
-        TS_ASSERT_EQUALS(intField1.bitLength(), intField1.length() * 8U);
         TS_ASSERT_EQUALS(intField1.serOffset(), -100);
         TS_ASSERT_EQUALS(intField1.minValue(), -intField1.serOffset());
         TS_ASSERT_EQUALS(intField1.maxValue(), (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
@@ -980,7 +946,6 @@ void IntTestSuite::test10()
         TS_ASSERT_EQUALS(intField2.type(), bbmp::IntField::Type::Uintvar);
         TS_ASSERT_EQUALS(intField2.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField2.length(), 8U);
-        TS_ASSERT_EQUALS(intField2.bitLength(), intField2.length() * 8U);
         TS_ASSERT_EQUALS(intField2.serOffset(), -100);
         TS_ASSERT_EQUALS(intField2.minValue(), -intField2.serOffset());
         TS_ASSERT_EQUALS(intField2.maxValue(), 0xffffffffffffffLL - intField2.serOffset());
@@ -997,7 +962,6 @@ void IntTestSuite::test10()
         TS_ASSERT_EQUALS(intField3.type(), bbmp::IntField::Type::Uintvar);
         TS_ASSERT_EQUALS(intField3.endian(), bbmp::Endian_Little);
         TS_ASSERT_EQUALS(intField3.length(), 3U);
-        TS_ASSERT_EQUALS(intField3.bitLength(), intField3.length() * 8);
         TS_ASSERT_EQUALS(intField3.serOffset(), -100);
         TS_ASSERT_EQUALS(intField3.minValue(), -intField3.serOffset());
         TS_ASSERT_EQUALS(intField3.maxValue(), 0x1fffff - intField3.serOffset());
@@ -1031,7 +995,6 @@ void IntTestSuite::test11()
     TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Int8);
     TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(intField.length(), 1U);
-    TS_ASSERT_EQUALS(intField.bitLength(), intField.length() * 8U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int8_t>::min());
     TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::int8_t>::max());
@@ -1078,7 +1041,6 @@ void IntTestSuite::test12()
     TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Int8);
     TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(intField.length(), 1U);
-    TS_ASSERT_EQUALS(intField.bitLength(), intField.length() * 8U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int8_t>::min());
     TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::int8_t>::max());
@@ -1127,7 +1089,6 @@ void IntTestSuite::test13()
     TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Int16);
     TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(intField.length(), 2U);
-    TS_ASSERT_EQUALS(intField.bitLength(), 16U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int16_t>::min());
     TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::int16_t>::max());
@@ -1174,7 +1135,6 @@ void IntTestSuite::test15()
     TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Uint16);
     TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(intField.length(), 2U);
-    TS_ASSERT_EQUALS(intField.bitLength(), intField.length() * 8U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::uint16_t>::min());
     TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::uint16_t>::max());
@@ -1243,7 +1203,6 @@ void IntTestSuite::test19()
     TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Uint16);
     TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(intField.length(), 2U);
-    TS_ASSERT_EQUALS(intField.bitLength(), intField.length() * 8U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::uint16_t>::min());
     TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::uint16_t>::max());
@@ -1282,7 +1241,6 @@ void IntTestSuite::test20()
     TS_ASSERT_EQUALS(intField.type(), bbmp::IntField::Type::Uint16);
     TS_ASSERT_EQUALS(intField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(intField.length(), 2U);
-    TS_ASSERT_EQUALS(intField.bitLength(), intField.length() * 8U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), 0);
     TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint16_t>::max());
