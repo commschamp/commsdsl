@@ -35,6 +35,9 @@ public:
     Kind kind() const;
     std::size_t length() const;
     std::size_t bitLength() const;
+    unsigned sinceVersion() const;
+    unsigned deprecatedSince() const;
+    bool isDeprecatedRemoved() const;
 
 protected:
     const FieldImpl* m_pImpl;

@@ -150,7 +150,7 @@ bool BitfieldFieldImpl::updateMembers()
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
             logError() << XmlWrap::logPrefix(getNode()) <<
                           "The \"" << common::bitfieldStr() << "\" element does not support "
-                          "list of stand member fields as child elements together with \"" <<
+                          "list of stand alone member fields as child elements together with \"" <<
                           common::membersStr() << "\" child element.";
             return false;
         }

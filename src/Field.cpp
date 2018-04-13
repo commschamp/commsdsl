@@ -51,5 +51,23 @@ std::size_t Field::bitLength() const
     return m_pImpl->bitLength();
 }
 
+unsigned Field::sinceVersion() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->getSinceVersion();
+}
+
+unsigned Field::deprecatedSince() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->getDeprecated();
+}
+
+bool Field::isDeprecatedRemoved() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isDeprecatedRemoved();
+}
+
 
 } // namespace bbmp

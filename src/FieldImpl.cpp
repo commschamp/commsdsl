@@ -294,7 +294,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::descriptionStr(),
         common::sinceVersionStr(),
         common::deprecatedStr(),
-        common::removedStr()
+        common::removedStr(),
+        common::reuseStr()
     };
 
     return CommonNames;
