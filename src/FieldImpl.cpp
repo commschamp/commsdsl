@@ -248,6 +248,11 @@ bool FieldImpl::parseImpl()
     return true;
 }
 
+std::size_t FieldImpl::maxLengthImpl() const
+{
+    return this->minLengthImpl();
+}
+
 std::size_t FieldImpl::bitLengthImpl() const
 {
     return 0U;

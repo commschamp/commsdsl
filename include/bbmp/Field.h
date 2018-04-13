@@ -33,7 +33,8 @@ public:
     const std::string& displayName() const;
     const std::string& description() const;
     Kind kind() const;
-    std::size_t length() const;
+    std::size_t minLength() const;
+    std::size_t maxLength() const;
     std::size_t bitLength() const;
     unsigned sinceVersion() const;
     unsigned deprecatedSince() const;

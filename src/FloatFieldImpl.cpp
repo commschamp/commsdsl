@@ -151,7 +151,7 @@ bool FloatFieldImpl::parseImpl()
         updateValidRanges();
 }
 
-std::size_t FloatFieldImpl::lengthImpl() const
+std::size_t FloatFieldImpl::minLengthImpl() const
 {
     return m_state.m_length;
 }

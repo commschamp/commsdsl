@@ -97,7 +97,7 @@ bool SetFieldImpl::parseImpl()
         updateBits();
 }
 
-std::size_t SetFieldImpl::lengthImpl() const
+std::size_t SetFieldImpl::minLengthImpl() const
 {
     return m_state.m_length;
 }

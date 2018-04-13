@@ -80,9 +80,9 @@ bool RefFieldImpl::parseImpl()
     return true;
 }
 
-std::size_t RefFieldImpl::lengthImpl() const
+std::size_t RefFieldImpl::minLengthImpl() const
 {
-    return m_field->length();
+    return m_field->minLength();
 }
 
 std::size_t RefFieldImpl::bitLengthImpl() const

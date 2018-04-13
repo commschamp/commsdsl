@@ -41,7 +41,7 @@ void BundleTestSuite::test1()
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Bundle1");
     TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
-    TS_ASSERT_EQUALS(field.length(), 3U);
+    TS_ASSERT_EQUALS(field.minLength(), 3U);
     TS_ASSERT_EQUALS(field.bitLength(), 0U);
 
     bbmp::BundleField bundleField(field);
@@ -72,7 +72,7 @@ void BundleTestSuite::test2()
     auto& field = fields[1];
     TS_ASSERT_EQUALS(field.name(), "Bundle2");
     TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
-    TS_ASSERT_EQUALS(field.length(), 7U);
+    TS_ASSERT_EQUALS(field.minLength(), 7U);
 
     bbmp::BundleField bundleField(field);
     auto& members = bundleField.members();

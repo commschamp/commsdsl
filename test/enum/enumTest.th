@@ -60,7 +60,7 @@ void EnumTestSuite::test1()
     auto& revValues = enumField.revValues();
     TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint8);
     TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Big);
-    TS_ASSERT_EQUALS(enumField.length(), 1U);
+    TS_ASSERT_EQUALS(enumField.minLength(), 1U);
     TS_ASSERT_EQUALS(enumField.bitLength(), 0U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
@@ -109,7 +109,7 @@ void EnumTestSuite::test3()
     auto& revValues = enumField.revValues();
     TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint16);
     TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Big);
-    TS_ASSERT_EQUALS(enumField.length(), 2U);
+    TS_ASSERT_EQUALS(enumField.minLength(), 2U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 2);
     TS_ASSERT(enumField.isNonUniqueAllowed());
     TS_ASSERT(!enumField.isUnique());
@@ -152,7 +152,7 @@ void EnumTestSuite::test4()
     auto& revValues = enumField.revValues();
     TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint64);
     TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Big);
-    TS_ASSERT_EQUALS(enumField.length(), 8U);
+    TS_ASSERT_EQUALS(enumField.minLength(), 8U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
     TS_ASSERT(enumField.isUnique());
@@ -190,7 +190,7 @@ void EnumTestSuite::test5()
     auto& revValues = enumField.revValues();
     TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uintvar);
     TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
-    TS_ASSERT_EQUALS(enumField.length(), 10U);
+    TS_ASSERT_EQUALS(enumField.minLength(), 10U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
     TS_ASSERT(enumField.isUnique());
@@ -228,7 +228,7 @@ void EnumTestSuite::test6()
     auto& revValues = enumField.revValues();
     TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uintvar);
     TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
-    TS_ASSERT_EQUALS(enumField.length(), 6U);
+    TS_ASSERT_EQUALS(enumField.minLength(), 6U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
     TS_ASSERT(enumField.isUnique());
@@ -269,7 +269,7 @@ void EnumTestSuite::test7()
     auto& revValues = enumField.revValues();
     TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Intvar);
     TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
-    TS_ASSERT_EQUALS(enumField.length(), 6U);
+    TS_ASSERT_EQUALS(enumField.minLength(), 6U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
     TS_ASSERT(enumField.isUnique());
@@ -317,8 +317,8 @@ void EnumTestSuite::test8()
     TS_ASSERT_EQUALS(enumField1.type(), enumField2.type());
     TS_ASSERT_EQUALS(enumField1.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(enumField1.endian(), enumField2.endian());
-    TS_ASSERT_EQUALS(enumField1.length(), 1U);
-    TS_ASSERT_EQUALS(enumField1.length(), enumField2.length());
+    TS_ASSERT_EQUALS(enumField1.minLength(), 1U);
+    TS_ASSERT_EQUALS(enumField1.minLength(), enumField2.minLength());
     TS_ASSERT_EQUALS(enumField1.defaultValue(), (std::intmax_t)0xff);
     TS_ASSERT(!enumField1.isNonUniqueAllowed());
     TS_ASSERT(!enumField2.isNonUniqueAllowed());
@@ -369,7 +369,7 @@ void EnumTestSuite::test9()
 
     TS_ASSERT_EQUALS(enumField2.type(), bbmp::IntField::Type::Uint8);
     TS_ASSERT_EQUALS(enumField2.endian(), bbmp::Endian_Big);
-    TS_ASSERT_EQUALS(enumField2.length(), 1U);
+    TS_ASSERT_EQUALS(enumField2.minLength(), 1U);
     TS_ASSERT_EQUALS(enumField2.defaultValue(), 1);
     TS_ASSERT(!enumField2.isNonUniqueAllowed());
     TS_ASSERT(enumField2.isUnique());
@@ -479,7 +479,7 @@ void EnumTestSuite::test16()
     auto& revValues = enumField.revValues();
     TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint32);
     TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
-    TS_ASSERT_EQUALS(enumField.length(), 3U);
+    TS_ASSERT_EQUALS(enumField.minLength(), 3U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 2);
     TS_ASSERT(enumField.isNonUniqueAllowed());
     TS_ASSERT(!enumField.isUnique());

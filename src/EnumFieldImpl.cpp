@@ -104,7 +104,7 @@ bool EnumFieldImpl::parseImpl()
         updateDefaultValue();
 }
 
-std::size_t EnumFieldImpl::lengthImpl() const
+std::size_t EnumFieldImpl::minLengthImpl() const
 {
     return m_state.m_length;
 }

@@ -333,7 +333,16 @@ bool IntFieldImpl::parseImpl()
         updateValidRanges();
 }
 
-std::size_t IntFieldImpl::lengthImpl() const
+std::size_t IntFieldImpl::minLengthImpl() const
+{
+    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
+        return 1U;
+    }
+
+    return m_state.m_length;
+}
+
+std::size_t IntFieldImpl::maxLengthImpl() const
 {
     return m_state.m_length;
 }

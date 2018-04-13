@@ -68,7 +68,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
-    virtual std::size_t lengthImpl() const override;
+    virtual std::size_t minLengthImpl() const override;
     virtual std::size_t bitLengthImpl() const override;
 
 private:

@@ -39,10 +39,16 @@ Field::Kind Field::kind() const
     return m_pImpl->kind();
 }
 
-std::size_t Field::length() const
+std::size_t Field::minLength() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->length();
+    return m_pImpl->minLength();
+}
+
+std::size_t Field::maxLength() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->maxLength();
 }
 
 std::size_t Field::bitLength() const

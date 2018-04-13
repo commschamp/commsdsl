@@ -97,7 +97,7 @@ bool BitfieldFieldImpl::parseImpl()
         updateMembers();
 }
 
-std::size_t BitfieldFieldImpl::lengthImpl() const
+std::size_t BitfieldFieldImpl::minLengthImpl() const
 {
     return
         std::accumulate(

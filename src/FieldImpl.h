@@ -57,9 +57,14 @@ public:
         return kindImpl();
     }
 
-    std::size_t length() const
+    std::size_t minLength() const
     {
-        return lengthImpl();
+        return minLengthImpl();
+    }
+
+    std::size_t maxLength() const
+    {
+        return maxLengthImpl();
     }
 
     std::size_t bitLength() const
@@ -123,7 +128,8 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool reuseImpl(const FieldImpl& other);
     virtual bool parseImpl();
-    virtual std::size_t lengthImpl() const = 0;
+    virtual std::size_t minLengthImpl() const = 0;
+    virtual std::size_t maxLengthImpl() const;
     virtual std::size_t bitLengthImpl() const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);

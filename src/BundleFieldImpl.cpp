@@ -81,14 +81,14 @@ bool BundleFieldImpl::parseImpl()
         updateMembers();
 }
 
-std::size_t BundleFieldImpl::lengthImpl() const
+std::size_t BundleFieldImpl::minLengthImpl() const
 {
     return
         std::accumulate(
             m_members.begin(), m_members.end(), 0U,
             [](std::size_t soFar, auto& m)
             {
-                return soFar + m->length();
+                return soFar + m->minLength();
             });
 }
 
