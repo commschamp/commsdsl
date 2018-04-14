@@ -12,6 +12,7 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
 };
 
 void BundleTestSuite::setUp()
@@ -118,4 +119,37 @@ void BundleTestSuite::test5()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
+}
+
+void BundleTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields[1];
+    TS_ASSERT_EQUALS(field.name(), "Bundle2");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 4U);
+    TS_ASSERT_EQUALS(field.maxLength(), 10U);
+
+    bbmp::BundleField bundleField(field);
+    auto& members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 4U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    auto& mem4 = members[3];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem4.kind(), bbmp::Field::Kind::Int);
 }

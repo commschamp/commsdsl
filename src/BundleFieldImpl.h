@@ -27,6 +27,7 @@ protected:
     virtual bool reuseImpl(const FieldImpl &other) override;
     virtual bool parseImpl() override;
     virtual std::size_t minLengthImpl() const override;
+    virtual std::size_t maxLengthImpl() const override;
 
 private:
     bool updateMembers();

@@ -92,6 +92,21 @@ std::size_t BundleFieldImpl::minLengthImpl() const
             });
 }
 
+std::size_t BundleFieldImpl::maxLengthImpl() const
+{
+    std::size_t sum = 0U;
+    for (auto& m : m_members) {
+        auto val = m->maxLength();
+        if (val == std::numeric_limits<std::size_t>::max()) {
+            return val;
+        }
+
+        sum += val;
+    }
+
+    return sum;
+}
+
 bool BundleFieldImpl::updateMembers()
 {
     if (!m_members.empty()) {
