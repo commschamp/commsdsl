@@ -1,0 +1,49 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class DataTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+};
+
+void DataTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void DataTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void DataTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Data1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Data);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+    TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::size_t>::max());
+
+    bbmp::DataField dataField(field);
+    TS_ASSERT(dataField.defaultValue().empty());
+    TS_ASSERT_EQUALS(dataField.fixedLength(), 0U);
+    TS_ASSERT_EQUALS(dataField.hasLengthPrefixField(), false);
+    TS_ASSERT(!dataField.lengthPrefixField().valid());
+}

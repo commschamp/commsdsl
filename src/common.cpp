@@ -330,6 +330,12 @@ const std::string& lengthPrefixStr()
     return Str;
 }
 
+const std::string& countPrefixStr()
+{
+    static const std::string Str("countPrefix");
+    return Str;
+}
+
 const std::string& encodingStr()
 {
     static const std::string Str("encoding");
@@ -345,6 +351,18 @@ const std::string& zeroTermSuffixStr()
 const std::string& stringStr()
 {
     static const std::string Str("string");
+    return Str;
+}
+
+const std::string& dataStr()
+{
+    static const std::string Str("data");
+    return Str;
+}
+
+const std::string& countStr()
+{
+    static const std::string Str("count");
     return Str;
 }
 

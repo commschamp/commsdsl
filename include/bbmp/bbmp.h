@@ -8,3 +8,4 @@
 #include "BitfieldField.h"
 #include "BundleField.h"
 #include "StringField.h"
+#include "DataField.h"

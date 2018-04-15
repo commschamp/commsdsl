@@ -22,6 +22,7 @@ public:
         Bitfield,
         Bundle,
         String,
+        Data,
         Ref,
         NumOfValues
     };
