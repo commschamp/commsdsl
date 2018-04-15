@@ -14,6 +14,7 @@
 #include "BundleFieldImpl.h"
 #include "StringFieldImpl.h"
 #include "RefFieldImpl.h"
+#include "NamespaceImpl.h"
 #include "common.h"
 
 namespace bbmp
@@ -187,7 +188,22 @@ bool FieldImpl::isBitfieldMember() const
 {
     return (getParent() != nullptr) &&
            (getParent()->objKind() == ObjKind::Field) &&
-           (static_cast<const FieldImpl*>(getParent())->kind() == Kind::Bitfield);
+            (static_cast<const FieldImpl*>(getParent())->kind() == Kind::Bitfield);
+}
+
+std::string FieldImpl::externalRef() const
+{
+    if ((getParent() == nullptr) || (getParent()->objKind() != ObjKind::Namespace)) {
+        return common::emptyString();
+    }
+
+    auto& ns = static_cast<const bbmp::NamespaceImpl&>(*getParent());
+    auto nsRef = ns.externalRef();
+    if (nsRef.empty()) {
+        return name();
+    }
+
+    return nsRef + '.' + name();
 }
 
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)

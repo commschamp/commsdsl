@@ -80,5 +80,11 @@ bool Field::isDeprecatedRemoved() const
     return m_pImpl->isDeprecatedRemoved();
 }
 
+std::string Field::externalRef() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->externalRef();
+}
+
 
 } // namespace bbmp

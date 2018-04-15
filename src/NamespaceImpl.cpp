@@ -204,6 +204,19 @@ const FieldImpl* NamespaceImpl::findField(const std::string& fieldName) const
     return iter->second.get();
 }
 
+std::string NamespaceImpl::externalRef() const
+{
+    assert((getParent() == nullptr) || (getParent()->objKind() == ObjKind::Namespace));
+    if ((getParent() == nullptr) || (getParent()->objKind() != ObjKind::Namespace)) {
+        return name();
+    }
+
+    auto& parentNs = static_cast<const NamespaceImpl&>(*getParent());
+    auto parentRef = parentNs.externalRef();
+    assert(!parentRef.empty());
+    return parentRef + '.' + name();
+}
+
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
     return ObjKind::Namespace;

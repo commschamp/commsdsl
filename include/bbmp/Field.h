@@ -41,6 +41,7 @@ public:
     unsigned sinceVersion() const;
     unsigned deprecatedSince() const;
     bool isDeprecatedRemoved() const;
+    std::string externalRef() const;
 
 protected:
     const FieldImpl* m_pImpl;

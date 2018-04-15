@@ -102,6 +102,8 @@ public:
 
     bool isBitfieldMember() const;
 
+    std::string externalRef() const;
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);

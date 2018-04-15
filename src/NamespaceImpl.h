@@ -93,6 +93,8 @@ public:
 
     const FieldImpl* findField(const std::string& fieldName) const;
 
+    std::string externalRef() const;
+
 protected:
     virtual ObjKind objKindImpl() const override;
 
