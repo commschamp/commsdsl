@@ -15,6 +15,11 @@ Field::Field(const Field &) = default;
 
 Field::~Field() = default;
 
+bool Field::valid() const
+{
+    return m_pImpl != nullptr;
+}
+
 const std::string& Field::name() const
 {
     assert(m_pImpl != nullptr);

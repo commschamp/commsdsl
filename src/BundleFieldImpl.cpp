@@ -41,6 +41,7 @@ BundleFieldImpl::BundleFieldImpl(const BundleFieldImpl& other)
     for (auto& m : other.m_members) {
         m_members.push_back(m->clone());
     }
+    prepareMembersList();
 }
 
 FieldImpl::Kind BundleFieldImpl::kindImpl() const
@@ -219,6 +220,12 @@ bool BundleFieldImpl::updateMembers()
         return false;
     }
 
+    prepareMembersList();
+    return true;
+}
+
+void BundleFieldImpl::prepareMembersList()
+{
     m_membersList.clear();
     m_membersList.reserve(m_members.size());
     std::transform(
@@ -227,8 +234,6 @@ bool BundleFieldImpl::updateMembers()
         {
             return Field(elem.get());
         });
-
-    return true;
 }
 
 

@@ -65,6 +65,7 @@ set (
     "SetField.cpp"
     "BitfieldField.cpp"
     "BundleField.cpp"
+    "StringField.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"
@@ -78,6 +79,7 @@ set (
     "SetFieldImpl.cpp"
     "BitfieldFieldImpl.cpp"
     "BundleFieldImpl.cpp"
+    "StringFieldImpl.cpp"
     "RefFieldImpl.cpp"
 )
 

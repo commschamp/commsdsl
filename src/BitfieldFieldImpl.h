@@ -38,6 +38,7 @@ protected:
 private:
     bool updateEndian();
     bool updateMembers();
+    void prepareMembersList();
 
     Endian m_endian = Endian_NumOfValues;
     FieldsList m_members;

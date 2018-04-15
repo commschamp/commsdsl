@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="StrLen" type="uint8" />
+        <string name="String1">
+            <lengthPrefix>StrLen</lengthPrefix>
+        </string>
+    </fields>
+</schema>

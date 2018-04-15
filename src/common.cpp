@@ -324,6 +324,30 @@ const std::string& validCheckVersionStr()
     return Str;
 }
 
+const std::string& lengthPrefixStr()
+{
+    static const std::string Str("lengthPrefix");
+    return Str;
+}
+
+const std::string& encodingStr()
+{
+    static const std::string Str("encoding");
+    return Str;
+}
+
+const std::string& zeroTermSuffixStr()
+{
+    static const std::string Str("zeroTermSuffix");
+    return Str;
+}
+
+const std::string& stringStr()
+{
+    static const std::string Str("string");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

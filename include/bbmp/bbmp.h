@@ -7,3 +7,4 @@
 #include "SetField.h"
 #include "BitfieldField.h"
 #include "BundleField.h"
+#include "StringField.h"

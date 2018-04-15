@@ -21,6 +21,7 @@ public:
         Float,
         Bitfield,
         Bundle,
+        String,
         Ref,
         NumOfValues
     };
@@ -29,6 +30,7 @@ public:
     Field(const Field& other);
     ~Field();
 
+    bool valid() const;
     const std::string& name() const;
     const std::string& displayName() const;
     const std::string& description() const;

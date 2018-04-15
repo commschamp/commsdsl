@@ -40,12 +40,14 @@ BitfieldFieldImpl::BitfieldFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
 }
 
 BitfieldFieldImpl::BitfieldFieldImpl(const BitfieldFieldImpl& other)
-  : Base(other)
+  : Base(other),
+    m_endian(other.m_endian)
 {
     m_members.reserve(other.m_members.size());
     for (auto& m : other.m_members) {
         m_members.push_back(m->clone());
     }
+    prepareMembersList();
 }
 
 FieldImpl::Kind BitfieldFieldImpl::kindImpl() const
@@ -252,6 +254,12 @@ bool BitfieldFieldImpl::updateMembers()
         }
     } while (false);
 
+    prepareMembersList();
+    return true;
+}
+
+void BitfieldFieldImpl::prepareMembersList()
+{
     m_membersList.clear();
     m_membersList.reserve(m_members.size());
     std::transform(
@@ -260,8 +268,6 @@ bool BitfieldFieldImpl::updateMembers()
         {
             return Field(elem.get());
         });
-
-    return true;
 }
 
 

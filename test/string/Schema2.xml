@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="big">
+    <fields>
+        <string name="String1" defaultValue="hello">
+            <length value="4" />
+        </string>
+    </fields>
+</schema>

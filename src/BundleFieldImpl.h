@@ -31,6 +31,7 @@ protected:
 
 private:
     bool updateMembers();
+    void prepareMembersList();
 
     FieldsList m_members;
     Members m_membersList;

@@ -74,6 +74,15 @@ std::string XmlWrap::getText(::xmlNodePtr node)
     assert(node != nullptr);
     auto* child = node->children;
     while (child != nullptr) {
+        if (child->type == XML_ELEMENT_NODE) {
+            return common::emptyString();
+        }
+
+        child = child->next;
+    }
+
+    child = node->children;
+    while (child != nullptr) {
         if (child->type == XML_TEXT_NODE) {
             StringPtr valuePtr(::xmlNodeGetContent(child));
             return std::string(reinterpret_cast<const char*>(valuePtr.get()));
