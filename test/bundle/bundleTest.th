@@ -13,6 +13,7 @@ public:
     void test4();
     void test5();
     void test6();
+    void test7();
 };
 
 void BundleTestSuite::setUp()
@@ -152,4 +153,39 @@ void BundleTestSuite::test6()
     TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
     TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
     TS_ASSERT_EQUALS(mem4.kind(), bbmp::Field::Kind::Int);
+}
+
+void BundleTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields[1];
+    TS_ASSERT_EQUALS(field.name(), "Bundle2");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 4U);
+    TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::size_t>::max());
+
+    bbmp::BundleField bundleField(field);
+    auto& members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 5U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    auto& mem4 = members[3];
+    auto& mem5 = members[4];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem4.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem5.kind(), bbmp::Field::Kind::String);
 }
