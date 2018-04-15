@@ -11,6 +11,15 @@ public:
     void test2();
     void test3();
     void test4();
+    void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
+    void test10();
+    void test11();
+    void test12();
+    void test13();
 };
 
 void StringTestSuite::setUp()
@@ -140,4 +149,141 @@ void StringTestSuite::test4()
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
     TS_ASSERT_EQUALS(lenField.kind(), bbmp::Field::Kind::Int);
+}
+
+void StringTestSuite::test5()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test6()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test7()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test8()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "String2");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.minLength(), 10U);
+    TS_ASSERT_EQUALS(field.maxLength(), 10U);
+
+    bbmp::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
+    TS_ASSERT_EQUALS(stringField.fixedLength(), 10U);
+    TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
+    TS_ASSERT(!stringField.lengthPrefixField().valid());
+    TS_ASSERT(!stringField.hasZeroTermSuffix());
+}
+
+void StringTestSuite::test9()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "String2");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.minLength(), 4U);
+    TS_ASSERT_EQUALS(field.maxLength(), 4U);
+
+    bbmp::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
+    TS_ASSERT_EQUALS(stringField.fixedLength(), 4U);
+    TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
+    TS_ASSERT(!stringField.lengthPrefixField().valid());
+    TS_ASSERT(!stringField.hasZeroTermSuffix());
+}
+
+void StringTestSuite::test10()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test11()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "String2");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 256U);
+
+    bbmp::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
+    TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
+    TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), true);
+    auto lenField = stringField.lengthPrefixField();
+    TS_ASSERT(lenField.valid());
+    TS_ASSERT(!stringField.hasZeroTermSuffix());
+}
+
+void StringTestSuite::test12()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test13()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
 }

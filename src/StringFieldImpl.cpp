@@ -76,7 +76,12 @@ bool StringFieldImpl::reuseImpl(const FieldImpl& other)
     assert(other.kind() == kind());
     auto& castedOther = static_cast<const StringFieldImpl&>(other);
     m_state = castedOther.m_state;
-    m_prefixField = castedOther.m_prefixField->clone();
+    if (castedOther.m_prefixField) {
+        m_prefixField = castedOther.m_prefixField->clone();
+    }
+    else {
+        assert(!m_prefixField);
+    }
     return true;
 }
 
@@ -133,9 +138,10 @@ bool StringFieldImpl::updateDefaultValue()
         m_state.m_defaultValue = iter->second;
     }
 
-    if (m_state.m_length < m_state.m_defaultValue.size()) {
+    if ((m_state.m_length != 0U) && (m_state.m_length < m_state.m_defaultValue.size())) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "The default value is too long for proper serialisation";
+            "The default value (" << m_state.m_defaultValue << ") is too long "
+            "for proper serialisation.";
     }
 
     return true;
