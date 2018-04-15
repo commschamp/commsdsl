@@ -119,6 +119,7 @@ void StringTestSuite::test3()
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
     TS_ASSERT_EQUALS(lenField.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(lenField.externalRef(), "StrLen");
 }
 
 void StringTestSuite::test4()
@@ -149,6 +150,7 @@ void StringTestSuite::test4()
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
     TS_ASSERT_EQUALS(lenField.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT(lenField.externalRef().empty());
 }
 
 void StringTestSuite::test5()
@@ -268,6 +270,7 @@ void StringTestSuite::test11()
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
     TS_ASSERT(!stringField.hasZeroTermSuffix());
+    TS_ASSERT_EQUALS(lenField.externalRef(), "ns1.Prefix");
 }
 
 void StringTestSuite::test12()

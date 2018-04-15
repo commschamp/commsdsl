@@ -33,9 +33,12 @@ FieldImpl::Kind StringFieldImpl::kindImpl() const
 StringFieldImpl::StringFieldImpl(const StringFieldImpl& other)
   : Base(other),
     m_state(other.m_state)
-  {
-      m_prefixField = other.m_prefixField->clone();
-  }
+{
+    if (other.m_prefixField) {
+        assert(other.m_state.m_extPrefixField == nullptr);
+        m_prefixField = other.m_prefixField->clone();
+    }
+}
 
 FieldImpl::Ptr StringFieldImpl::cloneImpl() const
 {
@@ -77,6 +80,7 @@ bool StringFieldImpl::reuseImpl(const FieldImpl& other)
     auto& castedOther = static_cast<const StringFieldImpl&>(other);
     m_state = castedOther.m_state;
     if (castedOther.m_prefixField) {
+        assert(m_state.m_extPrefixField == nullptr);
         m_prefixField = castedOther.m_prefixField->clone();
     }
     else {
@@ -105,8 +109,8 @@ std::size_t StringFieldImpl::minLengthImpl() const
         return 1U;
     }
 
-    if (m_prefixField) {
-        return m_prefixField->minLength();
+    if (hasPrefixField()) {
+        return getPrefixField()->minLength();
     }
 
     return 0U;
@@ -118,9 +122,10 @@ std::size_t StringFieldImpl::maxLengthImpl() const
         return m_state.m_length;
     }
 
-    if (m_prefixField) {
-        assert(m_prefixField->kind() == Field::Kind::Int);
-        auto& castedPrefix = static_cast<IntFieldImpl&>(*m_prefixField);
+    if (hasPrefixField()) {
+        auto* prefixField = getPrefixField();
+        assert(prefixField->kind() == Field::Kind::Int);
+        auto& castedPrefix = static_cast<const IntFieldImpl&>(*prefixField);
         return castedPrefix.maxLength() + castedPrefix.maxValue();
     }
 
@@ -183,7 +188,7 @@ bool StringFieldImpl::updateLength()
         return true;
     }
 
-    if (m_prefixField) {
+    if (hasPrefixField()) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "Cannot force fixed length after reusing string with length prefix.";
         return false;
@@ -206,7 +211,7 @@ bool StringFieldImpl::updatePrefix()
         return false;
     }
 
-    if (!m_prefixField) {
+    if (!hasPrefixField()) {
         return true;
     }
 
@@ -258,7 +263,7 @@ bool StringFieldImpl::updateZeroTerm()
         return false;
     }
 
-    if (m_prefixField) {
+    if (hasPrefixField()) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "Cannot apply zero suffix to strings having length prefix.";
         return false;
@@ -294,8 +299,9 @@ bool StringFieldImpl::checkPrefixFromRef()
         return false;
     }
 
-    m_prefixField = field->clone();
-    assert(m_prefixField);
+    m_prefixField.reset();
+    m_state.m_extPrefixField = field;
+    assert(hasPrefixField());
     return true;
 }
 
@@ -355,8 +361,20 @@ bool StringFieldImpl::checkPrefixAsChild()
         return false;
     }
 
+    m_state.m_extPrefixField = nullptr;
     m_prefixField = std::move(field);
     return true;
+}
+
+const FieldImpl* StringFieldImpl::getPrefixField() const
+{
+    if (m_state.m_extPrefixField != nullptr) {
+        assert(!m_prefixField);
+        return m_state.m_extPrefixField;
+    }
+
+    assert(m_prefixField);
+    return m_prefixField.get();
 }
 
 

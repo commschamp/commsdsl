@@ -35,11 +35,15 @@ public:
 
     bool hasPrefixField() const
     {
-        return static_cast<bool>(m_prefixField);
+        return (m_state.m_extPrefixField != nullptr) || static_cast<bool>(m_prefixField);
     }
 
     Field prefixField() const
     {
+        if (m_state.m_extPrefixField != nullptr) {
+            return Field(m_state.m_extPrefixField);
+        }
+
         return Field(m_prefixField.get());
     }
 
@@ -47,7 +51,6 @@ public:
     {
         return m_state.m_haxZeroSuffix;
     }
-
 
 protected:
     virtual Kind kindImpl() const override;
@@ -68,12 +71,14 @@ private:
     bool updateZeroTerm();
     bool checkPrefixFromRef();
     bool checkPrefixAsChild();
+    const FieldImpl* getPrefixField() const;
 
     struct State
     {
         std::string m_defaultValue;
         std::string m_encoding;
         std::size_t m_length = 0U;
+        const FieldImpl* m_extPrefixField = nullptr;
         bool m_haxZeroSuffix = false;
     };
 
