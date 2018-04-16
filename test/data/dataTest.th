@@ -15,6 +15,9 @@ public:
     void test6();
     void test7();
     void test8();
+    void test9();
+    void test10();
+    void test11();
 };
 
 void DataTestSuite::setUp()
@@ -215,4 +218,54 @@ void DataTestSuite::test8()
     TS_ASSERT_EQUALS(dataField.hasLengthPrefixField(), false);
     auto lenPrefix = dataField.lengthPrefixField();
     TS_ASSERT(!lenPrefix.valid());
+}
+
+void DataTestSuite::test9()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+}
+
+void DataTestSuite::test10()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields[1];
+    TS_ASSERT_EQUALS(field.name(), "Data2");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Data);
+    TS_ASSERT_EQUALS(field.minLength(), 2U);
+    TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::uint16_t>::max() + field.minLength());
+
+    bbmp::DataField dataField(field);
+    bbmp::DataField::ValueType expDefaultValue{0xab, 0xcd, 0xef, 0x01, 0x23};
+    TS_ASSERT_EQUALS(dataField.defaultValue(), expDefaultValue);
+    TS_ASSERT_EQUALS(dataField.fixedLength(), 0U);
+    TS_ASSERT_EQUALS(dataField.hasLengthPrefixField(), true);
+    auto lenPrefix = dataField.lengthPrefixField();
+    TS_ASSERT(lenPrefix.valid());
+    TS_ASSERT_EQUALS(lenPrefix.kind(), bbmp::Field::Kind::Int);
+    bbmp::IntField intLenPrefix(lenPrefix);
+    TS_ASSERT_EQUALS(intLenPrefix.type(), bbmp::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intLenPrefix.endian(), bbmp::Endian_Little);
+}
+
+void DataTestSuite::test11()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
 }
