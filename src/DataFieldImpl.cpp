@@ -130,47 +130,71 @@ bool DataFieldImpl::updateDefaultValue()
         return false;
     }
 
-    auto iter = props().find(common::defaultValueStr());
-    if (iter != props().end()) {
-        m_state.m_defaultValue = iter->second;
-    }
+    do {
+        auto iter = props().find(common::defaultValueStr());
+        if (iter == props().end()) {
+            break;
+        }
 
-    m_state.m_defaultValue.erase(
-        std::remove(m_state.m_defaultValue.begin(), m_state.m_defaultValue.end(), ' '),
-        m_state.m_defaultValue.end());
+        std::string str = iter->second;
 
-    if ((m_state.m_defaultValue.size() %2) != 0) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
-            "\" has unexpected value (" << iter->second << "), expected to "
-            "be hex values string with even number of non-white characters.";
-        return false;
+        str.erase(
+            std::remove(str.begin(), str.end(), ' '),
+            str.end());
 
-    }
+        if ((str.size() %2) != 0) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
+                "\" has unexpected value (" << iter->second << "), expected to "
+                "be hex values string with even number of non-white characters.";
+            return false;
 
+        }
 
-    auto validChars =
-        std::all_of(
-            m_state.m_defaultValue.begin(), m_state.m_defaultValue.end(),
-            [](char ch)
-            {
-                auto c = static_cast<char>(std::tolower(ch));
-                return (('0' <= c) && (c <='9')) ||
-                       (('a' <= c) && (c <= 'f'));
-            });
+        auto validChars =
+            std::all_of(
+                str.begin(), str.end(),
+                [](char ch)
+                {
+                    auto c = static_cast<char>(std::tolower(ch));
+                    return (('0' <= c) && (c <='9')) ||
+                           (('a' <= c) && (c <= 'f'));
+                });
 
-    if (!validChars) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
-                      "\" has unexpected value (" << iter->second << "), expected to "
-                      "be hex values string.";
-        return false;
-    }
+        if (!validChars) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
+                          "\" has unexpected value (" << iter->second << "), expected to "
+                          "be hex values string.";
+            return false;
+        }
 
+        m_state.m_defaultValue.clear();
+        m_state.m_defaultValue.reserve(str.size() / 2U);
+        std::string byteStr;
+        for (auto ch : str) {
+            byteStr.push_back(ch);
+            if (byteStr.size() <= 1U) {
+                continue;
+            }
+
+            try {
+                auto byte = static_cast<std::uint8_t>(std::stoul(byteStr, 0, 16));
+                m_state.m_defaultValue.push_back(byte);
+                byteStr.clear();
+            }
+            catch (...) {
+                assert(!"Should not happen");
+                return false;
+            }
+        }
+
+        assert(m_state.m_defaultValue.size() == (str.size() / 2U));
+    } while (false);
     if ((m_state.m_length != 0U) &&
-        (m_state.m_length < (m_state.m_defaultValue.size() / 2U))) {
+        (m_state.m_length < m_state.m_defaultValue.size())) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "The default value (" << m_state.m_defaultValue << ") is too long "
+            "The default value is too long "
             "for proper serialisation.";
     }
 

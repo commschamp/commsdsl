@@ -29,7 +29,7 @@ DataField::DataField(Field field)
     assert(kind() == Kind::Data);
 }
 
-const std::string& DataField::defaultValue() const
+const DataField::ValueType& DataField::defaultValue() const
 {
     return cast(m_pImpl)->defaultValue();
 }

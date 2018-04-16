@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "bbmp/Endian.h"
+#include "bbmp/DataField.h"
 #include "FieldImpl.h"
 
 namespace bbmp
@@ -15,10 +16,12 @@ class DataFieldImpl : public FieldImpl
     using Base = FieldImpl;
 public:
 
+    using ValueType = DataField::ValueType;
+
     DataFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     DataFieldImpl(const DataFieldImpl& other);
 
-    const std::string& defaultValue() const
+    const ValueType& defaultValue() const
     {
         return m_state.m_defaultValue;
     }
@@ -63,7 +66,7 @@ private:
 
     struct State
     {
-        std::string m_defaultValue;
+        ValueType m_defaultValue;
         std::size_t m_length = 0U;
         const FieldImpl* m_extPrefixField = nullptr;
     };
