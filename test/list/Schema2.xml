@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="Bundle1">
+            <enum name="E1" type="uint8">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="2" />
+            </enum>
+            <int name="I1" type="uint16" />
+        </bundle>
+        <list name="List1" element="Bundle1">
+            <count>10</count>
+        </list>
+    </fields>
+</schema>
