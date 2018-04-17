@@ -23,6 +23,7 @@ public:
         Bundle,
         String,
         Data,
+        List,
         Ref,
         NumOfValues
     };

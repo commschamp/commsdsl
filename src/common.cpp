@@ -366,6 +366,30 @@ const std::string& countStr()
     return Str;
 }
 
+const std::string& elemFixedLengthStr()
+{
+    static const std::string Str("elemFixedLength");
+    return Str;
+}
+
+const std::string& elementStr()
+{
+    static const std::string Str("element");
+    return Str;
+}
+
+const std::string& elemLengthPrefixStr()
+{
+    static const std::string Str("elemLengthPrefix");
+    return Str;
+}
+
+const std::string& listStr()
+{
+    static const std::string Str("list");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

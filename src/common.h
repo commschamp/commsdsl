@@ -74,6 +74,10 @@ const std::string& zeroTermSuffixStr();
 const std::string& stringStr();
 const std::string& dataStr();
 const std::string& countStr();
+const std::string& elemFixedLengthStr();
+const std::string& elementStr();
+const std::string& elemLengthPrefixStr();
+const std::string& listStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);
