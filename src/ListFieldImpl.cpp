@@ -91,7 +91,8 @@ bool ListFieldImpl::parseImpl()
         updateCount() &&
         updateCountPrefix() &&
         updateLengthPrefix() &&
-        updateElemLengthPrefix();
+        updateElemLengthPrefix() &&
+        updateElemFixedLength();
 }
 
 std::size_t ListFieldImpl::minLengthImpl() const

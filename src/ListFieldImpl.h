@@ -63,7 +63,7 @@ public:
     Field lengthPrefixField() const
     {
         if (m_state.m_extLengthPrefixField != nullptr) {
-            return Field(m_state.m_extCountPrefixField);
+            return Field(m_state.m_extLengthPrefixField);
         }
 
         return Field(m_lengthPrefixField.get());
@@ -78,7 +78,7 @@ public:
     Field elemLengthPrefixField() const
     {
         if (m_state.m_extElemLengthPrefixField != nullptr) {
-            return Field(m_state.m_extCountPrefixField);
+            return Field(m_state.m_extElemLengthPrefixField);
         }
 
         return Field(m_elemLengthPrefixField.get());

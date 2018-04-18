@@ -11,6 +11,8 @@ public:
     void test2();
     void test3();
     void test4();
+    void test5();
+    void test6();
 };
 
 void ListTestSuite::setUp()
@@ -150,7 +152,72 @@ void ListTestSuite::test4()
     TS_ASSERT(!listField.countPrefixField().valid());
     TS_ASSERT_EQUALS(listField.hasLengthPrefixField(), true);
     TS_ASSERT(listField.lengthPrefixField().valid());
+    TS_ASSERT_EQUALS(bbmp::IntField(listField.lengthPrefixField()).endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(listField.hasElemLengthPrefixField(), false);
     TS_ASSERT(!listField.elemLengthPrefixField().valid());
     TS_ASSERT(!listField.elemFixedLength());
+}
+
+void ListTestSuite::test5()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "List1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.minLength(), 15U);
+    TS_ASSERT_EQUALS(field.maxLength(), 15U);
+
+    bbmp::ListField listField(field);
+    auto elem = listField.elementField();
+    TS_ASSERT_EQUALS(elem.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(listField.fixedCount(), 5U);
+    TS_ASSERT(!listField.hasCountPrefixField());
+    TS_ASSERT(!listField.countPrefixField().valid());
+    TS_ASSERT(!listField.hasLengthPrefixField());
+    TS_ASSERT(!listField.lengthPrefixField().valid());
+    TS_ASSERT(listField.hasElemLengthPrefixField());
+    TS_ASSERT(listField.elemLengthPrefixField().valid());
+    TS_ASSERT(!listField.elemFixedLength());
+}
+
+void ListTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "List1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.minLength(), 11U);
+    TS_ASSERT_EQUALS(field.maxLength(), 11U);
+
+    bbmp::ListField listField(field);
+    auto elem = listField.elementField();
+    TS_ASSERT_EQUALS(elem.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(listField.fixedCount(), 5U);
+    TS_ASSERT(!listField.hasCountPrefixField());
+    TS_ASSERT(!listField.countPrefixField().valid());
+    TS_ASSERT(!listField.hasLengthPrefixField());
+    TS_ASSERT(!listField.lengthPrefixField().valid());
+    TS_ASSERT(listField.hasElemLengthPrefixField());
+    TS_ASSERT(listField.elemLengthPrefixField().valid());
+    TS_ASSERT(listField.elemFixedLength());
 }
