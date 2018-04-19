@@ -17,6 +17,11 @@ public:
     void test8();
     void test9();
     void test10();
+    void test11();
+    void test12();
+    void test13();
+    void test14();
+    void test15();
 };
 
 void ListTestSuite::setUp()
@@ -355,4 +360,97 @@ void ListTestSuite::test10()
     TS_ASSERT(!listField.hasElemLengthPrefixField());
     TS_ASSERT(!listField.elemLengthPrefixField().valid());
     TS_ASSERT(!listField.elemFixedLength());
+}
+
+void ListTestSuite::test11()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "List1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.minLength(), 5U);
+    TS_ASSERT_EQUALS(field.maxLength(), 20U);
+
+    bbmp::ListField listField(field);
+    auto elem = listField.elementField();
+    TS_ASSERT_EQUALS(elem.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT(!elem.externalRef().empty());
+    TS_ASSERT_EQUALS(listField.fixedCount(), 5U);
+    TS_ASSERT(!listField.hasCountPrefixField());
+    TS_ASSERT(!listField.countPrefixField().valid());
+    TS_ASSERT(!listField.hasLengthPrefixField());
+    TS_ASSERT(!listField.lengthPrefixField().valid());
+    TS_ASSERT(!listField.hasElemLengthPrefixField());
+    TS_ASSERT(!listField.elemLengthPrefixField().valid());
+    TS_ASSERT(!listField.elemFixedLength());
+}
+
+void ListTestSuite::test12()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test13()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+    auto& namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto& fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "List1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), (0x3fff * 4U) + 2U);
+
+    bbmp::ListField listField(field);
+    auto elem = listField.elementField();
+    TS_ASSERT_EQUALS(elem.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT(!elem.externalRef().empty());
+    TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
+    TS_ASSERT(listField.hasCountPrefixField());
+    TS_ASSERT(listField.countPrefixField().valid());
+    TS_ASSERT(!listField.hasLengthPrefixField());
+    TS_ASSERT(!listField.lengthPrefixField().valid());
+    TS_ASSERT(!listField.hasElemLengthPrefixField());
+    TS_ASSERT(!listField.elemLengthPrefixField().valid());
+    TS_ASSERT(!listField.elemFixedLength());
+}
+
+void ListTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test15()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
 }

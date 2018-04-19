@@ -172,7 +172,6 @@ std::size_t ListFieldImpl::maxLengthImpl() const
         }
 
         result += extraLen;
-
         return result;
     }
 
