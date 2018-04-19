@@ -22,6 +22,10 @@ public:
     void test13();
     void test14();
     void test15();
+    void test16();
+    void test17();
+    void test18();
+    void test19();
 };
 
 void ListTestSuite::setUp()
@@ -452,5 +456,41 @@ void ListTestSuite::test15()
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test16()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test18()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test19()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
 }
