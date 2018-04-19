@@ -150,7 +150,18 @@ std::size_t ListFieldImpl::maxLengthImpl() const
         std::size_t count = static_cast<std::size_t>(castedPrefix.maxValue());
         std::size_t result = std::min(MaxLen / count, elemMaxLength) * count;
 
+        if ((MaxLen - castedPrefix.maxLength()) <= result) {
+            return MaxLen;
+        }
+
+        result += castedPrefix.maxLength();
+
+
         if (m_state.m_elemFixedLength) {
+            if ((MaxLen - extraLen) <= result) {
+                return MaxLen;
+            }
+
             return result + extraLen;
         }
 
@@ -162,11 +173,6 @@ std::size_t ListFieldImpl::maxLengthImpl() const
 
         result += extraLen;
 
-        if ((MaxLen - castedPrefix.maxLength()) <= result) {
-            return MaxLen;
-        }
-
-        result += castedPrefix.maxLength();
         return result;
     }
 
