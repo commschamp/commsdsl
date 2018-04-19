@@ -68,6 +68,7 @@ set (
     "StringField.cpp"
     "DataField.cpp"
     "ListField.cpp"
+    "RefField.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"

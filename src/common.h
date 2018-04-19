@@ -56,7 +56,7 @@ const std::string& sinceVersionStr();
 const std::string& deprecatedStr();
 const std::string& removedStr();
 const std::string& refStr();
-const std::string& origStr();
+const std::string& fieldStr();
 const std::string& nsStr();
 const std::string& enumStr();
 const std::string& nonUniqueAllowedStr();

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include "Field.h"
 
 namespace bbmp

@@ -10,6 +10,7 @@
 #include "ErrorLevel.h"
 #include "Schema.h"
 #include "Namespace.h"
+#include "Field.h"
 
 namespace bbmp
 {
@@ -36,6 +37,8 @@ public:
     {
         return std::numeric_limits<unsigned>::max();
     }
+
+    Field findField(const std::string& externalRef);
 
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;

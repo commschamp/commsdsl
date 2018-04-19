@@ -17,18 +17,22 @@ public:
     RefFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     RefFieldImpl(const RefFieldImpl& other);
 
+    Field field() const
+    {
+        return Field(m_field);
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
+    virtual bool reuseImpl(const FieldImpl& other);
     virtual bool parseImpl() override;
     virtual std::size_t minLengthImpl() const override;
-    virtual std::size_t bitLengthImpl() const override;
+    virtual std::size_t maxLengthImpl() const override;
 
 private:
-    Ptr m_field;
-    XmlWrap::NamesList m_extraChildrenNames;
+    const FieldImpl* m_field = nullptr;
 };
 
 } // namespace bbmp

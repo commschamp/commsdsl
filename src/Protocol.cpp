@@ -38,4 +38,9 @@ const Protocol::NamespacesList&Protocol::namespaces() const
     return m_pImpl->namespacesList();
 }
 
+Field Protocol::findField(const std::string& externalRef)
+{
+    return Field(m_pImpl->findField(externalRef));
+}
+
 } // namespace bbmp

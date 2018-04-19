@@ -12,11 +12,7 @@ RefFieldImpl::RefFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
-RefFieldImpl::RefFieldImpl(const RefFieldImpl& other)
-  : Base(other),
-    m_field(other.m_field->clone())
-{
-}
+RefFieldImpl::RefFieldImpl(const RefFieldImpl&) = default;
 
 FieldImpl::Kind RefFieldImpl::kindImpl() const
 {
@@ -31,63 +27,53 @@ FieldImpl::Ptr RefFieldImpl::cloneImpl() const
 const XmlWrap::NamesList& RefFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
-        common::origStr()
+        common::fieldStr()
     };
 
     return List;
 }
 
-const XmlWrap::NamesList& RefFieldImpl::extraChildrenNamesImpl() const
+bool RefFieldImpl::reuseImpl(const FieldImpl& other)
 {
-    return m_extraChildrenNames;
+    assert(other.kind() == kind());
+    auto& castedOther = static_cast<const RefFieldImpl&>(other);
+    m_field = castedOther.m_field;
+    assert(m_field != nullptr);
+    return true;
 }
 
 bool RefFieldImpl::parseImpl()
 {
-    if (!validateSinglePropInstance(common::origStr(), true)) {
+    bool mustHave = m_field == nullptr;
+    if (!validateSinglePropInstance(common::fieldStr(), mustHave)) {
         return false;
     }
 
-    auto propsIter = props().find(common::origStr());
-    assert (propsIter != props().end());
+    auto propsIter = props().find(common::fieldStr());
+    if (propsIter == props().end()) {
+        assert(m_field != nullptr);
+        return true;
+    }
 
-    auto* field = protocol().findField(propsIter->second);
-    if (field == nullptr) {
-        reportUnexpectedPropertyValue(common::origStr(), propsIter->second);
+    m_field = protocol().findField(propsIter->second);
+    if (m_field == nullptr) {
+        reportUnexpectedPropertyValue(common::fieldStr(), propsIter->second);
         return false;
     }
-
-    if (!m_field) {
-        m_field = field->clone();
-    }
-
-    assert(m_field->getNode() != getNode());
-
-    m_field->setNode(getNode());
-    if (!m_field->parse()) {
-        return false;
-    }
-
-    m_extraChildrenNames.clear();
-    auto& propsNames = m_field->extraPropsNames();
-    auto& possibleNames = m_field->extraPossiblePropsNames();
-    auto& extraChildren = m_field->extraChildrenNames();
-
-    m_extraChildrenNames.insert(m_extraChildrenNames.end(), propsNames.begin(), propsNames.end());
-    m_extraChildrenNames.insert(m_extraChildrenNames.end(), possibleNames.begin(), possibleNames.end());
-    m_extraChildrenNames.insert(m_extraChildrenNames.end(), extraChildren.begin(), extraChildren.end());
 
     return true;
 }
 
 std::size_t RefFieldImpl::minLengthImpl() const
 {
+    assert(m_field != nullptr);
     return m_field->minLength();
 }
 
-std::size_t RefFieldImpl::bitLengthImpl() const
+std::size_t RefFieldImpl::maxLengthImpl() const
 {
-    return m_field->bitLength();
+    assert(m_field != nullptr);
+    return m_field->maxLength();
 }
 
 } // namespace bbmp

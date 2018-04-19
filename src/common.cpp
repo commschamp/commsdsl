@@ -258,9 +258,9 @@ const std::string& refStr()
     return Str;
 }
 
-const std::string& origStr()
+const std::string& fieldStr()
 {
-    static const std::string Str("orig");
+    static const std::string Str("field");
     return Str;
 }
 
