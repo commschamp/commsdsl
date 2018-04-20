@@ -11,3 +11,4 @@
 #include "DataField.h"
 #include "ListField.h"
 #include "RefField.h"
+#include "OptionalField.h"

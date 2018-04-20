@@ -390,6 +390,18 @@ const std::string& listStr()
     return Str;
 }
 
+const std::string& optionalStr()
+{
+    static const std::string Str("optional");
+    return Str;
+}
+
+const std::string& defaultModeStr()
+{
+    static const std::string Str("defaultMode");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

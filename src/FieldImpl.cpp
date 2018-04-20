@@ -16,6 +16,7 @@
 #include "DataFieldImpl.h"
 #include "ListFieldImpl.h"
 #include "RefFieldImpl.h"
+#include "OptionalFieldImpl.h"
 #include "NamespaceImpl.h"
 #include "common.h"
 
@@ -537,6 +538,12 @@ const FieldImpl::CreateMap& FieldImpl::createMap()
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new RefFieldImpl(n, p));
+            }),
+        std::make_pair(
+            common::optionalStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new OptionalFieldImpl(n, p));
             })
     };
 

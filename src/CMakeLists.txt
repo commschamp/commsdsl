@@ -69,6 +69,7 @@ set (
     "DataField.cpp"
     "ListField.cpp"
     "RefField.cpp"
+    "OptionalField.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"
@@ -86,6 +87,7 @@ set (
     "DataFieldImpl.cpp"
     "ListFieldImpl.cpp"
     "RefFieldImpl.cpp"
+    "OptionalFieldImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

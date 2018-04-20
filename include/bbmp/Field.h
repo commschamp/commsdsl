@@ -25,6 +25,7 @@ public:
         Data,
         List,
         Ref,
+        Optional,
         NumOfValues
     };
 
