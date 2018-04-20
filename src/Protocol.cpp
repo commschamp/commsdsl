@@ -33,7 +33,7 @@ Schema Protocol::schema() const
     return m_pImpl->schema();
 }
 
-const Protocol::NamespacesList&Protocol::namespaces() const
+Protocol::NamespacesList Protocol::namespaces() const
 {
     return m_pImpl->namespacesList();
 }

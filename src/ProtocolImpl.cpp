@@ -73,16 +73,6 @@ bool ProtocolImpl::validate()
         }
     }
 
-    m_namespacesList.clear();
-    m_namespacesList.reserve(m_namespaces.size());
-    for (auto& n : m_namespaces) {
-        if (!n.second->finalise()) {
-            return false;
-        }
-
-        m_namespacesList.emplace_back(n.second.get());
-    }
-
     m_validated = true;
     return true;
 }
@@ -107,6 +97,16 @@ const SchemaImpl& ProtocolImpl::schemaImpl() const
 {
     assert(m_schema);
     return *m_schema;
+}
+
+ProtocolImpl::NamespacesList ProtocolImpl::namespacesList() const
+{
+    NamespacesList result;
+    result.reserve(m_namespaces.size());
+    for (auto& n : m_namespaces) {
+        result.emplace_back(n.second.get());
+    }
+    return result;
 }
 
 const FieldImpl* ProtocolImpl::findField(const std::string& ref, bool checkRef) const

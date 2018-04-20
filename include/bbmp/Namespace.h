@@ -22,7 +22,7 @@ public:
 
     const std::string& name() const;
     const NamespacesList& namespaces() const;
-    const FieldsList& fields() const;
+    FieldsList fields() const;
 
 private:
     const NamespaceImpl* m_pImpl;

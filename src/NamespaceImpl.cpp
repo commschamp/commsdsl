@@ -124,73 +124,31 @@ bool NamespaceImpl::processChild(::xmlNodePtr node, NamespaceImpl* realNs)
     return (realNs->*func)(node);
 }
 
-bool NamespaceImpl::merge(NamespaceImpl& other)
-{
-    assert(m_name == other.m_name);
-    if (m_description.empty()) {
-        m_description = std::move(other.m_description);
-    }
-
-    for (auto& n : other.m_namespaces) {
-        auto iter = m_namespaces.find(n.first);
-        if (iter == m_namespaces.end()) {
-            m_namespaces.emplace(n.first, std::move(n.second));
-            continue;
-        }
-
-        assert(iter->second);
-        if (!iter->second->merge(*n.second)) {
-            return false;
-        }
-    }
-
-    other.m_namespaces.clear();
-    other.m_namespacesList.clear();
-
-    for (auto& f : other.m_fields) {
-        auto iter = m_fields.find(f.first);
-        if (iter != m_fields.end()) {
-            assert(f.second);
-            assert(iter->second);
-            logError() << XmlWrap::logPrefix(f.second->getNode()) <<
-                "Field with name \"" << f.first << "\" has been defined earlier at " <<
-                XmlWrap::logPrefix(iter->second->getNode());
-            return false;
-        }
-
-        m_fields.insert(std::move(f));
-    }
-    other.m_fields.clear();
-    other.m_fieldsList.clear();
-
-
-    // TODO: merge messages and frames
-    return true;
-}
-
-bool NamespaceImpl::finalise()
-{
-    m_namespacesList.clear();
-    m_namespacesList.reserve(m_namespaces.size());
-    for (auto& n : m_namespaces) {
-        assert(n.second);
-        m_namespacesList.emplace_back(n.second.get());
-    }
-
-    m_fieldsList.clear();
-    m_fieldsList.reserve(m_fields.size());
-    for (auto& f : m_fields) {
-        assert(f.second);
-        m_fieldsList.emplace_back(f.second.get());
-    }
-
-    // TODO: finalise messages and frames
-    return true;
-}
-
 const XmlWrap::NamesList& NamespaceImpl::supportedChildren()
 {
     return ChildrenNames;
+}
+
+NamespaceImpl::NamespacesList NamespaceImpl::namespacesList() const
+{
+    NamespacesList result;
+    result.reserve(m_namespaces.size());
+    for (auto& n : m_namespaces) {
+        assert(n.second);
+        result.emplace_back(n.second.get());
+    }
+    return result;
+}
+
+NamespaceImpl::FieldsList NamespaceImpl::fieldsList() const
+{
+    FieldsList result;
+    result.reserve(m_fields.size());
+    for (auto& f : m_fields) {
+        assert(f.second);
+        result.emplace_back(f.second.get());
+    }
+    return result;
 }
 
 const FieldImpl* NamespaceImpl::findField(const std::string& fieldName) const

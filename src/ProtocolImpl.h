@@ -45,10 +45,7 @@ public:
     }
 
 
-    const NamespacesList& namespacesList() const
-    {
-        return m_namespacesList;
-    }
+    NamespacesList namespacesList() const;
 
     const FieldImpl* findField(const std::string& ref, bool checkRef = true) const;
 
@@ -84,7 +81,6 @@ private:
     mutable Logger m_logger;
     SchemaImplPtr m_schema;
     NamespacesMap m_namespaces;
-    NamespacesList m_namespacesList;
 };
 
 } // namespace bbmp

@@ -33,13 +33,13 @@ void BitfieldTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
@@ -67,13 +67,13 @@ void BitfieldTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.front();
@@ -100,13 +100,13 @@ void BitfieldTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 5U);
 
     auto& field = fields[1];
@@ -142,13 +142,13 @@ void BitfieldTestSuite::test5()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.front();
@@ -187,13 +187,13 @@ void BitfieldTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 4U);
 
     auto& field = fields.front();
@@ -214,13 +214,13 @@ void BitfieldTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();

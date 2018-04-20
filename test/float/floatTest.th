@@ -39,13 +39,13 @@ void FloatTestSuite::test1()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     do {
@@ -90,13 +90,13 @@ void FloatTestSuite::test2()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT_EQUALS(ns.name(), "my_ns");
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     do {
@@ -158,14 +158,14 @@ void FloatTestSuite::test3()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 2U);
 
     do {
         auto& ns = namespaces[1];
         TS_ASSERT_EQUALS(ns.name(), "my_ns");
 
-        auto& fields = ns.fields();
+        auto fields = ns.fields();
         TS_ASSERT_EQUALS(fields.size(), 1U);
 
         auto& field = fields[0];
@@ -193,7 +193,7 @@ void FloatTestSuite::test3()
         auto& ns = namespaces[0];
         TS_ASSERT(ns.name().empty());
 
-        auto& fields = ns.fields();
+        auto fields = ns.fields();
         TS_ASSERT_EQUALS(fields.size(), 1U);
 
         auto& field = fields[0];
@@ -227,14 +227,14 @@ void FloatTestSuite::test4()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     do {
         auto& ns = namespaces.front();
         TS_ASSERT(ns.name().empty());
 
-        auto& fields = ns.fields();
+        auto fields = ns.fields();
         TS_ASSERT_EQUALS(fields.size(), 1U);
 
         auto& field = fields[0];
@@ -276,14 +276,14 @@ void FloatTestSuite::test5()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     do {
         auto& ns = namespaces.front();
         TS_ASSERT(ns.name().empty());
 
-        auto& fields = ns.fields();
+        auto fields = ns.fields();
         TS_ASSERT_EQUALS(fields.size(), 1U);
 
         auto& field = fields[0];
@@ -322,14 +322,14 @@ void FloatTestSuite::test6()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     do {
         auto& ns = namespaces.front();
         TS_ASSERT(ns.name().empty());
 
-        auto& fields = ns.fields();
+        auto fields = ns.fields();
         TS_ASSERT_EQUALS(fields.size(), 1U);
 
         auto& field = fields[0];
@@ -380,13 +380,13 @@ void FloatTestSuite::test9()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     do {
@@ -442,13 +442,13 @@ void FloatTestSuite::test10()
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     do {

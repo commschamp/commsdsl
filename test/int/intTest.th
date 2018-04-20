@@ -44,13 +44,13 @@ void IntTestSuite::test1()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
@@ -82,13 +82,13 @@ void IntTestSuite::test2()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT_EQUALS(ns.name(), "my_ns");
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field1 = fields[0];
@@ -157,7 +157,7 @@ void IntTestSuite::test3()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 3U);
 
     auto& ns1 = namespaces[0];
@@ -168,9 +168,9 @@ void IntTestSuite::test3()
     TS_ASSERT_EQUALS(ns2.name(), "my_ns2");
     TS_ASSERT_EQUALS(ns3.name(), "my_ns3");
 
-    auto& fields1 = ns1.fields();
-    auto& fields2 = ns2.fields();
-    auto& fields3 = ns3.fields();
+    auto fields1 = ns1.fields();
+    auto fields2 = ns2.fields();
+    auto fields3 = ns3.fields();
 
     TS_ASSERT_EQUALS(fields1.size(), 1U);
     TS_ASSERT_EQUALS(fields2.size(), 1U);
@@ -248,13 +248,13 @@ void IntTestSuite::test4()
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field1 = fields[0];
@@ -335,13 +335,13 @@ void IntTestSuite::test5()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 8U);
 
     do {
@@ -557,13 +557,13 @@ void IntTestSuite::test6()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
@@ -596,13 +596,13 @@ void IntTestSuite::test7()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 6U);
 
     do {
@@ -754,13 +754,13 @@ void IntTestSuite::test8()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 6U);
 
     do {
@@ -856,13 +856,13 @@ void IntTestSuite::test9()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     do {
@@ -918,13 +918,13 @@ void IntTestSuite::test10()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     do {
@@ -979,13 +979,13 @@ void IntTestSuite::test11()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
@@ -1027,13 +1027,13 @@ void IntTestSuite::test12()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields[1];
@@ -1073,13 +1073,13 @@ void IntTestSuite::test13()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT_EQUALS(ns.name(), "ns1");
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields[0];
@@ -1120,13 +1120,13 @@ void IntTestSuite::test15()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 2U);
 
     auto& ns = namespaces.front();
     TS_ASSERT_EQUALS(ns.name(), "ns1");
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields[0];
@@ -1188,13 +1188,13 @@ void IntTestSuite::test19()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 2U);
 
     auto& ns = namespaces.front();
     TS_ASSERT_EQUALS(ns.name(), "ns1");
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields[0];
@@ -1227,13 +1227,13 @@ void IntTestSuite::test20()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();

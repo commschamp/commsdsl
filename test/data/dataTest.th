@@ -34,13 +34,13 @@ void DataTestSuite::test1()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
@@ -63,13 +63,13 @@ void DataTestSuite::test2()
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
@@ -99,13 +99,13 @@ void DataTestSuite::test4()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.front();
@@ -128,13 +128,13 @@ void DataTestSuite::test5()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& field = fields.front();
@@ -166,13 +166,13 @@ void DataTestSuite::test7()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
@@ -195,13 +195,13 @@ void DataTestSuite::test8()
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
@@ -233,13 +233,13 @@ void DataTestSuite::test10()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT_EQUALS(ns.name(), "ns1");
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields[1];

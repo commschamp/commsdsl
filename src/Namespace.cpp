@@ -19,7 +19,7 @@ const std::string& Namespace::name() const
     return m_pImpl->name();
 }
 
-const Namespace::FieldsList&Namespace::fields() const
+Namespace::FieldsList Namespace::fields() const
 {
     return m_pImpl->fieldsList();
 }

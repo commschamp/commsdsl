@@ -29,13 +29,13 @@ void RefTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
@@ -58,13 +58,13 @@ void RefTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT_EQUALS(ns.name(), "ns1");
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.back();
@@ -87,13 +87,13 @@ void RefTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto& namespaces = protocol->namespaces();
+    auto namespaces = protocol->namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT_EQUALS(ns.name(), "ns1");
 
-    auto& fields = ns.fields();
+    auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();

@@ -31,7 +31,7 @@ public:
     bool validate();
 
     Schema schema() const;
-    const NamespacesList& namespaces() const;
+    NamespacesList namespaces() const;
 
     static constexpr unsigned notYetDeprecated()
     {

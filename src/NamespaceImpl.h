@@ -40,10 +40,6 @@ public:
 
     bool processChild(::xmlNodePtr node, NamespaceImpl* realNs = nullptr);
 
-    bool merge(NamespaceImpl& other);
-
-    bool finalise();
-
     static const XmlWrap::NamesList& supportedChildren();
 
     const PropsMap& props() const
@@ -61,10 +57,8 @@ public:
         return m_description;
     }
 
-    const FieldsList& fieldsList() const
-    {
-        return m_fieldsList;
-    }
+    NamespacesList namespacesList() const;
+    FieldsList fieldsList() const;
 
     const PropsMap& unknownAttributes() const
     {
@@ -122,9 +116,7 @@ private:
     std::string m_description;
 
     NamespacesMap m_namespaces;
-    NamespacesList m_namespacesList;
     FieldsMap m_fields;
-    FieldsList m_fieldsList;
 };
 
 using NamespaceImplPtr = NamespaceImpl::Ptr;
