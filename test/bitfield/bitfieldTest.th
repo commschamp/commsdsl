@@ -52,7 +52,7 @@ void BitfieldTestSuite::test1()
     TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
     TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
-    auto& members = bitfieldField.members();
+    auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
@@ -85,7 +85,7 @@ void BitfieldTestSuite::test2()
     bbmp::BitfieldField bitfieldField(field);
     TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
-    auto& members = bitfieldField.members();
+    auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
@@ -118,7 +118,7 @@ void BitfieldTestSuite::test3()
     bbmp::BitfieldField bitfieldField(field);
     TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
-    auto& members = bitfieldField.members();
+    auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
@@ -160,7 +160,7 @@ void BitfieldTestSuite::test5()
     bbmp::BitfieldField bitfieldField(field);
     TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 3U);
-    auto& members = bitfieldField.members();
+    auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
@@ -205,7 +205,7 @@ void BitfieldTestSuite::test7()
     bbmp::BitfieldField bitfieldField(field);
     TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 3U);
-    auto& members = bitfieldField.members();
+    auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
 }
 
@@ -233,7 +233,7 @@ void BitfieldTestSuite::test8()
     TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Big);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
     TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
-    auto& members = bitfieldField.members();
+    auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
 }
 

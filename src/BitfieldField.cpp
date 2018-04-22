@@ -34,7 +34,7 @@ Endian BitfieldField::endian() const
     return cast(m_pImpl)->endian();
 }
 
-const BitfieldField::Members& BitfieldField::members() const
+BitfieldField::Members BitfieldField::members() const
 {
     return cast(m_pImpl)->membersList();
 }

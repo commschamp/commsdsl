@@ -42,7 +42,19 @@ BundleFieldImpl::BundleFieldImpl(const BundleFieldImpl& other)
     for (auto& m : other.m_members) {
         m_members.push_back(m->clone());
     }
-    prepareMembersList();
+}
+
+BundleFieldImpl::Members BundleFieldImpl::membersList() const
+{
+    Members result;
+    result.reserve(m_members.size());
+    std::transform(
+        m_members.begin(), m_members.end(), std::back_inserter(result),
+        [](auto& elem)
+        {
+            return Field(elem.get());
+        });
+    return result;
 }
 
 FieldImpl::Kind BundleFieldImpl::kindImpl() const
@@ -240,22 +252,7 @@ bool BundleFieldImpl::updateMembers()
         return false;
     }
 
-    prepareMembersList();
     return true;
 }
-
-void BundleFieldImpl::prepareMembersList()
-{
-    m_membersList.clear();
-    m_membersList.reserve(m_members.size());
-    std::transform(
-        m_members.begin(), m_members.end(), std::back_inserter(m_membersList),
-        [](auto& elem)
-        {
-            return Field(elem.get());
-        });
-}
-
-
 
 } // namespace bbmp

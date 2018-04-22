@@ -47,7 +47,19 @@ BitfieldFieldImpl::BitfieldFieldImpl(const BitfieldFieldImpl& other)
     for (auto& m : other.m_members) {
         m_members.push_back(m->clone());
     }
-    prepareMembersList();
+}
+
+BitfieldFieldImpl::Members BitfieldFieldImpl::membersList() const
+{
+    Members result;
+    result.reserve(m_members.size());
+    std::transform(
+        m_members.begin(), m_members.end(), std::back_inserter(result),
+        [](auto& elem)
+        {
+            return Field(elem.get());
+        });
+    return result;
 }
 
 FieldImpl::Kind BitfieldFieldImpl::kindImpl() const
@@ -254,22 +266,7 @@ bool BitfieldFieldImpl::updateMembers()
         }
     } while (false);
 
-    prepareMembersList();
     return true;
 }
-
-void BitfieldFieldImpl::prepareMembersList()
-{
-    m_membersList.clear();
-    m_membersList.reserve(m_members.size());
-    std::transform(
-        m_members.begin(), m_members.end(), std::back_inserter(m_membersList),
-        [](auto& elem)
-        {
-            return Field(elem.get());
-        });
-}
-
-
 
 } // namespace bbmp

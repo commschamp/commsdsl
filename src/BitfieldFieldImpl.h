@@ -25,10 +25,8 @@ public:
         return m_members;
     }
 
-    const Members& membersList() const
-    {
-        return m_membersList;
-    }
+    Members membersList() const;
+
 
 protected:
 
@@ -43,11 +41,9 @@ protected:
 private:
     bool updateEndian();
     bool updateMembers();
-    void prepareMembersList();
 
     Endian m_endian = Endian_NumOfValues;
     FieldsList m_members;
-    Members m_membersList;
 };
 
 } // namespace bbmp

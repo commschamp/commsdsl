@@ -29,7 +29,7 @@ BundleField::BundleField(Field field)
     assert(kind() == Kind::Bundle);
 }
 
-const BundleField::Members& BundleField::members() const
+BundleField::Members BundleField::members() const
 {
     return cast(m_pImpl)->membersList();
 }

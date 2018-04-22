@@ -17,7 +17,7 @@ public:
     explicit BitfieldField(Field field);
 
     Endian endian() const;
-    const Members& members() const;
+    Members members() const;
 };
 
 } // namespace bbmp

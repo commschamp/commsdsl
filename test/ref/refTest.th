@@ -103,7 +103,7 @@ void RefTestSuite::test3()
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 7U);
     bbmp::BundleField bundleField(field);
-    auto& members = bundleField.members();
+    auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& refMem = members[1];
     bbmp::RefField refField(refMem);

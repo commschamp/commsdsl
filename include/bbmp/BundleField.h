@@ -16,7 +16,7 @@ public:
     explicit BundleField(const BundleFieldImpl* impl);
     explicit BundleField(Field field);
 
-    const Members& members() const;
+    Members members() const;
 };
 
 } // namespace bbmp
