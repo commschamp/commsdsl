@@ -52,6 +52,21 @@ public:
 
     bool parse(const std::string& expr);
 
+    const std::string& left() const
+    {
+        return m_left;
+    }
+
+    const std::string& op() const
+    {
+        return m_op;
+    }
+
+    const std::string& right() const
+    {
+        return m_right;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;

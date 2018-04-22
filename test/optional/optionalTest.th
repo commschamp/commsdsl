@@ -8,6 +8,8 @@ public:
     void setUp();
     void tearDown();
     void test1();
+    void test2();
+    void test3();
 };
 
 void OptionalTestSuite::setUp()
@@ -46,4 +48,82 @@ void OptionalTestSuite::test1()
     TS_ASSERT_EQUALS(wrappedField.kind(), bbmp::Field::Kind::Int);
 
     TS_ASSERT(!optField.cond().valid());
+}
+
+void OptionalTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "Opt1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+    TS_ASSERT_EQUALS(field.maxLength(), 1U);
+    TS_ASSERT_EQUALS(field.bitLength(), 0U);
+
+    bbmp::OptionalField optField(field);
+    auto wrappedField = optField.field();
+    TS_ASSERT_EQUALS(wrappedField.kind(), bbmp::Field::Kind::Int);
+
+    TS_ASSERT(!optField.cond().valid());
+}
+
+void OptionalTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 4U);
+    TS_ASSERT_EQUALS(field.bitLength(), 0U);
+
+
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Optional)
+
+    bbmp::OptionalField opt1(mem2);
+    auto cond1 = opt1.cond();
+    TS_ASSERT_EQUALS(cond1.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondExpr exprCond1(cond1);
+    TS_ASSERT(exprCond1.left().empty());
+    TS_ASSERT(exprCond1.op().empty());
+    TS_ASSERT_EQUALS(exprCond1.right(), "$Mem1.b0");
+
+    bbmp::OptionalField opt2(mem3);
+    auto cond2 = opt2.cond();
+    TS_ASSERT_EQUALS(cond2.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondExpr exprCond2(cond2);
+    TS_ASSERT(exprCond2.left().empty());
+    TS_ASSERT_EQUALS(exprCond2.op(), "!");
+    TS_ASSERT_EQUALS(exprCond2.right(), "$Mem1.b0");
 }

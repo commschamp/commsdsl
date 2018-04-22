@@ -7,6 +7,8 @@
 #include "BitfieldFieldImpl.h"
 #include "SetFieldImpl.h"
 
+//#include <iostream>
+
 namespace bbmp
 {
 
@@ -148,7 +150,7 @@ FieldImpl* OptCondExprImpl::findField(
     const std::string& name,
     std::size_t& remPos)
 {
-    auto dotPos = name.find_first_of('0', remPos);
+    auto dotPos = name.find_first_of('.', remPos);
     std::string fieldName(name, remPos, dotPos - remPos);
     if (fieldName.empty()) {
         return nullptr;
@@ -202,6 +204,7 @@ bool OptCondExprImpl::verifyBitCheck(const OptCondImpl::FieldsList& fields)
         (field->kind() != FieldImpl::Kind::Set)) {
         return false;
     }
+
 
     auto setField = static_cast<const SetFieldImpl*>(field);
     std::string bitName(m_right, remPos);

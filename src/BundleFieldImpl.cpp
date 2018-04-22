@@ -212,7 +212,7 @@ bool BundleFieldImpl::updateMembers()
                 if (!cond->verify(m_members)) {
                     logError() << XmlWrap::logPrefix(mem->getNode()) <<
                         "Invalid optional condition inside optional field \"" << mem->name() << "\"";
-                        return false;
+                    return false;
                 }
 
             } while (false);
