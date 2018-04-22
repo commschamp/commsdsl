@@ -36,7 +36,7 @@ Endian BitfieldField::endian() const
 
 const BitfieldField::Members& BitfieldField::members() const
 {
-    return cast(m_pImpl)->members();
+    return cast(m_pImpl)->membersList();
 }
 
 } // namespace bbmp

@@ -20,7 +20,12 @@ public:
         return m_endian;
     }
 
-    const Members& members() const
+    const FieldsList& members() const
+    {
+        return m_members;
+    }
+
+    const Members& membersList() const
     {
         return m_membersList;
     }

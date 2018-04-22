@@ -101,6 +101,8 @@ public:
     }
 
     bool isBitfieldMember() const;
+    bool isBundleMember() const;
+    bool isMessageMember() const;
 
     std::string externalRef() const;
 

@@ -402,6 +402,25 @@ const std::string& defaultModeStr()
     return Str;
 }
 
+const std::string& condStr()
+{
+    static const std::string Str("cond");
+    return Str;
+}
+
+const std::string& andStr()
+{
+    static const std::string Str("and");
+    return Str;
+}
+
+const std::string& orStr()
+{
+    static const std::string Str("or");
+    return Str;
+}
+
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema1"
+        id="1"
+        endian="big">
+    <fields>
+        <optional name= "Opt1">
+            <field>
+                <int name="I1" type="uint8" />
+            </field>
+        </optional>
+    </fields>
+</schema>

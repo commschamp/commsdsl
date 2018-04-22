@@ -31,7 +31,7 @@ BundleField::BundleField(Field field)
 
 const BundleField::Members& BundleField::members() const
 {
-    return cast(m_pImpl)->members();
+    return cast(m_pImpl)->membersList();
 }
 
 } // namespace bbmp

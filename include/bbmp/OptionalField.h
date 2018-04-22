@@ -3,6 +3,7 @@
 #include <vector>
 
 #include "Field.h"
+#include "OptCond.h"
 
 namespace bbmp
 {
@@ -26,6 +27,7 @@ public:
 
     Mode defaultMode() const;
     Field field() const;
+    OptCond cond() const;
 };
 
 } // namespace bbmp

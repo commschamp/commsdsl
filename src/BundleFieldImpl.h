@@ -14,7 +14,12 @@ public:
     BundleFieldImpl(const BundleFieldImpl& other);
     using Members = BundleField::Members;
 
-    const Members& members() const
+    const FieldsList& members() const
+    {
+        return m_members;
+    }
+
+    const Members& membersList() const
     {
         return m_membersList;
     }

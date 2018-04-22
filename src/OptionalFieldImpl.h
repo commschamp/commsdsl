@@ -7,6 +7,7 @@
 #include "bbmp/Endian.h"
 #include "bbmp/OptionalField.h"
 #include "FieldImpl.h"
+#include "OptCondImpl.h"
 
 namespace bbmp
 {
@@ -39,6 +40,17 @@ public:
         return Field(m_field.get());
     }
 
+    OptCond wrappedCondition() const
+    {
+        return OptCond(m_cond.get());
+    }
+
+    OptCondImplPtr& cond()
+    {
+        return m_cond;
+    }
+
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -53,6 +65,7 @@ protected:
 private:
     bool updateMode();
     bool updateField();
+    bool updateSingleCondition();
     bool checkFieldFromRef();
     bool checkFieldAsChild();
     const FieldImpl* getField() const;
@@ -61,11 +74,11 @@ private:
     {
         Mode m_mode = Mode::Tentative;
         const FieldImpl* m_extField = nullptr;
-        // TODO: conditions
     };
 
     State m_state;
     FieldImplPtr m_field;
+    OptCondImplPtr m_cond;
 };
 
 } // namespace bbmp

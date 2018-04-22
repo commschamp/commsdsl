@@ -194,6 +194,19 @@ bool FieldImpl::isBitfieldMember() const
             (static_cast<const FieldImpl*>(getParent())->kind() == Kind::Bitfield);
 }
 
+bool FieldImpl::isBundleMember() const
+{
+    return (getParent() != nullptr) &&
+           (getParent()->objKind() == ObjKind::Field) &&
+            (static_cast<const FieldImpl*>(getParent())->kind() == Kind::Bundle);
+}
+
+bool FieldImpl::isMessageMember() const
+{
+    return (getParent() != nullptr) &&
+           (getParent()->objKind() == ObjKind::Message);
+}
+
 std::string FieldImpl::externalRef() const
 {
     if ((getParent() == nullptr) || (getParent()->objKind() != ObjKind::Namespace)) {

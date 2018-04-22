@@ -39,4 +39,9 @@ Field OptionalField::field() const
     return cast(m_pImpl)->field();
 }
 
+OptCond OptionalField::cond() const
+{
+    return cast(m_pImpl)->wrappedCondition();
+}
+
 } // namespace bbmp

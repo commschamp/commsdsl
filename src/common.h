@@ -80,6 +80,9 @@ const std::string& elemLengthPrefixStr();
 const std::string& listStr();
 const std::string& optionalStr();
 const std::string& defaultModeStr();
+const std::string& condStr();
+const std::string& andStr();
+const std::string& orStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

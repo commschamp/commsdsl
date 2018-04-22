@@ -37,6 +37,10 @@ OptionalFieldImpl::OptionalFieldImpl(const OptionalFieldImpl& other)
         assert(other.m_state.m_extField == nullptr);
         m_field = other.m_field->clone();
     }
+
+    if (other.m_cond) {
+        m_cond = other.m_cond->clone();
+    }
 }
 
 FieldImpl::Ptr OptionalFieldImpl::cloneImpl() const
@@ -48,6 +52,7 @@ const XmlWrap::NamesList& OptionalFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
         common::defaultModeStr(),
+        common::condStr()
     };
 
     return List;
@@ -65,7 +70,9 @@ const XmlWrap::NamesList&OptionalFieldImpl::extraPossiblePropsNamesImpl() const
 const XmlWrap::NamesList& OptionalFieldImpl::extraChildrenNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
-        common::fieldStr()
+        common::fieldStr(),
+        common::orStr(),
+        common::andStr()
     };
 
     return List;
@@ -90,7 +97,8 @@ bool OptionalFieldImpl::parseImpl()
 {
     return
         updateMode() &&
-        updateField();
+        updateField() &&
+        updateSingleCondition();
 }
 
 std::size_t OptionalFieldImpl::minLengthImpl() const
@@ -151,6 +159,39 @@ bool OptionalFieldImpl::updateField()
         return false;
     }
 
+    return true;
+}
+
+bool OptionalFieldImpl::updateSingleCondition()
+{
+    if (!validateSinglePropInstance(common::condStr())) {
+        return false;
+    }
+
+    auto iter = props().find(common::condStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (m_cond) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Overriding non-empty condition(s) is not allowed";
+        return false;
+    }
+
+    if ((!isBundleMember()) && (!isMessageMember())) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Condition for existing mode are applicable only to members of \"" <<
+            common::bundleStr() << "\" and \"" << common::messageStr() << "\".";
+    }
+
+    std::unique_ptr<OptCondExprImpl> cond(new OptCondExprImpl);
+    if (!cond->parse(iter->second)) {
+        reportUnexpectedPropertyValue(common::condStr(), iter->second);
+        return false;
+    }
+
+    m_cond = std::move(cond);
     return true;
 }
 

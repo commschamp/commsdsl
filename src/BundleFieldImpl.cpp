@@ -7,6 +7,7 @@
 #include <algorithm>
 
 #include "ProtocolImpl.h"
+#include "OptionalFieldImpl.h"
 
 namespace bbmp
 {
@@ -196,6 +197,25 @@ bool BundleFieldImpl::updateMembers()
             if (!mem->parse()) {
                 return false;
             }
+
+            do {
+                if (mem->kind() != Kind::Optional) {
+                    break;
+                }
+
+                auto& optMem = static_cast<OptionalFieldImpl&>(*mem);
+                auto& cond = optMem.cond();
+                if (!cond) {
+                    break;
+                }
+
+                if (!cond->verify(m_members)) {
+                    logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                        "Invalid optional condition inside optional field \"" << mem->name() << "\"";
+                        return false;
+                }
+
+            } while (false);
 
             m_members.push_back(std::move(mem));
         }

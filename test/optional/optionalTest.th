@@ -1,0 +1,49 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class OptionalTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+};
+
+void OptionalTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void OptionalTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void OptionalTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Opt1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+    TS_ASSERT_EQUALS(field.maxLength(), 1U);
+    TS_ASSERT_EQUALS(field.bitLength(), 0U);
+
+    bbmp::OptionalField optField(field);
+    auto wrappedField = optField.field();
+    TS_ASSERT_EQUALS(wrappedField.kind(), bbmp::Field::Kind::Int);
+
+    TS_ASSERT(!optField.cond().valid());
+}
