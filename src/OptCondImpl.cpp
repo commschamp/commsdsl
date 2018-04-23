@@ -263,7 +263,8 @@ bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::
     }
 
     if (m_right[0] == Deref) {
-        auto rightField = findField(fields, m_right, remPos);
+        std::size_t rightRemPos = 1U;
+        auto rightField = findField(fields, m_right, rightRemPos);
         if (rightField == nullptr) {
             logError(logger) << XmlWrap::logPrefix(node) <<
                 "The \"" << m_right << "\" string is expected to dereference existing field in the containing \"" <<

@@ -22,6 +22,11 @@ public:
         return Field(m_field);
     }
 
+    const FieldImpl* fieldImpl() const
+    {
+        return m_field;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;

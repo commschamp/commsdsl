@@ -8,6 +8,7 @@
 
 #include "common.h"
 #include "ProtocolImpl.h"
+#include "RefFieldImpl.h"
 #include "util.h"
 
 namespace bbmp
@@ -363,7 +364,23 @@ bool IntFieldImpl::isComparableToValueImpl(const std::string& val) const
 
 bool IntFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
 {
-    return (field.kind() == Kind::Int) || (field.kind() == Kind::Enum);
+    auto fieldKind = field.kind();
+    if ((fieldKind == Kind::Int) || (fieldKind == Kind::Enum)) {
+        return true;
+    }
+
+    if (fieldKind != Kind::Ref) {
+        return false;
+    }
+
+    auto& refField = static_cast<const RefFieldImpl&>(field);
+    auto* referee = refField.fieldImpl();
+    if (referee == nullptr) {
+        assert(!"BUG");
+        return false;
+    }
+
+    return isComparableToField(*referee);
 }
 
 bool IntFieldImpl::updateType()
