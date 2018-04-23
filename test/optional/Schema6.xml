@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema6"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="Bundle1">
+            <int name="Mem1" type="uint8" />
+            <optional name= "Opt1">
+                <field>
+                    <int name="I1" type="uint8" />
+                </field>
+                <cond value="$Mem1= 5" />
+            </optional>
+        </bundle>
+    </fields>
+</schema>

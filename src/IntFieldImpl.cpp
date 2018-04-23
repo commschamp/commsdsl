@@ -355,6 +355,17 @@ std::size_t IntFieldImpl::bitLengthImpl() const
     return Base::bitLengthImpl();
 }
 
+bool IntFieldImpl::isComparableToValueImpl(const std::string& val) const
+{
+    std::intmax_t value = 0;
+    return strToNumeric(val, value, false);
+}
+
+bool IntFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
+{
+    return (field.kind() == Kind::Int) || (field.kind() == Kind::Enum);
+}
+
 bool IntFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -1343,9 +1354,12 @@ bool IntFieldImpl::validateValidValueStr(
     return true;
 }
 
-bool IntFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
+bool IntFieldImpl::strToNumeric(
+    const std::string& str,
+    std::intmax_t& val,
+    bool checkSpecials) const
 {
-    if (common::isValidName(str)) {
+    if (checkSpecials && common::isValidName(str)) {
         // Check among specials
         auto iter = m_state.m_specials.find(str);
         if (iter == m_state.m_specials.end()) {

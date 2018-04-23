@@ -186,8 +186,7 @@ bool OptionalFieldImpl::updateSingleCondition()
     }
 
     std::unique_ptr<OptCondExprImpl> cond(new OptCondExprImpl);
-    if (!cond->parse(iter->second)) {
-        reportUnexpectedPropertyValue(common::condStr(), iter->second);
+    if (!cond->parse(iter->second, getNode(), protocol().logger())) {
         return false;
     }
 

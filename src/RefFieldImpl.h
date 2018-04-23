@@ -30,6 +30,8 @@ protected:
     virtual bool parseImpl() override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
+    virtual bool isComparableToValueImpl(const std::string& val) const override;
+    virtual bool isComparableToFieldImpl(const FieldImpl& field) const override;
 
 private:
     const FieldImpl* m_field = nullptr;

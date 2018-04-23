@@ -100,6 +100,8 @@ protected:
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
     virtual std::size_t bitLengthImpl() const override;
+    virtual bool isComparableToValueImpl(const std::string& val) const override;
+    virtual bool isComparableToFieldImpl(const FieldImpl& field) const override;
 
 private:
     bool updateType();
@@ -127,7 +129,7 @@ private:
     bool checkValidMaxProps(const PropsMap& xmlAttrs);
     bool validateValidRangeStr(const std::string& str, std::intmax_t& minVal, std::intmax_t& maxVal);
     bool validateValidValueStr(const std::string& str, const std::string& type, std::intmax_t& val);
-    bool strToNumeric(const std::string& str, std::intmax_t& val);
+    bool strToNumeric(const std::string& str, std::intmax_t& val, bool checkSpecials = true) const;
 
     struct State
     {

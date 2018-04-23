@@ -291,6 +291,18 @@ std::size_t FieldImpl::bitLengthImpl() const
     return 0U;
 }
 
+bool FieldImpl::isComparableToValueImpl(const std::string& val) const
+{
+    static_cast<void>(val);
+    return false;
+}
+
+bool FieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
+{
+    static_cast<void>(field);
+    return false;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);

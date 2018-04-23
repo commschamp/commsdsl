@@ -76,4 +76,16 @@ std::size_t RefFieldImpl::maxLengthImpl() const
     return m_field->maxLength();
 }
 
+bool RefFieldImpl::isComparableToValueImpl(const std::string& val) const
+{
+    assert(m_field != nullptr);
+    return m_field->isComparableToValue(val);
+}
+
+bool RefFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
+{
+    assert(m_field != nullptr);
+    return m_field->isComparableToField(field);
+}
+
 } // namespace bbmp

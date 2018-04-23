@@ -106,6 +106,16 @@ public:
 
     std::string externalRef() const;
 
+    bool isComparableToValue(const std::string& val) const
+    {
+        return isComparableToValueImpl(val);
+    }
+
+    bool isComparableToField(const FieldImpl& field) const
+    {
+        return isComparableToFieldImpl(field);
+    }
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -135,6 +145,8 @@ protected:
     virtual std::size_t minLengthImpl() const = 0;
     virtual std::size_t maxLengthImpl() const;
     virtual std::size_t bitLengthImpl() const;
+    virtual bool isComparableToValueImpl(const std::string& val) const;
+    virtual bool isComparableToFieldImpl(const FieldImpl& field) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

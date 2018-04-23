@@ -20,21 +20,23 @@ const char Deref = '$';
 
 } // namespace
 
-bool OptCondExprImpl::parse(const std::string& expr)
+bool OptCondExprImpl::parse(const std::string& expr, ::xmlNodePtr node, Logger& logger)
 {
     if (expr.empty()) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "Invalid \"" << common::condStr() << "\" expression";
         return false;
     }
 
     assert(!hasUpdatedValue());
     return
-        checkComparison(expr, "!=") &&
-        checkComparison(expr, ">=") &&
-        checkComparison(expr, "<=") &&
-        checkComparison(expr, "=") &&
-        checkComparison(expr, ">") &&
-        checkComparison(expr, "<") &&
-        checkBool(expr) &&
+        checkComparison(expr, "!=", node, logger) &&
+        checkComparison(expr, ">=", node, logger) &&
+        checkComparison(expr, "<=", node, logger) &&
+        checkComparison(expr, "=", node, logger) &&
+        checkComparison(expr, ">", node, logger) &&
+        checkComparison(expr, "<", node, logger) &&
+        checkBool(expr, node, logger) &&
         hasUpdatedValue();
 }
 
@@ -48,15 +50,13 @@ OptCondImpl::Ptr OptCondExprImpl::cloneImpl() const
     return Ptr(new OptCondExprImpl(*this));
 }
 
-bool OptCondExprImpl::verifyImpl(const OptCondImpl::FieldsList& fields)
+bool OptCondExprImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
 {
     if (m_left.empty()) {
-        return verifyBitCheck(fields);
+        return verifyBitCheck(fields, node, logger);
     }
 
-    // TODO:
-    assert(!"NYI");
-    return false;
+    return verifyComparison(fields, node, logger);
 }
 
 bool OptCondExprImpl::hasUpdatedValue()
@@ -66,16 +66,24 @@ bool OptCondExprImpl::hasUpdatedValue()
            (!m_op.empty());
 }
 
-bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string& op)
+bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, Logger& logger)
 {
     if (hasUpdatedValue()) {
         return true;
     }
 
+    auto reportInvalidExrFunc =
+        [node, &logger]()
+        {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "Invalid \"" << common::condStr() << "\" expression";
+        };
+
     std::size_t opPos = 0U;
     while (true) {
         opPos = expr.find(op, opPos);
         if (opPos == 0U) {
+            reportInvalidExrFunc();
             return false;
         }
 
@@ -92,11 +100,13 @@ bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string
 
     auto leftEndPos = expr.find_last_not_of(' ', opPos - 1);
     if (leftEndPos == std::string::npos) {
+        reportInvalidExrFunc();
         return false;
     }
 
     auto rightBegPos = expr.find_first_not_of(' ', opPos + op.size());
     if (rightBegPos == std::string::npos) {
+        reportInvalidExrFunc();
         return false;
     }
 
@@ -105,21 +115,32 @@ bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string
     m_right.assign(expr.begin() + rightBegPos, expr.end());
 
     if (m_left.empty() || m_right.empty()) {
+        reportInvalidExrFunc();
         return false;
     }
 
     if (m_left[0] != Deref) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "Invalid \"" << common::condStr() << "\" expression, left side of "
+            "comparison operator must dereference other field.";
         return false;
     }
 
     return true;
 }
 
-bool OptCondExprImpl::checkBool(const std::string& expr)
+bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, Logger& logger)
 {
     if (hasUpdatedValue()) {
         return true;
     }
+
+    auto reportInvalidExrFunc =
+        [node, &logger]()
+        {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "Invalid \"" << common::condStr() << "\" expression";
+        };
 
     assert(!expr.empty());
     if (expr[0] == Deref) {
@@ -128,15 +149,20 @@ bool OptCondExprImpl::checkBool(const std::string& expr)
     }
 
     if (expr[0] != '!') {
+        reportInvalidExrFunc();
         return false;
     }
 
     auto valPos = expr.find_first_not_of(' ', 1);
     if (valPos == std::string::npos) {
+        reportInvalidExrFunc();
         return false;
     }
 
     if (expr[valPos] != Deref) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "Invalid \"" << common::condStr() << "\" expression, "
+            "the check must dereference other field.";
         return false;
     }
 
@@ -175,10 +201,10 @@ FieldImpl* OptCondExprImpl::findField(
 
     remPos = dotPos + 1;
     auto redirectFunc =
-        [this, &name, &remPos](const auto& f)
+        [&name, &remPos](const auto& f)
         {
             auto& members = f.members();
-            return this->findField(members, name, remPos);
+            return findField(members, name, remPos);
         };
 
     auto fieldKind = (*iter)->kind();
@@ -193,7 +219,7 @@ FieldImpl* OptCondExprImpl::findField(
     return iter->get();
 }
 
-bool OptCondExprImpl::verifyBitCheck(const OptCondImpl::FieldsList& fields)
+bool OptCondExprImpl::verifyBitCheck(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
 {
     assert(!m_right.empty());
     assert(m_right[0] == Deref);
@@ -202,6 +228,9 @@ bool OptCondExprImpl::verifyBitCheck(const OptCondImpl::FieldsList& fields)
     auto field = findField(fields, m_right, remPos);
     if ((field == nullptr) ||
         (field->kind() != FieldImpl::Kind::Set)) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The \"" << m_right << "\" string is expected to dereference existing bit in existing \"" <<
+            common::setStr() << "\" field";
         return false;
     }
 
@@ -210,6 +239,50 @@ bool OptCondExprImpl::verifyBitCheck(const OptCondImpl::FieldsList& fields)
     std::string bitName(m_right, remPos);
     auto iter = setField->bits().find(bitName);
     if (iter == setField->bits().end()) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The \"" << m_right << "\" string is expected to dereference existing bit in existing \"" <<
+            common::setStr() << "\" field";
+        return false;
+    }
+    return true;
+}
+
+bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
+{
+    assert(!m_left.empty());
+    assert(!m_right.empty());
+    assert(m_left[0] == Deref);
+
+    std::size_t remPos = 1;
+    auto field = findField(fields, m_left, remPos);
+    if (field == nullptr) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The \"" << m_left << "\" string is expected to dereference existing field in the containing \"" <<
+            common::bundleStr() << "\" or \"" << common::messageStr() << "\"";
+        return false;
+    }
+
+    if (m_right[0] == Deref) {
+        auto rightField = findField(fields, m_right, remPos);
+        if (rightField == nullptr) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The \"" << m_right << "\" string is expected to dereference existing field in the containing \"" <<
+                common::bundleStr() << "\" or \"" << common::messageStr() << "\"";
+            return false;
+        }
+
+        if (!field->isComparableToField(*rightField)) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "Two dereferenced fields \"" << m_left << "\" and \"" << m_right << "\" cannot be compared.";
+            return false;
+        }
+
+        return true;
+    }
+
+    if (!field->isComparableToValue(m_right)) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The dereferenced fields \"" << m_left << "\" cannot be compared to value \"" << m_right << "\".";
         return false;
     }
     return true;
@@ -235,13 +308,13 @@ OptCondImpl::Ptr OptCondListImpl::cloneImpl() const
     return Ptr(new OptCondListImpl(*this));
 }
 
-bool OptCondListImpl::verifyImpl(const OptCondImpl::FieldsList& fields)
+bool OptCondListImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
 {
     return std::all_of(
         m_conds.begin(), m_conds.end(),
-        [&fields](auto& c)
+        [&fields, node, &logger](auto& c)
         {
-            return c->verify(fields);
+            return c->verify(fields, node, logger);
         });
 }
 
