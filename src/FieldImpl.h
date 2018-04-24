@@ -111,10 +111,7 @@ public:
         return isComparableToValueImpl(val);
     }
 
-    bool isComparableToField(const FieldImpl& field) const
-    {
-        return isComparableToFieldImpl(field);
-    }
+    bool isComparableToField(const FieldImpl& field) const;
 
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);

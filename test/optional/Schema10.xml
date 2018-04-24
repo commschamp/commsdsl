@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema10"
+        id="1"
+        endian="little">
+    <fields>
+        <bundle name="Bundle1">
+            <enum name="Enum1" type="int8">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="2" />
+            </enum>
+            <optional name= "Opt1">
+                <field>
+                    <int name="I1" type="uint8" />
+                </field>
+                <cond value="$Enum1 &lt;= 2" />
+            </optional>
+        </bundle>
+    </fields>
+</schema>

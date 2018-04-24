@@ -129,7 +129,7 @@ private:
     bool checkValidMaxProps(const PropsMap& xmlAttrs);
     bool validateValidRangeStr(const std::string& str, std::intmax_t& minVal, std::intmax_t& maxVal);
     bool validateValidValueStr(const std::string& str, const std::string& type, std::intmax_t& val);
-    bool strToNumeric(const std::string& str, std::intmax_t& val, bool checkSpecials = true) const;
+    bool strToNumeric(const std::string& str, std::intmax_t& val) const;
 
     struct State
     {

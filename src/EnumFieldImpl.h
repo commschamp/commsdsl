@@ -70,6 +70,8 @@ protected:
     virtual bool parseImpl() override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t bitLengthImpl() const override;
+    virtual bool isComparableToValueImpl(const std::string& val) const override;
+    virtual bool isComparableToFieldImpl(const FieldImpl& field) const override;
 
 private:
     bool updateType();
@@ -81,7 +83,7 @@ private:
     bool updateMinMaxValues();
     bool updateValues();
     bool updateDefaultValue();
-    bool strToNumeric(const std::string& str, std::intmax_t& val);
+    bool strToNumeric(const std::string& str, std::intmax_t& val) const;
 
     struct State
     {

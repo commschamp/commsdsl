@@ -117,6 +117,18 @@ std::size_t EnumFieldImpl::bitLengthImpl() const
     return Base::bitLengthImpl();
 }
 
+bool EnumFieldImpl::isComparableToValueImpl(const std::string& val) const
+{
+    std::intmax_t value = 0;
+    return strToNumeric(val, value);
+}
+
+bool EnumFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
+{
+    auto fieldKind = field.kind();
+    return ((fieldKind == Kind::Int) || (fieldKind == Kind::Enum));
+}
+
 bool EnumFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -516,7 +528,9 @@ bool EnumFieldImpl::updateDefaultValue()
     return checkValueFunc(val);
 }
 
-bool EnumFieldImpl::strToNumeric(const std::string& str, std::intmax_t& val)
+bool EnumFieldImpl::strToNumeric(
+    const std::string& str,
+    std::intmax_t& val) const
 {
     if (common::isValidName(str)) {
         // Check among specials

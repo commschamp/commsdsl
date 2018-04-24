@@ -222,6 +222,21 @@ std::string FieldImpl::externalRef() const
     return nsRef + '.' + name();
 }
 
+bool FieldImpl::isComparableToField(const FieldImpl& field) const
+{
+    if (field.kind() == Kind::Ref) {
+        auto& refField = static_cast<const RefFieldImpl&>(field);
+        auto* referee = refField.fieldImpl();
+        if (referee == nullptr) {
+            assert(!"BUG");
+            return false;
+        }
+
+        return isComparableToField(*referee);
+    }
+    return isComparableToFieldImpl(field);
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)
