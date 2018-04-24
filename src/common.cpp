@@ -614,6 +614,29 @@ std::string toLowerCopy(const std::string& str)
     return result;
 }
 
+void removeHeadingTrailingWhitespaces(std::string& str)
+{
+    static const std::string WhiteSpaces(" \r\n\t");
+    auto startPos = str.find_first_not_of(WhiteSpaces);
+    if (startPos == std::string::npos) {
+        str.clear();
+        return;
+    }
+
+    if (startPos != 0U) {
+        str.erase(str.begin(), str.begin() + startPos);
+    }
+
+    assert(!str.empty());
+    auto endPos = str.find_last_not_of(WhiteSpaces);
+    assert(endPos != std::string::npos);
+    if (endPos == (str.size() - 1U)) {
+        return;
+    }
+
+    str.erase(str.begin() + endPos + 1, str.end());
+}
+
 std::pair<std::string, std::string> parseRange(const std::string& str, bool* ok)
 {
     bool status = false;

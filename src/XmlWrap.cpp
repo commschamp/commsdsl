@@ -22,10 +22,11 @@ XmlWrap::PropsMap XmlWrap::parseNodeProps(::xmlNodePtr node)
     auto* prop = node->properties;
     while (prop != nullptr) {
         StringPtr valuePtr(::xmlNodeListGetString(node->doc, prop->children, 1));
-        map.insert(
+        auto iter = map.insert(
             std::make_pair(
                 reinterpret_cast<const char*>(prop->name),
                 reinterpret_cast<const char*>(valuePtr.get())));
+        common::removeHeadingTrailingWhitespaces(iter->second);
         prop = prop->next;
     }
 
@@ -104,9 +105,11 @@ bool XmlWrap::parseNodeValue(
     std::string valueTmp;
     if (valIter != props.end()) {
         valueTmp = valIter->second;
+        common::removeHeadingTrailingWhitespaces(valueTmp);
     }
 
     auto text = getText(node);
+    common::removeHeadingTrailingWhitespaces(text);
     if (valueTmp.empty() && text.empty()) {
         if (!mustHaveValue) {
             return true;

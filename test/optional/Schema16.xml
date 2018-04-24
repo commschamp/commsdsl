@@ -10,7 +10,7 @@
                 <field>
                     <int name="I1" type="uint8" />
                 </field>
-                <cond value="$Mem1 !=$Mem2" />
+                <cond value=" $Mem1 !=$Mem2 " />
             </optional>
         </bundle>
     </fields>
