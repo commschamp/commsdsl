@@ -20,6 +20,9 @@ public:
     void test11();
     void test12();
     void test13();
+    void test14();
+    void test15();
+    void test16();
 };
 
 void OptionalTestSuite::setUp()
@@ -437,4 +440,120 @@ void OptionalTestSuite::test13()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test14()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Optional);
+
+    bbmp::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "<");
+    TS_ASSERT_EQUALS(exprCond.right(), "S1");
+}
+
+void OptionalTestSuite::test15()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 4U);
+    TS_ASSERT_EQUALS(field.maxLength(), 5U);
+
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Optional);
+
+    bbmp::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "=");
+    TS_ASSERT_EQUALS(exprCond.right(), "Nan");
+}
+
+void OptionalTestSuite::test16()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 12U);
+    TS_ASSERT_EQUALS(field.maxLength(), 13U);
+
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Optional);
+
+    bbmp::OptionalField optField(mem3);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "!=");
+    TS_ASSERT_EQUALS(exprCond.right(), "$Mem2");
 }

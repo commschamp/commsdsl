@@ -156,6 +156,12 @@ std::size_t FloatFieldImpl::minLengthImpl() const
     return m_state.m_length;
 }
 
+bool FloatFieldImpl::isComparableToValueImpl(const std::string& val) const
+{
+    double value = 0.0;
+    return strToValue(val, value, true);
+}
+
 bool FloatFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -881,7 +887,7 @@ bool FloatFieldImpl::validateValidValueStr(
 bool FloatFieldImpl::strToValue(
     const std::string& str,
     double& val,
-    bool allowSpecials)
+    bool allowSpecials) const
 {
     auto strCpy = common::toLowerCopy(str);
     do {

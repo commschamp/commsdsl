@@ -234,6 +234,11 @@ bool FieldImpl::isComparableToField(const FieldImpl& field) const
 
         return isComparableToField(*referee);
     }
+
+    if (kind() == field.kind()) {
+        return true;
+    }
+
     return isComparableToFieldImpl(field);
 }
 

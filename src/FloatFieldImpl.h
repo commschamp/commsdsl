@@ -64,6 +64,7 @@ protected:
     virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t minLengthImpl() const override;
+    virtual bool isComparableToValueImpl(const std::string& val) const override;
 
 private:
     bool updateType();
@@ -95,7 +96,7 @@ private:
             const std::string& type,
             double& val,
             bool allowSpecials = true);
-    bool strToValue(const std::string& str, double& val, bool allowSpecials = true);
+    bool strToValue(const std::string& str, double& val, bool allowSpecials = true) const;
 
     struct State
     {

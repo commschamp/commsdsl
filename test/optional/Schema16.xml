@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema16"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="Bundle1">
+            <float name="Mem1" type="float" defaultValue="nan"/>
+            <float name="Mem2" type="double" defaultValue="-inf"/>
+            <optional name= "Opt1">
+                <field>
+                    <int name="I1" type="uint8" />
+                </field>
+                <cond value="$Mem1 !=$Mem2" />
+            </optional>
+        </bundle>
+    </fields>
+</schema>
