@@ -153,7 +153,7 @@ bool BundleFieldImpl::updateMembers()
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
             logError() << XmlWrap::logPrefix(getNode()) <<
                           "The \"" << common::bundleStr() << "\" element does not support "
-                          "list of alone stand member fields as child elements together with \"" <<
+                          "list of stand alone member fields as child elements together with \"" <<
                           common::membersStr() << "\" child element.";
             return false;
         }
