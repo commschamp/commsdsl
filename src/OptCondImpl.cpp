@@ -6,6 +6,7 @@
 #include "BundleFieldImpl.h"
 #include "BitfieldFieldImpl.h"
 #include "SetFieldImpl.h"
+#include "util.h"
 
 //#include <iostream>
 
@@ -297,6 +298,84 @@ OptCondListImpl::OptCondListImpl(const OptCondListImpl& other)
     for (auto& c : other.m_conds) {
         m_conds.push_back(c->clone());
     }
+}
+
+OptCondListImpl::CondList OptCondListImpl::condList() const
+{
+    CondList result;
+    result.reserve(m_conds.size());
+    for (auto& c : m_conds) {
+        assert(c);
+        result.emplace_back(c.get());
+    }
+    return result;
+}
+
+bool OptCondListImpl::parse(xmlNodePtr node, Logger& logger)
+{
+    static const std::string CondMap[] = {
+        common::andStr(),
+        common::orStr()
+    };
+
+    static const std::size_t CondMapSize = std::extent<decltype(CondMap)>::value;
+
+    static_assert(CondMapSize == util::toUnsigned(Type::NumOfValues), "Invalid map");
+    static_assert(0U == util::toUnsigned(Type::And), "Invalid map");
+    static_assert(1U == util::toUnsigned(Type::Or), "Invalid map");
+
+    std::string elemName(reinterpret_cast<const char*>(node->name));
+    auto iter = std::find(std::begin(CondMap), std::end(CondMap), elemName);
+    if (iter == std::end(CondMap)) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "Unknown condition type \"" << elemName << "\".";
+        return false;
+    }
+
+    m_type = static_cast<decltype(m_type)>(iter - std::begin(CondMap));
+
+    auto children = XmlWrap::getChildren(node);
+    assert(m_conds.empty());
+    for (auto c : children) {
+        std::string childName(reinterpret_cast<const char*>(c->name));
+        if (childName == common::condStr()) {
+            std::string expr;
+            if (!XmlWrap::parseNodeValue(c, logger, expr, true)) {
+                return false;
+            }
+
+            auto cond = std::make_unique<OptCondExprImpl>();
+            if (!cond->parse(expr, c, logger)) {
+                return false;
+            }
+
+            m_conds.push_back(std::move(cond));
+            continue;
+        }
+
+        auto multiIter = std::find(std::begin(CondMap), std::end(CondMap), childName);
+        if (multiIter == std::end(CondMap)) {
+            logError(logger) << XmlWrap::logPrefix(c) <<
+                "Unknown element inside \"" << elemName << "\' condition bundling";
+            return false;
+        }
+
+        auto multiCond = std::make_unique<OptCondListImpl>();
+        if (!multiCond->parse(c, logger)) {
+            return false;
+        }
+
+        m_conds.push_back(std::move(multiCond));
+    }
+
+    if (m_conds.size() < 2U) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "Condition bundling element \"" << elemName << "\" is expected to have at least "
+            "2 conditions.";
+        return false;
+    }
+
+    return true;
 }
 
 OptCondImpl::Kind OptCondListImpl::kindImpl() const

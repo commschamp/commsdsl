@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema19"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="Bundle1">
+            <set name="Set1" length="1" >
+                <bit name="b0" idx="0" />
+                <bit name="b1" idx="1" />
+            </set>
+            <optional name= "Opt1">
+                <or>
+                    <cond value="$Set1.b0" />
+                    <cond value="!$Set1.b1" />
+                </or>
+                <field>
+                    <int name="I1" type="uint8" />
+                </field>
+            </optional>
+        </bundle>
+    </fields>
+</schema>

@@ -66,6 +66,7 @@ private:
     bool updateMode();
     bool updateField();
     bool updateSingleCondition();
+    bool updateMultiCondition();
     bool checkFieldFromRef();
     bool checkFieldAsChild();
     const FieldImpl* getField() const;

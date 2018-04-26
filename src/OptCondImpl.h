@@ -94,12 +94,22 @@ class OptCondListImpl : public OptCondImpl
 public:
     using Type = OptCondList::Type;
     using List = std::vector<Ptr>;
+    using CondList = OptCondList::CondList;
 
     OptCondListImpl() = default;
     OptCondListImpl(const OptCondListImpl& other);
     OptCondListImpl(OptCondListImpl&&) = default;
 
+    Type type() const
+    {
+        return m_type;
+    }
+
+    CondList condList() const;
+
     bool parse(::xmlNodePtr node, Logger& logger);
+
+
 
 protected:
     virtual Kind kindImpl() const override;

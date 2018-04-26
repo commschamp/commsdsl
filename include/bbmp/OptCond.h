@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "BbmpApi.h"
 
@@ -44,8 +45,10 @@ public:
     const std::string& right() const;
 };
 
+class OptCondListImpl;
 class OptCondList : public OptCond
 {
+    using Base = OptCond;
 public:
     enum class Type
     {
@@ -54,7 +57,14 @@ public:
         NumOfValues
     };
 
+    using CondList = std::vector<OptCond>;
+
+    OptCondList(const OptCondListImpl* impl);
+    OptCondList(OptCond cond);
+
+
     Type type() const;
+    CondList conditions() const;
 };
 
 } // namespace bbmp

@@ -24,6 +24,9 @@ public:
     void test15();
     void test16();
     void test17();
+    void test18();
+    void test19();
+    void test20();
 };
 
 void OptionalTestSuite::setUp()
@@ -595,4 +598,167 @@ void OptionalTestSuite::test17()
     TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
     TS_ASSERT_EQUALS(exprCond.op(), ">");
     TS_ASSERT_EQUALS(exprCond.right(), "3.5");
+}
+
+void OptionalTestSuite::test18()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 8U);
+    TS_ASSERT_EQUALS(field.maxLength(), 9U);
+
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Optional);
+
+    bbmp::OptionalField optField(mem3);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), bbmp::OptCond::Kind::List);
+    bbmp::OptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), bbmp::OptCondList::Type::And);
+    auto conditions = listCond.conditions();
+    TS_ASSERT_EQUALS(conditions.size(), 2U);
+    auto& cond1 = conditions[0];
+    auto& cond2 = conditions[1];
+    TS_ASSERT_EQUALS(cond1.kind(), bbmp::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(cond2.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondExpr expr1(cond1);
+    TS_ASSERT_EQUALS(expr1.left(), "$Mem1");
+    TS_ASSERT_EQUALS(expr1.op(), "=");
+    TS_ASSERT_EQUALS(expr1.right(), "NAN");
+    bbmp::OptCondExpr expr2(cond2);
+    TS_ASSERT_EQUALS(expr2.left(), "$Mem2");
+    TS_ASSERT_EQUALS(expr2.op(), "!=");
+    TS_ASSERT_EQUALS(expr2.right(), "0");
+}
+
+void OptionalTestSuite::test19()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Optional);
+
+    bbmp::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), bbmp::OptCond::Kind::List);
+    bbmp::OptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), bbmp::OptCondList::Type::Or);
+    auto conditions = listCond.conditions();
+    TS_ASSERT_EQUALS(conditions.size(), 2U);
+    auto& cond1 = conditions[0];
+    auto& cond2 = conditions[1];
+    TS_ASSERT_EQUALS(cond1.kind(), bbmp::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(cond2.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondExpr expr1(cond1);
+    TS_ASSERT(expr1.left().empty());
+    TS_ASSERT(expr1.op().empty());
+    TS_ASSERT_EQUALS(expr1.right(), "$Set1.b0");
+    bbmp::OptCondExpr expr2(cond2);
+    TS_ASSERT(expr2.left().empty());
+    TS_ASSERT_EQUALS(expr2.op(), "!");
+    TS_ASSERT_EQUALS(expr2.right(), "$Set1.b1");
+}
+
+void OptionalTestSuite::test20()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 2U);
+    TS_ASSERT_EQUALS(field.maxLength(), 3U);
+
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Optional);
+
+    bbmp::OptionalField optField(mem3);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), bbmp::OptCond::Kind::List);
+    bbmp::OptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), bbmp::OptCondList::Type::And);
+    auto conditions = listCond.conditions();
+    TS_ASSERT_EQUALS(conditions.size(), 2U);
+    auto& cond1 = conditions[0];
+    auto& cond2 = conditions[1];
+    TS_ASSERT_EQUALS(cond1.kind(), bbmp::OptCond::Kind::List);
+    TS_ASSERT_EQUALS(cond2.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondList listCond2(cond1);
+    TS_ASSERT_EQUALS(listCond2.type(), bbmp::OptCondList::Type::Or);
+    auto subConditions = listCond2.conditions();
+    auto& subCond1 = subConditions[0];
+    auto& subCond2 = subConditions[1];
+    bbmp::OptCondExpr expr1(subCond1);
+    TS_ASSERT(expr1.left().empty());
+    TS_ASSERT(expr1.op().empty());
+    TS_ASSERT_EQUALS(expr1.right(), "$Set1.b0");
+    bbmp::OptCondExpr expr2(subCond2);
+    TS_ASSERT(expr2.left().empty());
+    TS_ASSERT_EQUALS(expr2.op(), "!");
+    TS_ASSERT_EQUALS(expr2.right(), "$Set1.b1");
+    bbmp::OptCondExpr expr3(cond2);
+    TS_ASSERT_EQUALS(expr3.left(), "$I1");
+    TS_ASSERT_EQUALS(expr3.op(), "=");
+    TS_ASSERT_EQUALS(expr3.right(), "0");
 }

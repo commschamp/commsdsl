@@ -106,7 +106,8 @@ bool OptionalFieldImpl::parseImpl()
     return
         updateMode() &&
         updateField() &&
-        updateSingleCondition();
+        updateSingleCondition() &&
+        updateMultiCondition();
 }
 
 std::size_t OptionalFieldImpl::minLengthImpl() const
@@ -193,12 +194,54 @@ bool OptionalFieldImpl::updateSingleCondition()
             common::bundleStr() << "\" and \"" << common::messageStr() << "\".";
     }
 
-    std::unique_ptr<OptCondExprImpl> cond(new OptCondExprImpl);
+    auto cond = std::make_unique<OptCondExprImpl>();
     if (!cond->parse(iter->second, getNode(), protocol().logger())) {
         return false;
     }
 
     m_cond = std::move(cond);
+    return true;
+}
+
+bool OptionalFieldImpl::updateMultiCondition()
+{
+    static const XmlWrap::NamesList ElemNames = {
+        common::andStr(),
+        common::orStr()
+    };
+
+    auto multiChildren = XmlWrap::getChildren(getNode(), ElemNames);
+    if (multiChildren.empty()) {
+        return true;
+    }
+
+    if (props().find(common::condStr()) != props().end()) {
+        logError() << XmlWrap::logPrefix(multiChildren.front()) <<
+            "Cannot use \"" << multiChildren.front()->name << "\" condition bundling together with \"" <<
+            common::condStr() << "\" property.";
+        return false;
+    }
+
+    if (1U < multiChildren.size()) {
+        logError() << XmlWrap::logPrefix(multiChildren.front()) <<
+            "Cannot use more that one \"" << common::andStr() << "\" or \"" <<
+            common::orStr() << "\" element.";
+        return false;
+    }
+
+    if (m_cond) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Overriding non-empty condition(s) is not allowed";
+        return false;
+    }
+
+    auto newCond = std::make_unique<OptCondListImpl>();
+    if (!newCond->parse(multiChildren.front(), protocol().logger())) {
+        return false;
+    }
+
+    assert(newCond->kind() == OptCondImpl::Kind::List);
+    m_cond = std::move(newCond);
     return true;
 }
 

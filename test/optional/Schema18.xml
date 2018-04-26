@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema18"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="Bundle1">
+            <float name="Mem1" type="float" defaultValue="nan"/>
+            <int name="Mem2" type="int32"/>
+            <optional name= "Opt1">
+                <and>
+                    <cond value="$Mem1 = NAN" />
+                    <cond value="$Mem2 != 0" />
+                </and>
+                <field>
+                    <int name="I1" type="uint8" />
+                </field>
+            </optional>
+        </bundle>
+    </fields>
+</schema>

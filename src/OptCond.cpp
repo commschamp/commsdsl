@@ -13,9 +13,16 @@ namespace
 const OptCondExprImpl* castExpr(const OptCondImpl* ptr)
 {
     assert(ptr != nullptr);
+    assert(ptr->kind() == OptCond::Kind::Expr);
     return static_cast<const OptCondExprImpl*>(ptr);
 }
 
+const OptCondListImpl* castList(const OptCondImpl* ptr)
+{
+    assert(ptr != nullptr);
+    assert(ptr->kind() == OptCond::Kind::List);
+    return static_cast<const OptCondListImpl*>(ptr);
+}
 
 } // namespace
 
@@ -64,5 +71,27 @@ const std::string& OptCondExpr::right() const
 {
     return castExpr(m_pImpl)->right();
 }
+
+OptCondList::OptCondList(const OptCondListImpl* impl)
+  : Base(impl)
+{
+}
+
+OptCondList::OptCondList(OptCond cond)
+  : Base(cond)
+{
+    assert(kind() == Kind::List);
+}
+
+OptCondList::Type OptCondList::type() const
+{
+    return castList(m_pImpl)->type();
+}
+
+OptCondList::CondList OptCondList::conditions() const
+{
+    return castList(m_pImpl)->condList();
+}
+
 
 } // namespace bbmp
