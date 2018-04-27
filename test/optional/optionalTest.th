@@ -27,6 +27,14 @@ public:
     void test18();
     void test19();
     void test20();
+    void test21();
+    void test22();
+    void test23();
+    void test24();
+    void test25();
+    void test26();
+    void test27();
+    void test28();
 };
 
 void OptionalTestSuite::setUp()
@@ -761,4 +769,105 @@ void OptionalTestSuite::test20()
     TS_ASSERT_EQUALS(expr3.left(), "$I1");
     TS_ASSERT_EQUALS(expr3.op(), "=");
     TS_ASSERT_EQUALS(expr3.right(), "0");
+}
+
+void OptionalTestSuite::test21()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+
+    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Optional);
+
+    bbmp::OptionalField opt(mem2);
+    auto cond = opt.cond();
+    TS_ASSERT_EQUALS(cond.kind(), bbmp::OptCond::Kind::Expr);
+    bbmp::OptCondExpr exprCond(cond);
+    TS_ASSERT(exprCond.left().empty());
+    TS_ASSERT_EQUALS(exprCond.op(), "!");
+    TS_ASSERT_EQUALS(exprCond.right(), "$Set1.b0");
+
+    auto optField = opt.field();
+    TS_ASSERT_EQUALS(optField.kind(), bbmp::Field::Kind::Ref);
+}
+
+void OptionalTestSuite::test22()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test23()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test24()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test25()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test26()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test27()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test28()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
+    TS_ASSERT(protocol);
 }

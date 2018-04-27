@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema21"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="I1" type="uint8" />
+        <bundle name="Bundle1">
+            <set name="Set1" length="1" >
+                <bit name="b0" idx="0" />
+                <bit name="b1" idx="1" />
+            </set>
+            <optional name= "Opt1" cond="! $Set1.b0">
+                <ref name="Field" field="I1" />
+            </optional>
+        </bundle>
+    </fields>
+</schema>
