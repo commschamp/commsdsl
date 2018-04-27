@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="big">
+    <fields>
+        <data name="Data1" defaultValue="hell" />
+    </fields>
+</schema>

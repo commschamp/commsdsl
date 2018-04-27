@@ -1,0 +1,4 @@
+get_filename_component(LIBBBMP_CMAKE_DIR "${CMAKE_CURRENT_LIST_FILE}" PATH)
+include("${LIBBBMP_CMAKE_DIR}/LibBbmpTargets.cmake")
+set (LIBBBMP_LIBRARIES bbmp)
+

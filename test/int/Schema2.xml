@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="little">
+        
+    <ns name="my_ns">
+        <fields>
+            <int name="Int1" type="int16" defaultValue="500" validMin="400" description="some desc" scaling="1/10" displayName="Int 1"/>
+            <int>
+                <name value="Int2" />
+                <type value="int16" />
+                <description value="some desc" />
+                <scaling value="1/10" />
+                <validMin value="400" />
+                <defaultValue value="500" />
+                <displayName value="Int 2" />
+            </int>
+            <int>
+                <name>Int3</name>
+                <type>int16</type>
+                <description>some desc</description>
+                <scaling>1/10</scaling>
+                <validMin>400</validMin>
+                <defaultValue>500</defaultValue>
+                <displayName>Int 3</displayName>
+            </int>            
+        </fields>
+    </ns>
+</schema>

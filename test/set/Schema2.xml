@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="Little">
+    <fields>
+        <set name="Set1" length="2" defaultValue="true" reservedValue="true" endian="big">
+            <bit name="B1" idx="0" defaultValue="false" />
+            <bit name="B2" idx="2" />
+            <bit name="B3" idx="8" />
+            <bit name="res1" idx="1" reserved="true" reservedValue="0" defaultValue="0" />
+        </set>
+    </fields>
+</schema>

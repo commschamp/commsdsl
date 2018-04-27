@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema6"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="I1" type="uint16" />
+        <int name="ElemLengthPrefix" type="uint8" />
+        <list name="List1" element="I1" count="5">
+            <elemLengthPrefix>ElemLengthPrefix</elemLengthPrefix>
+            <elemFixedLength>True</elemFixedLength>
+        </list>
+    </fields>
+</schema>

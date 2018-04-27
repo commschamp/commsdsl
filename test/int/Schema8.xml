@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema8"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="Int1" type="int16" length="1" serOffset="-100" defaultValue="100"/>
+        <int name="Int2" type="uint16" length="1" serOffset="-100" defaultValue="100" />
+        <int name="Int3" type="int32" length="3" serOffset="-100" defaultValue="100" />
+        <int name="Int4" type="uint32" length="3" serOffset="-100" defaultValue="100" />
+        <int name="Int5" type="int64" length="5" serOffset="-100" defaultValue="100" />
+        <int name="Int6" type="uint64" length="5" serOffset="-100" defaultValue="100" />
+    </fields>
+</schema>

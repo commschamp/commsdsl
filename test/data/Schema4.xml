@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema4"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="DataLen" type="uint8" />
+        <data name="Data1">
+            <lengthPrefix>DataLen</lengthPrefix>
+        </data>
+    </fields>
+</schema>

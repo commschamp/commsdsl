@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema15"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="Bundle1">
+            <float name="Mem1" type="float" defaultValue="nan"/>
+            <optional name= "Opt1">
+                <field>
+                    <int name="I1" type="uint8" />
+                </field>
+                <cond value="$Mem1 = Nan" />
+            </optional>
+        </bundle>
+    </fields>
+</schema>

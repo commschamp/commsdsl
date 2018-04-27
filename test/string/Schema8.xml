@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema8"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <string name="String1" defaultValue="hello" />
+            <string name="String2" reuse="ns1.String1" length="10" />
+        </fields>
+    </ns>
+</schema>

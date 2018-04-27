@@ -1,0 +1,134 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class RefTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+};
+
+void RefTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void RefTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void RefTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 4U);
+    TS_ASSERT_EQUALS(field.bitLength(), 0U);
+
+    bbmp::RefField refField(field);
+    auto referee = refField.field();
+    TS_ASSERT(referee.valid());
+    TS_ASSERT_EQUALS(referee.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(referee.externalRef(), "F1");
+    TS_ASSERT(protocol->findField(referee.externalRef()).valid());
+}
+
+void RefTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.externalRef(), "ns1.F3");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 4U);
+
+    bbmp::RefField refField(field);
+    auto referee = refField.field();
+    TS_ASSERT(referee.valid());
+    TS_ASSERT_EQUALS(referee.kind(), bbmp::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(referee.externalRef(), "ns1.F2");
+    TS_ASSERT(protocol->findField(referee.externalRef()).valid());
+}
+
+void RefTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT_EQUALS(field.externalRef(), "ns1.F2");
+    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 4U);
+    TS_ASSERT_EQUALS(field.maxLength(), 7U);
+    bbmp::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& refMem = members[1];
+    bbmp::RefField refField(refMem);
+    auto referee = refField.field();
+    TS_ASSERT(referee.valid());
+    TS_ASSERT_EQUALS(referee.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(referee.externalRef(), "ns1.F1");
+    TS_ASSERT(protocol->findField(referee.externalRef()).valid());
+}
+
+void RefTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void RefTestSuite::test5()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+}
+

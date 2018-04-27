@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema1"
+        id="1"
+        endian="big">
+    <fields>
+        <enum name="Enum1" type="uint8">
+            <validValue name="V1" val="1" />
+            <validValue>
+                <name value="V2" />
+                <val value="2" />
+            </validValue>
+            <validValue>
+                <name>V3</name>
+                <val>3</val>
+            </validValue>
+        </enum>
+    </fields>
+</schema>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema19"
+        id="1"
+        endian="big">
+
+    <ns name="ns2">
+        <fields>
+            <int name="Int1" type="uint16" defaultValue="1000">
+                <validRange value="[0, S1]" />
+                <endian value="Little" />
+                <special name="S1" val="1000" />
+            </int>
+        </fields>
+    </ns> 
+           
+    <ns name="ns1">
+        <fields>
+            <int reuse="ns2.Int1" defaultValue="100">
+                <validRange value="[S1, S2]" />
+                <special name="S2" val="2000" />
+            </int>
+        </fields>
+    </ns>
+</schema>

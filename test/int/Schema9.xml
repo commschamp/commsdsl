@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="Int1" type="intvar" serOffset="-100" defaultValue="100"/>
+        <int name="Int2" type="intvar" length="8" serOffset="-100" defaultValue="100" />
+        <int name="Int3" type="intvar" length="3" serOffset="-100" defaultValue="100" />
+    </fields>
+</schema>

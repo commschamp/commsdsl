@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema5"
+        id="1"
+        endian="Little">
+    <fields>
+        <set name="Set1" length="3" nonUniqueAllowed="True">
+            <bit name="B0" idx="0"/>
+            <bit name="B2" idx="2"  defaultValue="true" />
+            <bit name="B8" idx="8" />
+            <bit name="B16" idx="16" />
+            <bit name="otherB2" idx="2" defaultValue="true"/>
+        </set>
+    </fields>
+</schema>

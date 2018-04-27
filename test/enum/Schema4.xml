@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema4"
+        id="1"
+        endian="BIG">
+    <fields>
+        <enum name="Enum1" type="uint64" defaultValue="Null" >
+            <validValue name="V1" val="0x0123456789abcdef" />
+            <validValue name="Null" val="0xffffffffffffffff" />
+            <validValue name="V2" val="0xabcd" />
+        </enum>
+    </fields>
+</schema>

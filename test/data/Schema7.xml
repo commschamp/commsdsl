@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema7"
+        id="1"
+        endian="big">
+    <fields>
+        <data name="Data1" defaultValue="abcd" />
+        <data name="Data2" reuse="Data1" length="10" />
+    </fields>
+</schema>

@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="Big">
+    <ns name="my_ns">
+        <fields>
+            <float name="Float1" type="double" defaultValue="nan" validValue="NaN" >
+                <validRange value="[-100.123, 210.111]" />
+            </float>
+        </fields>
+    </ns>
+    <fields>
+        <float name="Float1" type="float" defaultValue="inf" validRange="[-100.123, 210.111]" validValue="inf">
+            <validRange>[210.111, 220.123]</validRange>
+            <validValue>255.666</validValue>
+            <endian>Little</endian>
+        </float>        
+    </fields>
+</schema>

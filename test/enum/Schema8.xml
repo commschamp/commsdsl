@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema8"
+        id="1"
+        endian="Little">
+    <fields>
+        <enum name="Enum1" type="uint8" defaultValue="Null">
+            <validValue name="V1" val="1" />
+            <validValue name="Null" val="0xff" />
+            <validValue name="V2" val="2" />
+        </enum>
+        <enum reuse="Enum1" name="Enum2">
+            <validValue name="V3" val="3" />
+        </enum>
+    </fields>
+</schema>

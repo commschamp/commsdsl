@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema1"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="F1" type="uintvar" length="4"/>
+        <ref name="F2" field="F1" />
+    </fields>
+</schema>
