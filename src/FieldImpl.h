@@ -36,11 +36,6 @@ public:
         return m_node;
     }
 
-    void setNode(::xmlNodePtr val)
-    {
-        m_node = val;
-    }
-
     bool parse();
 
     const PropsMap& props() const

@@ -1,0 +1,50 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class MessageTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+};
+
+void MessageTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void MessageTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void MessageTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& msg1 = messages[0];
+    auto& msg2 = messages[1];
+    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.id(), 16);
+    TS_ASSERT(msg1.fields().empty());
+    TS_ASSERT_EQUALS(msg1.minLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
+
+    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+    TS_ASSERT_EQUALS(msg2.id(), 10);
+    TS_ASSERT(msg2.fields().empty());
+    TS_ASSERT_EQUALS(msg2.minLength(), 0U);
+    TS_ASSERT_EQUALS(msg2.maxLength(), 0U);
+}

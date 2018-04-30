@@ -49,6 +49,8 @@ public:
 
     const FieldImpl* findField(const std::string& ref, bool checkRef = true) const;
 
+    const MessageImpl* findMessage(const std::string& ref, bool checkRef = true) const;
+
     bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
 private:
@@ -70,6 +72,7 @@ private:
     bool validateDoc(::xmlDocPtr doc);
     bool validateSchema(::xmlNodePtr node);
     bool validateNewSchema(::xmlNodePtr node);
+    const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;

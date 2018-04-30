@@ -111,62 +111,22 @@ ProtocolImpl::NamespacesList ProtocolImpl::namespacesList() const
 
 const FieldImpl* ProtocolImpl::findField(const std::string& ref, bool checkRef) const
 {
-    if (checkRef) {
-        if (!common::isValidRefName(ref)) {
-            return nullptr;
-        }
-    }
-    else {
-        assert(common::isValidRefName(ref));
-    }
-
-
-    auto nameSepPos = ref.find_last_of('.');
     std::string fieldName;
-    const NamespaceImpl* ns = nullptr;
-    do {
-        if (nameSepPos == std::string::npos) {
-            auto iter = m_namespaces.find(common::emptyString());
-            if (iter == m_namespaces.end()) {
-                return nullptr;
-            }
-
-            fieldName = ref;
-            ns = iter->second.get();
-            assert(ns != nullptr);
-            break;
-        }
-
-        fieldName.assign(ref.begin() + nameSepPos + 1, ref.end());
-        std::size_t nsNamePos = 0;
-        assert(nameSepPos != std::string::npos);
-        while (nsNamePos < nameSepPos) {
-            auto nextDotPos = ref.find_first_of('.', nsNamePos);
-            assert(nextDotPos != std::string::npos);
-            std::string nsName(ref.begin() + nsNamePos, ref.begin() + nextDotPos);
-            if (nsName.empty()) {
-                return nullptr;
-            }
-
-            auto* nsMap = &m_namespaces;
-            if (ns != nullptr) {
-                nsMap = &(ns->namespacesMap());
-            }
-
-            auto iter = nsMap->find(nsName);
-            if (iter == nsMap->end()) {
-                return nullptr;
-            }
-
-            assert(iter->second);
-            ns = iter->second.get();
-            nsNamePos = nextDotPos + 1;
-        }
-
-    } while (false);
-
-    assert(ns != nullptr);
+    auto ns = getNsFromPath(ref, checkRef, fieldName);
+    if (ns == nullptr) {
+        return nullptr;
+    }
     return ns->findField(fieldName);
+}
+
+const MessageImpl* ProtocolImpl::findMessage(const std::string& ref, bool checkRef) const
+{
+    std::string msgName;
+    auto ns = getNsFromPath(ref, checkRef, msgName);
+    if (ns == nullptr) {
+        return nullptr;
+    }
+    return ns->findMessage(msgName);
 }
 
 bool ProtocolImpl::strToEnumValue(
@@ -381,6 +341,65 @@ bool ProtocolImpl::validateNewSchema(::xmlNodePtr node)
 {
     m_schema.reset(new SchemaImpl(node, m_logger));
     return m_schema->processNode();
+}
+
+const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const
+{
+    if (checkRef) {
+        if (!common::isValidRefName(ref)) {
+            return nullptr;
+        }
+    }
+    else {
+        assert(common::isValidRefName(ref));
+    }
+
+
+    auto nameSepPos = ref.find_last_of('.');
+    const NamespaceImpl* ns = nullptr;
+    do {
+        if (nameSepPos == std::string::npos) {
+            auto iter = m_namespaces.find(common::emptyString());
+            if (iter == m_namespaces.end()) {
+                return nullptr;
+            }
+
+            remName = ref;
+            ns = iter->second.get();
+            assert(ns != nullptr);
+            break;
+        }
+
+        remName.assign(ref.begin() + nameSepPos + 1, ref.end());
+        std::size_t nsNamePos = 0;
+        assert(nameSepPos != std::string::npos);
+        while (nsNamePos < nameSepPos) {
+            auto nextDotPos = ref.find_first_of('.', nsNamePos);
+            assert(nextDotPos != std::string::npos);
+            std::string nsName(ref.begin() + nsNamePos, ref.begin() + nextDotPos);
+            if (nsName.empty()) {
+                return nullptr;
+            }
+
+            auto* nsMap = &m_namespaces;
+            if (ns != nullptr) {
+                nsMap = &(ns->namespacesMap());
+            }
+
+            auto iter = nsMap->find(nsName);
+            if (iter == nsMap->end()) {
+                return nullptr;
+            }
+
+            assert(iter->second);
+            ns = iter->second.get();
+            nsNamePos = nextDotPos + 1;
+        }
+
+    } while (false);
+
+    assert(ns != nullptr);
+    return ns;
 }
 
 LogWrapper ProtocolImpl::logError() const

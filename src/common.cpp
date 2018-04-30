@@ -420,6 +420,11 @@ const std::string& orStr()
     return Str;
 }
 
+const std::string& copyFieldsFromStr()
+{
+    static const std::string Str("copyFieldsFrom");
+    return Str;
+}
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {

@@ -151,10 +151,32 @@ NamespaceImpl::FieldsList NamespaceImpl::fieldsList() const
     return result;
 }
 
+NamespaceImpl::MessagesList NamespaceImpl::messagesList() const
+{
+    MessagesList result;
+    result.reserve(m_messages.size());
+    for (auto& m : m_messages) {
+        assert(m.second);
+        result.emplace_back(m.second.get());
+    }
+    return result;
+}
+
 const FieldImpl* NamespaceImpl::findField(const std::string& fieldName) const
 {
     auto iter = m_fields.find(fieldName);
     if (iter == m_fields.end()) {
+        return nullptr;
+    }
+
+    assert(iter->second);
+    return iter->second.get();
+}
+
+const MessageImpl* NamespaceImpl::findMessage(const std::string& msgName) const
+{
+    auto iter = m_messages.find(msgName);
+    if (iter == m_messages.end()) {
         return nullptr;
     }
 
@@ -245,17 +267,40 @@ bool NamespaceImpl::processMultipleFields(::xmlNodePtr node)
 
 bool NamespaceImpl::processMessage(::xmlNodePtr node)
 {
-    static_cast<void>(node);
-    // TODO:
-    logError() << __FUNCTION__ << ": NYI!";
-    return false;
+    auto msg = std::make_unique<MessageImpl>(node, m_protocol);
+    msg->setParent(this);
+    if (!msg->parse()) {
+        return false;
+    }
+
+    auto msgPtr = findMessage(msg->name());
+    auto& msgName = msg->name();
+    if (msgPtr != nullptr) {
+        logError() << XmlWrap::logPrefix(node) << "Message with name \"" << msgName << "\" has been already defined at " <<
+                      msgPtr->getNode()->doc->URL << ":" << msgPtr->getNode()->line << '.';
+
+        return false;
+    }
+
+    m_messages.insert(std::make_pair(msgName, std::move(msg)));
+    return true;
 }
 
 bool NamespaceImpl::processMultipleMessages(::xmlNodePtr node)
 {
-    static_cast<void>(node);
-    // TODO:
-    logError() << __FUNCTION__ << ": NYI!";
+    auto childrenNodes = XmlWrap::getChildren(node);
+    for (auto c : childrenNodes) {
+        assert(c != nullptr);
+        std::string cName(reinterpret_cast<const char*>(c->name));
+        if (cName != common::messageStr()) {
+            logError() << XmlWrap::logPrefix(c) <<
+                "The \"" << common::messagesStr() << "\" element cannot contain \"" <<
+                cName << "\".";
+            return false;
+        }
+
+        return processMessage(c);
+    }
     return false;
 }
 

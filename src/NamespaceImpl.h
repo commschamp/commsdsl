@@ -1,12 +1,14 @@
 #pragma once
 
 #include <memory>
+#include <algorithm>
 
 #include "bbmp/Namespace.h"
 
 #include "XmlWrap.h"
 #include "Logger.h"
 #include "FieldImpl.h"
+#include "MessageImpl.h"
 #include "Object.h"
 
 namespace bbmp
@@ -16,13 +18,38 @@ class ProtocolImpl;
 class NamespaceImpl : public Object
 {
 public:
+
+    struct KeyComp
+    {
+        bool operator()(const std::string& str1, const std::string& str2) const
+        {
+            if (str1.empty()) {
+                return !str2.empty();
+            }
+
+            if (str2.empty()) {
+                return false;
+            }
+
+            auto leftFirst = static_cast<char>(std::tolower(str1[0]));
+            auto rightFirst = static_cast<char>(std::tolower(str2[0]));
+            if (leftFirst != rightFirst) {
+                return leftFirst < rightFirst;
+            }
+
+            return std::lexicographical_compare(str1.begin() + 1, str1.end(), str2.begin() + 1, str2.end());
+        }
+    };
+
     using Ptr = std::unique_ptr<NamespaceImpl>;
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
     using NamespacesList = Namespace::NamespacesList;
     using FieldsList = Namespace::FieldsList;
+    using MessagesList = Namespace::MessagesList;
     using NamespacesMap = std::map<std::string, Ptr>;
-    using FieldsMap = std::map<std::string, FieldImplPtr>;
+    using FieldsMap = std::map<std::string, FieldImplPtr, KeyComp>;
+    using MessagesMap = std::map<std::string, MessageImplPtr, KeyComp>;
 
     NamespaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     virtual ~NamespaceImpl() = default;
@@ -59,6 +86,7 @@ public:
 
     NamespacesList namespacesList() const;
     FieldsList fieldsList() const;
+    MessagesList messagesList() const;
 
     const PropsMap& unknownAttributes() const
     {
@@ -86,6 +114,7 @@ public:
     }
 
     const FieldImpl* findField(const std::string& fieldName) const;
+    const MessageImpl* findMessage(const std::string& msgName) const;
 
     std::string externalRef() const;
 
@@ -117,6 +146,7 @@ private:
 
     NamespacesMap m_namespaces;
     FieldsMap m_fields;
+    MessagesMap m_messages;
 };
 
 using NamespaceImplPtr = NamespaceImpl::Ptr;
