@@ -31,6 +31,7 @@ public:
     unsigned deprecatedSince() const;
     bool isDeprecatedRemoved() const;
     FieldsList fields() const;
+    std::string externalRef() const;
 
 protected:
     const MessageImpl* m_pImpl;

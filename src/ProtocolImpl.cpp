@@ -73,6 +73,10 @@ bool ProtocolImpl::validate()
         }
     }
 
+    if (!validateAllMessages()) {
+        return false;
+    }
+
     m_validated = true;
     return true;
 }
@@ -167,6 +171,33 @@ bool ProtocolImpl::strToEnumValue(
 
     val = enumValueIter->second.m_value;
     return true;
+}
+
+ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
+{
+    auto total =
+        std::accumulate(
+            m_namespaces.begin(), m_namespaces.end(), 0U,
+            [](std::size_t soFar, auto& ns)
+            {
+                return soFar + ns.second->messages().size();
+            });
+
+    NamespaceImpl::MessagesList messages;
+    messages.reserve(total);
+    for (auto& ns : m_namespaces) {
+        auto nsMsgs = ns.second->messagesList();
+        messages.insert(messages.end(), nsMsgs.begin(), nsMsgs.end());
+    }
+
+    std::sort(
+        messages.begin(), messages.end(),
+        [](const auto& msg1, const auto& msg2)
+        {
+            return msg1.id() < msg2.id();
+        });
+
+    return messages;
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
@@ -341,6 +372,31 @@ bool ProtocolImpl::validateNewSchema(::xmlNodePtr node)
 {
     m_schema.reset(new SchemaImpl(node, m_logger));
     return m_schema->processNode();
+}
+
+bool ProtocolImpl::validateAllMessages()
+{
+    assert(m_schema);
+    bool allowNonUniquIds = m_schema->nonUniqueMsgIdAllowed();
+    auto allMsgs = allMessages();
+    for (auto iter = allMsgs.begin(); iter != (allMsgs.end() - 1); ++iter) {
+        auto nextIter = iter + 1;
+        assert(nextIter != allMsgs.end());
+
+        if (iter->id() != nextIter->id()) {
+            continue;
+        }
+
+        if (!allowNonUniquIds) {
+            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
+                          nextIter->externalRef() << "\" have the same id.";
+            return false;
+        }
+
+        // TODO: check order
+
+    }
+    return true;
 }
 
 const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const

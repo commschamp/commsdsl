@@ -14,6 +14,7 @@ public:
     void test5();
     void test6();
     void test7();
+    void test8();
 };
 
 void MessageTestSuite::setUp()
@@ -167,3 +168,12 @@ void MessageTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 }
+
+void MessageTestSuite::test8()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+}
+

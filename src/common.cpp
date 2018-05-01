@@ -282,6 +282,12 @@ const std::string& nonUniqueAllowedStr()
     return Str;
 }
 
+const std::string& nonUniqueMsgIdAllowedStr()
+{
+    static const std::string Str("nonUniqueMsgIdAllowed");
+    return Str;
+}
+
 const std::string& reservedValueStr()
 {
     static const std::string Str("reservedValue");

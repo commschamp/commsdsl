@@ -80,4 +80,10 @@ Message::FieldsList Message::fields() const
     return m_pImpl->fieldsList();
 }
 
+std::string Message::externalRef() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->externalRef();
+}
+
 } // namespace bbmp

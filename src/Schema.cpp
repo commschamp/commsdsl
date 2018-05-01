@@ -69,6 +69,16 @@ Endian Schema::endian() const
     return m_pImpl->endian();
 }
 
+bool Schema::nonUniqueMsgIdAllowed() const
+{
+    if (!valid()) {
+        assert(!"Unexpected call on invalid schema object");
+        return false;
+    }
+
+    return m_pImpl->nonUniqueMsgIdAllowed();
+}
+
 const Schema::AttributesMap& Schema::unknownAttributes() const
 {
     if (!valid()) {

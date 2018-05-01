@@ -34,7 +34,8 @@ bool SchemaImpl::processNode()
         (!updateStringProperty(m_props, common::descriptionStr(), m_description)) ||
         (!updateUnsignedProperty(m_props, common::idStr(), m_id)) ||
         (!updateUnsignedProperty(m_props, common::versionStr(), m_version)) ||
-        (!updateEndianProperty(m_props, common::endianStr(), m_endian))) {
+        (!updateEndianProperty(m_props, common::endianStr(), m_endian)) ||
+        (!updateBooleanProperty(m_props, common::nonUniqueMsgIdAllowedStr(), m_nonUniqueMsgIdAllowed))) {
         return false;
     }
 
@@ -105,6 +106,26 @@ bool SchemaImpl::updateEndianProperty(const PropsMap& map, const std::string& na
         return false;
     }
 
+    return true;
+}
+
+bool SchemaImpl::updateBooleanProperty(const SchemaImpl::PropsMap& map, const std::string& name, bool& prop)
+{
+    auto iter = map.find(name);
+    if (iter == map.end()) {
+        prop = false;
+        return true;
+    }
+
+    bool ok = false;
+    bool val = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        logError(m_logger) << m_node->doc->URL << ':' << m_node->line <<
+            ": Invalid value of \"" << name << "\" property for \"" << m_node->name << "\" element.";
+        return false;
+    }
+
+    prop = val;
     return true;
 }
 

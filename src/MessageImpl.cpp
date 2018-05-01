@@ -146,6 +146,20 @@ MessageImpl::FieldsList MessageImpl::fieldsList() const
     return result;
 }
 
+std::string MessageImpl::externalRef() const
+{
+    assert(getParent() != nullptr);
+    assert(getParent()->objKind() == ObjKind::Namespace);
+
+    auto& ns = static_cast<const bbmp::NamespaceImpl&>(*getParent());
+    auto nsRef = ns.externalRef();
+    if (nsRef.empty()) {
+        return name();
+    }
+
+    return nsRef + '.' + name();
+}
+
 LogWrapper MessageImpl::logError() const
 {
     return bbmp::logError(m_protocol.logger());

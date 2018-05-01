@@ -23,6 +23,7 @@ class ProtocolImpl
 public:
     using ErrorReportFunction = Protocol::ErrorReportFunction;
     using NamespacesList = Protocol::NamespacesList;
+    using MessagesList = Protocol::MessagesList;
 
     ProtocolImpl();
     bool parse(const std::string& input);
@@ -53,6 +54,7 @@ public:
 
     bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
+    MessagesList allMessages() const;
 private:
     struct XmlDocFree
     {
@@ -72,6 +74,7 @@ private:
     bool validateDoc(::xmlDocPtr doc);
     bool validateSchema(::xmlNodePtr node);
     bool validateNewSchema(::xmlNodePtr node);
+    bool validateAllMessages();
     const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
     LogWrapper logError() const;

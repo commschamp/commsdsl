@@ -48,6 +48,11 @@ public:
         return m_endian;
     }
 
+    bool nonUniqueMsgIdAllowed() const
+    {
+        return m_nonUniqueMsgIdAllowed;
+    }
+
     const PropsMap& unknownAttributes() const
     {
         return m_unknownAttrs;
@@ -73,6 +78,7 @@ private:
     bool updateStringProperty(const PropsMap& map, const std::string& name, std::string& prop);
     bool updateUnsignedProperty(const PropsMap& map, const std::string& name, unsigned& prop);
     bool updateEndianProperty(const PropsMap& map, const std::string& name, Endian& prop);
+    bool updateBooleanProperty(const PropsMap& map, const std::string& name, bool& prop);
 
     ::xmlNodePtr m_node = nullptr;
     Logger& m_logger;
@@ -85,8 +91,7 @@ private:
     unsigned m_id = 0U;
     unsigned m_version = 0;
     Endian m_endian = Endian_NumOfValues;
-
-
+    bool m_nonUniqueMsgIdAllowed = false;
 };
 
 } // namespace bbmp

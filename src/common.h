@@ -60,6 +60,7 @@ const std::string& fieldStr();
 const std::string& nsStr();
 const std::string& enumStr();
 const std::string& nonUniqueAllowedStr();
+const std::string& nonUniqueMsgIdAllowedStr();
 const std::string& reservedValueStr();
 const std::string& reservedStr();
 const std::string& bitStr();

@@ -87,6 +87,10 @@ public:
     NamespacesList namespacesList() const;
     FieldsList fieldsList() const;
     MessagesList messagesList() const;
+    const MessagesMap& messages() const
+    {
+        return m_messages;
+    }
 
     const PropsMap& unknownAttributes() const
     {

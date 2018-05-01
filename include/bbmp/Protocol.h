@@ -21,6 +21,7 @@ class BBMP_API Protocol
 public:
     using ErrorReportFunction = std::function<void (ErrorLevel, const std::string&)>;
     using NamespacesList = std::vector<Namespace>;
+    using MessagesList = Namespace::MessagesList;
 
     Protocol();
     ~Protocol();
@@ -38,7 +39,9 @@ public:
         return std::numeric_limits<unsigned>::max();
     }
 
-    Field findField(const std::string& externalRef);
+    Field findField(const std::string& externalRef) const;
+
+    MessagesList allMessages() const;
 
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;

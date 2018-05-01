@@ -55,6 +55,8 @@ public:
 
     FieldsList fieldsList() const;
 
+    std::string externalRef() const;
+
 protected:
 
     LogWrapper logError() const;

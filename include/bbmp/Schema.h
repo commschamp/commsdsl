@@ -31,6 +31,8 @@ public:
 
     Endian endian() const;
 
+    bool nonUniqueMsgIdAllowed() const;
+
     const AttributesMap& unknownAttributes() const;
 
     const ElementsList& unknownElements() const;
