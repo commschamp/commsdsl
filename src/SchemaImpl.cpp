@@ -22,7 +22,8 @@ bool SchemaImpl::processNode()
         common::idStr(),
         common::versionStr(),
         common::endianStr(),
-        common::descriptionStr()
+        common::descriptionStr(),
+        common::nonUniqueMsgIdAllowedStr()
     };
 
     m_props = XmlWrap::parseNodeProps(m_node);

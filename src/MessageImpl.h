@@ -25,7 +25,8 @@ public:
     using FieldsList = Message::FieldsList;
 
     MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol);
-    MessageImpl(const MessageImpl&);
+    MessageImpl(const MessageImpl&) = delete;
+    MessageImpl(MessageImpl&&) = default;
     ~MessageImpl() = default;
 
     ::xmlNodePtr getNode() const
@@ -47,6 +48,11 @@ public:
     std::uintmax_t id() const
     {
         return m_id;
+    }
+
+    unsigned order() const
+    {
+        return m_order;
     }
 
     std::size_t minLength() const;
@@ -76,6 +82,7 @@ private:
     bool updateDescription();
     bool updateDisplayName();
     bool updateId();
+    bool updateOrder();
     bool updateVersions();
     bool copyFields();
     bool updateFields();
@@ -88,6 +95,7 @@ private:
     const std::string* m_displayName = nullptr;
     const std::string* m_description = nullptr;
     std::uintmax_t m_id = 0;
+    unsigned m_order = 0;
     std::vector<FieldImplPtr> m_fields;
 };
 

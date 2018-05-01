@@ -25,6 +25,7 @@ public:
     const std::string& displayName() const;
     const std::string& description() const;
     std::uintmax_t id() const;
+    unsigned order() const;
     std::size_t minLength() const;
     std::size_t maxLength() const;
     unsigned sinceVersion() const;

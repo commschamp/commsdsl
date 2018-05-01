@@ -432,6 +432,12 @@ const std::string& copyFieldsFromStr()
     return Str;
 }
 
+const std::string& orderStr()
+{
+    static const std::string Str("order");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

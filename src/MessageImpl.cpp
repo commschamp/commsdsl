@@ -35,16 +35,6 @@ MessageImpl::MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
-MessageImpl::MessageImpl(const MessageImpl& other)
-  : m_node(other.m_node),
-    m_protocol(other.m_protocol),
-    m_name(other.m_name),
-    m_displayName(other.m_displayName),
-    m_description(other.m_description)
-{
-    cloneFieldsFrom(other);
-}
-
 bool MessageImpl::parse()
 {
     m_props = XmlWrap::parseNodeProps(m_node);
@@ -58,6 +48,7 @@ bool MessageImpl::parse()
         updateDisplayName() &&
         updateDescription() &&
         updateId() &&
+        updateOrder() &&
         updateVersions() &&
         copyFields() &&
         updateFields();
@@ -219,7 +210,8 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::sinceVersionStr(),
         common::deprecatedStr(),
         common::removedStr(),
-        common::copyFieldsFromStr()
+        common::copyFieldsFromStr(),
+        common::orderStr()
     };
 
     return CommonNames;
@@ -268,8 +260,29 @@ bool MessageImpl::updateId()
     bool ok = false;
     m_id = common::strToUintMax(iter->second, &ok);
     if (!ok) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-            "Invalid message ID value (" << iter->second << ").";
+        reportUnexpectedPropertyValue(common::idStr(), iter->second);
+        return false;
+    }
+
+    return true;
+}
+
+bool MessageImpl::updateOrder()
+{
+    if (!validateSinglePropInstance(common::orderStr())) {
+        return false;
+    }
+
+    auto iter = m_props.find(common::orderStr());
+    if (iter == m_props.end()) {
+        assert(m_order == 0U);
+        return true;
+    }
+
+    bool ok = false;
+    m_order = common::strToUnsigned(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::orderStr(), iter->second);
         return false;
     }
 

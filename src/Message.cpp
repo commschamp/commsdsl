@@ -44,6 +44,12 @@ std::uintmax_t Message::id() const
     return m_pImpl->id();
 }
 
+unsigned Message::order() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->order();
+}
+
 std::size_t Message::minLength() const
 {
     assert(m_pImpl != nullptr);

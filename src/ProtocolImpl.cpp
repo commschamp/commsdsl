@@ -194,7 +194,13 @@ ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
         messages.begin(), messages.end(),
         [](const auto& msg1, const auto& msg2)
         {
-            return msg1.id() < msg2.id();
+            auto id1 = msg1.id();
+            auto id2 = msg2.id();
+            if (id1 != id2) {
+                return id1 < id2;
+            }
+
+            return msg1.order() < msg2.order();
         });
 
     return messages;
@@ -393,9 +399,16 @@ bool ProtocolImpl::validateAllMessages()
             return false;
         }
 
-        // TODO: check order
+        if (iter->order() == nextIter->order()) {
+            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
+                          nextIter->externalRef() << "\" have the same \"" <<
+                          common::idStr() << "\" and \"" << common::orderStr() << "\" values.";
+            return false;
+        }
 
+        assert(iter->order() < nextIter->order());
     }
+
     return true;
 }
 
