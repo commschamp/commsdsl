@@ -130,9 +130,7 @@ void BitfieldTestSuite::test3()
 
 void BitfieldTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expValidateResult = false;
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error); m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
 }
@@ -175,7 +173,6 @@ void BitfieldTestSuite::test5()
 
 void BitfieldTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
@@ -239,7 +236,6 @@ void BitfieldTestSuite::test8()
 
 void BitfieldTestSuite::test9()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");

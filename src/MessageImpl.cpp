@@ -227,7 +227,7 @@ bool MessageImpl::updateName()
 
     if (!common::isValidName(*m_name)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Invalid value for name property \"" << m_name << "\".";
+                      "Invalid value for name property \"" << *m_name << "\".";
         return false;
     }
 

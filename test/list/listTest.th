@@ -402,7 +402,6 @@ void ListTestSuite::test11()
 void ListTestSuite::test12()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
@@ -444,7 +443,6 @@ void ListTestSuite::test13()
 void ListTestSuite::test14()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
@@ -452,7 +450,6 @@ void ListTestSuite::test14()
 
 void ListTestSuite::test15()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
@@ -462,7 +459,6 @@ void ListTestSuite::test15()
 void ListTestSuite::test16()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
@@ -470,7 +466,6 @@ void ListTestSuite::test16()
 
 void ListTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
@@ -480,7 +475,6 @@ void ListTestSuite::test17()
 void ListTestSuite::test18()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
@@ -488,7 +482,6 @@ void ListTestSuite::test18()
 
 void ListTestSuite::test19()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");

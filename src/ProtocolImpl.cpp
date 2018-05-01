@@ -194,6 +194,8 @@ ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
         messages.begin(), messages.end(),
         [](const auto& msg1, const auto& msg2)
         {
+            assert(msg1.valid());
+            assert(msg2.valid());
             auto id1 = msg1.id();
             auto id2 = msg2.id();
             if (id1 != id2) {
@@ -385,10 +387,16 @@ bool ProtocolImpl::validateAllMessages()
     assert(m_schema);
     bool allowNonUniquIds = m_schema->nonUniqueMsgIdAllowed();
     auto allMsgs = allMessages();
+    if (allMsgs.empty()) {
+        return true;
+    }
+
     for (auto iter = allMsgs.begin(); iter != (allMsgs.end() - 1); ++iter) {
         auto nextIter = iter + 1;
         assert(nextIter != allMsgs.end());
 
+        assert(iter->valid());
+        assert(nextIter->valid());
         if (iter->id() != nextIter->id()) {
             continue;
         }

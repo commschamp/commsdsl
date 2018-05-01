@@ -98,7 +98,6 @@ void BundleTestSuite::test2()
 void BundleTestSuite::test3()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
@@ -107,7 +106,6 @@ void BundleTestSuite::test3()
 void BundleTestSuite::test4()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
@@ -115,7 +113,6 @@ void BundleTestSuite::test4()
 
 void BundleTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");

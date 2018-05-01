@@ -79,7 +79,6 @@ void EnumTestSuite::test1()
 void EnumTestSuite::test2()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
@@ -402,7 +401,6 @@ void EnumTestSuite::test10()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
@@ -413,7 +411,6 @@ void EnumTestSuite::test11()
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
@@ -421,7 +418,6 @@ void EnumTestSuite::test11()
 
 void EnumTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
@@ -431,7 +427,6 @@ void EnumTestSuite::test12()
 void EnumTestSuite::test13()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
@@ -440,7 +435,6 @@ void EnumTestSuite::test13()
 void EnumTestSuite::test14()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
@@ -448,7 +442,6 @@ void EnumTestSuite::test14()
 
 void EnumTestSuite::test15()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
@@ -495,7 +488,6 @@ void EnumTestSuite::test16()
 
 void EnumTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");

@@ -156,7 +156,6 @@ void StringTestSuite::test4()
 void StringTestSuite::test5()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -165,7 +164,6 @@ void StringTestSuite::test5()
 void StringTestSuite::test6()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
@@ -173,7 +171,6 @@ void StringTestSuite::test6()
 
 void StringTestSuite::test7()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
@@ -238,7 +235,6 @@ void StringTestSuite::test9()
 void StringTestSuite::test10()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
@@ -276,7 +272,6 @@ void StringTestSuite::test11()
 void StringTestSuite::test12()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
@@ -284,7 +279,6 @@ void StringTestSuite::test12()
 
 void StringTestSuite::test13()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");

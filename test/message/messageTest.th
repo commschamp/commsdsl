@@ -17,6 +17,7 @@ public:
     void test8();
     void test9();
     void test10();
+    void test11();
 };
 
 void MessageTestSuite::setUp()
@@ -218,4 +219,12 @@ void MessageTestSuite::test10()
     TS_ASSERT_EQUALS(msg2.maxLength(), 6U);
     auto fields2 = msg2.fields();
     TS_ASSERT_EQUALS(fields2.size(), 2U);
+}
+
+void MessageTestSuite::test11()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
 }

@@ -242,7 +242,6 @@ bool NamespaceImpl::processMultipleFields(::xmlNodePtr node)
         field->setParent(this);
 
         if (!field->parse()) {
-            logError() << XmlWrap::logPrefix(c) << "Parsing of \"" << cName << "\" has failed.";
             return false;
         }
 
