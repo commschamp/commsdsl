@@ -108,10 +108,14 @@ std::size_t MessageImpl::minLength() const
     return
         std::accumulate(
             m_fields.begin(), m_fields.end(), 0U,
-                [](std::size_t soFar, auto& elem)
+                [this](std::size_t soFar, auto& elem)
                 {
+                    if (this->getSinceVersion() < elem->getSinceVersion()) {
+                        return soFar;
+                    }
+
                     return soFar + elem->minLength();
-    });
+                });
 }
 
 std::size_t MessageImpl::maxLength() const
@@ -200,7 +204,8 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::descriptionStr(),
         common::sinceVersionStr(),
         common::deprecatedStr(),
-        common::removedStr()
+        common::removedStr(),
+        common::copyFieldsFromStr()
     };
 
     return CommonNames;

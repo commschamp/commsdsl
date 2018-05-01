@@ -299,9 +299,11 @@ bool NamespaceImpl::processMultipleMessages(::xmlNodePtr node)
             return false;
         }
 
-        return processMessage(c);
+        if (!processMessage(c)) {
+            return false;
+        }
     }
-    return false;
+    return true;
 }
 
 bool NamespaceImpl::processFrame(::xmlNodePtr node)
