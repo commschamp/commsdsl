@@ -24,6 +24,7 @@ public:
     using ErrorReportFunction = Protocol::ErrorReportFunction;
     using NamespacesList = Protocol::NamespacesList;
     using MessagesList = Protocol::MessagesList;
+    using ExtraPrefixes = std::vector<std::string>;
 
     ProtocolImpl();
     bool parse(const std::string& input);
@@ -55,6 +56,17 @@ public:
     bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
     MessagesList allMessages() const;
+
+    void addExpectedExtraPrefix(const std::string& value)
+    {
+        m_extraPrefixes.push_back(value);
+    }
+
+    const ExtraPrefixes& extraElementPrefixes() const
+    {
+        return m_extraPrefixes;
+    }
+
 private:
     struct XmlDocFree
     {
@@ -73,7 +85,6 @@ private:
     void handleXmlError(xmlErrorPtr err);
     bool validateDoc(::xmlDocPtr doc);
     bool validateSchema(::xmlNodePtr node);
-    bool validateNewSchema(::xmlNodePtr node);
     bool validateAllMessages();
     const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
@@ -87,6 +98,7 @@ private:
     mutable Logger m_logger;
     SchemaImplPtr m_schema;
     NamespacesMap m_namespaces;
+    ExtraPrefixes m_extraPrefixes;
 };
 
 } // namespace bbmp

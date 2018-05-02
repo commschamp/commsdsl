@@ -195,6 +195,17 @@ XmlWrap::NodesList XmlWrap::getUnknownChildren(::xmlNodePtr node, const XmlWrap:
     return result;
 }
 
+std::string XmlWrap::getElementContent(::xmlNodePtr node)
+{
+    std::string result;
+    BufferPtr buf(::xmlBufferCreate());
+    auto bufLen = ::xmlNodeDump(buf.get(), node->doc, node, 0, 0);
+    if (0 < bufLen) {
+        result = reinterpret_cast<const char*>(::xmlBufferContent(buf.get()));
+    }
+    return result;
+}
+
 XmlWrap::ContentsList XmlWrap::getUnknownChildrenContents(::xmlNodePtr node, const XmlWrap::NamesList& names)
 {
     ContentsList result;
@@ -242,7 +253,7 @@ bool XmlWrap::validateSinglePropInstance(
     return true;
 }
 
-bool XmlWrap::validateNoPropInstance(::xmlNodePtr node, const XmlWrap::PropsMap& props, const std::__cxx11::string& str, Logger& logger)
+bool XmlWrap::validateNoPropInstance(::xmlNodePtr node, const XmlWrap::PropsMap& props, const std::string& str, Logger& logger)
 {
     auto iter = props.find(str);
     if (iter != props.end()) {

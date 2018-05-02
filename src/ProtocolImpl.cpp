@@ -325,7 +325,7 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
 
 bool ProtocolImpl::validateSchema(::xmlNodePtr node)
 {
-    SchemaImplPtr schema(new SchemaImpl(node, m_logger));
+    SchemaImplPtr schema(new SchemaImpl(node, *this));
     if (!schema->processNode()) {
         return false;
     }
@@ -349,8 +349,8 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
         }
     }
 
-    auto& attrs = schema->unknownAttributes();
-    auto& origAttrs = m_schema->unknownAttributes();
+    auto& attrs = schema->extraAttributes();
+    auto& origAttrs = m_schema->extraAttributes();
     for (auto& a : attrs) {
         auto iter = origAttrs.find(a.first);
         if (iter == origAttrs.end()) {
@@ -367,19 +367,13 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
             "\" attribubes of \"" << node->name << "\" element differs from the previous one.";
     }
 
-    auto& children = schema->unknownChiltren();
-    auto& origChildren = m_schema->unknownChiltren();
+    auto& children = schema->extraChildrenElements();
+    auto& origChildren = m_schema->extraChildrenElements();
     for (auto& c : children) {
         origChildren.push_back(c);
     }
 
     return true;
-}
-
-bool ProtocolImpl::validateNewSchema(::xmlNodePtr node)
-{
-    m_schema.reset(new SchemaImpl(node, m_logger));
-    return m_schema->processNode();
 }
 
 bool ProtocolImpl::validateAllMessages()

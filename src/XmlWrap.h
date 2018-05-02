@@ -60,6 +60,7 @@ struct XmlWrap
 
     static PropsMap getUnknownProps(::xmlNodePtr node, const NamesList& names);
     static NodesList getUnknownChildren(::xmlNodePtr node, const NamesList& names);
+    static std::string getElementContent(::xmlNodePtr node);
     static ContentsList getUnknownChildrenContents(::xmlNodePtr node, const NamesList& names);
     static std::string logPrefix(::xmlNodePtr node);
     static bool validateSinglePropInstance(

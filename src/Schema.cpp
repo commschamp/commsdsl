@@ -79,7 +79,7 @@ bool Schema::nonUniqueMsgIdAllowed() const
     return m_pImpl->nonUniqueMsgIdAllowed();
 }
 
-const Schema::AttributesMap& Schema::unknownAttributes() const
+const Schema::AttributesMap& Schema::extraAttributes() const
 {
     if (!valid()) {
         assert(!"Unexpected call on invalid schema object");
@@ -87,10 +87,10 @@ const Schema::AttributesMap& Schema::unknownAttributes() const
         return Map;
     }
 
-    return m_pImpl->unknownAttributes();
+    return m_pImpl->extraAttributes();
 }
 
-const Schema::ElementsList& Schema::unknownElements() const
+const Schema::ElementsList& Schema::extraElements() const
 {
     if (!valid()) {
         assert(!"Unexpected call on invalid schema object");
@@ -98,7 +98,7 @@ const Schema::ElementsList& Schema::unknownElements() const
         return List;
     }
 
-    return m_pImpl->unknownChiltren();
+    return m_pImpl->extraChildrenElements();
 
 }
 

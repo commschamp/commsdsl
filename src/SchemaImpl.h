@@ -3,18 +3,18 @@
 #include "bbmp/Endian.h"
 
 #include "XmlWrap.h"
-#include "Logger.h"
 
 namespace bbmp
 {
 
+class ProtocolImpl;
 class SchemaImpl
 {
 public:
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
 
-    SchemaImpl(::xmlNodePtr node, Logger& logger);
+    SchemaImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
     bool processNode();
 
@@ -53,24 +53,24 @@ public:
         return m_nonUniqueMsgIdAllowed;
     }
 
-    const PropsMap& unknownAttributes() const
+    const PropsMap& extraAttributes() const
     {
-        return m_unknownAttrs;
+        return m_extraAttrs;
     }
 
-    PropsMap& unknownAttributes()
+    PropsMap& extraAttributes()
     {
-        return m_unknownAttrs;
+        return m_extraAttrs;
     }
 
-    const ContentsList& unknownChiltren() const
+    const ContentsList& extraChildrenElements() const
     {
-        return m_unknownChildren;
+        return m_extraChildren;
     }
 
-    ContentsList& unknownChiltren()
+    ContentsList& extraChildrenElements()
     {
-        return m_unknownChildren;
+        return m_extraChildren;
     }
 
 private:
@@ -79,13 +79,15 @@ private:
     bool updateUnsignedProperty(const PropsMap& map, const std::string& name, unsigned& prop);
     bool updateEndianProperty(const PropsMap& map, const std::string& name, Endian& prop);
     bool updateBooleanProperty(const PropsMap& map, const std::string& name, bool& prop);
+    bool updateExtraAttrs();
+    bool updateExtraChildren();
 
     ::xmlNodePtr m_node = nullptr;
-    Logger& m_logger;
+    ProtocolImpl& m_protocol;
 
     PropsMap m_props;
-    PropsMap m_unknownAttrs;
-    ContentsList m_unknownChildren;
+    PropsMap m_extraAttrs;
+    ContentsList m_extraChildren;
     std::string m_name;
     std::string m_description;
     unsigned m_id = 0U;

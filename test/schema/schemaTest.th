@@ -1,0 +1,89 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class MessageTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+};
+
+void MessageTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void MessageTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void MessageTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema1");
+    TS_ASSERT_EQUALS(schema.description(), "Some Description");
+    TS_ASSERT_EQUALS(schema.id(), 1);
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.endian(), bbmp::Endian_Big);
+    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    TS_ASSERT(schema.extraAttributes().empty());
+    TS_ASSERT(schema.extraElements().empty());
+}
+
+void MessageTestSuite::test2()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema2");
+    TS_ASSERT_EQUALS(schema.description(), "Some Description");
+    TS_ASSERT_EQUALS(schema.id(), 1);
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.endian(), bbmp::Endian_Big);
+    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    auto& extraAttrs = schema.extraAttributes();
+    auto& extraChildren = schema.extraElements();
+    TS_ASSERT_EQUALS(extraAttrs.size(), 1U);
+    TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr");
+    TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
+    TS_ASSERT_EQUALS(extraChildren.size(), 1U);
+    TS_TRACE(extraChildren.front());
+}
+
+void MessageTestSuite::test3()
+{
+    m_status.m_preValidateFunc =
+        [](bbmp::Protocol& p)
+        {
+            p.addExpectedExtraPrefix("prefix.");
+        };
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema3");
+    TS_ASSERT_EQUALS(schema.description(), "Some Description");
+    TS_ASSERT_EQUALS(schema.id(), 1);
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.endian(), bbmp::Endian_Big);
+    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    auto& extraAttrs = schema.extraAttributes();
+    auto& extraChildren = schema.extraElements();
+    TS_ASSERT_EQUALS(extraAttrs.size(), 1U);
+    TS_ASSERT_EQUALS(extraAttrs.begin()->first, "prefix.extraAttr");
+    TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
+    TS_ASSERT_EQUALS(extraChildren.size(), 1U);
+    TS_TRACE(extraChildren.front());
+}

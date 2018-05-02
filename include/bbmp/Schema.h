@@ -33,9 +33,9 @@ public:
 
     bool nonUniqueMsgIdAllowed() const;
 
-    const AttributesMap& unknownAttributes() const;
+    const AttributesMap& extraAttributes() const;
 
-    const ElementsList& unknownElements() const;
+    const ElementsList& extraElements() const;
 
 private:
     const SchemaImpl* m_pImpl;

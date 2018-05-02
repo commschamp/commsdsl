@@ -8,7 +8,6 @@ namespace bbmp
 Protocol::Protocol()
   : m_pImpl(new ProtocolImpl)
 {
-
 }
 
 void Protocol::setErrorReportCallback(Protocol::ErrorReportFunction&& cb)
@@ -46,6 +45,11 @@ Field Protocol::findField(const std::string& externalRef) const
 Protocol::MessagesList Protocol::allMessages() const
 {
     return m_pImpl->allMessages();
+}
+
+void Protocol::addExpectedExtraPrefix(const std::string& value)
+{
+    return m_pImpl->addExpectedExtraPrefix(value);
 }
 
 } // namespace bbmp

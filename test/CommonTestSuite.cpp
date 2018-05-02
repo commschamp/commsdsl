@@ -52,6 +52,10 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
     bool parseResult = protocol->parse(schema);
     TS_ASSERT_EQUALS(parseResult, m_status.m_expParseResult);
 
+    if (m_status.m_preValidateFunc) {
+        m_status.m_preValidateFunc(*protocol);
+    }
+
     bool validateResult = protocol->validate();
     TS_ASSERT_EQUALS(validateResult, m_status.m_expValidateResult);
     return protocol;

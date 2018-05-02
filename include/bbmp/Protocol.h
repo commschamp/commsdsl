@@ -43,6 +43,8 @@ public:
 
     MessagesList allMessages() const;
 
+    void addExpectedExtraPrefix(const std::string& value);
+
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;
 };

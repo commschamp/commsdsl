@@ -3,6 +3,7 @@
 #include <memory>
 #include <vector>
 #include <string>
+#include <functional>
 
 #include "cxxtest/TestSuite.h"
 #include "bbmp/bbmp.h"
@@ -21,6 +22,9 @@ public:
 protected:
     using ProtocolPtr = std::unique_ptr<bbmp::Protocol>;
     using ErrLevelList = std::vector<bbmp::ErrorLevel>;
+    using PreValidateFunc = std::function<void (bbmp::Protocol& protocol)>;
+
+
     ProtocolPtr prepareProtocol(const std::string& schema);
 
     struct TestStatus
@@ -28,6 +32,7 @@ protected:
         ErrLevelList m_expErrors;
         bool m_expParseResult = true;
         bool m_expValidateResult = true;
+        PreValidateFunc m_preValidateFunc;
     };
 
     TestStatus m_status;
