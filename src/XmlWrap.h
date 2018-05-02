@@ -107,6 +107,16 @@ struct XmlWrap
         unsigned& sinceVersion,
         unsigned& deprecatedSince,
         ProtocolImpl& protocol);
+
+    static PropsMap getExtraAttributes(
+        ::xmlNodePtr node,
+        const XmlWrap::NamesList& names,
+        ProtocolImpl& protocol);
+
+    static ContentsList getExtraChildren(
+        ::xmlNodePtr node,
+        const XmlWrap::NamesList& names,
+        ProtocolImpl& protocol);
 };
 
 } // namespace bbmp

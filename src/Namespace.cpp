@@ -22,6 +22,18 @@ const std::string& Namespace::name() const
     return m_pImpl->name();
 }
 
+const std::string& Namespace::description() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->description();
+}
+
+Namespace::NamespacesList Namespace::namespaces() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->namespacesList();
+}
+
 Namespace::FieldsList Namespace::fields() const
 {
     assert(m_pImpl != nullptr);
@@ -32,6 +44,18 @@ Namespace::MessagesList Namespace::messages() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->messagesList();
+}
+
+const Namespace::AttributesMap& Namespace::extraAttributes() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->extraAttributes();
+}
+
+const Namespace::ElementsList& Namespace::extraElements() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->extraChildren();
 }
 
 

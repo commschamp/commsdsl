@@ -417,4 +417,58 @@ bool XmlWrap::getAndCheckVersions(
     return getAndCheckVersions(node, name, props, sinceVersion, deprecatedSince, protocol);
 }
 
+XmlWrap::PropsMap XmlWrap::getExtraAttributes(::xmlNodePtr node, const XmlWrap::NamesList& names, ProtocolImpl& protocol)
+{
+    PropsMap attrs = XmlWrap::getUnknownProps(node, names);
+    auto& expectedPrefixes = protocol.extraElementPrefixes();
+    for (auto& a : attrs) {
+        bool expected =
+            std::any_of(
+                expectedPrefixes.begin(), expectedPrefixes.end(),
+                [&a](const std::string& prefix)
+                {
+                    if (a.first.size() < prefix.size()) {
+                        return false;
+                    }
+
+                    return (a.first.compare(0, prefix.size(), prefix) == 0);
+                });
+
+        if (!expected) {
+            bbmp::logWarning(protocol.logger()) << logPrefix(node) <<
+                "Unexpected attribute \"" << a.first << "\".";
+        }
+    }
+
+    return attrs;
+}
+
+XmlWrap::ContentsList XmlWrap::getExtraChildren(::xmlNodePtr node, const XmlWrap::NamesList& names, ProtocolImpl& protocol)
+{
+    ContentsList result;
+    auto extraChildren = XmlWrap::getUnknownChildren(node, names);
+    auto& expectedPrefixes = protocol.extraElementPrefixes();
+    for (auto c : extraChildren) {
+        std::string name(reinterpret_cast<const char*>(c->name));
+        bool expected =
+            std::any_of(
+                expectedPrefixes.begin(), expectedPrefixes.end(),
+                [c, &name](const std::string& prefix)
+                {
+                    if (name.size() < prefix.size()) {
+                        return false;
+                    }
+
+                    return (name.compare(0, prefix.size(), prefix) == 0);
+                });
+
+        if (!expected) {
+            bbmp::logWarning(protocol.logger()) << logPrefix(c) <<
+                "Unexpected element \"" << name << "\".";
+        }
+        result.push_back(XmlWrap::getElementContent(c));
+    }
+    return result;
+}
+
 } // namespace bbmp

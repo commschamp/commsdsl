@@ -14,6 +14,11 @@ namespace bbmp
 namespace
 {
 
+static const XmlWrap::NamesList PropNames = {
+    common::nameStr(),
+    common::descriptionStr()
+};
+
 static const XmlWrap::NamesList ChildrenNames = {
     common::fieldsStr(),
     common::messagesStr(),
@@ -22,6 +27,13 @@ static const XmlWrap::NamesList ChildrenNames = {
     common::frameStr(),
     common::nsStr()
 };
+
+XmlWrap::NamesList allNames()
+{
+    XmlWrap::NamesList names = PropNames;
+    names.insert(names.end(), ChildrenNames.begin(), ChildrenNames.end());
+    return names;
+}
 
 bool updateStringProperty(const XmlWrap::PropsMap& map, const std::string& name, std::string& prop)
 {
@@ -47,18 +59,15 @@ bool NamespaceImpl::parseProps()
 {
     assert (m_node != nullptr);
 
-    static const XmlWrap::NamesList Names = {
-        common::nameStr(),
-        common::descriptionStr()
-    };
-
     m_props = XmlWrap::parseNodeProps(m_node);
-    if (!XmlWrap::parseChildrenAsProps(m_node, Names, m_protocol.logger(), m_props)) {
+    if (!XmlWrap::parseChildrenAsProps(m_node, PropNames, m_protocol.logger(), m_props)) {
         return false;
     }
 
     if ((!updateStringProperty(m_props, common::nameStr(), m_name)) ||
-        (!updateStringProperty(m_props, common::descriptionStr(), m_description))) {
+        (!updateStringProperty(m_props, common::descriptionStr(), m_description)) ||
+        (!updateExtraAttrs()) ||
+        (!updateExtraChildren())) {
         return false;
     }
 
@@ -68,9 +77,6 @@ bool NamespaceImpl::parseProps()
         return false;
     }
 
-    m_unknownAttrs = XmlWrap::getUnknownProps(m_node, Names);
-
-    m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, ChildrenNames);
     return true;
 }
 
@@ -211,21 +217,52 @@ bool NamespaceImpl::processNamespace(::xmlNodePtr node)
         return false;
     }
 
-    auto iter = m_namespaces.find(ns->name());
-    if (iter != m_namespaces.end()) {
-        logError() << XmlWrap::logPrefix(ns->getNode()) <<
-                      "Namespace with the same local name (" << ns->name() << ") "
-                      "was already defined.";
-        return false;
-    }
+    auto& nsName = ns->name();
+    auto iter = m_namespaces.find(nsName);
+    NamespaceImpl* nsToProcess = nullptr;
+    NamespaceImpl* realNs = nullptr;
+    do {
+        if (iter == m_namespaces.end()) {
+            m_namespaces.emplace(nsName, std::move(ns));
+            iter = m_namespaces.find(nsName);
+            assert(iter != m_namespaces.end());
+            nsToProcess = iter->second.get();
+            break;
+        }
 
-    auto& nameStr = ns->name();
-    m_namespaces.emplace(nameStr, std::move(ns));
+        nsToProcess = ns.get();
+        realNs = iter->second.get();
 
-    iter = m_namespaces.find(nameStr);
-    assert(iter != m_namespaces.end());
-    assert(iter->second);
-    return iter->second->parseChildren();
+        if ((!nsToProcess->description().empty()) &&
+            (nsToProcess->description() != realNs->description())) {
+            if (realNs->description().empty()) {
+                realNs->updateDescription(nsToProcess->description());
+            }
+            else {
+                logWarning() << XmlWrap::logPrefix(nsToProcess->getNode()) <<
+                    "Description of namespace \"" << nsToProcess->name() << "\" differs to "
+                    "one encountered before.";
+            }
+        }
+
+        if (!nsToProcess->extraAttributes().empty()) {
+            for (auto& a : nsToProcess->extraAttributes()) {
+                auto attIter = realNs->extraAttributes().find(a.first);
+                if (attIter == realNs->extraAttributes().end()) {
+                    realNs->extraAttributes().insert(a);
+                }
+                else if (a.second != attIter->second) {
+                    logWarning() << XmlWrap::logPrefix(nsToProcess->getNode()) <<
+                        "Value of attribute \"" << a.first << "\" differs to one defined before.";
+                }
+            }
+        }
+
+        realNs->extraChildren().insert(realNs->extraChildren().end(), nsToProcess->extraChildren().begin(), nsToProcess->extraChildren().end());
+
+    } while (false);
+
+    return nsToProcess->parseChildren(realNs);
 }
 
 bool NamespaceImpl::processMultipleFields(::xmlNodePtr node)
@@ -319,6 +356,19 @@ bool NamespaceImpl::processMultipleFrames(::xmlNodePtr node)
     // TODO:
     logError() << __FUNCTION__ << ": NYI!";
     return false;
+}
+
+bool NamespaceImpl::updateExtraAttrs()
+{
+    m_extraAttrs = XmlWrap::getExtraAttributes(m_node, PropNames, m_protocol);
+    return true;
+}
+
+bool NamespaceImpl::updateExtraChildren()
+{
+    static const XmlWrap::NamesList ChildrenNames = allNames();
+    m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
+    return true;
 }
 
 LogWrapper NamespaceImpl::logError() const

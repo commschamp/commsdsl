@@ -137,56 +137,14 @@ bool SchemaImpl::updateBooleanProperty(const SchemaImpl::PropsMap& map, const st
 
 bool SchemaImpl::updateExtraAttrs()
 {
-    m_extraAttrs = XmlWrap::getUnknownProps(m_node, PropNames);
-    auto& expectedPrefixes = m_protocol.extraElementPrefixes();
-    for (auto& a : m_extraAttrs) {
-        bool expected =
-            std::any_of(
-                expectedPrefixes.begin(), expectedPrefixes.end(),
-                [&a](const std::string& prefix)
-                {
-                    if (a.first.size() < prefix.size()) {
-                        return false;
-                    }
-
-                    return (a.first.compare(0, prefix.size(), prefix) == 0);
-                });
-
-        if (!expected) {
-            logWarning(m_protocol.logger()) << XmlWrap::logPrefix(m_node) <<
-                "Unexpected attribute \"" << a.first << "\".";
-        }
-    }
-
+    m_extraAttrs = XmlWrap::getExtraAttributes(m_node, PropNames, m_protocol);
     return true;
 }
 
 bool SchemaImpl::updateExtraChildren()
 {
     static const XmlWrap::NamesList ChildrenNames = getChildrenList();
-
-    auto extraChildren = XmlWrap::getUnknownChildren(m_node, ChildrenNames);
-    auto& expectedPrefixes = m_protocol.extraElementPrefixes();
-    for (auto c : extraChildren) {
-        std::string name(reinterpret_cast<const char*>(c->name));
-        bool expected =
-            std::any_of(
-                expectedPrefixes.begin(), expectedPrefixes.end(),
-                [c, &name](const std::string& prefix)
-                {
-                    if (name.size() < prefix.size()) {
-                        return false;
-                    }
-
-                    return (name.compare(0, prefix.size(), prefix) == 0);
-                });
-
-        if (!expected) {
-            logWarning(m_protocol.logger()) << XmlWrap::logPrefix(c) <<
-                "Unexpected element \"" << name << "\".";
-        }
-        m_extraChildren.push_back(XmlWrap::getElementContent(c));
-    }
+    m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
 }
 

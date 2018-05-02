@@ -279,16 +279,46 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
         auto iter = m_namespaces.find(nsName);
         NamespaceImpl* nsToProcess = nullptr;
         NamespaceImpl* realNs = nullptr;
-        if (iter == m_namespaces.end()) {
-            m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
-            iter = m_namespaces.find(nsName);
-            assert(iter != m_namespaces.end());
-            nsToProcess = iter->second.get();
-        }
-        else {
+        do {
+            if (iter == m_namespaces.end()) {
+                m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
+                iter = m_namespaces.find(nsName);
+                assert(iter != m_namespaces.end());
+                nsToProcess = iter->second.get();
+                break;
+            }
+
             nsToProcess = ns.get();
             realNs = iter->second.get();
-        }
+
+            if ((!nsToProcess->description().empty()) &&
+                (nsToProcess->description() != realNs->description())) {
+                if (realNs->description().empty()) {
+                    realNs->updateDescription(nsToProcess->description());
+                }
+                else {
+                    logWarning() << XmlWrap::logPrefix(nsToProcess->getNode()) <<
+                        "Description of namespace \"" << nsToProcess->name() << "\" differs to "
+                        "one encountered before.";
+                }
+            }
+
+            if (!nsToProcess->extraAttributes().empty()) {
+                for (auto& a : nsToProcess->extraAttributes()) {
+                    auto attIter = realNs->extraAttributes().find(a.first);
+                    if (attIter == realNs->extraAttributes().end()) {
+                        realNs->extraAttributes().insert(a);
+                    }
+                    else if (a.second != attIter->second) {
+                        logWarning() << XmlWrap::logPrefix(nsToProcess->getNode()) <<
+                            "Value of attribute \"" << a.first << "\" differs to one defined before.";
+                    }
+                }
+            }
+
+            realNs->extraChildren().insert(realNs->extraChildren().end(), nsToProcess->extraChildren().begin(), nsToProcess->extraChildren().end());
+
+        } while (false);
 
         assert(iter->second);
         if (!nsToProcess->parseChildren(realNs)) {

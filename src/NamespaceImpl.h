@@ -84,6 +84,11 @@ public:
         return m_description;
     }
 
+    void updateDescription(const std::string& value)
+    {
+        m_description = value;
+    }
+
     NamespacesList namespacesList() const;
     FieldsList fieldsList() const;
     MessagesList messagesList() const;
@@ -92,24 +97,24 @@ public:
         return m_messages;
     }
 
-    const PropsMap& unknownAttributes() const
+    const PropsMap& extraAttributes() const
     {
-        return m_unknownAttrs;
+        return m_extraAttrs;
     }
 
-    PropsMap& unknownAttributes()
+    PropsMap& extraAttributes()
     {
-        return m_unknownAttrs;
+        return m_extraAttrs;
     }
 
-    const ContentsList& unknownChildren() const
+    const ContentsList& extraChildren() const
     {
-        return m_unknownChildren;
+        return m_extraChildren;
     }
 
-    ContentsList& unknownChildren()
+    ContentsList& extraChildren()
     {
-        return m_unknownChildren;
+        return m_extraChildren;
     }
 
     const NamespacesMap& namespacesMap() const
@@ -133,6 +138,8 @@ private:
     bool processMultipleMessages(::xmlNodePtr node);
     bool processFrame(::xmlNodePtr node);
     bool processMultipleFrames(::xmlNodePtr node);
+    bool updateExtraAttrs();
+    bool updateExtraChildren();
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;
@@ -142,8 +149,8 @@ private:
     ProtocolImpl& m_protocol;
 
     PropsMap m_props;
-    PropsMap m_unknownAttrs;
-    ContentsList m_unknownChildren;
+    PropsMap m_extraAttrs;
+    ContentsList m_extraChildren;
 
     std::string m_name;
     std::string m_description;
