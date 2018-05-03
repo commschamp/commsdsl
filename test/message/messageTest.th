@@ -20,6 +20,7 @@ public:
     void test11();
     void test12();
     void test13();
+    void test14();
 };
 
 void MessageTestSuite::setUp()
@@ -301,4 +302,28 @@ void MessageTestSuite::test13()
 
     TS_ASSERT_EQUALS(extraChildren.size(), 1);
     TS_TRACE(extraChildren.front());
+}
+
+void MessageTestSuite::test14()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg1 = messages[0];
+    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.id(), 0U);
+    TS_ASSERT_EQUALS(msg1.order(), 0U);
+    TS_ASSERT_EQUALS(msg1.minLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
+    TS_ASSERT(msg1.fields().empty());
+    TS_ASSERT_EQUALS(msg1.description(), "This is multiline description");
 }

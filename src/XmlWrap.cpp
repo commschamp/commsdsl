@@ -132,6 +132,7 @@ bool XmlWrap::parseNodeValue(
     }
 
     assert(!text.empty());
+    common::normaliseString(text);
     value = std::move(text);
     return true;
 }

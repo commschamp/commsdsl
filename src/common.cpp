@@ -654,6 +654,39 @@ void removeHeadingTrailingWhitespaces(std::string& str)
     str.erase(str.begin() + endPos + 1, str.end());
 }
 
+void normaliseString(std::string& str)
+{
+    static const std::string ReplaceChars("\t\r\n");
+    for (auto& ch : str) {
+        auto iter = std::find(ReplaceChars.begin(), ReplaceChars.end(), ch);
+        if (iter == ReplaceChars.end()) {
+            continue;
+        }
+
+        ch = ' ';
+    }
+
+    bool removing = false;
+    str.erase(
+        std::remove_if(
+            str.begin(), str.end(),
+            [&removing](char ch)
+            {
+                if (ch != ' ') {
+                    removing = false;
+                    return false;
+                }
+
+                if (removing) {
+                    return true;
+                }
+
+                removing = true;
+                return false;
+            }),
+        str.end());
+}
+
 std::pair<std::string, std::string> parseRange(const std::string& str, bool* ok)
 {
     bool status = false;
