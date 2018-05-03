@@ -13,6 +13,9 @@ class BBMP_API Field
 {
 public:
 
+    using AttributesMap = Schema::AttributesMap;
+    using ElementsList = Schema::ElementsList;
+
     enum class Kind
     {
         Int,
@@ -45,6 +48,9 @@ public:
     unsigned deprecatedSince() const;
     bool isDeprecatedRemoved() const;
     std::string externalRef() const;
+
+    const AttributesMap& extraAttributes() const;
+    const ElementsList& extraElements() const;
 
 protected:
     const FieldImpl* m_pImpl;

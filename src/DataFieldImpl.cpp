@@ -49,6 +49,7 @@ const XmlWrap::NamesList& DataFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
         common::lengthStr(),
+        common::defaultValueStr()
     };
 
     return List;

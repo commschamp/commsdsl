@@ -1248,6 +1248,8 @@ void IntTestSuite::test20()
     TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint16_t>::max());
     TS_ASSERT_EQUALS(intField.defaultValue(), 1000);
     TS_ASSERT_EQUALS(intField.validCheckVersion(), true);
+    TS_ASSERT(intField.extraAttributes().empty());
+    TS_ASSERT(intField.extraElements().empty());
     TS_ASSERT_EQUALS(scaling.first, 1);
     TS_ASSERT_EQUALS(scaling.second, 1);
     TS_ASSERT_EQUALS(validRanges.size(), 2U);

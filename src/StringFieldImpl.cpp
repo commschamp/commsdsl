@@ -50,7 +50,8 @@ const XmlWrap::NamesList& StringFieldImpl::extraPropsNamesImpl() const
     static const XmlWrap::NamesList List = {
         common::lengthStr(),
         common::encodingStr(),
-        common::zeroTermSuffixStr()
+        common::zeroTermSuffixStr(),
+        common::defaultValueStr()
     };
 
     return List;

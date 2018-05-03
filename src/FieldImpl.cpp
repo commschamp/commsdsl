@@ -88,7 +88,9 @@ bool FieldImpl::parse()
     XmlWrap::NamesList expectedProps = commonProps();
     expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedProps.insert(expectedProps.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
-    m_state.m_unknownAttrs = XmlWrap::getUnknownProps(m_node, expectedProps);
+    if (!updateExtraAttrs(expectedProps)) {
+        return false;
+    }
 
     auto& commonCh = commonChildren();
     auto& extraChildren = extraChildrenNamesImpl();
@@ -97,7 +99,9 @@ bool FieldImpl::parse()
     expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraChildren.begin(), extraChildren.end());
-    m_state.m_unknownChildren = XmlWrap::getUnknownChildrenContents(m_node, expectedChildren);
+    if (!updateExtraChildren(expectedChildren)) {
+        return false;
+    }
     return true;
 }
 
@@ -520,6 +524,40 @@ bool FieldImpl::updateVersions()
     setDeprecatedRemoved(deprecatedRemoved);
     return true;
 }
+
+bool FieldImpl::updateExtraAttrs(const XmlWrap::NamesList& names)
+{
+    auto extraAttrs = XmlWrap::getExtraAttributes(m_node, names, m_protocol);
+    if (extraAttrs.empty()) {
+        return true;
+    }
+
+    if (m_state.m_extraAttrs.empty()) {
+        m_state.m_extraAttrs = std::move(extraAttrs);
+        return true;
+    }
+
+    std::move(extraAttrs.begin(), extraAttrs.end(), std::inserter(m_state.m_extraAttrs, m_state.m_extraAttrs.end()));
+    return true;
+}
+
+bool FieldImpl::updateExtraChildren(const XmlWrap::NamesList& names)
+{
+    auto extraChildren = XmlWrap::getExtraChildren(m_node, names, m_protocol);
+    if (extraChildren.empty()) {
+        return true;
+    }
+
+    if (m_state.m_extraChildren.empty()) {
+        m_state.m_extraChildren = std::move(extraChildren);
+        return true;
+    }
+
+    m_state.m_extraChildren.reserve(m_state.m_extraChildren.size() + extraChildren.size());
+    std::move(extraChildren.begin(), extraChildren.end(), std::back_inserter(m_state.m_extraChildren));
+    return true;
+}
+
 
 const FieldImpl::CreateMap& FieldImpl::createMap()
 {

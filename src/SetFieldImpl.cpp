@@ -61,7 +61,9 @@ const XmlWrap::NamesList& SetFieldImpl::extraPropsNamesImpl() const
         common::lengthStr(),
         common::bitLengthStr(),
         common::reservedValueStr(),
-        common::validCheckVersionStr()
+        common::validCheckVersionStr(),
+        common::typeStr(),
+        common::nonUniqueAllowedStr()
     };
 
     return List;

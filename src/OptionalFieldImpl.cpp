@@ -26,6 +26,8 @@ XmlWrap::NamesList getExtraNames()
 {
     auto names = optionalSupportedTypes();
     names.push_back(common::fieldStr());
+    names.push_back(common::andStr());
+    names.push_back(common::orStr());
     return names;
 }
 

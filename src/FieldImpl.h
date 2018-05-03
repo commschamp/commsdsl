@@ -108,6 +108,27 @@ public:
 
     bool isComparableToField(const FieldImpl& field) const;
 
+    const PropsMap& extraAttributes() const
+    {
+        return m_state.m_extraAttrs;
+    }
+
+    PropsMap& extraAttributes()
+    {
+        return m_state.m_extraAttrs;
+    }
+
+    const ContentsList& extraChildren() const
+    {
+        return m_state.m_extraChildren;
+    }
+
+    ContentsList& extraChildren()
+    {
+        return m_state.m_extraChildren;
+    }
+
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -158,8 +179,8 @@ private:
         const std::string* m_name = nullptr;
         const std::string* m_displayName = nullptr;
         const std::string* m_description = nullptr;
-        PropsMap m_unknownAttrs;
-        ContentsList m_unknownChildren;
+        PropsMap m_extraAttrs;
+        ContentsList m_extraChildren;
     };
 
     bool checkReuse();
@@ -167,6 +188,8 @@ private:
     bool updateDescription();
     bool updateDisplayName();
     bool updateVersions();
+    bool updateExtraAttrs(const XmlWrap::NamesList& names);
+    bool updateExtraChildren(const XmlWrap::NamesList& names);
 
     static const CreateMap& createMap();
 

@@ -86,5 +86,16 @@ std::string Field::externalRef() const
     return m_pImpl->externalRef();
 }
 
+const Field::AttributesMap& Field::extraAttributes() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->extraAttributes();
+}
+
+const Field::ElementsList& Field::extraElements() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->extraChildren();
+}
 
 } // namespace bbmp
