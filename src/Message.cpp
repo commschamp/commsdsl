@@ -92,4 +92,17 @@ std::string Message::externalRef() const
     return m_pImpl->externalRef();
 }
 
+const Message::AttributesMap& Message::extraAttributes() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->extraAttributes();
+}
+
+const Message::ElementsList& Message::extraElements() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->extraChildren();
+}
+
+
 } // namespace bbmp

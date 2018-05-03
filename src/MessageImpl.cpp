@@ -43,7 +43,7 @@ bool MessageImpl::parse()
         return false;
     }
 
-    bool result =
+    return
         updateName() &&
         updateDisplayName() &&
         updateDescription() &&
@@ -51,29 +51,9 @@ bool MessageImpl::parse()
         updateOrder() &&
         updateVersions() &&
         copyFields() &&
-        updateFields();
-
-    if (!result) {
-        return false;
-    }
-
-    XmlWrap::NamesList expectedProps = commonProps();
-    auto unknownAttrs = XmlWrap::getUnknownProps(m_node, expectedProps);
-    if (!unknownAttrs.empty()) {
-        logWarning() << XmlWrap::logPrefix(m_node) <<
-            "The \"" << name() << "\" message contains unexpected XML attributes";
-    }
-
-    XmlWrap::NamesList expectedChildren = commonProps();
-    const XmlWrap::NamesList& supportedFieldTypes = messageSupportedTypes();
-    expectedChildren.insert(expectedChildren.end(), supportedFieldTypes.begin(), supportedFieldTypes.end());
-    expectedChildren.push_back(common::fieldsStr());
-    auto unknownChildren = XmlWrap::getUnknownChildren(m_node, expectedChildren);
-    if (!unknownChildren.empty()) {
-        logWarning() << XmlWrap::logPrefix(m_node) <<
-            "The \"" << name() << "\" message contains unexpected XML children elements";
-    }
-    return true;
+        updateFields() &&
+        updateExtraAttrs() &&
+        updateExtraChildren();
 }
 
 const std::string& MessageImpl::name() const
@@ -151,6 +131,11 @@ std::string MessageImpl::externalRef() const
     return nsRef + '.' + name();
 }
 
+Object::ObjKind MessageImpl::objKindImpl() const
+{
+    return ObjKind::Message;
+}
+
 LogWrapper MessageImpl::logError() const
 {
     return bbmp::logError(m_protocol.logger());
@@ -165,12 +150,6 @@ LogWrapper MessageImpl::logInfo() const
 {
     return bbmp::logInfo(m_protocol.logger());
 }
-
-Object::ObjKind MessageImpl::objKindImpl() const
-{
-    return ObjKind::Message;
-}
-
 
 bool MessageImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
@@ -215,6 +194,15 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
     };
 
     return CommonNames;
+}
+
+XmlWrap::NamesList MessageImpl::allNames()
+{
+    auto names = commonProps();
+    auto& fieldTypes = messageSupportedTypes();
+    names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
+    names.push_back(common::fieldsStr());
+    return names;
 }
 
 bool MessageImpl::updateName()
@@ -484,5 +472,19 @@ void MessageImpl::cloneFieldsFrom(const MessageImpl& other)
         m_fields.push_back(f->clone());
     }
 }
+
+bool MessageImpl::updateExtraAttrs()
+{
+    m_extraAttrs = XmlWrap::getExtraAttributes(m_node, commonProps(), m_protocol);
+    return true;
+}
+
+bool MessageImpl::updateExtraChildren()
+{
+    static const XmlWrap::NamesList ChildrenNames = allNames();
+    m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
+    return true;
+}
+
 
 } // namespace bbmp

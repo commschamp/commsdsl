@@ -18,6 +18,8 @@ public:
     void test9();
     void test10();
     void test11();
+    void test12();
+    void test13();
 };
 
 void MessageTestSuite::setUp()
@@ -227,4 +229,76 @@ void MessageTestSuite::test11()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test12()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg1 = messages[0];
+    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.id(), 0U);
+    TS_ASSERT_EQUALS(msg1.order(), 0U);
+    TS_ASSERT_EQUALS(msg1.minLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
+    TS_ASSERT(msg1.fields().empty());
+    auto& extraAttrs = msg1.extraAttributes();
+    auto& extraChildren = msg1.extraElements();
+
+    TS_ASSERT_EQUALS(extraAttrs.size(), 1);
+    TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr");
+    TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
+
+    TS_ASSERT_EQUALS(extraChildren.size(), 1);
+    TS_TRACE(extraChildren.front());
+}
+
+void MessageTestSuite::test13()
+{
+    m_status.m_preValidateFunc =
+        [](bbmp::Protocol& p)
+        {
+            p.addExpectedExtraPrefix("prefix.");
+        };
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg1 = messages[0];
+    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
+    TS_ASSERT_EQUALS(msg1.id(), 0U);
+    TS_ASSERT_EQUALS(msg1.order(), 0U);
+    TS_ASSERT_EQUALS(msg1.minLength(), 0U);
+    TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
+    TS_ASSERT(msg1.fields().empty());
+    auto& extraAttrs = msg1.extraAttributes();
+    auto& extraChildren = msg1.extraElements();
+
+    TS_ASSERT_EQUALS(extraAttrs.size(), 1);
+    TS_ASSERT_EQUALS(extraAttrs.begin()->first, "prefix.extraAttr");
+    TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
+
+    TS_ASSERT_EQUALS(extraChildren.size(), 1);
+    TS_TRACE(extraChildren.front());
 }

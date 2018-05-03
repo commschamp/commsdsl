@@ -6,6 +6,7 @@
 
 #include "BbmpApi.h"
 #include "Field.h"
+#include "Schema.h"
 
 namespace bbmp
 {
@@ -15,6 +16,8 @@ class BBMP_API Message
 {
 public:
     using FieldsList = std::vector<Field>;
+    using AttributesMap = Schema::AttributesMap;
+    using ElementsList = Schema::ElementsList;
 
     explicit Message(const MessageImpl* impl);
     Message(const Message& other);
@@ -33,6 +36,9 @@ public:
     bool isDeprecatedRemoved() const;
     FieldsList fields() const;
     std::string externalRef() const;
+
+    const AttributesMap& extraAttributes() const;
+    const ElementsList& extraElements() const;
 
 protected:
     const MessageImpl* m_pImpl;

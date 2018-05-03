@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema12"
+        id="1"
+        endian="Little"
+        version="5">
+    <ns name="ns1">
+        <fields>
+            <enum name="MsgId" type="uint8">
+                <validValue name="Msg1" val="0" />
+                <validValue name="Msg2" val="1" />
+            </enum>
+        </fields>
+        <message name="Msg1" id="ns1.MsgId.Msg1" extraAttr="hello">
+            <extraChild>hello</extraChild>
+        </message>
+    </ns>
+</schema>

@@ -23,6 +23,7 @@ public:
     using Ptr = std::unique_ptr<MessageImpl>;
     using PropsMap = XmlWrap::PropsMap;
     using FieldsList = Message::FieldsList;
+    using ContentsList = XmlWrap::ContentsList;
 
     MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     MessageImpl(const MessageImpl&) = delete;
@@ -63,17 +64,28 @@ public:
 
     std::string externalRef() const;
 
+    const PropsMap& extraAttributes() const
+    {
+        return m_extraAttrs;
+    }
+
+    const ContentsList& extraChildren() const
+    {
+        return m_extraChildren;
+    }
+
+
 protected:
 
+    virtual ObjKind objKindImpl() const override final;
+
+private:
     LogWrapper logError() const;
     LogWrapper logWarning() const;
     LogWrapper logInfo() const;
 
-    virtual ObjKind objKindImpl() const override final;
-
     static const XmlWrap::NamesList& commonProps();
-
-private:
+    static XmlWrap::NamesList allNames();
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
@@ -87,10 +99,15 @@ private:
     bool copyFields();
     bool updateFields();
     void cloneFieldsFrom(const MessageImpl& other);
+    bool updateExtraAttrs();
+    bool updateExtraChildren();
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
     PropsMap m_props;
+    PropsMap m_extraAttrs;
+    ContentsList m_extraChildren;
+
     const std::string* m_name = nullptr;
     const std::string* m_displayName = nullptr;
     const std::string* m_description = nullptr;
