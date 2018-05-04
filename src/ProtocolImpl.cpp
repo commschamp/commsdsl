@@ -264,10 +264,126 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
         return false;
     }
 
-    if (!validateSchema(root)) {
+    return
+        validateSchema(root) &&
+        validatePlatforms(root) &&
+        validateNamespaces(root);
+}
+
+bool ProtocolImpl::validateSchema(::xmlNodePtr node)
+{
+    SchemaImplPtr schema(new SchemaImpl(node, *this));
+    if (!schema->processNode()) {
         return false;
     }
 
+    if (!m_schema) {
+        m_schema = std::move(schema);
+        return true;
+    }
+
+    auto& props = schema->props();
+    auto& origProps = m_schema->props();
+    for (auto& p : props) {
+        auto iter = origProps.find(p.first);
+        if ((iter == origProps.end()) ||
+            (iter->second != p.second)) {
+
+            logError() << XmlWrap::logPrefix(node) <<
+                "Value of \"" << p.first <<
+                "\" property of \"" << node->name << "\" element differs from the first one.";
+            return false;
+        }
+    }
+
+    auto& attrs = schema->extraAttributes();
+    auto& origAttrs = m_schema->extraAttributes();
+    for (auto& a : attrs) {
+        auto iter = origAttrs.find(a.first);
+        if (iter == origAttrs.end()) {
+            origAttrs.insert(a);
+            continue;
+        }
+
+        if (iter->second == a.second) {
+            continue;
+        }
+
+        logWarning() << XmlWrap::logPrefix(node) <<
+            "Value of \"" << a.first <<
+            "\" attribubes of \"" << node->name << "\" element differs from the previous one.";
+    }
+
+    auto& children = schema->extraChildrenElements();
+    auto& origChildren = m_schema->extraChildrenElements();
+    for (auto& c : children) {
+        origChildren.push_back(c);
+    }
+
+    return true;
+}
+
+bool ProtocolImpl::validatePlatforms(::xmlNodePtr root)
+{
+    auto platforms = XmlWrap::getChildren(root, common::platformsStr());
+    for (auto& p : platforms) {
+        auto pChildren = XmlWrap::getChildren(p);
+        for (auto c : pChildren) {
+            assert(c->name != nullptr);
+            std::string name(reinterpret_cast<const char*>(c->name));
+            if (name != common::platformStr()) {
+                logError() << XmlWrap::logPrefix(c) <<
+                    "Unexpected element, \"" << common::platformStr() << "\" is expected.";
+                return false;
+            }
+
+            if (!validateSinglePlatform(c)) {
+                return false;
+            }
+        }
+    }
+
+    auto singlePlatforms = XmlWrap::getChildren(root, common::platformStr());
+    return std::all_of(
+                singlePlatforms.begin(), singlePlatforms.end(),
+                [this](auto p)
+                {
+                    return this->validateSinglePlatform(p);
+                });
+}
+
+bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
+{
+    static const XmlWrap::NamesList Names = {
+        common::nameStr()
+    };
+
+    auto props = XmlWrap::parseNodeProps(node);
+    if (!XmlWrap::parseChildrenAsProps(node, Names, m_logger, props)) {
+        return false;
+    }
+
+    auto iter = props.find(common::nameStr());
+    if (iter == props.end()) {
+        logError() << XmlWrap::logPrefix(node) <<
+            "Required property \"" << common::nameStr() << "\" is not defined.";
+        return false;
+    }
+
+    auto& name = iter->second;
+    auto platIter = std::lower_bound(m_platforms.begin(), m_platforms.end(), name);
+    if ((platIter != m_platforms.end()) && (*platIter == name)) {
+        logWarning() << XmlWrap::logPrefix(node) <<
+            "Platform \"" << name << "\" defined more than once.";
+        return true;
+    }
+
+    m_platforms.insert(platIter, name);
+    return true;
+}
+
+bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
+{
     auto namespaces = XmlWrap::getChildren(root, common::nsStr());
     for (auto& n : namespaces) {
         NamespaceImplPtr ns(new NamespaceImpl(n, *this));
@@ -348,60 +464,6 @@ bool ProtocolImpl::validateDoc(::xmlDocPtr doc)
         }
 
     } while (false);
-
-    // TODO: store unexpected children
-    return true;
-}
-
-bool ProtocolImpl::validateSchema(::xmlNodePtr node)
-{
-    SchemaImplPtr schema(new SchemaImpl(node, *this));
-    if (!schema->processNode()) {
-        return false;
-    }
-
-    if (!m_schema) {
-        m_schema = std::move(schema);
-        return true;
-    }
-
-    auto& props = schema->props();
-    auto& origProps = m_schema->props();
-    for (auto& p : props) {
-        auto iter = origProps.find(p.first);
-        if ((iter == origProps.end()) ||
-            (iter->second != p.second)) {
-
-            logError() << XmlWrap::logPrefix(node) <<
-                "Value of \"" << p.first <<
-                "\" property of \"" << node->name << "\" element differs from the first one.";
-            return false;
-        }
-    }
-
-    auto& attrs = schema->extraAttributes();
-    auto& origAttrs = m_schema->extraAttributes();
-    for (auto& a : attrs) {
-        auto iter = origAttrs.find(a.first);
-        if (iter == origAttrs.end()) {
-            origAttrs.insert(a);
-            continue;
-        }
-
-        if (iter->second == a.second) {
-            continue;
-        }
-
-        logWarning() << XmlWrap::logPrefix(node) <<
-            "Value of \"" << a.first <<
-            "\" attribubes of \"" << node->name << "\" element differs from the previous one.";
-    }
-
-    auto& children = schema->extraChildrenElements();
-    auto& origChildren = m_schema->extraChildrenElements();
-    for (auto& c : children) {
-        origChildren.push_back(c);
-    }
 
     return true;
 }

@@ -31,6 +31,8 @@ XmlWrap::NamesList getChildrenList()
     result.push_back(common::frameStr());
     result.push_back(common::framesStr());
     result.push_back(common::nsStr());
+    result.push_back(common::platformsStr());
+    result.push_back(common::platformStr());
     return result;
 }
 

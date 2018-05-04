@@ -22,6 +22,7 @@ public:
     using ErrorReportFunction = std::function<void (ErrorLevel, const std::string&)>;
     using NamespacesList = std::vector<Namespace>;
     using MessagesList = Namespace::MessagesList;
+    using PlatformsList = std::vector<std::string>;
 
     Protocol();
     ~Protocol();
@@ -44,6 +45,8 @@ public:
     MessagesList allMessages() const;
 
     void addExpectedExtraPrefix(const std::string& value);
+
+    const PlatformsList& platforms() const;
 
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;

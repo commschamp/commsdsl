@@ -52,4 +52,9 @@ void Protocol::addExpectedExtraPrefix(const std::string& value)
     return m_pImpl->addExpectedExtraPrefix(value);
 }
 
+const Protocol::PlatformsList&Protocol::platforms() const
+{
+    return m_pImpl->platforms();
+}
+
 } // namespace bbmp

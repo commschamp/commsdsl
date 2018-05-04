@@ -438,6 +438,18 @@ const std::string& orderStr()
     return Str;
 }
 
+const std::string& platformsStr()
+{
+    static const std::string Str("platforms");
+    return Str;
+}
+
+const std::string& platformStr()
+{
+    static const std::string Str("platform");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

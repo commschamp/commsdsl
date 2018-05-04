@@ -25,6 +25,7 @@ public:
     using NamespacesList = Protocol::NamespacesList;
     using MessagesList = Protocol::MessagesList;
     using ExtraPrefixes = std::vector<std::string>;
+    using PlatformsList = Protocol::PlatformsList;
 
     ProtocolImpl();
     bool parse(const std::string& input);
@@ -67,6 +68,11 @@ public:
         return m_extraPrefixes;
     }
 
+    const PlatformsList& platforms() const
+    {
+        return m_platforms;
+    }
+
 private:
     struct XmlDocFree
     {
@@ -85,6 +91,9 @@ private:
     void handleXmlError(xmlErrorPtr err);
     bool validateDoc(::xmlDocPtr doc);
     bool validateSchema(::xmlNodePtr node);
+    bool validatePlatforms(::xmlNodePtr root);
+    bool validateSinglePlatform(::xmlNodePtr node);
+    bool validateNamespaces(::xmlNodePtr root);
     bool validateAllMessages();
     const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
@@ -99,6 +108,7 @@ private:
     SchemaImplPtr m_schema;
     NamespacesMap m_namespaces;
     ExtraPrefixes m_extraPrefixes;
+    PlatformsList m_platforms;
 };
 
 } // namespace bbmp

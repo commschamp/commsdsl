@@ -86,6 +86,8 @@ const std::string& andStr();
 const std::string& orStr();
 const std::string& copyFieldsFromStr();
 const std::string& orderStr();
+const std::string& platformsStr();
+const std::string& platformStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);
