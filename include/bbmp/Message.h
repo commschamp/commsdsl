@@ -18,6 +18,7 @@ public:
     using FieldsList = std::vector<Field>;
     using AttributesMap = Schema::AttributesMap;
     using ElementsList = Schema::ElementsList;
+    using PlatformsList = std::vector<std::string>;
 
     explicit Message(const MessageImpl* impl);
     Message(const Message& other);
@@ -39,6 +40,7 @@ public:
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;
+    const PlatformsList& platforms() const;
 
 protected:
     const MessageImpl* m_pImpl;

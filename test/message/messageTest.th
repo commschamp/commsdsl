@@ -21,6 +21,9 @@ public:
     void test12();
     void test13();
     void test14();
+    void test15();
+    void test16();
+    void test17();
 };
 
 void MessageTestSuite::setUp()
@@ -326,4 +329,50 @@ void MessageTestSuite::test14()
     TS_ASSERT_EQUALS(msg1.maxLength(), 0U);
     TS_ASSERT(msg1.fields().empty());
     TS_ASSERT_EQUALS(msg1.description(), "This is multiline description");
+}
+
+void MessageTestSuite::test15()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& msg1 = messages[0];
+    auto& msg2 = messages[1];
+    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
+    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+
+    auto& platforms1 = msg1.platforms();
+    auto& platforms2 = msg2.platforms();
+
+    TS_ASSERT_EQUALS(platforms1.size(), 2U);
+    TS_ASSERT_EQUALS(platforms1[0], "p1");
+    TS_ASSERT_EQUALS(platforms1[1], "p3");
+
+    TS_ASSERT_EQUALS(platforms2.size(), 1U);
+    TS_ASSERT_EQUALS(platforms2[0], "p3");
+}
+
+void MessageTestSuite::test16()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
 }

@@ -50,6 +50,7 @@ bool MessageImpl::parse()
         updateId() &&
         updateOrder() &&
         updateVersions() &&
+        updatePlatforms() &&
         copyFields() &&
         updateFields() &&
         updateExtraAttrs() &&
@@ -190,7 +191,8 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::deprecatedStr(),
         common::removedStr(),
         common::copyFieldsFromStr(),
-        common::orderStr()
+        common::orderStr(),
+        common::platformsStr()
     };
 
     return CommonNames;
@@ -328,6 +330,95 @@ bool MessageImpl::updateVersions()
     setSinceVersion(sinceVersion);
     setDeprecated(deprecated);
     setDeprecatedRemoved(deprecatedRemoved);
+    return true;
+}
+
+bool MessageImpl::updatePlatforms()
+{
+    if (!validateSinglePropInstance(common::platformsStr())) {
+        return false;
+    }
+
+    auto iter = m_props.find(common::platformsStr());
+    if (iter == m_props.end()) {
+        assert(m_platforms.empty());
+        return true;
+    }
+
+    if (iter->second.empty()) {
+        reportUnexpectedPropertyValue(common::platformsStr(), iter->second);
+        return false;
+    }
+
+    auto op = iter->second[0];
+    static const char Plus = '+';
+    static const char Minus = '-';
+    if ((op != Plus) && (op != Minus)) {
+        reportUnexpectedPropertyValue(common::platformsStr(), iter->second);
+        return false;
+    }
+
+    static const char Sep = ',';
+    PlatformsList platList;
+    std::size_t pos = 1U;
+    while (true) {
+        if (iter->second.size() <= pos) {
+            break;
+        }
+
+        auto nextSep = iter->second.find_first_of(Sep, pos);
+        platList.emplace_back(iter->second , pos, nextSep - pos);
+        if (nextSep == std::string::npos) {
+            break;
+        }
+
+        pos = nextSep + 1;
+    }
+
+    if (platList.empty()) {
+        reportUnexpectedPropertyValue(common::platformsStr(), iter->second);
+        return false;
+    }
+
+    auto& allPlatforms = m_protocol.platforms();
+    for (auto& p : platList) {
+        common::removeHeadingTrailingWhitespaces(p);
+        if (p.empty()) {
+            reportUnexpectedPropertyValue(common::platformsStr(), iter->second);
+            return false;
+        }
+
+        auto platIter = std::lower_bound(allPlatforms.begin(), allPlatforms.end(), p);
+        if ((platIter == allPlatforms.end()) || (*platIter != p)) {
+            logError() << XmlWrap::logPrefix(m_node) <<
+                "Platform \"" << p << "\" hasn't been defined.";
+            return false;
+        }
+    }
+
+    // sort and erase duplicates
+    std::sort(platList.begin(), platList.end());
+    platList.erase(std::unique(platList.begin(), platList.end()), platList.end());
+
+    if (op == Plus) {
+        m_platforms = std::move(platList);
+        return true;
+    }
+
+    assert(op == Minus);
+    assert(platList.size() <= allPlatforms.size());
+    m_platforms.reserve(allPlatforms.size() - platList.size());
+    std::set_difference(
+        allPlatforms.begin(), allPlatforms.end(),
+        platList.begin(), platList.end(),
+        std::back_inserter(m_platforms));
+
+    if (m_platforms.empty()) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message \"" << name() << "\" is not supported in any platform.";
+        return false;
+    }
+
     return true;
 }
 

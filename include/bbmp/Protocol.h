@@ -22,7 +22,7 @@ public:
     using ErrorReportFunction = std::function<void (ErrorLevel, const std::string&)>;
     using NamespacesList = std::vector<Namespace>;
     using MessagesList = Namespace::MessagesList;
-    using PlatformsList = std::vector<std::string>;
+    using PlatformsList = Message::PlatformsList;
 
     Protocol();
     ~Protocol();

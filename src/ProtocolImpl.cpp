@@ -378,6 +378,14 @@ bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
         return true;
     }
 
+    static const std::string InvalidChars("+-,");
+    auto pos = name.find_first_of(InvalidChars);
+    if (pos != std::string::npos) {
+        logWarning() << XmlWrap::logPrefix(node) <<
+            "Invalid platform name (" << name << ".";
+        return false;
+    }
+
     m_platforms.insert(platIter, name);
     return true;
 }

@@ -104,5 +104,11 @@ const Message::ElementsList& Message::extraElements() const
     return m_pImpl->extraChildren();
 }
 
+const Message::PlatformsList& Message::platforms() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->platforms();
+}
+
 
 } // namespace bbmp

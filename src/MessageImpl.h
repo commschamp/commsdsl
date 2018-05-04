@@ -10,6 +10,7 @@
 #include "Logger.h"
 #include "Object.h"
 #include "bbmp/Message.h"
+#include "bbmp/Protocol.h"
 #include "FieldImpl.h"
 
 namespace bbmp
@@ -24,6 +25,7 @@ public:
     using PropsMap = XmlWrap::PropsMap;
     using FieldsList = Message::FieldsList;
     using ContentsList = XmlWrap::ContentsList;
+    using PlatformsList = Protocol::PlatformsList;
 
     MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     MessageImpl(const MessageImpl&) = delete;
@@ -74,7 +76,10 @@ public:
         return m_extraChildren;
     }
 
-
+    const PlatformsList& platforms() const
+    {
+        return m_platforms;
+    }
 protected:
 
     virtual ObjKind objKindImpl() const override final;
@@ -96,6 +101,7 @@ private:
     bool updateId();
     bool updateOrder();
     bool updateVersions();
+    bool updatePlatforms();
     bool copyFields();
     bool updateFields();
     void cloneFieldsFrom(const MessageImpl& other);
@@ -114,6 +120,7 @@ private:
     std::uintmax_t m_id = 0;
     unsigned m_order = 0;
     std::vector<FieldImplPtr> m_fields;
+    PlatformsList m_platforms;
 };
 
 using MessageImplPtr = MessageImpl::Ptr;
