@@ -74,6 +74,11 @@ const IntField::SpecialValues& IntField::specialValues() const
     return cast(m_pImpl)->specialValues();
 }
 
+Units IntField::units() const
+{
+    return cast(m_pImpl)->units();
+}
+
 bool IntField::validCheckVersion() const
 {
     return cast(m_pImpl)->validCheckVersion();

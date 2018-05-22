@@ -59,4 +59,9 @@ bool FloatField::validCheckVersion() const
     return cast(m_pImpl)->validCheckVersion();
 }
 
+Units FloatField::units() const
+{
+    return cast(m_pImpl)->units();
+}
+
 } // namespace bbmp

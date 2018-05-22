@@ -6,6 +6,7 @@
 
 #include "bbmp/Endian.h"
 #include "bbmp/IntField.h"
+#include "bbmp/Units.h"
 #include "FieldImpl.h"
 
 namespace bbmp
@@ -76,6 +77,11 @@ public:
         return m_state.m_validCheckVersion;
     }
 
+    Units units() const
+    {
+        return m_state.m_units;
+    }
+
     static Type parseTypeValue(const std::string& value);
 
     static std::size_t maxTypeLength(Type t);
@@ -115,6 +121,7 @@ private:
     bool updateValidCheckVersion();
     bool updateValidRanges();
     bool updateSpecials();
+    bool updateUnits();
     bool checkValidRangeAsAttr(const PropsMap& xmlAttrs);
     bool checkValidRangeAsChild(::xmlNodePtr child);
     bool checkValidRangeProps(const PropsMap& xmlAttrs);
@@ -146,6 +153,7 @@ private:
         ScalingRatio m_scaling;
         ValidRangesList m_validRanges;
         SpecialValues m_specials;
+        Units m_units = Units::Unknown;
         bool m_validCheckVersion = false;
     };
 

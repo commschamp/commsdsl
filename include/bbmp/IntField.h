@@ -9,6 +9,7 @@
 #include "Field.h"
 #include "Endian.h"
 #include "Protocol.h"
+#include "Units.h"
 
 namespace bbmp
 {
@@ -66,6 +67,7 @@ public:
     ScalingRatio scaling() const;
     const ValidRangesList& validRanges() const;
     const SpecialValues& specialValues() const;
+    Units units() const;
     bool validCheckVersion() const;
 };
 

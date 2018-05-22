@@ -18,6 +18,7 @@ public:
     void test8();
     void test9();
     void test10();
+    void test11();    
 
 private:
     static const double Epsilon;
@@ -489,4 +490,28 @@ void FloatTestSuite::test10()
         TS_ASSERT_EQUALS(s2.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
     } while (false);
 }
+
+void FloatTestSuite::test11()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    do {
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Float);
+
+        bbmp::FloatField floatField(field);
+        TS_ASSERT_EQUALS(floatField.units(), bbmp::Units::Seconds);
+    } while (false);
+}
+
 

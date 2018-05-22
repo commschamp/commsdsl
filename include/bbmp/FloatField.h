@@ -6,6 +6,7 @@
 
 #include "Field.h"
 #include "Endian.h"
+#include "Units.h"
 #include "Protocol.h"
 
 namespace bbmp
@@ -50,6 +51,7 @@ public:
     const ValidRangesList& validRanges() const;
     const SpecialValues& specialValues() const;
     bool validCheckVersion() const;
+    Units units() const;
 };
 
 inline

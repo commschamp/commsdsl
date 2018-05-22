@@ -331,7 +331,8 @@ bool IntFieldImpl::parseImpl()
         updateSpecials() &&
         updateDefaultValue() &&
         updateValidCheckVersion() &&
-        updateValidRanges();
+        updateValidRanges() &&
+        updateUnits();
 }
 
 std::size_t IntFieldImpl::minLengthImpl() const
@@ -1006,6 +1007,27 @@ bool IntFieldImpl::updateSpecials()
         }
 
         m_state.m_specials.emplace(nameIter->second, info);
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::updateUnits()
+{
+    if (!validateSinglePropInstance(common::unitsStr())) {
+        return false;
+    }
+
+    auto iter = props().find(common::unitsStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_units = common::strToUnits(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::unitsStr(), iter->second);
+        return false;
     }
 
     return true;

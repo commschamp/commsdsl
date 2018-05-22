@@ -6,6 +6,7 @@
 #include <utility>
 
 #include "bbmp/Endian.h"
+#include "bbmp/Units.h"
 
 namespace bbmp
 {
@@ -95,7 +96,7 @@ std::uintmax_t strToUintMax(const std::string& str, bool* ok = nullptr, int base
 double strToDouble(const std::string& str, bool* ok = nullptr, bool allowSpecials = true);
 bool strToBool(const std::string& str, bool* ok = nullptr);
 bool isFpSpecial(const std::string& str);
-
+Units strToUnits(const std::string& str, bool* ok = nullptr);
 
 const std::string& getStringProp(
     const PropsMap& map,

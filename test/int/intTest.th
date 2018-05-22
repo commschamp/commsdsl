@@ -27,6 +27,8 @@ public:
     void test18();
     void test19();
     void test20();
+    void test21();
+    void test22();
 
 };
 
@@ -224,6 +226,9 @@ void IntTestSuite::test3()
     TS_ASSERT_EQUALS(intField1.defaultValue(), 2000);
     TS_ASSERT_EQUALS(intField1.defaultValue(), intField2.defaultValue());
     TS_ASSERT_EQUALS(intField1.defaultValue(), intField3.defaultValue());
+    TS_ASSERT_EQUALS(intField1.units(), bbmp::Units::Unknown);
+    TS_ASSERT_EQUALS(intField1.units(), intField2.units());
+    TS_ASSERT_EQUALS(intField1.units(), intField3.units());
     TS_ASSERT_EQUALS(scaling1.first, 1);
     TS_ASSERT_EQUALS(scaling1.second, 1);
     TS_ASSERT_EQUALS(scaling1, scaling2);
@@ -1250,6 +1255,7 @@ void IntTestSuite::test20()
     TS_ASSERT_EQUALS(intField.validCheckVersion(), true);
     TS_ASSERT(intField.extraAttributes().empty());
     TS_ASSERT(intField.extraElements().empty());
+    TS_ASSERT_EQUALS(intField.units(), bbmp::Units::Unknown);
     TS_ASSERT_EQUALS(scaling.first, 1);
     TS_ASSERT_EQUALS(scaling.second, 1);
     TS_ASSERT_EQUALS(validRanges.size(), 2U);
@@ -1273,3 +1279,204 @@ void IntTestSuite::test20()
     TS_ASSERT_EQUALS(s2.m_sinceVersion, 2U);
     TS_ASSERT_EQUALS(s2.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
 }
+
+void IntTestSuite::test21()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    for (auto& f : fields) {
+        TS_ASSERT_EQUALS(f.kind(), bbmp::Field::Kind::Int);
+    }
+
+
+    bbmp::IntField intField1(fields[0]);
+    bbmp::IntField intField2(fields[1]);
+    bbmp::IntField intField3(fields[2]);
+
+    TS_ASSERT_EQUALS(intField1.units(), bbmp::Units::MetersPerSecond);
+    TS_ASSERT_EQUALS(intField2.units(), bbmp::Units::MetersPerSecond);
+    TS_ASSERT_EQUALS(intField3.units(), bbmp::Units::Millimeters);
+}
+
+void IntTestSuite::test22()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto verifyUnitsFunc =
+        [&fields](unsigned from, unsigned count, bbmp::Units units)
+        {
+            TS_ASSERT_LESS_THAN_EQUALS(from + count, fields.size());
+            for (auto idx = from; idx < (from + count); ++idx) {
+                auto& f = fields[idx];
+                TS_ASSERT_EQUALS(f.kind(), bbmp::Field::Kind::Int);
+                bbmp::IntField intField(f);
+                TS_ASSERT_EQUALS(intField.units(), units);
+            }
+        };
+
+    auto nsOffset = 0;
+    auto nsCount = 5;
+    verifyUnitsFunc(nsOffset, nsCount, bbmp::Units::Nanoseconds);
+
+    auto usOffset = nsOffset + nsCount;
+    auto usCount = 5;
+    verifyUnitsFunc(usOffset, usCount, bbmp::Units::Microseconds);
+
+    auto msOffset = usOffset + usCount;
+    auto msCount = 5;
+    verifyUnitsFunc(msOffset, msCount, bbmp::Units::Milliseconds);
+
+    auto sOffset = msOffset + msCount;
+    auto sCount = 5;
+    verifyUnitsFunc(sOffset, sCount, bbmp::Units::Seconds);
+
+    auto minOffset = sOffset + sCount;
+    auto minCount = 4;
+    verifyUnitsFunc(minOffset, minCount, bbmp::Units::Minutes);
+
+    auto hOffset = minOffset + minCount;
+    auto hCount = 3;
+    verifyUnitsFunc(hOffset, hCount, bbmp::Units::Hours);
+
+    auto dOffset = hOffset + hCount;
+    auto dCount = 3;
+    verifyUnitsFunc(dOffset, dCount, bbmp::Units::Days);
+
+    auto wOffset = dOffset + dCount;
+    auto wCount = 3;
+    verifyUnitsFunc(wOffset, wCount, bbmp::Units::Weeks);
+
+    auto nmOffset = wOffset + wCount;
+    auto nmCount = 5;
+    verifyUnitsFunc(nmOffset, nmCount, bbmp::Units::Nanometers);
+
+    auto umOffset = nmOffset + nmCount;
+    auto umCount = 5;
+    verifyUnitsFunc(umOffset, umCount, bbmp::Units::Micrometers);
+
+    auto mmOffset = umOffset + umCount;
+    auto mmCount = 5;
+    verifyUnitsFunc(mmOffset, mmCount, bbmp::Units::Millimeters);
+
+    auto cmOffset = mmOffset + mmCount;
+    auto cmCount = 5;
+    verifyUnitsFunc(cmOffset, cmCount, bbmp::Units::Centimeters);
+
+    auto mOffset = cmOffset + cmCount;
+    auto mCount = 5;
+    verifyUnitsFunc(mOffset, mCount, bbmp::Units::Meters);
+
+    auto kmOffset = mOffset + mCount;
+    auto kmCount = 5;
+    verifyUnitsFunc(kmOffset, kmCount, bbmp::Units::Kilometers);
+
+    auto nmpsOffset = kmOffset + kmCount;
+    auto nmpsCount = 6;
+    verifyUnitsFunc(nmpsOffset, nmpsCount, bbmp::Units::NanometersPerSecond);
+
+    auto umpsOffset = nmpsOffset + nmpsCount;
+    auto umpsCount = 6;
+    verifyUnitsFunc(umpsOffset, umpsCount, bbmp::Units::MicrometersPerSecond);
+
+    auto mmpsOffset = umpsOffset + umpsCount;
+    auto mmpsCount = 6;
+    verifyUnitsFunc(mmpsOffset, mmpsCount, bbmp::Units::MillimetersPerSecond);
+
+    auto cmpsOffset = mmpsOffset + mmpsCount;
+    auto cmpsCount = 6;
+    verifyUnitsFunc(cmpsOffset, cmpsCount, bbmp::Units::CentimetersPerSecond);
+
+    auto mpsOffset = cmpsOffset + cmpsCount;
+    auto mpsCount = 6;
+    verifyUnitsFunc(mpsOffset, mpsCount, bbmp::Units::MetersPerSecond);
+
+    auto kmpsOffset = mpsOffset + mpsCount;
+    auto kmpsCount = 7;
+    verifyUnitsFunc(kmpsOffset, kmpsCount, bbmp::Units::KilometersPerSecond);
+
+    auto kmphOffset = kmpsOffset + kmpsCount;
+    auto kmphCount = 7;
+    verifyUnitsFunc(kmphOffset, kmphCount, bbmp::Units::KilometersPerHour);
+
+    auto hzOffset = kmphOffset + kmphCount;
+    auto hzCount = 2;
+    verifyUnitsFunc(hzOffset, hzCount, bbmp::Units::Hertz);
+
+    auto khzOffset = hzOffset + hzCount;
+    auto khzCount = 2;
+    verifyUnitsFunc(khzOffset, khzCount, bbmp::Units::KiloHertz);
+
+    auto mhzOffset = khzOffset + khzCount;
+    auto mhzCount = 2;
+    verifyUnitsFunc(mhzOffset, mhzCount, bbmp::Units::MegaHertz);
+
+    auto ghzOffset = mhzOffset + mhzCount;
+    auto ghzCount = 2;
+    verifyUnitsFunc(ghzOffset, ghzCount, bbmp::Units::GigaHertz);
+
+    auto degOffset = ghzOffset + ghzCount;
+    auto degCount = 3;
+    verifyUnitsFunc(degOffset, degCount, bbmp::Units::Degrees);
+
+    auto radOffset = degOffset + degCount;
+    auto radCount = 3;
+    verifyUnitsFunc(radOffset, radCount, bbmp::Units::Radians);
+
+    auto naOffset = radOffset + radCount;
+    auto naCount = 5;
+    verifyUnitsFunc(naOffset, naCount, bbmp::Units::Nanoamps);
+
+    auto uaOffset = naOffset + naCount;
+    auto uaCount = 5;
+    verifyUnitsFunc(uaOffset, uaCount, bbmp::Units::Microamps);
+
+    auto maOffset = uaOffset + uaCount;
+    auto maCount = 5;
+    verifyUnitsFunc(maOffset, maCount, bbmp::Units::Milliamps);
+
+    auto aOffset = maOffset + maCount;
+    auto aCount = 5;
+    verifyUnitsFunc(aOffset, aCount, bbmp::Units::Amps);
+
+    auto kaOffset = aOffset + aCount;
+    auto kaCount = 5;
+    verifyUnitsFunc(kaOffset, kaCount, bbmp::Units::Kiloamps);
+
+    auto nvOffset = kaOffset + kaCount;
+    auto nvCount = 3;
+    verifyUnitsFunc(nvOffset, nvCount, bbmp::Units::Nanovolts);
+
+    auto uvOffset = nvOffset + nvCount;
+    auto uvCount = 3;
+    verifyUnitsFunc(uvOffset, uvCount, bbmp::Units::Microvolts);
+
+    auto mvOffset = uvOffset + uvCount;
+    auto mvCount = 3;
+    verifyUnitsFunc(mvOffset, mvCount, bbmp::Units::Millivolts);
+
+    auto vOffset = mvOffset + mvCount;
+    auto vCount = 3;
+    verifyUnitsFunc(vOffset, vCount, bbmp::Units::Volts);
+
+    auto kvOffset = vOffset + vCount;
+    auto kvCount = 3;
+    verifyUnitsFunc(kvOffset, kvCount, bbmp::Units::Kilovolts);
+}
+

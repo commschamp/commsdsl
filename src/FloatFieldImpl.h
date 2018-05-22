@@ -56,6 +56,11 @@ public:
         return m_state.m_validCheckVersion;
     }
 
+    Units units() const
+    {
+        return m_state.m_units;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -75,6 +80,7 @@ private:
     bool updateValidCheckVersion();
     bool updateValidRanges();
     bool updateSpecials();
+    bool updateUnits();
     bool checkFullRangeAsAttr(const PropsMap& xmlAttrs);
     bool checkFullRangeAsChild(::xmlNodePtr child);
     bool checkFullRangeProps(const PropsMap& xmlAttrs);
@@ -108,6 +114,7 @@ private:
         double m_defaultValue = 0.0;
         ValidRangesList m_validRanges;
         SpecialValues m_specials;
+        Units m_units = Units::Unknown;
         bool m_validCheckVersion = false;
     };
 

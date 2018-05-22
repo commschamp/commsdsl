@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema11"
+        id="1"
+        endian="big"
+        version="2">
+    <fields>
+        <float name="Float1" type="float">
+            <units>secs</units>
+        </float>
+    </fields>
+</schema>
