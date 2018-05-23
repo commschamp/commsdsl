@@ -2,6 +2,8 @@
 
 #include "ProtocolImpl.h"
 
+COMMSDSL_EXP_TEMPLATE template class COMMSDSL_API std::unique_ptr<commsdsl::ProtocolImpl>;
+
 namespace commsdsl
 {
 
