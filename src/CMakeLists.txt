@@ -98,6 +98,11 @@ set (
 
 add_library(${PROJECT_NAME} SHARED ${src})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBXML2_LIBRARIES})
+
+if (WIN32)
+    target_link_libraries(${PROJECT_NAME} Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
+endif ()
+
 target_include_directories(${PROJECT_NAME} 
     PRIVATE ${LIBXML2_INCLUDE_DIR}
     PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
