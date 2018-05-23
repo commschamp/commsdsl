@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <set>
 #include <numeric>
+#include <iterator>
 
 #include "ProtocolImpl.h"
 #include "NamespaceImpl.h"

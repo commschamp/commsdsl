@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <iterator>
 
 #include "BundleFieldImpl.h"
 #include "BitfieldFieldImpl.h"
