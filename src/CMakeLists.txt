@@ -100,7 +100,7 @@ add_library(${PROJECT_NAME} SHARED ${src})
 target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBXML2_LIBRARIES})
 
 if (WIN32)
-    target_link_libraries(${PROJECT_NAME} INTERFACE Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
+    target_link_libraries(${PROJECT_NAME} PUBLIC Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
 endif ()
 
 target_include_directories(${PROJECT_NAME} 
