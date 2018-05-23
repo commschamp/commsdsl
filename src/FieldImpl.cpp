@@ -4,6 +4,7 @@
 #include <limits>
 #include <algorithm>
 #include <set>
+#include <iterator>
 
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
