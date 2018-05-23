@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <cassert>
-#include <cstring>
+#include <cctype>
 
 #include "common.h"
 #include "ProtocolImpl.h"
