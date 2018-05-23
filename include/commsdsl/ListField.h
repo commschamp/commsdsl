@@ -15,7 +15,7 @@ public:
     explicit ListField(Field field);
 
     Field elementField() const;
-    unsigned fixedCount() const;
+    std::size_t fixedCount() const;
     bool hasCountPrefixField() const;
     Field countPrefixField() const;
     bool hasLengthPrefixField() const;

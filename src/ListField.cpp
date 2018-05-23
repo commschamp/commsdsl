@@ -34,7 +34,7 @@ Field ListField::elementField() const
     return cast(m_pImpl)->elementField();
 }
 
-unsigned ListField::fixedCount() const
+std::size_t ListField::fixedCount() const
 {
     return cast(m_pImpl)->count();
 }

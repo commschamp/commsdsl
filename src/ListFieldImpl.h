@@ -18,7 +18,7 @@ public:
     ListFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     ListFieldImpl(const ListFieldImpl& other);
 
-    unsigned count() const
+    std::size_t count() const
     {
         return m_state.m_count;
     }
