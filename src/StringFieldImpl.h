@@ -28,7 +28,7 @@ public:
         return m_state.m_encoding;
     }
 
-    unsigned length() const
+    std::size_t length() const
     {
         return m_state.m_length;
     }

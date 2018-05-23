@@ -16,7 +16,7 @@ public:
 
     const std::string& defaultValue() const;
     const std::string& encodingStr() const;
-    unsigned fixedLength() const;
+    std::size_t fixedLength() const;
     bool hasLengthPrefixField() const;
     Field lengthPrefixField() const;
     bool hasZeroTermSuffix() const;

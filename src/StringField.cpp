@@ -39,7 +39,7 @@ const std::string& StringField::encodingStr() const
     return cast(m_pImpl)->encodingStr();
 }
 
-unsigned StringField::fixedLength() const
+std::size_t StringField::fixedLength() const
 {
     return cast(m_pImpl)->length();
 }
