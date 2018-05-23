@@ -116,8 +116,8 @@ std::size_t BitfieldFieldImpl::minLengthImpl() const
 {
     return
         std::accumulate(
-            m_members.begin(), m_members.end(), 0U,
-            [](std::size_t soFar, auto& m)
+            m_members.begin(), m_members.end(), static_cast<std::size_t>(0U),
+            [](std::size_t soFar, auto& m) -> std::size_t
             {
                 return soFar + m->bitLength();
     }) / 8U;
@@ -245,8 +245,8 @@ bool BitfieldFieldImpl::updateMembers()
 
         auto totalBitLength =
             std::accumulate(
-                m_members.begin(), m_members.end(), 0U,
-                [this](std::size_t soFar, auto& elem)
+                m_members.begin(), m_members.end(), static_cast<std::size_t>(0U),
+                [this](std::size_t soFar, auto& elem) -> std::size_t
                 {
                     return soFar + elem->bitLength();
                 });

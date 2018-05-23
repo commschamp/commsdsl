@@ -80,8 +80,8 @@ std::size_t MessageImpl::minLength() const
 {
     return
         std::accumulate(
-            m_fields.begin(), m_fields.end(), 0U,
-                [this](std::size_t soFar, auto& elem)
+            m_fields.begin(), m_fields.end(), static_cast<std::size_t>(0U),
+                [this](std::size_t soFar, auto& elem) -> std::size_t
                 {
                     if (this->getSinceVersion() < elem->getSinceVersion()) {
                         return soFar;
