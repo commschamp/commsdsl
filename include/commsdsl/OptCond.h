@@ -33,7 +33,7 @@ protected:
 };
 
 class OptCondExprImpl;
-class OptCondExpr : public OptCond
+class COMMSDSL_API OptCondExpr : public OptCond
 {
     using Base = OptCond;
 public:
@@ -46,7 +46,7 @@ public:
 };
 
 class OptCondListImpl;
-class OptCondList : public OptCond
+class COMMSDSL_API OptCondList : public OptCond
 {
     using Base = OptCond;
 public:
