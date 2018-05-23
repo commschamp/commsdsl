@@ -8,7 +8,7 @@
 #include "XmlWrap.h"
 #include "Logger.h"
 #include "Object.h"
-#include "bbmp/Message.h"
+#include "bbmp/Interface.h"
 #include "bbmp/Protocol.h"
 #include "FieldImpl.h"
 
@@ -16,20 +16,19 @@ namespace bbmp
 {
 
 class ProtocolImpl;
-class MessageImpl : public Object
+class InterfaceImpl : public Object
 {
     using Base = Object;
 public:
-    using Ptr = std::unique_ptr<MessageImpl>;
+    using Ptr = std::unique_ptr<InterfaceImpl>;
     using PropsMap = XmlWrap::PropsMap;
-    using FieldsList = Message::FieldsList;
+    using FieldsList = Interface::FieldsList;
     using ContentsList = XmlWrap::ContentsList;
-    using PlatformsList = Protocol::PlatformsList;
 
-    MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol);
-    MessageImpl(const MessageImpl&) = delete;
-    MessageImpl(MessageImpl&&) = default;
-    ~MessageImpl() = default;
+    InterfaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
+    InterfaceImpl(const InterfaceImpl&) = delete;
+    InterfaceImpl(InterfaceImpl&&) = default;
+    ~InterfaceImpl() = default;
 
     ::xmlNodePtr getNode() const
     {
@@ -47,20 +46,6 @@ public:
     const std::string& displayName() const;
     const std::string& description() const;
 
-    std::uintmax_t id() const
-    {
-        return m_id;
-    }
-
-    unsigned order() const
-    {
-        return m_order;
-    }
-
-    std::size_t minLength() const;
-
-    std::size_t maxLength() const;
-
     FieldsList fieldsList() const;
 
     std::string externalRef() const;
@@ -75,10 +60,6 @@ public:
         return m_extraChildren;
     }
 
-    const PlatformsList& platforms() const
-    {
-        return m_platforms;
-    }
 protected:
 
     virtual ObjKind objKindImpl() const override final;
@@ -96,14 +77,9 @@ private:
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool updateName();
     bool updateDescription();
-    bool updateDisplayName();
-    bool updateId();
-    bool updateOrder();
-    bool updateVersions();
-    bool updatePlatforms();
     bool copyFields();
     bool updateFields();
-    void cloneFieldsFrom(const MessageImpl& other);
+    void cloneFieldsFrom(const InterfaceImpl& other);
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -114,14 +90,10 @@ private:
     ContentsList m_extraChildren;
 
     const std::string* m_name = nullptr;
-    const std::string* m_displayName = nullptr;
     const std::string* m_description = nullptr;
-    std::uintmax_t m_id = 0;
-    unsigned m_order = 0;
     std::vector<FieldImplPtr> m_fields;
-    PlatformsList m_platforms;
 };
 
-using MessageImplPtr = MessageImpl::Ptr;
+using InterfaceImplPtr = InterfaceImpl::Ptr;
 
 } // namespace bbmp

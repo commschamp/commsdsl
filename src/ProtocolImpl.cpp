@@ -133,6 +133,17 @@ const MessageImpl* ProtocolImpl::findMessage(const std::string& ref, bool checkR
     return ns->findMessage(msgName);
 }
 
+const InterfaceImpl* ProtocolImpl::findInterface(const std::string& ref, bool checkRef) const
+{
+    std::string name;
+    auto ns = getNsFromPath(ref, checkRef, name);
+    if (ns == nullptr) {
+        return nullptr;
+    }
+
+    return ns->findInterface(name);
+}
+
 bool ProtocolImpl::strToEnumValue(
     const std::string& ref,
     std::intmax_t& val,
@@ -392,72 +403,73 @@ bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
 
 bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
 {
-    auto namespaces = XmlWrap::getChildren(root, common::nsStr());
-    for (auto& n : namespaces) {
-        NamespaceImplPtr ns(new NamespaceImpl(n, *this));
-        if (!ns->parseProps()) {
-            return false;
+    auto& childrenNames = NamespaceImpl::supportedChildren();
+    auto children = XmlWrap::getChildren(root, childrenNames);
+    for (auto& c : children) {
+        assert(c->name != nullptr);
+        std::string cName(reinterpret_cast<const char*>(c->name));
+        auto cNameIter = std::find(childrenNames.begin(), childrenNames.end(), cName);
+        if (cNameIter == childrenNames.end()) {
+            continue;
         }
 
-        auto& nsName = ns->name();
-        auto iter = m_namespaces.find(nsName);
-        NamespaceImpl* nsToProcess = nullptr;
-        NamespaceImpl* realNs = nullptr;
-        do {
-            if (iter == m_namespaces.end()) {
-                m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
-                iter = m_namespaces.find(nsName);
-                assert(iter != m_namespaces.end());
-                nsToProcess = iter->second.get();
-                break;
+        if (cName == common::nsStr()) {
+            NamespaceImplPtr ns(new NamespaceImpl(c, *this));
+            if (!ns->parseProps()) {
+                return false;
             }
 
-            nsToProcess = ns.get();
-            realNs = iter->second.get();
-
-            if ((!nsToProcess->description().empty()) &&
-                (nsToProcess->description() != realNs->description())) {
-                if (realNs->description().empty()) {
-                    realNs->updateDescription(nsToProcess->description());
+            auto& nsName = ns->name();
+            auto iter = m_namespaces.find(nsName);
+            NamespaceImpl* nsToProcess = nullptr;
+            NamespaceImpl* realNs = nullptr;
+            do {
+                if (iter == m_namespaces.end()) {
+                    m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
+                    iter = m_namespaces.find(nsName);
+                    assert(iter != m_namespaces.end());
+                    nsToProcess = iter->second.get();
+                    break;
                 }
-                else {
-                    logWarning() << XmlWrap::logPrefix(nsToProcess->getNode()) <<
-                        "Description of namespace \"" << nsToProcess->name() << "\" differs to "
-                        "one encountered before.";
-                }
-            }
 
-            if (!nsToProcess->extraAttributes().empty()) {
-                for (auto& a : nsToProcess->extraAttributes()) {
-                    auto attIter = realNs->extraAttributes().find(a.first);
-                    if (attIter == realNs->extraAttributes().end()) {
-                        realNs->extraAttributes().insert(a);
+                nsToProcess = ns.get();
+                realNs = iter->second.get();
+
+                if ((!nsToProcess->description().empty()) &&
+                    (nsToProcess->description() != realNs->description())) {
+                    if (realNs->description().empty()) {
+                        realNs->updateDescription(nsToProcess->description());
                     }
-                    else if (a.second != attIter->second) {
+                    else {
                         logWarning() << XmlWrap::logPrefix(nsToProcess->getNode()) <<
-                            "Value of attribute \"" << a.first << "\" differs to one defined before.";
+                            "Description of namespace \"" << nsToProcess->name() << "\" differs to "
+                            "one encountered before.";
                     }
                 }
+
+                if (!nsToProcess->extraAttributes().empty()) {
+                    for (auto& a : nsToProcess->extraAttributes()) {
+                        auto attIter = realNs->extraAttributes().find(a.first);
+                        if (attIter == realNs->extraAttributes().end()) {
+                            realNs->extraAttributes().insert(a);
+                        }
+                        else if (a.second != attIter->second) {
+                            logWarning() << XmlWrap::logPrefix(nsToProcess->getNode()) <<
+                                "Value of attribute \"" << a.first << "\" differs to one defined before.";
+                        }
+                    }
+                }
+
+                realNs->extraChildren().insert(realNs->extraChildren().end(), nsToProcess->extraChildren().begin(), nsToProcess->extraChildren().end());
+
+            } while (false);
+
+            assert(iter->second);
+            if (!nsToProcess->parseChildren(realNs)) {
+                return false;
             }
 
-            realNs->extraChildren().insert(realNs->extraChildren().end(), nsToProcess->extraChildren().begin(), nsToProcess->extraChildren().end());
-
-        } while (false);
-
-        assert(iter->second);
-        if (!nsToProcess->parseChildren(realNs)) {
-            return false;
-        }
-    }
-
-    auto nsChildren = NamespaceImpl::supportedChildren();
-    nsChildren.erase(
-        std::remove(nsChildren.begin(), nsChildren.end(), common::nsStr()),
-        nsChildren.end());
-    auto globalNsChildren = XmlWrap::getChildren(root, nsChildren);
-    do {
-        if (globalNsChildren.empty()) {
-            break;
+            continue;
         }
 
         auto& globalNsPtr = m_namespaces[common::emptyString()]; // create if needed
@@ -465,13 +477,10 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
             globalNsPtr.reset(new NamespaceImpl(nullptr, *this));
         }
 
-        for (auto c : globalNsChildren) {
-            if (!globalNsPtr->processChild(c)) {
-                return false;
-            }
+        if (!globalNsPtr->processChild(c)) {
+            return false;
         }
-
-    } while (false);
+    }
 
     return true;
 }
@@ -518,6 +527,7 @@ const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool ch
 {
     if (checkRef) {
         if (!common::isValidRefName(ref)) {
+            logInfo(m_logger) << "Invalid ref name: " << ref;
             return nullptr;
         }
     }

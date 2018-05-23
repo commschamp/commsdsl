@@ -1,0 +1,118 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class MessageTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+};
+
+void MessageTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void MessageTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void MessageTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto interfaces = ns.interfaces();
+    TS_ASSERT_EQUALS(interfaces.size(), 1U);
+
+    auto& int1 = interfaces[0];
+    TS_ASSERT_EQUALS(int1.name(), "Generic");
+    TS_ASSERT(int1.fields().empty());
+}
+
+void MessageTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto interfaces = ns.interfaces();
+    TS_ASSERT_EQUALS(interfaces.size(), 1U);
+
+    auto& int1 = interfaces[0];
+    TS_ASSERT_EQUALS(int1.name(), "Generic");
+    auto fields = int1.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+    TS_ASSERT_EQUALS(fields.front().kind(), bbmp::Field::Kind::Int);
+}
+
+void MessageTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 2U);
+
+    auto& ns1 = namespaces.front();
+    auto& ns2 = namespaces.back();
+    TS_ASSERT(ns1.name().empty());
+    TS_ASSERT_EQUALS(ns2.name(), "ns1");
+
+    auto interfaces1 = ns1.interfaces();
+    auto interfaces2 = ns2.interfaces();
+    TS_ASSERT_EQUALS(interfaces1.size(), 1U);
+    TS_ASSERT_EQUALS(interfaces2.size(), 1U);
+
+    auto& int1 = interfaces1[0];
+    auto& int2 = interfaces2[0];
+    TS_ASSERT_EQUALS(int1.name(), "Generic");
+    TS_ASSERT_EQUALS(int2.name(), "I1");
+    auto fields1 = int1.fields();
+    auto fields2 = int2.fields();
+    TS_ASSERT_EQUALS(fields1.size(), 1U);
+    TS_ASSERT_EQUALS(fields2.size(), 2U);
+}
+
+void MessageTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test5()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test6()
+{
+    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+}

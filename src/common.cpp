@@ -450,6 +450,18 @@ const std::string& platformStr()
     return Str;
 }
 
+const std::string& interfacesStr()
+{
+    static const std::string Str("interfaces");
+    return Str;
+}
+
+const std::string& interfaceStr()
+{
+    static const std::string Str("interface");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

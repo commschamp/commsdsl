@@ -54,6 +54,8 @@ public:
 
     const MessageImpl* findMessage(const std::string& ref, bool checkRef = true) const;
 
+    const InterfaceImpl* findInterface(const std::string& ref, bool checkRef = true) const;
+
     bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
     MessagesList allMessages() const;

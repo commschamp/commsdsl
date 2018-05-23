@@ -7,6 +7,7 @@
 #include "Field.h"
 #include "Message.h"
 #include "Schema.h"
+#include "Interface.h"
 
 namespace bbmp
 {
@@ -18,6 +19,7 @@ public:
     using NamespacesList = std::vector<Namespace>;
     using FieldsList = std::vector<Field>;
     using MessagesList = std::vector<Message>;
+    using InterfacesList = std::vector<Interface>;
     using AttributesMap = Schema::AttributesMap;
     using ElementsList = Schema::ElementsList;
 
@@ -30,6 +32,7 @@ public:
     NamespacesList namespaces() const;
     FieldsList fields() const;
     MessagesList messages() const;
+    InterfacesList interfaces() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

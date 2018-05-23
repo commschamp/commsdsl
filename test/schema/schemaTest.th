@@ -2,7 +2,7 @@
 
 #include "CommonTestSuite.h"
 
-class MessageTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+class SchemaTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
     void setUp();
@@ -14,17 +14,17 @@ public:
     void test5();
 };
 
-void MessageTestSuite::setUp()
+void SchemaTestSuite::setUp()
 {
     CommonTestSuite::commonSetUp();
 }
 
-void MessageTestSuite::tearDown()
+void SchemaTestSuite::tearDown()
 {
     CommonTestSuite::commonTearDown();
 }
 
-void MessageTestSuite::test1()
+void SchemaTestSuite::test1()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
@@ -40,7 +40,7 @@ void MessageTestSuite::test1()
     TS_ASSERT(schema.extraElements().empty());
 }
 
-void MessageTestSuite::test2()
+void SchemaTestSuite::test2()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
@@ -63,7 +63,7 @@ void MessageTestSuite::test2()
     TS_TRACE(extraChildren.front());
 }
 
-void MessageTestSuite::test3()
+void SchemaTestSuite::test3()
 {
     m_status.m_preValidateFunc =
         [](bbmp::Protocol& p)
@@ -90,7 +90,7 @@ void MessageTestSuite::test3()
     TS_TRACE(extraChildren.front());
 }
 
-void MessageTestSuite::test4()
+void SchemaTestSuite::test4()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
@@ -111,7 +111,7 @@ void MessageTestSuite::test4()
     TS_ASSERT_EQUALS(platforms[2], "plat3");
 }
 
-void MessageTestSuite::test5()
+void SchemaTestSuite::test5()
 {
     m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");

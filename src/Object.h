@@ -15,6 +15,7 @@ public:
         Namespace,
         Field,
         Message,
+        Interface,
         NumOfValues
     };
 

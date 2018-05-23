@@ -6,6 +6,7 @@
 
 #include "common.h"
 #include "ProtocolImpl.h"
+#include "NamespaceImpl.h"
 
 namespace bbmp
 {
@@ -25,12 +26,8 @@ const XmlWrap::NamesList PropNames = {
 XmlWrap::NamesList getChildrenList()
 {
     XmlWrap::NamesList result = PropNames;
-    result.push_back(common::fieldsStr());
-    result.push_back(common::messagesStr());
-    result.push_back(common::messageStr());
-    result.push_back(common::frameStr());
-    result.push_back(common::framesStr());
-    result.push_back(common::nsStr());
+    auto& nsNames = NamespaceImpl::expectedChildrenNames();
+    result.insert(result.end(), nsNames.begin(), nsNames.end());
     result.push_back(common::platformsStr());
     result.push_back(common::platformStr());
     return result;

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema5"
+        id="1"
+        endian="big">
+    <interface name="Generic">
+        <int name="version" type="uint32" />
+    </interface>
+    <ns name="ns1">
+        <interface>
+            <name>I1</name>
+            <copyFieldsFrom>Generic</copyFieldsFrom>
+            <int name="version" type="uint32" />
+        </interface>
+    </ns>
+</schema>

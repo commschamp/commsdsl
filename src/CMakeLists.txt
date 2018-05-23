@@ -72,6 +72,7 @@ set (
     "OptionalField.cpp"
     "OptCond.cpp"
     "Message.cpp"
+    "Interface.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"
@@ -92,6 +93,7 @@ set (
     "OptionalFieldImpl.cpp"
     "OptCondImpl.cpp"
     "MessageImpl.cpp"
+    "InterfaceImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

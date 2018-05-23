@@ -25,7 +25,9 @@ static const XmlWrap::NamesList ChildrenNames = {
     common::messageStr(),
     common::framesStr(),
     common::frameStr(),
-    common::nsStr()
+    common::nsStr(),
+    common::interfacesStr(),
+    common::interfaceStr()
 };
 
 XmlWrap::NamesList allNames()
@@ -53,6 +55,11 @@ NamespaceImpl::NamespaceImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)
 {
+}
+
+const XmlWrap::NamesList& NamespaceImpl::expectedChildrenNames()
+{
+    return ChildrenNames;
 }
 
 bool NamespaceImpl::parseProps()
@@ -115,6 +122,8 @@ bool NamespaceImpl::processChild(::xmlNodePtr node, NamespaceImpl* realNs)
         std::make_pair(common::messagesStr(), &NamespaceImpl::processMultipleMessages),
         std::make_pair(common::frameStr(), &NamespaceImpl::processFrame),
         std::make_pair(common::framesStr(), &NamespaceImpl::processMultipleFrames),
+        std::make_pair(common::interfaceStr(), &NamespaceImpl::processInterface),
+        std::make_pair(common::interfacesStr(), &NamespaceImpl::processMultipleInterfaces),
     };
 
     std::string cName(reinterpret_cast<const char*>(node->name));
@@ -168,6 +177,17 @@ NamespaceImpl::MessagesList NamespaceImpl::messagesList() const
     return result;
 }
 
+NamespaceImpl::InterfacesList NamespaceImpl::interfacesList() const
+{
+    InterfacesList result;
+    result.reserve(m_interfaces.size());
+    for (auto& m : m_interfaces) {
+        assert(m.second);
+        result.emplace_back(m.second.get());
+    }
+    return result;
+}
+
 const FieldImpl* NamespaceImpl::findField(const std::string& fieldName) const
 {
     auto iter = m_fields.find(fieldName);
@@ -183,6 +203,17 @@ const MessageImpl* NamespaceImpl::findMessage(const std::string& msgName) const
 {
     auto iter = m_messages.find(msgName);
     if (iter == m_messages.end()) {
+        return nullptr;
+    }
+
+    assert(iter->second);
+    return iter->second.get();
+}
+
+const InterfaceImpl* NamespaceImpl::findInterface(const std::string& intName) const
+{
+    auto iter = m_interfaces.find(intName);
+    if (iter == m_interfaces.end()) {
         return nullptr;
     }
 
@@ -336,6 +367,47 @@ bool NamespaceImpl::processMultipleMessages(::xmlNodePtr node)
         }
 
         if (!processMessage(c)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool NamespaceImpl::processInterface(::xmlNodePtr node)
+{
+    auto interface = std::make_unique<InterfaceImpl>(node, m_protocol);
+    interface->setParent(this);
+    if (!interface->parse()) {
+        return false;
+    }
+
+    auto intPtr = findInterface(interface->name());
+    auto& intName = interface->name();
+    if (intPtr != nullptr) {
+        logError() << XmlWrap::logPrefix(node) << "Interface with name \"" << intName << "\" has been already defined at " <<
+                      intPtr->getNode()->doc->URL << ":" << intPtr->getNode()->line << '.';
+
+        return false;
+    }
+
+    m_interfaces.insert(std::make_pair(intName, std::move(interface)));
+    return true;
+}
+
+bool NamespaceImpl::processMultipleInterfaces(::xmlNodePtr node)
+{
+    auto childrenNodes = XmlWrap::getChildren(node);
+    for (auto c : childrenNodes) {
+        assert(c != nullptr);
+        std::string cName(reinterpret_cast<const char*>(c->name));
+        if (cName != common::interfaceStr()) {
+            logError() << XmlWrap::logPrefix(c) <<
+                "The \"" << common::interfaceStr() << "\" element cannot contain \"" <<
+                cName << "\".";
+            return false;
+        }
+
+        if (!processInterface(c)) {
             return false;
         }
     }

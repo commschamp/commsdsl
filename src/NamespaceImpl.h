@@ -9,6 +9,7 @@
 #include "Logger.h"
 #include "FieldImpl.h"
 #include "MessageImpl.h"
+#include "InterfaceImpl.h"
 #include "Object.h"
 
 namespace bbmp
@@ -47,12 +48,16 @@ public:
     using NamespacesList = Namespace::NamespacesList;
     using FieldsList = Namespace::FieldsList;
     using MessagesList = Namespace::MessagesList;
+    using InterfacesList = Namespace::InterfacesList;
     using NamespacesMap = std::map<std::string, Ptr>;
     using FieldsMap = std::map<std::string, FieldImplPtr, KeyComp>;
     using MessagesMap = std::map<std::string, MessageImplPtr, KeyComp>;
+    using InterfacesMap = std::map<std::string, InterfaceImplPtr, KeyComp>;
 
     NamespaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     virtual ~NamespaceImpl() = default;
+
+    static const XmlWrap::NamesList& expectedChildrenNames();
 
     ::xmlNodePtr getNode() const
     {
@@ -92,6 +97,8 @@ public:
     NamespacesList namespacesList() const;
     FieldsList fieldsList() const;
     MessagesList messagesList() const;
+    InterfacesList interfacesList() const;
+
     const MessagesMap& messages() const
     {
         return m_messages;
@@ -124,6 +131,7 @@ public:
 
     const FieldImpl* findField(const std::string& fieldName) const;
     const MessageImpl* findMessage(const std::string& msgName) const;
+    const InterfaceImpl* findInterface(const std::string& intName) const;
 
     std::string externalRef() const;
 
@@ -136,6 +144,8 @@ private:
     bool processMultipleFields(::xmlNodePtr node);
     bool processMessage(::xmlNodePtr node);
     bool processMultipleMessages(::xmlNodePtr node);
+    bool processInterface(::xmlNodePtr node);
+    bool processMultipleInterfaces(::xmlNodePtr node);
     bool processFrame(::xmlNodePtr node);
     bool processMultipleFrames(::xmlNodePtr node);
     bool updateExtraAttrs();
@@ -158,6 +168,7 @@ private:
     NamespacesMap m_namespaces;
     FieldsMap m_fields;
     MessagesMap m_messages;
+    InterfacesMap m_interfaces;
 };
 
 using NamespaceImplPtr = NamespaceImpl::Ptr;
