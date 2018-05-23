@@ -38,6 +38,6 @@ before_script:
   - CC=${_CC} CXX=${_CXX} cmake .. ${_BUILD}
 
 script:
-  - VERBOSE=1 make install
+  - VERBOSE=1 make 
   - ctest
 

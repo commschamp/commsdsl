@@ -28,7 +28,7 @@ build_script:
     - mkdir build.%PLATFORM%.%CONFIGURATION%
     - cd build.%PLATFORM%.%CONFIGURATION%
     - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" 
-    - nmake install
+    - nmake 
 
 test_script:
     - ctest 
