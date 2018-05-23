@@ -189,8 +189,8 @@ ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
 {
     auto total =
         std::accumulate(
-            m_namespaces.begin(), m_namespaces.end(), 0U,
-            [](std::size_t soFar, auto& ns)
+            m_namespaces.begin(), m_namespaces.end(), static_cast<std::size_t>(0U),
+            [](std::size_t soFar, auto& ns) -> std::size_t
             {
                 return soFar + ns.second->messages().size();
             });
