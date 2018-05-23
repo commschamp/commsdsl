@@ -119,7 +119,7 @@ std::size_t DataFieldImpl::maxLengthImpl() const
         auto* prefixField = getPrefixField();
         assert(prefixField->kind() == Field::Kind::Int);
         auto& castedPrefix = static_cast<const IntFieldImpl&>(*prefixField);
-        return castedPrefix.maxLength() + castedPrefix.maxValue();
+        return castedPrefix.maxLength() + static_cast<std::size_t>(castedPrefix.maxValue());
     }
 
     return std::numeric_limits<std::size_t>::max();
