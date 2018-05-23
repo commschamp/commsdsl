@@ -19,7 +19,7 @@ public:
     explicit DataField(Field field);
 
     const ValueType& defaultValue() const;
-    unsigned fixedLength() const;
+    std::size_t fixedLength() const;
     bool hasLengthPrefixField() const;
     Field lengthPrefixField() const;
 };

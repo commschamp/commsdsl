@@ -34,7 +34,7 @@ const DataField::ValueType& DataField::defaultValue() const
     return cast(m_pImpl)->defaultValue();
 }
 
-unsigned DataField::fixedLength() const
+std::size_t DataField::fixedLength() const
 {
     return cast(m_pImpl)->length();
 }

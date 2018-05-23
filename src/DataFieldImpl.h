@@ -26,7 +26,7 @@ public:
         return m_state.m_defaultValue;
     }
 
-    unsigned length() const
+    std::size_t length() const
     {
         return m_state.m_length;
     }
