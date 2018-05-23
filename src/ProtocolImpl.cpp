@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <cassert>
 #include <algorithm>
+#include <numeric>
 
 #include "XmlWrap.h"
 #include "FieldImpl.h"

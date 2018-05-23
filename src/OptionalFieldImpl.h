@@ -55,7 +55,7 @@ protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const;
+    virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;

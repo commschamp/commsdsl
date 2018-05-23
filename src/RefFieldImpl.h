@@ -31,7 +31,7 @@ protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual bool reuseImpl(const FieldImpl& other);
+    virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
