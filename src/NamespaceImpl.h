@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <algorithm>
+#include <cctype>
 
 #include "commsdsl/Namespace.h"
 
@@ -32,8 +33,8 @@ public:
                 return false;
             }
 
-            auto leftFirst = static_cast<char>(std::tolower(str1[0]));
-            auto rightFirst = static_cast<char>(std::tolower(str2[0]));
+            auto leftFirst = static_cast<char>(std::tolower(static_cast<int>(str1[0])));
+            auto rightFirst = static_cast<char>(std::tolower(static_cast<int>(str2[0])));
             if (leftFirst != rightFirst) {
                 return leftFirst < rightFirst;
             }
