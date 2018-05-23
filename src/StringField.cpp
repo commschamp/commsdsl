@@ -1,10 +1,10 @@
-#include "bbmp/StringField.h"
+#include "commsdsl/StringField.h"
 
 #include <cassert>
 
 #include "StringFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -59,4 +59,4 @@ bool StringField::hasZeroTermSuffix() const
     return cast(m_pImpl)->hasZeroTermSuffix();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

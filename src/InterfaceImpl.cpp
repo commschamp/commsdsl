@@ -11,7 +11,7 @@
 #include "common.h"
 #include "OptionalFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -81,7 +81,7 @@ std::string InterfaceImpl::externalRef() const
     assert(getParent() != nullptr);
     assert(getParent()->objKind() == ObjKind::Namespace);
 
-    auto& ns = static_cast<const bbmp::NamespaceImpl&>(*getParent());
+    auto& ns = static_cast<const commsdsl::NamespaceImpl&>(*getParent());
     auto nsRef = ns.externalRef();
     if (nsRef.empty()) {
         return name();
@@ -97,17 +97,17 @@ Object::ObjKind InterfaceImpl::objKindImpl() const
 
 LogWrapper InterfaceImpl::logError() const
 {
-    return bbmp::logError(m_protocol.logger());
+    return commsdsl::logError(m_protocol.logger());
 }
 
 LogWrapper InterfaceImpl::logWarning() const
 {
-    return bbmp::logWarning(m_protocol.logger());
+    return commsdsl::logWarning(m_protocol.logger());
 }
 
 LogWrapper InterfaceImpl::logInfo() const
 {
-    return bbmp::logInfo(m_protocol.logger());
+    return commsdsl::logInfo(m_protocol.logger());
 }
 
 bool InterfaceImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
@@ -336,4 +336,4 @@ bool InterfaceImpl::updateExtraChildren()
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

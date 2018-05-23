@@ -4,7 +4,7 @@
 #include "common.h"
 #include "ProtocolImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 RefFieldImpl::RefFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -88,4 +88,4 @@ bool RefFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
     return m_field->isComparableToField(field);
 }
 
-} // namespace bbmp
+} // namespace commsdsl

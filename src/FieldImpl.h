@@ -9,7 +9,7 @@
 #include "Logger.h"
 #include "Object.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ProtocolImpl;
@@ -201,4 +201,4 @@ private:
 
 using FieldImplPtr = FieldImpl::Ptr;
 
-} // namespace bbmp
+} // namespace commsdsl

@@ -1,5 +1,5 @@
 cmake_minimum_required (VERSION 3.1)
-project ("bbmp")
+project ("commsdsl")
 
 option (BBMP_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 option (BBMP_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
@@ -65,7 +65,7 @@ endif ()
 include(GNUInstallDirs)
 
 install (
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/bbmp
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/commsdsl
     DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR}
 )
 

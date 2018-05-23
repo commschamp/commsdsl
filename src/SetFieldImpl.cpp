@@ -11,7 +11,7 @@
 #include "IntFieldImpl.h"
 #include "util.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 SetFieldImpl::SetFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -589,4 +589,4 @@ bool SetFieldImpl::updateBits()
     return true;
 }
 
-} // namespace bbmp
+} // namespace commsdsl

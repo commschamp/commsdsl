@@ -1,10 +1,10 @@
-#include "bbmp/SetField.h"
+#include "commsdsl/SetField.h"
 
 #include <cassert>
 
 #include "SetFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -74,4 +74,4 @@ bool SetField::validCheckVersion() const
     return cast(m_pImpl)->validCheckVersion();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

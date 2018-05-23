@@ -6,7 +6,7 @@
 #include <cmath>
 #include <cassert>
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace common
@@ -1014,4 +1014,4 @@ bool isValidRefName(const std::string& value)
 
 } // namespace common
 
-} // namespace bbmp
+} // namespace commsdsl

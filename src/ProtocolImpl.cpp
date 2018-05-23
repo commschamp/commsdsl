@@ -9,7 +9,7 @@
 #include "FieldImpl.h"
 #include "EnumFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 ProtocolImpl::ProtocolImpl()
@@ -585,12 +585,12 @@ const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool ch
 
 LogWrapper ProtocolImpl::logError() const
 {
-    return bbmp::logError(m_logger);
+    return commsdsl::logError(m_logger);
 }
 
 LogWrapper ProtocolImpl::logWarning() const
 {
-    return bbmp::logWarning(m_logger);
+    return commsdsl::logWarning(m_logger);
 }
 
-} // namespace bbmp
+} // namespace commsdsl

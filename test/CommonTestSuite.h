@@ -6,7 +6,7 @@
 #include <functional>
 
 #include "cxxtest/TestSuite.h"
-#include "bbmp/bbmp.h"
+#include "commsdsl/commsdsl.h"
 
 #ifndef SCHEMAS_DIR
 #define SCHEMAS_DIR "."
@@ -20,9 +20,9 @@ public:
     void commonTearDown();
 
 protected:
-    using ProtocolPtr = std::unique_ptr<bbmp::Protocol>;
-    using ErrLevelList = std::vector<bbmp::ErrorLevel>;
-    using PreValidateFunc = std::function<void (bbmp::Protocol& protocol)>;
+    using ProtocolPtr = std::unique_ptr<commsdsl::Protocol>;
+    using ErrLevelList = std::vector<commsdsl::ErrorLevel>;
+    using PreValidateFunc = std::function<void (commsdsl::Protocol& protocol)>;
 
 
     ProtocolPtr prepareProtocol(const std::string& schema);

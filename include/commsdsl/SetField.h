@@ -2,11 +2,11 @@
 
 #include "IntField.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class SetFieldImpl;
-class BBMP_API SetField : public Field
+class COMMSDSL_API SetField : public Field
 {
     using Base = Field;
 public:
@@ -16,7 +16,7 @@ public:
     {
         unsigned m_idx = 0U;
         unsigned m_sinceVersion = 0U;
-        unsigned m_deprecatedSince = bbmp::Protocol::notYetDeprecated();
+        unsigned m_deprecatedSince = commsdsl::Protocol::notYetDeprecated();
         bool m_defaultValue = false;
         bool m_reserved = false;
         bool m_reservedValue = false;
@@ -54,4 +54,4 @@ bool operator!=(const SetField::BitInfo& i1, const SetField::BitInfo& i2)
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

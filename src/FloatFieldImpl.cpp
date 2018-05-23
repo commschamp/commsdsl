@@ -10,7 +10,7 @@
 #include "util.h"
 #include "ProtocolImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -936,4 +936,4 @@ bool FloatFieldImpl::strToValue(
     return ok;
 }
 
-} // namespace bbmp
+} // namespace commsdsl

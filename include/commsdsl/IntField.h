@@ -11,11 +11,11 @@
 #include "Protocol.h"
 #include "Units.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class IntFieldImpl;
-class BBMP_API IntField : public Field
+class COMMSDSL_API IntField : public Field
 {
     using Base = Field;
 public:
@@ -100,4 +100,4 @@ bool operator!=(const IntField::ValidRangeInfo& i1, const IntField::ValidRangeIn
     return !(i1 == i2);
 }
 
-} // namespace bbmp
+} // namespace commsdsl

@@ -9,7 +9,7 @@
 #include "ProtocolImpl.h"
 #include "OptionalFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -253,4 +253,4 @@ bool BundleFieldImpl::updateMembers()
     return true;
 }
 
-} // namespace bbmp
+} // namespace commsdsl

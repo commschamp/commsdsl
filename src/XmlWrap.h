@@ -11,7 +11,7 @@
 #include "Logger.h"
 #include "common.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ProtocolImpl;
@@ -119,4 +119,4 @@ struct XmlWrap
         ProtocolImpl& protocol);
 };
 
-} // namespace bbmp
+} // namespace commsdsl

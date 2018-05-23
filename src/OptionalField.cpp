@@ -1,10 +1,10 @@
-#include "bbmp/OptionalField.h"
+#include "commsdsl/OptionalField.h"
 
 #include <cassert>
 
 #include "OptionalFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -44,4 +44,4 @@ OptCond OptionalField::cond() const
     return cast(m_pImpl)->wrappedCondition();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

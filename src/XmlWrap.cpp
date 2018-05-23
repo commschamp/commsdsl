@@ -6,7 +6,7 @@
 
 #include "ProtocolImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 const XmlWrap::NamesList& XmlWrap::emptyNamesList()
@@ -240,13 +240,13 @@ bool XmlWrap::validateSinglePropInstance(
 {
     auto count = props.count(str);
     if (1U < count) {
-        bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(logger) << XmlWrap::logPrefix(node) <<
                       "Too many values of \"" << str << "\" property for \"" << node->name << "\" element.";
         return false;
     }
 
     if ((count == 0U) && mustHave) {
-        bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(logger) << XmlWrap::logPrefix(node) <<
                       "Missing value for mandatory property \"" << str << "\" for \"" << node->name << "\" element.";
         return false;
     }
@@ -258,7 +258,7 @@ bool XmlWrap::validateNoPropInstance(::xmlNodePtr node, const XmlWrap::PropsMap&
 {
     auto iter = props.find(str);
     if (iter != props.end()) {
-        bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(logger) << XmlWrap::logPrefix(node) <<
                       "Preperty \"" << str << "\" defined when should not.";
         return false;
     }
@@ -287,7 +287,7 @@ void XmlWrap::reportUnexpectedPropertyValue(
     const std::string& propValue,
     Logger& logger)
 {
-    bbmp::logError(logger) << XmlWrap::logPrefix(node) <<
+    commsdsl::logError(logger) << XmlWrap::logPrefix(node) <<
                   "Property \"" << propName << "\" of element \"" << elemName <<
                               "\" has unexpected value (" << propValue << ").";
 }
@@ -302,28 +302,28 @@ bool XmlWrap::checkVersions(
 {
     assert(parentVersion < parentDeprecated);
     if (protocol.schemaImpl().version() < sinceVersion) {
-        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
             "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.schemaImpl().version() << ").";
         return false;
     }
 
     if (sinceVersion < parentVersion) {
-        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
             "be less than " << parentVersion << ".";
         return false;
     }
 
     if (parentDeprecated <= sinceVersion) {
-        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") must "
             "be less than " << parentDeprecated << ".";
         return false;
     }
 
     if (parentDeprecated < deprecatedSince) {
-        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
             "be greater than " << parentDeprecated << ".";
         return false;
@@ -331,15 +331,15 @@ bool XmlWrap::checkVersions(
 
 
     if (deprecatedSince <= sinceVersion) {
-        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") must "
             "be greater than value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ").";
         return false;
     }
 
-    if ((deprecatedSince < bbmp::Protocol::notYetDeprecated()) &&
+    if ((deprecatedSince < commsdsl::Protocol::notYetDeprecated()) &&
         (protocol.schemaImpl().version() < deprecatedSince)) {
-        bbmp::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
+        commsdsl::logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
             "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.schemaImpl().version() << ").";
         return false;
@@ -436,7 +436,7 @@ XmlWrap::PropsMap XmlWrap::getExtraAttributes(::xmlNodePtr node, const XmlWrap::
                 });
 
         if (!expected) {
-            bbmp::logWarning(protocol.logger()) << logPrefix(node) <<
+            commsdsl::logWarning(protocol.logger()) << logPrefix(node) <<
                 "Unexpected attribute \"" << a.first << "\".";
         }
     }
@@ -464,7 +464,7 @@ XmlWrap::ContentsList XmlWrap::getExtraChildren(::xmlNodePtr node, const XmlWrap
                 });
 
         if (!expected) {
-            bbmp::logWarning(protocol.logger()) << logPrefix(c) <<
+            commsdsl::logWarning(protocol.logger()) << logPrefix(c) <<
                 "Unexpected element \"" << name << "\".";
         }
         result.push_back(XmlWrap::getElementContent(c));
@@ -472,4 +472,4 @@ XmlWrap::ContentsList XmlWrap::getExtraChildren(::xmlNodePtr node, const XmlWrap
     return result;
 }
 
-} // namespace bbmp
+} // namespace commsdsl

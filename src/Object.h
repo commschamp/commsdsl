@@ -2,9 +2,9 @@
 
 #include <limits>
 
-#include "bbmp/Protocol.h"
+#include "commsdsl/Protocol.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class Object
@@ -90,4 +90,4 @@ private:
     ReusableState m_rState;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

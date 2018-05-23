@@ -62,7 +62,7 @@ void MessageTestSuite::test2()
     TS_ASSERT_EQUALS(int1.name(), "Generic");
     auto fields = int1.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
-    TS_ASSERT_EQUALS(fields.front().kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(fields.front().kind(), commsdsl::Field::Kind::Int);
 }
 
 void MessageTestSuite::test3()
@@ -95,7 +95,7 @@ void MessageTestSuite::test3()
 
 void MessageTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
@@ -103,7 +103,7 @@ void MessageTestSuite::test4()
 
 void MessageTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -111,7 +111,7 @@ void MessageTestSuite::test5()
 
 void MessageTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);

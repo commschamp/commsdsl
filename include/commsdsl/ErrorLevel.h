@@ -1,6 +1,6 @@
 #pragma once
 
-namespace bbmp
+namespace commsdsl
 {
 
 enum ErrorLevel
@@ -12,4 +12,4 @@ enum ErrorLevel
     ErrorLevel_NumOfValues
 };
 
-} // namespace bbmp
+} // namespace commsdsl

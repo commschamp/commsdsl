@@ -13,9 +13,9 @@ void CommonTestSuite::commonTearDown()
 CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string& schema)
 {
     static_cast<void>(schema);
-    ProtocolPtr protocol(new bbmp::Protocol);
+    ProtocolPtr protocol(new commsdsl::Protocol);
     protocol->setErrorReportCallback(
-        [this](bbmp::ErrorLevel level, const std::string& msg)
+        [this](commsdsl::ErrorLevel level, const std::string& msg)
         {
             static const std::string LevelMap[] = {
                 "[DEBUG]: ",
@@ -26,22 +26,22 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
             static const std::size_t LevelMapSize =
                     std::extent<decltype(LevelMap)>::value;
 
-            static_assert(LevelMapSize == bbmp::ErrorLevel_NumOfValues, "Invalid Map");
+            static_assert(LevelMapSize == commsdsl::ErrorLevel_NumOfValues, "Invalid Map");
 
             if ((level < static_cast<decltype(level)>(0)) ||
-                (bbmp::ErrorLevel_NumOfValues <= level)) {
-                level = bbmp::ErrorLevel_Error;
+                (commsdsl::ErrorLevel_NumOfValues <= level)) {
+                level = commsdsl::ErrorLevel_Error;
             }
 
             auto errMsg = LevelMap[level] + msg;
             TS_TRACE(errMsg);
 
             if (m_status.m_expErrors.empty()) {
-                TS_ASSERT(level < bbmp::ErrorLevel_Warning);
+                TS_ASSERT(level < commsdsl::ErrorLevel_Warning);
                 return;
             }
 
-            if (level < bbmp::ErrorLevel_Warning) {
+            if (level < commsdsl::ErrorLevel_Warning) {
                 return;
             }
 

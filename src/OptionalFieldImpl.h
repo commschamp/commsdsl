@@ -4,12 +4,12 @@
 #include <utility>
 #include <vector>
 
-#include "bbmp/Endian.h"
-#include "bbmp/OptionalField.h"
+#include "commsdsl/Endian.h"
+#include "commsdsl/OptionalField.h"
 #include "FieldImpl.h"
 #include "OptCondImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class OptionalFieldImpl : public FieldImpl
@@ -82,4 +82,4 @@ private:
     OptCondImplPtr m_cond;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

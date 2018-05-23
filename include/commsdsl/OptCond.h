@@ -3,13 +3,13 @@
 #include <string>
 #include <vector>
 
-#include "BbmpApi.h"
+#include "CommsdslApi.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class OptCondImpl;
-class BBMP_API OptCond
+class COMMSDSL_API OptCond
 {
 public:
 
@@ -67,4 +67,4 @@ public:
     CondList conditions() const;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

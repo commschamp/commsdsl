@@ -98,7 +98,7 @@ void MessageTestSuite::test2()
 
 void MessageTestSuite::test3()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
@@ -139,7 +139,7 @@ void MessageTestSuite::test4()
 
 void MessageTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -172,7 +172,7 @@ void MessageTestSuite::test6()
 
 void MessageTestSuite::test7()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
@@ -180,7 +180,7 @@ void MessageTestSuite::test7()
 
 void MessageTestSuite::test8()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
@@ -188,7 +188,7 @@ void MessageTestSuite::test8()
 
 void MessageTestSuite::test9()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
@@ -229,7 +229,7 @@ void MessageTestSuite::test10()
 
 void MessageTestSuite::test11()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
@@ -237,8 +237,8 @@ void MessageTestSuite::test11()
 
 void MessageTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
 
@@ -272,7 +272,7 @@ void MessageTestSuite::test12()
 void MessageTestSuite::test13()
 {
     m_status.m_preValidateFunc =
-        [](bbmp::Protocol& p)
+        [](commsdsl::Protocol& p)
         {
             p.addExpectedExtraPrefix("prefix.");
         };
@@ -363,7 +363,7 @@ void MessageTestSuite::test15()
 
 void MessageTestSuite::test16()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
@@ -371,7 +371,7 @@ void MessageTestSuite::test16()
 
 void MessageTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);

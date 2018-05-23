@@ -1,10 +1,10 @@
-#include "bbmp/BitfieldField.h"
+#include "commsdsl/BitfieldField.h"
 
 #include <cassert>
 
 #include "BitfieldFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -39,4 +39,4 @@ BitfieldField::Members BitfieldField::members() const
     return cast(m_pImpl)->membersList();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

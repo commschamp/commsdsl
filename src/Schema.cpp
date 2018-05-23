@@ -1,4 +1,4 @@
-#include "bbmp/Schema.h"
+#include "commsdsl/Schema.h"
 
 #include <limits>
 #include <cassert>
@@ -6,7 +6,7 @@
 #include "SchemaImpl.h"
 #include "common.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 Schema::Schema(const SchemaImpl* impl)
@@ -102,4 +102,4 @@ const Schema::ElementsList& Schema::extraElements() const
 
 }
 
-} // namespace bbmp
+} // namespace commsdsl

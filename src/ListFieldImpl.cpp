@@ -10,7 +10,7 @@
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -554,4 +554,4 @@ const FieldImpl*ListFieldImpl::getLengthPrefixField() const
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

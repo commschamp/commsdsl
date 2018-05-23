@@ -8,14 +8,14 @@
 #include <libxml/parser.h>
 #include <libxml/xmlerror.h>
 
-#include "bbmp/Protocol.h"
-#include "bbmp/ErrorLevel.h"
-#include "bbmp/Schema.h"
+#include "commsdsl/Protocol.h"
+#include "commsdsl/ErrorLevel.h"
+#include "commsdsl/Schema.h"
 #include "Logger.h"
 #include "SchemaImpl.h"
 #include "NamespaceImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ProtocolImpl
@@ -113,4 +113,4 @@ private:
     PlatformsList m_platforms;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

@@ -11,7 +11,7 @@
 #include "IntFieldImpl.h"
 #include "util.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -558,4 +558,4 @@ bool EnumFieldImpl::strToNumeric(
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

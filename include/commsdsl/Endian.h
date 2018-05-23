@@ -1,6 +1,6 @@
 #pragma once
 
-namespace bbmp
+namespace commsdsl
 {
 
 enum Endian : unsigned
@@ -10,4 +10,4 @@ enum Endian : unsigned
     Endian_NumOfValues
 };
 
-} // namespace bbmp
+} // namespace commsdsl

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "bbmp/BundleField.h"
+#include "commsdsl/BundleField.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class BundleFieldImpl : public FieldImpl
@@ -37,4 +37,4 @@ private:
     FieldsList m_members;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

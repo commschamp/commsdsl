@@ -4,10 +4,10 @@
 #include <utility>
 #include <vector>
 
-#include "bbmp/Endian.h"
+#include "commsdsl/Endian.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ListFieldImpl : public FieldImpl
@@ -139,4 +139,4 @@ private:
     FieldImplPtr m_elemLengthPrefixField;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

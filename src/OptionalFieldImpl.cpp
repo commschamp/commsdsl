@@ -10,7 +10,7 @@
 #include "common.h"
 #include "ProtocolImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -389,4 +389,4 @@ const FieldImpl* OptionalFieldImpl::getField() const
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

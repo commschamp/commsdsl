@@ -8,7 +8,7 @@
 
 #include "ProtocolImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -269,4 +269,4 @@ bool BitfieldFieldImpl::updateMembers()
     return true;
 }
 
-} // namespace bbmp
+} // namespace commsdsl

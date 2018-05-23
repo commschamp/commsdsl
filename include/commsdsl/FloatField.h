@@ -9,11 +9,11 @@
 #include "Units.h"
 #include "Protocol.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class FloatFieldImpl;
-class BBMP_API FloatField : public Field
+class COMMSDSL_API FloatField : public Field
 {
     using Base = Field;
 public:
@@ -83,4 +83,4 @@ bool operator!=(const FloatField::ValidRangeInfo& i1, const FloatField::ValidRan
     return !(i1 == i2);
 }
 
-} // namespace bbmp
+} // namespace commsdsl

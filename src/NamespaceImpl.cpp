@@ -8,7 +8,7 @@
 #include "common.h"
 #include "ProtocolImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -445,18 +445,18 @@ bool NamespaceImpl::updateExtraChildren()
 
 LogWrapper NamespaceImpl::logError() const
 {
-    return bbmp::logError(m_protocol.logger());
+    return commsdsl::logError(m_protocol.logger());
 }
 
 LogWrapper NamespaceImpl::logWarning() const
 {
-    return bbmp::logWarning(m_protocol.logger());
+    return commsdsl::logWarning(m_protocol.logger());
 }
 
 LogWrapper NamespaceImpl::logInfo() const
 {
-    return bbmp::logInfo(m_protocol.logger());
+    return commsdsl::logInfo(m_protocol.logger());
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

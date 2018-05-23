@@ -40,15 +40,15 @@ void RefTestSuite::test1()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "F2");
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Ref);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 4U);
     TS_ASSERT_EQUALS(field.bitLength(), 0U);
 
-    bbmp::RefField refField(field);
+    commsdsl::RefField refField(field);
     auto referee = refField.field();
     TS_ASSERT(referee.valid());
-    TS_ASSERT_EQUALS(referee.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(referee.kind(), commsdsl::Field::Kind::Int);
     TS_ASSERT_EQUALS(referee.externalRef(), "F1");
     TS_ASSERT(protocol->findField(referee.externalRef()).valid());
 }
@@ -70,14 +70,14 @@ void RefTestSuite::test2()
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "F3");
     TS_ASSERT_EQUALS(field.externalRef(), "ns1.F3");
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Ref);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 4U);
 
-    bbmp::RefField refField(field);
+    commsdsl::RefField refField(field);
     auto referee = refField.field();
     TS_ASSERT(referee.valid());
-    TS_ASSERT_EQUALS(referee.kind(), bbmp::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(referee.kind(), commsdsl::Field::Kind::Ref);
     TS_ASSERT_EQUALS(referee.externalRef(), "ns1.F2");
     TS_ASSERT(protocol->findField(referee.externalRef()).valid());
 }
@@ -99,24 +99,24 @@ void RefTestSuite::test3()
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "F2");
     TS_ASSERT_EQUALS(field.externalRef(), "ns1.F2");
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 7U);
-    bbmp::BundleField bundleField(field);
+    commsdsl::BundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     auto& refMem = members[1];
-    bbmp::RefField refField(refMem);
+    commsdsl::RefField refField(refMem);
     auto referee = refField.field();
     TS_ASSERT(referee.valid());
-    TS_ASSERT_EQUALS(referee.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(referee.kind(), commsdsl::Field::Kind::Int);
     TS_ASSERT_EQUALS(referee.externalRef(), "ns1.F1");
     TS_ASSERT(protocol->findField(referee.externalRef()).valid());
 }
 
 void RefTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
@@ -124,7 +124,7 @@ void RefTestSuite::test4()
 
 void RefTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);

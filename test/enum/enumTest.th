@@ -53,13 +53,13 @@ void EnumTestSuite::test1()
     TS_ASSERT_EQUALS(field.name(), "Enum1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
 
-    bbmp::EnumField enumField(field);
+    commsdsl::EnumField enumField(field);
     auto& values = enumField.values();
     auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint8);
-    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(enumField.type(), commsdsl::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::Endian_Big);
     TS_ASSERT_EQUALS(enumField.minLength(), 1U);
     TS_ASSERT_EQUALS(enumField.bitLength(), 0U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0);
@@ -78,7 +78,7 @@ void EnumTestSuite::test1()
 
 void EnumTestSuite::test2()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
@@ -101,13 +101,13 @@ void EnumTestSuite::test3()
     TS_ASSERT_EQUALS(field.name(), "Enum1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
 
-    bbmp::EnumField enumField(field);
+    commsdsl::EnumField enumField(field);
     auto& values = enumField.values();
     auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint16);
-    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(enumField.type(), commsdsl::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::Endian_Big);
     TS_ASSERT_EQUALS(enumField.minLength(), 2U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 2);
     TS_ASSERT(enumField.isNonUniqueAllowed());
@@ -144,13 +144,13 @@ void EnumTestSuite::test4()
     TS_ASSERT_EQUALS(field.name(), "Enum1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
 
-    bbmp::EnumField enumField(field);
+    commsdsl::EnumField enumField(field);
     auto& values = enumField.values();
     auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint64);
-    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(enumField.type(), commsdsl::IntField::Type::Uint64);
+    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::Endian_Big);
     TS_ASSERT_EQUALS(enumField.minLength(), 8U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
@@ -182,13 +182,13 @@ void EnumTestSuite::test5()
     TS_ASSERT_EQUALS(field.name(), "Enum1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
 
-    bbmp::EnumField enumField(field);
+    commsdsl::EnumField enumField(field);
     auto& values = enumField.values();
     auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uintvar);
-    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField.type(), commsdsl::IntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::Endian_Little);
     TS_ASSERT_EQUALS(enumField.minLength(), 10U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 0xffffffffffffffff);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
@@ -220,13 +220,13 @@ void EnumTestSuite::test6()
     TS_ASSERT_EQUALS(field.name(), "Enum1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
 
-    bbmp::EnumField enumField(field);
+    commsdsl::EnumField enumField(field);
     auto& values = enumField.values();
     auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uintvar);
-    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField.type(), commsdsl::IntField::Type::Uintvar);
+    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::Endian_Little);
     TS_ASSERT_EQUALS(enumField.minLength(), 6U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
@@ -243,8 +243,8 @@ void EnumTestSuite::test6()
 
 void EnumTestSuite::test7()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
@@ -261,13 +261,13 @@ void EnumTestSuite::test7()
     TS_ASSERT_EQUALS(field.name(), "Enum1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
 
-    bbmp::EnumField enumField(field);
+    commsdsl::EnumField enumField(field);
     auto& values = enumField.values();
     auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Intvar);
-    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField.type(), commsdsl::IntField::Type::Intvar);
+    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::Endian_Little);
     TS_ASSERT_EQUALS(enumField.minLength(), 6U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), (std::intmax_t)0x3ffffffffff);
     TS_ASSERT(!enumField.isNonUniqueAllowed());
@@ -301,20 +301,20 @@ void EnumTestSuite::test8()
 
     TS_ASSERT_EQUALS(field1.name(), "Enum1");
     TS_ASSERT_EQUALS(field2.name(), "Enum2");
-    TS_ASSERT_EQUALS(field1.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Enum);
     TS_ASSERT_EQUALS(field1.kind(), field2.kind());
 
-    bbmp::EnumField enumField1(field1);
+    commsdsl::EnumField enumField1(field1);
     auto& values1 = enumField1.values();
     auto& revValues1 = enumField1.revValues();
 
-    bbmp::EnumField enumField2(field2);
+    commsdsl::EnumField enumField2(field2);
     auto& values2 = enumField2.values();
     auto& revValues2 = enumField2.revValues();
 
-    TS_ASSERT_EQUALS(enumField1.type(), bbmp::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField1.type(), commsdsl::IntField::Type::Uint8);
     TS_ASSERT_EQUALS(enumField1.type(), enumField2.type());
-    TS_ASSERT_EQUALS(enumField1.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField1.endian(), commsdsl::Endian_Little);
     TS_ASSERT_EQUALS(enumField1.endian(), enumField2.endian());
     TS_ASSERT_EQUALS(enumField1.minLength(), 1U);
     TS_ASSERT_EQUALS(enumField1.minLength(), enumField2.minLength());
@@ -344,7 +344,7 @@ void EnumTestSuite::test8()
 
 void EnumTestSuite::test9()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
 
@@ -360,14 +360,14 @@ void EnumTestSuite::test9()
     auto& field2 = fields.back();
 
     TS_ASSERT_EQUALS(field2.name(), "Enum2");
-    TS_ASSERT_EQUALS(field2.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Enum);
 
-    bbmp::EnumField enumField2(field2);
+    commsdsl::EnumField enumField2(field2);
     auto& values2 = enumField2.values();
     auto& revValues2 = enumField2.revValues();
 
-    TS_ASSERT_EQUALS(enumField2.type(), bbmp::IntField::Type::Uint8);
-    TS_ASSERT_EQUALS(enumField2.endian(), bbmp::Endian_Big);
+    TS_ASSERT_EQUALS(enumField2.type(), commsdsl::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(enumField2.endian(), commsdsl::Endian_Big);
     TS_ASSERT_EQUALS(enumField2.minLength(), 1U);
     TS_ASSERT_EQUALS(enumField2.defaultValue(), 1);
     TS_ASSERT(!enumField2.isNonUniqueAllowed());
@@ -381,16 +381,16 @@ void EnumTestSuite::test9()
     auto nullIter = values2.find("Null");
     TS_ASSERT_EQUALS(v1Iter->second.m_value, 1);
     TS_ASSERT_EQUALS(v1Iter->second.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(v1Iter->second.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(v1Iter->second.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(v2Iter->second.m_value, 2);
     TS_ASSERT_EQUALS(v2Iter->second.m_sinceVersion, 0);
     TS_ASSERT_EQUALS(v2Iter->second.m_deprecatedSince, 2);
     TS_ASSERT_EQUALS(v3Iter->second.m_value, 3);
     TS_ASSERT_EQUALS(v3Iter->second.m_sinceVersion, 2);
-    TS_ASSERT_EQUALS(v3Iter->second.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(v3Iter->second.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(nullIter->second.m_value, (std::intmax_t)0xff);
     TS_ASSERT_EQUALS(nullIter->second.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(nullIter->second.m_deprecatedSince, bbmp::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(nullIter->second.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(revValues2.find(1)->second, "V1");
     TS_ASSERT_EQUALS(revValues2.find(2)->second, "V2");
     TS_ASSERT_EQUALS(revValues2.find(3)->second, "V3");
@@ -399,8 +399,8 @@ void EnumTestSuite::test9()
 
 void EnumTestSuite::test10()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
@@ -408,9 +408,9 @@ void EnumTestSuite::test10()
 
 void EnumTestSuite::test11()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
@@ -418,7 +418,7 @@ void EnumTestSuite::test11()
 
 void EnumTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
@@ -426,7 +426,7 @@ void EnumTestSuite::test12()
 
 void EnumTestSuite::test13()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
@@ -434,7 +434,7 @@ void EnumTestSuite::test13()
 
 void EnumTestSuite::test14()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
@@ -442,7 +442,7 @@ void EnumTestSuite::test14()
 
 void EnumTestSuite::test15()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
@@ -465,13 +465,13 @@ void EnumTestSuite::test16()
     TS_ASSERT_EQUALS(field.name(), "Enum1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
 
-    bbmp::EnumField enumField(field);
+    commsdsl::EnumField enumField(field);
     auto& values = enumField.values();
     auto& revValues = enumField.revValues();
-    TS_ASSERT_EQUALS(enumField.type(), bbmp::IntField::Type::Uint32);
-    TS_ASSERT_EQUALS(enumField.endian(), bbmp::Endian_Little);
+    TS_ASSERT_EQUALS(enumField.type(), commsdsl::IntField::Type::Uint32);
+    TS_ASSERT_EQUALS(enumField.endian(), commsdsl::Endian_Little);
     TS_ASSERT_EQUALS(enumField.minLength(), 3U);
     TS_ASSERT_EQUALS(enumField.defaultValue(), 2);
     TS_ASSERT(enumField.isNonUniqueAllowed());
@@ -488,7 +488,7 @@ void EnumTestSuite::test16()
 
 void EnumTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);

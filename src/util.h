@@ -1,6 +1,6 @@
 #pragma once
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace util
@@ -14,4 +14,4 @@ constexpr unsigned toUnsigned(T val)
 
 } // namespace util
 
-} // namespace bbmp
+} // namespace commsdsl

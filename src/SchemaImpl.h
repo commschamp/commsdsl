@@ -1,10 +1,10 @@
 #pragma once
 
-#include "bbmp/Endian.h"
+#include "commsdsl/Endian.h"
 
 #include "XmlWrap.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ProtocolImpl;
@@ -96,4 +96,4 @@ private:
     bool m_nonUniqueMsgIdAllowed = false;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

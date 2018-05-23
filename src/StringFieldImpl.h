@@ -4,10 +4,10 @@
 #include <utility>
 #include <vector>
 
-#include "bbmp/Endian.h"
+#include "commsdsl/Endian.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class StringFieldImpl : public FieldImpl
@@ -86,4 +86,4 @@ private:
     FieldImplPtr m_prefixField;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

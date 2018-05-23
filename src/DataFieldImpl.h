@@ -4,11 +4,11 @@
 #include <utility>
 #include <vector>
 
-#include "bbmp/Endian.h"
-#include "bbmp/DataField.h"
+#include "commsdsl/Endian.h"
+#include "commsdsl/DataField.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class DataFieldImpl : public FieldImpl
@@ -75,4 +75,4 @@ private:
     FieldImplPtr m_prefixField;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

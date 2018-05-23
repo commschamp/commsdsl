@@ -4,11 +4,11 @@
 
 #include "Field.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class DataFieldImpl;
-class BBMP_API DataField : public Field
+class COMMSDSL_API DataField : public Field
 {
     using Base = Field;
 public:
@@ -24,4 +24,4 @@ public:
     Field lengthPrefixField() const;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

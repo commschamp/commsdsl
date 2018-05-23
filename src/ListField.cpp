@@ -1,10 +1,10 @@
-#include "bbmp/ListField.h"
+#include "commsdsl/ListField.h"
 
 #include <cassert>
 
 #include "ListFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -74,4 +74,4 @@ bool ListField::elemFixedLength() const
     return cast(m_pImpl)->elemFixedLength();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

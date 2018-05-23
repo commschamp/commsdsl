@@ -8,7 +8,7 @@
 #include "ProtocolImpl.h"
 #include "NamespaceImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -147,4 +147,4 @@ bool SchemaImpl::updateExtraChildren()
     return true;
 }
 
-} // namespace bbmp
+} // namespace commsdsl

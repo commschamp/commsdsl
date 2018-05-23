@@ -5,11 +5,11 @@
 #include "Field.h"
 #include "OptCond.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class OptionalFieldImpl;
-class BBMP_API OptionalField : public Field
+class COMMSDSL_API OptionalField : public Field
 {
     using Base = Field;
 public:
@@ -30,4 +30,4 @@ public:
     OptCond cond() const;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

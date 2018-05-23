@@ -20,7 +20,7 @@
 #include "NamespaceImpl.h"
 #include "common.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 FieldImpl::Ptr FieldImpl::create(
@@ -153,7 +153,7 @@ XmlWrap::NamesList FieldImpl::supportedTypes()
 //        assert(obj.getSinceVersion() <= thisMem->getMinSinceVersion());
 
 //        if (nextMem->getMinSinceVersion() < thisMem->getMaxSinceVersion()) {
-//            bbmp::logError(logger) << XmlWrap::logPrefix(nextMem->getNode()) <<
+//            commsdsl::logError(logger) << XmlWrap::logPrefix(nextMem->getNode()) <<
 //                "Version of the member \"" << nextMem->name() << "\" (" <<
 //                nextMem->getMinSinceVersion() << ") must't be less than previous "
 //                " member's one (" << thisMem->getMaxSinceVersion() << ").";
@@ -177,7 +177,7 @@ bool FieldImpl::validateMembersNames(
     std::set<std::string> usedNames;
     for (auto& f : fields) {
         if (usedNames.find(f->name()) != usedNames.end()) {
-            bbmp::logError(logger) << XmlWrap::logPrefix(f->getNode()) <<
+            commsdsl::logError(logger) << XmlWrap::logPrefix(f->getNode()) <<
                 "Member field with name \"" << f->name() << "\" has already been defined.";
             return false;
         }
@@ -217,7 +217,7 @@ std::string FieldImpl::externalRef() const
         return common::emptyString();
     }
 
-    auto& ns = static_cast<const bbmp::NamespaceImpl&>(*getParent());
+    auto& ns = static_cast<const commsdsl::NamespaceImpl&>(*getParent());
     auto nsRef = ns.externalRef();
     if (nsRef.empty()) {
         return name();
@@ -259,17 +259,17 @@ FieldImpl::FieldImpl(const FieldImpl&) = default;
 
 LogWrapper FieldImpl::logError() const
 {
-    return bbmp::logError(m_protocol.logger());
+    return commsdsl::logError(m_protocol.logger());
 }
 
 LogWrapper FieldImpl::logWarning() const
 {
-    return bbmp::logWarning(m_protocol.logger());
+    return commsdsl::logWarning(m_protocol.logger());
 }
 
 LogWrapper FieldImpl::logInfo() const
 {
-    return bbmp::logInfo(m_protocol.logger());
+    return commsdsl::logInfo(m_protocol.logger());
 }
 
 Object::ObjKind FieldImpl::objKindImpl() const
@@ -414,7 +414,7 @@ bool FieldImpl::checkReuse()
     m_state = field->m_state;
 
     assert(getSinceVersion() == 0U);
-    assert(getDeprecated() == bbmp::Protocol::notYetDeprecated());
+    assert(getDeprecated() == commsdsl::Protocol::notYetDeprecated());
     assert(!isDeprecatedRemoved());
     return reuseImpl(*field);
 }
@@ -464,7 +464,7 @@ bool FieldImpl::updateVersions()
         sinceVersion = getParent()->getSinceVersion();
     }
 
-    unsigned deprecated = bbmp::Protocol::notYetDeprecated();
+    unsigned deprecated = commsdsl::Protocol::notYetDeprecated();
     if ((getParent() != nullptr) && (getParent()->objKind() != ObjKind::Namespace)) {
         deprecated = getParent()->getDeprecated();
     }
@@ -485,11 +485,11 @@ bool FieldImpl::updateVersions()
             sinceVersion = 0U;
         }
 
-        if (deprecated != bbmp::Protocol::notYetDeprecated()) {
+        if (deprecated != commsdsl::Protocol::notYetDeprecated()) {
             logWarning() << XmlWrap::logPrefix(getNode()) <<
                 "Property \"" << common::deprecatedStr() << "\" is not applicable to "
                 "stand alone fields, ignoring provided value";
-            deprecated = bbmp::Protocol::notYetDeprecated();
+            deprecated = commsdsl::Protocol::notYetDeprecated();
         }
 
     } while (false);
@@ -512,7 +512,7 @@ bool FieldImpl::updateVersions()
             break;
         }
 
-        if (deprecated == bbmp::Protocol::notYetDeprecated()) {
+        if (deprecated == commsdsl::Protocol::notYetDeprecated()) {
             logWarning() << XmlWrap::logPrefix(getNode()) <<
                 "Property \"" << common::removedStr() << "\" is not applicable to "
                 "non deprecated fields";
@@ -633,4 +633,4 @@ const FieldImpl::CreateMap& FieldImpl::createMap()
     return Map;
 }
 
-} // namespace bbmp
+} // namespace commsdsl

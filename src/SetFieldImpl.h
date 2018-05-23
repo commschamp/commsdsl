@@ -4,11 +4,11 @@
 #include <utility>
 #include <vector>
 
-#include "bbmp/Endian.h"
-#include "bbmp/SetField.h"
+#include "commsdsl/Endian.h"
+#include "commsdsl/SetField.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class SetFieldImpl : public FieldImpl
@@ -101,4 +101,4 @@ private:
     State m_state;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

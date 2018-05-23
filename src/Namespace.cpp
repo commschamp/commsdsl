@@ -1,10 +1,10 @@
-#include "bbmp/Namespace.h"
+#include "commsdsl/Namespace.h"
 
 #include <cassert>
 
 #include "NamespaceImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 Namespace::Namespace(const NamespaceImpl* impl)
@@ -65,4 +65,4 @@ const Namespace::ElementsList& Namespace::extraElements() const
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

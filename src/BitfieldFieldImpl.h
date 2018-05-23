@@ -1,10 +1,10 @@
 #pragma once
 
-#include "bbmp/Endian.h"
-#include "bbmp/BitfieldField.h"
+#include "commsdsl/Endian.h"
+#include "commsdsl/BitfieldField.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class BitfieldFieldImpl : public FieldImpl
@@ -46,4 +46,4 @@ private:
     FieldsList m_members;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

@@ -2,11 +2,11 @@
 
 #include "Field.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class StringFieldImpl;
-class BBMP_API StringField : public Field
+class COMMSDSL_API StringField : public Field
 {
     using Base = Field;
 public:
@@ -22,4 +22,4 @@ public:
     bool hasZeroTermSuffix() const;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

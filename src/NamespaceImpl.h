@@ -3,7 +3,7 @@
 #include <memory>
 #include <algorithm>
 
-#include "bbmp/Namespace.h"
+#include "commsdsl/Namespace.h"
 
 #include "XmlWrap.h"
 #include "Logger.h"
@@ -12,7 +12,7 @@
 #include "InterfaceImpl.h"
 #include "Object.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ProtocolImpl;
@@ -173,4 +173,4 @@ private:
 
 using NamespaceImplPtr = NamespaceImpl::Ptr;
 
-} // namespace bbmp
+} // namespace commsdsl

@@ -4,10 +4,10 @@
 #include <utility>
 #include <vector>
 
-#include "bbmp/Endian.h"
+#include "commsdsl/Endian.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class RefFieldImpl : public FieldImpl
@@ -42,4 +42,4 @@ private:
     const FieldImpl* m_field = nullptr;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

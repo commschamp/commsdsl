@@ -1,9 +1,9 @@
-#include "bbmp/Interface.h"
+#include "commsdsl/Interface.h"
 #include <cassert>
 
 #include "InterfaceImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 Interface::Interface(const InterfaceImpl* impl)
@@ -56,4 +56,4 @@ const Interface::ElementsList& Interface::extraElements() const
     return m_pImpl->extraChildren();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

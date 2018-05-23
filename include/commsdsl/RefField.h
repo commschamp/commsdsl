@@ -2,11 +2,11 @@
 
 #include "Field.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class RefFieldImpl;
-class BBMP_API RefField : public Field
+class COMMSDSL_API RefField : public Field
 {
     using Base = Field;
 public:
@@ -17,4 +17,4 @@ public:
     Field field() const;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

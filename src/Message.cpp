@@ -1,9 +1,9 @@
-#include "bbmp/Message.h"
+#include "commsdsl/Message.h"
 #include <cassert>
 
 #include "MessageImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 Message::Message(const MessageImpl* impl)
@@ -111,4 +111,4 @@ const Message::PlatformsList& Message::platforms() const
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

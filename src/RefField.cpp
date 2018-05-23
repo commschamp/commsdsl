@@ -1,10 +1,10 @@
-#include "bbmp/RefField.h"
+#include "commsdsl/RefField.h"
 
 #include <cassert>
 
 #include "RefFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -34,4 +34,4 @@ Field RefField::field() const
     return cast(m_pImpl)->field();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

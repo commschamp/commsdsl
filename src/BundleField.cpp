@@ -1,10 +1,10 @@
-#include "bbmp/BundleField.h"
+#include "commsdsl/BundleField.h"
 
 #include <cassert>
 
 #include "BundleFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -34,4 +34,4 @@ BundleField::Members BundleField::members() const
     return cast(m_pImpl)->membersList();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

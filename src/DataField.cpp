@@ -1,10 +1,10 @@
-#include "bbmp/DataField.h"
+#include "commsdsl/DataField.h"
 
 #include <cassert>
 
 #include "DataFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -49,4 +49,4 @@ Field DataField::lengthPrefixField() const
     return cast(m_pImpl)->prefixField();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

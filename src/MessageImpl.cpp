@@ -11,7 +11,7 @@
 #include "common.h"
 #include "OptionalFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -123,7 +123,7 @@ std::string MessageImpl::externalRef() const
     assert(getParent() != nullptr);
     assert(getParent()->objKind() == ObjKind::Namespace);
 
-    auto& ns = static_cast<const bbmp::NamespaceImpl&>(*getParent());
+    auto& ns = static_cast<const commsdsl::NamespaceImpl&>(*getParent());
     auto nsRef = ns.externalRef();
     if (nsRef.empty()) {
         return name();
@@ -139,17 +139,17 @@ Object::ObjKind MessageImpl::objKindImpl() const
 
 LogWrapper MessageImpl::logError() const
 {
-    return bbmp::logError(m_protocol.logger());
+    return commsdsl::logError(m_protocol.logger());
 }
 
 LogWrapper MessageImpl::logWarning() const
 {
-    return bbmp::logWarning(m_protocol.logger());
+    return commsdsl::logWarning(m_protocol.logger());
 }
 
 LogWrapper MessageImpl::logInfo() const
 {
-    return bbmp::logInfo(m_protocol.logger());
+    return commsdsl::logInfo(m_protocol.logger());
 }
 
 bool MessageImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
@@ -320,7 +320,7 @@ bool MessageImpl::updateVersions()
             break;
         }
 
-        if (deprecated == bbmp::Protocol::notYetDeprecated()) {
+        if (deprecated == commsdsl::Protocol::notYetDeprecated()) {
             logWarning() << XmlWrap::logPrefix(getNode()) <<
                 "Property \"" << common::removedStr() << "\" is not applicable to "
                 "non deprecated fields";
@@ -578,4 +578,4 @@ bool MessageImpl::updateExtraChildren()
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

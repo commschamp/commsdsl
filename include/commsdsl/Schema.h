@@ -4,14 +4,14 @@
 #include <map>
 #include <vector>
 
-#include "BbmpApi.h"
+#include "CommsdslApi.h"
 #include "Endian.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class SchemaImpl;
-class BBMP_API Schema
+class COMMSDSL_API Schema
 {
 public:
     using AttributesMap = std::multimap<std::string, std::string>;
@@ -41,4 +41,4 @@ private:
     const SchemaImpl* m_pImpl;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

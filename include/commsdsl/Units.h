@@ -1,6 +1,6 @@
 #pragma once
 
-namespace bbmp
+namespace commsdsl
 {
 
 enum class Units : unsigned
@@ -46,4 +46,4 @@ enum class Units : unsigned
     NumOfValues
 };
 
-} // namespace bbmp
+} // namespace commsdsl

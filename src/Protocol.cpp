@@ -1,8 +1,8 @@
-#include "bbmp/Protocol.h"
+#include "commsdsl/Protocol.h"
 
 #include "ProtocolImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 Protocol::Protocol()
@@ -57,4 +57,4 @@ const Protocol::PlatformsList&Protocol::platforms() const
     return m_pImpl->platforms();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

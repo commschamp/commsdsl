@@ -1,9 +1,9 @@
-#include "bbmp/Field.h"
+#include "commsdsl/Field.h"
 #include <cassert>
 
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 Field::Field(const FieldImpl* impl)
@@ -98,4 +98,4 @@ const Field::ElementsList& Field::extraElements() const
     return m_pImpl->extraChildren();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

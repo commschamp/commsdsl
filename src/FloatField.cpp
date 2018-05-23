@@ -1,10 +1,10 @@
-#include "bbmp/FloatField.h"
+#include "commsdsl/FloatField.h"
 
 #include <cassert>
 
 #include "FloatFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -64,4 +64,4 @@ Units FloatField::units() const
     return cast(m_pImpl)->units();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

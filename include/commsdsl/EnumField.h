@@ -3,11 +3,11 @@
 #include "Protocol.h"
 #include "IntField.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class EnumFieldImpl;
-class BBMP_API EnumField : public Field
+class COMMSDSL_API EnumField : public Field
 {
     using Base = Field;
 public:
@@ -44,4 +44,4 @@ bool operator==(const EnumField::ValueInfo& i1, const EnumField::ValueInfo& i2)
            (i1.m_deprecatedSince == i2.m_deprecatedSince);
 }
 
-} // namespace bbmp
+} // namespace commsdsl

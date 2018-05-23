@@ -3,17 +3,17 @@
 #include <string>
 #include <vector>
 
-#include "BbmpApi.h"
+#include "CommsdslApi.h"
 #include "Field.h"
 #include "Message.h"
 #include "Schema.h"
 #include "Interface.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class NamespaceImpl;
-class BBMP_API Namespace
+class COMMSDSL_API Namespace
 {
 public:
     using NamespacesList = std::vector<Namespace>;
@@ -41,4 +41,4 @@ private:
     const NamespaceImpl* m_pImpl;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

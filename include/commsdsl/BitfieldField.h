@@ -2,11 +2,11 @@
 
 #include "Field.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class BitfieldFieldImpl;
-class BBMP_API BitfieldField : public Field
+class COMMSDSL_API BitfieldField : public Field
 {
     using Base = Field;
 public:
@@ -20,4 +20,4 @@ public:
     Members members() const;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

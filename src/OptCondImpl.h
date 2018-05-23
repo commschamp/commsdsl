@@ -3,12 +3,12 @@
 #include <memory>
 #include <vector>
 
-#include "bbmp/OptCond.h"
+#include "commsdsl/OptCond.h"
 #include "XmlWrap.h"
 #include "Logger.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class OptCondImpl
@@ -123,4 +123,4 @@ private:
 
 using OptCondImplPtr = OptCondImpl::Ptr;
 
-} // namespace bbmp
+} // namespace commsdsl

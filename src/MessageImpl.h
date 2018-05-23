@@ -8,11 +8,11 @@
 #include "XmlWrap.h"
 #include "Logger.h"
 #include "Object.h"
-#include "bbmp/Message.h"
-#include "bbmp/Protocol.h"
+#include "commsdsl/Message.h"
+#include "commsdsl/Protocol.h"
 #include "FieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ProtocolImpl;
@@ -124,4 +124,4 @@ private:
 
 using MessageImplPtr = MessageImpl::Ptr;
 
-} // namespace bbmp
+} // namespace commsdsl

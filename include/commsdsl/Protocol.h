@@ -6,17 +6,17 @@
 #include <vector>
 #include <limits>
 
-#include "BbmpApi.h"
+#include "CommsdslApi.h"
 #include "ErrorLevel.h"
 #include "Schema.h"
 #include "Namespace.h"
 #include "Field.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ProtocolImpl;
-class BBMP_API Protocol
+class COMMSDSL_API Protocol
 {
 public:
     using ErrorReportFunction = std::function<void (ErrorLevel, const std::string&)>;
@@ -52,4 +52,4 @@ private:
     std::unique_ptr<ProtocolImpl> m_pImpl;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

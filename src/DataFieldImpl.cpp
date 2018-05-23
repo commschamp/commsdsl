@@ -11,7 +11,7 @@
 #include "IntFieldImpl.h"
 #include "util.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -359,4 +359,4 @@ const FieldImpl* DataFieldImpl::getPrefixField() const
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

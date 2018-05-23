@@ -2,11 +2,11 @@
 
 #include "Field.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class BundleFieldImpl;
-class BBMP_API BundleField : public Field
+class COMMSDSL_API BundleField : public Field
 {
     using Base = Field;
 public:
@@ -19,4 +19,4 @@ public:
     Members members() const;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

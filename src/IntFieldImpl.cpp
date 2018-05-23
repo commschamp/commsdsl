@@ -11,7 +11,7 @@
 #include "RefFieldImpl.h"
 #include "util.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -1409,4 +1409,4 @@ bool IntFieldImpl::strToNumeric(
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

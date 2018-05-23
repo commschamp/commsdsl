@@ -1,10 +1,10 @@
-#include "bbmp/EnumField.h"
+#include "commsdsl/EnumField.h"
 
 #include <cassert>
 
 #include "EnumFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -64,9 +64,9 @@ bool EnumField::isUnique() const
     return cast(m_pImpl)->isUnique();
 }
 
-bool bbmp::EnumField::validCheckVersion() const
+bool commsdsl::EnumField::validCheckVersion() const
 {
     return cast(m_pImpl)->validCheckVersion();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

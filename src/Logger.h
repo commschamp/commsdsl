@@ -2,10 +2,10 @@
 
 #include <sstream>
 
-#include "bbmp/ErrorLevel.h"
-#include "bbmp/Protocol.h"
+#include "commsdsl/ErrorLevel.h"
+#include "commsdsl/Protocol.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ProtocolImpl;
@@ -96,5 +96,5 @@ LogWrapper logInfo(Logger& logger)
     return LogWrapper(logger);
 }
 
-} // namespace bbmp
+} // namespace commsdsl
 

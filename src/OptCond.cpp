@@ -1,10 +1,10 @@
-#include "bbmp/OptCond.h"
+#include "commsdsl/OptCond.h"
 
 #include <cassert>
 \
 #include "OptCondImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -26,21 +26,21 @@ const OptCondListImpl* castList(const OptCondImpl* ptr)
 
 } // namespace
 
-bbmp::OptCond::OptCond(const bbmp::OptCondImpl* impl)
+commsdsl::OptCond::OptCond(const commsdsl::OptCondImpl* impl)
   : m_pImpl(impl)
 {
 }
 
-bbmp::OptCond::OptCond(const bbmp::OptCond& ) = default;
+commsdsl::OptCond::OptCond(const commsdsl::OptCond& ) = default;
 
-bbmp::OptCond::~OptCond() = default;
+commsdsl::OptCond::~OptCond() = default;
 
 bool OptCond::valid() const
 {
     return m_pImpl != nullptr;
 }
 
-bbmp::OptCond::Kind bbmp::OptCond::kind() const
+commsdsl::OptCond::Kind commsdsl::OptCond::kind() const
 {
     assert(valid());
     return m_pImpl->kind();
@@ -94,4 +94,4 @@ OptCondList::CondList OptCondList::conditions() const
 }
 
 
-} // namespace bbmp
+} // namespace commsdsl

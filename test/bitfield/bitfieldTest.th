@@ -46,10 +46,10 @@ void BitfieldTestSuite::test1()
     TS_ASSERT_EQUALS(field.name(), "Bitfield1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bitfield);
 
-    bbmp::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Big);
+    commsdsl::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::Endian_Big);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
     TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
     auto members = bitfieldField.members();
@@ -57,9 +57,9 @@ void BitfieldTestSuite::test1()
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Int);
 }
 
 void BitfieldTestSuite::test2()
@@ -80,19 +80,19 @@ void BitfieldTestSuite::test2()
     TS_ASSERT_EQUALS(field.name(), "Bitfield1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bitfield);
 
-    bbmp::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
+    commsdsl::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::Endian_Little);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
     auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Int);
 }
 
 void BitfieldTestSuite::test3()
@@ -113,24 +113,24 @@ void BitfieldTestSuite::test3()
     TS_ASSERT_EQUALS(field.name(), "Bitfield2");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bitfield);
 
-    bbmp::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Big);
+    commsdsl::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::Endian_Big);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
     auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
-    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Int);
 }
 
 void BitfieldTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error); m_status.m_expValidateResult = false;
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error); m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
 }
@@ -153,27 +153,27 @@ void BitfieldTestSuite::test5()
     TS_ASSERT_EQUALS(field.name(), "Bitfield1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bitfield);
 
-    bbmp::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
+    commsdsl::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::Endian_Little);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 3U);
     auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     auto& mem1 = members[0];
     auto& mem2 = members[1];
     auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), bbmp::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(bbmp::EnumField(mem1).bitLength(), 4U);
-    TS_ASSERT_EQUALS(mem2.kind(), bbmp::Field::Kind::Set);
-    TS_ASSERT_EQUALS(bbmp::SetField(mem2).bitLength(), 8U);
-    TS_ASSERT_EQUALS(mem3.kind(), bbmp::Field::Kind::Int);
-    TS_ASSERT_EQUALS(bbmp::IntField(mem3).bitLength(), 12U);
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(commsdsl::EnumField(mem1).bitLength(), 4U);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Set);
+    TS_ASSERT_EQUALS(commsdsl::SetField(mem2).bitLength(), 8U);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(commsdsl::IntField(mem3).bitLength(), 12U);
 }
 
 void BitfieldTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
@@ -197,10 +197,10 @@ void BitfieldTestSuite::test7()
     TS_ASSERT_EQUALS(field.name(), "Bitfield1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bitfield);
 
-    bbmp::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Little);
+    commsdsl::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::Endian_Little);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 3U);
     auto members = bitfieldField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
@@ -224,10 +224,10 @@ void BitfieldTestSuite::test8()
     TS_ASSERT_EQUALS(field.name(), "Bitfield1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), bbmp::Field::Kind::Bitfield);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bitfield);
 
-    bbmp::BitfieldField bitfieldField(field);
-    TS_ASSERT_EQUALS(bitfieldField.endian(), bbmp::Endian_Big);
+    commsdsl::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::Endian_Big);
     TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
     TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
     auto members = bitfieldField.members();
@@ -236,7 +236,7 @@ void BitfieldTestSuite::test8()
 
 void BitfieldTestSuite::test9()
 {
-    m_status.m_expErrors.push_back(bbmp::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);

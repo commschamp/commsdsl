@@ -4,14 +4,14 @@
 #include <vector>
 #include <cstdint>
 
-#include "BbmpApi.h"
+#include "CommsdslApi.h"
 #include "Field.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class InterfaceImpl;
-class BBMP_API Interface
+class COMMSDSL_API Interface
 {
 public:
     using FieldsList = std::vector<Field>;
@@ -35,4 +35,4 @@ protected:
     const InterfaceImpl* m_pImpl;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

@@ -10,7 +10,7 @@
 
 //#include <iostream>
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -400,4 +400,4 @@ bool OptCondListImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNod
 
 
 
-} // namespace bbmp
+} // namespace commsdsl

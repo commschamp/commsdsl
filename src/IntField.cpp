@@ -1,10 +1,10 @@
-#include "bbmp/IntField.h"
+#include "commsdsl/IntField.h"
 
 #include <cassert>
 
 #include "IntFieldImpl.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace
@@ -84,4 +84,4 @@ bool IntField::validCheckVersion() const
     return cast(m_pImpl)->validCheckVersion();
 }
 
-} // namespace bbmp
+} // namespace commsdsl

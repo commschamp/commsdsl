@@ -2,11 +2,11 @@
 
 #include "Field.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 class ListFieldImpl;
-class BBMP_API ListField : public Field
+class COMMSDSL_API ListField : public Field
 {
     using Base = Field;
 public:
@@ -25,4 +25,4 @@ public:
     bool elemFixedLength() const;
 };
 
-} // namespace bbmp
+} // namespace commsdsl

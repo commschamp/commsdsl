@@ -5,10 +5,10 @@
 #include <cstdint>
 #include <utility>
 
-#include "bbmp/Endian.h"
-#include "bbmp/Units.h"
+#include "commsdsl/Endian.h"
+#include "commsdsl/Units.h"
 
-namespace bbmp
+namespace commsdsl
 {
 
 namespace common
@@ -118,4 +118,4 @@ bool isValidRefName(const std::string& value);
 
 } // namespace common
 
-} // namespace bbmp
+} // namespace commsdsl
