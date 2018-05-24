@@ -34,6 +34,10 @@ public:
     }
 
     bool parse();
+    bool verify(const LayersList& layers)
+    {
+        return verifyImpl(layers);
+    }
 
     const PropsMap& props() const
     {
@@ -47,7 +51,6 @@ public:
     {
         return kindImpl();
     }
-
 
     static XmlWrap::NamesList supportedTypes();
 
@@ -111,10 +114,12 @@ protected:
     virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool parseImpl();
+    virtual bool verifyImpl(const LayersList& layers);
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
+    bool verifySingleLayer(const LayersList& layers, const std::string& kindStr);
 
     static const XmlWrap::NamesList& commonProps();
 

@@ -51,6 +51,7 @@ public:
     using FieldsList = Namespace::FieldsList;
     using MessagesList = Namespace::MessagesList;
     using InterfacesList = Namespace::InterfacesList;
+    using FramesList = Namespace::FramesList;
     using NamespacesMap = std::map<std::string, Ptr>;
     using FieldsMap = std::map<std::string, FieldImplPtr, KeyComp>;
     using MessagesMap = std::map<std::string, MessageImplPtr, KeyComp>;
@@ -101,6 +102,7 @@ public:
     FieldsList fieldsList() const;
     MessagesList messagesList() const;
     InterfacesList interfacesList() const;
+    FramesList framesList() const;
 
     const MessagesMap& messages() const
     {

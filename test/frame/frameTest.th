@@ -1,0 +1,44 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class FrameTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+};
+
+void FrameTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void FrameTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void FrameTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    TS_ASSERT_EQUALS(f1.name(), "Generic");
+
+    auto layers = f1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 1U);
+
+    TS_ASSERT_EQUALS(layers.front().kind(), commsdsl::Layer::Kind::Payload);
+}

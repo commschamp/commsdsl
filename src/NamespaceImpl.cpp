@@ -188,6 +188,17 @@ NamespaceImpl::InterfacesList NamespaceImpl::interfacesList() const
     return result;
 }
 
+NamespaceImpl::FramesList NamespaceImpl::framesList() const
+{
+    FramesList result;
+    result.reserve(m_frames.size());
+    for (auto& m : m_frames) {
+        assert(m.second);
+        result.emplace_back(m.second.get());
+    }
+    return result;
+}
+
 const FieldImpl* NamespaceImpl::findField(const std::string& fieldName) const
 {
     auto iter = m_fields.find(fieldName);

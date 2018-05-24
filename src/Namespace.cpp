@@ -52,6 +52,12 @@ Namespace::InterfacesList Namespace::interfaces() const
     return m_pImpl->interfacesList();
 }
 
+Namespace::FramesList Namespace::frames() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->framesList();
+}
+
 const Namespace::AttributesMap& Namespace::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

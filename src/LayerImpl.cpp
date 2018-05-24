@@ -9,6 +9,7 @@
 #include "ProtocolImpl.h"
 #include "NamespaceImpl.h"
 #include "common.h"
+#include "PayloadLayerImpl.h"
 
 namespace commsdsl
 {
@@ -167,6 +168,12 @@ bool LayerImpl::parseImpl()
     return true;
 }
 
+bool LayerImpl::verifyImpl(const LayerImpl::LayersList& layers)
+{
+    static_cast<void>(layers);
+    return true;
+}
+
 bool LayerImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);
@@ -193,6 +200,23 @@ bool LayerImpl::validateAndUpdateStringPropValue(
 void LayerImpl::reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
     XmlWrap::reportUnexpectedPropertyValue(m_node, name(), propName, propValue, protocol().logger());
+}
+
+bool LayerImpl::verifySingleLayer(const LayerImpl::LayersList& layers, const std::string& kindStr)
+{
+    auto k = kind();
+    for (auto& l : layers) {
+        if (l.get() == this) {
+            continue;
+        }
+
+        if (l->kind() == k) {
+            logError() << XmlWrap::logPrefix(l->getNode()) <<
+                "Only single \"" << kindStr << "\" layer can exist in the frame.";
+            return false;
+        }
+    }
+    return true;
 }
 
 const XmlWrap::NamesList& LayerImpl::commonProps()
@@ -262,14 +286,13 @@ bool LayerImpl::updateExtraChildren(const XmlWrap::NamesList& names)
 
 const LayerImpl::CreateMap& LayerImpl::createMap()
 {
-    // TODO
     static const CreateMap Map = {
-//        std::make_pair(
-//            common::intStr(),
-//            [](::xmlNodePtr n, ProtocolImpl& p)
-//            {
-//                return Ptr(new IntLayerImpl(n, p));
-//            }),
+        std::make_pair(
+            common::payloadStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new PayloadLayerImpl(n, p));
+            }),
 
     };
 

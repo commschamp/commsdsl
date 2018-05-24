@@ -2,7 +2,7 @@
 
 #include "CommonTestSuite.h"
 
-class MessageTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+class InterfaceTestSuite : public CommonTestSuite, public CxxTest::TestSuite
 {
 public:
     void setUp();
@@ -15,17 +15,17 @@ public:
     void test6();
 };
 
-void MessageTestSuite::setUp()
+void InterfaceTestSuite::setUp()
 {
     CommonTestSuite::commonSetUp();
 }
 
-void MessageTestSuite::tearDown()
+void InterfaceTestSuite::tearDown()
 {
     CommonTestSuite::commonTearDown();
 }
 
-void MessageTestSuite::test1()
+void InterfaceTestSuite::test1()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
@@ -44,7 +44,7 @@ void MessageTestSuite::test1()
     TS_ASSERT(int1.fields().empty());
 }
 
-void MessageTestSuite::test2()
+void InterfaceTestSuite::test2()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
@@ -65,7 +65,7 @@ void MessageTestSuite::test2()
     TS_ASSERT_EQUALS(fields.front().kind(), commsdsl::Field::Kind::Int);
 }
 
-void MessageTestSuite::test3()
+void InterfaceTestSuite::test3()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
@@ -93,7 +93,7 @@ void MessageTestSuite::test3()
     TS_ASSERT_EQUALS(fields2.size(), 2U);
 }
 
-void MessageTestSuite::test4()
+void InterfaceTestSuite::test4()
 {
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
@@ -101,7 +101,7 @@ void MessageTestSuite::test4()
     TS_ASSERT(protocol);
 }
 
-void MessageTestSuite::test5()
+void InterfaceTestSuite::test5()
 {
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
@@ -109,7 +109,7 @@ void MessageTestSuite::test5()
     TS_ASSERT(protocol);
 }
 
-void MessageTestSuite::test6()
+void InterfaceTestSuite::test6()
 {
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;

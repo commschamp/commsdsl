@@ -180,93 +180,111 @@ bool FrameImpl::updateDescription()
 
 bool FrameImpl::updateLayers()
 {
-    do {
-        auto layersNodes = XmlWrap::getChildren(getNode(), common::layersStr());
-        if (1U < layersNodes.size()) {
+    auto layersNodes = XmlWrap::getChildren(getNode(), common::layersStr());
+    if (1U < layersNodes.size()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Only single \"" << common::layersStr() << "\" child element is "
+                      "supported for \"" << common::frameStr() << "\".";
+        return false;
+    }
+
+    auto layersTypes = XmlWrap::getChildren(getNode(), frameSupportedTypes());
+    if ((!layersNodes.empty()) && (!layersTypes.empty())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "The \"" << common::frameStr() << "\" element does not support "
+                      "list of stand alone layers as child elements together with \"" <<
+                      common::layersStr() << "\" child element.";
+        return false;
+    }
+
+    if ((layersNodes.empty()) && (layersTypes.empty())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The \"" << common::framesStr() << "\" element must contain at least one layer";
+        return false;
+    }
+
+    if ((0U < layersTypes.size())) {
+        assert(0U == layersNodes.size());
+        auto allChildren = XmlWrap::getChildren(getNode());
+        if (allChildren.size() != layersTypes.size()) {
             logError() << XmlWrap::logPrefix(getNode()) <<
-                          "Only single \"" << common::layersStr() << "\" child element is "
-                          "supported for \"" << common::frameStr() << "\".";
+                          "The layer types of \"" << common::frameStr() <<
+                          "\" must be defined inside \"<" << common::layersStr() << ">\" child element "
+                          "when there are other property describing children.";
+            return false;
+        }
+    }
+
+    if (0U < layersNodes.size()) {
+        assert(0U == layersTypes.size());
+        layersTypes = XmlWrap::getChildren(layersNodes.front());
+        auto cleanMemberFieldsTypes = XmlWrap::getChildren(layersNodes.front(), frameSupportedTypes());
+        if (cleanMemberFieldsTypes.size() != layersTypes.size()) {
+            logError() << XmlWrap::logPrefix(layersNodes.front()) <<
+                "The \"" << common::layersStr() << "\" child node of \"" <<
+                common::frameStr() << "\" element must contain only supported layer types.";
             return false;
         }
 
-        auto layersTypes = XmlWrap::getChildren(getNode(), frameSupportedTypes());
-        if ((!layersNodes.empty()) && (!layersTypes.empty())) {
+        // layersTypes is updated with the list from <layers>
+    }
+
+    assert(m_layers.empty());
+    m_layers.reserve(layersTypes.size());
+    bool hasPayloadLayer = false;
+    for (auto* lNode : layersTypes) {
+        std::string lKind(reinterpret_cast<const char*>(lNode->name));
+        auto layer = LayerImpl::create(lKind, lNode, m_protocol);
+        if (!layer) {
+            assert(!"Internal error");
             logError() << XmlWrap::logPrefix(getNode()) <<
-                          "The \"" << common::frameStr() << "\" element does not support "
-                          "list of stand alone layers as child elements together with \"" <<
-                          common::layersStr() << "\" child element.";
+                  "Internal error, failed to create objects for layers.";
             return false;
         }
 
-        if ((layersNodes.empty()) && (layersTypes.empty())) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "The \"" << common::framesStr() << "\" element must contain at least one layer";
+        layer->setParent(this);
+        if (!layer->parse()) {
             return false;
         }
 
-        if ((0U < layersTypes.size())) {
-            assert(0U == layersNodes.size());
-            auto allChildren = XmlWrap::getChildren(getNode());
-            if (allChildren.size() != layersTypes.size()) {
-                logError() << XmlWrap::logPrefix(getNode()) <<
-                              "The layer types of \"" << common::frameStr() <<
-                              "\" must be defined inside \"<" << common::layersStr() << ">\" child element "
-                              "when there are other property describing children.";
-                return false;
-            }
+        auto lIter =
+            std::find_if(
+                m_layers.begin(), m_layers.end(),
+                [&layer](auto& l)
+                {
+                    return layer->name() == l->name();
+                });
+
+        if (lIter != m_layers.end()) {
+            logError() << XmlWrap::logPrefix(lNode) <<
+                "Layer with name \"" << layer->name() << "\" has already been "
+                "defined within the same frame.";
         }
 
-        if (0U < layersNodes.size()) {
-            assert(0U == layersTypes.size());
-            layersTypes = XmlWrap::getChildren(layersNodes.front());
-            auto cleanMemberFieldsTypes = XmlWrap::getChildren(layersNodes.front(), frameSupportedTypes());
-            if (cleanMemberFieldsTypes.size() != layersTypes.size()) {
-                logError() << XmlWrap::logPrefix(layersNodes.front()) <<
-                    "The \"" << common::layersStr() << "\" child node of \"" <<
-                    common::frameStr() << "\" element must contain only supported layer types.";
-                return false;
-            }
-
-            // layersTypes is updated with the list from <layers>
+        if (layer->kind() == LayerImpl::Kind::Payload) {
+            hasPayloadLayer = true;
         }
 
-        assert(m_layers.empty());
-        m_layers.reserve(layersTypes.size());
-        unsigned payloadLayerCount = 0U;
-        for (auto* lNode : layersTypes) {
-            std::string lKind(reinterpret_cast<const char*>(lNode->name));
-            auto layer = LayerImpl::create(lKind, lNode, m_protocol);
-            if (!layer) {
-                assert(!"Internal error");
-                logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Internal error, failed to create objects for layers.";
-                return false;
-            }
+        m_layers.push_back(std::move(layer));
+    }
 
-            layer->setParent(this);
-            if (!layer->parse()) {
-                return false;
-            }
+    if (!hasPayloadLayer) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The frame \"" << name() << "\" must contain a \"" <<
+            common::payloadStr() << "\" layer.";
+        return false;
+    }
 
-            if (layer->kind() != LayerImpl::Kind::Payload) {
-                ++payloadLayerCount;
-            }
+    bool verified =
+        std::all_of(
+            m_layers.begin(), m_layers.end(),
+            [this](auto& l)
+            {
+                assert(l);
+                return l->verify(m_layers);
+            });
 
-            m_layers.push_back(std::move(layer));
-        }
-
-        if (payloadLayerCount != 1U) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "The frame \"" << name() << "\" must contain exacly one \"" <<
-                common::payloadStr() << "\" layer.";
-            return false;
-        }
-
-        // TODO: validate layers
-
-    } while (false);
-
-    return true;
+    return verified;
 }
 
 bool FrameImpl::updateExtraAttrs()

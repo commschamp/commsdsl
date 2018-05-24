@@ -8,6 +8,7 @@
 #include "Message.h"
 #include "Schema.h"
 #include "Interface.h"
+#include "Frame.h"
 
 namespace commsdsl
 {
@@ -20,6 +21,7 @@ public:
     using FieldsList = std::vector<Field>;
     using MessagesList = std::vector<Message>;
     using InterfacesList = std::vector<Interface>;
+    using FramesList = std::vector<Frame>;
     using AttributesMap = Schema::AttributesMap;
     using ElementsList = Schema::ElementsList;
 
@@ -33,6 +35,7 @@ public:
     FieldsList fields() const;
     MessagesList messages() const;
     InterfacesList interfaces() const;
+    FramesList frames() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;
