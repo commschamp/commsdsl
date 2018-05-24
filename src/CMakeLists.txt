@@ -73,6 +73,8 @@ set (
     "OptCond.cpp"
     "Message.cpp"
     "Interface.cpp"
+    "Frame.cpp"
+    "Layer.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"
@@ -94,6 +96,8 @@ set (
     "OptCondImpl.cpp"
     "MessageImpl.cpp"
     "InterfaceImpl.cpp"
+    "FrameImpl.cpp"
+    "LayerImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

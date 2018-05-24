@@ -138,39 +138,6 @@ XmlWrap::NamesList FieldImpl::supportedTypes()
     return result;
 }
 
-//bool FieldImpl::validateMembersVersions(
-//    const Object& obj,
-//    const FieldImpl::FieldsList& fields,
-//    Logger& logger)
-//{
-//    if (fields.size() < 2U) {
-//        return true;
-//    }
-
-//    for (auto idx = 0U; idx < (fields.size() - 1); ++idx) {
-//        auto& thisMem = fields[idx];
-//        auto& nextMem = fields[idx + 1];
-
-//        assert(obj.getSinceVersion() <= thisMem->getMinSinceVersion());
-
-//        if (nextMem->getMinSinceVersion() < thisMem->getMaxSinceVersion()) {
-//            commsdsl::logError(logger) << XmlWrap::logPrefix(nextMem->getNode()) <<
-//                "Version of the member \"" << nextMem->name() << "\" (" <<
-//                nextMem->getMinSinceVersion() << ") must't be less than previous "
-//                " member's one (" << thisMem->getMaxSinceVersion() << ").";
-//            return false;
-//        }
-
-//        assert(thisMem->getMaxSinceVersion() <= obj.getMaxSinceVersion());
-//    }
-//    return true;
-//}
-
-//bool FieldImpl::validateMembersVersions(const FieldImpl::FieldsList& fields)
-//{
-//    return validateMembersVersions(*this, fields, protocol().logger());
-//}
-
 bool FieldImpl::validateMembersNames(
     const FieldImpl::FieldsList& fields,
     Logger& logger)
@@ -475,21 +442,22 @@ bool FieldImpl::updateVersions()
     }
 
     do {
-        if ((getParent() != nullptr) && (getParent()->objKind() != ObjKind::Namespace)) {
+        if ((getParent() != nullptr) &&
+            ((getParent()->objKind() == ObjKind::Field) || (getParent()->objKind() == ObjKind::Message))) {
             break;
         }
 
         if (sinceVersion != 0U) {
             logWarning() << XmlWrap::logPrefix(getNode()) <<
                 "Property \"" << common::sinceVersionStr() << "\" is not applicable to "
-                "stand alone fields, ignoring provided value";
+                "this field, ignoring provided value";
             sinceVersion = 0U;
         }
 
         if (deprecated != commsdsl::Protocol::notYetDeprecated()) {
             logWarning() << XmlWrap::logPrefix(getNode()) <<
                 "Property \"" << common::deprecatedStr() << "\" is not applicable to "
-                "stand alone fields, ignoring provided value";
+                "this field, ignoring provided value";
             deprecated = commsdsl::Protocol::notYetDeprecated();
         }
 

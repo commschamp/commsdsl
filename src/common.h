@@ -91,6 +91,8 @@ const std::string& platformsStr();
 const std::string& platformStr();
 const std::string& interfacesStr();
 const std::string& interfaceStr();
+const std::string& layersStr();
+const std::string& payloadStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

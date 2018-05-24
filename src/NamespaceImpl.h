@@ -11,6 +11,7 @@
 #include "FieldImpl.h"
 #include "MessageImpl.h"
 #include "InterfaceImpl.h"
+#include "FrameImpl.h"
 #include "Object.h"
 
 namespace commsdsl
@@ -54,6 +55,7 @@ public:
     using FieldsMap = std::map<std::string, FieldImplPtr, KeyComp>;
     using MessagesMap = std::map<std::string, MessageImplPtr, KeyComp>;
     using InterfacesMap = std::map<std::string, InterfaceImplPtr, KeyComp>;
+    using FramesMap = std::map<std::string, FrameImplPtr, KeyComp>;
 
     NamespaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     virtual ~NamespaceImpl() = default;
@@ -133,6 +135,7 @@ public:
     const FieldImpl* findField(const std::string& fieldName) const;
     const MessageImpl* findMessage(const std::string& msgName) const;
     const InterfaceImpl* findInterface(const std::string& intName) const;
+    const FrameImpl* findFrame(const std::string& intName) const;
 
     std::string externalRef() const;
 
@@ -170,6 +173,7 @@ private:
     FieldsMap m_fields;
     MessagesMap m_messages;
     InterfacesMap m_interfaces;
+    FramesMap m_frames;
 };
 
 using NamespaceImplPtr = NamespaceImpl::Ptr;

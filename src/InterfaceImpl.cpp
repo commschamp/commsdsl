@@ -200,23 +200,6 @@ bool InterfaceImpl::copyFields()
     }
 
     cloneFieldsFrom(*other);
-
-    if (!m_fields.empty()) {
-        m_fields.erase(
-            std::remove_if(
-                m_fields.begin(), m_fields.end(),
-                [this](auto& elem)
-                {
-                    return
-                        (elem->isDeprecatedRemoved()) &&
-                        (elem->getDeprecated() <= this->getSinceVersion());
-                }),
-            m_fields.end());
-
-        for (auto& m : m_fields) {
-            m->setSinceVersion(std::max(getSinceVersion(), m->getSinceVersion()));
-        }
-    }
     return true;
 }
 

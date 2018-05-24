@@ -462,6 +462,18 @@ const std::string& interfaceStr()
     return Str;
 }
 
+const std::string& layersStr()
+{
+    static const std::string Str("layers");
+    return Str;
+}
+
+const std::string& payloadStr()
+{
+    static const std::string Str("payload");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

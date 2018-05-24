@@ -221,6 +221,17 @@ const InterfaceImpl* NamespaceImpl::findInterface(const std::string& intName) co
     return iter->second.get();
 }
 
+const FrameImpl* NamespaceImpl::findFrame(const std::string& intName) const
+{
+    auto iter = m_frames.find(intName);
+    if (iter == m_frames.end()) {
+        return nullptr;
+    }
+
+    assert(iter->second);
+    return iter->second.get();
+}
+
 std::string NamespaceImpl::externalRef() const
 {
     assert((getParent() == nullptr) || (getParent()->objKind() == ObjKind::Namespace));
@@ -402,7 +413,7 @@ bool NamespaceImpl::processMultipleInterfaces(::xmlNodePtr node)
         std::string cName(reinterpret_cast<const char*>(c->name));
         if (cName != common::interfaceStr()) {
             logError() << XmlWrap::logPrefix(c) <<
-                "The \"" << common::interfaceStr() << "\" element cannot contain \"" <<
+                "The \"" << common::interfacesStr() << "\" element cannot contain \"" <<
                 cName << "\".";
             return false;
         }
@@ -416,18 +427,43 @@ bool NamespaceImpl::processMultipleInterfaces(::xmlNodePtr node)
 
 bool NamespaceImpl::processFrame(::xmlNodePtr node)
 {
-    static_cast<void>(node);
-    // TODO:
-    logError() << __FUNCTION__ << ": NYI!";
-    return false;
+    auto frame = std::make_unique<FrameImpl>(node, m_protocol);
+    frame->setParent(this);
+    if (!frame->parse()) {
+        return false;
+    }
+
+    auto framePtr = findFrame(frame->name());
+    auto& frameName = frame->name();
+    if (framePtr != nullptr) {
+        logError() << XmlWrap::logPrefix(node) << "Frame with name \"" << frameName << "\" has been already defined at " <<
+                      framePtr->getNode()->doc->URL << ":" << framePtr->getNode()->line << '.';
+
+        return false;
+    }
+
+    m_frames.insert(std::make_pair(frameName, std::move(frame)));
+    return true;
 }
 
 bool NamespaceImpl::processMultipleFrames(::xmlNodePtr node)
 {
-    static_cast<void>(node);
-    // TODO:
-    logError() << __FUNCTION__ << ": NYI!";
-    return false;
+    auto childrenNodes = XmlWrap::getChildren(node);
+    for (auto c : childrenNodes) {
+        assert(c != nullptr);
+        std::string cName(reinterpret_cast<const char*>(c->name));
+        if (cName != common::frameStr()) {
+            logError() << XmlWrap::logPrefix(c) <<
+                "The \"" << common::framesStr() << "\" element cannot contain \"" <<
+                cName << "\".";
+            return false;
+        }
+
+        if (!processFrame(c)) {
+            return false;
+        }
+    }
+    return true;
 }
 
 bool NamespaceImpl::updateExtraAttrs()

@@ -16,6 +16,8 @@ public:
         Field,
         Message,
         Interface,
+        Frame,
+        Layer,
         NumOfValues
     };
 

@@ -5,7 +5,7 @@
 #include <functional>
 #include <string>
 
-#include "commsdsl/Field.h"
+#include "commsdsl/Layer.h"
 #include "XmlWrap.h"
 #include "Logger.h"
 #include "Object.h"
@@ -14,23 +14,19 @@ namespace commsdsl
 {
 
 class ProtocolImpl;
-class FieldImpl : public Object
+class LayerImpl : public Object
 {
     using Base = Object;
 public:
-    using Ptr = std::unique_ptr<FieldImpl>;
+    using Ptr = std::unique_ptr<LayerImpl>;
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
-    using FieldsList = std::vector<Ptr>;
-    using Kind = Field::Kind;
+    using LayersList = std::vector<Ptr>;
+    using Kind = Layer::Kind;
 
-    virtual ~FieldImpl() = default;
+    virtual ~LayerImpl() = default;
 
     static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
-    Ptr clone() const
-    {
-        return cloneImpl();
-    }
 
     ::xmlNodePtr getNode() const
     {
@@ -45,7 +41,6 @@ public:
     }
 
     const std::string& name() const;
-    const std::string& displayName() const;
     const std::string& description() const;
 
     Kind kind() const
@@ -53,28 +48,8 @@ public:
         return kindImpl();
     }
 
-    std::size_t minLength() const
-    {
-        return minLengthImpl();
-    }
-
-    std::size_t maxLength() const
-    {
-        return maxLengthImpl();
-    }
-
-    std::size_t bitLength() const
-    {
-        return bitLengthImpl();
-    }
 
     static XmlWrap::NamesList supportedTypes();
-
-    static bool validateMembersNames(
-            const FieldsList& fields,
-            Logger& logger);
-
-    bool validateMembersNames(const FieldsList& fields);
 
     const XmlWrap::NamesList& extraPropsNames() const
     {
@@ -91,43 +66,30 @@ public:
         return extraChildrenNamesImpl();
     }
 
-    bool isBitfieldMember() const;
-    bool isBundleMember() const;
-    bool isMessageMember() const;
-
-    std::string externalRef() const;
-
-    bool isComparableToValue(const std::string& val) const
-    {
-        return isComparableToValueImpl(val);
-    }
-
-    bool isComparableToField(const FieldImpl& field) const;
-
     const PropsMap& extraAttributes() const
     {
-        return m_state.m_extraAttrs;
+        return m_extraAttrs;
     }
 
     PropsMap& extraAttributes()
     {
-        return m_state.m_extraAttrs;
+        return m_extraAttrs;
     }
 
     const ContentsList& extraChildren() const
     {
-        return m_state.m_extraChildren;
+        return m_extraChildren;
     }
 
     ContentsList& extraChildren()
     {
-        return m_state.m_extraChildren;
+        return m_extraChildren;
     }
 
 
 protected:
-    FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
-    FieldImpl(const FieldImpl&);
+    LayerImpl(::xmlNodePtr node, ProtocolImpl& protocol);
+    LayerImpl(const LayerImpl&);
 
     ProtocolImpl& protocol()
     {
@@ -145,45 +107,25 @@ protected:
 
     virtual ObjKind objKindImpl() const override final;
     virtual Kind kindImpl() const = 0;
-    virtual Ptr cloneImpl() const = 0;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
-    virtual bool reuseImpl(const FieldImpl& other);
     virtual bool parseImpl();
-    virtual std::size_t minLengthImpl() const = 0;
-    virtual std::size_t maxLengthImpl() const;
-    virtual std::size_t bitLengthImpl() const;
-    virtual bool isComparableToValueImpl(const std::string& val) const;
-    virtual bool isComparableToFieldImpl(const FieldImpl& field) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
-    bool validateNoPropInstance(const std::string& str);
     bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
 
     static const XmlWrap::NamesList& commonProps();
-    static const XmlWrap::NamesList& commonChildren();
 
 private:
 
     using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
     using CreateMap = std::map<std::string, CreateFunc>;
 
-    struct ReusableState
-    {
-        const std::string* m_name = nullptr;
-        const std::string* m_displayName = nullptr;
-        const std::string* m_description = nullptr;
-        PropsMap m_extraAttrs;
-        ContentsList m_extraChildren;
-    };
 
-    bool checkReuse();
     bool updateName();
     bool updateDescription();
-    bool updateDisplayName();
-    bool updateVersions();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 
@@ -192,9 +134,12 @@ private:
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
     PropsMap m_props;
-    ReusableState m_state;
+    const std::string* m_name = nullptr;
+    const std::string* m_description = nullptr;
+    PropsMap m_extraAttrs;
+    ContentsList m_extraChildren;
 };
 
-using FieldImplPtr = FieldImpl::Ptr;
+using LayerImplPtr = LayerImpl::Ptr;
 
 } // namespace commsdsl
