@@ -9,6 +9,7 @@
 #include "XmlWrap.h"
 #include "Logger.h"
 #include "Object.h"
+#include "FieldImpl.h"
 
 namespace commsdsl
 {
@@ -52,6 +53,21 @@ public:
         return kindImpl();
     }
 
+    bool hasField() const
+    {
+        return (m_extField != nullptr) ||
+               static_cast<bool>(m_field);
+    }
+
+    Field field() const
+    {
+        if (m_extField != nullptr) {
+            return Field(m_extField);
+        }
+
+        return Field(m_field.get());
+    }
+
     static XmlWrap::NamesList supportedTypes();
 
     const XmlWrap::NamesList& extraPropsNames() const
@@ -92,7 +108,7 @@ public:
 
 protected:
     LayerImpl(::xmlNodePtr node, ProtocolImpl& protocol);
-    LayerImpl(const LayerImpl&);
+    LayerImpl(const LayerImpl&) = delete;
 
     ProtocolImpl& protocol()
     {
@@ -115,11 +131,15 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool parseImpl();
     virtual bool verifyImpl(const LayersList& layers);
+    virtual bool mustHaveFieldImpl() const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool verifySingleLayer(const LayersList& layers, const std::string& kindStr);
+    bool verifyBeforePayload(const LayersList& layers);
+    std::size_t findThisLayerIndex(const LayersList& layers) const;
+    std::size_t findLayerIndex(const LayersList& layers, Kind lKind);
 
     static const XmlWrap::NamesList& commonProps();
 
@@ -128,11 +148,13 @@ private:
     using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
     using CreateMap = std::map<std::string, CreateFunc>;
 
-
     bool updateName();
     bool updateDescription();
+    bool updateField();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
+    bool checkFieldFromRef();
+    bool checkFieldAsChild();
 
     static const CreateMap& createMap();
 
@@ -141,6 +163,8 @@ private:
     PropsMap m_props;
     const std::string* m_name = nullptr;
     const std::string* m_description = nullptr;
+    const FieldImpl* m_extField = nullptr;
+    FieldImplPtr m_field;
     PropsMap m_extraAttrs;
     ContentsList m_extraChildren;
 };

@@ -75,7 +75,6 @@ set (
     "Interface.cpp"
     "Frame.cpp"
     "Layer.cpp"
-    "PayloadLayer.cpp"
     "ProtocolImpl.cpp"
     "NamespaceImpl.cpp"
     "XmlWrap.cpp"
@@ -100,6 +99,7 @@ set (
     "FrameImpl.cpp"
     "LayerImpl.cpp"
     "PayloadLayerImpl.cpp"
+    "IdLayerImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

@@ -21,4 +21,9 @@ bool PayloadLayerImpl::verifyImpl(const LayerImpl::LayersList& layers)
     return verifySingleLayer(layers, common::payloadStr());
 }
 
+bool PayloadLayerImpl::mustHaveFieldImpl() const
+{
+    return false;
+}
+
 } // namespace commsdsl

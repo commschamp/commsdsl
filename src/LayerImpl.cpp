@@ -10,6 +10,7 @@
 #include "NamespaceImpl.h"
 #include "common.h"
 #include "PayloadLayerImpl.h"
+#include "IdLayerImpl.h"
 
 namespace commsdsl
 {
@@ -63,7 +64,8 @@ bool LayerImpl::parse()
 
     bool result =
         updateName() &&
-        updateDescription();
+        updateDescription() &&
+        updateField();
 
     if (!result) {
         return false;
@@ -125,8 +127,6 @@ LayerImpl::LayerImpl(::xmlNodePtr node, ProtocolImpl& protocol)
 {
 }
 
-LayerImpl::LayerImpl(const LayerImpl&) = default;
-
 LogWrapper LayerImpl::logError() const
 {
     return commsdsl::logError(m_protocol.logger());
@@ -171,6 +171,11 @@ bool LayerImpl::parseImpl()
 bool LayerImpl::verifyImpl(const LayerImpl::LayersList& layers)
 {
     static_cast<void>(layers);
+    return true;
+}
+
+bool LayerImpl::mustHaveFieldImpl() const
+{
     return true;
 }
 
@@ -219,11 +224,65 @@ bool LayerImpl::verifySingleLayer(const LayerImpl::LayersList& layers, const std
     return true;
 }
 
+bool LayerImpl::verifyBeforePayload(const LayerImpl::LayersList& layers)
+{
+    auto thisIdx = findThisLayerIndex(layers);
+    auto payloadIdx = findLayerIndex(layers, Kind::Payload);
+    assert(thisIdx < layers.size());
+    assert(payloadIdx < layers.size());
+
+    if (payloadIdx <= thisIdx) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "This layer is expected to be before the \"" << common::payloadStr() <<
+            "\" one.";
+        return false;
+    }
+
+    return true;
+}
+
+std::size_t LayerImpl::findThisLayerIndex(const LayerImpl::LayersList& layers) const
+{
+    auto iter =
+        std::find_if(
+            layers.begin(), layers.end(),
+            [this](auto& l)
+            {
+                return this == l.get();
+            });
+
+    if (iter == layers.end()) {
+        return std::numeric_limits<std::size_t>::max();
+    }
+
+    return static_cast<std::size_t>(std::distance(layers.begin(), iter));
+}
+
+std::size_t LayerImpl::findLayerIndex(
+    const LayerImpl::LayersList& layers,
+    LayerImpl::Kind lKind)
+{
+    auto iter =
+        std::find_if(
+            layers.begin(), layers.end(),
+            [lKind](auto& l)
+            {
+                return l->kind() == lKind;
+            });
+
+    if (iter == layers.end()) {
+        return std::numeric_limits<std::size_t>::max();
+    }
+
+    return static_cast<std::size_t>(std::distance(layers.begin(), iter));
+}
+
 const XmlWrap::NamesList& LayerImpl::commonProps()
 {
     static const XmlWrap::NamesList CommonNames = {
         common::nameStr(),
         common::descriptionStr(),
+        common::fieldStr()
     };
 
     return CommonNames;
@@ -248,6 +307,29 @@ bool LayerImpl::updateName()
 bool LayerImpl::updateDescription()
 {
     return validateAndUpdateStringPropValue(common::descriptionStr(), m_description);
+}
+
+bool LayerImpl::updateField()
+{
+    if ((!checkFieldFromRef()) ||
+        (!checkFieldAsChild())) {
+        return false;
+    }
+
+    if (hasField() == mustHaveFieldImpl()) {
+        return true;
+    }
+
+    if (hasField()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "This layer mustn't specify field.";
+        return false;
+    }
+
+    logError() << XmlWrap::logPrefix(getNode()) <<
+        "This layer must specify field.";
+
+    return false;
 }
 
 bool LayerImpl::updateExtraAttrs(const XmlWrap::NamesList& names)
@@ -283,6 +365,84 @@ bool LayerImpl::updateExtraChildren(const XmlWrap::NamesList& names)
     return true;
 }
 
+bool LayerImpl::checkFieldFromRef()
+{
+    if (!validateSinglePropInstance(common::fieldStr())) {
+        return false;
+    }
+
+    auto iter = props().find(common::fieldStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    auto* field = protocol().findField(iter->second);
+    if (field == nullptr) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot find field referenced by \"" << common::fieldStr() <<
+            "\" property (" << iter->second << ").";
+        return false;
+    }
+
+    m_extField = field;
+    assert(!m_field);
+    return true;
+}
+
+bool LayerImpl::checkFieldAsChild()
+{
+    auto children = XmlWrap::getChildren(getNode(), common::fieldStr());
+    if (children.empty()) {
+        return true;
+    }
+
+    if (1U < children.size()) {
+        logError() << "There must be only one occurance of \"" << common::fieldStr() << "\".";
+        return false;
+    }
+
+    auto child = children.front();
+    auto fields = XmlWrap::getChildren(child);
+    if (1U < fields.size()) {
+        logError() << XmlWrap::logPrefix(child) <<
+            "The \"" << common::fieldStr() << "\" element is expected to define only "
+            "single field";
+        return false;
+    }
+
+    auto iter = props().find(common::fieldStr());
+    bool hasInProps = iter != props().end();
+    if (fields.empty()) {
+        assert(hasInProps);
+        return true;
+    }
+
+    if (hasInProps) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The \"" << common::fieldStr() << "\" element is expected to define only "
+            "single field";
+        return false;
+    }
+
+    auto fieldNode = fields.front();
+    assert(fieldNode->name != nullptr);
+    std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
+    auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
+    if (!field) {
+        logError() << XmlWrap::logPrefix(fieldNode) <<
+            "Unknown field type \"" << fieldKind << "\".";
+        return false;
+    }
+
+    field->setParent(this);
+    if (!field->parse()) {
+        return false;
+    }
+
+    m_extField = nullptr;
+    m_field = std::move(field);
+    return true;
+}
 
 const LayerImpl::CreateMap& LayerImpl::createMap()
 {
@@ -292,6 +452,13 @@ const LayerImpl::CreateMap& LayerImpl::createMap()
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new PayloadLayerImpl(n, p));
+            }),
+
+        std::make_pair(
+            common::idStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new IdLayerImpl(n, p));
             }),
 
     };

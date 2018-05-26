@@ -12,3 +12,4 @@
 #include "ListField.h"
 #include "RefField.h"
 #include "OptionalField.h"
+#include "Layer.h"

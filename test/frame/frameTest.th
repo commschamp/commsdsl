@@ -8,6 +8,10 @@ public:
     void setUp();
     void tearDown();
     void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
 };
 
 void FrameTestSuite::setUp()
@@ -41,4 +45,67 @@ void FrameTestSuite::test1()
     TS_ASSERT_EQUALS(layers.size(), 1U);
 
     TS_ASSERT_EQUALS(layers.front().kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT(!layers.front().hasField());
+    TS_ASSERT_EQUALS(layers.front().name(), "Data");
+}
+
+void FrameTestSuite::test2()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 2U);
+
+    auto& gNs = namespaces.front();
+    TS_ASSERT(gNs.name().empty());
+
+    auto& ns1 = namespaces.back();
+    TS_ASSERT_EQUALS(ns1.name(), "ns1");
+
+    auto frames = ns1.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 2U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Id);
+    TS_ASSERT_EQUALS(l1.name(), "Id");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT_EQUALS(f1.externalRef(), "MsgId");
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l2.name(), "Data");
+    TS_ASSERT(!l2.hasField());
+}
+
+void FrameTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test5()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
 }
