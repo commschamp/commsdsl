@@ -4,6 +4,8 @@
 #include "LayerImpl.h"
 #include "PayloadLayerImpl.h"
 #include "IdLayerImpl.h"
+#include "SizeLayerImpl.h"
+#include "SyncLayerImpl.h"
 
 namespace commsdsl
 {
@@ -86,5 +88,26 @@ IdLayer::IdLayer(Layer layer)
     assert(kind() == Kind::Id);
 }
 
+SizeLayer::SizeLayer(const SizeLayerImpl* impl)
+  : Base(impl)
+{
+}
+
+SizeLayer::SizeLayer(Layer layer)
+  : Base(layer)
+{
+    assert(kind() == Kind::Size);
+}
+
+SyncLayer::SyncLayer(const SyncLayerImpl* impl)
+  : Base(impl)
+{
+}
+
+SyncLayer::SyncLayer(Layer layer)
+  : Base(layer)
+{
+    assert(kind() == Kind::Sync);
+}
 
 } // namespace commsdsl

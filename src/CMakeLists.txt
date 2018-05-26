@@ -100,6 +100,8 @@ set (
     "LayerImpl.cpp"
     "PayloadLayerImpl.cpp"
     "IdLayerImpl.cpp"
+    "SizeLayerImpl.cpp"
+    "SyncLayerImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

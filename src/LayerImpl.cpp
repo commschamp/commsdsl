@@ -11,6 +11,8 @@
 #include "common.h"
 #include "PayloadLayerImpl.h"
 #include "IdLayerImpl.h"
+#include "SizeLayerImpl.h"
+#include "SyncLayerImpl.h"
 
 namespace commsdsl
 {
@@ -50,6 +52,10 @@ bool LayerImpl::parse()
 
     } while (false);
 
+    if (!XmlWrap::parseChildrenAsProps(m_node, commonPossibleProps(), m_protocol.logger(), m_props, false)) {
+        return false;
+    }
+
     auto& extraPossiblePropsNames = extraPossiblePropsNamesImpl();
     do {
         if (extraPossiblePropsNames.empty()) {
@@ -76,6 +82,7 @@ bool LayerImpl::parse()
     }
 
     XmlWrap::NamesList expectedProps = commonProps();
+    expectedProps.insert(expectedProps.end(), commonPossibleProps().begin(), commonPossibleProps().end());
     expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedProps.insert(expectedProps.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
     if (!updateExtraAttrs(expectedProps)) {
@@ -84,6 +91,7 @@ bool LayerImpl::parse()
 
     auto& extraChildren = extraChildrenNamesImpl();
     XmlWrap::NamesList expectedChildren = commonProps();
+    expectedChildren.insert(expectedChildren.end(), commonPossibleProps().begin(), commonPossibleProps().end());
     expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
     expectedChildren.insert(expectedChildren.end(), extraChildren.begin(), extraChildren.end());
@@ -281,7 +289,15 @@ const XmlWrap::NamesList& LayerImpl::commonProps()
 {
     static const XmlWrap::NamesList CommonNames = {
         common::nameStr(),
-        common::descriptionStr(),
+        common::descriptionStr()
+    };
+
+    return CommonNames;
+}
+
+const XmlWrap::NamesList&LayerImpl::commonPossibleProps()
+{
+    static const XmlWrap::NamesList CommonNames = {
         common::fieldStr()
     };
 
@@ -453,14 +469,24 @@ const LayerImpl::CreateMap& LayerImpl::createMap()
             {
                 return Ptr(new PayloadLayerImpl(n, p));
             }),
-
         std::make_pair(
             common::idStr(),
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new IdLayerImpl(n, p));
             }),
-
+        std::make_pair(
+            common::sizeStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new SizeLayerImpl(n, p));
+            }),
+        std::make_pair(
+            common::syncStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new SyncLayerImpl(n, p));
+            }),
     };
 
     return Map;

@@ -93,6 +93,8 @@ const std::string& interfacesStr();
 const std::string& interfaceStr();
 const std::string& layersStr();
 const std::string& payloadStr();
+const std::string& sizeStr();
+const std::string& syncStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

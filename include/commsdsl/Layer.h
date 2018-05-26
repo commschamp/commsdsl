@@ -64,4 +64,21 @@ public:
     explicit IdLayer(Layer layer);
 };
 
+class SizeLayerImpl;
+class COMMSDSL_API SizeLayer : public Layer
+{
+    using Base = Layer;
+public:
+    explicit SizeLayer(const SizeLayerImpl* impl);
+    explicit SizeLayer(Layer layer);
+};
+
+class SyncLayerImpl;
+class COMMSDSL_API SyncLayer : public Layer
+{
+    using Base = Layer;
+public:
+    explicit SyncLayer(const SyncLayerImpl* impl);
+    explicit SyncLayer(Layer layer);
+};
 } // namespace commsdsl

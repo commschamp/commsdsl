@@ -12,6 +12,8 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
+    void test7();
 };
 
 void FrameTestSuite::setUp()
@@ -108,4 +110,94 @@ void FrameTestSuite::test5()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 3U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+    auto& l3 = layers[2];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Size);
+    TS_ASSERT_EQUALS(l1.name(), "Size");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT(f1.externalRef().empty());
+
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Id);
+    TS_ASSERT_EQUALS(l2.name(), "Id");
+    TS_ASSERT(l2.hasField());
+    auto f2 = l2.field();
+    TS_ASSERT_EQUALS(f2.externalRef(), "ns1.MsgId");
+
+    TS_ASSERT_EQUALS(l3.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l3.name(), "Data");
+    TS_ASSERT(!l3.hasField());
+}
+
+void FrameTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 4U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+    auto& l3 = layers[2];
+    auto& l4 = layers[3];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Sync);
+    TS_ASSERT_EQUALS(l1.name(), "Sync");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT_EQUALS(f1.externalRef(), "ns1.Sync");
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Id);
+    TS_ASSERT_EQUALS(l2.name(), "Id");
+    TS_ASSERT(l2.hasField());
+    auto f2 = l2.field();
+    TS_ASSERT_EQUALS(f2.externalRef(), "ns1.MsgId");
+
+    TS_ASSERT_EQUALS(l3.kind(), commsdsl::Layer::Kind::Size);
+    TS_ASSERT_EQUALS(l3.name(), "Size");
+    TS_ASSERT(l3.hasField());
+    auto f3 = l3.field();
+    TS_ASSERT(f3.externalRef().empty());
+
+    TS_ASSERT_EQUALS(l4.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l4.name(), "Data");
+    TS_ASSERT(!l4.hasField());
 }

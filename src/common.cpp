@@ -474,6 +474,18 @@ const std::string& payloadStr()
     return Str;
 }
 
+const std::string& sizeStr()
+{
+    static const std::string Str("size");
+    return Str;
+}
+
+const std::string& syncStr()
+{
+    static const std::string Str("sync");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

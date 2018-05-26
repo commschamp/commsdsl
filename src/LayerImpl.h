@@ -142,6 +142,7 @@ protected:
     std::size_t findLayerIndex(const LayersList& layers, Kind lKind);
 
     static const XmlWrap::NamesList& commonProps();
+    static const XmlWrap::NamesList& commonPossibleProps();
 
 private:
 
