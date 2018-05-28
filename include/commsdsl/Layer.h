@@ -81,4 +81,30 @@ public:
     explicit SyncLayer(const SyncLayerImpl* impl);
     explicit SyncLayer(Layer layer);
 };
+
+class ChecksumLayerImpl;
+class COMMSDSL_API ChecksumLayer : public Layer
+{
+    using Base = Layer;
+public:
+    enum class Alg
+    {
+        Custom,
+        Sum,
+        Crc_CCITT,
+        Crc_16,
+        Crc_32,
+        NumOfValues
+    };
+
+    explicit ChecksumLayer(const ChecksumLayerImpl* impl);
+    explicit ChecksumLayer(Layer layer);
+
+    Alg alg() const;
+    const std::string& customAlgName() const;
+    const std::string& fromLayer() const;
+    const std::string& untilLayer() const;
+    bool verifyBeforeRead() const;
+};
+
 } // namespace commsdsl

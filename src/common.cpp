@@ -486,6 +486,42 @@ const std::string& syncStr()
     return Str;
 }
 
+const std::string& checksumStr()
+{
+    static const std::string Str("checksum");
+    return Str;
+}
+
+const std::string& algStr()
+{
+    static const std::string Str("alg");
+    return Str;
+}
+
+const std::string& algNameStr()
+{
+    static const std::string Str("algName");
+    return Str;
+}
+
+const std::string& fromStr()
+{
+    static const std::string Str("from");
+    return Str;
+}
+
+const std::string& untilStr()
+{
+    static const std::string Str("until");
+    return Str;
+}
+
+const std::string& verifyBeforeReadStr()
+{
+    static const std::string Str("verifyBeforeRead");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

@@ -13,6 +13,7 @@
 #include "IdLayerImpl.h"
 #include "SizeLayerImpl.h"
 #include "SyncLayerImpl.h"
+#include "ChecksumLayerImpl.h"
 
 namespace commsdsl
 {
@@ -285,6 +286,25 @@ std::size_t LayerImpl::findLayerIndex(
     return static_cast<std::size_t>(std::distance(layers.begin(), iter));
 }
 
+std::size_t LayerImpl::findLayerIndex(
+    const LayerImpl::LayersList& layers,
+    const std::string& name)
+{
+    auto iter =
+        std::find_if(
+            layers.begin(), layers.end(),
+            [&name](auto& l)
+            {
+                return l->name() == name;
+            });
+
+    if (iter == layers.end()) {
+        return std::numeric_limits<std::size_t>::max();
+    }
+
+    return static_cast<std::size_t>(std::distance(layers.begin(), iter));
+}
+
 const XmlWrap::NamesList& LayerImpl::commonProps()
 {
     static const XmlWrap::NamesList CommonNames = {
@@ -486,6 +506,12 @@ const LayerImpl::CreateMap& LayerImpl::createMap()
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new SyncLayerImpl(n, p));
+            }),
+        std::make_pair(
+            common::checksumStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new ChecksumLayerImpl(n, p));
             }),
     };
 

@@ -6,9 +6,21 @@
 #include "IdLayerImpl.h"
 #include "SizeLayerImpl.h"
 #include "SyncLayerImpl.h"
+#include "ChecksumLayerImpl.h"
 
 namespace commsdsl
 {
+
+namespace
+{
+
+const ChecksumLayerImpl* asChecksum(const LayerImpl* layer)
+{
+    assert(layer != nullptr);
+    return static_cast<const ChecksumLayerImpl*>(layer);
+}
+
+} // namespace
 
 Layer::Layer(const LayerImpl* impl)
   : m_pImpl(impl)
@@ -108,6 +120,47 @@ SyncLayer::SyncLayer(Layer layer)
   : Base(layer)
 {
     assert(kind() == Kind::Sync);
+}
+
+ChecksumLayer::ChecksumLayer(const ChecksumLayerImpl* impl)
+  : Base(impl)
+{
+}
+
+ChecksumLayer::ChecksumLayer(Layer layer)
+  : Base(layer)
+{
+    assert(kind() == Kind::Checksum);
+}
+
+ChecksumLayer::Alg ChecksumLayer::alg() const
+{
+    assert(valid());
+    return asChecksum(m_pImpl)->alg();
+}
+
+const std::string& ChecksumLayer::customAlgName() const
+{
+    assert(valid());
+    return asChecksum(m_pImpl)->algName();
+}
+
+const std::string& ChecksumLayer::fromLayer() const
+{
+    assert(valid());
+    return asChecksum(m_pImpl)->from();
+}
+
+const std::string& ChecksumLayer::untilLayer() const
+{
+    assert(valid());
+    return asChecksum(m_pImpl)->until();
+}
+
+bool ChecksumLayer::verifyBeforeRead() const
+{
+    assert(valid());
+    return asChecksum(m_pImpl)->verifyBeforeRead();
 }
 
 } // namespace commsdsl

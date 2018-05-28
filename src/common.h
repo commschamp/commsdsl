@@ -95,6 +95,12 @@ const std::string& layersStr();
 const std::string& payloadStr();
 const std::string& sizeStr();
 const std::string& syncStr();
+const std::string& checksumStr();
+const std::string& algStr();
+const std::string& algNameStr();
+const std::string& fromStr();
+const std::string& untilStr();
+const std::string& verifyBeforeReadStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

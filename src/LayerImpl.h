@@ -140,6 +140,7 @@ protected:
     bool verifyBeforePayload(const LayersList& layers);
     std::size_t findThisLayerIndex(const LayersList& layers) const;
     std::size_t findLayerIndex(const LayersList& layers, Kind lKind);
+    std::size_t findLayerIndex(const LayersList& layers, const std::string& name);
 
     static const XmlWrap::NamesList& commonProps();
     static const XmlWrap::NamesList& commonPossibleProps();
