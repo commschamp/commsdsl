@@ -26,6 +26,7 @@ public:
     using MessagesList = Protocol::MessagesList;
     using ExtraPrefixes = std::vector<std::string>;
     using PlatformsList = Protocol::PlatformsList;
+    using NamespacesMap = NamespaceImpl::NamespacesMap;
 
     ProtocolImpl();
     bool parse(const std::string& input);
@@ -47,6 +48,10 @@ public:
         return m_logger;
     }
 
+    const NamespacesMap& namespaces() const
+    {
+        return m_namespaces;
+    }
 
     NamespacesList namespacesList() const;
 
@@ -87,7 +92,6 @@ private:
     using XmlDocPtr = std::unique_ptr<::xmlDoc, XmlDocFree>;
     using DocsList = std::vector<XmlDocPtr>;
     using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
-    using NamespacesMap = NamespaceImpl::NamespacesMap;
 
     static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
     void handleXmlError(xmlErrorPtr err);

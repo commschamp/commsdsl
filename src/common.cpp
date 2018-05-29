@@ -522,6 +522,24 @@ const std::string& verifyBeforeReadStr()
     return Str;
 }
 
+const std::string& interfaceFieldNameStr()
+{
+    static const std::string Str("interfaceFieldName");
+    return Str;
+}
+
+const std::string& valueStr()
+{
+    static const std::string Str("value");
+    return Str;
+}
+
+const std::string& pseudoStr()
+{
+    static const std::string Str("pseudo");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

@@ -7,6 +7,7 @@
 #include "SizeLayerImpl.h"
 #include "SyncLayerImpl.h"
 #include "ChecksumLayerImpl.h"
+#include "ValueLayerImpl.h"
 
 namespace commsdsl
 {
@@ -19,6 +20,13 @@ const ChecksumLayerImpl* asChecksum(const LayerImpl* layer)
     assert(layer != nullptr);
     return static_cast<const ChecksumLayerImpl*>(layer);
 }
+
+const ValueLayerImpl* asValue(const LayerImpl* layer)
+{
+    assert(layer != nullptr);
+    return static_cast<const ValueLayerImpl*>(layer);
+}
+
 
 } // namespace
 
@@ -161,6 +169,41 @@ bool ChecksumLayer::verifyBeforeRead() const
 {
     assert(valid());
     return asChecksum(m_pImpl)->verifyBeforeRead();
+}
+
+ValueLayer::ValueLayer(const ValueLayerImpl* impl)
+  : Base(impl)
+{
+}
+
+ValueLayer::ValueLayer(Layer layer)
+  : Base(layer)
+{
+    assert(kind() == Kind::Value);
+}
+
+ValueLayer::Interfaces ValueLayer::interfaces() const
+{
+    assert(valid());
+    return asValue(m_pImpl)->interfacesList();
+}
+
+const std::string& ValueLayer::fieldName() const
+{
+    assert(valid());
+    return asValue(m_pImpl)->fieldName();
+}
+
+std::size_t ValueLayer::fieldIdx() const
+{
+    assert(valid());
+    return asValue(m_pImpl)->fieldIdx();
+}
+
+bool ValueLayer::pseudo() const
+{
+    assert(valid());
+    return asValue(m_pImpl)->pseudo();
 }
 
 } // namespace commsdsl

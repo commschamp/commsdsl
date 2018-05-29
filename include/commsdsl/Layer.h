@@ -5,6 +5,7 @@
 #include "CommsdslApi.h"
 #include "Schema.h"
 #include "Field.h"
+#include "Interface.h"
 
 namespace commsdsl
 {
@@ -22,7 +23,7 @@ public:
         Sync,
         Size,
         Id,
-        TransportValue,
+        Value,
         Payload,
         Checksum,
         NumOfValues
@@ -106,5 +107,22 @@ public:
     const std::string& untilLayer() const;
     bool verifyBeforeRead() const;
 };
+
+class ValueLayerImpl;
+class COMMSDSL_API ValueLayer : public Layer
+{
+    using Base = Layer;
+public:
+    using Interfaces = std::vector<Interface>;
+
+    explicit ValueLayer(const ValueLayerImpl* impl);
+    explicit ValueLayer(Layer layer);
+
+    Interfaces interfaces() const;
+    const std::string& fieldName() const;
+    std::size_t fieldIdx() const;
+    bool pseudo() const;
+};
+
 
 } // namespace commsdsl

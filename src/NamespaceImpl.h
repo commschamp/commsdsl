@@ -98,6 +98,11 @@ public:
         m_description = value;
     }
 
+    const InterfacesMap& interfaces() const
+    {
+        return m_interfaces;
+    }
+
     NamespacesList namespacesList() const;
     FieldsList fieldsList() const;
     MessagesList messagesList() const;

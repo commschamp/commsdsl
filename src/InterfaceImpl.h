@@ -60,6 +60,8 @@ public:
         return m_extraChildren;
     }
 
+    std::size_t findFieldIdx(const std::string& name) const;
+
 protected:
 
     virtual ObjKind objKindImpl() const override final;

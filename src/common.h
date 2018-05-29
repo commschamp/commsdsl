@@ -101,6 +101,9 @@ const std::string& algNameStr();
 const std::string& fromStr();
 const std::string& untilStr();
 const std::string& verifyBeforeReadStr();
+const std::string& interfaceFieldNameStr();
+const std::string& valueStr();
+const std::string& pseudoStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

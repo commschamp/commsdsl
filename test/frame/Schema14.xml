@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema14"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <enum name="MsgId" type="uint8">
+                <validValue name="M1" val="1" />
+                <validValue name="M2" val="2" />
+            </enum>
+            <int name="Version" type="uint8" />
+        </fields>
+        
+        <interface name="Message" />
+    
+        <frame name="Generic">
+            <id name="Id" field="ns1.MsgId"/>        
+            <value name="Version">
+                <field>ns1.version</field>
+                <interfaceFieldName>Version</interfaceFieldName>
+            </value>
+            <payload name="Data" />
+        </frame>
+    </ns>
+</schema>

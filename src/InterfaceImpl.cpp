@@ -91,6 +91,22 @@ std::string InterfaceImpl::externalRef() const
     return nsRef + '.' + name();
 }
 
+std::size_t InterfaceImpl::findFieldIdx(const std::string& name) const
+{
+    auto iter =
+        std::find_if(
+            m_fields.begin(), m_fields.end(),
+            [&name](auto& fPtr)
+            {
+                return fPtr->name() == name;
+            });
+    if (iter == m_fields.end()) {
+        return std::numeric_limits<std::size_t>::max();
+    }
+
+    return static_cast<std::size_t>(std::distance(m_fields.begin(), iter));
+}
+
 Object::ObjKind InterfaceImpl::objKindImpl() const
 {
     return ObjKind::Interface;
