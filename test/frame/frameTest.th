@@ -25,6 +25,7 @@ public:
     void test16();
     void test17();
     void test18();
+    void test19();
 };
 
 void FrameTestSuite::setUp()
@@ -458,4 +459,39 @@ void FrameTestSuite::test18()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test19()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns1 = namespaces.front();
+    TS_ASSERT_EQUALS(ns1.name(), "ns1");
+
+    auto frames = ns1.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 2U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Custom);
+    TS_ASSERT_EQUALS(l1.name(), "Header");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT(f1.externalRef().empty());
+    TS_ASSERT_EQUALS(f1.kind(), commsdsl::Field::Kind::Bundle);
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l2.name(), "Data");
+    TS_ASSERT(!l2.hasField());
 }

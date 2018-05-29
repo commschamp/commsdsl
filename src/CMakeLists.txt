@@ -104,6 +104,7 @@ set (
     "SyncLayerImpl.cpp"
     "ChecksumLayerImpl.cpp"
     "ValueLayerImpl.cpp"
+    "CustomLayerImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

@@ -15,6 +15,7 @@
 #include "SyncLayerImpl.h"
 #include "ChecksumLayerImpl.h"
 #include "ValueLayerImpl.h"
+#include "CustomLayerImpl.h"
 
 namespace commsdsl
 {
@@ -519,6 +520,12 @@ const LayerImpl::CreateMap& LayerImpl::createMap()
             [](::xmlNodePtr n, ProtocolImpl& p)
             {
                 return Ptr(new ValueLayerImpl(n, p));
+            }),
+        std::make_pair(
+            common::customStr(),
+            [](::xmlNodePtr n, ProtocolImpl& p)
+            {
+                return Ptr(new CustomLayerImpl(n, p));
             }),
     };
 

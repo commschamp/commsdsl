@@ -20,6 +20,7 @@ public:
 
     enum class Kind
     {
+        Custom,
         Sync,
         Size,
         Id,

@@ -540,6 +540,12 @@ const std::string& pseudoStr()
     return Str;
 }
 
+const std::string& customStr()
+{
+    static const std::string Str("custom");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
