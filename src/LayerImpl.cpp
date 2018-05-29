@@ -59,18 +59,6 @@ bool LayerImpl::parse()
         return false;
     }
 
-    auto& extraPossiblePropsNames = extraPossiblePropsNamesImpl();
-    do {
-        if (extraPossiblePropsNames.empty()) {
-            break;
-        }
-
-        if (!XmlWrap::parseChildrenAsProps(m_node, extraPossiblePropsNames, m_protocol.logger(), m_props, false)) {
-            return false;
-        }
-
-    } while (false);
-
     bool result =
         updateName() &&
         updateDescription() &&
@@ -87,17 +75,13 @@ bool LayerImpl::parse()
     XmlWrap::NamesList expectedProps = commonProps();
     expectedProps.insert(expectedProps.end(), commonPossibleProps().begin(), commonPossibleProps().end());
     expectedProps.insert(expectedProps.end(), extraPropsNames.begin(), extraPropsNames.end());
-    expectedProps.insert(expectedProps.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
     if (!updateExtraAttrs(expectedProps)) {
         return false;
     }
 
-    auto& extraChildren = extraChildrenNamesImpl();
     XmlWrap::NamesList expectedChildren = commonProps();
     expectedChildren.insert(expectedChildren.end(), commonPossibleProps().begin(), commonPossibleProps().end());
     expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
-    expectedChildren.insert(expectedChildren.end(), extraPossiblePropsNames.begin(), extraPossiblePropsNames.end());
-    expectedChildren.insert(expectedChildren.end(), extraChildren.begin(), extraChildren.end());
     if (!updateExtraChildren(expectedChildren)) {
         return false;
     }
@@ -161,17 +145,6 @@ Object::ObjKind LayerImpl::objKindImpl() const
 const XmlWrap::NamesList& LayerImpl::extraPropsNamesImpl() const
 {
     return XmlWrap::emptyNamesList();
-}
-
-const XmlWrap::NamesList&LayerImpl::extraPossiblePropsNamesImpl() const
-{
-    return XmlWrap::emptyNamesList();
-}
-
-const XmlWrap::NamesList&LayerImpl::extraChildrenNamesImpl() const
-{
-    static const XmlWrap::NamesList Names;
-    return Names;
 }
 
 bool LayerImpl::parseImpl()

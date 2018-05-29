@@ -75,16 +75,6 @@ public:
         return extraPropsNamesImpl();
     }
 
-    const XmlWrap::NamesList& extraPossiblePropsNames() const
-    {
-        return extraPossiblePropsNamesImpl();
-    }
-
-    const XmlWrap::NamesList& extraChildrenNames() const
-    {
-        return extraChildrenNamesImpl();
-    }
-
     const PropsMap& extraAttributes() const
     {
         return m_extraAttrs;
@@ -127,8 +117,6 @@ protected:
     virtual ObjKind objKindImpl() const override final;
     virtual Kind kindImpl() const = 0;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const;
-    virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const;
-    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool parseImpl();
     virtual bool verifyImpl(const LayersList& layers);
     virtual bool mustHaveFieldImpl() const;
