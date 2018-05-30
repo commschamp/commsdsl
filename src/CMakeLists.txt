@@ -52,8 +52,6 @@ if (NOT LIBXML2_FOUND)
     find_package(LibXml2 REQUIRED)
 endif ()
 
-add_definitions (-DBBMP_LIB_EXPORT)
-
 set (
     src
     "Protocol.cpp"
@@ -124,7 +122,7 @@ target_compile_definitions(${PROJECT_NAME}
   PRIVATE COMMSDSL_LIB_EXPORT)
 
 install(
-    TARGETS ${PROJECT_NAME} EXPORT "LibBbmpTargets"
+    TARGETS ${PROJECT_NAME} EXPORT "LibCommsdslTargets"
     ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
     RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
@@ -133,21 +131,21 @@ install(
 
 export(
     TARGETS ${PROJECT_NAME}
-    FILE "${PROJECT_BINARY_DIR}/LibBbmpTargets.cmake")
+    FILE "${PROJECT_BINARY_DIR}/LibCommsdslTargets.cmake")
 
 export(
-    PACKAGE LibBbmp
+    PACKAGE LibCommsdsl
 )
 
-configure_file(LibBbmpConfig.cmake.in
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibBbmpConfig.cmake" @ONLY)
+configure_file(LibCommsdslConfig.cmake.in
+    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibCommsdslConfig.cmake" @ONLY)
 
 install(
     FILES
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibBbmpConfig.cmake"
-    DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/LibBbmp/cmake/
+    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibCommsdslConfig.cmake"
+    DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/LibCommsdsl/cmake/
 )
 
 install(
-    EXPORT LibBbmpTargets DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/LibBbmp/cmake/
+    EXPORT LibCommsdslTargets DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/LibCommsdsl/cmake/
 )
