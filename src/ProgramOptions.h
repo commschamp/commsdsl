@@ -22,7 +22,7 @@
 #include <iosfwd>
 #include <boost/program_options.hpp>
 
-namespace bbmp2comms
+namespace commsdsl2comms
 {
 
 class ProgramOptions
@@ -32,6 +32,9 @@ public:
     static void printHelp(std::ostream& out);
 
     bool helpRequested() const;
+
+    std::string getFilesListFile() const;
+    std::string getFilesListPrefix() const;
     std::vector<std::string> getFiles() const;
     std::string getOutputDirectory() const;
     bool hasNamespaceOverride() const;
@@ -44,4 +47,4 @@ private:
     boost::program_options::variables_map m_vm;
 };
 
-} // namespace bbmp2comms
+} // namespace commsdsl2comms

@@ -21,7 +21,7 @@
 #include <vector>
 
 namespace po = boost::program_options;
-namespace bbmp2comms
+namespace commsdsl2comms
 {
 
 namespace
@@ -31,6 +31,10 @@ const std::string HelpStr("help");
 const std::string FullHelpStr(HelpStr + ",h");
 const std::string OutputDirStr("output-dir");
 const std::string FullOutputDirStr(OutputDirStr + ",o");
+const std::string InputFilesListStr("input-files-list");
+const std::string FullInputFilesListStr(InputFilesListStr + ",i");
+const std::string InputFilesPrefixStr("input-files-prefix");
+const std::string FullInputFilesPrefixStr(InputFilesPrefixStr + ",p");
 const std::string NamespaceStr("namespace");
 const std::string FullNamespaceStr(NamespaceStr + ",n");
 const std::string ForceVerStr("force-version");
@@ -47,6 +51,10 @@ po::options_description createDescription()
         (FullHelpStr.c_str(), "This help.")
         (FullOutputDirStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Output directory path. Empty means current.")
+        (FullInputFilesListStr.c_str(), po::value<std::string>()->default_value(std::string()),
+            "File containing list of input files.")
+        (FullInputFilesPrefixStr.c_str(), po::value<std::string>()->default_value(std::string()),
+            "Prefix for the values from the list file.")
         (FullNamespaceStr.c_str(), po::value<std::string>(),
             "Force protocol namespace. Defaults to package name defined in the schema.")
         (FullForceVerStr.c_str(), po::value<unsigned>(),
@@ -118,6 +126,16 @@ bool ProgramOptions::helpRequested() const
     return 0 < m_vm.count(HelpStr);
 }
 
+std::string ProgramOptions::getFilesListFile() const
+{
+    return m_vm[InputFilesListStr].as<std::string>();
+}
+
+std::string ProgramOptions::getFilesListPrefix() const
+{
+    return m_vm[InputFilesPrefixStr].as<std::string>();
+}
+
 std::vector<std::string> ProgramOptions::getFiles() const
 {
     if (m_vm.count(InputFileStr) == 0U) {
@@ -166,5 +184,5 @@ std::string ProgramOptions::getCommsChampionTag() const
 
 // namespace
 
-} // namespace bbmp2comms
+} // namespace commsdsl2comms
 

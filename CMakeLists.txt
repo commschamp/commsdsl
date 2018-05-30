@@ -1,15 +1,15 @@
 cmake_minimum_required (VERSION 3.1)
-project ("bbmp2comms")
+project ("commsdsl2comms")
 
-option (BBMP2COMMS_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
-option (BBMP2COMMS_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
+option (COMMSDSL2COMMS_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
+option (COMMSDSL2COMMS_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 
 if (NOT CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 11)
 endif()
 
-if ("${BBMP2COMMS_INSTALL_DIR}" STREQUAL "")
-    set (BBMP2COMMS_INSTALL_DIR "${CMAKE_BINARY_DIR}/install")
+if ("${COMMSDSL2COMMS_INSTALL_DIR}" STREQUAL "")
+    set (COMMSDSL2COMMS_INSTALL_DIR "${CMAKE_BINARY_DIR}/install")
 endif ()
 
 if ((CMAKE_COMPILER_IS_GNUCC) OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
@@ -37,7 +37,7 @@ if ((CMAKE_COMPILER_IS_GNUCC) OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
         list (APPEND extra_flags_list "-Wno-dangling-field -Wno-unused-command-line-argument")
     endif ()
     
-    if (NOT BBMP2COMMS_NO_WARN_AS_ERR)
+    if (NOT COMMSDSL2COMMS_NO_WARN_AS_ERR)
         list (APPEND extra_flags_list "-Werror")
     endif ()
     
@@ -48,7 +48,7 @@ elseif (MSVC)
 
     add_definitions( "/wd4503" "/wd4309" "/wd4267" "-D_SCL_SECURE_NO_WARNINGS")
 
-    if (NOT BBMP2COMMS_NO_WARN_AS_ERR)
+    if (NOT COMMSDSL2COMMS_NO_WARN_AS_ERR)
         add_definitions("/WX")
     endif ()
     
@@ -56,7 +56,7 @@ endif ()
 
 enable_testing ()
 
-if ((UNIX) AND (NOT BBMP2COMMS_NO_CCACHE))
+if ((UNIX) AND (NOT COMMSDSL2COMMS_NO_CCACHE))
     find_program(CCACHE_FOUND ccache)
     if(CCACHE_FOUND)
         set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)

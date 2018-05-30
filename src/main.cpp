@@ -18,50 +18,93 @@
 #include <iostream>
 #include <fstream>
 
-//#include <boost/filesystem.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
-#include "bbmp/Protocol.h"
+#include "commsdsl/Protocol.h"
 
 #include "ProgramOptions.h"
 
-//namespace bf = boost::filesystem;
+namespace bf = boost::filesystem;
+namespace ba = boost::algorithm;
 
-namespace bbmp2comms
+namespace commsdsl2comms
 {
 
-} // namespace bbmp2comms
+std::vector<std::string> getFilesList(
+    const std::string& fileName,
+    const std::string& prefix)
+{
+    std::vector<std::string> result;
+    do {
+        if (fileName.empty()) {
+            break;
+        }
+
+        ba::split(result, fileName, ba::is_any_of("\r\n"), ba::token_compress_on);
+        if (prefix.empty()) {
+            break;
+        }
+
+        bf::path prefixPath(prefix);
+        for (auto& f : result) {
+            f = (prefixPath / f).string();
+        }
+    } while (false);
+    return result;
+}
+
+} // namespace commsdsl2comms
 
 int main(int argc, const char* argv[])
 {
-    bbmp2comms::ProgramOptions options;
-    options.parse(argc, argv);
-    if (options.helpRequested()) {
-        std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n";
-        options.printHelp(std::cout);
-        return 0;
-    }
+    try {
+        commsdsl2comms::ProgramOptions options;
+        options.parse(argc, argv);
+        if (options.helpRequested()) {
+            std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n";
+            options.printHelp(std::cout);
+            return 0;
+        }
 
-    auto files = options.getFiles();
-    if (files.empty()) {
-        std::cerr << "ERROR: No file is provided" << std::endl;
-        return -1;
-    }
+        auto files = commsdsl2comms::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
+        auto otherFiles = options.getFiles();
+        files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
-    std::cout << "Files count: " << files.size() << std::endl;
-    bbmp::Protocol protocol;
-    for (auto& f : files) {
-        std::cout << "\t" << f << '\n';
-        if (!protocol.parse(f)) {
-            std::cerr << "ERROR: Failed to parse " << f << std::endl;
+        if (files.empty()) {
+            std::cerr << "ERROR: No intput files are provided" << std::endl;
             return -1;
         }
-    }
-    std::cout << std::endl;
 
-    bool result = true;
-    if (result) {
-        std::cout << "SUCCESS" << std::endl;
-        return 0;
+        std::cout << "Files count: " << files.size() << std::endl;
+        commsdsl::Protocol protocol;
+        for (auto& f : files) {
+            std::cout << "\tParsing " << f << '\n';
+            if (!protocol.parse(f)) {
+                std::cerr << "ERROR: Failed to parse " << f << std::endl;
+                return -1;
+            }
+        }
+        std::cout << std::endl;
+
+        if (!protocol.validate()) {
+            std::cerr << "ERROR: Validation failed" << std::endl;
+            return -1;
+        }
+
+        auto schema = protocol.schema();
+        std::cout << "NAME = " << schema.name() << std::endl;
+        std::cout << "ID = " << schema.id() << std::endl;
+
+
+        bool result = true;
+        if (result) {
+            std::cout << "SUCCESS" << std::endl;
+            return 0;
+        }
+    }
+    catch (...) {
+        // Ignore exception
     }
 
     return -1;

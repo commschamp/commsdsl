@@ -4,11 +4,11 @@ find_package(Boost REQUIRED
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
-if (NOT "${LIBBBMP_INSTALL_DIR}" STREQUAL "")
-    list (APPEND CMAKE_PREFIX_PATH ${LIBBBMP_INSTALL_DIR})
+if (NOT "${LIBCOMMSDSL_INSTALL_DIR}" STREQUAL "")
+    list (APPEND CMAKE_PREFIX_PATH ${LIBCOMMSDSL_INSTALL_DIR})
 endif ()
 
-find_package(LibBbmp REQUIRED NO_MODULE)
+find_package(LibCommsdsl REQUIRED NO_MODULE)
 
 set (
     src
@@ -17,14 +17,14 @@ set (
 )
 
 add_executable(${PROJECT_NAME} ${src})
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} bbmp)
+target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${LIBCOMMSDSL_LIBRARIES})
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
 endif ()
 
 install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION ${BBMP2COMMS_INSTALL_DIR}/bin
+        RUNTIME DESTINATION ${COMMSDSL2COMMS_INSTALL_DIR}/bin
 )
 
 FILE(GLOB_RECURSE all_headers "*.h")
