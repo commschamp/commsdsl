@@ -32,6 +32,8 @@ public:
     static void printHelp(std::ostream& out);
 
     bool helpRequested() const;
+    bool quietRequested() const;
+    bool warnAsErrRequested() const;
 
     std::string getFilesListFile() const;
     std::string getFilesListPrefix() const;

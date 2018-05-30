@@ -14,6 +14,8 @@ set (
     src
     "main.cpp"
     "ProgramOptions.cpp"
+    "Logger.cpp"
+    "Generator.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${src})

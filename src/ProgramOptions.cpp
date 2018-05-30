@@ -29,6 +29,8 @@ namespace
 
 const std::string HelpStr("help");
 const std::string FullHelpStr(HelpStr + ",h");
+const std::string QuietStr("quiet");
+const std::string FullQuietStr(QuietStr + ",q");
 const std::string OutputDirStr("output-dir");
 const std::string FullOutputDirStr(OutputDirStr + ",o");
 const std::string InputFilesListStr("input-files-list");
@@ -43,12 +45,14 @@ const std::string MinRemoteVerStr("min-remote-version");
 const std::string FullMinRemoteVerStr(MinRemoteVerStr + ",m");
 const std::string InputFileStr("input-file");
 const std::string CommsChampionTagStr("cc-tag");
+const std::string WarnAsErrStr("warn-as-err");
 
 po::options_description createDescription()
 {
     po::options_description desc("Options");
     desc.add_options()
         (FullHelpStr.c_str(), "This help.")
+        (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
         (FullOutputDirStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Output directory path. Empty means current.")
         (FullInputFilesListStr.c_str(), po::value<std::string>()->default_value(std::string()),
@@ -61,8 +65,9 @@ po::options_description createDescription()
             "Force schema version. Must not be greater than version specified in schema file.")
         (FullMinRemoteVerStr.c_str(), po::value<unsigned>()->default_value(0U),
             "Set minimal supported remote version. Defaults to 0.")
-        (CommsChampionTagStr.c_str(), po::value<std::string>()->default_value("v0.23"),
+        (CommsChampionTagStr.c_str(), po::value<std::string>()->default_value("v0.25"),
             "Default tag/branch of the CommsChampion project.")
+        (WarnAsErrStr.c_str(), "Treat warning as error.")
     ;
     return desc;
 }
@@ -124,6 +129,16 @@ void ProgramOptions::printHelp(std::ostream& out)
 bool ProgramOptions::helpRequested() const
 {
     return 0 < m_vm.count(HelpStr);
+}
+
+bool ProgramOptions::quietRequested() const
+{
+    return 0 < m_vm.count(QuietStr);
+}
+
+bool ProgramOptions::warnAsErrRequested() const
+{
+    return 0 < m_vm.count(WarnAsErrStr);
 }
 
 std::string ProgramOptions::getFilesListFile() const
