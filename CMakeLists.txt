@@ -5,7 +5,7 @@ option (COMMSDSL2COMMS_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 option (COMMSDSL2COMMS_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 
 if (NOT CMAKE_CXX_STANDARD)
-    set (CMAKE_CXX_STANDARD 11)
+    set (CMAKE_CXX_STANDARD 14)
 endif()
 
 if ("${COMMSDSL2COMMS_INSTALL_DIR}" STREQUAL "")
@@ -65,5 +65,5 @@ if ((UNIX) AND (NOT COMMSDSL2COMMS_NO_CCACHE))
 endif ()
 
 add_subdirectory(src)
-#add_subdirectory(test)
+add_subdirectory(test)
 

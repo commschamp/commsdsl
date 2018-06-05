@@ -59,7 +59,7 @@ po::options_description createDescription()
             "File containing list of input files.")
         (FullInputFilesPrefixStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Prefix for the values from the list file.")
-        (FullNamespaceStr.c_str(), po::value<std::string>(),
+        (FullNamespaceStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Force protocol namespace. Defaults to package name defined in the schema.")
         (FullForceVerStr.c_str(), po::value<unsigned>(),
             "Force schema version. Must not be greater than version specified in schema file.")

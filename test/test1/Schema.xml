@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test1"
+        id="1"
+        endian="big">
+    <message name="Msg1" displayName="Message no 1" id="0x10">
+        <description>
+            This is very very very very very very very very very very very very very very
+            long long long long long long long long long long long long long long long 
+            description
+        </description>
+    </message>
+    <message name="Msg2" id="10" />    
+</schema>

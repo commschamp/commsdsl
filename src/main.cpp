@@ -1,5 +1,6 @@
 #include <iostream>
 #include <fstream>
+#include <stdexcept>
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -71,14 +72,15 @@ int main(int argc, const char* argv[])
             return -1;
         }
 
-        commsdsl2comms::Generator generator(logger);
+        commsdsl2comms::Generator generator(options, logger);
         if (!generator.generate(files)) {
             return -1;
         }
 
         return 0;
     }
-    catch (...) {
+    catch (const std::exception& e) {
+        std::cerr << "Unhandled exception: " << e.what() << std::endl;
         assert(!"Unhandled exception should not happen");
         // Ignore exception
     }

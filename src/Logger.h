@@ -14,6 +14,15 @@ public:
     Logger(const Logger&) = delete;
 
     void log(commsdsl::ErrorLevel level, const std::string& msg);
+    void error(const std::string& msg)
+    {
+        log(commsdsl::ErrorLevel_Error, msg);
+    }
+
+    void info(const std::string& msg)
+    {
+        log(commsdsl::ErrorLevel_Info, msg);
+    }
 
     void setMinLevel(commsdsl::ErrorLevel level)
     {

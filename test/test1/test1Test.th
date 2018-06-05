@@ -1,0 +1,11 @@
+#include "cxxtest/TestSuite.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+};
+
+void TestSuite::test1()
+{
+}

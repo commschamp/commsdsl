@@ -16,6 +16,9 @@ set (
     "ProgramOptions.cpp"
     "Logger.cpp"
     "Generator.cpp"
+    "Namespace.cpp"
+    "Message.cpp"
+    "common.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${src})
