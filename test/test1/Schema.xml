@@ -8,6 +8,10 @@
             long long long long long long long long long long long long long long long 
             description
         </description>
+        <fields>
+            <int name="f1" type="uint8" />
+            <int name="F2" type="uintvar" length="4" />
+        </fields>
     </message>
     <message name="Msg2" id="10" />    
 </schema>

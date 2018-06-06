@@ -5,9 +5,8 @@
 #include <memory>
 
 #include "commsdsl/Message.h"
-#include "commsdsl/Field.h"
 
-//#include "Field.h"
+#include "Field.h"
 
 namespace commsdsl2comms
 {
@@ -36,10 +35,15 @@ public:
 private:
 
     bool writeProtocol();
+    std::string getDisplayName() const;
+    std::string getDescription() const;
+    std::string getFieldsClassesList() const;
+    std::string getIncludes() const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;
     std::string m_externalRef;
+    std::vector<FieldPtr> m_fields;
 };
 
 using MessagePtr = std::unique_ptr<Message>;

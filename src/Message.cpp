@@ -3,6 +3,8 @@
 #include <cassert>
 #include <fstream>
 #include <map>
+#include <algorithm>
+#include <iterator>
 
 #include <boost/algorithm/string.hpp>
 
@@ -23,9 +25,7 @@ const std::string Template(
     "\n"
     "#pragma once\n"
     "\n"
-    "#include \"comms/MessageBase.h\"\n"
-    "#include \"#^#PROT_NAMESPACE#$#/DefaultOptions.h\"\n"
-    "#^#INCLUDES#$#\n\n"
+    "#^#INCLUDES#$#\n"
     "#^#BEGIN_NAMESPACE#$#\n"
     "/// @brief Fields of @ref #^#CLASS_NAME#$#.\n"
     "/// @tparam TOpt Extra options\n"
@@ -85,6 +85,16 @@ bool Message::prepare()
         return false;
     }
 
+    auto dslFields = m_dslObj.fields();
+    m_fields.reserve(dslFields.size());
+    for (auto& f : dslFields) {
+        auto ptr = Field::create(m_generator, f);
+        assert(ptr);
+        if (!ptr->prepare()) {
+            return false;
+        }
+        m_fields.push_back(std::move(ptr));
+    }
 
     // TODO
     return true;
@@ -117,22 +127,8 @@ bool Message::writeProtocol()
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", className));
-    auto* displayName = &m_dslObj.displayName();
-    if (displayName->empty()) {
-        displayName = &m_dslObj.name();
-    }
-    replacements.insert(std::make_pair("MESSAGE_NAME", *displayName));
-
-    auto desc = common::makeMultiline(m_dslObj.description());
-    if (!desc.empty()) {
-        static const std::string DocPrefix("///     ");
-        desc.insert(desc.begin(), DocPrefix.begin(), DocPrefix.end());
-        static const std::string DocNewLineRepl("\n" + DocPrefix);
-        ba::replace_all(desc, "\n", DocNewLineRepl);
-        desc += " @n";
-        replacements.insert(std::make_pair("DOC_DETAILS", std::move(desc)));
-    }
-
+    replacements.insert(std::make_pair("MESSAGE_NAME", getDisplayName()));
+    replacements.insert(std::make_pair("DOC_DETAILS", getDescription()));
     replacements.insert(std::make_pair("MESSAGE_ID", common::numToString(m_dslObj.id())));
 
     auto namespaces = m_generator.namespacesForMessage(m_externalRef);
@@ -141,6 +137,8 @@ bool Message::writeProtocol()
 
     replacements.insert(std::make_pair("MESSAGE_HEADERFILE", m_generator.headerfileForMessage(m_externalRef)));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
+    replacements.insert(std::make_pair("FIELDS_LIST", getFieldsClassesList()));
+    replacements.insert(std::make_pair("INCLUDES", getIncludes()));
     // TODO: all values
 
     auto str = common::processTemplate(Template, replacements);
@@ -159,5 +157,56 @@ bool Message::writeProtocol()
 
     return true;
 }
+
+std::string Message::getDisplayName() const
+{
+    auto* displayName = &m_dslObj.displayName();
+    if (displayName->empty()) {
+        displayName = &m_dslObj.name();
+    }
+    return *displayName;
+}
+
+std::string Message::getDescription() const
+{
+    auto desc = common::makeMultiline(m_dslObj.description());
+    if (!desc.empty()) {
+        static const std::string DocPrefix("///     ");
+        desc.insert(desc.begin(), DocPrefix.begin(), DocPrefix.end());
+        static const std::string DocNewLineRepl("\n" + DocPrefix);
+        ba::replace_all(desc, "\n", DocNewLineRepl);
+        desc += " @n";
+    }
+    return desc;
+}
+
+std::string Message::getFieldsClassesList() const
+{
+    std::string result;
+    for (auto& f : m_fields) {
+        if (!result.empty()) {
+            result += ",\n";
+        }
+        result += common::nameToClassCopy(f->name());
+    }
+    return result;
+}
+
+std::string Message::getIncludes() const
+{
+    common::IncludesList includes;
+    for (auto& f : m_fields) {
+        f->updateIncludes(includes);
+    }
+
+    static const common::IncludesList MessageIncludes = {
+        "comms/MessageBase.h",
+        m_generator.mainNamespace() + "/DefaultOptions.h"
+    };
+    common::mergeIncludes(MessageIncludes, includes);
+
+    return common::includesToStatements(includes);
+}
+
 
 }

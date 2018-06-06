@@ -18,6 +18,8 @@ set (
     "Generator.cpp"
     "Namespace.cpp"
     "Message.cpp"
+    "Field.cpp"
+    "IntField.cpp"
     "common.cpp"
 )
 

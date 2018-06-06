@@ -40,6 +40,18 @@ const std::string& messageStr()
     return Str;
 }
 
+const std::string& fieldBaseStr()
+{
+    static const std::string Str("FieldBase");
+    return Str;
+}
+
+const std::string& commsStr()
+{
+    static const std::string Str("comms");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {
@@ -47,6 +59,13 @@ void nameToClass(std::string& str)
     }
 
     str[0] = static_cast<char>(std::toupper(static_cast<int>(str[0])));
+}
+
+std::string nameToClassCopy(const std::string& str)
+{
+    std::string result = str;
+    nameToClass(result);
+    return result;
 }
 
 void updateName(std::string& str)
@@ -236,6 +255,37 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
 
     if (templPos < templ.size()) {
         result.insert(result.end(), templ.begin() + templPos, templ.end());
+    }
+    return result;
+}
+
+void mergeIncludes(const IncludesList& from, IncludesList& to)
+{
+    to.reserve(to.size() + from.size());
+    for (auto& inc : from) {
+        auto iter = std::lower_bound(to.begin(), to.end(), inc);
+        if ((iter != to.end()) && (*iter == inc)) {
+            continue;
+        }
+
+        to.insert(iter, inc);
+    }
+}
+
+std::string includesToStatements(const IncludesList& list)
+{
+    std::string result;
+    for (auto& inc : list) {
+        result += "#include ";
+        if (inc[0] != '<') {
+            result += '\"';
+            result += inc;
+            result += '\"';
+        }
+        else {
+            result += inc;
+        }
+        result += '\n';
     }
     return result;
 }
