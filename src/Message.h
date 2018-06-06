@@ -39,6 +39,12 @@ private:
     std::string getDescription() const;
     std::string getFieldsClassesList() const;
     std::string getIncludes() const;
+    std::string getBody() const;
+    std::string getPublic() const;
+    std::string getProtected() const;
+    std::string getPrivate() const;
+    std::string getFieldsAccess() const;
+    std::string getLengthCheck() const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;

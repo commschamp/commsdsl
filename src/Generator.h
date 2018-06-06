@@ -31,12 +31,14 @@ public:
         return m_logger;
     }
 
+    bool doesElementExist(
+        unsigned sinceVersion,
+        unsigned deprecatedSince,
+        bool deprecatedRemoved) const;
+
     std::pair<std::string, std::string>
     startMessageProtocolWrite(
         const std::string& externalRef,
-        unsigned sinceVersion,
-        unsigned deprecatedSince,
-        bool deprecatedRemoved,
         const std::vector<std::string>& platforms);
 
     std::pair<std::string, std::string>

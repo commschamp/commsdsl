@@ -52,6 +52,12 @@ const std::string& commsStr()
     return Str;
 }
 
+const std::string& indentStr()
+{
+    static const std::string Str("    ");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {
@@ -65,6 +71,22 @@ std::string nameToClassCopy(const std::string& str)
 {
     std::string result = str;
     nameToClass(result);
+    return result;
+}
+
+void nameToAcces(std::string& str)
+{
+    if (str.empty()) {
+        return;
+    }
+
+    str[0] = static_cast<char>(std::tolower(static_cast<int>(str[0])));
+}
+
+std::string nameToAccessCopy(const std::string& str)
+{
+    std::string result = str;
+    nameToAcces(result);
     return result;
 }
 
@@ -163,6 +185,13 @@ std::string makeMultiline(const std::string& value, unsigned len)
     }
 
     return result;
+}
+
+void insertIndent(std::string& str)
+{
+    auto& indent = indentStr();
+    str.insert(str.begin(), indent.begin(), indent.end());
+    ba::replace_all(str, "\n", "\n" + indent);
 }
 
 std::string processTemplate(const std::string& templ, const ReplacementMap& repl)

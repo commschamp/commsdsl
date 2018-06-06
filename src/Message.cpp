@@ -5,6 +5,7 @@
 #include <map>
 #include <algorithm>
 #include <iterator>
+#include <numeric>
 
 #include <boost/algorithm/string.hpp>
 
@@ -70,7 +71,7 @@ const std::string Template(
     "        >;\n"
     "\n"
     "public:\n"
-    "    #^#MESSAGE_BODY#$#\n"
+    "#^#MESSAGE_BODY#$#\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n"
 );
@@ -90,6 +91,10 @@ bool Message::prepare()
     for (auto& f : dslFields) {
         auto ptr = Field::create(m_generator, f);
         assert(ptr);
+        if (!ptr->doesExist()) {
+            continue;
+        }
+
         if (!ptr->prepare()) {
             return false;
         }
@@ -102,6 +107,15 @@ bool Message::prepare()
 
 bool Message::write()
 {
+    bool exists =
+        m_generator.doesElementExist(
+            m_dslObj.sinceVersion(),
+            m_dslObj.deprecatedSince(),
+            m_dslObj.isDeprecatedRemoved());
+    if (!exists) {
+        return true;
+    }
+
     // TODO: write plugin
     return writeProtocol();
 }
@@ -113,9 +127,6 @@ bool Message::writeProtocol()
     auto names =
         m_generator.startMessageProtocolWrite(
             m_externalRef,
-            m_dslObj.sinceVersion(),
-            m_dslObj.deprecatedSince(),
-            m_dslObj.isDeprecatedRemoved(),
             m_dslObj.platforms());
     auto& filePath = names.first;
     auto& className = names.second;
@@ -139,6 +150,7 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("FIELDS_LIST", getFieldsClassesList()));
     replacements.insert(std::make_pair("INCLUDES", getIncludes()));
+    replacements.insert(std::make_pair("MESSAGE_BODY", getBody()));
     // TODO: all values
 
     auto str = common::processTemplate(Template, replacements);
@@ -208,5 +220,133 @@ std::string Message::getIncludes() const
     return common::includesToStatements(includes);
 }
 
+std::string Message::getBody() const
+{
+    std::string result = getPublic();
+    std::string prot = getProtected();
+    if (!prot.empty()) {
+        result += "\nprotected:\n";
+        result += prot;
+    }
+
+    std::string priv = getPrivate();
+    if (!priv.empty()) {
+        result += "\nprivate:\n";
+        result += priv;
+    }
+
+    return result;
+}
+
+std::string Message::getPublic() const
+{
+    std::string result;
+    result += getFieldsAccess();
+    result += getLengthCheck();
+    common::insertIndent(result);
+    return result;
+}
+
+std::string Message::getProtected() const
+{
+    // TODO:
+    return common::emptyString();
+}
+
+std::string Message::getPrivate() const
+{
+    // TODO:
+    return common::emptyString();
+}
+
+std::string Message::getFieldsAccess() const
+{
+    if (m_fields.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string DocPrefix =
+        "/// @brief Allow access to internal fields.\n"
+        "/// @details See definition of @b COMMS_MSG_FIELDS_ACCESS macro\n"
+        "///     related to @b comms::MessageBase class from COMMS library\n"
+        "///     for details.\n"
+        "///\n"
+        "///     The access names are:\n";
+
+    std::string result = DocPrefix;
+    for (auto& f : m_fields) {
+        result += "/// ";
+        result += common::indentStr();
+        result += "@li @b ";
+        result += common::nameToAccessCopy(f->name());
+        result += " for @ref ";
+        result += common::nameToClassCopy(name());
+        result += "Fields::";
+        result += common::nameToClassCopy(f->name());
+        result += " field.\n";
+    }
+
+    result += "COMMS_MSG_FIELDS_ACCESS(\n";
+    for (auto& f : m_fields) {
+        result += common::indentStr();
+        result += common::nameToAccessCopy(f->name());
+        if (&f != &m_fields.back()) {
+            result += ',';
+        }
+        result += '\n';
+    }
+    result += ");\n\n";
+
+    return result;
+}
+
+std::string Message::getLengthCheck() const
+{
+    static const std::size_t MaxLen =
+        std::numeric_limits<std::size_t>::max();
+
+    auto minLength =
+        std::accumulate(
+            m_fields.begin(), m_fields.end(), std::size_t(0),
+            [](std::size_t soFar, auto& f)
+            {
+                return soFar + f->minLength();
+            });
+    auto maxLength =
+        std::accumulate(
+            m_fields.begin(), m_fields.end(), std::size_t(0),
+            [](std::size_t soFar, auto& f)
+            {
+
+
+                if (soFar == MaxLen) {
+                    return MaxLen;
+                }
+
+                auto fLen = f->maxLength();
+                if ((MaxLen - soFar) <= fLen) {
+                    return MaxLen;
+                }
+
+                return soFar + fLen;
+            });
+
+    std::string result =
+            "// Compile time check for serialisation length.\n"
+            "static const std::size_t MsgMinLen = Base::doMinLength();\n";
+    if (maxLength != MaxLen) {
+        result += "static const std::size_t MsgMaxLen = Base::doMaxLength();\n";
+    }
+    result += "static_assert(MsgMinLen == ";
+    result += common::numToString(minLength);
+    result += ", \"Unexpected min serialisation length\");\n";
+
+    if (maxLength != MaxLen) {
+        result += "static_assert(MsgMaxLen == ";
+        result += common::numToString(maxLength);
+        result += ", \"Unexpected max serialisation length\");\n";
+    }
+    return result;
+}
 
 }

@@ -35,6 +35,15 @@ void Field::updateIncludes(Field::IncludesList& includes) const
     common::mergeIncludes(extraIncludesImpl(), includes);
 }
 
+bool Field::doesExist() const
+{
+    return
+        m_generator.doesElementExist(
+            m_dslObj.sinceVersion(),
+            m_dslObj.deprecatedSince(),
+            m_dslObj.sinceVersion());
+}
+
 Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
 {
     using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Field)>;

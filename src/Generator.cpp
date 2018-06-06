@@ -73,18 +73,24 @@ bool Generator::generate(const FilesList& files)
             writeFiles();
 }
 
-std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
-    const std::string& externalRef,
+bool Generator::doesElementExist(
     unsigned sinceVersion,
     unsigned deprecatedSince,
-    bool deprecatedRemoved,
+    bool deprecatedRemoved) const
+{
+    static_cast<void>(sinceVersion);
+    static_cast<void>(deprecatedSince);
+    static_cast<void>(deprecatedRemoved);
+    // TODO
+    return true;
+}
+
+std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
+    const std::string& externalRef,
     const std::vector<std::string>& platforms)
 {
     // TODO: check parameters
     static_cast<void>(externalRef);
-    static_cast<void>(sinceVersion);
-    static_cast<void>(deprecatedSince);
-    static_cast<void>(deprecatedRemoved);
     static_cast<void>(platforms);
 
     // TODO: check replacement
