@@ -65,6 +65,12 @@ const std::string& doxigenPrefixStr()
     return Str;
 }
 
+const std::string& fieldsSuffixStr()
+{
+    static const std::string Str("Fields");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

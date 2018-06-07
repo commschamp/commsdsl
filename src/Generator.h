@@ -46,6 +46,8 @@ public:
 
     std::string headerfileForMessage(const std::string& externalRef);
 
+    std::string scopeForMessage(const std::string& externalRef, bool mainIncluded = false);
+
     const std::string& mainNamespace() const
     {
         return m_mainNamespace;

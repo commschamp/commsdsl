@@ -46,6 +46,8 @@ private:
     std::string getFieldsAccess() const;
     std::string getLengthCheck() const;
     std::string getFieldsDef() const;
+    std::string getNamespaceScope() const;
+    std::string getNameFunc() const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;

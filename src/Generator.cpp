@@ -158,7 +158,7 @@ std::pair<std::string, std::string> Generator::namespacesForMessage(
 
 std::string Generator::headerfileForMessage(const std::string& externalRef)
 {
-    std::string result = "\"" + m_mainNamespace + '/' + common::messageStr() + '/';
+    std::string result = "\"" + m_mainNamespace + '/';
     auto ns = refToNs(externalRef);
     if (!ns.empty()) {
         auto tokens = splitRefPath(ns);
@@ -168,10 +168,35 @@ std::string Generator::headerfileForMessage(const std::string& externalRef)
         }
     }
 
+    result += common::messageStr() + '/';
+
     auto className = refToName(externalRef);
     result += className;
     result += common::headerSuffix();
     result += '\"';
+    return result;
+}
+
+std::string Generator::scopeForMessage(const std::string& externalRef, bool mainIncluded)
+{
+    static const std::string ScopeSep("::");
+    std::string result;
+    if (mainIncluded) {
+        result += m_mainNamespace;
+        result += ScopeSep;
+    }
+
+    auto ns = refToNs(externalRef);
+    if (!ns.empty()) {
+        auto tokens = splitRefPath(ns);
+        for (auto& t : tokens) {
+            result += t;
+            result += ScopeSep;
+        }
+    }
+
+    result += common::messageStr();
+    result += ScopeSep;
     return result;
 }
 

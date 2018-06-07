@@ -48,11 +48,12 @@ const std::string Template(
     "///     See @ref #^#CLASS_NAME#$#Fields for definition of the fields this message contains.\n"
     "/// @tparam TMsgBase Base (interface) class.\n"
     "/// @tparam TOpt Extra options\n"
+    "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
     "template <typename TMsgBase, typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::MessageBase<\n"
     "        TMsgBase,\n"
-    "        typename TOpt::#^#NAMESPACE_SCOPE#$#::#^#CLASS_NAME#$#,\n"
+    "        typename TOpt::#^#NAMESPACE_SCOPE#$#,\n"
     "        comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
     "        comms::option::FieldsImpl<typename #^#CLASS_NAME#$#Fields<TOpt>::All>,\n"
     "        comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
@@ -63,7 +64,7 @@ const std::string Template(
     "    using Base =\n"
     "        comms::MessageBase<\n"
     "            TMsgBase,\n"
-    "            typename TOpt::#^#NAMESPACE_SCOPE#$#::#^#CLASS_NAME#$#,\n"
+    "            typename TOpt::#^#NAMESPACE_SCOPE#$#,\n"
     "            comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
     "            comms::option::FieldsImpl<typename #^#CLASS_NAME#$#Fields<TOpt>::All>,\n"
     "            comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
@@ -152,6 +153,7 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("INCLUDES", getIncludes()));
     replacements.insert(std::make_pair("MESSAGE_BODY", getBody()));
     replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
+    replacements.insert(std::make_pair("NAMESPACE_SCOPE", getNamespaceScope()));
     // TODO: all values
 
     auto str = common::processTemplate(Template, replacements);
@@ -244,6 +246,7 @@ std::string Message::getPublic() const
     std::string result;
     result += getFieldsAccess();
     result += getLengthCheck();
+    result += getNameFunc();
     common::insertIndent(result);
     return result;
 }
@@ -272,15 +275,15 @@ std::string Message::getFieldsAccess() const
         "///     related to @b comms::MessageBase class from COMMS library\n"
         "///     for details.\n"
         "///\n"
-        "///     The access names are:\n";
+        "///     The generated functions are:\n";
 
     std::string result = DocPrefix;
     for (auto& f : m_fields) {
-        result += "/// ";
+        result += common::doxigenPrefixStr();
         result += common::indentStr();
-        result += "@li @b ";
+        result += "@li @b field_";
         result += common::nameToAccessCopy(f->name());
-        result += " for @ref ";
+        result += "() for @ref ";
         result += common::nameToClassCopy(name());
         result += "Fields::";
         result += common::nameToClassCopy(f->name());
@@ -353,13 +356,36 @@ std::string Message::getLengthCheck() const
 std::string Message::getFieldsDef() const
 {
     std::string result;
+    auto scope =
+        getNamespaceScope() +
+        common::fieldsSuffixStr() +
+        "::";
+
     for (auto& f : m_fields) {
-        result += f->getClassDefinition(common::emptyString()); // TODO: proper scope;
+        result += f->getClassDefinition(scope);
         if (&f != &m_fields.back()) {
             result += '\n';
         }
     }
     return result;
+}
+
+std::string Message::getNamespaceScope() const
+{
+    return
+        m_generator.scopeForMessage(m_externalRef) +
+            common::nameToClassCopy(name());
+}
+
+std::string Message::getNameFunc() const
+{
+    return
+        "\n"
+        "/// @brief Name of the message.\n"
+        "static const char* doName()\n"
+        "{\n"
+        "    return \"" + getDisplayName() + "\";\n"
+        "}\n";
 }
 
 }

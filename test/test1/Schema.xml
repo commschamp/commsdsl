@@ -13,6 +13,7 @@
             <description>
                 Some description of the field.
             </description>
+            <displayName>Some other field</displayName>
             </int>
             <int name="F2" type="uintvar" length="4" displayName="some field"/>
         </fields>

@@ -66,9 +66,9 @@ protected:
     virtual const IncludesList& extraIncludesImpl() const;
     virtual std::string getClassDefinitionImpl(const std::string& scope) const = 0;
 
-private:
     const std::string& getDisplayName() const;
 
+private:
     Generator& m_generator;
     commsdsl::Field m_dslObj;
     std::string m_externalRef;
