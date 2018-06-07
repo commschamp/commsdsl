@@ -5,6 +5,7 @@
 #include <iterator>
 #include <limits>
 #include <sstream>
+#include <type_traits>
 
 #include <boost/algorithm/string.hpp>
 
@@ -55,6 +56,12 @@ const std::string& commsStr()
 const std::string& indentStr()
 {
     static const std::string Str("    ");
+    return Str;
+}
+
+const std::string& doxigenPrefixStr()
+{
+    static const std::string Str("/// ");
     return Str;
 }
 
@@ -229,7 +236,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
             lineStartPos = lastNewLinePos + 1U;
         }
 
-        assert(lastNewLinePos <= prefixPos);
+        assert(lineStartPos <= prefixPos);
         auto indent = prefixPos - lineStartPos;
 
         // Check empty row
@@ -288,7 +295,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
     return result;
 }
 
-void mergeIncludes(const IncludesList& from, IncludesList& to)
+void mergeIncludes(const StringsList& from, StringsList& to)
 {
     to.reserve(to.size() + from.size());
     for (auto& inc : from) {
@@ -301,7 +308,7 @@ void mergeIncludes(const IncludesList& from, IncludesList& to)
     }
 }
 
-std::string includesToStatements(const IncludesList& list)
+std::string includesToStatements(const StringsList& list)
 {
     std::string result;
     for (auto& inc : list) {
@@ -317,6 +324,45 @@ std::string includesToStatements(const IncludesList& list)
         result += '\n';
     }
     return result;
+}
+
+std::string listToString(
+    const StringsList& list,
+    const std::string& join,
+    const std::string& last)
+{
+    std::string result;
+    for (auto& e : list) {
+        result += e;
+        if (&e != &list.back()) {
+            result += join;
+        }
+        else {
+            result += last;
+        }
+    }
+    return result;
+}
+
+const std::string& dslEndianToOpt(commsdsl::Endian value)
+{
+    static const std::string Map[] = {
+        "comms::option::LittleEndian",
+        "comms::option::BigEndian"
+    };
+
+    static const std::size_t MapSize =
+            std::extent<decltype(Map)>::value;
+
+    static_assert(MapSize == static_cast<decltype(MapSize)>(commsdsl::Endian_NumOfValues),
+        "Invalid map");
+
+    if (commsdsl::Endian_NumOfValues <= value) {
+        assert(!"Should not happen");
+        value = commsdsl::Endian_Little;
+    }
+
+    return Map[value];
 }
 
 } // namespace common

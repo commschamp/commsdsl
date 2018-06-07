@@ -31,15 +31,14 @@ public:
         return m_dslObj.maxLength();
     }
 
-    using IncludesList = common::IncludesList;
+    using IncludesList = common::StringsList;
     void updateIncludes(IncludesList& includes) const;
 
     bool doesExist() const;
 
-    bool prepare()
-    {
-        return prepareImpl();
-    }
+    bool prepare();
+
+    std::string getClassDefinition(const std::string& scope) const;
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
@@ -58,12 +57,21 @@ protected:
         return m_dslObj;
     }
 
+    const std::string& externalRef() const
+    {
+        return m_externalRef;
+    }
+
     virtual bool prepareImpl();
     virtual const IncludesList& extraIncludesImpl() const;
+    virtual std::string getClassDefinitionImpl(const std::string& scope) const = 0;
 
 private:
+    const std::string& getDisplayName() const;
+
     Generator& m_generator;
     commsdsl::Field m_dslObj;
+    std::string m_externalRef;
 };
 
 using FieldPtr = Field::Ptr;

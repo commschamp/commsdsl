@@ -151,6 +151,7 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("FIELDS_LIST", getFieldsClassesList()));
     replacements.insert(std::make_pair("INCLUDES", getIncludes()));
     replacements.insert(std::make_pair("MESSAGE_BODY", getBody()));
+    replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
     // TODO: all values
 
     auto str = common::processTemplate(Template, replacements);
@@ -170,7 +171,7 @@ bool Message::writeProtocol()
     return true;
 }
 
-std::string Message::getDisplayName() const
+const std::string& Message::getDisplayName() const
 {
     auto* displayName = &m_dslObj.displayName();
     if (displayName->empty()) {
@@ -206,12 +207,12 @@ std::string Message::getFieldsClassesList() const
 
 std::string Message::getIncludes() const
 {
-    common::IncludesList includes;
+    common::StringsList includes;
     for (auto& f : m_fields) {
         f->updateIncludes(includes);
     }
 
-    static const common::IncludesList MessageIncludes = {
+    static const common::StringsList MessageIncludes = {
         "comms/MessageBase.h",
         m_generator.mainNamespace() + "/DefaultOptions.h"
     };
@@ -345,6 +346,18 @@ std::string Message::getLengthCheck() const
         result += "static_assert(MsgMaxLen == ";
         result += common::numToString(maxLength);
         result += ", \"Unexpected max serialisation length\");\n";
+    }
+    return result;
+}
+
+std::string Message::getFieldsDef() const
+{
+    std::string result;
+    for (auto& f : m_fields) {
+        result += f->getClassDefinition(common::emptyString()); // TODO: proper scope;
+        if (&f != &m_fields.back()) {
+            result += '\n';
+        }
     }
     return result;
 }

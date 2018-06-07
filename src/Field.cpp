@@ -5,9 +5,13 @@
 #include <cassert>
 #include <algorithm>
 
+#include <boost/algorithm/string.hpp>
+
 #include "Generator.h"
 #include "IntField.h"
 #include "common.h"
+
+namespace ba = boost::algorithm;
 
 namespace commsdsl2comms
 {
@@ -41,7 +45,39 @@ bool Field::doesExist() const
         m_generator.doesElementExist(
             m_dslObj.sinceVersion(),
             m_dslObj.deprecatedSince(),
-            m_dslObj.sinceVersion());
+                m_dslObj.sinceVersion());
+}
+
+bool Field::prepare()
+{
+    m_externalRef = m_dslObj.externalRef();
+    return prepareImpl();
+}
+
+std::string Field::getClassDefinition(const std::string& scope) const
+{
+    std::string prefix = "/// @brief Definition of <b>\"";
+    prefix += getDisplayName();
+    prefix += "\"<\\b> field.\n";
+
+    auto& desc = m_dslObj.description();
+    if (!desc.empty()) {
+        prefix += "/// @details\n";
+        auto multiDesc = common::makeMultiline(desc);
+        common::insertIndent(multiDesc);
+        auto& doxygenPrefix = common::doxigenPrefixStr();
+        multiDesc.insert(multiDesc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
+        ba::replace_all(multiDesc, "\n", "\n" + doxygenPrefix);
+        prefix += multiDesc;
+        prefix += '\n';
+    }
+
+    if (!m_externalRef.empty()) {
+        assert(!"NYI: add exter template parameters");
+    }
+
+    prefix += getClassDefinitionImpl(scope);
+    return prefix;
 }
 
 Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
@@ -82,6 +118,16 @@ const Field::IncludesList& Field::extraIncludesImpl() const
 {
     static const IncludesList List;
     return List;
+}
+
+
+const std::string& Field::getDisplayName() const
+{
+    auto* displayName = &m_dslObj.displayName();
+    if (displayName->empty()) {
+        displayName = &m_dslObj.name();
+    }
+    return *displayName;
 }
 
 } // namespace commsdsl2comms

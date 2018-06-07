@@ -222,6 +222,8 @@ bool Generator::parseSchemaFiles(const FilesList& files)
         m_mainNamespace = common::adjustName(schema.name());
     }
 
+    m_schemaEndian = schema.endian();
+
     return true;
 }
 

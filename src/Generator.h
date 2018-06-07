@@ -51,6 +51,10 @@ public:
         return m_mainNamespace;
     }
 
+    commsdsl::Endian schemaEndian() const
+    {
+        return m_schemaEndian;
+    }
 private:
 
     using NamespacesList = Namespace::NamespacesList;
@@ -68,6 +72,7 @@ private:
     boost::filesystem::path m_pathPrefix;
     std::set<boost::filesystem::path> m_createdDirs;
     std::string m_mainNamespace;
+    commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
 };
 
 } // namespace commsdsl2comms

@@ -9,8 +9,12 @@
             description
         </description>
         <fields>
-            <int name="f1" type="uint8" />
-            <int name="F2" type="uintvar" length="4" />
+            <int name="f1" type="int32" length="3" endian="little">
+            <description>
+                Some description of the field.
+            </description>
+            </int>
+            <int name="F2" type="uintvar" length="4" displayName="some field"/>
         </fields>
     </message>
     <message name="Msg2" id="10" />    

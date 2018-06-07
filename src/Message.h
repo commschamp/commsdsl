@@ -35,7 +35,7 @@ public:
 private:
 
     bool writeProtocol();
-    std::string getDisplayName() const;
+    const std::string& getDisplayName() const;
     std::string getDescription() const;
     std::string getFieldsClassesList() const;
     std::string getIncludes() const;
@@ -45,6 +45,7 @@ private:
     std::string getPrivate() const;
     std::string getFieldsAccess() const;
     std::string getLengthCheck() const;
+    std::string getFieldsDef() const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;

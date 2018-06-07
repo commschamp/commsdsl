@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <vector>
 
+#include "commsdsl/Endian.h"
+
 namespace commsdsl2comms
 {
 
@@ -18,6 +20,7 @@ const std::string& messageStr();
 const std::string& fieldBaseStr();
 const std::string& commsStr();
 const std::string& indentStr();
+const std::string& doxigenPrefixStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
@@ -32,9 +35,15 @@ void insertIndent(std::string& str);
 using ReplacementMap = std::map<std::string, std::string>;
 std::string processTemplate(const std::string& templ, const ReplacementMap& repl);
 
-using IncludesList = std::vector<std::string>;
-void mergeIncludes(const IncludesList& from, IncludesList& to);
-std::string includesToStatements(const IncludesList& list);
+using StringsList = std::vector<std::string>;
+void mergeIncludes(const StringsList& from, StringsList& to);
+std::string includesToStatements(const StringsList& list);
+std::string listToString(
+    const StringsList& list,
+    const std::string& join = ",\n",
+    const std::string& last = "\n");
+
+const std::string& dslEndianToOpt(commsdsl::Endian value);
 
 } // namespace common
 

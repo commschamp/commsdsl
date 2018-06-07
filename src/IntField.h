@@ -3,6 +3,7 @@
 #include "commsdsl/IntField.h"
 
 #include "Field.h"
+#include "common.h"
 
 namespace commsdsl2comms
 {
@@ -15,6 +16,20 @@ public:
 
 protected:
     virtual const IncludesList& extraIncludesImpl() const override;
+    virtual std::string getClassDefinitionImpl(const std::string& scope) const override;
+
+private:
+    using StringsList = common::StringsList;
+
+    std::string getFieldBaseParams() const;
+    const std::string& getFieldType() const;
+    std::string getFieldOpts(const std::string& scope) const;
+    void checkLengthOpt(StringsList& list) const;
+
+    commsdsl::IntField intFieldDslObj() const
+    {
+        return commsdsl::IntField(dslObj());
+    }
 };
 
 inline
