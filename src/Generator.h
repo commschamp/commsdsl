@@ -36,13 +36,18 @@ public:
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
 
+    std::string protocolDefRootDir();
+
     std::pair<std::string, std::string>
     startMessageProtocolWrite(
         const std::string& externalRef,
         const std::vector<std::string>& platforms);
 
     std::pair<std::string, std::string>
-    namespacesForMessage(const std::string& externalRef);
+    namespacesForMessage(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
+    namespacesForRoot() const;
 
     std::string headerfileForMessage(const std::string& externalRef);
 
@@ -66,6 +71,7 @@ private:
     bool prepare();
     bool writeFiles();
     bool createDir(const boost::filesystem::path& path);
+    boost::filesystem::path getProtocolDefRootDir() const;
 
     ProgramOptions& m_options;
     Logger& m_logger;

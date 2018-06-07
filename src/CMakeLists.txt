@@ -20,6 +20,7 @@ set (
     "Message.cpp"
     "Field.cpp"
     "IntField.cpp"
+    "FieldBase.cpp"
     "common.cpp"
 )
 

@@ -3,6 +3,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Namespace.h"
+#include "FieldBase.h"
 #include "common.h"
 
 namespace bf = boost::filesystem;
@@ -70,7 +71,7 @@ bool Generator::generate(const FilesList& files)
         parseOptions() &&
         parseSchemaFiles(files) &&
         prepare() &&
-            writeFiles();
+        writeFiles();
 }
 
 bool Generator::doesElementExist(
@@ -83,6 +84,17 @@ bool Generator::doesElementExist(
     static_cast<void>(deprecatedRemoved);
     // TODO
     return true;
+}
+
+std::string Generator::protocolDefRootDir()
+{
+    auto dir = getProtocolDefRootDir();
+    if (!createDir(dir)) {
+        m_logger.error("Failed to create \"" + dir.string() + "\" directory.");
+        return common::emptyString();
+    }
+
+    return dir.string();
 }
 
 std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
@@ -118,7 +130,7 @@ std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
 }
 
 std::pair<std::string, std::string> Generator::namespacesForMessage(
-    const std::string& externalRef)
+    const std::string& externalRef) const
 {
     auto ns = refToNs(externalRef);
     auto tokens = splitRefPath(ns);
@@ -152,6 +164,18 @@ std::pair<std::string, std::string> Generator::namespacesForMessage(
     endStr +=
         "} // namespace " + common::messageStr() + "\n\n"
         "} // namespace " + m_mainNamespace + "\n\n";
+
+    return std::make_pair(std::move(begStr), std::move(endStr));
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForRoot() const
+{
+    std::string begStr =
+        "namespace " + m_mainNamespace + "\n"
+        "{\n";
+
+    std::string endStr = "} // namespace " + m_mainNamespace + "\n\n";
 
     return std::make_pair(std::move(begStr), std::move(endStr));
 }
@@ -270,15 +294,21 @@ bool Generator::prepare()
 
 bool Generator::writeFiles()
 {
+    if (!FieldBase::write(*this)) {
+        return false;
+    }
+
     for (auto& ns : m_namespaces) {
         if (!ns->writeMessages()) {
             return false;
         }
 
-        // TODO: write
+        // TODO: write others
     }
 
     // TODO: write fields
+
+
     return true;
 }
 
@@ -298,6 +328,11 @@ bool Generator::createDir(const boost::filesystem::path& path)
 
     m_createdDirs.insert(path);
     return true;
+}
+
+boost::filesystem::path Generator::getProtocolDefRootDir() const
+{
+    return m_pathPrefix / common::includeStr() / m_mainNamespace;
 }
 
 } // namespace commsdsl2comms
