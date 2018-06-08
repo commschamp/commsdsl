@@ -121,6 +121,49 @@ bool Message::write()
     return writeProtocol();
 }
 
+std::string Message::getDefaultOptions() const
+{
+    std::string fieldsOpts;
+    auto addFieldOptsFunc =
+        [&fieldsOpts](const std::string& str)
+        {
+            if (str.empty()) {
+                return;
+            }
+
+            if (!fieldsOpts.empty()) {
+                fieldsOpts += '\n';
+            }
+
+            fieldsOpts += str;
+        };
+
+    for (auto& f : m_fields) {
+        addFieldOptsFunc(f->getDefaultOptions());
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
+
+    static const std::string Templ =
+        "struct #^#MESSAGE_NAME#$#Fields\n"
+        "{\n"
+        "    #^#FIELDS_OPTS#$#\n"
+        "};\n\n"
+        "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
+
+    static const std::string NoFieldsTempl =
+        "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
+
+    auto* templ = &Templ;
+    if (m_fields.empty()) {
+        templ = &NoFieldsTempl;
+    }
+
+    return common::processTemplate(*templ, replacements);
+}
+
 bool Message::writeProtocol()
 {
     assert(!m_externalRef.empty());
@@ -279,7 +322,7 @@ std::string Message::getFieldsAccess() const
 
     std::string result = DocPrefix;
     for (auto& f : m_fields) {
-        result += common::doxigenPrefixStr();
+        result += common::doxygenPrefixStr();
         result += common::indentStr();
         result += "@li @b field_";
         result += common::nameToAccessCopy(f->name());

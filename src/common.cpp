@@ -59,7 +59,7 @@ const std::string& indentStr()
     return Str;
 }
 
-const std::string& doxigenPrefixStr()
+const std::string& doxygenPrefixStr()
 {
     static const std::string Str("/// ");
     return Str;
@@ -68,6 +68,12 @@ const std::string& doxigenPrefixStr()
 const std::string& fieldsSuffixStr()
 {
     static const std::string Str("Fields");
+    return Str;
+}
+
+const std::string& defaultOptionsStr()
+{
+    static const std::string Str("DefaultOptions");
     return Str;
 }
 

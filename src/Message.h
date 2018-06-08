@@ -32,6 +32,8 @@ public:
 
     bool write();
 
+    std::string getDefaultOptions() const;
+
 private:
 
     bool writeProtocol();

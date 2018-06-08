@@ -44,6 +44,9 @@ public:
         const std::vector<std::string>& platforms);
 
     std::pair<std::string, std::string>
+    startDefaultOptionsWrite();
+
+    std::pair<std::string, std::string>
     namespacesForMessage(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
@@ -62,6 +65,8 @@ public:
     {
         return m_schemaEndian;
     }
+
+    std::string getDefaultOptionsBody() const;
 private:
 
     using NamespacesList = Namespace::NamespacesList;

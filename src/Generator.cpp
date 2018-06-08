@@ -4,6 +4,7 @@
 
 #include "Namespace.h"
 #include "FieldBase.h"
+#include "DefaultOptions.h"
 #include "common.h"
 
 namespace bf = boost::filesystem;
@@ -129,6 +130,28 @@ std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
     return std::make_pair(std::move(fullPathStr), className);
 }
 
+std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
+{
+    // TODO: check suffix
+    std::string suffix;
+
+    auto className = common::defaultOptionsStr() + suffix;
+    auto fileName = className + common::headerSuffix();
+    auto dirPath = getProtocolDefRootDir();
+
+    auto fullPath = dirPath / fileName;
+    auto fullPathStr = fullPath.string();
+
+    m_logger.info("Generating " + fullPathStr);
+
+    if (!createDir(dirPath)) {
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+    return std::make_pair(std::move(fullPathStr), className);
+
+}
+
 std::pair<std::string, std::string> Generator::namespacesForMessage(
     const std::string& externalRef) const
 {
@@ -224,6 +247,24 @@ std::string Generator::scopeForMessage(const std::string& externalRef, bool main
     return result;
 }
 
+std::string Generator::getDefaultOptionsBody() const
+{
+    std::string result;
+    for (auto& n : m_namespaces) {
+        auto str = n->getDefaultOptions();
+        if (str.empty()) {
+            continue;
+        }
+
+        if (!result.empty()) {
+            result += '\n';
+        }
+
+        result += str;
+    }
+    return result;
+}
+
 bool Generator::parseOptions()
 {
     auto outputDir = m_options.getOutputDirectory();
@@ -294,7 +335,8 @@ bool Generator::prepare()
 
 bool Generator::writeFiles()
 {
-    if (!FieldBase::write(*this)) {
+    if ((!FieldBase::write(*this)) ||
+        (!DefaultOptions::write(*this))) {
         return false;
     }
 

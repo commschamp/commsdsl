@@ -42,6 +42,8 @@ public:
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
+    std::string getDefaultOptions() const;
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),

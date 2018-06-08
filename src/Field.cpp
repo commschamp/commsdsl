@@ -65,7 +65,7 @@ std::string Field::getClassDefinition(const std::string& scope) const
         prefix += "/// @details\n";
         auto multiDesc = common::makeMultiline(desc);
         common::insertIndent(multiDesc);
-        auto& doxygenPrefix = common::doxigenPrefixStr();
+        auto& doxygenPrefix = common::doxygenPrefixStr();
         multiDesc.insert(multiDesc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
         ba::replace_all(multiDesc, "\n", "\n" + doxygenPrefix);
         prefix += multiDesc;
@@ -107,6 +107,11 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
     }
 
     return Map[idx](generator, field);
+}
+
+std::string Field::getDefaultOptions() const
+{
+    return "using = " + common::nameToClassCopy(name()) + " = comms::option::EmptyOption;\n";
 }
 
 bool Field::prepareImpl()

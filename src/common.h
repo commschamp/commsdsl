@@ -20,8 +20,9 @@ const std::string& messageStr();
 const std::string& fieldBaseStr();
 const std::string& commsStr();
 const std::string& indentStr();
-const std::string& doxigenPrefixStr();
+const std::string& doxygenPrefixStr();
 const std::string& fieldsSuffixStr();
+const std::string& defaultOptionsStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

@@ -21,6 +21,7 @@ set (
     "Field.cpp"
     "IntField.cpp"
     "FieldBase.cpp"
+    "DefaultOptions.cpp"
     "common.cpp"
 )
 

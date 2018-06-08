@@ -6,6 +6,7 @@
 
 #include "commsdsl/Namespace.h"
 #include "Message.h"
+#include "common.h"
 
 //#include "Field.h"
 
@@ -35,6 +36,8 @@ public:
     bool prepare();
 
     bool writeMessages();
+
+    std::string getDefaultOptions() const;
 
 private:
 

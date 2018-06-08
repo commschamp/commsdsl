@@ -27,7 +27,73 @@ bool Namespace::writeMessages()
             [](auto& ptr)
             {
                 return ptr->write();
-            });
+    });
+}
+
+std::string Namespace::getDefaultOptions() const
+{
+
+    auto addFunc =
+        [](const std::string& str, std::string& result)
+        {
+            if (str.empty()) {
+                return;
+            }
+
+            if (!result.empty()) {
+                result += '\n';
+            }
+
+            result += str;
+        };
+
+    std::string namespacesOpts;
+    for (auto& n : m_namespaces) {
+        addFunc(n->getDefaultOptions(), namespacesOpts);
+    }
+
+    // TODO: fields
+
+    std::string messagesOpts;
+    for (auto& m : m_messages) {
+        addFunc(m->getDefaultOptions(), messagesOpts);
+    }
+
+    if (!messagesOpts.empty()) {
+        static const std::string MessageWrapTempl =
+            "struct message\n"
+            "{\n"
+            "    #^#MESSAGES_OPTS#$#\n"
+            "};";
+
+        common::ReplacementMap replacmenents;
+        replacmenents.insert(std::make_pair("MESSAGES_OPTS", messagesOpts));
+        messagesOpts = common::processTemplate(MessageWrapTempl, replacmenents);
+    }
+
+    common::ReplacementMap replacmenents;
+    replacmenents.insert(std::make_pair("NAMESPACE_NAME", name()));
+    replacmenents.insert(std::make_pair("NAMESPACES_OPTS", std::move(namespacesOpts)));
+    replacmenents.insert(std::make_pair("MESSAGES_OPTS", std::move(messagesOpts)));
+
+    static const std::string Templ =
+        "struct #^#NAMESPACE_NAME#$#Fields\n"
+        "{\n"
+        "    #^#NAMESPACES_OPTS#$#\n"
+        "    #^#FIELDS_OPTS#$#\n"
+        "    #^#MESSAGES_OPTS#$#\n"
+        "};\n";
+
+    static const std::string GlobalTempl =
+        "#^#FIELDS_OPTS#$#\n"
+        "#^#MESSAGES_OPTS#$#\n";
+
+    auto* templ = &Templ;
+    if (name().empty()) {
+        templ = &GlobalTempl;
+    }
+
+    return common::processTemplate(*templ, replacmenents);
 }
 
 bool Namespace::prepareNamespaces()
