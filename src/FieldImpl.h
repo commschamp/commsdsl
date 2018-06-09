@@ -23,6 +23,7 @@ public:
     using ContentsList = XmlWrap::ContentsList;
     using FieldsList = std::vector<Ptr>;
     using Kind = Field::Kind;
+    using SemanticType = Field::SemanticType;
 
     virtual ~FieldImpl() = default;
 
@@ -39,6 +40,8 @@ public:
 
     bool parse();
 
+    bool verifySemanticType() const;
+
     const PropsMap& props() const
     {
         return m_props;
@@ -51,6 +54,11 @@ public:
     Kind kind() const
     {
         return kindImpl();
+    }
+
+    SemanticType semanticType() const
+    {
+        return m_state.m_semanticType;
     }
 
     std::size_t minLength() const
@@ -177,6 +185,7 @@ private:
         const std::string* m_description = nullptr;
         PropsMap m_extraAttrs;
         ContentsList m_extraChildren;
+        SemanticType m_semanticType = SemanticType::None;
     };
 
     bool checkReuse();
@@ -184,6 +193,7 @@ private:
     bool updateDescription();
     bool updateDisplayName();
     bool updateVersions();
+    bool updateSemanticType();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

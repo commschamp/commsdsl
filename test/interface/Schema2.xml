@@ -4,7 +4,9 @@
         endian="big">
     <ns name="ns1">
         <interface name="Generic">
-            <int name="version" type="uint32" />
+            <int name="version" type="uint32">
+                <semanticType>Version</semanticType>
+            </int>
         </interface>
     </ns>
 </schema>

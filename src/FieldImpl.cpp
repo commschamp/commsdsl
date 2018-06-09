@@ -76,13 +76,18 @@ bool FieldImpl::parse()
         updateName() &&
         updateDisplayName() &&
         updateDescription() &&
-        updateVersions();
+        updateVersions() &&
+        updateSemanticType();
 
     if (!result) {
         return false;
     }
 
     if (!parseImpl()) {
+        return false;
+    }
+
+    if (!verifySemanticType()) {
         return false;
     }
 
@@ -103,6 +108,38 @@ bool FieldImpl::parse()
     if (!updateExtraChildren(expectedChildren)) {
         return false;
     }
+    return true;
+}
+
+bool FieldImpl::verifySemanticType() const
+{
+    if (semanticType() == SemanticType::None) {
+        return true;
+    }
+
+    if (semanticType() == SemanticType::Version) {
+        if (kind() != Kind::Int) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Semantic type \"" << common::versionStr() << "\" is applicable only to " <<
+                "integral value fields.";
+            return false;
+        }
+
+        return true;
+    }
+
+    if (semanticType() == SemanticType::MessageId) {
+        if (kind() != Kind::Enum) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Semantic type \"" << common::messageIdStr() << "\" is applicable only to " <<
+                "enum fields.";
+            return false;
+        }
+
+        return true;
+    }
+
+    assert(!"Unhandled semantic type, please fix");
     return true;
 }
 
@@ -337,7 +374,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::sinceVersionStr(),
         common::deprecatedStr(),
         common::removedStr(),
-        common::reuseStr()
+        common::reuseStr(),
+        common::semanticTypeStr()
     };
 
     return CommonNames;
@@ -491,6 +529,44 @@ bool FieldImpl::updateVersions()
     setSinceVersion(sinceVersion);
     setDeprecated(deprecated);
     setDeprecatedRemoved(deprecatedRemoved);
+    return true;
+}
+
+bool FieldImpl::updateSemanticType()
+{
+    if (!validateSinglePropInstance(common::semanticTypeStr())) {
+        return false;
+    }
+
+    auto iter = m_props.find(common::semanticTypeStr());
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    static const std::string Map[] = {
+        /* None */ common::noneStr(),
+        /* Version */ common::versionStr(),
+        /* MessageId */ common::toLowerCopy(common::messageIdStr())
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == static_cast<decltype(MapSize)>(SemanticType::NumOfValues),
+        "Invalid map");
+
+    if (iter->second.empty()) {
+        m_state.m_semanticType = SemanticType::None;
+        return true;
+    }
+
+    auto typeVal = common::toLowerCopy(iter->second);
+    auto valIter = std::find(std::begin(Map), std::end(Map), typeVal);
+    if (valIter == std::end(Map)) {
+        reportUnexpectedPropertyValue(common::semanticTypeStr(), iter->second);
+        return false;
+    }
+
+    m_state.m_semanticType =
+        static_cast<SemanticType>(std::distance(std::begin(Map), valIter));
     return true;
 }
 

@@ -546,6 +546,25 @@ const std::string& customStr()
     return Str;
 }
 
+const std::string& semanticTypeStr()
+{
+    static const std::string Str("semanticType");
+    return Str;
+}
+
+const std::string& noneStr()
+{
+    static const std::string Str("none");
+    return Str;
+}
+
+const std::string& messageIdStr()
+{
+    static const std::string Str("messageId");
+    return Str;
+}
+
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

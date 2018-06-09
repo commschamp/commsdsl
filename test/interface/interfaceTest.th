@@ -63,6 +63,7 @@ void InterfaceTestSuite::test2()
     auto fields = int1.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
     TS_ASSERT_EQUALS(fields.front().kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(fields.front().semanticType(), commsdsl::Field::SemanticType::Version);
 }
 
 void InterfaceTestSuite::test3()

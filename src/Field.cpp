@@ -44,6 +44,12 @@ Field::Kind Field::kind() const
     return m_pImpl->kind();
 }
 
+Field::SemanticType Field::semanticType() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->semanticType();
+}
+
 std::size_t Field::minLength() const
 {
     assert(m_pImpl != nullptr);

@@ -32,6 +32,14 @@ public:
         NumOfValues
     };
 
+    enum class SemanticType
+    {
+        None,
+        Version,
+        MessageId,
+        NumOfValues
+    };
+
     explicit Field(const FieldImpl* impl);
     Field(const Field& other);
     ~Field();
@@ -41,6 +49,7 @@ public:
     const std::string& displayName() const;
     const std::string& description() const;
     Kind kind() const;
+    SemanticType semanticType() const;
     std::size_t minLength() const;
     std::size_t maxLength() const;
     std::size_t bitLength() const;

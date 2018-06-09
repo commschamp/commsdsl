@@ -76,6 +76,11 @@ void MessageTestSuite::test2()
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+    auto& f1 = fields[0];
+    TS_ASSERT_EQUALS(f1.semanticType(), commsdsl::Field::SemanticType::MessageId);
+
     auto messages = ns.messages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
 
