@@ -34,6 +34,16 @@ public:
 
     std::string getDefaultOptions() const;
 
+    std::uintmax_t id() const
+    {
+        return m_dslObj.id();
+    }
+
+    const std::string& externalRef() const
+    {
+        return m_externalRef;
+    }
+
 private:
 
     bool writeProtocol();

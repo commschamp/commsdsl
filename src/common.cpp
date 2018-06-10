@@ -77,6 +77,18 @@ const std::string& defaultOptionsStr()
     return Str;
 }
 
+const std::string& msgIdEnuNameStr()
+{
+    static const std::string Str("MsgId");
+    return Str;
+}
+
+const std::string& msgIdPrefixStr()
+{
+    static const std::string Str(msgIdEnuNameStr() + "_");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

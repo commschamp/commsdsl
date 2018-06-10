@@ -3,6 +3,8 @@
 #include <vector>
 #include <string>
 #include <set>
+#include <map>
+#include <cstdint>
 
 #include <boost/filesystem.hpp>
 
@@ -18,6 +20,7 @@ class Generator
 {
 public:
     using FilesList = std::vector<std::string>;
+    using MessageIdMap = std::multimap<std::uintmax_t, std::string>;
 
     Generator(ProgramOptions& options, Logger& logger)
       : m_options(options), m_logger(logger)
@@ -67,6 +70,12 @@ public:
     }
 
     std::string getDefaultOptionsBody() const;
+
+    std::string getMessageIdStr(const std::string& externalRef, uintmax_t id) const;
+
+    const Field* findMessageIdField() const;
+
+    MessageIdMap getAllMessageIds() const;
 private:
 
     using NamespacesList = Namespace::NamespacesList;
@@ -86,6 +95,7 @@ private:
     std::set<boost::filesystem::path> m_createdDirs;
     std::string m_mainNamespace;
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
+    MessageIdMap m_messageIds;
 };
 
 } // namespace commsdsl2comms

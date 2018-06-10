@@ -22,7 +22,6 @@ namespace
 Field::IncludesList prepareCommonIncludes(const Generator& generator)
 {
     Field::IncludesList list = {
-        "comms/Field.h",
         "comms/options.h",
         generator.mainNamespace() + '/' + common::fieldBaseStr() + common::headerSuffix(),
     };

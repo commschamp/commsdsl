@@ -22,6 +22,7 @@ set (
     "IntField.cpp"
     "FieldBase.cpp"
     "DefaultOptions.cpp"
+    "MsgId.cpp"
     "common.cpp"
 )
 

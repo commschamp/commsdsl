@@ -184,7 +184,7 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("MESSAGE_NAME", getDisplayName()));
     replacements.insert(std::make_pair("DOC_DETAILS", getDescription()));
-    replacements.insert(std::make_pair("MESSAGE_ID", common::numToString(m_dslObj.id())));
+    replacements.insert(std::make_pair("MESSAGE_ID", m_generator.getMessageIdStr(m_externalRef, m_dslObj.id())));
 
     auto namespaces = m_generator.namespacesForMessage(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -259,7 +259,8 @@ std::string Message::getIncludes() const
 
     static const common::StringsList MessageIncludes = {
         "comms/MessageBase.h",
-        m_generator.mainNamespace() + "/DefaultOptions.h"
+        m_generator.mainNamespace() + '/' + common::msgIdEnuNameStr() + common::headerSuffix(),
+        m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix()
     };
     common::mergeIncludes(MessageIncludes, includes);
 

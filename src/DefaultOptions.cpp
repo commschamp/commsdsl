@@ -16,6 +16,8 @@ namespace
 {
 
 const std::string Template(
+    "/// @file\n"
+    "/// @brief Contains definition of protocol default options.\n\n"
     "#pragma once\n\n"
     "#include \"comms/options.h\"\n\n"
     "#^#BEG_NAMESPACE#$#\n"

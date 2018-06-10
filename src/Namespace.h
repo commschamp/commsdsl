@@ -19,7 +19,7 @@ class Namespace
 public:
     using Ptr = std::unique_ptr<Namespace>;
     using NamespacesList = std::vector<Ptr>;
-    using MessagesList = std::vector<MessagePtr>;
+    using MessagesAccessList = std::vector<const Message*>;
 
     //using FieldsMap = std::map<std::string, FieldPtr>;
     explicit Namespace(Generator& gen, const commsdsl::Namespace& dslObj)
@@ -39,7 +39,11 @@ public:
 
     std::string getDefaultOptions() const;
 
+    MessagesAccessList getAllMessages() const;
+
 private:
+
+    using MessagesList = std::vector<MessagePtr>;
 
     bool prepareNamespaces();
     bool prepareMessages();

@@ -5,6 +5,7 @@
 #include "Namespace.h"
 #include "FieldBase.h"
 #include "DefaultOptions.h"
+#include "MsgId.h"
 #include "common.h"
 
 namespace bf = boost::filesystem;
@@ -265,6 +266,47 @@ std::string Generator::getDefaultOptionsBody() const
     return result;
 }
 
+std::string Generator::getMessageIdStr(const std::string& externalRef, std::uintmax_t id) const
+{
+    if (m_messageIds.empty()) {
+        return m_mainNamespace + "::" + common::msgIdPrefixStr() + ba::replace_all_copy(externalRef, ".", "_");
+    }
+
+    auto iter = m_messageIds.find(id);
+    if (iter == m_messageIds.end()) {
+        return common::numToString(id);
+    }
+
+    return m_mainNamespace + "::" + iter->second;
+}
+
+const Field* Generator::findMessageIdField() const
+{
+    // TODO:
+    return nullptr;
+}
+
+Generator::MessageIdMap Generator::getAllMessageIds() const
+{
+    if (!m_messageIds.empty()) {
+        return m_messageIds;
+    }
+
+    MessageIdMap result;
+    for (auto& n : m_namespaces) {
+        auto messages = n->getAllMessages();
+        for (auto* m : messages) {
+            result.insert(
+                std::make_pair(
+                    m->id(),
+                    common::msgIdPrefixStr() + ba::replace_all_copy(m->externalRef(), ".", "_")
+                ));
+        }
+    }
+
+    return result;
+}
+
 bool Generator::parseOptions()
 {
     auto outputDir = m_options.getOutputDirectory();
@@ -336,7 +378,8 @@ bool Generator::prepare()
 bool Generator::writeFiles()
 {
     if ((!FieldBase::write(*this)) ||
-        (!DefaultOptions::write(*this))) {
+        (!DefaultOptions::write(*this)) ||
+        (!MsgId::write(*this))) {
         return false;
     }
 

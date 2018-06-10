@@ -1,4 +1,4 @@
-#include "FieldBase.h"
+#include "MsgId.h"
 
 #include <fstream>
 
@@ -17,28 +17,27 @@ namespace
 
 const std::string Template(
     "/// @file\n"
-    "/// @brief Contains definition of base class of all the fields.\n\n"
+    "/// @brief Contains definition of message ids enumeration.\n\n"
     "#pragma once\n\n"
-    "#include \"comms/Field.h\"\n"
-    "#include \"comms/options.h\"\n\n"
+    "#include <cstdint>\n\n"
     "#^#BEG_NAMESPACE#$#\n"
-    "/// @brief Common base class for all the fields.\n"
-    "using FieldBase =\n"
-    "    comms::Field<\n"
-    "        #^#OPTIONS#$#\n"
-    "    >;\n\n"
+    "/// @brief Message ids enumeration.\n"
+    "enum MsgId #^#TYPE#$#\n"
+    "{\n"
+    "    #^#IDS#$#\n"
+    "}\n\n"
     "#^#END_NAMESPACE#$#\n"
 );
 
 } // namespace
 
-bool FieldBase::write(Generator& generator)
+bool MsgId::write(Generator& generator)
 {
-    FieldBase obj(generator);
+    MsgId obj(generator);
     return obj.writeDefinition();
 }
 
-bool FieldBase::writeDefinition() const
+bool MsgId::writeDefinition() const
 {
     auto dir = m_generator.protocolDefRootDir();
     if (dir.empty()) {
@@ -46,7 +45,7 @@ bool FieldBase::writeDefinition() const
     }
 
     bf::path filePath(dir);
-    filePath /= common::fieldBaseStr() + common::headerSuffix();
+    filePath /= common::msgIdEnuNameStr() + common::headerSuffix();
 
     std::string filePathStr(filePath.string());
 
@@ -57,16 +56,25 @@ bool FieldBase::writeDefinition() const
         return false;
     }
 
-    common::StringsList options;
-    options.push_back(common::dslEndianToOpt(m_generator.schemaEndian()));
-    // TODO: version type
-    std::string optionsStr = common::listToString(options, ",\n", common::emptyString());
 
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForRoot();
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("OPTIONS", std::move(optionsStr)));
+
+    auto* msgIdField = m_generator.findMessageIdField();
+    if (msgIdField != nullptr) {
+        // TODO: type string
+        assert(!"NYI");
+    }
+
+    auto allMessages = m_generator.getAllMessageIds();
+    common::StringsList ids;
+    ids.reserve(allMessages.size());
+    for (auto& m : allMessages) {
+        ids.push_back(m.second + " = " + common::numToString(m.first));
+    }
+    replacements.insert(std::make_pair("IDS", common::listToString(ids, ",\n", common::emptyString())));
 
     auto str = common::processTemplate(Template, replacements);
     stream << str;

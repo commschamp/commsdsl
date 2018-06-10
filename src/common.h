@@ -23,6 +23,8 @@ const std::string& indentStr();
 const std::string& doxygenPrefixStr();
 const std::string& fieldsSuffixStr();
 const std::string& defaultOptionsStr();
+const std::string& msgIdEnuNameStr();
+const std::string& msgIdPrefixStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

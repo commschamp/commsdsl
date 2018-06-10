@@ -96,6 +96,22 @@ std::string Namespace::getDefaultOptions() const
     return common::processTemplate(*templ, replacmenents);
 }
 
+Namespace::MessagesAccessList Namespace::getAllMessages() const
+{
+    MessagesAccessList result;
+    for (auto& n : m_namespaces) {
+        auto list = n->getAllMessages();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    result.reserve(result.size() + m_messages.size());
+    for (auto& m : m_messages) {
+        result.emplace_back(m.get());
+    }
+
+    return result;
+}
+
 bool Namespace::prepareNamespaces()
 {
     auto namespaces = m_dslObj.namespaces();
