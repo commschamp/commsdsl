@@ -2,7 +2,7 @@
 <schema name="test1"
         id="1"
         endian="big">
-    <message name="Msg1" displayName="Message no 1" id="0x10">
+    <message name="Msg1" displayName="Message no 1" id="1">
         <description>
             This is very very very very very very very very very very very very very very
             long long long long long long long long long long long long long long long 
@@ -18,5 +18,5 @@
             <int name="F2" type="uintvar" length="4" displayName="some field"/>
         </fields>
     </message>
-    <message name="Msg2" id="10" />    
+    <message name="Msg2" id="2" />    
 </schema>

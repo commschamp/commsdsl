@@ -25,7 +25,7 @@ const std::string Template(
     "enum MsgId #^#TYPE#$#\n"
     "{\n"
     "    #^#IDS#$#\n"
-    "}\n\n"
+    "};\n\n"
     "#^#END_NAMESPACE#$#\n"
 );
 

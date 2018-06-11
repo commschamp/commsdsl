@@ -6,6 +6,7 @@
 #include "FieldBase.h"
 #include "DefaultOptions.h"
 #include "MsgId.h"
+#include "Interface.h"
 #include "common.h"
 
 namespace bf = boost::filesystem;
@@ -131,6 +132,38 @@ std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
     return std::make_pair(std::move(fullPathStr), className);
 }
 
+std::pair<std::string, std::string> Generator::startInterfaceProtocolWrite(
+    const std::string& externalRef)
+{
+    std::string externalRefCpy(externalRef);
+
+    if (externalRefCpy.empty()) {
+        // Default interface
+        externalRefCpy = "Message";
+    }
+
+    // TODO: check suffix
+    std::string suffix;
+
+    auto ns = refToNs(externalRefCpy);
+    auto className = refToName(externalRefCpy);
+    assert(!className.empty());
+    className += suffix;
+    common::nameToClass(className);
+    auto fileName = className + common::headerSuffix();
+    auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns);
+    auto fullPath = dirPath / fileName;
+    auto fullPathStr = fullPath.string();
+
+    m_logger.info("Generating " + fullPathStr);
+
+    if (!createDir(dirPath)) {
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+    return std::make_pair(std::move(fullPathStr), className);
+}
+
 std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
 {
     // TODO: check suffix
@@ -192,6 +225,46 @@ std::pair<std::string, std::string> Generator::namespacesForMessage(
     return std::make_pair(std::move(begStr), std::move(endStr));
 }
 
+std::pair<std::string, std::string> Generator::namespacesForInterface(
+    const std::string& externalRef) const
+{
+    if (externalRef.empty()) {
+        return namespacesForRoot();
+    }
+
+    auto ns = refToNs(externalRef);
+    auto tokens = splitRefPath(ns);
+
+    std::string begStr =
+        "namespace " + m_mainNamespace + "\n"
+        "{\n";
+
+    for (auto& t : tokens) {
+        if (t.empty()) {
+            continue;
+        }
+
+        begStr += "\n"
+                  "namespace " + t + "\n"
+                  "{\n";
+    }
+
+    std::string endStr;
+    for (auto iter = tokens.rbegin(); iter != tokens.rend(); ++iter) {
+        auto& t = *iter;
+        if (t.empty()) {
+            continue;
+        }
+
+        endStr += "} // namespace " + t + "\n\n";
+    }
+
+    endStr += "} // namespace " + m_mainNamespace + "\n\n";
+
+    return std::make_pair(std::move(begStr), std::move(endStr));
+}
+
+
 std::pair<std::string, std::string>
 Generator::namespacesForRoot() const
 {
@@ -224,6 +297,31 @@ std::string Generator::headerfileForMessage(const std::string& externalRef)
     result += '\"';
     return result;
 }
+
+std::string Generator::headerfileForInterface(const std::string& externalRef)
+{
+    std::string externalRefCpy(externalRef);
+    if (externalRefCpy.empty()) {
+        externalRefCpy = "Message";
+    }
+
+    std::string result = "\"" + m_mainNamespace + '/';
+    auto ns = refToNs(externalRefCpy);
+    if (!ns.empty()) {
+        auto tokens = splitRefPath(ns);
+        for (auto& t : tokens) {
+            result += t;
+            result += '/';
+        }
+    }
+
+    auto className = refToName(externalRefCpy);
+    result += className;
+    result += common::headerSuffix();
+    result += '\"';
+    return result;
+}
+
 
 std::string Generator::scopeForMessage(const std::string& externalRef, bool mainIncluded)
 {
@@ -383,6 +481,13 @@ bool Generator::writeFiles()
         return false;
     }
 
+    if (mustDefineDefaultInterface()) {
+        Interface interface(*this, commsdsl::Interface(nullptr));
+        if (!interface.write()) {
+            return false;
+        }
+    }
+
     for (auto& ns : m_namespaces) {
         if (!ns->writeMessages()) {
             return false;
@@ -418,6 +523,17 @@ bool Generator::createDir(const boost::filesystem::path& path)
 boost::filesystem::path Generator::getProtocolDefRootDir() const
 {
     return m_pathPrefix / common::includeStr() / m_mainNamespace;
+}
+
+bool Generator::mustDefineDefaultInterface() const
+{
+    return
+        std::none_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& n)
+            {
+                return n->hasInterfaceDefined();
+            });
 }
 
 } // namespace commsdsl2comms

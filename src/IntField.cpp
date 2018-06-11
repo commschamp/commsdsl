@@ -85,7 +85,7 @@ std::string IntField::getClassDefinitionImpl(const std::string& scope) const
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
     replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
-    replacements.insert(std::make_pair("NAME", getName()));
+    replacements.insert(std::make_pair("NAME", getNameFunc()));
 
     static_cast<void>(scope);
     // TODO: more replacements
@@ -173,16 +173,6 @@ std::string IntField::getFieldOpts(const std::string& scope) const
     options.push_back("typename TOpt::" + scope + common::nameToClassCopy(name()));
     checkLengthOpt(options);
     return common::listToString(options, ",\n", common::emptyString());
-}
-
-std::string IntField::getName() const
-{
-    return
-        "/// @brief Name of the field.\n"
-        "static const char* name()\n"
-        "{\n"
-        "    return \"" + getDisplayName() + "\"\n"
-        "}\n";
 }
 
 void IntField::checkLengthOpt(StringsList& list) const

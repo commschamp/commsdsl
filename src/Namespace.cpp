@@ -112,6 +112,24 @@ Namespace::MessagesAccessList Namespace::getAllMessages() const
     return result;
 }
 
+bool Namespace::hasInterfaceDefined()
+{
+    bool defined =
+        std::any_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& n)
+            {
+                return n->hasInterfaceDefined();
+            });
+
+    if (defined) {
+        return true;
+    }
+
+    // TODO: check local interfaces
+    return false;
+}
+
 bool Namespace::prepareNamespaces()
 {
     auto namespaces = m_dslObj.namespaces();

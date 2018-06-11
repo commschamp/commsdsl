@@ -1,11 +1,40 @@
 #include "cxxtest/TestSuite.h"
 
+#include "test1/Message.h"
+#include "test1/message/Msg1.h"
+#include "test1/message/Msg2.h"
+
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+
+    using Interface =
+        test1::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Msg1 = test1::message::Msg1<Interface>;
+    using Msg2 = test1::message::Msg2<Interface>;
+
+    void polymorphicNameCheck(const Interface& msg, const char* value)
+    {
+        TS_ASSERT_EQUALS(msg.name(), value);
+    }
 };
 
 void TestSuite::test1()
 {
+    Msg1 msg1;
+    polymorphicNameCheck(msg1, "Message no 1");
+
+    Msg2 msg2;
+    polymorphicNameCheck(msg2, "Msg2");
+
 }

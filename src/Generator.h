@@ -47,15 +47,23 @@ public:
         const std::vector<std::string>& platforms);
 
     std::pair<std::string, std::string>
+    startInterfaceProtocolWrite(const std::string& externalRef);
+
+    std::pair<std::string, std::string>
     startDefaultOptionsWrite();
 
     std::pair<std::string, std::string>
     namespacesForMessage(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
+    namespacesForInterface(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
     namespacesForRoot() const;
 
     std::string headerfileForMessage(const std::string& externalRef);
+
+    std::string headerfileForInterface(const std::string& externalRef);
 
     std::string scopeForMessage(const std::string& externalRef, bool mainIncluded = false);
 
@@ -86,6 +94,7 @@ private:
     bool writeFiles();
     bool createDir(const boost::filesystem::path& path);
     boost::filesystem::path getProtocolDefRootDir() const;
+    bool mustDefineDefaultInterface() const;
 
     ProgramOptions& m_options;
     Logger& m_logger;

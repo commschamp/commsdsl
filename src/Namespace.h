@@ -41,6 +41,8 @@ public:
 
     MessagesAccessList getAllMessages() const;
 
+    bool hasInterfaceDefined();
+
 private:
 
     using MessagesList = std::vector<MessagePtr>;

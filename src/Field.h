@@ -69,6 +69,7 @@ protected:
     virtual std::string getClassDefinitionImpl(const std::string& scope) const = 0;
 
     const std::string& getDisplayName() const;
+    std::string getNameFunc() const;
 
 private:
     Generator& m_generator;

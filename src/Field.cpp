@@ -110,7 +110,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
 
 std::string Field::getDefaultOptions() const
 {
-    return "using = " + common::nameToClassCopy(name()) + " = comms::option::EmptyOption;\n";
+    return "using " + common::nameToClassCopy(name()) + " = comms::option::EmptyOption;\n";
 }
 
 bool Field::prepareImpl()
@@ -132,6 +132,16 @@ const std::string& Field::getDisplayName() const
         displayName = &m_dslObj.name();
     }
     return *displayName;
+}
+
+std::string Field::getNameFunc() const
+{
+    return
+        "/// @brief Name of the field.\n"
+        "static const char* name()\n"
+        "{\n"
+        "    return \"" + getDisplayName() + "\";\n"
+        "}\n";
 }
 
 } // namespace commsdsl2comms
