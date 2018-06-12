@@ -6,9 +6,10 @@
     <ns name="ns1">
         <fields>
             <int name="Int1" type="uint32" />
+            <ref name="Int2" field="ns1.Int1" />
         </fields>
         <message name="Msg1" id="1">
-            <ref name="f1" field="ns1.Int1" />
+            <ref name="f1" field="ns1.Int2" />
         </message>
     </ns>
 </schema>

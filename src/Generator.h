@@ -73,12 +73,17 @@ public:
 
     std::string headerfileForInterface(const std::string& externalRef);
 
-    std::string scopeForMessage(const std::string& externalRef, bool mainIncluded = false);
+    std::string scopeForMessage(
+        const std::string& externalRef,
+        bool mainIncluded = false,
+        bool messageIncluded = false);
 
     std::string scopeForField(
         const std::string& externalRef,
         bool mainIncluded = false,
         bool fieldIncluded = false);
+
+    std::string scopeForNamespace(const std::string& externalRef);
 
     const std::string& mainNamespace() const
     {

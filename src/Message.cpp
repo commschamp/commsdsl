@@ -138,19 +138,23 @@ std::string Message::getDefaultOptions() const
             fieldsOpts += str;
         };
 
+    auto scope = m_generator.scopeForMessage(m_externalRef, true, true) + common::fieldsSuffixStr() + "::";
     for (auto& f : m_fields) {
-        addFieldOptsFunc(f->getDefaultOptions());
+        addFieldOptsFunc(f->getDefaultOptions(scope));
     }
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
+    replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
 
     static const std::string Templ =
+        "/// @brief Extra options for fields of @ref #^#MESSAGE_SCOPE#$# message.\n"
         "struct #^#MESSAGE_NAME#$#Fields\n"
         "{\n"
         "    #^#FIELDS_OPTS#$#\n"
         "};\n\n"
+        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
 
     static const std::string NoFieldsTempl =

@@ -427,7 +427,10 @@ std::string Generator::headerfileForInterface(const std::string& externalRef)
 }
 
 
-std::string Generator::scopeForMessage(const std::string& externalRef, bool mainIncluded)
+std::string Generator::scopeForMessage(
+    const std::string& externalRef,
+    bool mainIncluded,
+    bool messageIncluded)
 {
     std::string result;
     if (mainIncluded) {
@@ -446,6 +449,9 @@ std::string Generator::scopeForMessage(const std::string& externalRef, bool main
 
     result += common::messageStr();
     result += ScopeSep;
+    if (messageIncluded) {
+        result += common::nameToClassCopy(refToName(externalRef));
+    }
     return result;
 }
 
@@ -475,6 +481,16 @@ std::string Generator::scopeForField(
         result += common::nameToClassCopy(refToName(externalRef));
     }
 
+    return result;
+}
+
+std::string Generator::scopeForNamespace(const std::string& externalRef)
+{
+    std::string result = mainNamespace() + ScopeSep;
+    if (!externalRef.empty()) {
+        result += ba::replace_all_copy(externalRef, ".", "::");
+        result += ScopeSep;
+    }
     return result;
 }
 
@@ -654,7 +670,6 @@ bool Generator::prepare()
 bool Generator::writeFiles()
 {
     if ((!FieldBase::write(*this)) ||
-        (!DefaultOptions::write(*this)) ||
         (!MsgId::write(*this))) {
         return false;
     }
@@ -679,6 +694,10 @@ bool Generator::writeFiles()
         if (!ns->writeFields()) {
             return false;
         }
+    }
+
+    if (!DefaultOptions::write(*this)) {
+        return false;
     }
 
     return true;

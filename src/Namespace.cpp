@@ -3,6 +3,8 @@
 #include <cassert>
 #include <algorithm>
 
+#include "Generator.h"
+
 namespace commsdsl2comms
 {
 
@@ -89,8 +91,14 @@ std::string Namespace::getDefaultOptions() const
     }
 
     std::string fieldsOpts;
+    auto scope = m_generator.scopeForNamespace(m_dslObj.externalRef());
     for (auto& f : m_fields) {
-        addFunc(f->getDefaultOptions(), fieldsOpts);
+        auto iter = m_accessedFields.find(f.get());
+        if (iter == m_accessedFields.end()) {
+            continue;
+        }
+
+        addFunc(f->getDefaultOptions(scope), fieldsOpts);
     }
 
     std::string messagesOpts;
@@ -100,6 +108,7 @@ std::string Namespace::getDefaultOptions() const
 
     if (!fieldsOpts.empty()) {
         static const std::string FieldsWrapTempl =
+            "/// @brief Extra options for fields.\n"
             "struct field\n"
             "{\n"
             "    #^#FIELDS_OPTS#$#\n"
@@ -112,6 +121,7 @@ std::string Namespace::getDefaultOptions() const
 
     if (!messagesOpts.empty()) {
         static const std::string MessageWrapTempl =
+            "/// @brief Extra options for messages.\n"
             "struct message\n"
             "{\n"
             "    #^#MESSAGES_OPTS#$#\n"
@@ -129,6 +139,7 @@ std::string Namespace::getDefaultOptions() const
     replacmenents.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
 
     static const std::string Templ =
+        "/// @brief Scope for extra options for fields and messages in the namespace.\n"
         "struct #^#NAMESPACE_NAME#$#\n"
         "{\n"
         "    #^#NAMESPACES_OPTS#$#\n"

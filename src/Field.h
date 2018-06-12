@@ -42,7 +42,7 @@ public:
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
-    std::string getDefaultOptions() const;
+    std::string getDefaultOptions(const std::string& scope) const;
 
     commsdsl::Field::SemanticType semanticType() const
     {

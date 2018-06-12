@@ -133,9 +133,13 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
     return Map[idx](generator, field);
 }
 
-std::string Field::getDefaultOptions() const
+std::string Field::getDefaultOptions(const std::string& scope) const
 {
-    return "using " + common::nameToClassCopy(name()) + " = comms::option::EmptyOption;\n";
+    return
+        "/// @brief Extra options for @ref " +
+        scope + common::nameToClassCopy(name()) + " field.\n" +
+        "using " + common::nameToClassCopy(name()) +
+        " = comms::option::EmptyOption;\n";
 }
 
 bool Field::writeProtocolDefinition() const
@@ -160,6 +164,7 @@ bool Field::writeProtocolDefinition() const
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForField(m_externalRef))));
+    replacements.insert(std::make_pair("FIELD_NAME", getDisplayName()));
 
     std::string str = common::processTemplate(FileTemplate, replacements);
 
