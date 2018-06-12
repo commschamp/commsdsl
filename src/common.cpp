@@ -41,6 +41,12 @@ const std::string& messageStr()
     return Str;
 }
 
+const std::string& fieldStr()
+{
+    static const std::string Str("field");
+    return Str;
+}
+
 const std::string& fieldBaseStr()
 {
     static const std::string Str("FieldBase");

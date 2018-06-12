@@ -168,14 +168,8 @@ std::string IntField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;
 
-    if (!externalRef().empty()) {
-        // TODO
-        assert(!"NYI: add extra options");
-    }
+    updateExtraOptions(scope, options);
 
-    if (hasExtraOptions(scope)) {
-        options.push_back("typename " + scope + common::nameToClassCopy(name()));
-    }
     checkDefaultValueOpt(options);
     checkLengthOpt(options);
     return common::listToString(options, ",\n", common::emptyString());

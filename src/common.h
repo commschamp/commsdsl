@@ -17,6 +17,7 @@ const std::string& emptyString();
 const std::string& headerSuffix();
 const std::string& includeStr();
 const std::string& messageStr();
+const std::string& fieldStr();
 const std::string& fieldBaseStr();
 const std::string& commsStr();
 const std::string& indentStr();

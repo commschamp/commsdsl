@@ -50,10 +50,16 @@ public:
     startInterfaceProtocolWrite(const std::string& externalRef);
 
     std::pair<std::string, std::string>
+    startFieldProtocolWrite(const std::string& externalRef);
+
+    std::pair<std::string, std::string>
     startDefaultOptionsWrite();
 
     std::pair<std::string, std::string>
     namespacesForMessage(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
+    namespacesForField(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
     namespacesForInterface(const std::string& externalRef) const;
@@ -63,9 +69,16 @@ public:
 
     std::string headerfileForMessage(const std::string& externalRef);
 
+    std::string headerfileForField(const std::string& externalRef, bool quotes = true);
+
     std::string headerfileForInterface(const std::string& externalRef);
 
     std::string scopeForMessage(const std::string& externalRef, bool mainIncluded = false);
+
+    std::string scopeForField(
+        const std::string& externalRef,
+        bool mainIncluded = false,
+        bool fieldIncluded = false);
 
     const std::string& mainNamespace() const
     {
@@ -89,6 +102,8 @@ public:
     const Field* findMessageIdField() const;
 
     MessageIdMap getAllMessageIds() const;
+
+    const Field* findField(const std::string& externalRef);
 private:
 
     using NamespacesList = Namespace::NamespacesList;

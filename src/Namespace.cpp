@@ -10,6 +10,7 @@ bool Namespace::prepare()
 {
     return
         prepareNamespaces() &&
+        prepareFields() &&
         prepareInterfaces() &&
         prepareMessages();
 }
@@ -48,6 +49,23 @@ bool Namespace::writeMessages()
     });
 }
 
+bool Namespace::writeFields()
+{
+    for (auto& n : m_namespaces) {
+        if (!n->writeFields()) {
+            return false;
+        }
+    }
+
+    for (auto* f : m_accessedFields) {
+        if (!f->writeProtocolDefinition()) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
 std::string Namespace::getDefaultOptions() const
 {
 
@@ -70,11 +88,26 @@ std::string Namespace::getDefaultOptions() const
         addFunc(n->getDefaultOptions(), namespacesOpts);
     }
 
-    // TODO: fields
+    std::string fieldsOpts;
+    for (auto& f : m_fields) {
+        addFunc(f->getDefaultOptions(), fieldsOpts);
+    }
 
     std::string messagesOpts;
     for (auto& m : m_messages) {
         addFunc(m->getDefaultOptions(), messagesOpts);
+    }
+
+    if (!fieldsOpts.empty()) {
+        static const std::string FieldsWrapTempl =
+            "struct field\n"
+            "{\n"
+            "    #^#FIELDS_OPTS#$#\n"
+            "}; // struct field\n";
+
+        common::ReplacementMap replacmenents;
+        replacmenents.insert(std::make_pair("FIELDS_OPTS", fieldsOpts));
+        fieldsOpts = common::processTemplate(FieldsWrapTempl, replacmenents);
     }
 
     if (!messagesOpts.empty()) {
@@ -82,7 +115,7 @@ std::string Namespace::getDefaultOptions() const
             "struct message\n"
             "{\n"
             "    #^#MESSAGES_OPTS#$#\n"
-            "};";
+            "}; // struct message\n";
 
         common::ReplacementMap replacmenents;
         replacmenents.insert(std::make_pair("MESSAGES_OPTS", messagesOpts));
@@ -93,9 +126,10 @@ std::string Namespace::getDefaultOptions() const
     replacmenents.insert(std::make_pair("NAMESPACE_NAME", name()));
     replacmenents.insert(std::make_pair("NAMESPACES_OPTS", std::move(namespacesOpts)));
     replacmenents.insert(std::make_pair("MESSAGES_OPTS", std::move(messagesOpts)));
+    replacmenents.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
 
     static const std::string Templ =
-        "struct #^#NAMESPACE_NAME#$#Fields\n"
+        "struct #^#NAMESPACE_NAME#$#\n"
         "{\n"
         "    #^#NAMESPACES_OPTS#$#\n"
         "    #^#FIELDS_OPTS#$#\n"
@@ -147,6 +181,52 @@ bool Namespace::hasInterfaceDefined()
     return !m_interfaces.empty();
 }
 
+const Field* Namespace::findField(const std::string& externalRef)
+{
+    assert(!externalRef.empty());
+    auto pos = externalRef.find_first_of('.');
+    std::string nsName;
+    if (pos != std::string::npos) {
+        nsName.assign(externalRef.begin(), externalRef.begin() + pos);
+    }
+
+    if (nsName.empty()) {
+        auto fieldIter =
+            std::lower_bound(
+                m_fields.begin(), m_fields.end(), externalRef,
+                [&externalRef](auto& f, auto& n)
+                {
+                    return f->name() < n;
+                });
+
+        if ((fieldIter == m_fields.end()) || ((*fieldIter)->name() != externalRef)) {
+            return nullptr;
+        }
+
+        recordAccessedField(fieldIter->get());
+        return fieldIter->get();
+    }
+
+    auto nsIter =
+        std::lower_bound(
+            m_namespaces.begin(), m_namespaces.end(), nsName,
+            [](auto& ns, const std::string& n)
+            {
+                return ns->name() < n;
+            });
+
+    if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
+        return nullptr;
+    }
+
+    auto fromPos = 0U;
+    if (pos != std::string::npos) {
+        fromPos = pos + 1U;
+    }
+    std::string remStr(externalRef, fromPos);
+    return (*nsIter)->findField(remStr);
+}
+
 bool Namespace::prepareNamespaces()
 {
     auto namespaces = m_dslObj.namespaces();
@@ -159,6 +239,23 @@ bool Namespace::prepareNamespaces()
         }
 
         m_namespaces.push_back(std::move(ptr));
+    }
+
+    return true;
+}
+
+bool Namespace::prepareFields()
+{
+    auto fields = m_dslObj.fields();
+    m_fields.reserve(fields.size());
+    for (auto& dslObj : fields) {
+        auto ptr = Field::create(m_generator, dslObj);
+        assert(ptr);
+        if (!ptr->prepare()) {
+            return false;
+        }
+
+        m_fields.push_back(std::move(ptr));
     }
 
     return true;
@@ -196,6 +293,16 @@ bool Namespace::prepareMessages()
     }
 
     return true;
+}
+
+void Namespace::recordAccessedField(const Field* field)
+{
+    auto iter = m_accessedFields.find(field);
+    if (iter != m_accessedFields.end()) {
+        return;
+    }
+
+    m_accessedFields.insert(field);
 }
 
 }

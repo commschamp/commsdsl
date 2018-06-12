@@ -49,6 +49,10 @@ public:
         return m_dslObj.semanticType();
     }
 
+    bool writeProtocolDefinition() const;
+
+    const std::string& getDisplayName() const;
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),
@@ -73,13 +77,9 @@ protected:
     virtual const IncludesList& extraIncludesImpl() const;
     virtual std::string getClassDefinitionImpl(const std::string& scope) const = 0;
 
-    const std::string& getDisplayName() const;
     std::string getNameFunc() const;
 
-    bool hasExtraOptions(const std::string& scope) const
-    {
-        return (!scope.empty()) || (!m_externalRef.empty());
-    }
+    void updateExtraOptions(const std::string& scope, common::StringsList& options) const;
 
 private:
     Generator& m_generator;

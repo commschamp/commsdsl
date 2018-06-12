@@ -159,8 +159,6 @@ bool Interface::writeProtocol()
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
 
-    // TODO: all values
-
     auto* templ = &AliasTemplate;
     if (!m_fields.empty()) {
         templ = &ClassTemplate;
