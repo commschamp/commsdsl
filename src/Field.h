@@ -44,6 +44,11 @@ public:
 
     std::string getDefaultOptions() const;
 
+    commsdsl::Field::SemanticType semanticType() const
+    {
+        return m_dslObj.semanticType();
+    }
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),
@@ -70,6 +75,11 @@ protected:
 
     const std::string& getDisplayName() const;
     std::string getNameFunc() const;
+
+    bool hasExtraOptions(const std::string& scope) const
+    {
+        return (!scope.empty()) || (!m_externalRef.empty());
+    }
 
 private:
     Generator& m_generator;

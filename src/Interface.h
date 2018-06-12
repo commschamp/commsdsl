@@ -37,9 +37,11 @@ private:
     bool writeProtocol();
     std::string getDescription() const;
     std::string getFieldsClassesList() const;
+    std::string getFieldsAccessList() const;
     std::string getIncludes() const;
-    std::string getFieldsAccess() const;
+    std::string getFieldsAccessDoc() const;
     std::string getFieldsDef() const;
+    std::string getFieldsOpts() const;
 
     Generator& m_generator;
     commsdsl::Interface m_dslObj;

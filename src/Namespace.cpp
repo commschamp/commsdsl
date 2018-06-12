@@ -10,7 +10,25 @@ bool Namespace::prepare()
 {
     return
         prepareNamespaces() &&
+        prepareInterfaces() &&
         prepareMessages();
+}
+
+bool Namespace::writeInterfaces()
+{
+    return
+        std::all_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& ptr)
+            {
+                return ptr->writeInterfaces();
+            }) &&
+        std::all_of(
+            m_interfaces.begin(), m_interfaces.end(),
+            [](auto& ptr)
+            {
+                return ptr->write();
+            });
 }
 
 bool Namespace::writeMessages()
@@ -126,8 +144,7 @@ bool Namespace::hasInterfaceDefined()
         return true;
     }
 
-    // TODO: check local interfaces
-    return false;
+    return !m_interfaces.empty();
 }
 
 bool Namespace::prepareNamespaces()
@@ -142,6 +159,23 @@ bool Namespace::prepareNamespaces()
         }
 
         m_namespaces.push_back(std::move(ptr));
+    }
+
+    return true;
+}
+
+bool Namespace::prepareInterfaces()
+{
+    auto interfaces = m_dslObj.interfaces();
+    m_interfaces.reserve(interfaces.size());
+    for (auto& dslObj : interfaces) {
+        auto ptr = createInterface(m_generator, dslObj);
+        assert(ptr);
+        if (!ptr->prepare()) {
+            return false;
+        }
+
+        m_interfaces.push_back(std::move(ptr));
     }
 
     return true;

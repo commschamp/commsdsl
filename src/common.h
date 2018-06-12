@@ -33,6 +33,14 @@ std::string nameToAccessCopy(const std::string& str);
 void updateName(std::string& str);
 std::string adjustName(const std::string& str);
 std::string numToString(std::uintmax_t value);
+std::string numToString(std::intmax_t value);
+
+inline
+std::string numToString(unsigned value)
+{
+    return numToString(static_cast<std::uintmax_t>(value));
+}
+
 std::string makeMultiline(const std::string& value, unsigned len = 60);
 void insertIndent(std::string& str);
 
@@ -41,6 +49,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
 
 using StringsList = std::vector<std::string>;
 void mergeIncludes(const StringsList& from, StringsList& to);
+void mergeInclude(const std::string& inc, StringsList& to);
 std::string includesToStatements(const StringsList& list);
 std::string listToString(
     const StringsList& list,

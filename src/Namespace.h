@@ -6,6 +6,7 @@
 
 #include "commsdsl/Namespace.h"
 #include "Message.h"
+#include "Interface.h"
 #include "common.h"
 
 //#include "Field.h"
@@ -19,6 +20,7 @@ class Namespace
 public:
     using Ptr = std::unique_ptr<Namespace>;
     using NamespacesList = std::vector<Ptr>;
+    using InterfacesList = std::vector<InterfacePtr>;
     using MessagesAccessList = std::vector<const Message*>;
 
     //using FieldsMap = std::map<std::string, FieldPtr>;
@@ -35,6 +37,7 @@ public:
 
     bool prepare();
 
+    bool writeInterfaces();
     bool writeMessages();
 
     std::string getDefaultOptions() const;
@@ -48,11 +51,13 @@ private:
     using MessagesList = std::vector<MessagePtr>;
 
     bool prepareNamespaces();
+    bool prepareInterfaces();
     bool prepareMessages();
 
     Generator& m_generator;
     commsdsl::Namespace m_dslObj;
     NamespacesList m_namespaces;
+    InterfacesList m_interfaces;
     MessagesList m_messages;
 };
 

@@ -1,20 +1,3 @@
-//
-// Copyright 2017 (C). Alex Robenko. All rights reserved.
-//
-
-// This code is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 #include "ProgramOptions.h"
 #include <iostream>
 #include <cassert>
@@ -60,7 +43,7 @@ po::options_description createDescription()
         (FullInputFilesPrefixStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Prefix for the values from the list file.")
         (FullNamespaceStr.c_str(), po::value<std::string>()->default_value(std::string()),
-            "Force protocol namespace. Defaults to package name defined in the schema.")
+            "Force protocol namespace. Defaults to schema name.")
         (FullForceVerStr.c_str(), po::value<unsigned>(),
             "Force schema version. Must not be greater than version specified in schema file.")
         (FullMinRemoteVerStr.c_str(), po::value<unsigned>()->default_value(0U),

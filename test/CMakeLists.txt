@@ -113,6 +113,7 @@ endif ()
 include_directories ("${CXXTEST_INCLUDE_DIR}")
 
 test_func (test1)
+test_func (test2)
 
 #add_clang_options (test11 "-Wno-c++11-narrowing")
 

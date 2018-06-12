@@ -141,11 +141,34 @@ std::string numToString(std::uintmax_t value)
     }
 
     if (value <= std::numeric_limits<std::uint32_t>::max()) {
-        return std::to_string(value) + "L";
+        return std::to_string(value) + "UL";
     }
 
     std::stringstream stream;
-    stream << std::hex << "0x" << value << "LL";
+    stream << std::hex << "0x" << value << "ULL";
+    return stream.str();
+}
+
+std::string numToString(std::intmax_t value)
+{
+    if ((std::numeric_limits<std::int16_t>::min() <= value) &&
+        (value <= std::numeric_limits<std::int16_t>::max())) {
+        return std::to_string(value);
+    }
+
+    if ((std::numeric_limits<std::int32_t>::min() <= value) &&
+        (value <= std::numeric_limits<std::int32_t>::max())) {
+        return std::to_string(value) + "L";
+    }
+
+    if (0 < value) {
+        std::stringstream stream;
+        stream << std::hex << "0x" << value << "LL";
+        return stream.str();
+    }
+
+    std::stringstream stream;
+    stream << std::hex << "-0x" << -value << "LL";
     return stream.str();
 }
 
@@ -330,6 +353,13 @@ void mergeIncludes(const StringsList& from, StringsList& to)
 
         to.insert(iter, inc);
     }
+}
+
+void mergeInclude(const std::string& inc, StringsList& to)
+{
+    StringsList list;
+    list.push_back(inc);
+    mergeIncludes(list, to);
 }
 
 std::string includesToStatements(const StringsList& list)

@@ -442,7 +442,7 @@ bool Generator::parseSchemaFiles(const FilesList& files)
     }
 
     if (m_logger.hadWarning()) {
-        m_logger.log(commsdsl::ErrorLevel_Error, "Warning treated as error");
+        m_logger.error("Warning treated as error");
         return false;
     }
 
@@ -453,6 +453,16 @@ bool Generator::parseSchemaFiles(const FilesList& files)
     }
 
     m_schemaEndian = schema.endian();
+    m_schemaVersion = schema.version();
+    if (m_options.hasForcedSchemaVersion()) {
+        auto newVersion = m_options.getForcedSchemaVersion();
+        if (m_schemaVersion < newVersion) {
+            m_logger.error("Cannot force version to be greater than " + common::numToString(m_schemaVersion));
+            return false;
+        }
+
+        m_schemaVersion = newVersion;
+    }
 
     return true;
 }
@@ -489,7 +499,8 @@ bool Generator::writeFiles()
     }
 
     for (auto& ns : m_namespaces) {
-        if (!ns->writeMessages()) {
+        if ((!ns->writeInterfaces()) ||
+            (!ns->writeMessages())) {
             return false;
         }
 

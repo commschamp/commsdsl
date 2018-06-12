@@ -35,10 +35,64 @@ const std::string AliasTemplate(
     "template <typename... TOpt>\n"
     "using #^#CLASS_NAME#$# =\n"
     "    comms::Message<\n"
-    "        TOpt...\n,"
+    "        TOpt...,\n"
     "        #^#ENDIAN#$#,\n"
     "        comms::option::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>\n"
     "    >;\n\n"
+    "#^#END_NAMESPACE#$#\n"
+);
+
+const std::string ClassTemplate(
+    "/// @file\n"
+    "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"<\\b> interface class.\n"
+    "\n"
+    "#pragma once\n"
+    "\n"
+    "#^#INCLUDES#$#\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "/// @brief Extra transport fields of @ref #^#CLASS_NAME#$# interface class.\n"
+    "/// @see @ref #^#CLASS_NAME#$#\n"
+    "/// @headerfile #^#HEADERFILE#$#\n"
+    "struct #^#CLASS_NAME#$#Fields\n"
+    "{\n"
+    "    #^#FIELDS_DEF#$#\n"
+    "    /// @brief All the fields bundled in std::tuple.\n"
+    "    using All = std::tuple<\n"
+    "        #^#FIELDS_LIST#$#\n"
+    "    >;\n"
+    "};\n\n"
+    "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"<\\b> common interface class.\n"
+    "#^#DOC_DETAILS#$#\n"
+    "/// @tparam TOpt Interface definition options\n"
+    "/// @headerfile #^#HEADERFILE#$#\n"
+    "template <typename... TOpt>\n"
+    "class #^#CLASS_NAME#$# : public\n"
+    "    comms::Message<\n"
+    "        TOpt...,\n"
+    "        #^#ENDIAN#$#,\n"
+    "        comms::option::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>,\n"
+    "        #^#FIELDS_OPTIONS#$#\n"
+    "    >\n"
+    "{\n"
+    "    using Base =\n"
+    "        comms::Message<\n"
+    "            TOpt...,\n"
+    "            #^#ENDIAN#$#,\n"
+    "            comms::option::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>,\n"
+    "            #^#FIELDS_OPTIONS#$#\n"
+    "        >;\n"
+    "public:\n"
+    "    /// @brief Allow access to extra transport fields.\n"
+    "    /// @details See definition of @b COMMS_MSG_TRANSPORT_FIELDS_ACCESS macro\n"
+    "    ///     related to @b comms::Message class from COMMS library\n"
+    "    ///     for details.\n"
+    "    ///\n"
+    "    ///     The generated functions are:\n"
+    "    #^#ACCESS_FUNCS_DOC#$#\n"
+    "    COMMS_MSG_TRANSPORT_FIELDS_ACCESS(\n"
+    "       #^#FIELDS_ACCESS_LIST#$#\n"
+    "    );\n"
+    "};\n\n"
     "#^#END_NAMESPACE#$#\n"
 );
 
@@ -107,8 +161,15 @@ bool Interface::writeProtocol()
 
     // TODO: all values
 
-    // TODO: class template
     auto* templ = &AliasTemplate;
+    if (!m_fields.empty()) {
+        templ = &ClassTemplate;
+        replacements.insert(std::make_pair("FIELDS_LIST", getFieldsClassesList()));
+        replacements.insert(std::make_pair("FIELDS_ACCESS_LIST", getFieldsAccessList()));
+        replacements.insert(std::make_pair("FIELDS_OPTIONS", getFieldsOpts()));
+        replacements.insert(std::make_pair("ACCESS_FUNCS_DOC", getFieldsAccessDoc()));
+        replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
+    }
     auto str = common::processTemplate(*templ, replacements);
 
     std::ofstream stream(filePath);
@@ -136,9 +197,8 @@ std::string Interface::getDescription() const
     if (!desc.empty()) {
         static const std::string DocPrefix("/// @details ");
         desc.insert(desc.begin(), DocPrefix.begin(), DocPrefix.end());
-        static const std::string DocNewLineRepl("\n" + common::doxygenPrefixStr());
+        static const std::string DocNewLineRepl("\n" + common::doxygenPrefixStr() + "    ");
         ba::replace_all(desc, "\n", DocNewLineRepl);
-        desc += " @n";
     }
     return desc;
 }
@@ -155,11 +215,27 @@ std::string Interface::getFieldsClassesList() const
     return result;
 }
 
+std::string Interface::getFieldsAccessList() const
+{
+    std::string result;
+    for (auto& f : m_fields) {
+        if (!result.empty()) {
+            result += ",\n";
+        }
+        result += common::nameToAccessCopy(f->name());
+    }
+    return result;
+}
+
 std::string Interface::getIncludes() const
 {
     common::StringsList includes;
     for (auto& f : m_fields) {
         f->updateIncludes(includes);
+    }
+
+    if (!m_fields.empty()) {
+        common::mergeInclude("<tuple>", includes);
     }
 
     static const common::StringsList InterfaceIncludes = {
@@ -172,66 +248,67 @@ std::string Interface::getIncludes() const
     return common::includesToStatements(includes);
 }
 
-std::string Interface::getFieldsAccess() const
+std::string Interface::getFieldsAccessDoc() const
 {
     if (m_fields.empty()) {
         return common::emptyString();
     }
 
-//    static const std::string DocPrefix =
-//        "/// @brief Allow access to internal fields.\n"
-//        "/// @details See definition of @b COMMS_MSG_FIELDS_ACCESS macro\n"
-//        "///     related to @b comms::InterfaceBase class from COMMS library\n"
-//        "///     for details.\n"
-//        "///\n"
-//        "///     The generated functions are:\n";
+    std::string result;
+    for (auto& f : m_fields) {
+        if (!result.empty()) {
+            result += '\n';
+        }
+        result += common::doxygenPrefixStr();
+        result += common::indentStr();
+        result += "@li @b transportField_";
+        result += common::nameToAccessCopy(f->name());
+        result += "() for @ref ";
+        result += common::nameToClassCopy(m_dslObj.name());
+        result += "Fields::";
+        result += common::nameToClassCopy(f->name());
+        result += " field.";
+    }
 
-//    std::string result = DocPrefix;
-//    for (auto& f : m_fields) {
-//        result += common::doxygenPrefixStr();
-//        result += common::indentStr();
-//        result += "@li @b field_";
-//        result += common::nameToAccessCopy(f->name());
-//        result += "() for @ref ";
-//        result += common::nameToClassCopy(name());
-//        result += "Fields::";
-//        result += common::nameToClassCopy(f->name());
-//        result += " field.\n";
-//    }
-
-//    result += "COMMS_MSG_FIELDS_ACCESS(\n";
-//    for (auto& f : m_fields) {
-//        result += common::indentStr();
-//        result += common::nameToAccessCopy(f->name());
-//        if (&f != &m_fields.back()) {
-//            result += ',';
-//        }
-//        result += '\n';
-//    }
-//    result += ");\n\n";
-
-//    return result;
-    // TODO
-    return common::emptyString();
+    return result;
 }
 
 std::string Interface::getFieldsDef() const
 {
-    // TODO:
-    return common::emptyString();
-//    std::string result;
-//    auto scope =
-//        getNamespaceScope() +
-//        common::fieldsSuffixStr() +
-//        "::";
+    std::string result;
 
-//    for (auto& f : m_fields) {
-//        result += f->getClassDefinition(scope);
-//        if (&f != &m_fields.back()) {
-//            result += '\n';
-//        }
-//    }
-//    return result;
+    for (auto& f : m_fields) {
+        result += f->getClassDefinition(common::emptyString());
+        if (&f != &m_fields.back()) {
+            result += '\n';
+        }
+    }
+    return result;
+}
+
+std::string Interface::getFieldsOpts() const
+{
+    std::string result =
+        "comms::option::ExtraTransportFields<" +
+        common::nameToClassCopy(m_dslObj.name()) + 
+        common::fieldsSuffixStr() + 
+        "::All>";
+
+    auto iter =
+        std::find_if(
+            m_fields.begin(), m_fields.end(),
+            [](auto& f)
+            {
+                return f->semanticType() == commsdsl::Field::SemanticType::Version;
+            });
+
+    if (iter != m_fields.end()) {
+        result += ",\n";
+        result += "comms::option::VersionInExtraTransportFields<";
+        result += common::numToString(static_cast<std::size_t>(std::distance(m_fields.begin(), iter)));
+        result += ">";
+    }
+    return result;
 }
 
 }

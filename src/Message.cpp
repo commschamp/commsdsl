@@ -258,6 +258,7 @@ std::string Message::getIncludes() const
     }
 
     static const common::StringsList MessageIncludes = {
+        "<tuple>",
         "comms/MessageBase.h",
         m_generator.mainNamespace() + '/' + common::msgIdEnuNameStr() + common::headerSuffix(),
         m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix()
@@ -401,6 +402,7 @@ std::string Message::getFieldsDef() const
 {
     std::string result;
     auto scope =
+        "TOpt::" +
         getNamespaceScope() +
         common::fieldsSuffixStr() +
         "::";

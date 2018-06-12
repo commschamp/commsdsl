@@ -24,6 +24,7 @@ private:
     std::string getFieldBaseParams() const;
     const std::string& getFieldType() const;
     std::string getFieldOpts(const std::string& scope) const;
+    void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
 
     commsdsl::IntField intFieldDslObj() const

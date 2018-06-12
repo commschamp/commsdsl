@@ -77,6 +77,11 @@ public:
         return m_schemaEndian;
     }
 
+    unsigned schemaVersion() const
+    {
+        return m_schemaVersion;
+    }
+
     std::string getDefaultOptionsBody() const;
 
     std::string getMessageIdStr(const std::string& externalRef, uintmax_t id) const;
@@ -104,6 +109,7 @@ private:
     std::set<boost::filesystem::path> m_createdDirs;
     std::string m_mainNamespace;
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
+    unsigned m_schemaVersion = 0U;
     MessageIdMap m_messageIds;
 };
 

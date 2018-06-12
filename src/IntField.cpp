@@ -15,14 +15,14 @@ const std::string ClassTemplate(
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::field::IntValue<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        #^#FIELD_TYPE#$#,\n"
+    "        #^#FIELD_TYPE#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
     "    using Base = \n"
     "        comms::field::IntValue<\n"
     "            #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "            #^#FIELD_TYPE#$#,\n"
+    "            #^#FIELD_TYPE#$#\n"
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
@@ -40,7 +40,7 @@ const std::string StructTemplate(
     "struct #^#CLASS_NAME#$# : public\n"
     "    comms::field::IntValue<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        #^#FIELD_TYPE#$#,\n"
+    "        #^#FIELD_TYPE#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
@@ -86,6 +86,9 @@ std::string IntField::getClassDefinitionImpl(const std::string& scope) const
     replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
+    if (!replacements["FIELD_OPTS"].empty()) {
+        replacements["FIELD_TYPE"] += ',';
+    }
 
     static_cast<void>(scope);
     // TODO: more replacements
@@ -170,9 +173,47 @@ std::string IntField::getFieldOpts(const std::string& scope) const
         assert(!"NYI: add extra options");
     }
 
-    options.push_back("typename TOpt::" + scope + common::nameToClassCopy(name()));
+    if (hasExtraOptions(scope)) {
+        options.push_back("typename " + scope + common::nameToClassCopy(name()));
+    }
+    checkDefaultValueOpt(options);
     checkLengthOpt(options);
     return common::listToString(options, ",\n", common::emptyString());
+}
+
+void IntField::checkDefaultValueOpt(StringsList& list) const
+{
+    auto obj = intFieldDslObj();
+    auto defaultValue = obj.defaultValue();
+    if ((defaultValue == 0) &&
+        (semanticType() == commsdsl::Field::SemanticType::Version)) {
+        std::string opt = "comms::option::DefaultNumValue<";
+        opt += common::numToString(generator().schemaVersion());
+        opt += '>';
+        list.push_back(std::move(opt));
+        return;
+    }
+
+    if (defaultValue == 0) {
+        return;
+    }
+
+    auto type = obj.type();
+    if ((type == commsdsl::IntField::Type::Uint64) ||
+        (type == commsdsl::IntField::Type::Uintvar)) {
+        auto str =
+            "comms::option::DefaultBigUnsignedNumValue<" +
+            common::numToString(static_cast<std::uintmax_t>(defaultValue)) +
+            '>';
+        list.push_back(std::move(str));
+        return;
+    }
+
+    auto str =
+        "comms::option::DefaultNumValue<" +
+        common::numToString(defaultValue) +
+        '>';
+    list.push_back(std::move(str));
 }
 
 void IntField::checkLengthOpt(StringsList& list) const
