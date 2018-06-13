@@ -86,6 +86,12 @@ std::string IntField::getClassDefinitionImpl(const std::string& scope) const
     replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("SPECIALS", getSpecials()));
+    replacements.insert(std::make_pair("READ", getRead()));
+    replacements.insert(std::make_pair("WRITE", getWrite()));
+    replacements.insert(std::make_pair("LENGTH", getLength()));
+    replacements.insert(std::make_pair("VALID", getValid()));
+    replacements.insert(std::make_pair("REFRESH", getRefresh()));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["FIELD_TYPE"] += ',';
     }
@@ -172,7 +178,177 @@ std::string IntField::getFieldOpts(const std::string& scope) const
 
     checkDefaultValueOpt(options);
     checkLengthOpt(options);
+    checkSerOffsetOpt(options);
+    checkScalingOpt(options);
+    checkUnitsOpt(options);
+    checkValidRangesOpt(options);
     return common::listToString(options, ",\n", common::emptyString());
+}
+
+std::string IntField::getSpecials() const
+{
+    auto obj = intFieldDslObj();
+    auto& specials = obj.specialValues();
+    std::string result;
+    for (auto& s : specials) {
+        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        if (!result.empty()) {
+            result += '\n';
+        }
+
+        static const std::string Templ(
+            "/// @brief Special value <b>\"#^#SPEC_NAME#$#\"</b>.\n"
+            "static constexpr typename Base::ValueType value#^#SPEC_ACC#$#()\n"
+            "{\n"
+            "    return static_cast<typename Base::ValueType>(#^#SPEC_VAL#$#);\n"
+            "}\n\n"
+            "/// @brief Check the value is equal to special <b>\"#^#SPEC_NAME#$#\"</b>.\n"
+            "bool is#^#SPEC_ACC#$#() const\n"
+            "{\n"
+            "    return Base::value() == value#^#SPEC_ACC#$#();\n"
+            "}\n\n"
+            "/// @brief Assign special value <b>\"#^#SPEC_NAME#$#\"</b> to the field.\n"
+            "void set#^#SPEC_ACC#$#()\n"
+            "{\n"
+            "    Base::value() = value#^#SPEC_ACC#$#();\n"
+            "}\n"
+        );
+
+        std::string specVal;
+        auto type = obj.type();
+        if ((type == commsdsl::IntField::Type::Uint64) ||
+            (type == commsdsl::IntField::Type::Uintvar)) {
+            specVal = common::numToString(static_cast<std::uintmax_t>(s.second.m_value));
+        }
+        else {
+            specVal = common::numToString(s.second.m_value);
+        }
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("SPEC_NAME", s.first));
+        replacements.insert(std::make_pair("SPEC_ACC", common::nameToClassCopy(s.first)));
+        replacements.insert(std::make_pair("SPEC_VAL", std::move(specVal)));
+
+        result += common::processTemplate(Templ, replacements);
+    }
+    return result;
+}
+
+std::string IntField::getRead() const
+{
+    // TODO: check custom
+    return common::emptyString();
+}
+
+std::string IntField::getWrite() const
+{
+    // TODO: check custom
+    return common::emptyString();
+}
+
+std::string IntField::getLength() const
+{
+    // TODO: check custom
+    return common::emptyString();
+}
+
+std::string IntField::getValid() const
+{
+    // TODO: check custom
+
+    auto obj = intFieldDslObj();
+    if (!obj.validCheckVersion()) {
+        return common::emptyString();
+    }
+
+    auto validRanges = obj.validRanges(); // copy
+    validRanges.erase(
+        std::remove_if(
+            validRanges.begin(), validRanges.end(),
+            [this](auto& r)
+            {
+                return !this->generator().isElementOptional(r.m_sinceVersion, r.m_deprecatedSince);
+            }),
+        validRanges.end());
+
+    if (validRanges.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Custom validity check.\n"
+        "bool valid() const\n"
+        "{\n"
+        "    if (Base::valid()) {\n"
+        "        return true;\n"
+        "    }\n\n"
+        "    #^#RANGES_CHECKS#$#\n"
+        "    return false;\n"
+        "}\n";
+
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::IntField::Type::Uint64) ||
+        (type == commsdsl::IntField::Type::Uintvar);
+
+    std::string rangesChecks;
+    for (auto& r : validRanges) {
+        if (!rangesChecks.empty()) {
+            rangesChecks += '\n';
+        }
+
+        static const std::string RangeTempl =
+            "if (#^#COND#$#) {\n"
+            "    return true;\n"
+            "}\n";
+
+        std::string minVal;
+        std::string maxVal;
+
+        if (bigUnsigned) {
+            minVal = common::numToString(static_cast<std::uintmax_t>(r.m_min));
+            maxVal = common::numToString(static_cast<std::uintmax_t>(r.m_max));
+        }
+        else {
+            minVal = common::numToString(r.m_min);
+            maxVal = common::numToString(r.m_max);
+        }
+
+        common::StringsList conds;
+        if (0U < r.m_sinceVersion) {
+            conds.push_back('(' + common::numToString(r.m_sinceVersion) + " <= Base::getVersion())");
+        }
+
+        if (r.m_deprecatedSince < commsdsl::Protocol::notYetDeprecated()) {
+            conds.push_back("(Base::getVersion() < " + common::numToString(r.m_deprecatedSince) + ")");
+        }
+
+        if (r.m_min == r.m_max) {
+            conds.push_back("(static_cast<typename Base::ValueType>(" + minVal + ") == Base::value())");
+        }
+        else {
+            conds.push_back("(static_cast<typename Base::ValueType>(" + minVal + ") <= Base::value())");
+            conds.push_back("(Base::value() <= static_cast<typename Base::ValueType>(" + maxVal + "))");
+        }
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("COND", common::listToString(conds, " &&\n", common::emptyString())));
+        rangesChecks += common::processTemplate(RangeTempl, replacements);
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("RANGES_CHECKS", std::move(rangesChecks)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string IntField::getRefresh() const
+
+{
+    // TODO: check custom
+    return common::emptyString();
 }
 
 void IntField::checkDefaultValueOpt(StringsList& list) const
@@ -242,8 +418,8 @@ void IntField::checkLengthOpt(StringsList& list) const
         /* Uint16 */ 2,
         /* Int32 */ 4,
         /* Uint32 */ 4,
-        /* Int64 */ 5,
-        /* Uint64 */ 5,
+        /* Int64 */ 8,
+        /* Uint64 */ 8,
         /* Intvar */ 0,
         /* Uintvar */ 0
     };
@@ -264,6 +440,263 @@ void IntField::checkLengthOpt(StringsList& list) const
             common::numToString(obj.minLength()) +
             '>';
         list.push_back(std::move(str));
+    }
+}
+
+void IntField::checkSerOffsetOpt(IntField::StringsList& list) const
+{
+    auto obj = intFieldDslObj();
+    auto serOffset = obj.serOffset();
+    if (serOffset == 0) {
+        return;
+    }
+
+    auto str =
+        "comms::option::NumValueSerOffset<" +
+        common::numToString(serOffset) +
+        '>';
+    list.push_back(std::move(str));
+}
+
+void IntField::checkScalingOpt(IntField::StringsList& list) const
+{
+    auto obj = intFieldDslObj();
+    auto scaling = obj.scaling();
+    auto num = scaling.first;
+    auto denom = scaling.second;
+
+    if ((num == 1) && (denom == 1)) {
+        return;
+    }
+
+    if ((num == 0) || (denom == 0)) {
+        assert(!"Should not happen");
+        return;
+    }
+
+    auto str =
+        "comms::option::ScalingRatio<" +
+        common::numToString(num) +
+        ", " +
+        common::numToString(denom) +
+        '>';
+    list.push_back(std::move(str));
+}
+
+void IntField::checkUnitsOpt(IntField::StringsList& list) const
+{
+    auto obj = intFieldDslObj();
+    auto units = obj.units();
+
+    if (units == commsdsl::Units::Unknown) {
+        return;
+    }
+
+    if (commsdsl::Units::NumOfValues <= units) {
+        assert(!"Should not happen");
+        return;
+    }
+
+    static const std::string UnitsMap[] = {
+        /* Unknown */ common::emptyString(),
+        /* Nanoseconds */ "Nanoseconds",
+        /* Microseconds */ "Microseconds",
+        /* Milliseconds */ "Milliseconds",
+        /* Seconds */ "Seconds",
+        /* Minutes */ "Minutes",
+        /* Hours */ "Hours",
+        /* Days */ "Days",
+        /* Weeks */ "Weeks",
+        /* Nanometers */ "Nanometers",
+        /* Micrometers */ "Micrometers",
+        /* Millimeters */ "Millimeters",
+        /* Centimeters */ "Centimeters",
+        /* Meters */ "Meters",
+        /* Kilometers */ "Kilometers",
+        /* NanometersPerSecond */ "NanometersPerSecond",
+        /* MicrometersPerSecond */ "MicrometersPerSecond",
+        /* MillimetersPerSecond */ "MillimetersPerSecond",
+        /* CentimetersPerSecond */ "CentimetersPerSecond",
+        /* MetersPerSecond */ "MetersPerSecond",
+        /* KilometersPerSecond */ "KilometersPerSecond",
+        /* KilometersPerHour */ "KilometersPerHour",
+        /* Hertz */ "Hertz",
+        /* KiloHertz */ "Kilohertz",
+        /* MegaHertz */ "Megahertz",
+        /* GigaHertz */ "Gigahertz",
+        /* Degrees */ "Degrees",
+        /* Radians */ "Radians",
+        /* Nanoamps */ "Nanoamps",
+        /* Microamps */ "Microamps",
+        /* Milliamps */ "Milliamps",
+        /* Amps */ "Amps",
+        /* Kiloamps */ "Kiloamps",
+        /* Nanovolts */ "Nanovolts",
+        /* Microvolts */ "Microvolts",
+        /* Millivolts */ "Millivolts",
+        /* Volts */ "Volts",
+        /* Kilovolts */ "Kilovolts",
+    };
+
+    static const std::size_t UnitsMapSize =
+        std::extent<decltype(UnitsMap)>::value;
+    static_assert(static_cast<decltype(UnitsMapSize)>(commsdsl::Units::NumOfValues) == UnitsMapSize,
+        "Invalid Map");
+
+    auto idx = static_cast<unsigned>(units);
+    list.push_back("comms::option::Units" + UnitsMap[idx]);
+}
+
+void IntField::checkValidRangesOpt(IntField::StringsList& list) const
+{
+    auto obj = intFieldDslObj();
+    auto validRanges = obj.validRanges(); // copy
+    if (validRanges.empty()) {
+        return;
+    }
+
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::IntField::Type::Uint64) ||
+        ((type != commsdsl::IntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
+
+    bool validCheckVersion = obj.validCheckVersion();
+    if (!validCheckVersion) {
+        // unify
+        std::size_t idx = 0U;
+        while (idx < (validRanges.size() - 1U)) {
+            auto& thisRange = validRanges[idx];
+            auto& nextRange = validRanges[idx + 1];
+
+
+            auto needToMergeCheck =
+                [](auto min1, auto max1, auto min2, auto max2) -> bool
+                {
+                    assert(min1 <= min2);
+                    if (min2 <= (max1 + 1)) {
+                        assert(max1 <= max2);
+                        return true;
+                    }
+
+                    return false;
+                };
+
+            bool merge = false;
+            if (bigUnsigned) {
+                merge =
+                    needToMergeCheck(
+                        static_cast<std::uintmax_t>(thisRange.m_min),
+                        static_cast<std::uintmax_t>(thisRange.m_max),
+                        static_cast<std::uintmax_t>(nextRange.m_min),
+                        static_cast<std::uintmax_t>(nextRange.m_max));
+            }
+            else {
+                merge = needToMergeCheck(thisRange.m_min, thisRange.m_max, nextRange.m_min, nextRange.m_max);
+            }
+
+            if (!merge) {
+                ++idx;
+                continue;
+            }
+
+            auto needToUpdateCheck =
+                [](auto max1, auto max2) -> bool
+                {
+                    return max1 < max2;
+                };
+
+            bool update = false;
+            if (bigUnsigned) {
+                update =
+                    needToUpdateCheck(
+                        static_cast<std::uintmax_t>(thisRange.m_max),
+                        static_cast<std::uintmax_t>(nextRange.m_max));
+            }
+            else {
+                update = needToUpdateCheck(thisRange.m_max, nextRange.m_max);
+            }
+
+            if (update) {
+                thisRange.m_max = nextRange.m_max;
+            }
+
+            validRanges.erase(validRanges.begin() + idx + 1);
+        }
+    }
+
+    bool versionStorageRequired = false;
+    bool addedRangeOpt = false;
+    for (auto& r : validRanges) {
+        if (!generator().doesElementExist(r.m_sinceVersion, r.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        if (validCheckVersion && (generator().isElementOptional(r.m_sinceVersion, r.m_deprecatedSince))) {
+            versionStorageRequired = true;
+            continue;
+        }
+
+        bool big = false;
+        std::string str = "comms::option::";
+        do {
+            if (!bigUnsigned) {
+                break;
+            }
+
+            bool minInRange =
+                static_cast<std::uintmax_t>(r.m_min) <= static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+
+            bool maxInRange =
+                static_cast<std::uintmax_t>(r.m_max) <= static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+            if (minInRange && maxInRange) {
+                break;
+            }
+
+            if (r.m_min == r.m_max) {
+                str += "ValidBigUnsignedNumValue<";
+                str += common::numToString(static_cast<std::uintmax_t>(r.m_min));
+                str += '>';
+            }
+            else {
+                str += "ValidBigUnsignedNumValueRange<";
+                str += common::numToString(static_cast<std::uintmax_t>(r.m_min));
+                str += ", ";
+                str += common::numToString(static_cast<std::uintmax_t>(r.m_max));
+                str += '>';
+            }
+
+            list.push_back(std::move(str));
+            big = true;
+            addedRangeOpt = true;
+        } while (false);
+
+        if (big) {
+            continue;
+        }
+
+        if (r.m_min == r.m_max) {
+            str += "ValidNumValue<";
+            str += common::numToString(r.m_min);
+            str += '>';
+        }
+        else {
+            str += "ValidNumValueRange<";
+            str += common::numToString(r.m_min);
+            str += ", ";
+            str += common::numToString(r.m_max);
+            str += '>';
+        }
+
+        list.push_back(std::move(str));
+        addedRangeOpt = true;
+    }
+
+    if (versionStorageRequired) {
+        list.push_back("comms::option::VersionStorage");
+
+        if (!addedRangeOpt) {
+            list.push_back("comms::option::InvalidByDefault");
+        }
     }
 }
 

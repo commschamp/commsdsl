@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test4"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <int name="year" type="int16" defaultValue="2018" serOffset="-2000" length="1" >
+            <validRange value="[2021, 2030]" sinceVersion="2" deprecated="4"/>
+            <validRange value="[2000, 2020]" />
+        </int>
+        <int name="I1" type="uint64" defaultValue="0xffffffffffffffff">
+            <special name="null" val="0xffffffffffffffff" />
+        </int>
+        <int name="I2" type="uint8" validCheckVersion="true">
+            <validRange value="[5, 10]" deprecated="2" />
+            <validValue value="20" sinceVersion="2" />
+            <validRange value="[30, 40]" sinceVersion="3" />
+        </int>
+    </fields>
+    
+    <interface name="Message">
+        <int name="version" type="uint16" semanticType="version" />
+    </interface>    
+    
+    <message name="Msg1" id="1">
+        <ref name="year" field="year" />
+        <int name="f2" reuse="I1">
+            <special name="zero" val="0" sinceVersion="2" />
+        </int>
+        <ref name="f3" field="I2" />
+    </message>
+</schema>

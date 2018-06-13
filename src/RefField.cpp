@@ -36,11 +36,6 @@ const std::string StructTemplate(
 
 bool RefField::prepareImpl()
 {
-    std::string inc =
-        generator().mainNamespace() + '/' +
-        ba::replace_all_copy(refFieldDslObj().field().externalRef(), ".", "/") +
-        common::headerSuffix();
-
     m_includes.push_back(generator().headerfileForField(refFieldDslObj().field().externalRef(), false));
     return true;
 }

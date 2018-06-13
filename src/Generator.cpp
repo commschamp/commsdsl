@@ -84,11 +84,32 @@ bool Generator::doesElementExist(
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    static_cast<void>(sinceVersion);
-    static_cast<void>(deprecatedSince);
-    static_cast<void>(deprecatedRemoved);
-    // TODO
+    unsigned sVersion = schemaVersion();
+
+    if (sVersion < sinceVersion) {
+        return false;
+    }
+
+    if (deprecatedRemoved && (deprecatedSince <= sVersion)) {
+        return false;
+    }
+
     return true;
+}
+
+bool Generator::isElementOptional(unsigned sinceVersion, unsigned deprecatedSince) const
+{
+    // TODO:
+    unsigned minRemoteVersion = 0;
+    if (minRemoteVersion < sinceVersion) {
+        return true;
+    }
+
+    if (deprecatedSince < commsdsl::Protocol::notYetDeprecated()) {
+        return true;
+    }
+
+    return false;
 }
 
 std::string Generator::protocolDefRootDir()
@@ -365,7 +386,7 @@ std::string Generator::headerfileForMessage(const std::string& externalRef)
 
     result += common::messageStr() + '/';
 
-    auto className = refToName(externalRef);
+    auto className = common::nameToClassCopy(refToName(externalRef));
     result += className;
     result += common::headerSuffix();
     result += '\"';
@@ -391,7 +412,7 @@ std::string Generator::headerfileForField(const std::string& externalRef, bool q
 
     result += common::fieldStr() + '/';
 
-    auto className = refToName(externalRef);
+    auto className = common::nameToClassCopy(refToName(externalRef));
     result += className;
     result += common::headerSuffix();
 
@@ -419,7 +440,7 @@ std::string Generator::headerfileForInterface(const std::string& externalRef)
         }
     }
 
-    auto className = refToName(externalRefCpy);
+    auto className = common::nameToClassCopy(refToName(externalRefCpy));
     result += className;
     result += common::headerSuffix();
     result += '\"';

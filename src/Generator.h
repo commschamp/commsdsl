@@ -39,6 +39,10 @@ public:
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
 
+    bool isElementOptional(
+        unsigned sinceVersion,
+        unsigned deprecatedSince = commsdsl::Protocol::notYetDeprecated()) const;
+
     std::string protocolDefRootDir();
 
     std::pair<std::string, std::string>

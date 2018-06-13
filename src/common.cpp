@@ -143,7 +143,7 @@ std::string adjustName(const std::string& str)
 std::string numToString(std::uintmax_t value)
 {
     if (value <= std::numeric_limits<std::uint16_t>::max()) {
-        return std::to_string(value);
+        return std::to_string(value) + "U";
     }
 
     if (value <= std::numeric_limits<std::uint32_t>::max()) {

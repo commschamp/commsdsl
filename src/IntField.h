@@ -24,8 +24,18 @@ private:
     std::string getFieldBaseParams() const;
     const std::string& getFieldType() const;
     std::string getFieldOpts(const std::string& scope) const;
+    std::string getSpecials() const;
+    std::string getRead() const;
+    std::string getWrite() const;
+    std::string getLength() const;
+    std::string getValid() const;
+    std::string getRefresh() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
+    void checkSerOffsetOpt(StringsList& list) const;
+    void checkScalingOpt(StringsList& list) const;
+    void checkUnitsOpt(StringsList& list) const;
+    void checkValidRangesOpt(StringsList& list) const;
 
     commsdsl::IntField intFieldDslObj() const
     {
