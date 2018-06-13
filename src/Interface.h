@@ -32,6 +32,8 @@ public:
         return m_externalRef;
     }
 
+    bool hasVersion() const;
+
 private:
 
     bool writeProtocol();

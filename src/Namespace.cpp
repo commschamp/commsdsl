@@ -238,6 +238,30 @@ const Field* Namespace::findField(const std::string& externalRef)
     return (*nsIter)->findField(remStr);
 }
 
+bool Namespace::anyInterfaceHasVersion() const
+{
+    bool hasVersion =
+        std::any_of(
+            m_interfaces.begin(), m_interfaces.end(),
+            [](auto& i)
+            {
+                return i->hasVersion();
+            });
+
+    if (hasVersion) {
+        return true;
+    }
+
+    return
+        std::any_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& n)
+            {
+                return n->anyInterfaceHasVersion();
+            });
+}
+
+
 bool Namespace::prepareNamespaces()
 {
     auto namespaces = m_dslObj.namespaces();

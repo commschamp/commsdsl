@@ -51,6 +51,7 @@ public:
 
     const Field* findField(const std::string& externalRef);
 
+    bool anyInterfaceHasVersion() const;
 private:
 
     using MessagesList = std::vector<MessagePtr>;

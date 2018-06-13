@@ -34,6 +34,7 @@ public:
     bool helpRequested() const;
     bool quietRequested() const;
     bool warnAsErrRequested() const;
+    bool versionIndependentCodeRequested() const;
 
     std::string getFilesListFile() const;
     std::string getFilesListPrefix() const;

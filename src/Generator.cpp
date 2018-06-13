@@ -97,15 +97,16 @@ bool Generator::doesElementExist(
     return true;
 }
 
-bool Generator::isElementOptional(unsigned sinceVersion, unsigned deprecatedSince) const
+bool Generator::isElementOptional(
+    unsigned sinceVersion,
+    unsigned deprecatedSince,
+    bool deprecatedRemoved) const
 {
-    // TODO:
-    unsigned minRemoteVersion = 0;
-    if (minRemoteVersion < sinceVersion) {
+    if (m_minRemoteVersion < sinceVersion) {
         return true;
     }
 
-    if (deprecatedSince < commsdsl::Protocol::notYetDeprecated()) {
+    if (deprecatedRemoved && (deprecatedSince < commsdsl::Protocol::notYetDeprecated())) {
         return true;
     }
 
@@ -669,6 +670,8 @@ bool Generator::parseSchemaFiles(const FilesList& files)
         m_schemaVersion = newVersion;
     }
 
+    m_minRemoteVersion = m_options.getMinRemoteVersion();
+
     return true;
 }
 
@@ -684,6 +687,10 @@ bool Generator::prepare()
         }
 
         m_namespaces.push_back(std::move(ns));
+    }
+
+    if (!m_options.versionIndependentCodeRequested()) {
+        m_versionDependentCode = anyInterfaceHasVersion();
     }
     return true;
 }
@@ -755,6 +762,17 @@ bool Generator::mustDefineDefaultInterface() const
             [](auto& n)
             {
                 return n->hasInterfaceDefined();
+    });
+}
+
+bool Generator::anyInterfaceHasVersion()
+{
+    return
+        std::any_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& n)
+            {
+                return n->anyInterfaceHasVersion();
             });
 }
 

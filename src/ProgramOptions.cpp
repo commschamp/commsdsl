@@ -29,6 +29,7 @@ const std::string FullMinRemoteVerStr(MinRemoteVerStr + ",m");
 const std::string InputFileStr("input-file");
 const std::string CommsChampionTagStr("cc-tag");
 const std::string WarnAsErrStr("warn-as-err");
+const std::string VersionIndependentCodeStr("version-independent-code");
 
 po::options_description createDescription()
 {
@@ -51,6 +52,10 @@ po::options_description createDescription()
         (CommsChampionTagStr.c_str(), po::value<std::string>()->default_value("v0.25"),
             "Default tag/branch of the CommsChampion project.")
         (WarnAsErrStr.c_str(), "Treat warning as error.")
+        (VersionIndependentCodeStr.c_str(),
+            "By default the generated code is version dependent if at least one defined "
+            "interface has \"version\" field. Use this switch to forcefully disable generation"
+            "of version denendent code.")
     ;
     return desc;
 }
@@ -122,6 +127,11 @@ bool ProgramOptions::quietRequested() const
 bool ProgramOptions::warnAsErrRequested() const
 {
     return 0 < m_vm.count(WarnAsErrStr);
+}
+
+bool ProgramOptions::versionIndependentCodeRequested() const
+{
+    return 0 < m_vm.count(VersionIndependentCodeStr);
 }
 
 std::string ProgramOptions::getFilesListFile() const

@@ -135,6 +135,17 @@ bool Interface::write()
     return writeProtocol();
 }
 
+bool Interface::hasVersion() const
+{
+    return
+        std::any_of(
+            m_fields.begin(), m_fields.end(),
+            [](auto& f)
+            {
+                return f->semanticType() == commsdsl::Field::SemanticType::Version;
+            });
+}
+
 bool Interface::writeProtocol()
 {
     auto names =

@@ -39,9 +39,9 @@ public:
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
 
-    bool isElementOptional(
-        unsigned sinceVersion,
-        unsigned deprecatedSince = commsdsl::Protocol::notYetDeprecated()) const;
+    bool isElementOptional(unsigned sinceVersion,
+        unsigned deprecatedSince = commsdsl::Protocol::notYetDeprecated(),
+        bool deprecatedRemoved = true) const;
 
     std::string protocolDefRootDir();
 
@@ -104,6 +104,11 @@ public:
         return m_schemaVersion;
     }
 
+    bool versionDependentCode() const
+    {
+        return m_versionDependentCode;
+    }
+
     std::string getDefaultOptionsBody() const;
 
     std::string getMessageIdStr(const std::string& externalRef, uintmax_t id) const;
@@ -124,6 +129,7 @@ private:
     bool createDir(const boost::filesystem::path& path);
     boost::filesystem::path getProtocolDefRootDir() const;
     bool mustDefineDefaultInterface() const;
+    bool anyInterfaceHasVersion();
 
     ProgramOptions& m_options;
     Logger& m_logger;
@@ -134,7 +140,9 @@ private:
     std::string m_mainNamespace;
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
     unsigned m_schemaVersion = 0U;
+    unsigned m_minRemoteVersion = 0U;
     MessageIdMap m_messageIds;
+    bool m_versionDependentCode = false;
 };
 
 } // namespace commsdsl2comms

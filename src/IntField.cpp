@@ -260,7 +260,12 @@ std::string IntField::getValid() const
     // TODO: check custom
 
     auto obj = intFieldDslObj();
-    if (!obj.validCheckVersion()) {
+
+    bool validCheckVersion =
+        generator().versionDependentCode() &&
+        obj.validCheckVersion();
+
+    if (!validCheckVersion) {
         return common::emptyString();
     }
 
@@ -560,7 +565,10 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
         (type == commsdsl::IntField::Type::Uint64) ||
         ((type != commsdsl::IntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
-    bool validCheckVersion = obj.validCheckVersion();
+    bool validCheckVersion =
+        generator().versionDependentCode() &&
+        obj.validCheckVersion();
+
     if (!validCheckVersion) {
         // unify
         std::size_t idx = 0U;
