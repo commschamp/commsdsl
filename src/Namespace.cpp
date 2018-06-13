@@ -58,6 +58,12 @@ Namespace::FramesList Namespace::frames() const
     return m_pImpl->framesList();
 }
 
+std::string Namespace::externalRef() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->externalRef();
+}
+
 const Namespace::AttributesMap& Namespace::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

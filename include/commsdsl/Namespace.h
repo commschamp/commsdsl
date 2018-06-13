@@ -36,6 +36,7 @@ public:
     MessagesList messages() const;
     InterfacesList interfaces() const;
     FramesList frames() const;
+    std::string externalRef() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;
