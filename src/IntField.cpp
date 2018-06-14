@@ -87,17 +87,14 @@ std::string IntField::getClassDefinitionImpl(const std::string& scope, const std
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
     replacements.insert(std::make_pair("SPECIALS", getSpecials()));
-    replacements.insert(std::make_pair("READ", getRead()));
-    replacements.insert(std::make_pair("WRITE", getWrite()));
-    replacements.insert(std::make_pair("LENGTH", getLength()));
+    replacements.insert(std::make_pair("READ", getCustomRead()));
+    replacements.insert(std::make_pair("WRITE", getCustomWrite()));
+    replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getValid()));
-    replacements.insert(std::make_pair("REFRESH", getRefresh()));
+    replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["FIELD_TYPE"] += ',';
     }
-
-    static_cast<void>(scope);
-    // TODO: more replacements
 
     const std::string* templPtr = &ClassTemplate;
     if (shouldUseStruct(replacements)) {
@@ -237,27 +234,12 @@ std::string IntField::getSpecials() const
     return result;
 }
 
-std::string IntField::getRead() const
-{
-    // TODO: check custom
-    return common::emptyString();
-}
-
-std::string IntField::getWrite() const
-{
-    // TODO: check custom
-    return common::emptyString();
-}
-
-std::string IntField::getLength() const
-{
-    // TODO: check custom
-    return common::emptyString();
-}
-
 std::string IntField::getValid() const
 {
-    // TODO: check custom
+    auto custom = getCustomValid();
+    if (!custom.empty()) {
+        return custom;
+    }
 
     auto obj = intFieldDslObj();
 
@@ -347,13 +329,6 @@ std::string IntField::getValid() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("RANGES_CHECKS", std::move(rangesChecks)));
     return common::processTemplate(Templ, replacements);
-}
-
-std::string IntField::getRefresh() const
-
-{
-    // TODO: check custom
-    return common::emptyString();
 }
 
 void IntField::checkDefaultValueOpt(StringsList& list) const

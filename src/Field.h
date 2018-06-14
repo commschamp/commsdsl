@@ -80,6 +80,12 @@ protected:
 
     void updateExtraOptions(const std::string& scope, common::StringsList& options) const;
 
+    std::string getCustomRead() const;
+    std::string getCustomWrite() const;
+    std::string getCustomLength() const;
+    std::string getCustomValid() const;
+    std::string getCustomRefresh() const;
+
 private:
 
     bool isVersionOptional() const;

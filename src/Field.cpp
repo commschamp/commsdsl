@@ -309,6 +309,36 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
     }
 }
 
+std::string Field::getCustomRead() const
+{
+    // TODO: implement
+    return common::emptyString();
+}
+
+std::string Field::getCustomWrite() const
+{
+    // TODO: implement
+    return common::emptyString();
+}
+
+std::string Field::getCustomLength() const
+{
+    // TODO: implement
+    return common::emptyString();
+}
+
+std::string Field::getCustomValid() const
+{
+    // TODO: implement
+    return common::emptyString();
+}
+
+std::string Field::getCustomRefresh() const
+{
+    // TODO: implement
+    return common::emptyString();
+}
+
 bool Field::isVersionOptional() const
 {
     return
