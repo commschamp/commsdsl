@@ -6,7 +6,7 @@
 namespace commsdsl2comms
 {
 
-void Logger::log(commsdsl::ErrorLevel level, const std::__cxx11::string& msg)
+void Logger::log(commsdsl::ErrorLevel level, const std::string& msg)
 {
     if (level < m_minLevel) {
         return;
@@ -35,7 +35,7 @@ void Logger::log(commsdsl::ErrorLevel level, const std::__cxx11::string& msg)
         stream = &std::cout;
     }
 
-    *stream << msg << std::endl;
+    *stream << PrefixMap[level] << msg << std::endl;
 }
 
 } // namespace commsdsl2comms

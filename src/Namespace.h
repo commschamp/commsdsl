@@ -3,7 +3,6 @@
 #include <map>
 #include <string>
 #include <memory>
-#include <set>
 
 #include "commsdsl/Namespace.h"
 #include "Message.h"
@@ -55,7 +54,7 @@ public:
 private:
 
     using MessagesList = std::vector<MessagePtr>;
-    using AccessedFields = std::set<const Field*>;
+    using AccessedFields = std::map<const Field*, bool>;
 
     bool prepareNamespaces();
     bool prepareFields();

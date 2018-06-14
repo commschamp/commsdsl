@@ -59,11 +59,28 @@ bool Namespace::writeFields()
         }
     }
 
-    for (auto* f : m_accessedFields) {
-        if (!f->writeProtocolDefinition()) {
-            return false;
+    while (true) {
+        std::size_t writtenCount = 0U;
+        for (auto& f : m_accessedFields) {
+            ++writtenCount;
+            if (f.second) {
+                continue; // already written
+            }
+
+            if (!f.first->writeProtocolDefinition()) {
+                return false;
+            }
+
+            f.second = true;
         }
+
+        if (m_accessedFields.size() <= writtenCount) {
+            break; // everything has been written
+        }
+
+        // new elements where introduced during writing
     }
+
 
     return true;
 }
@@ -337,7 +354,7 @@ void Namespace::recordAccessedField(const Field* field)
         return;
     }
 
-    m_accessedFields.insert(field);
+    m_accessedFields.insert(std::make_pair(field, false));
 }
 
 }
