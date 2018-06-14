@@ -44,8 +44,34 @@ void TestSuite::test1()
     TS_ASSERT(!msg1.field_f3().valid());
     TS_ASSERT_EQUALS(msg1.field_f3().getVersion(), 5U);
 
-
     msg1.field_year().value() = 2050;
     TS_ASSERT(!msg1.field_year().valid());
 
+    TS_ASSERT_EQUALS(msg1.version(), 5U);
+    TS_ASSERT(msg1.field_f4().doesExist());
+    TS_ASSERT(msg1.field_f5().doesExist());
+
+    msg1.version() = 3U;
+    TS_ASSERT(msg1.refresh());
+    TS_ASSERT(msg1.field_f4().doesExist());
+    TS_ASSERT(msg1.field_f5().isMissing());
+
+    static const std::uint8_t Buf[] = {
+        18, // year
+        0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, // f2
+        0xab, // f3
+        0xcd, 0xef, // f4
+        0xa, 0xb, 0xc, 0xd // f5
+    };
+
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    msg1.version() = 5U;
+    Msg1::ReadIterator iter = &Buf[0];
+    auto es = msg1.read(iter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msg1.field_f4().doesExist());
+    TS_ASSERT(msg1.field_f5().doesExist());
+    TS_ASSERT_EQUALS(msg1.field_f4().field().value(), 0xcdef);
+    TS_ASSERT_EQUALS(msg1.field_f5().field().value(), 0x0a0b0c0d);
 }

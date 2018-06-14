@@ -21,10 +21,7 @@ public:
         return m_dslObj.name();
     }
 
-    std::size_t minLength() const
-    {
-        return m_dslObj.minLength();
-    }
+    std::size_t minLength() const;
 
     std::size_t maxLength() const
     {
@@ -38,7 +35,9 @@ public:
 
     bool prepare(unsigned parentVersion);
 
-    std::string getClassDefinition(const std::string& scope) const;
+    std::string getClassDefinition(
+        const std::string& scope,
+        const std::string& suffix = common::emptyString()) const;
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 

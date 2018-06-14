@@ -16,6 +16,7 @@
             <validValue value="20" sinceVersion="2" />
             <validRange value="[30, 40]" sinceVersion="3" />
         </int>
+        <int name="I3" type="uint32" />
     </fields>
     
     <interface name="Message">
@@ -28,5 +29,7 @@
             <special name="zero" val="0" sinceVersion="2" />
         </int>
         <ref name="f3" field="I2" />
+        <int name="f4" type="uint16" sinceVersion="2" />
+        <ref name="f5" field="I3" sinceVersion="4" deprecated="5" />
     </message>
 </schema>

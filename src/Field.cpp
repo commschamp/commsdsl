@@ -45,6 +45,15 @@ Field::IncludesList prepareCommonIncludes(const Generator& generator)
 
 } // namespace
 
+std::size_t Field::minLength() const
+{
+    if (isVersionOptional()) {
+        return 0U;
+    }
+
+    return m_dslObj.minLength();
+}
+
 void Field::updateIncludes(Field::IncludesList& includes) const
 {
     static const IncludesList CommonIncludes = prepareCommonIncludes(m_generator);
@@ -67,7 +76,7 @@ bool Field::doesExist() const
         m_generator.doesElementExist(
             m_dslObj.sinceVersion(),
             m_dslObj.deprecatedSince(),
-                m_dslObj.sinceVersion());
+            m_dslObj.isDeprecatedRemoved());
 }
 
 bool Field::prepare(unsigned parentVersion)
@@ -77,7 +86,9 @@ bool Field::prepare(unsigned parentVersion)
     return prepareImpl();
 }
 
-std::string Field::getClassDefinition(const std::string& scope) const
+std::string Field::getClassDefinition(
+    const std::string& scope,
+    const std::string& suffix) const
 {
     std::string prefix = "/// @brief Definition of <b>\"";
     prefix += getDisplayName();
@@ -86,7 +97,7 @@ std::string Field::getClassDefinition(const std::string& scope) const
     std::string str;
     bool optional = isVersionOptional();
     if (optional) {
-        str = "Inner field of @ref " + common::nameToClassCopy(name()) + " optional.";
+        str = "/// @brief Inner field of @ref " + common::nameToClassCopy(name()) + " optional.\n";
     }
     else {
         str = prefix;
@@ -121,9 +132,9 @@ std::string Field::getClassDefinition(const std::string& scope) const
 
     addExternalRefPrefix();
 
-    std::string classNameSuffix;
+    std::string classNameSuffix = suffix;
     if (optional) {
-        classNameSuffix = common::optFieldSuffixStr();
+        classNameSuffix += common::optFieldSuffixStr();
     }
 
     str += getClassDefinitionImpl(scope, classNameSuffix);
@@ -136,12 +147,43 @@ std::string Field::getClassDefinition(const std::string& scope) const
         static const std::string Templ =
             "using #^#CLASS_NAME#$# =\n"
             "    comms::field::Optional<\n"
-            "        #^#CLASS_NAME#$#Field,\n"
-            "       comms::option::#^#DEFAULT_MODE_OPT#$#,\n"
-            "       comms::option::#^#VERSIONS_OPT#$#"
-            "    >;"
-            "";
-        // TODO: optional field definition
+            "        #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#,\n"
+            "        comms::option::#^#DEFAULT_MODE_OPT#$#,\n"
+            "        comms::option::#^#VERSIONS_OPT#$#\n"
+            "    >;\n";
+
+        std::string fieldParams;
+        if (!m_externalRef.empty()) {
+            fieldParams = "<TOpt, TExtraOpts...>";
+        }
+
+        std::string defaultModeOpt = "ExistsByDefault";
+        if (!doesExist()) {
+            defaultModeOpt = "MissingByDefault";
+        }
+
+        std::string versionOpt = "ExistsSinceVersion<" + common::numToString(m_dslObj.sinceVersion()) + '>';
+        if (m_dslObj.isDeprecatedRemoved()) {
+            assert(m_dslObj.deprecatedSince() < commsdsl::Protocol::notYetDeprecated());
+            if (m_dslObj.sinceVersion() == 0U) {
+                versionOpt = "ExistsUntilVersion<" + common::numToString(m_dslObj.deprecatedSince()) + '>';
+            }
+            else {
+                versionOpt =
+                    "ExistsBetweenVersions<" +
+                    common::numToString(m_dslObj.sinceVersion()) +
+                    ", " +
+                    common::numToString(m_dslObj.deprecatedSince()) +
+                    '>';
+            }
+        }
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(m_dslObj.name()) + suffix));
+        replacements.insert(std::make_pair("FIELD_PARAMS", std::move(fieldParams)));
+        replacements.insert(std::make_pair("DEFAULT_MODE_OPT", std::move(defaultModeOpt)));
+        replacements.insert(std::make_pair("VERSIONS_OPT", std::move(versionOpt)));
+        str += common::processTemplate(Templ, replacements);
     }
     return str;
 }
