@@ -104,15 +104,22 @@ std::string Field::getClassDefinition(const std::string& scope) const
         str += '\n';
     }
 
-    if (!m_externalRef.empty()) {
-        str += "/// @tparam TOpt Protocol options.\n";
-        str += "/// @tparam TExtraOpts Extra options.\n";
-        str += "template <typename TOpt = ";
-        str += m_generator.mainNamespace();
-        str += "::";
-        str += common::defaultOptionsStr();
-        str += ", typename... TExtraOpts>\n";
-    }
+    auto addExternalRefPrefix =
+        [this, &str]()
+        {
+            if (!m_externalRef.empty()) {
+                str += "/// @tparam TOpt Protocol options.\n";
+                str += "/// @tparam TExtraOpts Extra options.\n";
+                str += "template <typename TOpt = ";
+                str += m_generator.mainNamespace();
+                str += "::";
+                str += common::defaultOptionsStr();
+                str += ", typename... TExtraOpts>\n";
+            }
+        };
+
+
+    addExternalRefPrefix();
 
     std::string classNameSuffix;
     if (optional) {
@@ -123,7 +130,17 @@ std::string Field::getClassDefinition(const std::string& scope) const
 
     if (optional) {
         str += '\n';
+        str += prefix;
+        addExternalRefPrefix();
 
+        static const std::string Templ =
+            "using #^#CLASS_NAME#$# =\n"
+            "    comms::field::Optional<\n"
+            "        #^#CLASS_NAME#$#Field,\n"
+            "       comms::option::#^#DEFAULT_MODE_OPT#$#,\n"
+            "       comms::option::#^#VERSIONS_OPT#$#"
+            "    >;"
+            "";
         // TODO: optional field definition
     }
     return str;
