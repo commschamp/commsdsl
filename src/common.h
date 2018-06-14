@@ -23,6 +23,7 @@ const std::string& commsStr();
 const std::string& indentStr();
 const std::string& doxygenPrefixStr();
 const std::string& fieldsSuffixStr();
+const std::string& optFieldSuffixStr();
 const std::string& defaultOptionsStr();
 const std::string& msgIdEnuNameStr();
 const std::string& msgIdPrefixStr();

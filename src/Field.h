@@ -36,7 +36,7 @@ public:
 
     bool doesExist() const;
 
-    bool prepare();
+    bool prepare(unsigned parentVersion);
 
     std::string getClassDefinition(const std::string& scope) const;
 
@@ -75,16 +75,20 @@ protected:
 
     virtual bool prepareImpl();
     virtual const IncludesList& extraIncludesImpl() const;
-    virtual std::string getClassDefinitionImpl(const std::string& scope) const = 0;
+    virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const = 0;
 
     std::string getNameFunc() const;
 
     void updateExtraOptions(const std::string& scope, common::StringsList& options) const;
 
 private:
+
+    bool isVersionOptional() const;
+
     Generator& m_generator;
     commsdsl::Field m_dslObj;
     std::string m_externalRef;
+    unsigned m_parentVersion = 0U;
 };
 
 using FieldPtr = Field::Ptr;

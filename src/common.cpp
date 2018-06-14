@@ -77,6 +77,12 @@ const std::string& fieldsSuffixStr()
     return Str;
 }
 
+const std::string& optFieldSuffixStr()
+{
+    static const std::string Str("Field");
+    return Str;
+}
+
 const std::string& defaultOptionsStr()
 {
     static const std::string Str("DefaultOptions");

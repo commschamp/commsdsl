@@ -96,13 +96,12 @@ bool Message::prepare()
             continue;
         }
 
-        if (!ptr->prepare()) {
+        if (!ptr->prepare(m_dslObj.sinceVersion())) {
             return false;
         }
         m_fields.push_back(std::move(ptr));
     }
 
-    // TODO
     return true;
 }
 

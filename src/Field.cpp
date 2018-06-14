@@ -55,6 +55,10 @@ void Field::updateIncludes(Field::IncludesList& includes) const
             m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix();
         common::mergeInclude(inc, includes);
     }
+
+    if (isVersionOptional()) {
+        common::mergeInclude("comms/field/Optional.h", includes);
+    }
 }
 
 bool Field::doesExist() const
@@ -66,17 +70,27 @@ bool Field::doesExist() const
                 m_dslObj.sinceVersion());
 }
 
-bool Field::prepare()
+bool Field::prepare(unsigned parentVersion)
 {
     m_externalRef = m_dslObj.externalRef();
+    m_parentVersion = parentVersion;
     return prepareImpl();
 }
 
 std::string Field::getClassDefinition(const std::string& scope) const
 {
-    std::string str = "/// @brief Definition of <b>\"";
-    str += getDisplayName();
-    str += "\"<\\b> field.\n";
+    std::string prefix = "/// @brief Definition of <b>\"";
+    prefix += getDisplayName();
+    prefix += "\"<\\b> field.\n";
+
+    std::string str;
+    bool optional = isVersionOptional();
+    if (optional) {
+        str = "Inner field of @ref " + common::nameToClassCopy(name()) + " optional.";
+    }
+    else {
+        str = prefix;
+    }
 
     auto& desc = m_dslObj.description();
     if (!desc.empty()) {
@@ -100,7 +114,18 @@ std::string Field::getClassDefinition(const std::string& scope) const
         str += ", typename... TExtraOpts>\n";
     }
 
-    str += getClassDefinitionImpl(scope);
+    std::string classNameSuffix;
+    if (optional) {
+        classNameSuffix = common::optFieldSuffixStr();
+    }
+
+    str += getClassDefinitionImpl(scope, classNameSuffix);
+
+    if (optional) {
+        str += '\n';
+
+        // TODO: optional field definition
+    }
     return str;
 }
 
@@ -223,6 +248,17 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
     if (!scope.empty()) {
         options.push_back("typename " + scope + common::nameToClassCopy(name()));
     }
+}
+
+bool Field::isVersionOptional() const
+{
+    return
+        (m_generator.versionDependentCode()) &&
+        (m_parentVersion < m_dslObj.sinceVersion()) &&
+        (m_generator.isElementOptional(
+            m_dslObj.sinceVersion(),
+            m_dslObj.deprecatedSince(),
+            m_dslObj.isDeprecatedRemoved()));
 }
 
 } // namespace commsdsl2comms

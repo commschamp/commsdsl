@@ -77,10 +77,10 @@ const Field::IncludesList& IntField::extraIncludesImpl() const
     return List;
 }
 
-std::string IntField::getClassDefinitionImpl(const std::string& scope) const
+std::string IntField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
 {
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name())));
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
     replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));

@@ -17,7 +17,7 @@ public:
 protected:
     virtual bool prepareImpl() override;
     virtual const IncludesList& extraIncludesImpl() const override;
-    virtual std::string getClassDefinitionImpl(const std::string& scope) const override;
+    virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
 
 private:
     using StringsList = common::StringsList;

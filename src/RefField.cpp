@@ -45,7 +45,7 @@ const Field::IncludesList& RefField::extraIncludesImpl() const
     return m_includes;
 }
 
-std::string RefField::getClassDefinitionImpl(const std::string& scope) const
+std::string RefField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
 {
     auto refObj = refFieldDslObj().field();
     auto fieldPtr = generator().findField(refObj.externalRef());
@@ -55,7 +55,7 @@ std::string RefField::getClassDefinitionImpl(const std::string& scope) const
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name())));
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
     replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));
     replacements.insert(
         std::make_pair(

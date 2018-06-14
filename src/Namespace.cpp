@@ -286,7 +286,7 @@ bool Namespace::prepareFields()
     for (auto& dslObj : fields) {
         auto ptr = Field::create(m_generator, dslObj);
         assert(ptr);
-        if (!ptr->prepare()) {
+        if (!ptr->prepare(0U)) {
             return false;
         }
 

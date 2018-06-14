@@ -120,7 +120,7 @@ bool Interface::prepare()
             continue;
         }
 
-        if (!ptr->prepare()) {
+        if (!ptr->prepare(0U)) {
             return false;
         }
         m_fields.push_back(std::move(ptr));
