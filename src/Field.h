@@ -21,6 +21,11 @@ public:
         return m_dslObj.name();
     }
 
+    commsdsl::Field::Kind kind() const
+    {
+        return m_dslObj.kind();
+    }
+
     std::size_t minLength() const;
 
     std::size_t maxLength() const
@@ -52,6 +57,8 @@ public:
 
     const std::string& getDisplayName() const;
 
+    std::string getClassPrefix(const std::string& suffix, bool checkForOptional = true) const;
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),
@@ -73,7 +80,7 @@ protected:
     }
 
     virtual bool prepareImpl();
-    virtual const IncludesList& extraIncludesImpl() const;
+    virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const = 0;
 
     std::string getNameFunc() const;

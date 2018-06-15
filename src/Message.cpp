@@ -263,7 +263,7 @@ std::string Message::getIncludes() const
     static const common::StringsList MessageIncludes = {
         "<tuple>",
         "comms/MessageBase.h",
-        m_generator.mainNamespace() + '/' + common::msgIdEnuNameStr() + common::headerSuffix(),
+        m_generator.mainNamespace() + '/' + common::msgIdEnumNameStr() + common::headerSuffix(),
         m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix()
     };
     common::mergeIncludes(MessageIncludes, includes);

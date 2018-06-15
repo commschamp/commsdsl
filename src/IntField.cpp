@@ -12,6 +12,7 @@ namespace
 {
 
 const std::string ClassTemplate(
+    "#^#PREFIX#$#"
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::field::IntValue<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
@@ -37,6 +38,7 @@ const std::string ClassTemplate(
 );
 
 const std::string StructTemplate(
+    "#^#PREFIX#$#"
     "struct #^#CLASS_NAME#$# : public\n"
     "    comms::field::IntValue<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
@@ -68,18 +70,68 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
 
 } // namespace
 
-const Field::IncludesList& IntField::extraIncludesImpl() const
+const std::string& IntField::convertType(commsdsl::IntField::Type value, std::size_t len)
+{
+    static const std::string TypeMap[] = {
+        /* Int8 */ "std::int8_t",
+        /* Uint8 */ "std::uint8_t",
+        /* Int16 */ "std::int16_t",
+        /* Uint16 */ "std::uint16_t",
+        /* Int32 */ "std::int32_t",
+        /* Uint32 */ "std::uint32_t",
+        /* Int64 */ "std::int64_t",
+        /* Uint64 */ "std::uint64_t",
+        /* Intvar */ common::emptyString(),
+        /* Uintvar */ common::emptyString()
+    };
+
+    static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
+    static_assert(TypeMapSize == static_cast<decltype(TypeMapSize)>(commsdsl::IntField::Type::NumOfValues),
+            "Incorrect map");
+
+    std::size_t idx = static_cast<std::size_t>(value);
+    if (TypeMapSize <= idx) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    auto& typeStr = TypeMap[idx];
+    if (!typeStr.empty()) {
+        return typeStr;
+    }
+
+    // Variable length
+    auto offset = idx - static_cast<decltype(idx)>(commsdsl::IntField::Type::Intvar);
+    assert(offset < 2U);
+
+    if (len <= 2U) {
+        auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int16);
+        return TypeMap[base + offset];
+    }
+
+    if (len <= 4U) {
+        auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int32);
+        return TypeMap[base + offset];
+    }
+
+    auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int64);
+    return TypeMap[base + offset];
+}
+
+void IntField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
         "comms/field/IntValue.h",
         "<cstdint>"
     };
-    return List;
+
+    common::mergeIncludes(List, includes);
 }
 
 std::string IntField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
 {
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
@@ -120,51 +172,8 @@ std::string IntField::getFieldBaseParams() const
 
 const std::string& IntField::getFieldType() const
 {
-    static const std::string TypeMap[] = {
-        /* Int8 */ "std::int8_t",
-        /* Uint8 */ "std::uint8_t",
-        /* Int16 */ "std::int16_t",
-        /* Uint16 */ "std::uint16_t",
-        /* Int32 */ "std::int32_t",
-        /* Uint32 */ "std::uint32_t",
-        /* Int64 */ "std::int64_t",
-        /* Uint64 */ "std::uint64_t",
-        /* Intvar */ common::emptyString(),
-        /* Uintvar */ common::emptyString()
-    };
-
-    static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<decltype(TypeMapSize)>(commsdsl::IntField::Type::NumOfValues),
-            "Incorrect map");
-
     auto obj = intFieldDslObj();
-    std::size_t idx = static_cast<std::size_t>(obj.type());
-    if (TypeMapSize <= idx) {
-        assert(!"Should not happen");
-        return common::emptyString();
-    }
-
-    auto& typeStr = TypeMap[idx];
-    if (!typeStr.empty()) {
-        return typeStr;
-    }
-
-    // Variable length
-    auto offset = idx - static_cast<decltype(idx)>(commsdsl::IntField::Type::Intvar);
-    assert(offset < 2U);
-    auto len = obj.maxLength();
-    if (len <= 2U) {
-        auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int16);
-        return TypeMap[base + offset];
-    }
-
-    if (len <= 4U) {
-        auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int32);
-        return TypeMap[base + offset];
-    }
-
-    auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int64);
-    return TypeMap[base + offset];
+    return convertType(obj.type(), obj.maxLength());
 }
 
 std::string IntField::getFieldOpts(const std::string& scope) const

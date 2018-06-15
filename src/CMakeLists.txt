@@ -20,6 +20,7 @@ set (
     "Message.cpp"
     "Field.cpp"
     "IntField.cpp"
+    "EnumField.cpp"
     "RefField.cpp"
     "FieldBase.cpp"
     "DefaultOptions.cpp"

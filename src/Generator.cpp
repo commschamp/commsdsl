@@ -8,6 +8,7 @@
 #include "MsgId.h"
 #include "Interface.h"
 #include "common.h"
+#include "EnumField.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -536,30 +537,28 @@ std::string Generator::getDefaultOptionsBody() const
 
 std::string Generator::getMessageIdStr(const std::string& externalRef, std::uintmax_t id) const
 {
-    if (m_messageIds.empty()) {
+    if (m_messageIdField == nullptr) {
         return m_mainNamespace + "::" + common::msgIdPrefixStr() + ba::replace_all_copy(externalRef, ".", "_");
     }
 
-    auto iter = m_messageIds.find(id);
-    if (iter == m_messageIds.end()) {
-        return common::numToString(id);
+    assert(m_messageIdField->kind() == commsdsl::Field::Kind::Enum);
+    auto* castedEnumField = static_cast<const EnumField*>(m_messageIdField);
+
+    auto name = castedEnumField->getValueName(static_cast<std::intmax_t>(id));
+    if (!name.empty()) {
+        return  m_mainNamespace + "::" + common::msgIdPrefixStr() + name;
     }
 
-    return m_mainNamespace + "::" + iter->second;
+    return common::numToString(id);
 }
 
-const Field* Generator::findMessageIdField() const
+const Field* Generator::getMessageIdField() const
 {
-    // TODO:
-    return nullptr;
+    return m_messageIdField;
 }
 
 Generator::MessageIdMap Generator::getAllMessageIds() const
 {
-    if (!m_messageIds.empty()) {
-        return m_messageIds;
-    }
-
     MessageIdMap result;
     for (auto& n : m_namespaces) {
         auto messages = n->getAllMessages();
@@ -692,6 +691,8 @@ bool Generator::prepare()
     if (!m_options.versionIndependentCodeRequested()) {
         m_versionDependentCode = anyInterfaceHasVersion();
     }
+
+    m_messageIdField = findMessageIdField();
     return true;
 }
 
@@ -775,5 +776,17 @@ bool Generator::anyInterfaceHasVersion()
                 return n->anyInterfaceHasVersion();
             });
 }
+
+const Field* Generator::findMessageIdField() const
+{
+    for (auto& n : m_namespaces) {
+        auto ptr = n->findMessageIdField();
+        if (ptr != nullptr) {
+            return ptr;
+        }
+    }
+    return nullptr;
+}
+
 
 } // namespace commsdsl2comms

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test5"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        
+        <enum name="E1" type="uint16">
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="2" />
+            <validValue name="V5" val="5" />
+            <validValue name="V10" val="10" />
+        </enum>        
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="f1" field="E1" />
+        <ref name="f2" field="MsgId" />
+    </message>
+</schema>

@@ -25,7 +25,7 @@ const std::string& doxygenPrefixStr();
 const std::string& fieldsSuffixStr();
 const std::string& optFieldSuffixStr();
 const std::string& defaultOptionsStr();
-const std::string& msgIdEnuNameStr();
+const std::string& msgIdEnumNameStr();
 const std::string& msgIdPrefixStr();
 
 void nameToClass(std::string& str);

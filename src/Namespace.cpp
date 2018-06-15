@@ -209,6 +209,31 @@ bool Namespace::hasInterfaceDefined()
     return !m_interfaces.empty();
 }
 
+const Field* Namespace::findMessageIdField() const
+{
+    for (auto& f : m_fields) {
+        if (f->semanticType() != commsdsl::Field::SemanticType::MessageId) {
+            continue;
+        }
+
+        if (f->kind() != commsdsl::Field::Kind::Enum) {
+            assert(!"Unexpected field");
+            return nullptr;
+        }
+
+        return f.get();
+    }
+
+    for (auto& n : m_namespaces) {
+        auto ptr = n->findMessageIdField();
+        if (ptr != nullptr) {
+            return ptr;
+        }
+    }
+
+    return nullptr;
+}
+
 const Field* Namespace::findField(const std::string& externalRef)
 {
     assert(!externalRef.empty());

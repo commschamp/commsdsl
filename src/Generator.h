@@ -113,11 +113,12 @@ public:
 
     std::string getMessageIdStr(const std::string& externalRef, uintmax_t id) const;
 
-    const Field* findMessageIdField() const;
+    const Field* getMessageIdField() const;
 
     MessageIdMap getAllMessageIds() const;
 
     const Field* findField(const std::string& externalRef);
+
 private:
 
     using NamespacesList = Namespace::NamespacesList;
@@ -130,6 +131,7 @@ private:
     boost::filesystem::path getProtocolDefRootDir() const;
     bool mustDefineDefaultInterface() const;
     bool anyInterfaceHasVersion();
+    const Field* findMessageIdField() const;
 
     ProgramOptions& m_options;
     Logger& m_logger;
@@ -141,7 +143,7 @@ private:
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
     unsigned m_schemaVersion = 0U;
     unsigned m_minRemoteVersion = 0U;
-    MessageIdMap m_messageIds;
+    const Field* m_messageIdField = nullptr;
     bool m_versionDependentCode = false;
 };
 

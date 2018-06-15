@@ -1,6 +1,6 @@
 #pragma once
 
-#include "commsdsl/IntField.h"
+#include "commsdsl/EnumField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -8,13 +8,16 @@
 namespace commsdsl2comms
 {
 
-class IntField : public Field
+class EnumField : public Field
 {
     using Base = Field;
 public:
-    IntField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    EnumField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
-    static const std::string& convertType(commsdsl::IntField::Type value, std::size_t len = 0);
+    common::StringsList getValuesList(bool description = true) const;
+    std::string getValuesDefinition() const;
+    std::string getValueName(std::intmax_t value) const;
+
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
@@ -22,28 +25,25 @@ protected:
 private:
     using StringsList = common::StringsList;
 
+    std::string getEnumeration() const;
     std::string getFieldBaseParams() const;
-    const std::string& getFieldType() const;
+    std::string getEnumType(const std::string& suffix) const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getSpecials() const;
     std::string getValid() const;
     void checkDefaultValueOpt(StringsList& list) const;
-    void checkLengthOpt(StringsList& list) const;
-    void checkSerOffsetOpt(StringsList& list) const;
-    void checkScalingOpt(StringsList& list) const;
-    void checkUnitsOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
 
-    commsdsl::IntField intFieldDslObj() const
+    commsdsl::EnumField enumFieldDslObj() const
     {
-        return commsdsl::IntField(dslObj());
+        return commsdsl::EnumField(dslObj());
     }
 };
 
 inline
-FieldPtr createIntField(Generator& generator, commsdsl::Field field)
+FieldPtr createEnumField(Generator& generator, commsdsl::Field field)
 {
-    return std::make_unique<IntField>(generator, field);
+    return std::make_unique<EnumField>(generator, field);
 }
 
 } // namespace commsdsl2comms

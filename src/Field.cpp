@@ -11,6 +11,7 @@
 #include "Generator.h"
 #include "IntField.h"
 #include "RefField.h"
+#include "EnumField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -58,7 +59,6 @@ void Field::updateIncludes(Field::IncludesList& includes) const
 {
     static const IncludesList CommonIncludes = prepareCommonIncludes(m_generator);
     common::mergeIncludes(CommonIncludes, includes);
-    common::mergeIncludes(extraIncludesImpl(), includes);
     if (!m_externalRef.empty()) {
         auto inc =
             m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix();
@@ -68,6 +68,8 @@ void Field::updateIncludes(Field::IncludesList& includes) const
     if (isVersionOptional()) {
         common::mergeInclude("comms/field/Optional.h", includes);
     }
+
+    updateIncludesImpl(includes);
 }
 
 bool Field::doesExist() const
@@ -90,47 +92,8 @@ std::string Field::getClassDefinition(
     const std::string& scope,
     const std::string& suffix) const
 {
-    std::string prefix = "/// @brief Definition of <b>\"";
-    prefix += getDisplayName();
-    prefix += "\"<\\b> field.\n";
-
     std::string str;
     bool optional = isVersionOptional();
-    if (optional) {
-        str = "/// @brief Inner field of @ref " + common::nameToClassCopy(name()) + " optional.\n";
-    }
-    else {
-        str = prefix;
-    }
-
-    auto& desc = m_dslObj.description();
-    if (!desc.empty()) {
-        str += "/// @details\n";
-        auto multiDesc = common::makeMultiline(desc);
-        common::insertIndent(multiDesc);
-        auto& doxygenPrefix = common::doxygenPrefixStr();
-        multiDesc.insert(multiDesc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
-        ba::replace_all(multiDesc, "\n", "\n" + doxygenPrefix);
-        str += multiDesc;
-        str += '\n';
-    }
-
-    auto addExternalRefPrefix =
-        [this, &str]()
-        {
-            if (!m_externalRef.empty()) {
-                str += "/// @tparam TOpt Protocol options.\n";
-                str += "/// @tparam TExtraOpts Extra options.\n";
-                str += "template <typename TOpt = ";
-                str += m_generator.mainNamespace();
-                str += "::";
-                str += common::defaultOptionsStr();
-                str += ", typename... TExtraOpts>\n";
-            }
-        };
-
-
-    addExternalRefPrefix();
 
     std::string classNameSuffix = suffix;
     if (optional) {
@@ -141,8 +104,7 @@ std::string Field::getClassDefinition(
 
     if (optional) {
         str += '\n';
-        str += prefix;
-        addExternalRefPrefix();
+        str += getClassPrefix(suffix, false);
 
         static const std::string Templ =
             "using #^#CLASS_NAME#$# =\n"
@@ -193,7 +155,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
     using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Field)>;
     static const CreateFunc Map[] = {
         /* Int */ [](Generator& g, commsdsl::Field f) { return createIntField(g, f); },
-        /* Enum */ [](Generator&, commsdsl::Field) { return Ptr(); },
+        /* Enum */ [](Generator& g, commsdsl::Field f) { return createEnumField(g, f); },
         /* Set */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Float */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Bitfield */ [](Generator&, commsdsl::Field) { return Ptr(); },
@@ -276,15 +238,57 @@ const std::string& Field::getDisplayName() const
     return *displayName;
 }
 
+std::string Field::getClassPrefix(const std::string& suffix, bool checkForOptional) const
+{
+    std::string str;
+    bool optional = checkForOptional && isVersionOptional();
+    if (optional) {
+        std::string suffixCpy(suffix);
+        if (common::optFieldSuffixStr().size() <= suffixCpy.size()) {
+            suffixCpy.resize(suffixCpy.size() - common::optFieldSuffixStr().size());
+        }
+
+        str = "/// @brief Inner field of @ref " + common::nameToClassCopy(name()) + suffixCpy + " optional.\n";
+    }
+    else {
+        str = "/// @brief Definition of <b>\"";
+        str += getDisplayName();
+        str += "\"<\\b> field.\n";
+
+        auto& desc = m_dslObj.description();
+        if (!desc.empty()) {
+            str += "/// @details\n";
+            auto multiDesc = common::makeMultiline(desc);
+            common::insertIndent(multiDesc);
+            auto& doxygenPrefix = common::doxygenPrefixStr();
+            multiDesc.insert(multiDesc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
+            ba::replace_all(multiDesc, "\n", "\n" + doxygenPrefix);
+            str += multiDesc;
+            str += '\n';
+        }
+    }
+
+    if (!m_externalRef.empty()) {
+        str += "/// @tparam TOpt Protocol options.\n";
+        str += "/// @tparam TExtraOpts Extra options.\n";
+        str += "template <typename TOpt = ";
+        str += m_generator.mainNamespace();
+        str += "::";
+        str += common::defaultOptionsStr();
+        str += ", typename... TExtraOpts>\n";
+    }
+
+    return str;
+}
+
 bool Field::prepareImpl()
 {
     return true;
 }
 
-const Field::IncludesList& Field::extraIncludesImpl() const
+void Field::updateIncludesImpl(IncludesList& includes) const
 {
-    static const IncludesList List;
-    return List;
+    static_cast<void>(includes);
 }
 
 

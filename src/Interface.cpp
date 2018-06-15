@@ -250,7 +250,7 @@ std::string Interface::getIncludes() const
     static const common::StringsList InterfaceIncludes = {
         "comms/Message.h",
         "comms/options.h",
-        m_generator.mainNamespace() + '/' + common::msgIdEnuNameStr() + common::headerSuffix()
+        m_generator.mainNamespace() + '/' + common::msgIdEnumNameStr() + common::headerSuffix()
     };
 
     common::mergeIncludes(InterfaceIncludes, includes);

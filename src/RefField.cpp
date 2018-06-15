@@ -16,6 +16,7 @@ namespace
 {
 
 const std::string AliasTemplate(
+    "#^#PREFIX#$#"
     "using #^#CLASS_NAME#$# =\n"
     "    #^#REF_FIELD#$#<\n"
     "       #^#OPTS#$#\n"
@@ -23,6 +24,7 @@ const std::string AliasTemplate(
 );
 
 const std::string StructTemplate(
+    "#^#PREFIX#$#"
     "struct #^#CLASS_NAME#$# : public\n"
     "    #^#REF_FIELD#$#<\n"
     "       #^#OPTS#$#\n"
@@ -34,15 +36,11 @@ const std::string StructTemplate(
 
 } // namespace
 
-bool RefField::prepareImpl()
+void RefField::updateIncludesImpl(IncludesList& includes) const
 {
-    m_includes.push_back(generator().headerfileForField(refFieldDslObj().field().externalRef(), false));
-    return true;
-}
-
-const Field::IncludesList& RefField::extraIncludesImpl() const
-{
-    return m_includes;
+    auto inc =
+        generator().headerfileForField(refFieldDslObj().field().externalRef(), false);
+    common::mergeInclude(inc, includes);
 }
 
 std::string RefField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
@@ -57,6 +55,7 @@ std::string RefField::getClassDefinitionImpl(const std::string& scope, const std
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
     replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
     replacements.insert(
         std::make_pair(
             "REF_FIELD",

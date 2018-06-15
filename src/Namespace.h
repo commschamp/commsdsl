@@ -48,6 +48,7 @@ public:
 
     bool hasInterfaceDefined();
 
+    const Field* findMessageIdField() const;
     const Field* findField(const std::string& externalRef);
 
     bool anyInterfaceHasVersion() const;

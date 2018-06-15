@@ -89,7 +89,7 @@ const std::string& defaultOptionsStr()
     return Str;
 }
 
-const std::string& msgIdEnuNameStr()
+const std::string& msgIdEnumNameStr()
 {
     static const std::string Str("MsgId");
     return Str;
@@ -97,7 +97,7 @@ const std::string& msgIdEnuNameStr()
 
 const std::string& msgIdPrefixStr()
 {
-    static const std::string Str(msgIdEnuNameStr() + "_");
+    static const std::string Str(msgIdEnumNameStr() + "_");
     return Str;
 }
 

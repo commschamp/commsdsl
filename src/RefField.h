@@ -15,8 +15,7 @@ public:
     RefField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
 protected:
-    virtual bool prepareImpl() override;
-    virtual const IncludesList& extraIncludesImpl() const override;
+    virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
 
 private:
@@ -30,9 +29,6 @@ private:
     {
         return commsdsl::RefField(dslObj());
     }
-
-private:
-    IncludesList m_includes;
 };
 
 inline
