@@ -181,9 +181,13 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
 
 std::string Field::getDefaultOptions(const std::string& scope) const
 {
+    std::string extraScope;
+    if (!m_externalRef.empty()) {
+        extraScope = common::fieldStr() + "::";
+    }
     return
         "/// @brief Extra options for @ref " +
-        scope + common::nameToClassCopy(name()) + " field.\n" +
+        scope + extraScope + common::nameToClassCopy(name()) + " field.\n" +
         "using " + common::nameToClassCopy(name()) +
         " = comms::option::EmptyOption;\n";
 }

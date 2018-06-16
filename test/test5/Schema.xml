@@ -5,8 +5,13 @@
         version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
-            <validValue name="M1" val="1" />
-            <validValue name="M2" val="2" />
+            <validValue name="m1" val="1" />
+            <validValue name="m2" val="2" />
+            <validValue name="m5" val="5" />
+            <validValue name="m7" val="7" />
+            <validValue name="m10" val="10" />
+            <validValue name="m20" val="20" />
+            <validValue name="m25" val="25" />
         </enum>
         
         <enum name="E1" type="uint16">
@@ -14,11 +19,29 @@
             <validValue name="V2" val="2" />
             <validValue name="V5" val="5" />
             <validValue name="V10" val="10" />
-        </enum>        
+        </enum>   
+        
+        <enum name="E2" type="uint16" nonUniqueAllowed="true">
+            <validValue name="V1" val="1" />
+            <validValue name="V3" val="3" />
+            <validValue name="V5" val="5" />
+            <validValue name="V7" val="7" />
+            <validValue name="V8" val="8" />
+            <validValue name="V10" val="10" />
+            <validValue name="V12" val="12" />
+            <validValue name="V12_2" val="12" />
+            <validValue name="V15" val="15" />
+        </enum>                
     </fields>
     
-    <message name="Msg1" id="MsgId.M1">
+    <message name="Msg1" id="MsgId.m1">
         <ref name="f1" field="E1" />
         <ref name="f2" field="MsgId" />
+        <ref name="f3" field="E2" />
+        <enum name="f4" type="uint8" sinceVersion="2" defaultValue="V1" >
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="2" />
+            <validValue name="V3" val="3" sinceVersion="3" />
+        </enum>
     </message>
 </schema>

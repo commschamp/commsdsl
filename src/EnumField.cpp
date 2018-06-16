@@ -1,6 +1,7 @@
 #include "EnumField.h"
 
 #include <type_traits>
+#include <algorithm>
 
 #include "Generator.h"
 #include "common.h"
@@ -52,6 +53,8 @@ const std::string StructTemplate(
     "};\n"
 );
 
+const std::size_t MaxRangesInOpts = 5U;
+
 bool shouldUseStruct(const common::ReplacementMap& replacements)
 {
     auto hasNoValue =
@@ -79,8 +82,25 @@ common::StringsList EnumField::getValuesList(bool description) const
         (type == commsdsl::EnumField::Type::Uint64) ||
         (type == commsdsl::EnumField::Type::Uintvar);
 
-    common::StringsList values;
+    common::StringsList valuesStrings;
+    auto& values = obj.values();
     for (auto& v : obj.revValues()) {
+        auto iter = values.find(v.second);
+        if (iter == values.end()) {
+            assert(!"Should not happen");
+            continue;
+        }
+
+        bool exists =
+            generator().doesElementExist(
+                iter->second.m_sinceVersion,
+                iter->second.m_deprecatedSince,
+                false);
+
+        if (!exists) {
+            continue;
+        }
+
         std::string str = v.second + " = ";
 
         if (bigUnsigned) {
@@ -95,9 +115,9 @@ common::StringsList EnumField::getValuesList(bool description) const
             str += ", ///< value @b " + v.second;
         }
 
-        values.push_back(std::move(str));
+        valuesStrings.push_back(std::move(str));
     }
-    return values;
+    return valuesStrings;
 }
 
 std::string EnumField::getValuesDefinition() const
@@ -119,6 +139,151 @@ std::string EnumField::getValueName(std::intmax_t value) const
     return common::emptyString();
 }
 
+const std::string& EnumField::underlyingType() const
+{
+    auto obj = enumFieldDslObj();
+    return IntField::convertType(obj.type());
+}
+
+bool EnumField::prepareImpl()
+{
+    auto obj = enumFieldDslObj();
+
+    bool validCheckVersion =
+        generator().versionDependentCode() &&
+        obj.validCheckVersion();
+
+    auto& values = obj.values();
+    m_validRanges.reserve(values.size());
+    for (auto& v : values) {
+        bool exists =
+            generator().doesElementExist(
+                v.second.m_sinceVersion,
+                v.second.m_deprecatedSince,
+                !validCheckVersion);
+        if (!exists) {
+            continue;
+        }
+
+        m_validRanges.emplace_back();
+        auto& r = m_validRanges.back();
+        r.m_min = v.second.m_value;
+        r.m_max = r.m_min;
+        r.m_sinceVersion = v.second.m_sinceVersion;
+        r.m_deprecatedSince = v.second.m_deprecatedSince;
+    }
+
+    if (m_validRanges.empty()) {
+        generator().logger().error("Enum \"" + name() + "\" doesn't define any value");
+        return false;
+    }
+
+    if (m_validRanges.size() <= 1U) {
+        return true;
+    }
+
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::EnumField::Type::Uint64) ||
+        (type == commsdsl::EnumField::Type::Uintvar);
+
+
+    // Sort
+    std::sort(
+        m_validRanges.begin(), m_validRanges.end(),
+        [bigUnsigned, validCheckVersion](auto& e1, auto& e2)
+        {
+            if (validCheckVersion) {
+                if (e1.m_sinceVersion != e2.m_sinceVersion) {
+                    return e1.m_sinceVersion < e2.m_sinceVersion;
+                }
+
+                if (e1.m_deprecatedSince != e2.m_deprecatedSince) {
+                    return e1.m_deprecatedSince < e2.m_deprecatedSince;
+                }
+            }
+
+            if (bigUnsigned) {
+                return static_cast<std::uintmax_t>(e1.m_min) < (static_cast<std::uintmax_t>(e2.m_min));
+            }
+
+            return e1.m_min < e2.m_min;
+        });
+
+    // Merge
+    for (auto iter = m_validRanges.begin(); iter != m_validRanges.end(); ++iter) {
+        if (iter->m_deprecatedSince == 0U) {
+            continue;
+        }
+
+        for (auto nextIter = iter + 1; nextIter != m_validRanges.end(); ++nextIter) {
+            if (nextIter->m_deprecatedSince == 0U) {
+                continue;
+            }
+
+            if (validCheckVersion) {
+                if ((iter->m_sinceVersion != nextIter->m_sinceVersion) ||
+                    (iter->m_deprecatedSince != nextIter->m_deprecatedSince)) {
+                    break;
+                }
+            }
+
+            if ((iter->m_max + 1) < nextIter->m_min) {
+                break;
+            }
+
+            assert(iter->m_min <= nextIter->m_min);
+            nextIter->m_deprecatedSince = 0U; // invalidate next range
+            iter->m_max = std::max(iter->m_max, nextIter->m_max);
+        }
+    }
+
+    // Remove invalid
+    m_validRanges.erase(
+        std::remove_if(
+            m_validRanges.begin(), m_validRanges.end(),
+            [](auto& elem)
+            {
+                return elem.m_deprecatedSince == 0U;
+            }),
+        m_validRanges.end());
+
+    // Sort by min/max value
+    std::sort(
+        m_validRanges.begin(), m_validRanges.end(),
+        [bigUnsigned](auto& elem1, auto& elem2)
+        {
+            assert(elem1.m_deprecatedSince != 0U);
+            assert(elem2.m_deprecatedSince != 0U);
+            if (elem1.m_min != elem2.m_min) {
+                if (bigUnsigned) {
+                    return static_cast<std::uintmax_t>(elem1.m_min) < static_cast<std::uintmax_t>(elem2.m_min);
+                }
+                else {
+                    return elem1.m_min < elem2.m_min;
+                }
+            }
+
+            if (elem1.m_max != elem2.m_max) {
+                if (bigUnsigned) {
+                    return static_cast<std::uintmax_t>(elem1.m_max) < static_cast<std::uintmax_t>(elem2.m_max);
+                }
+                else {
+                    return elem1.m_max < elem2.m_max;
+                }
+            }
+
+            if (elem1.m_sinceVersion != elem2.m_sinceVersion) {
+                return elem1.m_sinceVersion < elem2.m_sinceVersion;
+            }
+
+            assert(elem1.m_deprecatedSince != elem2.m_deprecatedSince);
+            return elem1.m_deprecatedSince < elem2.m_deprecatedSince;
+        });
+
+    return true;
+}
+
 void EnumField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
@@ -132,6 +297,11 @@ void EnumField::updateIncludesImpl(IncludesList& includes) const
             generator().mainNamespace() + '/' +
             common::msgIdEnumNameStr() + common::headerSuffix();
         common::mergeInclude(inc, includes);
+    }
+
+    if (MaxRangesInOpts < m_validRanges.size()) {
+        common::mergeInclude("<iterator>", includes);
+        common::mergeInclude("<algorithm>", includes);
     }
 }
 
@@ -169,6 +339,7 @@ std::string EnumField::getEnumeration() const
     }
 
     static const std::string Templ =
+        "/// @brief Values enumerator for @ref #^#NAME#$# field.\n"
         "enum class #^#NAME#$#Val : #^#TYPE#$#\n"
         "{\n"
         "    #^#VALUES#$#\n"
@@ -218,20 +389,71 @@ std::string EnumField::getFieldOpts(const std::string& scope) const
 
 std::string EnumField::getValid() const
 {
-//    auto custom = getCustomValid();
-//    if (!custom.empty()) {
-//        return custom;
-//    }
+    auto custom = getCustomValid();
+    if (!custom.empty()) {
+        return custom;
+    }
 
-//    auto obj = enumFieldDslObj();
+    auto obj = enumFieldDslObj();
 
-//    bool validCheckVersion =
-//        generator().versionDependentCode() &&
-//        obj.validCheckVersion();
+    bool validCheckVersion =
+        generator().versionDependentCode() &&
+        obj.validCheckVersion();
 
-//    if (!validCheckVersion) {
-//        return common::emptyString();
-//    }
+    if (!validCheckVersion) {
+
+        if (m_validRanges.size() <= MaxRangesInOpts) {
+            return common::emptyString(); // Already in options
+        }
+
+        static const std::string Templ =
+            "/// @brief Validity check function.\n"
+            "bool valid() const\n"
+            "{\n"
+            "    if (!Base::valid()) {\n"
+            "        return false;\n"
+            "    }\n\n"
+            "    static const typename Base::ValueType Values[] = {\n"
+            "        #^#VALUES#$#\n"
+            "    };\n\n"
+            "    auto iter = std::find(std::begin(Values), std::end(Values), Base::value());\n"
+            "    if ((iter == std::end(Values)) || (*iter != Base::value())) {\n"
+            "        return false;\n"
+            "    }\n\n"
+            "    return true;\n"
+            "}";
+
+        common::StringsList valuesStrings;
+
+        bool isVersion =
+            obj.semanticType() == commsdsl::Field::SemanticType::MessageId;
+        auto& revValues = obj.revValues();
+        auto prevIter = revValues.end();
+        for (auto iter = revValues.begin(); iter != revValues.end(); ++iter) {
+
+            if ((prevIter != revValues.end()) && (prevIter->first == iter->first)) {
+                continue;
+            }
+
+            std::string prefix;
+            if (isVersion) {
+                 prefix = generator().mainNamespace() + "::" + common::msgIdPrefixStr();
+            }
+            else {
+                prefix = common::nameToClassCopy(name()) + "Val::";
+            }
+
+            valuesStrings.push_back(prefix + iter->second);
+            prevIter = iter;
+        }
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("VALUES", common::listToString(valuesStrings, ",\n", common::emptyString())));
+        return common::processTemplate(Templ, replacements);
+    }
+
+    assert(!"NYI");
+    return common::emptyString();
 
 //    auto validRanges = obj.validRanges(); // copy
 //    validRanges.erase(
@@ -343,159 +565,117 @@ void EnumField::checkDefaultValueOpt(StringsList& list) const
 
 void EnumField::checkValidRangesOpt(EnumField::StringsList& list) const
 {
-    static_cast<void>(list);
-//    auto obj = enumFieldDslObj();
-//    auto validRanges = obj.validRanges(); // copy
-//    if (validRanges.empty()) {
-//        return;
-//    }
+    auto obj = enumFieldDslObj();
 
-//    auto type = obj.type();
-//    bool bigUnsigned =
-//        (type == commsdsl::EnumField::Type::Uint64) ||
-//        ((type != commsdsl::EnumField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::EnumField::Type::Uint64) ||
+        ((type != commsdsl::EnumField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
-//    bool validCheckVersion =
-//        generator().versionDependentCode() &&
-//        obj.validCheckVersion();
+    bool validCheckVersion =
+        generator().versionDependentCode() &&
+        obj.validCheckVersion();
 
-//    if (!validCheckVersion) {
-//        // unify
-//        std::size_t idx = 0U;
-//        while (idx < (validRanges.size() - 1U)) {
-//            auto& thisRange = validRanges[idx];
-//            auto& nextRange = validRanges[idx + 1];
+    auto addOptFunc =
+        [&list, bigUnsigned](auto& r)
+        {
+            std::string str = "comms::option::";
+            do {
+                if (!bigUnsigned) {
+                    break;
+                }
 
+                bool minInRange =
+                    static_cast<std::uintmax_t>(r.m_min) <= static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
 
-//            auto needToMergeCheck =
-//                [](auto min1, auto max1, auto min2, auto max2) -> bool
-//                {
-//                    assert(min1 <= min2);
-//                    if (min2 <= (max1 + 1)) {
-//                        assert(max1 <= max2);
-//                        return true;
-//                    }
+                bool maxInRange =
+                    static_cast<std::uintmax_t>(r.m_max) <= static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+                if (minInRange && maxInRange) {
+                    break;
+                }
 
-//                    return false;
-//                };
+                if (r.m_min == r.m_max) {
+                    str += "ValidBigUnsignedNumValue<";
+                    str += common::numToString(static_cast<std::uintmax_t>(r.m_min));
+                    str += '>';
+                }
+                else {
+                    str += "ValidBigUnsignedNumValueRange<";
+                    str += common::numToString(static_cast<std::uintmax_t>(r.m_min));
+                    str += ", ";
+                    str += common::numToString(static_cast<std::uintmax_t>(r.m_max));
+                    str += '>';
+                }
 
-//            bool merge = false;
-//            if (bigUnsigned) {
-//                merge =
-//                    needToMergeCheck(
-//                        static_cast<std::uintmax_t>(thisRange.m_min),
-//                        static_cast<std::uintmax_t>(thisRange.m_max),
-//                        static_cast<std::uintmax_t>(nextRange.m_min),
-//                        static_cast<std::uintmax_t>(nextRange.m_max));
-//            }
-//            else {
-//                merge = needToMergeCheck(thisRange.m_min, thisRange.m_max, nextRange.m_min, nextRange.m_max);
-//            }
+                list.push_back(std::move(str));
+                return;
+            } while (false);
 
-//            if (!merge) {
-//                ++idx;
-//                continue;
-//            }
+            if (r.m_min == r.m_max) {
+                str += "ValidNumValue<";
+                str += common::numToString(r.m_min);
+                str += '>';
+            }
+            else {
+                str += "ValidNumValueRange<";
+                str += common::numToString(r.m_min);
+                str += ", ";
+                str += common::numToString(r.m_max);
+                str += '>';
+            }
 
-//            auto needToUpdateCheck =
-//                [](auto max1, auto max2) -> bool
-//                {
-//                    return max1 < max2;
-//                };
+            list.push_back(std::move(str));
+        };
 
-//            bool update = false;
-//            if (bigUnsigned) {
-//                update =
-//                    needToUpdateCheck(
-//                        static_cast<std::uintmax_t>(thisRange.m_max),
-//                        static_cast<std::uintmax_t>(nextRange.m_max));
-//            }
-//            else {
-//                update = needToUpdateCheck(thisRange.m_max, nextRange.m_max);
-//            }
+    assert(!m_validRanges.empty());
+    if (!validCheckVersion) {
+        if (MaxRangesInOpts < m_validRanges.size()) {
+            return; // Will be in validity check
+        }
 
-//            if (update) {
-//                thisRange.m_max = nextRange.m_max;
-//            }
+        for (auto& range : m_validRanges) {
+            addOptFunc(range);
+        }
+        return;
+    }
 
-//            validRanges.erase(validRanges.begin() + idx + 1);
-//        }
-//    }
+    auto uncondStartIter =
+        std::find_if(
+            m_validRanges.begin(), m_validRanges.end(),
+            [](auto& elem)
+            {
+                return
+                    (elem.m_sinceVersion == 0U) &&
+                    (elem.m_deprecatedSince == commsdsl::Protocol::notYetDeprecated());
+            });
 
-//    bool versionStorageRequired = false;
-//    bool addedRangeOpt = false;
-//    for (auto& r : validRanges) {
-//        if (!generator().doesElementExist(r.m_sinceVersion, r.m_deprecatedSince, true)) {
-//            continue;
-//        }
+    if (uncondStartIter == m_validRanges.end()) {
+        // No unconditionals found;
+        list.push_back("comms::option::VersionStorage");
+        list.push_back("comms::option::InvalidByDefault");
+        return;
+    }
 
-//        if (validCheckVersion && (generator().isElementOptional(r.m_sinceVersion, r.m_deprecatedSince))) {
-//            versionStorageRequired = true;
-//            continue;
-//        }
+    auto uncondEndIter =
+        std::find_if(
+            uncondStartIter + 1, m_validRanges.end(),
+            [](auto& elem)
+            {
+                return
+                    (elem.m_sinceVersion != 0U) ||
+                    (elem.m_deprecatedSince != commsdsl::Protocol::notYetDeprecated());
+            });
 
-//        bool big = false;
-//        std::string str = "comms::option::";
-//        do {
-//            if (!bigUnsigned) {
-//                break;
-//            }
+    auto uncondCount =
+        static_cast<std::size_t>(std::distance(uncondStartIter, uncondEndIter));
 
-//            bool minInRange =
-//                static_cast<std::uintmax_t>(r.m_min) <= static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+    if (uncondCount != m_validRanges.size()) {
+        list.push_back("comms::option::VersionStorage");
+    }
 
-//            bool maxInRange =
-//                static_cast<std::uintmax_t>(r.m_max) <= static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
-//            if (minInRange && maxInRange) {
-//                break;
-//            }
-
-//            if (r.m_min == r.m_max) {
-//                str += "ValidBigUnsignedNumValue<";
-//                str += common::numToString(static_cast<std::uintmax_t>(r.m_min));
-//                str += '>';
-//            }
-//            else {
-//                str += "ValidBigUnsignedNumValueRange<";
-//                str += common::numToString(static_cast<std::uintmax_t>(r.m_min));
-//                str += ", ";
-//                str += common::numToString(static_cast<std::uintmax_t>(r.m_max));
-//                str += '>';
-//            }
-
-//            list.push_back(std::move(str));
-//            big = true;
-//            addedRangeOpt = true;
-//        } while (false);
-
-//        if (big) {
-//            continue;
-//        }
-
-//        if (r.m_min == r.m_max) {
-//            str += "ValidNumValue<";
-//            str += common::numToString(r.m_min);
-//            str += '>';
-//        }
-//        else {
-//            str += "ValidNumValueRange<";
-//            str += common::numToString(r.m_min);
-//            str += ", ";
-//            str += common::numToString(r.m_max);
-//            str += '>';
-//        }
-
-//        list.push_back(std::move(str));
-//        addedRangeOpt = true;
-//    }
-
-//    if (versionStorageRequired) {
-//        list.push_back("comms::option::VersionStorage");
-
-//        if (!addedRangeOpt) {
-//            list.push_back("comms::option::InvalidByDefault");
-//        }
-//    }
+    for (auto iter = uncondStartIter; iter != uncondEndIter; ++iter) {
+        addOptFunc(*iter);
+    }
 }
 
 } // namespace commsdsl2comms

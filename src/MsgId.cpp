@@ -66,6 +66,7 @@ bool MsgId::writeDefinition() const
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
 
     std::string idsStr;
+    std::string typeStr;
     auto* msgIdField = m_generator.getMessageIdField();
     if (msgIdField != nullptr) {
         assert(msgIdField->kind() == commsdsl::Field::Kind::Enum);
@@ -78,6 +79,7 @@ bool MsgId::writeDefinition() const
         }
 
         idsStr = common::listToString(values, ",\n", common::emptyString());
+        typeStr = ": " + castedMsgIdField->underlyingType();
     }
     else {
         auto allMessages = m_generator.getAllMessageIds();
@@ -90,6 +92,7 @@ bool MsgId::writeDefinition() const
         idsStr = common::listToString(ids, ",\n", common::emptyString());
     }
     replacements.insert(std::make_pair("IDS", std::move(idsStr)));
+    replacements.insert(std::make_pair("TYPE", std::move(typeStr)));
 
     auto str = common::processTemplate(Template, replacements);
     stream << str;

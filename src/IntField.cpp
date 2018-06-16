@@ -619,7 +619,7 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
     bool versionStorageRequired = false;
     bool addedRangeOpt = false;
     for (auto& r : validRanges) {
-        if (!generator().doesElementExist(r.m_sinceVersion, r.m_deprecatedSince, true)) {
+        if (!generator().doesElementExist(r.m_sinceVersion, r.m_deprecatedSince, !validCheckVersion)) {
             continue;
         }
 

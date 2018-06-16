@@ -152,7 +152,7 @@ std::string Message::getDefaultOptions() const
         "struct #^#MESSAGE_NAME#$#Fields\n"
         "{\n"
         "    #^#FIELDS_OPTS#$#\n"
-        "};\n\n"
+        "}; // struct #^#MESSAGE_NAME#$#Fields\n\n"
         "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
 

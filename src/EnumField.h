@@ -1,6 +1,7 @@
 #pragma once
 
 #include "commsdsl/EnumField.h"
+#include "commsdsl/Protocol.h"
 
 #include "Field.h"
 #include "common.h"
@@ -17,19 +18,30 @@ public:
     common::StringsList getValuesList(bool description = true) const;
     std::string getValuesDefinition() const;
     std::string getValueName(std::intmax_t value) const;
+    const std::string& underlyingType() const;
 
 protected:
+    virtual bool prepareImpl() override;
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
 
 private:
     using StringsList = common::StringsList;
 
+    struct RangeInfo
+    {
+        std::intmax_t m_min = 0;
+        std::intmax_t m_max = 0;
+        unsigned m_sinceVersion = 0;
+        unsigned m_deprecatedSince = commsdsl::Protocol::notYetDeprecated();
+    };
+
+    using ValidRangesList = std::vector<RangeInfo>;
+
     std::string getEnumeration() const;
     std::string getFieldBaseParams() const;
     std::string getEnumType(const std::string& suffix) const;
     std::string getFieldOpts(const std::string& scope) const;
-    std::string getSpecials() const;
     std::string getValid() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
@@ -38,6 +50,8 @@ private:
     {
         return commsdsl::EnumField(dslObj());
     }
+
+    ValidRangesList m_validRanges;
 };
 
 inline
