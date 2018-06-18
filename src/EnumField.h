@@ -21,7 +21,6 @@ public:
     const std::string& underlyingType() const;
 
 protected:
-    virtual bool prepareImpl() override;
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
 
@@ -45,13 +44,14 @@ private:
     std::string getValid() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
+    bool prepareRanges() const;
 
     commsdsl::EnumField enumFieldDslObj() const
     {
         return commsdsl::EnumField(dslObj());
     }
 
-    ValidRangesList m_validRanges;
+    mutable ValidRangesList m_validRanges;
 };
 
 inline
