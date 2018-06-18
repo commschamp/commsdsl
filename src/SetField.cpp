@@ -259,20 +259,10 @@ std::string SetField::getValid() const
         return common::emptyString();
     }
 
-    auto bitLength = obj.bitLength();
-    if (bitLength == 0U) {
-        bitLength = obj.minLength() * 8U;
-    }
-
-    auto mask = ~static_cast<std::uintmax_t>(0);
-    if (bitLength < MaxBits) {
-        mask = (static_cast<std::uintmax_t>(1U) << bitLength) - 1;
-    }
-
     using Key = std::tuple<unsigned, unsigned>;
     struct Value
     {
-        std::uintmax_t m_reservedMask = ~static_cast<std::uintmax_t>(0U);
+        std::uintmax_t m_reservedMask = 0U;
         std::uintmax_t m_reservedValue = 0U;
     };
 
@@ -281,36 +271,25 @@ std::string SetField::getValid() const
 
     auto& bits = obj.bits();
     for (auto& b : bits) {
-        auto bitMask = static_cast<std::uintmax_t>(1U) << b.second.m_idx;
-
-        auto key = std::make_tuple(b.second.m_sinceVersion, b.second.m_deprecatedSince);
-        auto iter = bitsToCheck.find(key);
-        if (iter == bitsToCheck.end()) {
-            Value value;
-            if (obj.reservedBitValue()) {
-                value.m_reservedValue = ~value.m_reservedValue;
-            }
-
-            value.m_reservedMask &= mask;
-            value.m_reservedValue &= mask;
-            std::tie(iter, std::ignore) = bitsToCheck.insert(std::make_pair(key, value));
-        }
-
-        auto& elem = iter->second;
-
         if ((b.second.m_sinceVersion == 0) &&
             (commsdsl::Protocol::notYetDeprecated() <= b.second.m_deprecatedSince)) {
-            elem.m_reservedMask &= ~bitMask;
-            elem.m_reservedValue &= ~bitMask;
             continue;
         }
 
-
-        if (!b.second.m_reserved) {
-            elem.m_reservedMask &= ~bitMask;
-            elem.m_reservedValue &= ~bitMask;
-            continue;
+        if (!generator().doesElementExist(b.second.m_sinceVersion, b.second.m_deprecatedSince, false)) {
+            continue; // already handled
         }
+
+//        if (!b.second.m_reserved) {
+//            generator().logger().error("\tnot reserved");
+//            continue;
+//        }
+
+        auto key = std::make_tuple(b.second.m_sinceVersion, b.second.m_deprecatedSince);
+        auto& elem = bitsToCheck[key];
+
+        auto bitMask = static_cast<std::uintmax_t>(1U) << b.second.m_idx;
+        elem.m_reservedMask |= bitMask;
 
         if (b.second.m_reservedValue) {
             elem.m_reservedValue |= bitMask;
@@ -321,22 +300,21 @@ std::string SetField::getValid() const
     }
 
     static const std::string VersionBothCondTempl =
-        "if ((#^#FROM_VERSION#$# <= Base::getVersion()) &&\n"
-        "    (Base::getVersion() < #^#UNTIL_VERSION#$#) &&\n"
-        "    ((Base::value() & #^#BITS_MASK#$#) == #^#VALUE_MASK#$#)) {\n"
-        "    return true;\n"
+        "if (((Base::getVersion() < #^#FROM_VERSION#$#) || (#^#UNTIL_VERSION#$# <= Base::getVersion())) && \n"
+        "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+        "    return false;\n"
         "}\n";
 
     static const std::string VersionFromCondTempl =
-        "if ((#^#FROM_VERSION#$# <= Base::getVersion()) &&\n"
-        "    ((Base::value() & #^#BITS_MASK#$#) == #^#VALUE_MASK#$#)) {\n"
-        "    return true;\n"
+        "if ((Base::getVersion() < #^#FROM_VERSION#$#) &&\n"
+        "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+        "    return false;\n"
         "}\n";
 
     static const std::string VersionUntilCondTempl =
-        "if ((Base::getVersion() < #^#UNTIL_VERSION#$#) &&\n"
-        "    ((Base::value() & #^#BITS_MASK#$#) == #^#VALUE_MASK#$#)) {\n"
-        "    return true;\n"
+        "if ((#^#UNTIL_VERSION#$# <= Base::getVersion()) &&\n"
+        "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+        "    return false;\n"
         "}\n";
 
 
@@ -348,7 +326,6 @@ std::string SetField::getValid() const
 
         auto* condTempl = &VersionBothCondTempl;
         if (std::get<0>(info.first) == 0U) {
-            generator().logger().error("mask = " + std::to_string(info.second.m_reservedMask));
             assert(std::get<1>(info.first) != commsdsl::Protocol::notYetDeprecated());
             condTempl = &VersionUntilCondTempl;
         }
@@ -373,11 +350,11 @@ std::string SetField::getValid() const
         "/// @brief Validity check function.\n"
         "bool valid() const\n"
         "{\n"
-        "    if (Base::valid()) {\n"
-        "        return true;\n"
+        "    if (!Base::valid()) {\n"
+        "        return false;\n"
         "    }\n\n"
         "    #^#CONDITIONS#$#\n"
-        "    return false;\n"
+        "    return true;\n"
         "}\n";
 
     std::string condStr = common::listToString(conditions, "\n", common::emptyString());
@@ -525,9 +502,6 @@ void SetField::checkReservedBitsOpt(SetField::StringsList& list) const
     }
 
     if (reservedMask == 0U) {
-        if (mustHandleBitsInValidFunc) {
-            list.push_back("comms::option::InvalidByDefault");
-        }
         return;
     }
 

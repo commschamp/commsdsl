@@ -8,12 +8,13 @@
             <validValue name="M1" val="1" />
         </enum>
         
-        <set name="S1" length="1" validCheckVersion="1" >
+        <set name="S1" length="1" validCheckVersion="1" nonUniqueAllowed="true">
             <bit name="b3" idx="3" />
             <bit name="b2" idx="2" defaultValue="true" />
             <bit name="b0" idx="0" sinceVersion="3" />
             <bit name="b5" idx="5" sinceVersion="3" deprecated="4" />
             <bit name="b4" idx="4" deprecated="3" />
+            <bit name="otherB4" idx="4" sinceVersion="3" />
             <bit name="b1" idx="1" reserved="true" reservedValue="true" defaultValue="true" />
         </set>   
     </fields>
