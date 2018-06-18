@@ -91,7 +91,7 @@ bool Generator::doesElementExist(
         return false;
     }
 
-    if (deprecatedRemoved && (deprecatedSince <= sVersion)) {
+    if (deprecatedRemoved && (deprecatedSince <= m_minRemoteVersion)) {
         return false;
     }
 

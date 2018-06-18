@@ -2,6 +2,7 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <iterator>
 
 #include "Generator.h"
 #include "common.h"
@@ -16,13 +17,13 @@ namespace
 const std::string ClassTemplate(
     "#^#PREFIX#$#"
     "class #^#CLASS_NAME#$# : public\n"
-    "    comms::field::SetValue<\n"
+    "    comms::field::BitmaskValue<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
     "    using Base = \n"
-    "        comms::field::SetValue<\n"
+    "        comms::field::BitmaskValue<\n"
     "            #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
@@ -40,7 +41,7 @@ const std::string ClassTemplate(
 const std::string StructTemplate(
     "#^#PREFIX#$#"
     "struct #^#CLASS_NAME#$# : public\n"
-    "    comms::field::SetValue<\n"
+    "    comms::field::BitmaskValue<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
@@ -243,179 +244,146 @@ std::string SetField::getBitsAccess() const
 
 std::string SetField::getValid() const
 {
-//    auto custom = getCustomValid();
-//    if (!custom.empty()) {
-//        return custom;
-//    }
+    auto custom = getCustomValid();
+    if (!custom.empty()) {
+        return custom;
+    }
 
-//    auto obj = setFieldDslObj();
+    auto obj = setFieldDslObj();
 
-//    bool validCheckVersion =
-//        generator().versionDependentCode() &&
-//        obj.validCheckVersion();
+    bool validCheckVersion =
+        generator().versionDependentCode() &&
+        obj.validCheckVersion();
 
-//    if (!validCheckVersion) {
+    if (!validCheckVersion) {
+        return common::emptyString();
+    }
 
-//        if (m_validRanges.size() <= MaxRangesInOpts) {
-//            return common::emptyString(); // Already in options
-//        }
+    auto bitLength = obj.bitLength();
+    if (bitLength == 0U) {
+        bitLength = obj.minLength() * 8U;
+    }
 
-//        static const std::string Templ =
-//            "/// @brief Validity check function.\n"
-//            "bool valid() const\n"
-//            "{\n"
-//            "    if (!Base::valid()) {\n"
-//            "        return false;\n"
-//            "    }\n\n"
-//            "    static const typename Base::ValueType Values[] = {\n"
-//            "        #^#VALUES#$#\n"
-//            "    };\n\n"
-//            "    auto iter = std::find(std::begin(Values), std::end(Values), Base::value());\n"
-//            "    if ((iter == std::end(Values)) || (*iter != Base::value())) {\n"
-//            "        return false;\n"
-//            "    }\n\n"
-//            "    return true;\n"
-//            "}";
+    auto mask = ~static_cast<std::uintmax_t>(0);
+    if (bitLength < MaxBits) {
+        mask = (static_cast<std::uintmax_t>(1U) << bitLength) - 1;
+    }
 
-//        common::StringsList valuesStrings;
+    using Key = std::tuple<unsigned, unsigned>;
+    struct Value
+    {
+        std::uintmax_t m_reservedMask = ~static_cast<std::uintmax_t>(0U);
+        std::uintmax_t m_reservedValue = 0U;
+    };
 
-//        bool isVersion =
-//            obj.semanticType() == commsdsl::Field::SemanticType::MessageId;
-//        auto& revValues = obj.revValues();
-//        auto prevIter = revValues.end();
-//        for (auto iter = revValues.begin(); iter != revValues.end(); ++iter) {
+    using Map = std::map<Key, Value>;
+    Map bitsToCheck;
 
-//            if ((prevIter != revValues.end()) && (prevIter->first == iter->first)) {
-//                continue;
-//            }
+    auto& bits = obj.bits();
+    for (auto& b : bits) {
+        auto bitMask = static_cast<std::uintmax_t>(1U) << b.second.m_idx;
 
-//            std::string prefix;
-//            if (isVersion) {
-//                 prefix = generator().mainNamespace() + "::" + common::msgIdPrefixStr();
-//            }
-//            else {
-//                prefix = common::nameToClassCopy(name()) + "Val::";
-//            }
+        auto key = std::make_tuple(b.second.m_sinceVersion, b.second.m_deprecatedSince);
+        auto iter = bitsToCheck.find(key);
+        if (iter == bitsToCheck.end()) {
+            Value value;
+            if (obj.reservedBitValue()) {
+                value.m_reservedValue = ~value.m_reservedValue;
+            }
 
-//            valuesStrings.push_back(prefix + iter->second);
-//            prevIter = iter;
-//        }
+            value.m_reservedMask &= mask;
+            value.m_reservedValue &= mask;
+            std::tie(iter, std::ignore) = bitsToCheck.insert(std::make_pair(key, value));
+        }
 
-//        common::ReplacementMap replacements;
-//        replacements.insert(std::make_pair("VALUES", common::listToString(valuesStrings, ",\n", common::emptyString())));
-//        return common::processTemplate(Templ, replacements);
-//    }
+        auto& elem = iter->second;
 
-//    // version must be taken into account
-//    std::vector<decltype(m_validRanges)> rangesToProcess;
-//    for (auto& r : m_validRanges) {
-//        if ((r.m_sinceVersion == 0U) &&
-//            (r.m_deprecatedSince == commsdsl::Protocol::notYetDeprecated())) {
-//            continue;
-//        }
-
-//        if ((rangesToProcess.empty()) ||
-//            (rangesToProcess.back().back().m_sinceVersion != r.m_sinceVersion) ||
-//            (rangesToProcess.back().back().m_deprecatedSince != r.m_deprecatedSince)){
-//            rangesToProcess.resize(rangesToProcess.size() + 1);
-//        }
-
-//        rangesToProcess.back().push_back(r);
-//    }
-
-//    static const std::string VersionBothCondTempl =
-//        "if ((#^#FROM_VERSION#$# <= Base::getVersion()) &&\n"
-//        "    (Base::getVersion() < #^#UNTIL_VERSION#$#)) {\n"
-//        "    #^#COMPARISONS#$#\n"
-//        "}\n";
-
-//    static const std::string VersionFromCondTempl =
-//        "if (#^#FROM_VERSION#$# <= Base::getVersion()) {\n"
-//        "    #^#COMPARISONS#$#\n"
-//        "}\n";
-
-//    static const std::string VersionUntilCondTempl =
-//        "if (Base::getVersion() < #^#UNTIL_VERSION#$#) {\n"
-//        "    #^#COMPARISONS#$#\n"
-//        "}\n";
-
-//    auto type = obj.type();
-//    bool bigUnsigned =
-//        (type == commsdsl::SetField::Type::Uint64) ||
-//        (type == commsdsl::SetField::Type::Uintvar);
+        if ((b.second.m_sinceVersion == 0) &&
+            (commsdsl::Protocol::notYetDeprecated() <= b.second.m_deprecatedSince)) {
+            elem.m_reservedMask &= ~bitMask;
+            elem.m_reservedValue &= ~bitMask;
+            continue;
+        }
 
 
-//    common::StringsList conditions;
-//    for (auto& l : rangesToProcess) {
-//        assert(!l.empty());
-//        auto* condTempl = &VersionBothCondTempl;
-//        if (l.front().m_sinceVersion == 0U) {
-//            assert(l.front().m_deprecatedSince != commsdsl::Protocol::notYetDeprecated());
-//            condTempl = &VersionUntilCondTempl;
-//        }
-//        else if (commsdsl::Protocol::notYetDeprecated() <= l.front().m_deprecatedSince) {
-//            condTempl = &VersionFromCondTempl;
-//        }
+        if (!b.second.m_reserved) {
+            elem.m_reservedMask &= ~bitMask;
+            elem.m_reservedValue &= ~bitMask;
+            continue;
+        }
 
-//        common::StringsList comparisons;
-//        for (auto& r : l) {
-//            static const std::string ValueBothCompTempl =
-//                "if ((static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#) <= Base::value()) &&\n"
-//                "    (Base::value() <= static_cast<typename Base::ValueType>(#^#MAX_VALUE#$#))) {\n"
-//                "    return true;\n"
-//                "}";
+        if (b.second.m_reservedValue) {
+            elem.m_reservedValue |= bitMask;
+        }
+        else {
+            elem.m_reservedValue &= ~bitMask;
+        }
+    }
 
-//            static const std::string ValueSingleCompTempl =
-//                "if (Base::value() == static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#)) {\n"
-//                "    return true;\n"
-//                "}";
+    static const std::string VersionBothCondTempl =
+        "if ((#^#FROM_VERSION#$# <= Base::getVersion()) &&\n"
+        "    (Base::getVersion() < #^#UNTIL_VERSION#$#) &&\n"
+        "    ((Base::value() & #^#BITS_MASK#$#) == #^#VALUE_MASK#$#)) {\n"
+        "    return true;\n"
+        "}\n";
+
+    static const std::string VersionFromCondTempl =
+        "if ((#^#FROM_VERSION#$# <= Base::getVersion()) &&\n"
+        "    ((Base::value() & #^#BITS_MASK#$#) == #^#VALUE_MASK#$#)) {\n"
+        "    return true;\n"
+        "}\n";
+
+    static const std::string VersionUntilCondTempl =
+        "if ((Base::getVersion() < #^#UNTIL_VERSION#$#) &&\n"
+        "    ((Base::value() & #^#BITS_MASK#$#) == #^#VALUE_MASK#$#)) {\n"
+        "    return true;\n"
+        "}\n";
 
 
-//            std::string minValue;
-//            std::string maxValue;
-//            if (bigUnsigned) {
-//                minValue = common::numToString(static_cast<std::uintmax_t>(r.m_min));
-//                maxValue = common::numToString(static_cast<std::uintmax_t>(r.m_max));
-//            }
-//            else {
-//                minValue = common::numToString(r.m_min);
-//                maxValue = common::numToString(r.m_max);
-//            }
+    common::StringsList conditions;
+    for (auto& info : bitsToCheck) {
+        if (info.second.m_reservedMask == 0U) {
+            continue;
+        }
 
-//            common::ReplacementMap repl;
-//            repl.insert(std::make_pair("MIN_VALUE", std::move(minValue)));
-//            repl.insert(std::make_pair("MAX_VALUE", std::move(maxValue)));
+        auto* condTempl = &VersionBothCondTempl;
+        if (std::get<0>(info.first) == 0U) {
+            generator().logger().error("mask = " + std::to_string(info.second.m_reservedMask));
+            assert(std::get<1>(info.first) != commsdsl::Protocol::notYetDeprecated());
+            condTempl = &VersionUntilCondTempl;
+        }
+        else if (commsdsl::Protocol::notYetDeprecated() <= std::get<1>(info.first)) {
+            condTempl = &VersionFromCondTempl;
+        }
 
-//            auto* templ = &ValueBothCompTempl;
-//            if (r.m_min == r.m_max) {
-//                templ = &ValueSingleCompTempl;
-//            }
-//            comparisons.push_back(common::processTemplate(*templ, repl));
-//        }
 
-//        common::ReplacementMap replacements;
-//        replacements.insert(std::make_pair("COMPARISONS", common::listToString(comparisons, "\n\n", common::emptyString())));
-//        replacements.insert(std::make_pair("FROM_VERSION", common::numToString(l.front().m_sinceVersion)));
-//        replacements.insert(std::make_pair("UNTIL_VERSION", common::numToString(l.front().m_deprecatedSince)));
-//        conditions.push_back(common::processTemplate(*condTempl, replacements));
-//    }
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("BITS_MASK", common::numToString(info.second.m_reservedMask, true)));
+        replacements.insert(std::make_pair("VALUE_MASK", common::numToString(info.second.m_reservedValue, true)));
+        replacements.insert(std::make_pair("FROM_VERSION", common::numToString(std::get<0>(info.first))));
+        replacements.insert(std::make_pair("UNTIL_VERSION", common::numToString(std::get<1>(info.first))));
+        conditions.push_back(common::processTemplate(*condTempl, replacements));
+    }
 
-//    static const std::string Templ =
-//        "/// @brief Validity check function.\n"
-//        "bool valid() const\n"
-//        "{\n"
-//        "    if (Base::valid()) {\n"
-//        "        return true;\n"
-//        "    }\n\n"
-//        "    #^#CONDITIONS#$#\n"
-//        "    return false;\n"
-//        "}\n";
+    if (conditions.empty()) {
+        return common::emptyString();
+    }
 
-//    std::string condStr = common::listToString(conditions, "\n", common::emptyString());
-//    common::ReplacementMap replacements;
-//    replacements.insert(std::make_pair("CONDITIONS", std::move(condStr)));
-//    return common::processTemplate(Templ, replacements);
-    return common::emptyString();
+    static const std::string Templ =
+        "/// @brief Validity check function.\n"
+        "bool valid() const\n"
+        "{\n"
+        "    if (Base::valid()) {\n"
+        "        return true;\n"
+        "    }\n\n"
+        "    #^#CONDITIONS#$#\n"
+        "    return false;\n"
+        "}\n";
+
+    std::string condStr = common::listToString(conditions, "\n", common::emptyString());
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CONDITIONS", std::move(condStr)));
+    return common::processTemplate(Templ, replacements);
 }
 
 void SetField::checkLengthOpt(SetField::StringsList& list) const
@@ -509,12 +477,20 @@ void SetField::checkReservedBitsOpt(SetField::StringsList& list) const
         }
 
         if (validCheckVersion &&
-            ((bitInfo.second.m_sinceVersion != 0U) || (bitInfo.second.m_deprecatedSince < commsdsl::Protocol::notYetDeprecated()))) {
-            mustHandleBitsInValidFunc = true;
+            (!generator().doesElementExist(bitInfo.second.m_sinceVersion, bitInfo.second.m_deprecatedSince, true))) {
             continue;
         }
 
         auto bitMask = static_cast<decltype(reservedValue)>(1U) << bitInfo.second.m_idx;
+        if (validCheckVersion &&
+            ((bitInfo.second.m_sinceVersion != 0U) || (bitInfo.second.m_deprecatedSince < commsdsl::Protocol::notYetDeprecated()))) {
+            mustHandleBitsInValidFunc = true;
+            reservedMask &= ~(bitMask);
+            reservedValue &= ~(bitMask);
+            continue;
+        }
+
+
         if (!bitInfo.second.m_reserved) {
             reservedMask &= ~(bitMask);
             reservedValue &= ~(bitMask);
@@ -528,6 +504,8 @@ void SetField::checkReservedBitsOpt(SetField::StringsList& list) const
             reservedValue &= ~(bitMask);
         }
     }
+
+    reservedValue &= reservedMask;
 
     auto bitLength = obj.bitLength();
     if (bitLength == 0U) {

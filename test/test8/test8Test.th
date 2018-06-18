@@ -1,7 +1,7 @@
 #include "cxxtest/TestSuite.h"
 
-#include "test7/Message.h"
-#include "test7/message/Msg1.h"
+#include "test8/Message.h"
+#include "test8/message/Msg1.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
@@ -9,7 +9,7 @@ public:
     void test1();
 
     using Interface =
-        test7::Message<
+        test8::Message<
             comms::option::IdInfoInterface,
             comms::option::ReadIterator<const std::uint8_t*>,
             comms::option::WriteIterator<std::uint8_t*>,
@@ -19,7 +19,7 @@ public:
             comms::option::RefreshInterface
         >;
 
-    using Msg1 = test7::message::Msg1<Interface>;
+    using Msg1 = test8::message::Msg1<Interface>;
 };
 
 void TestSuite::test1()
