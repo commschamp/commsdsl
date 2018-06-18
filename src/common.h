@@ -34,13 +34,13 @@ void nameToAcces(std::string& str);
 std::string nameToAccessCopy(const std::string& str);
 void updateName(std::string& str);
 std::string adjustName(const std::string& str);
-std::string numToString(std::uintmax_t value);
+std::string numToString(std::uintmax_t value, bool hexOut = false);
 std::string numToString(std::intmax_t value);
 
 inline
-std::string numToString(unsigned value)
+std::string numToString(unsigned value, bool hexOut = false)
 {
-    return numToString(static_cast<std::uintmax_t>(value));
+    return numToString(static_cast<std::uintmax_t>(value), hexOut);
 }
 
 std::string makeMultiline(const std::string& value, unsigned len = 60);

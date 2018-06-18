@@ -146,18 +146,29 @@ std::string adjustName(const std::string& str)
     return result;
 }
 
-std::string numToString(std::uintmax_t value)
+std::string numToString(std::uintmax_t value, bool hexOut)
 {
-    if (value <= std::numeric_limits<std::uint16_t>::max()) {
-        return std::to_string(value) + "U";
-    }
+    if (!hexOut) {
+        if (value <= std::numeric_limits<std::uint16_t>::max()) {
+            return std::to_string(value) + "U";
+        }
 
-    if (value <= std::numeric_limits<std::uint32_t>::max()) {
-        return std::to_string(value) + "UL";
+        if (value <= std::numeric_limits<std::uint32_t>::max()) {
+            return std::to_string(value) + "UL";
+        }
     }
 
     std::stringstream stream;
-    stream << std::hex << "0x" << value << "ULL";
+    stream << std::hex << "0x" << value;
+    if (hexOut && (value <= std::numeric_limits<std::uint16_t>::max())) {
+        stream << "U";
+    }
+    else if (hexOut && (value <= std::numeric_limits<std::uint32_t>::max())) {
+        stream << "UL";
+    }
+    else {
+        stream << "ULL";
+    }
     return stream.str();
 }
 

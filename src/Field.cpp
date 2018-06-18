@@ -12,6 +12,7 @@
 #include "IntField.h"
 #include "RefField.h"
 #include "EnumField.h"
+#include "SetField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -156,7 +157,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
     static const CreateFunc Map[] = {
         /* Int */ [](Generator& g, commsdsl::Field f) { return createIntField(g, f); },
         /* Enum */ [](Generator& g, commsdsl::Field f) { return createEnumField(g, f); },
-        /* Set */ [](Generator&, commsdsl::Field) { return Ptr(); },
+        /* Set */ [](Generator& g, commsdsl::Field f) { return createSetField(g, f); },
         /* Float */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Bitfield */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Bundle */ [](Generator&, commsdsl::Field) { return Ptr(); },

@@ -21,6 +21,7 @@ set (
     "Field.cpp"
     "IntField.cpp"
     "EnumField.cpp"
+    "SetField.cpp"
     "RefField.cpp"
     "FieldBase.cpp"
     "DefaultOptions.cpp"
