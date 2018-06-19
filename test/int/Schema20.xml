@@ -7,7 +7,12 @@
         <fields>
             <int name="Int1" type="uint16" defaultValue="1000" >
                 <validRange value="[0, S1]" />
-                <special name="S1" val="1000" />
+                <special name="S1" val="1000" >
+                    <description>
+                        Some 
+                        description
+                    </description>
+                </special>
                 <special name="S2" val="2000" sinceVersion="2" />
                 <validRange value="[S1, S2]" sinceVersion="2" />
                 <validCheckVersion value="True" />

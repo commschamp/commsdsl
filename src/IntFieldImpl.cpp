@@ -916,7 +916,8 @@ bool IntFieldImpl::updateSpecials()
     for (auto* s : specials) {
         static const XmlWrap::NamesList PropNames = {
             common::nameStr(),
-            common::valStr()
+            common::valStr(),
+            common::descriptionStr()
         };
 
         auto props = XmlWrap::parseNodeProps(s);
@@ -937,6 +938,10 @@ bool IntFieldImpl::updateSpecials()
         }
 
         if (!XmlWrap::validateSinglePropInstance(s, props, common::deprecatedStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::descriptionStr(), protocol().logger())) {
             return false;
         }
 
@@ -1004,6 +1009,11 @@ bool IntFieldImpl::updateSpecials()
         info.m_deprecatedSince = getDeprecated();
         if (!XmlWrap::getAndCheckVersions(s, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
             return false;
+        }
+
+        auto descIter = props.find(common::descriptionStr());
+        if (descIter != props.end()) {
+            info.m_description = descIter->second;
         }
 
         m_state.m_specials.emplace(nameIter->second, info);

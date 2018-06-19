@@ -38,6 +38,14 @@ function (test_func name)
     target_compile_definitions (${testName} PRIVATE "-DSCHEMAS_DIR=\"${testDir}\"")
     target_link_libraries(${testName} ${COMMON_TEST_LIB_NAME} ${PROJECT_NAME})
 
+    if (VALGRIND_EXECUTABLE)
+#        add_test(NAME "${name}_valgrind"
+#             COMMAND ${CMAKE_COMMAND}
+#                -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
+#                -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
+#                -P ${CMAKE_CURRENT_SOURCE_DIR}/ScriptRunUnitTestWithValgrind.cmake)
+    endif ()
+
 endfunction ()
 
 #################################################################
@@ -70,6 +78,13 @@ set (common_test_src
 
 add_library(${COMMON_TEST_LIB_NAME} STATIC ${common_test_src})
 target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME})
+
+if (NOT CC_NO_VALGRIND)
+    if ("${CC_VALGRAND_EXE_NAME}" STREQUAL "")
+        set (CC_VALGRAND_EXE_NAME "valgrind")
+    endif ()
+    find_program(VALGRIND_EXECUTABLE NAMES "${CC_VALGRAND_EXE_NAME}")
+endif ()
 
 test_func (int)
 test_func (float)

@@ -21,6 +21,7 @@ public:
     OptCondImpl() = default;
     OptCondImpl(const OptCondImpl&) = default;
     OptCondImpl(OptCondImpl&&) = default;
+    virtual ~OptCondImpl() = default;
 
     Kind kind() const
     {
