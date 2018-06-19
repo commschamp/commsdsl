@@ -23,6 +23,7 @@ public:
     void test14();
     void test15();
     void test16();
+    void test17();
 };
 
 void SetTestSuite::setUp()
@@ -134,19 +135,19 @@ void SetTestSuite::test2()
     TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(b1.m_defaultValue, false);
     TS_ASSERT_EQUALS(b1.m_reserved, false);
-    TS_ASSERT_EQUALS(b1.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b1.m_reservedValue, true);
     TS_ASSERT_EQUALS(b2.m_idx, 2);
     TS_ASSERT_EQUALS(b2.m_sinceVersion, 0);
     TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(b2.m_defaultValue, true);
     TS_ASSERT_EQUALS(b2.m_reserved, false);
-    TS_ASSERT_EQUALS(b2.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b2.m_reservedValue, true);
     TS_ASSERT_EQUALS(b3.m_idx, 8);
     TS_ASSERT_EQUALS(b3.m_sinceVersion, 0);
     TS_ASSERT_EQUALS(b3.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(b3.m_defaultValue, true);
     TS_ASSERT_EQUALS(b3.m_reserved, false);
-    TS_ASSERT_EQUALS(b3.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b3.m_reservedValue, true);
     TS_ASSERT_EQUALS(res1.m_idx, 1);
     TS_ASSERT_EQUALS(res1.m_sinceVersion, 0);
     TS_ASSERT_EQUALS(res1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
@@ -508,5 +509,13 @@ void SetTestSuite::test16()
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
 }

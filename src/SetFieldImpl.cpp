@@ -509,11 +509,6 @@ bool SetFieldImpl::updateBits()
 
 
         do {
-            if (!info.m_reserved) {
-                info.m_reservedValue = false;
-                break;
-            }
-
             auto& bitReservedValueStr = common::getStringProp(props, common::reservedValueStr());
             if (bitReservedValueStr.empty()) {
                 break;
@@ -530,6 +525,20 @@ bool SetFieldImpl::updateBits()
         if (!XmlWrap::getAndCheckVersions(b, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
             return false;
         }
+
+        // Make sure that reserved bits dont update version
+        do {
+            if (!info.m_reserved) {
+                break;
+            }
+
+            if ((getSinceVersion() < info.m_sinceVersion) ||
+                (info.m_deprecatedSince < getDeprecated())) {
+                logError() << XmlWrap::logPrefix(b) <<
+                    "Cannot modify version information on explicity reserved bits.";
+                return false;
+            }
+        } while (false);
 
         // Check consistency with previous definitions
         do {
