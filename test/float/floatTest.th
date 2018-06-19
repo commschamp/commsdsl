@@ -485,9 +485,11 @@ void FloatTestSuite::test10()
         TS_ASSERT_EQUALS(s1.m_value, -100.123);
         TS_ASSERT_EQUALS(s1.m_sinceVersion, 0U);
         TS_ASSERT_EQUALS(s1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(s1.m_description, "Some description");
         TS_ASSERT_EQUALS(s2.m_value, -200);
         TS_ASSERT_EQUALS(s2.m_sinceVersion, 0U);
         TS_ASSERT_EQUALS(s2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT(s2.m_description.empty());
     } while (false);
 }
 

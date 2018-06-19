@@ -392,7 +392,8 @@ bool SetFieldImpl::updateBits()
             common::reservedValueStr(),
             common::reservedStr(),
             common::sinceVersionStr(),
-            common::deprecatedStr()
+            common::deprecatedStr(),
+            common::descriptionStr()
         };
 
         auto props = XmlWrap::parseNodeProps(b);
@@ -425,6 +426,10 @@ bool SetFieldImpl::updateBits()
         }
 
         if (!XmlWrap::validateSinglePropInstance(b, props, common::deprecatedStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(b, props, common::descriptionStr(), protocol().logger())) {
             return false;
         }
 
@@ -590,6 +595,11 @@ bool SetFieldImpl::updateBits()
                 }
             }
         } while(false);
+
+        auto descIter = props.find(common::descriptionStr());
+        if (descIter != props.end()) {
+            info.m_description = descIter->second;
+        }
 
         m_state.m_bits.emplace(nameIter->second, info);
         m_state.m_revBits.emplace(idx, nameIter->second);

@@ -5,7 +5,12 @@
         version="2">
     <fields>
         <float name="Float1" type="float" sinceVersion="1">
-            <special name="S1" val="-100.123" />
+            <special name="S1" val="-100.123">
+                <description>
+                    Some
+                    description
+                </description>
+            </special>
             <validRange value="[S1, 210.111]" sinceVersion="1"/>
         </float>
         <float reuse="Float1" name="Float2" validValue="NaN" >

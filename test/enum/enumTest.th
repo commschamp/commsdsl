@@ -68,9 +68,15 @@ void EnumTestSuite::test1()
     TS_ASSERT(!enumField.validCheckVersion());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
-    TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 1);
-    TS_ASSERT_EQUALS(values.find("V2")->second.m_value, 2);
-    TS_ASSERT_EQUALS(values.find("V3")->second.m_value, 3);
+    auto& v1 = values.find("V1")->second;
+    auto& v2 = values.find("V2")->second;
+    auto& v3 = values.find("V3")->second;
+    TS_ASSERT_EQUALS(v1.m_value, 1);
+    TS_ASSERT_EQUALS(v1.m_description, "desc1");
+    TS_ASSERT_EQUALS(v2.m_value, 2);
+    TS_ASSERT_EQUALS(v2.m_description, "desc2");
+    TS_ASSERT_EQUALS(v3.m_value, 3);
+    TS_ASSERT_EQUALS(v3.m_description, "desc3");
     TS_ASSERT_EQUALS(revValues.find(1)->second, "V1");
     TS_ASSERT_EQUALS(revValues.find(2)->second, "V2");
     TS_ASSERT_EQUALS(revValues.find(3)->second, "V3");
@@ -115,6 +121,7 @@ void EnumTestSuite::test3()
     TS_ASSERT_EQUALS(values.size(), 5);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
     TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 1);
+    TS_ASSERT(values.find("V1")->second.m_description.empty());
     TS_ASSERT_EQUALS(values.find("V2")->second.m_value, 1);
     TS_ASSERT_EQUALS(values.find("V3")->second.m_value, 2);
     TS_ASSERT_EQUALS(values.find("V4")->second.m_value, 5);

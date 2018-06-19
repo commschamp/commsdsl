@@ -17,6 +17,7 @@ public:
         unsigned m_idx = 0U;
         unsigned m_sinceVersion = 0U;
         unsigned m_deprecatedSince = commsdsl::Protocol::notYetDeprecated();
+        std::string m_description;
         bool m_defaultValue = false;
         bool m_reserved = false;
         bool m_reservedValue = false;

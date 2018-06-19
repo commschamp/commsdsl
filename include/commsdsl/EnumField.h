@@ -17,6 +17,7 @@ public:
         std::intmax_t m_value = 0;
         unsigned m_sinceVersion = 0;
         unsigned m_deprecatedSince = Protocol::notYetDeprecated();
+        std::string m_description;
     };
 
     using Type = IntField::Type;

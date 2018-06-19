@@ -4,14 +4,18 @@
         endian="big">
     <fields>
         <set name="Set1" length="1">
-            <bit name="B1" idx="0" />
+            <bit name="B1" idx="0" description="desc1"/>
             <bit>
                 <name value="B2" />
                 <idx value="1" />
+                <description value="desc2" />
             </bit>
             <bit>
                 <name>B3</name>
                 <idx>2</idx>
+                <description>
+                    desc3
+                </description>
             </bit>
         </set>
     </fields>

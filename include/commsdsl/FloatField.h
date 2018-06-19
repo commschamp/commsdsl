@@ -39,6 +39,7 @@ public:
         double m_value = 0;
         unsigned m_sinceVersion = 0;
         unsigned m_deprecatedSince = Protocol::notYetDeprecated();
+        std::string m_description;
     };
     using SpecialValues = std::map<std::string, SpecialValueInfo>;
 

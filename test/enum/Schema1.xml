@@ -4,14 +4,18 @@
         endian="big">
     <fields>
         <enum name="Enum1" type="uint8">
-            <validValue name="V1" val="1" />
+            <validValue name="V1" val="1" description="desc1"/>
             <validValue>
                 <name value="V2" />
                 <val value="2" />
+                <description value="desc2" />
             </validValue>
             <validValue>
                 <name>V3</name>
                 <val>3</val>
+                <description>
+                    desc3
+                </description>
             </validValue>
         </enum>
     </fields>

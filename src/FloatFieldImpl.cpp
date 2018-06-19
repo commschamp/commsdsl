@@ -431,7 +431,10 @@ bool FloatFieldImpl::updateSpecials()
     for (auto* s : specials) {
         static const XmlWrap::NamesList PropNames = {
             common::nameStr(),
-            common::valStr()
+            common::valStr(),
+            common::sinceVersionStr(),
+            common::deprecatedStr(),
+            common::descriptionStr()
         };
 
         auto props = XmlWrap::parseNodeProps(s);
@@ -452,6 +455,10 @@ bool FloatFieldImpl::updateSpecials()
         }
 
         if (!XmlWrap::validateSinglePropInstance(s, props, common::deprecatedStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::descriptionStr(), protocol().logger())) {
             return false;
         }
 
@@ -498,6 +505,11 @@ bool FloatFieldImpl::updateSpecials()
 
         if (!XmlWrap::getAndCheckVersions(s, nameIter->second, props, info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
             return false;
+        }
+
+        auto descIter = props.find(common::descriptionStr());
+        if (descIter != props.end()) {
+            info.m_description = descIter->second;
         }
 
         m_state.m_specials.emplace(nameIter->second, info);

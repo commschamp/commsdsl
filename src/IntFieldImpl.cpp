@@ -917,6 +917,8 @@ bool IntFieldImpl::updateSpecials()
         static const XmlWrap::NamesList PropNames = {
             common::nameStr(),
             common::valStr(),
+            common::sinceVersionStr(),
+            common::deprecatedStr(),
             common::descriptionStr()
         };
 
