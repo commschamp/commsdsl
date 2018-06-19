@@ -274,8 +274,8 @@ std::string SetField::getValid() const
     std::vector<unsigned> repeatingBits;
     auto& bits = obj.bits();
     for (auto& b : bits) {
-        if ((b.second.m_sinceVersion == 0) &&
-            (commsdsl::Protocol::notYetDeprecated() <= b.second.m_deprecatedSince)) {
+        if ((b.second.m_sinceVersion <= obj.sinceVersion()) &&
+            (obj.deprecatedSince() <= b.second.m_deprecatedSince)) {
             continue;
         }
 
@@ -283,10 +283,7 @@ std::string SetField::getValid() const
             continue; // already handled
         }
 
-//        if (!b.second.m_reserved) {
-//            generator().logger().error("\tnot reserved");
-//            continue;
-//        }
+        assert(!b.second.m_reserved); // Should be handled in options
 
         auto key = std::make_tuple(b.second.m_sinceVersion, b.second.m_deprecatedSince);
         auto& elem = bitsToCheck[key];
@@ -298,7 +295,8 @@ std::string SetField::getValid() const
             elem.m_reservedValue |= bitMask;
         }
 
-        if ((allReservedMask & bitMask) != 0U) {
+        if (((allReservedMask & bitMask) != 0U) &&
+            ((repeatingReservedMask & bitMask) == 0U)) {
             repeatingReservedMask |= bitMask;
             repeatingBits.push_back(b.second.m_idx);
         }
@@ -311,89 +309,6 @@ std::string SetField::getValid() const
             b.second.m_reservedMask &= ~repeatingReservedMask;
             b.second.m_reservedValue &= ~repeatingReservedMask;
         }
-    }
-
-    for (auto idx : repeatingBits) {
-        auto elems = obj.revBits().equal_range(idx);
-        assert(elems.first != elems.second);
-        std::vector<std::pair<unsigned, unsigned> > versionRanges;
-        for (auto iter = elems.first; iter != elems.second; ++iter) {
-            auto& bitName = iter->second;
-            auto bitIter = bits.find(bitName);
-            if (bitIter == bits.end()) {
-                assert(!"Should not happen");
-                continue;
-            }
-
-            versionRanges.push_back(std::make_pair(bitIter->second.m_sinceVersion, bitIter->second.m_deprecatedSince));
-        }
-
-        std::sort(
-            versionRanges.begin(), versionRanges.end(),
-            [](auto& e1, auto& e2)
-            {
-                if (e1.first != e2.first) {
-                    return e1.first < e2.first;
-                }
-
-                return e1.second < e2.second;
-            });
-
-        unsigned prev = 0U;
-        for (auto& r : versionRanges) {
-            auto newPrev = r.second;
-            r.second = r.first;
-            r.first = prev;
-            prev = newPrev;
-        }
-
-        if (prev != commsdsl::Protocol::notYetDeprecated()) {
-            versionRanges.push_back(std::make_pair(prev, commsdsl::Protocol::notYetDeprecated()));
-        }
-
-        generator().logger().error("ranges: " + std::to_string(versionRanges.size()));
-
-        // unify ranges;
-        assert(!versionRanges.empty());
-        for (auto rIdx = 0U; rIdx < (versionRanges.size() - 1U); ++rIdx) {
-            auto& thisRange = versionRanges[idx];
-            generator().logger().error("this: [" + std::to_string(thisRange.first) + ", " + std::to_string(thisRange.second) + "]");
-            if ((thisRange.second == 0) || (thisRange.first == thisRange.second)) {
-                continue;
-            }
-
-            for (auto nextIdx = rIdx + 1; nextIdx < versionRanges.size(); ++nextIdx) {
-                auto& nextRange = versionRanges[nextIdx];
-                if ((nextRange.second == 0) || (nextRange.first == nextRange.second)) {
-                    continue;
-                }
-
-                if (thisRange.second < nextRange.first) {
-                    break;
-                }
-
-                thisRange.second = nextRange.second;
-                nextRange.second = 0U; // invalidate
-
-            }
-        }
-
-        for (auto& r : versionRanges) {
-            if ((r.second == 0U) || (r.first == r.second)) {
-                continue; // ignore invalid ranges
-            }
-
-            auto key = std::make_tuple(r.first, r.second);
-            auto& elem = bitsToCheck[key];
-
-            auto bitMask = static_cast<std::uintmax_t>(1U) << idx;
-            elem.m_reservedMask |= bitMask;
-
-            if (obj.reservedBitValue()) {
-                elem.m_reservedValue |= bitMask;
-            }
-        }
-
     }
 
     common::StringsList conditions;
@@ -436,6 +351,111 @@ std::string SetField::getValid() const
         replacements.insert(std::make_pair("FROM_VERSION", common::numToString(std::get<0>(info.first))));
         replacements.insert(std::make_pair("UNTIL_VERSION", common::numToString(std::get<1>(info.first))));
         conditions.push_back(common::processTemplate(*condTempl, replacements));
+    }
+
+    for (auto idx : repeatingBits) {
+        auto elems = obj.revBits().equal_range(idx);
+        assert(elems.first != elems.second);
+        std::vector<std::pair<unsigned, unsigned> > versionRanges;
+        for (auto iter = elems.first; iter != elems.second; ++iter) {
+            auto& bitName = iter->second;
+            auto bitIter = bits.find(bitName);
+            if (bitIter == bits.end()) {
+                assert(!"Should not happen");
+                continue;
+            }
+
+            versionRanges.push_back(std::make_pair(bitIter->second.m_sinceVersion, bitIter->second.m_deprecatedSince));
+        }
+
+        std::sort(
+            versionRanges.begin(), versionRanges.end(),
+            [](auto& e1, auto& e2)
+            {
+                if (e1.first != e2.first) {
+                    return e1.first < e2.first;
+                }
+
+                return e1.second < e2.second;
+            });
+
+        unsigned prev = 0U;
+        for (auto& r : versionRanges) {
+            auto newPrev = r.second;
+            r.second = r.first;
+            r.first = prev;
+            prev = newPrev;
+        }
+
+        if (prev < obj.deprecatedSince()) {
+            versionRanges.push_back(std::make_pair(prev, obj.deprecatedSince()));
+        }
+
+        // unify ranges;
+        assert(!versionRanges.empty());
+        for (auto rIdx = 0U; rIdx < versionRanges.size(); ++rIdx) {
+            auto& thisRange = versionRanges[rIdx];
+            if ((thisRange.second == 0) || (thisRange.first == thisRange.second)) {
+                continue;
+            }
+
+            for (auto nextIdx = rIdx + 1; nextIdx < versionRanges.size(); ++nextIdx) {
+                auto& nextRange = versionRanges[nextIdx];
+                if ((nextRange.second == 0) || (nextRange.first == nextRange.second)) {
+                    continue;
+                }
+
+                if (thisRange.second < nextRange.first) {
+                    break;
+                }
+
+                thisRange.second = nextRange.second;
+                nextRange.second = 0U; // invalidate
+
+            }
+        }
+
+        common::StringsList extraConds;
+        for (auto& r : versionRanges) {
+            if ((r.second == 0U) || (r.first == r.second)) {
+                continue; // ignore invalid ranges
+            }
+
+            static const std::string Templ =
+                "if ((#^#FROM_VERSION#$# <= Base::getVersion()) &&\n"
+                "    (Base::getVersion() < #^#UNTIL_VERSION#$#)) {\n"
+                "    return false;\n"
+                "}";
+
+            common::ReplacementMap replacements;
+            replacements.insert(std::make_pair("FROM_VERSION", common::numToString(r.first)));
+            replacements.insert(std::make_pair("UNTIL_VERSION", common::numToString(r.second)));
+            extraConds.push_back(common::processTemplate(Templ, replacements));
+        }
+
+        static const std::string Templ =
+            "if ((Base::value() & #^#RESERVED_MASK#$#) != #^#RESERVED_VALUE#$#) {\n"
+            "    #^#CONDITIONS#$#\n"
+            "}\n";
+
+        auto bitMask = static_cast<std::uintmax_t>(1U) << idx;
+        std::uintmax_t bitValue = 0U;
+
+        auto& bitInfoName = elems.first->second;
+        auto bitInfoIter = bits.find(bitInfoName);
+        assert(bitInfoIter != bits.end());
+        if (bitInfoIter->second.m_reservedValue) {
+            bitValue |= bitMask;
+        }
+
+        if (!extraConds.empty()) {
+            common::ReplacementMap replacements;
+            replacements.insert(std::make_pair("RESERVED_MASK", common::numToString(bitMask, true)));
+            replacements.insert(std::make_pair("RESERVED_VALUE", common::numToString(bitValue, true)));
+            replacements.insert(std::make_pair("CONDITIONS", common::listToString(extraConds, "\n\n", common::emptyString())));
+
+            conditions.push_back(common::processTemplate(Templ, replacements));
+        }
     }
 
     if (conditions.empty()) {
@@ -556,7 +576,7 @@ void SetField::checkReservedBitsOpt(SetField::StringsList& list) const
 
         auto bitMask = static_cast<decltype(reservedValue)>(1U) << bitInfo.second.m_idx;
         if (validCheckVersion &&
-            ((bitInfo.second.m_sinceVersion != 0U) || (bitInfo.second.m_deprecatedSince < commsdsl::Protocol::notYetDeprecated()))) {
+            ((obj.sinceVersion() < bitInfo.second.m_sinceVersion) || (bitInfo.second.m_deprecatedSince < obj.deprecatedSince()))) {
             mustHandleBitsInValidFunc = true;
             reservedMask &= ~(bitMask);
             reservedValue &= ~(bitMask);

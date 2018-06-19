@@ -26,4 +26,17 @@ void TestSuite::test1()
 {
     Msg1 msg1;
     TS_ASSERT(!msg1.field_f1().getBitValue_b0());
+    TS_ASSERT(msg1.field_f1().valid());
+
+    msg1.version() = 6U;
+    TS_ASSERT(msg1.refresh());
+    TS_ASSERT(!msg1.field_f1().valid());
+    msg1.version() = 5U;
+    TS_ASSERT(msg1.refresh());
+    TS_ASSERT(msg1.field_f1().valid());
+    msg1.version() = 3U;
+    TS_ASSERT(msg1.refresh());
+    TS_ASSERT(!msg1.field_f1().valid());
+    msg1.field_f1().setBitValue_b4(true);
+    TS_ASSERT(msg1.field_f1().valid());
 }
