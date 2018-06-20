@@ -22,6 +22,7 @@ protected:
 private:
     using StringsList = common::StringsList;
 
+    std::string getExtraDoc() const;
     std::string getFieldBaseParams() const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getBitsAccess() const;

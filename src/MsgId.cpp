@@ -71,14 +71,14 @@ bool MsgId::writeDefinition() const
     if (msgIdField != nullptr) {
         assert(msgIdField->kind() == commsdsl::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const EnumField*>(msgIdField);
-        auto values = castedMsgIdField->getValuesList(false);
+        auto values = castedMsgIdField->getValuesList();
         // TODO: generate doxygen description
         auto& prefix = common::msgIdPrefixStr();
         for (auto& v : values) {
             v.insert(v.begin(), prefix.begin(), prefix.end());
         }
 
-        idsStr = common::listToString(values, ",\n", common::emptyString());
+        idsStr = common::listToString(values, common::emptyString(), common::emptyString());
         typeStr = ": " + castedMsgIdField->underlyingType();
     }
     else {

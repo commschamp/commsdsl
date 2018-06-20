@@ -202,7 +202,7 @@ std::string Interface::getDescription() const
         return common::emptyString();
     }
 
-    auto desc = common::makeMultiline(m_dslObj.description());
+    auto desc = common::makeMultilineCopy(m_dslObj.description());
     if (!desc.empty()) {
         static const std::string DocPrefix("/// @details ");
         desc.insert(desc.begin(), DocPrefix.begin(), DocPrefix.end());

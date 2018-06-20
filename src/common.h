@@ -43,8 +43,9 @@ std::string numToString(unsigned value, bool hexOut = false)
     return numToString(static_cast<std::uintmax_t>(value), hexOut);
 }
 
-std::string makeMultiline(const std::string& value, unsigned len = 60);
+std::string makeMultilineCopy(const std::string& value, unsigned len = 60);
 void insertIndent(std::string& str);
+std::string insertIndentCopy(const std::string& str);
 
 using ReplacementMap = std::map<std::string, std::string>;
 std::string processTemplate(const std::string& templ, const ReplacementMap& repl);

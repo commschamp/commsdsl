@@ -243,7 +243,10 @@ const std::string& Field::getDisplayName() const
     return *displayName;
 }
 
-std::string Field::getClassPrefix(const std::string& suffix, bool checkForOptional) const
+std::string Field::getClassPrefix(
+    const std::string& suffix,
+    bool checkForOptional,
+    const std::string& extraDoc) const
 {
     std::string str;
     bool optional = checkForOptional && isVersionOptional();
@@ -261,16 +264,39 @@ std::string Field::getClassPrefix(const std::string& suffix, bool checkForOption
         str += "\"<\\b> field.\n";
 
         auto& desc = m_dslObj.description();
-        if (!desc.empty()) {
+        do {
+            if (desc.empty() && extraDoc.empty()) {
+                break;
+            }
+
+
             str += "/// @details\n";
-            auto multiDesc = common::makeMultiline(desc);
-            common::insertIndent(multiDesc);
             auto& doxygenPrefix = common::doxygenPrefixStr();
-            multiDesc.insert(multiDesc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
-            ba::replace_all(multiDesc, "\n", "\n" + doxygenPrefix);
-            str += multiDesc;
+
+            if (!desc.empty()) {
+                auto multiDesc = common::makeMultilineCopy(desc);
+                common::insertIndent(multiDesc);
+                multiDesc.insert(multiDesc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
+                ba::replace_all(multiDesc, "\n", "\n" + doxygenPrefix);
+                str += multiDesc;
+                str += '\n';
+            }
+
+            if (extraDoc.empty()) {
+                break;
+            }
+
+            if (!desc.empty()) {
+                str += doxygenPrefix;
+                str += '\n';
+            }
+
+            auto updateExtraDoc = common::insertIndentCopy(extraDoc);
+            updateExtraDoc.insert(updateExtraDoc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
+            ba::replace_all(updateExtraDoc, "\n", "\n" + doxygenPrefix);
+            str += updateExtraDoc;
             str += '\n';
-        }
+        } while (false);
     }
 
     if (!m_externalRef.empty()) {

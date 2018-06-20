@@ -15,7 +15,7 @@ class EnumField : public Field
 public:
     EnumField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
-    common::StringsList getValuesList(bool description = true) const;
+    common::StringsList getValuesList() const;
     std::string getValuesDefinition() const;
     std::string getValueName(std::intmax_t value) const;
     const std::string& underlyingType() const;

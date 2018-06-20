@@ -195,7 +195,7 @@ std::string numToString(std::intmax_t value)
     return stream.str();
 }
 
-std::string makeMultiline(const std::string& value, unsigned len)
+std::string makeMultilineCopy(const std::string& value, unsigned len)
 {
     if (value.size() <= len) {
         return value;
@@ -269,6 +269,13 @@ void insertIndent(std::string& str)
     auto& indent = indentStr();
     str.insert(str.begin(), indent.begin(), indent.end());
     ba::replace_all(str, "\n", "\n" + indent);
+}
+
+std::string insertIndentCopy(const std::string& str)
+{
+    std::string result(str);
+    insertIndent(result);
+    return result;
 }
 
 std::string processTemplate(const std::string& templ, const ReplacementMap& repl)

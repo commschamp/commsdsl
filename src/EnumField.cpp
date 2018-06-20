@@ -3,9 +3,13 @@
 #include <type_traits>
 #include <algorithm>
 
+#include <boost/algorithm/string.hpp>
+
 #include "Generator.h"
 #include "common.h"
 #include "IntField.h"
+
+namespace ba = boost::algorithm;
 
 namespace commsdsl2comms
 {
@@ -74,7 +78,7 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
 
 } // namespace
 
-common::StringsList EnumField::getValuesList(bool description) const
+common::StringsList EnumField::getValuesList() const
 {
     if (!prepareRanges()) {
         return common::StringsList();
@@ -105,21 +109,42 @@ common::StringsList EnumField::getValuesList(bool description) const
             continue;
         }
 
-        std::string str = v.second + " = ";
+        static const std::string Templ =
+            "#^#NAME#$# = #^#VALUE#$#, \n";
 
+        std::string valStr;
         if (bigUnsigned) {
-            str += common::numToString(static_cast<std::uintmax_t>(v.first));
+            valStr = common::numToString(static_cast<std::uintmax_t>(v.first));
         }
         else {
-            str += common::numToString(v.first);
+            valStr = common::numToString(v.first);
         }
 
-        if (description) {
-            // TODO: proper description when implemented
-            str += ", ///< value @b " + v.second;
+        std::string docStr;
+        if (!iter->second.m_description.empty()) {
+            docStr = "///< " + iter->second.m_description;
+            docStr = common::makeMultilineCopy(docStr, 40);
+            ba::replace_all(docStr, "\n", "\n///  ");
+        }
+        else if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
+            docStr = "///< message id @b " + v.second;
+        }
+        else {
+            docStr = "///< value @b " + v.second;
         }
 
-        valuesStrings.push_back(std::move(str));
+        assert(!valStr.empty());
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("NAME", v.second));
+        replacements.insert(std::make_pair("VALUE", std::move(valStr)));
+        auto templ = common::processTemplate(Templ, replacements);
+        assert(2U <= templ.size());
+        static const std::string DocElem("#^#DOC#$#");
+        templ.insert((templ.end() - 1U), DocElem.begin(), DocElem.end());
+
+        common::ReplacementMap docRepl;
+        docRepl.insert(std::make_pair("DOC", std::move(docStr)));
+        valuesStrings.push_back(common::processTemplate(templ, docRepl));
     }
     return valuesStrings;
 }
@@ -128,7 +153,7 @@ std::string EnumField::getValuesDefinition() const
 {
     common::StringsList values = getValuesList();
 
-    return common::listToString(values, "\n", common::emptyString());
+    return common::listToString(values, common::emptyString(), common::emptyString());
 }
 
 std::string EnumField::getValueName(std::intmax_t value) const

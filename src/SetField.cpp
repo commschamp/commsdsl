@@ -4,9 +4,13 @@
 #include <algorithm>
 #include <iterator>
 
+#include <boost/algorithm/string.hpp>
+
 #include "Generator.h"
 #include "common.h"
 #include "IntField.h"
+
+namespace ba = boost::algorithm;
 
 namespace commsdsl2comms
 {
@@ -85,7 +89,7 @@ void SetField::updateIncludesImpl(IncludesList& includes) const
 std::string SetField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
 {
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix, false, getExtraDoc())));
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
@@ -103,6 +107,33 @@ std::string SetField::getClassDefinitionImpl(const std::string& scope, const std
         templPtr = &StructTemplate;
     }
     return common::processTemplate(*templPtr, replacements);
+}
+
+std::string SetField::getExtraDoc() const
+{
+    common::StringsList extraDocList;
+    auto obj = setFieldDslObj();
+    auto& bits = obj.bits();
+    for (auto& b : bits) {
+        if (b.second.m_description.empty()) {
+            continue;
+        }
+
+        std::string str =
+            "@li @b " + b.first + " - " + b.second.m_description;
+        str = common::makeMultilineCopy(str);
+        ba::replace_all(str, "\n", "\n" + common::indentStr());
+        extraDocList.push_back(std::move(str));
+    }
+
+    if (extraDocList.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Prefix =
+        "The documented bits are:\n";
+
+    return Prefix + common::listToString(extraDocList, "\n", common::emptyString());
 }
 
 std::string SetField::getFieldBaseParams() const

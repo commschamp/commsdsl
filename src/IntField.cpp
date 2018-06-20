@@ -2,8 +2,12 @@
 
 #include <type_traits>
 
+#include <boost/algorithm/string.hpp>
+
 #include "Generator.h"
 #include "common.h"
+
+namespace ba = boost::algorithm;
 
 namespace commsdsl2comms
 {
@@ -207,16 +211,17 @@ std::string IntField::getSpecials() const
 
         static const std::string Templ(
             "/// @brief Special value <b>\"#^#SPEC_NAME#$#\"</b>.\n"
+            "#^#SPECIAL_DOC#$#\n"
             "static constexpr typename Base::ValueType value#^#SPEC_ACC#$#()\n"
             "{\n"
             "    return static_cast<typename Base::ValueType>(#^#SPEC_VAL#$#);\n"
             "}\n\n"
-            "/// @brief Check the value is equal to special <b>\"#^#SPEC_NAME#$#\"</b>.\n"
+            "/// @brief Check the value is equal to special @ref value#^#SPEC_ACC#$#().\n"
             "bool is#^#SPEC_ACC#$#() const\n"
             "{\n"
             "    return Base::value() == value#^#SPEC_ACC#$#();\n"
             "}\n\n"
-            "/// @brief Assign special value <b>\"#^#SPEC_NAME#$#\"</b> to the field.\n"
+            "/// @brief Assign special value @ref value#^#SPEC_ACC#$#() to the field.\n"
             "void set#^#SPEC_ACC#$#()\n"
             "{\n"
             "    Base::value() = value#^#SPEC_ACC#$#();\n"
@@ -233,10 +238,19 @@ std::string IntField::getSpecials() const
             specVal = common::numToString(s.second.m_value);
         }
 
+        std::string desc = s.second.m_description;
+        if (!desc.empty()) {
+            static const std::string Prefix("/// @details ");
+            desc.insert(desc.begin(), Prefix.begin(), Prefix.end());
+            desc = common::makeMultilineCopy(desc);
+            ba::replace_all(desc, "\n", "\n///     ");
+        }
+
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("SPEC_NAME", s.first));
         replacements.insert(std::make_pair("SPEC_ACC", common::nameToClassCopy(s.first)));
         replacements.insert(std::make_pair("SPEC_VAL", std::move(specVal)));
+        replacements.insert(std::make_pair("SPECIAL_DOC", std::move(desc)));
 
         result += common::processTemplate(Templ, replacements);
     }

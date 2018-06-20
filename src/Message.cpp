@@ -230,7 +230,7 @@ const std::string& Message::getDisplayName() const
 
 std::string Message::getDescription() const
 {
-    auto desc = common::makeMultiline(m_dslObj.description());
+    auto desc = common::makeMultilineCopy(m_dslObj.description());
     if (!desc.empty()) {
         static const std::string DocPrefix("///     ");
         desc.insert(desc.begin(), DocPrefix.begin(), DocPrefix.end());

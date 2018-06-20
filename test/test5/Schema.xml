@@ -15,8 +15,14 @@
         </enum>
         
         <enum name="E1" type="uint16">
-            <validValue name="V1" val="1" />
-            <validValue name="V2" val="2" />
+            <validValue name="V1" val="1" >
+                <description>
+                    Some very very very very very very very very very very very very
+                    very very very very long long long long long long long long long 
+                    long long long description.
+                </description>
+            </validValue>
+            <validValue name="V2" val="2" description="Short description"/>
             <validValue name="V5" val="5" />
             <validValue name="V10" val="10" />
         </enum>   

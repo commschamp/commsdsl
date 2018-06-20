@@ -57,7 +57,10 @@ public:
 
     const std::string& getDisplayName() const;
 
-    std::string getClassPrefix(const std::string& suffix, bool checkForOptional = true) const;
+    std::string getClassPrefix(
+            const std::string& suffix,
+            bool checkForOptional = true,
+            const std::string& extraDoc = common::emptyString()) const;
 
 protected:
     Field(Generator& generator, commsdsl::Field field)
