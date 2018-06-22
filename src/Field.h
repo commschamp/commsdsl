@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "commsdsl/Field.h"
+#include "commsdsl/Endian.h"
 #include "common.h"
 
 namespace commsdsl2comms
@@ -95,7 +96,7 @@ protected:
     std::string getCustomLength() const;
     std::string getCustomValid() const;
     std::string getCustomRefresh() const;
-
+    std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
 private:
 
     bool isVersionOptional() const;

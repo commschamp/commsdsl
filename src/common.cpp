@@ -449,6 +449,63 @@ const std::string& dslEndianToOpt(commsdsl::Endian value)
     return Map[value];
 }
 
+const std::string& dslUnitsToOpt(commsdsl::Units value)
+{
+    if (commsdsl::Units::NumOfValues <= value) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    static const std::string UnitsMap[] = {
+        /* Unknown */ common::emptyString(),
+        /* Nanoseconds */ "comms::option::UnitsNanoseconds",
+        /* Microseconds */ "comms::option::UnitsMicroseconds",
+        /* Milliseconds */ "comms::option::UnitsMilliseconds",
+        /* Seconds */ "comms::option::UnitsSeconds",
+        /* Minutes */ "comms::option::UnitsMinutes",
+        /* Hours */ "comms::option::UnitsHours",
+        /* Days */ "comms::option::UnitsDays",
+        /* Weeks */ "comms::option::UnitsWeeks",
+        /* Nanometers */ "comms::option::UnitsNanometers",
+        /* Micrometers */ "comms::option::UnitsMicrometers",
+        /* Millimeters */ "comms::option::UnitsMillimeters",
+        /* Centimeters */ "comms::option::UnitsCentimeters",
+        /* Meters */ "comms::option::UnitsMeters",
+        /* Kilometers */ "comms::option::UnitsKilometers",
+        /* NanometersPerSecond */ "comms::option::UnitsNanometersPerSecond",
+        /* MicrometersPerSecond */ "comms::option::UnitsMicrometersPerSecond",
+        /* MillimetersPerSecond */ "comms::option::UnitsMillimetersPerSecond",
+        /* CentimetersPerSecond */ "comms::option::UnitsCentimetersPerSecond",
+        /* MetersPerSecond */ "comms::option::UnitsMetersPerSecond",
+        /* KilometersPerSecond */ "comms::option::UnitsKilometersPerSecond",
+        /* KilometersPerHour */ "comms::option::UnitsKilometersPerHour",
+        /* Hertz */ "comms::option::UnitsHertz",
+        /* KiloHertz */ "comms::option::UnitsKilohertz",
+        /* MegaHertz */ "comms::option::UnitsMegahertz",
+        /* GigaHertz */ "comms::option::UnitsGigahertz",
+        /* Degrees */ "comms::option::UnitsDegrees",
+        /* Radians */ "comms::option::UnitsRadians",
+        /* Nanoamps */ "comms::option::UnitsNanoamps",
+        /* Microamps */ "comms::option::UnitsMicroamps",
+        /* Milliamps */ "comms::option::UnitsMilliamps",
+        /* Amps */ "comms::option::UnitsAmps",
+        /* Kiloamps */ "comms::option::UnitsKiloamps",
+        /* Nanovolts */ "comms::option::UnitsNanovolts",
+        /* Microvolts */ "comms::option::UnitsMicrovolts",
+        /* Millivolts */ "comms::option::UnitsMillivolts",
+        /* Volts */ "comms::option::UnitsVolts",
+        /* Kilovolts */ "comms::option::UnitsKilovolts",
+    };
+
+    static const std::size_t UnitsMapSize =
+        std::extent<decltype(UnitsMap)>::value;
+    static_assert(static_cast<decltype(UnitsMapSize)>(commsdsl::Units::NumOfValues) == UnitsMapSize,
+        "Invalid Map");
+
+    auto idx = static_cast<unsigned>(value);
+    return UnitsMap[idx];
+}
+
 } // namespace common
 
 } // namespace commsdsl2comms

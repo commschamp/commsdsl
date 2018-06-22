@@ -13,6 +13,7 @@
 #include "RefField.h"
 #include "EnumField.h"
 #include "SetField.h"
+#include "FloatField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -158,7 +159,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
         /* Int */ [](Generator& g, commsdsl::Field f) { return createIntField(g, f); },
         /* Enum */ [](Generator& g, commsdsl::Field f) { return createEnumField(g, f); },
         /* Set */ [](Generator& g, commsdsl::Field f) { return createSetField(g, f); },
-        /* Float */ [](Generator&, commsdsl::Field) { return Ptr(); },
+        /* Float */ [](Generator& g, commsdsl::Field f) { return createFloatField(g, f); },
         /* Bitfield */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Bundle */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* String */ [](Generator&, commsdsl::Field) { return Ptr(); },
@@ -372,6 +373,20 @@ std::string Field::getCustomRefresh() const
 {
     // TODO: implement
     return common::emptyString();
+}
+
+std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
+{
+    auto schemaEndian = generator().schemaEndian();
+    assert(endian < commsdsl::Endian_NumOfValues);
+    assert(schemaEndian < commsdsl::Endian_NumOfValues);
+
+    if ((schemaEndian == endian) ||
+        (commsdsl::Endian_NumOfValues <= endian)) {
+        return common::emptyString();
+    }
+
+    return common::dslEndianToOpt(endian);
 }
 
 bool Field::isVersionOptional() const

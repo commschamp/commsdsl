@@ -140,15 +140,7 @@ std::string SetField::getFieldBaseParams() const
 {
     auto obj = setFieldDslObj();
     auto endian = obj.endian();
-    auto schemaEndian = generator().schemaEndian();
-    assert(endian < commsdsl::Endian_NumOfValues);
-    assert(schemaEndian < commsdsl::Endian_NumOfValues);
-
-    if (schemaEndian == endian) {
-        return common::emptyString();
-    }
-
-    return common::dslEndianToOpt(endian);
+    return getCommonFieldBaseParams(endian);
 }
 
 std::string SetField::getFieldOpts(const std::string& scope) const

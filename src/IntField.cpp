@@ -163,15 +163,7 @@ std::string IntField::getFieldBaseParams() const
 {
     auto obj = intFieldDslObj();
     auto endian = obj.endian();
-    auto schemaEndian = generator().schemaEndian();
-    assert(endian < commsdsl::Endian_NumOfValues);
-    assert(schemaEndian < commsdsl::Endian_NumOfValues);
-
-    if (schemaEndian == endian) {
-        return common::emptyString();
-    }
-
-    return common::dslEndianToOpt(endian);
+    return getCommonFieldBaseParams(endian);
 }
 
 const std::string& IntField::getFieldType() const
@@ -490,64 +482,10 @@ void IntField::checkUnitsOpt(IntField::StringsList& list) const
 {
     auto obj = intFieldDslObj();
     auto units = obj.units();
-
-    if (units == commsdsl::Units::Unknown) {
-        return;
+    auto& str = common::dslUnitsToOpt(units);
+    if (!str.empty()) {
+        list.push_back(str);
     }
-
-    if (commsdsl::Units::NumOfValues <= units) {
-        assert(!"Should not happen");
-        return;
-    }
-
-    static const std::string UnitsMap[] = {
-        /* Unknown */ common::emptyString(),
-        /* Nanoseconds */ "Nanoseconds",
-        /* Microseconds */ "Microseconds",
-        /* Milliseconds */ "Milliseconds",
-        /* Seconds */ "Seconds",
-        /* Minutes */ "Minutes",
-        /* Hours */ "Hours",
-        /* Days */ "Days",
-        /* Weeks */ "Weeks",
-        /* Nanometers */ "Nanometers",
-        /* Micrometers */ "Micrometers",
-        /* Millimeters */ "Millimeters",
-        /* Centimeters */ "Centimeters",
-        /* Meters */ "Meters",
-        /* Kilometers */ "Kilometers",
-        /* NanometersPerSecond */ "NanometersPerSecond",
-        /* MicrometersPerSecond */ "MicrometersPerSecond",
-        /* MillimetersPerSecond */ "MillimetersPerSecond",
-        /* CentimetersPerSecond */ "CentimetersPerSecond",
-        /* MetersPerSecond */ "MetersPerSecond",
-        /* KilometersPerSecond */ "KilometersPerSecond",
-        /* KilometersPerHour */ "KilometersPerHour",
-        /* Hertz */ "Hertz",
-        /* KiloHertz */ "Kilohertz",
-        /* MegaHertz */ "Megahertz",
-        /* GigaHertz */ "Gigahertz",
-        /* Degrees */ "Degrees",
-        /* Radians */ "Radians",
-        /* Nanoamps */ "Nanoamps",
-        /* Microamps */ "Microamps",
-        /* Milliamps */ "Milliamps",
-        /* Amps */ "Amps",
-        /* Kiloamps */ "Kiloamps",
-        /* Nanovolts */ "Nanovolts",
-        /* Microvolts */ "Microvolts",
-        /* Millivolts */ "Millivolts",
-        /* Volts */ "Volts",
-        /* Kilovolts */ "Kilovolts",
-    };
-
-    static const std::size_t UnitsMapSize =
-        std::extent<decltype(UnitsMap)>::value;
-    static_assert(static_cast<decltype(UnitsMapSize)>(commsdsl::Units::NumOfValues) == UnitsMapSize,
-        "Invalid Map");
-
-    auto idx = static_cast<unsigned>(units);
-    list.push_back("comms::option::Units" + UnitsMap[idx]);
 }
 
 void IntField::checkValidRangesOpt(IntField::StringsList& list) const

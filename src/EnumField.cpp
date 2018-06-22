@@ -252,15 +252,7 @@ std::string EnumField::getFieldBaseParams() const
 {
     auto obj = enumFieldDslObj();
     auto endian = obj.endian();
-    auto schemaEndian = generator().schemaEndian();
-    assert(endian < commsdsl::Endian_NumOfValues);
-    assert(schemaEndian < commsdsl::Endian_NumOfValues);
-
-    if (schemaEndian == endian) {
-        return common::emptyString();
-    }
-
-    return common::dslEndianToOpt(endian);
+    return getCommonFieldBaseParams(endian);
 }
 
 std::string EnumField::getEnumType(const std::string& suffix) const

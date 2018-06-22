@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "commsdsl/Endian.h"
+#include "commsdsl/Units.h"
 
 namespace commsdsl2comms
 {
@@ -60,6 +61,7 @@ std::string listToString(
     const std::string& last = "\n");
 
 const std::string& dslEndianToOpt(commsdsl::Endian value);
+const std::string& dslUnitsToOpt(commsdsl::Units value);
 
 } // namespace common
 

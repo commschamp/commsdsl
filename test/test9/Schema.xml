@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test9"
+        id="1"
+        endian="big"
+        version="10">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        
+        <float name="F1" type="float" defaultValue="null">
+            <special name="null" val="NaN" />
+            <special name="s1" val="-inf" />
+            <special name="s2" val="inf" />
+            <special name="s3" val="1.3" />
+            <special name="s4" val="1.4" />
+            <validValue>null</validValue>
+            <validValue value="-inf" />
+            <validRange value="[s3, s4]" />
+        </float>
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="f1" field="F1" />
+        <float name="f2" type="double" />
+    </message>
+</schema>
