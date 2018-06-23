@@ -19,10 +19,26 @@
             <validValue value="-inf" />
             <validRange value="[s3, s4]" />
         </float>
+        
+        <float name="F2" type="float" validFullRange="true" />
+        
+        <float name="F3" type="double" validCheckVersion="true" >
+            <validValue value="nan" />
+            <validRange value="[0, 1.4]" />
+            <validValue value="1.8" sinceVersion="1" />
+            <validRange value="[2.0, 3.5]" sinceVersion="1" />
+            <validRange value="[4.0, 5.1]" sinceVersion="2" deprecated="3" />
+        </float>
     </fields>
+    
+    
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>      
     
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="F1" />
-        <float name="f2" type="double" />
+        <ref name="f2" field="F2" />
+        <ref name="f3" field="F3" />
     </message>
 </schema>

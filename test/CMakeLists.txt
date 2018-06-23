@@ -35,7 +35,7 @@ function (test_func name)
         OUTPUT ${output_dir}.tmp
         DEPENDS ${schema_file} ${PROJECT_NAME}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-        COMMAND $<TARGET_FILE:${PROJECT_NAME}> -o ${output_dir}.tmp ${schema_file}
+        COMMAND $<TARGET_FILE:${PROJECT_NAME}> --warn-as-err -o ${output_dir}.tmp ${schema_file}
     )
 
     set (output_tgt ${name}_output_tgt)

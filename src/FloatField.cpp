@@ -78,6 +78,26 @@ const std::string RangeComparisonTemplate =
     "(#^#MIN#$# <= Base::value()) &&\n"
     "(Base::value() <= #^#MAX#$#)";
 
+const std::string ValueComparisonTemplate =
+    "Base::value() == #^#MIN#$#";
+
+const std::string VersionConditionTemplate =
+    "if ((#^#MIN_VERSION#$# <= Base::getVersion()) &&\n"
+    "    (Base::getVersion() < #^#MAX_VERSION#$#)) {\n"
+    "    #^#CONDITIONS#$#\n"
+    "}\n";
+
+const std::string FromVersionConditionTemplate =
+    "if (#^#MIN_VERSION#$# <= Base::getVersion()) {\n"
+    "    #^#CONDITIONS#$#\n"
+    "}\n";
+
+const std::string UntilVersionConditionTemplate =
+    "if (Base::getVersion() < #^#MAX_VERSION#$#) {\n"
+    "    #^#CONDITIONS#$#\n"
+    "}\n";
+
+
 bool shouldUseStruct(const common::ReplacementMap& replacements)
 {
     auto hasNoValue =
@@ -181,6 +201,31 @@ std::string cmpToString(double val, commsdsl::FloatField::Type type)
 
     return "std::abs(Base::value() - " + valueToString(val, type) + ") < std::numeric_limits<typename Base::ValueType>::epsilon()";
 }
+
+void addCondition(common::StringsList& condList, std::string&& str)
+{
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("COND", std::move(str)));
+    condList.push_back(common::processTemplate(ConditionTemplate, repl));
+}
+
+void addRangeComparison(
+    common::StringsList& condList,
+    double min,
+    double max,
+    commsdsl::FloatField::Type type)
+{
+    auto* templ = &RangeComparisonTemplate;
+    if (min == max) {
+        templ = &ValueComparisonTemplate;
+    }
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("MIN", valueToString(min, type)));
+    repl.insert(std::make_pair("MAX", valueToString(max, type)));
+    addCondition(condList, common::processTemplate(*templ, repl));
+}
+
+
 
 } // namespace
 
@@ -424,42 +469,119 @@ std::string FloatField::getValid() const
 
 FloatField::StringsList FloatField::getVersionBasedConditions() const
 {
-    // TODO:
-    return StringsList();
+    auto obj = floatFieldDslObj();
+    auto validRanges = obj.validRanges(); // copy
+
+    std::sort(
+        validRanges.begin(), validRanges.end(),
+        [](auto& e1, auto& e2)
+        {
+            if (e1.m_sinceVersion != e2.m_sinceVersion) {
+                return e1.m_sinceVersion < e2.m_sinceVersion;
+            }
+
+            if (e1.m_deprecatedSince != e2.m_deprecatedSince) {
+                return e1.m_deprecatedSince > e2.m_deprecatedSince;
+            }
+
+            if (std::isnan(e2.m_min)) {
+                return !std::isnan(e1.m_min);
+            }
+
+            if (std::isnan(e1.m_min)) {
+                return false;
+            }
+
+            if (e1.m_min != e2.m_min) {
+                return e1.m_min < e2.m_min;
+            }
+
+            return e1.m_max < e2.m_max;
+        });
+
+
+    auto minVersion = obj.sinceVersion();
+    auto maxVersion = obj.deprecatedSince();
+    auto verDepIter =
+        std::find_if(
+            validRanges.begin(), validRanges.end(),
+            [minVersion, maxVersion](auto& elem)
+            {
+                return ((minVersion < elem.m_sinceVersion) ||
+                        (elem.m_deprecatedSince < maxVersion));
+            });
+
+    auto type = obj.type();
+
+    StringsList conditions;
+    for (auto iter = validRanges.begin(); iter != verDepIter; ++iter) {
+        if (isLimit(iter->m_min)) {
+            addCondition(conditions, cmpToString(iter->m_min, type));
+            continue;
+        }
+
+        addRangeComparison(conditions, iter->m_min, iter->m_max, type);
+    }
+
+    while (verDepIter != validRanges.end()) {
+        auto fromVersion = verDepIter->m_sinceVersion;
+        auto untilVersion = verDepIter->m_deprecatedSince;
+        assert(minVersion <= fromVersion);
+        assert((minVersion < fromVersion) || (untilVersion < maxVersion));
+
+        auto nextIter =
+            std::find_if(
+                verDepIter, validRanges.end(),
+                [fromVersion, untilVersion](auto& elem)
+                {
+                    return (elem.m_sinceVersion != fromVersion) ||
+                           (elem.m_deprecatedSince != untilVersion);
+                });
+
+        StringsList innerConditions;
+        for (auto iter = verDepIter; iter != nextIter; ++iter) {
+            if (isLimit(iter->m_min)) {
+                addCondition(innerConditions, cmpToString(iter->m_min, type));
+                continue;
+            }
+
+            addRangeComparison(innerConditions, iter->m_min, iter->m_max, type);
+        }
+
+        auto* templ = &VersionConditionTemplate;
+        if (fromVersion == 0) {
+            assert(untilVersion < commsdsl::Protocol::notYetDeprecated());
+            templ = &UntilVersionConditionTemplate;
+        }
+        else if (commsdsl::Protocol::notYetDeprecated() <= untilVersion) {
+            templ = &FromVersionConditionTemplate;
+        }
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("MIN_VERSION", common::numToString(fromVersion)));
+        replacements.insert(std::make_pair("MAX_VERSION", common::numToString(untilVersion)));
+        replacements.insert(std::make_pair("CONDITIONS", common::listToString(innerConditions, "\n", common::emptyString())));
+        conditions.push_back(common::processTemplate(*templ, replacements));
+        verDepIter = nextIter;
+    }
+
+    return conditions;
 }
 
 FloatField::StringsList FloatField::getNormalConditions() const
 {
     common::StringsList conditions;
-    auto addCondFunc =
-        [&conditions](std::string&& str)
-        {
-            common::ReplacementMap repl;
-            repl.insert(std::make_pair("COND", std::move(str)));
-            conditions.push_back(common::processTemplate(ConditionTemplate, repl));
-        };
-
     auto obj = floatFieldDslObj();
     auto type = obj.type();
-
-    auto addRangeCompFunc =
-        [&addCondFunc, type](double min, double max)
-        {
-            common::ReplacementMap repl;
-            repl.insert(std::make_pair("MIN", valueToString(min, type)));
-            repl.insert(std::make_pair("MAX", valueToString(max, type)));
-            addCondFunc(common::processTemplate(RangeComparisonTemplate, repl));
-        };
-
 
     auto& validRanges = obj.validRanges();
     for (auto& r : validRanges) {
         if (isLimit(r.m_min)) {
-            addCondFunc(cmpToString(r.m_min, type));
+            addCondition(conditions, cmpToString(r.m_min, type));
             continue;
         }
 
-        addRangeCompFunc(r.m_min, r.m_max);
+        addRangeComparison(conditions, r.m_min, r.m_max, type);
     }
 
     return conditions;
