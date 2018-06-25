@@ -86,6 +86,7 @@ protected:
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const = 0;
+    virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
 
     std::string getNameFunc() const;
 

@@ -24,6 +24,7 @@ set (
     "SetField.cpp"
     "FloatField.cpp"
     "RefField.cpp"
+    "BitfieldField.cpp"
     "FieldBase.cpp"
     "DefaultOptions.cpp"
     "MsgId.cpp"

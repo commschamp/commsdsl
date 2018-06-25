@@ -14,6 +14,7 @@
 #include "EnumField.h"
 #include "SetField.h"
 #include "FloatField.h"
+#include "BitfieldField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -160,7 +161,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
         /* Enum */ [](Generator& g, commsdsl::Field f) { return createEnumField(g, f); },
         /* Set */ [](Generator& g, commsdsl::Field f) { return createSetField(g, f); },
         /* Float */ [](Generator& g, commsdsl::Field f) { return createFloatField(g, f); },
-        /* Bitfield */ [](Generator&, commsdsl::Field) { return Ptr(); },
+        /* Bitfield */ [](Generator& g, commsdsl::Field f) { return createBitfieldField(g, f); },
         /* Bundle */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* String */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Data */ [](Generator&, commsdsl::Field) { return Ptr(); },
@@ -183,13 +184,20 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
 
 std::string Field::getDefaultOptions(const std::string& scope) const
 {
-    std::string extraScope;
+    auto fullScope = scope;
     if (!m_externalRef.empty()) {
-        extraScope = common::fieldStr() + "::";
+        fullScope += common::fieldStr() + "::";
     }
+
+    auto str = getExtraDefaultOptionsImpl(fullScope);
+    if (!str.empty()) {
+        str += '\n';
+    }
+
     return
+        str +
         "/// @brief Extra options for @ref " +
-        scope + extraScope + common::nameToClassCopy(name()) + " field.\n" +
+        fullScope + common::nameToClassCopy(name()) + " field.\n" +
         "using " + common::nameToClassCopy(name()) +
         " = comms::option::EmptyOption;\n";
 }
@@ -209,7 +217,7 @@ bool Field::writeProtocolDefinition() const
 
     auto namespaces = m_generator.namespacesForField(m_externalRef);
 
-    // TODO: modifile class name
+    // TODO: modify class name
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
@@ -323,6 +331,11 @@ void Field::updateIncludesImpl(IncludesList& includes) const
     static_cast<void>(includes);
 }
 
+std::string Field::getExtraDefaultOptionsImpl(const std::string& scope) const
+{
+    static_cast<void>(scope);
+    return common::emptyString();
+}
 
 std::string Field::getNameFunc() const
 {
@@ -331,7 +344,7 @@ std::string Field::getNameFunc() const
         "static const char* name()\n"
         "{\n"
         "    return \"" + getDisplayName() + "\";\n"
-                                             "}\n";
+        "}\n";
 }
 
 void Field::updateExtraOptions(const std::string& scope, common::StringsList& options) const
