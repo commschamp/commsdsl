@@ -42,38 +42,8 @@ const std::string ClassTemplate(
     "};\n"
 );
 
-const std::string StructTemplate(
-    "#^#PREFIX#$#"
-    "struct #^#CLASS_NAME#$# : public\n"
-    "    comms::field::BitmaskValue<\n"
-    "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        #^#FIELD_OPTS#$#\n"
-    "    >\n"
-    "{\n"
-    "    #^#BITS_ACCESS#$#\n"
-    "    #^#NAME#$#\n"
-    "};\n"
-);
-
 const std::size_t MaxRangesInOpts = 5U;
 const auto MaxBits = std::numeric_limits<std::uintmax_t>::digits;
-
-bool shouldUseStruct(const common::ReplacementMap& replacements)
-{
-    auto hasNoValue =
-        [&replacements](const std::string& val)
-        {
-            auto iter = replacements.find(val);
-            return (iter == replacements.end()) || iter->second.empty();
-        };
-
-    return
-        hasNoValue("READ") &&
-        hasNoValue("WRITE") &&
-        hasNoValue("LENGTH") &&
-        hasNoValue("VALID") &&
-        hasNoValue("REFRESH");
-}
 
 } // namespace
 
@@ -102,11 +72,7 @@ std::string SetField::getClassDefinitionImpl(const std::string& scope, const std
     replacements.insert(std::make_pair("VALID", getValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
 
-    const std::string* templPtr = &ClassTemplate;
-    if (shouldUseStruct(replacements)) {
-        templPtr = &StructTemplate;
-    }
-    return common::processTemplate(*templPtr, replacements);
+    return common::processTemplate(ClassTemplate, replacements);
 }
 
 std::string SetField::getExtraDoc() const

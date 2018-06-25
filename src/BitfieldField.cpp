@@ -52,6 +52,7 @@ const std::string ClassTemplate(
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
+    "    #^#ACCESS#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
@@ -60,37 +61,6 @@ const std::string ClassTemplate(
     "    #^#REFRESH#$#\n"
     "};\n"
 );
-
-const std::string StructTemplate(
-    "#^#MEMBERS_STRUCT_DEF#$#\n"
-    "#^#PREFIX#$#"
-    "struct #^#CLASS_NAME#$# : public\n"
-    "    comms::field::Bitfield<\n"
-    "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        typename #^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
-    "        #^#FIELD_OPTS#$#\n"
-    "    >\n"
-    "{\n"
-    "    #^#NAME#$#\n"
-    "};\n"
-);
-
-bool shouldUseStruct(const common::ReplacementMap& replacements)
-{
-    auto hasNoValue =
-        [&replacements](const std::string& val)
-        {
-            auto iter = replacements.find(val);
-            return (iter == replacements.end()) || iter->second.empty();
-        };
-
-    return
-        hasNoValue("READ") &&
-        hasNoValue("WRITE") &&
-        hasNoValue("LENGTH") &&
-        hasNoValue("VALID") &&
-        hasNoValue("REFRESH");
-}
 
 } // namespace
 
@@ -144,6 +114,7 @@ std::string BitfieldField::getClassDefinitionImpl(const std::string& scope, cons
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
     replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, suffix)));
+    replacements.insert(std::make_pair("ACCESS", getAccess(suffix)));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["COMMA"] = ',';
     }
@@ -152,11 +123,7 @@ std::string BitfieldField::getClassDefinitionImpl(const std::string& scope, cons
         replacements.insert(std::make_pair("MEMBERS_OPT", "<TOpt>"));
     }
 
-    const std::string* templPtr = &ClassTemplate;
-    if (shouldUseStruct(replacements)) {
-        templPtr = &StructTemplate;
-    }
-    return common::processTemplate(*templPtr, replacements);
+    return common::processTemplate(ClassTemplate, replacements);
 }
 
 std::string BitfieldField::getExtraDefaultOptionsImpl(const std::string& scope) const
@@ -217,6 +184,43 @@ std::string BitfieldField::getMembersDef(const std::string& scope, const std::st
     replacements.insert(std::make_pair("MEMBERS", common::listToString(membersNames, ",\n", common::emptyString())));
     return common::processTemplate(MembersDefTemplate, replacements);
 
+}
+
+std::string BitfieldField::getAccess(const std::string& suffix) const
+{
+    static const std::string Templ =
+        "/// @brief Allow access to internal fields.\n"
+        "/// @details See definition of @b COMMS_FIELD_MEMBERS_ACCESS macro\n"
+        "///     related to @b comms::field::Bitfield class from COMMS library\n"
+        "///     for details.\n"
+        "///\n"
+        "///      The generated access functions are:\n"
+        "#^#ACCESS_DOC#$#\n"
+        "COMMS_FIELD_MEMBERS_ACCESS(\n"
+        "    #^#NAMES#$#\n"
+        ");\n";
+
+    StringsList accessDocList;
+    StringsList namesList;
+    accessDocList.reserve(m_members.size());
+    namesList.reserve(m_members.size());
+
+    for (auto& m : m_members) {
+        namesList.push_back(common::nameToAccessCopy(m->name()));
+        std::string accessStr =
+            "///     @li @b field_" + namesList.back() +
+            "() - for @ref " +
+            common::nameToClassCopy(name()) + suffix +
+            common::membersSuffixStr() + "::" +
+            namesList.back() + " member field.";
+        accessDocList.push_back(std::move(accessStr));
+        
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("ACCESS_DOC", common::listToString(accessDocList, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("NAMES", common::listToString(namesList, ",\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
 }
 
 } // namespace commsdsl2comms

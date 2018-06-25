@@ -25,4 +25,7 @@ public:
 void TestSuite::test1()
 {
     Msg1 msg;
+    TS_ASSERT(msg.valid());
+    msg.field_f1().field_m1().value() = 6U;
+    TS_ASSERT(!msg.valid());
 }

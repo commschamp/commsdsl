@@ -11,7 +11,7 @@
 
         <int name="I1" type="uint8" />        
         <bitfield name="B1">
-            <int name="m1" reuse="I1" bitLength="3" />
+            <int name="m1" reuse="I1" bitLength="3" validRange="[0,5]" />
             <int name="m2" type="uint8" bitLength="5" />
         </bitfield>        
     </fields>
