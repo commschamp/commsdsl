@@ -24,10 +24,12 @@ const std::string& commsStr();
 const std::string& indentStr();
 const std::string& doxygenPrefixStr();
 const std::string& fieldsSuffixStr();
+const std::string& membersSuffixStr();
 const std::string& optFieldSuffixStr();
 const std::string& defaultOptionsStr();
 const std::string& msgIdEnumNameStr();
 const std::string& msgIdPrefixStr();
+
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

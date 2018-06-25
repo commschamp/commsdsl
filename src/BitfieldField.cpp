@@ -16,15 +16,23 @@ namespace
 {
 
 const std::string MembersDefTemplate =
-    "#^#MEMBERS_PREFIX#$#\n"
+    "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# bitfield.\n"
+    "#^#EXTRA_PREFIX#$#\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
     "    #^#MEMBERS_DEFS#$#\n"
     "    /// @brief All members bundled in @b std::tuple.\n"
     "    using All =\n"
-    "        std::tuple<"
+    "        std::tuple<\n"
     "           #^#MEMBERS#$#\n"
     "        >;\n"
+    "};\n";
+
+const std::string MembersOptionsTemplate =
+    "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
+    "struct #^#CLASS_NAME#$#Members\n"
+    "{\n"
+    "    #^#OPTIONS#$#\n"
     "};\n";
 
 const std::string ClassTemplate(
@@ -33,14 +41,14 @@ const std::string ClassTemplate(
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::field::Bitfield<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        #^#MEMBERS_TYPENAME#$##^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
+    "        typename #^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
     "    using Base = \n"
     "        comms::field::Bitfield<\n"
     "            #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "            #^#MEMBERS_TYPENAME#$##^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
+    "            typename #^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
@@ -59,7 +67,7 @@ const std::string StructTemplate(
     "struct #^#CLASS_NAME#$# : public\n"
     "    comms::field::Bitfield<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        #^#MEMBERS_TYPENAME#$##^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
+    "        typename #^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
@@ -135,12 +143,12 @@ std::string BitfieldField::getClassDefinitionImpl(const std::string& scope, cons
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
+    replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, suffix)));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["COMMA"] = ',';
     }
 
     if (!externalRef().empty()) {
-        replacements.insert(std::make_pair("MEMBERS_TYPENAME", "typename "));
         replacements.insert(std::make_pair("MEMBERS_OPT", "<TOpt>"));
     }
 
@@ -149,6 +157,22 @@ std::string BitfieldField::getClassDefinitionImpl(const std::string& scope, cons
         templPtr = &StructTemplate;
     }
     return common::processTemplate(*templPtr, replacements);
+}
+
+std::string BitfieldField::getExtraDefaultOptionsImpl(const std::string& scope) const
+{
+    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    StringsList options;
+    options.reserve(m_members.size());
+    for (auto& m : m_members) {
+        options.push_back(m->getDefaultOptions(memberScope));
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
+    return common::processTemplate(MembersOptionsTemplate, replacements);
 }
 
 std::string BitfieldField::getFieldBaseParams() const
@@ -165,6 +189,34 @@ std::string BitfieldField::getFieldOpts(const std::string& scope) const
     updateExtraOptions(scope, options);
 
     return common::listToString(options, ",\n", common::emptyString());
+}
+
+std::string BitfieldField::getMembersDef(const std::string& scope, const std::string& suffix) const
+{
+    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    StringsList membersDefs;
+    StringsList membersNames;
+
+    membersDefs.reserve(m_members.size());
+    membersNames.reserve(m_members.size());
+    for (auto& m : m_members) {
+        membersDefs.push_back(m->getClassDefinition(memberScope));
+        membersNames.push_back(common::nameToClassCopy(m->name()));
+    }
+
+    std::string prefix;
+    if (!externalRef().empty()) {
+        prefix += "/// @tparam TOpt Protocol options.\n";
+        prefix += "template <typename TOpt = " + generator().mainNamespace() + "::" + common::defaultOptionsStr() + ">";
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name() + suffix)));
+    replacements.insert(std::make_pair("EXTRA_PREFIX", std::move(prefix)));
+    replacements.insert(std::make_pair("MEMBERS_DEFS", common::listToString(membersDefs, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("MEMBERS", common::listToString(membersNames, ",\n", common::emptyString())));
+    return common::processTemplate(MembersDefTemplate, replacements);
+
 }
 
 } // namespace commsdsl2comms

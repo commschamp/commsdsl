@@ -22,5 +22,9 @@
     
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="B1" />
+        <bitfield name="f2">
+            <int name="m1" reuse="I1" bitLength="3" />
+            <int name="m2" type="uint8" bitLength="5" />
+        </bitfield>          
     </message>
 </schema>
