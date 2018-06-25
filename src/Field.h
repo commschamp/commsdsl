@@ -63,6 +63,11 @@ public:
             bool checkForOptional = true,
             const std::string& extraDoc = common::emptyString()) const;
 
+    const std::string& externalRef() const
+    {
+        return m_externalRef;
+    }
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),
@@ -76,11 +81,6 @@ protected:
     const commsdsl::Field& dslObj() const
     {
         return m_dslObj;
-    }
-
-    const std::string& externalRef() const
-    {
-        return m_externalRef;
     }
 
     virtual bool prepareImpl();

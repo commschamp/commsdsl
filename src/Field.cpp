@@ -15,6 +15,7 @@
 #include "SetField.h"
 #include "FloatField.h"
 #include "BitfieldField.h"
+#include "OptionalField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -167,7 +168,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
         /* Data */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* List */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Ref */ [](Generator& g, commsdsl::Field f) { return createRefField(g, f); },
-        /* Optional */ [](Generator&, commsdsl::Field) { return Ptr(); },
+        /* Optional */ [](Generator& g, commsdsl::Field f) { return createOptionalField(g, f); },
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
