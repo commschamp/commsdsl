@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test12"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+
+        <int name="I1" type="uint8" />        
+        <bundle name="B1">
+            <int name="m1" reuse="I1" validRange="[0,5]" />
+            <int name="m2" type="uint8" />
+        </bundle>        
+    </fields>
+    
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>      
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="f1" field="B1" />
+    </message>
+</schema>

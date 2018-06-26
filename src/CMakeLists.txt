@@ -26,6 +26,7 @@ set (
     "RefField.cpp"
     "BitfieldField.cpp"
     "OptionalField.cpp"
+    "BundleField.cpp"
     "FieldBase.cpp"
     "DefaultOptions.cpp"
     "MsgId.cpp"

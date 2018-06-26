@@ -123,6 +123,7 @@ test_func (test8)
 test_func (test9)
 test_func (test10)
 test_func (test11)
+test_func (test12)
 
 #add_clang_options (test11 "-Wno-c++11-narrowing")
 
