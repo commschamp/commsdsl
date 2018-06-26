@@ -24,7 +24,8 @@ private:
     using StringsList = common::StringsList;
 
     std::string getFieldOpts(const std::string& scope) const;
-    std::string getMembersDef(const std::string& scope, const std::string& suffix) const;
+    std::string getMembersDef(const std::string& scope) const;
+    std::string getFieldRef() const;
     void checkModeOpt(StringsList& options) const;
 
     commsdsl::OptionalField optionalFieldDslObj() const

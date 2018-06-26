@@ -35,13 +35,13 @@ const std::string ClassTemplate(
     "#^#PREFIX#$#"
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::field::Optional<\n"
-    "        typename #^#CLASS_NAME#$#Members::#^#FIELD_NAME#$##^#COMMA#$#\n"
+    "        #^#FIELD_REF#$##^#COMMA#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
     "    using Base = \n"
     "        comms::field::Optional<\n"
-    "            typename #^#CLASS_NAME#$#Members::#^#FIELD_NAME#$##^#COMMA#$#\n"
+    "            #^#FIELD_REF#$##^#COMMA#$#\n"
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
@@ -59,7 +59,7 @@ const std::string StructTemplate(
     "#^#PREFIX#$#"
     "struct #^#CLASS_NAME#$# : public\n"
     "    comms::field::Optional<\n"
-    "        typename #^#CLASS_NAME#$#Members::#^#FIELD_NAME#$##^#COMMA#$#\n"
+    "        #^#FIELD_REF#$##^#COMMA#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
@@ -143,8 +143,8 @@ std::string OptionalField::getClassDefinitionImpl(const std::string& scope, cons
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
-    replacements.insert(std::make_pair("FIELD_NAME", common::nameToClassCopy(m_field->name())));
-    replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, suffix)));
+    replacements.insert(std::make_pair("FIELD_REF", getFieldRef()));
+    replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope)));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["COMMA"] = ',';
     }
@@ -183,10 +183,14 @@ std::string OptionalField::getFieldOpts(const std::string& scope) const
     return common::listToString(options, ",\n", common::emptyString());
 }
 
-std::string OptionalField::getMembersDef(const std::string& scope, const std::string& suffix) const
+std::string OptionalField::getMembersDef(const std::string& scope) const
 {
-    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     assert(m_field);
+    if (!m_field->externalRef().empty()) {
+        return common::emptyString();
+    }
+
+    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     std::string fieldDef = m_field->getClassDefinition(memberScope);
 
     std::string prefix;
@@ -196,11 +200,29 @@ std::string OptionalField::getMembersDef(const std::string& scope, const std::st
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name() + suffix)));
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("EXTRA_PREFIX", std::move(prefix)));
     replacements.insert(std::make_pair("FIELD_DEF", std::move(fieldDef)));
     return common::processTemplate(MembersDefTemplate, replacements);
 
+}
+
+std::string OptionalField::getFieldRef() const
+{
+    assert(m_field);
+    auto ref = m_field->externalRef();
+    if (!ref.empty()) {
+        return "typename " + generator().scopeForField(ref, true, true) + "<TOpt>";
+    }
+
+    std::string extraOpt;
+    if (!externalRef().empty()) {
+        extraOpt = "<TOpt>";
+    }
+
+    return
+        "typename " + common::nameToClassCopy(name()) + common::membersSuffixStr() +
+        extraOpt + "::" + common::nameToClassCopy(m_field->name());
 }
 
 void OptionalField::checkModeOpt(OptionalField::StringsList& options) const
