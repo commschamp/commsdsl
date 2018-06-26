@@ -6,6 +6,7 @@
 
 #include "Generator.h"
 #include "common.h"
+#include "OptionalField.h"
 
 namespace ba = boost::algorithm;
 
@@ -59,6 +60,7 @@ const std::string ClassTemplate(
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -114,6 +116,7 @@ std::string BundleField::getClassDefinitionImpl(const std::string& scope, const 
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
     replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, suffix)));
     replacements.insert(std::make_pair("ACCESS", getAccess(suffix)));
+    replacements.insert(std::make_pair("PRIVATE", getPrivate()));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["COMMA"] = ',';
     }
@@ -213,6 +216,50 @@ std::string BundleField::getAccess(const std::string& suffix) const
     replacements.insert(std::make_pair("ACCESS_DOC", common::listToString(accessDocList, "\n", common::emptyString())));
     replacements.insert(std::make_pair("NAMES", common::listToString(namesList, ",\n", common::emptyString())));
     return common::processTemplate(Templ, replacements);
+}
+
+std::string BundleField::getPrivate() const
+{
+    StringsList funcs;
+    for (auto& m : m_members) {
+        assert(m);
+        if (m->kind() != commsdsl::Field::Kind::Optional) {
+            continue;
+        }
+
+        auto* optField = static_cast<const OptionalField*>(m.get());
+        auto cond = optField->cond();
+        if (!cond.valid()) {
+            continue;
+        }
+
+        static const std::string Templ = 
+            "bool refresh#^#NAME#$#()\n"
+            "{\n"
+            "    auto mode = comms::field::OptionalMode::Missing;\n"
+            "    if (#^#COND#$#) {\n"
+            "        mode = comms::field::OptionalMode::Exists;\n"
+            "    }\n\n"
+            "    if (Base::getMode() == mode) {\n"
+            "        return false;\n"
+            "    }\n\n"
+            "    return true;\n"
+            "}\n";
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("NAME", common::nameToClassCopy(m->name())));
+        replacements.insert(std::make_pair("COND", common::dslCondToString(cond)));
+        funcs.push_back(common::processTemplate(Templ, replacements));
+    }
+
+    if (funcs.empty()) {
+        return common::emptyString();
+    }
+
+    auto str = common::listToString(funcs, "\n", common::emptyString());
+    common::insertIndent(str);
+    static const std::string Prefix("private:\n");
+    return Prefix + str; 
 }
 
 } // namespace commsdsl2comms

@@ -163,6 +163,10 @@ std::string OptionalField::getClassDefinitionImpl(const std::string& scope, cons
 std::string OptionalField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
     assert(m_field);
+    if (!m_field->externalRef().empty()) {
+        return common::emptyString();
+    }
+
     std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     auto fieldOptions = m_field->getDefaultOptions(memberScope);
 

@@ -14,6 +14,10 @@ class OptionalField : public Field
 public:
     OptionalField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
+    commsdsl::OptCond cond() const
+    {
+        return optionalFieldDslObj().cond();
+    }
 protected:
     virtual bool prepareImpl() override;
     virtual void updateIncludesImpl(IncludesList& includes) const override;

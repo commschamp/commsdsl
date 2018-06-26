@@ -7,6 +7,7 @@
 
 #include "commsdsl/Endian.h"
 #include "commsdsl/Units.h"
+#include "commsdsl/OptCond.h"
 
 namespace commsdsl2comms
 {
@@ -64,6 +65,7 @@ std::string listToString(
 
 const std::string& dslEndianToOpt(commsdsl::Endian value);
 const std::string& dslUnitsToOpt(commsdsl::Units value);
+std::string dslCondToString(const commsdsl::OptCond& cond);
 
 } // namespace common
 
