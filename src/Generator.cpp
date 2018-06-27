@@ -574,7 +574,7 @@ Generator::MessageIdMap Generator::getAllMessageIds() const
     return result;
 }
 
-const Field* Generator::findField(const std::string& externalRef)
+const Field* Generator::findField(const std::string& externalRef, bool record)
 {
     assert(!externalRef.empty());
     auto pos = externalRef.find_first_of('.');
@@ -602,7 +602,7 @@ const Field* Generator::findField(const std::string& externalRef)
         fromPos = pos + 1U;
     }
     std::string remStr(externalRef, fromPos);
-    auto result = (*nsIter)->findField(remStr);
+    auto result = (*nsIter)->findField(remStr, record);
     if (result == nullptr) {
         m_logger.error("Internal error: unknown external reference: " + externalRef);
         assert(!"Should not happen");

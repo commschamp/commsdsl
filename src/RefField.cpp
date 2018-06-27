@@ -70,6 +70,58 @@ std::string RefField::getClassDefinitionImpl(const std::string& scope, const std
     return common::processTemplate(*templ, replacements);
 }
 
+std::string RefField::getCompareToValueImpl(
+    const std::string& op,
+    const std::string& value,
+    const std::string& nameOverride) const
+{
+    auto obj = refFieldDslObj();
+    auto field = obj.field();
+    if (!field.valid()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    auto* fieldPtr = generator().findField(field.externalRef());
+    if (fieldPtr == nullptr) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
+    return fieldPtr->getCompareToValue(op, value, usedName);
+}
+
+std::string RefField::getCompareToFieldImpl(
+    const std::string& op,
+    const Field& field,
+    const std::string& nameOverride) const
+{
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
+    auto obj = refFieldDslObj();
+    auto dslField = obj.field();
+    if (!dslField.valid()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    auto* fieldPtr = generator().findField(dslField.externalRef());
+    if (fieldPtr == nullptr) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    return fieldPtr->getCompareToField(op, field, usedName);
+}
+
 std::string RefField::getOpts(const std::string& scope) const
 {
     StringsList options;

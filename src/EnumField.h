@@ -23,6 +23,14 @@ public:
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
+    virtual std::string getCompareToValueImpl(
+        const std::string& op,
+        const std::string& value,
+        const std::string& nameOverride) const override;
+    virtual std::string getCompareToFieldImpl(
+        const std::string& op,
+        const Field& field,
+        const std::string& nameOverride) const override;
 
 private:
     using StringsList = common::StringsList;

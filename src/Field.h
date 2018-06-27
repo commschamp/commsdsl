@@ -75,14 +75,20 @@ public:
         const commsdsl::OptCond& cond,
         bool bracketsWrap = false);
 
-    std::string getCompareToValue(const std::string& op, const std::string& value) const
+    std::string getCompareToValue(
+        const std::string& op,
+        const std::string& value,
+        const std::string& nameOverride = common::emptyString()) const
     {
-        return getCompareToValueImpl(op, value);
+        return getCompareToValueImpl(op, value, nameOverride);
     }
 
-    std::string getCompareToField(const std::string& op, const Field& field) const
+    std::string getCompareToField(
+        const std::string& op,
+        const Field& field,
+        const std::string& nameOverride = common::emptyString()) const
     {
-        return getCompareToFieldImpl(op, field);
+        return getCompareToFieldImpl(op, field, nameOverride);
     }
 
 protected:
@@ -104,8 +110,14 @@ protected:
     virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
-    virtual std::string getCompareToValueImpl(const std::string& op, const std::string& value) const;
-    virtual std::string getCompareToFieldImpl(const std::string& op, const Field& field) const;
+    virtual std::string getCompareToValueImpl(
+        const std::string& op,
+        const std::string& value,
+        const std::string& nameOverride) const;
+    virtual std::string getCompareToFieldImpl(
+        const std::string& op,
+        const Field& field,
+        const std::string& nameOverride) const;
 
     std::string getNameFunc() const;
 

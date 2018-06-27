@@ -161,13 +161,19 @@ std::string IntField::getClassDefinitionImpl(const std::string& scope, const std
 
 std::string IntField::getCompareToValueImpl(
     const std::string& op,
-    const std::string& value) const
+    const std::string& value,
+    const std::string& nameOverride) const
 {
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
     auto compareValFunc =
-        [this, &op](auto v)
+        [&op, &usedName](auto v)
         {
             return
-                "field_" + common::nameToAccessCopy(name()) + "().value() " +
+                "field_" + usedName + "().value() " +
                 op + " " + common::numToString(v);
         };
 
@@ -187,13 +193,21 @@ std::string IntField::getCompareToValueImpl(
     }
 }
 
-std::string IntField::getCompareToFieldImpl(const std::string& op, const Field& field) const
+std::string IntField::getCompareToFieldImpl(
+    const std::string& op,
+    const Field& field,
+    const std::string& nameOverride) const
 {
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
     auto strGenFunc =
-        [this, &op, &field](const std::string type)
+        [&op, &field, &usedName](const std::string& type)
         {
             return
-                "field_" + common::nameToAccessCopy(name()) + "().value() " +
+                "field_" + usedName + "().value() " +
                 op + " static_cast<" + type + ">(field_" +
                 common::nameToAccessCopy(field.name()) +
                 "().value())";
@@ -205,9 +219,8 @@ std::string IntField::getCompareToFieldImpl(const std::string& op, const Field& 
 
     const IntField& otherField = static_cast<const IntField&>(field);
     if (isUnsigned() == otherField.isUnsigned()) {
-        return Base::getCompareToFieldImpl(op, field);
+        return Base::getCompareToFieldImpl(op, field, usedName);
     }
-
 
     return strGenFunc(otherField.getFieldChangedSignType());
 }

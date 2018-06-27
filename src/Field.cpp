@@ -454,18 +454,34 @@ std::string Field::getExtraDefaultOptionsImpl(const std::string& scope) const
     return common::emptyString();
 }
 
-std::string Field::getCompareToValueImpl(const std::string& op, const std::string& value) const
+std::string Field::getCompareToValueImpl(
+    const std::string& op,
+    const std::string& value,
+    const std::string& nameOverride) const
 {
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
     //assert(!"Should not be called");
     return
-        "field_" + common::nameToAccessCopy(name()) + "().value() " +
+        "field_" + usedName + "().value() " +
         op + ' ' + value;
 }
 
-std::string Field::getCompareToFieldImpl(const std::string& op, const Field& field) const
+std::string Field::getCompareToFieldImpl(
+    const std::string& op,
+    const Field& field,
+    const std::string& nameOverride) const
 {
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
     return
-        "field_" + common::nameToAccessCopy(name()) + "().value() " +
+        "field_" + usedName + "().value() " +
         op + " field_" + common::nameToAccessCopy(field.name()) + "().value()";
 }
 

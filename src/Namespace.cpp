@@ -234,7 +234,7 @@ const Field* Namespace::findMessageIdField() const
     return nullptr;
 }
 
-const Field* Namespace::findField(const std::string& externalRef)
+const Field* Namespace::findField(const std::string& externalRef, bool record)
 {
     assert(!externalRef.empty());
     auto pos = externalRef.find_first_of('.');
@@ -256,7 +256,9 @@ const Field* Namespace::findField(const std::string& externalRef)
             return nullptr;
         }
 
-        recordAccessedField(fieldIter->get());
+        if (record) {
+            recordAccessedField(fieldIter->get());
+        }
         return fieldIter->get();
     }
 
@@ -277,7 +279,7 @@ const Field* Namespace::findField(const std::string& externalRef)
         fromPos = pos + 1U;
     }
     std::string remStr(externalRef, fromPos);
-    return (*nsIter)->findField(remStr);
+    return (*nsIter)->findField(remStr, record);
 }
 
 bool Namespace::anyInterfaceHasVersion() const

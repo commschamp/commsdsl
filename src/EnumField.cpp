@@ -228,6 +228,79 @@ std::string EnumField::getClassDefinitionImpl(const std::string& scope, const st
     return common::processTemplate(*templPtr, replacements);
 }
 
+std::string EnumField::getCompareToValueImpl(
+    const std::string& op,
+    const std::string& value,
+    const std::string& nameOverride) const
+{
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
+    auto strGenFunc =
+        [&op, &usedName](const std::string& v)
+        {
+            return
+                "field_" + usedName + "().value() " +
+                op + " static_cast<typename std::decay<decltype(field_" +
+                usedName + "().value())>::type>(" + v + ')';
+        };
+
+    try {
+        auto val = static_cast<std::intmax_t>(std::stoll(value));
+        return strGenFunc(common::numToString(val));
+    }
+    catch (...) {
+        // nothing to do
+    }
+
+    auto obj = enumFieldDslObj();
+    auto& values = obj.values();
+    auto iter = values.find(value);
+    if (iter != values.end()) {
+        return strGenFunc(common::numToString(iter->second.m_value));
+    }
+
+    auto lastDot = value.find_last_of(".");
+    if (lastDot == std::string::npos) {
+        assert(!"Should not happen");
+        return Base::getCompareToValueImpl(op, value, nameOverride);
+    }
+
+    auto* otherEnum = generator().findField(std::string(value, 0, lastDot), false);
+    if ((otherEnum == nullptr) || (otherEnum->kind() != commsdsl::Field::Kind::Enum)) {
+        assert(!"Should not happen");
+        return Base::getCompareToValueImpl(op, value, nameOverride);
+    }
+
+    auto& castedOtherEnum = static_cast<const EnumField&>(*otherEnum);
+    auto& otherValues = castedOtherEnum.enumFieldDslObj().values();
+    auto otherIter = otherValues.find(std::string(value, lastDot + 1));
+    if (otherIter == otherValues.end()) {
+        assert(!"Should not happen");
+        return Base::getCompareToValueImpl(op, value, nameOverride);
+    }
+
+    return strGenFunc(common::numToString(otherIter->second.m_value));
+}
+
+std::string EnumField::getCompareToFieldImpl(
+    const std::string& op,
+    const Field& field,
+    const std::string& nameOverride) const
+{
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
+    return
+        "field_" + usedName + "().value() " +
+        op + " static_cast<typename std::decay<decltype(field_" +
+        usedName + "().value())>::type>(field_" + common::nameToAccessCopy(field.name()) + "().value())";
+}
+
 std::string EnumField::getEnumeration() const
 {
     if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {

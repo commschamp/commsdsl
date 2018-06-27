@@ -117,7 +117,7 @@ public:
 
     MessageIdMap getAllMessageIds() const;
 
-    const Field* findField(const std::string& externalRef);
+    const Field* findField(const std::string& externalRef, bool record = true);
 
 private:
 
