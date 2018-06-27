@@ -323,6 +323,121 @@ std::string Field::getClassPrefix(
     return str;
 }
 
+std::string Field::dslCondToString(
+    const FieldsList& fields,
+    const commsdsl::OptCond& cond,
+    bool bracketsWrap)
+{
+    if (cond.kind() == commsdsl::OptCond::Kind::Expr) {
+        auto findFieldFunc =
+            [&fields](const std::string& name) -> const Field*
+            {
+                auto iter =
+                    std::find_if(
+                        fields.begin(), fields.end(),
+                        [&name](auto& f)
+                        {
+                            return f->name() == name;
+                        });
+
+                if (iter == fields.end()) {
+                    return nullptr;
+                }
+
+                return iter->get();
+            };
+
+        auto opFunc =
+            [](const std::string& val) -> const std::string& {
+                if (val == "=") {
+                    static const std::string Str = "==";
+                    return Str;
+                }
+                return val;
+            };
+
+        commsdsl::OptCondExpr exprCond(cond);
+        auto& left = exprCond.left();
+        auto& op = opFunc(exprCond.op());
+        auto& right = exprCond.right();
+
+        if (!left.empty()) {
+            assert(!op.empty());
+            assert(!right.empty());
+            assert(left[0] == '$');
+
+            std::string leftFieldName(left, 1);
+            auto* leftField = findFieldFunc(leftFieldName);
+            if (leftField == nullptr) {
+                assert(!"Should not happen");
+                return common::emptyString();
+            }
+
+            if (right[0] != '$') {
+                return leftField->getCompareToValue(op, right);
+            }
+
+            auto* rightField = findFieldFunc(std::string(right, 1));
+            if (rightField == nullptr) {
+                assert(!"Should not happen");
+                return common::emptyString();
+            }
+
+            return leftField->getCompareToField(op, *rightField);
+        }
+
+        assert(!"NYI");
+        return common::emptyString();
+    }
+
+    if ((cond.kind() != commsdsl::OptCond::Kind::List)) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    commsdsl::OptCondList listCond(cond);
+    auto type = listCond.type();
+
+    static const std::string AndOp = " &&\n";
+    static const std::string OrOp = " ||\n";
+
+    auto* op = &AndOp;
+    if (type == commsdsl::OptCondList::Type::Or) {
+        op = &OrOp;
+    }
+    else {
+        assert(type == commsdsl::OptCondList::Type::And);
+    }
+
+    auto conditions = listCond.conditions();
+    std::string condTempl;
+    common::ReplacementMap replacements;
+    if (bracketsWrap) {
+        condTempl += '(';
+    }
+
+    for (auto count = 0U; count < conditions.size(); ++count) {
+        if (0U < count) {
+            condTempl += ' ';
+        }
+
+        auto condStr = "COND" + std::to_string(count);
+        replacements.insert(std::make_pair(condStr, dslCondToString(fields, conditions[count], true)));
+        condTempl += "(#^#";
+        condTempl += condStr;
+        condTempl += "#$#)";
+        if (count < (conditions.size() - 1U)) {
+            condTempl += *op;
+        }
+    }
+
+    if (bracketsWrap) {
+        condTempl += ')';
+    }
+
+    return common::processTemplate(condTempl, replacements);
+}
+
 bool Field::prepareImpl()
 {
     return true;
@@ -337,6 +452,21 @@ std::string Field::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
     static_cast<void>(scope);
     return common::emptyString();
+}
+
+std::string Field::getCompareToValueImpl(const std::string& op, const std::string& value) const
+{
+    //assert(!"Should not be called");
+    return
+        "field_" + common::nameToAccessCopy(name()) + "().value() " +
+        op + ' ' + value;
+}
+
+std::string Field::getCompareToFieldImpl(const std::string& op, const Field& field) const
+{
+    return
+        "field_" + common::nameToAccessCopy(name()) + "().value() " +
+        op + " field_" + common::nameToAccessCopy(field.name()) + "().value()";
 }
 
 std::string Field::getNameFunc() const

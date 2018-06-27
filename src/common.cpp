@@ -434,6 +434,14 @@ std::string listToString(
     return result;
 }
 
+void addToList(const std::string& what, StringsList& to)
+{
+    auto iter = std::find(to.begin(), to.end(), what);
+    if (iter == to.end()) {
+        to.push_back(what);
+    }
+}
+
 const std::string& dslEndianToOpt(commsdsl::Endian value)
 {
     static const std::string Map[] = {
@@ -510,77 +518,6 @@ const std::string& dslUnitsToOpt(commsdsl::Units value)
 
     auto idx = static_cast<unsigned>(value);
     return UnitsMap[idx];
-}
-
-std::string dslCondToString(const commsdsl::OptCond& cond)
-{
-    if (cond.kind() == commsdsl::OptCond::Kind::Expr) {
-        auto operandFunc = 
-            [](const std::string& val) {
-                if (val.empty()) {
-                    assert(!"Should not happen");
-                    return common::emptyString();
-                }
-
-                if (val[0] == '$') {
-                    return "field_" + std::string(val, 1U) + "().value()";
-                }
-
-                return "static_cast<typename Base::ValueType>(" + val + ')';
-            };
-
-        auto opFunc = 
-            [](const std::string& val) -> const std::string& {
-                if (val == "=") {
-                    static const std::string Str = "==";
-                    return Str;
-                }
-                return val;
-            };
-
-        commsdsl::OptCondExpr exprCond(cond);
-        return operandFunc(exprCond.left()) + ' ' + opFunc(exprCond.op()) + ' ' + operandFunc(exprCond.right());
-    }
-
-    if ((cond.kind() != commsdsl::OptCond::Kind::List)) {
-        assert(!"Should not happen");
-        return common::emptyString();
-    }
-
-    commsdsl::OptCondList listCond(cond);
-    auto type = listCond.type();
-
-    static const std::string AndOp = " &&";
-    static const std::string OrOp = " ||";
-
-    auto* op = &AndOp;
-    if (type == commsdsl::OptCondList::Type::Or) {
-        op = &OrOp;
-    }
-    else {
-        assert(type == commsdsl::OptCondList::Type::And);
-    }
-
-    auto conditions = listCond.conditions();
-    std::string condTempl;
-    common::ReplacementMap replacements;
-    condTempl += '(';
-    for (auto count = 0U; count < conditions.size(); ++count) {
-        if (0U < count) {
-            condTempl += ' ';
-        }
-
-        auto condStr = "COND" + std::to_string(count);
-        replacements.insert(std::make_pair(condStr, dslCondToString(conditions[count])));
-        condTempl += "(#^#";
-        condTempl += condStr;
-        condTempl += "#$#)";
-        if (count < (conditions.size() - 1U)) {
-            condTempl += *op;
-        }
-    }
-
-    return common::processTemplate(condTempl, replacements);    
 }
 
 } // namespace common

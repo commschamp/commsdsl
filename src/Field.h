@@ -6,6 +6,7 @@
 
 #include "commsdsl/Field.h"
 #include "commsdsl/Endian.h"
+#include "commsdsl/OptCond.h"
 #include "common.h"
 
 namespace commsdsl2comms
@@ -16,6 +17,7 @@ class Field
 {
 public:
     using Ptr = std::unique_ptr<Field>;
+    using FieldsList = std::vector<Ptr>;
 
     const std::string& name() const
     {
@@ -68,6 +70,21 @@ public:
         return m_externalRef;
     }
 
+    static std::string dslCondToString(
+        const FieldsList& fields,
+        const commsdsl::OptCond& cond,
+        bool bracketsWrap = false);
+
+    std::string getCompareToValue(const std::string& op, const std::string& value) const
+    {
+        return getCompareToValueImpl(op, value);
+    }
+
+    std::string getCompareToField(const std::string& op, const Field& field) const
+    {
+        return getCompareToFieldImpl(op, field);
+    }
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),
@@ -87,6 +104,8 @@ protected:
     virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
+    virtual std::string getCompareToValueImpl(const std::string& op, const std::string& value) const;
+    virtual std::string getCompareToFieldImpl(const std::string& op, const Field& field) const;
 
     std::string getNameFunc() const;
 
@@ -98,6 +117,7 @@ protected:
     std::string getCustomValid() const;
     std::string getCustomRefresh() const;
     std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
+
 private:
 
     bool isVersionOptional() const;

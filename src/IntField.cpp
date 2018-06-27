@@ -159,6 +159,59 @@ std::string IntField::getClassDefinitionImpl(const std::string& scope, const std
     return common::processTemplate(*templPtr, replacements);
 }
 
+std::string IntField::getCompareToValueImpl(
+    const std::string& op,
+    const std::string& value) const
+{
+    auto compareValFunc =
+        [this, &op](auto v)
+        {
+            return
+                "field_" + common::nameToAccessCopy(name()) + "().value() " +
+                op + " " + common::numToString(v);
+        };
+
+    try {
+        if (isUnsigned()) {
+            auto val = static_cast<std::uintmax_t>(std::stoull(value));
+            return compareValFunc(val);
+        }
+
+        auto val = static_cast<std::intmax_t>(std::stoll(value));
+        return compareValFunc(val);
+    }
+    catch (...) {
+        generator().logger().error("Unexpected numeric value: " + value);
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+}
+
+std::string IntField::getCompareToFieldImpl(const std::string& op, const Field& field) const
+{
+    auto strGenFunc =
+        [this, &op, &field](const std::string type)
+        {
+            return
+                "field_" + common::nameToAccessCopy(name()) + "().value() " +
+                op + " static_cast<" + type + ">(field_" +
+                common::nameToAccessCopy(field.name()) +
+                "().value())";
+        };
+
+    if (field.kind() != kind()) {
+        return strGenFunc(getFieldType());
+    }
+
+    const IntField& otherField = static_cast<const IntField&>(field);
+    if (isUnsigned() == otherField.isUnsigned()) {
+        return Base::getCompareToFieldImpl(op, field);
+    }
+
+
+    return strGenFunc(otherField.getFieldChangedSignType());
+}
+
 std::string IntField::getFieldBaseParams() const
 {
     auto obj = intFieldDslObj();
@@ -170,6 +223,25 @@ const std::string& IntField::getFieldType() const
 {
     auto obj = intFieldDslObj();
     return convertType(obj.type(), obj.maxLength());
+}
+
+std::string IntField::getFieldChangedSignType() const
+{
+    auto str = getFieldType();
+    assert(str.find("std::") == 0U);
+    if (str.size() < 6) {
+        assert(!"Should not happen");
+        return str;
+    }
+
+    if (str[5] == 'u') {
+        str.erase(str.begin() + 5);
+    }
+    else {
+        str.insert(str.begin() + 5, 'u');
+    }
+
+    return str;
 }
 
 std::string IntField::getFieldOpts(const std::string& scope) const
@@ -642,6 +714,23 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
             list.push_back("comms::option::InvalidByDefault");
         }
     }
+}
+
+bool IntField::isUnsigned() const
+{
+    static const commsdsl::IntField::Type Map[] = {
+        commsdsl::IntField::Type::Uint8,
+        commsdsl::IntField::Type::Uint16,
+        commsdsl::IntField::Type::Uint32,
+        commsdsl::IntField::Type::Uint64,
+        commsdsl::IntField::Type::Uintvar,
+    };
+
+    auto obj = intFieldDslObj();
+    auto type = obj.type();
+
+    auto iter = std::find(std::begin(Map), std::end(Map), type);
+    return iter !=std::end(Map);
 }
 
 } // namespace commsdsl2comms

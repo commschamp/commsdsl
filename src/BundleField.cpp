@@ -113,7 +113,7 @@ std::string BundleField::getClassDefinitionImpl(const std::string& scope, const 
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
-    replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
+    replacements.insert(std::make_pair("REFRESH", getRefresh()));
     replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, suffix)));
     replacements.insert(std::make_pair("ACCESS", getAccess(suffix)));
     replacements.insert(std::make_pair("PRIVATE", getPrivate()));
@@ -149,6 +149,25 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
     StringsList options;
 
     updateExtraOptions(scope, options);
+
+    bool hasConditions =
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m) {
+                assert(m);
+                if (m->kind() != commsdsl::Field::Kind::Optional) {
+                    return false;
+                }
+
+                auto* optField = static_cast<const OptionalField*>(m.get());
+                auto cond = optField->cond();
+                return cond.valid();
+            });
+
+    if (hasConditions) {
+        common::addToList("comms::option::HasCustomRead", options);
+        common::addToList("comms::option::HasCustomRefresh", options);
+    }
 
     return common::listToString(options, ",\n", common::emptyString());
 }
@@ -218,6 +237,51 @@ std::string BundleField::getAccess(const std::string& suffix) const
     return common::processTemplate(Templ, replacements);
 }
 
+std::string BundleField::getRefresh() const
+{
+    auto customRefresh = getCustomRefresh();
+    if (!customRefresh.empty()) {
+        return customRefresh;
+    }
+
+    StringsList calls;
+    for (auto& m : m_members) {
+        assert(m);
+        if (m->kind() != commsdsl::Field::Kind::Optional) {
+            continue;
+        }
+
+        auto* optField = static_cast<const OptionalField*>(m.get());
+        auto cond = optField->cond();
+        if (!cond.valid()) {
+            continue;
+        }
+
+        auto str =
+            "updated = refresh_" +
+            common::nameToAccessCopy(m->name()) +
+            "() || updated;";
+        calls.push_back(std::move(str));
+    }
+
+    if (calls.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Custom refresh functionality.\n"
+        "bool refresh()\n"
+        "{\n"
+        "    bool updated = Base::refresh();\n"
+        "    #^#CALLS#$#\n"
+        "    return updated;\n"
+        "}\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CALLS", common::listToString(calls, "\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
+}
+
 std::string BundleField::getPrivate() const
 {
     StringsList funcs;
@@ -234,21 +298,21 @@ std::string BundleField::getPrivate() const
         }
 
         static const std::string Templ = 
-            "bool refresh#^#NAME#$#()\n"
+            "bool refresh_#^#NAME#$#()\n"
             "{\n"
             "    auto mode = comms::field::OptionalMode::Missing;\n"
             "    if (#^#COND#$#) {\n"
             "        mode = comms::field::OptionalMode::Exists;\n"
             "    }\n\n"
-            "    if (Base::getMode() == mode) {\n"
+            "    if (field_#^#NAME#$#().getMode() == mode) {\n"
             "        return false;\n"
             "    }\n\n"
             "    return true;\n"
             "}\n";
 
         common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("NAME", common::nameToClassCopy(m->name())));
-        replacements.insert(std::make_pair("COND", common::dslCondToString(cond)));
+        replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(m->name())));
+        replacements.insert(std::make_pair("COND", dslCondToString(m_members, cond)));
         funcs.push_back(common::processTemplate(Templ, replacements));
     }
 

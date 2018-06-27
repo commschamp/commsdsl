@@ -18,12 +18,15 @@ public:
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
+    virtual std::string getCompareToValueImpl(const std::string& op, const std::string& value) const override;
+    virtual std::string getCompareToFieldImpl(const std::string& op, const Field& field) const override;
 
 private:
     using StringsList = common::StringsList;
 
     std::string getFieldBaseParams() const;
     const std::string& getFieldType() const;
+    std::string getFieldChangedSignType() const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getSpecials() const;
     std::string getValid() const;
@@ -33,6 +36,9 @@ private:
     void checkScalingOpt(StringsList& list) const;
     void checkUnitsOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
+
+    bool isUnsigned() const;
+
 
     commsdsl::IntField intFieldDslObj() const
     {
