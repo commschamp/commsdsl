@@ -109,7 +109,7 @@ std::string BundleField::getClassDefinitionImpl(const std::string& scope, const 
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
-    replacements.insert(std::make_pair("READ", getCustomRead()));
+    replacements.insert(std::make_pair("READ", getRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
@@ -234,6 +234,91 @@ std::string BundleField::getAccess(const std::string& suffix) const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("ACCESS_DOC", common::listToString(accessDocList, "\n", common::emptyString())));
     replacements.insert(std::make_pair("NAMES", common::listToString(namesList, ",\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string BundleField::getRead() const
+{
+    auto customRead = getCustomRead();
+    if (!customRead.empty()) {
+        return customRead;
+    }
+
+    std::vector<std::size_t> optionals;
+    for (std::size_t idx = 0U; idx < m_members.size(); ++idx) {
+        auto& m = m_members[idx];
+
+        assert(m);
+        if (m->kind() != commsdsl::Field::Kind::Optional) {
+            continue;
+        }
+
+        auto* optField = static_cast<const OptionalField*>(m.get());
+        auto cond = optField->cond();
+        if (!cond.valid()) {
+            continue;
+        }
+
+        optionals.push_back(idx);
+    }
+
+    if (optionals.empty()) {
+        return common::emptyString();
+    }
+
+    common::StringsList reads;
+    std::size_t prevPos = 0U;
+    for (auto oPos : optionals) {
+        assert(oPos != 0);
+        auto& m = m_members[oPos];
+        auto accessName = common::nameToAccessCopy(m->name());
+        if (prevPos == 0) {
+            auto str = 
+                "refresh_" + accessName + "();\n"
+                "auto es = Base::template readUntil<FieldIdx_" + accessName + ">(iter, len);\n"
+                "if (es != comms::ErrorStatus::Success) {\n"
+                "    return es;\n"
+                "}\n"
+                "std::size_t consumedLen = Base::template lengthUntil<FieldIdx_" + accessName + ">();\n";
+            reads.push_back(std::move(str));
+            prevPos = oPos;
+            continue;
+        }
+
+        if (oPos == optionals.back()) {
+            auto str = 
+                "refresh_" + accessName + "();\n"
+                "es = Base::template readFrom<FieldIdx_" + accessName + ">(iter, len - consumedLen);\n"
+                "if (es != comms::ErrorStatus::Success) {\n"
+                "    return es;\n"
+                "}\n";
+            reads.push_back(std::move(str));
+            continue;                
+        }
+
+        auto prevName = common::nameToAccessCopy(m_members[prevPos]->name());
+        auto str = 
+            "refresh_" + accessName + "();\n"
+            "es = Base::template readFromUntil<FieldIdx_" + prevName + ", FieldIdx_" + accessName + ">(iter, len - consumedLen);\n"
+            "if (es != comms::ErrorStatus::Success) {\n"
+            "    return es;\n"
+            "}\n"
+            "consumedLen += Base::template lengthFromUntil<FieldIdx_" + prevName + ", FieldIdx_" + accessName + ">();\n";
+        reads.push_back(std::move(str));
+        prevPos = oPos;
+    }
+
+    static const std::string Templ =
+        "/// @brief Custom read functionality.\n"
+        "template <typename TIter>"
+        "comms::ErrorStatus read(TIter& iter, std::size_t len)\n"
+        "{\n"
+        "    #^#READS#$#\n"
+        "    return comms::ErrorStatus::Success;\n"
+        "}\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("READS", common::listToString(reads, "\n", common::emptyString())));
     return common::processTemplate(Templ, replacements);
 }
 

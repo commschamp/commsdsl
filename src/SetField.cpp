@@ -75,6 +75,37 @@ std::string SetField::getClassDefinitionImpl(const std::string& scope, const std
     return common::processTemplate(ClassTemplate, replacements);
 }
 
+std::string SetField::getCompareToValueImpl(
+    const std::string& op,
+    const std::string& value,
+    const std::string& nameOverride) const
+{
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = common::nameToAccessCopy(name());
+    }
+
+    auto obj = setFieldDslObj();
+    auto& bits = obj.bits();
+    auto iter = bits.find(value);
+    if (iter == bits.end()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    assert(op.empty() || (op == "!"));
+    return op + "field_" + usedName + "().getBitValue_" + value + "()";
+}
+
+std::string SetField::getCompareToFieldImpl(
+    const std::string& op,
+    const Field& field,
+    const std::string& nameOverride) const
+{
+    assert(!"Should not be called");
+    return Base::getCompareToFieldImpl(op, field, nameOverride);
+}
+
 std::string SetField::getExtraDoc() const
 {
     common::StringsList extraDocList;

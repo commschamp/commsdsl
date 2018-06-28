@@ -20,6 +20,10 @@
             <int name="m3" type="uint16" />
             <int name="m4" type="int16" />
             <ref name="m5" field="E1" />
+            <set name="m6" length="1">
+                <bit name="b0" idx="0" />
+                <bit name="b1" idx="1" />
+            </set>
             <optional name="o1" field="I1" defaultMode="exists" >
                 <cond value="$m1 = 0" />
             </optional>
@@ -40,6 +44,8 @@
             <optional name="o5" defaultMode="exists" field="I1" cond="$m2 &lt; $m5" />
             <optional name="o6" defaultMode="missing" field="I1" cond="$m5 != E1.V1" />
             <optional name="o7" defaultMode="exists" field="I1" cond="$m5 != $m4" />
+            <optional name="o8" defaultMode="missing" field="I1" cond="$m6.b0" />
+            <optional name="o9" defaultMode="exists" field="I1" cond="!$m6.b1" />
         </bundle>        
     </fields>
     

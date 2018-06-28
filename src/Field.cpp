@@ -386,8 +386,29 @@ std::string Field::dslCondToString(
             return leftField->getCompareToField(op, *rightField);
         }
 
-        assert(!"NYI");
-        return common::emptyString();
+        // Reference to bit in "set".
+        if (right[0] != '$') {
+            assert(!"Should not happen");
+            return common::emptyString();
+        }
+
+        std::string fieldRef(right, 1U);
+        auto dotPos = fieldRef.find(".");
+        std::string fieldExternalRef(fieldRef, 0, dotPos);
+        auto* rightField = findFieldFunc(fieldExternalRef);
+
+        if (rightField == nullptr) {
+            assert(!"Should not happen");
+            return common::emptyString();
+        }
+
+        assert(rightField->kind() == commsdsl::Field::Kind::Set);
+        std::string valueStr;
+        if (dotPos != std::string::npos) {
+            valueStr.assign(fieldRef.begin() + dotPos + 1, fieldRef.end());
+        }
+
+        return rightField->getCompareToValue(op, valueStr);
     }
 
     if ((cond.kind() != commsdsl::OptCond::Kind::List)) {

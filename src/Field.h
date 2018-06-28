@@ -130,9 +130,9 @@ protected:
     std::string getCustomRefresh() const;
     std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
 
-private:
-
     bool isVersionOptional() const;
+
+private:
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;

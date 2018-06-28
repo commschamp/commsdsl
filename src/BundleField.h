@@ -26,6 +26,7 @@ private:
     std::string getFieldOpts(const std::string& scope) const;
     std::string getMembersDef(const std::string& scope, const std::string& suffix) const;
     std::string getAccess(const std::string& suffix) const;
+    std::string getRead() const;
     std::string getRefresh() const;
     std::string getPrivate() const;
 
