@@ -43,6 +43,18 @@ void RefField::updateIncludesImpl(IncludesList& includes) const
     common::mergeInclude(inc, includes);
 }
 
+std::size_t RefField::minLengthImpl() const
+{
+    auto refObj = refFieldDslObj().field();
+    auto fieldPtr = generator().findField(refObj.externalRef());
+    if (fieldPtr == nullptr) {
+        assert(!"Unexpected");
+        return dslObj().minLength();
+    }
+
+    return fieldPtr->minLength();
+}
+
 std::string RefField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
 {
     auto refObj = refFieldDslObj().field();
@@ -73,7 +85,8 @@ std::string RefField::getClassDefinitionImpl(const std::string& scope, const std
 std::string RefField::getCompareToValueImpl(
     const std::string& op,
     const std::string& value,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto obj = refFieldDslObj();
     auto field = obj.field();
@@ -93,13 +106,16 @@ std::string RefField::getCompareToValueImpl(
         usedName = common::nameToAccessCopy(name());
     }
 
-    return fieldPtr->getCompareToValue(op, value, usedName);
+    bool versionOptional = forcedVersionOptional || isVersionOptional();
+    generator().logger().error(name() + ": optional=" + std::to_string(versionOptional));
+    return fieldPtr->getCompareToValue(op, value, usedName, versionOptional);
 }
 
 std::string RefField::getCompareToFieldImpl(
     const std::string& op,
     const Field& field,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
@@ -119,7 +135,8 @@ std::string RefField::getCompareToFieldImpl(
         return common::emptyString();
     }
 
-    return fieldPtr->getCompareToField(op, field, usedName);
+    bool versionOptional = forcedVersionOptional || isVersionOptional();
+    return fieldPtr->getCompareToField(op, field, usedName, versionOptional);
 }
 
 std::string RefField::getOpts(const std::string& scope) const

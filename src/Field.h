@@ -78,18 +78,22 @@ public:
     std::string getCompareToValue(
         const std::string& op,
         const std::string& value,
-        const std::string& nameOverride = common::emptyString()) const
+        const std::string& nameOverride = common::emptyString(),
+        bool forcedVersionOptional = false) const
     {
-        return getCompareToValueImpl(op, value, nameOverride);
+        return getCompareToValueImpl(op, value, nameOverride, forcedVersionOptional);
     }
 
     std::string getCompareToField(
         const std::string& op,
         const Field& field,
-        const std::string& nameOverride = common::emptyString()) const
+        const std::string& nameOverride = common::emptyString(),
+        bool forcedVersionOptional = false) const
     {
-        return getCompareToFieldImpl(op, field, nameOverride);
+        return getCompareToFieldImpl(op, field, nameOverride, forcedVersionOptional);
     }
+
+    bool isVersionOptional() const;
 
 protected:
     Field(Generator& generator, commsdsl::Field field)
@@ -108,16 +112,19 @@ protected:
 
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
+    virtual std::size_t minLengthImpl() const;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,
-        const std::string& nameOverride) const;
+        const std::string& nameOverride,
+        bool forcedVersionOptional) const;
     virtual std::string getCompareToFieldImpl(
         const std::string& op,
         const Field& field,
-        const std::string& nameOverride) const;
+        const std::string& nameOverride,
+        bool forcedVersionOptional) const;
 
     std::string getNameFunc() const;
 
@@ -129,8 +136,6 @@ protected:
     std::string getCustomValid() const;
     std::string getCustomRefresh() const;
     std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
-
-    bool isVersionOptional() const;
 
 private:
 

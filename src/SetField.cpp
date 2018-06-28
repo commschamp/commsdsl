@@ -78,7 +78,8 @@ std::string SetField::getClassDefinitionImpl(const std::string& scope, const std
 std::string SetField::getCompareToValueImpl(
     const std::string& op,
     const std::string& value,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
@@ -94,16 +95,22 @@ std::string SetField::getCompareToValueImpl(
     }
 
     assert(op.empty() || (op == "!"));
-    return op + "field_" + usedName + "().getBitValue_" + value + "()";
+    bool versionOptional = forcedVersionOptional || isVersionOptional();
+    if (!versionOptional) {
+        return op + "field_" + usedName + "().getBitValue_" + value + "()";
+    }
+
+    return op + "field_" + usedName + "().field().getBitValue_" + value + "()";
 }
 
 std::string SetField::getCompareToFieldImpl(
     const std::string& op,
     const Field& field,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     assert(!"Should not be called");
-    return Base::getCompareToFieldImpl(op, field, nameOverride);
+    return Base::getCompareToFieldImpl(op, field, nameOverride, forcedVersionOptional);
 }
 
 std::string SetField::getExtraDoc() const

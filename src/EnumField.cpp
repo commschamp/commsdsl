@@ -231,20 +231,33 @@ std::string EnumField::getClassDefinitionImpl(const std::string& scope, const st
 std::string EnumField::getCompareToValueImpl(
     const std::string& op,
     const std::string& value,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
         usedName = common::nameToAccessCopy(name());
     }
 
+    bool versionOptional = forcedVersionOptional || isVersionOptional();
+
+    generator().logger().error(name() + ": optional=" + std::to_string(versionOptional));
     auto strGenFunc =
-        [&op, &usedName](const std::string& v)
+        [this, &op, &usedName, versionOptional](const std::string& v)
         {
+            if (!versionOptional) {
+                return
+                    "field_" + usedName + "().value() " +
+                    op + " static_cast<typename std::decay<decltype(field_" +
+                    usedName + "().value())>::type>(" + v + ')';
+            }
+
             return
-                "field_" + usedName + "().value() " +
+                "field_" + usedName + "().doesExist() &&\n"
+                "(field_" + usedName + "().field().value() " +
                 op + " static_cast<typename std::decay<decltype(field_" +
-                usedName + "().value())>::type>(" + v + ')';
+                usedName + "().field().value())>::type>(" + v + "))";
+
         };
 
     try {
@@ -265,13 +278,13 @@ std::string EnumField::getCompareToValueImpl(
     auto lastDot = value.find_last_of(".");
     if (lastDot == std::string::npos) {
         assert(!"Should not happen");
-        return Base::getCompareToValueImpl(op, value, nameOverride);
+        return Base::getCompareToValueImpl(op, value, nameOverride, forcedVersionOptional);
     }
 
     auto* otherEnum = generator().findField(std::string(value, 0, lastDot), false);
     if ((otherEnum == nullptr) || (otherEnum->kind() != commsdsl::Field::Kind::Enum)) {
         assert(!"Should not happen");
-        return Base::getCompareToValueImpl(op, value, nameOverride);
+        return Base::getCompareToValueImpl(op, value, nameOverride, forcedVersionOptional);
     }
 
     auto& castedOtherEnum = static_cast<const EnumField&>(*otherEnum);
@@ -279,7 +292,7 @@ std::string EnumField::getCompareToValueImpl(
     auto otherIter = otherValues.find(std::string(value, lastDot + 1));
     if (otherIter == otherValues.end()) {
         assert(!"Should not happen");
-        return Base::getCompareToValueImpl(op, value, nameOverride);
+        return Base::getCompareToValueImpl(op, value, nameOverride, forcedVersionOptional);
     }
 
     return strGenFunc(common::numToString(otherIter->second.m_value));
@@ -288,17 +301,60 @@ std::string EnumField::getCompareToValueImpl(
 std::string EnumField::getCompareToFieldImpl(
     const std::string& op,
     const Field& field,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
         usedName = common::nameToAccessCopy(name());
     }
 
+    bool thisOptional = forcedVersionOptional || isVersionOptional();
+    bool otherOptional = field.isVersionOptional();
+
+    auto fieldName = common::nameToAccessCopy(field.name());
+
+    std::string thisFieldValue;
+    if (thisOptional) {
+        thisFieldValue = "field_" + usedName + "().field().value()";
+    }
+    else {
+        thisFieldValue = "field_" + usedName + "().value()";
+    }
+
+    std::string otherFieldValue;
+    if (otherOptional) {
+        otherFieldValue = "field_" + fieldName + "().field().value()";
+    }
+    else {
+        otherFieldValue = "field_" + fieldName + "().value()";
+    }
+
+    std::string compExpr =
+        thisFieldValue + ' ' + op +
+        " static_cast<typename std::decay<decltype(" + thisFieldValue + ")>::type>(" + otherFieldValue + ')';
+
+    if ((!thisOptional) && (!otherOptional)) {
+        return compExpr;
+    }
+
+    if ((!thisOptional) && (otherOptional)) {
+        return
+            "field_" + usedName + "().doesExist() &&\n(" +
+            compExpr + ')';
+    }
+
+    if ((thisOptional) && (!otherOptional)) {
+        return
+            "field_" + fieldName + "().doesExist() &&\n(" +
+            compExpr + ')';
+    }
+
+
     return
-        "field_" + usedName + "().value() " +
-        op + " static_cast<typename std::decay<decltype(field_" +
-        usedName + "().value())>::type>(field_" + common::nameToAccessCopy(field.name()) + "().value())";
+        "field_" + usedName + "().doesExist() &&\n" +
+        "field_" + fieldName + "().doesExist() &&\n(" +
+        compExpr + ')';
 }
 
 std::string EnumField::getEnumeration() const

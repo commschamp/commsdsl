@@ -26,11 +26,13 @@ protected:
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,
-        const std::string& nameOverride) const override;
+        const std::string& nameOverride,
+        bool forcedVersionOptional) const override;
     virtual std::string getCompareToFieldImpl(
         const std::string& op,
         const Field& field,
-        const std::string& nameOverride) const override;
+        const std::string& nameOverride,
+        bool forcedVersionOptional) const override;
 
 private:
     using StringsList = common::StringsList;

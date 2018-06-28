@@ -1,6 +1,7 @@
 #include "BundleField.h"
 
 #include <type_traits>
+#include <numeric>
 
 #include <boost/algorithm/string.hpp>
 
@@ -99,6 +100,17 @@ void BundleField::updateIncludesImpl(IncludesList& includes) const
     for (auto& m : m_members) {
         m->updateIncludes(includes);
     }
+}
+
+std::size_t BundleField::minLengthImpl() const
+{
+    return
+        std::accumulate(
+            m_members.begin(), m_members.end(), std::size_t(0),
+            [](std::size_t soFar, auto& m)
+            {
+                return soFar + m->minLength();
+            });
 }
 
 std::string BundleField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const

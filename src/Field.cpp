@@ -57,7 +57,8 @@ std::size_t Field::minLength() const
         return 0U;
     }
 
-    return m_dslObj.minLength();
+    auto result = minLengthImpl();
+    return result;
 }
 
 void Field::updateIncludes(Field::IncludesList& includes) const
@@ -459,6 +460,17 @@ std::string Field::dslCondToString(
     return common::processTemplate(condTempl, replacements);
 }
 
+bool Field::isVersionOptional() const
+{
+    return
+        (m_generator.versionDependentCode()) &&
+        (m_parentVersion < m_dslObj.sinceVersion()) &&
+        (m_generator.isElementOptional(
+            m_dslObj.sinceVersion(),
+            m_dslObj.deprecatedSince(),
+            m_dslObj.isDeprecatedRemoved()));
+}
+
 bool Field::prepareImpl()
 {
     return true;
@@ -469,41 +481,90 @@ void Field::updateIncludesImpl(IncludesList& includes) const
     static_cast<void>(includes);
 }
 
+std::size_t Field::minLengthImpl() const
+{
+    return m_dslObj.minLength();
+}
+
 std::string Field::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
     static_cast<void>(scope);
     return common::emptyString();
 }
 
-std::string Field::getCompareToValueImpl(
-    const std::string& op,
+std::string Field::getCompareToValueImpl(const std::string& op,
     const std::string& value,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
         usedName = common::nameToAccessCopy(name());
     }
 
-    //assert(!"Should not be called");
+    bool versionOptional = forcedVersionOptional || isVersionOptional();
+    if (versionOptional) {
+        return
+            "field_" + usedName + "().value() " +
+            op + ' ' + value;
+    }
+
     return
-        "field_" + usedName + "().value() " +
-        op + ' ' + value;
+        "field_" + usedName + "().doesExist() &&\n" +
+        "(field_" + usedName + "().field().value() " +
+        op + ' ' + value + ')';
+
 }
 
-std::string Field::getCompareToFieldImpl(
-    const std::string& op,
+std::string Field::getCompareToFieldImpl(const std::string& op,
     const Field& field,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
         usedName = common::nameToAccessCopy(name());
     }
 
+    auto fieldName = common::nameToAccessCopy(field.name());
+    bool thisOptional = forcedVersionOptional || isVersionOptional();
+    bool otherOptional = field.isVersionOptional();
+
+    std::string thisFieldValue;
+    if (thisOptional) {
+        thisFieldValue = "field_" + usedName + "().field().value() ";
+    }
+    else {
+        thisFieldValue = "field_" + usedName + "().value() ";
+    }
+
+    std::string otherFieldValue;
+    if (otherOptional) {
+        otherFieldValue = " field_" + fieldName + "().field().value()";
+    }
+    else {
+        otherFieldValue = " field_" + fieldName + "().value()";
+    }
+
+    auto compareExpr = thisFieldValue + op + otherFieldValue;
+
+    if ((!thisOptional) && (!otherOptional)) {
+        return compareExpr;
+    }
+
+
+    if ((!thisOptional) && (otherOptional)) {
+        return "field_" + fieldName + "().doesExist() &&\n(" + compareExpr + ')';
+    }
+
+    if ((thisOptional) && (!otherOptional)) {
+        return "field_" + usedName + "().doesExist() &&\n(" + compareExpr + ')';
+    }
+
     return
-        "field_" + usedName + "().value() " +
-        op + " field_" + common::nameToAccessCopy(field.name()) + "().value()";
+        "field_" + usedName + "().doesExist() &&\n"
+        "field_" + fieldName + "().doesExist() &&\n"
+        "(" + compareExpr + ')';
 }
 
 std::string Field::getNameFunc() const
@@ -569,17 +630,6 @@ std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
     }
 
     return common::dslEndianToOpt(endian);
-}
-
-bool Field::isVersionOptional() const
-{
-    return
-        (m_generator.versionDependentCode()) &&
-        (m_parentVersion < m_dslObj.sinceVersion()) &&
-        (m_generator.isElementOptional(
-            m_dslObj.sinceVersion(),
-            m_dslObj.deprecatedSince(),
-            m_dslObj.isDeprecatedRemoved()));
 }
 
 } // namespace commsdsl2comms

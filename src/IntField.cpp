@@ -162,16 +162,25 @@ std::string IntField::getClassDefinitionImpl(const std::string& scope, const std
 std::string IntField::getCompareToValueImpl(
     const std::string& op,
     const std::string& value,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
         usedName = common::nameToAccessCopy(name());
     }
 
+    bool versionOptional = forcedVersionOptional || isVersionOptional();
     auto compareValFunc =
-        [&op, &usedName](auto v)
+        [this, &op, &usedName, versionOptional](auto v)
         {
+            if (versionOptional) {
+                return
+                    "field_" + usedName + "().doesExist() &&\n"
+                    "(field_" + usedName + "().field().value() " +
+                    op + " " + common::numToString(v) + ')';
+            }
+
             return
                 "field_" + usedName + "().value() " +
                 op + " " + common::numToString(v);
@@ -196,7 +205,8 @@ std::string IntField::getCompareToValueImpl(
 std::string IntField::getCompareToFieldImpl(
     const std::string& op,
     const Field& field,
-    const std::string& nameOverride) const
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
@@ -204,13 +214,52 @@ std::string IntField::getCompareToFieldImpl(
     }
 
     auto strGenFunc =
-        [&op, &field, &usedName](const std::string& type)
+        [this, &op, &field, &usedName, forcedVersionOptional](const std::string& type)
         {
+            bool thisOptional = forcedVersionOptional || isVersionOptional();
+            bool otherOptional = field.isVersionOptional();
+
+            auto fieldName = common::nameToAccessCopy(field.name());
+
+            std::string thisFieldValue;
+            if (thisOptional) {
+                thisFieldValue = "field_" + usedName + "().field().value() ";
+            }
+            else {
+                thisFieldValue = "field_" + usedName + "().value() ";
+            }
+
+            std::string otherFieldValue;
+            if (otherOptional) {
+                otherFieldValue = "field_" + fieldName + "().field().value()";
+            }
+            else {
+                otherFieldValue = "field_" + fieldName + "().value()";
+            }
+
+            auto compareExpr = thisFieldValue + op + " static_cast<" + type + ">(" + otherFieldValue + ')';
+
+            if ((!thisOptional) && (!otherOptional)) {
+                return compareExpr;
+            }
+
+
+            if ((!thisOptional) && (otherOptional)) {
+                return
+                    "field_" + fieldName + "().doesExist() &&\n(" +
+                    compareExpr + ")";
+            }
+
+            if ((thisOptional) && (!otherOptional)) {
+                return
+                    "field_" + usedName + "().doesExist() &&\n(" +
+                    compareExpr + ")";
+            }
+
             return
-                "field_" + usedName + "().value() " +
-                op + " static_cast<" + type + ">(field_" +
-                common::nameToAccessCopy(field.name()) +
-                "().value())";
+                "field_" + usedName + "().doesExist() &&\n" +
+                "field_" + fieldName + "().doesExist() &&\n(" +
+                compareExpr + ")";
         };
 
     if (field.kind() != kind()) {
@@ -219,7 +268,7 @@ std::string IntField::getCompareToFieldImpl(
 
     const IntField& otherField = static_cast<const IntField&>(field);
     if (isUnsigned() == otherField.isUnsigned()) {
-        return Base::getCompareToFieldImpl(op, field, usedName);
+        return Base::getCompareToFieldImpl(op, field, usedName, forcedVersionOptional);
     }
 
     return strGenFunc(otherField.getFieldChangedSignType());

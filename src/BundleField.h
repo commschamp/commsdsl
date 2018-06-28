@@ -17,6 +17,7 @@ public:
 protected:
     virtual bool prepareImpl() override;
     virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual std::size_t minLengthImpl() const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override;
 
