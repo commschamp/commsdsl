@@ -89,6 +89,12 @@ const std::string& optFieldSuffixStr()
     return Str;
 }
 
+const std::string& prefixFieldSuffixStr()
+{
+    static const std::string Str("PrefixField");
+    return Str;
+}
+
 const std::string& defaultOptionsStr()
 {
     static const std::string Str("DefaultOptions");

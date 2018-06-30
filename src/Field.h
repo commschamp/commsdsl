@@ -33,7 +33,7 @@ public:
 
     std::size_t maxLength() const
     {
-        return m_dslObj.maxLength();
+        return maxLengthImpl();
     }
 
     using IncludesList = common::StringsList;
@@ -113,6 +113,7 @@ protected:
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual std::size_t minLengthImpl() const;
+    virtual std::size_t maxLengthImpl() const;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
     virtual std::string getCompareToValueImpl(

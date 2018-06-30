@@ -241,7 +241,6 @@ std::string EnumField::getCompareToValueImpl(
 
     bool versionOptional = forcedVersionOptional || isVersionOptional();
 
-    generator().logger().error(name() + ": optional=" + std::to_string(versionOptional));
     auto strGenFunc =
         [this, &op, &usedName, versionOptional](const std::string& v)
         {

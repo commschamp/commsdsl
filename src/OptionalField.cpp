@@ -16,7 +16,7 @@ namespace
 {
 
 const std::string MembersDefTemplate =
-    "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# bitfield.\n"
+    "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# optional.\n"
     "#^#EXTRA_PREFIX#$#\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
@@ -24,7 +24,7 @@ const std::string MembersDefTemplate =
     "};\n";
 
 const std::string MembersOptionsTemplate =
-    "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
+    "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# optional.\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
     "    #^#OPTIONS#$#\n"

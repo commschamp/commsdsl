@@ -369,8 +369,6 @@ std::string Message::getLengthCheck() const
             m_fields.begin(), m_fields.end(), std::size_t(0),
             [](std::size_t soFar, auto& f)
             {
-
-
                 if (soFar == MaxLen) {
                     return MaxLen;
                 }

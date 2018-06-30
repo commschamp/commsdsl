@@ -26,6 +26,7 @@ const std::string& doxygenPrefixStr();
 const std::string& fieldsSuffixStr();
 const std::string& membersSuffixStr();
 const std::string& optFieldSuffixStr();
+const std::string& prefixFieldSuffixStr();
 const std::string& defaultOptionsStr();
 const std::string& msgIdEnumNameStr();
 const std::string& msgIdPrefixStr();

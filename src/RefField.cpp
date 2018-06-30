@@ -55,6 +55,18 @@ std::size_t RefField::minLengthImpl() const
     return fieldPtr->minLength();
 }
 
+std::size_t RefField::maxLengthImpl() const
+{
+    auto refObj = refFieldDslObj().field();
+    auto fieldPtr = generator().findField(refObj.externalRef());
+    if (fieldPtr == nullptr) {
+        assert(!"Unexpected");
+        return dslObj().maxLength();
+    }
+
+    return fieldPtr->maxLength();
+}
+
 std::string RefField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
 {
     auto refObj = refFieldDslObj().field();
@@ -107,7 +119,6 @@ std::string RefField::getCompareToValueImpl(
     }
 
     bool versionOptional = forcedVersionOptional || isVersionOptional();
-    generator().logger().error(name() + ": optional=" + std::to_string(versionOptional));
     return fieldPtr->getCompareToValue(op, value, usedName, versionOptional);
 }
 

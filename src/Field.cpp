@@ -17,6 +17,7 @@
 #include "BitfieldField.h"
 #include "OptionalField.h"
 #include "BundleField.h"
+#include "StringField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -166,7 +167,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
         /* Float */ [](Generator& g, commsdsl::Field f) { return createFloatField(g, f); },
         /* Bitfield */ [](Generator& g, commsdsl::Field f) { return createBitfieldField(g, f); },
         /* Bundle */ [](Generator& g, commsdsl::Field f) { return createBundleField(g, f); },
-        /* String */ [](Generator&, commsdsl::Field) { return Ptr(); },
+        /* String */ [](Generator& g, commsdsl::Field f) { return createStringField(g, f); },
         /* Data */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* List */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Ref */ [](Generator& g, commsdsl::Field f) { return createRefField(g, f); },
@@ -484,6 +485,11 @@ void Field::updateIncludesImpl(IncludesList& includes) const
 std::size_t Field::minLengthImpl() const
 {
     return m_dslObj.minLength();
+}
+
+std::size_t Field::maxLengthImpl() const
+{
+    return m_dslObj.maxLength();
 }
 
 std::string Field::getExtraDefaultOptionsImpl(const std::string& scope) const
