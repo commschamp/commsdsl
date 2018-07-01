@@ -291,7 +291,7 @@ std::string StringField::getConstructor() const
         "{\n"
         "    static const char Str[] = \"#^#STR#$#\";\n"
         "    static const std::size_t StrSize = std::extent<decltype(Str)>::value;\n"
-        "    Base::value() = typename Base::ValueType(&Str[0], StrSize);\n"
+        "    Base::value() = typename Base::ValueType(&Str[0], StrSize - 1);\n"
         "}\n";
 
     common::ReplacementMap replacements;
