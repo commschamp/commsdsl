@@ -28,6 +28,7 @@ set (
     "OptionalField.cpp"
     "BundleField.cpp"
     "StringField.cpp"
+    "DataField.cpp"
     "FieldBase.cpp"
     "DefaultOptions.cpp"
     "MsgId.cpp"

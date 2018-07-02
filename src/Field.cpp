@@ -18,6 +18,7 @@
 #include "OptionalField.h"
 #include "BundleField.h"
 #include "StringField.h"
+#include "DataField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -168,7 +169,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
         /* Bitfield */ [](Generator& g, commsdsl::Field f) { return createBitfieldField(g, f); },
         /* Bundle */ [](Generator& g, commsdsl::Field f) { return createBundleField(g, f); },
         /* String */ [](Generator& g, commsdsl::Field f) { return createStringField(g, f); },
-        /* Data */ [](Generator&, commsdsl::Field) { return Ptr(); },
+        /* Data */ [](Generator& g, commsdsl::Field f) { return createDataField(g, f); },
         /* List */ [](Generator&, commsdsl::Field) { return Ptr(); },
         /* Ref */ [](Generator& g, commsdsl::Field f) { return createRefField(g, f); },
         /* Optional */ [](Generator& g, commsdsl::Field f) { return createOptionalField(g, f); },

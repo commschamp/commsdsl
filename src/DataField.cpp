@@ -1,6 +1,8 @@
-#include "StringField.h"
+#include "DataField.h"
 
 #include <type_traits>
+#include <sstream>
+#include <iomanip>
 
 #include <boost/algorithm/string.hpp>
 
@@ -19,14 +21,16 @@ const std::string ClassTemplate(
     "#^#PREFIX_FIELD#$#\n"
     "#^#PREFIX#$#"
     "class #^#CLASS_NAME#$# : public\n"
-    "    comms::field::String<\n"
-    "        #^#PROT_NAMESPACE#$#::FieldBase<>#^#COMMA#$#\n"
+    "    comms::field::ArrayList<\n"
+    "        #^#PROT_NAMESPACE#$#::FieldBase<>,\n"
+    "        std::uint8_t#^#COMMA#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
     "    using Base = \n"
-    "        comms::field::String<\n"
-    "            #^#PROT_NAMESPACE#$#::FieldBase<>#^#COMMA#$#\n"
+    "        comms::field::ArrayList<\n"
+    "            #^#PROT_NAMESPACE#$#::FieldBase<>,\n"
+    "            std::uint8_t#^#COMMA#$#\n"
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
@@ -44,8 +48,9 @@ const std::string StructTemplate(
     "#^#PREFIX_FIELD#$#\n"
     "#^#PREFIX#$#"
     "struct #^#CLASS_NAME#$# : public\n"
-    "    comms::field::String<\n"
-    "        #^#PROT_NAMESPACE#$#::FieldBase<>#^#COMMA#$#\n"
+    "    comms::field::ArrayList<\n"
+    "        #^#PROT_NAMESPACE#$#::FieldBase<>,\n"
+    "        std::uint8_t#^#COMMA#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
@@ -73,9 +78,9 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
 
 } // namespace
 
-bool StringField::prepareImpl()
+bool DataField::prepareImpl()
 {
-    auto obj = stringFieldDslObj();
+    auto obj = dataFieldDslObj();
     if (!obj.hasLengthPrefixField()) {
         return true;
     }
@@ -93,29 +98,21 @@ bool StringField::prepareImpl()
     return true;
 }
 
-void StringField::updateIncludesImpl(IncludesList& includes) const
+void DataField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
-        "comms/field/String.h"
+        "comms/field/ArrayList.h",
+        "<cstdint>"
     };
 
     common::mergeIncludes(List, includes);
-
-    auto obj = stringFieldDslObj();
-    if (obj.hasZeroTermSuffix()) {
-        static const IncludesList TermFieldList = {
-            "comms/field/IntValue.h",
-            "<cstdint>"
-        };
-
-        common::mergeIncludes(TermFieldList, includes);
-    }
 
     if (m_prefix) {
         m_prefix->updateIncludes(includes);
         return;
     }
 
+    auto obj = dataFieldDslObj();
     if (obj.hasLengthPrefixField()) {
         auto prefix = obj.lengthPrefixField();
         assert(prefix.valid());
@@ -123,11 +120,15 @@ void StringField::updateIncludesImpl(IncludesList& includes) const
         assert(!prefixRef.empty());
         common::mergeInclude(generator().headerfileForField(prefixRef, false), includes);
     }
+
+    if (!obj.defaultValue().empty()) {
+        common::mergeInclude("<iterator>", includes);
+    }
 }
 
-std::size_t StringField::maxLengthImpl() const
+std::size_t DataField::maxLengthImpl() const
 {
-    auto obj = stringFieldDslObj();
+    auto obj = dataFieldDslObj();
     if (obj.fixedLength() != 0U) {
         return Base::maxLengthImpl();
     }
@@ -135,7 +136,7 @@ std::size_t StringField::maxLengthImpl() const
     return std::numeric_limits<std::size_t>::max();
 }
 
-std::string StringField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
+std::string DataField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
 {
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
@@ -161,7 +162,7 @@ std::string StringField::getClassDefinitionImpl(const std::string& scope, const 
     return common::processTemplate(*templPtr, replacements);
 }
 
-std::string StringField::getExtraDefaultOptionsImpl(const std::string& scope) const
+std::string DataField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
     if (!m_prefix) {
         return common::emptyString();
@@ -184,102 +185,48 @@ std::string StringField::getExtraDefaultOptionsImpl(const std::string& scope) co
     return common::processTemplate(Templ, replacements);
 }
 
-std::string StringField::getCompareToValueImpl(
+std::string DataField::getCompareToValueImpl(
     const std::string& op,
     const std::string& value,
     const std::string& nameOverride,
     bool forcedVersionOptional) const
 {
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = common::nameToAccessCopy(name());
-    }
-
-    bool versionOptional = forcedVersionOptional || isVersionOptional();
-    if (versionOptional) {
-        return
-            "field_" + usedName + "().doesExist() &&\n"
-            "(field_" + usedName + "().field().value() " +
-            op + " \"" + value + "\")";
-    }
-
-    return
-        "field_" + usedName + "().value() " +
-        op + " \"" + value + '\"';
+    static_cast<void>(op);
+    static_cast<void>(value);
+    static_cast<void>(nameOverride);
+    static_cast<void>(forcedVersionOptional);
+    assert(!"Data field is not expected to be comparable");
+    return common::emptyString();
 }
 
-std::string StringField::getCompareToFieldImpl(
+std::string DataField::getCompareToFieldImpl(
     const std::string& op,
     const Field& field,
     const std::string& nameOverride,
     bool forcedVersionOptional) const
 {
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = common::nameToAccessCopy(name());
-    }
-
-    bool thisOptional = forcedVersionOptional || isVersionOptional();
-    bool otherOptional = field.isVersionOptional();
-
-    auto fieldName = common::nameToAccessCopy(field.name());
-
-    std::string thisFieldValue;
-    if (thisOptional) {
-        thisFieldValue = "field_" + usedName + "().field().value() ";
-    }
-    else {
-        thisFieldValue = "field_" + usedName + "().value() ";
-    }
-
-    std::string otherFieldValue;
-    if (otherOptional) {
-        otherFieldValue = " field_" + fieldName + "().field().value()";
-    }
-    else {
-        otherFieldValue = " field_" + fieldName + "().value()";
-    }
-
-    auto compareExpr = thisFieldValue + op + otherFieldValue;
-
-    if ((!thisOptional) && (!otherOptional)) {
-        return compareExpr;
-    }
-
-
-    if ((!thisOptional) && (otherOptional)) {
-        return
-            "field_" + fieldName + "().doesExist() &&\n(" +
-            compareExpr + ")";
-    }
-
-    if ((thisOptional) && (!otherOptional)) {
-        return
-            "field_" + usedName + "().doesExist() &&\n(" +
-            compareExpr + ")";
-    }
-
-    return
-        "field_" + usedName + "().doesExist() &&\n" +
-        "field_" + fieldName + "().doesExist() &&\n(" +
-        compareExpr + ")";
+    static_cast<void>(op);
+    static_cast<void>(field);
+    static_cast<void>(nameOverride);
+    static_cast<void>(forcedVersionOptional);
+    assert(!"Data field is not expected to be comparable");
+    return common::emptyString();
 }
 
-std::string StringField::getFieldOpts(const std::string& scope) const
+std::string DataField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;
 
     updateExtraOptions(scope, options);
     checkFixedLengthOpt(options);
     checkPrefixOpt(options);
-    checkSuffixOpt(options);
 
     return common::listToString(options, ",\n", common::emptyString());
 }
 
-std::string StringField::getConstructor() const
+std::string DataField::getConstructor() const
 {
-    auto obj = stringFieldDslObj();
+    auto obj = dataFieldDslObj();
     auto& defaultValue = obj.defaultValue();
     if (defaultValue.empty()) {
         return common::emptyString();
@@ -289,18 +236,30 @@ std::string StringField::getConstructor() const
         "/// @brief Default constructor\n"
         "#^#CLASS_NAME#$#()\n"
         "{\n"
-        "    static const char Str[] = \"#^#STR#$#\";\n"
-        "    static const std::size_t StrSize = std::extent<decltype(Str)>::value;\n"
-        "    Base::value() = typename Base::ValueType(&Str[0], StrSize - 1);\n"
+        "    static const std::uint8_t Data[] = {\n"
+        "        #^#BYTES#$#\n"
+        "    };\n"
+        "    Base::value().assign(std::begin(Data), std::end(Data));\n"
         "}\n";
+
+    common::StringsList bytes;
+    bytes.reserve(defaultValue.size());
+    for (auto& b : defaultValue) {
+        std::stringstream stream;
+        stream << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<unsigned>(b);
+        bytes.push_back(stream.str());
+    }
+
+    std::string bytesStr = common::listToString(bytes, ", ", common::emptyString());
+    bytesStr = common::makeMultilineCopy(bytesStr);
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("STR", defaultValue));
+    replacements.insert(std::make_pair("BYTES", bytesStr));
     return common::processTemplate(Templ, replacements);
 }
 
-std::string StringField::getPrefixField(const std::string& scope) const
+std::string DataField::getPrefixField(const std::string& scope) const
 {
     if (!m_prefix) {
         return common::emptyString();
@@ -318,7 +277,7 @@ std::string StringField::getPrefixField(const std::string& scope) const
     }
 
     static const std::string Templ =
-        "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# string.\n"
+        "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# list.\n"
         "#^#EXTRA_PREFIX#$#\n"
         "struct #^#CLASS_NAME#$#Members\n"
         "{\n"
@@ -332,9 +291,9 @@ std::string StringField::getPrefixField(const std::string& scope) const
     return common::processTemplate(Templ, replacements);
 }
 
-void StringField::checkFixedLengthOpt(StringField::StringsList& list) const
+void DataField::checkFixedLengthOpt(DataField::StringsList& list) const
 {
-    auto obj = stringFieldDslObj();
+    auto obj = dataFieldDslObj();
     auto fixedLen = obj.fixedLength();
     if (fixedLen == 0U) {
         return;
@@ -347,9 +306,9 @@ void StringField::checkFixedLengthOpt(StringField::StringsList& list) const
     list.push_back(std::move(str));
 }
 
-void StringField::checkPrefixOpt(StringField::StringsList& list) const
+void DataField::checkPrefixOpt(DataField::StringsList& list) const
 {
-    auto obj = stringFieldDslObj();
+    auto obj = dataFieldDslObj();
     if (!obj.hasLengthPrefixField()) {
         return;
     }
@@ -381,25 +340,5 @@ void StringField::checkPrefixOpt(StringField::StringsList& list) const
     list.push_back("comms::option::SequenceSerLengthFieldPrefix<" + prefixName + '>');
 }
 
-void StringField::checkSuffixOpt(StringField::StringsList& list) const
-{
-    auto obj = stringFieldDslObj();
-    if (!obj.hasZeroTermSuffix()) {
-        return;
-    }
-
-    static const std::string Templ =
-        "comms::option::SequenceTerminationFieldSuffix<\n"
-        "    comms::field::IntValue<\n"
-        "        #^#PROT_NAMESPACE#$#::FieldBase<>,\n"
-        "        std::uint8_t,\n"
-        "        comms::option::ValidNumValueRange<0, 0>\n"
-        "    >\n"
-        ">";
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
-    list.push_back(common::processTemplate(Templ, replacements));
-}
 
 } // namespace commsdsl2comms
