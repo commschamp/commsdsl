@@ -60,6 +60,11 @@ private:
     std::string getFieldsDef() const;
     std::string getNamespaceScope() const;
     std::string getNameFunc() const;
+    std::string getReadFunc() const;
+    std::string getRefreshFunc() const;
+    std::string getExtraOptions() const;
+
+    bool mustImplementReadRefresh() const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;

@@ -95,6 +95,10 @@ public:
 
     bool isVersionOptional() const;
 
+    static std::string getReadForFields(const FieldsList& fields, bool forMessage);
+    static std::string getPublicRefreshForFields(const FieldsList& fields, bool forMessage);
+    static std::string getPrivateRefreshForFields(const FieldsList& fields);
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),

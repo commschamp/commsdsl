@@ -471,7 +471,198 @@ bool Field::isVersionOptional() const
         (m_generator.isElementOptional(
             m_dslObj.sinceVersion(),
             m_dslObj.deprecatedSince(),
-            m_dslObj.isDeprecatedRemoved()));
+             m_dslObj.isDeprecatedRemoved()));
+}
+
+std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
+{
+    std::vector<std::size_t> optionals;
+    for (std::size_t idx = 0U; idx < fields.size(); ++idx) {
+        auto& m = fields[idx];
+
+        assert(m);
+        if (m->kind() != commsdsl::Field::Kind::Optional) {
+            continue;
+        }
+
+        auto* optField = static_cast<const OptionalField*>(m.get());
+        auto cond = optField->cond();
+        if (!cond.valid()) {
+            continue;
+        }
+
+        optionals.push_back(idx);
+    }
+
+    if (optionals.empty()) {
+        return common::emptyString();
+    }
+
+    std::string readFromStr("readFrom");
+    std::string readUntilStr("readUntil");
+    std::string readFromUntilStr("readFromUntil");
+    std::string lengthUntilStr("lengthUntil");
+    std::string lengthFromUntilStr("lengthFromUntil");
+    std::string readFunc("read");
+    std::string lenSuffixStr(" - consumedLen");
+    if (forMessage) {
+        readFromStr = "doReadFieldsFrom";
+        readUntilStr = "doReadFieldsUntil";
+        readFromUntilStr = "doReadFieldsFromUntil";
+        lengthUntilStr = "doLengthUntil";
+        lengthFromUntilStr = "doLengthFromUntil";
+        readFunc = "doRead";
+        lenSuffixStr.clear();
+    }
+
+    common::StringsList reads;
+    std::size_t prevPos = 0U;
+    for (auto oPos : optionals) {
+        assert(oPos != 0);
+        auto& m = fields[oPos];
+        auto accessName = common::nameToAccessCopy(m->name());
+        if (prevPos == 0) {
+            auto str = 
+                "refresh_" + accessName + "();\n"
+                "auto es = Base::template " + readUntilStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
+                "if (es != comms::ErrorStatus::Success) {\n"
+                "    return es;\n"
+                "}\n";
+
+            if (!forMessage) {
+                str += "std::size_t consumedLen = Base::template " + lengthUntilStr + "<FieldIdx_" + accessName + ">();\n";
+            }
+
+            reads.push_back(std::move(str));
+            prevPos = oPos;
+            continue;
+        }
+
+        if (oPos == optionals.back()) {
+            auto str = 
+                "refresh_" + accessName + "();\n"
+                "es = Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len" + lenSuffixStr + ");\n"
+                "if (es != comms::ErrorStatus::Success) {\n"
+                "    return es;\n"
+                "}\n";
+            reads.push_back(std::move(str));
+            continue;                
+        }
+
+        auto prevName = common::nameToAccessCopy(fields[prevPos]->name());
+        auto str = 
+            "refresh_" + accessName + "();\n"
+            "es = Base::template " + readFromUntilStr + "<FieldIdx_" + prevName + ", FieldIdx_" + accessName + ">(iter, len" + lenSuffixStr + ");\n"
+            "if (es != comms::ErrorStatus::Success) {\n"
+            "    return es;\n"
+            "}\n";
+        if (!forMessage) {
+            str += "consumedLen += Base::template " + lengthFromUntilStr + "<FieldIdx_" + prevName + ", FieldIdx_" + accessName + ">();\n";
+        }
+        reads.push_back(std::move(str));
+        prevPos = oPos;
+    }
+
+    static const std::string Templ =
+        "/// @brief Custom read functionality.\n"
+        "template <typename TIter>"
+        "comms::ErrorStatus #^#READ_FUNC#$#(TIter& iter, std::size_t len)\n"
+        "{\n"
+        "    #^#READS#$#\n"
+        "    return comms::ErrorStatus::Success;\n"
+        "}\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("READS", common::listToString(reads, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("READ_FUNC", std::move(readFunc)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string Field::getPublicRefreshForFields(const Field::FieldsList& fields, bool forMessage)
+{
+    common::StringsList calls;
+    for (auto& m : fields) {
+        assert(m);
+        if (m->kind() != commsdsl::Field::Kind::Optional) {
+            continue;
+        }
+
+        auto* optField = static_cast<const OptionalField*>(m.get());
+        auto cond = optField->cond();
+        if (!cond.valid()) {
+            continue;
+        }
+
+        auto str =
+            "updated = refresh_" +
+            common::nameToAccessCopy(m->name()) +
+            "() || updated;";
+        calls.push_back(std::move(str));
+    }
+
+    if (calls.empty()) {
+        return common::emptyString();
+    }
+
+    std::string func("refresh");
+    if (forMessage) {
+        func = "doRefresh";
+    }
+
+    static const std::string Templ =
+        "/// @brief Custom refresh functionality.\n"
+        "bool #^#FUNC#$#()\n"
+        "{\n"
+        "    bool updated = Base::refresh();\n"
+        "    #^#CALLS#$#\n"
+        "    return updated;\n"
+        "}\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CALLS", common::listToString(calls, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("FUNC", std::move(func)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string Field::getPrivateRefreshForFields(const Field::FieldsList& fields)
+{
+    common::StringsList funcs;
+    for (auto& m : fields) {
+        assert(m);
+        if (m->kind() != commsdsl::Field::Kind::Optional) {
+            continue;
+        }
+
+        auto* optField = static_cast<const OptionalField*>(m.get());
+        auto cond = optField->cond();
+        if (!cond.valid()) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "bool refresh_#^#NAME#$#()\n"
+            "{\n"
+            "    auto mode = comms::field::OptionalMode::Missing;\n"
+            "    if (#^#COND#$#) {\n"
+            "        mode = comms::field::OptionalMode::Exists;\n"
+            "    }\n\n"
+            "    if (field_#^#NAME#$#().getMode() == mode) {\n"
+            "        return false;\n"
+            "    }\n\n"
+            "    return true;\n"
+            "}\n";
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(m->name())));
+        replacements.insert(std::make_pair("COND", dslCondToString(fields, cond)));
+        funcs.push_back(common::processTemplate(Templ, replacements));
+    }
+
+    if (funcs.empty()) {
+        return common::emptyString();
+    }
+
+    return common::listToString(funcs, "\n", common::emptyString());
 }
 
 bool Field::prepareImpl()

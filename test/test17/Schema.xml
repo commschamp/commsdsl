@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test17"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+
+        <int name="I1" type="uint8" />  
+        <enum name="E1" type="uint8" defaultValue="V1" >
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="2" />
+        </enum>                  
+    </fields>
+    
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>      
+    
+    <message name="Msg1" id="MsgId.M1">
+        <int name="m1" reuse="I1" validRange="[0,5]" />
+        <int name="m2" type="uint8" />
+        <int name="m3" type="uint16"/>
+        <int name="m4" type="int16"/>
+        <ref name="m5" field="E1"  sinceVersion="2"/>
+        <set name="m6" length="1" sinceVersion="2">
+            <bit name="b0" idx="0" />
+            <bit name="b1" idx="1" />
+        </set>
+        <optional name="o1" field="I1" defaultMode="exists"  sinceVersion="2">
+            <cond value="$m1 = 0" />
+        </optional>
+        <optional name="o2" defaultMode="missing" sinceVersion="2">
+            <field>
+                <int name="o2" type="uint32" />
+            </field>
+            <or>
+                <cond value="$m1 = 0" />
+                <and>
+                    <cond value="$m1 &lt; 3" />
+                    <cond value="$m2 != 0" />
+                </and>
+            </or>
+        </optional>
+        <optional name="o3" defaultMode="exists" field="I1" cond="$m2 = $m3"/>
+        <optional name="o4" defaultMode="missing" field="I1" cond="$m2 != $m4"  sinceVersion="2"/>
+        <optional name="o5" defaultMode="exists" field="I1" cond="$m2 &lt; $m5"  sinceVersion="2"/>
+        <optional name="o6" defaultMode="missing" field="I1" cond="$m5 != E1.V1"  sinceVersion="2"/>
+        <optional name="o7" defaultMode="exists" field="I1" cond="$m5 != $m4"  sinceVersion="2"/>
+        <optional name="o8" defaultMode="missing" field="I1" cond="$m6.b0"  sinceVersion="2"/>
+        <optional name="o9" defaultMode="exists" field="I1" cond="!$m6.b1"  sinceVersion="2"/>
+    </message>
+</schema>

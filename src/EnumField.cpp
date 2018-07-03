@@ -339,13 +339,13 @@ std::string EnumField::getCompareToFieldImpl(
 
     if ((!thisOptional) && (otherOptional)) {
         return
-            "field_" + usedName + "().doesExist() &&\n(" +
+            "field_" + fieldName + "().doesExist() &&\n(" +
             compExpr + ')';
     }
 
     if ((thisOptional) && (!otherOptional)) {
         return
-            "field_" + fieldName + "().doesExist() &&\n(" +
+            "field_" + usedName + "().doesExist() &&\n(" +
             compExpr + ')';
     }
 

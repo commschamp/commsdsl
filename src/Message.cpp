@@ -10,6 +10,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Generator.h"
+#include "OptionalField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -57,7 +58,8 @@ const std::string Template(
     "        comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
     "        comms::option::FieldsImpl<typename #^#CLASS_NAME#$#Fields<TOpt>::All>,\n"
     "        comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
-    "        comms::option::HasName\n"
+    "        comms::option::HasName#^#COMMA#$#\n"
+    "        #^#EXTRA_OPTIONS#$#\n"
     "    >\n"
     "{\n"
     "    // Redefinition of the base class type\n"
@@ -68,7 +70,8 @@ const std::string Template(
     "            comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
     "            comms::option::FieldsImpl<typename #^#CLASS_NAME#$#Fields<TOpt>::All>,\n"
     "            comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
-    "            comms::option::HasName\n"
+    "            comms::option::HasName#^#COMMA#$#\n"
+    "            #^#EXTRA_OPTIONS#$#\n"
     "        >;\n"
     "\n"
     "public:\n"
@@ -200,6 +203,10 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("MESSAGE_BODY", getBody()));
     replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
     replacements.insert(std::make_pair("NAMESPACE_SCOPE", getNamespaceScope()));
+    replacements.insert(std::make_pair("EXTRA_OPTIONS", getExtraOptions()));
+    if (!replacements["EXTRA_OPTIONS"].empty()) {
+        replacements.insert(std::make_pair("COMMA", ","));
+    }
     // TODO: all values
 
     auto str = common::processTemplate(Template, replacements);
@@ -282,6 +289,7 @@ std::string Message::getBody() const
 
     std::string priv = getPrivate();
     if (!priv.empty()) {
+        common::insertIndent(priv);
         result += "\nprivate:\n";
         result += priv;
     }
@@ -295,20 +303,23 @@ std::string Message::getPublic() const
     result += getFieldsAccess();
     result += getLengthCheck();
     result += getNameFunc();
+    result += getReadFunc();
+    result += getRefreshFunc();
     common::insertIndent(result);
+    // TODO: check custom
     return result;
 }
 
 std::string Message::getProtected() const
 {
-    // TODO:
+    // TODO: check custom
     return common::emptyString();
 }
 
 std::string Message::getPrivate() const
 {
-    // TODO:
-    return common::emptyString();
+    // TODO: check custom
+    return Field::getPrivateRefreshForFields(m_fields);
 }
 
 std::string Message::getFieldsAccess() const
@@ -433,6 +444,58 @@ std::string Message::getNameFunc() const
         "{\n"
         "    return \"" + getDisplayName() + "\";\n"
         "}\n";
+}
+
+std::string Message::getReadFunc() const
+{
+    // TODO: check custom
+
+    auto result = Field::getReadForFields(m_fields, true);
+    if (!result.empty()) {
+        return "\n" + result;
+    }
+
+    return result;
+}
+
+std::string Message::getRefreshFunc() const
+{
+    // TODO: check custom
+
+    auto result = Field::getPublicRefreshForFields(m_fields, true);
+    if (!result.empty()) {
+        return "\n" + result;
+    }
+
+    return result;
+}
+
+std::string Message::getExtraOptions() const
+{
+    if (!mustImplementReadRefresh()) {
+        // TODO: check external read/refresh
+        return common::emptyString();
+    }
+
+    return "comms::option::HasCustomRefresh";
+}
+
+bool Message::mustImplementReadRefresh() const
+{
+    for (auto& f : m_fields) {
+        if (f->kind() != commsdsl::Field::Kind::Optional) {
+            continue;
+        }
+
+        auto* optField = static_cast<const OptionalField*>(f.get());
+        auto cond = optField->cond();
+        if (!cond.valid()) {
+            continue;
+        }
+
+        return true;
+    }
+    return false;
 }
 
 }
