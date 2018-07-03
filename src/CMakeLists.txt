@@ -29,6 +29,7 @@ set (
     "BundleField.cpp"
     "StringField.cpp"
     "DataField.cpp"
+    "ListField.cpp"
     "FieldBase.cpp"
     "DefaultOptions.cpp"
     "MsgId.cpp"
