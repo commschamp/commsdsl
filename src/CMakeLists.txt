@@ -34,6 +34,7 @@ set (
     "DefaultOptions.cpp"
     "MsgId.cpp"
     "Interface.cpp"
+    "AllMessages.cpp"
     "common.cpp"
 )
 

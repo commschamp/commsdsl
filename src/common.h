@@ -30,7 +30,7 @@ const std::string& prefixFieldSuffixStr();
 const std::string& defaultOptionsStr();
 const std::string& msgIdEnumNameStr();
 const std::string& msgIdPrefixStr();
-
+const std::string& allMessagesStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

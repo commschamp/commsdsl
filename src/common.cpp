@@ -113,6 +113,12 @@ const std::string& msgIdPrefixStr()
     return Str;
 }
 
+const std::string& allMessagesStr()
+{
+    static const std::string Str("AllMessages");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

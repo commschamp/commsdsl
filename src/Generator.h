@@ -45,6 +45,9 @@ public:
 
     std::string protocolDefRootDir();
 
+    bool isAnyPlatformSupported(
+        const std::vector<std::string>& platforms);
+
     std::pair<std::string, std::string>
     startMessageProtocolWrite(
         const std::string& externalRef,
@@ -71,7 +74,7 @@ public:
     std::pair<std::string, std::string>
     namespacesForRoot() const;
 
-    std::string headerfileForMessage(const std::string& externalRef);
+    std::string headerfileForMessage(const std::string& externalRef, bool quotes = true);
 
     std::string headerfileForField(const std::string& externalRef, bool quotes = true);
 
@@ -119,6 +122,11 @@ public:
 
     const Field* findField(const std::string& externalRef, bool record = true);
 
+    commsdsl::Protocol::MessagesList getAllDslMessages() const
+    {
+        return m_protocol.allMessages();
+
+    }
 private:
 
     using NamespacesList = Namespace::NamespacesList;

@@ -9,6 +9,7 @@
 #include "Interface.h"
 #include "common.h"
 #include "EnumField.h"
+#include "AllMessages.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -125,13 +126,27 @@ std::string Generator::protocolDefRootDir()
     return dir.string();
 }
 
+bool Generator::isAnyPlatformSupported(
+    const std::vector<std::string>& platforms)
+{
+    if (platforms.empty()) {
+        return true;
+    }
+
+    // TODO: impelemnt
+    return true;
+}
+
 std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
     const std::string& externalRef,
     const std::vector<std::string>& platforms)
 {
     // TODO: check parameters
     static_cast<void>(externalRef);
-    static_cast<void>(platforms);
+
+    if (!isAnyPlatformSupported(platforms)) {
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
 
     // TODO: check replacement
 
@@ -374,9 +389,13 @@ Generator::namespacesForRoot() const
     return std::make_pair(std::move(begStr), std::move(endStr));
 }
 
-std::string Generator::headerfileForMessage(const std::string& externalRef)
+std::string Generator::headerfileForMessage(const std::string& externalRef, bool quotes)
 {
-    std::string result = "\"" + m_mainNamespace + '/';
+    std::string result;
+    if (quotes) {
+        result += '\"';
+    }
+    result += m_mainNamespace + '/';
     auto ns = refToNs(externalRef);
     if (!ns.empty()) {
         auto tokens = splitRefPath(ns);
@@ -391,7 +410,9 @@ std::string Generator::headerfileForMessage(const std::string& externalRef)
     auto className = common::nameToClassCopy(refToName(externalRef));
     result += className;
     result += common::headerSuffix();
-    result += '\"';
+    if (quotes) {
+        result += '\"';
+    }
     return result;
 }
 
@@ -699,7 +720,8 @@ bool Generator::prepare()
 bool Generator::writeFiles()
 {
     if ((!FieldBase::write(*this)) ||
-        (!MsgId::write(*this))) {
+        (!MsgId::write(*this)) ||
+        (!AllMessages::write(*this))) {
         return false;
     }
 
