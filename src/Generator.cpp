@@ -141,9 +141,6 @@ std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
     const std::string& externalRef,
     const std::vector<std::string>& platforms)
 {
-    // TODO: check parameters
-    static_cast<void>(externalRef);
-
     if (!isAnyPlatformSupported(platforms)) {
         return std::make_pair(common::emptyString(), common::emptyString());
     }
@@ -171,6 +168,34 @@ std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
 
     return std::make_pair(std::move(fullPathStr), className);
 }
+
+std::pair<std::string, std::string> Generator::startFrameProtocolWrite(
+    const std::string& externalRef)
+{
+    // TODO: check replacement
+
+    // TODO: check suffix
+    std::string suffix;
+
+    auto ns = refToNs(externalRef);
+    auto className = refToName(externalRef);
+    assert(!className.empty());
+    className += suffix;
+    common::nameToClass(className);
+    auto fileName = className + common::headerSuffix();
+    auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns) / common::frameStr();
+    auto fullPath = dirPath / fileName;
+    auto fullPathStr = fullPath.string();
+
+    m_logger.info("Generating " + fullPathStr);
+
+    if (!createDir(dirPath)) {
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+    return std::make_pair(std::move(fullPathStr), className);
+}
+
 
 std::pair<std::string, std::string> Generator::startInterfaceProtocolWrite(
     const std::string& externalRef)
@@ -260,81 +285,19 @@ std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
 std::pair<std::string, std::string> Generator::namespacesForMessage(
     const std::string& externalRef) const
 {
-    auto ns = refToNs(externalRef);
-    auto tokens = splitRefPath(ns);
+    return namespacesForElement(externalRef, common::messageStr());
+}
 
-    std::string begStr =
-        "namespace " + m_mainNamespace + "\n"
-        "{\n";
-
-    for (auto& t : tokens) {
-        if (t.empty()) {
-            continue;
-        }
-
-        begStr += "\n"
-                  "namespace " + t + "\n"
-                  "{\n";
-    }
-
-    begStr +=
-        "\n"
-        "namespace " + common::messageStr() + "\n"
-        "{\n";
-
-    std::string endStr = "} // namespace " + common::messageStr() + "\n\n";
-    for (auto iter = tokens.rbegin(); iter != tokens.rend(); ++iter) {
-        auto& t = *iter;
-        if (t.empty()) {
-            continue;
-        }
-
-        endStr += "} // namespace " + t + "\n\n";
-    }
-
-    endStr += "} // namespace " + m_mainNamespace + "\n\n";
-
-    return std::make_pair(std::move(begStr), std::move(endStr));
+std::pair<std::string, std::string> Generator::namespacesForFrame(
+    const std::string& externalRef) const
+{
+    return namespacesForElement(externalRef, common::frameStr());
 }
 
 std::pair<std::string, std::string> Generator::namespacesForField(
     const std::string& externalRef) const
 {
-    auto ns = refToNs(externalRef);
-    auto tokens = splitRefPath(ns);
-
-    std::string begStr =
-        "namespace " + m_mainNamespace + "\n"
-        "{\n";
-
-    for (auto& t : tokens) {
-        if (t.empty()) {
-            continue;
-        }
-
-        begStr += "\n"
-                  "namespace " + t + "\n"
-                  "{\n";
-    }
-
-    begStr +=
-        "\n"
-        "namespace " + common::fieldStr() + "\n"
-        "{\n";
-
-    std::string endStr = "} // namespace " + common::fieldStr() + "\n\n";
-    for (auto iter = tokens.rbegin(); iter != tokens.rend(); ++iter) {
-        auto& t = *iter;
-        if (t.empty()) {
-            continue;
-        }
-
-        endStr += "} // namespace " + t + "\n\n";
-    }
-
-    endStr += "} // namespace " + m_mainNamespace + "\n\n";
-
-    return std::make_pair(std::move(begStr), std::move(endStr));
+    return namespacesForElement(externalRef, common::fieldStr());
 }
 
 std::pair<std::string, std::string> Generator::namespacesForInterface(
@@ -344,36 +307,7 @@ std::pair<std::string, std::string> Generator::namespacesForInterface(
         return namespacesForRoot();
     }
 
-    auto ns = refToNs(externalRef);
-    auto tokens = splitRefPath(ns);
-
-    std::string begStr =
-        "namespace " + m_mainNamespace + "\n"
-        "{\n";
-
-    for (auto& t : tokens) {
-        if (t.empty()) {
-            continue;
-        }
-
-        begStr += "\n"
-                  "namespace " + t + "\n"
-                  "{\n";
-    }
-
-    std::string endStr;
-    for (auto iter = tokens.rbegin(); iter != tokens.rend(); ++iter) {
-        auto& t = *iter;
-        if (t.empty()) {
-            continue;
-        }
-
-        endStr += "} // namespace " + t + "\n\n";
-    }
-
-    endStr += "} // namespace " + m_mainNamespace + "\n\n";
-
-    return std::make_pair(std::move(begStr), std::move(endStr));
+    return namespacesForElement(externalRef);
 }
 
 
@@ -391,59 +325,17 @@ Generator::namespacesForRoot() const
 
 std::string Generator::headerfileForMessage(const std::string& externalRef, bool quotes)
 {
-    std::string result;
-    if (quotes) {
-        result += '\"';
-    }
-    result += m_mainNamespace + '/';
-    auto ns = refToNs(externalRef);
-    if (!ns.empty()) {
-        auto tokens = splitRefPath(ns);
-        for (auto& t : tokens) {
-            result += t;
-            result += '/';
-        }
-    }
+    return headerfileForElement(externalRef, quotes, common::messageStr());
+}
 
-    result += common::messageStr() + '/';
-
-    auto className = common::nameToClassCopy(refToName(externalRef));
-    result += className;
-    result += common::headerSuffix();
-    if (quotes) {
-        result += '\"';
-    }
-    return result;
+std::string Generator::headerfileForFrame(const std::string& externalRef, bool quotes)
+{
+    return headerfileForElement(externalRef, quotes, common::frameStr());
 }
 
 std::string Generator::headerfileForField(const std::string& externalRef, bool quotes)
 {
-    std::string result;
-    if (quotes) {
-        result += '\"';
-    }
-
-    result += m_mainNamespace + '/';
-    auto ns = refToNs(externalRef);
-    if (!ns.empty()) {
-        auto tokens = splitRefPath(ns);
-        for (auto& t : tokens) {
-            result += t;
-            result += '/';
-        }
-    }
-
-    result += common::fieldStr() + '/';
-
-    auto className = common::nameToClassCopy(refToName(externalRef));
-    result += className;
-    result += common::headerSuffix();
-
-    if (quotes) {
-        result += '\"';
-    }
-
-    return result;
+    return headerfileForElement(externalRef, quotes, common::fieldStr());
 }
 
 std::string Generator::headerfileForInterface(const std::string& externalRef)
@@ -453,79 +345,32 @@ std::string Generator::headerfileForInterface(const std::string& externalRef)
         externalRefCpy = "Message";
     }
 
-    std::string result = "\"" + m_mainNamespace + '/';
-    auto ns = refToNs(externalRefCpy);
-    if (!ns.empty()) {
-        auto tokens = splitRefPath(ns);
-        for (auto& t : tokens) {
-            result += t;
-            result += '/';
-        }
-    }
-
-    auto className = common::nameToClassCopy(refToName(externalRefCpy));
-    result += className;
-    result += common::headerSuffix();
-    result += '\"';
-    return result;
+    return headerfileForElement(externalRefCpy, true);
 }
 
 
 std::string Generator::scopeForMessage(
     const std::string& externalRef,
     bool mainIncluded,
-    bool messageIncluded)
+    bool classIncluded)
 {
-    std::string result;
-    if (mainIncluded) {
-        result += m_mainNamespace;
-        result += ScopeSep;
-    }
+    return scopeForElement(externalRef, mainIncluded, classIncluded, common::messageStr());
+}
 
-    auto ns = refToNs(externalRef);
-    if (!ns.empty()) {
-        auto tokens = splitRefPath(ns);
-        for (auto& t : tokens) {
-            result += t;
-            result += ScopeSep;
-        }
-    }
-
-    result += common::messageStr();
-    result += ScopeSep;
-    if (messageIncluded) {
-        result += common::nameToClassCopy(refToName(externalRef));
-    }
-    return result;
+std::string Generator::scopeForFrame(
+    const std::string& externalRef,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(externalRef, mainIncluded, classIncluded, common::frameStr());
 }
 
 std::string Generator::scopeForField(
     const std::string& externalRef,
     bool mainIncluded,
-    bool fieldIncluded)
+    bool classIncluded)
 {
-    std::string result;
-    if (mainIncluded) {
-        result += m_mainNamespace;
-        result += ScopeSep;
-    }
-
-    auto ns = refToNs(externalRef);
-    if (!ns.empty()) {
-        auto tokens = splitRefPath(ns);
-        for (auto& t : tokens) {
-            result += t;
-            result += ScopeSep;
-        }
-    }
-
-    result += common::fieldStr();
-    result += ScopeSep;
-    if (fieldIncluded) {
-        result += common::nameToClassCopy(refToName(externalRef));
-    }
-
-    return result;
+    return scopeForElement(externalRef, mainIncluded, classIncluded, common::fieldStr());
 }
 
 std::string Generator::scopeForNamespace(const std::string& externalRef)
@@ -734,7 +579,8 @@ bool Generator::writeFiles()
 
     for (auto& ns : m_namespaces) {
         if ((!ns->writeInterfaces()) ||
-            (!ns->writeMessages())) {
+            (!ns->writeMessages()) ||
+            (!ns->writeFrames())) {
             return false;
         }
 
@@ -809,6 +655,118 @@ const Field* Generator::findMessageIdField() const
     }
     return nullptr;
 }
+
+std::string Generator::headerfileForElement(
+    const std::string& externalRef,
+    bool quotes,
+    const std::string& subNs)
+{
+    std::string result;
+    if (quotes) {
+        result += '\"';
+    }
+    result += m_mainNamespace + '/';
+    auto ns = refToNs(externalRef);
+    if (!ns.empty()) {
+        auto tokens = splitRefPath(ns);
+        for (auto& t : tokens) {
+            result += t;
+            result += '/';
+        }
+    }
+
+    if (!subNs.empty()) {
+        result += subNs + '/';
+    }
+
+    auto className = common::nameToClassCopy(refToName(externalRef));
+    result += className;
+    result += common::headerSuffix();
+    if (quotes) {
+        result += '\"';
+    }
+    return result;
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForElement(
+    const std::string& externalRef,
+    const std::string& subNs) const
+{
+    auto ns = refToNs(externalRef);
+    auto tokens = splitRefPath(ns);
+
+    std::string begStr =
+        "namespace " + m_mainNamespace + "\n"
+        "{\n";
+
+    for (auto& t : tokens) {
+        if (t.empty()) {
+            continue;
+        }
+
+        begStr += "\n"
+                  "namespace " + t + "\n"
+                  "{\n";
+    }
+
+    std::string endStr;
+    if (!subNs.empty()) {
+        begStr +=
+            "\n"
+            "namespace " + subNs + "\n"
+            "{\n";
+
+        endStr += "} // namespace " + subNs + "\n\n";
+    }
+
+
+    for (auto iter = tokens.rbegin(); iter != tokens.rend(); ++iter) {
+        auto& t = *iter;
+        if (t.empty()) {
+            continue;
+        }
+
+        endStr += "} // namespace " + t + "\n\n";
+    }
+
+    endStr += "} // namespace " + m_mainNamespace + "\n\n";
+
+    return std::make_pair(std::move(begStr), std::move(endStr));
+}
+
+std::string Generator::scopeForElement(const std::string& externalRef,
+    bool mainIncluded,
+    bool classIncluded,
+    const std::string& subNs)
+{
+    std::string result;
+    if (mainIncluded) {
+        result += m_mainNamespace;
+        result += ScopeSep;
+    }
+
+    auto ns = refToNs(externalRef);
+    if (!ns.empty()) {
+        auto tokens = splitRefPath(ns);
+        for (auto& t : tokens) {
+            result += t;
+            result += ScopeSep;
+        }
+    }
+
+    if (!subNs.empty()) {
+        result += subNs;
+        result += ScopeSep;
+    }
+
+    if (classIncluded) {
+        result += common::nameToClassCopy(refToName(externalRef));
+    }
+    return result;
+
+}
+
 
 
 } // namespace commsdsl2comms

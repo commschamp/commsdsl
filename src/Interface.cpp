@@ -90,7 +90,7 @@ const std::string ClassTemplate(
     "    ///     The generated functions are:\n"
     "    #^#ACCESS_FUNCS_DOC#$#\n"
     "    COMMS_MSG_TRANSPORT_FIELDS_ACCESS(\n"
-    "       #^#FIELDS_ACCESS_LIST#$#\n"
+    "        #^#FIELDS_ACCESS_LIST#$#\n"
     "    );\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n"
@@ -250,10 +250,10 @@ std::string Interface::getIncludes() const
     static const common::StringsList InterfaceIncludes = {
         "comms/Message.h",
         "comms/options.h",
-        m_generator.mainNamespace() + '/' + common::msgIdEnumNameStr() + common::headerSuffix()
     };
 
     common::mergeIncludes(InterfaceIncludes, includes);
+    common::mergeInclude(m_generator.mainNamespace() + '/' + common::msgIdEnumNameStr() + common::headerSuffix(), includes);
     return common::includesToStatements(includes);
 }
 

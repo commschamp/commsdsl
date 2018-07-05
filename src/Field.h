@@ -19,6 +19,8 @@ public:
     using Ptr = std::unique_ptr<Field>;
     using FieldsList = std::vector<Ptr>;
 
+    virtual ~Field() = default;
+
     const std::string& name() const
     {
         return m_dslObj.name();

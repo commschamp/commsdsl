@@ -14,7 +14,8 @@ bool Namespace::prepare()
         prepareNamespaces() &&
         prepareFields() &&
         prepareInterfaces() &&
-        prepareMessages();
+        prepareMessages() &&
+        prepareFrames();
 }
 
 bool Namespace::writeInterfaces()
@@ -45,6 +46,23 @@ bool Namespace::writeMessages()
             }) &&
         std::all_of(
             m_messages.begin(), m_messages.end(),
+            [](auto& ptr)
+            {
+                return ptr->write();
+    });
+}
+
+bool Namespace::writeFrames()
+{
+    return
+        std::all_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& ptr)
+            {
+                return ptr->writeFrames();
+            }) &&
+        std::all_of(
+            m_frames.begin(), m_frames.end(),
             [](auto& ptr)
             {
                 return ptr->write();
@@ -123,6 +141,11 @@ std::string Namespace::getDefaultOptions() const
         addFunc(m->getDefaultOptions(), messagesOpts);
     }
 
+    std::string framesOpts;
+    for (auto& f : m_frames) {
+        addFunc(f->getDefaultOptions(), framesOpts);
+    }
+
     if (!fieldsOpts.empty()) {
         static const std::string FieldsWrapTempl =
             "/// @brief Extra options for fields.\n"
@@ -149,11 +172,25 @@ std::string Namespace::getDefaultOptions() const
         messagesOpts = common::processTemplate(MessageWrapTempl, replacmenents);
     }
 
+    if (!framesOpts.empty()) {
+        static const std::string FrameWrapTempl =
+            "/// @brief Extra options for frames.\n"
+            "struct frame\n"
+            "{\n"
+            "    #^#FRAMES_OPTS#$#\n"
+            "}; // struct frame\n";
+
+        common::ReplacementMap replacmenents;
+        replacmenents.insert(std::make_pair("FRAMES_OPTS", framesOpts));
+        messagesOpts = common::processTemplate(FrameWrapTempl, replacmenents);
+    }
+
     common::ReplacementMap replacmenents;
     replacmenents.insert(std::make_pair("NAMESPACE_NAME", name()));
     replacmenents.insert(std::make_pair("NAMESPACES_OPTS", std::move(namespacesOpts)));
     replacmenents.insert(std::make_pair("MESSAGES_OPTS", std::move(messagesOpts)));
     replacmenents.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
+    replacmenents.insert(std::make_pair("FRAMES_OPTS", std::move(framesOpts)));
 
     static const std::string Templ =
         "/// @brief Scope for extra options for fields and messages in the namespace.\n"
@@ -162,6 +199,7 @@ std::string Namespace::getDefaultOptions() const
         "    #^#NAMESPACES_OPTS#$#\n"
         "    #^#FIELDS_OPTS#$#\n"
         "    #^#MESSAGES_OPTS#$#\n"
+        "    #^#FRAMES_OPTS#$#\n"
         "};\n";
 
     static const std::string GlobalTempl =
@@ -369,6 +407,23 @@ bool Namespace::prepareMessages()
         }
 
         m_messages.push_back(std::move(ptr));
+    }
+
+    return true;
+}
+
+bool Namespace::prepareFrames()
+{
+    auto frames = m_dslObj.frames();
+    m_frames.reserve(frames.size());
+    for (auto& dslObj : frames) {
+        auto ptr = createFrame(m_generator, dslObj);
+        assert(ptr);
+        if (!ptr->prepare()) {
+            return false;
+        }
+
+        m_frames.push_back(std::move(ptr));
     }
 
     return true;

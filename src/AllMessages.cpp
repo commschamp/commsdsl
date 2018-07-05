@@ -22,6 +22,8 @@ const std::string Template(
     "#^#INCLUDES#$#\n"
     "#^#BEG_NAMESPACE#$#\n"
     "/// @brief All messages of the protocol in ascending order.\n"
+    "/// @tparam TBase Base class of all the messages.\n"
+    "/// @tparam TOpt Protocol definition options.\n"
     "template <typename TBase, typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
     "using AllMessages =\n"
     "    comms::tuple<\n"

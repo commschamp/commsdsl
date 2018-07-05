@@ -54,6 +54,10 @@ public:
         const std::vector<std::string>& platforms);
 
     std::pair<std::string, std::string>
+    startFrameProtocolWrite(
+        const std::string& externalRef);
+
+    std::pair<std::string, std::string>
     startInterfaceProtocolWrite(const std::string& externalRef);
 
     std::pair<std::string, std::string>
@@ -66,6 +70,9 @@ public:
     namespacesForMessage(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
+    namespacesForFrame(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
     namespacesForField(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
@@ -76,6 +83,8 @@ public:
 
     std::string headerfileForMessage(const std::string& externalRef, bool quotes = true);
 
+    std::string headerfileForFrame(const std::string& externalRef, bool quotes = true);
+
     std::string headerfileForField(const std::string& externalRef, bool quotes = true);
 
     std::string headerfileForInterface(const std::string& externalRef);
@@ -83,12 +92,16 @@ public:
     std::string scopeForMessage(
         const std::string& externalRef,
         bool mainIncluded = false,
-        bool messageIncluded = false);
+        bool classIncluded = false);
 
-    std::string scopeForField(
+    std::string scopeForFrame(
         const std::string& externalRef,
         bool mainIncluded = false,
-        bool fieldIncluded = false);
+        bool messageIncluded = false);
+
+    std::string scopeForField(const std::string& externalRef,
+        bool mainIncluded = false,
+        bool classIncluded = false);
 
     std::string scopeForNamespace(const std::string& externalRef);
 
@@ -121,6 +134,23 @@ public:
     MessageIdMap getAllMessageIds() const;
 
     const Field* findField(const std::string& externalRef, bool record = true);
+
+    std::string headerfileForElement(
+        const std::string& externalRef,
+        bool quotes,
+        const std::string& subNs = common::emptyString());
+
+    std::pair<std::string, std::string>
+    namespacesForElement(
+        const std::string& externalRef,
+        const std::string& subNs = common::emptyString()) const;
+
+    std::string scopeForElement(
+        const std::string& externalRef,
+        bool mainIncluded,
+        bool classIncluded,
+        const std::string& subNs = common::emptyString());
+
 
     commsdsl::Protocol::MessagesList getAllDslMessages() const
     {

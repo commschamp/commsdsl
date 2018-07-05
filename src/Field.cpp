@@ -42,16 +42,6 @@ const std::string FileTemplate(
     "#^#END_NAMESPACE#$#\n"
 );
 
-Field::IncludesList prepareCommonIncludes(const Generator& generator)
-{
-    Field::IncludesList list = {
-        "comms/options.h",
-        generator.mainNamespace() + '/' + common::fieldBaseStr() + common::headerSuffix(),
-    };
-
-    return list;
-}
-
 } // namespace
 
 std::size_t Field::minLength() const
@@ -66,8 +56,12 @@ std::size_t Field::minLength() const
 
 void Field::updateIncludes(Field::IncludesList& includes) const
 {
-    static const IncludesList CommonIncludes = prepareCommonIncludes(m_generator);
+    static const IncludesList CommonIncludes =  {
+        "comms/options.h"
+    };
+
     common::mergeIncludes(CommonIncludes, includes);
+    common::mergeInclude(m_generator.mainNamespace() + '/' + common::fieldBaseStr() + common::headerSuffix(), includes);
     if (!m_externalRef.empty()) {
         auto inc =
             m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix();

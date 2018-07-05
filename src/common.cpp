@@ -41,6 +41,12 @@ const std::string& messageStr()
     return Str;
 }
 
+const std::string& frameStr()
+{
+    static const std::string Str("frame");
+    return Str;
+}
+
 const std::string& fieldStr()
 {
     static const std::string Str("field");
@@ -74,6 +80,12 @@ const std::string& doxygenPrefixStr()
 const std::string& fieldsSuffixStr()
 {
     static const std::string Str("Fields");
+    return Str;
+}
+
+const std::string& layersSuffixStr()
+{
+    static const std::string Str("Layers");
     return Str;
 }
 

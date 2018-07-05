@@ -160,6 +160,7 @@ std::string Message::getDefaultOptions() const
         "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
 
     static const std::string NoFieldsTempl =
+        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
 
     auto* templ = &Templ;

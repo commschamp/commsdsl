@@ -8,6 +8,7 @@
 #include "Message.h"
 #include "Interface.h"
 #include "Field.h"
+#include "Frame.h"
 #include "common.h"
 
 
@@ -40,6 +41,7 @@ public:
 
     bool writeInterfaces();
     bool writeMessages();
+    bool writeFrames();
     bool writeFields();
 
     std::string getDefaultOptions() const;
@@ -55,12 +57,14 @@ public:
 private:
 
     using MessagesList = std::vector<MessagePtr>;
+    using FramesList = std::vector<FramePtr>;
     using AccessedFields = std::map<const Field*, bool>;
 
     bool prepareNamespaces();
     bool prepareFields();
     bool prepareInterfaces();
     bool prepareMessages();
+    bool prepareFrames();
     void recordAccessedField(const Field* field);
 
     Generator& m_generator;
@@ -69,6 +73,7 @@ private:
     FieldsList m_fields;
     InterfacesList m_interfaces;
     MessagesList m_messages;
+    FramesList m_frames;
     AccessedFields m_accessedFields;
 };
 
