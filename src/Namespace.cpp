@@ -140,7 +140,6 @@ std::string Namespace::getDefaultOptions() const
     for (auto& m : m_messages) {
         addFunc(m->getDefaultOptions(), messagesOpts);
     }
-
     std::string framesOpts;
     for (auto& f : m_frames) {
         addFunc(f->getDefaultOptions(), framesOpts);
@@ -180,9 +179,9 @@ std::string Namespace::getDefaultOptions() const
             "    #^#FRAMES_OPTS#$#\n"
             "}; // struct frame\n";
 
-        common::ReplacementMap replacmenents;
-        replacmenents.insert(std::make_pair("FRAMES_OPTS", framesOpts));
-        messagesOpts = common::processTemplate(FrameWrapTempl, replacmenents);
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("FRAMES_OPTS", framesOpts));
+        framesOpts = common::processTemplate(FrameWrapTempl, replacements);
     }
 
     common::ReplacementMap replacmenents;
@@ -204,7 +203,8 @@ std::string Namespace::getDefaultOptions() const
 
     static const std::string GlobalTempl =
         "#^#FIELDS_OPTS#$#\n"
-        "#^#MESSAGES_OPTS#$#\n";
+        "#^#MESSAGES_OPTS#$#\n"
+        "#^#FRAMES_OPTS#$#\n";
 
     auto* templ = &Templ;
     if (name().empty()) {

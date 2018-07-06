@@ -8,11 +8,11 @@
 namespace commsdsl2comms
 {
 
-class PayloadLayer : public Layer
+class IdLayer : public Layer
 {
     using Base = Layer;
 public:
-    PayloadLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    IdLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
@@ -22,18 +22,18 @@ protected:
         bool& hasInputMessages) const override;
 
 private:
-    commsdsl::PayloadLayer payloadLayerDslObj() const
+    commsdsl::IdLayer payloadLayerDslObj() const
     {
-        return commsdsl::PayloadLayer(dslObj());
+        return commsdsl::IdLayer(dslObj());
     }
 
     std::string getExtraOpt(const std::string& scope) const;
 };
 
 inline
-LayerPtr createPayloadLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createIdLayer(Generator& generator, commsdsl::Layer layer)
 {
-    return std::make_unique<PayloadLayer>(generator, layer);
+    return std::make_unique<IdLayer>(generator, layer);
 }
 
 } // namespace commsdsl2comms

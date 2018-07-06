@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "commsdsl/Layer.h"
+#include "Field.h"
 #include "common.h"
 
 namespace commsdsl2comms
@@ -34,7 +35,10 @@ public:
 
     bool prepare();
 
-    std::string getClassDefinition(const std::string& scope) const;
+    std::string getClassDefinition(
+        const std::string& scope,
+        std::string& prevLayer,
+        bool& hasInputMessages) const;
 
     static Ptr create(Generator& generator, commsdsl::Layer dslObj);
 
@@ -64,17 +68,25 @@ protected:
         return m_dslObj;
     }
 
+    const Field* getField() const;
+
     std::string getPrefix() const;
+    std::string getFieldDefinition(const std::string& scope) const;
+    std::string getFieldType() const;
 
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
-    virtual std::string getClassDefinitionImpl(const std::string& scope) const = 0;
+    virtual std::string getClassDefinitionImpl(
+        const std::string& scope,
+        std::string& prevLayer,
+        bool& hasInputMessages) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
 
 private:
 
     Generator& m_generator;
     commsdsl::Layer m_dslObj;
+    FieldPtr m_field;
 };
 
 using LayerPtr = Layer::Ptr;

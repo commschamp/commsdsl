@@ -23,6 +23,11 @@ public:
     {
     }
 
+    const std::string name() const
+    {
+        return m_dslObj.name();
+    }
+
     bool prepare();
 
     bool write();
@@ -40,6 +45,10 @@ private:
     std::string getDescription() const;
     std::string getIncludes() const;
     std::string getLayersDef() const;
+    std::string getFrameDef() const;
+    std::string getLayersAccess() const;
+    std::string getLayersAccessDoc() const;
+    std::string getInputMessages() const;
 
     Generator& m_generator;
     commsdsl::Frame m_dslObj;

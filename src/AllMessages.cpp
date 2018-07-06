@@ -26,7 +26,7 @@ const std::string Template(
     "/// @tparam TOpt Protocol definition options.\n"
     "template <typename TBase, typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
     "using AllMessages =\n"
-    "    comms::tuple<\n"
+    "    std::tuple<\n"
     "        #^#MESSAGES#$#\n"
     "    >;\n\n"
     "#^#END_NAMESPACE#$#\n"

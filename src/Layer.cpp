@@ -11,6 +11,7 @@
 #include "Generator.h"
 #include "common.h"
 #include "PayloadLayer.h"
+#include "IdLayer.h"
 
 namespace ba = boost::algorithm;
 
@@ -19,18 +20,56 @@ namespace commsdsl2comms
 
 void Layer::updateIncludes(Layer::IncludesList& includes) const
 {
+    do {
+        if (m_field) {
+            m_field->updateIncludes(includes);
+            break;
+        }
+
+        auto dslField = m_dslObj.field();
+        if (!dslField.valid()) {
+            break;
+        }
+
+        auto extRef = dslField.externalRef();
+        assert(!extRef.empty());
+        common::mergeInclude(m_generator.headerfileForField(extRef, false), includes);
+    } while (false);
+
     updateIncludesImpl(includes);
 }
 
 bool Layer::prepare()
 {
+    auto dslField = m_dslObj.field();
+    do {
+        if (!dslField.valid()) {
+            if (kind() != commsdsl::Layer::Kind::Payload) {
+                generator().logger().error("Layer field definition is missing.");
+                assert(!"Should not happen");
+                return false;
+            }
+
+            break;
+        }
+
+        auto extRef = dslField.externalRef();
+        if (!extRef.empty()) {
+            break;
+        }
+
+        m_field = Field::create(m_generator, dslField);
+    } while (false);
+
     return prepareImpl();
 }
 
 std::string Layer::getClassDefinition(
-    const std::string& scope) const
+    const std::string& scope,
+    std::string& prevLayer,
+    bool& hasInputMessages) const
 {
-    return getClassDefinitionImpl(scope);
+    return getClassDefinitionImpl(scope, prevLayer, hasInputMessages);
 }
 
 Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
@@ -40,7 +79,7 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
         /* Custom */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
         /* Sync */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
         /* Size */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
-        /* Id */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
+        /* Id */ [](Generator& g, commsdsl::Layer l) { return createIdLayer(g, l); },
         /* Value */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
         /* Payload */ [](Generator& g, commsdsl::Layer l) { return createPayloadLayer(g, l); },
         /* Checksum */ [](Generator&, commsdsl::Layer ) { return Ptr(); }
@@ -65,22 +104,55 @@ std::string Layer::getDefaultOptions(const std::string& scope) const
     //     fullScope += common::fieldStr() + "::";
     // }
 
-    auto str = getExtraDefaultOptionsImpl(fullScope);
-    if (!str.empty()) {
-        str += '\n';
+    auto className = common::nameToClassCopy(name());
+    std::string str;
+    if (m_field) {
+        static const std::string Templ = 
+            "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
+            "struct #$#CLASS_NAME#$#\n"
+            "{\n"
+            "    #^#FIELD_OPT#$#\n"
+            "};\n\n";
+
+        auto fieldScope = 
+            fullScope + className + 
+            common::layersSuffixStr() + "::";
+
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("SCOPE", fieldScope));
+        replacements.insert(std::make_pair("CLASS_NAME", className));
+        replacements.insert(std::make_pair("FIELD_OPT", m_field->getDefaultOptions(fieldScope)));
+        str += common::processTemplate(Templ, replacements);
     }
+
+    str += getExtraDefaultOptionsImpl(fullScope);
+    // if (!str.empty()) {
+    //     str += '\n';
+    // }
 
     return
         str +
         "/// @brief Extra options for @ref " +
-        fullScope + common::nameToClassCopy(name()) + " layer.\n" +
-        "using " + common::nameToClassCopy(name()) +
-            " = comms::option::EmptyOption;\n";
+        fullScope + className + " layer.\n" +
+        "using " + className +
+        " = comms::option::EmptyOption;\n";
+}
+
+const Field* Layer::getField() const
+{
+    if (m_field) {
+        return m_field.get();
+    }
+
+    auto extRef = m_dslObj.field().externalRef();
+    assert(!extRef.empty());
+    return m_generator.findField(extRef, true);
 }
 
 std::string Layer::getPrefix() const
 {
-    auto str = "/// @brief Layer \"" + name() + "\".\n";
+    auto str = "/// @brief Definition of layer \"" + name() + "\".\n";
     auto& desc = m_dslObj.description();
     if (!desc.empty()) {
         str += "/// @details\n";
@@ -89,9 +161,48 @@ std::string Layer::getPrefix() const
         auto& doxyPrefix = common::doxygenPrefixStr();
         descCpy.insert(descCpy.begin(), doxyPrefix.begin(), doxyPrefix.end());
         ba::replace_all(descCpy, "\n", "\n" + doxyPrefix);
+        descCpy += '\n';
         str += descCpy;
     }
     return str;
+}
+
+std::string Layer::getFieldDefinition(const std::string& scope) const
+{
+    if (!m_field) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ = 
+        "/// @brief Scope for field(s) of @ref #$#CLASS_NAME#$# layer.\n"
+        "struct #$#CLASS_NAME#$#Members\n"
+        "{\n"
+        "    #^#FIELD_DEF#$#\n"
+        "};\n";
+
+    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("FIELD_DEF", m_field->getClassDefinition(fullScope)));
+
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string Layer::getFieldType() const
+{
+    if (m_field) {
+        return
+            "typename " +
+            common::nameToClassCopy(name()) + common::membersSuffixStr() +
+            "::" + common::nameToClassCopy(m_field->name());
+    }
+
+    auto extRef = m_dslObj.field().externalRef();
+    assert(!extRef.empty());
+    auto* fieldPtr = m_generator.findField(extRef, true);
+    static_cast<void>(fieldPtr);
+    assert(fieldPtr != nullptr);
+    return m_generator.scopeForField(extRef, true, true) + "<TOpt>";
 }
 
 bool Layer::prepareImpl()

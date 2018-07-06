@@ -38,6 +38,7 @@ set (
     "Frame.cpp"
     "Layer.cpp"
     "PayloadLayer.cpp"
+    "IdLayer.cpp"
     "common.cpp"
 )
 

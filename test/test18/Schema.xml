@@ -15,6 +15,7 @@
     </interface>      
     
     <frame name="TestFrame1" >
+        <id name="Id" field="MsgId" />
         <payload name="Data">
             <description>
                 This is very very very very very very very very very very
