@@ -39,6 +39,7 @@ set (
     "Layer.cpp"
     "PayloadLayer.cpp"
     "IdLayer.cpp"
+    "SizeLayer.cpp"
     "common.cpp"
 )
 

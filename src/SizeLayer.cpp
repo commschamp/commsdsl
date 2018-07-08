@@ -1,4 +1,4 @@
-#include "IdLayer.h"
+#include "SizeLayer.h"
 
 #include <cassert>
 
@@ -8,54 +8,48 @@
 namespace commsdsl2comms
 {
 
-void IdLayer::updateIncludesImpl(Layer::IncludesList& includes) const
+void SizeLayer::updateIncludesImpl(Layer::IncludesList& includes) const
 {
     static const common::StringsList List = {
-        "comms/protocol/MsgIdLayer.h"
+        "comms/protocol/MsgSizeLayer.h"
     };
 
     common::mergeIncludes(List, includes);
-    common::mergeInclude(generator().mainNamespace() + '/' + common::allMessagesStr() + common::headerSuffix(), includes);
 }
 
-std::string IdLayer::getClassDefinitionImpl(
+std::string SizeLayer::getClassDefinitionImpl(
     const std::string& scope,
     std::string& prevLayer,
     bool& hasInputMessages) const
 {
-    static_cast<void>(hasInputMessages);
-    assert(!hasInputMessages);
-    assert(!prevLayer.empty());
-
     static const std::string Templ =
         "#^#FIELD_DEF#$#\n"
         "#^#PREFIX#$#\n"
-        "template <typename TMessage, typename TAllMessages>\n"
+        "#^#TEMPL_PARAM#$#\n"
         "using #^#CLASS_NAME#$# =\n"
-        "    comms::protocol::MsgIdLayer<\n"
+        "    comms::protocol::MsgSizeLayer<\n"
         "        #^#FIELD_TYPE#$#,\n"
-        "        TMessage,\n"
-        "        TAllMessages,\n"
-        "        #^#PREV_LAYER#$#,\n"
-        "        #^#EXTRA_OPT#$#\n"
+        "        #^#PREV_LAYER#$#\n"
         "    >;\n";
-    
+
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("FIELD_DEF", getFieldDefinition(scope)));
     replacements.insert(std::make_pair("PREFIX", getPrefix()));
     replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("EXTRA_OPT", getExtraOpt(scope)));
     replacements.insert(std::make_pair("PREV_LAYER", prevLayer));
+    if (hasInputMessages) {
+        static const std::string TemplParam =
+            "template <typename TMessage, typename TAllMessages>";
+        replacements.insert(std::make_pair("TEMPL_PARAM", TemplParam));
+        replacements["PREV_LAYER"] += "<TMessage, TAllMessages>";
+    }
+    else {
+        replacements.insert(std::make_pair("TEMPL_PARAM", common::emptyString()));
+    }
 
     prevLayer = common::nameToClassCopy(name());
-    hasInputMessages = true;
     return common::processTemplate(Templ, replacements);
-}
-
-std::string IdLayer::getExtraOpt(const std::string& scope) const
-{
-    return "typename " + scope + common::nameToClassCopy(name());
 }
 
 } // namespace commsdsl2comms

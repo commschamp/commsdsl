@@ -27,11 +27,11 @@ std::string PayloadLayer::getClassDefinitionImpl(
     prevLayer = common::nameToClassCopy(name());
 
     static const std::string Templ =
-        "#^#PREFIX#$#"
+        "#^#PREFIX#$#\n"
         "using #^#CLASS_NAME#$# =\n"
-        "   comms::protocol::MsgDataLayer<\n"
-        "       #^#EXTRA_OPT#$#\n"
-        "   >;\n";
+        "    comms::protocol::MsgDataLayer<\n"
+        "        #^#EXTRA_OPT#$#\n"
+        "    >;\n";
     
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PREFIX", getPrefix()));

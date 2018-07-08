@@ -12,6 +12,7 @@
 #include "common.h"
 #include "PayloadLayer.h"
 #include "IdLayer.h"
+#include "SizeLayer.h"
 
 namespace ba = boost::algorithm;
 
@@ -78,7 +79,7 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
     static const CreateFunc Map[] = {
         /* Custom */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
         /* Sync */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
-        /* Size */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
+        /* Size */ [](Generator& g, commsdsl::Layer l) { return createSizeLayer(g, l); },
         /* Id */ [](Generator& g, commsdsl::Layer l) { return createIdLayer(g, l); },
         /* Value */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
         /* Payload */ [](Generator& g, commsdsl::Layer l) { return createPayloadLayer(g, l); },
@@ -109,14 +110,14 @@ std::string Layer::getDefaultOptions(const std::string& scope) const
     if (m_field) {
         static const std::string Templ = 
             "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
-            "struct #$#CLASS_NAME#$#\n"
+            "struct #^#CLASS_NAME#$#Members\n"
             "{\n"
             "    #^#FIELD_OPT#$#\n"
             "};\n\n";
 
         auto fieldScope = 
             fullScope + className + 
-            common::layersSuffixStr() + "::";
+            common::membersSuffixStr() + "::";
 
 
         common::ReplacementMap replacements;
@@ -152,16 +153,15 @@ const Field* Layer::getField() const
 
 std::string Layer::getPrefix() const
 {
-    auto str = "/// @brief Definition of layer \"" + name() + "\".\n";
+    auto str = "/// @brief Definition of layer \"" + name() + "\".";
     auto& desc = m_dslObj.description();
     if (!desc.empty()) {
-        str += "/// @details\n";
+        str += "\n/// @details\n";
         auto descCpy = common::makeMultilineCopy(desc);
         common::insertIndent(descCpy);
         auto& doxyPrefix = common::doxygenPrefixStr();
         descCpy.insert(descCpy.begin(), doxyPrefix.begin(), doxyPrefix.end());
         ba::replace_all(descCpy, "\n", "\n" + doxyPrefix);
-        descCpy += '\n';
         str += descCpy;
     }
     return str;
@@ -174,8 +174,8 @@ std::string Layer::getFieldDefinition(const std::string& scope) const
     }
 
     static const std::string Templ = 
-        "/// @brief Scope for field(s) of @ref #$#CLASS_NAME#$# layer.\n"
-        "struct #$#CLASS_NAME#$#Members\n"
+        "/// @brief Scope for field(s) of @ref #^#CLASS_NAME#$# layer.\n"
+        "struct #^#CLASS_NAME#$#Members\n"
         "{\n"
         "    #^#FIELD_DEF#$#\n"
         "};\n";

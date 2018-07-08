@@ -8,6 +8,7 @@
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
         </enum>
+        <int type="uint16" name="Size" />
     </fields>
     
     <interface name="Message">
@@ -24,6 +25,22 @@
                 description.
             </description>
         </payload>
+    </frame>
+    
+    <frame name="TestFrame2" >
+        <size name="Size">
+            <field>
+                <int type="uint16" name="Size" />
+            </field>
+        </size>
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame3" >
+        <id name="Id" field="MsgId" />
+        <size name="Size" field="Size" />
+        <payload name="Data" />
     </frame>
     
     <message name="Msg1" id="MsgId.M1" />
