@@ -9,6 +9,7 @@
 #include "test18/frame/TestFrame6.h"
 #include "test18/frame/TestFrame7.h"
 #include "test18/frame/TestFrame8.h"
+#include "test18/frame/TestFrame9.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
@@ -21,6 +22,7 @@ public:
     void test6();
     void test7();
     void test8();
+    void test9();
 
     using Interface =
         test18::Message<
@@ -41,6 +43,7 @@ public:
     using Frame6 = test18::frame::TestFrame6<Interface>;
     using Frame7 = test18::frame::TestFrame7<Interface>;
     using Frame8 = test18::frame::TestFrame8<Interface>;
+    using Frame9 = test18::frame::TestFrame9<Interface>;
 };
 
 void TestSuite::test1()
@@ -174,4 +177,20 @@ void TestSuite::test8()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
     TS_ASSERT_EQUALS(msgPtr->version(), 5U);
+}
+
+void TestSuite::test9()
+{
+    using Frame = Frame9;
+    Frame frame;
+    frame.layer_version().pseudoField().value() = 4U;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 1, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(msgPtr->version(), 4U);
 }
