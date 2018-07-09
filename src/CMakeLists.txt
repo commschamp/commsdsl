@@ -40,6 +40,7 @@ set (
     "PayloadLayer.cpp"
     "IdLayer.cpp"
     "SizeLayer.cpp"
+    "SyncLayer.cpp"
     "common.cpp"
 )
 

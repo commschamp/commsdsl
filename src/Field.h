@@ -97,6 +97,11 @@ public:
 
     bool isVersionOptional() const;
 
+    void setForcedFailOnInvalid()
+    {
+        m_focedFailOnInvalid = true;
+    }
+
     static std::string getReadForFields(const FieldsList& fields, bool forMessage);
     static std::string getPublicRefreshForFields(const FieldsList& fields, bool forMessage);
     static std::string getPrivateRefreshForFields(const FieldsList& fields);
@@ -150,6 +155,7 @@ private:
     commsdsl::Field m_dslObj;
     std::string m_externalRef;
     unsigned m_parentVersion = 0U;
+    bool m_focedFailOnInvalid = false;
 };
 
 using FieldPtr = Field::Ptr;

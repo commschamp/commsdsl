@@ -9,6 +9,7 @@
             <validValue name="M2" val="2" />
         </enum>
         <int type="uint16" name="Size" />
+        <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
     </fields>
     
     <interface name="Message">
@@ -40,6 +41,35 @@
     <frame name="TestFrame3" >
         <id name="Id" field="MsgId" />
         <size name="Size" field="Size" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame4" >
+        <sync name="Sync">
+            <field>
+                <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
+            </field>
+        </sync>
+        <size name="Size" field="Size" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame5" >
+        <sync name="Sync">
+            <field>
+                <ref name="Sync" field="Sync" />
+            </field>
+        </sync>
+        <size name="Size" field="Size" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame6" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <id name="Id" field="MsgId" />
         <payload name="Data" />
     </frame>
     

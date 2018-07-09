@@ -1,4 +1,4 @@
-#include "SizeLayer.h"
+#include "SyncLayer.h"
 
 #include <cassert>
 
@@ -8,16 +8,22 @@
 namespace commsdsl2comms
 {
 
-void SizeLayer::updateIncludesImpl(Layer::IncludesList& includes) const
+bool SyncLayer::prepareImpl()
+{
+    setFieldForcedFailOnInvalid();
+    return true;
+}
+
+void SyncLayer::updateIncludesImpl(Layer::IncludesList& includes) const
 {
     static const common::StringsList List = {
-        "comms/protocol/MsgSizeLayer.h"
+        "comms/protocol/SyncPrefixLayer.h"
     };
 
     common::mergeIncludes(List, includes);
 }
 
-std::string SizeLayer::getClassDefinitionImpl(
+std::string SyncLayer::getClassDefinitionImpl(
     const std::string& scope,
     std::string& prevLayer,
     bool& hasInputMessages) const
@@ -27,7 +33,7 @@ std::string SizeLayer::getClassDefinitionImpl(
         "#^#PREFIX#$#\n"
         "#^#TEMPL_PARAM#$#\n"
         "using #^#CLASS_NAME#$# =\n"
-        "    comms::protocol::MsgSizeLayer<\n"
+        "    comms::protocol::SyncPrefixLayer<\n"
         "        #^#FIELD_TYPE#$#,\n"
         "        #^#PREV_LAYER#$#\n"
         "    >;\n";

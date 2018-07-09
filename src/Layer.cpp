@@ -13,6 +13,7 @@
 #include "PayloadLayer.h"
 #include "IdLayer.h"
 #include "SizeLayer.h"
+#include "SyncLayer.h"
 
 namespace ba = boost::algorithm;
 
@@ -78,7 +79,7 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
     using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Layer)>;
     static const CreateFunc Map[] = {
         /* Custom */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
-        /* Sync */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
+        /* Sync */ [](Generator& g, commsdsl::Layer l) { return createSyncLayer(g, l); },
         /* Size */ [](Generator& g, commsdsl::Layer l) { return createSizeLayer(g, l); },
         /* Id */ [](Generator& g, commsdsl::Layer l) { return createIdLayer(g, l); },
         /* Value */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
@@ -197,12 +198,25 @@ std::string Layer::getFieldType() const
             "::" + common::nameToClassCopy(m_field->name());
     }
 
+    std::string extraOpt;
+    if (m_forcedFieldFailOnInvalid) {
+        extraOpt = ", comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError> ";
+    }
+
     auto extRef = m_dslObj.field().externalRef();
     assert(!extRef.empty());
     auto* fieldPtr = m_generator.findField(extRef, true);
     static_cast<void>(fieldPtr);
     assert(fieldPtr != nullptr);
-    return m_generator.scopeForField(extRef, true, true) + "<TOpt>";
+    return m_generator.scopeForField(extRef, true, true) + "<TOpt" + extraOpt + ">";
+}
+
+void Layer::setFieldForcedFailOnInvalid()
+{
+    m_forcedFieldFailOnInvalid = true;
+    if (m_field) {
+        m_field->setForcedFailOnInvalid();
+    }
 }
 
 bool Layer::prepareImpl()

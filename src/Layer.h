@@ -74,6 +74,13 @@ protected:
     std::string getFieldDefinition(const std::string& scope) const;
     std::string getFieldType() const;
 
+    FieldPtr& memberField()
+    {
+        return m_field;
+    }
+
+    void setFieldForcedFailOnInvalid();
+
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual std::string getClassDefinitionImpl(
@@ -87,6 +94,7 @@ private:
     Generator& m_generator;
     commsdsl::Layer m_dslObj;
     FieldPtr m_field;
+    bool m_forcedFieldFailOnInvalid = false;
 };
 
 using LayerPtr = Layer::Ptr;

@@ -772,12 +772,16 @@ std::string Field::getNameFunc() const
 
 void Field::updateExtraOptions(const std::string& scope, common::StringsList& options) const
 {
+    if (!scope.empty()) {
+        options.push_back("typename " + scope + common::nameToClassCopy(name()));
+    }
+
     if (!m_externalRef.empty()) {
         options.push_back("TExtraOpts...");
     }
 
-    if (!scope.empty()) {
-        options.push_back("typename " + scope + common::nameToClassCopy(name()));
+    if (m_focedFailOnInvalid) {
+        options.push_back("comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
     }
 }
 
