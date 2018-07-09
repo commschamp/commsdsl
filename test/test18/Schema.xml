@@ -10,6 +10,7 @@
         </enum>
         <int type="uint16" name="Size" />
         <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
+        <int name="Version" type="uint8" />
     </fields>
     
     <interface name="Message">
@@ -72,6 +73,26 @@
         <id name="Id" field="MsgId" />
         <payload name="Data" />
     </frame>
+    
+    <frame name="TestFrame7" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <value name="Version" field="Version" interfaceFieldName="version" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>  
+    
+    <frame name="TestFrame8" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <id name="Id" field="MsgId" />
+        <value name="Version" interfaceFieldName="version">
+            <field>
+                <int name="Version" type="uint8" semanticType="version"/>
+            </field>
+        </value>
+        <payload name="Data" />
+    </frame>        
     
     <message name="Msg1" id="MsgId.M1" />
 </schema>

@@ -41,6 +41,7 @@ set (
     "IdLayer.cpp"
     "SizeLayer.cpp"
     "SyncLayer.cpp"
+    "ValueLayer.cpp"
     "common.cpp"
 )
 

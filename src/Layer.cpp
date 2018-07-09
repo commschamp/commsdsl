@@ -14,6 +14,7 @@
 #include "IdLayer.h"
 #include "SizeLayer.h"
 #include "SyncLayer.h"
+#include "ValueLayer.h"
 
 namespace ba = boost::algorithm;
 
@@ -82,7 +83,7 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
         /* Sync */ [](Generator& g, commsdsl::Layer l) { return createSyncLayer(g, l); },
         /* Size */ [](Generator& g, commsdsl::Layer l) { return createSizeLayer(g, l); },
         /* Id */ [](Generator& g, commsdsl::Layer l) { return createIdLayer(g, l); },
-        /* Value */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
+        /* Value */ [](Generator& g, commsdsl::Layer l) { return createValueLayer(g, l); },
         /* Payload */ [](Generator& g, commsdsl::Layer l) { return createPayloadLayer(g, l); },
         /* Checksum */ [](Generator&, commsdsl::Layer ) { return Ptr(); }
     };

@@ -7,6 +7,8 @@
 #include "test18/frame/TestFrame4.h"
 #include "test18/frame/TestFrame5.h"
 #include "test18/frame/TestFrame6.h"
+#include "test18/frame/TestFrame7.h"
+#include "test18/frame/TestFrame8.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
@@ -17,6 +19,8 @@ public:
     void test4();
     void test5();
     void test6();
+    void test7();
+    void test8();
 
     using Interface =
         test18::Message<
@@ -35,6 +39,8 @@ public:
     using Frame4 = test18::frame::TestFrame4<Interface>;
     using Frame5 = test18::frame::TestFrame5<Interface>;
     using Frame6 = test18::frame::TestFrame6<Interface>;
+    using Frame7 = test18::frame::TestFrame7<Interface>;
+    using Frame8 = test18::frame::TestFrame8<Interface>;
 };
 
 void TestSuite::test1()
@@ -121,7 +127,7 @@ void TestSuite::test5()
 
 void TestSuite::test6()
 {
-    using Frame = Frame5;
+    using Frame = Frame6;
     Frame frame;
     static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 1, 1};
     static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
@@ -137,4 +143,35 @@ void TestSuite::test6()
     readIter = comms::readIteratorFor<Interface>(&ErrBuf[0]);
     es = frame.read(msgPtr, readIter, ErrBufSize);
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::ProtocolError);
+}
+
+void TestSuite::test7()
+{
+    using Frame = Frame7;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 2, 5, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(msgPtr->version(), 5U);
+
+}
+
+void TestSuite::test8()
+{
+    using Frame = Frame8;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 2, 1, 5};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(msgPtr->version(), 5U);
 }
