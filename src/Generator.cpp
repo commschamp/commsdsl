@@ -348,6 +348,16 @@ std::string Generator::headerfileForInterface(const std::string& externalRef)
     return headerfileForElement(externalRefCpy, true);
 }
 
+std::string Generator::headerfileForCustomChecksum(const std::string& name, bool quotes)
+{
+    static const std::vector<std::string> subNs = {
+        common::frameStr(),
+        common::checksumStr()
+    };
+
+    return headerfileForElement(name, quotes, subNs);
+}
+
 
 std::string Generator::scopeForMessage(
     const std::string& externalRef,
@@ -371,6 +381,19 @@ std::string Generator::scopeForField(
     bool classIncluded)
 {
     return scopeForElement(externalRef, mainIncluded, classIncluded, common::fieldStr());
+}
+
+std::string Generator::scopeForCustomChecksum(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    static const std::vector<std::string> SubNs = {
+        common::frameStr(),
+        common::checksumStr()
+    };
+
+    return scopeForElement(name, mainIncluded, classIncluded, SubNs);
 }
 
 std::string Generator::scopeForNamespace(const std::string& externalRef)
@@ -661,6 +684,18 @@ std::string Generator::headerfileForElement(
     bool quotes,
     const std::string& subNs)
 {
+    std::vector<std::string> subNsList;
+    if (!subNs.empty()) {
+        subNsList.push_back(subNs);
+    }
+    return headerfileForElement(externalRef, quotes, subNsList);
+}
+
+std::string Generator::headerfileForElement(
+    const std::string& externalRef,
+    bool quotes,
+    const std::vector<std::string>& subNs)
+{
     std::string result;
     if (quotes) {
         result += '\"';
@@ -675,8 +710,8 @@ std::string Generator::headerfileForElement(
         }
     }
 
-    if (!subNs.empty()) {
-        result += subNs + '/';
+    for (auto& n : subNs) {
+        result += n + '/';
     }
 
     auto className = common::nameToClassCopy(refToName(externalRef));
@@ -735,10 +770,25 @@ Generator::namespacesForElement(
     return std::make_pair(std::move(begStr), std::move(endStr));
 }
 
-std::string Generator::scopeForElement(const std::string& externalRef,
+std::string Generator::scopeForElement(
+    const std::string& externalRef,
     bool mainIncluded,
     bool classIncluded,
     const std::string& subNs)
+{
+    std::vector<std::string> subNsList;
+    if (!subNs.empty()) {
+        subNsList.push_back(subNs);
+    }
+
+    return scopeForElement(externalRef, mainIncluded, classIncluded, subNsList);
+}
+
+std::string Generator::scopeForElement(
+    const std::string& externalRef,
+    bool mainIncluded,
+    bool classIncluded,
+    const std::vector<std::string>& subNs)
 {
     std::string result;
     if (mainIncluded) {
@@ -755,8 +805,8 @@ std::string Generator::scopeForElement(const std::string& externalRef,
         }
     }
 
-    if (!subNs.empty()) {
-        result += subNs;
+    for (auto& n : subNs) {
+        result += n;
         result += ScopeSep;
     }
 
@@ -764,7 +814,6 @@ std::string Generator::scopeForElement(const std::string& externalRef,
         result += common::nameToClassCopy(refToName(externalRef));
     }
     return result;
-
 }
 
 

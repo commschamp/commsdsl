@@ -33,6 +33,7 @@ const std::string& defaultOptionsStr();
 const std::string& msgIdEnumNameStr();
 const std::string& msgIdPrefixStr();
 const std::string& allMessagesStr();
+const std::string& checksumStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

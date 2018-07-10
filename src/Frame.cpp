@@ -11,6 +11,7 @@
 
 #include "Generator.h"
 #include "common.h"
+#include "ChecksumLayer.h"
 
 namespace ba = boost::algorithm;
 
@@ -92,7 +93,26 @@ bool Frame::prepare()
         m_layers.push_back(std::move(ptr));
     }
 
-    // TODO: re-arange
+    while (true) {
+        bool rearanged = false;
+        for (auto& l : m_layers) {
+            bool success = false;
+            rearanged = l->rearange(m_layers, success);
+
+            if (!success) {
+                return false;
+            }
+
+            if (rearanged) {
+                break;
+            }
+        }
+
+        if (!rearanged) {
+            break;
+        }
+    }
+
     return true;
 }
 
@@ -266,7 +286,7 @@ std::string Frame::getLayersAccess() const
     common::StringsList names;
     names.reserve(m_layers.size());
     std::transform(
-        m_layers.begin(), m_layers.end(), std::back_inserter(names),
+        m_layers.rbegin(), m_layers.rend(), std::back_inserter(names),
         [](auto& l)
         {
             return common::nameToAccessCopy(l->name());
@@ -280,7 +300,7 @@ std::string Frame::getLayersAccessDoc() const
     auto className = common::nameToClassCopy(name());
     lines.reserve(m_layers.size());
     std::transform(
-        m_layers.begin(), m_layers.end(), std::back_inserter(lines),
+        m_layers.rbegin(), m_layers.rend(), std::back_inserter(lines),
         [&className](auto& l)
         {
             return

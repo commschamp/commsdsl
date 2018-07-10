@@ -1,6 +1,7 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test18/Message.h"
+#include "test18/message/Msg1.h"
 #include "test18/frame/TestFrame1.h"
 #include "test18/frame/TestFrame2.h"
 #include "test18/frame/TestFrame3.h"
@@ -10,6 +11,8 @@
 #include "test18/frame/TestFrame7.h"
 #include "test18/frame/TestFrame8.h"
 #include "test18/frame/TestFrame9.h"
+#include "test18/frame/TestFrame10.h"
+#include "test18/frame/TestFrame11.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
@@ -23,6 +26,8 @@ public:
     void test7();
     void test8();
     void test9();
+    void test10();\
+    void test11();
 
     using Interface =
         test18::Message<
@@ -44,6 +49,10 @@ public:
     using Frame7 = test18::frame::TestFrame7<Interface>;
     using Frame8 = test18::frame::TestFrame8<Interface>;
     using Frame9 = test18::frame::TestFrame9<Interface>;
+    using Frame10 = test18::frame::TestFrame10<Interface>;
+    using Frame11 = test18::frame::TestFrame11<Interface>;
+
+    using Msg1 = test18::message::Msg1<Interface>;
 };
 
 void TestSuite::test1()
@@ -193,4 +202,44 @@ void TestSuite::test9()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
     TS_ASSERT_EQUALS(msgPtr->version(), 4U);
+}
+
+void TestSuite::test10()
+{
+    using Frame = Frame10;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 3, 1, 0, 4};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    Frame::AllFields fields;
+    auto es = frame.readFieldsCached(fields, msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(frame.layer_sync().accessCachedField(fields).value(), 0xabcd);
+    TS_ASSERT_EQUALS(frame.layer_checksum().accessCachedField(fields).value(), 4U);
+    TS_ASSERT_EQUALS(frame.layer_size().accessCachedField(fields).value(), 1U);
+    TS_ASSERT_EQUALS(frame.layer_id().accessCachedField(fields).value(), test18::MsgId_M1);
+    TS_ASSERT(frame.layer_data().accessCachedField(fields).value().empty());
+}
+
+void TestSuite::test11()
+{
+    using Frame = Frame11;
+    Frame frame;
+    Msg1 msg;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    Frame::AllFields fields;
+    auto es = frame.writeFieldsCached(fields, msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(frame.layer_sync().accessCachedField(fields).value(), 0xabcd);
+    TS_ASSERT_EQUALS(frame.layer_checksum().accessCachedField(fields).value(), 0x5140);
+    TS_ASSERT_EQUALS(frame.layer_size().accessCachedField(fields).value(), 2U);
+    TS_ASSERT_EQUALS(frame.layer_id().accessCachedField(fields).value(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(frame.layer_dataChecksum().accessCachedField(fields).value(), 0U);
+    TS_ASSERT(frame.layer_data().accessCachedField(fields).value().empty());
 }

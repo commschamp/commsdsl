@@ -15,6 +15,7 @@
 #include "SizeLayer.h"
 #include "SyncLayer.h"
 #include "ValueLayer.h"
+#include "ChecksumLayer.h"
 
 namespace ba = boost::algorithm;
 
@@ -85,7 +86,7 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
         /* Id */ [](Generator& g, commsdsl::Layer l) { return createIdLayer(g, l); },
         /* Value */ [](Generator& g, commsdsl::Layer l) { return createValueLayer(g, l); },
         /* Payload */ [](Generator& g, commsdsl::Layer l) { return createPayloadLayer(g, l); },
-        /* Checksum */ [](Generator&, commsdsl::Layer ) { return Ptr(); }
+        /* Checksum */ [](Generator& g, commsdsl::Layer l) { return createChecksumLayer(g, l); }
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -275,6 +276,13 @@ std::string Layer::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
     static_cast<void>(scope);
     return common::emptyString();
+}
+
+bool Layer::rearangeImpl(LayersList& layers, bool& success)
+{
+    static_cast<void>(layers);
+    success = true;
+    return false;
 }
 
 } // namespace commsdsl2comms

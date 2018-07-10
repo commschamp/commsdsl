@@ -11,6 +11,7 @@
         <int type="uint16" name="Size" />
         <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
         <int name="Version" type="uint8" semanticType="version" />
+        <int name="Checksum" type="uint16" />
     </fields>
     
     <interface name="Message">
@@ -104,6 +105,35 @@
         </value>        
         <id name="Id" field="MsgId" />        
         <payload name="Data" />
+    </frame>        
+    
+    <frame name="TestFrame10" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size">
+            <field>
+                <int name="Size" type="uint16" serOffset="2" />
+            </field>
+        </size>
+        <id name="Id" field="MsgId" />        
+        <payload name="Data" />
+        <checksum name="Checksum" from="Size" field="Checksum" alg="sum" />
+    </frame>        
+    
+    <frame name="TestFrame11" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size">
+            <field>
+                <int name="Size" type="uint16" serOffset="2" />
+            </field>
+        </size>
+        <id name="Id" field="MsgId" />        
+        <checksum name="DataChecksum" until="Data" alg="sum">
+            <field>
+                <int name="Checksum" type="uint8" />
+            </field>
+        </checksum>
+        <payload name="Data" />
+        <checksum name="Checksum" from="Size" field="Checksum" alg="crc-16" />
     </frame>        
     
     <message name="Msg1" id="MsgId.M1" />

@@ -16,7 +16,7 @@ class Layer
 {
 public:
     using Ptr = std::unique_ptr<Layer>;
-//    using LayersList = std::vector<Ptr>;
+    using LayersList = std::vector<Ptr>;
 
     virtual ~Layer() = default;
 
@@ -43,6 +43,11 @@ public:
     static Ptr create(Generator& generator, commsdsl::Layer dslObj);
 
     std::string getDefaultOptions(const std::string& scope) const;
+
+    bool rearange(LayersList& layers, bool& success)
+    {
+        return rearangeImpl(layers, success);
+    }
 
 //    bool writeProtocolDefinition() const;
 
@@ -81,6 +86,7 @@ protected:
 
     void setFieldForcedFailOnInvalid();
 
+
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual std::string getClassDefinitionImpl(
@@ -88,6 +94,7 @@ protected:
         std::string& prevLayer,
         bool& hasInputMessages) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
+    virtual bool rearangeImpl(LayersList& layers, bool& success);
 
 private:
 

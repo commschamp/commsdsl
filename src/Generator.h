@@ -89,6 +89,8 @@ public:
 
     std::string headerfileForInterface(const std::string& externalRef);
 
+    std::string headerfileForCustomChecksum(const std::string& name, bool quotes = true);
+
     std::string scopeForMessage(
         const std::string& externalRef,
         bool mainIncluded = false,
@@ -99,9 +101,16 @@ public:
         bool mainIncluded = false,
         bool messageIncluded = false);
 
-    std::string scopeForField(const std::string& externalRef,
+    std::string scopeForField(
+        const std::string& externalRef,
         bool mainIncluded = false,
         bool classIncluded = false);
+
+    std::string scopeForCustomChecksum(
+        const std::string& name,
+        bool mainIncluded = false,
+        bool classIncluded = false);
+
 
     std::string scopeForNamespace(const std::string& externalRef);
 
@@ -140,6 +149,11 @@ public:
         bool quotes,
         const std::string& subNs = common::emptyString());
 
+    std::string headerfileForElement(
+        const std::string& externalRef,
+        bool quotes,
+        const std::vector<std::string>& subNs);
+
     std::pair<std::string, std::string>
     namespacesForElement(
         const std::string& externalRef,
@@ -150,6 +164,12 @@ public:
         bool mainIncluded,
         bool classIncluded,
         const std::string& subNs = common::emptyString());
+
+    std::string scopeForElement(
+        const std::string& externalRef,
+        bool mainIncluded,
+        bool classIncluded,
+        const std::vector<std::string>& subNs);
 
 
     commsdsl::Protocol::MessagesList getAllDslMessages() const

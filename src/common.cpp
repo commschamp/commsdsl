@@ -131,6 +131,12 @@ const std::string& allMessagesStr()
     return Str;
 }
 
+const std::string& checksumStr()
+{
+    static const std::string Str("checksum");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {
