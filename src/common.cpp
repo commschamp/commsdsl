@@ -564,6 +564,11 @@ const std::string& messageIdStr()
     return Str;
 }
 
+const std::string& idReplacementStr()
+{
+    static const std::string Str("idReplacement");
+    return Str;
+}
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {

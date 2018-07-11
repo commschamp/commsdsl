@@ -55,6 +55,8 @@ class COMMSDSL_API CustomLayer : public Layer
 public:
     explicit CustomLayer(const CustomLayerImpl* impl);
     explicit CustomLayer(Layer layer);
+
+    bool isIdReplacement() const;
 };
 
 class PayloadLayerImpl;

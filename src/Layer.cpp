@@ -28,6 +28,11 @@ const ValueLayerImpl* asValue(const LayerImpl* layer)
     return static_cast<const ValueLayerImpl*>(layer);
 }
 
+const CustomLayerImpl* asCustom(const LayerImpl* layer)
+{
+    assert(layer != nullptr);
+    return static_cast<const CustomLayerImpl*>(layer);
+}
 
 } // namespace
 
@@ -96,6 +101,12 @@ CustomLayer::CustomLayer(Layer layer)
   : Base(layer)
 {
     assert(kind() == Kind::Custom);
+}
+
+bool CustomLayer::isIdReplacement() const
+{
+    assert(valid());
+    return asCustom(m_pImpl)->isIdReplacement();
 }
 
 PayloadLayer::PayloadLayer(const PayloadLayerImpl* impl)
