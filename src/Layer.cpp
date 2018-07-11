@@ -8,6 +8,7 @@
 #include "SyncLayerImpl.h"
 #include "ChecksumLayerImpl.h"
 #include "ValueLayerImpl.h"
+#include "CustomLayerImpl.h"
 
 namespace commsdsl
 {
@@ -84,6 +85,17 @@ const Layer::ElementsList& Layer::extraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();
+}
+
+CustomLayer::CustomLayer(const CustomLayerImpl* impl)
+  : Base(impl)
+{
+}
+
+CustomLayer::CustomLayer(Layer layer)
+  : Base(layer)
+{
+    assert(kind() == Kind::Custom);
 }
 
 PayloadLayer::PayloadLayer(const PayloadLayerImpl* impl)

@@ -48,6 +48,15 @@ protected:
     const LayerImpl* m_pImpl;
 };
 
+class CustomLayerImpl;
+class COMMSDSL_API CustomLayer : public Layer
+{
+    using Base = Layer;
+public:
+    explicit CustomLayer(const CustomLayerImpl* impl);
+    explicit CustomLayer(Layer layer);
+};
+
 class PayloadLayerImpl;
 class COMMSDSL_API PayloadLayer : public Layer
 {
