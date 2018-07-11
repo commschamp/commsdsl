@@ -91,6 +91,8 @@ public:
 
     std::string headerfileForCustomChecksum(const std::string& name, bool quotes = true);
 
+    std::string headerfileForCustomLayer(const std::string& name, bool quotes = true);
+
     std::string scopeForMessage(
         const std::string& externalRef,
         bool mainIncluded = false,
@@ -111,6 +113,10 @@ public:
         bool mainIncluded = false,
         bool classIncluded = false);
 
+    std::string scopeForCustomLayer(
+        const std::string& name,
+        bool mainIncluded = false,
+        bool classIncluded = false);
 
     std::string scopeForNamespace(const std::string& externalRef);
 
@@ -154,23 +160,6 @@ public:
         bool quotes,
         const std::vector<std::string>& subNs);
 
-    std::pair<std::string, std::string>
-    namespacesForElement(
-        const std::string& externalRef,
-        const std::string& subNs = common::emptyString()) const;
-
-    std::string scopeForElement(
-        const std::string& externalRef,
-        bool mainIncluded,
-        bool classIncluded,
-        const std::string& subNs = common::emptyString());
-
-    std::string scopeForElement(
-        const std::string& externalRef,
-        bool mainIncluded,
-        bool classIncluded,
-        const std::vector<std::string>& subNs);
-
 
     commsdsl::Protocol::MessagesList getAllDslMessages() const
     {
@@ -190,12 +179,31 @@ private:
     bool mustDefineDefaultInterface() const;
     bool anyInterfaceHasVersion();
     const Field* findMessageIdField() const;
+    bool writeExtraFiles();
+
+    std::pair<std::string, std::string>
+    namespacesForElement(
+        const std::string& externalRef,
+        const std::string& subNs = common::emptyString()) const;
+
+    std::string scopeForElement(
+        const std::string& externalRef,
+        bool mainIncluded,
+        bool classIncluded,
+        const std::string& subNs = common::emptyString());
+
+    std::string scopeForElement(
+        const std::string& externalRef,
+        bool mainIncluded,
+        bool classIncluded,
+        const std::vector<std::string>& subNs);
 
     ProgramOptions& m_options;
     Logger& m_logger;
     commsdsl::Protocol m_protocol;
     NamespacesList m_namespaces;
     boost::filesystem::path m_pathPrefix;
+    boost::filesystem::path m_codeInputDir;
     std::set<boost::filesystem::path> m_createdDirs;
     std::string m_mainNamespace;
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;

@@ -40,9 +40,4 @@ std::string PayloadLayer::getClassDefinitionImpl(
     return common::processTemplate(Templ, replacements);
 }
 
-std::string PayloadLayer::getExtraOpt(const std::string& scope) const
-{
-    return "typename " + scope + common::nameToClassCopy(name());
-}
-
 } // namespace commsdsl2comms

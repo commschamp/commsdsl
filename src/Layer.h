@@ -78,6 +78,7 @@ protected:
     std::string getPrefix() const;
     std::string getFieldDefinition(const std::string& scope) const;
     std::string getFieldType() const;
+    std::string getExtraOpt(const std::string& scope) const;
 
     FieldPtr& memberField()
     {

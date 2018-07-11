@@ -8,11 +8,11 @@
 namespace commsdsl2comms
 {
 
-class PayloadLayer : public Layer
+class CustomLayer : public Layer
 {
     using Base = Layer;
 public:
-    PayloadLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    CustomLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
@@ -22,17 +22,16 @@ protected:
         bool& hasInputMessages) const override;
 
 private:
-    commsdsl::PayloadLayer payloadLayerDslObj() const
+    commsdsl::CustomLayer customLayerDslObj() const
     {
-        return commsdsl::PayloadLayer(dslObj());
+        return commsdsl::CustomLayer(dslObj());
     }
-
 };
 
 inline
-LayerPtr createPayloadLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createCustomLayer(Generator& generator, commsdsl::Layer layer)
 {
-    return std::make_unique<PayloadLayer>(generator, layer);
+    return std::make_unique<CustomLayer>(generator, layer);
 }
 
 } // namespace commsdsl2comms

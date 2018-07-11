@@ -31,11 +31,17 @@ endfunction ()
 function (test_func name)
     set (schema_file "${CMAKE_CURRENT_SOURCE_DIR}/${name}/Schema.xml")
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
+    set (code_input_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}/src")
+    set (code_input_param)
+    if (EXISTS "${code_input_dir}/")
+        set (code_input_param "-c${code_input_dir}")
+    endif()
+
     add_custom_command(
         OUTPUT ${output_dir}.tmp
         DEPENDS ${schema_file} ${PROJECT_NAME}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-        COMMAND $<TARGET_FILE:${PROJECT_NAME}> --warn-as-err -o ${output_dir}.tmp ${schema_file}
+        COMMAND $<TARGET_FILE:${PROJECT_NAME}> --warn-as-err -o ${output_dir}.tmp "${code_input_param}" ${schema_file}
     )
 
     set (output_tgt ${name}_output_tgt)

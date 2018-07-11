@@ -43,6 +43,7 @@ set (
     "SyncLayer.cpp"
     "ValueLayer.cpp"
     "ChecksumLayer.cpp"
+    "CustomLayer.cpp"
     "common.cpp"
 )
 

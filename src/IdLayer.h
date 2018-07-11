@@ -26,8 +26,6 @@ private:
     {
         return commsdsl::IdLayer(dslObj());
     }
-
-    std::string getExtraOpt(const std::string& scope) const;
 };
 
 inline

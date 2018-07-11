@@ -16,6 +16,8 @@ const std::string QuietStr("quiet");
 const std::string FullQuietStr(QuietStr + ",q");
 const std::string OutputDirStr("output-dir");
 const std::string FullOutputDirStr(OutputDirStr + ",o");
+const std::string CodeInputDirStr("code-input-dir");
+const std::string FullCodeInputDirStr(CodeInputDirStr + ",c");
 const std::string InputFilesListStr("input-files-list");
 const std::string FullInputFilesListStr(InputFilesListStr + ",i");
 const std::string InputFilesPrefixStr("input-files-prefix");
@@ -39,6 +41,8 @@ po::options_description createDescription()
         (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
         (FullOutputDirStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Output directory path. Empty means current.")
+        (FullCodeInputDirStr.c_str(), po::value<std::string>()->default_value(std::string()),
+            "Code input directory path. Empty means no code updates are available.")
         (FullInputFilesListStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "File containing list of input files.")
         (FullInputFilesPrefixStr.c_str(), po::value<std::string>()->default_value(std::string()),
@@ -158,6 +162,11 @@ std::vector<std::string> ProgramOptions::getFiles() const
 std::string ProgramOptions::getOutputDirectory() const
 {
     return m_vm[OutputDirStr].as<std::string>();
+}
+
+std::string ProgramOptions::getCodeInputDirectory() const
+{
+    return m_vm[CodeInputDirStr].as<std::string>();
 }
 
 bool ProgramOptions::hasNamespaceOverride() const

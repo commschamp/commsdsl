@@ -137,6 +137,12 @@ const std::string& checksumStr()
     return Str;
 }
 
+const std::string& layerStr()
+{
+    static const std::string Str("layer");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

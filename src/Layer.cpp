@@ -16,6 +16,7 @@
 #include "SyncLayer.h"
 #include "ValueLayer.h"
 #include "ChecksumLayer.h"
+#include "CustomLayer.h"
 
 namespace ba = boost::algorithm;
 
@@ -80,7 +81,7 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
 {
     using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Layer)>;
     static const CreateFunc Map[] = {
-        /* Custom */ [](Generator&, commsdsl::Layer ) { return Ptr(); },
+        /* Custom */ [](Generator& g, commsdsl::Layer l) { return createCustomLayer(g, l); },
         /* Sync */ [](Generator& g, commsdsl::Layer l) { return createSyncLayer(g, l); },
         /* Size */ [](Generator& g, commsdsl::Layer l) { return createSizeLayer(g, l); },
         /* Id */ [](Generator& g, commsdsl::Layer l) { return createIdLayer(g, l); },
@@ -213,6 +214,11 @@ std::string Layer::getFieldType() const
     return m_generator.scopeForField(extRef, true, true) + "<TOpt" + extraOpt + ">";
 }
 
+std::string Layer::getExtraOpt(const std::string& scope) const
+{
+    return "typename " + scope + common::nameToClassCopy(name());
+}
+
 void Layer::setFieldForcedFailOnInvalid()
 {
     m_forcedFieldFailOnInvalid = true;
@@ -225,47 +231,6 @@ bool Layer::prepareImpl()
 {
     return true;
 }
-
-// bool Layer::writeProtocolDefinition() const
-// {
-//     auto startInfo = m_generator.startLayerProtocolWrite(m_externalRef);
-//     auto& filePath = startInfo.first;
-//     if (filePath.empty()) {
-//         return true;
-//     }
-
-//     assert(!m_externalRef.empty());
-//     IncludesList includes;
-//     updateIncludes(includes);
-//     auto incStr = common::includesToStatements(includes);
-
-//     auto namespaces = m_generator.namespacesForLayer(m_externalRef);
-
-//     // TODO: modify class name
-
-//     common::ReplacementMap replacements;
-//     replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
-//     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
-//     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-//     replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForLayer(m_externalRef))));
-//     replacements.insert(std::make_pair("FIELD_NAME", getDisplayName()));
-
-//     std::string str = common::processTemplate(FileTemplate, replacements);
-
-//     std::ofstream stream(filePath);
-//     if (!stream) {
-//         m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
-//         return false;
-//     }
-//     stream << str;
-
-//     if (!stream.good()) {
-//         m_generator.logger().error("Failed to write \"" + filePath + "\".");
-//         return false;
-//     }
-
-//     return true;
-// }
 
 void Layer::updateIncludesImpl(IncludesList& includes) const
 {

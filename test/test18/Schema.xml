@@ -134,7 +134,13 @@
         </checksum>
         <payload name="Data" />
         <checksum name="Checksum" from="Size" field="Checksum" alg="crc-16" />
-    </frame>        
+    </frame>  
+    
+    <frame name="TestFrame12" >
+        <custom name="Size" field="Size" />
+        <id name="Id" field="MsgId" />        
+        <payload name="Data" />
+    </frame>           
     
     <message name="Msg1" id="MsgId.M1" />
 </schema>

@@ -22,6 +22,18 @@ namespace
 
 const std::string ScopeSep("::");
 
+const std::string ReservedExt[] = {
+    ".extend",
+    ".public",
+    ".protected",
+    ".private",
+    ".read",
+    ".write",
+    ".length",
+    ".refresh",
+    ".name"
+};
+
 std::string refToNs(const std::string& ref)
 {
     std::size_t pos = ref.find_last_of('.');
@@ -358,6 +370,15 @@ std::string Generator::headerfileForCustomChecksum(const std::string& name, bool
     return headerfileForElement(name, quotes, subNs);
 }
 
+std::string Generator::headerfileForCustomLayer(const std::string& name, bool quotes)
+{
+    static const std::vector<std::string> subNs = {
+        common::frameStr(),
+        common::layerStr()
+    };
+
+    return headerfileForElement(name, quotes, subNs);
+}
 
 std::string Generator::scopeForMessage(
     const std::string& externalRef,
@@ -391,6 +412,19 @@ std::string Generator::scopeForCustomChecksum(
     static const std::vector<std::string> SubNs = {
         common::frameStr(),
         common::checksumStr()
+    };
+
+    return scopeForElement(name, mainIncluded, classIncluded, SubNs);
+}
+
+std::string Generator::scopeForCustomLayer(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    static const std::vector<std::string> SubNs = {
+        common::frameStr(),
+        common::layerStr()
     };
 
     return scopeForElement(name, mainIncluded, classIncluded, SubNs);
@@ -513,6 +547,12 @@ bool Generator::parseOptions()
         }
     }
 
+    m_codeInputDir = m_options.getCodeInputDirectory();
+    if ((!m_codeInputDir.empty()) && (!bf::is_directory(m_codeInputDir))) {
+        m_logger.error('\"' + m_codeInputDir.string() + "\" is expected to be directory.");
+        return false;
+    }
+
     m_mainNamespace = common::adjustName(m_options.getNamespace());
     return true;
 }
@@ -616,7 +656,8 @@ bool Generator::writeFiles()
         }
     }
 
-    if (!DefaultOptions::write(*this)) {
+    if ((!DefaultOptions::write(*this)) ||
+        (!writeExtraFiles())){
         return false;
     }
 
@@ -677,6 +718,61 @@ const Field* Generator::findMessageIdField() const
         }
     }
     return nullptr;
+}
+
+bool Generator::writeExtraFiles()
+{
+    if (m_codeInputDir.empty()) {
+        return true;
+    }
+
+    auto outputDir = m_pathPrefix / common::includeStr() / m_mainNamespace;
+    auto dirStr = m_codeInputDir.string();
+    auto pos = dirStr.size();
+    auto endIter = bf::recursive_directory_iterator();
+    for (auto iter = bf::recursive_directory_iterator(m_codeInputDir); iter != endIter; ++iter) {
+        if (!bf::is_regular_file(iter->status())) {
+            continue;
+        }
+
+        auto srcPath = iter->path();
+        auto ext = srcPath.extension().string();
+        auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
+        if (extIter != std::end(ReservedExt)) {
+            continue;
+        }
+
+        auto pathStr = srcPath.string();
+        auto posTmp = pos;
+        while (posTmp < pathStr.size()) {
+            if (pathStr[posTmp] == bf::path::preferred_separator) {
+                ++posTmp;
+                continue;
+            }
+            break;
+        }
+
+        if (pathStr.size() <= posTmp) {
+            continue;
+        }
+
+        std::string relPath(pathStr, posTmp);
+        auto destPath = outputDir / relPath;
+
+        m_logger.info("Copying " + destPath.string());
+
+        if (!createDir(destPath.parent_path())) {
+            return false;
+        }
+
+        boost::system::error_code ec;
+        bf::copy_file(srcPath, destPath, bf::copy_option::overwrite_if_exists, ec);
+        if (ec) {
+            m_logger.error("Failed to copy with reason: " + ec.message());
+            return false;
+        }
+    }
+    return true;
 }
 
 std::string Generator::headerfileForElement(

@@ -1,4 +1,4 @@
-#include "IdLayer.h"
+#include "CustomLayer.h"
 
 #include <cassert>
 
@@ -8,34 +8,23 @@
 namespace commsdsl2comms
 {
 
-void IdLayer::updateIncludesImpl(Layer::IncludesList& includes) const
+void CustomLayer::updateIncludesImpl(Layer::IncludesList& includes) const
 {
-    static const common::StringsList List = {
-        "comms/protocol/MsgIdLayer.h"
-    };
-
-    common::mergeIncludes(List, includes);
-    common::mergeInclude(generator().mainNamespace() + '/' + common::allMessagesStr() + common::headerSuffix(), includes);
+    common::mergeInclude(generator().headerfileForCustomLayer(name(), false), includes);
 }
 
-std::string IdLayer::getClassDefinitionImpl(
+std::string CustomLayer::getClassDefinitionImpl(
     const std::string& scope,
     std::string& prevLayer,
     bool& hasInputMessages) const
 {
-    static_cast<void>(hasInputMessages);
-    assert(!hasInputMessages);
-    assert(!prevLayer.empty());
-
     static const std::string Templ =
         "#^#FIELD_DEF#$#\n"
         "#^#PREFIX#$#\n"
-        "template <typename TMessage, typename TAllMessages>\n"
+        "#^#TEMPL_PARAM#$#\n"
         "using #^#CLASS_NAME#$# =\n"
-        "    comms::protocol::MsgIdLayer<\n"
+        "    #^#CUSTOM_LAYER_TYPE#$#<\n"
         "        #^#FIELD_TYPE#$#,\n"
-        "        TMessage,\n"
-        "        TAllMessages,\n"
         "        #^#PREV_LAYER#$#,\n"
         "        #^#EXTRA_OPT#$#\n"
         "    >;\n";
@@ -45,11 +34,19 @@ std::string IdLayer::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PREFIX", getPrefix()));
     replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("EXTRA_OPT", getExtraOpt(scope)));
     replacements.insert(std::make_pair("PREV_LAYER", prevLayer));
+    replacements.insert(std::make_pair("EXTRA_OPT", getExtraOpt(scope)));
+    replacements.insert(std::make_pair("CUSTOM_LAYER_TYPE", generator().scopeForCustomLayer(name(), true, true)));
+
+    if (hasInputMessages) {
+        static const std::string TemplParam =
+            "template <typename TMessage, typename TAllMessages>";
+        replacements.insert(std::make_pair("TEMPL_PARAM", TemplParam));
+        replacements["PREV_LAYER"] += "<TMessage, TAllMessages>";
+    }
+
 
     prevLayer = common::nameToClassCopy(name());
-    hasInputMessages = true;
     return common::processTemplate(Templ, replacements);
 }
 

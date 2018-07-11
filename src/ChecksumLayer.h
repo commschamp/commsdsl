@@ -14,10 +14,6 @@ class ChecksumLayer : public Layer
 public:
     ChecksumLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
 
-    const std::string& getFromLayerName() const
-    {
-        return checksumLayerDslObj().fromLayer();
-    }
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(

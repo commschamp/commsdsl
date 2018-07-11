@@ -13,6 +13,7 @@
 #include "test18/frame/TestFrame9.h"
 #include "test18/frame/TestFrame10.h"
 #include "test18/frame/TestFrame11.h"
+#include "test18/frame/TestFrame12.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
