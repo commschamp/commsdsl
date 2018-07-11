@@ -12,6 +12,7 @@
 #include "Generator.h"
 #include "common.h"
 #include "ChecksumLayer.h"
+#include "CustomLayer.h"
 
 namespace ba = boost::algorithm;
 
@@ -262,17 +263,9 @@ std::string Frame::getLayersDef() const
 
 std::string Frame::getFrameDef() const
 {
-    bool hasIdLayer =
-        std::any_of(
-            m_layers.begin(), m_layers.end(),
-            [](auto& l)
-            {
-                return l->kind() == commsdsl::Layer::Kind::Id;
-            });
-
     auto className = common::nameToClassCopy(name());
     auto str = className + common::layersSuffixStr() + "<TOpt>::";
-    if (hasIdLayer) {
+    if (hasIdLayer()) {
         str += "template Stack<TMessage, TAllMessages>";
     }
     else {
@@ -313,83 +306,32 @@ std::string Frame::getLayersAccessDoc() const
 
 std::string Frame::getInputMessages() const
 {
-    bool hasIdLayer =
-        std::any_of(
-            m_layers.begin(), m_layers.end(),
-            [](auto& l)
-            {
-                return l->kind() == commsdsl::Layer::Kind::Id;
-            });
-    if (!hasIdLayer) {
+    if (!hasIdLayer()) {
         return common::emptyString();
     }
 
     return
         "typename TAllMessages = " + m_generator.mainNamespace() +
-        "::" + common::allMessagesStr() + "<TMessage>,";
+            "::" + common::allMessagesStr() + "<TMessage>,";
 }
 
-//std::string Frame::getLayersAccessDoc() const
-//{
-//    if (m_layers.empty()) {
-//        return common::emptyString();
-//    }
+bool Frame::hasIdLayer() const
+{
+    return
+        std::any_of(
+            m_layers.begin(), m_layers.end(),
+            [](auto& l)
+            {
+                if (l->kind() == commsdsl::Layer::Kind::Id) {
+                    return true;
+                }
 
-//    std::string result;
-//    for (auto& f : m_layers) {
-//        if (!result.empty()) {
-//            result += '\n';
-//        }
-//        result += common::doxygenPrefixStr();
-//        result += common::indentStr();
-//        result += "@li @b transportField_";
-//        result += common::nameToAccessCopy(f->name());
-//        result += "() for @ref ";
-//        result += common::nameToClassCopy(m_dslObj.name());
-//        result += "Layers::";
-//        result += common::nameToClassCopy(f->name());
-//        result += " field.";
-//    }
+                if (l->kind() != commsdsl::Layer::Kind::Custom) {
+                    return false;
+                }
 
-//    return result;
-//}
-
-//std::string Frame::getLayersDef() const
-//{
-//    std::string result;
-
-//    for (auto& f : m_layers) {
-//        result += f->getClassDefinition(common::emptyString());
-//        if (&f != &m_layers.back()) {
-//            result += '\n';
-//        }
-//    }
-//    return result;
-//}
-
-//std::string Frame::getLayersOpts() const
-//{
-//    std::string result =
-//        "comms::option::ExtraTransportLayers<" +
-//        common::nameToClassCopy(m_dslObj.name()) +
-//        common::LayersSuffixStr() +
-//        "::All>";
-
-//    auto iter =
-//        std::find_if(
-//            m_layers.begin(), m_layers.end(),
-//            [](auto& f)
-//            {
-//                return f->semanticType() == commsdsl::Field::SemanticType::Version;
-//            });
-
-//    if (iter != m_layers.end()) {
-//        result += ",\n";
-//        result += "comms::option::VersionInExtraTransportLayers<";
-//        result += common::numToString(static_cast<std::size_t>(std::distance(m_layers.begin(), iter)));
-//        result += ">";
-//    }
-//    return result;
-//}
+                return static_cast<const CustomLayer*>(l.get())->isIdReplacement();
+            });
+}
 
 }

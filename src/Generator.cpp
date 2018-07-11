@@ -86,6 +86,12 @@ std::vector<std::string> splitRefPath(const std::string& ref)
 
 bool Generator::generate(const FilesList& files)
 {
+    m_protocol.setErrorReportCallback(
+        [this](commsdsl::ErrorLevel level, const std::string& msg)
+        {
+            m_logger.log(level, msg);
+        });
+
     return
         parseOptions() &&
         parseSchemaFiles(files) &&

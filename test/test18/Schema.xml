@@ -127,7 +127,7 @@
             </field>
         </size>
         <id name="Id" field="MsgId" />        
-        <checksum name="DataChecksum" until="Data" alg="sum">
+        <checksum name="DataChecksum" until="Data" alg="custom" algName="Sum" >
             <field>
                 <int name="Checksum" type="uint8" />
             </field>
@@ -138,7 +138,9 @@
     
     <frame name="TestFrame12" >
         <custom name="Size" field="Size" />
-        <id name="Id" field="MsgId" />        
+        <custom name="Id" field="MsgId">
+            <idReplacement value="true" />
+        </custom>   
         <payload name="Data" />
     </frame>           
     

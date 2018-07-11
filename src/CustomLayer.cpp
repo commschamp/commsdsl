@@ -25,6 +25,7 @@ std::string CustomLayer::getClassDefinitionImpl(
         "using #^#CLASS_NAME#$# =\n"
         "    #^#CUSTOM_LAYER_TYPE#$#<\n"
         "        #^#FIELD_TYPE#$#,\n"
+        "        #^#ID_TEMPLATE_PARAMS#$#\n"
         "        #^#PREV_LAYER#$#,\n"
         "        #^#EXTRA_OPT#$#\n"
         "    >;\n";
@@ -38,13 +39,20 @@ std::string CustomLayer::getClassDefinitionImpl(
     replacements.insert(std::make_pair("EXTRA_OPT", getExtraOpt(scope)));
     replacements.insert(std::make_pair("CUSTOM_LAYER_TYPE", generator().scopeForCustomLayer(name(), true, true)));
 
-    if (hasInputMessages) {
-        static const std::string TemplParam =
-            "template <typename TMessage, typename TAllMessages>";
+    auto obj = customLayerDslObj();
+
+    static const std::string TemplParam =
+        "template <typename TMessage, typename TAllMessages>";
+
+    if (obj.isIdReplacement()) {
+        hasInputMessages = true;
+        replacements.insert(std::make_pair("ID_TEMPLATE_PARAMS", "TMessage,\nTAllMessages,"));
+        replacements.insert(std::make_pair("TEMPL_PARAM", TemplParam));
+    }
+    else if (hasInputMessages) {
         replacements.insert(std::make_pair("TEMPL_PARAM", TemplParam));
         replacements["PREV_LAYER"] += "<TMessage, TAllMessages>";
     }
-
 
     prevLayer = common::nameToClassCopy(name());
     return common::processTemplate(Templ, replacements);

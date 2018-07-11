@@ -50,6 +50,8 @@ private:
     std::string getLayersAccessDoc() const;
     std::string getInputMessages() const;
 
+    bool hasIdLayer() const;
+
     Generator& m_generator;
     commsdsl::Frame m_dslObj;
     std::string m_externalRef;

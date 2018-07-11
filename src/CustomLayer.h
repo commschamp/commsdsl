@@ -14,6 +14,11 @@ class CustomLayer : public Layer
 public:
     CustomLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
 
+    bool isIdReplacement() const
+    {
+        return customLayerDslObj().isIdReplacement();
+    }
+
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(

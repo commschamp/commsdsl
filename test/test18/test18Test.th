@@ -29,6 +29,7 @@ public:
     void test9();
     void test10();\
     void test11();
+    void test12();
 
     using Interface =
         test18::Message<
@@ -52,6 +53,7 @@ public:
     using Frame9 = test18::frame::TestFrame9<Interface>;
     using Frame10 = test18::frame::TestFrame10<Interface>;
     using Frame11 = test18::frame::TestFrame11<Interface>;
+    using Frame12 = test18::frame::TestFrame12<Interface>;
 
     using Msg1 = test18::message::Msg1<Interface>;
 };
@@ -243,4 +245,18 @@ void TestSuite::test11()
     TS_ASSERT_EQUALS(frame.layer_id().accessCachedField(fields).value(), test18::MsgId_M1);
     TS_ASSERT_EQUALS(frame.layer_dataChecksum().accessCachedField(fields).value(), 0U);
     TS_ASSERT(frame.layer_data().accessCachedField(fields).value().empty());
+}
+
+void TestSuite::test12()
+{
+    using Frame = Frame12;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0, 1, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
 }
