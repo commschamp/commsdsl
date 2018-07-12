@@ -113,6 +113,35 @@ std::string SetField::getCompareToFieldImpl(
     return Base::getCompareToFieldImpl(op, field, nameOverride, forcedVersionOptional);
 }
 
+std::string SetField::getPluginPropertiesImpl() const
+{
+    StringsList props;
+    auto obj = setFieldDslObj();
+    auto& bits = obj.bits();
+    auto& revBits = obj.revBits();
+    props.reserve(bits.size());
+    unsigned prevBitIdx = std::numeric_limits<unsigned>::max();
+    for (auto& rBit : revBits) {
+        if (prevBitIdx == rBit.first) {
+            continue;
+        }
+
+        auto iter = bits.find(rBit.second);
+        assert(iter != bits.end());
+        auto& b = *iter;
+
+        if (!generator().doesElementExist(b.second.m_sinceVersion, b.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        prevBitIdx = rBit.first;
+
+        auto& bitName = b.first; // TODO: display name
+        props.push_back(".add(" + common::numToString(rBit.first) + ", \"" + bitName + "\")");
+    }
+    return common::listToString(props, "\n", common::emptyString());
+}
+
 std::string SetField::getExtraDoc() const
 {
     common::StringsList extraDocList;

@@ -278,6 +278,16 @@ std::pair<std::string, std::string> Generator::startFieldProtocolWrite(
     return std::make_pair(std::move(fullPathStr), className);
 }
 
+std::string Generator::startFieldPluginHeaderWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef, true, common::fieldStr());
+}
+
+std::string Generator::startFieldPluginSrcWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef, false, common::fieldStr());
+}
+
 std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
 {
     // TODO: check suffix
@@ -316,6 +326,12 @@ std::pair<std::string, std::string> Generator::namespacesForField(
     const std::string& externalRef) const
 {
     return namespacesForElement(externalRef, common::fieldStr());
+}
+
+std::pair<std::string, std::string> Generator::namespacesForFieldInPlugin(
+    const std::string& externalRef) const
+{
+    return namespacesForElement(externalRef, common::fieldStr(), true);
 }
 
 std::pair<std::string, std::string> Generator::namespacesForInterface(
@@ -826,9 +842,9 @@ std::string Generator::headerfileForElement(
 }
 
 std::pair<std::string, std::string>
-Generator::namespacesForElement(
-    const std::string& externalRef,
-    const std::string& subNs) const
+Generator::namespacesForElement(const std::string& externalRef,
+    const std::string& subNs,
+    bool plugin) const
 {
     auto ns = refToNs(externalRef);
     auto tokens = splitRefPath(ns);
@@ -836,6 +852,13 @@ Generator::namespacesForElement(
     std::string begStr =
         "namespace " + m_mainNamespace + "\n"
         "{\n";
+
+    if (plugin) {
+        begStr +=
+            "\n"
+            "namespace " + common::pluginNsStr() + "\n"
+            "{\n";
+    }
 
     for (auto& t : tokens) {
         if (t.empty()) {
@@ -865,6 +888,11 @@ Generator::namespacesForElement(
         }
 
         endStr += "} // namespace " + t + "\n\n";
+    }
+
+    if (plugin) {
+        endStr +=
+            "} // namespace " + common::pluginNsStr() + "\n\n";
     }
 
     endStr += "} // namespace " + m_mainNamespace + "\n\n";
@@ -916,6 +944,45 @@ std::string Generator::scopeForElement(
         result += common::nameToClassCopy(refToName(externalRef));
     }
     return result;
+}
+
+std::string Generator::startPluginWrite(
+    const std::string& externalRef,
+    bool header,
+    const std::string subNs)
+{
+    if (externalRef.empty()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    auto ns = refToNs(externalRef);
+    auto className = refToName(externalRef);
+    assert(!className.empty());
+    common::nameToClass(className);
+    auto fileName = className;
+    if (header) {
+        fileName += common::headerSuffix();
+    }
+    else {
+        fileName += common::srcSuffix();
+    }
+
+    auto dirPath = m_pathPrefix / common::pluginNsStr() / refToPath(ns);
+    if (!subNs.empty()) {
+        dirPath /= subNs;
+    }
+
+    auto fullPath = dirPath / fileName;
+    auto fullPathStr = fullPath.string();
+
+    m_logger.info("Generating " + fullPathStr);
+
+    if (!createDir(dirPath)) {
+        return common::emptyString();
+    }
+
+    return fullPathStr;
 }
 
 

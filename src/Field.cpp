@@ -27,23 +27,6 @@ namespace ba = boost::algorithm;
 namespace commsdsl2comms
 {
 
-namespace
-{
-
-const std::string FileTemplate(
-    "/// @file\n"
-    "/// @brief Contains definition of <b>\"#^#FIELD_NAME#$#\"<\\b> field.\n"
-    "\n"
-    "#pragma once\n"
-    "\n"
-    "#^#INCLUDES#$#\n"
-    "#^#BEGIN_NAMESPACE#$#\n"
-    "#^#CLASS_DEF#$#\n"
-    "#^#END_NAMESPACE#$#\n"
-);
-
-} // namespace
-
 std::size_t Field::minLength() const
 {
     if (isVersionOptional()) {
@@ -199,48 +182,15 @@ std::string Field::getDefaultOptions(const std::string& scope) const
         "/// @brief Extra options for @ref " +
         fullScope + common::nameToClassCopy(name()) + " field.\n" +
         "using " + common::nameToClassCopy(name()) +
-        " = comms::option::EmptyOption;\n";
+            " = comms::option::EmptyOption;\n";
 }
 
-bool Field::writeProtocolDefinition() const
+bool Field::writeFiles() const
 {
-    auto startInfo = m_generator.startFieldProtocolWrite(m_externalRef);
-    auto& filePath = startInfo.first;
-    if (filePath.empty()) {
-        return true;
-    }
-
-    assert(!m_externalRef.empty());
-    IncludesList includes;
-    updateIncludes(includes);
-    auto incStr = common::includesToStatements(includes);
-
-    auto namespaces = m_generator.namespacesForField(m_externalRef);
-
-    // TODO: modify class name
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
-    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
-    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForField(m_externalRef))));
-    replacements.insert(std::make_pair("FIELD_NAME", getDisplayName()));
-
-    std::string str = common::processTemplate(FileTemplate, replacements);
-
-    std::ofstream stream(filePath);
-    if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
-        return false;
-    }
-    stream << str;
-
-    if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
-        return false;
-    }
-
-    return true;
+    return
+        writeProtocolDefinitionFile() &&
+        writePluginHeaderFile() &&
+        writePluginScrFile();
 }
 
 const std::string& Field::getDisplayName() const
@@ -669,6 +619,11 @@ void Field::updateIncludesImpl(IncludesList& includes) const
     static_cast<void>(includes);
 }
 
+void Field::updatePluginIncludesImpl(IncludesList& includes) const
+{
+    static_cast<void>(includes);
+}
+
 std::size_t Field::minLengthImpl() const
 {
     return m_dslObj.minLength();
@@ -760,6 +715,16 @@ std::string Field::getCompareToFieldImpl(const std::string& op,
         "(" + compareExpr + ')';
 }
 
+std::string Field::getPluginAnonNamespaceImpl() const
+{
+    return common::emptyString();
+}
+
+std::string Field::getPluginPropertiesImpl() const
+{
+    return common::emptyString();
+}
+
 std::string Field::getNameFunc() const
 {
     return
@@ -827,6 +792,180 @@ std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
     }
 
     return common::dslEndianToOpt(endian);
+}
+
+bool Field::writeProtocolDefinitionFile() const
+{
+    auto startInfo = m_generator.startFieldProtocolWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+    if (filePath.empty()) {
+        return true;
+    }
+
+    assert(!m_externalRef.empty());
+    IncludesList includes;
+    updateIncludes(includes);
+    auto incStr = common::includesToStatements(includes);
+
+    auto namespaces = m_generator.namespacesForField(m_externalRef);
+
+    // TODO: modify class name
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForField(m_externalRef))));
+    replacements.insert(std::make_pair("FIELD_NAME", getDisplayName()));
+
+    static const std::string FileTemplate(
+        "/// @file\n"
+        "/// @brief Contains definition of <b>\"#^#FIELD_NAME#$#\"<\\b> field.\n"
+        "\n"
+        "#pragma once\n"
+        "\n"
+        "#^#INCLUDES#$#\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#CLASS_DEF#$#\n"
+        "#^#END_NAMESPACE#$#\n"
+    );
+
+    std::string str = common::processTemplate(FileTemplate, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Field::writePluginHeaderFile() const
+{
+    auto filePath = m_generator.startFieldPluginHeaderWrite(m_externalRef);
+    if (filePath.empty()) {
+        return true;
+    }
+
+    static const std::string Templ(
+        "#pragma once\n"
+        "\n"
+        "#include <QtCore/QVariantMap>\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "QVariantMap createProps_#^#NAME#$#(const char* name);\n\n"
+        "#^#END_NAMESPACE#$#\n"
+    );
+
+    auto namespaces = m_generator.namespacesForFieldInPlugin(m_externalRef);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    auto str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Field::writePluginScrFile() const
+{
+    auto filePath = m_generator.startFieldPluginSrcWrite(m_externalRef);
+    if (filePath.empty()) {
+        return true;
+    }
+
+    static const std::string Templ(
+        "#include \"#^#CLASS_NAME#$#\"\n"
+        "\n"
+        "#^#INCLUDES#$#\n\n"
+        "namespace cc = comms_champion;\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#ANON_NAMESPACE#$#\n"
+        "QVariantMap createProps_#^#NAME#$#(const char* name)\n"
+        "{\n"
+        "    using Field = #^#FIELD_SCOPE#$#<>;\n"
+        "    return\n"
+        "        cc::property::field::ForField<Field>()\n"
+        "            .name(name)\n"
+        "            #^#PROPERTIES#$#\n"
+        "            .asMap();\n"
+        "}\n\n"
+        "#^#END_NAMESPACE#$#\n"
+    );
+
+    auto namespaces = m_generator.namespacesForFieldInPlugin(m_externalRef);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace()));
+    replacements.insert(std::make_pair("INCLUDES", getPluginIncludes()));
+    replacements.insert(std::make_pair("FIELD_SCOPE", m_generator.scopeForField(m_externalRef, true, true)));
+    replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl()));
+
+    auto str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+std::string Field::getPluginAnonNamespace() const
+{
+    auto str = getPluginAnonNamespaceImpl();
+    if (str.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ = 
+        "namespace\n"
+        "{\n"
+        "    #^#STR#$#\n"
+        "} // namespace\n\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("STR", std::move(str)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string Field::getPluginIncludes() const
+{
+    IncludesList includes;
+    common::mergeInclude("comms_champion/property/field.h", includes);
+    common::mergeInclude(m_generator.headerfileForField(m_externalRef, false), includes);
+    updatePluginIncludesImpl(includes);
+    return common::includesToStatements(includes);
 }
 
 } // namespace commsdsl2comms

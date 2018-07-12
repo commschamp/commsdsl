@@ -353,7 +353,38 @@ std::string EnumField::getCompareToFieldImpl(
     return
         "field_" + usedName + "().doesExist() &&\n" +
         "field_" + fieldName + "().doesExist() &&\n(" +
-        compExpr + ')';
+            compExpr + ')';
+}
+
+std::string EnumField::getPluginPropertiesImpl() const
+{
+    common::StringsList props;
+    auto obj = enumFieldDslObj();
+    auto& values = obj.values();
+    auto& revValues = obj.revValues();
+    props.reserve(revValues.size());
+    std::intmax_t prevValue = 0;
+    bool prevValueValid = false;
+    for (auto& rVal : revValues) {
+        if ((prevValueValid) && (prevValue == rVal.first)) {
+            continue;
+        }
+
+        auto iter = values.find(rVal.second);
+        assert(iter != values.end());
+        auto& v = *iter;
+
+        if (!generator().doesElementExist(v.second.m_sinceVersion, v.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        prevValueValid = true;
+        prevValue = rVal.first;
+
+        auto& valName = v.first; // TODO: display name
+        props.push_back(".add(\"" + valName + "\", " + common::numToString(v.second.m_value) + ")");
+    }
+    return common::listToString(props, "\n", common::emptyString());
 }
 
 std::string EnumField::getEnumeration() const

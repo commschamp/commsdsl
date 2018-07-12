@@ -63,6 +63,9 @@ public:
     std::pair<std::string, std::string>
     startFieldProtocolWrite(const std::string& externalRef);
 
+    std::string startFieldPluginHeaderWrite(const std::string& externalRef);
+    std::string startFieldPluginSrcWrite(const std::string& externalRef);
+
     std::pair<std::string, std::string>
     startDefaultOptionsWrite();
 
@@ -74,6 +77,9 @@ public:
 
     std::pair<std::string, std::string>
     namespacesForField(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
+    namespacesForFieldInPlugin(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
     namespacesForInterface(const std::string& externalRef) const;
@@ -184,7 +190,8 @@ private:
     std::pair<std::string, std::string>
     namespacesForElement(
         const std::string& externalRef,
-        const std::string& subNs = common::emptyString()) const;
+        const std::string& subNs = common::emptyString(),
+        bool plugin = false) const;
 
     std::string scopeForElement(
         const std::string& externalRef,
@@ -197,6 +204,11 @@ private:
         bool mainIncluded,
         bool classIncluded,
         const std::vector<std::string>& subNs);
+
+    std::string startPluginWrite(
+        const std::string& externalRef,
+        bool header,
+        const std::string subNs = common::emptyString());
 
     ProgramOptions& m_options;
     Logger& m_logger;

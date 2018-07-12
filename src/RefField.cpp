@@ -91,6 +91,8 @@ std::string RefField::getClassDefinitionImpl(const std::string& scope, const std
     if (getDisplayName() != fieldPtr->getDisplayName()) {
         templ = &StructTemplate;
     }
+    // TODO: check display name is empty
+
     return common::processTemplate(*templ, replacements);
 }
 

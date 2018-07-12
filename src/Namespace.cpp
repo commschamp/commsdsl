@@ -85,7 +85,7 @@ bool Namespace::writeFields()
                 continue; // already written
             }
 
-            if (!f.first->writeProtocolDefinition()) {
+            if (!f.first->writeFiles()) {
                 return false;
             }
 

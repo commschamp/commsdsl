@@ -58,7 +58,7 @@ public:
         return m_dslObj.semanticType();
     }
 
-    bool writeProtocolDefinition() const;
+    bool writeFiles() const;
 
     const std::string& getDisplayName() const;
 
@@ -123,6 +123,7 @@ protected:
 
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
+    virtual void updatePluginIncludesImpl(IncludesList& includes) const;
     virtual std::size_t minLengthImpl() const;
     virtual std::size_t maxLengthImpl() const;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const = 0;
@@ -137,6 +138,8 @@ protected:
         const Field& field,
         const std::string& nameOverride,
         bool forcedVersionOptional) const;
+    virtual std::string getPluginAnonNamespaceImpl() const;
+    virtual std::string getPluginPropertiesImpl() const;
 
     std::string getNameFunc() const;
 
@@ -150,6 +153,13 @@ protected:
     std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
 
 private:
+
+    bool writeProtocolDefinitionFile() const;
+    bool writePluginHeaderFile() const;
+    bool writePluginScrFile() const;
+
+    std::string getPluginAnonNamespace() const;
+    std::string getPluginIncludes() const;
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;

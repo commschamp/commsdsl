@@ -29,6 +29,12 @@ const std::string& headerSuffix()
     return Str;
 }
 
+const std::string& srcSuffix()
+{
+    static const std::string Str(".cpp");
+    return Str;
+}
+
 const std::string& includeStr()
 {
     static const std::string Str("include");
@@ -140,6 +146,12 @@ const std::string& checksumStr()
 const std::string& layerStr()
 {
     static const std::string Str("layer");
+    return Str;
+}
+
+const std::string& pluginNsStr()
+{
+    static const std::string Str("cc_plugin");
     return Str;
 }
 

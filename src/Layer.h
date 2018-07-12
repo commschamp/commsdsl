@@ -49,15 +49,6 @@ public:
         return rearangeImpl(layers, success);
     }
 
-//    bool writeProtocolDefinition() const;
-
-//    const std::string& getDisplayName() const;
-
-//    std::string getClassPrefix(
-//            const std::string& suffix,
-//            bool checkForOptional = true,
-//            const std::string& extraDoc = common::emptyString()) const;
-
 protected:
     Layer(Generator& generator, commsdsl::Layer field)
       : m_generator(generator),

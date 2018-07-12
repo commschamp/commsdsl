@@ -16,6 +16,7 @@ namespace common
 
 const std::string& emptyString();
 const std::string& headerSuffix();
+const std::string& srcSuffix();
 const std::string& includeStr();
 const std::string& messageStr();
 const std::string& frameStr();
@@ -35,6 +36,7 @@ const std::string& msgIdPrefixStr();
 const std::string& allMessagesStr();
 const std::string& checksumStr();
 const std::string& layerStr();
+const std::string& pluginNsStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

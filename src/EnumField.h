@@ -33,6 +33,7 @@ protected:
         const Field& field,
         const std::string& nameOverride,
         bool forcedVersionOptional) const override;
+    virtual std::string getPluginPropertiesImpl() const override;
 
 private:
     using StringsList = common::StringsList;
