@@ -171,7 +171,7 @@ std::string nameToClassCopy(const std::string& str)
     return result;
 }
 
-void nameToAcces(std::string& str)
+void nameToAccess(std::string& str)
 {
     if (str.empty()) {
         return;
@@ -183,7 +183,7 @@ void nameToAcces(std::string& str)
 std::string nameToAccessCopy(const std::string& str)
 {
     std::string result = str;
-    nameToAcces(result);
+    nameToAccess(result);
     return result;
 }
 

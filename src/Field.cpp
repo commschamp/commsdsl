@@ -609,6 +609,28 @@ std::string Field::getPrivateRefreshForFields(const Field::FieldsList& fields)
     return common::listToString(funcs, "\n", common::emptyString());
 }
 
+std::string Field::getPluginCreatePropsFunc(const std::string& scope)
+{
+    static const std::string Templ = 
+        "#^#ANON_NAMESPACE#$#\n"
+        "QVariantMap createProps_#^#NAME#$#()\n"
+        "{\n"
+        "    using Field = #^#FIELD_SCOPE#$#<>;\n"
+        "    return\n"
+        "        cc::property::field::ForField<Field>()\n"
+        "            .name(name)\n"
+        "            #^#PROPERTIES#$#\n"
+        "            .asMap();\n"
+        "}\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace(scope)));
+    replacements.insert(std::make_pair("FIELD_SCOPE", scope + common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl()));
+    return common::processTemplate(Templ, replacements);
+}
+
 bool Field::prepareImpl()
 {
     return true;
@@ -715,8 +737,9 @@ std::string Field::getCompareToFieldImpl(const std::string& op,
         "(" + compareExpr + ')';
 }
 
-std::string Field::getPluginAnonNamespaceImpl() const
+std::string Field::getPluginAnonNamespaceImpl(const std::string& scope) const
 {
+    static_cast<void>(scope);
     return common::emptyString();
 }
 
@@ -941,17 +964,21 @@ bool Field::writePluginScrFile() const
     return true;
 }
 
-std::string Field::getPluginAnonNamespace() const
+std::string Field::getPluginAnonNamespace(const std::string& scope) const
 {
-    auto str = getPluginAnonNamespaceImpl();
+    auto scopeCpy = scope;
+    if (scopeCpy.empty()) {
+        scopeCpy = m_generator.scopeForField(m_externalRef, true, false);
+    }
+    auto str = getPluginAnonNamespaceImpl(scopeCpy);
     if (str.empty()) {
         return common::emptyString();
     }
 
     static const std::string Templ = 
         "namespace\n"
-        "{\n"
-        "    #^#STR#$#\n"
+        "{\n\n"
+        "#^#STR#$#\n"
         "} // namespace\n\n";
 
     common::ReplacementMap replacements;

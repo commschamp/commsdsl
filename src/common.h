@@ -40,7 +40,7 @@ const std::string& pluginNsStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
-void nameToAcces(std::string& str);
+void nameToAccess(std::string& str);
 std::string nameToAccessCopy(const std::string& str);
 void updateName(std::string& str);
 std::string adjustName(const std::string& str);
