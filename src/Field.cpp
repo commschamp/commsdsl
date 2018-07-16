@@ -623,19 +623,13 @@ std::string Field::getPluginCreatePropsFunc(const std::string& scope) const
         "#^#ANON_NAMESPACE#$#\n"
         "QVariantMap createProps_#^#NAME#$#()\n"
         "{\n"
-        "    using Field = #^#FIELD_SCOPE#$#<>;\n"
-        "    return\n"
-        "        cc::property::field::ForField<Field>()\n"
-        "            .name(name)\n"
-        "            #^#PROPERTIES#$#\n"
-        "            .asMap();\n"
+        "    #^#BODY#$#;\n"
         "}\n";
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("BODY", getPluginPropsDefFuncBodyImpl(scope, false)));
     replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace(scope)));
-    replacements.insert(std::make_pair("FIELD_SCOPE", scope + common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl()));
     return common::processTemplate(Templ, replacements);
 }
 
@@ -764,7 +758,63 @@ std::string Field::getCompareToFieldImpl(const std::string& op,
     return
         "field_" + usedName + "().doesExist() &&\n"
         "field_" + fieldName + "().doesExist() &&\n"
-        "(" + compareExpr + ')';
+                               "(" + compareExpr + ')';
+}
+
+std::string Field::getPluginPropsDefFuncBodyImpl(
+    const std::string& scope,
+    bool externalName) const
+{
+    static const std::string Templ =
+        "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
+        "return\n"
+        "    cc::property::field::ForField<Field>()\n"
+        "        .name(#^#NAME_PROP#$#)\n"
+        "        #^#PROPERTIES#$#\n"
+        "        .asMap();\n";
+
+    static const std::string VerOptTempl =
+        "using InnerField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#Field;\n"
+        "auto props =\n"
+        "    cc::property::field::ForField<InnerField>()\n"
+        "        .name(#^#NAME_PROP#$#)\n"
+        "        #^#PROPERTIES#$#\n"
+        "        .asMap();\n\n"
+        "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
+        "return\n"
+        "    cc::property::field::ForField<Field>()\n"
+        "        .name(#^#NAME_PROP#$#)\n"
+        "        .field(std::move(props))\n"
+        "        .asMap();\n";
+
+    bool verOptional = isVersionOptional();
+    auto* templ = &Templ;
+    if (verOptional) {
+        templ = &VerOptTempl;
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    if (!scope.empty()) {
+        replacements.insert(std::make_pair("FIELD_SCOPE", scope));
+    }
+    else {
+        replacements.insert(std::make_pair("FIELD_SCOPE", m_generator.scopeForField(m_externalRef, true, true)));
+    }
+    replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl()));
+
+    if (externalName) {
+        replacements.insert(std::make_pair("NAME_PROP", "name"));
+    }
+    else if (verOptional) {
+        replacements.insert(std::make_pair("NAME_PROP", "InnerField::name()"));
+    }
+    else {
+        replacements.insert(std::make_pair("NAME_PROP", "Field::name()"));
+    }
+
+    return common::processTemplate(*templ, replacements);
+
 }
 
 std::string Field::getPluginAnonNamespaceImpl(const std::string& scope) const
@@ -941,6 +991,7 @@ bool Field::writePluginHeaderFile() const
 
 bool Field::writePluginScrFile() const
 {
+    assert(!isVersionOptional());
     auto filePath = m_generator.startFieldPluginSrcWrite(m_externalRef);
     if (filePath.empty()) {
         return true;
@@ -955,12 +1006,7 @@ bool Field::writePluginScrFile() const
         "#^#ANON_NAMESPACE#$#\n"
         "QVariantMap createProps_#^#NAME#$#(const char* name)\n"
         "{\n"
-        "    using Field = #^#FIELD_SCOPE#$#<>;\n"
-        "    return\n"
-        "        cc::property::field::ForField<Field>()\n"
-        "            .name(name)\n"
-        "            #^#PROPERTIES#$#\n"
-        "            .asMap();\n"
+        "    #^#BODY#$#\n"
         "}\n\n"
         "#^#END_NAMESPACE#$#\n"
     );
@@ -974,8 +1020,7 @@ bool Field::writePluginScrFile() const
     replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
     replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace()));
     replacements.insert(std::make_pair("INCLUDES", getPluginIncludes()));
-    replacements.insert(std::make_pair("FIELD_SCOPE", m_generator.scopeForField(m_externalRef, true, true)));
-    replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl()));
+    replacements.insert(std::make_pair("BODY", getPluginPropsDefFuncBodyImpl(common::emptyString(), true)));
 
     auto str = common::processTemplate(Templ, replacements);
 

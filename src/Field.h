@@ -148,6 +148,9 @@ protected:
         const Field& field,
         const std::string& nameOverride,
         bool forcedVersionOptional) const;
+    virtual std::string getPluginPropsDefFuncBodyImpl(
+        const std::string& scope,
+        bool externalName) const;
     virtual std::string getPluginAnonNamespaceImpl(const std::string& scope) const;
     virtual std::string getPluginPropertiesImpl() const;
 

@@ -165,7 +165,7 @@ std::string BundleField::getExtraDefaultOptionsImpl(const std::string& scope) co
 
 std::string BundleField::getPluginAnonNamespaceImpl(const std::string& scope) const
 {
-    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "<>::";
     common::StringsList props;
     for (auto& f : m_members) {
         props.push_back(f->getPluginCreatePropsFunc(fullScope));
