@@ -41,10 +41,7 @@ public:
     using IncludesList = common::StringsList;
     void updateIncludes(IncludesList& includes) const;
 
-    virtual void updatePluginIncludes(IncludesList& includes) const
-    {
-        updatePluginIncludesImpl(includes);
-    }
+    void updatePluginIncludes(IncludesList& includes) const;
 
     bool doesExist() const;
 
@@ -111,7 +108,13 @@ public:
     static std::string getPublicRefreshForFields(const FieldsList& fields, bool forMessage);
     static std::string getPrivateRefreshForFields(const FieldsList& fields);
 
-    std::string getPluginCreatePropsFunc(const std::string& scope);
+    std::string getPluginCreatePropsFunc(const std::string& scope) const;
+
+    std::string getPluginAnonNamespace(const std::string& scope = common::emptyString()) const;
+    std::string getPluginProperties() const
+    {
+        return getPluginPropertiesImpl();
+    }
 
 protected:
     Field(Generator& generator, commsdsl::Field field)
@@ -165,7 +168,6 @@ private:
     bool writePluginHeaderFile() const;
     bool writePluginScrFile() const;
 
-    std::string getPluginAnonNamespace(const std::string& scope = common::emptyString()) const;
     std::string getPluginIncludes() const;
 
     Generator& m_generator;

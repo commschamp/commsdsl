@@ -43,6 +43,13 @@ void RefField::updateIncludesImpl(IncludesList& includes) const
     common::mergeInclude(inc, includes);
 }
 
+void RefField::updatePluginIncludesImpl(IncludesList& includes) const
+{
+    auto* fieldPtr = generator().findField(refFieldDslObj().field().externalRef(), false);
+    assert(fieldPtr != nullptr);
+    fieldPtr->updatePluginIncludes(includes);
+}
+
 std::size_t RefField::minLengthImpl() const
 {
     auto refObj = refFieldDslObj().field();
@@ -150,6 +157,26 @@ std::string RefField::getCompareToFieldImpl(
 
     bool versionOptional = forcedVersionOptional || isVersionOptional();
     return fieldPtr->getCompareToField(op, field, usedName, versionOptional);
+}
+
+std::string RefField::getPluginAnonNamespaceImpl(const std::string& scope) const
+{
+    auto* fieldPtr = generator().findField(refFieldDslObj().field().externalRef(), false);
+    if (fieldPtr == nullptr) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+    return fieldPtr->getPluginAnonNamespace(scope);
+}
+
+std::string RefField::getPluginPropertiesImpl() const
+{
+    auto* fieldPtr = generator().findField(refFieldDslObj().field().externalRef(), false);
+    if (fieldPtr == nullptr) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+    return fieldPtr->getPluginProperties();
 }
 
 std::string RefField::getOpts(const std::string& scope) const

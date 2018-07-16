@@ -93,6 +93,8 @@ public:
 
     std::string headerfileForField(const std::string& externalRef, bool quotes = true);
 
+    std::string headerfileForFieldInPlugin(const std::string& externalRef, bool quotes = true);
+
     std::string headerfileForInterface(const std::string& externalRef);
 
     std::string headerfileForCustomChecksum(const std::string& name, bool quotes = true);
@@ -159,12 +161,14 @@ public:
     std::string headerfileForElement(
         const std::string& externalRef,
         bool quotes,
-        const std::string& subNs = common::emptyString());
+        const std::string& subNs = common::emptyString(),
+        bool plugin = false);
 
     std::string headerfileForElement(
         const std::string& externalRef,
         bool quotes,
-        const std::vector<std::string>& subNs);
+        const std::vector<std::string>& subNs,
+        bool plugin = false);
 
 
     commsdsl::Protocol::MessagesList getAllDslMessages() const

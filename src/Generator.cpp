@@ -372,6 +372,11 @@ std::string Generator::headerfileForField(const std::string& externalRef, bool q
     return headerfileForElement(externalRef, quotes, common::fieldStr());
 }
 
+std::string Generator::headerfileForFieldInPlugin(const std::string& externalRef, bool quotes)
+{
+    return headerfileForElement(externalRef, quotes, common::fieldStr(), true);
+}
+
 std::string Generator::headerfileForInterface(const std::string& externalRef)
 {
     std::string externalRefCpy(externalRef);
@@ -800,25 +805,35 @@ bool Generator::writeExtraFiles()
 std::string Generator::headerfileForElement(
     const std::string& externalRef,
     bool quotes,
-    const std::string& subNs)
+    const std::string& subNs,
+    bool plugin)
 {
     std::vector<std::string> subNsList;
     if (!subNs.empty()) {
         subNsList.push_back(subNs);
     }
-    return headerfileForElement(externalRef, quotes, subNsList);
+    return headerfileForElement(externalRef, quotes, subNsList, plugin);
 }
 
 std::string Generator::headerfileForElement(
     const std::string& externalRef,
     bool quotes,
-    const std::vector<std::string>& subNs)
+    const std::vector<std::string>& subNs,
+    bool plugin)
 {
     std::string result;
     if (quotes) {
         result += '\"';
     }
-    result += m_mainNamespace + '/';
+
+    if (plugin) {
+        result += common::pluginNsStr();
+    }
+    else {
+        result += m_mainNamespace;
+    }
+
+    result += '/';
     auto ns = refToNs(externalRef);
     if (!ns.empty()) {
         auto tokens = splitRefPath(ns);

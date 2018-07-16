@@ -16,6 +16,7 @@ public:
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual void updatePluginIncludesImpl(IncludesList& includes) const override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
@@ -29,6 +30,9 @@ protected:
         const Field& field,
         const std::string& nameOverride,
         bool forcedVersionOptional) const override;
+    virtual std::string getPluginAnonNamespaceImpl(const std::string& scope) const override;
+    virtual std::string getPluginPropertiesImpl() const override;
+
 
 private:
     using StringsList = common::StringsList;

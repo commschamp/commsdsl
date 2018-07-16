@@ -58,6 +58,14 @@ void Field::updateIncludes(Field::IncludesList& includes) const
     updateIncludesImpl(includes);
 }
 
+void Field::updatePluginIncludes(Field::IncludesList& includes) const
+{
+//    if (!m_externalRef.empty()) {
+//        common::mergeInclude(m_generator.headerfileForFieldInPlugin(m_externalRef, false), includes);
+//    }
+    updatePluginIncludesImpl(includes);
+}
+
 bool Field::doesExist() const
 {
     return
@@ -609,7 +617,7 @@ std::string Field::getPrivateRefreshForFields(const Field::FieldsList& fields)
     return common::listToString(funcs, "\n", common::emptyString());
 }
 
-std::string Field::getPluginCreatePropsFunc(const std::string& scope)
+std::string Field::getPluginCreatePropsFunc(const std::string& scope) const
 {
     static const std::string Templ = 
         "#^#ANON_NAMESPACE#$#\n"
@@ -628,6 +636,28 @@ std::string Field::getPluginCreatePropsFunc(const std::string& scope)
     replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace(scope)));
     replacements.insert(std::make_pair("FIELD_SCOPE", scope + common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl()));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string Field::getPluginAnonNamespace(const std::string& scope) const
+{
+    auto scopeCpy = scope;
+    if (scopeCpy.empty()) {
+        scopeCpy = m_generator.scopeForField(m_externalRef, true, false);
+    }
+    auto str = getPluginAnonNamespaceImpl(scopeCpy);
+    if (str.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "namespace\n"
+        "{\n\n"
+        "#^#STR#$#\n"
+        "} // namespace\n\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("STR", std::move(str)));
     return common::processTemplate(Templ, replacements);
 }
 
@@ -962,28 +992,6 @@ bool Field::writePluginScrFile() const
     }
 
     return true;
-}
-
-std::string Field::getPluginAnonNamespace(const std::string& scope) const
-{
-    auto scopeCpy = scope;
-    if (scopeCpy.empty()) {
-        scopeCpy = m_generator.scopeForField(m_externalRef, true, false);
-    }
-    auto str = getPluginAnonNamespaceImpl(scopeCpy);
-    if (str.empty()) {
-        return common::emptyString();
-    }
-
-    static const std::string Templ = 
-        "namespace\n"
-        "{\n\n"
-        "#^#STR#$#\n"
-        "} // namespace\n\n";
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("STR", std::move(str)));
-    return common::processTemplate(Templ, replacements);
 }
 
 std::string Field::getPluginIncludes() const

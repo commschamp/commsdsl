@@ -102,6 +102,13 @@ void BundleField::updateIncludesImpl(IncludesList& includes) const
     }
 }
 
+void BundleField::updatePluginIncludesImpl(Field::IncludesList& includes) const
+{
+    for (auto& m : m_members) {
+        m->updatePluginIncludes(includes);
+    }
+}
+
 std::size_t BundleField::minLengthImpl() const
 {
     return
@@ -154,6 +161,40 @@ std::string BundleField::getExtraDefaultOptionsImpl(const std::string& scope) co
     replacements.insert(std::make_pair("SCOPE", scope));
     replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
     return common::processTemplate(MembersOptionsTemplate, replacements);
+}
+
+std::string BundleField::getPluginAnonNamespaceImpl(const std::string& scope) const
+{
+    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    common::StringsList props;
+    for (auto& f : m_members) {
+        props.push_back(f->getPluginCreatePropsFunc(fullScope));
+    }
+
+    static const std::string Templ =
+        "struct #^#CLASS_NAME#$#Members\n"
+        "{\n"
+        "    #^#PROPS#$#\n"
+        "};\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("PROPS", common::listToString(props, "\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string BundleField::getPluginPropertiesImpl() const
+{
+    common::StringsList props;
+    props.reserve(m_members.size());
+    auto prefix =
+        common::nameToClassCopy(name()) + common::membersSuffixStr() +
+        "::createProps_";
+    for (auto& f : m_members) {
+        props.push_back(".add(" + prefix + common::nameToAccessCopy(f->name()) + "())");
+    }
+
+    return common::listToString(props, "\n", common::emptyString());
 }
 
 std::string BundleField::getFieldOpts(const std::string& scope) const
