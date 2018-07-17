@@ -799,7 +799,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         replacements.insert(std::make_pair("FIELD_SCOPE", scope));
     }
     else {
-        replacements.insert(std::make_pair("FIELD_SCOPE", m_generator.scopeForField(m_externalRef, true, true)));
+        replacements.insert(std::make_pair("FIELD_SCOPE", m_generator.scopeForField(m_externalRef, true, false)));
     }
     replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl()));
 

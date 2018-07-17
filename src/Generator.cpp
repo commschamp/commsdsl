@@ -431,6 +431,11 @@ std::string Generator::scopeForField(
     return scopeForElement(externalRef, mainIncluded, classIncluded, common::fieldStr());
 }
 
+std::string Generator::scopeForFieldInPlugin(const std::string& externalRef)
+{
+    return scopeForElement(externalRef, false, false, common::fieldStr(), true);
+}
+
 std::string Generator::scopeForCustomChecksum(
     const std::string& name,
     bool mainIncluded,
@@ -915,29 +920,35 @@ Generator::namespacesForElement(const std::string& externalRef,
     return std::make_pair(std::move(begStr), std::move(endStr));
 }
 
-std::string Generator::scopeForElement(
-    const std::string& externalRef,
+std::string Generator::scopeForElement(const std::string& externalRef,
     bool mainIncluded,
     bool classIncluded,
-    const std::string& subNs)
+    const std::string& subNs,
+    bool plugin)
 {
     std::vector<std::string> subNsList;
     if (!subNs.empty()) {
         subNsList.push_back(subNs);
     }
 
-    return scopeForElement(externalRef, mainIncluded, classIncluded, subNsList);
+    return scopeForElement(externalRef, mainIncluded, classIncluded, subNsList, plugin);
 }
 
 std::string Generator::scopeForElement(
     const std::string& externalRef,
     bool mainIncluded,
     bool classIncluded,
-    const std::vector<std::string>& subNs)
+    const std::vector<std::string>& subNs,
+    bool plugin)
 {
     std::string result;
     if (mainIncluded) {
         result += m_mainNamespace;
+        result += ScopeSep;
+    }
+
+    if (plugin) {
+        result += common::pluginNsStr();
         result += ScopeSep;
     }
 

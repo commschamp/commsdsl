@@ -30,8 +30,9 @@ protected:
         const Field& field,
         const std::string& nameOverride,
         bool forcedVersionOptional) const override;
-    virtual std::string getPluginAnonNamespaceImpl(const std::string& scope) const override;
-    virtual std::string getPluginPropertiesImpl() const override;
+    virtual std::string getPluginPropsDefFuncBodyImpl(
+        const std::string& scope,
+        bool externalName) const override;
 
 
 private:

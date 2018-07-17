@@ -116,6 +116,8 @@ public:
         bool mainIncluded = false,
         bool classIncluded = false);
 
+    std::string scopeForFieldInPlugin(const std::string& externalRef);
+
     std::string scopeForCustomChecksum(
         const std::string& name,
         bool mainIncluded = false,
@@ -201,13 +203,15 @@ private:
         const std::string& externalRef,
         bool mainIncluded,
         bool classIncluded,
-        const std::string& subNs = common::emptyString());
+        const std::string& subNs = common::emptyString(),
+        bool plugin = false);
 
     std::string scopeForElement(
         const std::string& externalRef,
         bool mainIncluded,
         bool classIncluded,
-        const std::vector<std::string>& subNs);
+        const std::vector<std::string>& subNs,
+        bool plugin = false);
 
     std::string startPluginWrite(
         const std::string& externalRef,

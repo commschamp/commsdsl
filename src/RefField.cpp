@@ -45,9 +45,9 @@ void RefField::updateIncludesImpl(IncludesList& includes) const
 
 void RefField::updatePluginIncludesImpl(IncludesList& includes) const
 {
-    auto* fieldPtr = generator().findField(refFieldDslObj().field().externalRef(), false);
-    assert(fieldPtr != nullptr);
-    fieldPtr->updatePluginIncludes(includes);
+    auto inc =
+        generator().headerfileForFieldInPlugin(refFieldDslObj().field().externalRef(), false);
+    common::mergeInclude(inc, includes);
 }
 
 std::size_t RefField::minLengthImpl() const
@@ -159,24 +159,51 @@ std::string RefField::getCompareToFieldImpl(
     return fieldPtr->getCompareToField(op, field, usedName, versionOptional);
 }
 
-std::string RefField::getPluginAnonNamespaceImpl(const std::string& scope) const
+std::string RefField::getPluginPropsDefFuncBodyImpl(
+    const std::string& scope,
+    bool externalName) const
 {
-    auto* fieldPtr = generator().findField(refFieldDslObj().field().externalRef(), false);
-    if (fieldPtr == nullptr) {
-        assert(!"Should not happen");
-        return common::emptyString();
-    }
-    return fieldPtr->getPluginAnonNamespace(scope);
-}
+    static const std::string Templ =
+        "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$#);\n";
 
-std::string RefField::getPluginPropertiesImpl() const
-{
-    auto* fieldPtr = generator().findField(refFieldDslObj().field().externalRef(), false);
-    if (fieldPtr == nullptr) {
-        assert(!"Should not happen");
-        return common::emptyString();
+    static const std::string VerOptTempl =
+        "using InnerField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#Field;\n"
+        "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$#);\n\n"
+        "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
+        "return\n"
+        "    cc::property::field::ForField<Field>()\n"
+        "        .name(#^#NAME_PROP#$#)\n"
+        "        .field(std::move(props))\n"
+        "        .asMap();\n";
+
+    bool verOptional = isVersionOptional();
+    auto* templ = &Templ;
+    if (verOptional) {
+        templ = &VerOptTempl;
     }
-    return fieldPtr->getPluginProperties();
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("PLUGIN_SCOPE", generator().scopeForFieldInPlugin(externalRef())));
+    replacements.insert(std::make_pair("REF_NAME", common::nameToAccessCopy(refFieldDslObj().field().name())));
+    if (!scope.empty()) {
+        replacements.insert(std::make_pair("FIELD_SCOPE", scope));
+    }
+    else {
+        replacements.insert(std::make_pair("FIELD_SCOPE", generator().scopeForField(externalRef(), true, true)));
+    }
+
+    if (externalName) {
+        replacements.insert(std::make_pair("NAME_PROP", "name"));
+    }
+    else if (verOptional) {
+        replacements.insert(std::make_pair("NAME_PROP", "InnerField::name()"));
+    }
+    else {
+        replacements.insert(std::make_pair("NAME_PROP", "Field::name()"));
+    }
+
+    return common::processTemplate(*templ, replacements);
 }
 
 std::string RefField::getOpts(const std::string& scope) const
