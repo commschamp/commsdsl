@@ -90,6 +90,12 @@ bool OptionalField::prepareImpl()
 {
     auto obj = optionalFieldDslObj();
     auto field = obj.field();
+    assert(field.valid());
+
+    if (!field.externalRef().empty()) {
+        return true;
+    }
+
     auto ptr = create(generator(), field);
     if (!ptr) {
         assert(!"should not happen");
@@ -112,21 +118,30 @@ void OptionalField::updateIncludesImpl(IncludesList& includes) const
 
     common::mergeIncludes(List, includes);
 
-    if (m_field->externalRef().empty()) {
+    if (m_field) {
+        assert(m_field->externalRef().empty());
         m_field->updateIncludes(includes);
+        return;
     }
-    else {
-        common::mergeInclude(generator().headerfileForField(m_field->externalRef(), false), includes);
+
+
+    common::mergeInclude(generator().headerfileForField(optionalFieldDslObj().field().externalRef(), false), includes);
+}
+
+void OptionalField::updatePluginIncludesImpl(Field::IncludesList& includes) const
+{
+    if (m_field) {
+        return;
     }
+
+    common::mergeInclude(generator().headerfileForFieldInPlugin(optionalFieldDslObj().field().externalRef(), false), includes);
 }
 
 std::string OptionalField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
 {
-    assert(m_field);
-    auto fieldRef = m_field->externalRef();
-    if (!fieldRef.empty()) {
+    if (!m_field) {
         // Find to mark it as used
-        auto* foundField = generator().findField(fieldRef);
+        auto* foundField = generator().findField(optionalFieldDslObj().field().externalRef());
         if (foundField == nullptr) {
             assert(!"Should not happen");
         }
@@ -162,8 +177,7 @@ std::string OptionalField::getClassDefinitionImpl(const std::string& scope, cons
 
 std::string OptionalField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    assert(m_field);
-    if (!m_field->externalRef().empty()) {
+    if (!m_field) {
         return common::emptyString();
     }
 
@@ -175,6 +189,52 @@ std::string OptionalField::getExtraDefaultOptionsImpl(const std::string& scope) 
     replacements.insert(std::make_pair("SCOPE", scope));
     replacements.insert(std::make_pair("OPTIONS", std::move(fieldOptions)));
     return common::processTemplate(MembersOptionsTemplate, replacements);
+}
+
+std::string OptionalField::getPluginAnonNamespaceImpl(const std::string& scope) const
+{
+    if (!m_field) {
+        return common::emptyString();
+    }
+
+    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "<>::";
+    auto prop = m_field->getPluginCreatePropsFunc(fullScope);
+
+    static const std::string Templ =
+        "struct #^#CLASS_NAME#$#Members\n"
+        "{\n"
+        "    #^#PROP#$#\n"
+        "};\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("PROP", std::move(prop)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string OptionalField::getPluginPropertiesImpl() const
+{
+    if (m_field) {
+        auto prefix =
+            common::nameToClassCopy(name()) + common::membersSuffixStr() +
+            "::createProps_";
+
+        return ".field(" + prefix + common::nameToAccessCopy(m_field->name()) + "())";
+    }
+
+    auto field = optionalFieldDslObj().field();
+    auto extRef = field.externalRef();
+    auto& name = field.name();
+    auto dispName = field.displayName();
+    if (dispName.empty()) {
+        dispName = name;
+    }
+
+    return
+        ".field(" +
+        generator().scopeForFieldInPlugin(extRef) +
+        "createProps_" + common::nameToAccessCopy(name) + "(\"" +
+        dispName + "\"))";
 }
 
 std::string OptionalField::getFieldOpts(const std::string& scope) const
@@ -189,8 +249,7 @@ std::string OptionalField::getFieldOpts(const std::string& scope) const
 
 std::string OptionalField::getMembersDef(const std::string& scope) const
 {
-    assert(m_field);
-    if (!m_field->externalRef().empty()) {
+    if (!m_field) {
         return common::emptyString();
     }
 
@@ -213,10 +272,8 @@ std::string OptionalField::getMembersDef(const std::string& scope) const
 
 std::string OptionalField::getFieldRef() const
 {
-    assert(m_field);
-    auto ref = m_field->externalRef();
-    if (!ref.empty()) {
-        return "typename " + generator().scopeForField(ref, true, true) + "<TOpt>";
+    if (!m_field) {
+        return generator().scopeForField(optionalFieldDslObj().field().externalRef(), true, true) + "<TOpt>";
     }
 
     std::string extraOpt;

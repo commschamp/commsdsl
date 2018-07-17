@@ -26,6 +26,12 @@ public:
         return m_dslObj.name();
     }
 
+    const std::string& displayName() const
+    {
+        return m_dslObj.displayName();
+    }
+
+
     commsdsl::Field::Kind kind() const
     {
         return m_dslObj.kind();

@@ -621,7 +621,7 @@ std::string Field::getPluginCreatePropsFunc(const std::string& scope) const
 {
     static const std::string Templ = 
         "#^#ANON_NAMESPACE#$#\n"
-        "QVariantMap createProps_#^#NAME#$#()\n"
+        "static QVariantMap createProps_#^#NAME#$#()\n"
         "{\n"
         "    #^#BODY#$#;\n"
         "}\n";
@@ -642,6 +642,10 @@ std::string Field::getPluginAnonNamespace(const std::string& scope) const
     auto str = getPluginAnonNamespaceImpl(scopeCpy);
     if (str.empty()) {
         return common::emptyString();
+    }
+
+    if (!scope.empty()) {
+        return str;
     }
 
     static const std::string Templ =
