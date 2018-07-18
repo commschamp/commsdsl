@@ -20,8 +20,11 @@ protected:
     virtual void updatePluginIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override;
-    virtual std::string getPluginAnonNamespaceImpl(const std::string& scope) const override;
-    virtual std::string getPluginPropertiesImpl() const override;
+    virtual std::string getPluginAnonNamespaceImpl(
+        const std::string& scope,
+        bool forcedSerialisedHidden,
+        bool serHiddenParam) const override;
+    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
 
 private:
     using StringsList = common::StringsList;

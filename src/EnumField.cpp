@@ -356,8 +356,9 @@ std::string EnumField::getCompareToFieldImpl(
             compExpr + ')';
 }
 
-std::string EnumField::getPluginPropertiesImpl() const
+std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
 {
+    static_cast<void>(serHiddenParam);
     common::StringsList props;
     auto obj = enumFieldDslObj();
     auto& values = obj.values();

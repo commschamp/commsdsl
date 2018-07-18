@@ -617,29 +617,40 @@ std::string Field::getPrivateRefreshForFields(const Field::FieldsList& fields)
     return common::listToString(funcs, "\n", common::emptyString());
 }
 
-std::string Field::getPluginCreatePropsFunc(const std::string& scope) const
+std::string Field::getPluginCreatePropsFunc(
+    const std::string& scope,
+    bool forcedSerialisedHidden,
+    bool serHiddenParam) const
 {
     static const std::string Templ = 
         "#^#ANON_NAMESPACE#$#\n"
-        "static QVariantMap createProps_#^#NAME#$#()\n"
+        "static QVariantMap createProps_#^#NAME#$#(#^#SER_HIDDEN#$#)\n"
         "{\n"
-        "    #^#BODY#$#;\n"
+        "    #^#SER_HIDDEN_CAST#$#\n"
+        "    #^#BODY#$#\n"
         "}\n";
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
-    replacements.insert(std::make_pair("BODY", getPluginPropsDefFuncBodyImpl(scope, false)));
-    replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace(scope)));
+    replacements.insert(std::make_pair("BODY", getPluginPropsDefFuncBodyImpl(scope, false, forcedSerialisedHidden, serHiddenParam)));
+    replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace(scope, forcedSerialisedHidden, serHiddenParam)));
+    if (serHiddenParam) {
+        replacements.insert(std::make_pair("SER_HIDDEN", "bool serHidden"));
+    }
+
     return common::processTemplate(Templ, replacements);
 }
 
-std::string Field::getPluginAnonNamespace(const std::string& scope) const
+std::string Field::getPluginAnonNamespace(
+    const std::string& scope,
+    bool forcedSerialisedHidden,
+    bool serHiddenParam) const
 {
     auto scopeCpy = scope;
     if (scopeCpy.empty()) {
         scopeCpy = m_generator.scopeForField(m_externalRef, true, false);
     }
-    auto str = getPluginAnonNamespaceImpl(scopeCpy);
+    auto str = getPluginAnonNamespaceImpl(scopeCpy, forcedSerialisedHidden, serHiddenParam);
     if (str.empty()) {
         return common::emptyString();
     }
@@ -767,13 +778,16 @@ std::string Field::getCompareToFieldImpl(const std::string& op,
 
 std::string Field::getPluginPropsDefFuncBodyImpl(
     const std::string& scope,
-    bool externalName) const
+    bool externalName,
+    bool forcedSerialisedHidden,
+    bool serHiddenParam) const
 {
     static const std::string Templ =
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
         "return\n"
         "    cc::property::field::ForField<Field>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
+        "        #^#SER_HIDDEN#$#\n"
         "        #^#PROPERTIES#$#\n"
         "        .asMap();\n";
 
@@ -782,6 +796,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         "auto props =\n"
         "    cc::property::field::ForField<InnerField>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
+        "        #^#SER_HIDDEN#$#\n"
         "        #^#PROPERTIES#$#\n"
         "        .asMap();\n\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
@@ -805,7 +820,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
     else {
         replacements.insert(std::make_pair("FIELD_SCOPE", m_generator.scopeForField(m_externalRef, true, false)));
     }
-    replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl()));
+    replacements.insert(std::make_pair("PROPERTIES", getPluginPropertiesImpl(serHiddenParam)));
 
     if (externalName) {
         replacements.insert(std::make_pair("NAME_PROP", "name"));
@@ -817,18 +832,31 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         replacements.insert(std::make_pair("NAME_PROP", "Field::name()"));
     }
 
+    if (forcedSerialisedHidden) {
+        replacements.insert(std::make_pair("SER_HIDDEN", ".serialisedHidden()"));
+    }
+    else if (serHiddenParam) {
+        replacements.insert(std::make_pair("SER_HIDDEN", ".serialisedHidden(serHidden)"));
+    }
+
     return common::processTemplate(*templ, replacements);
 
 }
 
-std::string Field::getPluginAnonNamespaceImpl(const std::string& scope) const
+std::string Field::getPluginAnonNamespaceImpl(
+    const std::string& scope,
+    bool forcedSerialisedHidden,
+    bool serHiddenParam) const
 {
     static_cast<void>(scope);
+    static_cast<void>(forcedSerialisedHidden);
+    static_cast<void>(serHiddenParam);
     return common::emptyString();
 }
 
-std::string Field::getPluginPropertiesImpl() const
+std::string Field::getPluginPropertiesImpl(bool serHiddenParam) const
 {
+    static_cast<void>(serHiddenParam);
     return common::emptyString();
 }
 
@@ -966,7 +994,7 @@ bool Field::writePluginHeaderFile() const
         "\n"
         "#include <QtCore/QVariantMap>\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
-        "QVariantMap createProps_#^#NAME#$#(const char* name);\n\n"
+        "QVariantMap createProps_#^#NAME#$#(const char* name, bool serHidden = false);\n\n"
         "#^#END_NAMESPACE#$#\n"
     );
 
@@ -1008,7 +1036,7 @@ bool Field::writePluginScrFile() const
         "namespace cc = comms_champion;\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "#^#ANON_NAMESPACE#$#\n"
-        "QVariantMap createProps_#^#NAME#$#(const char* name)\n"
+        "QVariantMap createProps_#^#NAME#$#(const char* name, bool serHidden)\n"
         "{\n"
         "    #^#BODY#$#\n"
         "}\n\n"
@@ -1024,7 +1052,7 @@ bool Field::writePluginScrFile() const
     replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
     replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace()));
     replacements.insert(std::make_pair("INCLUDES", getPluginIncludes()));
-    replacements.insert(std::make_pair("BODY", getPluginPropsDefFuncBodyImpl(common::emptyString(), true)));
+    replacements.insert(std::make_pair("BODY", getPluginPropsDefFuncBodyImpl(common::emptyString(), true, false, true)));
 
     auto str = common::processTemplate(Templ, replacements);
 

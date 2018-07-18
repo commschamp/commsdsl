@@ -155,6 +155,12 @@ const std::string& pluginNsStr()
     return Str;
 }
 
+const std::string& serHiddenStr()
+{
+    static const std::string Str("serHidden");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

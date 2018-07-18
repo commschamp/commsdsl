@@ -191,14 +191,17 @@ std::string OptionalField::getExtraDefaultOptionsImpl(const std::string& scope) 
     return common::processTemplate(MembersOptionsTemplate, replacements);
 }
 
-std::string OptionalField::getPluginAnonNamespaceImpl(const std::string& scope) const
+std::string OptionalField::getPluginAnonNamespaceImpl(
+    const std::string& scope,
+    bool forcedSerialisedHidden,
+    bool serHiddenParam) const
 {
     if (!m_field) {
         return common::emptyString();
     }
 
     auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "<>::";
-    auto prop = m_field->getPluginCreatePropsFunc(fullScope);
+    auto prop = m_field->getPluginCreatePropsFunc(fullScope, forcedSerialisedHidden, serHiddenParam);
 
     static const std::string Templ =
         "struct #^#CLASS_NAME#$#Members\n"
@@ -212,14 +215,19 @@ std::string OptionalField::getPluginAnonNamespaceImpl(const std::string& scope) 
     return common::processTemplate(Templ, replacements);
 }
 
-std::string OptionalField::getPluginPropertiesImpl() const
+std::string OptionalField::getPluginPropertiesImpl(bool serHiddenParam) const
 {
     if (m_field) {
         auto prefix =
             common::nameToClassCopy(name()) + common::membersSuffixStr() +
             "::createProps_";
 
-        return ".field(" + prefix + common::nameToAccessCopy(m_field->name()) + "())";
+        auto str = ".field(" + prefix + common::nameToAccessCopy(m_field->name()) + "(";
+        if (serHiddenParam) {
+            str += common::serHiddenStr();
+        }
+        str +="))";
+        return str;
     }
 
     auto field = optionalFieldDslObj().field();
@@ -230,11 +238,16 @@ std::string OptionalField::getPluginPropertiesImpl() const
         dispName = name;
     }
 
-    return
+    auto str =
         ".field(" +
         generator().scopeForFieldInPlugin(extRef) +
         "createProps_" + common::nameToAccessCopy(name) + "(\"" +
-        dispName + "\"))";
+        dispName + "\"";
+    if (serHiddenParam) {
+        str += ", " + common::serHiddenStr();
+    }
+    str += "))";
+    return str;
 }
 
 std::string OptionalField::getFieldOpts(const std::string& scope) const

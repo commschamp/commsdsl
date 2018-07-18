@@ -149,12 +149,15 @@ std::string BitfieldField::getExtraDefaultOptionsImpl(const std::string& scope) 
     return common::processTemplate(MembersOptionsTemplate, replacements);
 }
 
-std::string BitfieldField::getPluginAnonNamespaceImpl(const std::string& scope) const
+std::string BitfieldField::getPluginAnonNamespaceImpl(
+    const std::string& scope,
+    bool forcedSerialisedHidden,
+    bool serHiddenParam) const
 {
     auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "<>::";
     common::StringsList props;
     for (auto& f : m_members) {
-        props.push_back(f->getPluginCreatePropsFunc(fullScope));
+        props.push_back(f->getPluginCreatePropsFunc(fullScope, forcedSerialisedHidden, serHiddenParam));
     }
 
     static const std::string Templ = 
@@ -169,7 +172,7 @@ std::string BitfieldField::getPluginAnonNamespaceImpl(const std::string& scope) 
     return common::processTemplate(Templ, replacements);
 }
 
-std::string BitfieldField::getPluginPropertiesImpl() const
+std::string BitfieldField::getPluginPropertiesImpl(bool serHiddenParam) const
 {
     common::StringsList props;
     props.reserve(m_members.size());
@@ -177,7 +180,12 @@ std::string BitfieldField::getPluginPropertiesImpl() const
         common::nameToClassCopy(name()) + common::membersSuffixStr() +
         "::createProps_";
     for (auto& f : m_members) {
-        props.push_back(".add(" + prefix + common::nameToAccessCopy(f->name()) + "())");
+        auto str = ".add(" + prefix + common::nameToAccessCopy(f->name()) + "(";
+        if (serHiddenParam) {
+            str += common::serHiddenStr();
+        }
+        str += "))";
+        props.push_back(std::move(str));
     }
 
     return common::listToString(props, "\n", common::emptyString());

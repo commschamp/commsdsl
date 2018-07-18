@@ -32,8 +32,9 @@ protected:
         bool forcedVersionOptional) const override;
     virtual std::string getPluginPropsDefFuncBodyImpl(
         const std::string& scope,
-        bool externalName) const override;
-
+        bool externalName,
+        bool forcedSerialisedHidden,
+        bool serHiddenParam) const override;
 
 private:
     using StringsList = common::StringsList;

@@ -114,12 +114,17 @@ public:
     static std::string getPublicRefreshForFields(const FieldsList& fields, bool forMessage);
     static std::string getPrivateRefreshForFields(const FieldsList& fields);
 
-    std::string getPluginCreatePropsFunc(const std::string& scope) const;
+    std::string getPluginCreatePropsFunc(const std::string& scope,
+        bool forcedSerialisedHidden,
+        bool serHiddenParam = true) const;
 
-    std::string getPluginAnonNamespace(const std::string& scope = common::emptyString()) const;
-    std::string getPluginProperties() const
+    std::string getPluginAnonNamespace(
+        const std::string& scope = common::emptyString(),
+        bool forcedSerialisedHidden = false,
+        bool serHiddenParam = true) const;
+    std::string getPluginProperties(bool serHiddenParam) const
     {
-        return getPluginPropertiesImpl();
+        return getPluginPropertiesImpl(serHiddenParam);
     }
 
 protected:
@@ -156,9 +161,14 @@ protected:
         bool forcedVersionOptional) const;
     virtual std::string getPluginPropsDefFuncBodyImpl(
         const std::string& scope,
-        bool externalName) const;
-    virtual std::string getPluginAnonNamespaceImpl(const std::string& scope) const;
-    virtual std::string getPluginPropertiesImpl() const;
+        bool externalName,
+        bool forcedSerialisedHidden,
+        bool serHiddenParam) const;
+    virtual std::string getPluginAnonNamespaceImpl(
+        const std::string& scope,
+        bool forcedSerialisedHidden,
+        bool serHiddenParam) const;
+    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const;
 
     std::string getNameFunc() const;
 

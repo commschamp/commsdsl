@@ -113,8 +113,9 @@ std::string SetField::getCompareToFieldImpl(
     return Base::getCompareToFieldImpl(op, field, nameOverride, forcedVersionOptional);
 }
 
-std::string SetField::getPluginPropertiesImpl() const
+std::string SetField::getPluginPropertiesImpl(bool serHiddenParam) const
 {
+    static_cast<void>(serHiddenParam);
     StringsList props;
     auto obj = setFieldDslObj();
     auto& bits = obj.bits();
