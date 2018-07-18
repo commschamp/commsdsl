@@ -783,7 +783,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
     bool serHiddenParam) const
 {
     static const std::string Templ =
-        "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
+        "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
         "return\n"
         "    cc::property::field::ForField<Field>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
@@ -824,6 +824,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
 
     if (externalName) {
         replacements.insert(std::make_pair("NAME_PROP", "name"));
+        replacements.insert(std::make_pair("TEMPL_PARAMS", "<>"));
     }
     else if (verOptional) {
         replacements.insert(std::make_pair("NAME_PROP", "InnerField::name()"));
@@ -1030,7 +1031,7 @@ bool Field::writePluginScrFile() const
     }
 
     static const std::string Templ(
-        "#include \"#^#CLASS_NAME#$#\"\n"
+        "#include \"#^#CLASS_NAME#$#.h\"\n"
         "\n"
         "#^#INCLUDES#$#\n\n"
         "namespace cc = comms_champion;\n\n"

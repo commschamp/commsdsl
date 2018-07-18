@@ -161,6 +161,12 @@ const std::string& serHiddenStr()
     return Str;
 }
 
+const std::string& cmakeListsFileStr()
+{
+    static const std::string Str("CMakeLists.txt");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

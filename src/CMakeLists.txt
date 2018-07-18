@@ -44,6 +44,7 @@ set (
     "ValueLayer.cpp"
     "ChecksumLayer.cpp"
     "CustomLayer.cpp"
+    "Cmake.cpp"
     "common.cpp"
 )
 

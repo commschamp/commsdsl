@@ -10,6 +10,7 @@
 #include "common.h"
 #include "EnumField.h"
 #include "AllMessages.h"
+#include "Cmake.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -143,6 +144,28 @@ std::string Generator::protocolDefRootDir()
 
     return dir.string();
 }
+
+std::string Generator::outputDir()
+{
+    if (!createDir(m_pathPrefix)) {
+        m_logger.error("Failed to create \"" + m_pathPrefix.string() + "\" directory.");
+        return common::emptyString();
+    }
+
+    return m_pathPrefix.string();
+}
+
+std::string Generator::pluginDir()
+{
+    auto dir = m_pathPrefix / common::pluginNsStr();
+    if (!createDir(dir)) {
+        m_logger.error("Failed to create \"" + dir.string() + "\" directory.");
+        return common::emptyString();
+    }
+
+    return dir.string();
+}
+
 
 bool Generator::isAnyPlatformSupported(
     const std::vector<std::string>& platforms)
@@ -689,6 +712,7 @@ bool Generator::writeFiles()
     }
 
     if ((!DefaultOptions::write(*this)) ||
+        (!Cmake::write(*this)) ||
         (!writeExtraFiles())){
         return false;
     }
@@ -859,6 +883,18 @@ std::string Generator::headerfileForElement(
         result += '\"';
     }
     return result;
+}
+
+std::string Generator::pluginCommonSources() const
+{
+    common::StringsList result;
+    for (auto& n : m_namespaces) {
+        auto subResult = n->pluginCommonSources();
+        result.reserve(result.size() + subResult.size());
+        result.insert(result.end(), subResult.begin(), subResult.end());
+    }
+
+    return common::listToString(result, "\n", common::emptyString());
 }
 
 std::pair<std::string, std::string>

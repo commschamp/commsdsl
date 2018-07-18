@@ -54,6 +54,9 @@ public:
     const Field* findField(const std::string& externalRef, bool record);
 
     bool anyInterfaceHasVersion() const;
+
+    common::StringsList pluginCommonSources() const;
+
 private:
 
     using MessagesList = std::vector<MessagePtr>;

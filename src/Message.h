@@ -30,6 +30,8 @@ public:
 
     bool prepare();
 
+    bool doesExist() const;
+
     bool write();
 
     std::string getDefaultOptions() const;

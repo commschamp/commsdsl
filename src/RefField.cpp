@@ -159,7 +159,8 @@ std::string RefField::getCompareToFieldImpl(
     return fieldPtr->getCompareToField(op, field, usedName, versionOptional);
 }
 
-std::string RefField::getPluginPropsDefFuncBodyImpl(const std::string& scope,
+std::string RefField::getPluginPropsDefFuncBodyImpl(
+    const std::string& scope,
     bool externalName,
     bool forcedSerialisedHidden,
     bool serHiddenParam) const
@@ -167,10 +168,14 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(const std::string& scope,
     static const std::string Templ =
         "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n";
 
+    static const std::string TemplWithField =
+        "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
+        "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n";
+
     static const std::string VerOptTempl =
         "using InnerField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#Field;\n"
         "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n\n"
-        "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
+        "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
         "return\n"
         "    cc::property::field::ForField<Field>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
@@ -181,6 +186,9 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(const std::string& scope,
     auto* templ = &Templ;
     if (verOptional) {
         templ = &VerOptTempl;
+    }
+    else if (!externalName) {
+        templ = &TemplWithField;
     }
 
     common::ReplacementMap replacements;
@@ -196,6 +204,7 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(const std::string& scope,
 
     if (externalName) {
         replacements.insert(std::make_pair("NAME_PROP", "name"));
+        replacements.insert(std::make_pair("TEMPL_PARAMS", "<>"));
     }
     else if (verOptional) {
         replacements.insert(std::make_pair("NAME_PROP", "InnerField::name()"));

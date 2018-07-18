@@ -200,7 +200,12 @@ std::string OptionalField::getPluginAnonNamespaceImpl(
         return common::emptyString();
     }
 
-    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "<>::";
+    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr();
+    if (!externalRef().empty()) {
+        fullScope += "<>";
+    }
+    fullScope += "::";
+
     auto prop = m_field->getPluginCreatePropsFunc(fullScope, forcedSerialisedHidden, serHiddenParam);
 
     static const std::string Templ =

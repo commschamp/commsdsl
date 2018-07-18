@@ -108,6 +108,20 @@ bool Message::prepare()
     return true;
 }
 
+bool Message::doesExist() const
+{
+    bool exists =
+        m_generator.doesElementExist(
+            m_dslObj.sinceVersion(),
+            m_dslObj.deprecatedSince(),
+            m_dslObj.isDeprecatedRemoved());
+    if (!exists) {
+        return false;
+    }
+
+    return m_generator.isAnyPlatformSupported(m_dslObj.platforms());
+}
+
 bool Message::write()
 {
     bool exists =

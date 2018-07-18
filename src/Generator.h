@@ -45,6 +45,10 @@ public:
 
     std::string protocolDefRootDir();
 
+    std::string outputDir();
+
+    std::string pluginDir();
+
     bool isAnyPlatformSupported(
         const std::vector<std::string>& platforms);
 
@@ -145,6 +149,11 @@ public:
         return m_schemaVersion;
     }
 
+    const std::string& schemaName() const
+    {
+        return m_protocol.schema().name();
+    }
+
     bool versionDependentCode() const
     {
         return m_versionDependentCode;
@@ -176,8 +185,15 @@ public:
     commsdsl::Protocol::MessagesList getAllDslMessages() const
     {
         return m_protocol.allMessages();
-
     }
+
+    std::string commsChampionTag() const
+    {
+        return m_options.getCommsChampionTag();
+    }
+
+    std::string pluginCommonSources() const;
+
 private:
 
     using NamespacesList = Namespace::NamespacesList;

@@ -2,6 +2,7 @@
 
 #include <cassert>
 #include <algorithm>
+#include <iterator>
 
 #include "Generator.h"
 
@@ -49,7 +50,7 @@ bool Namespace::writeMessages()
             [](auto& ptr)
             {
                 return ptr->write();
-    });
+            });
 }
 
 bool Namespace::writeFrames()
@@ -340,7 +341,45 @@ bool Namespace::anyInterfaceHasVersion() const
             [](auto& n)
             {
                 return n->anyInterfaceHasVersion();
+    });
+}
+
+common::StringsList Namespace::pluginCommonSources() const
+{
+    common::StringsList result;
+    std::string prefix = name();
+    if (!prefix.empty()) {
+        prefix += '/';
+    }
+
+    for (auto& n : m_namespaces) {
+        auto subResult = n->pluginCommonSources();
+        result.reserve(result.size() + subResult.size());
+        std::transform(
+            subResult.begin(), subResult.end(), std::back_inserter(result),
+            [&prefix](const std::string& s)
+            {
+                return prefix + s;
             });
+    }
+
+    result.reserve(result.size() + m_accessedFields.size() + m_messages.size());
+    std::transform(
+        m_accessedFields.begin(), m_accessedFields.end(), std::back_inserter(result),
+        [&prefix](auto& f)
+        {
+            return prefix + common::fieldStr() + '/' + common::nameToClassCopy(f.first->name()) + common::srcSuffix();
+        });
+
+//    for (auto& m : m_messages) {
+//        if (!m->doesExist()) {
+//            continue;
+//        }
+
+//        result.push_back(prefix + common::messageStr() + '/' + common::nameToClassCopy(m->name()) + common::srcSuffix());
+//    }
+
+    return result;
 }
 
 

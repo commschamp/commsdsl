@@ -38,6 +38,7 @@ const std::string& checksumStr();
 const std::string& layerStr();
 const std::string& pluginNsStr();
 const std::string& serHiddenStr();
+const std::string& cmakeListsFileStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
