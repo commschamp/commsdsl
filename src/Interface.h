@@ -27,6 +27,8 @@ public:
 
     bool write();
 
+    const std::string& name() const;
+
     const std::string& externalRef() const
     {
         return m_externalRef;
@@ -37,6 +39,8 @@ public:
 private:
 
     bool writeProtocol();
+    bool writePluginHeader();
+    bool writePluginSrc();
     std::string getDescription() const;
     std::string getFieldsClassesList() const;
     std::string getFieldsAccessList() const;

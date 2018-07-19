@@ -245,7 +245,7 @@ std::pair<std::string, std::string> Generator::startInterfaceProtocolWrite(
 
     if (externalRefCpy.empty()) {
         // Default interface
-        externalRefCpy = "Message";
+        externalRefCpy = common::messageClassStr();
     }
 
     // TODO: check suffix
@@ -311,6 +311,24 @@ std::string Generator::startFieldPluginSrcWrite(const std::string& externalRef)
     return startPluginWrite(externalRef, false, common::fieldStr());
 }
 
+std::string Generator::startInterfacePluginHeaderWrite(const std::string& externalRef)
+{
+    if (!externalRef.empty()) {
+        return startPluginWrite(externalRef, true);
+    }
+
+    return startPluginWrite(common::messageClassStr(), true);
+}
+
+std::string Generator::startInterfacePluginSrcWrite(const std::string& externalRef)
+{
+    if (!externalRef.empty()) {
+        return startPluginWrite(externalRef, false);
+    }
+
+    return startPluginWrite(common::messageClassStr(), false);
+}
+
 std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
 {
     // TODO: check suffix
@@ -367,6 +385,15 @@ std::pair<std::string, std::string> Generator::namespacesForInterface(
     return namespacesForElement(externalRef);
 }
 
+std::pair<std::string, std::string>
+Generator::namespacesForInterfaceInPlugin(const std::string& externalRef) const
+{
+    if (externalRef.empty()) {
+        return namespacesForElement(common::messageClassStr(), common::emptyString(), true);
+    }
+
+    return namespacesForElement(externalRef, common::emptyString(), true);
+}
 
 std::pair<std::string, std::string>
 Generator::namespacesForRoot() const
@@ -404,10 +431,20 @@ std::string Generator::headerfileForInterface(const std::string& externalRef)
 {
     std::string externalRefCpy(externalRef);
     if (externalRefCpy.empty()) {
-        externalRefCpy = "Message";
+        externalRefCpy = common::messageClassStr();
     }
 
     return headerfileForElement(externalRefCpy, true);
+}
+
+std::string Generator::headerfileForInterfaceInPlugin(const std::string& externalRef, bool quotes)
+{
+    std::string externalRefCpy(externalRef);
+    if (externalRefCpy.empty()) {
+        externalRefCpy = common::messageClassStr();
+    }
+
+    return headerfileForElement(externalRefCpy, quotes, common::emptyString(), true);
 }
 
 std::string Generator::headerfileForCustomChecksum(const std::string& name, bool quotes)
@@ -436,6 +473,18 @@ std::string Generator::scopeForMessage(
     bool classIncluded)
 {
     return scopeForElement(externalRef, mainIncluded, classIncluded, common::messageStr());
+}
+
+std::string Generator::scopeForInterface(
+    const std::string& externalRef,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    if (!externalRef.empty()) {
+        return scopeForElement(externalRef, mainIncluded, classIncluded);
+    }
+
+    return scopeForElement(common::messageClassStr(), mainIncluded, classIncluded);
 }
 
 std::string Generator::scopeForFrame(
@@ -898,7 +947,8 @@ std::string Generator::pluginCommonSources() const
 }
 
 std::pair<std::string, std::string>
-Generator::namespacesForElement(const std::string& externalRef,
+Generator::namespacesForElement(
+    const std::string& externalRef,
     const std::string& subNs,
     bool plugin) const
 {
@@ -1017,6 +1067,8 @@ std::string Generator::startPluginWrite(
         assert(!"Should not happen");
         return common::emptyString();
     }
+
+    // TODO: check replacement or suffix add
 
     auto ns = refToNs(externalRef);
     auto className = refToName(externalRef);

@@ -47,6 +47,12 @@ const std::string& messageStr()
     return Str;
 }
 
+const std::string& messageClassStr()
+{
+    static const std::string Str("Message");
+    return Str;
+}
+
 const std::string& frameStr()
 {
     static const std::string Str("frame");

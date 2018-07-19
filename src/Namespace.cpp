@@ -379,6 +379,11 @@ common::StringsList Namespace::pluginCommonSources() const
 //        result.push_back(prefix + common::messageStr() + '/' + common::nameToClassCopy(m->name()) + common::srcSuffix());
 //    }
 
+    for (auto& i : m_interfaces) {
+        result.push_back(prefix + common::nameToClassCopy(i->name()) + common::srcSuffix());
+    }
+
+
     return result;
 }
 

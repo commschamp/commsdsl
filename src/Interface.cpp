@@ -96,6 +96,53 @@ const std::string ClassTemplate(
     "#^#END_NAMESPACE#$#\n"
 );
 
+std::string PluginHeaderTemplate = 
+    "#pragma once\n\n"
+    "#include \"comms_champion/MessageBase.h\"\n"
+    "#include #^#INTERFACE_INCLUDE#$#\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "class #^#CLASS_NAME#$# : public\n"
+    "    comms_champion::MessageBase<\n"
+    "        #^#INTERFACE#$#\n"
+    "    >\n"
+    "{\n"
+    "protected:\n"
+    "    const QVariantList& extraTransportFieldsPropertiesImpl() const override;\n"
+    "};\n\n"
+    "#^#END_NAMESPACE#$#\n\n";
+
+std::string PluginHeaderAliasTemplate = 
+    "#pragma once\n\n"
+    "#include \"comms_champion/MessageBase.h\"\n"
+    "#include #^#INTERFACE_INCLUDE#$#\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "using #^#CLASS_NAME#$# =\n"
+    "    comms_champion::MessageBase<\n"
+    "        #^#INTERFACE#$#\n"
+    "    >;\n\n"
+    "#^#END_NAMESPACE#$#\n\n";
+
+std::string PluginSrcTemplate = 
+    "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+    "#include \"comms_champion/property/field.h\"\n\n"
+    "namespace cc = comms_champion;\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "namespace\n"
+    "{\n\n"
+    "#^#FIELDS_PROPS#$#\n"
+    "QVariantList createProps()\n"
+    "{\n"
+    "    QVariantList props;\n"
+    "    #^#PROPS_APPENDS#$#\n"
+    "    return props;\n"
+    "}\n\n"
+    "} // namespace \n\n"
+    "const QVariantList& #^#CLASS_NAME#$#::extraTransportFieldsPropertiesImpl() const\n"
+    "{\n"
+    "    static const QVariantList Props = createProps();\n"
+    "    return Props;\n"
+    "}\n\n"
+    "#^#END_NAMESPACE#$#\n";
 } // namespace
 
 bool Interface::prepare()
@@ -132,7 +179,19 @@ bool Interface::prepare()
 bool Interface::write()
 {
     // TODO: write plugin
-    return writeProtocol();
+    return
+        writeProtocol() &&
+        writePluginHeader() &&
+        writePluginSrc();
+}
+
+const std::string& Interface::name() const
+{
+    if (!m_dslObj.valid()) {
+        return common::messageClassStr();
+    }
+
+    return m_dslObj.name();
 }
 
 bool Interface::hasVersion() const
@@ -180,6 +239,97 @@ bool Interface::writeProtocol()
         replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
     }
     auto str = common::processTemplate(*templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Interface::writePluginHeader()
+{
+    auto filePath = m_generator.startInterfacePluginHeaderWrite(m_externalRef);
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("INTERFACE_INCLUDE", m_generator.headerfileForInterface(externalRef())));
+    replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(externalRef(), true, true)));
+
+    auto namespaces = m_generator.namespacesForInterfaceInPlugin(m_externalRef);
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+
+    auto* templ = &PluginHeaderAliasTemplate;
+    if (!m_fields.empty()) {
+        templ = &PluginHeaderTemplate;
+    }
+    auto str = common::processTemplate(*templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Interface::writePluginSrc()
+{
+    auto filePath = m_generator.startInterfacePluginSrcWrite(m_externalRef);
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    std::string str;
+    do {
+        if (m_fields.empty()) {
+            break;
+        }
+
+        auto scope = m_generator.scopeForInterface(m_externalRef, true, false);
+        scope += common::nameToClassCopy(name()) + common::fieldsSuffixStr() + "::";
+        common::StringsList fieldsProps;
+        common::StringsList appends;
+        fieldsProps.reserve(m_fields.size());
+        fieldsProps.reserve(appends.size());
+        for (auto& f : m_fields) {
+            fieldsProps.push_back(f->getPluginCreatePropsFunc(scope, true, false));
+            appends.push_back("props.append(createProps_" + common::nameToAccessCopy(f->name()) + "());");
+        }
+
+        auto namespaces = m_generator.namespacesForInterfaceInPlugin(m_externalRef);
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+        replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(externalRef(), true, true)));
+        replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+        replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+        replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", "\n")));
+        replacements.insert(std::make_pair("PROPS_APPENDS", common::listToString(appends, "\n", common::emptyString())));
+
+        str = common::processTemplate(PluginSrcTemplate, replacements);
+    } while (false);
 
     std::ofstream stream(filePath);
     if (!stream) {

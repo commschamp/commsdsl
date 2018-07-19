@@ -70,6 +70,9 @@ public:
     std::string startFieldPluginHeaderWrite(const std::string& externalRef);
     std::string startFieldPluginSrcWrite(const std::string& externalRef);
 
+    std::string startInterfacePluginHeaderWrite(const std::string& externalRef);
+    std::string startInterfacePluginSrcWrite(const std::string& externalRef);
+
     std::pair<std::string, std::string>
     startDefaultOptionsWrite();
 
@@ -89,6 +92,9 @@ public:
     namespacesForInterface(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
+    namespacesForInterfaceInPlugin(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
     namespacesForRoot() const;
 
     std::string headerfileForMessage(const std::string& externalRef, bool quotes = true);
@@ -101,11 +107,18 @@ public:
 
     std::string headerfileForInterface(const std::string& externalRef);
 
+    std::string headerfileForInterfaceInPlugin(const std::string& externalRef, bool quotes = true);
+
     std::string headerfileForCustomChecksum(const std::string& name, bool quotes = true);
 
     std::string headerfileForCustomLayer(const std::string& name, bool quotes = true);
 
     std::string scopeForMessage(
+        const std::string& externalRef,
+        bool mainIncluded = false,
+        bool classIncluded = false);
+
+    std::string scopeForInterface(
         const std::string& externalRef,
         bool mainIncluded = false,
         bool classIncluded = false);

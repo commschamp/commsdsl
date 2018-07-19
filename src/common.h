@@ -19,6 +19,7 @@ const std::string& headerSuffix();
 const std::string& srcSuffix();
 const std::string& includeStr();
 const std::string& messageStr();
+const std::string& messageClassStr();
 const std::string& frameStr();
 const std::string& fieldStr();
 const std::string& fieldBaseStr();
