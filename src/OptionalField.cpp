@@ -131,6 +131,7 @@ void OptionalField::updateIncludesImpl(IncludesList& includes) const
 void OptionalField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
     if (m_field) {
+        m_field->updatePluginIncludes(includes);
         return;
     }
 

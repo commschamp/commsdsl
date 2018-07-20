@@ -725,6 +725,14 @@ bool Generator::prepare()
         m_versionDependentCode = anyInterfaceHasVersion();
     }
 
+    if (mustDefineDefaultInterface()) {
+        auto& ns = findOrCreateDefaultNamespace();
+        if (!ns.addDefaultInterface()) {
+            return false;
+        }
+    }
+
+
     m_messageIdField = findMessageIdField();
     return true;
 }
@@ -735,13 +743,6 @@ bool Generator::writeFiles()
         (!MsgId::write(*this)) ||
         (!AllMessages::write(*this))) {
         return false;
-    }
-
-    if (mustDefineDefaultInterface()) {
-        Interface interface(*this, commsdsl::Interface(nullptr));
-        if (!interface.write()) {
-            return false;
-        }
     }
 
     for (auto& ns : m_namespaces) {
@@ -800,7 +801,7 @@ bool Generator::mustDefineDefaultInterface() const
             [](auto& n)
             {
                 return n->hasInterfaceDefined();
-    });
+            });
 }
 
 bool Generator::anyInterfaceHasVersion()
@@ -878,6 +879,30 @@ bool Generator::writeExtraFiles()
         }
     }
     return true;
+}
+
+Namespace& Generator::findOrCreateDefaultNamespace()
+{
+    auto iter =
+        std::find_if(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& n)
+            {
+                return n->name().empty();
+            });
+
+    if (iter != m_namespaces.end()) {
+        return **iter;
+    }
+
+    auto nsPtr = createNamespace(*this, commsdsl::Namespace(nullptr));
+    bool prepared = nsPtr->prepare();
+    if (!prepared) {
+        assert(!"Should not happen");
+    }
+
+    m_namespaces.insert(m_namespaces.begin(), std::move(nsPtr));
+    return *(m_namespaces.front());
 }
 
 std::string Generator::headerfileForElement(

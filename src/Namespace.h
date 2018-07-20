@@ -32,10 +32,7 @@ public:
     {
     }
 
-    const std::string& name() const
-    {
-        return m_dslObj.name();
-    }
+    const std::string& name() const;
 
     bool prepare();
 
@@ -56,6 +53,9 @@ public:
     bool anyInterfaceHasVersion() const;
 
     common::StringsList pluginCommonSources() const;
+
+    std::string externalRef() const;
+    bool addDefaultInterface();
 
 private:
 

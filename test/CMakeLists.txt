@@ -61,16 +61,15 @@ function (test_func name)
     add_dependencies(${testName} ${output_tgt})
     target_include_directories (${testName} PRIVATE "${output_dir}/include")
 
-    # TODO: uncomment
-#    set (plugin_build_tgt ${name}_plugin_build_tgt)
-#    add_custom_target(${plugin_build_tgt} ALL
-#        COMMAND ${CMAKE_COMMAND}
-#            -DPROJ_DIR=${output_dir}
-#            -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
-#            -DCONFIG=$<CONFIG>
-#            -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
-#        DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
-#    )
+    set (plugin_build_tgt ${name}_plugin_build_tgt)
+    add_custom_target(${plugin_build_tgt} ALL
+        COMMAND ${CMAKE_COMMAND}
+            -DPROJ_DIR=${output_dir}
+            -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
+            -DCONFIG=$<CONFIG>
+            -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
+        DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
+    )
 
 endfunction ()
 

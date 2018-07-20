@@ -221,6 +221,7 @@ private:
     bool anyInterfaceHasVersion();
     const Field* findMessageIdField() const;
     bool writeExtraFiles();
+    Namespace& findOrCreateDefaultNamespace();
 
     std::pair<std::string, std::string>
     namespacesForElement(

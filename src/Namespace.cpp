@@ -9,6 +9,14 @@
 namespace commsdsl2comms
 {
 
+const std::string& Namespace::name() const
+{
+    if (!m_dslObj.valid()) {
+        return common::emptyString();
+    }
+    return m_dslObj.name();
+}
+
 bool Namespace::prepare()
 {
     return
@@ -127,7 +135,7 @@ std::string Namespace::getDefaultOptions() const
     }
 
     std::string fieldsOpts;
-    auto scope = m_generator.scopeForNamespace(m_dslObj.externalRef());
+    auto scope = m_generator.scopeForNamespace(externalRef());
     for (auto& f : m_fields) {
         auto iter = m_accessedFields.find(f.get());
         if (iter == m_accessedFields.end()) {
@@ -387,9 +395,34 @@ common::StringsList Namespace::pluginCommonSources() const
     return result;
 }
 
+std::string Namespace::externalRef() const
+{
+    if (m_dslObj.valid()) {
+        return m_dslObj.externalRef();
+    }
+
+    return common::emptyString();
+}
+
+bool Namespace::addDefaultInterface()
+{
+    assert((m_interfaces.empty()) || (!m_interfaces.front()->name().empty()));
+    auto interface = createInterface(m_generator, commsdsl::Interface(nullptr));
+    if (!interface->prepare()) {
+        return false;
+    }
+
+    m_interfaces.insert(m_interfaces.begin(), std::move(interface));
+    return true;
+}
+
 
 bool Namespace::prepareNamespaces()
 {
+    if (!m_dslObj.valid()) {
+        return true;
+    }
+
     auto namespaces = m_dslObj.namespaces();
     m_namespaces.reserve(namespaces.size());
     for (auto& n : namespaces) {
@@ -407,6 +440,10 @@ bool Namespace::prepareNamespaces()
 
 bool Namespace::prepareFields()
 {
+    if (!m_dslObj.valid()) {
+        return true;
+    }
+
     auto fields = m_dslObj.fields();
     m_fields.reserve(fields.size());
     for (auto& dslObj : fields) {
@@ -424,6 +461,10 @@ bool Namespace::prepareFields()
 
 bool Namespace::prepareInterfaces()
 {
+    if (!m_dslObj.valid()) {
+        return true;
+    }
+
     auto interfaces = m_dslObj.interfaces();
     m_interfaces.reserve(interfaces.size());
     for (auto& dslObj : interfaces) {
@@ -441,6 +482,10 @@ bool Namespace::prepareInterfaces()
 
 bool Namespace::prepareMessages()
 {
+    if (!m_dslObj.valid()) {
+        return true;
+    }
+
     auto messages = m_dslObj.messages();
     m_messages.reserve(messages.size());
     for (auto& dslObj : messages) {
@@ -458,6 +503,10 @@ bool Namespace::prepareMessages()
 
 bool Namespace::prepareFrames()
 {
+    if (!m_dslObj.valid()) {
+        return true;
+    }
+
     auto frames = m_dslObj.frames();
     m_frames.reserve(frames.size());
     for (auto& dslObj : frames) {
