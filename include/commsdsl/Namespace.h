@@ -29,6 +29,7 @@ public:
     Namespace(const Namespace& other);
     ~Namespace();
 
+    bool valid() const;
     const std::string& name() const;
     const std::string& description() const;
     NamespacesList namespaces() const;

@@ -16,6 +16,11 @@ Namespace::Namespace(const Namespace &) = default;
 
 Namespace::~Namespace() = default;
 
+bool Namespace::valid() const
+{
+    return m_pImpl != nullptr;
+}
+
 const std::string& Namespace::name() const
 {
     assert(m_pImpl != nullptr);
