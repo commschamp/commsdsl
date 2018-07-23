@@ -503,8 +503,11 @@ void SetTestSuite::test15()
     auto& b1 = bits.find("B1")->second;
     auto& otherB1 = bits.find("otherB1")->second;
     TS_ASSERT_EQUALS(b0.m_idx, 0);
+    TS_ASSERT_EQUALS(b0.m_displayName, "Bit 0");
     TS_ASSERT_EQUALS(b1.m_idx, 1);
+    TS_ASSERT_EQUALS(b1.m_displayName, "Bit 1");
     TS_ASSERT_EQUALS(otherB1.m_idx, 1);
+    TS_ASSERT_EQUALS(otherB1.m_displayName, "Other Bit 1");
     TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
     auto r1 = revBits.equal_range(1);
     TS_ASSERT_EQUALS(std::distance(r1.first, r1.second), 2);

@@ -5,11 +5,15 @@
         version="5">
     <fields>
         <set name="Set1" type="uint8">
-            <bit name="B0" idx="0" />
-            <bit name="B1" idx="1" />
+            <bit name="B0" idx="0" displayName="Bit 0"/>
+            <bit name="B1" idx="1">
+                <displayName value="Bit 1" />
+            </bit>
         </set>
         <set name="Set2" reuse="Set1" endian="little" nonUniqueAllowed="true" >
-            <bit name="otherB1" idx="1" />
+            <bit name="otherB1" idx="1">
+                <displayName>Other Bit 1</displayName>
+            </bit>
         </set>
     </fields>
 </schema>
