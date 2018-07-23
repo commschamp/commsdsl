@@ -70,6 +70,8 @@ public:
     const SpecialValues& specialValues() const;
     Units units() const;
     bool validCheckVersion() const;
+    unsigned displayDecimals() const;
+    std::intmax_t displayOffset() const;
 };
 
 inline

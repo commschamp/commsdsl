@@ -19,6 +19,8 @@
                 <validValue value="20" />
                 <scaling value="1/20" />
                 <special name="S2" val="2" />
+                <displayDecimals>1</displayDecimals>
+                <displayOffset>2</displayOffset>
             </int>
         </fields>
     </ns>

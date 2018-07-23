@@ -295,7 +295,9 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::validValueStr(),
         common::validMinStr(),
         common::validMaxStr(),
-        common::validCheckVersionStr()
+        common::validCheckVersionStr(),
+        common::displayDesimalsStr(),
+        common::displayOffsetStr()
     };
 
     return List;
@@ -332,7 +334,9 @@ bool IntFieldImpl::parseImpl()
         updateDefaultValue() &&
         updateValidCheckVersion() &&
         updateValidRanges() &&
-        updateUnits();
+        updateUnits() &&
+        updateDisplayDecimals() &&
+        updateDisplayOffset();
 }
 
 std::size_t IntFieldImpl::minLengthImpl() const
@@ -1039,6 +1043,48 @@ bool IntFieldImpl::updateUnits()
     m_state.m_units = common::strToUnits(iter->second, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::unitsStr(), iter->second);
+        return false;
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::updateDisplayDecimals()
+{
+    if (!validateSinglePropInstance(common::displayDesimalsStr())) {
+        return false;
+    }
+
+    auto iter = props().find(common::displayDesimalsStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_displayDecimals = common::strToUnsigned(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::displayDesimalsStr(), iter->second);
+        return false;
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::updateDisplayOffset()
+{
+    if (!validateSinglePropInstance(common::displayOffsetStr())) {
+        return false;
+    }
+
+    auto iter = props().find(common::displayOffsetStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_displayOffset = common::strToIntMax(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::displayOffsetStr(), iter->second);
         return false;
     }
 

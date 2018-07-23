@@ -570,6 +570,18 @@ const std::string& idReplacementStr()
     return Str;
 }
 
+const std::string& displayDesimalsStr()
+{
+    static const std::string Str("displayDecimals");
+    return Str;
+}
+
+const std::string& displayOffsetStr()
+{
+    static const std::string Str("displayOffset");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

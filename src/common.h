@@ -109,6 +109,8 @@ const std::string& semanticTypeStr();
 const std::string& noneStr();
 const std::string& messageIdStr();
 const std::string& idReplacementStr();
+const std::string& displayDesimalsStr();
+const std::string& displayOffsetStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

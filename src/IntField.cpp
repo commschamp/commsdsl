@@ -84,4 +84,14 @@ bool IntField::validCheckVersion() const
     return cast(m_pImpl)->validCheckVersion();
 }
 
+unsigned IntField::displayDecimals() const
+{
+    return cast(m_pImpl)->displayDecimals();
+}
+
+std::intmax_t IntField::displayOffset() const
+{
+    return cast(m_pImpl)->displayOffset();
+}
+
 } // namespace commsdsl

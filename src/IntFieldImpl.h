@@ -82,6 +82,16 @@ public:
         return m_state.m_units;
     }
 
+    unsigned displayDecimals() const
+    {
+        return m_state.m_displayDecimals;
+    }
+
+    std::intmax_t displayOffset() const
+    {
+        return m_state.m_displayOffset;
+    }
+
     static Type parseTypeValue(const std::string& value);
 
     static std::size_t maxTypeLength(Type t);
@@ -122,6 +132,8 @@ private:
     bool updateValidRanges();
     bool updateSpecials();
     bool updateUnits();
+    bool updateDisplayDecimals();
+    bool updateDisplayOffset();
     bool checkValidRangeAsAttr(const PropsMap& xmlAttrs);
     bool checkValidRangeAsChild(::xmlNodePtr child);
     bool checkValidRangeProps(const PropsMap& xmlAttrs);
@@ -154,6 +166,8 @@ private:
         ValidRangesList m_validRanges;
         SpecialValues m_specials;
         Units m_units = Units::Unknown;
+        unsigned m_displayDecimals = 0U;
+        std::intmax_t m_displayOffset = 0U;
         bool m_validCheckVersion = false;
     };
 
