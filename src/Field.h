@@ -114,7 +114,8 @@ public:
     static std::string getPublicRefreshForFields(const FieldsList& fields, bool forMessage);
     static std::string getPrivateRefreshForFields(const FieldsList& fields);
 
-    std::string getPluginCreatePropsFunc(const std::string& scope,
+    std::string getPluginCreatePropsFunc(
+        const std::string& scope,
         bool forcedSerialisedHidden,
         bool serHiddenParam = true) const;
 

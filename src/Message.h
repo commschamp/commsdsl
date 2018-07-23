@@ -49,6 +49,8 @@ public:
 private:
 
     bool writeProtocol();
+    bool writePluginHeader();
+    bool writePluginSrc();
     const std::string& getDisplayName() const;
     std::string getDescription() const;
     std::string getFieldsClassesList() const;

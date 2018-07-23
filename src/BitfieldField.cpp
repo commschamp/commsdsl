@@ -154,7 +154,12 @@ std::string BitfieldField::getPluginAnonNamespaceImpl(
     bool forcedSerialisedHidden,
     bool serHiddenParam) const
 {
-    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "<>::";
+    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr();
+    if (!externalRef().empty()) {
+        fullScope += "<>";
+    }
+    fullScope += "::";
+
     common::StringsList props;
     for (auto& f : m_members) {
         props.push_back(f->getPluginCreatePropsFunc(fullScope, forcedSerialisedHidden, serHiddenParam));

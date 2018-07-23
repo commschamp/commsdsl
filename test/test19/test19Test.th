@@ -1,0 +1,70 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test19/Interface1.h"
+#include "test19/Interface2.h"
+#include "test19/message/Msg1.h"
+#include "test19/frame/TestFrame1.h"
+#include "test19/frame/TestFrame2.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+//    void test2();
+
+    using Interface1 =
+        test19::Interface1<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Interface2 =
+        test19::Interface2<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Frame1 = test19::frame::TestFrame1<Interface1>;
+    using Frame2 = test19::frame::TestFrame2<Interface2>;
+
+    using Msg1_1 = test19::message::Msg1<Interface1>;
+    using Msg1_2 = test19::message::Msg1<Interface2>;
+};
+
+void TestSuite::test1()
+{
+    using Frame = Frame1;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0x0, 0x2, 0x5, 0x1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface1>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test19::MsgId_M1);
+}
+
+//void TestSuite::test2()
+//{
+//    using Frame = Frame2;
+//    Frame frame;
+//    static const std::uint8_t Buf[] = {0, 1, 1};
+//    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+//    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+//    Frame::MsgPtr msgPtr;
+//    auto es = frame.read(msgPtr, readIter, BufSize);
+//    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+//    TS_ASSERT(msgPtr);
+//    TS_ASSERT_EQUALS(msgPtr->getId(), test19::MsgId_M1);
+//}

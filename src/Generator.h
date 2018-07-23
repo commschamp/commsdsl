@@ -73,11 +73,17 @@ public:
     std::string startInterfacePluginHeaderWrite(const std::string& externalRef);
     std::string startInterfacePluginSrcWrite(const std::string& externalRef);
 
+    std::string startMessagePluginHeaderWrite(const std::string& externalRef);
+    std::string startMessagePluginSrcWrite(const std::string& externalRef);
+
     std::pair<std::string, std::string>
     startDefaultOptionsWrite();
 
     std::pair<std::string, std::string>
     namespacesForMessage(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
+    namespacesForMessageInPlugin(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
     namespacesForFrame(const std::string& externalRef) const;
@@ -122,6 +128,8 @@ public:
         const std::string& externalRef,
         bool mainIncluded = false,
         bool classIncluded = false);
+
+    std::string scopeForInterfaceInPlugin(const std::string& externalRef);
 
     std::string scopeForFrame(
         const std::string& externalRef,
@@ -206,6 +214,8 @@ public:
     }
 
     std::string pluginCommonSources() const;
+
+    const Interface* getDefaultInterface() const;
 
 private:
 

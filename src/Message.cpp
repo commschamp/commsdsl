@@ -80,6 +80,100 @@ const std::string Template(
     "#^#END_NAMESPACE#$#\n"
 );
 
+static const std::string PluginSingleInterfaceHeaderTemplate(
+    "#pragma once\n\n"
+    "#include <QtCore/QVariantList>\n"
+    "#include \"comms_champion/ProtocolMessageBase.h\"\n"
+    "#include #^#MESSAGE_INC#$#\n"
+    "#include #^#INTERFACE_INC#$#\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "class #^#CLASS_NAME#$# : public\n"
+    "    comms_champion::ProtocolMessageBase<\n"
+    "        #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>,\n"
+    "        #^#CLASS_NAME#$#\n"
+    "    >\n"
+    "{\n"
+    "protected:\n"
+    "    virtual const QVariantList& fieldsPropertiesImpl() const override;\n"
+    "};\n\n"
+    "#^#END_NAMESPACE#$#\n"
+);
+
+static const std::string PluginMultiInterfaceHeaderTemplate(
+    "#pragma once\n\n"
+    "#include <QtCore/QVariantList>\n"
+    "#include \"comms_champion/ProtocolMessageBase.h\"\n"
+    "#include #^#MESSAGE_INC#$#\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "struct #^#CLASS_NAME#$#Fields\n"
+    "{\n"
+    "    static const QVariantList& props();\n"
+    "};\n\n"
+    "template <typename TIterface>"
+    "class #^#CLASS_NAME#$# : public\n"
+    "    comms_champion::ProtocolMessageBase<\n"
+    "        #^#PROT_MESSAGE#$#<TIterface>,\n"
+    "        #^#CLASS_NAME#$#<TIterface>\n"
+    "    >\n"
+    "{\n"
+    "protected:\n"
+    "    virtual const QVariantList& fieldsPropertiesImpl() const override\n"
+    "    {\n"
+    "        return #^#CLASS_NAME#$#Fields::props();\n"
+    "    }\n"
+    "};\n\n"
+    "#^#END_NAMESPACE#$#\n"
+);
+
+static const std::string PluginSingleInterfaceSrcTemplate(
+    "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+    "#include \"comms_champion/property/field.h\"\n"
+    "#^#INCLUDES#$#\n"
+    "namespace cc = comms_champion;\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "namespace\n"
+    "{\n\n"
+    "#^#FIELDS_PROPS#$#\n"
+    "QVariantList createProps()\n"
+    "{\n"
+    "    QVariantList props;\n"
+    "    #^#PROPS_APPENDS#$#\n"
+    "    return props;\n"
+    "}\n\n"
+    "} // namespace\n\n"
+    "const QVariantList& #^#CLASS_NAME#$#::fieldsPropertiesImpl() const\n"
+    "{\n"
+    "    static const QVariantList Props = createProps();\n"
+    "    return Props;\n"
+    "}\n\n"
+    "#^#END_NAMESPACE#$#\n"
+);
+
+static const std::string PluginMultiInterfaceSrcTemplate(
+    "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+    "#include \"comms_champion/property/field.h\"\n\n"
+    "#^#INCLUDES#$#\n"
+    "namespace cc = comms_champion;\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "namespace\n"
+    "{\n\n"
+    "#^#FIELDS_PROPS#$#\n"
+    "QVariantList createProps()\n"
+    "{\n"
+    "    QVariantList props;\n"
+    "    #^#PROPS_APPENDS#$#\n"
+    "    return props;\n"
+    "}\n\n"
+    "} // namespace\n\n"
+    "const QVariantList& #^#CLASS_NAME#$#Fields::props()\n"
+    "{\n"
+    "    static const QVariantList Props = createProps();\n"
+    "    return Props;\n"
+    "}\n\n"
+    "#^#END_NAMESPACE#$#\n"
+);
+
+
 } // namespace
 
 bool Message::prepare()
@@ -124,17 +218,15 @@ bool Message::doesExist() const
 
 bool Message::write()
 {
-    bool exists =
-        m_generator.doesElementExist(
-            m_dslObj.sinceVersion(),
-            m_dslObj.deprecatedSince(),
-            m_dslObj.isDeprecatedRemoved());
-    if (!exists) {
+    if (!doesExist()) {
         return true;
     }
 
     // TODO: write plugin
-    return writeProtocol();
+    return
+        writeProtocol() &&
+        writePluginHeader() &&
+        writePluginSrc();
 }
 
 std::string Message::getDefaultOptions() const
@@ -222,9 +314,109 @@ bool Message::writeProtocol()
     if (!replacements["EXTRA_OPTIONS"].empty()) {
         replacements.insert(std::make_pair("COMMA", ","));
     }
-    // TODO: all values
 
     auto str = common::processTemplate(Template, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Message::writePluginHeader()
+{
+    assert(!m_externalRef.empty());
+
+    auto filePath = m_generator.startMessagePluginHeaderWrite(m_externalRef);
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("MESSAGE_INC", m_generator.headerfileForMessage(m_externalRef, true)));
+    replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
+
+    auto namespaces = m_generator.namespacesForMessageInPlugin(m_externalRef);
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+
+    auto* templ = &PluginMultiInterfaceHeaderTemplate;
+    auto* defaultInterface = m_generator.getDefaultInterface();
+    if (defaultInterface != nullptr) {
+        replacements.insert(std::make_pair("INTERFACE_INC", m_generator.headerfileForInterfaceInPlugin(defaultInterface->externalRef())));
+        replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterfaceInPlugin(defaultInterface->externalRef())));
+        templ = &PluginSingleInterfaceHeaderTemplate;
+    }
+
+    auto str = common::processTemplate(*templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Message::writePluginSrc()
+{
+    assert(!m_externalRef.empty());
+
+    auto filePath = m_generator.startMessagePluginSrcWrite(m_externalRef);
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    common::StringsList fieldsProps;
+    common::StringsList appends;
+    common::StringsList includes;
+    fieldsProps.reserve(m_fields.size());
+    appends.reserve(m_fields.size());
+    auto scope = m_generator.scopeForMessage(m_externalRef, true, true) + common::fieldsSuffixStr() + "<>::";
+    for (auto& f : m_fields) {
+        fieldsProps.push_back(f->getPluginCreatePropsFunc(scope, false, false));
+        appends.push_back("props.append(createProps_" + common::nameToAccessCopy(f->name()) + "());");
+        f->updatePluginIncludes(includes);
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("PROPS_APPENDS", common::listToString(appends, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
+
+    auto namespaces = m_generator.namespacesForMessageInPlugin(m_externalRef);
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+
+    auto* templ = &PluginMultiInterfaceSrcTemplate;
+    auto* defaultInterface = m_generator.getDefaultInterface();
+    if (defaultInterface != nullptr) {
+        templ = &PluginSingleInterfaceSrcTemplate;
+    }
+
+    auto str = common::processTemplate(*templ, replacements);
 
     std::ofstream stream(filePath);
     if (!stream) {

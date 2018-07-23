@@ -193,7 +193,7 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("PLUGIN_SCOPE", generator().scopeForFieldInPlugin(externalRef())));
+    replacements.insert(std::make_pair("PLUGIN_SCOPE", generator().scopeForFieldInPlugin(refFieldDslObj().field().externalRef())));
     replacements.insert(std::make_pair("REF_NAME", common::nameToAccessCopy(refFieldDslObj().field().name())));
     if (!scope.empty()) {
         replacements.insert(std::make_pair("FIELD_SCOPE", scope));

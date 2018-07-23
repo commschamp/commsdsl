@@ -329,6 +329,16 @@ std::string Generator::startInterfacePluginSrcWrite(const std::string& externalR
     return startPluginWrite(common::messageClassStr(), false);
 }
 
+std::string Generator::startMessagePluginHeaderWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef, true, common::messageStr());
+}
+
+std::string Generator::startMessagePluginSrcWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef, false, common::messageStr());
+}
+
 std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
 {
     // TODO: check suffix
@@ -355,6 +365,12 @@ std::pair<std::string, std::string> Generator::namespacesForMessage(
     const std::string& externalRef) const
 {
     return namespacesForElement(externalRef, common::messageStr());
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForMessageInPlugin(const std::string& externalRef) const
+{
+    return namespacesForElement(externalRef, common::messageStr(), true);
 }
 
 std::pair<std::string, std::string> Generator::namespacesForFrame(
@@ -485,6 +501,15 @@ std::string Generator::scopeForInterface(
     }
 
     return scopeForElement(common::messageClassStr(), mainIncluded, classIncluded);
+}
+
+std::string Generator::scopeForInterfaceInPlugin(const std::string& externalRef)
+{
+    if (!externalRef.empty()) {
+        return scopeForElement(externalRef, true, true, common::emptyString(), true);
+    }
+
+    return scopeForElement(common::messageClassStr(), true, true, common::emptyString(), true);
 }
 
 std::string Generator::scopeForFrame(
@@ -969,6 +994,26 @@ std::string Generator::pluginCommonSources() const
     }
 
     return common::listToString(result, "\n", common::emptyString());
+}
+
+const Interface* Generator::getDefaultInterface() const
+{
+    Namespace::InterfacesAccessList list;
+    for (auto& n : m_namespaces) {
+        auto subList = n->getAllInterfaces();
+        list.insert(list.end(), subList.begin(), subList.end());
+    }
+
+    if (list.empty()) {
+        assert(!"Should not happen");
+        return nullptr;
+    }
+
+    if (1U < list.size()) {
+        return nullptr; // More than 1
+    }
+
+    return list.front();
 }
 
 std::pair<std::string, std::string>

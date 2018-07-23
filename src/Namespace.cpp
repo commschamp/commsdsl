@@ -239,6 +239,22 @@ Namespace::MessagesAccessList Namespace::getAllMessages() const
     return result;
 }
 
+Namespace::InterfacesAccessList Namespace::getAllInterfaces() const
+{
+    InterfacesAccessList result;
+    for (auto& n : m_namespaces) {
+        auto list = n->getAllInterfaces();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    result.reserve(result.size() + m_interfaces.size());
+    for (auto& i : m_interfaces) {
+        result.emplace_back(i.get());
+    }
+
+    return result;
+}
+
 bool Namespace::hasInterfaceDefined()
 {
     bool defined =
@@ -379,16 +395,16 @@ common::StringsList Namespace::pluginCommonSources() const
             return prefix + common::fieldStr() + '/' + common::nameToClassCopy(f.first->name()) + common::srcSuffix();
         });
 
-//    for (auto& m : m_messages) {
-//        if (!m->doesExist()) {
-//            continue;
-//        }
-
-//        result.push_back(prefix + common::messageStr() + '/' + common::nameToClassCopy(m->name()) + common::srcSuffix());
-//    }
-
     for (auto& i : m_interfaces) {
         result.push_back(prefix + common::nameToClassCopy(i->name()) + common::srcSuffix());
+    }
+
+    for (auto& m : m_messages) {
+        if (!m->doesExist()) {
+            continue;
+        }
+
+        result.push_back(prefix + common::messageStr() + '/' + common::nameToClassCopy(m->name()) + common::srcSuffix());
     }
 
 

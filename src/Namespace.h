@@ -24,6 +24,7 @@ public:
     using InterfacesList = std::vector<InterfacePtr>;
     using FieldsList = std::vector<FieldPtr>;
     using MessagesAccessList = std::vector<const Message*>;
+    using InterfacesAccessList = std::vector<const Interface*>;
 
     //using FieldsMap = std::map<std::string, FieldPtr>;
     explicit Namespace(Generator& gen, const commsdsl::Namespace& dslObj)
@@ -44,6 +45,7 @@ public:
     std::string getDefaultOptions() const;
 
     MessagesAccessList getAllMessages() const;
+    InterfacesAccessList getAllInterfaces() const;
 
     bool hasInterfaceDefined();
 
