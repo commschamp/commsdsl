@@ -5,9 +5,13 @@
         version="2">
     <fields>
         <enum name="Enum1" type="uint32" length="3" defaultValue="V3">
-            <validValue name="V1" val="1" />
-            <validValue name="V3" val="2" />
-            <validValue name="V2" val="2"/>
+            <validValue name="V1" val="1" displayName="Value1"/>
+            <validValue name="V3" val="2">
+                <displayName value="Value3" />
+            </validValue>
+            <validValue name="V2" val="2">
+                <displayName>Value2</displayName>
+            </validValue>
             <nonUniqueAllowed>True</nonUniqueAllowed>
         </enum>
     </fields>

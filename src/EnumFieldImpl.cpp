@@ -358,7 +358,8 @@ bool EnumFieldImpl::updateValues()
             common::valStr(),
             common::sinceVersionStr(),
             common::deprecatedStr(),
-            common::descriptionStr()
+            common::descriptionStr(),
+            common::displayNameStr()
         };
 
         auto props = XmlWrap::parseNodeProps(vNode);
@@ -383,6 +384,10 @@ bool EnumFieldImpl::updateValues()
         }
 
         if (!XmlWrap::validateSinglePropInstance(vNode, props, common::descriptionStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(vNode, props, common::displayNameStr(), protocol().logger())) {
             return false;
         }
 
@@ -466,6 +471,11 @@ bool EnumFieldImpl::updateValues()
         auto descIter = props.find(common::descriptionStr());
         if (descIter != props.end()) {
             info.m_description = descIter->second;
+        }
+
+        auto dispNameIter = props.find(common::displayNameStr());
+        if (dispNameIter != props.end()) {
+            info.m_displayName = dispNameIter->second;
         }
 
         m_state.m_values.emplace(nameIter->second, info);

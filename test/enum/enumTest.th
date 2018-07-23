@@ -485,9 +485,15 @@ void EnumTestSuite::test16()
     TS_ASSERT(!enumField.isUnique());
     TS_ASSERT_EQUALS(values.size(), 3);
     TS_ASSERT_EQUALS(revValues.size(), values.size());
-    TS_ASSERT_EQUALS(values.find("V1")->second.m_value, 1);
-    TS_ASSERT_EQUALS(values.find("V2")->second.m_value, 2);
-    TS_ASSERT_EQUALS(values.find("V3")->second.m_value, 2);
+    auto& v1 = values.find("V1")->second;
+    auto& v2 = values.find("V2")->second;
+    auto& v3 = values.find("V3")->second;
+    TS_ASSERT_EQUALS(v1.m_value, 1);
+    TS_ASSERT_EQUALS(v1.m_displayName, "Value1");
+    TS_ASSERT_EQUALS(v2.m_value, 2);
+    TS_ASSERT_EQUALS(v2.m_displayName, "Value2");
+    TS_ASSERT_EQUALS(v3.m_value, 2);
+    TS_ASSERT_EQUALS(v3.m_displayName, "Value3");
     TS_ASSERT_EQUALS(revValues.find(1)->second, "V1");
     auto er = revValues.equal_range(2);
     TS_ASSERT_EQUALS(std::distance(er.first, er.second), 2);
