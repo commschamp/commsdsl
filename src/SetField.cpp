@@ -137,8 +137,11 @@ std::string SetField::getPluginPropertiesImpl(bool serHiddenParam) const
 
         prevBitIdx = rBit.first;
 
-        auto& bitName = b.first; // TODO: display name
-        props.push_back(".add(" + common::numToString(rBit.first) + ", \"" + bitName + "\")");
+        auto* bitName = &b.second.m_displayName;
+        if (bitName->empty()) {
+            bitName = &b.first;
+        }
+        props.push_back(".add(" + common::numToString(rBit.first) + ", \"" + *bitName + "\")");
     }
     return common::listToString(props, "\n", common::emptyString());
 }

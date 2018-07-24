@@ -15,7 +15,7 @@
         </enum>
         
         <enum name="E1" type="uint16">
-            <validValue name="V1" val="1" >
+            <validValue name="V1" val="1" displayName="Value1">
                 <description>
                     Some very very very very very very very very very very very very
                     very very very very long long long long long long long long long 
@@ -23,8 +23,8 @@
                 </description>
             </validValue>
             <validValue name="V2" val="2" description="Short description"/>
-            <validValue name="V5" val="5" />
-            <validValue name="V10" val="10" />
+            <validValue name="V5" val="5" displayName="Value 5"/>
+            <validValue name="V10" val="10" displayName="Value 10"/>
         </enum>   
         
         <enum name="E2" type="uint16" nonUniqueAllowed="true">
@@ -45,9 +45,9 @@
         <ref name="f2" field="MsgId" />
         <ref name="f3" field="E2" />
         <enum name="f4" type="uint8" sinceVersion="2" defaultValue="V1" >
-            <validValue name="V1" val="1" />
+            <validValue name="V1" val="1" displayName="Value 1"/>
             <validValue name="V2" val="2" />
-            <validValue name="V3" val="3" sinceVersion="3" />
+            <validValue name="V3" val="3" sinceVersion="3" displayName="Value 3"/>
         </enum>
     </message>
 </schema>

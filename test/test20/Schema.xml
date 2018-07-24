@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test20"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        <int name="Int1" type="uint32" scaling="1/10" displayDecimals="1" />
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <int reuse="Int1" name="f1" />
+        <ref name="f2" field="Int1" />
+        <int name="f3" type="uint32" length="3" serOffset="2" displayOffset="2" />
+    </message>
+</schema>

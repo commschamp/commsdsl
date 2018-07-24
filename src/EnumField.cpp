@@ -127,7 +127,15 @@ common::StringsList EnumField::getValuesList() const
             ba::replace_all(docStr, "\n", "\n///  ");
         }
         else if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
-            docStr = "///< message id @b " + v.second;
+            if (!iter->second.m_displayName.empty()) {
+                docStr = "///< message id <b>" + iter->second.m_displayName + "</b>.";
+            }
+            else {
+                docStr = "///< message id @b " + v.second;
+            }
+        }
+        else if (!iter->second.m_displayName.empty()) {
+            docStr = "///< value <b>" + iter->second.m_displayName + "</b>.";
         }
         else {
             docStr = "///< value @b " + v.second;
@@ -382,8 +390,11 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
         prevValueValid = true;
         prevValue = rVal.first;
 
-        auto& valName = v.first; // TODO: display name
-        props.push_back(".add(\"" + valName + "\", " + common::numToString(v.second.m_value) + ")");
+        auto* valName = &v.second.m_displayName;
+        if (valName->empty()) {
+            valName = &v.first;
+        }
+        props.push_back(".add(\"" + *valName + "\", " + common::numToString(v.second.m_value) + ")");
     }
     return common::listToString(props, "\n", common::emptyString());
 }
