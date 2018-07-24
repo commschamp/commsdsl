@@ -116,7 +116,8 @@ const XmlWrap::NamesList&FloatFieldImpl::extraPropsNamesImpl() const
         common::validMinStr(),
         common::validMaxStr(),
         common::validCheckVersionStr(),
-        common::unitsStr()
+        common::unitsStr(),
+        common::displayDesimalsStr()
     };
 
     return List;
@@ -150,7 +151,8 @@ bool FloatFieldImpl::parseImpl()
         updateDefaultValue() &&
         updateValidCheckVersion() &&
         updateValidRanges() &&
-        updateUnits();
+        updateUnits() &&
+        updateDisplayDecimals();
 }
 
 std::size_t FloatFieldImpl::minLengthImpl() const
@@ -533,6 +535,27 @@ bool FloatFieldImpl::updateUnits()
     m_state.m_units = common::strToUnits(iter->second, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::unitsStr(), iter->second);
+        return false;
+    }
+
+    return true;
+}
+
+bool FloatFieldImpl::updateDisplayDecimals()
+{
+    if (!validateSinglePropInstance(common::displayDesimalsStr())) {
+        return false;
+    }
+
+    auto iter = props().find(common::displayDesimalsStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_displayDecimals = common::strToUnsigned(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::displayDesimalsStr(), iter->second);
         return false;
     }
 

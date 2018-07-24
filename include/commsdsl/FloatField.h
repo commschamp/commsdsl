@@ -53,6 +53,7 @@ public:
     const SpecialValues& specialValues() const;
     bool validCheckVersion() const;
     Units units() const;
+    unsigned displayDecimals() const;
 };
 
 inline

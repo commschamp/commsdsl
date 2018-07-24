@@ -64,4 +64,9 @@ Units FloatField::units() const
     return cast(m_pImpl)->units();
 }
 
+unsigned FloatField::displayDecimals() const
+{
+    return cast(m_pImpl)->displayDecimals();
+}
+
 } // namespace commsdsl
