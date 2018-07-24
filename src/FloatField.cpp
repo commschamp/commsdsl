@@ -637,4 +637,16 @@ void FloatField::checkValidityOpt(FloatField::StringsList& list) const
     }
 }
 
+std::string commsdsl2comms::FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
+{
+    static_cast<void>(serHiddenParam);
+    auto obj = floatFieldDslObj();
+    auto decimals = obj.displayDecimals();
+    if (decimals == 0U) {
+        return common::emptyString();
+    }
+
+    return ".decimals(" + common::numToString(decimals) + ")";
+}
+
 } // namespace commsdsl2comms

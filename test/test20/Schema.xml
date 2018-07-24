@@ -15,5 +15,8 @@
         <int reuse="Int1" name="f1" />
         <ref name="f2" field="Int1" />
         <int name="f3" type="uint32" length="3" serOffset="2" displayOffset="2" />
+        <float name="f4" type="float">
+            <displayDecimals>4</displayDecimals>
+        </float>
     </message>
 </schema>
