@@ -17,6 +17,7 @@ public:
 protected:
     virtual bool prepareImpl() override;
     virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual void updatePluginIncludesImpl(IncludesList& includes) const override;
     virtual std::size_t maxLengthImpl() const override;
     virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
@@ -30,6 +31,11 @@ protected:
         const Field& field,
         const std::string& nameOverride,
         bool forcedVersionOptional) const override;
+    virtual std::string getPluginAnonNamespaceImpl(
+        const std::string& scope,
+        bool forcedSerialisedHidden,
+        bool serHiddenParam) const override;
+    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
 
 private:
     using StringsList = common::StringsList;
@@ -41,6 +47,8 @@ private:
     void checkCountPrefixOpt(StringsList& list) const;
     void checkLengthPrefixOpt(StringsList& list) const;
     void checkElemLengthPrefixOpt(StringsList& list) const;
+    bool isElemForcedSerialisedHiddenInPlugin() const;
+    std::string getPrefixName() const;
 
 
     commsdsl::ListField listFieldDslObj() const

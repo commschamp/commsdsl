@@ -274,6 +274,28 @@ std::string IntField::getCompareToFieldImpl(
     return strGenFunc(otherField.getFieldChangedSignType());
 }
 
+std::string IntField::getPluginPropertiesImpl(bool serHiddenParam) const
+{
+    common::StringsList props;
+    static_cast<void>(serHiddenParam);
+    auto obj = intFieldDslObj();
+    auto decimals = obj.displayDecimals();
+    auto offset = obj.displayOffset();
+    if (decimals != 0U) {
+        props.push_back(".scaledDecimals(" + common::numToString(decimals) + ')');
+    }
+
+    if (offset != 0) {
+        props.push_back(".displayOffset(" + common::numToString(offset) + ')');
+    }
+
+    if (props.empty()) {
+        return common::emptyString();
+    }
+
+    return common::listToString(props, "\n", common::emptyString());
+}
+
 std::string IntField::getFieldBaseParams() const
 {
     auto obj = intFieldDslObj();
@@ -793,28 +815,6 @@ bool IntField::isUnsigned() const
 
     auto iter = std::find(std::begin(Map), std::end(Map), type);
     return iter !=std::end(Map);
-}
-
-std::string commsdsl2comms::IntField::getPluginPropertiesImpl(bool serHiddenParam) const
-{
-    common::StringsList props;
-    static_cast<void>(serHiddenParam);
-    auto obj = intFieldDslObj();
-    auto decimals = obj.displayDecimals();
-    auto offset = obj.displayOffset();
-    if (decimals != 0U) {
-        props.push_back(".scaledDecimals(" + common::numToString(decimals) + ')');
-    }
-
-    if (offset != 0) {
-        props.push_back(".displayOffset(" + common::numToString(offset) + ')');
-    }
-
-    if (props.empty()) {
-        return common::emptyString();
-    }
-
-    return common::listToString(props, "\n", common::emptyString());
 }
 
 } // namespace commsdsl2comms

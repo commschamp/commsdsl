@@ -218,6 +218,22 @@ void ListField::updateIncludesImpl(IncludesList& includes) const
     } while (false);
 }
 
+void ListField::updatePluginIncludesImpl(Field::IncludesList& includes) const
+{
+    if (m_element) {
+        return;
+    }
+
+    auto obj = listFieldDslObj();
+    auto elemField = obj.elementField();
+    assert(elemField.valid());
+    auto extRef = elemField.externalRef();
+    assert(!extRef.empty());
+    auto* elemFieldPtr = generator().findField(extRef, false);
+    assert(elemFieldPtr != nullptr);
+    elemFieldPtr->updatePluginIncludes(includes);
+}
+
 std::size_t ListField::maxLengthImpl() const
 {
     auto obj = listFieldDslObj();
@@ -322,6 +338,89 @@ std::string ListField::getCompareToFieldImpl(
     static_cast<void>(forcedVersionOptional);
     assert(!"List field is not expected to be comparable");
     return common::emptyString();
+}
+
+std::string ListField::getPluginAnonNamespaceImpl(
+    const std::string& scope,
+    bool forcedSerialisedHidden,
+    bool serHiddenParam) const
+{
+    if (!m_element) {
+        return common::emptyString();
+    }
+
+    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr();
+    if (!externalRef().empty()) {
+        fullScope += "<>";
+    }
+    fullScope += "::";
+
+    if (isElemForcedSerialisedHiddenInPlugin()) {
+        forcedSerialisedHidden = true;
+        serHiddenParam = false;
+    }
+
+    static const std::string Templ =
+        "struct #^#CLASS_NAME#$#Members\n"
+        "{\n"
+        "    #^#PROPS#$#\n"
+        "};\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("PROPS", m_element->getPluginCreatePropsFunc(fullScope, forcedSerialisedHidden, serHiddenParam)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string ListField::getPluginPropertiesImpl(bool serHiddenParam) const
+{
+    static_cast<void>(serHiddenParam);
+    auto obj = listFieldDslObj();
+    common::StringsList props;
+    bool elemForcedSerHidden = isElemForcedSerialisedHiddenInPlugin();
+    if (elemForcedSerHidden) {
+        serHiddenParam = false;
+    }
+
+    if (m_element) {
+        auto func =
+            common::nameToClassCopy(name()) + common::membersSuffixStr() +
+            "::createProps_" + common::nameToAccessCopy(m_element->name()) + "(";
+        if (serHiddenParam) {
+            func += common::serHiddenStr();
+        }
+        func += ")";
+        props.push_back(".add(" + func + ")");
+    }
+    else {
+        auto elemField = obj.elementField();
+        assert(elemField.valid());
+        auto extRef = elemField.externalRef();
+        assert(!extRef.empty());
+        auto scope = generator().scopeForFieldInPlugin(extRef);
+        auto func = scope + "createProps_" + common::nameToAccessCopy(elemField.name()) +
+        "(Field::ValueType::value_type::name()";
+        if (serHiddenParam) {
+            func += ", " + common::serHiddenStr();
+        }
+        func += ")";
+        props.push_back(".add(" + func + ")");
+    }
+
+    do {
+        if (elemForcedSerHidden) {
+            break;
+        }
+
+        if ((!obj.hasCountPrefixField()) && (!obj.hasLengthPrefixField())) {
+            props.push_back(".serialisedHidden()");
+            break;
+        }
+
+        props.push_back(".prefixName(\"" + getPrefixName() + "\")");
+        props.push_back(".showPrefix()");
+    } while (false);
+    return common::listToString(props, "\n", common::emptyString());
 }
 
 std::string ListField::getFieldOpts(const std::string& scope) const
@@ -577,5 +676,47 @@ void ListField::checkElemLengthPrefixOpt(ListField::StringsList& list) const
     list.push_back("comms::option::" + opt + "<" + prefixName + '>');
 }
 
+bool ListField::isElemForcedSerialisedHiddenInPlugin() const
+{
+    auto obj = listFieldDslObj();
+    return obj.hasElemLengthPrefixField();
+}
+
+std::string ListField::getPrefixName() const
+{
+    auto obj = listFieldDslObj();
+    do {
+        if (!obj.hasCountPrefixField()) {
+            break;
+        }
+
+        if (m_countPrefix) {
+            return m_countPrefix->displayName();
+        }
+
+        auto countField = obj.countPrefixField();
+        assert(countField.valid());
+        auto* name = &countField.displayName();
+        if (name->empty()) {
+            name = &countField.name();
+        }
+        return *name;
+    } while (false);
+
+    assert(obj.hasLengthPrefixField());
+
+    if (m_lengthPrefix) {
+        return m_lengthPrefix->displayName();
+    }
+
+    auto lengthPrefix = obj.countPrefixField();
+    assert(lengthPrefix.valid());
+    auto* name = &lengthPrefix.displayName();
+    if (name->empty()) {
+        name = &lengthPrefix.name();
+    }
+    return *name;
+
+}
 
 } // namespace commsdsl2comms

@@ -302,6 +302,18 @@ std::string FloatField::getClassDefinitionImpl(const std::string& scope, const s
     return common::processTemplate(*templPtr, replacements);
 }
 
+std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
+{
+    static_cast<void>(serHiddenParam);
+    auto obj = floatFieldDslObj();
+    auto decimals = obj.displayDecimals();
+    if (decimals == 0U) {
+        return common::emptyString();
+    }
+
+    return ".decimals(" + common::numToString(decimals) + ")";
+}
+
 std::string FloatField::getFieldBaseParams() const
 {
     auto obj = floatFieldDslObj();
@@ -635,18 +647,6 @@ void FloatField::checkValidityOpt(FloatField::StringsList& list) const
     if (!obj.validRanges().empty()) {
         list.push_back("comms::option::InvalidByDefault");
     }
-}
-
-std::string commsdsl2comms::FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
-{
-    static_cast<void>(serHiddenParam);
-    auto obj = floatFieldDslObj();
-    auto decimals = obj.displayDecimals();
-    if (decimals == 0U) {
-        return common::emptyString();
-    }
-
-    return ".decimals(" + common::numToString(decimals) + ")";
 }
 
 } // namespace commsdsl2comms

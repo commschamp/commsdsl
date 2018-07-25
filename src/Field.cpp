@@ -60,9 +60,9 @@ void Field::updateIncludes(Field::IncludesList& includes) const
 
 void Field::updatePluginIncludes(Field::IncludesList& includes) const
 {
-//    if (!m_externalRef.empty()) {
-//        common::mergeInclude(m_generator.headerfileForFieldInPlugin(m_externalRef, false), includes);
-//    }
+    if (!m_externalRef.empty()) {
+        common::mergeInclude(m_generator.headerfileForFieldInPlugin(m_externalRef, false), includes);
+    }
     updatePluginIncludesImpl(includes);
 }
 
@@ -783,6 +783,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
     bool serHiddenParam) const
 {
     static const std::string Templ =
+        "#^#SER_HIDDEN_CAST#$#\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
         "return\n"
         "    cc::property::field::ForField<Field>()\n"
@@ -792,6 +793,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         "        .asMap();\n";
 
     static const std::string VerOptTempl =
+        "#^#SER_HIDDEN_CAST#$#\n"
         "using InnerField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#Field;\n"
         "auto props =\n"
         "    cc::property::field::ForField<InnerField>()\n"
@@ -831,6 +833,10 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
     }
     else {
         replacements.insert(std::make_pair("NAME_PROP", "Field::name()"));
+    }
+
+    if (serHiddenParam) {
+        replacements.insert(std::make_pair("SER_HIDDEN_CAST", "static_cast<void>(serHidden);"));
     }
 
     if (forcedSerialisedHidden) {
