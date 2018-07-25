@@ -12,7 +12,8 @@ public:
 private:
     explicit AllMessages(Generator& generator) : m_generator(generator) {}
 
-    bool writeDefinition() const;
+    bool writeProtocolDefinition() const;
+    bool writePluginDefinition() const;
 
 private:
     Generator& m_generator;

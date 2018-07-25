@@ -428,6 +428,11 @@ std::string Generator::headerfileForMessage(const std::string& externalRef, bool
     return headerfileForElement(externalRef, quotes, common::messageStr());
 }
 
+std::string Generator::headerfileForMessageInPlugin(const std::string& externalRef, bool quotes)
+{
+    return headerfileForElement(externalRef, quotes, common::messageStr(), true);
+}
+
 std::string Generator::headerfileForFrame(const std::string& externalRef, bool quotes)
 {
     return headerfileForElement(externalRef, quotes, common::frameStr());
@@ -489,6 +494,11 @@ std::string Generator::scopeForMessage(
     bool classIncluded)
 {
     return scopeForElement(externalRef, mainIncluded, classIncluded, common::messageStr());
+}
+
+std::string Generator::scopeForMessageInPlugin(const std::string& externalRef)
+{
+    return scopeForElement(externalRef, true, true, common::messageStr(), true);
 }
 
 std::string Generator::scopeForInterface(

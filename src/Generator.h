@@ -105,6 +105,8 @@ public:
 
     std::string headerfileForMessage(const std::string& externalRef, bool quotes = true);
 
+    std::string headerfileForMessageInPlugin(const std::string& externalRef, bool quotes = true);
+
     std::string headerfileForFrame(const std::string& externalRef, bool quotes = true);
 
     std::string headerfileForField(const std::string& externalRef, bool quotes = true);
@@ -123,6 +125,8 @@ public:
         const std::string& externalRef,
         bool mainIncluded = false,
         bool classIncluded = false);
+
+    std::string scopeForMessageInPlugin(const std::string& externalRef);
 
     std::string scopeForInterface(
         const std::string& externalRef,
