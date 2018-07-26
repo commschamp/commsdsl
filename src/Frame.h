@@ -42,6 +42,9 @@ public:
 private:
 
     bool writeProtocol();
+    bool writePluginTransportMessageHeader();
+    bool writePluginTransportMessageSrc();
+
     std::string getDescription() const;
     std::string getIncludes() const;
     std::string getLayersDef() const;

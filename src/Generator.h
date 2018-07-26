@@ -61,6 +61,9 @@ public:
     startFrameProtocolWrite(
         const std::string& externalRef);
 
+    std::string startFrameTransportMessageProtocolHeaderWrite(const std::string& externalRef);
+    std::string startFrameTransportMessageProtocolSrcWrite(const std::string& externalRef);
+
     std::pair<std::string, std::string>
     startInterfaceProtocolWrite(const std::string& externalRef);
 
@@ -256,6 +259,10 @@ private:
         bool classIncluded,
         const std::vector<std::string>& subNs,
         bool plugin = false);
+
+    std::pair<std::string, std::string> startProtocolWrite(
+        const std::string& externalRef,
+        const std::string subNs = common::emptyString());
 
     std::string startPluginWrite(
         const std::string& externalRef,

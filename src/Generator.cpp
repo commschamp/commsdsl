@@ -186,119 +186,38 @@ std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
         return std::make_pair(common::emptyString(), common::emptyString());
     }
 
-    // TODO: check replacement
-
-    // TODO: check suffix
-    std::string suffix;
-
-    auto ns = refToNs(externalRef);
-    auto className = refToName(externalRef);
-    assert(!className.empty());
-    className += suffix;
-    common::nameToClass(className);
-    auto fileName = className + common::headerSuffix();
-    auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns) / common::messageStr();
-    auto fullPath = dirPath / fileName;
-    auto fullPathStr = fullPath.string();
-
-    m_logger.info("Generating " + fullPathStr);
-
-    if (!createDir(dirPath)) {
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
-    return std::make_pair(std::move(fullPathStr), className);
+    return startProtocolWrite(externalRef, common::messageStr());
 }
 
 std::pair<std::string, std::string> Generator::startFrameProtocolWrite(
     const std::string& externalRef)
 {
-    // TODO: check replacement
-
-    // TODO: check suffix
-    std::string suffix;
-
-    auto ns = refToNs(externalRef);
-    auto className = refToName(externalRef);
-    assert(!className.empty());
-    className += suffix;
-    common::nameToClass(className);
-    auto fileName = className + common::headerSuffix();
-    auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns) / common::frameStr();
-    auto fullPath = dirPath / fileName;
-    auto fullPathStr = fullPath.string();
-
-    m_logger.info("Generating " + fullPathStr);
-
-    if (!createDir(dirPath)) {
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
-    return std::make_pair(std::move(fullPathStr), className);
+    return startProtocolWrite(externalRef, common::frameStr());
 }
 
+std::string Generator::startFrameTransportMessageProtocolHeaderWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef + common::transportMessageSuffixStr(), true, common::frameStr());
+}
+
+std::string Generator::startFrameTransportMessageProtocolSrcWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef + common::transportMessageSuffixStr(), false, common::frameStr());
+}
 
 std::pair<std::string, std::string> Generator::startInterfaceProtocolWrite(
     const std::string& externalRef)
 {
-    std::string externalRefCpy(externalRef);
-
-    if (externalRefCpy.empty()) {
-        // Default interface
-        externalRefCpy = common::messageClassStr();
+    if (!externalRef.empty()) {
+        return startProtocolWrite(externalRef);
     }
-
-    // TODO: check suffix
-    std::string suffix;
-
-    auto ns = refToNs(externalRefCpy);
-    auto className = refToName(externalRefCpy);
-    assert(!className.empty());
-    className += suffix;
-    common::nameToClass(className);
-    auto fileName = className + common::headerSuffix();
-    auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns);
-    auto fullPath = dirPath / fileName;
-    auto fullPathStr = fullPath.string();
-
-    m_logger.info("Generating " + fullPathStr);
-
-    if (!createDir(dirPath)) {
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
-    return std::make_pair(std::move(fullPathStr), className);
+    return startProtocolWrite(common::messageClassStr());
 }
 
 std::pair<std::string, std::string> Generator::startFieldProtocolWrite(
     const std::string& externalRef)
 {
-    if (externalRef.empty()) {
-        assert(!"Should not happen");
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
-
-    // TODO: check suffix
-    std::string suffix;
-
-    auto ns = refToNs(externalRef);
-    auto className = refToName(externalRef);
-    assert(!className.empty());
-    className += suffix;
-    common::nameToClass(className);
-    auto fileName = className + common::headerSuffix();
-    auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns) / common::fieldStr();
-    auto fullPath = dirPath / fileName;
-    auto fullPathStr = fullPath.string();
-
-    m_logger.info("Generating " + fullPathStr);
-
-    if (!createDir(dirPath)) {
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
-    return std::make_pair(std::move(fullPathStr), className);
+    return startProtocolWrite(externalRef, common::fieldStr());
 }
 
 std::string Generator::startFieldPluginHeaderWrite(const std::string& externalRef)
@@ -341,24 +260,7 @@ std::string Generator::startMessagePluginSrcWrite(const std::string& externalRef
 
 std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
 {
-    // TODO: check suffix
-    std::string suffix;
-
-    auto className = common::defaultOptionsStr() + suffix;
-    auto fileName = className + common::headerSuffix();
-    auto dirPath = getProtocolDefRootDir();
-
-    auto fullPath = dirPath / fileName;
-    auto fullPathStr = fullPath.string();
-
-    m_logger.info("Generating " + fullPathStr);
-
-    if (!createDir(dirPath)) {
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
-    return std::make_pair(std::move(fullPathStr), className);
-
+    return startProtocolWrite(common::defaultOptionsStr());
 }
 
 std::pair<std::string, std::string> Generator::namespacesForMessage(
@@ -1148,6 +1050,41 @@ std::string Generator::scopeForElement(
         result += common::nameToClassCopy(refToName(externalRef));
     }
     return result;
+}
+
+std::pair<std::string, std::string>
+Generator::startProtocolWrite(const std::string& externalRef, const std::string subNs)
+{
+    if (externalRef.empty()) {
+        assert(!"Should not happen");
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+
+    // TODO: check suffix
+    std::string suffix;
+
+    auto ns = refToNs(externalRef);
+    auto className = refToName(externalRef);
+    assert(!className.empty());
+    className += suffix;
+    common::nameToClass(className);
+    auto fileName = className + common::headerSuffix();
+    auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns);
+    if (!subNs.empty()) {
+        dirPath /= common::fieldStr();
+    }
+
+    auto fullPath = dirPath / fileName;
+    auto fullPathStr = fullPath.string();
+
+    m_logger.info("Generating " + fullPathStr);
+
+    if (!createDir(dirPath)) {
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+    return std::make_pair(std::move(fullPathStr), className);
 }
 
 std::string Generator::startPluginWrite(

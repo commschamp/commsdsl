@@ -173,6 +173,12 @@ const std::string& cmakeListsFileStr()
     return Str;
 }
 
+const std::string& transportMessageSuffixStr()
+{
+    static const std::string Str("TransportMessage");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

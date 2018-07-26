@@ -120,7 +120,10 @@ bool Frame::prepare()
 bool Frame::write()
 {
     // TODO: write plugin
-    return writeProtocol();
+    return
+        writeProtocol() &&
+        writePluginTransportMessageHeader() &&
+        writePluginTransportMessageSrc();
 }
 
 std::string Frame::getDefaultOptions() const
@@ -175,6 +178,60 @@ bool Frame::writeProtocol()
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
 
     auto str = common::processTemplate(Template, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Frame::writePluginTransportMessageHeader()
+{
+    auto filePath = m_generator.startFrameTransportMessageProtocolHeaderWrite(m_externalRef);
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+
+    std::string str;
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Frame::writePluginTransportMessageSrc()
+{
+    auto filePath = m_generator.startFrameTransportMessageProtocolSrcWrite(m_externalRef);
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+
+    std::string str;
 
     std::ofstream stream(filePath);
     if (!stream) {
