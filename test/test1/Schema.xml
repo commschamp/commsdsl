@@ -19,4 +19,12 @@
         </fields>
     </message>
     <message name="Msg2" id="2" />    
+    <frame name="Frame">
+        <id name="ID">
+            <field>
+                <int type="uint8" name="id" />
+            </field>
+        </id>
+        <payload name="Data" />
+    </frame>
 </schema>

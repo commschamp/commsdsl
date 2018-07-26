@@ -59,6 +59,8 @@ public:
     std::string externalRef() const;
     bool addDefaultInterface();
 
+    bool hasFrame() const;
+
 private:
 
     using MessagesList = std::vector<MessagePtr>;

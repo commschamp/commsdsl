@@ -548,4 +548,19 @@ void Namespace::recordAccessedField(const Field* field)
     m_accessedFields.insert(std::make_pair(field, false));
 }
 
+bool commsdsl2comms::Namespace::hasFrame() const
+{
+    if (!m_frames.empty()) {
+        return true;
+    }
+
+    return
+        std::any_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& n)
+            {
+                return n->hasFrame();
+            });
+}
+
 }

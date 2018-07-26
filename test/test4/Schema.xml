@@ -38,4 +38,12 @@
         <int name="f4" type="uint16" sinceVersion="2" />
         <ref name="f5" field="I3" sinceVersion="4" deprecated="5" />
     </message>
+    <frame name="Frame">
+        <id name="ID">
+            <field>
+                <int type="uint8" name="id" />
+            </field>
+        </id>
+        <payload name="Data" />
+    </frame>
 </schema>

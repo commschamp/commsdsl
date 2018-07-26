@@ -11,5 +11,13 @@
         <message name="Msg1" id="1">
             <ref name="f1" field="ns1.Int2" />
         </message>
+        <frame name="Frame">
+            <id name="ID">
+                <field>
+                    <int type="uint8" name="id" />
+                </field>
+            </id>
+            <payload name="Data" />
+        </frame>
     </ns>
 </schema>

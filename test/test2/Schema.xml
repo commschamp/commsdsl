@@ -23,4 +23,12 @@
             <int name="f2" type="uint32" />
         </fields>
     </message>
+    <frame name="Frame">
+        <id name="ID">
+            <field>
+                <int type="uint8" name="id" />
+            </field>
+        </id>
+        <payload name="Data" />
+    </frame>
 </schema>

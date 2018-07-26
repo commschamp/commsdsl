@@ -1,6 +1,7 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test1/Message.h"
+#include "test1/frame/Frame.h"
 #include "test1/message/Msg1.h"
 #include "test1/message/Msg2.h"
 
@@ -8,6 +9,7 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     using Interface =
         test1::Message<
@@ -22,6 +24,7 @@ public:
 
     using Msg1 = test1::message::Msg1<Interface>;
     using Msg2 = test1::message::Msg2<Interface>;
+    using Frame = test1::frame::Frame<Interface>;
 
     void polymorphicNameCheck(const Interface& msg, const char* value)
     {
@@ -37,4 +40,16 @@ void TestSuite::test1()
     Msg2 msg2;
     polymorphicNameCheck(msg2, "Msg2");
 
+}
+
+void TestSuite::test2()
+{
+    Frame frame;
+    Frame::MsgPtr msg;
+    static const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    auto es = frame.read(msg, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msg->getId(), 1U);
 }

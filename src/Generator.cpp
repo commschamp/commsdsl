@@ -767,6 +767,18 @@ bool Generator::prepare()
         }
     }
 
+    bool hasFrame =
+        std::any_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [](auto& n)
+            {
+                return n->hasFrame();
+            });
+
+    if (!hasFrame) {
+        m_logger.error("Schema file(s) must define at least one frame.");
+        return false;
+    }
 
     m_messageIdField = findMessageIdField();
     return true;
