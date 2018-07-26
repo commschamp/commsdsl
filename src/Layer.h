@@ -32,6 +32,7 @@ public:
 
     using IncludesList = common::StringsList;
     void updateIncludes(IncludesList& includes) const;
+    void updatePluginIncludes(IncludesList& includes) const;
 
     bool prepare();
 
@@ -48,6 +49,10 @@ public:
     {
         return rearangeImpl(layers, success);
     }
+
+    std::string getFieldScopeForPlugin(const std::string& scope) const;
+    std::string getFieldAccNameForPlugin() const;
+    std::string getPluginCreatePropsFunc(const std::string& scope) const;
 
 protected:
     Layer(Generator& generator, commsdsl::Layer field)

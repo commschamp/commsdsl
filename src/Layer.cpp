@@ -44,6 +44,25 @@ void Layer::updateIncludes(Layer::IncludesList& includes) const
     updateIncludesImpl(includes);
 }
 
+void Layer::updatePluginIncludes(Layer::IncludesList& includes) const
+{
+    if (m_field) {
+        m_field->updatePluginIncludes(includes);
+        return;
+    }
+
+    auto dslField = m_dslObj.field();
+    if (!dslField.valid()) {
+        return;
+    }
+
+    auto extRef = dslField.externalRef();
+    assert (!extRef.empty());
+    auto* fieldPtr = m_generator.findField(extRef, false);
+    assert(fieldPtr != nullptr);
+    fieldPtr->updatePluginIncludes(includes);
+}
+
 bool Layer::prepare()
 {
     auto dslField = m_dslObj.field();
@@ -141,7 +160,97 @@ std::string Layer::getDefaultOptions(const std::string& scope) const
         "/// @brief Extra options for @ref " +
         fullScope + className + " layer.\n" +
         "using " + className +
-        " = comms::option::EmptyOption;\n";
+            " = comms::option::EmptyOption;\n";
+}
+
+std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
+{
+    if (m_field) {
+        return
+            scope + common::nameToClassCopy(name()) + common::membersSuffixStr() +
+            "::" + common::nameToClassCopy(m_field->name());
+    }
+
+    if (kind() != commsdsl::Layer::Kind::Payload) {
+        auto dslField = m_dslObj.field();
+        assert(dslField.valid());
+        auto extRef = dslField.externalRef();
+        assert(!extRef.empty());
+        return m_generator.scopeForField(extRef, true, true);
+    }
+
+    return scope + common::nameToClassCopy(name()) + "::Field";
+}
+
+std::string Layer::getFieldAccNameForPlugin() const
+{
+    auto dslField = m_dslObj.field();
+    if (dslField.valid()) {
+        return common::nameToAccessCopy(dslField.name());
+    }
+
+    return common::nameToAccessCopy(name());
+}
+
+std::string Layer::getPluginCreatePropsFunc(const std::string& scope) const
+{
+    std::string func;
+    do {
+        if (m_field) {
+            auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+            func = m_field->getPluginCreatePropsFunc(fullScope, false, false);
+            break;
+        }
+
+        auto dslField = m_dslObj.field();
+        if (dslField.valid()) {
+            auto extRef = dslField.externalRef();
+            assert(!extRef.empty());
+            auto extScope = m_generator.scopeForFieldInPlugin(extRef);
+
+            static const std::string Templ =
+                "QVariantMap createProps_#^#NAME#$#()\n"
+                "{\n"
+                "    return #^#EXT_SCOPE#$#createProps_#^#EXT_NAME#$#(\"#^#DISP_NAME#$#\");\n"
+                "}\n";
+
+
+            auto* dispName = &dslField.displayName();
+            if (dispName->empty()) {
+                dispName = &dslField.name();
+            }
+
+            common::ReplacementMap replacements;
+            replacements.insert(std::make_pair("NAME", getFieldAccNameForPlugin()));
+            replacements.insert(std::make_pair("EXT_SCOPE", std::move(extScope)));
+            replacements.insert(std::make_pair("EXT_NAME", common::nameToAccessCopy(dslField.name())));
+            replacements.insert(std::make_pair("DISP_NAME", *dispName));
+            func = common::processTemplate(Templ, replacements);
+            break;
+        }
+
+        static const std::string Templ =
+            "QVariantMap createProps_#^#NAME#$#()\n"
+            "{\n"
+            "    return cc::property::field::ArrayList().name(#^#DISP_NAME#$#).asMap();\n"
+            "}\n";
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("NAME", getFieldAccNameForPlugin()));
+        replacements.insert(std::make_pair("DISP_NAME", name()));
+        func = common::processTemplate(Templ, replacements);
+    } while (false);
+
+    static const std::string Templ =
+        "struct #^#CLASS_NAME#$#Layer\n"
+        "{\n"
+        "    #^#FUNC#$#\n"
+        "};\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("FUNC", std::move(func)));
+    return common::processTemplate(Templ, replacements);
 }
 
 const Field* Layer::getField() const
