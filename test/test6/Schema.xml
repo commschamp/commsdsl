@@ -33,4 +33,8 @@
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="E1" />
     </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
 </schema>

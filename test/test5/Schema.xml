@@ -50,4 +50,8 @@
             <validValue name="V3" val="3" sinceVersion="3" displayName="Value 3"/>
         </enum>
     </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>    
 </schema>

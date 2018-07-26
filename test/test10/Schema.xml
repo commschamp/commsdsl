@@ -27,4 +27,8 @@
             <int name="m2" type="uint8" bitLength="5" />
         </bitfield>          
     </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
 </schema>

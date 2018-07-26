@@ -25,4 +25,8 @@
             <bit name="b3" idx="3" />
         </set>
     </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
 </schema>

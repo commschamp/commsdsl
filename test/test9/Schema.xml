@@ -41,4 +41,8 @@
         <ref name="f2" field="F2" />
         <ref name="f3" field="F3" />
     </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
 </schema>

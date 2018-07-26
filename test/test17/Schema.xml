@@ -53,4 +53,9 @@
         <optional name="o8" defaultMode="missing" field="I1" cond="$m6.b0"  sinceVersion="2"/>
         <optional name="o9" defaultMode="exists" field="I1" cond="!$m6.b1"  sinceVersion="2"/>
     </message>
+    
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
 </schema>

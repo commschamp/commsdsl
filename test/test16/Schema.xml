@@ -40,4 +40,9 @@
         <ref name="f3" field="L3" />
         <list name="f4" reuse="L3" elemLengthPrefix="DataCount" sinceVersion="2" />
     </message>
+    
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
 </schema>

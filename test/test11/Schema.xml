@@ -34,4 +34,8 @@
             <int name="f5" type="uint16" />
         </optional>        
     </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
 </schema>
