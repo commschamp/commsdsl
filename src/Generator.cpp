@@ -281,6 +281,12 @@ std::pair<std::string, std::string> Generator::namespacesForFrame(
     return namespacesForElement(externalRef, common::frameStr());
 }
 
+std::pair<std::string, std::string>
+Generator::namespacesForFrameInPlugin(const std::string& externalRef) const
+{
+    return namespacesForElement(externalRef, common::frameStr(), true);
+}
+
 std::pair<std::string, std::string> Generator::namespacesForField(
     const std::string& externalRef) const
 {
@@ -1072,7 +1078,7 @@ Generator::startProtocolWrite(const std::string& externalRef, const std::string 
     auto fileName = className + common::headerSuffix();
     auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns);
     if (!subNs.empty()) {
-        dirPath /= common::fieldStr();
+        dirPath /= subNs;
     }
 
     auto fullPath = dirPath / fileName;

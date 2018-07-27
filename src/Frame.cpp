@@ -203,8 +203,85 @@ bool Frame::writePluginTransportMessageHeader()
         return true;
     }
 
+    static const std::string Templ =
+        "#pragma once\n\n"
+        "#include <tuple>\n"
+        "#include <QtCore/QVariantList>\n"
+        "#include \"comms_champion/TransportMessageBase.h\"\n"
+        "#include #^#FRAME_INCLUDE#$#\n"
+        "#^#INTERFACE_INCLUDE#$#\n"
+        "\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "struct #^#CLASS_NAME#$#TransportMessageFields\n"
+        "{\n"
+        "    using All =\n"
+        "        std::tuple<\n"
+        "            #^#FIELDS#$#\n"
+        "        >;\n"
+        "    #^#PROPS_FUNC#$#\n"
+        "};\n\n"
+        "#^#INTERFACE_TEMPL_PARAM#$#\n"
+        "class #^#CLASS_NAME#$#TransportMessage : public\n"
+        "    comms_champion::TransportMessageBase<\n"
+        "        #^#INTERFACE#$#,\n"
+        "        #^#CLASS_NAME#$#TransportMessageFields::All\n"
+        "    >\n"
+        "{\n"
+        "protected:\n"
+        "    virtual const QVariantList& fieldsPropertiesImpl() const override#^#SEMICOLON#$#\n"
+        "    #^#PROPS_BODY#$#\n"
+        "    #^#READ_FUNC_DECL#$#\n"
+        "};\n\n"
+        "#^#END_NAMESPACE#$#\n";
 
-    std::string str;
+    common::StringsList fields;
+    fields.reserve(m_layers.size());
+    auto scope = m_generator.scopeForFrame(m_externalRef, true, false);
+    scope += common::nameToClassCopy(name()) + common::layersSuffixStr() + "<>::";
+    auto layers = m_dslObj.layers();
+    for (auto& l : layers) {
+        auto iter =
+            std::find_if(
+                m_layers.begin(), m_layers.end(),
+                [&l](auto& ptr)
+                {
+                    return ptr->name() == l.name();
+                });
+        assert(iter != m_layers.end());
+        fields.push_back((*iter)->getFieldScopeForPlugin(scope));
+    }
+
+    auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("FRAME_INCLUDE", m_generator.headerfileForFrame(m_externalRef, true)));
+    replacements.insert(std::make_pair("FIELDS", common::listToString(fields, ",\n", common::emptyString())));
+
+    std::string interfaceStr = "TInterface";
+    auto* interface = m_generator.getDefaultInterface();
+    if (interface != nullptr) {
+        replacements.insert(std::make_pair("INTERFACE_INCLUDE", "#include " + m_generator.headerfileForInterfaceInPlugin(interface->externalRef(), true)));
+        replacements.insert(std::make_pair("SEMICOLON", ";"));
+        interfaceStr = m_generator.scopeForInterfaceInPlugin(interface->externalRef());
+    }
+    else {
+        std::string propsBody =
+            "{\n"
+            "    return " + common::nameToClassCopy(name()) + common::transportMessageSuffixStr() + common::fieldsSuffixStr() + "::props();\n"
+            "}\n";
+        replacements.insert(std::make_pair("INTERFACE_TEMPL_PARAM", "template <typename TInterface>"));
+        replacements.insert(std::make_pair("PROPS_FUNC", "static const QVariantList& props();"));
+        replacements.insert(std::make_pair("PROPS_BODY", std::move(propsBody)));
+    }
+
+    // TODO: read when checksum at the end
+
+    replacements.insert(std::make_pair("INTERFACE", std::move(interfaceStr)));
+
+    std::string str = common::processTemplate(Templ, replacements);
 
     std::ofstream stream(filePath);
     if (!stream) {
@@ -230,8 +307,87 @@ bool Frame::writePluginTransportMessageSrc()
         return true;
     }
 
+    static const std::string Templ = 
+        "#include \"#^#CLASS_NAME#$#TransportMessage.h\"\n\n"
+        "#include \"comms_champion/property/field.h\"\n"
+        "#^#INCLUDES#$#\n"
+        "namespace cc = comms_champion;\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "namespace\n"
+        "{\n\n"
+        "#^#FIELDS_PROPS#$#\n"
+        "QVariantList createProps()\n"
+        "{\n"
+        "     QVariantList props;\n"
+        "     #^#APPENDS#$#\n"
+        "     return props;\n"
+        "}\n\n"
+        "} // namespace\n\n"
+        "const QVariantList& #^#CLASS_NAME#$#TransportMessage#^#PROPS_FUNC_DECL#$#\n"
+        "{\n"
+        "    static const QVariantList Props = createProps();\n"
+        "    return Props;\n"
+        "}\n\n"
+        "#^#READ_FUNC#$#\n"
+        "#^#END_NAMESPACE#$#\n"
+    ;
 
-    std::string str;
+    common::StringsList includes;
+    common::StringsList fieldsProps;
+    common::StringsList appends;
+    includes.reserve(m_layers.size());
+    fieldsProps.reserve(m_layers.size());
+    appends.reserve(m_layers.size());
+
+    auto scope = 
+        m_generator.scopeForFrame(m_externalRef, true, false) + 
+            common::nameToClassCopy(name()) + common::layersSuffixStr() + "<>::";
+    auto layers = m_dslObj.layers();
+    for (auto& l : layers) {
+        auto iter =
+            std::find_if(
+                m_layers.begin(), m_layers.end(),
+                [&l](auto& ptr)
+                {
+                    return ptr->name() == l.name();
+                });
+        assert(iter != m_layers.end());
+        (*iter)->updatePluginIncludes(includes);
+        fieldsProps.push_back((*iter)->getPluginCreatePropsFunc(scope));
+
+        auto propsStr =
+            common::nameToClassCopy(l.name()) + "Layer::" +
+            "createProps_" + (*iter)->getFieldAccNameForPlugin() + "()";
+        appends.push_back("props.append(" + propsStr + ");");
+    }
+
+    auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", "\n")));
+    replacements.insert(std::make_pair("APPENDS", common::listToString(appends, "\n", common::emptyString())));
+
+    if (!includes.empty()) {
+        replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
+    }
+
+    // TODO: read virtual func
+
+    auto* interface = m_generator.getDefaultInterface();
+    if (interface != nullptr) {
+        static const std::string PropsDecl = "::fieldsPropertiesImpl() const";
+        replacements.insert(std::make_pair("PROPS_FUNC_DECL", PropsDecl));
+    }
+    else {
+        static const std::string PropsDecl = "Fields::props()";
+        replacements.insert(std::make_pair("PROPS_FUNC_DECL", PropsDecl));
+    }
+
+
+    std::string str = common::processTemplate(Templ, replacements);
 
     std::ofstream stream(filePath);
     if (!stream) {
@@ -276,6 +432,7 @@ std::string Frame::getIncludes() const
 //    }
 
     common::mergeInclude(m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix(), includes);
+    common::mergeInclude(m_generator.mainNamespace() + '/' + common::allMessagesStr() + common::headerSuffix(), includes);
     return common::includesToStatements(includes);
 }
 

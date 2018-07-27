@@ -407,7 +407,9 @@ common::StringsList Namespace::pluginCommonSources() const
         result.push_back(prefix + common::messageStr() + '/' + common::nameToClassCopy(m->name()) + common::srcSuffix());
     }
 
-
+    for (auto& f : m_frames) {
+        result.push_back(prefix + common::frameStr() + '/' + common::nameToClassCopy(f->name()) + common::transportMessageSuffixStr() + common::srcSuffix());
+    }
     return result;
 }
 

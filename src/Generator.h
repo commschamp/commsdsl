@@ -92,6 +92,9 @@ public:
     namespacesForFrame(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
+    namespacesForFrameInPlugin(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
     namespacesForField(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>

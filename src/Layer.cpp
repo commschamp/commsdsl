@@ -176,7 +176,7 @@ std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
         assert(dslField.valid());
         auto extRef = dslField.externalRef();
         assert(!extRef.empty());
-        return m_generator.scopeForField(extRef, true, true);
+        return m_generator.scopeForField(extRef, true, true) + "<>";
     }
 
     return scope + common::nameToClassCopy(name()) + "::Field";
@@ -209,7 +209,7 @@ std::string Layer::getPluginCreatePropsFunc(const std::string& scope) const
             auto extScope = m_generator.scopeForFieldInPlugin(extRef);
 
             static const std::string Templ =
-                "QVariantMap createProps_#^#NAME#$#()\n"
+                "static QVariantMap createProps_#^#NAME#$#()\n"
                 "{\n"
                 "    return #^#EXT_SCOPE#$#createProps_#^#EXT_NAME#$#(\"#^#DISP_NAME#$#\");\n"
                 "}\n";
@@ -230,9 +230,9 @@ std::string Layer::getPluginCreatePropsFunc(const std::string& scope) const
         }
 
         static const std::string Templ =
-            "QVariantMap createProps_#^#NAME#$#()\n"
+            "static QVariantMap createProps_#^#NAME#$#()\n"
             "{\n"
-            "    return cc::property::field::ArrayList().name(#^#DISP_NAME#$#).asMap();\n"
+            "    return cc::property::field::ArrayList().name(\"#^#DISP_NAME#$#\").asMap();\n"
             "}\n";
 
         common::ReplacementMap replacements;
