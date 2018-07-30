@@ -54,6 +54,7 @@ private:
     std::string getInputMessages() const;
 
     bool hasIdLayer() const;
+    unsigned calcBackPayloadOffset() const;
 
     Generator& m_generator;
     commsdsl::Frame m_dslObj;

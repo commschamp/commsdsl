@@ -219,6 +219,7 @@ bool Frame::writePluginTransportMessageHeader()
         "            #^#FIELDS#$#\n"
         "        >;\n"
         "    #^#PROPS_FUNC#$#\n"
+        "    #^#READ_FUNC#$#\n"
         "};\n\n"
         "#^#INTERFACE_TEMPL_PARAM#$#\n"
         "class #^#CLASS_NAME#$#TransportMessage : public\n"
@@ -227,6 +228,7 @@ bool Frame::writePluginTransportMessageHeader()
         "        #^#CLASS_NAME#$#TransportMessageFields::All\n"
         "    >\n"
         "{\n"
+        "    #^#BASE_DEF#$#\n"
         "protected:\n"
         "    virtual const QVariantList& fieldsPropertiesImpl() const override#^#SEMICOLON#$#\n"
         "    #^#PROPS_BODY#$#\n"
@@ -251,6 +253,8 @@ bool Frame::writePluginTransportMessageHeader()
         fields.push_back((*iter)->getFieldScopeForPlugin(scope));
     }
 
+    auto offset = calcBackPayloadOffset();
+
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
@@ -266,18 +270,40 @@ bool Frame::writePluginTransportMessageHeader()
         replacements.insert(std::make_pair("INTERFACE_INCLUDE", "#include " + m_generator.headerfileForInterfaceInPlugin(interface->externalRef(), true)));
         replacements.insert(std::make_pair("SEMICOLON", ";"));
         interfaceStr = m_generator.scopeForInterfaceInPlugin(interface->externalRef());
+        if (offset != 0U) {
+            replacements.insert(std::make_pair("READ_FUNC_DECL", "virtual comms::ErrorStatus readImpl(ReadIterator& iter, std::size_t len) override;"));
+        }
+
     }
     else {
         std::string propsBody =
             "{\n"
             "    return " + common::nameToClassCopy(name()) + common::transportMessageSuffixStr() + common::fieldsSuffixStr() + "::props();\n"
             "}\n";
+
+        std::string baseDef = 
+            "using Base =\n"
+            "    comms_champion::TransportMessageBase<\n"
+            "        " + interfaceStr + ",\n"
+            "        " + common::nameToClassCopy(name()) + common::transportMessageSuffixStr() + common::fieldsSuffixStr() + "::All\n"
+            "    >;";
+            
         replacements.insert(std::make_pair("INTERFACE_TEMPL_PARAM", "template <typename TInterface>"));
+        replacements.insert(std::make_pair("BASE_DEF", std::move(baseDef)));
         replacements.insert(std::make_pair("PROPS_FUNC", "static const QVariantList& props();"));
         replacements.insert(std::make_pair("PROPS_BODY", std::move(propsBody)));
-    }
 
-    // TODO: read when checksum at the end
+        if (offset != 0U) {
+            std::string readMemFunc =
+                "using typename Base::ReadIterator;\n"
+                "virtual comms::ErrorStatus readImpl(ReadIterator& iter, std::size_t len) override\n"
+                "{\n"
+                "    return " + common::nameToClassCopy(name()) + common::transportMessageSuffixStr() + common::fieldsSuffixStr() + "::read(Base::fields(), iter, len);\n"
+                "}\n";
+            replacements.insert(std::make_pair("READ_FUNC", "static comms::ErrorStatus read(All& fields, const std::uint8_t*& iter, std::size_t len);"));
+            replacements.insert(std::make_pair("READ_FUNC_DECL", std::move(readMemFunc)));
+        }
+    }
 
     replacements.insert(std::make_pair("INTERFACE", std::move(interfaceStr)));
 
@@ -374,16 +400,80 @@ bool Frame::writePluginTransportMessageSrc()
         replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
     }
 
+    auto offset = calcBackPayloadOffset();
+    auto idxCalcFunc = 
+        [&layers]()
+        {
+            auto payloadIter =
+                std::find_if(
+                    layers.begin(), layers.end(),
+                    [](auto& l)
+                    {
+                        return l.kind() == commsdsl::Layer::Kind::Payload;
+                    });
+            assert(payloadIter != layers.end());
+            return static_cast<unsigned>(std::distance(layers.begin(), payloadIter)) + 1U;
+        };        
     // TODO: read virtual func
 
     auto* interface = m_generator.getDefaultInterface();
     if (interface != nullptr) {
         static const std::string PropsDecl = "::fieldsPropertiesImpl() const";
         replacements.insert(std::make_pair("PROPS_FUNC_DECL", PropsDecl));
+
+        if (offset != 0U) {
+            auto readUntilIdx = idxCalcFunc();
+
+            std::string readFunc = 
+                "comms::ErrorStatus " + common::nameToClassCopy(name()) + common::transportMessageSuffixStr() + "::readImpl(ReadIterator& iter, std::size_t len)\n"
+                "{\n"
+                "    len -= " + common::numToString(offset) + ";\n"
+                "    auto es = doReadFieldsUntil<" + common::numToString(readUntilIdx) + ">(iter, len);\n"
+                "    if (es == comms::ErrorStatus::Success) {\n"
+                "        len += " + common::numToString(offset) + ";\n"
+                "        es = doReadFieldsFrom<" + common::numToString(readUntilIdx) + ">(iter, len);\n"
+                "    }\n\n"
+                "    return es;\n"
+                "}\n";
+            replacements.insert(std::make_pair("READ_FUNC", std::move(readFunc)));                
+        }
     }
     else {
         static const std::string PropsDecl = "Fields::props()";
         replacements.insert(std::make_pair("PROPS_FUNC_DECL", PropsDecl));
+
+        if (offset != 0U) {
+            auto readUntilIdx = idxCalcFunc();
+
+            std::string readFunc = 
+                "comms::ErrorStatus " + common::nameToClassCopy(name()) + common::transportMessageSuffixStr() + "Fields::read(All& fields, const std::uint8_t*& iter, std::size_t len)\n"
+                "{\n"
+                "    len -= " + common::numToString(offset) + ";\n"
+                "    auto es = comms::ErrorStatus::NumOfErrorStatuses;\n";
+            auto addToReadFunc = 
+                [&readFunc](unsigned idx)
+                {
+                    auto idxStr = std::to_string(idx);
+                    readFunc += 
+                        "    auto& field" + idxStr + " = std::get<" + idxStr + ">(fields);\n"
+                        "    es = field" + idxStr + ".read(iter, len);\n"
+                        "    if (es != comms::ErrorStatus::Success) {\n"
+                        "        return es;\n"
+                        "    }\n"
+                        "    len -= field" + idxStr + ".length();\n\n";
+
+                };
+            for (auto idx = 0U; idx < readUntilIdx; ++idx) {
+                addToReadFunc(idx);
+            }
+            readFunc += "    len += " + common::numToString(offset) + ";\n";
+            for (auto idx = readUntilIdx; idx < layers.size(); ++idx) {
+                addToReadFunc(idx);
+            }
+
+            readFunc += "    return comms::ErrorStatus::Success;\n}\n";
+            replacements.insert(std::make_pair("READ_FUNC", std::move(readFunc)));                
+        }
     }
 
 
@@ -545,6 +635,28 @@ bool Frame::hasIdLayer() const
                 }
 
                 return static_cast<const CustomLayer*>(l.get())->isIdReplacement();
+    });
+}
+
+unsigned Frame::calcBackPayloadOffset() const
+{
+    auto layers = m_dslObj.layers();
+    auto payloadIter =
+        std::find_if(
+            layers.rbegin(), layers.rend(),
+            [](auto& l)
+            {
+                return l.kind() == commsdsl::Layer::Kind::Payload;
+            });
+    assert(payloadIter != layers.rend());
+
+    return
+        std::accumulate(
+            layers.rbegin(), payloadIter, std::size_t(0),
+            [](std::size_t soFar, auto& l)
+            {
+                assert(l.field().valid());
+                return soFar + l.field().minLength();
             });
 }
 

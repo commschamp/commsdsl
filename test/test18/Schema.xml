@@ -111,7 +111,7 @@
         <sync name="Sync" field="Sync" />
         <size name="Size">
             <field>
-                <int name="Size" type="uint16" serOffset="2" />
+                <int name="Size" type="uint16" serOffset="2" displayOffset="2" />
             </field>
         </size>
         <id name="Id" field="MsgId" />        

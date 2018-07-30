@@ -59,7 +59,7 @@ void TestSuite::test2()
 {
     using Frame = Frame2;
     Frame frame;
-    static const std::uint8_t Buf[] = {0xab, 0xcd, 0x0, 0x6, 0x5, 0x1, 0x2, 0x3, 0x4, 0x1};
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0x0, 0x6, 0x5, 0x1, 0x2, 0x3, 0x4, 0x1, 0x16};
     static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
     auto readIter = comms::readIteratorFor<Interface1>(&Buf[0]);
     Frame::MsgPtr msgPtr;

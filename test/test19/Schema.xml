@@ -12,6 +12,7 @@
         <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
         <int name="Version" type="uint8" semanticType="version" />
         <int name="Timestamp" type="uint32" />
+        <int name="Checksum" type="uint8" />
     </fields>
     
     <interface name="Interface1">
@@ -38,6 +39,7 @@
         <value name="Timestamp" field="Timestamp" interfaceFieldName="timestamp" interfaces="Interface2" />
         <id name="Id" field="MsgId" />
         <payload name="Data" />
+        <checksum name="Checksum" from="Size" field="Checksum" alg="sum" />
     </frame>      
     
     <message name="Msg1" id="MsgId.M1" />
