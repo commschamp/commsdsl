@@ -64,6 +64,7 @@ public:
 
     std::string startFrameTransportMessageProtocolHeaderWrite(const std::string& externalRef);
     std::string startFrameTransportMessageProtocolSrcWrite(const std::string& externalRef);
+    std::string startFrameProtocolHeaderWrite(const std::string& externalRef);
 
     std::pair<std::string, std::string>
     startInterfaceProtocolWrite(const std::string& externalRef);

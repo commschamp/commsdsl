@@ -205,6 +205,11 @@ std::string Generator::startFrameTransportMessageProtocolSrcWrite(const std::str
     return startPluginWrite(externalRef + common::transportMessageSuffixStr(), false, common::frameStr());
 }
 
+std::string Generator::startFrameProtocolHeaderWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef, true, common::frameStr());
+}
+
 std::pair<std::string, std::string> Generator::startInterfaceProtocolWrite(
     const std::string& externalRef)
 {

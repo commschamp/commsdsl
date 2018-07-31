@@ -44,6 +44,7 @@ private:
     bool writeProtocol();
     bool writePluginTransportMessageHeader();
     bool writePluginTransportMessageSrc();
+    bool writePluginHeader();
 
     std::string getDescription() const;
     std::string getIncludes() const;

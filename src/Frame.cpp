@@ -119,11 +119,11 @@ bool Frame::prepare()
 
 bool Frame::write()
 {
-    // TODO: write plugin
     return
         writeProtocol() &&
         writePluginTransportMessageHeader() &&
-        writePluginTransportMessageSrc();
+        writePluginTransportMessageSrc() &&
+        writePluginHeader();
 }
 
 std::string Frame::getDefaultOptions() const
@@ -475,6 +475,79 @@ bool Frame::writePluginTransportMessageSrc()
         }
     }
 
+
+    std::string str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Frame::writePluginHeader()
+{
+    auto filePath = m_generator.startFrameProtocolHeaderWrite(m_externalRef);
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#pragma once\n\n"
+        "#include #^#FRAME_INCLUDE#$#\n"
+        "#^#INTERFACE_INCLUDE#$#\n"
+        "#^#ALL_MESSAGES_INCLUDE#$#\n"
+        "\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#INTERFACE_TEMPL_PARAM#$#\n"
+        "using #^#CLASS_NAME#$#=\n"
+        "    #^#FRAME_SCOPE#$#<\n"
+        "        #^#INTERFACE#$#,\n"
+        "        #^#ALL_MESSAGES#$#\n"
+        "    >;\n\n"
+        "#^#END_NAMESPACE#$#\n";
+
+    common::StringsList fields;
+    fields.reserve(m_layers.size());
+    auto scope = m_generator.scopeForFrame(m_externalRef, true, true);
+
+    auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
+
+    auto allMessagesInclude =
+        "#include \"" + common::pluginNsStr() + '/' +
+        common::allMessagesStr() + common::headerSuffix() + "\"";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("FRAME_SCOPE", std::move(scope)));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("FRAME_INCLUDE", m_generator.headerfileForFrame(m_externalRef, true)));
+    replacements.insert(std::make_pair("ALL_MESSAGES_INCLUDE", std::move(allMessagesInclude)));
+    replacements.insert(std::make_pair("ALL_MESSAGES", m_generator.mainNamespace() + "::" + common::pluginNsStr() + "::" + common::allMessagesStr()));
+
+    std::string interfaceStr = "TInterface";
+    auto* interface = m_generator.getDefaultInterface();
+    if (interface != nullptr) {
+        replacements.insert(std::make_pair("INTERFACE_INCLUDE", "#include " + m_generator.headerfileForInterfaceInPlugin(interface->externalRef(), true)));
+        interfaceStr = m_generator.scopeForInterfaceInPlugin(interface->externalRef());
+    }
+    else {
+        replacements.insert(std::make_pair("INTERFACE_TEMPL_PARAM", "template <typename TInterface>"));
+        replacements["ALL_MESSAGES"] += "<" + interfaceStr + ">";
+    }
+
+    replacements.insert(std::make_pair("INTERFACE", std::move(interfaceStr)));
 
     std::string str = common::processTemplate(Templ, replacements);
 
