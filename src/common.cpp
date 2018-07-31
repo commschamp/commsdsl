@@ -179,6 +179,12 @@ const std::string& transportMessageSuffixStr()
     return Str;
 }
 
+const std::string& pluginStr()
+{
+    static const std::string Str("plugin");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {
@@ -215,6 +221,13 @@ void updateName(std::string& str)
 {
     ba::replace_all(str, " ", "_");
     ba::replace_all(str, ".", "_");
+}
+
+std::string updateNameCopy(const std::string& str)
+{
+    std::string cpy(str);
+    updateName(cpy);
+    return cpy;
 }
 
 std::string adjustName(const std::string& str)

@@ -12,6 +12,7 @@
 #include "Logger.h"
 #include "ProgramOptions.h"
 #include "Namespace.h"
+#include "Plugin.h"
 
 namespace commsdsl2comms
 {
@@ -79,6 +80,9 @@ public:
     std::string startMessagePluginHeaderWrite(const std::string& externalRef);
     std::string startMessagePluginSrcWrite(const std::string& externalRef);
 
+    std::string startProtocolPluginHeaderWrite(const std::string& name);
+    std::string startProtocolPluginSrcWrite(const std::string& name);
+
     std::pair<std::string, std::string>
     startDefaultOptionsWrite();
 
@@ -105,6 +109,9 @@ public:
 
     std::pair<std::string, std::string>
     namespacesForInterfaceInPlugin(const std::string& externalRef) const;
+
+    std::pair<std::string, std::string>
+    namespacesForProtocolInPlugin(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
     namespacesForRoot() const;
@@ -199,6 +206,8 @@ public:
     MessageIdMap getAllMessageIds() const;
 
     const Field* findField(const std::string& externalRef, bool record = true);
+    const Interface* findInterface(const std::string& externalRef);
+    const Frame* findFrame(const std::string& externalRef);
 
     std::string headerfileForElement(
         const std::string& externalRef,
@@ -230,6 +239,9 @@ public:
 private:
 
     using NamespacesList = Namespace::NamespacesList;
+    using PluginsList = std::vector<PluginPtr>;
+    using InterfacesList = Namespace::InterfacesAccessList;
+    using FramesList = Namespace::FramesAccessList;
 
     bool parseOptions();
     bool parseSchemaFiles(const FilesList& files);
@@ -272,10 +284,15 @@ private:
         bool header,
         const std::string subNs = common::emptyString());
 
+    bool preparePlugins();
+    InterfacesList getAllInterfaces() const;
+    FramesList getAllFrames() const;
+
     ProgramOptions& m_options;
     Logger& m_logger;
     commsdsl::Protocol m_protocol;
     NamespacesList m_namespaces;
+    PluginsList m_plugins;
     boost::filesystem::path m_pathPrefix;
     boost::filesystem::path m_codeInputDir;
     std::set<boost::filesystem::path> m_createdDirs;

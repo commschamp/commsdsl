@@ -258,6 +258,16 @@ std::string Generator::startMessagePluginSrcWrite(const std::string& externalRef
     return startPluginWrite(externalRef, false, common::messageStr());
 }
 
+std::string Generator::startProtocolPluginHeaderWrite(const std::string& name)
+{
+    return startPluginWrite(name, true, common::pluginStr());
+}
+
+std::string Generator::startProtocolPluginSrcWrite(const std::string& name)
+{
+    return startPluginWrite(name, false, common::pluginStr());
+}
+
 std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
 {
     return startProtocolWrite(common::defaultOptionsStr());
@@ -317,6 +327,12 @@ Generator::namespacesForInterfaceInPlugin(const std::string& externalRef) const
     }
 
     return namespacesForElement(externalRef, common::emptyString(), true);
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForProtocolInPlugin(const std::string& name) const
+{
+    return namespacesForElement(name, common::pluginStr(), true);
 }
 
 std::pair<std::string, std::string>
@@ -580,6 +596,55 @@ const Field* Generator::findField(const std::string& externalRef, bool record)
     return result;
 }
 
+const Interface* Generator::findInterface(const std::string& externalRef)
+{
+    if (externalRef.empty()) {
+        auto allInterfaces = getAllInterfaces();
+        assert(!allInterfaces.empty());
+        return allInterfaces.front();
+    }
+
+    auto ns = refToNs(externalRef);
+    auto iter =
+        std::find_if(
+            m_namespaces.begin(), m_namespaces.end(),
+            [&ns](auto& n)
+            {
+                return n->name() == ns;
+            });
+
+    if (iter == m_namespaces.end()) {
+        return nullptr;
+    }
+
+    return (*iter)->findInterface(std::string(externalRef, ns.size() + 1));
+}
+
+const Frame* Generator::findFrame(const std::string& externalRef)
+{
+    if (externalRef.empty()) {
+        auto allFrames = getAllFrames();
+        assert(!allFrames.empty());
+        return allFrames.front();
+    }
+
+    auto ns = refToNs(externalRef);
+    auto iter =
+        std::find_if(
+            m_namespaces.begin(), m_namespaces.end(),
+            [&ns](auto& n)
+            {
+                return n->name() == ns;
+            });
+
+    if (iter == m_namespaces.end()) {
+        return nullptr;
+    }
+
+    return (*iter)->findFrame(std::string(externalRef, ns.size() + 1));
+
+}
+
 bool Generator::parseOptions()
 {
     auto outputDir = m_options.getOutputDirectory();
@@ -688,6 +753,10 @@ bool Generator::prepare()
         return false;
     }
 
+    if (!preparePlugins()) {
+        return false;
+    }
+
     m_messageIdField = findMessageIdField();
     return true;
 }
@@ -720,6 +789,12 @@ bool Generator::writeFiles()
         (!Cmake::write(*this)) ||
         (!writeExtraFiles())){
         return false;
+    }
+
+    for (auto& p : m_plugins) {
+        if (!p->write()) {
+            return false;
+        }
     }
 
     return true;
@@ -928,11 +1003,7 @@ std::string Generator::pluginCommonSources() const
 
 const Interface* Generator::getDefaultInterface() const
 {
-    Namespace::InterfacesAccessList list;
-    for (auto& n : m_namespaces) {
-        auto subList = n->getAllInterfaces();
-        list.insert(list.end(), subList.begin(), subList.end());
-    }
+    InterfacesList list = getAllInterfaces();
 
     if (list.empty()) {
         assert(!"Should not happen");
@@ -1132,6 +1203,89 @@ std::string Generator::startPluginWrite(
     }
 
     return fullPathStr;
+}
+
+bool Generator::preparePlugins()
+{
+    enum ElemIdx
+    {
+        ElemIdx_frame,
+        ElemIdx_interface,
+        ElemIdx_name,
+        ElemIdx_description,
+        ElemIdx_numOfValues
+    };
+
+    using Elems = std::vector<std::string>;
+
+    auto processElemsFunc =
+        [this](const std::string& elemsStr)
+        {
+            Elems elems;
+            ba::split(elems, elemsStr, ba::is_any_of(":"));
+            elems.resize(ElemIdx_numOfValues);
+            auto iter =
+                std::find_if(
+                    m_plugins.begin(), m_plugins.end(),
+                    [&elems](auto& p)
+                    {
+                        return elems[ElemIdx_name] == p->name();
+                    });
+            if (iter != m_plugins.end()) {
+                m_logger.error("Plugin with name \"" + elems[ElemIdx_name] + "\" has already been defined.");
+                return false;
+            }
+
+            auto ptr =
+                createPlugin(
+                    *this,
+                    elems[ElemIdx_frame],
+                    elems[ElemIdx_interface],
+                    elems[ElemIdx_name],
+                    elems[ElemIdx_description]);
+            assert(ptr);
+
+            if (!ptr->prepare()) {
+                return false;
+            }
+
+            m_plugins.push_back(std::move(ptr));
+            return true;
+        };
+
+    auto pluginOpts = m_options.getPlugins();
+    if (pluginOpts.empty()) {
+        return processElemsFunc(common::emptyString());
+    }
+
+    for (auto& o : pluginOpts) {
+        if (!processElemsFunc(o)) {
+            return false;
+        }
+    }
+
+    return true;
+
+}
+
+Generator::InterfacesList Generator::getAllInterfaces() const
+{
+    InterfacesList result;
+    for (auto& n : m_namespaces) {
+        auto nList = n->getAllInterfaces();
+        result.insert(result.end(), nList.begin(), nList.end());
+    }
+    return result;
+}
+
+Generator::FramesList Generator::getAllFrames() const
+{
+    FramesList result;
+    for (auto& n : m_namespaces) {
+        auto nList = n->getAllFrames();
+        result.insert(result.end(), nList.begin(), nList.end());
+    }
+    return result;
 }
 
 

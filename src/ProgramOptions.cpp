@@ -32,6 +32,7 @@ const std::string InputFileStr("input-file");
 const std::string CommsChampionTagStr("cc-tag");
 const std::string WarnAsErrStr("warn-as-err");
 const std::string VersionIndependentCodeStr("version-independent-code");
+const std::string ProtocolStr("protocol");
 
 po::options_description createDescription()
 {
@@ -55,10 +56,17 @@ po::options_description createDescription()
             "Set minimal supported remote version. Defaults to 0.")
         (CommsChampionTagStr.c_str(), po::value<std::string>()->default_value("v0.25"),
             "Default tag/branch of the CommsChampion project.")
+        (ProtocolStr.c_str(), po::value<std::vector<std::string> >(),
+            "Protocol information for plugin generation. Exepected to be in the following format:\n"
+            "\"frame_id:interface_id:protocol_name:description\".\nCan be used multiple times "
+            "to generate multiple protocol plugins for CommsChampion tools. If not provided, "
+            "one frame and one interface from the schema will be chosen and code for only one protocol "
+            "plugin will be generated. Can be omitted if there is only one frame and one interface types "
+            "defined in the schema.")
         (WarnAsErrStr.c_str(), "Treat warning as error.")
         (VersionIndependentCodeStr.c_str(),
             "By default the generated code is version dependent if at least one defined "
-            "interface has \"version\" field. Use this switch to forcefully disable generation"
+            "interface has \"version\" field. Use this switch to forcefully disable generation "
             "of version denendent code.")
     ;
     return desc;
@@ -98,7 +106,7 @@ const po::positional_options_description& getPositional()
     return Desc;
 }
 
-}
+} // namespace
 
 void ProgramOptions::parse(int argc, const char* argv[])
 {
@@ -199,7 +207,16 @@ std::string ProgramOptions::getCommsChampionTag() const
     return m_vm[CommsChampionTagStr].as<std::string>();
 }
 
-// namespace
+std::vector<std::string> ProgramOptions::getPlugins() const
+{
+    if (m_vm.count(ProtocolStr) == 0U) {
+        return std::vector<std::string>();
+    }
+
+    auto protocols = m_vm[ProtocolStr].as<std::vector<std::string> >();
+    assert(!protocols.empty());
+    return protocols;
+}
 
 } // namespace commsdsl2comms
 

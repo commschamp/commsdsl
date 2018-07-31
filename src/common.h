@@ -41,12 +41,14 @@ const std::string& pluginNsStr();
 const std::string& serHiddenStr();
 const std::string& cmakeListsFileStr();
 const std::string& transportMessageSuffixStr();
+const std::string& pluginStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
 void nameToAccess(std::string& str);
 std::string nameToAccessCopy(const std::string& str);
 void updateName(std::string& str);
+std::string updateNameCopy(const std::string& str);
 std::string adjustName(const std::string& str);
 std::string numToString(std::uintmax_t value, bool hexOut = false);
 std::string numToString(std::intmax_t value);

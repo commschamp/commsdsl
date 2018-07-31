@@ -25,6 +25,7 @@ public:
     using FieldsList = std::vector<FieldPtr>;
     using MessagesAccessList = std::vector<const Message*>;
     using InterfacesAccessList = std::vector<const Interface*>;
+    using FramesAccessList = std::vector<const Frame*>;
 
     //using FieldsMap = std::map<std::string, FieldPtr>;
     explicit Namespace(Generator& gen, const commsdsl::Namespace& dslObj)
@@ -46,11 +47,14 @@ public:
 
     MessagesAccessList getAllMessages() const;
     InterfacesAccessList getAllInterfaces() const;
+    FramesAccessList getAllFrames() const;
 
     bool hasInterfaceDefined();
 
     const Field* findMessageIdField() const;
     const Field* findField(const std::string& externalRef, bool record);
+    const Interface* findInterface(const std::string& externalRef) const;
+    const Frame* findFrame(const std::string& externalRef) const;
 
     bool anyInterfaceHasVersion() const;
 

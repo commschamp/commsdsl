@@ -30,6 +30,7 @@ public:
     unsigned getForcedSchemaVersion() const;
     unsigned getMinRemoteVersion() const;
     std::string getCommsChampionTag() const;
+    std::vector<std::string> getPlugins() const;
 private:
     boost::program_options::variables_map m_vm;
 };

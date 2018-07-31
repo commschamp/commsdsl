@@ -414,7 +414,6 @@ bool Frame::writePluginTransportMessageSrc()
             assert(payloadIter != layers.end());
             return static_cast<unsigned>(std::distance(layers.begin(), payloadIter)) + 1U;
         };        
-    // TODO: read virtual func
 
     auto* interface = m_generator.getDefaultInterface();
     if (interface != nullptr) {

@@ -46,6 +46,7 @@ set (
     "CustomLayer.cpp"
     "Cmake.cpp"
     "common.cpp"
+    "Plugin.cpp"
 )
 
 add_executable(${PROJECT_NAME} ${src})
