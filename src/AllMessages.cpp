@@ -126,7 +126,7 @@ bool AllMessages::writePluginDefinition() const
     std::string interfaceStr;
     auto* interface = m_generator.getDefaultInterface();
     if (interface == nullptr) {
-        interfaceStr = "<TIterface>";
+        interfaceStr = "<TInterface>";
     }
 
     for (auto m : allMessages) {
@@ -148,7 +148,7 @@ bool AllMessages::writePluginDefinition() const
     common::mergeInclude("<tuple>", includes);
 
     common::ReplacementMap replacements;
-    auto namespaces = m_generator.namespacesForRoot();
+    auto namespaces = m_generator.namespacesForPlugin();
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));

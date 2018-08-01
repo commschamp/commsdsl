@@ -246,8 +246,16 @@ bool Cmake::writePlugin() const
         return false;
     }
 
+    common::StringsList calls;
+    auto plugins = m_generator.getPlugins();
+    for (auto* p : plugins) {
+        auto pName = common::nameToClassCopy(p->adjustedName());
+        calls.push_back("cc_plugin (\"" + pName + "\")");
+    }
+
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("SOURCES", m_generator.pluginCommonSources()));
+    replacements.insert(std::make_pair("PLUGINS", common::listToString(calls, "\n", "\n")));
 
     static const std::string Template =
         "set (ALL_MESSAGES_LIB \"all_messages\")\n\n"
@@ -262,6 +270,34 @@ bool Cmake::writePlugin() const
         "    qt5_use_modules(${name} Core)\n"
         "endfunction()\n\n"
         "######################################################################\n\n"
+        "function (cc_plugin protocol)\n"
+        "    set (name \"cc_plugin_${protocol}\")\n\n"
+        "    #set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/plugin_${protocol}.json\")\n"
+        "    #set (stamp_file \"${CMAKE_CURRENT_BINARY_DIR}/plugin_${protocol}_refresh_stamp.txt\")\n\n"
+        "    #if ((NOT EXISTS ${stamp_file}) OR (${meta_file} IS_NEWER_THAN ${stamp_file}))\n"
+        "    #    execute_process(\n"
+        "    #        COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/${protocol}Plugin.h)\n\n"
+        "    #    execute_process(\n"
+        "    #        COMMAND ${CMAKE_COMMAND} -E touch ${stamp_file})\n"
+        "    #endif ()\n\n"
+        "    set (src\n"
+        "        plugin/${protocol}Protocol.cpp\n"
+        "    )\n\n"
+        "    #set (hdr\n"
+        "    #    ${protocol}Plugin.h\n"
+        "    #)\n\n"
+        "    #qt5_wrap_cpp(moc ${hdr})\n\n"
+        "    add_library (${name} SHARED ${src} ${moc})\n"
+        "    target_link_libraries (${name} ${ALL_MESSAGES_LIB} ${CC_PLUGIN_LIBRARIES})\n"
+        "    qt5_use_modules (${name} Core)\n"
+        "    install (\n"
+        "        TARGETS ${name}\n"
+        "        DESTINATION ${PLUGIN_INSTALL_DIR})\n\n"
+        "    if (OPT_FULL_SOLUTION)\n"
+        "        add_dependencies(${name} ${CC_EXTERNAL_TGT})\n"
+        "    endif ()\n"
+        "endfunction()\n\n"
+        "######################################################################\n\n"
         "if (NOT Qt5Core_FOUND)\n"
         "    message (WARNING \"Can NOT compile protocol plugin due to missing QT5 Core library\")\n"
         "    return ()\n"
@@ -270,6 +306,7 @@ bool Cmake::writePlugin() const
         "    set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0\")\n"
         "endif ()\n\n"
         "cc_plugin_all_messages()\n\n"
+        "#^#PLUGINS#$#\n"
         "file (GLOB_RECURSE plugin.headers \"*.h\")\n"
         "add_custom_target(cc_plugin.headers SOURCES ${plugin.headers})\n\n";
 

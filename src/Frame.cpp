@@ -510,7 +510,7 @@ bool Frame::writePluginHeader()
         "\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "#^#INTERFACE_TEMPL_PARAM#$#\n"
-        "using #^#CLASS_NAME#$#=\n"
+        "using #^#CLASS_NAME#$# =\n"
         "    #^#FRAME_SCOPE#$#<\n"
         "        #^#INTERFACE#$#,\n"
         "        #^#ALL_MESSAGES#$#\n"

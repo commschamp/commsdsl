@@ -352,6 +352,21 @@ Generator::namespacesForRoot() const
     return std::make_pair(std::move(begStr), std::move(endStr));
 }
 
+std::pair<std::string, std::string> Generator::namespacesForPlugin() const
+{
+    std::string begStr =
+        "namespace " + m_mainNamespace + "\n"
+        "{\n\n"
+        "namespace cc_plugin\n"
+        "{\n";
+
+    std::string endStr =
+        "} // namespace cc_plugin\n\n"
+        "} // namespace " + m_mainNamespace + "\n\n";
+
+    return std::make_pair(std::move(begStr), std::move(endStr));
+}
+
 std::string Generator::headerfileForMessage(const std::string& externalRef, bool quotes)
 {
     return headerfileForElement(externalRef, quotes, common::messageStr());
@@ -365,6 +380,11 @@ std::string Generator::headerfileForMessageInPlugin(const std::string& externalR
 std::string Generator::headerfileForFrame(const std::string& externalRef, bool quotes)
 {
     return headerfileForElement(externalRef, quotes, common::frameStr());
+}
+
+std::string Generator::headerfileForFrameInPlugin(const std::string& externalRef, bool quotes)
+{
+    return headerfileForElement(externalRef, quotes, common::frameStr(), true);
 }
 
 std::string Generator::headerfileForField(const std::string& externalRef, bool quotes)
@@ -457,6 +477,11 @@ std::string Generator::scopeForFrame(
     bool classIncluded)
 {
     return scopeForElement(externalRef, mainIncluded, classIncluded, common::frameStr());
+}
+
+std::string Generator::scopeForFrameInPlugin(const std::string& externalRef)
+{
+    return scopeForElement(externalRef, true, true, common::frameStr(), true);
 }
 
 std::string Generator::scopeForField(
@@ -1004,6 +1029,16 @@ std::string Generator::pluginCommonSources() const
     }
 
     return common::listToString(result, "\n", common::emptyString());
+}
+
+Generator::PluginsAccessList Generator::getPlugins() const
+{
+    PluginsAccessList result;
+    result.reserve(m_plugins.size());
+    for (auto& p : m_plugins) {
+        result.push_back(p.get());
+    }
+    return result;
 }
 
 const Interface* Generator::getDefaultInterface() const

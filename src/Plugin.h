@@ -35,9 +35,12 @@ public:
         return m_name;
     }
 
+    const std::string& adjustedName() const;
+
 private:
 
     bool writeProtocolHeader();
+    bool writeProtocolSrc();
     std::string protClassName() const;
 
     Generator& m_generator;

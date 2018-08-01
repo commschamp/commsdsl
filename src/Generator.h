@@ -22,6 +22,7 @@ class Generator
 public:
     using FilesList = std::vector<std::string>;
     using MessageIdMap = std::multimap<std::uintmax_t, std::string>;
+    using PluginsAccessList = std::vector<const Plugin*>;
 
     Generator(ProgramOptions& options, Logger& logger)
       : m_options(options), m_logger(logger)
@@ -117,11 +118,16 @@ public:
     std::pair<std::string, std::string>
     namespacesForRoot() const;
 
+    std::pair<std::string, std::string>
+    namespacesForPlugin() const;
+
     std::string headerfileForMessage(const std::string& externalRef, bool quotes = true);
 
     std::string headerfileForMessageInPlugin(const std::string& externalRef, bool quotes = true);
 
     std::string headerfileForFrame(const std::string& externalRef, bool quotes = true);
+
+    std::string headerfileForFrameInPlugin(const std::string& externalRef, bool quotes = true);
 
     std::string headerfileForField(const std::string& externalRef, bool quotes = true);
 
@@ -153,6 +159,8 @@ public:
         const std::string& externalRef,
         bool mainIncluded = false,
         bool messageIncluded = false);
+
+    std::string scopeForFrameInPlugin(const std::string& externalRef);
 
     std::string scopeForField(
         const std::string& externalRef,
@@ -234,6 +242,8 @@ public:
     }
 
     std::string pluginCommonSources() const;
+
+    PluginsAccessList getPlugins() const;
 
     const Interface* getDefaultInterface() const;
 
