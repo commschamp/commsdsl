@@ -154,6 +154,7 @@ std::string BitfieldField::getPluginAnonNamespaceImpl(
     bool forcedSerialisedHidden,
     bool serHiddenParam) const
 {
+    static_cast<void>(forcedSerialisedHidden);
     auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr();
     if (!externalRef().empty()) {
         fullScope += "<>";
@@ -162,7 +163,7 @@ std::string BitfieldField::getPluginAnonNamespaceImpl(
 
     common::StringsList props;
     for (auto& f : m_members) {
-        props.push_back(f->getPluginCreatePropsFunc(fullScope, forcedSerialisedHidden, serHiddenParam));
+        props.push_back(f->getPluginCreatePropsFunc(fullScope, true, serHiddenParam));
     }
 
     static const std::string Templ = 

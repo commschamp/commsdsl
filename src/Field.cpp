@@ -601,6 +601,7 @@ std::string Field::getPrivateRefreshForFields(const Field::FieldsList& fields)
             "    if (field_#^#NAME#$#().getMode() == mode) {\n"
             "        return false;\n"
             "    }\n\n"
+            "    field_#^#NAME#$#().setMode(mode);\n"
             "    return true;\n"
             "}\n";
 
@@ -805,6 +806,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         "return\n"
         "    cc::property::field::ForField<Field>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
+        "        .uncheckable()\n"
         "        .field(std::move(props))\n"
         "        .asMap();\n";
 

@@ -223,6 +223,12 @@ std::string OptionalField::getPluginAnonNamespaceImpl(
 
 std::string OptionalField::getPluginPropertiesImpl(bool serHiddenParam) const
 {
+    common::StringsList options;
+    auto obj = optionalFieldDslObj();
+    if (obj.cond().valid()) {
+        options.push_back(".uncheckable()");
+    }
+
     if (m_field) {
         auto prefix =
             common::nameToClassCopy(name()) + common::membersSuffixStr() +
@@ -233,7 +239,8 @@ std::string OptionalField::getPluginPropertiesImpl(bool serHiddenParam) const
             str += common::serHiddenStr();
         }
         str +="))";
-        return str;
+        options.push_back(std::move(str));
+        return common::listToString(options, "\n", common::emptyString());
     }
 
     auto field = optionalFieldDslObj().field();
@@ -253,7 +260,8 @@ std::string OptionalField::getPluginPropertiesImpl(bool serHiddenParam) const
         str += ", " + common::serHiddenStr();
     }
     str += "))";
-    return str;
+    options.push_back(std::move(str));
+    return common::listToString(options, "\n", common::emptyString());
 }
 
 std::string OptionalField::getFieldOpts(const std::string& scope) const

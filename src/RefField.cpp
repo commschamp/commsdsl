@@ -179,6 +179,7 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
         "return\n"
         "    cc::property::field::ForField<Field>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
+        "        .uncheckable()\n"
         "        .field(std::move(props))\n"
         "        .asMap();\n";
 
