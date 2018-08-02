@@ -41,7 +41,11 @@ private:
 
     bool writeProtocolHeader();
     bool writeProtocolSrc();
+    bool writePluginHeader();
+    bool writePluginSrc();
+    bool writePluginJson();
     std::string protClassName() const;
+    std::string pluginClassName() const;
 
     Generator& m_generator;
     std::string m_frame;

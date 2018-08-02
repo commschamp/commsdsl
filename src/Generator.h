@@ -113,7 +113,7 @@ public:
     namespacesForInterfaceInPlugin(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
-    namespacesForProtocolInPlugin(const std::string& externalRef) const;
+    namespacesForPluginDef(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
     namespacesForRoot() const;

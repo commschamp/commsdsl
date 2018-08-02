@@ -335,7 +335,7 @@ Generator::namespacesForInterfaceInPlugin(const std::string& externalRef) const
 }
 
 std::pair<std::string, std::string>
-Generator::namespacesForProtocolInPlugin(const std::string& name) const
+Generator::namespacesForPluginDef(const std::string& name) const
 {
     return namespacesForElement(name, common::pluginStr(), true);
 }

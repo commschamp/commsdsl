@@ -4,10 +4,12 @@
 #include <fstream>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
 
 #include "Generator.h"
 
 namespace ba = boost::algorithm;
+namespace bf = boost::filesystem;
 
 namespace commsdsl2comms
 {
@@ -16,6 +18,7 @@ namespace
 {
 
 const std::string ProtSuffix("Protocol");
+const std::string PluginSuffix("Plugin");
 
 } // namespace
 
@@ -38,10 +41,12 @@ bool Plugin::prepare()
 
 bool Plugin::write()
 {
-    // TODO:
     return
         writeProtocolHeader() &&
-        writeProtocolSrc();
+        writeProtocolSrc() &&
+        writePluginHeader() &&
+        writePluginSrc() &&
+        writePluginJson();
 }
 
 const std::string& Plugin::adjustedName() const
@@ -89,7 +94,7 @@ bool Plugin::writeProtocolHeader()
         "#^#END_NAMESPACE#$#\n"
     ;
 
-    auto namespaces = m_generator.namespacesForProtocolInPlugin(className);
+    auto namespaces = m_generator.namespacesForPluginDef(className);
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", className));
@@ -205,7 +210,7 @@ bool Plugin::writeProtocolSrc()
     ;
 
     assert(m_framePtr != nullptr);
-    auto namespaces = m_generator.namespacesForProtocolInPlugin(className);
+    auto namespaces = m_generator.namespacesForPluginDef(className);
     auto frameHeader = m_generator.headerfileForFrameInPlugin(m_framePtr->externalRef(), false);
     assert(ba::ends_with(frameHeader, common::headerSuffix()));
     auto transportMsgHeader = frameHeader;
@@ -252,9 +257,164 @@ bool Plugin::writeProtocolSrc()
     return true;
 }
 
+bool Plugin::writePluginHeader()
+{
+    auto className = pluginClassName();
+    auto filePath = m_generator.startProtocolPluginHeaderWrite(className);
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#pragma once\n\n"
+        "#include <QtCore/QObject>\n"
+        "#include <QtCore/QtPlugin>\n"
+        "#include \"comms_champion/Plugin.h\"\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "class #^#CLASS_NAME#$# : public comms_champion::Plugin\n"
+        "{\n"
+        "    Q_OBJECT\n"
+        "    Q_PLUGIN_METADATA(IID \"#^#ID#$#\" FILE \"#^#CLASS_NAME#$#.json\")\n"
+        "    Q_INTERFACES(comms_champion::Plugin)\n\n"
+        "public:\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    virtual ~#^#CLASS_NAME#$#();\n"
+        "};\n\n"
+        "#^#END_NAMESPACE#$#\n";
+
+    auto namespaces = m_generator.namespacesForPluginDef(className);
+
+    auto id = m_generator.schemaName();
+    if (!m_name.empty()) {
+        id += '.' + m_name;
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("ID", std::move(id)));
+
+    std::string str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Plugin::writePluginSrc()
+{
+    auto className = pluginClassName();
+    auto filePath = m_generator.startProtocolPluginSrcWrite(className);
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#include \"#^#ADJ_NAME#$#Plugin.h\"\n\n"
+        "#include \"#^#ADJ_NAME#$#Protocol.h\"\n\n"
+        "namespace cc = comms_champion;\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#ADJ_NAME#$#Plugin::#^#ADJ_NAME#$#Plugin()\n"
+        "{\n"
+        "    pluginProperties()\n"
+        "        .setProtocolCreateFunc(\n"
+        "            [this]() -> cc::ProtocolPtr\n"
+        "            {\n"
+        "                return cc::ProtocolPtr(new #^#ADJ_NAME#$#Protocol());\n"
+        "            });\n"
+        "}\n\n"
+        "#^#ADJ_NAME#$#Plugin::~#^#ADJ_NAME#$#Plugin() = default;\n\n"
+        "#^#END_NAMESPACE#$#\n";
+
+    auto namespaces = m_generator.namespacesForPluginDef(className);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("ADJ_NAME", common::nameToClassCopy(adjustedName())));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+
+    std::string str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Plugin::writePluginJson()
+{
+    auto className = pluginClassName();
+    auto filePath = (bf::path(m_generator.pluginDir()) / common::pluginStr() / (className + ".json")).string();
+
+    static const std::string Templ =
+        "{\n"
+        "    \"name\" : \"#^#NAME#$#\",\n"
+        "    \"desc\" : [\n"
+        "        #^#DESC#$#\n"
+        "    ],\n"
+        "    \"type\" : \"protocol\"\n"
+        "}\n";
+
+    auto name = adjustedName() + " Protocol";
+    auto desc = common::makeMultilineCopy(m_description);
+    if (!desc.empty()) {
+        desc = '\"' + desc + '\"';
+        ba::replace_all(desc, "\n", "\",\n\"");
+    }
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAME", std::move(name)));
+    replacements.insert(std::make_pair("DESC", std::move(desc)));
+
+    std::string str = common::processTemplate(Templ, replacements);
+
+    m_generator.logger().info("Generating " + filePath);
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
 std::string Plugin::protClassName() const
 {
     return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + ProtSuffix;
+}
+
+std::string Plugin::pluginClassName() const
+{
+    return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + PluginSuffix;
 }
 
 } // namespace commsdsl2comms
