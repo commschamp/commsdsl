@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="F1" type="uint8" />
+    </fields>
+    <frame name="Generic">
+        <payload name="Data" field="F1"/>
+    </frame>
+</schema>

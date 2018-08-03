@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <int name="F1" type="uintvar" length="4"/>
+            <ref name="F2" field="ns1.F1" />
+            <ref name="F3" field="ns1.F2" />
+        </fields>
+    </ns>
+</schema>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="big">
+    <fields>
+        <enum name="MsgId" type="uint8">
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+    </fields>
+    <ns name="ns1">
+        <frame name="Generic">
+            <id name="Id">
+                <field>MsgId</field>
+            </id>
+            <payload>
+                <name value="Data" />
+            </payload>
+        </frame>
+    </ns>
+</schema>

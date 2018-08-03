@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema10"
+        id="1"
+        endian="Little"
+        version="5">
+    <nonUniqueMsgIdAllowed>true</nonUniqueMsgIdAllowed>
+    <ns name="ns1">
+        <fields>
+            <enum name="MsgId" type="uint8">
+                <validValue name="Msg1" val="0" />
+                <validValue name="Msg2" val="1" />
+            </enum>
+        </fields>
+        <message name="Msg1_1" id="ns1.MsgId.Msg1">
+            <int name="field1" type="uint32" />
+            <int name="field2" type="uint32" />
+        </message>
+        <message name="Msg1_2" id="ns1.MsgId.Msg1" >
+            <fields>
+                <int name="field1" type="uint32" />
+                <int name="field2" type="uint16" />
+            </fields>
+            <order>1</order>
+        </message>
+    </ns>
+</schema>

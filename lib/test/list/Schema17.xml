@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema17"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <string name="S1" defaultValue="uint8" />
+            <list name="List1" lengthPrefix="ns1.S1" element="ns1.S1" />
+        </fields>
+    </ns>
+</schema>

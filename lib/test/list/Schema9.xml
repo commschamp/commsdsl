@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <int name="I1" type="uint16" />
+            <int name="ElemLengthPrefix" type="uint8" />
+            <int name="LengthPrefix" type="uint8" />
+            <list name="List1" element="ns1.I1" elemFixedLength="True" >
+                <elemLengthPrefix>ns1.ElemLengthPrefix</elemLengthPrefix>
+                <lengthPrefix>ns1.LengthPrefix</lengthPrefix>
+            </list>
+        </fields>
+    </ns>
+</schema>

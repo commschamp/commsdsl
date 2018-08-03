@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema4"
+        id="1"
+        endian="little">
+    <fields>
+        <int name="I1" type="uint16" />
+        <list name="List1" element="I1">
+            <lengthPrefix>
+                <int name="Length" type="uint16" endian="big"/>
+            </lengthPrefix>
+        </list>
+    </fields>
+</schema>

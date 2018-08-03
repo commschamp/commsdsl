@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema17"
+        id="1"
+        endian="big">
+
+    <ns name="ns2">
+        <fields>
+            <int name="Int1" type="uint16" defaultValue="1000">
+                <special name="S1" val="1000" />
+            </int>
+        </fields>
+    </ns> 
+           
+    <ns name="ns1">
+        <fields>
+            <int reuse="ns2.Int1" type="uint8" defaultValue="100" />
+        </fields>
+    </ns>
+</schema>

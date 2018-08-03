@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="big">
+    <interfaces>
+        <interface name="Generic">
+            <int name="version" type="uint32" />
+        </interface>
+    </interfaces>
+    <ns name="ns1">
+        <interface>
+            <name>I1</name>
+            <copyFieldsFrom>Generic</copyFieldsFrom>
+            <fields>
+                <int name="other" type="uint32" />
+            </fields>
+        </interface>
+    </ns>
+</schema>

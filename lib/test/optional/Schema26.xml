@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema26"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="I1" type="uint8" />
+        <bundle name="Bundle1">
+            <ref name="Mem1" field="I1" />
+            <optional name= "Opt1" cond="$Mem1 = 0xab" field="I1" />
+        </bundle>
+    </fields>
+</schema>

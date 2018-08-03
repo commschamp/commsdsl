@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="big">
+    <fields>
+        <data name="Data1" defaultValue="aa bb cc dd ee">
+            <length value="4" />
+        </data>
+    </fields>
+</schema>

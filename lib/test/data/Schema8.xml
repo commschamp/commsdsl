@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema8"
+        id="1"
+        endian="big">
+    <fields>
+        <data name="Data1" defaultValue="abcdef0123" length="10" />
+        <data name="Data2" reuse="Data1" length="4" />
+    </fields>
+</schema>

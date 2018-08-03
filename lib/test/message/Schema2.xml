@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="big">
+    <fields>
+        <enum name="MsgId" type="uint8">
+            <validValue name="Msg1" val="0" />
+            <validValue name="Msg2" val="1" />
+            <semanticType>messageId</semanticType>
+        </enum>
+    </fields>
+    <messages>
+        <message name="Msg1" id="MsgId.Msg1" >
+            <int name="field1" type="uint32" />
+        </message>
+        <message name="Msg2" id="MsgId.Msg2" >
+            <fields>
+                <int name="field2" type="uint32" />
+            </fields>
+            <copyFieldsFrom>Msg1</copyFieldsFrom>
+        </message>    
+    </messages>
+</schema>

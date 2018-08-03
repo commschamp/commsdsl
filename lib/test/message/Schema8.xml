@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema8"
+        id="1"
+        endian="Little"
+        version="5">
+    <ns name="ns1">
+        <fields>
+            <enum name="MsgId" type="uint8">
+                <validValue name="Msg1" val="0" />
+                <validValue name="Msg2" val="1" />
+            </enum>
+        </fields>
+        <message name="Msg1" id="ns1.MsgId.Msg1" sinceVersion="2">
+            <int name="field1" type="uint32" />
+            <int name="field2" type="uint32" />
+        </message>
+        <message name="Msg2" id="ns1.MsgId.Msg1" >
+            <int name="field1" type="uint32" />
+            <int name="field2" type="uint32" />
+        </message>
+    </ns>
+</schema>

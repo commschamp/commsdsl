@@ -1,0 +1,519 @@
+#include <limits>
+#include <cfloat>
+
+#include "CommonTestSuite.h"
+
+class FloatTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
+    void test10();
+    void test11();    
+
+private:
+    static const double Epsilon;
+};
+
+const double FloatTestSuite::Epsilon = std::numeric_limits<double>::epsilon();
+
+void FloatTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void FloatTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void FloatTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.displayName(), "Float 1");
+        TS_ASSERT(field.description().empty());
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.minLength(), 8U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT_EQUALS(floatField.validCheckVersion(), false);
+        TS_ASSERT(validRanges.empty());
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+
+    do {
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Float2");
+        TS_ASSERT(field.displayName().empty());
+        TS_ASSERT_EQUALS(field.description(), "Float 2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.minLength(), 4U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT(validRanges.empty());
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+}
+
+void FloatTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "my_ns");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT(field.displayName().empty());
+        TS_ASSERT(field.description().empty());
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.minLength(), 8U);
+        TS_ASSERT(std::isnan(floatField.defaultValue()));
+        TS_ASSERT(validRanges.empty());
+        TS_ASSERT_EQUALS(specialValues.size(), 3U);
+        TS_ASSERT(std::isnan(specialValues.find("Null")->second.m_value));
+        auto s1 = specialValues.find("S1")->second.m_value;
+        auto s2 = specialValues.find("S2")->second.m_value;
+        TS_ASSERT_LESS_THAN(s1, std::numeric_limits<double>::min());
+        TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), s2);
+        TS_ASSERT(std::isinf(s1));
+        TS_ASSERT(std::isinf(s2));
+    } while (false);
+
+    do {
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Float2");
+        TS_ASSERT(field.displayName().empty());
+        TS_ASSERT(field.description().empty());
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.minLength(), 4U);
+        TS_ASSERT(std::isinf(floatField.defaultValue()));
+        TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), floatField.defaultValue());
+        TS_ASSERT_EQUALS(validRanges.size(), 3U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        auto& r3 = validRanges[2];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - std::numeric_limits<float>::lowest()), std::numeric_limits<float>::epsilon());
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - std::numeric_limits<float>::max()), std::numeric_limits<float>::epsilon());
+        TS_ASSERT(std::isinf(r2.m_min));
+        TS_ASSERT_EQUALS(r2.m_min, r2.m_max);
+        TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), r2.m_min);
+        TS_ASSERT(std::isnan(r3.m_min));
+        TS_ASSERT(std::isnan(r3.m_max));
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+}
+
+void FloatTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 2U);
+
+    do {
+        auto& ns = namespaces[1];
+        TS_ASSERT_EQUALS(ns.name(), "my_ns");
+
+        auto fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.minLength(), 8U);
+        TS_ASSERT(std::isnan(floatField.defaultValue()));
+        TS_ASSERT_EQUALS(validRanges.size(), 2U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (210.111)), Epsilon);
+        TS_ASSERT(std::isnan(r2.m_min));
+        TS_ASSERT(std::isnan(r2.m_max));
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+
+    do {
+        auto& ns = namespaces[0];
+        TS_ASSERT(ns.name().empty());
+
+        auto fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.minLength(), 4U);
+        TS_ASSERT(std::isinf(floatField.defaultValue()));
+        TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), floatField.defaultValue());
+        TS_ASSERT_EQUALS(validRanges.size(), 3U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        auto& r3 = validRanges[2];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - 220.123), std::numeric_limits<float>::epsilon());
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_min - 255.666), Epsilon);
+        TS_ASSERT_EQUALS(r2.m_min, r2.m_max);
+        TS_ASSERT(std::isinf(r3.m_min));
+        TS_ASSERT_EQUALS(r3.m_min, r3.m_max);
+        TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), r3.m_min);
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+}
+
+void FloatTestSuite::test4()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    do {
+        auto& ns = namespaces.front();
+        TS_ASSERT(ns.name().empty());
+
+        auto fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.minLength(), 8U);
+        TS_ASSERT(std::isnan(floatField.defaultValue()));
+        TS_ASSERT_EQUALS(validRanges.size(), 4U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        auto& r3 = validRanges[2];
+        auto& r4 = validRanges[3];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (std::numeric_limits<double>::max())), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, 2U);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_max - (210.111)), Epsilon);
+        TS_ASSERT_LESS_THAN(0.0, r3.m_min);
+        TS_ASSERT(std::isinf(r3.m_min));
+        TS_ASSERT(std::isinf(r3.m_max));
+        TS_ASSERT_EQUALS(r3.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r3.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT(std::isnan(r4.m_min));
+        TS_ASSERT(std::isnan(r4.m_max));
+        TS_ASSERT_EQUALS(r4.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r4.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(specialValues.size(), 3U);
+    } while (false);
+}
+
+void FloatTestSuite::test5()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    do {
+        auto& ns = namespaces.front();
+        TS_ASSERT(ns.name().empty());
+
+        auto fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.minLength(), 8U);
+        TS_ASSERT(std::isnan(floatField.defaultValue()));
+        TS_ASSERT_EQUALS(validRanges.size(), 3U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        auto& r3 = validRanges[2];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (std::numeric_limits<double>::max())), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_LESS_THAN(0.0, r2.m_min);
+        TS_ASSERT(std::isinf(r2.m_min));
+        TS_ASSERT(std::isinf(r2.m_max));
+        TS_ASSERT_EQUALS(r2.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT(std::isnan(r3.m_min));
+        TS_ASSERT(std::isnan(r3.m_max));
+        TS_ASSERT_EQUALS(r3.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r3.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(specialValues.size(), 3U);
+    } while (false);
+}
+
+void FloatTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    do {
+        auto& ns = namespaces.front();
+        TS_ASSERT(ns.name().empty());
+
+        auto fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.minLength(), 8U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT_EQUALS(floatField.validCheckVersion(), true);
+        TS_ASSERT_EQUALS(validRanges.size(), 2U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (std::numeric_limits<double>::lowest())), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (std::numeric_limits<double>::max())), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, 1U);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_max - (210.111)), Epsilon);
+        TS_ASSERT_EQUALS(r2.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT(specialValues.empty());
+    } while (false);
+}
+
+void FloatTestSuite::test7()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+}
+
+void FloatTestSuite::test8()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+}
+
+void FloatTestSuite::test9()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.minLength(), 4U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
+        TS_ASSERT_EQUALS(validRanges.size(), 1U);
+        auto& r1 = validRanges[0];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - 210.111), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(specialValues.size(), 1U);
+        auto& s1 = specialValues.find("S1")->second;
+        TS_ASSERT_LESS_THAN(std::abs(s1.m_value - (-100.123)), Epsilon);
+    } while (false);
+
+    do {
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Float2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.minLength(), 4U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), -100.123);
+        TS_ASSERT_EQUALS(validRanges.size(), 2U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200.0)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - 210.111), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT(std::isnan(r2.m_min));
+        TS_ASSERT(std::isnan(r2.m_max));
+        TS_ASSERT_EQUALS(specialValues.size(), 2U);
+    } while (false);
+}
+
+void FloatTestSuite::test10()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Float2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& validRanges = floatField.validRanges();
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.minLength(), 4U);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), -100.123);
+        TS_ASSERT_EQUALS(validRanges.size(), 3U);
+        auto& r1 = validRanges[0];
+        auto& r2 = validRanges[1];
+        auto& r3 = validRanges[2];
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200.0)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (-100.123)), Epsilon);
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_min - (-100.123)), Epsilon);
+        TS_ASSERT_LESS_THAN(std::abs(r2.m_max - 210.111), Epsilon);
+        TS_ASSERT_EQUALS(r2.m_sinceVersion, 1U);
+        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT(std::isnan(r3.m_min));
+        TS_ASSERT(std::isnan(r3.m_max));
+        TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(specialValues.size(), 2U);
+        auto& s1 = specialValues.find("S1")->second;
+        auto& s2 = specialValues.find("S2")->second;
+        TS_ASSERT_EQUALS(s1.m_value, -100.123);
+        TS_ASSERT_EQUALS(s1.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(s1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(s1.m_description, "Some description");
+        TS_ASSERT_EQUALS(s2.m_value, -200);
+        TS_ASSERT_EQUALS(s2.m_sinceVersion, 0U);
+        TS_ASSERT_EQUALS(s2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT(s2.m_description.empty());
+    } while (false);
+}
+
+void FloatTestSuite::test11()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    do {
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Float1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        TS_ASSERT_EQUALS(floatField.units(), commsdsl::Units::Seconds);
+    } while (false);
+}
+
+

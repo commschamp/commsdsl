@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema7"
+        id="1"
+        endian="big">
+    <fields>
+        <string name="String1" zeroTermSuffix="1">
+            <lengthPrefix>
+                <int name="StrLen" type="uint8" />
+            </lengthPrefix>
+        </string>
+    </fields>
+</schema>

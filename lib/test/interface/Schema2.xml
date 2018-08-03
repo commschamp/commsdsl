@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <interface name="Generic">
+            <int name="version" type="uint32">
+                <semanticType>Version</semanticType>
+            </int>
+        </interface>
+    </ns>
+</schema>

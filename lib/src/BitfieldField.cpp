@@ -1,0 +1,42 @@
+#include "commsdsl/BitfieldField.h"
+
+#include <cassert>
+
+#include "BitfieldFieldImpl.h"
+
+namespace commsdsl
+{
+
+namespace
+{
+
+const BitfieldFieldImpl* cast(const FieldImpl* ptr)
+{
+    assert(ptr != nullptr);
+    return static_cast<const BitfieldFieldImpl*>(ptr);
+}
+
+} // namespace
+
+BitfieldField::BitfieldField(const BitfieldFieldImpl* impl)
+  : Base(impl)
+{
+}
+
+BitfieldField::BitfieldField(Field field)
+  : Base(field)
+{
+    assert(kind() == Kind::Bitfield);
+}
+
+Endian BitfieldField::endian() const
+{
+    return cast(m_pImpl)->endian();
+}
+
+BitfieldField::Members BitfieldField::members() const
+{
+    return cast(m_pImpl)->membersList();
+}
+
+} // namespace commsdsl

@@ -1,0 +1,1486 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class IntTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
+    void test10();
+    void test11();
+    void test12();
+    void test13();
+    void test14();
+    void test15();
+    void test16();
+    void test17();
+    void test18();
+    void test19();
+    void test20();
+    void test21();
+    void test22();
+
+};
+
+void IntTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void IntTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void IntTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(intField.minLength(), 1U);
+    TS_ASSERT_EQUALS(intField.bitLength(), 0U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), 0);
+    TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint8_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 0);
+    TS_ASSERT_EQUALS(intField.validCheckVersion(), false);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 1);
+    TS_ASSERT(validRanges.empty());
+    TS_ASSERT(specialValues.empty());
+}
+
+void IntTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "my_ns");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field1 = fields[0];
+    auto& field2 = fields[1];
+    auto& field3 = fields[2];
+
+    TS_ASSERT_EQUALS(field1.name(), "Int1");
+    TS_ASSERT_EQUALS(field2.name(), "Int2");
+    TS_ASSERT_EQUALS(field3.name(), "Int3");
+    TS_ASSERT_EQUALS(field1.displayName(), "Int 1");
+    TS_ASSERT_EQUALS(field2.displayName(), "Int 2");
+    TS_ASSERT_EQUALS(field3.displayName(), "Int 3");
+    TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field1.kind(), field2.kind());
+    TS_ASSERT_EQUALS(field1.kind(), field3.kind());
+
+    commsdsl::IntField intField1(field1);
+    commsdsl::IntField intField2(field2);
+    commsdsl::IntField intField3(field3);
+    auto scaling1 = intField1.scaling();
+    auto scaling2 = intField2.scaling();
+    auto scaling3 = intField3.scaling();
+    auto& validRanges1 = intField1.validRanges();
+    auto& validRanges2 = intField2.validRanges();
+    auto& validRanges3 = intField3.validRanges();
+    auto& specialValues1 = intField1.specialValues();
+    auto& specialValues2 = intField2.specialValues();
+    auto& specialValues3 = intField3.specialValues();
+
+    TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int16);
+    TS_ASSERT_EQUALS(intField1.type(), intField2.type());
+    TS_ASSERT_EQUALS(intField1.type(), intField3.type());
+    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField1.endian(), intField2.endian());
+    TS_ASSERT_EQUALS(intField1.endian(), intField3.endian());
+    TS_ASSERT_EQUALS(intField1.minLength(), 2U);
+    TS_ASSERT_EQUALS(intField1.minLength(), intField2.minLength());
+    TS_ASSERT_EQUALS(intField1.minLength(), intField3.minLength());
+    TS_ASSERT_EQUALS(intField1.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
+    TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int16_t>::min());
+    TS_ASSERT_EQUALS(intField1.minValue(), intField2.minValue());
+    TS_ASSERT_EQUALS(intField1.minValue(), intField3.minValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int16_t>::max());
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField2.maxValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField3.maxValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), 500);
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField2.defaultValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField3.defaultValue());
+    TS_ASSERT_EQUALS(scaling1.first, 1);
+    TS_ASSERT_EQUALS(scaling1.second, 10);
+    TS_ASSERT_EQUALS(scaling1, scaling2);
+    TS_ASSERT_EQUALS(scaling1, scaling3);
+    TS_ASSERT_EQUALS(validRanges1.size(), 1U);
+    TS_ASSERT_EQUALS(validRanges1.front().m_min, 400);
+    TS_ASSERT_EQUALS(validRanges1.front().m_max, intField1.maxValue());
+    TS_ASSERT_EQUALS(validRanges1, validRanges2);
+    TS_ASSERT_EQUALS(validRanges1, validRanges3);
+    TS_ASSERT(specialValues1.empty());
+    TS_ASSERT(specialValues2.empty());
+    TS_ASSERT(specialValues3.empty());
+}
+
+void IntTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 3U);
+
+    auto& ns1 = namespaces[0];
+    auto& ns2 = namespaces[1];
+    auto& ns3 = namespaces[2];
+
+    TS_ASSERT_EQUALS(ns1.name(), "my_ns1");
+    TS_ASSERT_EQUALS(ns2.name(), "my_ns2");
+    TS_ASSERT_EQUALS(ns3.name(), "my_ns3");
+
+    auto fields1 = ns1.fields();
+    auto fields2 = ns2.fields();
+    auto fields3 = ns3.fields();
+
+    TS_ASSERT_EQUALS(fields1.size(), 1U);
+    TS_ASSERT_EQUALS(fields2.size(), 1U);
+    TS_ASSERT_EQUALS(fields3.size(), 1U);
+
+    auto& field1 = fields1.front();
+    auto& field2 = fields2.front();
+    auto& field3 = fields3.front();
+
+    TS_ASSERT_EQUALS(field1.name(), "Year");
+    TS_ASSERT_EQUALS(field1.name(), field2.name());
+    TS_ASSERT_EQUALS(field1.name(), field3.name());
+    TS_ASSERT(field1.displayName().empty());
+    TS_ASSERT(field2.displayName().empty());
+    TS_ASSERT(field3.displayName().empty());
+    TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field1.kind(), field2.kind());
+    TS_ASSERT_EQUALS(field1.kind(), field3.kind());
+
+    commsdsl::IntField intField1(field1);
+    commsdsl::IntField intField2(field2);
+    commsdsl::IntField intField3(field3);
+    auto scaling1 = intField1.scaling();
+    auto scaling2 = intField2.scaling();
+    auto scaling3 = intField3.scaling();
+    auto& validRanges1 = intField1.validRanges();
+    auto& validRanges2 = intField2.validRanges();
+    auto& validRanges3 = intField3.validRanges();
+    auto& specialValues1 = intField1.specialValues();
+    auto& specialValues2 = intField2.specialValues();
+    auto& specialValues3 = intField3.specialValues();
+
+    TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int16);
+    TS_ASSERT_EQUALS(intField1.type(), intField2.type());
+    TS_ASSERT_EQUALS(intField1.type(), intField3.type());
+    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(intField1.endian(), intField2.endian());
+    TS_ASSERT_EQUALS(intField1.endian(), intField3.endian());
+    TS_ASSERT_EQUALS(intField1.minLength(), 1U);
+    TS_ASSERT_EQUALS(intField1.minLength(), intField2.minLength());
+    TS_ASSERT_EQUALS(intField1.minLength(), intField3.minLength());
+    TS_ASSERT_EQUALS(intField1.serOffset(), -2000);
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
+    TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min() + 2000);
+    TS_ASSERT_EQUALS(intField1.minValue(), intField2.minValue());
+    TS_ASSERT_EQUALS(intField1.minValue(), intField3.minValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max() + 2000);
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField2.maxValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField3.maxValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), 2000);
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField2.defaultValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField3.defaultValue());
+    TS_ASSERT_EQUALS(intField1.units(), commsdsl::Units::Unknown);
+    TS_ASSERT_EQUALS(intField1.units(), intField2.units());
+    TS_ASSERT_EQUALS(intField1.units(), intField3.units());
+    TS_ASSERT_EQUALS(scaling1.first, 1);
+    TS_ASSERT_EQUALS(scaling1.second, 1);
+    TS_ASSERT_EQUALS(scaling1, scaling2);
+    TS_ASSERT_EQUALS(scaling1, scaling3);
+    TS_ASSERT_EQUALS(validRanges1.size(), 1U);
+    TS_ASSERT_EQUALS(validRanges1.front().m_min, 2000);
+    TS_ASSERT_EQUALS(validRanges1.front().m_max, 2100);
+    TS_ASSERT_EQUALS(validRanges1, validRanges2);
+    TS_ASSERT_EQUALS(validRanges1, validRanges3);
+    TS_ASSERT(specialValues1.empty());
+    TS_ASSERT(specialValues2.empty());
+    TS_ASSERT(specialValues3.empty());
+}
+
+void IntTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field1 = fields[0];
+    auto& field2 = fields[1];
+    auto& field3 = fields[2];
+
+    TS_ASSERT_EQUALS(field1.name(), "Int1");
+    TS_ASSERT_EQUALS(field2.name(), "Int2");
+    TS_ASSERT_EQUALS(field3.name(), "Int3");
+    TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field1.kind(), field2.kind());
+    TS_ASSERT_EQUALS(field1.kind(), field3.kind());
+
+    commsdsl::IntField intField1(field1);
+    commsdsl::IntField intField2(field2);
+    commsdsl::IntField intField3(field3);
+    auto scaling1 = intField1.scaling();
+    auto scaling2 = intField2.scaling();
+    auto scaling3 = intField3.scaling();
+    auto& validRanges1 = intField1.validRanges();
+    auto& validRanges2 = intField2.validRanges();
+    auto& validRanges3 = intField3.validRanges();
+    auto& specialValues1 = intField1.specialValues();
+    auto& specialValues2 = intField2.specialValues();
+    auto& specialValues3 = intField3.specialValues();
+
+    TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int8);
+    TS_ASSERT_EQUALS(intField1.type(), intField2.type());
+    TS_ASSERT_EQUALS(intField1.type(), intField3.type());
+    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField1.endian(), intField2.endian());
+    TS_ASSERT_EQUALS(intField1.endian(), intField3.endian());
+    TS_ASSERT_EQUALS(intField1.minLength(), 1U);
+    TS_ASSERT_EQUALS(intField1.minLength(), intField2.minLength());
+    TS_ASSERT_EQUALS(intField1.minLength(), intField3.minLength());
+    TS_ASSERT_EQUALS(intField1.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField2.serOffset());
+    TS_ASSERT_EQUALS(intField1.serOffset(), intField3.serOffset());
+    TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min());
+    TS_ASSERT_EQUALS(intField1.minValue(), intField2.minValue());
+    TS_ASSERT_EQUALS(intField1.minValue(), intField3.minValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max());
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField2.maxValue());
+    TS_ASSERT_EQUALS(intField1.maxValue(), intField3.maxValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), 10);
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField2.defaultValue());
+    TS_ASSERT_EQUALS(intField1.defaultValue(), intField3.defaultValue());
+    TS_ASSERT_EQUALS(scaling1.first, 1);
+    TS_ASSERT_EQUALS(scaling1.second, 1);
+    TS_ASSERT_EQUALS(scaling1, scaling2);
+    TS_ASSERT_EQUALS(scaling1, scaling3);
+    TS_ASSERT_EQUALS(validRanges1.size(), 3U);
+    auto& range1 = validRanges1[0];
+    auto& range2 = validRanges1[1];
+    auto& range3 = validRanges1[2];
+    TS_ASSERT_EQUALS(range1.m_min, 10);
+    TS_ASSERT_EQUALS(range1.m_max, 10);
+    TS_ASSERT_EQUALS(range1.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(range1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(range2.m_min, 100);
+    TS_ASSERT_EQUALS(range2.m_max, 120);
+    TS_ASSERT_EQUALS(range3.m_min, 130);
+    TS_ASSERT_EQUALS(range3.m_max, 140);
+    TS_ASSERT_EQUALS(validRanges1, validRanges2);
+    TS_ASSERT_EQUALS(validRanges1, validRanges3);
+    TS_ASSERT_EQUALS(specialValues1.size(), 2U);
+    auto& special1 = *specialValues1.begin();
+    auto& special2 = *(++specialValues1.begin());
+    TS_ASSERT_EQUALS(special1.first, "val1");
+    TS_ASSERT_EQUALS(special1.second.m_value, 100);
+    TS_ASSERT_EQUALS(special2.first, "val2");
+    TS_ASSERT_EQUALS(special2.second.m_value, 101);
+    TS_ASSERT_EQUALS(specialValues1, specialValues2);
+    TS_ASSERT_EQUALS(specialValues1, specialValues3);
+}
+
+void IntTestSuite::test5()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 8U);
+
+    do {
+        auto& field1 = fields[0];
+        TS_ASSERT_EQUALS(field1.name(), "Int1");
+        TS_ASSERT(field1.displayName().empty());
+        TS_ASSERT(field1.description().empty());
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField1(field1);
+        auto scaling1 = intField1.scaling();
+        auto& validRanges1 = intField1.validRanges();
+        auto& specialValues1 = intField1.specialValues();
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int8);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField1.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField1.serOffset(), 0);
+        TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min());
+        TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max());
+        TS_ASSERT_EQUALS(intField1.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling1.first, 1);
+        TS_ASSERT_EQUALS(scaling1.second, 1);
+        TS_ASSERT_EQUALS(validRanges1.size(), 1U);
+        TS_ASSERT_EQUALS(validRanges1.front().m_min, std::numeric_limits<std::int8_t>::min());
+        TS_ASSERT_EQUALS(validRanges1.front().m_max, 10);
+        TS_ASSERT(specialValues1.empty());
+    } while (false);
+
+    do {
+        auto& field2 = fields[1];
+        TS_ASSERT_EQUALS(field2.name(), "Int2");
+        TS_ASSERT(field2.displayName().empty());
+        TS_ASSERT(field2.description().empty());
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField2(field2);
+        auto scaling2 = intField2.scaling();
+        auto& validRanges2 = intField2.validRanges();
+        auto& specialValues2 = intField2.specialValues();
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Uint8);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField2.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField2.serOffset(), 0);
+        TS_ASSERT_EQUALS(intField2.minValue(), 0);
+        TS_ASSERT_EQUALS(intField2.maxValue(), (std::intmax_t)std::numeric_limits<std::uint8_t>::max());
+        TS_ASSERT_EQUALS(intField2.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling2.first, 1);
+        TS_ASSERT_EQUALS(scaling2.second, 1);
+        TS_ASSERT_EQUALS(validRanges2.size(), 1U);
+        TS_ASSERT_EQUALS(validRanges2.front().m_min, 10);
+        TS_ASSERT_EQUALS(validRanges2.front().m_max, std::numeric_limits<std::uint8_t>::max());
+        TS_ASSERT(specialValues2.empty());
+    } while (false);
+
+    do {
+        auto& field3 = fields[2];
+        TS_ASSERT_EQUALS(field3.name(), "Int3");
+        TS_ASSERT(field3.displayName().empty());
+        TS_ASSERT(field3.description().empty());
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField3(field3);
+        auto scaling3 = intField3.scaling();
+        auto& validRanges3 = intField3.validRanges();
+        auto& specialValues3 = intField3.specialValues();
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Int16);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField3.minLength(), 2U);
+        TS_ASSERT_EQUALS(intField3.serOffset(), 0);
+        TS_ASSERT_EQUALS(intField3.minValue(), std::numeric_limits<std::int16_t>::min());
+        TS_ASSERT_EQUALS(intField3.maxValue(), std::numeric_limits<std::int16_t>::max());
+        TS_ASSERT_EQUALS(intField3.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling3.first, 1);
+        TS_ASSERT_EQUALS(scaling3.second, 1);
+        TS_ASSERT_EQUALS(validRanges3.size(), 1U);
+        TS_ASSERT_EQUALS(validRanges3.front().m_min, std::numeric_limits<std::int16_t>::min());
+        TS_ASSERT_EQUALS(validRanges3.front().m_max, 1000);
+        TS_ASSERT(specialValues3.empty());
+    } while (false);
+
+    do {
+        auto& field4 = fields[3];
+        TS_ASSERT_EQUALS(field4.name(), "Int4");
+        TS_ASSERT(field4.displayName().empty());
+        TS_ASSERT(field4.description().empty());
+        TS_ASSERT_EQUALS(field4.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField4(field4);
+        auto scaling4 = intField4.scaling();
+        auto& validRanges4 = intField4.validRanges();
+        auto& specialValues4 = intField4.specialValues();
+        TS_ASSERT_EQUALS(intField4.type(), commsdsl::IntField::Type::Uint16);
+        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField4.minLength(), 2U);
+        TS_ASSERT_EQUALS(intField4.serOffset(), 0);
+        TS_ASSERT_EQUALS(intField4.minValue(), 0);
+        TS_ASSERT_EQUALS(intField4.maxValue(), (std::intmax_t)std::numeric_limits<std::uint16_t>::max());
+        TS_ASSERT_EQUALS(intField4.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling4.first, 1);
+        TS_ASSERT_EQUALS(scaling4.second, 1);
+        TS_ASSERT_EQUALS(validRanges4.size(), 1U);
+        TS_ASSERT_EQUALS(validRanges4.front().m_min, 1000);
+        TS_ASSERT_EQUALS(validRanges4.front().m_max, std::numeric_limits<std::uint16_t>::max());
+        TS_ASSERT(specialValues4.empty());
+    } while (false);
+
+    do {
+        auto& field5 = fields[4];
+        TS_ASSERT_EQUALS(field5.name(), "Int5");
+        TS_ASSERT(field5.displayName().empty());
+        TS_ASSERT(field5.description().empty());
+        TS_ASSERT_EQUALS(field5.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField5(field5);
+        auto scaling5 = intField5.scaling();
+        auto& validRanges5 = intField5.validRanges();
+        auto& specialValues5 = intField5.specialValues();
+        TS_ASSERT_EQUALS(intField5.type(), commsdsl::IntField::Type::Int32);
+        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField5.minLength(), 4U);
+        TS_ASSERT_EQUALS(intField5.serOffset(), 0);
+        TS_ASSERT_EQUALS(intField5.minValue(), std::numeric_limits<std::int32_t>::min());
+        TS_ASSERT_EQUALS(intField5.maxValue(), std::numeric_limits<std::int32_t>::max());
+        TS_ASSERT_EQUALS(intField5.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling5.first, 1);
+        TS_ASSERT_EQUALS(scaling5.second, 1);
+        TS_ASSERT_EQUALS(validRanges5.size(), 1U);
+        TS_ASSERT_EQUALS(validRanges5.front().m_min, std::numeric_limits<std::int32_t>::min());
+        TS_ASSERT_EQUALS(validRanges5.front().m_max, 100000);
+        TS_ASSERT(specialValues5.empty());
+    } while (false);
+
+    do {
+        auto& field6 = fields[5];
+        TS_ASSERT_EQUALS(field6.name(), "Int6");
+        TS_ASSERT(field6.displayName().empty());
+        TS_ASSERT(field6.description().empty());
+        TS_ASSERT_EQUALS(field6.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField6(field6);
+        auto scaling6 = intField6.scaling();
+        auto& validRanges6 = intField6.validRanges();
+        auto& specialValues6 = intField6.specialValues();
+        TS_ASSERT_EQUALS(intField6.type(), commsdsl::IntField::Type::Uint32);
+        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField6.minLength(), 4U);
+        TS_ASSERT_EQUALS(intField6.serOffset(), 0);
+        TS_ASSERT_EQUALS(intField6.minValue(), 0);
+        TS_ASSERT_EQUALS(intField6.maxValue(), (std::intmax_t)std::numeric_limits<std::uint32_t>::max());
+        TS_ASSERT_EQUALS(intField6.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling6.first, 1);
+        TS_ASSERT_EQUALS(scaling6.second, 1);
+        TS_ASSERT_EQUALS(validRanges6.size(), 1U);
+        TS_ASSERT_EQUALS(validRanges6.front().m_min, 100000);
+        TS_ASSERT_EQUALS(validRanges6.front().m_max, std::numeric_limits<std::uint32_t>::max());
+        TS_ASSERT(specialValues6.empty());
+    } while (false);
+
+    do {
+        auto& field7 = fields[6];
+        TS_ASSERT_EQUALS(field7.name(), "Int7");
+        TS_ASSERT(field7.displayName().empty());
+        TS_ASSERT(field7.description().empty());
+        TS_ASSERT_EQUALS(field7.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField7(field7);
+        auto scaling7 = intField7.scaling();
+        auto& validRanges7 = intField7.validRanges();
+        auto& specialValues7 = intField7.specialValues();
+        TS_ASSERT_EQUALS(intField7.type(), commsdsl::IntField::Type::Int64);
+        TS_ASSERT_EQUALS(intField7.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField7.minLength(), 8U);
+        TS_ASSERT_EQUALS(intField7.serOffset(), 0);
+        TS_ASSERT_EQUALS(intField7.minValue(), std::numeric_limits<std::int64_t>::min());
+        TS_ASSERT_EQUALS(intField7.maxValue(), std::numeric_limits<std::int64_t>::max());
+        TS_ASSERT_EQUALS(intField7.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling7.first, 1);
+        TS_ASSERT_EQUALS(scaling7.second, 1);
+        TS_ASSERT_EQUALS(validRanges7.size(), 1U);
+        TS_ASSERT_EQUALS(validRanges7.front().m_min, std::numeric_limits<std::int64_t>::min());
+        TS_ASSERT_EQUALS(validRanges7.front().m_max, 0xffffffffff);
+        TS_ASSERT(specialValues7.empty());
+    } while (false);
+
+    do {
+        auto& field8 = fields[7];
+        TS_ASSERT_EQUALS(field8.name(), "Int8");
+        TS_ASSERT(field8.displayName().empty());
+        TS_ASSERT(field8.description().empty());
+        TS_ASSERT_EQUALS(field8.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField8(field8);
+        auto scaling8 = intField8.scaling();
+        auto& validRanges8 = intField8.validRanges();
+        auto& specialValues8 = intField8.specialValues();
+        TS_ASSERT_EQUALS(intField8.type(), commsdsl::IntField::Type::Uint64);
+        TS_ASSERT_EQUALS(intField8.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField8.minLength(), 8U);
+        TS_ASSERT_EQUALS(intField8.serOffset(), 0);
+        TS_ASSERT_EQUALS(intField8.minValue(), 0);
+        TS_ASSERT_EQUALS(intField8.maxValue(), (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
+        TS_ASSERT_EQUALS(intField8.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling8.first, 1);
+        TS_ASSERT_EQUALS(scaling8.second, 1);
+        TS_ASSERT_EQUALS(validRanges8.size(), 1U);
+        TS_ASSERT_EQUALS(validRanges8.front().m_min, 0xffffffffff);
+        TS_ASSERT_EQUALS(validRanges8.front().m_max, (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
+        TS_ASSERT(specialValues8.empty());
+    } while (false);
+}
+
+void IntTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint64);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.minLength(), 8U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), 0);
+    TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 1);
+    TS_ASSERT(validRanges.empty());
+    TS_ASSERT_EQUALS(specialValues.size(), 1U);
+    auto iter = specialValues.find("Null");
+    TS_ASSERT_DIFFERS(iter, specialValues.end());
+    TS_ASSERT_EQUALS(iter->second.m_value, (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
+}
+
+void IntTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 6U);
+
+    do {
+        auto& field1 = fields[0];
+        TS_ASSERT_EQUALS(field1.name(), "Int1");
+        TS_ASSERT(field1.displayName().empty());
+        TS_ASSERT(field1.description().empty());
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField1(field1);
+        auto scaling1 = intField1.scaling();
+        auto& validRanges1 = intField1.validRanges();
+        auto& specialValues1 = intField1.specialValues();
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int16);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField1.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField1.serOffset(), 100);
+        TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min() - intField1.serOffset());
+        TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max() - intField1.serOffset());
+        TS_ASSERT_EQUALS(intField1.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling1.first, 1);
+        TS_ASSERT_EQUALS(scaling1.second, 1);
+        TS_ASSERT(validRanges1.empty());
+        TS_ASSERT(specialValues1.empty());
+    } while (false);
+
+    do {
+        auto& field2 = fields[1];
+        TS_ASSERT_EQUALS(field2.name(), "Int2");
+        TS_ASSERT(field2.displayName().empty());
+        TS_ASSERT(field2.description().empty());
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField2(field2);
+        auto scaling2 = intField2.scaling();
+        auto& validRanges2 = intField2.validRanges();
+        auto& specialValues2 = intField2.specialValues();
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Uint16);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField2.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField2.serOffset(), 100);
+        TS_ASSERT_EQUALS(intField2.minValue(), 0);
+        TS_ASSERT_EQUALS(intField2.maxValue(), std::numeric_limits<std::uint8_t>::max() - intField2.serOffset());
+        TS_ASSERT_EQUALS(intField2.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling2.first, 1);
+        TS_ASSERT_EQUALS(scaling2.second, 1);
+        TS_ASSERT(validRanges2.empty());
+        TS_ASSERT(specialValues2.empty());
+    } while (false);
+
+    do {
+        auto& field3 = fields[2];
+        TS_ASSERT_EQUALS(field3.name(), "Int3");
+        TS_ASSERT(field3.displayName().empty());
+        TS_ASSERT(field3.description().empty());
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField3(field3);
+        auto scaling3 = intField3.scaling();
+        auto& validRanges3 = intField3.validRanges();
+        auto& specialValues3 = intField3.specialValues();
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Int32);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField3.minLength(), 3U);
+        TS_ASSERT_EQUALS(intField3.serOffset(), 100);
+        TS_ASSERT_EQUALS(intField3.minValue(), -8388608LL - intField3.serOffset());
+        TS_ASSERT_EQUALS(intField3.maxValue(), 0x7fffff - intField3.serOffset());
+        TS_ASSERT_EQUALS(intField3.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling3.first, 1);
+        TS_ASSERT_EQUALS(scaling3.second, 1);
+        TS_ASSERT(validRanges3.empty());
+        TS_ASSERT(specialValues3.empty());
+    } while (false);
+
+    do {
+        auto& field4 = fields[3];
+        TS_ASSERT_EQUALS(field4.name(), "Int4");
+        TS_ASSERT(field4.displayName().empty());
+        TS_ASSERT(field4.description().empty());
+        TS_ASSERT_EQUALS(field4.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField4(field4);
+        auto scaling4 = intField4.scaling();
+        auto& validRanges4 = intField4.validRanges();
+        auto& specialValues4 = intField4.specialValues();
+        TS_ASSERT_EQUALS(intField4.type(), commsdsl::IntField::Type::Uint32);
+        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField4.minLength(), 3U);
+        TS_ASSERT_EQUALS(intField4.serOffset(), 100);
+        TS_ASSERT_EQUALS(intField4.minValue(), 0);
+        TS_ASSERT_EQUALS(intField4.maxValue(), 0xffffff - intField4.serOffset());
+        TS_ASSERT_EQUALS(intField4.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling4.first, 1);
+        TS_ASSERT_EQUALS(scaling4.second, 1);
+        TS_ASSERT(validRanges4.empty());
+        TS_ASSERT(specialValues4.empty());
+    } while (false);
+
+    do {
+        auto& field5 = fields[4];
+        TS_ASSERT_EQUALS(field5.name(), "Int5");
+        TS_ASSERT(field5.displayName().empty());
+        TS_ASSERT(field5.description().empty());
+        TS_ASSERT_EQUALS(field5.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField5(field5);
+        auto scaling5 = intField5.scaling();
+        auto& validRanges5 = intField5.validRanges();
+        auto& specialValues5 = intField5.specialValues();
+        TS_ASSERT_EQUALS(intField5.type(), commsdsl::IntField::Type::Int64);
+        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField5.minLength(), 5U);
+        TS_ASSERT_EQUALS(intField5.serOffset(), 100);
+        TS_ASSERT_EQUALS(intField5.minValue(), -549755813888LL - intField5.serOffset());
+        TS_ASSERT_EQUALS(intField5.maxValue(), 0x7fffffffff - intField5.serOffset());
+        TS_ASSERT_EQUALS(intField5.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling5.first, 1);
+        TS_ASSERT_EQUALS(scaling5.second, 1);
+        TS_ASSERT(validRanges5.empty());
+        TS_ASSERT(specialValues5.empty());
+    } while (false);
+
+    do {
+        auto& field6 = fields[5];
+        TS_ASSERT_EQUALS(field6.name(), "Int6");
+        TS_ASSERT(field6.displayName().empty());
+        TS_ASSERT(field6.description().empty());
+        TS_ASSERT_EQUALS(field6.kind(), commsdsl::Field::Kind::Int);
+
+        commsdsl::IntField intField6(field6);
+        auto scaling6 = intField6.scaling();
+        auto& validRanges6 = intField6.validRanges();
+        auto& specialValues6 = intField6.specialValues();
+        TS_ASSERT_EQUALS(intField6.type(), commsdsl::IntField::Type::Uint64);
+        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField6.minLength(), 5U);
+        TS_ASSERT_EQUALS(intField6.serOffset(), 100);
+        TS_ASSERT_EQUALS(intField6.minValue(), 0);
+        TS_ASSERT_EQUALS(intField6.maxValue(), 0xffffffffff - intField6.serOffset());
+        TS_ASSERT_EQUALS(intField6.defaultValue(), 0);
+        TS_ASSERT_EQUALS(scaling6.first, 1);
+        TS_ASSERT_EQUALS(scaling6.second, 1);
+        TS_ASSERT(validRanges6.empty());
+        TS_ASSERT(specialValues6.empty());
+    } while (false);
+}
+
+void IntTestSuite::test8()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 6U);
+
+    do {
+        auto& field1 = fields[0];
+        TS_ASSERT_EQUALS(field1.name(), "Int1");
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField1(field1);
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int16);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField1.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField1.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min() - intField1.serOffset());
+        TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int8_t>::max() - intField1.serOffset());
+        TS_ASSERT_EQUALS(intField1.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field2 = fields[1];
+        TS_ASSERT_EQUALS(field2.name(), "Int2");
+        TS_ASSERT(field2.displayName().empty());
+        TS_ASSERT(field2.description().empty());
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField2(field2);
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Uint16);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField2.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField2.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField2.minValue(), -intField2.serOffset());
+        TS_ASSERT_EQUALS(intField2.maxValue(), std::numeric_limits<std::uint8_t>::max() - intField2.serOffset());
+        TS_ASSERT_EQUALS(intField2.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field3 = fields[2];
+        TS_ASSERT_EQUALS(field3.name(), "Int3");
+        TS_ASSERT(field3.displayName().empty());
+        TS_ASSERT(field3.description().empty());
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField3(field3);
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Int32);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField3.minLength(), 3U);
+        TS_ASSERT_EQUALS(intField3.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField3.minValue(), -8388608LL - intField3.serOffset());
+        TS_ASSERT_EQUALS(intField3.maxValue(), 0x7fffff - intField3.serOffset());
+        TS_ASSERT_EQUALS(intField3.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field4 = fields[3];
+        TS_ASSERT_EQUALS(field4.name(), "Int4");
+        TS_ASSERT_EQUALS(field4.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField4(field4);
+        TS_ASSERT_EQUALS(intField4.type(), commsdsl::IntField::Type::Uint32);
+        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField4.minLength(), 3U);
+        TS_ASSERT_EQUALS(intField4.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField4.minValue(), -intField4.serOffset());
+        TS_ASSERT_EQUALS(intField4.maxValue(), 0xffffff - intField4.serOffset());
+        TS_ASSERT_EQUALS(intField4.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field5 = fields[4];
+        TS_ASSERT_EQUALS(field5.name(), "Int5");
+        TS_ASSERT_EQUALS(field5.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField5(field5);
+        TS_ASSERT_EQUALS(intField5.type(), commsdsl::IntField::Type::Int64);
+        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField5.minLength(), 5U);
+        TS_ASSERT_EQUALS(intField5.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField5.minValue(), -549755813888LL - intField5.serOffset());
+        TS_ASSERT_EQUALS(intField5.maxValue(), 0x7fffffffff - intField5.serOffset());
+        TS_ASSERT_EQUALS(intField5.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field6 = fields[5];
+        TS_ASSERT_EQUALS(field6.name(), "Int6");
+        TS_ASSERT_EQUALS(field6.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField6(field6);
+        TS_ASSERT_EQUALS(intField6.type(), commsdsl::IntField::Type::Uint64);
+        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField6.minLength(), 5U);
+        TS_ASSERT_EQUALS(intField6.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField6.minValue(), -intField6.serOffset());
+        TS_ASSERT_EQUALS(intField6.maxValue(), 0xffffffffff - intField6.serOffset());
+        TS_ASSERT_EQUALS(intField6.defaultValue(), 100);
+    } while (false);
+}
+
+void IntTestSuite::test9()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    do {
+        auto& field1 = fields[0];
+        TS_ASSERT_EQUALS(field1.name(), "Int1");
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField1(field1);
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Intvar);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField1.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField1.maxLength(), 10U);
+        TS_ASSERT_EQUALS(intField1.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int64_t>::min() - intField1.serOffset());
+        TS_ASSERT_EQUALS(intField1.maxValue(), std::numeric_limits<std::int64_t>::max());
+        TS_ASSERT_EQUALS(intField1.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field2 = fields[1];
+        TS_ASSERT_EQUALS(field2.name(), "Int2");
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField2(field2);
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Intvar);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField2.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField2.maxLength(), 8U);
+        TS_ASSERT_EQUALS(intField2.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField2.minValue(), static_cast<std::intmax_t>(0xff80000000000000ULL) - intField2.serOffset());
+        TS_ASSERT_EQUALS(intField2.maxValue(), 0x7fffffffffffffLL - intField2.serOffset());
+        TS_ASSERT_EQUALS(intField2.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field3 = fields[2];
+        TS_ASSERT_EQUALS(field3.name(), "Int3");
+        TS_ASSERT(field3.displayName().empty());
+        TS_ASSERT(field3.description().empty());
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField3(field3);
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Intvar);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField3.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField3.maxLength(), 3U);
+        TS_ASSERT_EQUALS(intField3.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField3.minValue(), -1048576LL - intField3.serOffset());
+        TS_ASSERT_EQUALS(intField3.maxValue(), 0xfffff - intField3.serOffset());
+        TS_ASSERT_EQUALS(intField3.defaultValue(), 100);
+    } while (false);
+}
+
+
+void IntTestSuite::test10()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    do {
+        auto& field1 = fields[0];
+        TS_ASSERT_EQUALS(field1.name(), "Int1");
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField1(field1);
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Uintvar);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField1.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField1.maxLength(), 10U);
+        TS_ASSERT_EQUALS(intField1.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField1.minValue(), -intField1.serOffset());
+        TS_ASSERT_EQUALS(intField1.maxValue(), (std::intmax_t)std::numeric_limits<std::uint64_t>::max());
+        TS_ASSERT_EQUALS(intField1.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field2 = fields[1];
+        TS_ASSERT_EQUALS(field2.name(), "Int2");
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField2(field2);
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Uintvar);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField2.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField2.maxLength(), 8U);
+        TS_ASSERT_EQUALS(intField2.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField2.minValue(), -intField2.serOffset());
+        TS_ASSERT_EQUALS(intField2.maxValue(), 0xffffffffffffffLL - intField2.serOffset());
+        TS_ASSERT_EQUALS(intField2.defaultValue(), 100);
+    } while (false);
+
+    do {
+        auto& field3 = fields[2];
+        TS_ASSERT_EQUALS(field3.name(), "Int3");
+        TS_ASSERT(field3.displayName().empty());
+        TS_ASSERT(field3.description().empty());
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
+        commsdsl::IntField intField3(field3);
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Uintvar);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField3.minLength(), 1U);
+        TS_ASSERT_EQUALS(intField3.maxLength(), 3U);
+        TS_ASSERT_EQUALS(intField3.serOffset(), -100);
+        TS_ASSERT_EQUALS(intField3.minValue(), -intField3.serOffset());
+        TS_ASSERT_EQUALS(intField3.maxValue(), 0x1fffff - intField3.serOffset());
+        TS_ASSERT_EQUALS(intField3.defaultValue(), 100);
+    } while (false);
+}
+
+void IntTestSuite::test11()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Int8);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.minLength(), 1U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int8_t>::min());
+    TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::int8_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 100);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 1);
+    TS_ASSERT_EQUALS(validRanges.size(), 2U);
+    auto& r1 = validRanges[0];
+    auto& r2 = validRanges[1];
+    TS_ASSERT_EQUALS(r1.m_min, 100);
+    TS_ASSERT_EQUALS(r1.m_max, 101);
+    TS_ASSERT_EQUALS(r2.m_min, 110);
+    TS_ASSERT_EQUALS(r2.m_max, 120);
+    TS_ASSERT_EQUALS(specialValues.size(), 3U);
+    auto s1 = specialValues.find("val1");
+    auto s2 = specialValues.find("val2");
+    auto s3 = specialValues.find("otherVal2");
+    TS_ASSERT_EQUALS(s1->second.m_value, 100);
+    TS_ASSERT_EQUALS(s2->second.m_value, 101);
+    TS_ASSERT_EQUALS(s3->second.m_value, 101);
+}
+
+void IntTestSuite::test12()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields[1];
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Int8);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.minLength(), 1U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int8_t>::min());
+    TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::int8_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 100);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 1);
+    TS_ASSERT_EQUALS(validRanges.size(), 2U);
+    auto& r1 = validRanges[0];
+    auto& r2 = validRanges[1];
+    TS_ASSERT_EQUALS(r1.m_min, 100);
+    TS_ASSERT_EQUALS(r1.m_max, 101);
+    TS_ASSERT_EQUALS(r2.m_min, 110);
+    TS_ASSERT_EQUALS(r2.m_max, 120);
+    TS_ASSERT_EQUALS(specialValues.size(), 3U);
+    auto s1 = specialValues.find("val1");
+    auto s2 = specialValues.find("val2");
+    auto s3 = specialValues.find("otherVal2");
+    TS_ASSERT_EQUALS(s1->second.m_value, 100);
+    TS_ASSERT_EQUALS(s2->second.m_value, 101);
+    TS_ASSERT_EQUALS(s3->second.m_value, 101);
+}
+
+void IntTestSuite::test13()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields[0];
+
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT_EQUALS(field.displayName(), "Int 1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Int16);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.minLength(), 2U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int16_t>::min());
+    TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::int16_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 500);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 10);
+    TS_ASSERT_EQUALS(validRanges.size(), 1U);
+    TS_ASSERT_EQUALS(validRanges.front().m_min, 400);
+    TS_ASSERT_EQUALS(validRanges.front().m_max, intField.maxValue());
+    TS_ASSERT(specialValues.empty());
+}
+
+void IntTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test15()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 2U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields[0];
+
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(intField.minLength(), 2U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::uint16_t>::min());
+    TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::uint16_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 0);
+    TS_ASSERT_EQUALS(intField.displayDecimals(), 1);
+    TS_ASSERT_EQUALS(intField.displayOffset(), 2);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 20);
+    TS_ASSERT_EQUALS(validRanges.size(), 2U);
+    TS_ASSERT_EQUALS(validRanges.front().m_min, 0);
+    TS_ASSERT_EQUALS(validRanges.front().m_max, 10);
+    TS_ASSERT_EQUALS(validRanges.back().m_min, 20);
+    TS_ASSERT_EQUALS(validRanges.back().m_max, 20);
+    TS_ASSERT_EQUALS(specialValues.size(), 2U);
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1U);
+    TS_ASSERT_EQUALS(specialValues.find("S2")->second.m_value, 2U);
+}
+
+void IntTestSuite::test16()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test18()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test19()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 2U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields[0];
+
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.minLength(), 2U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::uint16_t>::min());
+    TS_ASSERT_EQUALS(intField.maxValue(), std::numeric_limits<std::uint16_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 100);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 1);
+    TS_ASSERT_EQUALS(validRanges.size(), 1U);
+    TS_ASSERT_EQUALS(validRanges.front().m_min, 0);
+    TS_ASSERT_EQUALS(validRanges.front().m_max, 2000);
+    TS_ASSERT_EQUALS(specialValues.size(), 2U);
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1000);
+    TS_ASSERT_EQUALS(specialValues.find("S2")->second.m_value, 2000);
+}
+
+void IntTestSuite::test20()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Int1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(field);
+    auto scaling = intField.scaling();
+    auto& validRanges = intField.validRanges();
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(intField.minLength(), 2U);
+    TS_ASSERT_EQUALS(intField.serOffset(), 0);
+    TS_ASSERT_EQUALS(intField.minValue(), 0);
+    TS_ASSERT_EQUALS(intField.maxValue(), (std::intmax_t)std::numeric_limits<std::uint16_t>::max());
+    TS_ASSERT_EQUALS(intField.defaultValue(), 1000);
+    TS_ASSERT_EQUALS(intField.validCheckVersion(), true);
+    TS_ASSERT(intField.extraAttributes().empty());
+    TS_ASSERT(intField.extraElements().empty());
+    TS_ASSERT_EQUALS(intField.units(), commsdsl::Units::Unknown);
+    TS_ASSERT_EQUALS(scaling.first, 1);
+    TS_ASSERT_EQUALS(scaling.second, 1);
+    TS_ASSERT_EQUALS(validRanges.size(), 2U);
+    auto& r1 = validRanges[0];
+    auto& r2 = validRanges[1];
+    TS_ASSERT_EQUALS(r1.m_min, 0);
+    TS_ASSERT_EQUALS(r1.m_max, 1000);
+    TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
+    TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(r2.m_min, 1000);
+    TS_ASSERT_EQUALS(r2.m_max, 2000);
+    TS_ASSERT_EQUALS(r2.m_sinceVersion, 2U);
+    TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(specialValues.size(), 2U);
+    auto& s1 = specialValues.find("S1")->second;
+    auto& s2 = specialValues.find("S2")->second;
+    TS_ASSERT_EQUALS(s1.m_value, 1000);
+    TS_ASSERT_EQUALS(s1.m_sinceVersion, 0U);
+    TS_ASSERT_EQUALS(s1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(s1.m_description, "Some description");
+    TS_ASSERT_EQUALS(s2.m_value, 2000);
+    TS_ASSERT_EQUALS(s2.m_sinceVersion, 2U);
+    TS_ASSERT_EQUALS(s2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT(s2.m_description.empty());
+}
+
+void IntTestSuite::test21()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    for (auto& f : fields) {
+        TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    }
+
+
+    commsdsl::IntField intField1(fields[0]);
+    commsdsl::IntField intField2(fields[1]);
+    commsdsl::IntField intField3(fields[2]);
+
+    TS_ASSERT_EQUALS(intField1.units(), commsdsl::Units::MetersPerSecond);
+    TS_ASSERT_EQUALS(intField2.units(), commsdsl::Units::MetersPerSecond);
+    TS_ASSERT_EQUALS(intField3.units(), commsdsl::Units::Millimeters);
+}
+
+void IntTestSuite::test22()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto verifyUnitsFunc =
+        [&fields](unsigned from, unsigned count, commsdsl::Units units)
+        {
+            TS_ASSERT_LESS_THAN_EQUALS(from + count, fields.size());
+            for (auto idx = from; idx < (from + count); ++idx) {
+                auto& f = fields[idx];
+                TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+                commsdsl::IntField intField(f);
+                TS_ASSERT_EQUALS(intField.units(), units);
+            }
+        };
+
+    auto nsOffset = 0;
+    auto nsCount = 5;
+    verifyUnitsFunc(nsOffset, nsCount, commsdsl::Units::Nanoseconds);
+
+    auto usOffset = nsOffset + nsCount;
+    auto usCount = 5;
+    verifyUnitsFunc(usOffset, usCount, commsdsl::Units::Microseconds);
+
+    auto msOffset = usOffset + usCount;
+    auto msCount = 5;
+    verifyUnitsFunc(msOffset, msCount, commsdsl::Units::Milliseconds);
+
+    auto sOffset = msOffset + msCount;
+    auto sCount = 5;
+    verifyUnitsFunc(sOffset, sCount, commsdsl::Units::Seconds);
+
+    auto minOffset = sOffset + sCount;
+    auto minCount = 4;
+    verifyUnitsFunc(minOffset, minCount, commsdsl::Units::Minutes);
+
+    auto hOffset = minOffset + minCount;
+    auto hCount = 3;
+    verifyUnitsFunc(hOffset, hCount, commsdsl::Units::Hours);
+
+    auto dOffset = hOffset + hCount;
+    auto dCount = 3;
+    verifyUnitsFunc(dOffset, dCount, commsdsl::Units::Days);
+
+    auto wOffset = dOffset + dCount;
+    auto wCount = 3;
+    verifyUnitsFunc(wOffset, wCount, commsdsl::Units::Weeks);
+
+    auto nmOffset = wOffset + wCount;
+    auto nmCount = 5;
+    verifyUnitsFunc(nmOffset, nmCount, commsdsl::Units::Nanometers);
+
+    auto umOffset = nmOffset + nmCount;
+    auto umCount = 5;
+    verifyUnitsFunc(umOffset, umCount, commsdsl::Units::Micrometers);
+
+    auto mmOffset = umOffset + umCount;
+    auto mmCount = 5;
+    verifyUnitsFunc(mmOffset, mmCount, commsdsl::Units::Millimeters);
+
+    auto cmOffset = mmOffset + mmCount;
+    auto cmCount = 5;
+    verifyUnitsFunc(cmOffset, cmCount, commsdsl::Units::Centimeters);
+
+    auto mOffset = cmOffset + cmCount;
+    auto mCount = 5;
+    verifyUnitsFunc(mOffset, mCount, commsdsl::Units::Meters);
+
+    auto kmOffset = mOffset + mCount;
+    auto kmCount = 5;
+    verifyUnitsFunc(kmOffset, kmCount, commsdsl::Units::Kilometers);
+
+    auto nmpsOffset = kmOffset + kmCount;
+    auto nmpsCount = 6;
+    verifyUnitsFunc(nmpsOffset, nmpsCount, commsdsl::Units::NanometersPerSecond);
+
+    auto umpsOffset = nmpsOffset + nmpsCount;
+    auto umpsCount = 6;
+    verifyUnitsFunc(umpsOffset, umpsCount, commsdsl::Units::MicrometersPerSecond);
+
+    auto mmpsOffset = umpsOffset + umpsCount;
+    auto mmpsCount = 6;
+    verifyUnitsFunc(mmpsOffset, mmpsCount, commsdsl::Units::MillimetersPerSecond);
+
+    auto cmpsOffset = mmpsOffset + mmpsCount;
+    auto cmpsCount = 6;
+    verifyUnitsFunc(cmpsOffset, cmpsCount, commsdsl::Units::CentimetersPerSecond);
+
+    auto mpsOffset = cmpsOffset + cmpsCount;
+    auto mpsCount = 6;
+    verifyUnitsFunc(mpsOffset, mpsCount, commsdsl::Units::MetersPerSecond);
+
+    auto kmpsOffset = mpsOffset + mpsCount;
+    auto kmpsCount = 7;
+    verifyUnitsFunc(kmpsOffset, kmpsCount, commsdsl::Units::KilometersPerSecond);
+
+    auto kmphOffset = kmpsOffset + kmpsCount;
+    auto kmphCount = 7;
+    verifyUnitsFunc(kmphOffset, kmphCount, commsdsl::Units::KilometersPerHour);
+
+    auto hzOffset = kmphOffset + kmphCount;
+    auto hzCount = 2;
+    verifyUnitsFunc(hzOffset, hzCount, commsdsl::Units::Hertz);
+
+    auto khzOffset = hzOffset + hzCount;
+    auto khzCount = 2;
+    verifyUnitsFunc(khzOffset, khzCount, commsdsl::Units::KiloHertz);
+
+    auto mhzOffset = khzOffset + khzCount;
+    auto mhzCount = 2;
+    verifyUnitsFunc(mhzOffset, mhzCount, commsdsl::Units::MegaHertz);
+
+    auto ghzOffset = mhzOffset + mhzCount;
+    auto ghzCount = 2;
+    verifyUnitsFunc(ghzOffset, ghzCount, commsdsl::Units::GigaHertz);
+
+    auto degOffset = ghzOffset + ghzCount;
+    auto degCount = 3;
+    verifyUnitsFunc(degOffset, degCount, commsdsl::Units::Degrees);
+
+    auto radOffset = degOffset + degCount;
+    auto radCount = 3;
+    verifyUnitsFunc(radOffset, radCount, commsdsl::Units::Radians);
+
+    auto naOffset = radOffset + radCount;
+    auto naCount = 5;
+    verifyUnitsFunc(naOffset, naCount, commsdsl::Units::Nanoamps);
+
+    auto uaOffset = naOffset + naCount;
+    auto uaCount = 5;
+    verifyUnitsFunc(uaOffset, uaCount, commsdsl::Units::Microamps);
+
+    auto maOffset = uaOffset + uaCount;
+    auto maCount = 5;
+    verifyUnitsFunc(maOffset, maCount, commsdsl::Units::Milliamps);
+
+    auto aOffset = maOffset + maCount;
+    auto aCount = 5;
+    verifyUnitsFunc(aOffset, aCount, commsdsl::Units::Amps);
+
+    auto kaOffset = aOffset + aCount;
+    auto kaCount = 5;
+    verifyUnitsFunc(kaOffset, kaCount, commsdsl::Units::Kiloamps);
+
+    auto nvOffset = kaOffset + kaCount;
+    auto nvCount = 3;
+    verifyUnitsFunc(nvOffset, nvCount, commsdsl::Units::Nanovolts);
+
+    auto uvOffset = nvOffset + nvCount;
+    auto uvCount = 3;
+    verifyUnitsFunc(uvOffset, uvCount, commsdsl::Units::Microvolts);
+
+    auto mvOffset = uvOffset + uvCount;
+    auto mvCount = 3;
+    verifyUnitsFunc(mvOffset, mvCount, commsdsl::Units::Millivolts);
+
+    auto vOffset = mvOffset + mvCount;
+    auto vCount = 3;
+    verifyUnitsFunc(vOffset, vCount, commsdsl::Units::Volts);
+
+    auto kvOffset = vOffset + vCount;
+    auto kvCount = 3;
+    verifyUnitsFunc(kvOffset, kvCount, commsdsl::Units::Kilovolts);
+}
+
