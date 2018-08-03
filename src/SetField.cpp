@@ -100,7 +100,9 @@ std::string SetField::getCompareToValueImpl(
         return op + "field_" + usedName + "().getBitValue_" + value + "()";
     }
 
-    return op + "field_" + usedName + "().field().getBitValue_" + value + "()";
+    return
+        "(field_" + usedName + "().doesExist()) &&\n"
+        "(" + op + "field_" + usedName + "().field().getBitValue_" + value + "())";
 }
 
 std::string SetField::getCompareToFieldImpl(

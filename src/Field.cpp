@@ -565,7 +565,7 @@ std::string Field::getPublicRefreshForFields(const Field::FieldsList& fields, bo
         "/// @brief Custom refresh functionality.\n"
         "bool #^#FUNC#$#()\n"
         "{\n"
-        "    bool updated = Base::refresh();\n"
+        "    bool updated = Base::#^#FUNC#$#();\n"
         "    #^#CALLS#$#\n"
         "    return updated;\n"
         "}\n";
@@ -598,16 +598,21 @@ std::string Field::getPrivateRefreshForFields(const Field::FieldsList& fields)
             "    if (#^#COND#$#) {\n"
             "        mode = comms::field::OptionalMode::Exists;\n"
             "    }\n\n"
-            "    if (field_#^#NAME#$#().getMode() == mode) {\n"
+            "    if (field_#^#NAME#$#()#^#FIELD_ACC#$#.getMode() == mode) {\n"
             "        return false;\n"
             "    }\n\n"
-            "    field_#^#NAME#$#().setMode(mode);\n"
+            "    field_#^#NAME#$#()#^#FIELD_ACC#$#.setMode(mode);\n"
             "    return true;\n"
             "}\n";
 
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(m->name())));
         replacements.insert(std::make_pair("COND", dslCondToString(fields, cond)));
+
+        if (optField->isVersionOptional()) {
+            replacements.insert(std::make_pair("FIELD_ACC", ".field()"));
+        }
+
         funcs.push_back(common::processTemplate(Templ, replacements));
     }
 

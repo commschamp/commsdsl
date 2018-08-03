@@ -38,7 +38,7 @@
         <ref name="f1" field="L1" />
         <ref name="f2" field="L2" />
         <ref name="f3" field="L3" />
-        <list name="f4" reuse="L3" elemLengthPrefix="DataCount" sinceVersion="2" />
+        <list name="f4" reuse="L3" elemLengthPrefix="DataCount" elemFixedLength="true" sinceVersion="2" />
     </message>
     
     <frame name="Frame">

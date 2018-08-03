@@ -412,8 +412,8 @@ std::string ListField::getPluginPropertiesImpl(bool serHiddenParam) const
             break;
         }
 
+        props.push_back(".serialisedHidden()");
         if ((!obj.hasCountPrefixField()) && (!obj.hasLengthPrefixField())) {
-            props.push_back(".serialisedHidden()");
             break;
         }
 

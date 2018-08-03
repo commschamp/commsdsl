@@ -26,4 +26,5 @@ void TestSuite::test1()
 {
     Msg1 msg;
     TS_ASSERT(msg.valid());
+    TS_ASSERT(msg.refresh());
 }
