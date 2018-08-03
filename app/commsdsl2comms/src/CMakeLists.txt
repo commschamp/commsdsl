@@ -4,12 +4,6 @@ find_package(Boost REQUIRED
 include_directories(${Boost_INCLUDE_DIRS})
 link_directories(${Boost_LIBRARY_DIRS})
 
-if (NOT "${LIBCOMMSDSL_INSTALL_DIR}" STREQUAL "")
-    list (APPEND CMAKE_PREFIX_PATH ${LIBCOMMSDSL_INSTALL_DIR})
-endif ()
-
-find_package(LibCommsdsl REQUIRED NO_MODULE)
-
 set (
     src
     "main.cpp"
@@ -49,16 +43,16 @@ set (
     "Plugin.cpp"
 )
 
-add_executable(${PROJECT_NAME} ${src})
-target_link_libraries(${PROJECT_NAME} ${Boost_LIBRARIES} ${LIBCOMMSDSL_LIBRARIES})
+add_executable(${APP_NAME} ${src})
+target_link_libraries(${APP_NAME} ${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES} ${LIBCOMMSDSL_LIBRARIES})
 
 if (WIN32)
-    target_link_libraries(${PROJECT_NAME} Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
+    target_link_libraries(${APP_NAME} Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
 endif ()
 
-install(TARGETS ${PROJECT_NAME}
-        RUNTIME DESTINATION ${COMMSDSL2COMMS_INSTALL_DIR}/bin
+install(TARGETS ${APP_NAME}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
 )
 
-FILE(GLOB_RECURSE all_headers "*.h")
-add_custom_target(all_headers_tgt SOURCES ${all_headers})
+FILE(GLOB_RECURSE commsdsl2comms.all_headers "*.h")
+add_custom_target(commsdsl2comms.all_headers_tgt SOURCES ${commsdsl2comms.all_headers})
