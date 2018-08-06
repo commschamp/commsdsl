@@ -19,6 +19,11 @@ public:
         log(commsdsl::ErrorLevel_Error, msg);
     }
 
+    void warning(const std::string& msg)
+    {
+        log(commsdsl::ErrorLevel_Warning, msg);
+    }
+
     void info(const std::string& msg)
     {
         log(commsdsl::ErrorLevel_Info, msg);

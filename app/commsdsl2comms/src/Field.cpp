@@ -998,7 +998,9 @@ bool Field::writeProtocolDefinitionFile() const
 
 bool Field::writePluginHeaderFile() const
 {
-    auto filePath = m_generator.startFieldPluginHeaderWrite(m_externalRef);
+    auto startInfo = m_generator.startFieldPluginHeaderWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+
     if (filePath.empty()) {
         return true;
     }
@@ -1038,7 +1040,8 @@ bool Field::writePluginHeaderFile() const
 bool Field::writePluginScrFile() const
 {
     assert(!isVersionOptional());
-    auto filePath = m_generator.startFieldPluginSrcWrite(m_externalRef);
+    auto startInfo = m_generator.startFieldPluginSrcWrite(m_externalRef);
+    auto& filePath = startInfo.first;
     if (filePath.empty()) {
         return true;
     }

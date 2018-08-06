@@ -196,7 +196,9 @@ bool Frame::writeProtocol()
 
 bool Frame::writePluginTransportMessageHeader()
 {
-    auto filePath = m_generator.startFrameTransportMessageProtocolHeaderWrite(m_externalRef);
+    auto startInfo = m_generator.startFrameTransportMessageProtocolHeaderWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -212,7 +214,7 @@ bool Frame::writePluginTransportMessageHeader()
         "#^#INTERFACE_INCLUDE#$#\n"
         "\n"
         "#^#BEGIN_NAMESPACE#$#\n"
-        "struct #^#CLASS_NAME#$#TransportMessageFields\n"
+        "struct #^#CLASS_NAME#$#Fields\n"
         "{\n"
         "    using All =\n"
         "        std::tuple<\n"
@@ -222,10 +224,10 @@ bool Frame::writePluginTransportMessageHeader()
         "    #^#READ_FUNC#$#\n"
         "};\n\n"
         "#^#INTERFACE_TEMPL_PARAM#$#\n"
-        "class #^#CLASS_NAME#$#TransportMessage : public\n"
+        "class #^#CLASS_NAME#$# : public\n"
         "    comms_champion::TransportMessageBase<\n"
         "        #^#INTERFACE#$#,\n"
-        "        #^#CLASS_NAME#$#TransportMessageFields::All\n"
+        "        #^#CLASS_NAME#$#Fields::All\n"
         "    >\n"
         "{\n"
         "    #^#BASE_DEF#$#\n"
@@ -258,7 +260,7 @@ bool Frame::writePluginTransportMessageHeader()
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("FRAME_INCLUDE", m_generator.headerfileForFrame(m_externalRef, true)));
@@ -326,7 +328,9 @@ bool Frame::writePluginTransportMessageHeader()
 
 bool Frame::writePluginTransportMessageSrc()
 {
-    auto filePath = m_generator.startFrameTransportMessageProtocolSrcWrite(m_externalRef);
+    auto startInfo = m_generator.startFrameTransportMessageProtocolSrcWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -334,7 +338,7 @@ bool Frame::writePluginTransportMessageSrc()
     }
 
     static const std::string Templ = 
-        "#include \"#^#CLASS_NAME#$#TransportMessage.h\"\n\n"
+        "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"comms_champion/property/field.h\"\n"
         "#^#INCLUDES#$#\n"
         "namespace cc = comms_champion;\n\n"
@@ -349,7 +353,7 @@ bool Frame::writePluginTransportMessageSrc()
         "     return props;\n"
         "}\n\n"
         "} // namespace\n\n"
-        "const QVariantList& #^#CLASS_NAME#$#TransportMessage#^#PROPS_FUNC_DECL#$#\n"
+        "const QVariantList& #^#CLASS_NAME#$##^#PROPS_FUNC_DECL#$#\n"
         "{\n"
         "    static const QVariantList Props = createProps();\n"
         "    return Props;\n"
@@ -390,7 +394,7 @@ bool Frame::writePluginTransportMessageSrc()
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", "\n")));
@@ -495,7 +499,9 @@ bool Frame::writePluginTransportMessageSrc()
 
 bool Frame::writePluginHeader()
 {
-    auto filePath = m_generator.startFrameProtocolHeaderWrite(m_externalRef);
+    auto startInfo = m_generator.startFrameProtocolHeaderWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -528,7 +534,7 @@ bool Frame::writePluginHeader()
         common::allMessagesStr() + common::headerSuffix() + "\"";
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("FRAME_SCOPE", std::move(scope)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));

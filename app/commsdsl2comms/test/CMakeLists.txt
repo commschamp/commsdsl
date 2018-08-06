@@ -32,13 +32,13 @@ function (test_func name)
     add_dependencies(${testName} ${output_tgt})
     target_include_directories (${testName} PRIVATE "${output_dir}/include")
     
-    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
-        add_test(NAME "${testName}_valgrind"
-             COMMAND ${CMAKE_COMMAND}
-                -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
-                -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
-                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
-    endif ()    
+#    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
+#        add_test(NAME "${testName}_valgrind"
+#             COMMAND ${CMAKE_COMMAND}
+#                -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
+#                -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
+#                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
+#    endif ()
 
     set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
     add_custom_target(${plugin_build_tgt} ALL

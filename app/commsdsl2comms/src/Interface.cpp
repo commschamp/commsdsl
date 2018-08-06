@@ -257,14 +257,17 @@ bool Interface::writeProtocol()
 
 bool Interface::writePluginHeader()
 {
-    auto filePath = m_generator.startInterfacePluginHeaderWrite(m_externalRef);
+    auto startInfo = m_generator.startInterfacePluginHeaderWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+
     if (filePath.empty()) {
         // Skipping generation
         return true;
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("INTERFACE_INCLUDE", m_generator.headerfileForInterface(externalRef())));
     replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(externalRef(), true, true)));
 
@@ -295,7 +298,10 @@ bool Interface::writePluginHeader()
 
 bool Interface::writePluginSrc()
 {
-    auto filePath = m_generator.startInterfacePluginSrcWrite(m_externalRef);
+    auto startInfo = m_generator.startInterfacePluginSrcWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+
     if (filePath.empty()) {
         // Skipping generation
         return true;
@@ -321,7 +327,7 @@ bool Interface::writePluginSrc()
         auto namespaces = m_generator.namespacesForInterfaceInPlugin(m_externalRef);
 
         common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+        replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
         replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(externalRef(), true, true)));
         replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
         replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));

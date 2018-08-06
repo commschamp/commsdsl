@@ -209,11 +209,7 @@ bool Message::doesExist() const
             m_dslObj.sinceVersion(),
             m_dslObj.deprecatedSince(),
             m_dslObj.isDeprecatedRemoved());
-    if (!exists) {
-        return false;
-    }
-
-    return m_generator.isAnyPlatformSupported(m_dslObj.platforms());
+    return exists;
 }
 
 bool Message::write()
@@ -281,10 +277,7 @@ bool Message::writeProtocol()
 {
     assert(!m_externalRef.empty());
 
-    auto names =
-        m_generator.startMessageProtocolWrite(
-            m_externalRef,
-            m_dslObj.platforms());
+    auto names = m_generator.startMessageProtocolWrite(m_externalRef);
     auto& filePath = names.first;
     auto& className = names.second;
 
@@ -336,7 +329,9 @@ bool Message::writePluginHeader()
 {
     assert(!m_externalRef.empty());
 
-    auto filePath = m_generator.startMessagePluginHeaderWrite(m_externalRef);
+    auto startInfo = m_generator.startMessagePluginHeaderWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -344,7 +339,7 @@ bool Message::writePluginHeader()
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("MESSAGE_INC", m_generator.headerfileForMessage(m_externalRef, true)));
     replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
 
@@ -381,7 +376,9 @@ bool Message::writePluginSrc()
 {
     assert(!m_externalRef.empty());
 
-    auto filePath = m_generator.startMessagePluginSrcWrite(m_externalRef);
+    auto startInfo = m_generator.startMessagePluginSrcWrite(m_externalRef);
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -401,7 +398,7 @@ bool Message::writePluginSrc()
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", common::emptyString())));
     replacements.insert(std::make_pair("PROPS_APPENDS", common::listToString(appends, "\n", common::emptyString())));
     replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));

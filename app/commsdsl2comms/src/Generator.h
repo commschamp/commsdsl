@@ -51,21 +51,18 @@ public:
 
     std::string pluginDir();
 
-    bool isAnyPlatformSupported(
-        const std::vector<std::string>& platforms);
+    std::pair<std::string, std::string>
+    startMessageProtocolWrite(const std::string& externalRef);
 
     std::pair<std::string, std::string>
-    startMessageProtocolWrite(
-        const std::string& externalRef,
-        const std::vector<std::string>& platforms);
+    startFrameProtocolWrite(const std::string& externalRef);
 
-    std::pair<std::string, std::string>
-    startFrameProtocolWrite(
+    std::pair<std::string, std::string> startFrameTransportMessageProtocolHeaderWrite(
         const std::string& externalRef);
-
-    std::string startFrameTransportMessageProtocolHeaderWrite(const std::string& externalRef);
-    std::string startFrameTransportMessageProtocolSrcWrite(const std::string& externalRef);
-    std::string startFrameProtocolHeaderWrite(const std::string& externalRef);
+    std::pair<std::string, std::string> startFrameTransportMessageProtocolSrcWrite(
+        const std::string& externalRef);
+    std::pair<std::string, std::string> startFrameProtocolHeaderWrite(
+        const std::string& externalRef);
 
     std::pair<std::string, std::string>
     startInterfaceProtocolWrite(const std::string& externalRef);
@@ -73,17 +70,29 @@ public:
     std::pair<std::string, std::string>
     startFieldProtocolWrite(const std::string& externalRef);
 
-    std::string startFieldPluginHeaderWrite(const std::string& externalRef);
-    std::string startFieldPluginSrcWrite(const std::string& externalRef);
+    std::pair<std::string, std::string>
+    startFieldPluginHeaderWrite(const std::string& externalRef);
 
-    std::string startInterfacePluginHeaderWrite(const std::string& externalRef);
-    std::string startInterfacePluginSrcWrite(const std::string& externalRef);
+    std::pair<std::string, std::string>
+    startFieldPluginSrcWrite(const std::string& externalRef);
 
-    std::string startMessagePluginHeaderWrite(const std::string& externalRef);
-    std::string startMessagePluginSrcWrite(const std::string& externalRef);
+    std::pair<std::string, std::string>
+    startInterfacePluginHeaderWrite(const std::string& externalRef);
 
-    std::string startProtocolPluginHeaderWrite(const std::string& name);
-    std::string startProtocolPluginSrcWrite(const std::string& name);
+    std::pair<std::string, std::string>
+    startInterfacePluginSrcWrite(const std::string& externalRef);
+
+    std::pair<std::string, std::string>
+    startMessagePluginHeaderWrite(const std::string& externalRef);
+
+    std::pair<std::string, std::string>
+    startMessagePluginSrcWrite(const std::string& externalRef);
+
+    std::pair<std::string, std::string>
+    startProtocolPluginHeaderWrite(const std::string& name);
+
+    std::pair<std::string, std::string>
+    startProtocolPluginSrcWrite(const std::string& name);
 
     std::pair<std::string, std::string>
     startDefaultOptionsWrite();
@@ -290,7 +299,7 @@ private:
         const std::string& externalRef,
         const std::string subNs = common::emptyString());
 
-    std::string startPluginWrite(
+    std::pair<std::string, std::string> startPluginWrite(
         const std::string& externalRef,
         bool header,
         const std::string subNs = common::emptyString());

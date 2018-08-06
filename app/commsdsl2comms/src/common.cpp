@@ -185,6 +185,12 @@ const std::string& pluginStr()
     return Str;
 }
 
+const std::string& origSuffixStr()
+{
+    static const std::string Str("Orig");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

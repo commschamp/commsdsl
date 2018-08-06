@@ -45,9 +45,6 @@ bool AllMessages::writeProtocolDefinition() const
 
     for (auto m : allMessages) {
         assert(m.valid());
-        if (!m_generator.isAnyPlatformSupported(m.platforms())) {
-            continue;
-        }
 
         if (!m_generator.doesElementExist(m.sinceVersion(), m.deprecatedSince(), m.isDeprecatedRemoved())) {
             continue;
@@ -131,9 +128,6 @@ bool AllMessages::writePluginDefinition() const
 
     for (auto m : allMessages) {
         assert(m.valid());
-        if (!m_generator.isAnyPlatformSupported(m.platforms())) {
-            continue;
-        }
 
         if (!m_generator.doesElementExist(m.sinceVersion(), m.deprecatedSince(), m.isDeprecatedRemoved())) {
             continue;

@@ -60,8 +60,9 @@ const std::string& Plugin::adjustedName() const
 
 bool Plugin::writeProtocolHeader()
 {
-    auto className = protClassName();
-    auto filePath = m_generator.startProtocolPluginHeaderWrite(className);
+    auto startInfo = m_generator.startProtocolPluginHeaderWrite(protClassName());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -120,8 +121,9 @@ bool Plugin::writeProtocolHeader()
 
 bool Plugin::writeProtocolSrc()
 {
-    auto className = protClassName();
-    auto filePath = m_generator.startProtocolPluginSrcWrite(className);
+    auto startInfo = m_generator.startProtocolPluginSrcWrite(protClassName());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -259,8 +261,9 @@ bool Plugin::writeProtocolSrc()
 
 bool Plugin::writePluginHeader()
 {
-    auto className = pluginClassName();
-    auto filePath = m_generator.startProtocolPluginHeaderWrite(className);
+    auto startInfo = m_generator.startProtocolPluginHeaderWrite(pluginClassName());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -316,8 +319,9 @@ bool Plugin::writePluginHeader()
 
 bool Plugin::writePluginSrc()
 {
-    auto className = pluginClassName();
-    auto filePath = m_generator.startProtocolPluginSrcWrite(className);
+    auto startInfo = m_generator.startProtocolPluginSrcWrite(pluginClassName());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         // Skipping generation

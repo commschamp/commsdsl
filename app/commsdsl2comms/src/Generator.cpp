@@ -22,9 +22,12 @@ namespace
 {
 
 const std::string ScopeSep("::");
+const std::string ReplaceSuffix(".replace");
+const std::string ExtendSuffix(".extend");
 
 const std::string ReservedExt[] = {
-    ".extend",
+    ReplaceSuffix,
+    ExtendSuffix,
     ".public",
     ".protected",
     ".private",
@@ -166,26 +169,9 @@ std::string Generator::pluginDir()
     return dir.string();
 }
 
-
-bool Generator::isAnyPlatformSupported(
-    const std::vector<std::string>& platforms)
-{
-    if (platforms.empty()) {
-        return true;
-    }
-
-    // TODO: impelemnt
-    return true;
-}
-
 std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
-    const std::string& externalRef,
-    const std::vector<std::string>& platforms)
+    const std::string& externalRef)
 {
-    if (!isAnyPlatformSupported(platforms)) {
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
     return startProtocolWrite(externalRef, common::messageStr());
 }
 
@@ -195,17 +181,20 @@ std::pair<std::string, std::string> Generator::startFrameProtocolWrite(
     return startProtocolWrite(externalRef, common::frameStr());
 }
 
-std::string Generator::startFrameTransportMessageProtocolHeaderWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startFrameTransportMessageProtocolHeaderWrite(const std::string& externalRef)
 {
     return startPluginWrite(externalRef + common::transportMessageSuffixStr(), true, common::frameStr());
 }
 
-std::string Generator::startFrameTransportMessageProtocolSrcWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startFrameTransportMessageProtocolSrcWrite(const std::string& externalRef)
 {
     return startPluginWrite(externalRef + common::transportMessageSuffixStr(), false, common::frameStr());
 }
 
-std::string Generator::startFrameProtocolHeaderWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startFrameProtocolHeaderWrite(const std::string& externalRef)
 {
     return startPluginWrite(externalRef, true, common::frameStr());
 }
@@ -225,17 +214,20 @@ std::pair<std::string, std::string> Generator::startFieldProtocolWrite(
     return startProtocolWrite(externalRef, common::fieldStr());
 }
 
-std::string Generator::startFieldPluginHeaderWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startFieldPluginHeaderWrite(const std::string& externalRef)
 {
     return startPluginWrite(externalRef, true, common::fieldStr());
 }
 
-std::string Generator::startFieldPluginSrcWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startFieldPluginSrcWrite(const std::string& externalRef)
 {
     return startPluginWrite(externalRef, false, common::fieldStr());
 }
 
-std::string Generator::startInterfacePluginHeaderWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startInterfacePluginHeaderWrite(const std::string& externalRef)
 {
     if (!externalRef.empty()) {
         return startPluginWrite(externalRef, true);
@@ -244,7 +236,8 @@ std::string Generator::startInterfacePluginHeaderWrite(const std::string& extern
     return startPluginWrite(common::messageClassStr(), true);
 }
 
-std::string Generator::startInterfacePluginSrcWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startInterfacePluginSrcWrite(const std::string& externalRef)
 {
     if (!externalRef.empty()) {
         return startPluginWrite(externalRef, false);
@@ -253,22 +246,26 @@ std::string Generator::startInterfacePluginSrcWrite(const std::string& externalR
     return startPluginWrite(common::messageClassStr(), false);
 }
 
-std::string Generator::startMessagePluginHeaderWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startMessagePluginHeaderWrite(const std::string& externalRef)
 {
     return startPluginWrite(externalRef, true, common::messageStr());
 }
 
-std::string Generator::startMessagePluginSrcWrite(const std::string& externalRef)
+std::pair<std::string, std::string>
+Generator::startMessagePluginSrcWrite(const std::string& externalRef)
 {
     return startPluginWrite(externalRef, false, common::messageStr());
 }
 
-std::string Generator::startProtocolPluginHeaderWrite(const std::string& name)
+std::pair<std::string, std::string>
+Generator::startProtocolPluginHeaderWrite(const std::string& name)
 {
     return startPluginWrite(name, true, common::pluginStr());
 }
 
-std::string Generator::startProtocolPluginSrcWrite(const std::string& name)
+std::pair<std::string, std::string>
+Generator::startProtocolPluginSrcWrite(const std::string& name)
 {
     return startPluginWrite(name, false, common::pluginStr());
 }
@@ -806,7 +803,6 @@ bool Generator::writeFiles()
             return false;
         }
 
-        // TODO: write others
     }
 
     for (auto& ns : m_namespaces) {
@@ -1177,72 +1173,126 @@ Generator::startProtocolWrite(const std::string& externalRef, const std::string 
         return std::make_pair(common::emptyString(), common::emptyString());
     }
 
-
-    // TODO: check suffix
-    std::string suffix;
-
     auto ns = refToNs(externalRef);
-    auto className = refToName(externalRef);
-    assert(!className.empty());
-    className += suffix;
-    common::nameToClass(className);
-    auto fileName = className + common::headerSuffix();
-    auto dirPath = m_pathPrefix / common::includeStr() / m_mainNamespace / refToPath(ns);
+    auto relDirPath = bf::path(common::includeStr()) / m_mainNamespace / refToPath(ns);
     if (!subNs.empty()) {
-        dirPath /= subNs;
+        relDirPath /= subNs;
     }
-
-    auto fullPath = dirPath / fileName;
-    auto fullPathStr = fullPath.string();
-
-    m_logger.info("Generating " + fullPathStr);
+    auto dirPath = m_pathPrefix / relDirPath;
 
     if (!createDir(dirPath)) {
         return std::make_pair(common::emptyString(), common::emptyString());
     }
 
+    auto className = refToName(externalRef);
+    assert(!className.empty());
+    common::nameToClass(className);
+    auto fileName = className + common::headerSuffix();
+    auto fullPath = dirPath / fileName;
+    auto fullPathStr = fullPath.string();
+
+    auto overwriteFile = m_codeInputDir / relDirPath / fileName;
+    boost::system::error_code ec;
+    if (bf::exists(overwriteFile, ec)) {
+        m_logger.info("Skipping generation of " + fullPathStr);
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+    auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
+    if (bf::exists(replaceFile, ec)) {
+        m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
+        bf::copy_file(replaceFile, bf::path(fullPathStr), ec);
+        if (!ec) {
+            m_logger.warning("Failed to write " + fullPathStr);
+        }
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+    auto extendFile = m_codeInputDir / relDirPath / (fileName + ExtendSuffix);
+    if (bf::exists(extendFile, ec)) {
+        bf::copy_file(extendFile, bf::path(fullPathStr), ec);
+        if (!ec) {
+            m_logger.warning("Failed to write " + fullPathStr);
+        }
+        className += common::origSuffixStr();
+        fileName = className + common::headerSuffix();
+        fullPath = dirPath / fileName;
+        fullPathStr = fullPath.string();
+    }
+
+    m_logger.info("Generating " + fullPathStr);
     return std::make_pair(std::move(fullPathStr), className);
 }
 
-std::string Generator::startPluginWrite(
+std::pair<std::string, std::string> Generator::startPluginWrite(
     const std::string& externalRef,
     bool header,
     const std::string subNs)
 {
     if (externalRef.empty()) {
         assert(!"Should not happen");
-        return common::emptyString();
+        return std::make_pair(common::emptyString(), common::emptyString());
     }
 
-    // TODO: check replacement or suffix add
-
     auto ns = refToNs(externalRef);
+    auto relDirPath = bf::path(common::pluginNsStr()) / refToPath(ns);
+    if (!relDirPath.empty()) {
+        relDirPath /= subNs;
+    }
+
+    auto dirPath = m_pathPrefix / relDirPath;
+
+    if (!createDir(dirPath)) {
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+    std::string extension;
+    if (header) {
+        extension = common::headerSuffix();
+    }
+    else {
+        extension = common::srcSuffix();
+    }
+
     auto className = refToName(externalRef);
     assert(!className.empty());
     common::nameToClass(className);
-    auto fileName = className;
-    if (header) {
-        fileName += common::headerSuffix();
-    }
-    else {
-        fileName += common::srcSuffix();
-    }
 
-    auto dirPath = m_pathPrefix / common::pluginNsStr() / refToPath(ns);
-    if (!subNs.empty()) {
-        dirPath /= subNs;
-    }
-
+    auto fileName = className + extension;
     auto fullPath = dirPath / fileName;
     auto fullPathStr = fullPath.string();
 
-    m_logger.info("Generating " + fullPathStr);
-
-    if (!createDir(dirPath)) {
-        return common::emptyString();
+    auto overwriteFile = m_codeInputDir / relDirPath / fileName;
+    boost::system::error_code ec;
+    if (bf::exists(overwriteFile, ec)) {
+        m_logger.info("Skipping generation of " + fullPathStr);
+        return std::make_pair(common::emptyString(), common::emptyString());
     }
 
-    return fullPathStr;
+    auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
+    if (bf::exists(replaceFile, ec)) {
+        m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
+        bf::copy_file(replaceFile, bf::path(fullPathStr), ec);
+        if (!ec) {
+            m_logger.warning("Failed to write " + fullPathStr);
+        }
+        return std::make_pair(common::emptyString(), common::emptyString());
+    }
+
+    auto extendFile = m_codeInputDir / relDirPath / (fileName + ExtendSuffix);
+    if (bf::exists(extendFile, ec)) {
+        bf::copy_file(extendFile, bf::path(fullPathStr), ec);
+        if (!ec) {
+            m_logger.warning("Failed to write " + fullPathStr);
+        }
+        className += common::origSuffixStr();
+        fileName = className + common::headerSuffix();
+        fullPath = dirPath / fileName;
+        fullPathStr = fullPath.string();
+    }
+
+    m_logger.info("Generating " + fullPathStr);
+    return std::make_pair(std::move(fullPathStr), std::move(className));
 }
 
 bool Generator::preparePlugins()
