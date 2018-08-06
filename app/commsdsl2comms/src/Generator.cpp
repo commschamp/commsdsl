@@ -1,5 +1,8 @@
 #include "Generator.h"
 
+#include <fstream>
+#include <iterator>
+
 #include <boost/algorithm/string.hpp>
 
 #include "Namespace.h"
@@ -24,6 +27,12 @@ namespace
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
+const std::string ReadSuffix(".read");
+const std::string WriteSuffix(".write");
+const std::string LengthSuffix(".length");
+const std::string ValidSuffix(".valid");
+const std::string RefreshSuffix(".refresh");
+const std::string NameSuffix(".name");
 
 const std::string ReservedExt[] = {
     ReplaceSuffix,
@@ -31,11 +40,12 @@ const std::string ReservedExt[] = {
     ".public",
     ".protected",
     ".private",
-    ".read",
-    ".write",
-    ".length",
-    ".refresh",
-    ".name"
+    ReadSuffix,
+    WriteSuffix,
+    LengthSuffix,
+    ValidSuffix,
+    RefreshSuffix,
+    NameSuffix
 };
 
 std::string refToNs(const std::string& ref)
@@ -1053,6 +1063,36 @@ const Interface* Generator::getDefaultInterface() const
     return list.front();
 }
 
+std::string Generator::getCustomReadForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, ReadSuffix, common::fieldStr());
+}
+
+std::string Generator::getCustomWriteForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, WriteSuffix, common::fieldStr());
+}
+
+std::string Generator::getCustomLengthForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, LengthSuffix, common::fieldStr());
+}
+
+std::string Generator::getCustomValidForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, ValidSuffix, common::fieldStr());
+}
+
+std::string Generator::getCustomRefreshForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, RefreshSuffix, common::fieldStr());
+}
+
+std::string Generator::getCustomNameForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, NameSuffix, common::fieldStr());
+}
+
 std::pair<std::string, std::string>
 Generator::namespacesForElement(
     const std::string& externalRef,
@@ -1166,7 +1206,9 @@ std::string Generator::scopeForElement(
 }
 
 std::pair<std::string, std::string>
-Generator::startProtocolWrite(const std::string& externalRef, const std::string subNs)
+Generator::startProtocolWrite(
+    const std::string& externalRef,
+    const std::string& subNs)
 {
     if (externalRef.empty()) {
         assert(!"Should not happen");
@@ -1227,7 +1269,7 @@ Generator::startProtocolWrite(const std::string& externalRef, const std::string 
 std::pair<std::string, std::string> Generator::startPluginWrite(
     const std::string& externalRef,
     bool header,
-    const std::string subNs)
+    const std::string& subNs)
 {
     if (externalRef.empty()) {
         assert(!"Should not happen");
@@ -1293,6 +1335,40 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
 
     m_logger.info("Generating " + fullPathStr);
     return std::make_pair(std::move(fullPathStr), std::move(className));
+}
+
+std::string Generator::getCustomOpForElement(
+    const std::string& externalRef,
+    const std::string& suffix,
+    const std::string& subNs) const
+{
+    if (externalRef.empty()) {
+        return common::emptyString();
+    }
+
+    auto ns = refToNs(externalRef);
+    auto relDirPath = bf::path(common::includeStr()) / m_mainNamespace / refToPath(ns);
+    if (!relDirPath.empty()) {
+        relDirPath /= subNs;
+    }
+
+   auto className = refToName(externalRef);
+    assert(!className.empty());
+
+    auto filePath = m_codeInputDir / relDirPath / (className + common::headerSuffix() + suffix);
+    boost::system::error_code ec;
+    if (!bf::exists(filePath, ec)) {
+        return common::emptyString();
+    }
+
+    std::ifstream stream(filePath.string());
+    if (!stream) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    return content;
 }
 
 bool Generator::preparePlugins()

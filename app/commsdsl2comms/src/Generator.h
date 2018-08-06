@@ -256,6 +256,13 @@ public:
 
     const Interface* getDefaultInterface() const;
 
+    std::string getCustomReadForField(const std::string& externalRef) const;
+    std::string getCustomWriteForField(const std::string& externalRef) const;
+    std::string getCustomLengthForField(const std::string& externalRef) const;
+    std::string getCustomValidForField(const std::string& externalRef) const;
+    std::string getCustomRefreshForField(const std::string& externalRef) const;
+    std::string getCustomNameForField(const std::string& externalRef) const;
+
 private:
 
     using NamespacesList = Namespace::NamespacesList;
@@ -297,12 +304,17 @@ private:
 
     std::pair<std::string, std::string> startProtocolWrite(
         const std::string& externalRef,
-        const std::string subNs = common::emptyString());
+        const std::string& subNs = common::emptyString());
 
     std::pair<std::string, std::string> startPluginWrite(
         const std::string& externalRef,
         bool header,
-        const std::string subNs = common::emptyString());
+        const std::string& subNs = common::emptyString());
+
+    std::string getCustomOpForElement(
+        const std::string& externalRef,
+        const std::string& suffix,
+        const std::string& subNs = common::emptyString()) const;
 
     bool preparePlugins();
     InterfacesList getAllInterfaces() const;

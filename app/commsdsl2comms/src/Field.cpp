@@ -79,6 +79,8 @@ bool Field::prepare(unsigned parentVersion)
 {
     m_externalRef = m_dslObj.externalRef();
     m_parentVersion = parentVersion;
+    m_customRead = m_generator.getCustomReadForField(m_externalRef);
+    m_customRefresh = m_generator.getCustomRefreshForField(m_externalRef);
     return prepareImpl();
 }
 
@@ -876,6 +878,11 @@ std::string Field::getPluginPropertiesImpl(bool serHiddenParam) const
 
 std::string Field::getNameFunc() const
 {
+    auto customName = m_generator.getCustomNameForField(m_externalRef);
+    if (!customName.empty()) {
+        return customName;
+    }
+
     return
         "/// @brief Name of the field.\n"
         "static const char* name()\n"
@@ -897,36 +904,39 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
     if (m_focedFailOnInvalid) {
         options.push_back("comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
     }
+
+    if (!m_customRead.empty()) {
+        common::addToList("comms::option::HasCustomRead", options);
+    }
+
+    if (!m_customRefresh.empty()) {
+        common::addToList("comms::option::HasCustomRefresh", options);
+    }
 }
 
-std::string Field::getCustomRead() const
+const std::string& Field::getCustomRead() const
 {
-    // TODO: implement
-    return common::emptyString();
+    return m_customRead;
 }
 
 std::string Field::getCustomWrite() const
 {
-    // TODO: implement
-    return common::emptyString();
+    return m_generator.getCustomWriteForField(m_externalRef);
 }
 
 std::string Field::getCustomLength() const
 {
-    // TODO: implement
-    return common::emptyString();
+    return m_generator.getCustomLengthForField(m_externalRef);
 }
 
 std::string Field::getCustomValid() const
 {
-    // TODO: implement
-    return common::emptyString();
+    return m_generator.getCustomValidForField(m_externalRef);
 }
 
-std::string Field::getCustomRefresh() const
+const std::string& Field::getCustomRefresh() const
 {
-    // TODO: implement
-    return common::emptyString();
+    return m_customRefresh;
 }
 
 std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
@@ -947,6 +957,8 @@ bool Field::writeProtocolDefinitionFile() const
 {
     auto startInfo = m_generator.startFieldProtocolWrite(m_externalRef);
     auto& filePath = startInfo.first;
+    //auto& className = startInfo.second;
+
     if (filePath.empty()) {
         return true;
     }

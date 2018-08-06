@@ -175,11 +175,11 @@ protected:
 
     void updateExtraOptions(const std::string& scope, common::StringsList& options) const;
 
-    std::string getCustomRead() const;
+    const std::string& getCustomRead() const;
     std::string getCustomWrite() const;
     std::string getCustomLength() const;
     std::string getCustomValid() const;
-    std::string getCustomRefresh() const;
+    const std::string& getCustomRefresh() const;
     std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
 
 private:
@@ -195,6 +195,8 @@ private:
     std::string m_externalRef;
     unsigned m_parentVersion = 0U;
     bool m_focedFailOnInvalid = false;
+    std::string m_customRead;
+    std::string m_customRefresh;
 };
 
 using FieldPtr = Field::Ptr;
