@@ -33,13 +33,16 @@ const std::string LengthSuffix(".length");
 const std::string ValidSuffix(".valid");
 const std::string RefreshSuffix(".refresh");
 const std::string NameSuffix(".name");
+const std::string PublicSuffix(".publilc");
+const std::string ProtectedSuffix(".protected");
+const std::string PrivateSuffix(".private");
 
 const std::string ReservedExt[] = {
     ReplaceSuffix,
     ExtendSuffix,
-    ".public",
-    ".protected",
-    ".private",
+    PublicSuffix,
+    ProtectedSuffix,
+    PrivateSuffix,
     ReadSuffix,
     WriteSuffix,
     LengthSuffix,
@@ -1091,6 +1094,21 @@ std::string Generator::getCustomRefreshForField(const std::string& externalRef) 
 std::string Generator::getCustomNameForField(const std::string& externalRef) const
 {
     return getCustomOpForElement(externalRef, NameSuffix, common::fieldStr());
+}
+
+std::string Generator::getExtraPublicForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, PublicSuffix, common::fieldStr());
+}
+
+std::string Generator::getExtraProtectedForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, ProtectedSuffix, common::fieldStr());
+}
+
+std::string Generator::getExtraPrivateForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, PrivateSuffix, common::fieldStr());
 }
 
 std::pair<std::string, std::string>

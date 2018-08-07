@@ -33,12 +33,15 @@ const std::string ClassTemplate(
     "        >;\n"
     "public:\n"
     "    #^#BITS_ACCESS#$#\n"
+    "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -73,6 +76,9 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
 
     return common::processTemplate(ClassTemplate, replacements);
 }

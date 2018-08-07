@@ -948,6 +948,41 @@ const std::string& Field::getCustomRefresh() const
     return m_customRefresh;
 }
 
+std::string Field::getExtraPublic() const
+{
+    return m_generator.getExtraPublicForField(m_externalRef);
+}
+
+std::string Field::getExtraProtected() const
+{
+    return m_generator.getExtraProtectedForField(m_externalRef);
+}
+
+std::string Field::getFullProtected() const
+{
+    auto str = getExtraProtected();
+    if (str.empty()) {
+        return str;
+    }
+
+    return "protected:\n" + common::indentStr() + str;
+}
+
+std::string Field::getExtraPrivate() const
+{
+    return m_generator.getExtraPrivateForField(m_externalRef);
+}
+
+std::string Field::getFullPrivate() const
+{
+    auto str = getExtraPrivate();
+    if (str.empty()) {
+        return str;
+    }
+
+    return "private:\n" + common::indentStr() + str;
+}
+
 std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
 {
     auto schemaEndian = generator().schemaEndian();

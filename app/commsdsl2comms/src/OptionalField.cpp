@@ -45,12 +45,15 @@ const std::string ClassTemplate(
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
+    "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -81,7 +84,10 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
         hasNoValue("WRITE") &&
         hasNoValue("LENGTH") &&
         hasNoValue("VALID") &&
-        hasNoValue("REFRESH");
+        hasNoValue("REFRESH") &&
+        hasNoValue("PUBLIC") &&
+        hasNoValue("PRIVATE") &&
+        hasNoValue("PROTECTED");
 }
 
 } // namespace

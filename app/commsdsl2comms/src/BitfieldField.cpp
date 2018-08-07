@@ -53,12 +53,15 @@ const std::string ClassTemplate(
     "        >;\n"
     "public:\n"
     "    #^#ACCESS#$#\n"
+    "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -124,6 +127,9 @@ std::string BitfieldField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
     replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, className)));
     replacements.insert(std::make_pair("ACCESS", getAccess(className)));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["COMMA"] = ',';
     }

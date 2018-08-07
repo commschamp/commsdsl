@@ -31,12 +31,15 @@ const std::string ClassTemplate(
     "        >;\n"
     "public:\n"
     "    #^#CONSTRUCTOR#$#\n"
+    "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -68,7 +71,10 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
         hasNoValue("WRITE") &&
         hasNoValue("LENGTH") &&
         hasNoValue("VALID") &&
-        hasNoValue("REFRESH");
+        hasNoValue("REFRESH") &&
+        hasNoValue("PUBLIC") &&
+        hasNoValue("PROTECTED") &&
+        hasNoValue("PRIVATE");
 }
 
 } // namespace
@@ -152,6 +158,9 @@ std::string StringField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
     replacements.insert(std::make_pair("CONSTRUCTOR", getConstructor()));
     replacements.insert(std::make_pair("PREFIX_FIELD", getPrefixField(scope)));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements.insert(std::make_pair("COMMA", ","));
     }

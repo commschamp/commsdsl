@@ -55,12 +55,14 @@ const std::string ClassTemplate(
     "        >;\n"
     "public:\n"
     "    #^#ACCESS#$#\n"
+    "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PROTECTED#$#\n"
     "#^#PRIVATE#$#\n"
     "};\n"
 );
@@ -138,6 +140,8 @@ std::string BundleField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, className)));
     replacements.insert(std::make_pair("ACCESS", getAccess(className)));
     replacements.insert(std::make_pair("PRIVATE", getPrivate()));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["COMMA"] = ',';
     }
@@ -327,9 +331,16 @@ std::string BundleField::getRefresh() const
 
 std::string BundleField::getPrivate() const
 {
-    auto str = getPrivateRefreshForFields(m_members);
+    auto str = getExtraPrivate();
+    auto refreshStr = getPrivateRefreshForFields(m_members);
+
+    if ((!str.empty()) && (refreshStr.empty())) {
+        str += '\n';
+    }
+
+    str += refreshStr;
     if (str.empty()) {
-        return common::emptyString();
+        return str;
     }
 
     common::insertIndent(str);

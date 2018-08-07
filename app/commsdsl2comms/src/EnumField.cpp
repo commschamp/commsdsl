@@ -34,12 +34,15 @@ const std::string ClassTemplate(
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
+    "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -73,7 +76,10 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
         hasNoValue("WRITE") &&
         hasNoValue("LENGTH") &&
         hasNoValue("VALID") &&
-        hasNoValue("REFRESH");
+        hasNoValue("REFRESH") &&
+        hasNoValue("PUBLIC") &&
+        hasNoValue("PROTECTED") &&
+        hasNoValue("PRIVATE");
 }
 
 } // namespace
@@ -227,6 +233,10 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["ENUM_TYPE"] += ',';
     }

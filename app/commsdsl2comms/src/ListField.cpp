@@ -34,12 +34,15 @@ const std::string ClassTemplate(
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
+    "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -71,7 +74,10 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
         hasNoValue("WRITE") &&
         hasNoValue("LENGTH") &&
         hasNoValue("VALID") &&
-        hasNoValue("REFRESH");
+        hasNoValue("REFRESH") &&
+        hasNoValue("PUBLIC") &&
+        hasNoValue("PRIVATE") &&
+        hasNoValue("PROTECTED");
 }
 
 } // namespace
@@ -261,6 +267,10 @@ std::string ListField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
     replacements.insert(std::make_pair("ELEMENT", getElement()));
     replacements.insert(std::make_pair("MEMBERS_DEF", getMembersDef(scope)));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements.insert(std::make_pair("COMMA", ","));
     }

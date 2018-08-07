@@ -34,6 +34,7 @@ const std::string ClassTemplate(
     "        >;\n"
     "public:\n"
     "    #^#CONSTRUCTOR#$#\n"
+    "    #^#PUBLIC#$#\n"
     "    #^#SPECIALS#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
@@ -41,6 +42,8 @@ const std::string ClassTemplate(
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -114,7 +117,10 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
         hasNoValue("WRITE") &&
         hasNoValue("LENGTH") &&
         hasNoValue("VALID") &&
-        hasNoValue("REFRESH");
+        hasNoValue("REFRESH") &&
+        hasNoValue("PUBLIC") &&
+        hasNoValue("PROTECTED") &&
+        hasNoValue("PRIVATE");
 }
 
 bool isLimit(double val)
@@ -293,6 +299,10 @@ std::string FloatField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["FIELD_TYPE"] += ',';
     }

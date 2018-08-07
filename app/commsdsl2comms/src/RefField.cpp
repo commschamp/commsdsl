@@ -23,6 +23,29 @@ const std::string AliasTemplate(
     "   >;\n"
 );
 
+const std::string ClassTemplate(
+    "#^#PREFIX#$#"
+    "class #^#CLASS_NAME#$# : public\n"
+    "    #^#REF_FIELD#$#<\n"
+    "       #^#OPTS#$#\n"
+    "   >\n"
+    "{\n"
+    "    using Base=\n"
+    "        #^#REF_FIELD#$#<\n"
+    "           #^#OPTS#$#\n"
+    "        >;\n"
+    "    #^#PUBLIC#$#\n"
+    "    #^#NAME_FUNC#$#\n"
+    "    #^#READ#^#"
+    "    #^#WRITE#^#"
+    "    #^#LENGTH#^#"
+    "    #^#VALID#^#"
+    "    #^#REFRESH#^#"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
+    "};\n"
+);
+
 const std::string StructTemplate(
     "#^#PREFIX#$#"
     "struct #^#CLASS_NAME#$# : public\n"
@@ -33,6 +56,26 @@ const std::string StructTemplate(
     "    #^#NAME_FUNC#$#\n"
     "};\n"
 );
+
+bool shouldUseStruct(const common::ReplacementMap& replacements)
+{
+    auto hasNoValue =
+        [&replacements](const std::string& val)
+        {
+            auto iter = replacements.find(val);
+            return (iter == replacements.end()) || iter->second.empty();
+        };
+
+    return
+        hasNoValue("READ") &&
+        hasNoValue("WRITE") &&
+        hasNoValue("LENGTH") &&
+        hasNoValue("VALID") &&
+        hasNoValue("REFRESH") &&
+        hasNoValue("PUBLIC") &&
+        hasNoValue("PRIVATE") &&
+        hasNoValue("PROTECTED");
+}
 
 } // namespace
 
@@ -89,6 +132,19 @@ std::string RefField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));
     replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("READ", getCustomRead()));
+    replacements.insert(std::make_pair("WRITE", getCustomWrite()));
+    replacements.insert(std::make_pair("LENGTH", getCustomLength()));
+    replacements.insert(std::make_pair("VALID", getCustomValid()));
+    replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
+
+    if (getDisplayName() != fieldPtr->getDisplayName()) {
+        replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));
+    }
+
     replacements.insert(
         std::make_pair(
             "REF_FIELD",
@@ -96,10 +152,14 @@ std::string RefField::getClassDefinitionImpl(
                 refFieldDslObj().field().externalRef(), true, true)));
     replacements.insert(std::make_pair("OPTS", getOpts(scope)));
 
-    auto* templ = &AliasTemplate;
-    if (getDisplayName() != fieldPtr->getDisplayName()) {
+    auto* templ = &ClassTemplate;
+    if (shouldUseStruct(replacements)) {
         templ = &StructTemplate;
+        if (replacements.find("NAME_FUNC") == replacements.end()) {
+            templ = &AliasTemplate;
+        }
     }
+
     // TODO: check display name is empty
 
     return common::processTemplate(*templ, replacements);

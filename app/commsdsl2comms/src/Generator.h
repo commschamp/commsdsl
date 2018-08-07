@@ -262,6 +262,9 @@ public:
     std::string getCustomValidForField(const std::string& externalRef) const;
     std::string getCustomRefreshForField(const std::string& externalRef) const;
     std::string getCustomNameForField(const std::string& externalRef) const;
+    std::string getExtraPublicForField(const std::string& externalRef) const;
+    std::string getExtraProtectedForField(const std::string& externalRef) const;
+    std::string getExtraPrivateForField(const std::string& externalRef) const;
 
 private:
 

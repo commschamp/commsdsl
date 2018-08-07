@@ -182,6 +182,11 @@ protected:
     std::string getCustomLength() const;
     std::string getCustomValid() const;
     const std::string& getCustomRefresh() const;
+    std::string getExtraPublic() const;
+    std::string getExtraProtected() const;
+    std::string getFullProtected() const;
+    std::string getExtraPrivate() const;
+    std::string getFullPrivate() const;
     std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
 
 private:
