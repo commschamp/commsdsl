@@ -120,11 +120,13 @@ std::size_t BundleField::minLengthImpl() const
             });
 }
 
-std::string BundleField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
+std::string BundleField::getClassDefinitionImpl(
+    const std::string& scope,
+    const std::string& className) const
 {
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
@@ -133,8 +135,8 @@ std::string BundleField::getClassDefinitionImpl(const std::string& scope, const 
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getRefresh()));
-    replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, suffix)));
-    replacements.insert(std::make_pair("ACCESS", getAccess(suffix)));
+    replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, className)));
+    replacements.insert(std::make_pair("ACCESS", getAccess(className)));
     replacements.insert(std::make_pair("PRIVATE", getPrivate()));
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["COMMA"] = ',';
@@ -238,9 +240,9 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
     return common::listToString(options, ",\n", common::emptyString());
 }
 
-std::string BundleField::getMembersDef(const std::string& scope, const std::string& suffix) const
+std::string BundleField::getMembersDef(const std::string& scope, const std::string& className) const
 {
-    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    std::string memberScope = scope + className + common::membersSuffixStr() + "::";
     StringsList membersDefs;
     StringsList membersNames;
 
@@ -258,7 +260,7 @@ std::string BundleField::getMembersDef(const std::string& scope, const std::stri
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name() + suffix)));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("EXTRA_PREFIX", std::move(prefix)));
     replacements.insert(std::make_pair("MEMBERS_DEFS", common::listToString(membersDefs, "\n", common::emptyString())));
     replacements.insert(std::make_pair("MEMBERS", common::listToString(membersNames, ",\n", common::emptyString())));
@@ -266,7 +268,7 @@ std::string BundleField::getMembersDef(const std::string& scope, const std::stri
 
 }
 
-std::string BundleField::getAccess(const std::string& suffix) const
+std::string BundleField::getAccess(const std::string& className) const
 {
     static const std::string Templ =
         "/// @brief Allow access to internal fields.\n"
@@ -290,7 +292,7 @@ std::string BundleField::getAccess(const std::string& suffix) const
         std::string accessStr =
             "///     @li @b field_" + namesList.back() +
             "() - for @ref " +
-            common::nameToClassCopy(name()) + suffix +
+            className +
             common::membersSuffixStr() + "::" +
             namesList.back() + " member field.";
         accessDocList.push_back(std::move(accessStr));

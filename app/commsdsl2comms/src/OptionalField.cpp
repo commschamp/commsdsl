@@ -138,7 +138,9 @@ void OptionalField::updatePluginIncludesImpl(Field::IncludesList& includes) cons
     common::mergeInclude(generator().headerfileForFieldInPlugin(optionalFieldDslObj().field().externalRef(), false), includes);
 }
 
-std::string OptionalField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
+std::string OptionalField::getClassDefinitionImpl(
+    const std::string& scope,
+    const std::string& className) const
 {
     if (!m_field) {
         // Find to mark it as used
@@ -149,8 +151,8 @@ std::string OptionalField::getClassDefinitionImpl(const std::string& scope, cons
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));

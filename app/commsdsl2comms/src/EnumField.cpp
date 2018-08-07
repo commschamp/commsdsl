@@ -205,7 +205,9 @@ void EnumField::updateIncludesImpl(IncludesList& includes) const
     }
 }
 
-std::string EnumField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
+std::string EnumField::getClassDefinitionImpl(
+    const std::string& scope,
+    const std::string& className) const
 {
     if (!prepareRanges()) {
         return common::emptyString();
@@ -213,11 +215,11 @@ std::string EnumField::getClassDefinitionImpl(const std::string& scope, const st
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("ENUMERATION", getEnumeration()));
-    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
-    replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(suffix)));
+    replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(className)));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
     replacements.insert(std::make_pair("READ", getCustomRead()));
@@ -426,13 +428,13 @@ std::string EnumField::getFieldBaseParams() const
     return getCommonFieldBaseParams(endian);
 }
 
-std::string EnumField::getEnumType(const std::string& suffix) const
+std::string EnumField::getEnumType(const std::string& className) const
 {
     if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
         return generator().mainNamespace() + "::" + common::msgIdEnumNameStr();
     }
 
-    return common::nameToClassCopy(dslObj().name()) + suffix + "Val";
+    return className + "Val";
 }
 
 std::string EnumField::getFieldOpts(const std::string& scope) const

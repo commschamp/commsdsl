@@ -136,11 +136,13 @@ std::size_t DataField::maxLengthImpl() const
     return std::numeric_limits<std::size_t>::max();
 }
 
-std::string DataField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
+std::string DataField::getClassDefinitionImpl(
+    const std::string& scope,
+    const std::string& className) const
 {
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));

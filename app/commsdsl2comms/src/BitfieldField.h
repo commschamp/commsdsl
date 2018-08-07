@@ -18,7 +18,9 @@ protected:
     virtual bool prepareImpl() override;
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const override;
-    virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
+    virtual std::string getClassDefinitionImpl(
+        const std::string& scope,
+        const std::string& className) const override;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override;
     virtual std::string getPluginAnonNamespaceImpl(
         const std::string& scope,
@@ -31,8 +33,8 @@ private:
 
     std::string getFieldBaseParams() const;
     std::string getFieldOpts(const std::string& scope) const;
-    std::string getMembersDef(const std::string& scope, const std::string& suffix) const;
-    std::string getAccess(const std::string& suffix) const;
+    std::string getMembersDef(const std::string& scope, const std::string& className) const;
+    std::string getAccess(const std::string& className) const;
 
     commsdsl::BitfieldField bitfieldFieldDslObj() const
     {

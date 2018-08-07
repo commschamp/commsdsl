@@ -17,7 +17,9 @@ public:
     static const std::string& convertType(commsdsl::IntField::Type value, std::size_t len = 0);
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
-    virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
+    virtual std::string getClassDefinitionImpl(
+        const std::string& scope,
+        const std::string& className) const override;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,

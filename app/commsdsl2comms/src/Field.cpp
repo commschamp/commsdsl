@@ -86,21 +86,25 @@ bool Field::prepare(unsigned parentVersion)
 
 std::string Field::getClassDefinition(
     const std::string& scope,
-    const std::string& suffix) const
+    const std::string& className) const
 {
     std::string str;
     bool optional = isVersionOptional();
 
-    std::string classNameSuffix = suffix;
-    if (optional) {
-        classNameSuffix += common::optFieldSuffixStr();
+    auto classNameCpy(className);
+    if (classNameCpy.empty()) {
+        classNameCpy = common::nameToClassCopy(name());
     }
 
-    str += getClassDefinitionImpl(scope, classNameSuffix);
+    if (optional) {
+         classNameCpy += common::optFieldSuffixStr();
+    }
+
+    str += getClassDefinitionImpl(scope, classNameCpy);
 
     if (optional) {
         str += '\n';
-        str += getClassPrefix(suffix, false);
+        str += getClassPrefix(classNameCpy, false);
 
         static const std::string Templ =
             "using #^#CLASS_NAME#$# =\n"
@@ -136,8 +140,13 @@ std::string Field::getClassDefinition(
             }
         }
 
+        classNameCpy = className;
+        if (classNameCpy.empty()) {
+            classNameCpy = common::nameToClassCopy(name());
+        }
+
         common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(m_dslObj.name()) + suffix));
+        replacements.insert(std::make_pair("CLASS_NAME", classNameCpy));
         replacements.insert(std::make_pair("FIELD_PARAMS", std::move(fieldParams)));
         replacements.insert(std::make_pair("DEFAULT_MODE_OPT", std::move(defaultModeOpt)));
         replacements.insert(std::make_pair("VERSIONS_OPT", std::move(versionOpt)));
@@ -213,19 +222,19 @@ const std::string& Field::getDisplayName() const
 }
 
 std::string Field::getClassPrefix(
-    const std::string& suffix,
+    const std::string& className,
     bool checkForOptional,
     const std::string& extraDoc) const
 {
     std::string str;
     bool optional = checkForOptional && isVersionOptional();
     if (optional) {
-        std::string suffixCpy(suffix);
-        if (common::optFieldSuffixStr().size() <= suffixCpy.size()) {
-            suffixCpy.resize(suffixCpy.size() - common::optFieldSuffixStr().size());
+        std::string classNameCpy(className);
+        if (common::optFieldSuffixStr().size() <= classNameCpy.size()) {
+            classNameCpy.resize(classNameCpy.size() - common::optFieldSuffixStr().size());
         }
 
-        str = "/// @brief Inner field of @ref " + common::nameToClassCopy(name()) + suffixCpy + " optional.\n";
+        str = "/// @brief Inner field of @ref " + classNameCpy + " optional.\n";
     }
     else {
         str = "/// @brief Definition of <b>\"";
@@ -957,7 +966,7 @@ bool Field::writeProtocolDefinitionFile() const
 {
     auto startInfo = m_generator.startFieldProtocolWrite(m_externalRef);
     auto& filePath = startInfo.first;
-    //auto& className = startInfo.second;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         return true;
@@ -976,7 +985,7 @@ bool Field::writeProtocolDefinitionFile() const
     replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForField(m_externalRef))));
+    replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForField(m_externalRef), className)));
     replacements.insert(std::make_pair("FIELD_NAME", getDisplayName()));
 
     static const std::string FileTemplate(

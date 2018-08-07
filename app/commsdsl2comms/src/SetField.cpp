@@ -56,11 +56,13 @@ void SetField::updateIncludesImpl(IncludesList& includes) const
     common::mergeIncludes(List, includes);
 }
 
-std::string SetField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
+std::string SetField::getClassDefinitionImpl(
+    const std::string& scope,
+    const std::string& className) const
 {
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix, false, getExtraDoc())));
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(className, false, getExtraDoc())));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));

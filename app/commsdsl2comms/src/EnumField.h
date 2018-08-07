@@ -22,7 +22,9 @@ public:
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
-    virtual std::string getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const override;
+    virtual std::string getClassDefinitionImpl(
+        const std::string& scope,
+        const std::string& className) const override;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,
@@ -50,7 +52,7 @@ private:
 
     std::string getEnumeration() const;
     std::string getFieldBaseParams() const;
-    std::string getEnumType(const std::string& suffix) const;
+    std::string getEnumType(const std::string& className) const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getValid() const;
     void checkDefaultValueOpt(StringsList& list) const;

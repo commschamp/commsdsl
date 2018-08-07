@@ -74,7 +74,9 @@ std::size_t RefField::maxLengthImpl() const
     return fieldPtr->maxLength();
 }
 
-std::string RefField::getClassDefinitionImpl(const std::string& scope, const std::string& suffix) const
+std::string RefField::getClassDefinitionImpl(
+    const std::string& scope,
+    const std::string& className) const
 {
     auto refObj = refFieldDslObj().field();
     auto fieldPtr = generator().findField(refObj.externalRef());
@@ -84,9 +86,9 @@ std::string RefField::getClassDefinitionImpl(const std::string& scope, const std
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(dslObj().name()) + suffix));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));
-    replacements.insert(std::make_pair("PREFIX", getClassPrefix(suffix)));
+    replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
     replacements.insert(
         std::make_pair(
             "REF_FIELD",
