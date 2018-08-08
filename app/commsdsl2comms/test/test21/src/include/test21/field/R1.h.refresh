@@ -1,0 +1,5 @@
+// @brief Overriding refresh function
+bool refresh()
+{
+    return Base::refresh();
+}

@@ -37,7 +37,7 @@ private:
     using StringsList = common::StringsList;
 
     std::string getFieldOpts(const std::string& scope) const;
-    std::string getConstructor() const;
+    std::string getConstructor(const std::string& className) const;
     std::string getPrefixField(const std::string& scope) const;
     void checkFixedLengthOpt(StringsList& list) const;
     void checkPrefixOpt(StringsList& list) const;

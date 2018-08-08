@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test21"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        <int name="I1" type="uint32" />
+        <ref name="R1" field="I1" />
+        
+        <int name="I2" type="uint16" defaultValue="5" />
+        <enum name="E1" type="uint8">
+            <validValue name="V0" val="0" />
+            <validValue name="V1" val="1" />
+        </enum>
+        <enum name="E2" reuse="E1" />
+        <set name="S1" length="1">
+            <bit name="b0" idx="0" />
+            <bit name="b1" idx="1" />
+        </set>
+        <float name="F1" type="float" />
+        <bitfield name="B1">
+            <int name="mem0" type="uint8" bitLength="3" />
+            <int name="mem1" type="uint8" bitLength="5" />
+        </bitfield>
+        <bundle name="B2">
+            <int name="mem0" type="uint8"/>
+            <int name="mem1" type="uint8"/>
+        </bundle>   
+        
+        <string name="S2" defaultValue="hello">
+            <lengthPrefix>
+                <int name="Len" type="uint8" />
+            </lengthPrefix>
+        </string>
+        <data name="D1" defaultValue="abcdef0123">  
+            <lengthPrefix>
+                <int name="Len" type="uint8" />
+            </lengthPrefix>            
+        </data>
+        <list name="L1">
+            <element>
+                <int name="Elem" type="uint32" />
+            </element>
+            <countPrefix>
+                <int name="Count" type="uint8" />
+            </countPrefix> 
+            <elemLengthPrefix>
+                <int name="ElemLen" type="uint8" />
+            </elemLengthPrefix>             
+        </list> 
+        <optional name="O1">
+            <field>
+                <int name="O1" type="uint32" />
+            </field>
+        </optional>       
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="f1" field="R1" />
+        <ref name="f2" field="I2" />
+        <ref name="f3" field="E1" />
+        <ref name="f4" field="E2" />
+        <ref name="f5" field="S1" />
+        <ref name="f6" field="F1" />
+        <ref name="f7" field="B1" />
+        <ref name="f8" field="B2" />        
+        <ref name="f9" field="S2" />
+        <ref name="f10" field="D1" />         
+        <ref name="f11" field="L1" />  
+        <ref name="f12" field="O1" />  
+    </message>
+    
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
+</schema>

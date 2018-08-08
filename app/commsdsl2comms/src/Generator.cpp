@@ -33,7 +33,7 @@ const std::string LengthSuffix(".length");
 const std::string ValidSuffix(".valid");
 const std::string RefreshSuffix(".refresh");
 const std::string NameSuffix(".name");
-const std::string PublicSuffix(".publilc");
+const std::string PublicSuffix(".public");
 const std::string ProtectedSuffix(".protected");
 const std::string PrivateSuffix(".private");
 
@@ -1251,33 +1251,35 @@ Generator::startProtocolWrite(
     auto fullPath = dirPath / fileName;
     auto fullPathStr = fullPath.string();
 
-    auto overwriteFile = m_codeInputDir / relDirPath / fileName;
-    boost::system::error_code ec;
-    if (bf::exists(overwriteFile, ec)) {
-        m_logger.info("Skipping generation of " + fullPathStr);
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
-    auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
-    if (bf::exists(replaceFile, ec)) {
-        m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
-        bf::copy_file(replaceFile, bf::path(fullPathStr), ec);
-        if (!ec) {
-            m_logger.warning("Failed to write " + fullPathStr);
+    if (!m_codeInputDir.empty()) {
+        auto overwriteFile = m_codeInputDir / relDirPath / fileName;
+        boost::system::error_code ec;
+        if (bf::exists(overwriteFile, ec)) {
+            m_logger.info("Skipping generation of " + fullPathStr);
+            return std::make_pair(common::emptyString(), common::emptyString());
         }
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
 
-    auto extendFile = m_codeInputDir / relDirPath / (fileName + ExtendSuffix);
-    if (bf::exists(extendFile, ec)) {
-        bf::copy_file(extendFile, bf::path(fullPathStr), ec);
-        if (!ec) {
-            m_logger.warning("Failed to write " + fullPathStr);
+        auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
+        if (bf::exists(replaceFile, ec)) {
+            m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
+            bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
+            if (ec) {
+                m_logger.warning("Failed to write \"" + fullPathStr + "\": " + ec.message());
+            }
+            return std::make_pair(common::emptyString(), common::emptyString());
         }
-        className += common::origSuffixStr();
-        fileName = className + common::headerSuffix();
-        fullPath = dirPath / fileName;
-        fullPathStr = fullPath.string();
+
+        auto extendFile = m_codeInputDir / relDirPath / (fileName + ExtendSuffix);
+        if (bf::exists(extendFile, ec)) {
+            bf::copy_file(extendFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
+            if (ec) {
+                m_logger.warning("Failed to write \"" + fullPathStr + "\": " + ec.message());
+            }
+            className += common::origSuffixStr();
+            fileName = className + common::headerSuffix();
+            fullPath = dirPath / fileName;
+            fullPathStr = fullPath.string();
+        }
     }
 
     m_logger.info("Generating " + fullPathStr);
@@ -1332,7 +1334,7 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
     auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
     if (bf::exists(replaceFile, ec)) {
         m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
-        bf::copy_file(replaceFile, bf::path(fullPathStr), ec);
+        bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
         if (!ec) {
             m_logger.warning("Failed to write " + fullPathStr);
         }
@@ -1341,7 +1343,7 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
 
     auto extendFile = m_codeInputDir / relDirPath / (fileName + ExtendSuffix);
     if (bf::exists(extendFile, ec)) {
-        bf::copy_file(extendFile, bf::path(fullPathStr), ec);
+        bf::copy_file(extendFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
         if (!ec) {
             m_logger.warning("Failed to write " + fullPathStr);
         }
@@ -1361,6 +1363,10 @@ std::string Generator::getCustomOpForElement(
     const std::string& subNs) const
 {
     if (externalRef.empty()) {
+        return common::emptyString();
+    }
+
+    if (m_codeInputDir.empty()) {
         return common::emptyString();
     }
 

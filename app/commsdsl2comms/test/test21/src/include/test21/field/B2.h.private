@@ -1,0 +1,4 @@
+bool someFuncPrivate() const
+{
+    return true;
+}

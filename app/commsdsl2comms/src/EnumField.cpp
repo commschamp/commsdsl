@@ -225,7 +225,7 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
-    replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(className)));
+    replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
     replacements.insert(std::make_pair("READ", getCustomRead()));

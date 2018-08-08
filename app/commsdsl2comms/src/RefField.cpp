@@ -34,13 +34,14 @@ const std::string ClassTemplate(
     "        #^#REF_FIELD#$#<\n"
     "           #^#OPTS#$#\n"
     "        >;\n"
+    "public:\n"
     "    #^#PUBLIC#$#\n"
     "    #^#NAME_FUNC#$#\n"
-    "    #^#READ#^#"
-    "    #^#WRITE#^#"
-    "    #^#LENGTH#^#"
-    "    #^#VALID#^#"
-    "    #^#REFRESH#^#"
+    "    #^#READ#$#\n"
+    "    #^#WRITE#$#\n"
+    "    #^#LENGTH#$#\n"
+    "    #^#VALID#$#\n"
+    "    #^#REFRESH#$#\n"
     "#^#PROTECTED#$#\n"
     "#^#PRIVATE#$#\n"
     "};\n"
@@ -140,6 +141,9 @@ std::string RefField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
+    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
+    replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
 
     if (getDisplayName() != fieldPtr->getDisplayName()) {
         replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));

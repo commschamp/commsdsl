@@ -33,8 +33,8 @@ private:
 
     std::string getFieldBaseParams() const;
     std::string getFieldOpts(const std::string& scope) const;
-    std::string getMembersDef(const std::string& scope, const std::string& className) const;
-    std::string getAccess(const std::string& className) const;
+    std::string getMembersDef(const std::string& scope) const;
+    std::string getAccess() const;
 
     commsdsl::BitfieldField bitfieldFieldDslObj() const
     {

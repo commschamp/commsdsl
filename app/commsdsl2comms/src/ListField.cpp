@@ -304,6 +304,7 @@ std::string ListField::getExtraDefaultOptionsImpl(const std::string& scope) cons
 
     addToOptionsFunc(m_element);
     addToOptionsFunc(m_lengthPrefix);
+    addToOptionsFunc(m_countPrefix);
     addToOptionsFunc(m_elemLengthPrefix);
 
     if (options.empty()) {

@@ -156,7 +156,7 @@ std::string StringField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
-    replacements.insert(std::make_pair("CONSTRUCTOR", getConstructor()));
+    replacements.insert(std::make_pair("CONSTRUCTOR", getConstructor(className)));
     replacements.insert(std::make_pair("PREFIX_FIELD", getPrefixField(scope)));
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
@@ -288,7 +288,7 @@ std::string StringField::getFieldOpts(const std::string& scope) const
     return common::listToString(options, ",\n", common::emptyString());
 }
 
-std::string StringField::getConstructor() const
+std::string StringField::getConstructor(const std::string& className) const
 {
     auto obj = stringFieldDslObj();
     auto& defaultValue = obj.defaultValue();
@@ -306,7 +306,7 @@ std::string StringField::getConstructor() const
         "}\n";
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("STR", defaultValue));
     return common::processTemplate(Templ, replacements);
 }

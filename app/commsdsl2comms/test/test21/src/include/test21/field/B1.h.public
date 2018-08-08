@@ -1,0 +1,5 @@
+/// @brief Some function
+bool someFunc() const
+{
+    return someFuncProtected();
+}

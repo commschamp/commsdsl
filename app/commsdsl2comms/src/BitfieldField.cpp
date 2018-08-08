@@ -41,14 +41,14 @@ const std::string ClassTemplate(
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::field::Bitfield<\n"
     "        #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        typename #^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
+    "        typename #^#ORIG_CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
     "    using Base = \n"
     "        comms::field::Bitfield<\n"
     "            #^#PROT_NAMESPACE#$#::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "            typename #^#CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
+    "            typename #^#ORIG_CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
@@ -116,6 +116,7 @@ std::string BitfieldField::getClassDefinitionImpl(
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
     replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
@@ -125,8 +126,8 @@ std::string BitfieldField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
-    replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope, className)));
-    replacements.insert(std::make_pair("ACCESS", getAccess(className)));
+    replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope)));
+    replacements.insert(std::make_pair("ACCESS", getAccess()));
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
@@ -222,9 +223,9 @@ std::string BitfieldField::getFieldOpts(const std::string& scope) const
 }
 
 std::string BitfieldField::getMembersDef(
-    const std::string& scope,
-    const std::string& className) const
+    const std::string& scope) const
 {
+    auto className = common::nameToClassCopy(name());
     std::string memberScope = scope + className + common::membersSuffixStr() + "::";
     StringsList membersDefs;
     StringsList membersNames;
@@ -251,7 +252,7 @@ std::string BitfieldField::getMembersDef(
 
 }
 
-std::string BitfieldField::getAccess(const std::string& className) const
+std::string BitfieldField::getAccess() const
 {
     static const std::string Templ =
         "/// @brief Allow access to internal fields.\n"
@@ -270,13 +271,12 @@ std::string BitfieldField::getAccess(const std::string& className) const
     accessDocList.reserve(m_members.size());
     namesList.reserve(m_members.size());
 
+    auto scope = common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     for (auto& m : m_members) {
         namesList.push_back(common::nameToAccessCopy(m->name()));
         std::string accessStr =
             "///     @li @b field_" + namesList.back() +
-            "() - for @ref " +
-            className +
-            common::membersSuffixStr() + "::" +
+            "() - for @ref " + scope +
             namesList.back() + " member field.";
         accessDocList.push_back(std::move(accessStr));
         

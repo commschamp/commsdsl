@@ -965,7 +965,8 @@ std::string Field::getFullProtected() const
         return str;
     }
 
-    return "protected:\n" + common::indentStr() + str;
+    common::insertIndent(str);
+    return "protected:\n" + str;
 }
 
 std::string Field::getExtraPrivate() const
@@ -980,7 +981,8 @@ std::string Field::getFullPrivate() const
         return str;
     }
 
-    return "private:\n" + common::indentStr() + str;
+    common::insertIndent(str);
+    return "private:\n" + str;
 }
 
 std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
@@ -1013,8 +1015,6 @@ bool Field::writeProtocolDefinitionFile() const
     auto incStr = common::includesToStatements(includes);
 
     auto namespaces = m_generator.namespacesForField(m_externalRef);
-
-    // TODO: modify class name
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
