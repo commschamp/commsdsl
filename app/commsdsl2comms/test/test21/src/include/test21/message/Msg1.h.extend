@@ -1,0 +1,14 @@
+#include "Msg1Orig.h"
+
+namespace test21
+{
+
+namespace message
+{
+
+template <typename TMsgBase, typename TOpt = test21::DefaultOptions>
+using Msg1 = Msg1Orig<TMsgBase, TOpt>;
+
+} // namespace message
+
+} // namespace test21

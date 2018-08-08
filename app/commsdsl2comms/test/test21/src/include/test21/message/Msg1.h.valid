@@ -1,0 +1,6 @@
+/// @brief Custom valid
+bool doValid() const
+{
+    return Base::doValid();
+}
+

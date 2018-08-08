@@ -1111,6 +1111,51 @@ std::string Generator::getExtraPrivateForField(const std::string& externalRef) c
     return getCustomOpForElement(externalRef, PrivateSuffix, common::fieldStr());
 }
 
+std::string Generator::getCustomReadForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, ReadSuffix, common::messageStr());
+}
+
+std::string Generator::getCustomWriteForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, WriteSuffix, common::messageStr());
+}
+
+std::string Generator::getCustomLengthForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, LengthSuffix, common::messageStr());
+}
+
+std::string Generator::getCustomValidForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, ValidSuffix, common::messageStr());
+}
+
+std::string Generator::getCustomRefreshForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, RefreshSuffix, common::messageStr());
+}
+
+std::string Generator::getCustomNameForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, NameSuffix, common::messageStr());
+}
+
+std::string Generator::getExtraPublicForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, PublicSuffix, common::messageStr());
+}
+
+std::string Generator::getExtraProtectedForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, ProtectedSuffix, common::messageStr());
+}
+
+std::string Generator::getExtraPrivateForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, PrivateSuffix, common::messageStr());
+}
+
 std::pair<std::string, std::string>
 Generator::namespacesForElement(
     const std::string& externalRef,

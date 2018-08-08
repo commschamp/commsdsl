@@ -67,6 +67,7 @@ private:
     std::string getReadFunc() const;
     std::string getRefreshFunc() const;
     std::string getExtraOptions() const;
+    std::string getExtraPublic() const;
 
     bool mustImplementReadRefresh() const;
 
@@ -74,6 +75,7 @@ private:
     commsdsl::Message m_dslObj;
     std::string m_externalRef;
     std::vector<FieldPtr> m_fields;
+    std::string m_customRefresh;
 };
 
 using MessagePtr = std::unique_ptr<Message>;

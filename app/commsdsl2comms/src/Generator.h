@@ -266,6 +266,16 @@ public:
     std::string getExtraProtectedForField(const std::string& externalRef) const;
     std::string getExtraPrivateForField(const std::string& externalRef) const;
 
+    std::string getCustomReadForMessage(const std::string& externalRef) const;
+    std::string getCustomWriteForMessage(const std::string& externalRef) const;
+    std::string getCustomLengthForMessage(const std::string& externalRef) const;
+    std::string getCustomValidForMessage(const std::string& externalRef) const;
+    std::string getCustomRefreshForMessage(const std::string& externalRef) const;
+    std::string getCustomNameForMessage(const std::string& externalRef) const;
+    std::string getExtraPublicForMessage(const std::string& externalRef) const;
+    std::string getExtraProtectedForMessage(const std::string& externalRef) const;
+    std::string getExtraPrivateForMessage(const std::string& externalRef) const;
+
 private:
 
     using NamespacesList = Namespace::NamespacesList;

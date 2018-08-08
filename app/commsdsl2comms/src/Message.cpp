@@ -34,7 +34,7 @@ const std::string Template(
     "/// @see @ref #^#CLASS_NAME#$#\n"
     "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
     "template <typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
-    "struct #^#CLASS_NAME#$#Fields\n"
+    "struct #^#ORIG_CLASS_NAME#$#Fields\n"
     "{\n"
     "    #^#FIELDS_DEF#$#\n"
     "    /// @brief All the fields bundled in std::tuple.\n"
@@ -46,7 +46,7 @@ const std::string Template(
     "/// @brief Definition of <b>\"#^#MESSAGE_NAME#$#\"<\\b> message class.\n"
     "/// @details\n"
     "#^#DOC_DETAILS#$#\n"
-    "///     See @ref #^#CLASS_NAME#$#Fields for definition of the fields this message contains.\n"
+    "///     See @ref #^#ORIG_CLASS_NAME#$#Fields for definition of the fields this message contains.\n"
     "/// @tparam TMsgBase Base (interface) class.\n"
     "/// @tparam TOpt Extra options\n"
     "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
@@ -56,7 +56,7 @@ const std::string Template(
     "        TMsgBase,\n"
     "        typename TOpt::#^#NAMESPACE_SCOPE#$#,\n"
     "        comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
-    "        comms::option::FieldsImpl<typename #^#CLASS_NAME#$#Fields<TOpt>::All>,\n"
+    "        comms::option::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
     "        comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
     "        comms::option::HasName#^#COMMA#$#\n"
     "        #^#EXTRA_OPTIONS#$#\n"
@@ -68,7 +68,7 @@ const std::string Template(
     "            TMsgBase,\n"
     "            typename TOpt::#^#NAMESPACE_SCOPE#$#,\n"
     "            comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
-    "            comms::option::FieldsImpl<typename #^#CLASS_NAME#$#Fields<TOpt>::All>,\n"
+    "            comms::option::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
     "            comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
     "            comms::option::HasName#^#COMMA#$#\n"
     "            #^#EXTRA_OPTIONS#$#\n"
@@ -199,6 +199,7 @@ bool Message::prepare()
         m_fields.push_back(std::move(ptr));
     }
 
+    m_customRefresh = m_generator.getCustomRefreshForMessage(m_externalRef);
     return true;
 }
 
@@ -288,6 +289,7 @@ bool Message::writeProtocol()
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("MESSAGE_NAME", getDisplayName()));
     replacements.insert(std::make_pair("DOC_DETAILS", getDescription()));
     replacements.insert(std::make_pair("MESSAGE_ID", m_generator.getMessageIdStr(m_externalRef, m_dslObj.id())));
@@ -485,8 +487,10 @@ std::string Message::getIncludes() const
 std::string Message::getBody() const
 {
     std::string result = getPublic();
+    common::insertIndent(result);
     std::string prot = getProtected();
     if (!prot.empty()) {
+        common::insertIndent(prot);
         result += "\nprotected:\n";
         result += prot;
     }
@@ -503,27 +507,45 @@ std::string Message::getBody() const
 
 std::string Message::getPublic() const
 {
-    std::string result;
-    result += getFieldsAccess();
-    result += getLengthCheck();
-    result += getNameFunc();
-    result += getReadFunc();
-    result += getRefreshFunc();
-    common::insertIndent(result);
-    // TODO: check custom
-    return result;
+    static const std::string Templ =
+        "#^#ACCESS#$#\n"
+        "#^#LENGTH_CHECK#$#\n"
+        "#^#EXTRA#$#\n"
+        "#^#NAME#$#\n"
+        "#^#READ#$#\n"
+        "#^#WRITE#$#\n"
+        "#^#LENGTH#$#\n"
+        "#^#VALID#$#\n"
+        "#^#REFRESH#$#\n";
+    
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("ACCESS", getFieldsAccess()));
+    replacements.insert(std::make_pair("LENGTH_CHECK", getLengthCheck()));
+    replacements.insert(std::make_pair("EXTRA", getExtraPublic()));
+    replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("READ", getReadFunc()));
+    replacements.insert(std::make_pair("WRITE", m_generator.getCustomWriteForMessage(m_externalRef)));
+    replacements.insert(std::make_pair("LENGTH", m_generator.getCustomLengthForMessage(m_externalRef)));
+    replacements.insert(std::make_pair("VALID", m_generator.getCustomValidForMessage(m_externalRef)));
+    replacements.insert(std::make_pair("REFRESH", getRefreshFunc()));
+
+    return common::processTemplate(Templ, replacements);
 }
 
 std::string Message::getProtected() const
 {
-    // TODO: check custom
-    return common::emptyString();
+    return m_generator.getExtraProtectedForMessage(m_externalRef);
 }
 
 std::string Message::getPrivate() const
 {
-    // TODO: check custom
-    return Field::getPrivateRefreshForFields(m_fields);
+    auto extra = m_generator.getExtraPrivateForMessage(m_externalRef);
+    auto privateRefresh = Field::getPrivateRefreshForFields(m_fields);
+    if ((!extra.empty()) && (!privateRefresh.empty())) {
+        extra += '\n';
+    }
+
+    return extra + privateRefresh;
 }
 
 std::string Message::getFieldsAccess() const
@@ -562,7 +584,7 @@ std::string Message::getFieldsAccess() const
         }
         result += '\n';
     }
-    result += ");\n\n";
+    result += ");\n";
 
     return result;
 }
@@ -641,8 +663,12 @@ std::string Message::getNamespaceScope() const
 
 std::string Message::getNameFunc() const
 {
+    auto str = m_generator.getCustomNameForMessage(m_externalRef);
+    if (!str.empty()) {
+        return str;
+    }
+
     return
-        "\n"
         "/// @brief Name of the message.\n"
         "static const char* doName()\n"
         "{\n"
@@ -652,36 +678,40 @@ std::string Message::getNameFunc() const
 
 std::string Message::getReadFunc() const
 {
-    // TODO: check custom
-
-    auto result = Field::getReadForFields(m_fields, true);
-    if (!result.empty()) {
-        return "\n" + result;
+    auto str = m_generator.getCustomReadForMessage(m_externalRef);
+    if (!str.empty()) {
+        return str;
     }
 
-    return result;
+    return Field::getReadForFields(m_fields, true);
 }
 
 std::string Message::getRefreshFunc() const
 {
-    // TODO: check custom
-
-    auto result = Field::getPublicRefreshForFields(m_fields, true);
-    if (!result.empty()) {
-        return "\n" + result;
+    if (!m_customRefresh.empty()) {
+        return m_customRefresh;
     }
 
-    return result;
+    return Field::getPublicRefreshForFields(m_fields, true);
 }
 
 std::string Message::getExtraOptions() const
 {
-    if (!mustImplementReadRefresh()) {
-        // TODO: check external read/refresh
-        return common::emptyString();
+    if ((!m_customRefresh.empty()) || (mustImplementReadRefresh())) {
+        return "comms::option::HasCustomRefresh";
     }
 
-    return "comms::option::HasCustomRefresh";
+    return common::emptyString();
+}
+
+std::string Message::getExtraPublic() const
+{
+    auto str = m_generator.getExtraPublicForMessage(m_externalRef);
+    if (str.empty()) {
+        return str;
+    }
+
+    return "\n" + str;
 }
 
 bool Message::mustImplementReadRefresh() const

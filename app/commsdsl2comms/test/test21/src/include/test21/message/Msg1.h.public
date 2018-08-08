@@ -1,0 +1,6 @@
+/// @brief Custom public func
+bool someFunc() const
+{
+    return someFuncProtected();
+}
+

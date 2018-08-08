@@ -37,4 +37,5 @@ void TestSuite::test1()
     TS_ASSERT(msg.field_f9().someFunc());
     TS_ASSERT(msg.field_f10().someFunc());
     TS_ASSERT(msg.field_f11().someFunc());
+    TS_ASSERT(msg.someFunc());
 }
