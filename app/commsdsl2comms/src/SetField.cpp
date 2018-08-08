@@ -45,7 +45,6 @@ const std::string ClassTemplate(
     "};\n"
 );
 
-const std::size_t MaxRangesInOpts = 5U;
 const auto MaxBits = std::numeric_limits<std::uintmax_t>::digits;
 
 } // namespace

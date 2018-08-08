@@ -52,7 +52,7 @@ bool DefaultOptions::writeDefinition() const
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(info.second)));
-    replacements.insert(std::make_pair("BODY", std::move(m_generator.getDefaultOptionsBody())));
+    replacements.insert(std::make_pair("BODY", m_generator.getDefaultOptionsBody()));
 
     std::ofstream stream(filename);
     if (!stream) {
