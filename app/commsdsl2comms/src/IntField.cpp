@@ -684,6 +684,8 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
             auto needToMergeCheck =
                 [](auto min1, auto max1, auto min2, auto max2) -> bool
                 {
+                    static_cast<void>(min1);
+                    static_cast<void>(max2);
                     assert(min1 <= min2);
                     if (min2 <= (max1 + 1)) {
                         assert(max1 <= max2);
