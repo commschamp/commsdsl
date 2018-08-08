@@ -1,0 +1,27 @@
+#include "B1.h"
+
+#include "B1Orig.cpp"
+
+namespace cc = comms_champion;
+
+namespace test21
+{
+
+namespace cc_plugin
+{
+
+namespace field
+{
+
+QVariantMap createProps_b1(const char* name, bool serHidden)
+{
+    return createProps_b1Orig(name, serHidden);
+}
+
+} // namespace field
+
+} // namespace cc_plugin
+
+} // namespace test21
+
+

@@ -1,0 +1,24 @@
+#pragma once
+
+#include <QtCore/QVariantMap>
+
+namespace test21
+{
+
+namespace cc_plugin
+{
+
+namespace field
+{
+
+QVariantMap createProps_b1(const char* name, bool serHidden = false);
+
+} // namespace field
+
+} // namespace cc_plugin
+
+} // namespace test21
+
+
+
+

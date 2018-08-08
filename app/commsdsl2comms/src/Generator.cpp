@@ -1393,7 +1393,7 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
             m_logger.warning("Failed to write " + fullPathStr);
         }
         className += common::origSuffixStr();
-        fileName = className + common::headerSuffix();
+        fileName = className + extension;
         fullPath = dirPath / fileName;
         fullPathStr = fullPath.string();
     }

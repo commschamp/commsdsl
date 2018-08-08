@@ -1056,6 +1056,7 @@ bool Field::writePluginHeaderFile() const
 {
     auto startInfo = m_generator.startFieldPluginHeaderWrite(m_externalRef);
     auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         return true;
@@ -1075,7 +1076,7 @@ bool Field::writePluginHeaderFile() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(className)));
     auto str = common::processTemplate(Templ, replacements);
 
     std::ofstream stream(filePath);
@@ -1098,6 +1099,8 @@ bool Field::writePluginScrFile() const
     assert(!isVersionOptional());
     auto startInfo = m_generator.startFieldPluginSrcWrite(m_externalRef);
     auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+
     if (filePath.empty()) {
         return true;
     }
@@ -1119,10 +1122,10 @@ bool Field::writePluginScrFile() const
     auto namespaces = m_generator.namespacesForFieldInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(className)));
     replacements.insert(std::make_pair("ANON_NAMESPACE", getPluginAnonNamespace()));
     replacements.insert(std::make_pair("INCLUDES", getPluginIncludes()));
     replacements.insert(std::make_pair("BODY", getPluginPropsDefFuncBodyImpl(common::emptyString(), true, false, true)));
