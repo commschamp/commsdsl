@@ -283,9 +283,22 @@ Generator::startProtocolPluginSrcWrite(const std::string& name)
     return startPluginWrite(name, false, common::pluginStr());
 }
 
-std::pair<std::string, std::string> Generator::startDefaultOptionsWrite()
+std::pair<std::string, std::string>
+Generator::startGenericProtocolWrite(const std::string& name)
 {
-    return startProtocolWrite(common::defaultOptionsStr());
+    return startProtocolWrite(name);
+}
+
+std::pair<std::string, std::string>
+Generator::startGenericPluginHeaderWrite(const std::string& name)
+{
+    return startPluginWrite(name, true);
+}
+
+std::pair<std::string, std::string>
+Generator::startGenericPluginSrcWrite(const std::string& name)
+{
+    return startPluginWrite(name, false);
 }
 
 std::pair<std::string, std::string> Generator::namespacesForMessage(

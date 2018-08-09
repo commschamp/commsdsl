@@ -95,7 +95,13 @@ public:
     startProtocolPluginSrcWrite(const std::string& name);
 
     std::pair<std::string, std::string>
-    startDefaultOptionsWrite();
+    startGenericProtocolWrite(const std::string& name);
+
+    std::pair<std::string, std::string>
+    startGenericPluginHeaderWrite(const std::string& name);
+
+    std::pair<std::string, std::string>
+    startGenericPluginSrcWrite(const std::string& name);
 
     std::pair<std::string, std::string>
     namespacesForMessage(const std::string& externalRef) const;

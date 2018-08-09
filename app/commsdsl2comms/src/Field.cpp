@@ -44,7 +44,8 @@ void Field::updateIncludes(Field::IncludesList& includes) const
     };
 
     common::mergeIncludes(CommonIncludes, includes);
-    common::mergeInclude(m_generator.mainNamespace() + '/' + common::fieldBaseStr() + common::headerSuffix(), includes);
+    common::mergeInclude(m_generator.headerfileForField(common::fieldBaseStr(), false), includes);
+
     if (!m_externalRef.empty()) {
         auto inc =
             m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix();

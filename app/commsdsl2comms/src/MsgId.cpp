@@ -25,7 +25,7 @@ const std::string Template(
     "#include <cstdint>\n\n"
     "#^#BEG_NAMESPACE#$#\n"
     "/// @brief Message ids enumeration.\n"
-    "enum MsgId #^#TYPE#$#\n"
+    "enum #^#ENUM_NAME#$# #^#TYPE#$#\n"
     "{\n"
     "    #^#IDS#$#\n"
     "};\n\n"
@@ -42,20 +42,17 @@ bool MsgId::write(Generator& generator)
 
 bool MsgId::writeDefinition() const
 {
-    auto dir = m_generator.protocolDefRootDir();
-    if (dir.empty()) {
-        return false;
+    auto startInfo = m_generator.startGenericProtocolWrite(common::msgIdEnumNameStr());
+    auto& filePath = startInfo.first;
+    auto& enumName = startInfo.second;
+
+    if (filePath.empty()) {
+        return true;
     }
 
-    bf::path filePath(dir);
-    filePath /= common::msgIdEnumNameStr() + common::headerSuffix();
-
-    std::string filePathStr(filePath.string());
-
-    m_generator.logger().info("Generating " + filePathStr);
-    std::ofstream stream(filePathStr);
+    std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePathStr + "\" for writing.");
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -64,6 +61,7 @@ bool MsgId::writeDefinition() const
     auto namespaces = m_generator.namespacesForRoot();
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("ENUM_NAME", std::move(enumName)));
 
     std::string idsStr;
     std::string typeStr;
@@ -99,7 +97,7 @@ bool MsgId::writeDefinition() const
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePathStr + "\".");
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
         return false;
     }
     return true;

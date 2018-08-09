@@ -1,0 +1,15 @@
+#pragma once
+
+#include "FieldBaseOrig.h"
+
+namespace test21
+{
+
+/// @brief Common base class for all the fields.
+/// @tparam TOpt Extra options.
+template <typename... TOpt>
+using FieldBase = FieldBaseOrig<TOpt...>;
+
+} // namespace test21
+
+

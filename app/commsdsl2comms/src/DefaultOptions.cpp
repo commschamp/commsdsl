@@ -39,24 +39,24 @@ bool DefaultOptions::write(Generator& generator)
 
 bool DefaultOptions::writeDefinition() const
 {
-    auto info = m_generator.startDefaultOptionsWrite();
-    auto& filename = info.first;
+    auto info = m_generator.startGenericProtocolWrite(common::defaultOptionsStr());
+    auto& fileName = info.first;
+    auto& className = info.second;
 
-    auto dir = m_generator.protocolDefRootDir();
-    if (dir.empty()) {
-        return false;
+    if (fileName.empty()) {
+        return true;
     }
 
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForRoot();
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("CLASS_NAME", std::move(info.second)));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BODY", m_generator.getDefaultOptionsBody()));
 
-    std::ofstream stream(filename);
+    std::ofstream stream(fileName);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filename + "\" for writing.");
+        m_generator.logger().error("Failed to open \"" + fileName + "\" for writing.");
         return false;
     }
 
@@ -65,7 +65,7 @@ bool DefaultOptions::writeDefinition() const
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filename + "\".");
+        m_generator.logger().error("Failed to write \"" + fileName + "\".");
         return false;
     }
 

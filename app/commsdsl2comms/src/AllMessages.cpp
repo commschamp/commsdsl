@@ -20,20 +20,17 @@ bool AllMessages::write(Generator& generator)
 
 bool AllMessages::writeProtocolDefinition() const
 {
-    auto dir = m_generator.protocolDefRootDir();
-    if (dir.empty()) {
-        return false;
+    auto startInfo = m_generator.startGenericProtocolWrite(common::allMessagesStr());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+
+    if (filePath.empty()) {
+        return true;
     }
 
-    bf::path filePath(dir);
-    filePath /= common::allMessagesStr() + common::headerSuffix();
-
-    std::string filePathStr(filePath.string());
-
-    m_generator.logger().info("Generating " + filePathStr);
-    std::ofstream stream(filePathStr);
+    std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePathStr + "\" for writing.");
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -66,6 +63,7 @@ bool AllMessages::writeProtocolDefinition() const
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
     replacements.insert(std::make_pair("MESSAGES", common::listToString(messages, ",\n", common::emptyString())));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
 
     const std::string Template(
         "/// @file\n"
@@ -77,7 +75,7 @@ bool AllMessages::writeProtocolDefinition() const
         "/// @tparam TBase Base class of all the messages.\n"
         "/// @tparam TOpt Protocol definition options.\n"
         "template <typename TBase, typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
-        "using AllMessages =\n"
+        "using #^#CLASS_NAME#$# =\n"
         "    std::tuple<\n"
         "        #^#MESSAGES#$#\n"
         "    >;\n\n"
@@ -89,7 +87,7 @@ bool AllMessages::writeProtocolDefinition() const
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePathStr + "\".");
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
         return false;
     }
     return true;
@@ -97,20 +95,17 @@ bool AllMessages::writeProtocolDefinition() const
 
 bool AllMessages::writePluginDefinition() const
 {
-    auto dir = m_generator.pluginDir();
-    if (dir.empty()) {
-        return false;
+    auto startInfo = m_generator.startGenericPluginHeaderWrite(common::allMessagesStr());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+    
+    if (filePath.empty()) {
+        return true;
     }
 
-    bf::path filePath(dir);
-    filePath /= common::allMessagesStr() + common::headerSuffix();
-
-    std::string filePathStr(filePath.string());
-
-    m_generator.logger().info("Generating " + filePathStr);
-    std::ofstream stream(filePathStr);
+    std::ofstream stream(filePath);
     if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePathStr + "\" for writing.");
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
 
@@ -146,6 +141,7 @@ bool AllMessages::writePluginDefinition() const
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
     replacements.insert(std::make_pair("MESSAGES", common::listToString(messages, ",\n", common::emptyString())));
 
@@ -158,7 +154,7 @@ bool AllMessages::writePluginDefinition() const
         "#^#INCLUDES#$#\n"
         "#^#BEG_NAMESPACE#$#\n"
         "#^#TEMPLATE_PARAM#$#\n"
-        "using AllMessages =\n"
+        "using #^#CLASS_NAME#$# =\n"
         "    std::tuple<\n"
         "        #^#MESSAGES#$#\n"
         "    >;\n\n"
@@ -170,7 +166,7 @@ bool AllMessages::writePluginDefinition() const
 
     stream.flush();
     if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePathStr + "\".");
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
         return false;
     }
     return true;
