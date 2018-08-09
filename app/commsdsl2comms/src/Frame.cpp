@@ -35,7 +35,7 @@ const std::string Template(
     "/// @see @ref #^#CLASS_NAME#$#\n"
     "/// @headerfile #^#HEADERFILE#$#\n"
     "template <typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
-    "struct #^#CLASS_NAME#$#Layers\n"
+    "struct #^#ORIG_CLASS_NAME#$#Layers\n"
     "{\n"
     "    #^#LAYERS_DEF#$#\n"
     "};\n\n"
@@ -163,6 +163,7 @@ bool Frame::writeProtocol()
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("DOC_DETAILS", getDescription()));
     replacements.insert(std::make_pair("INCLUDES", getIncludes()));
@@ -214,7 +215,7 @@ bool Frame::writePluginTransportMessageHeader()
         "#^#INTERFACE_INCLUDE#$#\n"
         "\n"
         "#^#BEGIN_NAMESPACE#$#\n"
-        "struct #^#CLASS_NAME#$#Fields\n"
+        "struct #^#ORIG_CLASS_NAME#$#Fields\n"
         "{\n"
         "    using All =\n"
         "        std::tuple<\n"
@@ -227,7 +228,7 @@ bool Frame::writePluginTransportMessageHeader()
         "class #^#CLASS_NAME#$# : public\n"
         "    comms_champion::TransportMessageBase<\n"
         "        #^#INTERFACE#$#,\n"
-        "        #^#CLASS_NAME#$#Fields::All\n"
+        "        #^#ORIG_CLASS_NAME#$#Fields::All\n"
         "    >\n"
         "{\n"
         "    #^#BASE_DEF#$#\n"
@@ -261,6 +262,7 @@ bool Frame::writePluginTransportMessageHeader()
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name()) + common::transportMessageSuffixStr()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("FRAME_INCLUDE", m_generator.headerfileForFrame(m_externalRef, true)));
@@ -444,6 +446,7 @@ bool Frame::writePluginTransportMessageSrc()
     else {
         static const std::string PropsDecl = "Fields::props()";
         replacements.insert(std::make_pair("PROPS_FUNC_DECL", PropsDecl));
+        replacements["CLASS_NAME"] = common::nameToClassCopy(name()) + common::transportMessageSuffixStr();
 
         if (offset != 0U) {
             auto readUntilIdx = idxCalcFunc();
