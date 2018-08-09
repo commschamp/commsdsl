@@ -1,0 +1,22 @@
+#pragma once
+
+#include "Test21ProtocolOrig.h"
+
+namespace test21
+{
+
+namespace cc_plugin
+{
+
+namespace plugin
+{
+
+using Test21Protocol = Test21ProtocolOrig;
+
+} // namespace plugin
+
+} // namespace cc_plugin
+
+} // namespace test21
+
+

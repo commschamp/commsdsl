@@ -283,6 +283,52 @@ Generator::startProtocolPluginSrcWrite(const std::string& name)
     return startPluginWrite(name, false, common::pluginStr());
 }
 
+std::string Generator::startProtocolPluginJsonWrite(const std::string& name)
+{
+    if (name.empty()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    auto ns = refToNs(name);
+    auto relDirPath = bf::path(common::pluginNsStr()) / refToPath(ns) / common::pluginStr();
+    auto dirPath = m_pathPrefix / relDirPath;
+
+    if (!createDir(dirPath)) {
+        return common::emptyString();
+    }
+
+    std::string extension = ".json";
+    auto className = refToName(name);
+    assert(!className.empty());
+    common::nameToClass(className);
+
+    auto fileName = className + extension;
+    auto fullPath = dirPath / fileName;
+    auto fullPathStr = fullPath.string();
+
+    auto overwriteFile = m_codeInputDir / relDirPath / fileName;
+    boost::system::error_code ec;
+    if (bf::exists(overwriteFile, ec)) {
+        m_logger.info("Skipping generation of " + fullPathStr);
+        return common::emptyString();
+    }
+
+    auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
+    if (bf::exists(replaceFile, ec)) {
+        m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
+        bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
+        if (ec) {
+            m_logger.warning("Failed to write " + fullPathStr);
+            assert(!"Should not happen");
+        }
+        return common::emptyString();
+    }
+
+    m_logger.info("Generating " + fullPathStr);
+    return fullPathStr;
+}
+
 std::pair<std::string, std::string>
 Generator::startGenericProtocolWrite(const std::string& name)
 {

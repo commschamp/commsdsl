@@ -70,6 +70,7 @@ bool Plugin::writeProtocolHeader()
     }
 
     static const std::string Templ =
+        "#pragma once\n\n"
         "#include \"comms_champion/Protocol.h\"\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "class #^#CLASS_NAME#$#Impl;\n"
@@ -226,7 +227,7 @@ bool Plugin::writeProtocolSrc()
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -329,26 +330,27 @@ bool Plugin::writePluginSrc()
     }
 
     static const std::string Templ =
-        "#include \"#^#ADJ_NAME#$#Plugin.h\"\n\n"
-        "#include \"#^#ADJ_NAME#$#Protocol.h\"\n\n"
+        "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+        "#include \"#^#PROTOCOL_CLASS_NAME#$#.h\"\n\n"
         "namespace cc = comms_champion;\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
-        "#^#ADJ_NAME#$#Plugin::#^#ADJ_NAME#$#Plugin()\n"
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#()\n"
         "{\n"
         "    pluginProperties()\n"
         "        .setProtocolCreateFunc(\n"
         "            [this]() -> cc::ProtocolPtr\n"
         "            {\n"
-        "                return cc::ProtocolPtr(new #^#ADJ_NAME#$#Protocol());\n"
+        "                return cc::ProtocolPtr(new #^#PROTOCOL_CLASS_NAME#$#());\n"
         "            });\n"
         "}\n\n"
-        "#^#ADJ_NAME#$#Plugin::~#^#ADJ_NAME#$#Plugin() = default;\n\n"
+        "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
         "#^#END_NAMESPACE#$#\n";
 
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("ADJ_NAME", common::nameToClassCopy(adjustedName())));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    replacements.insert(std::make_pair("PROTOCOL_CLASS_NAME", protClassName()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
 
@@ -371,8 +373,11 @@ bool Plugin::writePluginSrc()
 
 bool Plugin::writePluginJson()
 {
-    auto className = pluginClassName();
-    auto filePath = (bf::path(m_generator.pluginDir()) / common::pluginStr() / (className + ".json")).string();
+    auto filePath = m_generator.startProtocolPluginJsonWrite(pluginClassName());
+
+    if (filePath.empty()) {
+        return true;
+    }
 
     static const std::string Templ =
         "{\n"
