@@ -1380,8 +1380,9 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
     if (bf::exists(replaceFile, ec)) {
         m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
         bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
-        if (!ec) {
+        if (ec) {
             m_logger.warning("Failed to write " + fullPathStr);
+            assert(!"Should not happen");
         }
         return std::make_pair(common::emptyString(), common::emptyString());
     }
@@ -1389,8 +1390,9 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
     auto extendFile = m_codeInputDir / relDirPath / (fileName + ExtendSuffix);
     if (bf::exists(extendFile, ec)) {
         bf::copy_file(extendFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
-        if (!ec) {
-            m_logger.warning("Failed to write " + fullPathStr);
+        if (ec) {
+            m_logger.warning("Failed to write \"" + fullPathStr + "\": " + ec.message());
+            assert(!"Should not happen");
         }
         className += common::origSuffixStr();
         fileName = className + extension;

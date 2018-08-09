@@ -1,0 +1,13 @@
+#pragma once
+
+#include "MessageOrig.h"
+
+namespace test21
+{
+
+template <typename... TOpt>
+using Message = MessageOrig<TOpt...>;
+
+} // namespace test21
+
+
