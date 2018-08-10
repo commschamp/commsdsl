@@ -6,6 +6,12 @@ option (COMMSDSL_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 
+# Additional variables to be used if needed
+# ---------------------------
+# COMMSDSL_QT_DIR - Path to Qt5 installation directory.
+# COMMS_INSTALL_DIR - Path to externally built and installed CommsChampion project
+
+
 if (NOT CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 14)
 endif()

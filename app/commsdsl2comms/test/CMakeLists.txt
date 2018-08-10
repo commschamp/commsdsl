@@ -1,3 +1,7 @@
+set (CC_EXTERNAL_TGT "comms_champion_external")
+set (CC_EXTERNAL)
+
+#################################################################
 
 function (test_func name)
     set (schema_file "${CMAKE_CURRENT_SOURCE_DIR}/${name}/Schema.xml")
@@ -31,6 +35,10 @@ function (test_func name)
     CXXTEST_ADD_TEST (${testName} ${runner} ${tests})
     add_dependencies(${testName} ${output_tgt})
     target_include_directories (${testName} PRIVATE "${output_dir}/include")
+
+    if (CC_EXTERNAL)
+        add_dependencies(${testName} ${CC_EXTERNAL_TGT})
+    endif ()
     
 #    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
 #        add_test(NAME "${testName}_valgrind"
@@ -40,15 +48,21 @@ function (test_func name)
 #                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
 #    endif ()
 
-    set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
-    add_custom_target(${plugin_build_tgt} ALL
-        COMMAND ${CMAKE_COMMAND}
-            -DPROJ_DIR=${output_dir}
-            -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
-            -DCONFIG=$<CONFIG>
-            -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
-        DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
-    )
+    if (CC_COMMS_CHAMPION_FOUND)
+        set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
+        add_custom_target(${plugin_build_tgt} ALL
+            COMMAND ${CMAKE_COMMAND}
+                -DPROJ_DIR=${output_dir}
+                -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
+                -DCONFIG=$<CONFIG>
+                -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
+            DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
+        )
+
+        if (CC_EXTERNAL)
+            add_dependencies(${plugin_build_tgt} ${CC_EXTERNAL_TGT})
+        endif ()
+    endif ()
 
 endfunction ()
 
@@ -65,22 +79,70 @@ endfunction ()
 
 #################################################################
 
+macro (cc_external)
+        include(ExternalProject)
+
+        set (cc_tag "develop")
+        set (cc_main_dir "${CMAKE_BINARY_DIR}/comms_champion")
+        set (cc_src_dir "${cc_main_dir}/src")
+        set (cc_bin_dir "${cc_main_dir}/build")
+        set (cc_install_dir "${cc_main_dir}/install")
+        set (cc_qt_dir_opt)
+
+        if (NOT "${COMMSDSL_QT_DIR}" STREQUAL "")
+            set (cc_qt_dir_opt -DCC_QT_DIR=${COMMSDSL_QT_DIR})
+        endif ()
+
+        set (CC_PLUGIN_LIBRARIES "comms_champion")
+        set (CC_COMMS_FOUND TRUE)
+        set (CC_COMMS_CHAMPION_FOUND TRUE)
+        set (CC_CMAKE_DIR ${LIB_INSTALL_DIR}/cmake)
+        set (CC_EXTERNAL TRUE)
+        set (CC_INCLUDE_DIRS "${cc_install_dir}/${CMAKE_INSTALL_INCLUDEDIR}")
+        set (CC_PLUGIN_LIBRARY_DIRS "${cc_install_dir}/${CMAKE_INSTALL_LIBDIR}")
+        set (COMMS_INSTALL_DIR "${cc_install_dir}")
+
+        ExternalProject_Add(
+            "${CC_EXTERNAL_TGT}"
+            PREFIX "${cc_bin_dir}"
+            STAMP_DIR "${cc_bin_dir}"
+            GIT_REPOSITORY "https://github.com/arobenko/comms_champion.git"
+            GIT_TAG "${cc_tag}"
+            SOURCE_DIR "${cc_src_dir}"
+            CMAKE_ARGS
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCC_INSTALL_DIR=${cc_install_dir}
+                -DCC_NO_UNIT_TESTS=ON -DCC_NO_WARN_AS_ERR=ON -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                ${cc_qt_dir_opt}
+            BINARY_DIR "${cc_bin_dir}"
+        )
+
+endmacro()
+
+#################################################################
+
+
 if (NOT CXXTEST_FOUND)
     return()
 endif ()
 
 if ("${COMMS_INSTALL_DIR}" STREQUAL "")
-    message (WARNING "Path to COMMS library installation hasn't been provided, unittesting is skipped. Please use COMMS_INSTALL_DIR variable.")
-    return ()
+    cc_external ()
+else ()
+    list (APPEND CMAKE_PREFIX_PATH "${COMMS_INSTALL_DIR}")
+    find_package(CommsChampion NO_MODULE)
 endif ()
 
-list (APPEND CMAKE_PREFIX_PATH "${COMMS_INSTALL_DIR}")
-find_package(CommsChampion NO_MODULE)
 if (NOT CC_COMMS_FOUND)
     message (WARNING "Path ${COMMS_INSTALL_DIR} doesn't contain COMMS library headers, unittesting is skipped")
     return()
 endif ()
+
 include_directories(${CC_INCLUDE_DIRS})
+
+if (CC_PLUGIN_LIBRARY_DIRS)
+    link_directories("${CC_PLUGIN_LIBRARY_DIRS}")
+endif ()
 
 include_directories ("${CXXTEST_INCLUDE_DIR}")
 
