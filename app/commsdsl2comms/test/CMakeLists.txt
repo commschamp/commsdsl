@@ -24,7 +24,7 @@ function (test_func name)
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}"
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"
-        DEPENDS ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file})
+        DEPENDS ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
 
     set (tests "${CMAKE_CURRENT_SOURCE_DIR}/${name}/${name}Test.th")
 
