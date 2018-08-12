@@ -55,7 +55,9 @@ function (test_func name)
                 -DPROJ_DIR=${output_dir}
                 -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
                 -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
-                -DCONFIG=$<CONFIG>
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
+                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} 
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
             DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
         )
