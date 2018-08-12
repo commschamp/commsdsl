@@ -31,7 +31,7 @@ build_script:
     - nmake 
 
 test_script:
-    - set PATH=%PATH%;c:\projects\commsdsl\build.%PLATFORM%.%CONFIGURATION%\lib\src
+    - set PATH=%PATH%;c:\projects\commsdsl\build.%PLATFORM%.%CONFIGURATION%\lib\src;C:\Libraries\boost_1_65_1\lib64-msvc-14.0
     - ctest 
 
 
