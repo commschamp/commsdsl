@@ -57,6 +57,7 @@ public:
     unsigned deprecatedSince() const;
     bool isDeprecatedRemoved() const;
     std::string externalRef() const;
+    bool isPseudo() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

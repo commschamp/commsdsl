@@ -61,6 +61,11 @@ public:
         return m_state.m_semanticType;
     }
 
+    bool isPseudo() const
+    {
+        return m_state.m_pseudo;
+    }
+
     std::size_t minLength() const
     {
         return minLengthImpl();
@@ -186,6 +191,7 @@ private:
         PropsMap m_extraAttrs;
         ContentsList m_extraChildren;
         SemanticType m_semanticType = SemanticType::None;
+        bool m_pseudo = false;
     };
 
     bool checkReuse();
@@ -194,6 +200,7 @@ private:
     bool updateDisplayName();
     bool updateVersions();
     bool updateSemanticType();
+    bool updatePseudo();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

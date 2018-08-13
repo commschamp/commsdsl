@@ -92,6 +92,12 @@ std::string Field::externalRef() const
     return m_pImpl->externalRef();
 }
 
+bool Field::isPseudo() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isPseudo();
+}
+
 const Field::AttributesMap& Field::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

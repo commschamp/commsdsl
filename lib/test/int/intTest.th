@@ -60,6 +60,7 @@ void IntTestSuite::test1()
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
     TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT(!field.isPseudo());
 
     commsdsl::IntField intField(field);
     auto scaling = intField.scaling();
@@ -106,6 +107,9 @@ void IntTestSuite::test2()
     TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
     TS_ASSERT_EQUALS(field1.kind(), field2.kind());
     TS_ASSERT_EQUALS(field1.kind(), field3.kind());
+    TS_ASSERT(field1.isPseudo());
+    TS_ASSERT_EQUALS(field1.isPseudo(), field2.isPseudo());
+    TS_ASSERT_EQUALS(field1.isPseudo(), field3.isPseudo());
 
     commsdsl::IntField intField1(field1);
     commsdsl::IntField intField2(field2);

@@ -922,6 +922,10 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
     if (!m_customRefresh.empty()) {
         common::addToList("comms::option::HasCustomRefresh", options);
     }
+
+    if (m_dslObj.isPseudo()) {
+        common::addToList("comms::option::EmptySerialization", options);
+    }
 }
 
 const std::string& Field::getCustomRead() const

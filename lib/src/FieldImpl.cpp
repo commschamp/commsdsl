@@ -77,7 +77,8 @@ bool FieldImpl::parse()
         updateDisplayName() &&
         updateDescription() &&
         updateVersions() &&
-        updateSemanticType();
+        updateSemanticType() &&
+        updatePseudo();
 
     if (!result) {
         return false;
@@ -375,7 +376,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::deprecatedStr(),
         common::removedStr(),
         common::reuseStr(),
-        common::semanticTypeStr()
+        common::semanticTypeStr(),
+        common::pseudoStr()
     };
 
     return CommonNames;
@@ -567,6 +569,27 @@ bool FieldImpl::updateSemanticType()
 
     m_state.m_semanticType =
         static_cast<SemanticType>(std::distance(std::begin(Map), valIter));
+    return true;
+}
+
+bool FieldImpl::updatePseudo()
+{
+    if (!validateSinglePropInstance(common::pseudoStr())) {
+        return false;
+    }
+
+    auto iter = m_props.find(common::pseudoStr());
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_pseudo = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::pseudoStr(), iter->second);
+        return false;
+    }
+
     return true;
 }
 
