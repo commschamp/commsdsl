@@ -96,14 +96,19 @@ macro (cc_external)
             set (cc_qt_dir_opt -DCC_QT_DIR=${COMMSDSL_QT_DIR})
         endif ()
 
-        set (CC_PLUGIN_LIBRARIES "comms_champion")
         set (CC_COMMS_FOUND TRUE)
-        set (CC_COMMS_CHAMPION_FOUND TRUE)
         set (CC_CMAKE_DIR ${LIB_INSTALL_DIR}/cmake)
         set (CC_EXTERNAL TRUE)
         set (CC_INCLUDE_DIRS "${cc_install_dir}/${CMAKE_INSTALL_INCLUDEDIR}")
-        set (CC_PLUGIN_LIBRARY_DIRS "${cc_install_dir}/${CMAKE_INSTALL_LIBDIR}")
         set (COMMS_INSTALL_DIR "${cc_install_dir}")
+
+        set (cc_libs_only_opt "-CC_COMMS_LIB_ONLY=ON")
+        if (UNIX)
+            set (cc_libs_only_opt "-DCC_LIBS_ONLY=ON")
+            set (CC_PLUGIN_LIBRARIES "comms_champion")
+            set (CC_COMMS_CHAMPION_FOUND TRUE)
+            set (CC_PLUGIN_LIBRARY_DIRS "${cc_install_dir}/${CMAKE_INSTALL_LIBDIR}")
+        endif ()
 
         ExternalProject_Add(
             "${CC_EXTERNAL_TGT}"
@@ -114,7 +119,8 @@ macro (cc_external)
             SOURCE_DIR "${cc_src_dir}"
             CMAKE_ARGS
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCC_INSTALL_DIR=${cc_install_dir}
-                -DCC_NO_UNIT_TESTS=ON -DCC_NO_WARN_AS_ERR=ON -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
+                -DCC_NO_UNIT_TESTS=ON ${cc_libs_only_opt} -DCC_NO_WARN_AS_ERR=ON
+                -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
                 ${cc_qt_dir_opt}
             BINARY_DIR "${cc_bin_dir}"
