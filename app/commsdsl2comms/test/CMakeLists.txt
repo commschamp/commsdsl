@@ -102,7 +102,7 @@ macro (cc_external)
         set (CC_INCLUDE_DIRS "${cc_install_dir}/${CMAKE_INSTALL_INCLUDEDIR}")
         set (COMMS_INSTALL_DIR "${cc_install_dir}")
 
-        set (cc_libs_only_opt "-CC_COMMS_LIB_ONLY=ON")
+        set (cc_libs_only_opt "-DCC_COMMS_LIB_ONLY=ON")
         if (UNIX)
             set (cc_libs_only_opt "-DCC_LIBS_ONLY=ON")
             set (CC_PLUGIN_LIBRARIES "comms_champion")
