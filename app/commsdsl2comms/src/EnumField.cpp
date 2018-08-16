@@ -454,6 +454,7 @@ std::string EnumField::getFieldOpts(const std::string& scope) const
     updateExtraOptions(scope, options);
 
     checkDefaultValueOpt(options);
+    checkLengthOpt(options);
     checkValidRangesOpt(options);
     return common::listToString(options, ",\n", common::emptyString());
 }
@@ -659,6 +660,48 @@ void EnumField::checkDefaultValueOpt(StringsList& list) const
         common::numToString(defaultValue) +
         '>';
     list.push_back(std::move(str));
+}
+
+void EnumField::checkLengthOpt(StringsList& list) const
+{
+    auto bitLength = dslObj().bitLength();
+    if (bitLength != 0U) {
+        list.push_back("comms::option::FixedBitLength<" + common::numToString(bitLength) + '>');
+        return;
+    }
+
+    static const unsigned LengthMap[] = {
+        /* Int8 */ 1,
+        /* Uint8 */ 1,
+        /* Int16 */ 2,
+        /* Uint16 */ 2,
+        /* Int32 */ 4,
+        /* Uint32 */ 4,
+        /* Int64 */ 8,
+        /* Uint64 */ 8,
+        /* Intvar */ 0,
+        /* Uintvar */ 0
+    };
+
+    static const std::size_t LengthMapSize = std::extent<decltype(LengthMap)>::value;
+    static_assert(LengthMapSize == static_cast<decltype(LengthMapSize)>(commsdsl::IntField::Type::NumOfValues),
+            "Incorrect map");
+
+    auto obj = enumFieldDslObj();
+    auto type = obj.type();
+    std::size_t idx = static_cast<std::size_t>(type);
+    if (LengthMapSize <= idx) {
+        return;
+    }
+
+    assert(LengthMap[idx] != 0);
+    if (LengthMap[idx] != obj.minLength()) {
+        auto str =
+            "comms::option::FixedLength<" +
+            common::numToString(obj.minLength()) +
+            '>';
+        list.push_back(std::move(str));
+    }
 }
 
 void EnumField::checkValidRangesOpt(EnumField::StringsList& list) const

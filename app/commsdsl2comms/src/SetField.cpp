@@ -548,7 +548,7 @@ std::string SetField::getValid() const
     return common::processTemplate(Templ, replacements);
 }
 
-void SetField::checkLengthOpt(SetField::StringsList& list) const
+void SetField::checkLengthOpt(StringsList& list) const
 {
     auto bitLength = dslObj().bitLength();
     if (bitLength != 0U) {

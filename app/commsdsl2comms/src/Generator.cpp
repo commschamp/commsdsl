@@ -960,7 +960,7 @@ bool Generator::writeExtraFiles()
         return true;
     }
 
-    auto outputDir = m_pathPrefix / common::includeStr() / m_mainNamespace;
+    auto outputDir = m_pathPrefix;
     auto dirStr = m_codeInputDir.string();
     auto pos = dirStr.size();
     auto endIter = bf::recursive_directory_iterator();

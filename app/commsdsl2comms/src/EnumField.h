@@ -56,6 +56,7 @@ private:
     std::string getFieldOpts(const std::string& scope) const;
     std::string getValid() const;
     void checkDefaultValueOpt(StringsList& list) const;
+    void checkLengthOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
     bool prepareRanges() const;
 

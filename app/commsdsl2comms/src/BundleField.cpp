@@ -248,7 +248,10 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
 std::string BundleField::getMembersDef(const std::string& scope) const
 {
     auto className = common::nameToClassCopy(name());
-    std::string memberScope = scope + className + common::membersSuffixStr() + "::";
+    std::string memberScope;
+    if (!scope.empty()) {
+        memberScope = scope + className + common::membersSuffixStr() + "::";
+    }
     StringsList membersDefs;
     StringsList membersNames;
 

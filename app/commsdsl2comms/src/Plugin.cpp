@@ -400,7 +400,6 @@ bool Plugin::writePluginJson()
 
     std::string str = common::processTemplate(Templ, replacements);
 
-    m_generator.logger().info("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
         m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");

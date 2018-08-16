@@ -83,6 +83,9 @@ bool Layer::prepare()
         }
 
         m_field = Field::create(m_generator, dslField);
+        if (!m_field->prepare(0U)) {
+            return false;
+        }
     } while (false);
 
     return prepareImpl();
