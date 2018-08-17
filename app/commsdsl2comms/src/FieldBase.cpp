@@ -63,7 +63,7 @@ bool FieldBase::writeDefinition() const
     std::string optionsStr = common::listToString(options, ",\n", common::emptyString());
 
     common::ReplacementMap replacements;
-    auto namespaces = m_generator.namespacesForRoot();
+    auto namespaces = m_generator.namespacesForField(common::fieldBaseStr());
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("OPTIONS", std::move(optionsStr)));
