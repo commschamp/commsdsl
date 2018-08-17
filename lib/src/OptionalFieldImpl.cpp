@@ -67,7 +67,8 @@ const XmlWrap::NamesList& OptionalFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
         common::defaultModeStr(),
-        common::condStr()
+        common::condStr(),
+        common::externalModeCtrlStr()
     };
 
     return List;
@@ -107,6 +108,7 @@ bool OptionalFieldImpl::parseImpl()
 {
     return
         updateMode() &&
+        updateExternalModeCtrl() &&
         updateField() &&
         updateSingleCondition() &&
         updateMultiCondition();
@@ -154,6 +156,27 @@ bool OptionalFieldImpl::updateMode()
     }
 
     m_state.m_mode = mapIter->second;
+    return true;
+}
+
+bool OptionalFieldImpl::updateExternalModeCtrl()
+{
+    if (!validateSinglePropInstance(common::externalModeCtrlStr())) {
+        return false;
+    }
+
+    auto iter = props().find(common::externalModeCtrlStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_externalModeCtrl = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::externalModeCtrlStr(), iter->second);
+        return false;
+    }
+
     return true;
 }
 

@@ -26,6 +26,11 @@ public:
         return m_state.m_mode;
     }
 
+    bool externalModeCtrl() const
+    {
+        return m_state.m_externalModeCtrl;
+    }
+
     bool hasField() const
     {
         return (m_state.m_extField != nullptr) || static_cast<bool>(m_field);
@@ -64,6 +69,7 @@ protected:
 
 private:
     bool updateMode();
+    bool updateExternalModeCtrl();
     bool updateField();
     bool updateSingleCondition();
     bool updateMultiCondition();
@@ -75,6 +81,7 @@ private:
     {
         Mode m_mode = Mode::Tentative;
         const FieldImpl* m_extField = nullptr;
+        bool m_externalModeCtrl = false;
     };
 
     State m_state;

@@ -28,6 +28,7 @@ public:
     Mode defaultMode() const;
     Field field() const;
     OptCond cond() const;
+    bool externalModeCtrl() const;
 };
 
 } // namespace commsdsl

@@ -233,7 +233,7 @@ std::string OptionalField::getPluginPropertiesImpl(bool serHiddenParam) const
 {
     common::StringsList options;
     auto obj = optionalFieldDslObj();
-    if (obj.cond().valid()) {
+    if (obj.cond().valid() || obj.externalModeCtrl()) {
         options.push_back(".uncheckable()");
     }
 

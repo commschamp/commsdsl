@@ -582,6 +582,12 @@ const std::string& displayOffsetStr()
     return Str;
 }
 
+const std::string& externalModeCtrlStr()
+{
+    static const std::string Str("externalModeCtrl");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
