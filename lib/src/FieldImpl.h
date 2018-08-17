@@ -152,6 +152,11 @@ protected:
         return m_protocol;
     }
 
+    void setDisplayName(const std::string& val)
+    {
+        m_state.m_displayName = &val;
+    }
+
     LogWrapper logError() const;
     LogWrapper logWarning() const;
     LogWrapper logInfo() const;

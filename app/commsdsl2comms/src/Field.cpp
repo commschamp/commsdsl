@@ -27,6 +27,11 @@ namespace ba = boost::algorithm;
 namespace commsdsl2comms
 {
 
+const std::string& Field::displayName() const
+{
+    return common::displayName(m_dslObj.displayName(), m_dslObj.name());
+}
+
 std::size_t Field::minLength() const
 {
     if (isVersionOptional()) {
@@ -213,15 +218,6 @@ bool Field::writeFiles() const
         writePluginScrFile();
 }
 
-const std::string& Field::getDisplayName() const
-{
-    auto* displayName = &m_dslObj.displayName();
-    if (displayName->empty()) {
-        displayName = &m_dslObj.name();
-    }
-    return *displayName;
-}
-
 std::string Field::getClassPrefix(
     const std::string& className,
     bool checkForOptional,
@@ -239,7 +235,7 @@ std::string Field::getClassPrefix(
     }
     else {
         str = "/// @brief Definition of <b>\"";
-        str += getDisplayName();
+        str += displayName();
         str += "\"<\\b> field.\n";
 
         auto& desc = m_dslObj.description();
@@ -897,7 +893,7 @@ std::string Field::getNameFunc() const
         "/// @brief Name of the field.\n"
         "static const char* name()\n"
         "{\n"
-        "    return \"" + getDisplayName() + "\";\n"
+        "    return \"" + displayName() + "\";\n"
         "}\n";
 }
 
@@ -1026,7 +1022,7 @@ bool Field::writeProtocolDefinitionFile() const
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForField(m_externalRef), className)));
-    replacements.insert(std::make_pair("FIELD_NAME", getDisplayName()));
+    replacements.insert(std::make_pair("FIELD_NAME", displayName()));
 
     static const std::string FileTemplate(
         "/// @file\n"

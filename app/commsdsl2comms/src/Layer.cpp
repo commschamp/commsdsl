@@ -218,16 +218,13 @@ std::string Layer::getPluginCreatePropsFunc(const std::string& scope) const
                 "}\n";
 
 
-            auto* dispName = &dslField.displayName();
-            if (dispName->empty()) {
-                dispName = &dslField.name();
-            }
+            auto& dispName = common::displayName(dslField.displayName(), dslField.name());
 
             common::ReplacementMap replacements;
             replacements.insert(std::make_pair("NAME", getFieldAccNameForPlugin()));
             replacements.insert(std::make_pair("EXT_SCOPE", std::move(extScope)));
             replacements.insert(std::make_pair("EXT_NAME", common::nameToAccessCopy(dslField.name())));
-            replacements.insert(std::make_pair("DISP_NAME", *dispName));
+            replacements.insert(std::make_pair("DISP_NAME", dispName));
             func = common::processTemplate(Templ, replacements);
             break;
         }

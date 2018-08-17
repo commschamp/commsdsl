@@ -131,7 +131,6 @@ std::string RefField::getClassDefinitionImpl(
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", className));
-    replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));
     replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
@@ -145,7 +144,7 @@ std::string RefField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
 
-    if (getDisplayName() != fieldPtr->getDisplayName()) {
+    if (displayName() != fieldPtr->displayName()) {
         replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));
     }
 

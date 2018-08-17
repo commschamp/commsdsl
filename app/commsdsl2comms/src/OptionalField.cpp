@@ -254,10 +254,7 @@ std::string OptionalField::getPluginPropertiesImpl(bool serHiddenParam) const
     auto field = optionalFieldDslObj().field();
     auto extRef = field.externalRef();
     auto& name = field.name();
-    auto dispName = field.displayName();
-    if (dispName.empty()) {
-        dispName = name;
-    }
+    auto dispName = common::displayName(field.displayName(), name);
 
     auto str =
         ".field(" +

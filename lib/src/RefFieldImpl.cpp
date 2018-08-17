@@ -61,6 +61,10 @@ bool RefFieldImpl::parseImpl()
         return false;
     }
 
+    if (displayName().empty() && (!m_field->displayName().empty())) {
+        setDisplayName(m_field->displayName());
+    }
+
     return true;
 }
 

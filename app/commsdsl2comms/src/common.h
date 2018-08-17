@@ -43,6 +43,7 @@ const std::string& cmakeListsFileStr();
 const std::string& transportMessageSuffixStr();
 const std::string& pluginStr();
 const std::string& origSuffixStr();
+const std::string& forceEmptyDisplayNameStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
@@ -79,6 +80,7 @@ void addToList(const std::string& what, StringsList& to);
 
 const std::string& dslEndianToOpt(commsdsl::Endian value);
 const std::string& dslUnitsToOpt(commsdsl::Units value);
+const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName);
 
 } // namespace common
 

@@ -434,11 +434,7 @@ bool Message::writePluginSrc()
 
 const std::string& Message::getDisplayName() const
 {
-    auto* displayName = &m_dslObj.displayName();
-    if (displayName->empty()) {
-        displayName = &m_dslObj.name();
-    }
-    return *displayName;
+    return common::displayName(m_dslObj.displayName(), m_dslObj.name());
 }
 
 std::string Message::getDescription() const

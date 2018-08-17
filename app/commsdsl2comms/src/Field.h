@@ -26,10 +26,7 @@ public:
         return m_dslObj.name();
     }
 
-    const std::string& displayName() const
-    {
-        return m_dslObj.displayName();
-    }
+    const std::string& displayName() const;
 
 
     commsdsl::Field::Kind kind() const
@@ -67,8 +64,6 @@ public:
     }
 
     bool writeFiles() const;
-
-    const std::string& getDisplayName() const;
 
     std::string getClassPrefix(
             const std::string& suffix,

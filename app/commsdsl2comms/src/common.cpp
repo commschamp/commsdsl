@@ -191,6 +191,12 @@ const std::string& origSuffixStr()
     return Str;
 }
 
+const std::string& forceEmptyDisplayNameStr()
+{
+    static const std::string Str("_");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {
@@ -609,6 +615,20 @@ const std::string& dslUnitsToOpt(commsdsl::Units value)
 
     auto idx = static_cast<unsigned>(value);
     return UnitsMap[idx];
+}
+
+const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName)
+{
+    if (dslDisplayName.empty()) {
+        return dslName;
+    }
+
+    if (dslDisplayName == forceEmptyDisplayNameStr()) {
+        return emptyString();
+    }
+
+    return dslDisplayName;
+
 }
 
 } // namespace common

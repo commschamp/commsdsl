@@ -49,6 +49,7 @@ bool Cmake::writeMain() const
         "option (OPT_THIS_AND_COMMS_LIBS_ONLY \"Install this protocol and COMMS libraries only, no other applications/plugings are built/installed.\" OFF)\n"
         "option (OPT_FULL_SOLUTION \"Build and install full solution, including CommsChampion sources.\" ON)\n"
         "option (OPT_NO_WARN_AS_ERR \"Do NOT treat warning as error\" OFF)\n\n"
+        "option (OPT_NO_CCACHE \"Disable use of ccache on UNIX system\" OFF)\n"
         "# Other parameters:\n"
         "# OPT_INSTALL_DIR - Custom install directory.\n"
         "# OPT_QT_DIR - Path to custom Qt5 install directory.\n"
@@ -214,6 +215,13 @@ bool Cmake::writeMain() const
         "    ${CMAKE_SOURCE_DIR}\n"
         "    ${CMAKE_SOURCE_DIR}/include\n"
         ")\n\n"
+        "if ((UNIX) AND (NOT OPT_NO_CCACHE))\n"
+        "    find_program(CCACHE_FOUND ccache)\n"
+        "    if(CCACHE_FOUND)\n"
+        "        set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)\n"
+        "        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)\n"
+        "    endif()\n"
+        "endif ()\n\n"
         "add_subdirectory(cc_plugin)\n\n";
 
     auto str = common::processTemplate(Template, replacements);

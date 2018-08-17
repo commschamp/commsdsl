@@ -709,11 +709,7 @@ std::string ListField::getPrefixName() const
 
         auto countField = obj.countPrefixField();
         assert(countField.valid());
-        auto* name = &countField.displayName();
-        if (name->empty()) {
-            name = &countField.name();
-        }
-        return *name;
+        return common::displayName(countField.displayName(), countField.name());
     } while (false);
 
     assert(obj.hasLengthPrefixField());
@@ -722,14 +718,9 @@ std::string ListField::getPrefixName() const
         return m_lengthPrefix->displayName();
     }
 
-    auto lengthPrefix = obj.countPrefixField();
+    auto lengthPrefix = obj.lengthPrefixField();
     assert(lengthPrefix.valid());
-    auto* name = &lengthPrefix.displayName();
-    if (name->empty()) {
-        name = &lengthPrefix.name();
-    }
-    return *name;
-
+    return common::displayName(lengthPrefix.displayName(), lengthPrefix.name());
 }
 
 } // namespace commsdsl2comms
