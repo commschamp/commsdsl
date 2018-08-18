@@ -284,6 +284,10 @@ public:
     std::string getExtraProtectedForMessage(const std::string& externalRef) const;
     std::string getExtraPrivateForMessage(const std::string& externalRef) const;
 
+    std::string getExtraPublicForInterface(const std::string& externalRef) const;
+    std::string getExtraProtectedForInterface(const std::string& externalRef) const;
+    std::string getExtraPrivateForInterface(const std::string& externalRef) const;
+
 private:
 
     using NamespacesList = Namespace::NamespacesList;

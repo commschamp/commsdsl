@@ -1215,6 +1215,31 @@ std::string Generator::getExtraPrivateForMessage(const std::string& externalRef)
     return getCustomOpForElement(externalRef, PrivateSuffix, common::messageStr());
 }
 
+std::string Generator::getExtraPublicForInterface(const std::string& externalRef) const
+{
+    if (!externalRef.empty()) {
+        return getCustomOpForElement(externalRef, PublicSuffix);
+    }
+    return getCustomOpForElement(common::messageClassStr(), PublicSuffix);
+}
+
+std::string Generator::getExtraProtectedForInterface(const std::string& externalRef) const
+{
+    if (!externalRef.empty()) {
+        return getCustomOpForElement(externalRef, ProtectedSuffix);
+    }
+    return getCustomOpForElement(common::messageClassStr(), ProtectedSuffix);
+}
+
+std::string Generator::getExtraPrivateForInterface(const std::string& externalRef) const
+{
+    if (!externalRef.empty()) {
+        return getCustomOpForElement(externalRef, PrivateSuffix);
+    }
+    return getCustomOpForElement(common::messageClassStr(), PrivateSuffix);
+}
+
+
 std::pair<std::string, std::string>
 Generator::namespacesForElement(
     const std::string& externalRef,

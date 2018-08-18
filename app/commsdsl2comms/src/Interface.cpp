@@ -92,6 +92,9 @@ const std::string ClassTemplate(
     "    COMMS_MSG_TRANSPORT_FIELDS_ACCESS(\n"
     "        #^#FIELDS_ACCESS_LIST#$#\n"
     "    );\n"
+    "    #^#PUBLIC#$#\n"
+    "#^#PROTECTED#$#\n"
+    "#^#PRIVATE#$#\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n"
 );
@@ -230,14 +233,40 @@ bool Interface::writeProtocol()
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
 
     auto* templ = &AliasTemplate;
+    bool useClass = false;
     if (!m_fields.empty()) {
-        templ = &ClassTemplate;
+        useClass = true;
         replacements.insert(std::make_pair("FIELDS_LIST", getFieldsClassesList()));
         replacements.insert(std::make_pair("FIELDS_ACCESS_LIST", getFieldsAccessList()));
         replacements.insert(std::make_pair("FIELDS_OPTIONS", getFieldsOpts()));
         replacements.insert(std::make_pair("ACCESS_FUNCS_DOC", getFieldsAccessDoc()));
         replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
     }
+
+    auto extraPublic = m_generator.getExtraPublicForInterface(externalRef());
+    if (!extraPublic.empty()) {
+        useClass = true;
+        replacements.insert(std::make_pair("PUBLIC", "\n" + std::move(extraPublic)));
+    }
+
+    auto extraProtected = m_generator.getExtraProtectedForInterface(externalRef());
+    if (!extraProtected.empty()) {
+        useClass = true;
+        common::insertIndent(extraProtected);
+        replacements.insert(std::make_pair("PROTECTED", "\nprotected:\n" + std::move(extraProtected)));
+    }
+
+    auto extraPrivate = m_generator.getExtraPrivateForInterface(externalRef());
+    if (!extraPrivate.empty()) {
+        useClass = true;
+        common::insertIndent(extraPrivate);
+        replacements.insert(std::make_pair("PUBLIC", "\nprivate:\n" + std::move(extraPrivate)));
+    }
+
+    if (useClass) {
+        templ = &ClassTemplate;
+    }
+    
     auto str = common::processTemplate(*templ, replacements);
 
     std::ofstream stream(filePath);
