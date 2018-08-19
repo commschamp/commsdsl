@@ -226,18 +226,76 @@ void ListField::updateIncludesImpl(IncludesList& includes) const
 
 void ListField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
-    if (m_element) {
-        return;
-    }
-
     auto obj = listFieldDslObj();
-    auto elemField = obj.elementField();
-    assert(elemField.valid());
-    auto extRef = elemField.externalRef();
-    assert(!extRef.empty());
-    auto* elemFieldPtr = generator().findField(extRef, false);
-    assert(elemFieldPtr != nullptr);
-    elemFieldPtr->updatePluginIncludes(includes);
+    do {
+        if (m_element) {
+            m_element->updatePluginIncludes(includes);
+            break;
+        }
+
+        auto elementField = obj.elementField();
+        assert(elementField.valid());
+        auto extRef = elementField.externalRef();
+        assert(!extRef.empty());
+        auto* elemFieldPtr = generator().findField(extRef, false);
+        assert(elemFieldPtr != nullptr);
+        elemFieldPtr->updatePluginIncludes(includes);
+    } while (false);
+
+    do {
+        if (m_countPrefix) {
+            m_countPrefix->updatePluginIncludes(includes);
+            break;
+        }
+
+        if (!obj.hasCountPrefixField()) {
+            break;
+        }
+
+        auto extRef = obj.countPrefixField().externalRef();
+        assert(!extRef.empty());
+
+        auto* countFieldPtr = generator().findField(extRef, false);
+        assert(countFieldPtr != nullptr);
+        countFieldPtr->updatePluginIncludes(includes);
+    } while (false);
+
+    do {
+        if (m_lengthPrefix) {
+            m_lengthPrefix->updatePluginIncludes(includes);
+            break;
+        }
+
+        if (!obj.hasLengthPrefixField()) {
+            break;
+        }
+
+        auto extRef = obj.lengthPrefixField().externalRef();
+        assert(!extRef.empty());
+
+        auto* lengthFieldPtr = generator().findField(extRef, false);
+        assert(lengthFieldPtr != nullptr);
+        lengthFieldPtr->updatePluginIncludes(includes);
+    } while (false);
+
+    do {
+        if (m_elemLengthPrefix) {
+            m_elemLengthPrefix->updatePluginIncludes(includes);
+            break;
+        }
+
+        if (!obj.hasElemLengthPrefixField()) {
+            break;
+        }
+
+        auto prefixField = obj.elemLengthPrefixField();
+        assert(prefixField.valid());
+        auto extRef = prefixField.externalRef();
+        assert(!extRef.empty());
+        auto* elemLengthFieldPtr = generator().findField(extRef, false);
+        assert(elemLengthFieldPtr != nullptr);
+        elemLengthFieldPtr->updatePluginIncludes(includes);
+    } while (false);
 }
 
 std::size_t ListField::maxLengthImpl() const
