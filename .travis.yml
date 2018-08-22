@@ -41,8 +41,24 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
           packages:
+            - g++-6    
+      env: _CC=gcc-6 _CXX=g++-6 _BUILD="-DCMAKE_CXX_STANDARD=14"   
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
             - g++-7    
       env: _CC=gcc-7 _CXX=g++-7 
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7    
+      env: _CC=gcc-7 _CXX=g++-7 _BUILD="-DCMAKE_CXX_STANDARD=14"  
     - os: linux
       addons:
         apt:
