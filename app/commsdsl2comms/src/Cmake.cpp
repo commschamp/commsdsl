@@ -196,7 +196,7 @@ bool Cmake::writeMain() const
         "    endif ()\n\n"
         "    if (\"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"Clang\")\n"
         "        list (APPEND extra_flags_list\n"
-        "           \"-Wno-dangling-field\" \"-Wno-unused-command-line-argument\"\n"
+        "           \"-Wno-dangling-field\" \"-Wno-unused-command-line-argument\" \"-stdlib=libc++\"\n"
         "           \"-ftemplate-depth=1024\")\n"
         "    endif ()\n\n"
         "    if (NOT OPT_NO_WARN_AS_ERR)\n"
