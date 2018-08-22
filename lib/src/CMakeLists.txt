@@ -29,7 +29,7 @@ while (TRUE)
         ${INTERNAL_LIBXML_TGT}
         PREFIX "${LIBXML2_DIR}"
         STAMP_DIR "${LIBXML2_DIR}"
-        GIT_REPOSITORY "git://git.gnome.org/libxml2"
+        GIT_REPOSITORY "git@github.com:GNOME/libxml2.git"
         GIT_TAG "v2.9.7"
         CONFIGURE_COMMAND
             cscript ${LIBXML2_BIN_DIR}/configure.js ftp=no html=no iconv=no compiler=msvc static=yes ${LIBXML2_CRUNTIME} bindir=install\\bin incdir=install\\include libdir=install\\lib sodir=install\\bin
