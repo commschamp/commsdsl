@@ -184,7 +184,7 @@ std::string IntField::getCompareToValueImpl(
 
     bool versionOptional = forcedVersionOptional || isVersionOptional();
     auto compareValFunc =
-        [this, &op, &usedName, versionOptional](auto v)
+        [&op, &usedName, versionOptional](auto v)
         {
             if (versionOptional) {
                 return

@@ -338,7 +338,7 @@ bool Plugin::writePluginSrc()
         "{\n"
         "    pluginProperties()\n"
         "        .setProtocolCreateFunc(\n"
-        "            [this]() -> cc::ProtocolPtr\n"
+        "            []() -> cc::ProtocolPtr\n"
         "            {\n"
         "                return cc::ProtocolPtr(new #^#PROTOCOL_CLASS_NAME#$#());\n"
         "            });\n"

@@ -262,7 +262,7 @@ std::string EnumField::getCompareToValueImpl(
     bool versionOptional = forcedVersionOptional || isVersionOptional();
 
     auto strGenFunc =
-        [this, &op, &usedName, versionOptional](const std::string& v)
+        [&op, &usedName, versionOptional](const std::string& v)
         {
             if (!versionOptional) {
                 return

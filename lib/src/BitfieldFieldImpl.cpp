@@ -246,7 +246,7 @@ bool BitfieldFieldImpl::updateMembers()
         auto totalBitLength =
             std::accumulate(
                 m_members.begin(), m_members.end(), static_cast<std::size_t>(0U),
-                [this](std::size_t soFar, auto& elem) -> std::size_t
+                [](std::size_t soFar, auto& elem) -> std::size_t
                 {
                     return soFar + elem->bitLength();
                 });
