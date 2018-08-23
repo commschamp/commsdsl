@@ -36,7 +36,10 @@ build_script:
     - cd build.%PLATFORM%.%CONFIGURATION%.%TOOLCHAIN%
     - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" -DBOOST_ROOT="C:\Libraries\boost_1_65_1" -DBoost_USE_STATIC_LIBS=ON -DCOMMSDSL_QT_DIR=%QTDIR%
     - set PATH=%PATH%;c:\projects\commsdsl\build.%PLATFORM%.%CONFIGURATION%.%TOOLCHAIN%\lib\src
-    - nmake 
+    - nmake commsdsl2comms
+    - echo "Build code generator!"
+    - c:\projects\commsdsl\build.%PLATFORM%.%CONFIGURATION%.%TOOLCHAIN%\app\commsdsl2comms\src\commsdsl2comms.exe -h
+    - nmake
 
 test_script:
     - ctest 
