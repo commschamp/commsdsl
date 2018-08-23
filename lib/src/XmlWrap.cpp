@@ -454,7 +454,7 @@ XmlWrap::ContentsList XmlWrap::getExtraChildren(::xmlNodePtr node, const XmlWrap
         bool expected =
             std::any_of(
                 expectedPrefixes.begin(), expectedPrefixes.end(),
-                [c, &name](const std::string& prefix)
+                [&name](const std::string& prefix)
                 {
                     if (name.size() < prefix.size()) {
                         return false;
