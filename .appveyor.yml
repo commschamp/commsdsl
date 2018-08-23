@@ -36,7 +36,9 @@ build_script:
     - mkdir %BUILD_DIR%
     - cd %BUILD_DIR%
     - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" -DBOOST_ROOT="C:\Libraries\boost_1_65_1" -DBoost_USE_STATIC_LIBS=ON -DCOMMSDSL_QT_DIR=%QTDIR%
-    - set PATH=%PATH%;%BUILD_DIR%\lib\src
+    - set PATH=%BUILD_DIR%\lib\src;%PATH%
+    - echo Building in %BUILD_DIR%
+    - echo PATH = %PATH%
     - nmake
 
 test_script:
