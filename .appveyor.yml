@@ -40,11 +40,6 @@ build_script:
     - echo Building in %BUILD_DIR%
     - echo PATH = %PATH%
     - nmake
-    - nmake commsdsl2comms
-    - echo Checking commsdsl2comms works...
-    - c:\projects\commsdsl\build.%PLATFORM%.%CONFIGURATION%.%TOOLCHAIN%\app\commsdsl2comms\src\commsdsl2comms.exe -h
-    - echo "Continueing with build..."
-    - nmake
 
 test_script:
     - ctest 
