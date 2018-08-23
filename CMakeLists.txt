@@ -10,6 +10,7 @@ option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 # ---------------------------
 # COMMSDSL_QT_DIR - Path to Qt5 installation directory.
 # COMMS_INSTALL_DIR - Path to externally built and installed CommsChampion project
+# COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
 
 
 if (NOT CMAKE_CXX_STANDARD)
