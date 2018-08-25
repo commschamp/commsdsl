@@ -15,6 +15,7 @@ private:
     bool writeConf() const;
     bool writeLayout() const;
     bool writeNamespaces() const;
+    bool writeMainpage() const;
 
 private:
     Generator& m_generator;

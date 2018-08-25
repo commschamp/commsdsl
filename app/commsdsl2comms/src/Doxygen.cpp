@@ -18,7 +18,8 @@ bool Doxygen::write(Generator& generator)
     return
         obj.writeConf() &&
         obj.writeLayout() &&
-        obj.writeNamespaces();
+        obj.writeNamespaces() &&
+        obj.writeMainpage();
 }
 
 bool Doxygen::writeConf() const
@@ -452,6 +453,43 @@ bool Doxygen::writeNamespaces() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NS", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("OTHER_NS", common::listToString(otherNs, "\n", common::emptyString())));
+
+    stream << common::processTemplate(Template, replacements);
+
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+    return true;
+}
+
+bool Doxygen::writeMainpage() const
+{
+    auto filePath = m_generator.startProtocolDocWrite("man.dox");
+
+    if (filePath.empty()) {
+        return true;
+    }
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Template =
+        "/// @mainpage \"#^#PROJ_NAME#$# Binary Protocol\n"
+        "/// @tableofcontents\n"
+        "/// This generated code implements \"#^#PROJ_NAME#$#\" binary protocol using various\n"
+        "/// classes from\n"
+        "/// <a href=\"https://github.com/arobenko/comms_champion#comms-library\">COMMS Library</a>.@n\n"
+        "/// Please refer to <b>\"How to Use Defined Custom Protocol\"</b> page of its documentation\n"
+        "/// for detailed explanation on how to use the generated code.\n"
+        "///\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("PROJ_NAME", m_generator.schemaName()));
 
     stream << common::processTemplate(Template, replacements);
 
