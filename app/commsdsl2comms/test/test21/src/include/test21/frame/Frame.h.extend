@@ -8,7 +8,7 @@ namespace test21
 namespace frame
 {
 
-/// @brief Definition of <b>"Frame"<\b> frame class.
+/// @brief Definition of <b>"Frame"</b> frame class.
 /// @tparam TOpt Frame definition options
 /// @headerfile "test21/frame/Frame.h"
 template <

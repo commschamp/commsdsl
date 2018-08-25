@@ -147,7 +147,7 @@ std::string Layer::getDefaultOptions(const std::string& scope) const
 
 
         common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("SCOPE", fieldScope));
+        replacements.insert(std::make_pair("SCOPE", scope));
         replacements.insert(std::make_pair("CLASS_NAME", className));
         replacements.insert(std::make_pair("FIELD_OPT", m_field->getDefaultOptions(fieldScope)));
         str += common::processTemplate(Templ, replacements);

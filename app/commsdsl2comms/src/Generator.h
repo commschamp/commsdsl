@@ -23,6 +23,7 @@ public:
     using FilesList = std::vector<std::string>;
     using MessageIdMap = std::multimap<std::uintmax_t, std::string>;
     using PluginsAccessList = std::vector<const Plugin*>;
+    using NamespacesScopesList = Namespace::NamespacesScopesList;
 
     Generator(ProgramOptions& options, Logger& logger)
       : m_options(options), m_logger(logger)
@@ -101,6 +102,8 @@ public:
 
     std::pair<std::string, std::string>
     startGenericPluginHeaderWrite(const std::string& name);
+
+    std::string startProtocolDocWrite(const std::string& name);
 
     std::pair<std::string, std::string>
     startGenericPluginSrcWrite(const std::string& name);
@@ -288,6 +291,8 @@ public:
     std::string getExtraProtectedForInterface(const std::string& externalRef) const;
     std::string getExtraPrivateForInterface(const std::string& externalRef) const;
 
+    NamespacesScopesList getNonDefaultNamespacesScopes() const;
+
 private:
 
     using NamespacesList = Namespace::NamespacesList;
@@ -335,6 +340,14 @@ private:
         const std::string& externalRef,
         bool header,
         const std::string& subNs = common::emptyString());
+
+    std::string startGenericWrite(
+        const std::string& name,
+        const std::string& subFolder = common::emptyString());
+
+    std::string startGenericWrite(
+        const std::string& name,
+        const std::vector<std::string>& subFolders);
 
     std::string getCustomOpForElement(
         const std::string& externalRef,

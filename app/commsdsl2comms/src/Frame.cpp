@@ -24,7 +24,7 @@ namespace
 
 const std::string Template(
     "/// @file\n"
-    "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"<\\b> frame class.\n"
+    "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> frame class.\n"
     "\n"
     "#pragma once\n"
     "\n"
@@ -39,7 +39,7 @@ const std::string Template(
     "{\n"
     "    #^#LAYERS_DEF#$#\n"
     "};\n\n"
-    "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"<\\b> frame class.\n"
+    "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"</b> frame class.\n"
     "#^#DOC_DETAILS#$#\n"
     "/// @tparam TOpt Frame definition options\n"
     "/// @headerfile #^#HEADERFILE#$#\n"

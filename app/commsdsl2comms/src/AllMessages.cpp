@@ -67,7 +67,7 @@ bool AllMessages::writeProtocolDefinition() const
 
     const std::string Template(
         "/// @file\n"
-        "/// @brief Contains definition of @ref #^#PROT_NAMESPACE#$#::AllMessages definition.\n\n"
+        "/// @brief Contains definition of all messages bundle.\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
         "#^#BEG_NAMESPACE#$#\n"

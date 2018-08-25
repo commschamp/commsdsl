@@ -14,6 +14,7 @@
 #include "EnumField.h"
 #include "AllMessages.h"
 #include "Cmake.h"
+#include "Doxygen.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -339,6 +340,11 @@ std::pair<std::string, std::string>
 Generator::startGenericPluginHeaderWrite(const std::string& name)
 {
     return startPluginWrite(name, true);
+}
+
+std::string Generator::startProtocolDocWrite(const std::string& name)
+{
+    return startGenericWrite(name, common::docStr());
 }
 
 std::pair<std::string, std::string>
@@ -885,6 +891,7 @@ bool Generator::writeFiles()
 
     if ((!DefaultOptions::write(*this)) ||
         (!Cmake::write(*this)) ||
+        (!Doxygen::write(*this)) ||
         (!writeExtraFiles())){
         return false;
     }
@@ -1239,6 +1246,21 @@ std::string Generator::getExtraPrivateForInterface(const std::string& externalRe
     return getCustomOpForElement(common::messageClassStr(), PrivateSuffix);
 }
 
+Generator::NamespacesScopesList Generator::getNonDefaultNamespacesScopes() const
+{
+    NamespacesScopesList result;
+    auto& mainNs = mainNamespace();
+    for (auto& n : m_namespaces) {
+        auto scopes = n->getNamespacesScopes();
+        result.reserve(result.size() + scopes.size());
+        for (auto& s : scopes) {
+            assert(!s.empty());
+            result.push_back(mainNs + "::" + s);
+        }
+    }
+    return result;
+}
+
 
 std::pair<std::string, std::string>
 Generator::namespacesForElement(
@@ -1486,6 +1508,65 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
 
     m_logger.info("Generating " + fullPathStr);
     return std::make_pair(std::move(fullPathStr), std::move(className));
+}
+
+std::string Generator::startGenericWrite(
+    const std::string& name,
+    const std::string& subFolder)
+{
+    std::vector<std::string> subFolders;
+    if (!subFolder.empty()) {
+        subFolders.push_back(subFolder);
+    }
+    return startGenericWrite(name, subFolders);
+}
+
+
+std::string Generator::startGenericWrite(
+    const std::string& name,
+    const std::vector<std::string>& subFolders)
+{
+    if (name.empty()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    auto ns = refToNs(name);
+    bf::path relDirPath;
+    for (auto& f : subFolders) {
+        relDirPath /= f;
+    }
+
+    auto dirPath = m_pathPrefix / relDirPath;
+
+    if (!createDir(dirPath)) {
+        return common::emptyString();
+    }
+
+    auto fullPath = dirPath / name;
+    auto fullPathStr = fullPath.string();
+
+    if (!m_codeInputDir.empty()) {
+        auto overwriteFile = m_codeInputDir / relDirPath / name;
+        boost::system::error_code ec;
+        if (bf::exists(overwriteFile, ec)) {
+            m_logger.info("Skipping generation of " + fullPathStr);
+            return common::emptyString();
+        }
+
+        auto replaceFile = m_codeInputDir / relDirPath / (name + ReplaceSuffix);
+        if (bf::exists(replaceFile, ec)) {
+            m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
+            bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
+            if (ec) {
+                m_logger.warning("Failed to write \"" + fullPathStr + "\": " + ec.message());
+            }
+            return common::emptyString();
+        }
+    }
+
+    m_logger.info("Generating " + fullPathStr);
+    return fullPathStr;
 }
 
 std::string Generator::getCustomOpForElement(

@@ -26,6 +26,7 @@ public:
     using MessagesAccessList = std::vector<const Message*>;
     using InterfacesAccessList = std::vector<const Interface*>;
     using FramesAccessList = std::vector<const Frame*>;
+    using NamespacesScopesList = std::vector<std::string>;
 
     //using FieldsMap = std::map<std::string, FieldPtr>;
     explicit Namespace(Generator& gen, const commsdsl::Namespace& dslObj)
@@ -45,6 +46,7 @@ public:
 
     std::string getDefaultOptions() const;
 
+    NamespacesScopesList getNamespacesScopes() const;
     MessagesAccessList getAllMessages() const;
     InterfacesAccessList getAllInterfaces() const;
     FramesAccessList getAllFrames() const;

@@ -23,7 +23,7 @@ namespace
 
 const std::string Template(
     "/// @file\n"
-    "/// @brief Contains definition of <b>\"#^#MESSAGE_NAME#$#\"<\\b> message and its fields.\n"
+    "/// @brief Contains definition of <b>\"#^#MESSAGE_NAME#$#\"</b> message and its fields.\n"
     "\n"
     "#pragma once\n"
     "\n"
@@ -43,7 +43,7 @@ const std::string Template(
     "    >;\n"
     "};\n"
     "\n"
-    "/// @brief Definition of <b>\"#^#MESSAGE_NAME#$#\"<\\b> message class.\n"
+    "/// @brief Definition of <b>\"#^#MESSAGE_NAME#$#\"</b> message class.\n"
     "/// @details\n"
     "#^#DOC_DETAILS#$#\n"
     "///     See @ref #^#ORIG_CLASS_NAME#$#Fields for definition of the fields this message contains.\n"

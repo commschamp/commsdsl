@@ -223,6 +223,25 @@ std::string Namespace::getDefaultOptions() const
     return common::processTemplate(*templ, replacmenents);
 }
 
+Namespace::NamespacesScopesList Namespace::getNamespacesScopes() const
+{
+    NamespacesScopesList result;
+    result.reserve(m_namespaces.size() + 1);
+    auto& thisName = name();
+    if (!thisName.empty()) {
+        result.push_back(thisName);
+    }
+
+    for (auto& n : m_namespaces) {
+        assert(!thisName.empty());
+        auto scopes = n->getNamespacesScopes();
+        for (auto& s : scopes) {
+            result.push_back(thisName + "::" + s);
+        }
+    }
+    return result;
+}
+
 Namespace::MessagesAccessList Namespace::getAllMessages() const
 {
     MessagesAccessList result;

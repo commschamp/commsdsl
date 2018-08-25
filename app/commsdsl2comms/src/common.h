@@ -44,6 +44,7 @@ const std::string& transportMessageSuffixStr();
 const std::string& pluginStr();
 const std::string& origSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
+const std::string& docStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

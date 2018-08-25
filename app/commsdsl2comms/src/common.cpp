@@ -197,6 +197,12 @@ const std::string& forceEmptyDisplayNameStr()
     return Str;
 }
 
+const std::string& docStr()
+{
+    static const std::string Str("doc");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

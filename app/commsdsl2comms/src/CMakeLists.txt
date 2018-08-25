@@ -41,6 +41,7 @@ set (
     "Cmake.cpp"
     "common.cpp"
     "Plugin.cpp"
+    "Doxygen.cpp"
 )
 
 add_executable(${APP_NAME} ${src})

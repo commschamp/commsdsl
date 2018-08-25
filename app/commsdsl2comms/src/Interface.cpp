@@ -22,13 +22,13 @@ namespace
 
 const std::string AliasTemplate(
     "/// @file\n"
-    "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"<\\b> interface class.\n"
+    "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> interface class.\n"
     "\n"
     "#pragma once\n"
     "\n"
     "#^#INCLUDES#$#\n"
     "#^#BEGIN_NAMESPACE#$#\n"
-    "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"<\\b> common interface class.\n"
+    "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"</b> common interface class.\n"
     "#^#DOC_DETAILS#$#\n"
     "/// @tparam TOpt Interface definition options\n"
     "/// @headerfile #^#HEADERFILE#$#\n"
@@ -44,7 +44,7 @@ const std::string AliasTemplate(
 
 const std::string ClassTemplate(
     "/// @file\n"
-    "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"<\\b> interface class.\n"
+    "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> interface class.\n"
     "\n"
     "#pragma once\n"
     "\n"
@@ -61,7 +61,7 @@ const std::string ClassTemplate(
     "        #^#FIELDS_LIST#$#\n"
     "    >;\n"
     "};\n\n"
-    "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"<\\b> common interface class.\n"
+    "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"</b> common interface class.\n"
     "#^#DOC_DETAILS#$#\n"
     "/// @tparam TOpt Interface definition options\n"
     "/// @headerfile #^#HEADERFILE#$#\n"

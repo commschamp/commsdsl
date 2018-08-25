@@ -236,7 +236,7 @@ std::string Field::getClassPrefix(
     else {
         str = "/// @brief Definition of <b>\"";
         str += displayName();
-        str += "\"<\\b> field.\n";
+        str += "\"</b> field.\n";
 
         auto& desc = m_dslObj.description();
         do {
@@ -1026,7 +1026,7 @@ bool Field::writeProtocolDefinitionFile() const
 
     static const std::string FileTemplate(
         "/// @file\n"
-        "/// @brief Contains definition of <b>\"#^#FIELD_NAME#$#\"<\\b> field.\n"
+        "/// @brief Contains definition of <b>\"#^#FIELD_NAME#$#\"</b> field.\n"
         "\n"
         "#pragma once\n"
         "\n"

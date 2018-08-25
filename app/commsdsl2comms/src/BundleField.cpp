@@ -301,8 +301,8 @@ std::string BundleField::getAccess() const
         namesList.push_back(common::nameToAccessCopy(m->name()));
         std::string accessStr =
             "///     @li @b field_" + namesList.back() +
-            "() - for @ref " + scope +
-            namesList.back() + " member field.";
+            "() - for " + scope +
+            common::nameToClassCopy(m->name()) + " member field.";
         accessDocList.push_back(std::move(accessStr));
         
     }
