@@ -54,7 +54,7 @@ po::options_description createDescription()
             "Force schema version. Must not be greater than version specified in schema file.")
         (FullMinRemoteVerStr.c_str(), po::value<unsigned>()->default_value(0U),
             "Set minimal supported remote version. Defaults to 0.")
-        (CommsChampionTagStr.c_str(), po::value<std::string>()->default_value("develop"),
+        (CommsChampionTagStr.c_str(), po::value<std::string>()->default_value("v0.26"),
             "Default tag/branch of the CommsChampion project.")
         (ProtocolStr.c_str(), po::value<std::vector<std::string> >(),
             "Protocol information for plugin generation. Exepected to be in the following format:\n"

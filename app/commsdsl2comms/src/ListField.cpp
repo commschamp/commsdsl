@@ -113,6 +113,13 @@ bool ListField::prepareImpl()
         if (!m_countPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
+
+        if ((m_element) &&
+            (common::nameToClassCopy(m_element->name()) == common::nameToClassCopy(m_countPrefix->name()))) {
+            generator().logger().error("Count prefix and element fields of \"" + name() + "\" list must have different names.");
+            return false;
+        }
+
     } while (false);
 
     do {
@@ -131,6 +138,13 @@ bool ListField::prepareImpl()
         if (!m_lengthPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
+
+        if ((m_element) &&
+            (common::nameToClassCopy(m_element->name()) == common::nameToClassCopy(m_lengthPrefix->name()))) {
+            generator().logger().error("Length prefix and element fields of \"" + name() + "\" list must have different names.");
+            return false;
+        }
+
     } while (false);
 
     do {
@@ -147,6 +161,25 @@ bool ListField::prepareImpl()
         if (!m_elemLengthPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
+
+        if ((m_element) &&
+            (common::nameToClassCopy(m_element->name()) == common::nameToClassCopy(m_elemLengthPrefix->name()))) {
+            generator().logger().error("Element length prefix and element fields of \"" + name() + "\" list must have different names.");
+            return false;
+        }
+
+        if ((m_countPrefix) &&
+            (common::nameToClassCopy(m_countPrefix->name()) == common::nameToClassCopy(m_elemLengthPrefix->name()))) {
+            generator().logger().error("Element length prefix and count prefix fields of \"" + name() + "\" list must have different names.");
+            return false;
+        }
+
+        if ((m_lengthPrefix) &&
+            (common::nameToClassCopy(m_lengthPrefix->name()) == common::nameToClassCopy(m_elemLengthPrefix->name()))) {
+            generator().logger().error("Element length prefix and list length prefix fields of \"" + name() + "\" list must have different names.");
+            return false;
+        }
+
     } while (false);
 
     return true;
