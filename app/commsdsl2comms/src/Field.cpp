@@ -483,7 +483,6 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
         auto accessName = common::nameToAccessCopy(m->name());
         if (prevPos == 0) {
             auto str = 
-                "refresh_" + accessName + "();\n"
                 "auto es = Base::template " + readUntilStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
                 "if (es != comms::ErrorStatus::Success) {\n"
                 "    return es;\n"
@@ -494,24 +493,23 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
             }
 
             reads.push_back(std::move(str));
-            prevPos = oPos;
-            continue;
         }
+
+        reads.push_back("refresh_" + accessName + "();\n");
 
         if (oPos == optionals.back()) {
             auto str = 
-                "refresh_" + accessName + "();\n"
                 "es = Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len" + lenSuffixStr + ");\n"
                 "if (es != comms::ErrorStatus::Success) {\n"
                 "    return es;\n"
                 "}\n";
             reads.push_back(std::move(str));
+            prevPos = oPos;
             continue;                
         }
 
         auto prevName = common::nameToAccessCopy(fields[prevPos]->name());
         auto str = 
-            "refresh_" + accessName + "();\n"
             "es = Base::template " + readFromUntilStr + "<FieldIdx_" + prevName + ", FieldIdx_" + accessName + ">(iter, len" + lenSuffixStr + ");\n"
             "if (es != comms::ErrorStatus::Success) {\n"
             "    return es;\n"
@@ -525,7 +523,7 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
 
     static const std::string Templ =
         "/// @brief Custom read functionality.\n"
-        "template <typename TIter>"
+        "template <typename TIter>\n"
         "comms::ErrorStatus #^#READ_FUNC#$#(TIter& iter, std::size_t len)\n"
         "{\n"
         "    #^#READS#$#\n"
