@@ -80,6 +80,7 @@ void EnumTestSuite::test1()
     TS_ASSERT_EQUALS(revValues.find(1)->second, "V1");
     TS_ASSERT_EQUALS(revValues.find(2)->second, "V2");
     TS_ASSERT_EQUALS(revValues.find(3)->second, "V3");
+    TS_ASSERT(!enumField.hexAssign());
 }
 
 void EnumTestSuite::test2()
@@ -132,6 +133,7 @@ void EnumTestSuite::test3()
     TS_ASSERT_EQUALS(std::distance(range2.first, range2.second), 2);
     auto range3 = revValues.equal_range(5);
     TS_ASSERT_EQUALS(std::distance(range3.first, range3.second), 1);
+    TS_ASSERT(enumField.hexAssign());
 }
 
 void EnumTestSuite::test4()

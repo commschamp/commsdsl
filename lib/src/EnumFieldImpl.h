@@ -61,6 +61,11 @@ public:
         return m_state.m_validCheckVersion;
     }
 
+    bool hexAssign() const
+    {
+        return m_state.m_hexAssign;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -83,6 +88,7 @@ private:
     bool updateMinMaxValues();
     bool updateValues();
     bool updateDefaultValue();
+    bool updateHexAssign();
     bool strToNumeric(const std::string& str, std::intmax_t& val) const;
 
     struct State
@@ -100,6 +106,7 @@ private:
         RevValues m_revValues;
         bool m_nonUniqueAllowed = false;
         bool m_validCheckVersion = false;
+        bool m_hexAssign = false;
     };
 
     State m_state;

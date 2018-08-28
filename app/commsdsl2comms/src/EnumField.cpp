@@ -118,9 +118,11 @@ common::StringsList EnumField::getValuesList() const
         static const std::string Templ =
             "#^#NAME#$# = #^#VALUE#$#, \n";
 
+        unsigned hexW = hexWidth();
+
         std::string valStr;
-        if (bigUnsigned) {
-            valStr = common::numToString(static_cast<std::uintmax_t>(v.first));
+        if ((bigUnsigned) || (0U < hexW)) {
+            valStr = common::numToString(static_cast<std::uintmax_t>(v.first), hexW);
         }
         else {
             valStr = common::numToString(v.first);
@@ -186,6 +188,17 @@ const std::string& EnumField::underlyingType() const
 {
     auto obj = enumFieldDslObj();
     return IntField::convertType(obj.type());
+}
+
+unsigned EnumField::hexWidth() const
+{
+    auto obj = enumFieldDslObj();
+
+    unsigned hexWidth = 0U;
+    if (obj.hexAssign()) {
+        hexWidth = obj.maxLength() * 2U;
+    }
+    return hexWidth;
 }
 
 void EnumField::updateIncludesImpl(IncludesList& includes) const

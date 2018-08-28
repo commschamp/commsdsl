@@ -588,6 +588,13 @@ const std::string& externalModeCtrlStr()
     return Str;
 }
 
+const std::string& hexAssignStr()
+{
+    static const std::string Str("hexAssign");
+    return Str;
+}
+
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

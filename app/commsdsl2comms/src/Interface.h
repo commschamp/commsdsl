@@ -48,6 +48,7 @@ private:
     std::string getFieldsAccessDoc() const;
     std::string getFieldsDef() const;
     std::string getFieldsOpts() const;
+    unsigned getHexMsgIdWidth() const;
 
     Generator& m_generator;
     commsdsl::Interface m_dslObj;

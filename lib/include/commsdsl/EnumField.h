@@ -36,6 +36,7 @@ public:
     bool isNonUniqueAllowed() const;
     bool isUnique() const;
     bool validCheckVersion() const;
+    bool hexAssign() const;
 };
 
 inline

@@ -53,13 +53,13 @@ std::string nameToAccessCopy(const std::string& str);
 void updateName(std::string& str);
 std::string updateNameCopy(const std::string& str);
 std::string adjustName(const std::string& str);
-std::string numToString(std::uintmax_t value, bool hexOut = false);
+std::string numToString(std::uintmax_t value, unsigned hexWidth = 0U);
 std::string numToString(std::intmax_t value);
 
 inline
-std::string numToString(unsigned value, bool hexOut = false)
+std::string numToString(unsigned value, unsigned hexWidth = 0U)
 {
-    return numToString(static_cast<std::uintmax_t>(value), hexOut);
+    return numToString(static_cast<std::uintmax_t>(value), hexWidth);
 }
 
 std::string makeMultilineCopy(const std::string& value, unsigned len = 60);

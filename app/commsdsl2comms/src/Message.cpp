@@ -109,7 +109,7 @@ static const std::string PluginMultiInterfaceHeaderTemplate(
     "{\n"
     "    static const QVariantList& props();\n"
     "};\n\n"
-    "template <typename TIterface>"
+    "template <typename TIterface>\n"
     "class #^#CLASS_NAME#$# : public\n"
     "    comms_champion::ProtocolMessageBase<\n"
     "        #^#PROT_MESSAGE#$#<TIterface>,\n"
@@ -219,7 +219,6 @@ bool Message::write()
         return true;
     }
 
-    // TODO: write plugin
     return
         writeProtocol() &&
         writePluginHeader() &&

@@ -69,4 +69,9 @@ bool commsdsl::EnumField::validCheckVersion() const
     return cast(m_pImpl)->validCheckVersion();
 }
 
+bool EnumField::hexAssign() const
+{
+    return cast(m_pImpl)->hexAssign();
+}
+
 } // namespace commsdsl

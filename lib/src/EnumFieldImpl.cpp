@@ -67,7 +67,8 @@ const XmlWrap::NamesList& EnumFieldImpl::extraPropsNamesImpl() const
         common::lengthStr(),
         common::bitLengthStr(),
         common::nonUniqueAllowedStr(),
-        common::validCheckVersionStr()
+        common::validCheckVersionStr(),
+        common::hexAssignStr()
     };
 
     return List;
@@ -101,7 +102,8 @@ bool EnumFieldImpl::parseImpl()
         updateValidCheckVersion() &&
         updateMinMaxValues() &&
         updateValues() &&
-        updateDefaultValue();
+        updateDefaultValue() &&
+        updateHexAssign();
 }
 
 std::size_t EnumFieldImpl::minLengthImpl() const
@@ -548,6 +550,33 @@ bool EnumFieldImpl::updateDefaultValue()
     }
 
     return checkValueFunc(val);
+}
+
+bool EnumFieldImpl::updateHexAssign()
+{
+    if (!validateSinglePropInstance(common::hexAssignStr())) {
+        return false;
+    }
+
+    auto& valueStr = common::getStringProp(props(), common::hexAssignStr());
+    if (valueStr.empty()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_hexAssign = common::strToBool(valueStr, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::hexAssignStr(), valueStr);
+        return false;
+    }
+
+    if (!IntFieldImpl::isTypeUnsigned(m_state.m_type)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot set \"" << hexAssign() << "\" property with signed types.";
+        return false;
+    }
+
+    return true;
 }
 
 bool EnumFieldImpl::strToNumeric(

@@ -20,6 +20,8 @@ public:
     std::string getValueName(std::intmax_t value) const;
     const std::string& underlyingType() const;
 
+    unsigned hexWidth() const;
+
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(

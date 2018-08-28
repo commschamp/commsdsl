@@ -11,6 +11,7 @@
 
 #include "Generator.h"
 #include "common.h"
+#include "EnumField.h"
 
 namespace ba = boost::algorithm;
 
@@ -110,7 +111,8 @@ std::string PluginHeaderTemplate =
     "    >\n"
     "{\n"
     "protected:\n"
-    "    const QVariantList& extraTransportFieldsPropertiesImpl() const override;\n"
+    "    #^#ID_FUNC#$#\n"
+    "    virtual const QVariantList& extraTransportFieldsPropertiesImpl() const override;\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n\n";
 
@@ -140,6 +142,7 @@ std::string PluginSrcTemplate =
     "    return props;\n"
     "}\n\n"
     "} // namespace \n\n"
+    "#^#ID_FUNC#$#\n"
     "const QVariantList& #^#CLASS_NAME#$#::extraTransportFieldsPropertiesImpl() const\n"
     "{\n"
     "    static const QVariantList Props = createProps();\n"
@@ -304,10 +307,17 @@ bool Interface::writePluginHeader()
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
 
+    auto hexWidth = getHexMsgIdWidth();
     auto* templ = &PluginHeaderAliasTemplate;
-    if (!m_fields.empty()) {
+    if ((!m_fields.empty()) || (0U < hexWidth)) {
         templ = &PluginHeaderTemplate;
     }
+
+    if (0U < hexWidth) {
+        auto str = "virtual QString idAsStringImpl() const override;";
+        replacements.insert(std::make_pair("ID_FUNC", std::move(str)));
+    }
+
     auto str = common::processTemplate(*templ, replacements);
 
     std::ofstream stream(filePath);
@@ -338,7 +348,8 @@ bool Interface::writePluginSrc()
 
     std::string str;
     do {
-        if (m_fields.empty()) {
+        auto hexWidth = getHexMsgIdWidth();
+        if ((m_fields.empty()) && (hexWidth == 0U)) {
             break;
         }
 
@@ -356,12 +367,22 @@ bool Interface::writePluginSrc()
         auto namespaces = m_generator.namespacesForInterfaceInPlugin(m_externalRef);
 
         common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+        replacements.insert(std::make_pair("CLASS_NAME", className));
         replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(externalRef(), true, true)));
         replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
         replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
         replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", "\n")));
         replacements.insert(std::make_pair("PROPS_APPENDS", common::listToString(appends, "\n", common::emptyString())));
+
+        if (0U < hexWidth) {
+            auto func =
+                "QString " + className + "::idAsStringImpl() const\n"
+                "{\n"
+                "    return QString(\"0x%1\").arg(static_cast<unsigned long long>(getId()), " +
+                std::to_string(hexWidth) + ", 16, QChar('0'));\n"
+                "}\n";
+            replacements.insert(std::make_pair("ID_FUNC", std::move(func)));
+        }
 
         str = common::processTemplate(PluginSrcTemplate, replacements);
     } while (false);
@@ -503,6 +524,21 @@ std::string Interface::getFieldsOpts() const
         result += ">";
     }
     return result;
+}
+
+unsigned Interface::getHexMsgIdWidth() const
+{
+    auto* msgIdField = m_generator.getMessageIdField();
+    if (msgIdField == nullptr) {
+        return 0U;
+    }
+
+    if (msgIdField->kind() != commsdsl::Field::Kind::Enum) {
+        return 0U;
+    }
+
+    auto* enumMsgIdField = static_cast<const EnumField*>(msgIdField);
+    return enumMsgIdField->hexWidth();
 }
 
 }

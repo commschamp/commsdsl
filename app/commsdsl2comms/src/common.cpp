@@ -6,6 +6,7 @@
 #include <limits>
 #include <sstream>
 #include <type_traits>
+#include <iomanip>
 
 #include <boost/algorithm/string.hpp>
 
@@ -255,9 +256,9 @@ std::string adjustName(const std::string& str)
     return result;
 }
 
-std::string numToString(std::uintmax_t value, bool hexOut)
+std::string numToString(std::uintmax_t value, unsigned hexWidth)
 {
-    if (!hexOut) {
+    if (hexWidth == 0U) {
         if (value <= std::numeric_limits<std::uint16_t>::max()) {
             return std::to_string(value) + "U";
         }
@@ -268,11 +269,12 @@ std::string numToString(std::uintmax_t value, bool hexOut)
     }
 
     std::stringstream stream;
-    stream << std::hex << "0x" << value;
-    if (hexOut && (value <= std::numeric_limits<std::uint16_t>::max())) {
+    stream << std::hex << "0x" << std::uppercase <<
+              std::setfill('0') << std::setw(hexWidth) << value;
+    if ((0U < hexWidth) && (value <= std::numeric_limits<std::uint16_t>::max())) {
         stream << "U";
     }
-    else if (hexOut && (value <= std::numeric_limits<std::uint32_t>::max())) {
+    else if ((0U < hexWidth) && (value <= std::numeric_limits<std::uint32_t>::max())) {
         stream << "UL";
     }
     else {

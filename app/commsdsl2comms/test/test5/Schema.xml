@@ -4,7 +4,7 @@
         endian="big"
         version="5">
     <fields>
-        <enum name="MsgId" type="uint8" semanticType="messageId" >
+        <enum name="MsgId" type="uint8" semanticType="messageId" hexAssign="true">
             <validValue name="m1" val="1" />
             <validValue name="m2" val="2" />
             <validValue name="m5" val="5" />
