@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <iterator>
 #include <cassert>
+#include <numeric>
 
 #include "common.h"
 #include "ProtocolImpl.h"
@@ -254,6 +255,28 @@ std::string NamespaceImpl::externalRef() const
     auto parentRef = parentNs.externalRef();
     assert(!parentRef.empty());
     return parentRef + '.' + name();
+}
+
+unsigned NamespaceImpl::countMessageIds() const
+{
+    unsigned result =
+        std::accumulate(
+            m_namespaces.begin(), m_namespaces.end(), unsigned(0U),
+            [](unsigned soFar, auto& n)
+            {
+                return soFar + n.second->countMessageIds();
+            });
+
+    return std::accumulate(
+            m_fields.begin(), m_fields.end(), result,
+            [](unsigned soFar, auto& f)
+            {
+                if (f.second->semanticType() != Field::SemanticType::MessageId) {
+                    return soFar;
+                }
+
+                return soFar + 1U;
+            });
 }
 
 Object::ObjKind NamespaceImpl::objKindImpl() const

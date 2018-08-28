@@ -101,6 +101,7 @@ private:
     bool validateSinglePlatform(::xmlNodePtr node);
     bool validateNamespaces(::xmlNodePtr root);
     bool validateAllMessages();
+    unsigned countMessageIds() const;
     const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
     LogWrapper logError() const;

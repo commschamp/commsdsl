@@ -146,6 +146,8 @@ public:
 
     std::string externalRef() const;
 
+    unsigned countMessageIds() const;
+
 protected:
     virtual ObjKind objKindImpl() const override;
 

@@ -24,6 +24,7 @@ public:
     void test15();
     void test16();
     void test17();
+    void test18();
 };
 
 void EnumTestSuite::setUp()
@@ -508,3 +509,12 @@ void EnumTestSuite::test17()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
 }
+
+void EnumTestSuite::test18()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+}
+

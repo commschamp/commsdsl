@@ -78,6 +78,12 @@ bool ProtocolImpl::validate()
         return false;
     }
 
+    auto messageIdsCount = countMessageIds();
+    if (1U < messageIdsCount) {
+        logError() << "Only single field with \"" << common::messageIdStr() << "\" as semantic type is allowed.";
+        return false;
+    }
+
     m_validated = true;
     return true;
 }
@@ -522,6 +528,17 @@ bool ProtocolImpl::validateAllMessages()
     }
 
     return true;
+}
+
+unsigned ProtocolImpl::countMessageIds() const
+{
+    return
+        std::accumulate(
+            m_namespaces.begin(), m_namespaces.end(), unsigned(0U),
+            [](unsigned soFar, auto& n)
+            {
+                return soFar + n.second->countMessageIds();
+            });
 }
 
 const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const
