@@ -40,8 +40,6 @@ public:
 
     bool parse();
 
-    bool verifySemanticType() const;
-
     const PropsMap& props() const
     {
         return m_props;
@@ -152,6 +150,11 @@ protected:
         return m_protocol;
     }
 
+    void setName(const std::string& val)
+    {
+        m_state.m_name = &val;
+    }
+
     void setDisplayName(const std::string& val)
     {
         m_state.m_displayName = &val;
@@ -208,6 +211,9 @@ private:
     bool updatePseudo();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
+
+    bool verifySemanticType() const;
+    bool verifyName() const;
 
     static const CreateMap& createMap();
 

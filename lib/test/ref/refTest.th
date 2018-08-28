@@ -12,6 +12,7 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
 };
 
 void RefTestSuite::setUp()
@@ -128,5 +129,34 @@ void RefTestSuite::test5()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
+}
+
+void RefTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 4U);
+
+    auto checkField =
+        [&namespaces](unsigned idx)
+        {
+            TS_ASSERT_LESS_THAN(idx, namespaces.size());
+            auto& ns = namespaces[idx];
+            TS_ASSERT_EQUALS(ns.name(), "ns" + std::to_string(idx + 1));
+
+            auto fields = ns.fields();
+            TS_ASSERT_EQUALS(fields.size(), 1U);
+
+            auto& f = fields.front();
+            TS_ASSERT_EQUALS(f.name(), "F1");
+
+        };
+
+    checkField(0);
+    checkField(1);
+    checkField(2);
+    checkField(3);
 }
 

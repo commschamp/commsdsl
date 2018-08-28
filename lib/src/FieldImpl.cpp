@@ -88,7 +88,8 @@ bool FieldImpl::parse()
         return false;
     }
 
-    if (!verifySemanticType()) {
+    if ((!verifySemanticType()) ||
+        (!verifyName())) {
         return false;
     }
 
@@ -109,38 +110,6 @@ bool FieldImpl::parse()
     if (!updateExtraChildren(expectedChildren)) {
         return false;
     }
-    return true;
-}
-
-bool FieldImpl::verifySemanticType() const
-{
-    if (semanticType() == SemanticType::None) {
-        return true;
-    }
-
-    if (semanticType() == SemanticType::Version) {
-        if (kind() != Kind::Int) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::versionStr() << "\" is applicable only to " <<
-                "integral value fields.";
-            return false;
-        }
-
-        return true;
-    }
-
-    if (semanticType() == SemanticType::MessageId) {
-        if (kind() != Kind::Enum) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::messageIdStr() << "\" is applicable only to " <<
-                "enum fields.";
-            return false;
-        }
-
-        return true;
-    }
-
-    assert(!"Unhandled semantic type, please fix");
     return true;
 }
 
@@ -429,18 +398,7 @@ bool FieldImpl::checkReuse()
 
 bool FieldImpl::updateName()
 {
-    bool mustHave = m_state.m_name->empty();
-    if (!validateAndUpdateStringPropValue(common::nameStr(), m_state.m_name, mustHave)) {
-        return false;
-    }
-
-    if (!common::isValidName(*m_state.m_name)) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Invalid value for name property \"" << m_state.m_name << "\".";
-        return false;
-    }
-
-    return true;
+    return validateAndUpdateStringPropValue(common::nameStr(), m_state.m_name);
 }
 
 bool FieldImpl::updateDescription()
@@ -699,6 +657,56 @@ const FieldImpl::CreateMap& FieldImpl::createMap()
     };
 
     return Map;
+}
+
+bool FieldImpl::verifySemanticType() const
+{
+    if (semanticType() == SemanticType::None) {
+        return true;
+    }
+
+    if (semanticType() == SemanticType::Version) {
+        if (kind() != Kind::Int) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Semantic type \"" << common::versionStr() << "\" is applicable only to " <<
+                "integral value fields.";
+            return false;
+        }
+
+        return true;
+    }
+
+    if (semanticType() == SemanticType::MessageId) {
+        if (kind() != Kind::Enum) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Semantic type \"" << common::messageIdStr() << "\" is applicable only to " <<
+                "enum fields.";
+            return false;
+        }
+
+        return true;
+    }
+
+    assert(!"Unhandled semantic type, please fix");
+    return true;
+}
+
+bool FieldImpl::verifyName() const
+{
+    assert(m_state.m_name != nullptr);
+    if (m_state.m_name->empty()) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Missing value for mandatory property \"" << common::nameStr() << "\" for \"" << m_node->name << "\" element.";
+        return false;
+    }
+
+    if (!common::isValidName(*m_state.m_name)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                "Invalid value for name property \"" << *m_state.m_name << "\".";
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace commsdsl

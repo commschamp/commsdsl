@@ -44,14 +44,21 @@ bool RefFieldImpl::reuseImpl(const FieldImpl& other)
 
 bool RefFieldImpl::parseImpl()
 {
-    bool mustHave = m_field == nullptr;
-    if (!validateSinglePropInstance(common::fieldStr(), mustHave)) {
+    bool mustHaveField = (m_field == nullptr);
+    if (!validateSinglePropInstance(common::fieldStr(), mustHaveField)) {
         return false;
     }
+
+    auto updateNameIfNeeded =
+        [this]()
+        {
+        };
 
     auto propsIter = props().find(common::fieldStr());
     if (propsIter == props().end()) {
         assert(m_field != nullptr);
+        assert(!name().empty());
+        updateNameIfNeeded();
         return true;
     }
 
@@ -59,6 +66,10 @@ bool RefFieldImpl::parseImpl()
     if (m_field == nullptr) {
         reportUnexpectedPropertyValue(common::fieldStr(), propsIter->second);
         return false;
+    }
+
+    if (name().empty()) {
+        setName(m_field->name());
     }
 
     if (displayName().empty() && (!m_field->displayName().empty())) {
