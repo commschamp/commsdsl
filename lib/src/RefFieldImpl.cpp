@@ -49,11 +49,6 @@ bool RefFieldImpl::parseImpl()
         return false;
     }
 
-    auto updateNameIfNeeded =
-        [this]()
-        {
-        };
-
     auto propsIter = props().find(common::fieldStr());
     if (propsIter == props().end()) {
         assert(m_field != nullptr);
