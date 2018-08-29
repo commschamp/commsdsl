@@ -53,7 +53,6 @@ bool RefFieldImpl::parseImpl()
     if (propsIter == props().end()) {
         assert(m_field != nullptr);
         assert(!name().empty());
-        updateNameIfNeeded();
         return true;
     }
 
