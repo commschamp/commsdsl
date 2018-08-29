@@ -12,14 +12,18 @@ function (test_func name)
         set (code_input_param "-c${code_input_dir}")
     endif()
 
+    set (rm_tmp_tgt ${APP_NAME}.${name}_rm_tmp_tgt)
+    add_custom_target(${rm_tmp_tgt}
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
+    )
+
     add_custom_command(
         OUTPUT ${output_dir}.tmp
-        DEPENDS ${schema_file} ${APP_NAME}
-        COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
+        DEPENDS ${schema_file} ${APP_NAME} ${rm_tmp_tgt}
         COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err -o ${output_dir}.tmp "${code_input_param}" ${schema_file}
     )
 
-    set (output_tgt ${name}_output_tgt)
+    set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}"
