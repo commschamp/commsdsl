@@ -111,7 +111,17 @@ bool OptionalFieldImpl::parseImpl()
         updateExternalModeCtrl() &&
         updateField() &&
         updateSingleCondition() &&
-        updateMultiCondition();
+            updateMultiCondition();
+}
+
+bool OptionalFieldImpl::verifySiblingsImpl(const FieldsList& fields) const
+{
+    auto& c = cond();
+    if (!c) {
+        return true;
+    }
+
+    return c->verify(fields, getNode(), protocol().logger());
 }
 
 std::size_t OptionalFieldImpl::minLengthImpl() const

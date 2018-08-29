@@ -285,22 +285,9 @@ bool InterfaceImpl::updateFields()
                 return false;
             }
 
-            do {
-                if (field->kind() != FieldImpl::Kind::Optional) {
-                    break;
-                }
-
-                auto& optField = static_cast<OptionalFieldImpl&>(*field);
-                auto& cond = optField.cond();
-                if (!cond) {
-                    break;
-                }
-
-                if (!cond->verify(m_fields, field->getNode(), m_protocol.logger())) {
-                    return false;
-                }
-
-            } while (false);
+            if (!field->verifySiblings(m_fields)) {
+                return false;
+            }
 
             m_fields.push_back(std::move(field));
         }

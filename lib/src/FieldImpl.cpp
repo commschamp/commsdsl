@@ -280,6 +280,12 @@ bool FieldImpl::parseImpl()
     return true;
 }
 
+bool FieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const
+{
+    static_cast<void>(fields);
+    return true;
+}
+
 std::size_t FieldImpl::maxLengthImpl() const
 {
     return this->minLengthImpl();

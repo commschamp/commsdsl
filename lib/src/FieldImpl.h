@@ -39,6 +39,10 @@ public:
     }
 
     bool parse();
+    bool verifySiblings(const FieldsList& fields) const
+    {
+        return verifySiblingsImpl(fields);
+    }
 
     const PropsMap& props() const
     {
@@ -172,6 +176,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool reuseImpl(const FieldImpl& other);
     virtual bool parseImpl();
+    virtual bool verifySiblingsImpl(const FieldsList& fields) const;
     virtual std::size_t minLengthImpl() const = 0;
     virtual std::size_t maxLengthImpl() const;
     virtual std::size_t bitLengthImpl() const;

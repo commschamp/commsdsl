@@ -211,22 +211,9 @@ bool BundleFieldImpl::updateMembers()
                 return false;
             }
 
-            do {
-                if (mem->kind() != Kind::Optional) {
-                    break;
-                }
-
-                auto& optMem = static_cast<OptionalFieldImpl&>(*mem);
-                auto& cond = optMem.cond();
-                if (!cond) {
-                    break;
-                }
-
-                if (!cond->verify(m_members, mem->getNode(), protocol().logger())) {
-                    return false;
-                }
-
-            } while (false);
+            if (!mem->verifySiblings(m_members)) {
+                return false;
+            }
 
             m_members.push_back(std::move(mem));
         }

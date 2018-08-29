@@ -55,6 +55,10 @@ public:
         return m_cond;
     }
 
+    const OptCondImplPtr& cond() const
+    {
+        return m_cond;
+    }
 
 protected:
     virtual Kind kindImpl() const override;
@@ -64,6 +68,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
+    virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
 
