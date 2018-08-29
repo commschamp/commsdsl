@@ -1,6 +1,8 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <iterator>
+#include <string>
 
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
@@ -26,8 +28,15 @@ std::vector<std::string> getFilesList(
         if (fileName.empty()) {
             break;
         }
+        
+        std::ifstream stream(fileName);
+        if (!stream) {
+            break;
+        }
+        
+        std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
 
-        ba::split(result, fileName, ba::is_any_of("\r\n"), ba::token_compress_on);
+        ba::split(result, contents, ba::is_any_of("\r\n"), ba::token_compress_on);
         if (prefix.empty()) {
             break;
         }
