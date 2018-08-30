@@ -109,6 +109,21 @@ public:
     static std::string getPublicRefreshForFields(const FieldsList& fields, bool forMessage);
     static std::string getPrivateRefreshForFields(const FieldsList& fields);
 
+    std::string getPrivateRefreshBody(const FieldsList& fields) const
+    {
+        return getPrivateRefreshBodyImpl(fields);
+    }
+
+    bool requiresReadPreparation() const
+    {
+        return requiresReadPreparationImpl();
+    }
+
+    std::string getReadPreparation() const
+    {
+        return getReadPreparationImpl();
+    }
+
     std::string getPluginCreatePropsFunc(
         const std::string& scope,
         bool forcedSerialisedHidden,
@@ -167,6 +182,9 @@ protected:
         bool forcedSerialisedHidden,
         bool serHiddenParam) const;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const;
+    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const;
+    virtual bool requiresReadPreparationImpl() const;
+    virtual std::string getReadPreparationImpl() const;
 
     std::string getNameFunc() const;
 

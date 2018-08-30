@@ -98,7 +98,7 @@ bool StringFieldImpl::parseImpl()
         updateLength() &&
         updatePrefix() &&
         updateZeroTerm() &&
-            updateDefaultValue();
+        updateDefaultValue();
 }
 
 bool StringFieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const

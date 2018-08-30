@@ -269,6 +269,45 @@ std::string OptionalField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(options, "\n", common::emptyString());
 }
 
+std::string OptionalField::getPrivateRefreshBodyImpl(const Field::FieldsList& fields) const
+{
+    auto c = cond();
+    if (!c.valid()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "auto mode = comms::field::OptionalMode::Missing;\n"
+        "if (#^#COND#$#) {\n"
+        "    mode = comms::field::OptionalMode::Exists;\n"
+        "}\n\n"
+        "if (field_#^#NAME#$#()#^#FIELD_ACC#$#.getMode() == mode) {\n"
+        "    return false;\n"
+        "}\n\n"
+        "field_#^#NAME#$#()#^#FIELD_ACC#$#.setMode(mode);\n"
+        "return true;\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("COND", dslCondToString(fields, c)));
+
+    if (isVersionOptional()) {
+        replacements.insert(std::make_pair("FIELD_ACC", ".field()"));
+    }
+
+    return common::processTemplate(Templ, replacements);
+}
+
+bool OptionalField::requiresReadPreparationImpl() const
+{
+    return cond().valid();
+}
+
+std::string OptionalField::getReadPreparationImpl() const
+{
+    return "refresh_" + common::nameToAccessCopy(name()) + "();\n";
+}
+
 std::string OptionalField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

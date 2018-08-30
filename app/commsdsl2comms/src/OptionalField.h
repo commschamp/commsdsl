@@ -31,6 +31,9 @@ protected:
         bool forcedSerialisedHidden,
         bool serHiddenParam) const override;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
+    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override;
+    virtual bool requiresReadPreparationImpl() const override;
+    virtual std::string getReadPreparationImpl() const override;
 
 private:
     using StringsList = common::StringsList;

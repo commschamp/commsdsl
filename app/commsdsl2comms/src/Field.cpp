@@ -436,25 +436,17 @@ bool Field::isVersionOptional() const
 
 std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
 {
-    std::vector<std::size_t> optionals;
+    std::vector<std::size_t> customReadFields;
     for (std::size_t idx = 0U; idx < fields.size(); ++idx) {
         auto& m = fields[idx];
 
         assert(m);
-        if (m->kind() != commsdsl::Field::Kind::Optional) {
-            continue;
+        if (m->requiresReadPreparation()) {
+            customReadFields.push_back(idx);
         }
-
-        auto* optField = static_cast<const OptionalField*>(m.get());
-        auto cond = optField->cond();
-        if (!cond.valid()) {
-            continue;
-        }
-
-        optionals.push_back(idx);
     }
 
-    if (optionals.empty()) {
+    if (customReadFields.empty()) {
         return common::emptyString();
     }
 
@@ -477,9 +469,9 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
 
     common::StringsList reads;
     std::size_t prevPos = 0U;
-    for (auto oPos : optionals) {
-        assert(oPos != 0);
-        auto& m = fields[oPos];
+    for (auto fPos : customReadFields) {
+        assert(fPos != 0);
+        auto& m = fields[fPos];
         auto accessName = common::nameToAccessCopy(m->name());
         if (prevPos == 0) {
             auto str = 
@@ -495,17 +487,19 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
             reads.push_back(std::move(str));
         }
 
-        reads.push_back("refresh_" + accessName + "();\n");
+        auto readPreparation = m->getReadPreparation();
+        assert(!readPreparation.empty());
+        reads.push_back(std::move(readPreparation));
 
-        if (oPos == optionals.back()) {
+        if (fPos == customReadFields.back()) {
             auto str = 
                 "es = Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len" + lenSuffixStr + ");\n"
                 "if (es != comms::ErrorStatus::Success) {\n"
                 "    return es;\n"
                 "}\n";
             reads.push_back(std::move(str));
-            prevPos = oPos;
-            continue;                
+            prevPos = fPos;
+            continue;
         }
 
         auto prevName = common::nameToAccessCopy(fields[prevPos]->name());
@@ -518,7 +512,7 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
             str += "consumedLen += Base::template " + lengthFromUntilStr + "<FieldIdx_" + prevName + ", FieldIdx_" + accessName + ">();\n";
         }
         reads.push_back(std::move(str));
-        prevPos = oPos;
+        prevPos = fPos;
     }
 
     static const std::string Templ =
@@ -587,38 +581,20 @@ std::string Field::getPrivateRefreshForFields(const Field::FieldsList& fields)
     common::StringsList funcs;
     for (auto& m : fields) {
         assert(m);
-        if (m->kind() != commsdsl::Field::Kind::Optional) {
-            continue;
-        }
-
-        auto* optField = static_cast<const OptionalField*>(m.get());
-        auto cond = optField->cond();
-        if (!cond.valid()) {
+        auto body = m->getPrivateRefreshBody(fields);
+        if (body.empty()) {
             continue;
         }
 
         static const std::string Templ =
             "bool refresh_#^#NAME#$#()\n"
             "{\n"
-            "    auto mode = comms::field::OptionalMode::Missing;\n"
-            "    if (#^#COND#$#) {\n"
-            "        mode = comms::field::OptionalMode::Exists;\n"
-            "    }\n\n"
-            "    if (field_#^#NAME#$#()#^#FIELD_ACC#$#.getMode() == mode) {\n"
-            "        return false;\n"
-            "    }\n\n"
-            "    field_#^#NAME#$#()#^#FIELD_ACC#$#.setMode(mode);\n"
-            "    return true;\n"
+            "    #^#BODY#$#\n"
             "}\n";
 
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(m->name())));
-        replacements.insert(std::make_pair("COND", dslCondToString(fields, cond)));
-
-        if (optField->isVersionOptional()) {
-            replacements.insert(std::make_pair("FIELD_ACC", ".field()"));
-        }
-
+        replacements.insert(std::make_pair("BODY", std::move(body)));
         funcs.push_back(common::processTemplate(Templ, replacements));
     }
 
@@ -877,6 +853,22 @@ std::string Field::getPluginAnonNamespaceImpl(
 std::string Field::getPluginPropertiesImpl(bool serHiddenParam) const
 {
     static_cast<void>(serHiddenParam);
+    return common::emptyString();
+}
+
+std::string Field::getPrivateRefreshBodyImpl(const FieldsList& fields) const
+{
+    static_cast<void>(fields);
+    return common::emptyString();
+}
+
+bool Field::requiresReadPreparationImpl() const
+{
+    return false;
+}
+
+std::string Field::getReadPreparationImpl() const
+{
     return common::emptyString();
 }
 
