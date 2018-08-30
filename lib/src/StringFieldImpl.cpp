@@ -9,6 +9,7 @@
 #include "common.h"
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
+#include "RefFieldImpl.h"
 #include "util.h"
 
 namespace commsdsl
@@ -97,7 +98,49 @@ bool StringFieldImpl::parseImpl()
         updateLength() &&
         updatePrefix() &&
         updateZeroTerm() &&
-        updateDefaultValue();
+            updateDefaultValue();
+}
+
+bool StringFieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const
+{
+    if (m_state.m_detachedPrefixField.empty()) {
+        return true;
+    }
+
+    auto iter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [this](auto& f)
+            {
+                return f->name() == m_state.m_detachedPrefixField;
+            });
+
+    if (iter == fields.end()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The holding bundle/message does not contain field named \"" <<
+            m_state.m_detachedPrefixField << "\".";
+        return false;
+    }
+
+    auto fieldKind = (*iter)->kind();
+    if (fieldKind == Kind::Int) {
+        return true;
+    }
+
+    const FieldImpl* referee = iter->get();
+    while (referee->kind() == Kind::Ref) {
+        auto* castedField = static_cast<const RefFieldImpl*>(referee);
+        referee = castedField->fieldImpl();
+        assert(referee != nullptr);
+    }
+
+    if (referee->kind() != Kind::Int) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Detached length prefix is expected to be of \"" << common::intStr() << "\" type.";
+        return false;
+    }
+
+    return true;
 }
 
 std::size_t StringFieldImpl::minLengthImpl() const
@@ -285,6 +328,26 @@ bool StringFieldImpl::checkPrefixFromRef()
         return true;
     }
 
+    auto& str = iter->second;
+    if (str.empty()) {
+        reportUnexpectedPropertyValue(common::lengthPrefixStr(), str);
+        return false;
+    }
+
+    if (str[0] == '$') {
+        m_state.m_detachedPrefixField = std::string(str, 1);
+        common::normaliseString(m_state.m_detachedPrefixField);
+
+        if (m_state.m_detachedPrefixField.empty()) {
+            reportUnexpectedPropertyValue(common::lengthPrefixStr(), str);
+            return false;
+        }
+
+        m_state.m_extPrefixField = nullptr;
+        m_prefixField.reset();
+        return true;
+    }
+
     auto* field = protocol().findField(iter->second);
     if (field == nullptr) {
         logError() << XmlWrap::logPrefix(getNode()) <<
@@ -302,6 +365,7 @@ bool StringFieldImpl::checkPrefixFromRef()
 
     m_prefixField.reset();
     m_state.m_extPrefixField = field;
+    m_state.m_detachedPrefixField.clear();
     assert(hasPrefixField());
     return true;
 }
@@ -363,6 +427,7 @@ bool StringFieldImpl::checkPrefixAsChild()
     }
 
     m_state.m_extPrefixField = nullptr;
+    m_state.m_detachedPrefixField.clear();
     m_prefixField = std::move(field);
     return true;
 }

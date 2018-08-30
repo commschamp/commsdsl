@@ -59,4 +59,9 @@ bool StringField::hasZeroTermSuffix() const
     return cast(m_pImpl)->hasZeroTermSuffix();
 }
 
+const std::string& StringField::detachedPrefixFieldName() const
+{
+    return cast(m_pImpl)->detachedPrefixFieldName();
+}
+
 } // namespace commsdsl

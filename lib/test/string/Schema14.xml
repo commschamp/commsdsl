@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema14"
+        id="1"
+        endian="big">
+    <message name="M1" id="1">
+        <int name="F1" type="uint8" />
+        <enum name="F2" type="uint8">
+            <validValue name="V1" val="1" />
+        </enum>
+        <string name="F3" lengthPrefix="$F1" />
+    </message>
+</schema>

@@ -20,6 +20,10 @@ public:
     void test11();
     void test12();
     void test13();
+    void test14();
+    void test15();
+    void test16();
+    void test17();
 };
 
 void StringTestSuite::setUp()
@@ -59,6 +63,7 @@ void StringTestSuite::test1()
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
     TS_ASSERT(!stringField.lengthPrefixField().valid());
     TS_ASSERT(!stringField.hasZeroTermSuffix());
+    TS_ASSERT(stringField.detachedPrefixFieldName().empty());
 }
 
 void StringTestSuite::test2()
@@ -89,6 +94,7 @@ void StringTestSuite::test2()
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
     TS_ASSERT(!stringField.lengthPrefixField().valid());
     TS_ASSERT(!stringField.hasZeroTermSuffix());
+    TS_ASSERT(stringField.detachedPrefixFieldName().empty());
 }
 
 void StringTestSuite::test3()
@@ -115,6 +121,7 @@ void StringTestSuite::test3()
     TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), true);
     TS_ASSERT(!stringField.hasZeroTermSuffix());
+    TS_ASSERT(stringField.detachedPrefixFieldName().empty());
 
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
@@ -146,6 +153,7 @@ void StringTestSuite::test4()
     TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), true);
     TS_ASSERT(!stringField.hasZeroTermSuffix());
+    TS_ASSERT(stringField.detachedPrefixFieldName().empty());
 
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
@@ -202,6 +210,7 @@ void StringTestSuite::test8()
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
     TS_ASSERT(!stringField.lengthPrefixField().valid());
     TS_ASSERT(!stringField.hasZeroTermSuffix());
+    TS_ASSERT(stringField.detachedPrefixFieldName().empty());
 }
 
 void StringTestSuite::test9()
@@ -230,6 +239,7 @@ void StringTestSuite::test9()
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
     TS_ASSERT(!stringField.lengthPrefixField().valid());
     TS_ASSERT(!stringField.hasZeroTermSuffix());
+    TS_ASSERT(stringField.detachedPrefixFieldName().empty());
 }
 
 void StringTestSuite::test10()
@@ -267,6 +277,7 @@ void StringTestSuite::test11()
     TS_ASSERT(lenField.valid());
     TS_ASSERT(!stringField.hasZeroTermSuffix());
     TS_ASSERT_EQUALS(lenField.externalRef(), "ns1.Prefix");
+    TS_ASSERT(stringField.detachedPrefixFieldName().empty());
 }
 
 void StringTestSuite::test12()
@@ -282,5 +293,85 @@ void StringTestSuite::test13()
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test14()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg = messages.front();
+    auto fields = msg.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT(stringField.defaultValue().empty());
+    TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
+    TS_ASSERT(!stringField.hasLengthPrefixField());
+    auto lenField = stringField.lengthPrefixField();
+    TS_ASSERT_EQUALS(stringField.detachedPrefixFieldName(), "F1");
+    TS_ASSERT(!lenField.valid());
+    TS_ASSERT(!stringField.hasZeroTermSuffix());
+}
+
+void StringTestSuite::test15()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test16()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg = messages.front();
+    auto fields = msg.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT(stringField.defaultValue().empty());
+    TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
+    TS_ASSERT(!stringField.hasLengthPrefixField());
+    auto lenField = stringField.lengthPrefixField();
+    TS_ASSERT_EQUALS(stringField.detachedPrefixFieldName(), "F1");
+    TS_ASSERT(!lenField.valid());
+    TS_ASSERT(!stringField.hasZeroTermSuffix());
+}
+
+void StringTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
 }

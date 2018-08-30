@@ -20,6 +20,7 @@ public:
     bool hasLengthPrefixField() const;
     Field lengthPrefixField() const;
     bool hasZeroTermSuffix() const;
+    const std::string& detachedPrefixFieldName() const;
 };
 
 } // namespace commsdsl
