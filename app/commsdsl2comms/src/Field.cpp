@@ -444,7 +444,7 @@ std::string Field::getReadForFields(
         auto& m = fields[idx];
 
         assert(m);
-        if (m->requiresReadPreparation()) {
+        if (m->hasCustomReadRefresh()) {
             customReadFields.push_back(idx);
         }
     }
@@ -539,18 +539,14 @@ std::string Field::getReadForFields(
     return common::processTemplate(Templ, replacements);
 }
 
-std::string Field::getPublicRefreshForFields(const Field::FieldsList& fields, bool forMessage)
+std::string Field::getPublicRefreshForFields(
+    const Field::FieldsList& fields, 
+    bool forMessage)
 {
     common::StringsList calls;
     for (auto& m : fields) {
         assert(m);
-        if (m->kind() != commsdsl::Field::Kind::Optional) {
-            continue;
-        }
-
-        auto* optField = static_cast<const OptionalField*>(m.get());
-        auto cond = optField->cond();
-        if (!cond.valid()) {
+        if (!m->hasCustomReadRefresh()) {
             continue;
         }
 
@@ -582,6 +578,7 @@ std::string Field::getPublicRefreshForFields(const Field::FieldsList& fields, bo
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CALLS", common::listToString(calls, "\n", common::emptyString())));
     replacements.insert(std::make_pair("FUNC", std::move(func)));
+
     return common::processTemplate(Templ, replacements);
 }
 
@@ -871,7 +868,7 @@ std::string Field::getPrivateRefreshBodyImpl(const FieldsList& fields) const
     return common::emptyString();
 }
 
-bool Field::requiresReadPreparationImpl() const
+bool Field::hasCustomReadRefreshImpl() const
 {
     return false;
 }

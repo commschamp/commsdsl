@@ -298,7 +298,7 @@ std::string OptionalField::getPrivateRefreshBodyImpl(const Field::FieldsList& fi
     return common::processTemplate(Templ, replacements);
 }
 
-bool OptionalField::requiresReadPreparationImpl() const
+bool OptionalField::hasCustomReadRefreshImpl() const
 {
     return cond().valid();
 }

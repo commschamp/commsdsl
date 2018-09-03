@@ -10,7 +10,6 @@
 #include <boost/algorithm/string.hpp>
 
 #include "Generator.h"
-#include "OptionalField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -712,17 +711,9 @@ std::string Message::getExtraPublic() const
 bool Message::mustImplementReadRefresh() const
 {
     for (auto& f : m_fields) {
-        if (f->kind() != commsdsl::Field::Kind::Optional) {
-            continue;
+        if (f->hasCustomReadRefresh()) {
+            return true;
         }
-
-        auto* optField = static_cast<const OptionalField*>(f.get());
-        auto cond = optField->cond();
-        if (!cond.valid()) {
-            continue;
-        }
-
-        return true;
     }
     return false;
 }

@@ -32,7 +32,8 @@ protected:
         const Field& field,
         const std::string& nameOverride,
         bool forcedVersionOptional) const override;
-    virtual bool requiresReadPreparationImpl() const;
+    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const;
+    virtual bool hasCustomReadRefreshImpl() const;
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const;
 
 private:

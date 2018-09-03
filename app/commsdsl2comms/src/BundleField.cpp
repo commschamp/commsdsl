@@ -7,7 +7,6 @@
 
 #include "Generator.h"
 #include "common.h"
-#include "OptionalField.h"
 
 namespace ba = boost::algorithm;
 
@@ -223,21 +222,15 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
 
     updateExtraOptions(scope, options);
 
-    bool hasConditions =
+    bool hasCustomReadRefresh =
         std::any_of(
             m_members.begin(), m_members.end(),
             [](auto& m) {
                 assert(m);
-                if (m->kind() != commsdsl::Field::Kind::Optional) {
-                    return false;
-                }
-
-                auto* optField = static_cast<const OptionalField*>(m.get());
-                auto cond = optField->cond();
-                return cond.valid();
+                return m->hasCustomReadRefresh();
             });
 
-    if (hasConditions) {
+    if (hasCustomReadRefresh) {
         common::addToList("comms::option::HasCustomRead", options);
         common::addToList("comms::option::HasCustomRefresh", options);
     }

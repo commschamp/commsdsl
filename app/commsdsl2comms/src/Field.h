@@ -109,7 +109,9 @@ public:
         const FieldsList& fields,
         bool forMessage = false,
         bool updateVersion = false);
-    static std::string getPublicRefreshForFields(const FieldsList& fields, bool forMessage);
+    static std::string getPublicRefreshForFields(
+        const FieldsList& fields, 
+        bool forMessage = false);
     static std::string getPrivateRefreshForFields(const FieldsList& fields);
 
     std::string getPrivateRefreshBody(const FieldsList& fields) const
@@ -117,9 +119,9 @@ public:
         return getPrivateRefreshBodyImpl(fields);
     }
 
-    bool requiresReadPreparation() const
+    bool hasCustomReadRefresh() const
     {
-        return requiresReadPreparationImpl();
+        return hasCustomReadRefreshImpl();
     }
 
     std::string getReadPreparation(const FieldsList& fields) const
@@ -186,7 +188,7 @@ protected:
         bool serHiddenParam) const;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const;
     virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const;
-    virtual bool requiresReadPreparationImpl() const;
+    virtual bool hasCustomReadRefreshImpl() const;
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const;
 
     std::string getNameFunc() const;

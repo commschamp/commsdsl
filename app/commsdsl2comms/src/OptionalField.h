@@ -32,7 +32,7 @@ protected:
         bool serHiddenParam) const override;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
     virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override;
-    virtual bool requiresReadPreparationImpl() const override;
+    virtual bool hasCustomReadRefreshImpl() const override;
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const override;
 
 private:

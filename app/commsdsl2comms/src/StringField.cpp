@@ -276,7 +276,56 @@ std::string StringField::getCompareToFieldImpl(
             compareExpr + ")";
 }
 
-bool StringField::requiresReadPreparationImpl() const
+std::string StringField::getPrivateRefreshBodyImpl(const FieldsList& fields) const
+{
+    auto obj = stringFieldDslObj();
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (detachedPrefixName.empty()) {
+        return common::emptyString();
+    }
+
+    auto iter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [&detachedPrefixName](auto& f)
+            {
+                return f->name() == detachedPrefixName;
+            });
+
+    if (iter == fields.end()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    bool lenVersionOptional = (*iter)->isVersionOptional();
+
+    static const std::string Templ = 
+        "bool updated = field_#^#NAME#$#().refresh();\n"
+        "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value());\n"
+        "auto realLength = field_#^#NAME#$#()#^#STR_ACC#$#.value().size();\n"
+        "if (expectedLength != realLength) {\n"
+        "    using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value())>::type;\n"
+        "    field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value() = static_cast<LenValueType>(realLength);\n"
+        "    return true;\n"
+        "}\n\n"
+        "return updated;";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("LEN_NAME", common::nameToAccessCopy(detachedPrefixName)));
+
+    if (isVersionOptional()) {
+        replacements.insert(std::make_pair("STR_ACC", ".field()"));
+    }
+
+    if (lenVersionOptional) {
+        replacements.insert(std::make_pair("LEN_ACC", ".field()"));
+    }
+    
+    return common::processTemplate(Templ, replacements);
+}
+
+bool StringField::hasCustomReadRefreshImpl() const
 {
     return !stringFieldDslObj().detachedPrefixFieldName().empty();
 }
