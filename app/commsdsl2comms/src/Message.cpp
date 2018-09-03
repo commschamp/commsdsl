@@ -678,7 +678,7 @@ std::string Message::getReadFunc() const
         return str;
     }
 
-    return Field::getReadForFields(m_fields, true);
+    return Field::getReadForFields(m_fields, true, m_generator.versionDependentCode());
 }
 
 std::string Message::getRefreshFunc() const

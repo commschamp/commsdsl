@@ -105,7 +105,10 @@ public:
         m_focedFailOnInvalid = true;
     }
 
-    static std::string getReadForFields(const FieldsList& fields, bool forMessage);
+    static std::string getReadForFields(
+        const FieldsList& fields,
+        bool forMessage = false,
+        bool updateVersion = false);
     static std::string getPublicRefreshForFields(const FieldsList& fields, bool forMessage);
     static std::string getPrivateRefreshForFields(const FieldsList& fields);
 
@@ -119,9 +122,9 @@ public:
         return requiresReadPreparationImpl();
     }
 
-    std::string getReadPreparation() const
+    std::string getReadPreparation(const FieldsList& fields) const
     {
-        return getReadPreparationImpl();
+        return getReadPreparationImpl(fields);
     }
 
     std::string getPluginCreatePropsFunc(
@@ -184,7 +187,7 @@ protected:
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const;
     virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const;
     virtual bool requiresReadPreparationImpl() const;
-    virtual std::string getReadPreparationImpl() const;
+    virtual std::string getReadPreparationImpl(const FieldsList& fields) const;
 
     std::string getNameFunc() const;
 

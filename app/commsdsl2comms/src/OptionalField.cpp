@@ -303,8 +303,9 @@ bool OptionalField::requiresReadPreparationImpl() const
     return cond().valid();
 }
 
-std::string OptionalField::getReadPreparationImpl() const
+std::string OptionalField::getReadPreparationImpl(const FieldsList& fields) const
 {
+    static_cast<void>(fields);
     return "refresh_" + common::nameToAccessCopy(name()) + "();\n";
 }
 

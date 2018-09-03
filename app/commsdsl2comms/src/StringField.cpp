@@ -273,7 +273,82 @@ std::string StringField::getCompareToFieldImpl(
     return
         "field_" + usedName + "().doesExist() &&\n" +
         "field_" + fieldName + "().doesExist() &&\n(" +
-        compareExpr + ")";
+            compareExpr + ")";
+}
+
+bool StringField::requiresReadPreparationImpl() const
+{
+    return !stringFieldDslObj().detachedPrefixFieldName().empty();
+}
+
+std::string StringField::getReadPreparationImpl(const FieldsList& fields) const
+{
+    auto obj = stringFieldDslObj();
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (detachedPrefixName.empty()) {
+        return common::emptyString();
+    }
+
+    bool versionOptional = isVersionOptional();
+
+    auto iter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [&detachedPrefixName](auto& f)
+            {
+                return f->name() == detachedPrefixName;
+            });
+
+    if (iter == fields.end()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    bool lenVersionOptional = (*iter)->isVersionOptional();
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("LEN_NAME", common::nameToAccessCopy(detachedPrefixName)));
+
+    if ((!versionOptional) && (!lenVersionOptional)) {
+        static const std::string Templ =
+            "field_#^#NAME#$#().forceReadLength(\n"
+            "    static_cast<std::size_t>(\n"
+            "        field_#^#LEN_NAME#$#().value()));\n";
+
+        return common::processTemplate(Templ, replacements);
+    }
+
+    if ((versionOptional) && (!lenVersionOptional)) {
+        static const std::string Templ =
+            "if (field_#^#NAME#$#().doesExist()) {\n"
+            "    field_#^#NAME#$#().field().forceReadLength(\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n"
+            "}\n";
+
+        return common::processTemplate(Templ, replacements);
+    }
+
+    if ((!versionOptional) && (lenVersionOptional)) {
+        static const std::string Templ =
+            "if (field_#^#LEN_NAME#$#().doesExist()) {\n"
+            "    field_#^#NAME#$#().forceReadLength(\n"
+            "        static_cast<std::size_t>(\n"
+            "            field_#^#LEN_NAME#$#().field().value()));\n"
+            "}\n";
+
+        return common::processTemplate(Templ, replacements);
+    }
+
+    assert(versionOptional && lenVersionOptional);
+    static const std::string Templ =
+        "if (field_#^#NAME#$#().doesExist() && field_#^#LEN_NAME#$#().doesExist()) {\n"
+        "    field_#^#NAME#$#().field().forceReadLength(\n"
+        "        static_cast<std::size_t>(\n"
+        "            field_#^#LEN_NAME#$#().field().value()));\n"
+        "}\n";
+
+    return common::processTemplate(Templ, replacements);
 }
 
 std::string StringField::getFieldOpts(const std::string& scope) const
@@ -284,6 +359,7 @@ std::string StringField::getFieldOpts(const std::string& scope) const
     checkFixedLengthOpt(options);
     checkPrefixOpt(options);
     checkSuffixOpt(options);
+    checkForcingOpt(options);
 
     return common::listToString(options, ",\n", common::emptyString());
 }
@@ -411,6 +487,17 @@ void StringField::checkSuffixOpt(StringField::StringsList& list) const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     list.push_back(common::processTemplate(Templ, replacements));
+}
+
+void StringField::checkForcingOpt(StringsList& list) const
+{
+    auto obj = stringFieldDslObj();
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (detachedPrefixName.empty()) {
+        return;
+    }
+
+    common::addToList("comms::option::SequenceLengthForcingEnabled", list);
 }
 
 } // namespace commsdsl2comms

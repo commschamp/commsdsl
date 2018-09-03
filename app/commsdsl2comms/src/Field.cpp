@@ -434,7 +434,10 @@ bool Field::isVersionOptional() const
              m_dslObj.isDeprecatedRemoved()));
 }
 
-std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
+std::string Field::getReadForFields(
+    const FieldsList& fields,
+    bool forMessage,
+    bool updateVersion)
 {
     std::vector<std::size_t> customReadFields;
     for (std::size_t idx = 0U; idx < fields.size(); ++idx) {
@@ -487,7 +490,7 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
             reads.push_back(std::move(str));
         }
 
-        auto readPreparation = m->getReadPreparation();
+        auto readPreparation = m->getReadPreparation(fields);
         assert(!readPreparation.empty());
         reads.push_back(std::move(readPreparation));
 
@@ -520,6 +523,7 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
         "template <typename TIter>\n"
         "comms::ErrorStatus #^#READ_FUNC#$#(TIter& iter, std::size_t len)\n"
         "{\n"
+        "    #^#UPDATE_VERSION#$#\n"
         "    #^#READS#$#\n"
         "    return comms::ErrorStatus::Success;\n"
         "}\n";
@@ -527,6 +531,11 @@ std::string Field::getReadForFields(const FieldsList& fields, bool forMessage)
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("READS", common::listToString(reads, "\n", common::emptyString())));
     replacements.insert(std::make_pair("READ_FUNC", std::move(readFunc)));
+
+    if (updateVersion) {
+        assert(forMessage);
+        replacements.insert(std::make_pair("UPDATE_VERSION", "Base::doFieldsVersionUpdate();\n"));
+    }
     return common::processTemplate(Templ, replacements);
 }
 
@@ -867,8 +876,9 @@ bool Field::requiresReadPreparationImpl() const
     return false;
 }
 
-std::string Field::getReadPreparationImpl() const
+std::string Field::getReadPreparationImpl(const FieldsList& fields) const
 {
+    static_cast<void>(fields);
     return common::emptyString();
 }
 

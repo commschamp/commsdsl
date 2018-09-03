@@ -320,7 +320,7 @@ std::string BundleField::getRead() const
         return customRead;
     }
 
-    return getReadForFields(m_members, false);
+    return getReadForFields(m_members);
 }
 
 std::string BundleField::getRefresh() const
