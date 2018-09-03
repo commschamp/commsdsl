@@ -300,7 +300,6 @@ std::string StringField::getPrivateRefreshBodyImpl(const FieldsList& fields) con
     bool lenVersionOptional = (*iter)->isVersionOptional();
 
     static const std::string Templ = 
-        "bool updated = field_#^#NAME#$#().refresh();\n"
         "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value());\n"
         "auto realLength = field_#^#NAME#$#()#^#STR_ACC#$#.value().size();\n"
         "if (expectedLength != realLength) {\n"
@@ -308,7 +307,7 @@ std::string StringField::getPrivateRefreshBodyImpl(const FieldsList& fields) con
         "    field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value() = static_cast<LenValueType>(realLength);\n"
         "    return true;\n"
         "}\n\n"
-        "return updated;";
+        "return false;";
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));

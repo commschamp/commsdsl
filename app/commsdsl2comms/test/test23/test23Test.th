@@ -66,7 +66,7 @@ void TestSuite::test2()
         TS_ASSERT(msgPtr);
         TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M2);
         auto* msg = static_cast<const Msg2*>(msgPtr.get());
-        TS_ASSERT_EQUALS(msg->field_str().doesExist());
+        TS_ASSERT(msg->field_str().doesExist());
         TS_ASSERT_EQUALS(msg->field_str().field().value(), "hello");
 
         msgPtr->version() = 1U;
