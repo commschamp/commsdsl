@@ -598,9 +598,13 @@ void IntField::checkLengthOpt(StringsList& list) const
 
     assert(LengthMap[idx] != 0);
     if (LengthMap[idx] != obj.minLength()) {
+        std::string secondParam;
+        if (!obj.signExt()) {
+            secondParam = ", false";
+        }
         auto str =
             "comms::option::FixedLength<" +
-            common::numToString(obj.minLength()) +
+            common::numToString(obj.minLength()) + secondParam +
             '>';
         list.push_back(std::move(str));
     }

@@ -3,6 +3,7 @@
 #include "test23/Message.h"
 #include "test23/message/Msg1.h"
 #include "test23/message/Msg2.h"
+#include "test23/message/Msg3.h"
 #include "test23/frame/Frame.h"
 
 class TestSuite : public CxxTest::TestSuite
@@ -25,6 +26,7 @@ public:
 
     using Msg1 = test23::message::Msg1<Interface>;
     using Msg2 = test23::message::Msg2<Interface>;
+    using Msg3 = test23::message::Msg3<Interface>;
     using Frame = test23::frame::Frame<Interface>;
 };
 
@@ -101,7 +103,7 @@ void TestSuite::test3()
     do {
         static const std::uint8_t Buf1[] =
         {
-            2, 3, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
+            3, 3, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
         };
         static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
@@ -112,8 +114,8 @@ void TestSuite::test3()
         auto es = frame.read(msgPtr, readIter, Buf1Size);
         TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
         TS_ASSERT(msgPtr);
-        TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M2);
-        auto* msg = static_cast<const Msg2*>(msgPtr.get());
+        TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M3);
+        auto* msg = static_cast<const Msg3*>(msgPtr.get());
         TS_ASSERT(msg->field_str().doesExist());
         TS_ASSERT_EQUALS(msg->field_str().field().value(), "hello");
 
@@ -126,7 +128,7 @@ void TestSuite::test3()
 
         static const std::uint8_t Buf2[] =
         {
-            2, 1, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
+            3, 1, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
         };
         static const std::size_t Buf2Size = std::extent<decltype(Buf2)>::value;
 
@@ -137,8 +139,8 @@ void TestSuite::test3()
         auto es = frame.read(msgPtr, readIter, Buf2Size);
         TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
         TS_ASSERT(msgPtr);
-        TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M2);
-        auto* msg = static_cast<const Msg2*>(msgPtr.get());
+        TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M3);
+        auto* msg = static_cast<const Msg3*>(msgPtr.get());
         TS_ASSERT(msg->field_str().isMissing());
     } while (false);
 }

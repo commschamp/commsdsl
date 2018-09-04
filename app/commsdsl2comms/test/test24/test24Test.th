@@ -1,0 +1,46 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test24/Message.h"
+#include "test24/message/Msg1.h"
+#include "test24/frame/Frame.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+
+    using Interface =
+        test24::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Msg1 = test24::message::Msg1<Interface>;
+    using Frame = test24::frame::Frame<Interface>;
+};
+
+void TestSuite::test1()
+{
+    static const std::uint8_t Buf1[] =
+    {
+        1, 0x87, 0x54, 0xa2, 0x03, 0xb9
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test24::MsgId_M1);
+    auto* msg = static_cast<const Msg1*>(msgPtr.get());
+    TS_ASSERT_LESS_THAN(std::abs(msg->field_longitude().getScaled<double>() - 2.67), 0.01);
+}
+
