@@ -72,6 +72,7 @@ public:
     bool validCheckVersion() const;
     unsigned displayDecimals() const;
     std::intmax_t displayOffset() const;
+    bool signExt() const;
 };
 
 inline

@@ -94,4 +94,9 @@ std::intmax_t IntField::displayOffset() const
     return cast(m_pImpl)->displayOffset();
 }
 
+bool IntField::signExt() const
+{
+    return cast(m_pImpl)->signExt();
+}
+
 } // namespace commsdsl

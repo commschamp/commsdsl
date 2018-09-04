@@ -29,7 +29,8 @@ public:
     void test20();
     void test21();
     void test22();
-
+    void test23();
+    void test24();
 };
 
 void IntTestSuite::setUp()
@@ -79,6 +80,7 @@ void IntTestSuite::test1()
     TS_ASSERT_EQUALS(scaling.second, 1);
     TS_ASSERT(validRanges.empty());
     TS_ASSERT(specialValues.empty());
+    TS_ASSERT(intField.signExt());
 }
 
 void IntTestSuite::test2()
@@ -1488,3 +1490,28 @@ void IntTestSuite::test22()
     verifyUnitsFunc(kvOffset, kvCount, commsdsl::Units::Kilovolts);
 }
 
+void IntTestSuite::test23()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    commsdsl::IntField intField(fields[0]);
+    TS_ASSERT(!intField.signExt());
+}
+
+void IntTestSuite::test24()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+}

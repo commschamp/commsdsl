@@ -92,6 +92,11 @@ public:
         return m_state.m_displayOffset;
     }
 
+    bool signExt() const
+    {
+        return m_state.m_signExt;
+    }
+
     static Type parseTypeValue(const std::string& value);
 
     static std::size_t maxTypeLength(Type t);
@@ -99,6 +104,7 @@ public:
     static std::intmax_t maxTypeValue(Type t);
     static std::intmax_t calcMinValue(Type t, std::size_t bitsLen);
     static std::intmax_t calcMaxValue(Type t, std::size_t bitsLen);
+    static bool isUnsigned(Type t);
     static bool isBigUnsigned(Type t)
     {
         return (t == Type::Uint64) || (t == Type::Uintvar);
@@ -134,6 +140,7 @@ private:
     bool updateUnits();
     bool updateDisplayDecimals();
     bool updateDisplayOffset();
+    bool updateSignExt();
     bool checkValidRangeAsAttr(const PropsMap& xmlAttrs);
     bool checkValidRangeAsChild(::xmlNodePtr child);
     bool checkValidRangeProps(const PropsMap& xmlAttrs);
@@ -169,6 +176,7 @@ private:
         unsigned m_displayDecimals = 0U;
         std::intmax_t m_displayOffset = 0U;
         bool m_validCheckVersion = false;
+        bool m_signExt = true;
     };
 
     State m_state;

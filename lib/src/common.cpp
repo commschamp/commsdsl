@@ -594,6 +594,11 @@ const std::string& hexAssignStr()
     return Str;
 }
 
+const std::string& signExtStr()
+{
+    static const std::string Str("signExt");
+    return Str;
+}
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {

@@ -828,7 +828,7 @@ bool IntField::isUnsigned() const
     auto type = obj.type();
 
     auto iter = std::find(std::begin(Map), std::end(Map), type);
-    return iter !=std::end(Map);
+    return iter != std::end(Map);
 }
 
 } // namespace commsdsl2comms

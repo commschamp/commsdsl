@@ -255,6 +255,20 @@ std::intmax_t IntFieldImpl::calcMaxValue(Type t, std::size_t bitsLen)
     return calcMaxFixedSignedValue(bitsLen);
 }
 
+bool IntFieldImpl::isUnsigned(Type t)
+{
+    static const Type Map[] = {
+        Type::Uint8,
+        Type::Uint16,
+        Type::Uint32,
+        Type::Uint64,
+        Type::Uintvar,
+    };
+
+    auto iter = std::find(std::begin(Map), std::end(Map), t);
+    return iter != std::end(Map);
+}
+
 bool IntFieldImpl::isTypeUnsigned(Type t)
 {
     static const IntFieldImpl::Type UnsignedTypes[] = {
@@ -297,7 +311,8 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::validMaxStr(),
         common::validCheckVersionStr(),
         common::displayDesimalsStr(),
-        common::displayOffsetStr()
+        common::displayOffsetStr(),
+        common::signExtStr()
     };
 
     return List;
@@ -336,7 +351,8 @@ bool IntFieldImpl::parseImpl()
         updateValidRanges() &&
         updateUnits() &&
         updateDisplayDecimals() &&
-        updateDisplayOffset();
+        updateDisplayOffset() &&
+        updateSignExt();
 }
 
 std::size_t IntFieldImpl::minLengthImpl() const
@@ -1086,6 +1102,33 @@ bool IntFieldImpl::updateDisplayOffset()
     if (!ok) {
         reportUnexpectedPropertyValue(common::displayOffsetStr(), iter->second);
         return false;
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::updateSignExt()
+{
+    if (!validateSinglePropInstance(common::signExtStr())) {
+        return false;
+    }
+
+    auto& valueStr = common::getStringProp(props(), common::signExtStr());
+    if (valueStr.empty()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_signExt = common::strToBool(valueStr, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::signExtStr(), valueStr);
+        return false;
+    }
+
+    if ((isUnsigned(m_state.m_type)) || (maxTypeLength(m_state.m_type) <= minLength())) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << common::signExtStr() << "\" is relevant only to signed types with "
+            "length limitation.";
     }
 
     return true;

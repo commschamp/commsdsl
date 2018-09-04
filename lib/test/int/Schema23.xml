@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema23"
+        id="1"
+        endian="big"
+        version="3">
+
+    <fields>
+        <int name="Int1" type="int64" length="5" units="rad" signExt="false">
+            <scaling value="1/100000000000" />
+            <serOffset value="314159265359" />
+        </int>
+    </fields>
+           
+</schema>
