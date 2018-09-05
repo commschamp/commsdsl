@@ -49,4 +49,9 @@ Field DataField::lengthPrefixField() const
     return cast(m_pImpl)->prefixField();
 }
 
+const std::string& DataField::detachedPrefixFieldName() const
+{
+    return cast(m_pImpl)->detachedPrefixFieldName();
+}
+
 } // namespace commsdsl

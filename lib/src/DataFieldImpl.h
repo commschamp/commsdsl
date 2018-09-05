@@ -45,6 +45,12 @@ public:
         return Field(m_prefixField.get());
     }
 
+    const std::string& detachedPrefixFieldName() const
+    {
+        return m_state.m_detachedPrefixField;
+    }
+
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -53,6 +59,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
+    virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
 
@@ -69,6 +76,7 @@ private:
         ValueType m_defaultValue;
         std::size_t m_length = 0U;
         const FieldImpl* m_extPrefixField = nullptr;
+        std::string m_detachedPrefixField;
     };
 
     State m_state;

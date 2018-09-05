@@ -367,6 +367,39 @@ const XmlWrap::NamesList& FieldImpl::commonChildren()
     return CommonChildren;
 }
 
+const FieldImpl* FieldImpl::findSibling(const FieldsList& fields, const std::string& sibName) const
+{
+    auto iter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [&sibName](auto& f)
+            {
+                return f->name() == sibName;
+            });
+
+    if (iter == fields.end()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The holding bundle/message does not contain field named \"" <<
+            sibName << "\".";
+
+        return nullptr;
+    }
+
+    return iter->get();
+}
+
+FieldImpl::Kind FieldImpl::getNonRefFieldKind(const FieldImpl& field)
+{
+    const FieldImpl* referee = &field;
+    while (referee->kind() == Kind::Ref) {
+        auto* castedField = static_cast<const RefFieldImpl*>(referee);
+        referee = castedField->fieldImpl();
+        assert(referee != nullptr);
+    }
+
+    return referee->kind();
+}
+
 bool FieldImpl::checkReuse()
 {
     if (!validateSinglePropInstance(common::reuseStr())) {

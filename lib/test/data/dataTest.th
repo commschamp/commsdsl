@@ -18,6 +18,8 @@ public:
     void test9();
     void test10();
     void test11();
+    void test12();
+    void test13();
 };
 
 void DataTestSuite::setUp()
@@ -256,6 +258,7 @@ void DataTestSuite::test10()
     commsdsl::IntField intLenPrefix(lenPrefix);
     TS_ASSERT_EQUALS(intLenPrefix.type(), commsdsl::IntField::Type::Uint16);
     TS_ASSERT_EQUALS(intLenPrefix.endian(), commsdsl::Endian_Little);
+    TS_ASSERT(dataField.detachedPrefixFieldName().empty());
 }
 
 void DataTestSuite::test11()
@@ -263,5 +266,39 @@ void DataTestSuite::test11()
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+}
+
+void DataTestSuite::test12()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg = messages.front();
+    auto fields = msg.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Data);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+
+    commsdsl::DataField dataField(field);
+    TS_ASSERT_EQUALS(dataField.detachedPrefixFieldName(), "F1");
+}
+
+void DataTestSuite::test13()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
 }

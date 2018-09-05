@@ -22,6 +22,7 @@ public:
     std::size_t fixedLength() const;
     bool hasLengthPrefixField() const;
     Field lengthPrefixField() const;
+    const std::string& detachedPrefixFieldName() const;
 };
 
 } // namespace commsdsl

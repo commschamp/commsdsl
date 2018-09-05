@@ -224,6 +224,129 @@ std::string DataField::getCompareToFieldImpl(
     return common::emptyString();
 }
 
+std::string DataField::getPrivateRefreshBodyImpl(const FieldsList& fields) const
+{
+    auto obj = dataFieldDslObj();
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (detachedPrefixName.empty()) {
+        return common::emptyString();
+    }
+
+    auto iter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [&detachedPrefixName](auto& f)
+            {
+                return f->name() == detachedPrefixName;
+            });
+
+    if (iter == fields.end()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    bool lenVersionOptional = (*iter)->isVersionOptional();
+
+    static const std::string Templ = 
+        "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value());\n"
+        "auto realLength = field_#^#NAME#$#()#^#STR_ACC#$#.value().size();\n"
+        "if (expectedLength != realLength) {\n"
+        "    using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value())>::type;\n"
+        "    field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value() = static_cast<LenValueType>(realLength);\n"
+        "    return true;\n"
+        "}\n\n"
+        "return false;";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("LEN_NAME", common::nameToAccessCopy(detachedPrefixName)));
+
+    if (isVersionOptional()) {
+        replacements.insert(std::make_pair("STR_ACC", ".field()"));
+    }
+
+    if (lenVersionOptional) {
+        replacements.insert(std::make_pair("LEN_ACC", ".field()"));
+    }
+    
+    return common::processTemplate(Templ, replacements);
+}
+
+bool DataField::hasCustomReadRefreshImpl() const
+{
+    return !dataFieldDslObj().detachedPrefixFieldName().empty();
+}
+
+std::string DataField::getReadPreparationImpl(const FieldsList& fields) const
+{
+    auto obj = dataFieldDslObj();
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (detachedPrefixName.empty()) {
+        return common::emptyString();
+    }
+
+    bool versionOptional = isVersionOptional();
+
+    auto iter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [&detachedPrefixName](auto& f)
+            {
+                return f->name() == detachedPrefixName;
+            });
+
+    if (iter == fields.end()) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    bool lenVersionOptional = (*iter)->isVersionOptional();
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    replacements.insert(std::make_pair("LEN_NAME", common::nameToAccessCopy(detachedPrefixName)));
+
+    if ((!versionOptional) && (!lenVersionOptional)) {
+        static const std::string Templ =
+            "field_#^#NAME#$#().forceReadLength(\n"
+            "    static_cast<std::size_t>(\n"
+            "        field_#^#LEN_NAME#$#().value()));\n";
+
+        return common::processTemplate(Templ, replacements);
+    }
+
+    if ((versionOptional) && (!lenVersionOptional)) {
+        static const std::string Templ =
+            "if (field_#^#NAME#$#().doesExist()) {\n"
+            "    field_#^#NAME#$#().field().forceReadLength(\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n"
+            "}\n";
+
+        return common::processTemplate(Templ, replacements);
+    }
+
+    if ((!versionOptional) && (lenVersionOptional)) {
+        static const std::string Templ =
+            "if (field_#^#LEN_NAME#$#().doesExist()) {\n"
+            "    field_#^#NAME#$#().forceReadLength(\n"
+            "        static_cast<std::size_t>(\n"
+            "            field_#^#LEN_NAME#$#().field().value()));\n"
+            "}\n";
+
+        return common::processTemplate(Templ, replacements);
+    }
+
+    assert(versionOptional && lenVersionOptional);
+    static const std::string Templ =
+        "if (field_#^#NAME#$#().doesExist() && field_#^#LEN_NAME#$#().doesExist()) {\n"
+        "    field_#^#NAME#$#().field().forceReadLength(\n"
+        "        static_cast<std::size_t>(\n"
+        "            field_#^#LEN_NAME#$#().field().value()));\n"
+        "}\n";
+
+    return common::processTemplate(Templ, replacements);
+}
+
 std::string DataField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;
@@ -231,6 +354,7 @@ std::string DataField::getFieldOpts(const std::string& scope) const
     updateExtraOptions(scope, options);
     checkFixedLengthOpt(options);
     checkPrefixOpt(options);
+    checkForcingOpt(options);
 
     return common::listToString(options, ",\n", common::emptyString());
 }
@@ -351,5 +475,15 @@ void DataField::checkPrefixOpt(DataField::StringsList& list) const
     list.push_back("comms::option::SequenceSerLengthFieldPrefix<" + prefixName + '>');
 }
 
+void DataField::checkForcingOpt(StringsList& list) const
+{
+    auto obj = dataFieldDslObj();
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (detachedPrefixName.empty()) {
+        return;
+    }
+
+    common::addToList("comms::option::SequenceLengthForcingEnabled", list);
+}
 
 } // namespace commsdsl2comms

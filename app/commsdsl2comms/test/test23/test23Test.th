@@ -4,6 +4,7 @@
 #include "test23/message/Msg1.h"
 #include "test23/message/Msg2.h"
 #include "test23/message/Msg3.h"
+#include "test23/message/Msg4.h"
 #include "test23/frame/Frame.h"
 
 class TestSuite : public CxxTest::TestSuite
@@ -12,6 +13,7 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
 
     using Interface =
         test23::Message<
@@ -27,22 +29,23 @@ public:
     using Msg1 = test23::message::Msg1<Interface>;
     using Msg2 = test23::message::Msg2<Interface>;
     using Msg3 = test23::message::Msg3<Interface>;
+    using Msg4 = test23::message::Msg4<Interface>;
     using Frame = test23::frame::Frame<Interface>;
 };
 
 void TestSuite::test1()
 {
-    static const std::uint8_t Buf1[] =
+    static const std::uint8_t Buf[] =
     {
         1, 3, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
     };
-    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
     Frame::MsgPtr msgPtr;
     Frame frame;
 
-    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
-    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    auto es = frame.read(msgPtr, readIter, BufSize);
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M1);
@@ -53,17 +56,17 @@ void TestSuite::test1()
 void TestSuite::test2()
 {
     do {
-        static const std::uint8_t Buf1[] =
+        static const std::uint8_t Buf[] =
         {
             2, 3, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
         };
-        static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
         Frame frame;
 
-        auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
-        auto es = frame.read(msgPtr, readIter, Buf1Size);
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
         TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
         TS_ASSERT(msgPtr);
         TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M2);
@@ -79,17 +82,17 @@ void TestSuite::test2()
 
     do {
 
-        static const std::uint8_t Buf2[] =
+        static const std::uint8_t Buf[] =
         {
             2, 1, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
         };
-        static const std::size_t Buf2Size = std::extent<decltype(Buf2)>::value;
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
         Frame frame;
 
-        auto readIter = comms::readIteratorFor<Interface>(&Buf2[0]);
-        auto es = frame.read(msgPtr, readIter, Buf2Size);
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
         TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
         TS_ASSERT(msgPtr);
         TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M2);
@@ -101,17 +104,17 @@ void TestSuite::test2()
 void TestSuite::test3()
 {
     do {
-        static const std::uint8_t Buf1[] =
+        static const std::uint8_t Buf[] =
         {
             3, 3, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
         };
-        static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
         Frame frame;
 
-        auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
-        auto es = frame.read(msgPtr, readIter, Buf1Size);
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
         TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
         TS_ASSERT(msgPtr);
         TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M3);
@@ -126,17 +129,17 @@ void TestSuite::test3()
 
     do {
 
-        static const std::uint8_t Buf2[] =
+        static const std::uint8_t Buf[] =
         {
             3, 1, 5, 1, 'h', 'e', 'l', 'l', 'o', 'b', 'l', 'a'
         };
-        static const std::size_t Buf2Size = std::extent<decltype(Buf2)>::value;
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
         Frame::MsgPtr msgPtr;
         Frame frame;
 
-        auto readIter = comms::readIteratorFor<Interface>(&Buf2[0]);
-        auto es = frame.read(msgPtr, readIter, Buf2Size);
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
         TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
         TS_ASSERT(msgPtr);
         TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M3);
@@ -145,3 +148,74 @@ void TestSuite::test3()
     } while (false);
 }
 
+void TestSuite::test4()
+{
+    do {
+        static const std::uint8_t Buf[] =
+        {
+            4, 3, 3, 3, 0, 1, 2, 3, 4, 5, 2, 6, 7
+        };
+
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        Frame frame;
+
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        TS_ASSERT(msgPtr);
+        TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M4);
+        auto* msg = static_cast<Msg4*>(msgPtr.get());
+        TS_ASSERT(msg->field_b1().field_data2().doesExist());
+        TS_ASSERT(msg->field_b1().field_len3().doesExist());
+        TS_ASSERT(msg->field_b1().field_data3().doesExist());
+
+        TS_ASSERT_EQUALS(msg->field_b1().field_data1().value().size(), 3U);
+        TS_ASSERT_EQUALS(msg->field_b1().field_data2().field().value().size(), 3U);
+        TS_ASSERT_EQUALS(msg->field_b1().field_data3().field().value().size(), 2U);
+
+        msg->field_b1().field_data3().field().value().resize(3U);
+        TS_ASSERT(msg->refresh());
+        TS_ASSERT_EQUALS(msg->field_b1().field_len3().field().value(), 3U);
+
+        msg->version() = 1U;
+        TS_ASSERT(msg->refresh());
+        TS_ASSERT(msg->field_b1().field_data2().isMissing());
+        TS_ASSERT(msg->field_b1().field_len3().isMissing());
+        TS_ASSERT(msg->field_b1().field_data3().isMissing());
+    } while (false);
+
+    do {
+        static const std::uint8_t Buf[] =
+        {
+            4, 1, 2, 5, 0, 1
+        };
+
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        Frame frame;
+
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        TS_ASSERT(msgPtr);
+        TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M4);
+        auto* msg = static_cast<Msg4*>(msgPtr.get());
+        TS_ASSERT(msg->field_b1().field_data2().isMissing());
+        TS_ASSERT(msg->field_b1().field_len3().isMissing());
+        TS_ASSERT(msg->field_b1().field_data3().isMissing());
+
+        TS_ASSERT_EQUALS(msg->field_b1().field_data1().value().size(), 2U);
+        TS_ASSERT_EQUALS(msg->field_b1().field_len2().value(), 5U);
+
+        msg->version() = 2U;
+        TS_ASSERT(msg->refresh());
+        TS_ASSERT(msg->field_b1().field_data2().doesExist());
+        TS_ASSERT(msg->field_b1().field_len3().doesExist());
+        TS_ASSERT(msg->field_b1().field_data3().doesExist());
+        TS_ASSERT_EQUALS(msg->field_b1().field_len2().value(), 0U);
+    } while (false);
+    
+}

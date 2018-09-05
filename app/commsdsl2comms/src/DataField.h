@@ -32,6 +32,9 @@ protected:
         const Field& field,
         const std::string& nameOverride,
         bool forcedVersionOptional) const override;
+    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override;
+    virtual bool hasCustomReadRefreshImpl() const override;
+    virtual std::string getReadPreparationImpl(const FieldsList& fields) const override;
 
 private:
     using StringsList = common::StringsList;
@@ -41,6 +44,7 @@ private:
     std::string getPrefixField(const std::string& scope) const;
     void checkFixedLengthOpt(StringsList& list) const;
     void checkPrefixOpt(StringsList& list) const;
+    void checkForcingOpt(StringsList& list) const;
 
 
     commsdsl::DataField dataFieldDslObj() const

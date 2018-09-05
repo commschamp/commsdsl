@@ -107,34 +107,13 @@ bool StringFieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) co
         return true;
     }
 
-    auto iter =
-        std::find_if(
-            fields.begin(), fields.end(),
-            [this](auto& f)
-            {
-                return f->name() == m_state.m_detachedPrefixField;
-            });
-
-    if (iter == fields.end()) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-            "The holding bundle/message does not contain field named \"" <<
-            m_state.m_detachedPrefixField << "\".";
+    auto* sibling = findSibling(fields, m_state.m_detachedPrefixField);
+    if (sibling == nullptr) {
         return false;
     }
 
-    auto fieldKind = (*iter)->kind();
-    if (fieldKind == Kind::Int) {
-        return true;
-    }
-
-    const FieldImpl* referee = iter->get();
-    while (referee->kind() == Kind::Ref) {
-        auto* castedField = static_cast<const RefFieldImpl*>(referee);
-        referee = castedField->fieldImpl();
-        assert(referee != nullptr);
-    }
-
-    if (referee->kind() != Kind::Int) {
+    auto fieldKind = getNonRefFieldKind(*sibling);
+    if (fieldKind != Kind::Int) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "Detached length prefix is expected to be of \"" << common::intStr() << "\" type.";
         return false;

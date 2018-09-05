@@ -9,6 +9,7 @@
 #include "common.h"
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
+#include "RefFieldImpl.h"
 #include "util.h"
 
 namespace commsdsl
@@ -94,6 +95,28 @@ bool DataFieldImpl::parseImpl()
         updateLength() &&
         updatePrefix() &&
         updateDefaultValue();
+}
+
+bool DataFieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const
+{
+    if (m_state.m_detachedPrefixField.empty()) {
+        return true;
+    }
+
+    auto* sibling = findSibling(fields, m_state.m_detachedPrefixField);
+    if (sibling == nullptr) {
+        return false;
+    }
+
+    auto fieldKind = getNonRefFieldKind(*sibling);
+    if (fieldKind != Kind::Int) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Detached length prefix is expected to be of \"" << common::intStr() << "\" type.";
+        return false;
+    }
+
+    return true;
+
 }
 
 std::size_t DataFieldImpl::minLengthImpl() const
@@ -265,6 +288,26 @@ bool DataFieldImpl::checkPrefixFromRef()
         return true;
     }
 
+    auto& str = iter->second;
+    if (str.empty()) {
+        reportUnexpectedPropertyValue(common::lengthPrefixStr(), str);
+        return false;
+    }
+
+    if (str[0] == '$') {
+        m_state.m_detachedPrefixField = std::string(str, 1);
+        common::normaliseString(m_state.m_detachedPrefixField);
+
+        if (m_state.m_detachedPrefixField.empty()) {
+            reportUnexpectedPropertyValue(common::lengthPrefixStr(), str);
+            return false;
+        }
+
+        m_state.m_extPrefixField = nullptr;
+        m_prefixField.reset();
+        return true;
+    }
+
     auto* field = protocol().findField(iter->second);
     if (field == nullptr) {
         logError() << XmlWrap::logPrefix(getNode()) <<
@@ -283,6 +326,7 @@ bool DataFieldImpl::checkPrefixFromRef()
     m_prefixField.reset();
     m_state.m_extPrefixField = field;
     assert(hasPrefixField());
+    m_state.m_detachedPrefixField.clear();
     return true;
 }
 
@@ -344,6 +388,7 @@ bool DataFieldImpl::checkPrefixAsChild()
 
     m_state.m_extPrefixField = nullptr;
     m_prefixField = std::move(field);
+    m_state.m_detachedPrefixField.clear();
     return true;
 }
 
