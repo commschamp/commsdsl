@@ -30,6 +30,9 @@ public:
     void test21();
     void test22();
     void test23();
+    void test24();
+    void test25();
+    void test26();
 };
 
 void ListTestSuite::setUp()
@@ -564,4 +567,103 @@ void ListTestSuite::test23()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test24()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.name(), "B1");
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+
+    auto& l1 = members[1];
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Field::Kind::List);
+
+    commsdsl::ListField list1(l1);
+
+    TS_ASSERT_EQUALS(list1.detachedCountPrefixFieldName(), "P1");
+    TS_ASSERT(!list1.hasCountPrefixField());
+    TS_ASSERT(!list1.hasLengthPrefixField());
+    TS_ASSERT(!list1.hasElemLengthPrefixField());
+}
+
+void ListTestSuite::test25()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.name(), "B1");
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+
+    auto& l1 = members[1];
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Field::Kind::List);
+
+    commsdsl::ListField list1(l1);
+
+    TS_ASSERT_EQUALS(list1.detachedLengthPrefixFieldName(), "P1");
+    TS_ASSERT(!list1.hasCountPrefixField());
+    TS_ASSERT(!list1.hasLengthPrefixField());
+    TS_ASSERT(!list1.hasElemLengthPrefixField());
+}
+
+void ListTestSuite::test26()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.name(), "B1");
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+
+    auto& l1 = members[1];
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Field::Kind::List);
+
+    commsdsl::ListField list1(l1);
+
+    TS_ASSERT_EQUALS(list1.detachedElemLengthPrefixFieldName(), "P1");
+    TS_ASSERT(!list1.hasCountPrefixField());
+    TS_ASSERT(!list1.hasLengthPrefixField());
+    TS_ASSERT(!list1.hasElemLengthPrefixField());
 }
