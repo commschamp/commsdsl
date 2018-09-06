@@ -272,7 +272,7 @@ bool ListFieldImpl::updateCountPrefix()
         return false;
     }
 
-    if (!hasCountPrefixField()) {
+    if ((!hasCountPrefixField()) && (m_state.m_detachedCountPrefixField.empty())) {
         return true;
     }
 
@@ -282,7 +282,7 @@ bool ListFieldImpl::updateCountPrefix()
         return false;
     }
 
-    if (hasLengthPrefixField()) {
+    if (hasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "Element count and serialisation length prefixes cannot be used together.";
         return false;
@@ -298,7 +298,7 @@ bool ListFieldImpl::updateLengthPrefix()
         return false;
     }
 
-    if (!hasLengthPrefixField()) {
+    if ((!hasLengthPrefixField()) && (m_state.m_detachedLengthPrefixField.empty())) {
         return true;
     }
 
@@ -308,7 +308,7 @@ bool ListFieldImpl::updateLengthPrefix()
         return false;
     }
 
-    if (hasCountPrefixField()) {
+    if (hasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "Element count and serialisation length prefixes cannot be used together.";
         return false;
