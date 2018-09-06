@@ -314,6 +314,10 @@ bool StringFieldImpl::checkPrefixFromRef()
     }
 
     if (str[0] == '$') {
+        if (!checkDetachedPrefixAllowed()) {
+            return false;
+        }
+        
         m_state.m_detachedPrefixField = std::string(str, 1);
         common::normaliseString(m_state.m_detachedPrefixField);
 

@@ -192,6 +192,7 @@ protected:
     static const XmlWrap::NamesList& commonChildren();
     const FieldImpl* findSibling(const FieldsList& fields, const std::string& sibName) const;
     static Kind getNonRefFieldKind(const FieldImpl& field);
+    bool checkDetachedPrefixAllowed() const;
 
 private:
 

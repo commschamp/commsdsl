@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema21"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="E1" type="uint32" />
+        <int name="P1" type="uint8" />
+        <list name="L1" element="E1" countPrefix="$P1" />
+    </fields>
+</schema>

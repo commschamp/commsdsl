@@ -49,6 +49,11 @@ Field ListField::countPrefixField() const
     return cast(m_pImpl)->countPrefixField();
 }
 
+const std::string& ListField::detachedCountPrefixFieldName() const
+{
+    return cast(m_pImpl)->detachedCountPrefixFieldName();
+}
+
 bool ListField::hasLengthPrefixField() const
 {
     return cast(m_pImpl)->hasLengthPrefixField();
@@ -59,6 +64,11 @@ Field ListField::lengthPrefixField() const
     return cast(m_pImpl)->lengthPrefixField();
 }
 
+const std::string& ListField::detachedLengthPrefixFieldName() const
+{
+    return cast(m_pImpl)->detachedLengthPrefixFieldName();
+}
+
 bool ListField::hasElemLengthPrefixField() const
 {
     return cast(m_pImpl)->hasElemLengthPrefixField();
@@ -67,6 +77,11 @@ bool ListField::hasElemLengthPrefixField() const
 Field ListField::elemLengthPrefixField() const
 {
     return cast(m_pImpl)->elemLengthPrefixField();
+}
+
+const std::string& ListField::detachedElemLengthPrefixFieldName() const
+{
+    return cast(m_pImpl)->detachedElemLengthPrefixFieldName();
 }
 
 bool ListField::elemFixedLength() const

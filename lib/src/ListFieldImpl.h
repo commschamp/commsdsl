@@ -54,6 +54,11 @@ public:
         return Field(m_countPrefixField.get());
     }
 
+    const std::string& detachedCountPrefixFieldName() const
+    {
+        return m_state.m_detachedCountPrefixField;
+    }
+
     bool hasLengthPrefixField() const
     {
         return (m_state.m_extLengthPrefixField != nullptr) ||
@@ -67,6 +72,11 @@ public:
         }
 
         return Field(m_lengthPrefixField.get());
+    }
+
+    const std::string& detachedLengthPrefixFieldName() const
+    {
+        return m_state.m_detachedLengthPrefixField;
     }
 
     bool hasElemLengthPrefixField() const
@@ -84,6 +94,11 @@ public:
         return Field(m_elemLengthPrefixField.get());
     }
 
+    const std::string& detachedElemLengthPrefixFieldName() const
+    {
+        return m_state.m_detachedElemLengthPrefixField;
+    }
+
     bool elemFixedLength() const
     {
         return m_state.m_elemFixedLength;
@@ -98,6 +113,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl& other) override;
     virtual bool parseImpl() override;
+    virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
 
@@ -114,13 +130,16 @@ private:
     bool checkPrefixFromRef(
         const std::string& type,
         const FieldImpl*& extField,
-        FieldImplPtr& locField);
+        FieldImplPtr& locField,
+        std::string& detachedPrefix);
     bool checkPrefixAsChild(
         const std::string& type,
         const FieldImpl*& extField,
-        FieldImplPtr& locField);
+        FieldImplPtr& locField,
+        std::string& detachedPrefix);
     const FieldImpl* getCountPrefixField() const;
     const FieldImpl* getLengthPrefixField() const;
+    bool verifySiblingsForPrefix(const FieldsList& fields, const std::string& detachedName) const;
 
     struct State
     {
@@ -129,6 +148,9 @@ private:
         const FieldImpl* m_extCountPrefixField = nullptr;
         const FieldImpl* m_extLengthPrefixField = nullptr;
         const FieldImpl* m_extElemLengthPrefixField = nullptr;
+        std::string m_detachedCountPrefixField;
+        std::string m_detachedLengthPrefixField;
+        std::string m_detachedElemLengthPrefixField;
         bool m_elemFixedLength = false;
     };
 

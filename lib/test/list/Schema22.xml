@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema22"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="E1" type="uint32" />
+        <int name="P2" type="uint8" />
+        <list name="L2" element="E1" lengthPrefix="$P2" />
+    </fields>
+</schema>

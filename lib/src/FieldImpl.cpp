@@ -400,6 +400,37 @@ FieldImpl::Kind FieldImpl::getNonRefFieldKind(const FieldImpl& field)
     return referee->kind();
 }
 
+bool FieldImpl::checkDetachedPrefixAllowed() const
+{
+    auto* parent = getParent();
+    bool result = false;
+    do {
+        if (parent == nullptr) {
+            break;
+        }
+
+        auto objK = parent->objKind();
+        if (objK == ObjKind::Message) {
+            result = true;
+            break;
+        }
+
+        if (objK != ObjKind::Field) {
+            break;
+        }
+
+        auto* parentField = static_cast<const FieldImpl*>(parent);
+        result = (parentField->kind() == Kind::Bundle);
+    } while (false);
+
+    if (!result) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Detached prefixes are allowed only for members of \"" << common::bundleStr() << "\" field "
+            "or \"" << common::messageStr() << "\" object.";
+    }
+    return result;
+}
+
 bool FieldImpl::checkReuse()
 {
     if (!validateSinglePropInstance(common::reuseStr())) {

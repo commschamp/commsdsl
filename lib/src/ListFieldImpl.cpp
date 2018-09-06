@@ -84,6 +84,14 @@ bool ListFieldImpl::reuseImpl(const FieldImpl& other)
     return true;
 }
 
+bool ListFieldImpl::verifySiblingsImpl(const FieldsList& fields) const
+{
+    return 
+        verifySiblingsForPrefix(fields, m_state.m_detachedCountPrefixField) &&
+        verifySiblingsForPrefix(fields, m_state.m_detachedLengthPrefixField) &&
+        verifySiblingsForPrefix(fields, m_state.m_detachedElemLengthPrefixField);
+}
+
 bool ListFieldImpl::parseImpl()
 {
     return
@@ -259,8 +267,8 @@ bool ListFieldImpl::updateCount()
 
 bool ListFieldImpl::updateCountPrefix()
 {
-    if ((!checkPrefixFromRef(common::countPrefixStr(), m_state.m_extCountPrefixField, m_countPrefixField)) ||
-        (!checkPrefixAsChild(common::countPrefixStr(), m_state.m_extCountPrefixField, m_countPrefixField))) {
+    if ((!checkPrefixFromRef(common::countPrefixStr(), m_state.m_extCountPrefixField, m_countPrefixField, m_state.m_detachedCountPrefixField)) ||
+        (!checkPrefixAsChild(common::countPrefixStr(), m_state.m_extCountPrefixField, m_countPrefixField, m_state.m_detachedCountPrefixField))) {
         return false;
     }
 
@@ -285,8 +293,8 @@ bool ListFieldImpl::updateCountPrefix()
 
 bool ListFieldImpl::updateLengthPrefix()
 {
-    if ((!checkPrefixFromRef(common::lengthPrefixStr(), m_state.m_extLengthPrefixField, m_lengthPrefixField)) ||
-        (!checkPrefixAsChild(common::lengthPrefixStr(), m_state.m_extLengthPrefixField, m_lengthPrefixField))) {
+    if ((!checkPrefixFromRef(common::lengthPrefixStr(), m_state.m_extLengthPrefixField, m_lengthPrefixField, m_state.m_detachedLengthPrefixField)) ||
+        (!checkPrefixAsChild(common::lengthPrefixStr(), m_state.m_extLengthPrefixField, m_lengthPrefixField, m_state.m_detachedLengthPrefixField))) {
         return false;
     }
 
@@ -311,8 +319,8 @@ bool ListFieldImpl::updateLengthPrefix()
 
 bool ListFieldImpl::updateElemLengthPrefix()
 {
-    if ((!checkPrefixFromRef(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField)) ||
-        (!checkPrefixAsChild(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField))) {
+    if ((!checkPrefixFromRef(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField, m_state.m_detachedElemLengthPrefixField)) ||
+        (!checkPrefixAsChild(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField, m_state.m_detachedElemLengthPrefixField))) {
         return false;
     }
 
@@ -436,7 +444,8 @@ bool ListFieldImpl::checkElementAsChild()
 bool ListFieldImpl::checkPrefixFromRef(
     const std::string& type,
     const FieldImpl*& extField,
-    FieldImplPtr& locField)
+    FieldImplPtr& locField,
+    std::string& detachedPrefix)
 {
     if (!validateSinglePropInstance(type)) {
         return false;
@@ -444,6 +453,30 @@ bool ListFieldImpl::checkPrefixFromRef(
 
     auto iter = props().find(type);
     if (iter == props().end()) {
+        return true;
+    }
+
+    auto& str = iter->second;
+    if (str.empty()) {
+        reportUnexpectedPropertyValue(type, str);
+        return false;
+    }
+
+    if (str[0] == '$') {
+        if (!checkDetachedPrefixAllowed()) {
+            return false;
+        }
+
+        detachedPrefix = std::string(str, 1);
+        common::normaliseString(detachedPrefix);
+
+        if (detachedPrefix.empty()) {
+            reportUnexpectedPropertyValue(type, str);
+            return false;
+        }
+
+        extField = nullptr;
+        locField.reset();
         return true;
     }
 
@@ -464,13 +497,15 @@ bool ListFieldImpl::checkPrefixFromRef(
 
     locField.reset();
     extField = field;
+    detachedPrefix.clear();
     return true;
 }
 
 bool ListFieldImpl::checkPrefixAsChild(
     const std::string& type,
     const FieldImpl*& extField,
-    FieldImplPtr& locField)
+    FieldImplPtr& locField,
+    std::string& detachedPrefix)
 {
     auto children = XmlWrap::getChildren(getNode(), type);
     if (children.empty()) {
@@ -528,6 +563,7 @@ bool ListFieldImpl::checkPrefixAsChild(
 
     extField = nullptr;
     locField = std::move(field);
+    detachedPrefix.clear();
     return true;
 }
 
@@ -542,7 +578,7 @@ const FieldImpl* ListFieldImpl::getCountPrefixField() const
     return m_countPrefixField.get();
 }
 
-const FieldImpl*ListFieldImpl::getLengthPrefixField() const
+const FieldImpl* ListFieldImpl::getLengthPrefixField() const
 {
     if (m_state.m_extLengthPrefixField != nullptr) {
         assert(!m_lengthPrefixField);
@@ -553,5 +589,27 @@ const FieldImpl*ListFieldImpl::getLengthPrefixField() const
     return m_lengthPrefixField.get();
 }
 
+bool ListFieldImpl::verifySiblingsForPrefix(
+    const FieldsList& fields, 
+    const std::string& detachedName) const
+{
+    if (detachedName.empty()) {
+        return true;
+    }
+
+    auto* sibling = findSibling(fields, detachedName);
+    if (sibling == nullptr) {
+        return false;
+    }
+
+    auto fieldKind = getNonRefFieldKind(*sibling);
+    if (fieldKind != Kind::Int) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Detached prefix \"" << detachedName << "\" is expected to be of \"" << common::intStr() << "\" type.";
+        return false;
+    }
+
+    return true;    
+}
 
 } // namespace commsdsl
