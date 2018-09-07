@@ -38,6 +38,9 @@ protected:
         bool forcedSerialisedHidden,
         bool serHiddenParam) const override;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
+    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override;
+    virtual bool hasCustomReadRefreshImpl() const override;
+    virtual std::string getReadPreparationImpl(const FieldsList& fields) const override;
 
 private:
     using StringsList = common::StringsList;
@@ -49,6 +52,7 @@ private:
     void checkCountPrefixOpt(StringsList& list) const;
     void checkLengthPrefixOpt(StringsList& list) const;
     void checkElemLengthPrefixOpt(StringsList& list) const;
+    bool checkDetachedPrefixOpt(StringsList& list) const;
     bool isElemForcedSerialisedHiddenInPlugin() const;
     std::string getPrefixName() const;
 

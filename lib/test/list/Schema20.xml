@@ -10,7 +10,7 @@
             <int name="P3" type="uint8" />
             <list name="L1" element="E1" countPrefix="$P1" />
             <list name="L2" element="E1" lengthPrefix="$P2" />
-            <list name="L3" element="E1" count="5" elemLengthPrefix="$P3" />
+            <list name="L3" element="E1" count="5" elemLengthPrefix="$P3" elemFixedLength="true" />
         </bundle>
     </fields>
 </schema>

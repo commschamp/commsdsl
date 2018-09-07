@@ -99,8 +99,9 @@ bool ListFieldImpl::parseImpl()
         updateCount() &&
         updateCountPrefix() &&
         updateLengthPrefix() &&
-        updateElemLengthPrefix() &&
-        updateElemFixedLength();
+        updateElemFixedLength() &&
+        updateElemLengthPrefix();
+        
 }
 
 std::size_t ListFieldImpl::minLengthImpl() const
@@ -321,6 +322,14 @@ bool ListFieldImpl::updateElemLengthPrefix()
 {
     if ((!checkPrefixFromRef(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField, m_state.m_detachedElemLengthPrefixField)) ||
         (!checkPrefixAsChild(common::elemLengthPrefixStr(), m_state.m_extElemLengthPrefixField, m_elemLengthPrefixField, m_state.m_detachedElemLengthPrefixField))) {
+        return false;
+    }
+
+    if ((!m_state.m_detachedElemLengthPrefixField.empty()) &&
+        (!m_state.m_elemFixedLength)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Detached element length prefix is supported only for lists with fixed length elements. "
+            "Set the \"" << common::elemFixedLengthStr() << "\" property.";
         return false;
     }
 

@@ -11,7 +11,7 @@
         </list>
         <bundle name="B1">
             <int name="P1" type="uint8" />
-            <list reuse="L1" elemLengthPrefix="$P1" />
+            <list reuse="L1" elemLengthPrefix="$P1" elemFixedLength="true" />
         </bundle>
     </fields>
 </schema>

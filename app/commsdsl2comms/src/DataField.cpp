@@ -309,8 +309,7 @@ std::string DataField::getReadPreparationImpl(const FieldsList& fields) const
     if ((!versionOptional) && (!lenVersionOptional)) {
         static const std::string Templ =
             "field_#^#NAME#$#().forceReadLength(\n"
-            "    static_cast<std::size_t>(\n"
-            "        field_#^#LEN_NAME#$#().value()));\n";
+            "    static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n";
 
         return common::processTemplate(Templ, replacements);
     }
@@ -329,8 +328,7 @@ std::string DataField::getReadPreparationImpl(const FieldsList& fields) const
         static const std::string Templ =
             "if (field_#^#LEN_NAME#$#().doesExist()) {\n"
             "    field_#^#NAME#$#().forceReadLength(\n"
-            "        static_cast<std::size_t>(\n"
-            "            field_#^#LEN_NAME#$#().field().value()));\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().value()));\n"
             "}\n";
 
         return common::processTemplate(Templ, replacements);
@@ -340,8 +338,7 @@ std::string DataField::getReadPreparationImpl(const FieldsList& fields) const
     static const std::string Templ =
         "if (field_#^#NAME#$#().doesExist() && field_#^#LEN_NAME#$#().doesExist()) {\n"
         "    field_#^#NAME#$#().field().forceReadLength(\n"
-        "        static_cast<std::size_t>(\n"
-        "            field_#^#LEN_NAME#$#().field().value()));\n"
+        "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().value()));\n"
         "}\n";
 
     return common::processTemplate(Templ, replacements);

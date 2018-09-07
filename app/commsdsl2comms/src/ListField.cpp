@@ -502,8 +502,12 @@ std::string ListField::getPluginPropertiesImpl(bool serHiddenParam) const
         auto extRef = elemField.externalRef();
         assert(!extRef.empty());
         auto scope = generator().scopeForFieldInPlugin(extRef);
+        std::string fieldType("Field");
+        if (isVersionOptional()) {
+            fieldType = "InnerField";
+        }
         auto func = scope + "createProps_" + common::nameToAccessCopy(elemField.name()) +
-        "(Field::ValueType::value_type::name()";
+        "(" + fieldType + "::ValueType::value_type::name()";
         if (serHiddenParam) {
             func += ", " + common::serHiddenStr();
         }
@@ -527,6 +531,208 @@ std::string ListField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
+std::string ListField::getPrivateRefreshBodyImpl(const FieldsList& fields) const
+{
+    auto obj = listFieldDslObj();
+
+    common::StringsList refreshes;
+    auto processPrefixFunc = 
+        [this, &obj, &fields, &refreshes](const std::string& prefixName, const common::ReplacementMap& replacements)
+        {
+            if (prefixName.empty()) {
+                return;
+            }
+
+            auto iter =
+                std::find_if(
+                    fields.begin(), fields.end(),
+                    [&prefixName](auto& f)
+                    {
+                        return f->name() == prefixName;
+                    });
+
+            if (iter == fields.end()) {
+                assert(!"Should not happen");
+                return;
+            }
+
+            bool prefixVersionOptional = (*iter)->isVersionOptional();
+
+            static const std::string Templ = 
+                "do {\n"
+                "    auto expectedValue = static_cast<std::size_t>(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value());\n"
+                "    #^#REAL_VALUE#$#\n"
+                "    if (expectedValue != realValue) {\n"
+                "        using PrefixValueType = typename std::decay<decltype(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value())>::type;\n"
+                "        field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value() = static_cast<PrefixValueType>(realValue);\n"
+                "        updated = true;\n"
+                "    }\n"
+                "} while (false);\n";
+
+            auto repl = replacements;
+            repl.insert(std::make_pair("PREFIX_NAME", common::nameToAccessCopy(prefixName)));
+
+            if (prefixVersionOptional) {
+                repl.insert(std::make_pair("PREFIX_ACC", ".field()"));
+            }
+
+            refreshes.push_back(common::processTemplate(Templ, repl));
+        };
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    if (isVersionOptional()) {
+        repl.insert(std::make_pair("LIST_ACC", ".field()"));
+    }
+
+    auto& countPrefix = obj.detachedCountPrefixFieldName();
+    if (!countPrefix.empty()) {
+        static const std::string Templ = 
+            "auto realValue = field_#^#NAME#$#()#^#LIST_ACC#$#.value().size();";
+        repl["REAL_VALUE"] = common::processTemplate(Templ, repl);
+        processPrefixFunc(countPrefix, repl);
+    }
+
+    auto& lengthPrefix = obj.detachedLengthPrefixFieldName();
+    if (!lengthPrefix.empty()) {
+        static const std::string Templ = 
+            "auto realValue = field_#^#NAME#$#()#^#LIST_ACC#$#.length();";
+        repl["REAL_VALUE"] = common::processTemplate(Templ, repl);
+        processPrefixFunc(lengthPrefix, repl);
+    }
+
+    auto& elemLengthPrefix = obj.detachedElemLengthPrefixFieldName();
+    if (!elemLengthPrefix.empty()) {
+        static const std::string Templ = 
+            "std::size_t realValue =\n"
+            "    field_#^#NAME#$#()#^#LIST_ACC#$#.value().empty() ?\n"
+            "        0U : field_#^#NAME#$#()#^#LIST_ACC#$#.value()[0].length();";
+        repl["REAL_VALUE"] = common::processTemplate(Templ, repl);
+        processPrefixFunc(elemLengthPrefix, repl);
+    }
+
+    if (refreshes.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ = 
+        "bool updated = false;\n"
+        "#^#UPDATES#$#\n"
+        "return updated;\n";
+
+    common::ReplacementMap finalRepl;
+    finalRepl.insert(std::make_pair("UPDATES", common::listToString(refreshes, "\n", common::emptyString())));
+    return common::processTemplate(Templ, finalRepl);
+}
+
+bool ListField::hasCustomReadRefreshImpl() const
+{
+    return 
+        (!listFieldDslObj().detachedCountPrefixFieldName().empty()) ||
+        (!listFieldDslObj().detachedLengthPrefixFieldName().empty()) ||
+        (!listFieldDslObj().detachedElemLengthPrefixFieldName().empty());
+}
+
+std::string ListField::getReadPreparationImpl(const FieldsList& fields) const
+{
+    auto obj = listFieldDslObj();
+    bool versionOptional = isVersionOptional();
+    common::StringsList preps;
+    auto processPrefixFunc = 
+        [this, &obj, &fields, &preps, versionOptional](const std::string& prefixName, const common::ReplacementMap& replacements)
+        {
+            if (prefixName.empty()) {
+                return;
+            }
+
+            auto iter =
+                std::find_if(
+                    fields.begin(), fields.end(),
+                    [&prefixName](auto& f)
+                    {
+                        return f->name() == prefixName;
+                    });
+
+            if (iter == fields.end()) {
+                assert(!"Should not happen");
+                return;
+            }
+
+            bool prefixVersionOptional = (*iter)->isVersionOptional();
+
+            auto repl = replacements;
+            repl.insert(std::make_pair("PREFIX_NAME", common::nameToAccessCopy(prefixName)));
+
+            if ((!versionOptional) && (!prefixVersionOptional)) {
+                static const std::string Templ =
+                    "field_#^#NAME#$#().#^#FUNC#$#(\n"
+                    "    static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().value()));\n";
+
+                preps.push_back(common::processTemplate(Templ, repl));
+                return;
+            }
+
+            if ((versionOptional) && (!prefixVersionOptional)) {
+                static const std::string Templ =
+                    "if (field_#^#NAME#$#().doesExist()) {\n"
+                    "    field_#^#NAME#$#().field().#^#FUNC#$#(\n"
+                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().value()));\n"
+                    "}\n";
+
+                preps.push_back(common::processTemplate(Templ, repl));
+                return;
+            }
+
+            if ((!versionOptional) && (prefixVersionOptional)) {
+                static const std::string Templ =
+                    "if (field_#^#PREFIX_NAME#$#().doesExist()) {\n"
+                    "    field_#^#NAME#$#().#^#FUNC#$#(\n"
+                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().value()));\n"
+                    "}\n";
+
+                preps.push_back(common::processTemplate(Templ, repl));
+                return;
+            }
+
+            assert(versionOptional && prefixVersionOptional);
+            static const std::string Templ =
+                "if (field_#^#NAME#$#().doesExist() && field_#^#PREFIX_NAME#$#().doesExist()) {\n"
+                "    field_#^#NAME#$#().field().#^#FUNC#$#(\n"
+                "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().value()));\n"
+                "}\n";
+
+            preps.push_back(common::processTemplate(Templ, repl));
+            return;
+        };
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
+    
+    auto& countPrefix = obj.detachedCountPrefixFieldName();
+    if (!countPrefix.empty()) {
+        repl["FUNC"] = "forceReadElemCount";
+        processPrefixFunc(countPrefix, repl);
+    }
+
+    auto& lengthPrefix = obj.detachedLengthPrefixFieldName();
+    if (!lengthPrefix.empty()) {
+        repl["FUNC"] = "forceReadLength";
+        processPrefixFunc(lengthPrefix, repl);
+    }
+
+    auto& elemLengthPrefix = obj.detachedElemLengthPrefixFieldName();
+    if (!elemLengthPrefix.empty()) {
+        repl["FUNC"] = "forceReadElemLength";
+        processPrefixFunc(elemLengthPrefix, repl);
+    }
+
+    if (preps.empty()) {
+        return common::emptyString();
+    }
+
+    return common::listToString(preps, "\n", common::emptyString());
+}
+
 std::string ListField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;
@@ -536,6 +742,7 @@ std::string ListField::getFieldOpts(const std::string& scope) const
     checkCountPrefixOpt(options);
     checkLengthPrefixOpt(options);
     checkElemLengthPrefixOpt(options);
+    checkDetachedPrefixOpt(options);
 
     return common::listToString(options, ",\n", common::emptyString());
 }
@@ -741,7 +948,7 @@ void ListField::checkLengthPrefixOpt(ListField::StringsList& list) const
     list.push_back("comms::option::SequenceSerLengthFieldPrefix<" + prefixName + '>');
 }
 
-void ListField::checkElemLengthPrefixOpt(ListField::StringsList& list) const
+void ListField::checkElemLengthPrefixOpt(StringsList& list) const
 {
     auto obj = listFieldDslObj();
     if (!obj.hasElemLengthPrefixField()) {
@@ -778,6 +985,23 @@ void ListField::checkElemLengthPrefixOpt(ListField::StringsList& list) const
     }
 
     list.push_back("comms::option::" + opt + "<" + prefixName + '>');
+}
+
+bool ListField::checkDetachedPrefixOpt(StringsList& list) const
+{
+    auto obj = listFieldDslObj();
+    if (!obj.detachedCountPrefixFieldName().empty()) {
+        list.push_back("comms::option::SequenceSizeForcingEnabled");
+    }
+
+    if (!obj.detachedLengthPrefixFieldName().empty()) {
+        list.push_back("comms::option::SequenceLengthForcingEnabled");
+    }
+
+    if (!obj.detachedElemLengthPrefixFieldName().empty()) {
+        list.push_back("comms::option::SequenceElemLengthForcingEnabled");
+    }
+    return true;
 }
 
 bool ListField::isElemForcedSerialisedHiddenInPlugin() const
