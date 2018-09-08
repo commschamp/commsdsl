@@ -280,7 +280,9 @@ bool SetFieldImpl::updateLength()
 
 bool SetFieldImpl::updateNonUniqueAllowed()
 {
-    if (!validateSinglePropInstance(common::nonUniqueAllowedStr())) {
+    bool wasAllowed = m_state.m_nonUniqueAllowed;
+    bool newAllowed = false;
+    if (!validateAndUpdateBoolPropValue(common::nonUniqueAllowedStr(), newAllowed)) {
         return false;
     }
 
@@ -288,15 +290,7 @@ bool SetFieldImpl::updateNonUniqueAllowed()
     if (valueStr.empty()) {
         return true;
     }
-
-    bool wasAllowed = m_state.m_nonUniqueAllowed;
-    bool ok = false;
-    bool newAllowed = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::nonUniqueAllowedStr(), valueStr);
-        return false;
-    }
-
+    
     if (wasAllowed && (!newAllowed) && (!isUnique())) {
         logError() << "Cannot clear \"" << common::nonUniqueAllowedStr() << "\" property value "
                       "while having multiple names for the same bit(s).";
@@ -309,65 +303,17 @@ bool SetFieldImpl::updateNonUniqueAllowed()
 
 bool SetFieldImpl::updateValidCheckVersion()
 {
-    if (!validateSinglePropInstance(common::validCheckVersionStr())) {
-        return false;
-    }
-
-    auto& valueStr = common::getStringProp(props(), common::validCheckVersionStr());
-    if (valueStr.empty()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_state.m_validCheckVersion = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::validCheckVersionStr(), valueStr);
-        return false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::validCheckVersionStr(), m_state.m_validCheckVersion);
 }
 
 bool SetFieldImpl::updateDefaultValue()
 {
-    if (!validateSinglePropInstance(common::defaultValueStr())) {
-        return false;
-    }
-
-    auto& valueStr = common::getStringProp(props(), common::defaultValueStr());
-    if (valueStr.empty()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_state.m_defaultBitValue = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::defaultValueStr(), valueStr);
-        return false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::defaultValueStr(), m_state.m_defaultBitValue);
 }
 
 bool SetFieldImpl::updateReservedValue()
 {
-    if (!validateSinglePropInstance(common::reservedValueStr())) {
-        return false;
-    }
-
-    auto valueStr = common::getStringProp(props(), common::reservedValueStr());
-    if (valueStr.empty()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_state.m_reservedBitValue = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::reservedValueStr(), valueStr);
-        return false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::reservedValueStr(), m_state.m_reservedBitValue);
 }
 
 bool SetFieldImpl::updateBits()

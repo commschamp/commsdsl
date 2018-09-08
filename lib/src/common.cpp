@@ -600,6 +600,12 @@ const std::string& signExtStr()
     return Str;
 }
 
+const std::string& displayReadOnlyStr()
+{
+    static const std::string Str("displayReadOnly");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

@@ -171,23 +171,7 @@ bool OptionalFieldImpl::updateMode()
 
 bool OptionalFieldImpl::updateExternalModeCtrl()
 {
-    if (!validateSinglePropInstance(common::externalModeCtrlStr())) {
-        return false;
-    }
-
-    auto iter = props().find(common::externalModeCtrlStr());
-    if (iter == props().end()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_state.m_externalModeCtrl = common::strToBool(iter->second, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::externalModeCtrlStr(), iter->second);
-        return false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::externalModeCtrlStr(), m_state.m_externalModeCtrl);
 }
 
 bool OptionalFieldImpl::updateField()

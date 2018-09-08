@@ -289,44 +289,12 @@ bool EnumFieldImpl::updateBitLength()
 
 bool EnumFieldImpl::updateNonUniqueAllowed()
 {
-    if (!validateSinglePropInstance(common::nonUniqueAllowedStr())) {
-        return false;
-    }
-
-    auto& valueStr = common::getStringProp(props(), common::nonUniqueAllowedStr());
-    if (valueStr.empty()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_state.m_nonUniqueAllowed = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::nonUniqueAllowedStr(), valueStr);
-        return false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::nonUniqueAllowedStr(), m_state.m_nonUniqueAllowed);
 }
 
 bool EnumFieldImpl::updateValidCheckVersion()
 {
-    if (!validateSinglePropInstance(common::validCheckVersionStr())) {
-        return false;
-    }
-
-    auto& valueStr = common::getStringProp(props(), common::validCheckVersionStr());
-    if (valueStr.empty()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_state.m_validCheckVersion = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::validCheckVersionStr(), valueStr);
-        return false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::validCheckVersionStr(), m_state.m_validCheckVersion);
 }
 
 bool EnumFieldImpl::updateMinMaxValues()
@@ -554,21 +522,14 @@ bool EnumFieldImpl::updateDefaultValue()
 
 bool EnumFieldImpl::updateHexAssign()
 {
-    if (!validateSinglePropInstance(common::hexAssignStr())) {
+    if (!validateAndUpdateBoolPropValue(common::hexAssignStr(), m_state.m_hexAssign)) {
         return false;
     }
 
     auto& valueStr = common::getStringProp(props(), common::hexAssignStr());
     if (valueStr.empty()) {
         return true;
-    }
-
-    bool ok = false;
-    m_state.m_hexAssign = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::hexAssignStr(), valueStr);
-        return false;
-    }
+    }    
 
     if (!IntFieldImpl::isTypeUnsigned(m_state.m_type)) {
         logError() << XmlWrap::logPrefix(getNode()) <<

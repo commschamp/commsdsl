@@ -78,7 +78,8 @@ bool FieldImpl::parse()
         updateDescription() &&
         updateVersions() &&
         updateSemanticType() &&
-        updatePseudo();
+        updatePseudo() &&
+        updateDisplayReadOnly();
 
     if (!result) {
         return false;
@@ -341,6 +342,27 @@ void FieldImpl::reportUnexpectedPropertyValue(const std::string& propName, const
     XmlWrap::reportUnexpectedPropertyValue(m_node, name(), propName, propValue, protocol().logger());
 }
 
+bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
+{
+    if (!validateSinglePropInstance(propName, mustHave)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    bool ok = false;
+    value = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }
+
+    return true;
+}
+
 const XmlWrap::NamesList& FieldImpl::commonProps()
 {
     static const XmlWrap::NamesList CommonNames = {
@@ -352,7 +374,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::removedStr(),
         common::reuseStr(),
         common::semanticTypeStr(),
-        common::pseudoStr()
+        common::pseudoStr(),
+        common::displayReadOnlyStr()
     };
 
     return CommonNames;
@@ -602,23 +625,12 @@ bool FieldImpl::updateSemanticType()
 
 bool FieldImpl::updatePseudo()
 {
-    if (!validateSinglePropInstance(common::pseudoStr())) {
-        return false;
-    }
+    return validateAndUpdateBoolPropValue(common::pseudoStr(), m_state.m_pseudo);
+}
 
-    auto iter = m_props.find(common::pseudoStr());
-    if (iter == m_props.end()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_state.m_pseudo = common::strToBool(iter->second, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::pseudoStr(), iter->second);
-        return false;
-    }
-
-    return true;
+bool FieldImpl::updateDisplayReadOnly()
+{
+    return validateAndUpdateBoolPropValue(common::displayReadOnlyStr(), m_state.m_displayReadOnly);
 }
 
 bool FieldImpl::updateExtraAttrs(const XmlWrap::NamesList& names)

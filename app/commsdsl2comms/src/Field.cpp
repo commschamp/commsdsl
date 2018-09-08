@@ -785,6 +785,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         "    cc::property::field::ForField<Field>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
         "        #^#SER_HIDDEN#$#\n"
+        "        #^#READ_ONLY#$#\n"          
         "        #^#PROPERTIES#$#\n"
         "        .asMap();\n";
 
@@ -795,6 +796,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         "    cc::property::field::ForField<InnerField>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
         "        #^#SER_HIDDEN#$#\n"
+        "        #^#READ_ONLY#$#\n"        
         "        #^#PROPERTIES#$#\n"
         "        .asMap();\n\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
@@ -843,8 +845,11 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         replacements.insert(std::make_pair("SER_HIDDEN", ".serialisedHidden(serHidden)"));
     }
 
-    return common::processTemplate(*templ, replacements);
+    if (m_dslObj.isDisplayReadOnly()) {
+        replacements.insert(std::make_pair("READ_ONLY", ".readOnly()"));
+    }
 
+    return common::processTemplate(*templ, replacements);
 }
 
 std::string Field::getPluginAnonNamespaceImpl(

@@ -98,6 +98,12 @@ bool Field::isPseudo() const
     return m_pImpl->isPseudo();
 }
 
+bool Field::isDisplayReadOnly() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isDisplayReadOnly();
+}
+
 const Field::AttributesMap& Field::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

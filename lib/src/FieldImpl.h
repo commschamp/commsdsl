@@ -68,6 +68,11 @@ public:
         return m_state.m_pseudo;
     }
 
+    bool isDisplayReadOnly() const
+    {
+        return m_state.m_displayReadOnly;
+    }    
+
     std::size_t minLength() const
     {
         return minLengthImpl();
@@ -187,6 +192,7 @@ protected:
     bool validateNoPropInstance(const std::string& str);
     bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
+    bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
 
     static const XmlWrap::NamesList& commonProps();
     static const XmlWrap::NamesList& commonChildren();
@@ -208,6 +214,7 @@ private:
         ContentsList m_extraChildren;
         SemanticType m_semanticType = SemanticType::None;
         bool m_pseudo = false;
+        bool m_displayReadOnly = false;
     };
 
     bool checkReuse();
@@ -217,6 +224,7 @@ private:
     bool updateVersions();
     bool updateSemanticType();
     bool updatePseudo();
+    bool updateDisplayReadOnly();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

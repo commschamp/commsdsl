@@ -58,6 +58,7 @@ public:
     bool isDeprecatedRemoved() const;
     std::string externalRef() const;
     bool isPseudo() const;
+    bool isDisplayReadOnly() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

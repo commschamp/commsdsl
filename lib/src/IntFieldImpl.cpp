@@ -799,23 +799,7 @@ bool IntFieldImpl::updateScaling()
 
 bool IntFieldImpl::updateValidCheckVersion()
 {
-    if (!validateSinglePropInstance(common::validCheckVersionStr())) {
-        return false;
-    }
-
-    auto& valueStr = common::getStringProp(props(), common::validCheckVersionStr());
-    if (valueStr.empty()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_state.m_validCheckVersion = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::validCheckVersionStr(), valueStr);
-        return false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::validCheckVersionStr(), m_state.m_validCheckVersion);
 }
 
 bool IntFieldImpl::updateValidRanges()
@@ -1109,20 +1093,13 @@ bool IntFieldImpl::updateDisplayOffset()
 
 bool IntFieldImpl::updateSignExt()
 {
-    if (!validateSinglePropInstance(common::signExtStr())) {
+    if (!validateAndUpdateBoolPropValue(common::signExtStr(), m_state.m_signExt)) {
         return false;
     }
 
     auto& valueStr = common::getStringProp(props(), common::signExtStr());
     if (valueStr.empty()) {
         return true;
-    }
-
-    bool ok = false;
-    m_state.m_signExt = common::strToBool(valueStr, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::signExtStr(), valueStr);
-        return false;
     }
 
     if ((isUnsigned(m_state.m_type)) || (maxTypeLength(m_state.m_type) <= minLength())) {
