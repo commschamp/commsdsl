@@ -153,6 +153,13 @@ NamespaceImpl::NamespacesList NamespaceImpl::namespacesList() const
         assert(n.second);
         result.emplace_back(n.second.get());
     }
+
+    std::sort(
+        result.begin(), result.end(),
+        [](auto& e1, auto& e2) {
+            return e1.name() < e2.name();
+        });
+
     return result;
 }
 
@@ -164,6 +171,13 @@ NamespaceImpl::FieldsList NamespaceImpl::fieldsList() const
         assert(f.second);
         result.emplace_back(f.second.get());
     }
+
+    std::sort(
+        result.begin(), result.end(),
+        [](auto& e1, auto& e2) {
+            return e1.name() < e2.name();
+        });
+
     return result;
 }
 
@@ -175,6 +189,12 @@ NamespaceImpl::MessagesList NamespaceImpl::messagesList() const
         assert(m.second);
         result.emplace_back(m.second.get());
     }
+
+    std::sort(
+        result.begin(), result.end(),
+        [](auto& e1, auto& e2) {
+            return e1.name() < e2.name();
+        });    
     return result;
 }
 
@@ -186,6 +206,12 @@ NamespaceImpl::InterfacesList NamespaceImpl::interfacesList() const
         assert(m.second);
         result.emplace_back(m.second.get());
     }
+
+    std::sort(
+        result.begin(), result.end(),
+        [](auto& e1, auto& e2) {
+            return e1.name() < e2.name();
+        });    
     return result;
 }
 
@@ -197,6 +223,12 @@ NamespaceImpl::FramesList NamespaceImpl::framesList() const
         assert(m.second);
         result.emplace_back(m.second.get());
     }
+
+    std::sort(
+        result.begin(), result.end(),
+        [](auto& e1, auto& e2) {
+            return e1.name() < e2.name();
+        });    
     return result;
 }
 

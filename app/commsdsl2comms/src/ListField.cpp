@@ -639,7 +639,7 @@ std::string ListField::getReadPreparationImpl(const FieldsList& fields) const
     bool versionOptional = isVersionOptional();
     common::StringsList preps;
     auto processPrefixFunc = 
-        [this, &fields, &preps, versionOptional](const std::string& prefixName, const common::ReplacementMap& replacements)
+        [&fields, &preps, versionOptional](const std::string& prefixName, const common::ReplacementMap& replacements)
         {
             if (prefixName.empty()) {
                 return;
