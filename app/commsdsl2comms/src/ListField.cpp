@@ -537,7 +537,7 @@ std::string ListField::getPrivateRefreshBodyImpl(const FieldsList& fields) const
 
     common::StringsList refreshes;
     auto processPrefixFunc = 
-        [this, &fields, &refreshes](const std::string& prefixName, const common::ReplacementMap& replacements)
+        [&fields, &refreshes](const std::string& prefixName, const common::ReplacementMap& replacements)
         {
             if (prefixName.empty()) {
                 return;

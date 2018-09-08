@@ -49,6 +49,14 @@ bool ChecksumLayerImpl::verifyImpl(const LayerImpl::LayersList& layers)
 {
     auto thisIdx = findThisLayerIndex(layers);
     assert(thisIdx < layers.size());
+
+    if (from().empty() && until().empty()) {
+        logError() << XmlWrap::logPrefix(getNode()) << 
+            "Checksum layer must set \"" << common::fromStr() << "\" or \"" << 
+            common::untilStr() << "\" property to indicate on what values checksum is calculated.";
+        return false;
+    }
+
     if (!from().empty()) {
         auto fromIdx = findLayerIndex(layers, from());
         if (layers.size() <= fromIdx) {
