@@ -537,7 +537,7 @@ std::string ListField::getPrivateRefreshBodyImpl(const FieldsList& fields) const
 
     common::StringsList refreshes;
     auto processPrefixFunc = 
-        [this, &obj, &fields, &refreshes](const std::string& prefixName, const common::ReplacementMap& replacements)
+        [this, &fields, &refreshes](const std::string& prefixName, const common::ReplacementMap& replacements)
         {
             if (prefixName.empty()) {
                 return;
@@ -639,7 +639,7 @@ std::string ListField::getReadPreparationImpl(const FieldsList& fields) const
     bool versionOptional = isVersionOptional();
     common::StringsList preps;
     auto processPrefixFunc = 
-        [this, &obj, &fields, &preps, versionOptional](const std::string& prefixName, const common::ReplacementMap& replacements)
+        [this, &fields, &preps, versionOptional](const std::string& prefixName, const common::ReplacementMap& replacements)
         {
             if (prefixName.empty()) {
                 return;
