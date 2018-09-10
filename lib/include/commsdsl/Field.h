@@ -59,6 +59,7 @@ public:
     std::string externalRef() const;
     bool isPseudo() const;
     bool isDisplayReadOnly() const;
+    bool isDisplayHidden() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

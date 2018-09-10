@@ -606,6 +606,12 @@ const std::string& displayReadOnlyStr()
     return Str;
 }
 
+const std::string& displayHiddenStr()
+{
+    static const std::string Str("displayHidden");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

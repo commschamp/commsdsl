@@ -104,6 +104,12 @@ bool Field::isDisplayReadOnly() const
     return m_pImpl->isDisplayReadOnly();
 }
 
+bool Field::isDisplayHidden() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isDisplayHidden();
+}
+
 const Field::AttributesMap& Field::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

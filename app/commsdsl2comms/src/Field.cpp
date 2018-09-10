@@ -786,6 +786,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         "        .name(#^#NAME_PROP#$#)\n"
         "        #^#SER_HIDDEN#$#\n"
         "        #^#READ_ONLY#$#\n"          
+        "        #^#HIDDEN#$#\n"
         "        #^#PROPERTIES#$#\n"
         "        .asMap();\n";
 
@@ -796,7 +797,8 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         "    cc::property::field::ForField<InnerField>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
         "        #^#SER_HIDDEN#$#\n"
-        "        #^#READ_ONLY#$#\n"        
+        "        #^#READ_ONLY#$#\n"      
+        "        #^#HIDDEN#$#\n"          
         "        #^#PROPERTIES#$#\n"
         "        .asMap();\n\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
@@ -847,6 +849,10 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
 
     if (m_dslObj.isDisplayReadOnly()) {
         replacements.insert(std::make_pair("READ_ONLY", ".readOnly()"));
+    }
+
+    if (m_dslObj.isDisplayHidden()) {
+        replacements.insert(std::make_pair("HIDDEN", ".hidden()"));
     }
 
     return common::processTemplate(*templ, replacements);

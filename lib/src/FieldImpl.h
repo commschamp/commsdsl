@@ -73,6 +73,11 @@ public:
         return m_state.m_displayReadOnly;
     }    
 
+    bool isDisplayHidden() const
+    {
+        return m_state.m_displayHidden;
+    }    
+
     std::size_t minLength() const
     {
         return minLengthImpl();
@@ -215,6 +220,7 @@ private:
         SemanticType m_semanticType = SemanticType::None;
         bool m_pseudo = false;
         bool m_displayReadOnly = false;
+        bool m_displayHidden = false;
     };
 
     bool checkReuse();
@@ -225,6 +231,7 @@ private:
     bool updateSemanticType();
     bool updatePseudo();
     bool updateDisplayReadOnly();
+    bool updateDisplayHidden();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 
