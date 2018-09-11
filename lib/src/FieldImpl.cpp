@@ -80,7 +80,8 @@ bool FieldImpl::parse()
         updateSemanticType() &&
         updatePseudo() &&
         updateDisplayReadOnly() &&
-        updateDisplayHidden();
+        updateDisplayHidden() &&
+        updateCustomizable();
 
     if (!result) {
         return false;
@@ -377,7 +378,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::semanticTypeStr(),
         common::pseudoStr(),
         common::displayReadOnlyStr(),
-        common::displayHiddenStr()
+        common::displayHiddenStr(),
+        common::customizableStr()
     };
 
     return CommonNames;
@@ -638,6 +640,11 @@ bool FieldImpl::updateDisplayReadOnly()
 bool FieldImpl::updateDisplayHidden()
 {
     return validateAndUpdateBoolPropValue(common::displayHiddenStr(), m_state.m_displayHidden);
+}
+
+bool FieldImpl::updateCustomizable()
+{
+    return validateAndUpdateBoolPropValue(common::customizableStr(), m_state.m_customizable);
 }
 
 bool FieldImpl::updateExtraAttrs(const XmlWrap::NamesList& names)

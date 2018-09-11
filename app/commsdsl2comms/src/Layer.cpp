@@ -133,7 +133,20 @@ std::string Layer::getDefaultOptions(const std::string& scope) const
 
     auto className = common::nameToClassCopy(name());
     std::string str;
-    if (m_field) {
+    do {
+        if (!m_field) {
+            break;
+        }
+
+        auto fieldScope = 
+            fullScope + className + 
+            common::membersSuffixStr() + "::";
+
+        auto opt = m_field->getDefaultOptions(fieldScope);
+        if (opt.empty()) {
+            break;
+        }
+
         static const std::string Templ = 
             "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
             "struct #^#CLASS_NAME#$#Members\n"
@@ -141,17 +154,15 @@ std::string Layer::getDefaultOptions(const std::string& scope) const
             "    #^#FIELD_OPT#$#\n"
             "};\n\n";
 
-        auto fieldScope = 
-            fullScope + className + 
-            common::membersSuffixStr() + "::";
 
 
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("SCOPE", scope));
         replacements.insert(std::make_pair("CLASS_NAME", className));
-        replacements.insert(std::make_pair("FIELD_OPT", m_field->getDefaultOptions(fieldScope)));
+        replacements.insert(std::make_pair("FIELD_OPT", std::move(opt)));
         str += common::processTemplate(Templ, replacements);
-    }
+
+    } while (false);
 
     str += getExtraDefaultOptionsImpl(fullScope);
     // if (!str.empty()) {

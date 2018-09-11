@@ -60,6 +60,7 @@ public:
     bool isPseudo() const;
     bool isDisplayReadOnly() const;
     bool isDisplayHidden() const;
+    bool isCustomizable() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

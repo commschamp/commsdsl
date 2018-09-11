@@ -639,6 +639,16 @@ const std::string& displayName(const std::string& dslDisplayName, const std::str
 
 }
 
+void toLower(std::string& str)
+{
+    std::transform(
+        str.begin(), str.end(), str.begin(),
+        [](char ch)
+        {
+            return static_cast<char>(std::tolower(ch));
+        });
+}
+
 } // namespace common
 
 } // namespace commsdsl2comms

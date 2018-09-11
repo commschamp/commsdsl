@@ -198,6 +198,11 @@ std::string Field::getDefaultOptions(const std::string& scope) const
     }
 
     auto str = getExtraDefaultOptionsImpl(fullScope);
+    
+    if (!isCustomizable()) {
+        return str;
+    }    
+
     if (!str.empty()) {
         str += '\n';
     }
@@ -892,6 +897,11 @@ std::string Field::getReadPreparationImpl(const FieldsList& fields) const
     return common::emptyString();
 }
 
+bool Field::isLimitedCustomizableImpl() const
+{
+    return false;
+}
+
 std::string Field::getNameFunc() const
 {
     auto customName = m_generator.getCustomNameForField(m_externalRef);
@@ -909,7 +919,7 @@ std::string Field::getNameFunc() const
 
 void Field::updateExtraOptions(const std::string& scope, common::StringsList& options) const
 {
-    if (!scope.empty()) {
+    if ((!scope.empty()) && (isCustomizable())) {
         options.push_back("typename " + scope + common::nameToClassCopy(name()));
     }
 
@@ -1165,6 +1175,23 @@ std::string Field::getPluginIncludes() const
     common::mergeInclude(m_generator.headerfileForField(m_externalRef, false), includes);
     updatePluginIncludesImpl(includes);
     return common::includesToStatements(includes);
+}
+
+bool Field::isCustomizable() const
+{
+    if (m_generator.customizationLevel() == CustomizationLevel::Full) {
+        return true;
+    }
+
+    if (m_dslObj.isCustomizable()) {
+        return true;
+    }
+
+    if (m_generator.customizationLevel() == CustomizationLevel::None) {
+        return false;
+    }
+
+    return isLimitedCustomizableImpl();
 }
 
 } // namespace commsdsl2comms

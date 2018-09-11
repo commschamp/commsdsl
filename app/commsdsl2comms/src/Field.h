@@ -190,6 +190,7 @@ protected:
     virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const;
     virtual bool hasCustomReadRefreshImpl() const;
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const;
+    virtual bool isLimitedCustomizableImpl() const;
 
     std::string getNameFunc() const;
 
@@ -214,6 +215,8 @@ private:
     bool writePluginScrFile() const;
 
     std::string getPluginIncludes() const;
+
+    bool isCustomizable() const;
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;

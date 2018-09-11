@@ -159,7 +159,14 @@ std::string BundleField::getExtraDefaultOptionsImpl(const std::string& scope) co
     StringsList options;
     options.reserve(m_members.size());
     for (auto& m : m_members) {
-        options.push_back(m->getDefaultOptions(memberScope));
+        auto opt = m->getDefaultOptions(memberScope);
+        if (!opt.empty()) {
+            options.push_back(std::move(opt));
+        }
+    }
+
+    if (options.empty()) {
+        return common::emptyString();
     }
 
     common::ReplacementMap replacements;

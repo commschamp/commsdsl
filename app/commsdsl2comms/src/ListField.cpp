@@ -733,6 +733,11 @@ std::string ListField::getReadPreparationImpl(const FieldsList& fields) const
     return common::listToString(preps, "\n", common::emptyString());
 }
 
+bool ListField::isLimitedCustomizableImpl() const
+{
+    return true;
+}
+
 std::string ListField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

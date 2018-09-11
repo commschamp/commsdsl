@@ -83,6 +83,8 @@ const std::string& dslEndianToOpt(commsdsl::Endian value);
 const std::string& dslUnitsToOpt(commsdsl::Units value);
 const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName);
 
+void toLower(std::string& str);
+
 } // namespace common
 
 } // namespace commsdsl2comms

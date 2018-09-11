@@ -182,6 +182,10 @@ std::string DataField::getExtraDefaultOptionsImpl(const std::string& scope) cons
     std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     auto fieldOptions = m_prefix->getDefaultOptions(memberScope);
 
+    if (fieldOptions.empty()) {
+        return common::emptyString();
+    }
+
     const std::string Templ =
         "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
         "struct #^#CLASS_NAME#$#Members\n"
@@ -342,6 +346,11 @@ std::string DataField::getReadPreparationImpl(const FieldsList& fields) const
         "}\n";
 
     return common::processTemplate(Templ, replacements);
+}
+
+bool DataField::isLimitedCustomizableImpl() const
+{
+    return true;
 }
 
 std::string DataField::getFieldOpts(const std::string& scope) const

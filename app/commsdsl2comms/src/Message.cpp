@@ -246,11 +246,6 @@ std::string Message::getDefaultOptions() const
         addFieldOptsFunc(f->getDefaultOptions(scope));
     }
 
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
-    replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
-
     static const std::string Templ =
         "/// @brief Extra options for fields of @ref #^#MESSAGE_SCOPE#$# message.\n"
         "struct #^#MESSAGE_NAME#$#Fields\n"
@@ -265,9 +260,14 @@ std::string Message::getDefaultOptions() const
         "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
 
     auto* templ = &Templ;
-    if (m_fields.empty()) {
+    if (m_fields.empty() || fieldsOpts.empty()) {
         templ = &NoFieldsTempl;
     }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
+    replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
 
     return common::processTemplate(*templ, replacements);
 }

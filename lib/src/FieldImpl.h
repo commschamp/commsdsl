@@ -78,6 +78,11 @@ public:
         return m_state.m_displayHidden;
     }    
 
+    bool isCustomizable() const
+    {
+        return m_state.m_customizable;
+    }    
+
     std::size_t minLength() const
     {
         return minLengthImpl();
@@ -221,6 +226,7 @@ private:
         bool m_pseudo = false;
         bool m_displayReadOnly = false;
         bool m_displayHidden = false;
+        bool m_customizable = false;
     };
 
     bool checkReuse();
@@ -232,6 +238,7 @@ private:
     bool updatePseudo();
     bool updateDisplayReadOnly();
     bool updateDisplayHidden();
+    bool updateCustomizable();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

@@ -34,6 +34,7 @@ const std::string CommsChampionTagStr("cc-tag");
 const std::string WarnAsErrStr("warn-as-err");
 const std::string VersionIndependentCodeStr("version-independent-code");
 const std::string ProtocolStr("protocol");
+const std::string CustomizationStr("customization");
 
 po::options_description createDescription()
 {
@@ -55,6 +56,11 @@ po::options_description createDescription()
             "Force schema version. Must not be greater than version specified in schema file.")
         (FullMinRemoteVerStr.c_str(), po::value<unsigned>()->default_value(0U),
             "Set minimal supported remote version. Defaults to 0.")
+        (CustomizationStr.c_str(), po::value<std::string>()->default_value("limited"),
+            "Allowed customization level of generated code. Supported values are:\n"
+            "  * \"full\" - for full customization of all fields and messages\n"
+            "  * \"limited\" - For limited customization of variable length fields and messages\n"
+            "  * \"none\" - No compile time customization is allowed.")
         (CommsChampionTagStr.c_str(), po::value<std::string>()->default_value(CommsChampionTag),
             "Default tag/branch of the CommsChampion project.")
         (ProtocolStr.c_str(), po::value<std::vector<std::string> >(),
@@ -217,6 +223,11 @@ std::vector<std::string> ProgramOptions::getPlugins() const
     auto protocols = m_vm[ProtocolStr].as<std::vector<std::string> >();
     assert(!protocols.empty());
     return protocols;
+}
+
+std::string ProgramOptions::getCustomizationLevel() const
+{
+    return m_vm[CustomizationStr].as<std::string>();
 }
 
 } // namespace commsdsl2comms

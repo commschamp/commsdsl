@@ -193,6 +193,10 @@ std::string OptionalField::getExtraDefaultOptionsImpl(const std::string& scope) 
     std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     auto fieldOptions = m_field->getDefaultOptions(memberScope);
 
+    if (fieldOptions.empty()) {
+        return common::emptyString();
+    }
+
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scope));

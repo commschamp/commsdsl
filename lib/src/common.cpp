@@ -612,6 +612,12 @@ const std::string& displayHiddenStr()
     return Str;
 }
 
+const std::string& customizableStr()
+{
+    static const std::string Str("customizable");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

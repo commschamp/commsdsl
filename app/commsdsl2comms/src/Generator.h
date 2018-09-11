@@ -13,6 +13,7 @@
 #include "ProgramOptions.h"
 #include "Namespace.h"
 #include "Plugin.h"
+#include "CustomizationLevel.h"
 
 namespace commsdsl2comms
 {
@@ -261,6 +262,11 @@ public:
         return m_options.getCommsChampionTag();
     }
 
+    CustomizationLevel customizationLevel() const
+    {
+        return m_customizationLevel;
+    }
+
     std::string pluginCommonSources() const;
 
     PluginsAccessList getPlugins() const;
@@ -301,6 +307,7 @@ private:
     using FramesList = Namespace::FramesAccessList;
 
     bool parseOptions();
+    bool parseCustomization();
     bool parseSchemaFiles(const FilesList& files);
     bool prepare();
     bool writeFiles();
@@ -370,6 +377,7 @@ private:
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
     unsigned m_schemaVersion = 0U;
     unsigned m_minRemoteVersion = 0U;
+    CustomizationLevel m_customizationLevel = CustomizationLevel::Limited;
     const Field* m_messageIdField = nullptr;
     bool m_versionDependentCode = false;
 };

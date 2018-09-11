@@ -771,6 +771,41 @@ bool Generator::parseOptions()
     }
 
     m_mainNamespace = common::adjustName(m_options.getNamespace());
+
+    if (!parseCustomization()) {
+        return false;
+    }
+    return true;
+}
+
+bool Generator::parseCustomization()
+{
+    static const std::string Map[] = {
+        "full",
+        "limited",
+        "none"
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == (unsigned)CustomizationLevel::NumOfValues,
+        "Invalid map");
+
+    auto level = m_options.getCustomizationLevel();
+    common::toLower(level);
+
+    auto iter = std::find(std::begin(Map), std::end(Map), level);
+    if (iter != std::end(Map)) {
+        m_customizationLevel = 
+            static_cast<decltype(m_customizationLevel)>(
+                std::distance(std::begin(Map), iter));
+        return true;
+    }
+
+    m_logger.warning("Unexpected customization level requested: \"" + level + "\".");
+    if (m_logger.hadWarning()) {
+        return false;
+    }
+
     return true;
 }
 

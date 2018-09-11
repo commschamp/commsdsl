@@ -35,6 +35,7 @@ protected:
     virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override;
     virtual bool hasCustomReadRefreshImpl() const override;
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const override;
+    virtual bool isLimitedCustomizableImpl() const override;
 
 private:
     using StringsList = common::StringsList;

@@ -110,6 +110,12 @@ bool Field::isDisplayHidden() const
     return m_pImpl->isDisplayHidden();
 }
 
+bool Field::isCustomizable() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isCustomizable();
+}
+
 const Field::AttributesMap& Field::extraAttributes() const
 {
     assert(m_pImpl != nullptr);
