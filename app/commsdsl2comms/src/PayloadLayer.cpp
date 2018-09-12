@@ -40,4 +40,9 @@ std::string PayloadLayer::getClassDefinitionImpl(
     return common::processTemplate(Templ, replacements);
 }
 
+bool PayloadLayer::isCustomizableImpl() const
+{
+    return true;
+}
+
 } // namespace commsdsl2comms

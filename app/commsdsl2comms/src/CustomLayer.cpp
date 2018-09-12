@@ -58,4 +58,9 @@ std::string CustomLayer::getClassDefinitionImpl(
     return common::processTemplate(Templ, replacements);
 }
 
+bool CustomLayer::isCustomizableImpl() const
+{
+    return true;
+}
+
 } // namespace commsdsl2comms

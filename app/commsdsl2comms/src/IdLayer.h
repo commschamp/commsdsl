@@ -20,6 +20,7 @@ protected:
         const std::string& scope,
         std::string& prevLayer,
         bool& hasInputMessages) const override;
+    virtual bool isCustomizableImpl() const override;
 
 private:
     commsdsl::IdLayer idLayerDslObj() const

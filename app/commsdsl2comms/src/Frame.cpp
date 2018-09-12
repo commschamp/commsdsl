@@ -132,7 +132,14 @@ std::string Frame::getDefaultOptions() const
     layersOpts.reserve(m_layers.size());
     auto scope = m_generator.scopeForFrame(m_externalRef, true, true) + common::layersSuffixStr() + "::";
     for (auto iter = m_layers.rbegin(); iter != m_layers.rend(); ++iter) {
-        layersOpts.push_back((*iter)->getDefaultOptions(scope));
+        auto opt = (*iter)->getDefaultOptions(scope);
+        if (!opt.empty()) {
+            layersOpts.push_back(std::move(opt));
+        }
+    }
+
+    if (layersOpts.empty()) {
+        return common::emptyString();
     }
 
     static const std::string Templ = 

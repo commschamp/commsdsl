@@ -169,6 +169,10 @@ std::string Layer::getDefaultOptions(const std::string& scope) const
     //     str += '\n';
     // }
 
+    if (!isCustomizable()) {
+        return str;
+    }
+
     return
         str +
         "/// @brief Extra options for @ref " +
@@ -367,6 +371,11 @@ bool Layer::rearangeImpl(LayersList& layers, bool& success)
 {
     static_cast<void>(layers);
     success = true;
+    return false;
+}
+
+bool Layer::isCustomizableImpl() const
+{
     return false;
 }
 

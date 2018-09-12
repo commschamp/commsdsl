@@ -92,8 +92,14 @@ protected:
         bool& hasInputMessages) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
     virtual bool rearangeImpl(LayersList& layers, bool& success);
+    virtual bool isCustomizableImpl() const;
 
 private:
+
+    bool isCustomizable() const
+    {
+        return isCustomizableImpl();
+    }
 
     Generator& m_generator;
     commsdsl::Layer m_dslObj;
