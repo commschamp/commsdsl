@@ -117,6 +117,7 @@ const std::string& signExtStr();
 const std::string& displayReadOnlyStr();
 const std::string& displayHiddenStr();
 const std::string& customizableStr();
+const std::string& failOnInvalidStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

@@ -116,6 +116,12 @@ bool Field::isCustomizable() const
     return m_pImpl->isCustomizable();
 }
 
+bool Field::isFailOnInvalid() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isFailOnInvalid();
+}
+
 const Field::AttributesMap& Field::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

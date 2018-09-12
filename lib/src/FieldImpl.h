@@ -83,6 +83,11 @@ public:
         return m_state.m_customizable;
     }    
 
+    bool isFailOnInvalid() const
+    {
+        return m_state.m_failOnInvalid;
+    }    
+
     std::size_t minLength() const
     {
         return minLengthImpl();
@@ -227,6 +232,7 @@ private:
         bool m_displayReadOnly = false;
         bool m_displayHidden = false;
         bool m_customizable = false;
+        bool m_failOnInvalid = false;
     };
 
     bool checkReuse();
@@ -239,6 +245,7 @@ private:
     bool updateDisplayReadOnly();
     bool updateDisplayHidden();
     bool updateCustomizable();
+    bool updateFailOnInvalid();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

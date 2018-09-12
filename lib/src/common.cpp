@@ -618,6 +618,12 @@ const std::string& customizableStr()
     return Str;
 }
 
+const std::string& failOnInvalidStr()
+{
+    static const std::string Str("failOnInvalid");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

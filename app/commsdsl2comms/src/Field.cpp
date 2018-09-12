@@ -930,6 +930,9 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
     if (m_focedFailOnInvalid) {
         options.push_back("comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
     }
+    else if (m_dslObj.isFailOnInvalid()) {
+        common::addToList("comms::option::FailOnInvalid<>", options);
+    }
 
     if (!m_customRead.empty()) {
         common::addToList("comms::option::HasCustomRead", options);
@@ -942,6 +945,8 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
     if (m_dslObj.isPseudo()) {
         common::addToList("comms::option::EmptySerialization", options);
     }
+
+
 }
 
 const std::string& Field::getCustomRead() const

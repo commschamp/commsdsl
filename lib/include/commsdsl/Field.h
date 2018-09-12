@@ -61,6 +61,7 @@ public:
     bool isDisplayReadOnly() const;
     bool isDisplayHidden() const;
     bool isCustomizable() const;
+    bool isFailOnInvalid() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;
