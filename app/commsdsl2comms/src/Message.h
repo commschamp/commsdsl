@@ -70,6 +70,7 @@ private:
     std::string getExtraPublic() const;
 
     bool mustImplementReadRefresh() const;
+    bool isCustomizable() const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;

@@ -53,7 +53,7 @@ const std::string Template(
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::MessageBase<\n"
     "        TMsgBase,\n"
-    "        typename TOpt::#^#NAMESPACE_SCOPE#$#,\n"
+    "        #^#CUSTOMIZATION_OPT#$#\n"
     "        comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
     "        comms::option::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
     "        comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
@@ -65,7 +65,7 @@ const std::string Template(
     "    using Base =\n"
     "        comms::MessageBase<\n"
     "            TMsgBase,\n"
-    "            typename TOpt::#^#NAMESPACE_SCOPE#$#,\n"
+    "            #^#CUSTOMIZATION_OPT#$#\n"
     "            comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
     "            comms::option::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
     "            comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
@@ -252,22 +252,33 @@ std::string Message::getDefaultOptions() const
         "{\n"
         "    #^#FIELDS_OPTS#$#\n"
         "}; // struct #^#MESSAGE_NAME#$#Fields\n\n"
-        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
-        "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
+        "#^#MESSAGE_OPT#$#\n";
+        //"using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
 
     static const std::string NoFieldsTempl =
-        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
-        "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
+        "#^#MESSAGE_OPT#$#\n";
 
     auto* templ = &Templ;
     if (m_fields.empty() || fieldsOpts.empty()) {
         templ = &NoFieldsTempl;
     }
 
+    bool customizable = isCustomizable();
+    if ((!customizable) && (templ == &NoFieldsTempl)) {
+        return common::emptyString();
+    }
+
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
     replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
+
+    if (customizable) {
+        auto opt = 
+            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "using " + common::nameToClassCopy(name()) + " = comms::option::EmptyOption;";
+        replacements.insert(std::make_pair("MESSAGE_OPT", std::move(opt)));
+    }
 
     return common::processTemplate(*templ, replacements);
 }
@@ -302,10 +313,14 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("INCLUDES", getIncludes()));
     replacements.insert(std::make_pair("MESSAGE_BODY", getBody()));
     replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
-    replacements.insert(std::make_pair("NAMESPACE_SCOPE", getNamespaceScope()));
     replacements.insert(std::make_pair("EXTRA_OPTIONS", getExtraOptions()));
     if (!replacements["EXTRA_OPTIONS"].empty()) {
         replacements.insert(std::make_pair("COMMA", ","));
+    }
+
+    if (isCustomizable()) {
+        auto opt = "typename TOpt::" + getNamespaceScope();
+        replacements.insert(std::make_pair("CUSTOMIZATION_OPT", std::move(opt)));
     }
 
     auto str = common::processTemplate(Template, replacements);
@@ -715,6 +730,23 @@ bool Message::mustImplementReadRefresh() const
             return true;
         }
     }
+    return false;
+}
+
+bool Message::isCustomizable() const
+{
+    if (m_generator.customizationLevel() == CustomizationLevel::Full) {
+        return true;
+    }
+
+    // TODO: check customizable property
+
+    if (m_generator.customizationLevel() == CustomizationLevel::None) {
+        return false;
+    }
+
+    // TODO: check limited
+
     return false;
 }
 
