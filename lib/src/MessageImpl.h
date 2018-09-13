@@ -25,6 +25,7 @@ public:
     using FieldsList = Message::FieldsList;
     using ContentsList = XmlWrap::ContentsList;
     using PlatformsList = Protocol::PlatformsList;
+    using Sender = Message::Sender;
 
     MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     MessageImpl(const MessageImpl&) = delete;
@@ -79,6 +80,17 @@ public:
     {
         return m_platforms;
     }
+
+    bool isCustomizable() const
+    {
+        return m_customizable;
+    }
+
+    Sender sender() const
+    {
+        return m_sender;
+    }
+
 protected:
 
     virtual ObjKind objKindImpl() const override final;
@@ -101,6 +113,8 @@ private:
     bool updateOrder();
     bool updateVersions();
     bool updatePlatforms();
+    bool updateCustomizable();
+    bool updateSender();
     bool copyFields();
     bool updateFields();
     void cloneFieldsFrom(const MessageImpl& other);
@@ -120,6 +134,8 @@ private:
     unsigned m_order = 0;
     std::vector<FieldImplPtr> m_fields;
     PlatformsList m_platforms;
+    Sender m_sender = Sender::Both;
+    bool m_customizable = false;
 };
 
 using MessageImplPtr = MessageImpl::Ptr;

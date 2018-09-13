@@ -15,6 +15,14 @@ class MessageImpl;
 class COMMSDSL_API Message
 {
 public:
+    enum class Sender
+    {
+        Both,
+        Client,
+        Server,
+        NumOfValues
+    };
+
     using FieldsList = std::vector<Field>;
     using AttributesMap = Schema::AttributesMap;
     using ElementsList = Schema::ElementsList;
@@ -37,6 +45,8 @@ public:
     bool isDeprecatedRemoved() const;
     FieldsList fields() const;
     std::string externalRef() const;
+    bool isCustomizable() const;
+    Sender sender() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

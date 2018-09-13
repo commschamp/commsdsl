@@ -118,6 +118,10 @@ const std::string& displayReadOnlyStr();
 const std::string& displayHiddenStr();
 const std::string& customizableStr();
 const std::string& failOnInvalidStr();
+const std::string& senderStr();
+const std::string& clientStr();
+const std::string& serverStr();
+const std::string& bothStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

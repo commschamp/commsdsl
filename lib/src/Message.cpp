@@ -92,6 +92,18 @@ std::string Message::externalRef() const
     return m_pImpl->externalRef();
 }
 
+bool Message::isCustomizable() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isCustomizable();
+}
+
+Message::Sender Message::sender() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->sender();
+}
+
 const Message::AttributesMap& Message::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

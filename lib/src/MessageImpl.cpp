@@ -52,6 +52,8 @@ bool MessageImpl::parse()
         updateOrder() &&
         updateVersions() &&
         updatePlatforms() &&
+        updateCustomizable() &&
+        updateSender() &&
         copyFields() &&
         updateFields() &&
         updateExtraAttrs() &&
@@ -193,7 +195,9 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::removedStr(),
         common::copyFieldsFromStr(),
         common::orderStr(),
-        common::platformsStr()
+        common::platformsStr(),
+        common::customizableStr(),
+        common::senderStr()
     };
 
     return CommonNames;
@@ -420,6 +424,58 @@ bool MessageImpl::updatePlatforms()
         return false;
     }
 
+    return true;
+}
+
+bool MessageImpl::updateCustomizable()
+{
+    auto& propStr = common::customizableStr();
+    if (!validateSinglePropInstance(propStr)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propStr);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    bool ok = false;
+    m_customizable = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(propStr, iter->second);
+        return false;
+    }
+    return true;
+}
+
+bool MessageImpl::updateSender()
+{
+    auto& propStr = common::senderStr();
+    if (!validateSinglePropInstance(propStr)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propStr);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    static const std::string Map[] = {
+        common::bothStr(),
+        common::clientStr(),
+        common::serverStr()
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == (unsigned)Sender::NumOfValues, "Invalid map");
+
+    auto senderIter = std::find(std::begin(Map), std::end(Map), common::toLowerCopy(iter->second));
+    if (senderIter == std::end(Map)) {
+        reportUnexpectedPropertyValue(propStr, iter->second);
+        return false;
+    }
+
+    m_sender = static_cast<decltype(m_sender)>(std::distance(std::begin(Map), senderIter));
     return true;
 }
 

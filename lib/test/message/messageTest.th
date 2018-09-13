@@ -24,6 +24,7 @@ public:
     void test15();
     void test16();
     void test17();
+    void test18();
 };
 
 void MessageTestSuite::setUp()
@@ -380,4 +381,40 @@ void MessageTestSuite::test17()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test18()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 4U);
+
+    auto& msg1 = messages[0];
+    auto& msg2 = messages[1];
+    auto& msg3 = messages[2];
+    auto& msg4 = messages[3];
+    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
+    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+    TS_ASSERT_EQUALS(msg3.name(), "Msg3");
+    TS_ASSERT_EQUALS(msg4.name(), "Msg4");
+
+    TS_ASSERT_EQUALS(msg1.sender(), commsdsl::Message::Sender::Both);
+    TS_ASSERT(!msg1.isCustomizable());
+
+    TS_ASSERT_EQUALS(msg2.sender(), commsdsl::Message::Sender::Both);
+    TS_ASSERT(!msg2.isCustomizable());
+
+    TS_ASSERT_EQUALS(msg3.sender(), commsdsl::Message::Sender::Client);
+    TS_ASSERT(msg3.isCustomizable());
+
+    TS_ASSERT_EQUALS(msg4.sender(), commsdsl::Message::Sender::Server);
+    TS_ASSERT(!msg1.isCustomizable());
 }

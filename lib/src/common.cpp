@@ -624,6 +624,30 @@ const std::string& failOnInvalidStr()
     return Str;
 }
 
+const std::string& senderStr()
+{
+    static const std::string Str("sender");
+    return Str;
+}
+
+const std::string& clientStr()
+{
+    static const std::string Str("client");
+    return Str;
+}
+
+const std::string& serverStr()
+{
+    static const std::string Str("server");
+    return Str;
+}
+
+const std::string& bothStr()
+{
+    static const std::string Str("both");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
