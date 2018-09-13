@@ -25,6 +25,7 @@ public:
     using MessageIdMap = std::multimap<std::uintmax_t, std::string>;
     using PluginsAccessList = std::vector<const Plugin*>;
     using NamespacesScopesList = Namespace::NamespacesScopesList;
+    using PlatformsList = commsdsl::Protocol::PlatformsList;
 
     Generator(ProgramOptions& options, Logger& logger)
       : m_options(options), m_logger(logger)
@@ -46,6 +47,11 @@ public:
     bool isElementOptional(unsigned sinceVersion,
         unsigned deprecatedSince = commsdsl::Protocol::notYetDeprecated(),
         bool deprecatedRemoved = true) const;
+
+    const PlatformsList& platforms() const
+    {
+        return m_protocol.platforms();
+    }
 
     std::string protocolDefRootDir();
 
