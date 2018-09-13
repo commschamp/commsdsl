@@ -45,10 +45,10 @@ void TestSuite::test1()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test26::MsgId_M1);
     auto* msg1 = dynamic_cast<const Msg1_v1*>(msgPtr.get());
-    TS_ASSERT_EQUALS(msg1, nullptr);
+    TS_ASSERT(msg1 == nullptr);
     auto msg2 = dynamic_cast<const Msg1_v2*>(msgPtr.get());
-    TS_ASSERT_EQUALS(msg2, nullptr);
+    TS_ASSERT(msg2 == nullptr);
     auto msg3 = dynamic_cast<const Msg1_v3*>(msgPtr.get());
-    TS_ASSERT_DIFFERS(msg3, nullptr);
+    TS_ASSERT(msg3 != nullptr);
     TS_ASSERT_EQUALS(msg3->field_version().value(), 3U);
 }
