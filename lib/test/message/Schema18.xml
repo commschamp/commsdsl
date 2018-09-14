@@ -14,6 +14,9 @@
     </fields>
     <message name="Msg1" id="MsgId.Msg1" />
     <message name="Msg2" id="MsgId.Msg2" sender="both" customizable="false" />
-    <message name="Msg3" id="MsgId.Msg3" sender="client" customizable="true" />
+    <message name="Msg3" id="MsgId.Msg3">
+        <sender value="client"/>
+        <customizable value="true"/>
+    </message>
     <message name="Msg4" id="MsgId.Msg4" sender="server" customizable="0" />
 </schema>

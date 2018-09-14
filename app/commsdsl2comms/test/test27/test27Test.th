@@ -1,0 +1,110 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test27/Message.h"
+#include "test27/message/Msg1.h"
+#include "test27/message/Msg2.h"
+#include "test27/ClientDefaultOptions.h"
+#include "test27/ServerDefaultOptions.h"
+#include "test27/frame/Frame.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+    void test3();
+    void test4();    
+
+    using Interface =
+        test27::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using ClientMsg1 = test27::message::Msg1<Interface, test27::ClientDefaultOptions>;
+    using ServerMsg1 = test27::message::Msg1<Interface, test27::ServerDefaultOptions>;
+    using ClientMsg2 = test27::message::Msg2<Interface, test27::ClientDefaultOptions>;
+    using ServerMsg2 = test27::message::Msg2<Interface, test27::ServerDefaultOptions>;
+};
+
+void TestSuite::test1()
+{
+    static const std::uint8_t Buf[] = {1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+
+    ClientMsg1 msg1;
+    auto es = msg1.read(readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::NotSupported);
+
+    ServerMsg1 msg2;
+    readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    es = msg2.read(readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msg2.field_value().value(), 1U);
+}
+
+void TestSuite::test2()
+{
+    std::uint8_t buf[8] = {0};
+    static const std::size_t BufSize = std::extent<decltype(buf)>::value;
+
+    auto writeIter = comms::writeIteratorFor<Interface>(&buf[0]);
+
+    ClientMsg1 msg1;
+    msg1.field_value().value() = 5U;
+    auto es = msg1.write(writeIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(buf[0], 5U);
+
+    
+    ServerMsg1 msg2;
+    msg2.field_value().value() = 5U;
+    writeIter = comms::writeIteratorFor<Interface>(&buf[0]);
+    es = msg2.write(writeIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::NotSupported);
+}
+
+void TestSuite::test3()
+{
+    static const std::uint8_t Buf[] = {1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+
+    ClientMsg2 msg1;
+    auto es = msg1.read(readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msg1.field_value().value(), 1U);
+
+    ServerMsg2 msg2;
+    readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    es = msg2.read(readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::NotSupported);
+}
+
+void TestSuite::test4()
+{
+    std::uint8_t buf[8] = {0};
+    static const std::size_t BufSize = std::extent<decltype(buf)>::value;
+
+    auto writeIter = comms::writeIteratorFor<Interface>(&buf[0]);
+
+    ClientMsg2 msg1;
+    msg1.field_value().value() = 5U;
+    auto es = msg1.write(writeIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::NotSupported);
+    
+    ServerMsg2 msg2;
+    msg2.field_value().value() = 5U;
+    writeIter = comms::writeIteratorFor<Interface>(&buf[0]);
+    es = msg2.write(writeIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(buf[0], 5U);
+}

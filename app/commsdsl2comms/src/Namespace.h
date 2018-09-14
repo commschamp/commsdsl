@@ -45,6 +45,8 @@ public:
     bool writeFields();
 
     std::string getDefaultOptions() const;
+    std::string getClientOptions() const;
+    std::string getServerOptions() const;
 
     NamespacesScopesList getNamespacesScopes() const;
     MessagesAccessList getAllMessages() const;
@@ -79,6 +81,9 @@ private:
     bool prepareMessages();
     bool prepareFrames();
     void recordAccessedField(const Field* field);
+
+    typedef std::string (Message::*GetClientServerOptionsFunc)() const;
+    std::string getClientServerOptions(GetClientServerOptionsFunc) const;
 
     Generator& m_generator;
     commsdsl::Namespace m_dslObj;

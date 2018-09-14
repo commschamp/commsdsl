@@ -649,6 +649,14 @@ void toLower(std::string& str)
         });
 }
 
+std::string toLowerCopy(const std::string& str)
+{
+    std::string copy(str);
+    toLower(copy);
+    return copy;
+}
+
+
 } // namespace common
 
 } // namespace commsdsl2comms

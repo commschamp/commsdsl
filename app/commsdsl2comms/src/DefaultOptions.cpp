@@ -12,29 +12,13 @@ namespace bf = boost::filesystem;
 namespace commsdsl2comms
 {
 
-namespace
-{
-
-const std::string Template(
-    "/// @file\n"
-    "/// @brief Contains definition of protocol default options.\n\n"
-    "#pragma once\n\n"
-    "#include \"comms/options.h\"\n\n"
-    "#^#BEG_NAMESPACE#$#\n"
-    "/// @brief Default (empty) options of the protocol.\n"
-    "struct #^#CLASS_NAME#$#\n"
-    "{\n"
-    "    #^#BODY#$#\n"
-    "};\n\n"
-    "#^#END_NAMESPACE#$#\n"
-);
-
-} // namespace
-
 bool DefaultOptions::write(Generator& generator)
 {
     DefaultOptions obj(generator);
-    return obj.writeDefinition();
+    return 
+        obj.writeDefinition() &&
+        obj.writeClientServerWrite(true) &&
+        obj.writeClientServerWrite(false);
 }
 
 bool DefaultOptions::writeDefinition() const
@@ -59,6 +43,86 @@ bool DefaultOptions::writeDefinition() const
         m_generator.logger().error("Failed to open \"" + fileName + "\" for writing.");
         return false;
     }
+
+    static const std::string Template(
+        "/// @file\n"
+        "/// @brief Contains definition of protocol default options.\n\n"
+        "#pragma once\n\n"
+        "#include \"comms/options.h\"\n\n"
+        "#^#BEG_NAMESPACE#$#\n"
+        "/// @brief Default (empty) options of the protocol.\n"
+        "struct #^#CLASS_NAME#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n\n"
+        "#^#END_NAMESPACE#$#\n"
+    );
+
+    auto str = common::processTemplate(Template, replacements);
+    stream << str;
+
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + fileName + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool DefaultOptions::writeClientServerWrite(bool client) const
+{
+    std::string type;
+    std::string body;
+
+    if (client) {
+        type = "Client";
+        body = m_generator.getClientDefaultOptionsBody();
+    }
+    else {
+        type = "Server";
+        body = m_generator.getServerDefaultOptionsBody();
+    }
+
+    if (body.empty()) {
+        return true;
+    }
+
+    auto info = m_generator.startGenericProtocolWrite(type + common::defaultOptionsStr());
+    auto& fileName = info.first;
+    auto& className = info.second;
+
+    if (fileName.empty()) {
+        return true;
+    }
+
+    common::ReplacementMap replacements;
+    auto namespaces = m_generator.namespacesForRoot();
+    replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    replacements.insert(std::make_pair("BODY", std::move(body)));
+    replacements.insert(std::make_pair("TYPE", common::toLowerCopy(type)));
+
+    std::ofstream stream(fileName);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + fileName + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Template(
+        "/// @file\n"
+        "/// @brief Contains definition of protocol default options for #^#TYPE#$#.\n\n"
+        "#pragma once\n\n"
+        "#include \"DefaultOptions.h\"\n\n"
+        "#^#BEG_NAMESPACE#$#\n"
+        "/// @brief Default options of the protocol specific for a #^#TYPE#$#.\n"
+        "struct #^#CLASS_NAME#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n\n"
+        "#^#END_NAMESPACE#$#\n"
+    );
 
     auto str = common::processTemplate(Template, replacements);
     stream << str;

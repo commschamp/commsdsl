@@ -253,7 +253,6 @@ std::string Message::getDefaultOptions() const
         "    #^#FIELDS_OPTS#$#\n"
         "}; // struct #^#MESSAGE_NAME#$#Fields\n\n"
         "#^#MESSAGE_OPT#$#\n";
-        //"using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;\n";
 
     static const std::string NoFieldsTempl =
         "#^#MESSAGE_OPT#$#\n";
@@ -274,13 +273,73 @@ std::string Message::getDefaultOptions() const
     replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
 
     if (customizable) {
-        auto opt = 
+        static const std::string OptTempl = 
             "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
-            "using " + common::nameToClassCopy(name()) + " = comms::option::EmptyOption;";
-        replacements.insert(std::make_pair("MESSAGE_OPT", std::move(opt)));
+            "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;";
+        replacements.insert(std::make_pair("MESSAGE_OPT", common::processTemplate(OptTempl, replacements)));
     }
 
     return common::processTemplate(*templ, replacements);
+}
+
+std::string Message::getClientOptions() const
+{
+    if ((m_dslObj.sender() == Sender::Both) || (!isCustomizable())) {
+        return common::emptyString();
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
+
+    if (m_dslObj.sender() == Sender::Client) {
+        static const std::string Templ = 
+            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "using #^#MESSAGE_NAME#$# = comms::option::NoReadImpl;\n";
+
+        return common::processTemplate(Templ, replacements);
+    }
+
+    assert(m_dslObj.sender() == Sender::Server);
+    static const std::string Templ = 
+        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "using #^#MESSAGE_NAME#$# =\n"
+        "    std::tuple<\n"
+        "        comms::option::NoWriteImpl,\n"
+        "        comms::option::NoRefreshImpl\n"
+        "    >;\n";
+
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string Message::getServerOptions() const
+{
+    if ((m_dslObj.sender() == Sender::Both) || (!isCustomizable())) {
+        return common::emptyString();
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
+
+    if (m_dslObj.sender() == Sender::Client) {
+        static const std::string Templ = 
+            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "using #^#MESSAGE_NAME#$# =\n"
+            "    std::tuple<\n"
+            "        comms::option::NoWriteImpl,\n"
+            "        comms::option::NoRefreshImpl\n"
+            "    >;\n";        
+
+        return common::processTemplate(Templ, replacements);
+    }
+
+    assert(m_dslObj.sender() == Sender::Server);
+    static const std::string Templ = 
+        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "using #^#MESSAGE_NAME#$# = comms::option::NoReadImpl;\n";
+
+    return common::processTemplate(Templ, replacements);
 }
 
 bool Message::writeProtocol()
@@ -319,7 +378,7 @@ bool Message::writeProtocol()
     }
 
     if (isCustomizable()) {
-        auto opt = "typename TOpt::" + getNamespaceScope();
+        auto opt = "typename TOpt::" + getNamespaceScope() + ",";
         replacements.insert(std::make_pair("CUSTOMIZATION_OPT", std::move(opt)));
     }
 
@@ -739,15 +798,15 @@ bool Message::isCustomizable() const
         return true;
     }
 
-    // TODO: check customizable property
+    if (m_dslObj.isCustomizable()) {
+        return true;
+    }
 
     if (m_generator.customizationLevel() == CustomizationLevel::None) {
         return false;
     }
 
-    // TODO: check limited
-
-    return false;
+    return m_dslObj.sender() != commsdsl::Message::Sender::Both;
 }
 
 }

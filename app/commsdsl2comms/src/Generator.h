@@ -206,7 +206,10 @@ public:
         bool mainIncluded = false,
         bool classIncluded = false);
 
-    std::string scopeForNamespace(const std::string& externalRef);
+    std::string scopeForNamespace(
+        const std::string& externalRef,
+        bool mainIncluded = true,
+        bool appendSep = true);
 
     const std::string& mainNamespace() const
     {
@@ -234,6 +237,8 @@ public:
     }
 
     std::string getDefaultOptionsBody() const;
+    std::string getClientDefaultOptionsBody() const;
+    std::string getServerDefaultOptionsBody() const;
 
     std::string getMessageIdStr(const std::string& externalRef, uintmax_t id) const;
 
@@ -370,6 +375,9 @@ private:
     bool preparePlugins();
     InterfacesList getAllInterfaces() const;
     FramesList getAllFrames() const;
+
+    typedef std::string (Namespace::*GetOptionsFunc)() const;
+    std::string getOptionsBody(GetOptionsFunc func) const;
 
     ProgramOptions& m_options;
     Logger& m_logger;

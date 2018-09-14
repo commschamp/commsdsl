@@ -15,7 +15,8 @@ class Generator;
 class Message
 {
 public:
-
+    using Sender = commsdsl::Message::Sender;
+    
     //using FieldsMap = std::map<std::string, FieldPtr>;
     explicit Message(Generator& gen, const commsdsl::Message& msg)
       : m_generator(gen),
@@ -35,6 +36,8 @@ public:
     bool write();
 
     std::string getDefaultOptions() const;
+    std::string getClientOptions() const;
+    std::string getServerOptions() const;
 
     std::uintmax_t id() const
     {

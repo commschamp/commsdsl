@@ -84,6 +84,7 @@ const std::string& dslUnitsToOpt(commsdsl::Units value);
 const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName);
 
 void toLower(std::string& str);
+std::string toLowerCopy(const std::string& str);
 
 } // namespace common
 

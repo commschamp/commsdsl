@@ -223,6 +223,16 @@ std::string Namespace::getDefaultOptions() const
     return common::processTemplate(*templ, replacmenents);
 }
 
+std::string Namespace::getClientOptions() const
+{
+    return getClientServerOptions(&Message::getClientOptions);
+}
+
+std::string Namespace::getServerOptions() const
+{
+    return getClientServerOptions(&Message::getServerOptions);
+}
+
 Namespace::NamespacesScopesList Namespace::getNamespacesScopes() const
 {
     NamespacesScopesList result;
@@ -688,6 +698,51 @@ bool commsdsl2comms::Namespace::hasFrame() const
             {
                 return n->hasFrame();
             });
+}
+
+std::string Namespace::getClientServerOptions(GetClientServerOptionsFunc func) const
+{
+    common::StringsList messagesOpts;
+    for (auto& m : m_messages) {
+        auto opt = (m.get()->*func)();
+        if (!opt.empty()) {
+            messagesOpts.push_back(std::move(opt));
+        }
+    }
+
+    if (messagesOpts.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Scope for extra options for fields and messages in the namespace.\n"
+        "struct #^#NAMESPACE_NAME#$# : public DefaultOptions::#^#NAMESPACE_SCOPE#$#\n"
+        "{\n"
+        "    /// @brief Extra options for messages.\n"
+        "    struct message : public DefaultOptions::#^#NAMESPACE_SCOPE#$#::message\n"
+        "    {\n"
+        "        #^#MESSAGES_OPTS#$#\n"
+        "    };"
+        "};\n";
+
+    static const std::string GlobalTempl =
+        "/// @brief Extra options for messages.\n"
+        "struct message : public DefaultOptions::message\n"
+        "{\n"
+        "    #^#MESSAGES_OPTS#$#\n"
+        "};\n";
+
+    auto* templ = &Templ;
+    if (name().empty()) {
+        templ = &GlobalTempl;
+    }
+
+    common::ReplacementMap replacmenents;
+    replacmenents.insert(std::make_pair("NAMESPACE_NAME", name()));
+    replacmenents.insert(std::make_pair("NAMESPACE_SCOPE", m_generator.scopeForNamespace(externalRef(), false, false)));
+    replacmenents.insert(std::make_pair("MESSAGES_OPTS", common::listToString(messagesOpts, "\n", common::emptyString())));
+
+    return common::processTemplate(*templ, replacmenents);
 }
 
 }

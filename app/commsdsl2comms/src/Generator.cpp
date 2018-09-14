@@ -598,32 +598,39 @@ std::string Generator::scopeForCustomLayer(
     return scopeForElement(name, mainIncluded, classIncluded, SubNs);
 }
 
-std::string Generator::scopeForNamespace(const std::string& externalRef)
+std::string Generator::scopeForNamespace(
+    const std::string& externalRef,
+    bool mainIncluded,
+    bool appendSep)
 {
-    std::string result = mainNamespace() + ScopeSep;
+    std::string result;
+    if (mainIncluded) {
+        result += (mainNamespace() + ScopeSep);
+    }  
+    
     if (!externalRef.empty()) {
         result += ba::replace_all_copy(externalRef, ".", "::");
-        result += ScopeSep;
+        if (appendSep) {
+            result += ScopeSep;
+        }
     }
+
     return result;
 }
 
 std::string Generator::getDefaultOptionsBody() const
 {
-    std::string result;
-    for (auto& n : m_namespaces) {
-        auto str = n->getDefaultOptions();
-        if (str.empty()) {
-            continue;
-        }
+    return getOptionsBody(&Namespace::getDefaultOptions);
+}
 
-        if (!result.empty()) {
-            result += '\n';
-        }
+std::string Generator::getClientDefaultOptionsBody() const
+{
+    return getOptionsBody(&Namespace::getClientOptions);
+}
 
-        result += str;
-    }
-    return result;
+std::string Generator::getServerDefaultOptionsBody() const
+{
+    return getOptionsBody(&Namespace::getServerOptions);
 }
 
 std::string Generator::getMessageIdStr(const std::string& externalRef, std::uintmax_t id) const
@@ -1725,6 +1732,22 @@ Generator::FramesList Generator::getAllFrames() const
     return result;
 }
 
+std::string Generator::getOptionsBody(GetOptionsFunc func) const
+{
+    std::string result;
+    for (auto& n : m_namespaces) {
+        auto str = (n.get()->*func)();
+        if (str.empty()) {
+            continue;
+        }
 
+        if (!result.empty()) {
+            result += '\n';
+        }
+
+        result += str;
+    }
+    return result;    
+}
 
 } // namespace commsdsl2comms

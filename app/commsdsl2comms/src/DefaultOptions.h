@@ -13,8 +13,8 @@ private:
     explicit DefaultOptions(Generator& generator) : m_generator(generator) {}
 
     bool writeDefinition() const;
+    bool writeClientServerWrite(bool client) const;
 
-private:
     Generator& m_generator;
 };
 
