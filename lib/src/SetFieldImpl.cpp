@@ -384,6 +384,11 @@ bool SetFieldImpl::updateBits()
             return false;
         }
 
+        auto extraAttr = XmlWrap::getExtraAttributes(b, PropNames, protocol());
+        static_cast<void>(extraAttr);
+        auto extraChildren = XmlWrap::getExtraChildren(b, PropNames, protocol());
+        static_cast<void>(extraChildren);        
+
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 

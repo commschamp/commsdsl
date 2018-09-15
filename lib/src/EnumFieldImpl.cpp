@@ -361,6 +361,11 @@ bool EnumFieldImpl::updateValues()
             return false;
         }
 
+        auto extraAttr = XmlWrap::getExtraAttributes(vNode, PropNames, protocol());
+        static_cast<void>(extraAttr);
+        auto extraChildren = XmlWrap::getExtraChildren(vNode, PropNames, protocol());
+        static_cast<void>(extraChildren);
+
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());
 
