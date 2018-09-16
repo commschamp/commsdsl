@@ -173,7 +173,10 @@ public:
         bool mainIncluded = false,
         bool classIncluded = false);
 
-    std::string scopeForMessageInPlugin(const std::string& externalRef);
+    std::string scopeForMessageInPlugin(
+        const std::string& externalRef,
+        bool mainIncluded = true,
+        bool classIncluded = true);
 
     std::string scopeForInterface(
         const std::string& externalRef,

@@ -520,9 +520,12 @@ std::string Generator::scopeForMessage(
     return scopeForElement(externalRef, mainIncluded, classIncluded, common::messageStr());
 }
 
-std::string Generator::scopeForMessageInPlugin(const std::string& externalRef)
+std::string Generator::scopeForMessageInPlugin(
+    const std::string& externalRef,
+    bool mainIncluded,
+    bool classIncluded)
 {
-    return scopeForElement(externalRef, true, true, common::messageStr(), true);
+    return scopeForElement(externalRef, mainIncluded, classIncluded, common::messageStr(), true);
 }
 
 std::string Generator::scopeForInterface(

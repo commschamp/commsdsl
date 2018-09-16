@@ -95,7 +95,12 @@ static const std::string PluginSingleInterfaceHeaderTemplate(
     "protected:\n"
     "    virtual const QVariantList& fieldsPropertiesImpl() const override;\n"
     "};\n\n"
-    "#^#END_NAMESPACE#$#\n"
+    "#^#END_NAMESPACE#$#\n\n"
+    "extern template class #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>;\n"
+    "extern template class comms_champion::ProtocolMessageBase<\n"
+    "    #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>,\n"
+    "    #^#CLASS_PLUGIN_SCOPE#$##^#CLASS_NAME#$#\n"
+    ">;\n\n"
 );
 
 static const std::string PluginMultiInterfaceHeaderTemplate(
@@ -129,6 +134,11 @@ static const std::string PluginSingleInterfaceSrcTemplate(
     "#include \"comms_champion/property/field.h\"\n"
     "#^#INCLUDES#$#\n"
     "namespace cc = comms_champion;\n\n"
+    "template class #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>;\n"
+    "template class cc::ProtocolMessageBase<\n"
+    "    #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>,\n"
+    "    #^#CLASS_PLUGIN_SCOPE#$##^#CLASS_NAME#$#\n"
+    ">;\n\n"    
     "#^#BEGIN_NAMESPACE#$#\n"
     "namespace\n"
     "{\n\n"
@@ -416,6 +426,7 @@ bool Message::writePluginHeader()
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("MESSAGE_INC", m_generator.headerfileForMessage(m_externalRef, true)));
     replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
+    replacements.insert(std::make_pair("CLASS_PLUGIN_SCOPE", m_generator.scopeForMessageInPlugin(m_externalRef, true, false)));
 
     auto namespaces = m_generator.namespacesForMessageInPlugin(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -476,6 +487,7 @@ bool Message::writePluginSrc()
     replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", common::emptyString())));
     replacements.insert(std::make_pair("PROPS_APPENDS", common::listToString(appends, "\n", common::emptyString())));
     replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
+    replacements.insert(std::make_pair("CLASS_PLUGIN_SCOPE", m_generator.scopeForMessageInPlugin(m_externalRef, true, false)));
 
     auto namespaces = m_generator.namespacesForMessageInPlugin(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -484,6 +496,8 @@ bool Message::writePluginSrc()
     auto* templ = &PluginMultiInterfaceSrcTemplate;
     auto* defaultInterface = m_generator.getDefaultInterface();
     if (defaultInterface != nullptr) {
+        replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
+        replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterfaceInPlugin(defaultInterface->externalRef())));
         templ = &PluginSingleInterfaceSrcTemplate;
     }
 

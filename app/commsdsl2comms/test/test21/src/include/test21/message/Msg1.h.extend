@@ -10,7 +10,7 @@ namespace message
 
 /// @brief New definition of Msg1.
 template <typename TMsgBase, typename TOpt = test21::DefaultOptions>
-using Msg1 = Msg1Orig<TMsgBase, TOpt>;
+class Msg1 : public Msg1Orig<TMsgBase, TOpt> {};
 
 } // namespace message
 
