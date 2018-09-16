@@ -191,7 +191,7 @@ bool Cmake::writeMain() const
         "    string(REPLACE \";\" \" \" extra_flags \"${extra_flags_list}\")\n"
         "    set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} ${extra_flags}\")\n"
         "elseif (MSVC)\n"
-        "    add_definitions( \"/wd4503\" \"/wd4309\" \"/wd4267\" \"-D_SCL_SECURE_NO_WARNINGS\")\n"
+        "    add_definitions( \"/wd4503\" \"/wd4309\" \"/wd4267\" \"-D_SCL_SECURE_NO_WARNINGS\" \"/bigobj\")\n"
         "    if (NOT CC_NO_WARN_AS_ERR)\n"
         "        add_definitions(\"/WX\")\n"
         "    endif ()\n"
