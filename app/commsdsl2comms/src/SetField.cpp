@@ -238,7 +238,7 @@ std::string SetField::getBitsAccess() const
             names.begin(), names.end(), std::back_inserter(accessDoc),
             [](auto& n)
             {
-                return "///      @li @b FieldIdx_" + n + ", @b getBitValue_" + n + "() and @b setBitValue_" + n + "().";
+                return "///      @li @b BitIdx_" + n + ", @b getBitValue_" + n + "() and @b setBitValue_" + n + "().";
             });
 
         common::ReplacementMap replacements;
