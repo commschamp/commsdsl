@@ -317,7 +317,11 @@ std::string Message::getClientOptions() const
     if (m_dslObj.sender() == Sender::Client) {
         static const std::string Templ = 
             "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
-            "using #^#MESSAGE_NAME#$# = comms::option::NoReadImpl;\n";
+            "using #^#MESSAGE_NAME#$# =\n"
+            "    std::tuple<\n"
+            "        comms::option::NoReadImpl,\n"
+            "        comms::option::NoDispatchImpl\n"
+            "    >;\n";
 
         return common::processTemplate(Templ, replacements);
     }
@@ -358,8 +362,11 @@ std::string Message::getServerOptions() const
 
     assert(m_dslObj.sender() == Sender::Server);
     static const std::string Templ = 
-        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
-        "using #^#MESSAGE_NAME#$# = comms::option::NoReadImpl;\n";
+        "using #^#MESSAGE_NAME#$# =\n"
+        "    std::tuple<\n"
+        "        comms::option::NoReadImpl,\n"
+        "        comms::option::NoDispatchImpl\n"
+        "    >;\n";
 
     return common::processTemplate(Templ, replacements);
 }
