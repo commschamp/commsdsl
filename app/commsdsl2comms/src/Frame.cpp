@@ -440,10 +440,10 @@ bool Frame::writePluginTransportMessageSrc()
                 "comms::ErrorStatus " + common::nameToClassCopy(name()) + common::transportMessageSuffixStr() + "::readImpl(ReadIterator& iter, std::size_t len)\n"
                 "{\n"
                 "    len -= " + common::numToString(offset) + ";\n"
-                "    auto es = doReadFieldsUntil<" + common::numToString(readUntilIdx) + ">(iter, len);\n"
+                "    auto es = doReadUntilAndUpdateLen<" + common::numToString(readUntilIdx) + ">(iter, len);\n"
                 "    if (es == comms::ErrorStatus::Success) {\n"
                 "        len += " + common::numToString(offset) + ";\n"
-                "        es = doReadFieldsFrom<" + common::numToString(readUntilIdx) + ">(iter, len);\n"
+                "        es = doReadFrom<" + common::numToString(readUntilIdx) + ">(iter, len);\n"
                 "    }\n\n"
                 "    return es;\n"
                 "}\n";

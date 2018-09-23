@@ -459,20 +459,14 @@ std::string Field::getReadForFields(
     }
 
     std::string readFromStr("readFrom");
-    std::string readUntilStr("readUntil");
-    std::string readFromUntilStr("readFromUntil");
-    std::string lengthUntilStr("lengthUntil");
-    std::string lengthFromUntilStr("lengthFromUntil");
+    std::string readUntilStr("readUntilAndUpdateLen");
+    std::string readFromUntilStr("readFromUntilAndUpdateLen");
     std::string readFunc("read");
-    std::string lenSuffixStr(" - consumedLen");
     if (forMessage) {
-        readFromStr = "doReadFieldsFrom";
-        readUntilStr = "doReadFieldsUntil";
-        readFromUntilStr = "doReadFieldsFromUntil";
-        lengthUntilStr = "doLengthUntil";
-        lengthFromUntilStr = "doLengthFromUntil";
+        readFromStr = "doReadFrom";
+        readUntilStr = "doReadUntilAndUpdateLen";
+        readFromUntilStr = "doReadFromUntilAndUpdateLen";
         readFunc = "doRead";
-        lenSuffixStr.clear();
     }
 
     common::StringsList reads;
@@ -489,10 +483,6 @@ std::string Field::getReadForFields(
                 "    return es;\n"
                 "}\n";
 
-            if (!forMessage) {
-                str += "std::size_t consumedLen = Base::template " + lengthUntilStr + "<FieldIdx_" + accessName + ">();\n";
-            }
-
             reads.push_back(std::move(str));
         }
 
@@ -502,7 +492,7 @@ std::string Field::getReadForFields(
 
         if (fPos == customReadFields.back()) {
             auto str = 
-                "es = Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len" + lenSuffixStr + ");\n"
+                "es = Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
                 "if (es != comms::ErrorStatus::Success) {\n"
                 "    return es;\n"
                 "}\n";
@@ -514,13 +504,10 @@ std::string Field::getReadForFields(
         assert((fPosIdx + 1) < customReadFields.size());
         auto nextName = common::nameToAccessCopy(fields[customReadFields[fPosIdx + 1]]->name());
         auto str = 
-            "es = Base::template " + readFromUntilStr + "<FieldIdx_" + accessName + ", FieldIdx_" + nextName + ">(iter, len" + lenSuffixStr + ");\n"
+            "es = Base::template " + readFromUntilStr + "<FieldIdx_" + accessName + ", FieldIdx_" + nextName + ">(iter, len);\n"
             "if (es != comms::ErrorStatus::Success) {\n"
             "    return es;\n"
             "}\n";
-        if (!forMessage) {
-            str += "consumedLen += Base::template " + lengthFromUntilStr + "<FieldIdx_" + accessName + ", FieldIdx_" + nextName + ">();\n";
-        }
         reads.push_back(std::move(str));
         prevPos = fPos;
     }
