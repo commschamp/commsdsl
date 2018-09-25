@@ -296,6 +296,7 @@ public:
     std::string getExtraPublicForField(const std::string& externalRef) const;
     std::string getExtraProtectedForField(const std::string& externalRef) const;
     std::string getExtraPrivateForField(const std::string& externalRef) const;
+    std::string getExtraIncludeForField(const std::string& externalRef) const;
 
     std::string getCustomReadForMessage(const std::string& externalRef) const;
     std::string getCustomWriteForMessage(const std::string& externalRef) const;
@@ -306,10 +307,12 @@ public:
     std::string getExtraPublicForMessage(const std::string& externalRef) const;
     std::string getExtraProtectedForMessage(const std::string& externalRef) const;
     std::string getExtraPrivateForMessage(const std::string& externalRef) const;
+    std::string getExtraIncludeForMessage(const std::string& externalRef) const;
 
     std::string getExtraPublicForInterface(const std::string& externalRef) const;
     std::string getExtraProtectedForInterface(const std::string& externalRef) const;
     std::string getExtraPrivateForInterface(const std::string& externalRef) const;
+    std::string getExtraIncludeForInterface(const std::string& externalRef) const;
 
     NamespacesScopesList getNonDefaultNamespacesScopes() const;
 

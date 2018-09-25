@@ -37,6 +37,7 @@ const std::string NameSuffix(".name");
 const std::string PublicSuffix(".public");
 const std::string ProtectedSuffix(".protected");
 const std::string PrivateSuffix(".private");
+const std::string IncSuffix(".inc");
 
 const std::string ReservedExt[] = {
     ReplaceSuffix,
@@ -49,7 +50,8 @@ const std::string ReservedExt[] = {
     LengthSuffix,
     ValidSuffix,
     RefreshSuffix,
-    NameSuffix
+    NameSuffix,
+    IncSuffix
 };
 
 std::string refToNs(const std::string& ref)
@@ -1222,6 +1224,11 @@ std::string Generator::getExtraPrivateForField(const std::string& externalRef) c
     return getCustomOpForElement(externalRef, PrivateSuffix, common::fieldStr());
 }
 
+std::string Generator::getExtraIncludeForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, IncSuffix, common::fieldStr());
+}
+
 std::string Generator::getCustomReadForMessage(const std::string& externalRef) const
 {
     return getCustomOpForElement(externalRef, ReadSuffix, common::messageStr());
@@ -1267,6 +1274,11 @@ std::string Generator::getExtraPrivateForMessage(const std::string& externalRef)
     return getCustomOpForElement(externalRef, PrivateSuffix, common::messageStr());
 }
 
+std::string Generator::getExtraIncludeForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, IncSuffix, common::messageStr());
+}
+
 std::string Generator::getExtraPublicForInterface(const std::string& externalRef) const
 {
     if (!externalRef.empty()) {
@@ -1289,6 +1301,14 @@ std::string Generator::getExtraPrivateForInterface(const std::string& externalRe
         return getCustomOpForElement(externalRef, PrivateSuffix);
     }
     return getCustomOpForElement(common::messageClassStr(), PrivateSuffix);
+}
+
+std::string Generator::getExtraIncludeForInterface(const std::string& externalRef) const
+{
+    if (!externalRef.empty()) {
+        return getCustomOpForElement(externalRef, IncSuffix);
+    }
+    return getCustomOpForElement(common::messageClassStr(), IncSuffix);
 }
 
 Generator::NamespacesScopesList Generator::getNonDefaultNamespacesScopes() const

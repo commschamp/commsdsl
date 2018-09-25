@@ -582,7 +582,7 @@ std::string Message::getIncludes() const
     };
     common::mergeIncludes(MessageIncludes, includes);
 
-    return common::includesToStatements(includes);
+    return common::includesToStatements(includes) + m_generator.getExtraIncludeForMessage(m_externalRef);
 }
 
 std::string Message::getBody() const

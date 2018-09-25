@@ -460,7 +460,7 @@ std::string Interface::getIncludes() const
 
     common::mergeIncludes(InterfaceIncludes, includes);
     common::mergeInclude(m_generator.mainNamespace() + '/' + common::msgIdEnumNameStr() + common::headerSuffix(), includes);
-    return common::includesToStatements(includes);
+    return common::includesToStatements(includes) + m_generator.getExtraIncludeForInterface(externalRef());
 }
 
 std::string Interface::getFieldsAccessDoc() const

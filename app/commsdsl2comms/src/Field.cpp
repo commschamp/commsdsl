@@ -1026,6 +1026,9 @@ bool Field::writeProtocolDefinitionFile() const
     IncludesList includes;
     updateIncludes(includes);
     auto incStr = common::includesToStatements(includes);
+    if (!m_externalRef.empty()) {
+        incStr += m_generator.getExtraIncludeForField(m_externalRef);
+    }
 
     auto namespaces = m_generator.namespacesForField(m_externalRef);
 
