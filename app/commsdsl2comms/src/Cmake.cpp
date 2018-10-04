@@ -285,7 +285,7 @@ bool Cmake::writePlugin() const
         "        plugin/${protocol}Plugin.h\n"
         "    )\n\n"
         "    qt5_wrap_cpp(moc ${hdr})\n\n"
-        "    add_library (${name} SHARED ${src} ${moc})\n"
+        "    add_library (${name} MODULE ${src} ${moc})\n"
         "    target_link_libraries (${name} ${ALL_MESSAGES_LIB} ${CC_PLUGIN_LIBRARIES})\n"
         "    qt5_use_modules (${name} Core)\n"
         "    install (\n"

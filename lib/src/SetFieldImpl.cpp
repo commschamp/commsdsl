@@ -268,7 +268,7 @@ bool SetFieldImpl::updateLength()
         static const std::size_t MapSize = std::extent<decltype(Map)>::value;
         static_assert(MapSize == sizeof(std::uint64_t), "Invalid map");
 
-        assert(m_state.m_length < MapSize);
+        assert(m_state.m_length <= MapSize);
         m_state.m_type = Map[m_state.m_length - 1];
     }
 
