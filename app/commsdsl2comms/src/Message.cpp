@@ -579,9 +579,8 @@ bool Message::writePluginHeader()
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("CLASS_PLUGIN_SCOPE", m_generator.scopeForMessageInPlugin(m_externalRef, true, false)));
-
-    // replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
-    // replacements.insert(std::make_pair("MESSAGE_INC", m_generator.headerfileForMessage(m_externalRef, true)));
+    replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
+    replacements.insert(std::make_pair("MESSAGE_INC", m_generator.headerfileForMessage(m_externalRef, true)));
 
     auto namespaces = m_generator.namespacesForMessageInPlugin(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));

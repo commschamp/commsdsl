@@ -280,7 +280,7 @@ bool Plugin::writePluginHeader()
         "class #^#CLASS_NAME#$# : public comms_champion::Plugin\n"
         "{\n"
         "    Q_OBJECT\n"
-        "    Q_PLUGIN_METADATA(IID \"#^#ID#$#\" FILE \"#^#CLASS_NAME#$#.json\")\n"
+        "    Q_PLUGIN_METADATA(IID \"#^#ID#$#\" FILE \"#^#ORIG_CLASS_NAME#$#.json\")\n"
         "    Q_INTERFACES(comms_champion::Plugin)\n\n"
         "public:\n"
         "    #^#CLASS_NAME#$#();\n"
@@ -297,6 +297,7 @@ bool Plugin::writePluginHeader()
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(pluginClassName())));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("ID", std::move(id)));
