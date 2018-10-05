@@ -41,6 +41,7 @@ bool Cmake::writeMain() const
     replacements.insert(std::make_pair("PROJ_NAME", m_generator.schemaName()));
     replacements.insert(std::make_pair("PROJ_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("CC_TAG", m_generator.commsChampionTag()));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(common::cmakeListsFileStr())));
 
     static const std::string Template = 
         "cmake_minimum_required (VERSION 3.1)\n"
@@ -208,7 +209,8 @@ bool Cmake::writeMain() const
         "        set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)\n"
         "    endif()\n"
         "endif ()\n\n"
-        "add_subdirectory(cc_plugin)\n\n";
+        "add_subdirectory(cc_plugin)\n\n"
+        "#^#APPEND#$#\n";
 
     auto str = common::processTemplate(Template, replacements);
     stream << str;
@@ -250,6 +252,13 @@ bool Cmake::writePlugin() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("SOURCES", m_generator.pluginCommonSources()));
     replacements.insert(std::make_pair("PLUGINS", common::listToString(calls, "\n", "\n")));
+
+    std::vector<std::string> appendPath = {
+        common::pluginNsStr(),
+        common::cmakeListsFileStr()
+    };
+    
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(appendPath)));
 
     static const std::string Template =
         "set (ALL_MESSAGES_LIB \"all_messages\")\n\n"
@@ -308,7 +317,8 @@ bool Cmake::writePlugin() const
         "    set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0\")\n"
         "endif ()\n\n"
         "cc_plugin_all_messages()\n\n"
-        "#^#PLUGINS#$#\n";
+        "#^#PLUGINS#$#\n"
+        "#^#APPEND#$#\n";
 
     auto str = common::processTemplate(Template, replacements);
     stream << str;

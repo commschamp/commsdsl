@@ -1038,6 +1038,7 @@ bool Field::writeProtocolDefinitionFile() const
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForField(m_externalRef), className)));
     replacements.insert(std::make_pair("FIELD_NAME", displayName()));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(m_externalRef)));
 
     static const std::string FileTemplate(
         "/// @file\n"
@@ -1049,6 +1050,7 @@ bool Field::writeProtocolDefinitionFile() const
         "#^#BEGIN_NAMESPACE#$#\n"
         "#^#CLASS_DEF#$#\n"
         "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n"
     );
 
     std::string str = common::processTemplate(FileTemplate, replacements);

@@ -65,6 +65,7 @@ const std::string Template(
     "    );\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n"
 );
 
 } // namespace
@@ -180,6 +181,7 @@ bool Frame::writeProtocol()
     replacements.insert(std::make_pair("LAYERS_ACCESS_LIST", getLayersAccess()));
     replacements.insert(std::make_pair("ACCESS_FUNCS_DOC", getLayersAccessDoc()));
     replacements.insert(std::make_pair("INPUT_MESSAGES", getInputMessages()));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFrame(m_externalRef)));
 
     auto namespaces = m_generator.namespacesForFrame(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -244,7 +246,8 @@ bool Frame::writePluginTransportMessageHeader()
         "    #^#PROPS_BODY#$#\n"
         "    #^#READ_FUNC_DECL#$#\n"
         "};\n\n"
-        "#^#END_NAMESPACE#$#\n";
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n";
 
     common::StringsList fields;
     fields.reserve(m_layers.size());
@@ -274,6 +277,7 @@ bool Frame::writePluginTransportMessageHeader()
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("FRAME_INCLUDE", m_generator.headerfileForFrame(m_externalRef, true)));
     replacements.insert(std::make_pair("FIELDS", common::listToString(fields, ",\n", common::emptyString())));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFrameTransportMessageHeaderInPlugin(m_externalRef)));
 
     std::string interfaceStr = "TInterface";
     auto* interface = m_generator.getDefaultInterface();
@@ -369,6 +373,7 @@ bool Frame::writePluginTransportMessageSrc()
         "}\n\n"
         "#^#READ_FUNC#$#\n"
         "#^#END_NAMESPACE#$#\n"
+        "#^#FILE_APPEND#$#\n"
     ;
 
     common::StringsList includes;
@@ -408,6 +413,7 @@ bool Frame::writePluginTransportMessageSrc()
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", "\n")));
     replacements.insert(std::make_pair("APPENDS", common::listToString(appends, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("FILE_APPEND", m_generator.getExtraAppendForFrameTransportMessageSrcInPlugin(m_externalRef)));
 
     if (!includes.empty()) {
         replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
@@ -531,7 +537,8 @@ bool Frame::writePluginHeader()
         "        #^#INTERFACE#$#,\n"
         "        #^#ALL_MESSAGES#$#\n"
         "    >;\n\n"
-        "#^#END_NAMESPACE#$#\n";
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n";
 
     common::StringsList fields;
     fields.reserve(m_layers.size());
@@ -551,6 +558,7 @@ bool Frame::writePluginHeader()
     replacements.insert(std::make_pair("FRAME_INCLUDE", m_generator.headerfileForFrame(m_externalRef, true)));
     replacements.insert(std::make_pair("ALL_MESSAGES_INCLUDE", std::move(allMessagesInclude)));
     replacements.insert(std::make_pair("ALL_MESSAGES", m_generator.mainNamespace() + "::" + common::pluginNsStr() + "::" + common::allMessagesStr()));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFrameHeaderInPlugin(m_externalRef)));
 
     std::string interfaceStr = "TInterface";
     auto* interface = m_generator.getDefaultInterface();

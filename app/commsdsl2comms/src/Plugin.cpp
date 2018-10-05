@@ -94,6 +94,7 @@ bool Plugin::writeProtocolHeader()
         "    std::unique_ptr<#^#CLASS_NAME#$#Impl> m_pImpl;\n"
         "};\n\n"
         "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n"
     ;
 
     auto namespaces = m_generator.namespacesForPluginDef(className);
@@ -102,6 +103,7 @@ bool Plugin::writeProtocolHeader()
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(protClassName())));
 
     std::string str = common::processTemplate(Templ, replacements);
 
@@ -210,7 +212,7 @@ bool Plugin::writeProtocolSrc()
     "    return m_pImpl->createExtraInfoMessageImpl();\n"
     "}\n\n"
     "#^#END_NAMESPACE#$#\n"
-    ;
+    "#^#APPEND#$#\n";
 
     assert(m_framePtr != nullptr);
     auto namespaces = m_generator.namespacesForPluginDef(className);
@@ -235,6 +237,7 @@ bool Plugin::writeProtocolSrc()
     replacements.insert(std::make_pair("TRANSPORT_MESSAGE_HEADER", std::move(transportMsgHeader)));
     replacements.insert(std::make_pair("FRAME", m_generator.scopeForFrameInPlugin(m_framePtr->externalRef())));
     replacements.insert(std::make_pair("PROT_NAME", *protName));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginSrcInPlugin(protClassName())));
 
     auto* defaultInterface = m_generator.getDefaultInterface();
     if (defaultInterface == nullptr) {
@@ -286,7 +289,8 @@ bool Plugin::writePluginHeader()
         "    #^#CLASS_NAME#$#();\n"
         "    virtual ~#^#CLASS_NAME#$#();\n"
         "};\n\n"
-        "#^#END_NAMESPACE#$#\n";
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n";
 
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
@@ -301,6 +305,7 @@ bool Plugin::writePluginHeader()
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("ID", std::move(id)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(pluginClassName())));
 
     std::string str = common::processTemplate(Templ, replacements);
 
@@ -345,7 +350,8 @@ bool Plugin::writePluginSrc()
         "            });\n"
         "}\n\n"
         "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
-        "#^#END_NAMESPACE#$#\n";
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n";
 
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
@@ -354,6 +360,7 @@ bool Plugin::writePluginSrc()
     replacements.insert(std::make_pair("PROTOCOL_CLASS_NAME", protClassName()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginSrcInPlugin(pluginClassName())));
 
     std::string str = common::processTemplate(Templ, replacements);
 

@@ -41,6 +41,7 @@ const std::string AliasTemplate(
     "        comms::option::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>\n"
     "    >;\n\n"
     "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n"
 );
 
 const std::string ClassTemplate(
@@ -98,6 +99,7 @@ const std::string ClassTemplate(
     "#^#PRIVATE#$#\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n"
 );
 
 std::string PluginHeaderTemplate = 
@@ -114,7 +116,8 @@ std::string PluginHeaderTemplate =
     "    #^#ID_FUNC#$#\n"
     "    virtual const QVariantList& extraTransportFieldsPropertiesImpl() const override;\n"
     "};\n\n"
-    "#^#END_NAMESPACE#$#\n\n";
+    "#^#END_NAMESPACE#$#\n\n"
+    "#^#APPEND#$#\n";
 
 std::string PluginHeaderAliasTemplate = 
     "#pragma once\n\n"
@@ -125,7 +128,8 @@ std::string PluginHeaderAliasTemplate =
     "    comms_champion::MessageBase<\n"
     "        #^#INTERFACE#$#\n"
     "    >;\n\n"
-    "#^#END_NAMESPACE#$#\n\n";
+    "#^#END_NAMESPACE#$#\n\n"
+    "#^#APPEND#$#\n";
 
 std::string PluginSrcTemplate = 
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
@@ -148,7 +152,8 @@ std::string PluginSrcTemplate =
     "    static const QVariantList Props = createProps();\n"
     "    return Props;\n"
     "}\n\n"
-    "#^#END_NAMESPACE#$#\n";
+    "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n";
 } // namespace
 
 bool Interface::prepare()
@@ -184,7 +189,6 @@ bool Interface::prepare()
 
 bool Interface::write()
 {
-    // TODO: write plugin
     return
         writeProtocol() &&
         writePluginHeader() &&
@@ -230,6 +234,7 @@ bool Interface::writeProtocol()
     replacements.insert(std::make_pair("ENDIAN", common::dslEndianToOpt(m_generator.schemaEndian())));
     replacements.insert(std::make_pair("INCLUDES", getIncludes()));
     replacements.insert(std::make_pair("HEADERFILE", m_generator.headerfileForInterface(m_externalRef)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForInterface(m_externalRef)));
 
     auto namespaces = m_generator.namespacesForInterface(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -302,6 +307,7 @@ bool Interface::writePluginHeader()
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("INTERFACE_INCLUDE", m_generator.headerfileForInterface(externalRef())));
     replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(externalRef(), true, true)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForInterfaceHeaderInPlugin(m_externalRef)));
 
     auto namespaces = m_generator.namespacesForInterfaceInPlugin(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -373,6 +379,7 @@ bool Interface::writePluginSrc()
         replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
         replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", "\n")));
         replacements.insert(std::make_pair("PROPS_APPENDS", common::listToString(appends, "\n", common::emptyString())));
+        replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForInterfaceSrcInPlugin(m_externalRef)));
 
         if (0U < hexWidth) {
             auto func =

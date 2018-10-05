@@ -297,6 +297,7 @@ public:
     std::string getExtraProtectedForField(const std::string& externalRef) const;
     std::string getExtraPrivateForField(const std::string& externalRef) const;
     std::string getExtraIncludeForField(const std::string& externalRef) const;
+    std::string getExtraAppendForField(const std::string& externalRef) const;
 
     std::string getCustomReadForMessage(const std::string& externalRef) const;
     std::string getCustomWriteForMessage(const std::string& externalRef) const;
@@ -308,11 +309,28 @@ public:
     std::string getExtraProtectedForMessage(const std::string& externalRef) const;
     std::string getExtraPrivateForMessage(const std::string& externalRef) const;
     std::string getExtraIncludeForMessage(const std::string& externalRef) const;
+    std::string getExtraAppendForMessage(const std::string& externalRef) const;
+    std::string getExtraAppendForMessageHeaderInPlugin(const std::string& externalRef) const;
+    std::string getExtraAppendForMessageSrcInPlugin(const std::string& externalRef) const;
 
     std::string getExtraPublicForInterface(const std::string& externalRef) const;
     std::string getExtraProtectedForInterface(const std::string& externalRef) const;
     std::string getExtraPrivateForInterface(const std::string& externalRef) const;
     std::string getExtraIncludeForInterface(const std::string& externalRef) const;
+    std::string getExtraAppendForInterface(const std::string& externalRef) const;
+    std::string getExtraAppendForInterfaceHeaderInPlugin(const std::string& externalRef) const;
+    std::string getExtraAppendForInterfaceSrcInPlugin(const std::string& externalRef) const;
+
+    std::string getExtraAppendForFrame(const std::string& externalRef) const;
+    std::string getExtraAppendForFrameHeaderInPlugin(const std::string& externalRef) const;
+    std::string getExtraAppendForFrameTransportMessageHeaderInPlugin(const std::string& externalRef) const;
+    std::string getExtraAppendForFrameTransportMessageSrcInPlugin(const std::string& externalRef) const;
+
+    std::string getExtraAppendForPluginHeaderInPlugin(const std::string& externalRef) const;    
+    std::string getExtraAppendForPluginSrcInPlugin(const std::string& externalRef) const;    
+
+    std::string getExtraAppendForFile(const std::string& file) const;
+    std::string getExtraAppendForFile(const std::vector<std::string>& elems) const;
 
     NamespacesScopesList getNonDefaultNamespacesScopes() const;
 
@@ -376,7 +394,9 @@ private:
     std::string getCustomOpForElement(
         const std::string& externalRef,
         const std::string& suffix,
-        const std::string& subNs = common::emptyString()) const;
+        const std::string& subNs = common::emptyString(),
+        bool plugin = false,
+        const std::string& ext = common::headerSuffix()) const;
 
     bool preparePlugins();
     InterfacesList getAllInterfaces() const;

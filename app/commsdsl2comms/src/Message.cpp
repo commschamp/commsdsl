@@ -77,6 +77,7 @@ const std::string Template(
     "#^#MESSAGE_BODY#$#\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n"
 );
 
 // static const std::string PluginSingleInterfaceHeaderTemplate(
@@ -108,6 +109,7 @@ const std::string Template(
 //     "    #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>,\n"
 //     "    #^#CLASS_PLUGIN_SCOPE#$##^#CLASS_NAME#$#\n"
 //     ">;\n\n"
+//     "#^#APPEND#$#\n"
 // );
 
 static const std::string PluginSingleInterfaceHeaderTemplate(
@@ -142,6 +144,7 @@ static const std::string PluginSingleInterfaceHeaderTemplate(
     "    std::unique_ptr<#^#CLASS_NAME#$#Impl> m_pImpl;\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n\n"
+    "#^#APPEND#$#\n"
 );
 
 static const std::string PluginMultiInterfaceHeaderTemplate(
@@ -168,6 +171,7 @@ static const std::string PluginMultiInterfaceHeaderTemplate(
     "    }\n"
     "};\n\n"
     "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n"
 );
 
 // static const std::string PluginSingleInterfaceSrcTemplate(
@@ -202,6 +206,7 @@ static const std::string PluginMultiInterfaceHeaderTemplate(
 //     "    return Props;\n"
 //     "}\n\n"
 //     "#^#END_NAMESPACE#$#\n"
+//     "#^#APPEND#$#\n"
 // );
 
 static const std::string PluginSingleInterfaceSrcTemplate(
@@ -303,6 +308,7 @@ static const std::string PluginSingleInterfaceSrcTemplate(
     "    return m_pImpl->refresh();\n"
     "}\n\n"  
     "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n"
 );
 
 static const std::string PluginMultiInterfaceSrcTemplate(
@@ -327,6 +333,7 @@ static const std::string PluginMultiInterfaceSrcTemplate(
     "    return Props;\n"
     "}\n\n"
     "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n"
 );
 
 
@@ -537,6 +544,7 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("MESSAGE_BODY", getBody()));
     replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
     replacements.insert(std::make_pair("EXTRA_OPTIONS", getExtraOptions()));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForMessage(m_externalRef)));
     if (!replacements["EXTRA_OPTIONS"].empty()) {
         replacements.insert(std::make_pair("COMMA", ","));
     }
@@ -581,6 +589,7 @@ bool Message::writePluginHeader()
     replacements.insert(std::make_pair("CLASS_PLUGIN_SCOPE", m_generator.scopeForMessageInPlugin(m_externalRef, true, false)));
     replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
     replacements.insert(std::make_pair("MESSAGE_INC", m_generator.headerfileForMessage(m_externalRef, true)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForMessageHeaderInPlugin(m_externalRef)));
 
     auto namespaces = m_generator.namespacesForMessageInPlugin(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -644,6 +653,7 @@ bool Message::writePluginSrc()
     replacements.insert(std::make_pair("MESSAGE_INC", m_generator.headerfileForMessage(m_externalRef, true)));
     replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
     replacements.insert(std::make_pair("CLASS_PLUGIN_SCOPE", m_generator.scopeForMessageInPlugin(m_externalRef, true, false)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForMessageSrcInPlugin(m_externalRef)));
 
     auto namespaces = m_generator.namespacesForMessageInPlugin(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));

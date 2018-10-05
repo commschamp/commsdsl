@@ -38,6 +38,7 @@ const std::string PublicSuffix(".public");
 const std::string ProtectedSuffix(".protected");
 const std::string PrivateSuffix(".private");
 const std::string IncSuffix(".inc");
+const std::string AppendSuffix(".append");
 
 const std::string ReservedExt[] = {
     ReplaceSuffix,
@@ -51,7 +52,8 @@ const std::string ReservedExt[] = {
     ValidSuffix,
     RefreshSuffix,
     NameSuffix,
-    IncSuffix
+    IncSuffix,
+    AppendSuffix,
 };
 
 std::string refToNs(const std::string& ref)
@@ -1229,6 +1231,11 @@ std::string Generator::getExtraIncludeForField(const std::string& externalRef) c
     return getCustomOpForElement(externalRef, IncSuffix, common::fieldStr());
 }
 
+std::string Generator::getExtraAppendForField(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, AppendSuffix, common::fieldStr());
+}
+
 std::string Generator::getCustomReadForMessage(const std::string& externalRef) const
 {
     return getCustomOpForElement(externalRef, ReadSuffix, common::messageStr());
@@ -1279,6 +1286,21 @@ std::string Generator::getExtraIncludeForMessage(const std::string& externalRef)
     return getCustomOpForElement(externalRef, IncSuffix, common::messageStr());
 }
 
+std::string Generator::getExtraAppendForMessage(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, AppendSuffix, common::messageStr());
+}
+
+std::string Generator::getExtraAppendForMessageHeaderInPlugin(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, AppendSuffix, common::messageStr(), true);
+}
+
+std::string Generator::getExtraAppendForMessageSrcInPlugin(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, AppendSuffix, common::messageStr(), true, common::srcSuffix());
+}
+
 std::string Generator::getExtraPublicForInterface(const std::string& externalRef) const
 {
     if (!externalRef.empty()) {
@@ -1309,6 +1331,101 @@ std::string Generator::getExtraIncludeForInterface(const std::string& externalRe
         return getCustomOpForElement(externalRef, IncSuffix);
     }
     return getCustomOpForElement(common::messageClassStr(), IncSuffix);
+}
+
+std::string Generator::getExtraAppendForInterface(const std::string& externalRef) const
+{
+    auto* ref = &common::messageClassStr();
+    if (!externalRef.empty()) {
+        ref = &externalRef;
+    }
+    return getCustomOpForElement(*ref, AppendSuffix);
+}
+
+std::string Generator::getExtraAppendForInterfaceHeaderInPlugin(const std::string& externalRef) const
+{
+    auto* ref = &common::messageClassStr();
+    if (!externalRef.empty()) {
+        ref = &externalRef;
+    }
+    return getCustomOpForElement(*ref, AppendSuffix, common::emptyString(), true);
+}
+
+std::string Generator::getExtraAppendForInterfaceSrcInPlugin(const std::string& externalRef) const
+{
+    auto* ref = &common::messageClassStr();
+    if (!externalRef.empty()) {
+        ref = &externalRef;
+    }
+    return getCustomOpForElement(*ref, AppendSuffix, common::emptyString(), true, common::srcSuffix());
+}
+
+std::string Generator::getExtraAppendForFrame(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, AppendSuffix, common::frameStr());
+}
+
+std::string Generator::getExtraAppendForFrameHeaderInPlugin(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, AppendSuffix, common::frameStr(), true);
+}
+
+std::string Generator::getExtraAppendForFrameTransportMessageHeaderInPlugin(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef + common::transportMessageSuffixStr(), AppendSuffix, common::frameStr(), true);
+}
+
+std::string Generator::getExtraAppendForFrameTransportMessageSrcInPlugin(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef + common::transportMessageSuffixStr(), AppendSuffix, common::frameStr(), true, common::srcSuffix());
+}
+
+std::string Generator::getExtraAppendForPluginHeaderInPlugin(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, AppendSuffix, common::pluginStr(), true);
+}
+
+std::string Generator::getExtraAppendForPluginSrcInPlugin(const std::string& externalRef) const
+{
+    return getCustomOpForElement(externalRef, AppendSuffix, common::pluginStr(), true, common::srcSuffix());
+}
+
+std::string Generator::getExtraAppendForFile(const std::string& file) const
+{
+    std::vector<std::string> elems = {file};
+    return getExtraAppendForFile(elems);
+}
+
+std::string Generator::getExtraAppendForFile(const std::vector<std::string>& elems) const
+{
+    if (elems.empty()) {
+        return common::emptyString();
+    }
+
+    if (m_codeInputDir.empty()) {
+        return common::emptyString();
+    }
+
+    auto filePath = m_codeInputDir;
+    for (auto& e : elems) {
+        filePath /= e;
+    }
+
+    filePath += AppendSuffix;
+
+    boost::system::error_code ec;
+    if (!bf::exists(filePath, ec)) {
+        return common::emptyString();
+    }
+
+    std::ifstream stream(filePath.string());
+    if (!stream) {
+        assert(!"Should not happen");
+        return common::emptyString();
+    }
+
+    std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+    return content;
 }
 
 Generator::NamespacesScopesList Generator::getNonDefaultNamespacesScopes() const
@@ -1637,7 +1754,9 @@ std::string Generator::startGenericWrite(
 std::string Generator::getCustomOpForElement(
     const std::string& externalRef,
     const std::string& suffix,
-    const std::string& subNs) const
+    const std::string& subNs,
+    bool plugin, 
+    const std::string& ext) const
 {
     if (externalRef.empty()) {
         return common::emptyString();
@@ -1648,15 +1767,24 @@ std::string Generator::getCustomOpForElement(
     }
 
     auto ns = refToNs(externalRef);
-    auto relDirPath = bf::path(common::includeStr()) / m_mainNamespace / refToPath(ns);
+
+    bf::path rootDir;
+    if (plugin) {
+        rootDir = common::pluginNsStr();
+    }
+    else {
+        rootDir = bf::path(common::includeStr()) / m_mainNamespace;
+    }
+
+    auto relDirPath = rootDir / refToPath(ns);
     if (!relDirPath.empty()) {
         relDirPath /= subNs;
     }
 
-   auto className = refToName(externalRef);
+    auto className = refToName(externalRef);
     assert(!className.empty());
 
-    auto filePath = m_codeInputDir / relDirPath / (className + common::headerSuffix() + suffix);
+    auto filePath = m_codeInputDir / relDirPath / (className + ext + suffix);
     boost::system::error_code ec;
     if (!bf::exists(filePath, ec)) {
         return common::emptyString();
