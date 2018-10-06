@@ -111,7 +111,7 @@ bool OptionalFieldImpl::parseImpl()
         updateExternalModeCtrl() &&
         updateField() &&
         updateSingleCondition() &&
-            updateMultiCondition();
+        updateMultiCondition();
 }
 
 bool OptionalFieldImpl::verifySiblingsImpl(const FieldsList& fields) const
@@ -301,7 +301,7 @@ bool OptionalFieldImpl::checkFieldAsChild()
     if ((0U < children.size()) && (0U < fieldTypes.size())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                   "The \"" << common::optionalStr() << "\" element does not support "
-                  "list of stand alone field as child element together with \"" <<
+                  "stand alone field as child element together with \"" <<
                   common::fieldStr() << "\" child element.";
         return false;
     }

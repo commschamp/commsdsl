@@ -16,6 +16,22 @@ namespace commsdsl
 namespace
 {
 
+const XmlWrap::NamesList& listSupportedTypes()
+{
+    static const XmlWrap::NamesList Names = FieldImpl::supportedTypes();
+    return Names;
+}
+
+XmlWrap::NamesList getExtraNames()
+{
+    auto names = listSupportedTypes();
+    names.push_back(common::elementStr());
+    names.push_back(common::countPrefixStr());
+    names.push_back(common::lengthPrefixStr());
+    names.push_back(common::elemLengthPrefixStr());
+    return names;
+}
+
 } // namespace
 
 ListFieldImpl::ListFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -53,13 +69,7 @@ const XmlWrap::NamesList& ListFieldImpl::extraPropsNamesImpl() const
 
 const XmlWrap::NamesList&ListFieldImpl::extraPossiblePropsNamesImpl() const
 {
-    static const XmlWrap::NamesList List = {
-        common::elementStr(),
-        common::countPrefixStr(),
-        common::lengthPrefixStr(),
-        common::elemLengthPrefixStr(),
-    };
-
+    static const XmlWrap::NamesList List = getExtraNames();
     return List;
 }
 
@@ -398,40 +408,92 @@ bool ListFieldImpl::checkElementFromRef()
 bool ListFieldImpl::checkElementAsChild()
 {
     auto children = XmlWrap::getChildren(getNode(), common::elementStr());
-    if (children.empty()) {
-        return true;
-    }
+    // if (children.empty()) {
+    //     return true;
+    // }
 
     if (1U < children.size()) {
         logError() << "There must be only one occurance of \"" << common::elementStr() << "\".";
         return false;
     }
 
-    auto child = children.front();
-    auto elementFields = XmlWrap::getChildren(child);
-    if (1U < elementFields.size()) {
-        logError() << XmlWrap::logPrefix(child) <<
-            "The \"" << common::elementStr() << "\" element is expected to define only "
-            "single field";
-        return false;
-    }
-
-    auto iter = props().find(common::elementStr());
-    bool hasInProps = iter != props().end();
-    if (elementFields.empty()) {
-        assert(hasInProps);
-        return true;
-    }
-
-    if (hasInProps) {
+    auto fieldTypes = XmlWrap::getChildren(getNode(), listSupportedTypes());
+    if ((0U < children.size()) && (0U < fieldTypes.size())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "The \"" << common::elementStr() << "\" element is expected to define only "
-            "single field";
+                  "The \"" << common::listStr() << "\" does not support "
+                  "stand alone field as child element together with \"" <<
+                  common::elementStr() << "\" child element.";
         return false;
-    }
+    }   
 
-    auto fieldNode = elementFields.front();
-    assert(fieldNode->name != nullptr);
+    if (children.empty() && fieldTypes.empty()) {
+        return true;
+    }     
+
+    ::xmlNodePtr fieldNode = nullptr;
+    do {
+        if (fieldTypes.empty()) {
+            break;
+        }
+
+        if (1U < fieldTypes.size()) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "The \"" << common::listStr() << "\" element is expected to define only "
+                "single child field";
+            return false;
+        }
+
+        auto allChildren = XmlWrap::getChildren(getNode());
+        if (allChildren.size() != fieldTypes.size()) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                  "The element type of \"" << common::listStr() <<
+                  "\" must be defined inside \"<" << common::elementStr() << ">\" child element "
+                  "when there are other property describing children.";
+            return false;
+        }
+
+        if (props().find(common::elementStr()) != props().end()) {
+            logError() << "There must be only one occurance of \"" << common::elementStr() << "\" definition.";
+            return false;
+        }
+
+        fieldNode = fieldTypes.front();
+    } while (false);    
+
+    do {
+        if (fieldNode != nullptr) {
+            assert(children.empty());
+            break;
+        }
+
+        assert(!children.empty());
+
+        auto child = children.front();
+        auto fields = XmlWrap::getChildren(child);
+        if (1U < fields.size()) {
+            logError() << XmlWrap::logPrefix(child) <<
+                "The \"" << common::elementStr() << "\" element is expected to define only "
+                "single field";
+            return false;
+        }
+
+        if (props().find(common::elementStr()) == props().end()) {
+            fieldNode = fields.front();
+            break;
+        }
+
+        auto attrs = XmlWrap::parseNodeProps(getNode());
+        if (attrs.find(common::fieldsStr()) != attrs.end()) {
+            logError() << "There must be only one occurance of \"" << common::elementStr() << "\" definition.";
+            return false;
+        }
+
+        // The field element is parsed as property
+        return true;
+    } while (false);
+
+    assert (fieldNode != nullptr);    
+
     std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
     auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
     if (!field) {
@@ -447,6 +509,7 @@ bool ListFieldImpl::checkElementAsChild()
 
     m_state.m_extElementField = nullptr;
     m_elementField = std::move(field);
+    assert(m_elementField->externalRef().empty());
     return true;
 }
 

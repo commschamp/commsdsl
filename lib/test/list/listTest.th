@@ -37,6 +37,10 @@ public:
     void test28();
     void test29();
     void test30();
+    void test31();
+    void test32();
+    void test33();
+    void test34();
 };
 
 void ListTestSuite::setUp()
@@ -701,5 +705,63 @@ void ListTestSuite::test30()
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test31()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "List1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+    TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::size_t>::max());
+
+    commsdsl::ListField listField(field);
+    auto elem = listField.elementField();
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
+    TS_ASSERT_EQUALS(listField.hasCountPrefixField(), false);
+    TS_ASSERT(!listField.countPrefixField().valid());
+    TS_ASSERT_EQUALS(listField.hasLengthPrefixField(), false);
+    TS_ASSERT(!listField.lengthPrefixField().valid());
+    TS_ASSERT_EQUALS(listField.hasElemLengthPrefixField(), false);
+    TS_ASSERT(!listField.elemLengthPrefixField().valid());
+    TS_ASSERT(!listField.elemFixedLength());
+}
+
+void ListTestSuite::test32()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test33()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test34()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
     TS_ASSERT(protocol);
 }

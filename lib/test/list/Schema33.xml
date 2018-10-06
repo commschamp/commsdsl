@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema33"
+        id="1"
+        endian="big">
+    <fields>
+        <list name="List1" >
+            <int name="Elem1" type="uint16" />
+            <int name="Elem2" type="uint16" />
+        </list>
+    </fields>
+</schema>
