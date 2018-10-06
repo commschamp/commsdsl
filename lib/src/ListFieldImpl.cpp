@@ -69,19 +69,18 @@ const XmlWrap::NamesList& ListFieldImpl::extraPropsNamesImpl() const
 
 const XmlWrap::NamesList&ListFieldImpl::extraPossiblePropsNamesImpl() const
 {
-    static const XmlWrap::NamesList List = getExtraNames();
-    return List;
-}
-
-const XmlWrap::NamesList& ListFieldImpl::extraChildrenNamesImpl() const
-{
     static const XmlWrap::NamesList List = {
         common::elementStr(),
         common::countPrefixStr(),
         common::lengthPrefixStr(),
         common::elemLengthPrefixStr(),
     };
+    return List;
+}
 
+const XmlWrap::NamesList& ListFieldImpl::extraChildrenNamesImpl() const
+{
+    static const XmlWrap::NamesList List = getExtraNames();
     return List;
 }
 
