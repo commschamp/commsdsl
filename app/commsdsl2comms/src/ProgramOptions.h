@@ -23,7 +23,7 @@ public:
     std::string getFilesListPrefix() const;
     std::vector<std::string> getFiles() const;
     std::string getOutputDirectory() const;
-    std::string getCodeInputDirectory() const;
+    std::vector<std::string> getCodeInputDirectories() const;
     bool hasNamespaceOverride() const;
     std::string getNamespace() const;
     bool hasForcedSchemaVersion() const;

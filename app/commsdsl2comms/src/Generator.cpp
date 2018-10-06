@@ -312,22 +312,24 @@ std::string Generator::startProtocolPluginJsonWrite(const std::string& name)
     auto fullPath = dirPath / fileName;
     auto fullPathStr = fullPath.string();
 
-    auto overwriteFile = m_codeInputDir / relDirPath / fileName;
-    boost::system::error_code ec;
-    if (bf::exists(overwriteFile, ec)) {
-        m_logger.info("Skipping generation of " + fullPathStr);
-        return common::emptyString();
-    }
-
-    auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
-    if (bf::exists(replaceFile, ec)) {
-        m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
-        bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
-        if (ec) {
-            m_logger.warning("Failed to write " + fullPathStr);
-            assert(!"Should not happen");
+    for (auto iter = m_codeInputDirs.rbegin(); iter != m_codeInputDirs.rend(); ++iter) {
+        auto overwriteFile = *iter / relDirPath / fileName;
+        boost::system::error_code ec;
+        if (bf::exists(overwriteFile, ec)) {
+            m_logger.info("Skipping generation of " + fullPathStr);
+            return common::emptyString();
         }
-        return common::emptyString();
+
+        auto replaceFile = *iter / relDirPath / (fileName + ReplaceSuffix);
+        if (bf::exists(replaceFile, ec)) {
+            m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
+            bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
+            if (ec) {
+                m_logger.warning("Failed to write " + fullPathStr);
+                assert(!"Should not happen");
+            }
+            return common::emptyString();
+        }
     }
 
     m_logger.info("Generating " + fullPathStr);
@@ -778,10 +780,15 @@ bool Generator::parseOptions()
         }
     }
 
-    m_codeInputDir = m_options.getCodeInputDirectory();
-    if ((!m_codeInputDir.empty()) && (!bf::is_directory(m_codeInputDir))) {
-        m_logger.error('\"' + m_codeInputDir.string() + "\" is expected to be directory.");
-        return false;
+    auto codeInptuDirs = m_options.getCodeInputDirectories();
+    m_codeInputDirs.reserve(codeInptuDirs.size());
+    for (auto iter = codeInptuDirs.begin(); iter != codeInptuDirs.end(); ++iter) {
+        if ((!iter->empty()) && (!bf::is_directory(*iter))) {
+            m_logger.error('\"' + *iter + "\" is expected to be directory.");
+            return false;
+        }
+
+        m_codeInputDirs.push_back(std::move(*iter));
     }
 
     m_mainNamespace = common::adjustName(m_options.getNamespace());
@@ -1012,54 +1019,56 @@ const Field* Generator::findMessageIdField() const
 
 bool Generator::writeExtraFiles()
 {
-    if (m_codeInputDir.empty()) {
+    if (m_codeInputDirs.empty()) {
         return true;
     }
 
-    auto outputDir = m_pathPrefix;
-    auto dirStr = m_codeInputDir.string();
-    auto pos = dirStr.size();
-    auto endIter = bf::recursive_directory_iterator();
-    for (auto iter = bf::recursive_directory_iterator(m_codeInputDir); iter != endIter; ++iter) {
-        if (!bf::is_regular_file(iter->status())) {
-            continue;
-        }
-
-        auto srcPath = iter->path();
-        auto ext = srcPath.extension().string();
-        auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
-        if (extIter != std::end(ReservedExt)) {
-            continue;
-        }
-
-        auto pathStr = srcPath.string();
-        auto posTmp = pos;
-        while (posTmp < pathStr.size()) {
-            if (pathStr[posTmp] == bf::path::preferred_separator) {
-                ++posTmp;
+    for (auto& d : m_codeInputDirs) {
+        auto outputDir = m_pathPrefix;
+        auto dirStr = d.string();
+        auto pos = dirStr.size();
+        auto endIter = bf::recursive_directory_iterator();
+        for (auto iter = bf::recursive_directory_iterator(d); iter != endIter; ++iter) {
+            if (!bf::is_regular_file(iter->status())) {
                 continue;
             }
-            break;
-        }
 
-        if (pathStr.size() <= posTmp) {
-            continue;
-        }
+            auto srcPath = iter->path();
+            auto ext = srcPath.extension().string();
+            auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
+            if (extIter != std::end(ReservedExt)) {
+                continue;
+            }
 
-        std::string relPath(pathStr, posTmp);
-        auto destPath = outputDir / relPath;
+            auto pathStr = srcPath.string();
+            auto posTmp = pos;
+            while (posTmp < pathStr.size()) {
+                if (pathStr[posTmp] == bf::path::preferred_separator) {
+                    ++posTmp;
+                    continue;
+                }
+                break;
+            }
 
-        m_logger.info("Copying " + destPath.string());
+            if (pathStr.size() <= posTmp) {
+                continue;
+            }
 
-        if (!createDir(destPath.parent_path())) {
-            return false;
-        }
+            std::string relPath(pathStr, posTmp);
+            auto destPath = outputDir / relPath;
 
-        boost::system::error_code ec;
-        bf::copy_file(srcPath, destPath, bf::copy_option::overwrite_if_exists, ec);
-        if (ec) {
-            m_logger.error("Failed to copy with reason: " + ec.message());
-            return false;
+            m_logger.info("Copying " + destPath.string());
+
+            if (!createDir(destPath.parent_path())) {
+                return false;
+            }
+
+            boost::system::error_code ec;
+            bf::copy_file(srcPath, destPath, bf::copy_option::overwrite_if_exists, ec);
+            if (ec) {
+                m_logger.error("Failed to copy with reason: " + ec.message());
+                return false;
+            }
         }
     }
     return true;
@@ -1402,30 +1411,27 @@ std::string Generator::getExtraAppendForFile(const std::vector<std::string>& ele
         return common::emptyString();
     }
 
-    if (m_codeInputDir.empty()) {
+    if (m_codeInputDirs.empty()) {
         return common::emptyString();
     }
 
-    auto filePath = m_codeInputDir;
-    for (auto& e : elems) {
-        filePath /= e;
+    for (auto iter = m_codeInputDirs.rbegin(); iter != m_codeInputDirs.rend(); ++iter) {
+        auto filePath = *iter;
+        for (auto& e : elems) {
+            filePath /= e;
+        }
+
+        filePath += AppendSuffix;
+
+        std::ifstream stream(filePath.string());
+        if (!stream) {
+            continue;
+        }
+
+        std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        return content;
     }
-
-    filePath += AppendSuffix;
-
-    boost::system::error_code ec;
-    if (!bf::exists(filePath, ec)) {
-        return common::emptyString();
-    }
-
-    std::ifstream stream(filePath.string());
-    if (!stream) {
-        assert(!"Should not happen");
-        return common::emptyString();
-    }
-
-    std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-    return content;
+    return common::emptyString();
 }
 
 Generator::NamespacesScopesList Generator::getNonDefaultNamespacesScopes() const
@@ -1584,15 +1590,15 @@ Generator::startProtocolWrite(
     auto fullPath = dirPath / fileName;
     auto fullPathStr = fullPath.string();
 
-    if (!m_codeInputDir.empty()) {
-        auto overwriteFile = m_codeInputDir / relDirPath / fileName;
+    for (auto iter = m_codeInputDirs.rbegin(); iter != m_codeInputDirs.rend(); ++iter) {
+        auto overwriteFile = *iter / relDirPath / fileName;
         boost::system::error_code ec;
         if (bf::exists(overwriteFile, ec)) {
             m_logger.info("Skipping generation of " + fullPathStr);
             return std::make_pair(common::emptyString(), common::emptyString());
         }
 
-        auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
+        auto replaceFile = *iter / relDirPath / (fileName + ReplaceSuffix);
         if (bf::exists(replaceFile, ec)) {
             m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
             bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
@@ -1602,7 +1608,7 @@ Generator::startProtocolWrite(
             return std::make_pair(common::emptyString(), common::emptyString());
         }
 
-        auto extendFile = m_codeInputDir / relDirPath / (fileName + ExtendSuffix);
+        auto extendFile = *iter / relDirPath / (fileName + ExtendSuffix);
         if (bf::exists(extendFile, ec)) {
             bf::copy_file(extendFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
             if (ec) {
@@ -1657,35 +1663,37 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
     auto fullPath = dirPath / fileName;
     auto fullPathStr = fullPath.string();
 
-    auto overwriteFile = m_codeInputDir / relDirPath / fileName;
-    boost::system::error_code ec;
-    if (bf::exists(overwriteFile, ec)) {
-        m_logger.info("Skipping generation of " + fullPathStr);
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
-
-    auto replaceFile = m_codeInputDir / relDirPath / (fileName + ReplaceSuffix);
-    if (bf::exists(replaceFile, ec)) {
-        m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
-        bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
-        if (ec) {
-            m_logger.warning("Failed to write " + fullPathStr);
-            assert(!"Should not happen");
+    for (auto iter = m_codeInputDirs.rbegin(); iter != m_codeInputDirs.rend(); ++iter) {
+        auto overwriteFile = *iter / relDirPath / fileName;
+        boost::system::error_code ec;
+        if (bf::exists(overwriteFile, ec)) {
+            m_logger.info("Skipping generation of " + fullPathStr);
+            return std::make_pair(common::emptyString(), common::emptyString());
         }
-        return std::make_pair(common::emptyString(), common::emptyString());
-    }
 
-    auto extendFile = m_codeInputDir / relDirPath / (fileName + ExtendSuffix);
-    if (bf::exists(extendFile, ec)) {
-        bf::copy_file(extendFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
-        if (ec) {
-            m_logger.warning("Failed to write \"" + fullPathStr + "\": " + ec.message());
-            assert(!"Should not happen");
+        auto replaceFile = *iter / relDirPath / (fileName + ReplaceSuffix);
+        if (bf::exists(replaceFile, ec)) {
+            m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
+            bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
+            if (ec) {
+                m_logger.warning("Failed to write " + fullPathStr);
+                assert(!"Should not happen");
+            }
+            return std::make_pair(common::emptyString(), common::emptyString());
         }
-        className += common::origSuffixStr();
-        fileName = className + extension;
-        fullPath = dirPath / fileName;
-        fullPathStr = fullPath.string();
+
+        auto extendFile = *iter / relDirPath / (fileName + ExtendSuffix);
+        if (bf::exists(extendFile, ec)) {
+            bf::copy_file(extendFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
+            if (ec) {
+                m_logger.warning("Failed to write \"" + fullPathStr + "\": " + ec.message());
+                assert(!"Should not happen");
+            }
+            className += common::origSuffixStr();
+            fileName = className + extension;
+            fullPath = dirPath / fileName;
+            fullPathStr = fullPath.string();
+        }
     }
 
     m_logger.info("Generating " + fullPathStr);
@@ -1728,15 +1736,15 @@ std::string Generator::startGenericWrite(
     auto fullPath = dirPath / name;
     auto fullPathStr = fullPath.string();
 
-    if (!m_codeInputDir.empty()) {
-        auto overwriteFile = m_codeInputDir / relDirPath / name;
+    for (auto iter = m_codeInputDirs.rbegin(); iter != m_codeInputDirs.rend(); ++iter) {
+        auto overwriteFile = *iter / relDirPath / name;
         boost::system::error_code ec;
         if (bf::exists(overwriteFile, ec)) {
             m_logger.info("Skipping generation of " + fullPathStr);
             return common::emptyString();
         }
 
-        auto replaceFile = m_codeInputDir / relDirPath / (name + ReplaceSuffix);
+        auto replaceFile = *iter / relDirPath / (name + ReplaceSuffix);
         if (bf::exists(replaceFile, ec)) {
             m_logger.info("Replacing " + fullPathStr + " with " + replaceFile.string());
             bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
@@ -1762,7 +1770,7 @@ std::string Generator::getCustomOpForElement(
         return common::emptyString();
     }
 
-    if (m_codeInputDir.empty()) {
+    if (m_codeInputDirs.empty()) {
         return common::emptyString();
     }
 
@@ -1784,20 +1792,17 @@ std::string Generator::getCustomOpForElement(
     auto className = refToName(externalRef);
     assert(!className.empty());
 
-    auto filePath = m_codeInputDir / relDirPath / (className + ext + suffix);
-    boost::system::error_code ec;
-    if (!bf::exists(filePath, ec)) {
-        return common::emptyString();
-    }
+    for (auto iter = m_codeInputDirs.rbegin(); iter != m_codeInputDirs.rend(); ++iter) {
+        auto filePath = *iter / relDirPath / (className + ext + suffix);
+        std::ifstream stream(filePath.string());
+        if (!stream) {
+            continue;
+        }
 
-    std::ifstream stream(filePath.string());
-    if (!stream) {
-        assert(!"Should not happen");
-        return common::emptyString();
+        std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        return content;
     }
-
-    std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-    return content;
+    return common::emptyString();
 }
 
 bool Generator::preparePlugins()

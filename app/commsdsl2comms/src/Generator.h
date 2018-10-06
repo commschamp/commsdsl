@@ -411,7 +411,7 @@ private:
     NamespacesList m_namespaces;
     PluginsList m_plugins;
     boost::filesystem::path m_pathPrefix;
-    boost::filesystem::path m_codeInputDir;
+    std::vector<boost::filesystem::path> m_codeInputDirs;
     std::set<boost::filesystem::path> m_createdDirs;
     std::string m_mainNamespace;
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;

@@ -44,8 +44,8 @@ po::options_description createDescription()
         (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
         (FullOutputDirStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Output directory path. Empty means current.")
-        (FullCodeInputDirStr.c_str(), po::value<std::string>()->default_value(std::string()),
-            "Code input directory path. Empty means no code updates are available.")
+        (FullCodeInputDirStr.c_str(), po::value<std::vector<std::string> >(),
+            "Directory with code updates. Multiple directories are supported, later one takes priority.")
         (FullInputFilesListStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "File containing list of input files.")
         (FullInputFilesPrefixStr.c_str(), po::value<std::string>()->default_value(std::string()),
@@ -179,9 +179,13 @@ std::string ProgramOptions::getOutputDirectory() const
     return m_vm[OutputDirStr].as<std::string>();
 }
 
-std::string ProgramOptions::getCodeInputDirectory() const
+std::vector<std::string> ProgramOptions::getCodeInputDirectories() const
 {
-    return m_vm[CodeInputDirStr].as<std::string>();
+    if (m_vm.count(CodeInputDirStr) == 0U) {
+        return std::vector<std::string>();
+    }
+
+    return m_vm[CodeInputDirStr].as<std::vector<std::string> >();
 }
 
 bool ProgramOptions::hasNamespaceOverride() const
