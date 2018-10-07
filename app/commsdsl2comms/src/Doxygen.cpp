@@ -479,7 +479,7 @@ bool Doxygen::writeMainpage() const
     }
 
     static const std::string Template =
-        "/// @mainpage \"#^#PROJ_NAME#$# Binary Protocol\n"
+        "/// @mainpage \"#^#PROJ_NAME#$#\" Binary Protocol\n"
         "/// @tableofcontents\n"
         "/// This generated code implements \"#^#PROJ_NAME#$#\" binary protocol using various\n"
         "/// classes from\n"

@@ -20,29 +20,43 @@ bool AllMessages::write(Generator& generator)
 
 bool AllMessages::writeProtocolDefinition() const
 {
-    auto allMessages = m_generator.getAllDslMessages();
-    common::StringsList messages;
-    common::StringsList includes;
-    messages.reserve(allMessages.size());
-    includes.reserve(allMessages.size() + 2);
-    common::mergeInclude("<tuple>", includes);
-    common::mergeInclude(m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix(), includes);
-
-    struct PlatformInfo
+    struct MessagesInfo
     {
         common::StringsList m_messages;
         common::StringsList m_includes;        
     };
 
+    struct PlatformInfo
+    {
+        MessagesInfo m_all;
+        MessagesInfo m_serverInput;
+        MessagesInfo m_clientInput;
+    };
+
     using PlatformsMap = std::map<std::string, PlatformInfo>;
     PlatformsMap platformsMap;
+    platformsMap.insert(std::make_pair(std::string(), PlatformInfo()));
+
     auto& platforms = m_generator.platforms();
     for (auto& p : platforms) {
-        auto& info = platformsMap[p];
-        info.m_messages.reserve(allMessages.size());
-        info.m_includes.reserve(allMessages.size() + 2);
-        common::mergeInclude("<tuple>", info.m_includes);
-        common::mergeInclude(m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix(), info.m_includes);
+        platformsMap.insert(std::make_pair(p, PlatformInfo()));
+    };
+
+    auto allMessages = m_generator.getAllDslMessages();
+
+    for (auto& p : platformsMap) {
+        auto updateFunc = 
+            [this, &allMessages](auto& msgInfo)
+            {
+                msgInfo.m_messages.reserve(allMessages.size());
+                msgInfo.m_includes.reserve(allMessages.size() + 2);
+                common::mergeInclude("<tuple>", msgInfo.m_includes);
+                common::mergeInclude(m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix(), msgInfo.m_includes);
+            };
+        
+        updateFunc(p.second.m_all);                
+        updateFunc(p.second.m_serverInput);
+        updateFunc(p.second.m_clientInput);
     }
 
     for (auto m : allMessages) {
@@ -57,24 +71,43 @@ bool AllMessages::writeProtocolDefinition() const
 
         auto msgStr = m_generator.scopeForMessage(extRef, true, true) + "<TBase, TOpt>";
         auto incStr = m_generator.headerfileForMessage(extRef, false);
-        messages.push_back(msgStr);
-        common::mergeInclude(incStr, includes);
 
-        if (platformsMap.empty()) {
-            continue;
-        }
-
-        auto addToPlatformFunc =
-            [&msgStr, &incStr](PlatformInfo& info)
+        auto addToMessageInfoFunc =
+            [&msgStr, &incStr](MessagesInfo& info)
             {
                 info.m_messages.push_back(msgStr);
                 common::mergeInclude(incStr, info.m_includes);
             };
 
+        bool serverInput = m.sender() != commsdsl::Message::Sender::Server;            
+        bool clientInput = m.sender() != commsdsl::Message::Sender::Client;
+
+        auto addToPlatformInfoFunc =
+            [&addToMessageInfoFunc, serverInput, clientInput](PlatformInfo& info)
+            {
+                addToMessageInfoFunc(info.m_all);
+                if (serverInput) {
+                    addToMessageInfoFunc(info.m_serverInput);
+                }
+
+                if (clientInput) {
+                    addToMessageInfoFunc(info.m_clientInput);
+                }
+            };     
+
+        addToPlatformInfoFunc(platformsMap[common::emptyString()]);                   
+
+        if (platformsMap.size() == 1U) {
+            continue;
+        }
+
         auto& msgPlatforms = m.platforms();
         if (msgPlatforms.empty()) {
             for (auto& p : platformsMap) {
-                addToPlatformFunc(p.second);
+                if (p.first.empty()) {
+                    continue;
+                }
+                addToPlatformInfoFunc(p.second);
             }
             continue;
         }
@@ -86,20 +119,16 @@ bool AllMessages::writeProtocolDefinition() const
                 continue;
             }
 
-            addToPlatformFunc(iter->second);
+            addToPlatformInfoFunc(iter->second);
         }
     }
 
     auto writeFileFunc = 
-        [this](const common::StringsList& incs, 
-               const common::StringsList& msgs, 
+        [this](const MessagesInfo& info, 
                const std::string& fileName,
-               const std::string& platName = common::emptyString())
+               const std::string& platName = common::emptyString(),
+               const std::string& inputName = common::emptyString())
         {
-            if (msgs.empty()) {
-                return true;
-            }
-
             auto startInfo = m_generator.startGenericProtocolWrite(fileName);
             auto& filePath = startInfo.first;
             auto& className = startInfo.second;
@@ -119,21 +148,25 @@ bool AllMessages::writeProtocolDefinition() const
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
-            replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(incs)));
-            replacements.insert(std::make_pair("MESSAGES", common::listToString(msgs, ",\n", common::emptyString())));
+            replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(info.m_includes)));
+            replacements.insert(std::make_pair("MESSAGES", common::listToString(info.m_messages, ",\n", common::emptyString())));
             replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
 
             if (!platName.empty()) {
                 replacements.insert(std::make_pair("PLAT_NAME", '\"' + platName + "\" "));
             }
 
+            if (!inputName.empty()) {
+                replacements.insert(std::make_pair("INPUT", inputName + " input "));
+            }
+
             const std::string Template(
                 "/// @file\n"
-                "/// @brief Contains definition of all #^#PLAT_NAME#$#messages bundle.\n\n"
+                "/// @brief Contains definition of all #^#PLAT_NAME#$##^#INPUT#$#messages bundle.\n\n"
                 "#pragma once\n\n"
                 "#^#INCLUDES#$#\n"
                 "#^#BEG_NAMESPACE#$#\n"
-                "/// @brief All messages of the protocol in ascending order.\n"
+                "/// @brief Messages of the protocol in ascending order.\n"
                 "/// @tparam TBase Base class of all the messages.\n"
                 "/// @tparam TOpt Protocol definition options.\n"
                 "template <typename TBase, typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
@@ -155,21 +188,43 @@ bool AllMessages::writeProtocolDefinition() const
             return true;
         };
 
-
-        if (!writeFileFunc(includes, messages, common::allMessagesStr())) {
-            return false;
-        }
-
         for (auto& p : platformsMap) {
-            auto n = common::nameToClassCopy(p.first) + "Messages";
-            if (n == common::allMessagesStr()) {
-                m_generator.logger().error("Invalid platform name: \"" + p.first + "\".");
+            static const std::string AllPrefix = "All";
+            static const std::string MessagesSuffix = "Messages";
+            static const std::string ServerInputStr = "ServerInput";
+            static const std::string ClientInputStr = "ClientInput";
+            auto allName = common::nameToClassCopy(p.first);
+            std::string serverName;
+            std::string clientName;
+            do {
+                if (allName.empty()) {
+                    allName = AllPrefix + MessagesSuffix;
+                    serverName = ServerInputStr + MessagesSuffix;
+                    clientName = ClientInputStr + MessagesSuffix;
+                    break;
+                }
+
+                if (allName == AllPrefix) {
+                    m_generator.logger().error("Invalid platform name: \"" + p.first + "\".");
+                    return false;
+                }    
+
+                serverName = (allName + ServerInputStr + MessagesSuffix);
+                clientName = (allName + ClientInputStr + MessagesSuffix);
+                allName += MessagesSuffix;
+            } while (false);
+
+            if (!writeFileFunc(p.second.m_all, allName, p.first)) {
                 return false;
             }
 
-            if (!writeFileFunc(p.second.m_includes, p.second.m_messages, n, p.first)) {
+            if (!writeFileFunc(p.second.m_serverInput, serverName, p.first, "server")) {
                 return false;
-            }
+            }            
+
+            if (!writeFileFunc(p.second.m_clientInput, clientName, p.first, "client")) {
+                return false;
+            }            
         }
         return true;
 }

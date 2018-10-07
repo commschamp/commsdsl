@@ -53,6 +53,7 @@ private:
     std::string getLayersAccess() const;
     std::string getLayersAccessDoc() const;
     std::string getInputMessages() const;
+    std::string getInputMessagesDoc() const;
 
     bool hasIdLayer() const;
     unsigned calcBackPayloadOffset() const;

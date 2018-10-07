@@ -41,6 +41,8 @@ const std::string Template(
     "};\n\n"
     "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"</b> frame class.\n"
     "#^#DOC_DETAILS#$#\n"
+    "/// @tparam TMessage Common interface class of all the messages\n"
+    "#^#INPUT_MESSAGES_DOC#$#\n"
     "/// @tparam TOpt Frame definition options\n"
     "/// @headerfile #^#HEADERFILE#$#\n"
     "template <\n"
@@ -181,6 +183,7 @@ bool Frame::writeProtocol()
     replacements.insert(std::make_pair("LAYERS_ACCESS_LIST", getLayersAccess()));
     replacements.insert(std::make_pair("ACCESS_FUNCS_DOC", getLayersAccessDoc()));
     replacements.insert(std::make_pair("INPUT_MESSAGES", getInputMessages()));
+    replacements.insert(std::make_pair("INPUT_MESSAGES_DOC", getInputMessagesDoc()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFrame(m_externalRef)));
 
     auto namespaces = m_generator.namespacesForFrame(m_externalRef);
@@ -713,6 +716,15 @@ std::string Frame::getInputMessages() const
     return
         "typename TAllMessages = " + m_generator.mainNamespace() +
             "::" + common::allMessagesStr() + "<TMessage>,";
+}
+
+std::string Frame::getInputMessagesDoc() const
+{
+    if (!hasIdLayer()) {
+        return common::emptyString();
+    }
+
+    return "/// @tparam TAllMessages All supported input messages.";
 }
 
 bool Frame::hasIdLayer() const
