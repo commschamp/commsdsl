@@ -1,16 +1,33 @@
 #include "Doxygen.h"
 
 #include <fstream>
+#include <vector>
+#include <string>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Generator.h"
 #include "common.h"
 
 namespace bf = boost::filesystem;
+namespace ba = boost::algorithm;
 
 namespace commsdsl2comms
 {
+
+namespace
+{
+
+std::vector<std::string> getAppendReq(const std::string& file)
+{
+    std::vector<std::string> result;
+    result.push_back(common::docStr());
+    result.push_back(file);
+    return result;
+}
+
+} // namespace 
 
 bool Doxygen::write(Generator& generator)
 {
@@ -399,7 +416,8 @@ bool Doxygen::writeLayout() const
 
 bool Doxygen::writeNamespaces() const
 {
-    auto filePath = m_generator.startProtocolDocWrite("namespaces.dox");
+    static const std::string DocFile("namespaces.dox");
+    auto filePath = m_generator.startProtocolDocWrite(DocFile);
 
     if (filePath.empty()) {
         return true;
@@ -425,6 +443,7 @@ bool Doxygen::writeNamespaces() const
         "/// @namespace #^#NS#$#::frame::checksum\n"
         "/// @brief Main namespace for the custom frame layers.\n\n"
         "#^#OTHER_NS#$#\n"
+        "#^#APPEND#$#\n"
         ;
 
     common::StringsList otherNs;
@@ -453,6 +472,7 @@ bool Doxygen::writeNamespaces() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NS", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("OTHER_NS", common::listToString(otherNs, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(getAppendReq(DocFile))));
 
     stream << common::processTemplate(Template, replacements);
 
@@ -466,7 +486,8 @@ bool Doxygen::writeNamespaces() const
 
 bool Doxygen::writeMainpage() const
 {
-    auto filePath = m_generator.startProtocolDocWrite("man.dox");
+    static const std::string DocFile("main.dox");
+    auto filePath = m_generator.startProtocolDocWrite(DocFile);
 
     if (filePath.empty()) {
         return true;
@@ -479,17 +500,38 @@ bool Doxygen::writeMainpage() const
     }
 
     static const std::string Template =
-        "/// @mainpage \"#^#PROJ_NAME#$#\" Binary Protocol\n"
+        "/// @mainpage \"#^#PROJ_NAME#$#\" Binary Protocol Library\n"
         "/// @tableofcontents\n"
         "/// This generated code implements \"#^#PROJ_NAME#$#\" binary protocol using various\n"
         "/// classes from\n"
         "/// <a href=\"https://github.com/arobenko/comms_champion#comms-library\">COMMS Library</a>.@n\n"
+        "/// Below is a short summary of generated classes.\n"
         "/// Please refer to <b>\"How to Use Defined Custom Protocol\"</b> page of its documentation\n"
-        "/// for detailed explanation on how to use the generated code.\n"
-        "///\n";
+        "/// for detailed explanation on how to use them.\n"
+        "///\n"
+        "/// @b NOTE, that the generated protocol code are mostly declarative statements\n"
+        "/// of classes and types definitions. It is self exlanatory and easy to read.\n"
+        "/// In many cases it is easier to read and understand the generated code, than the\n"
+        "/// doxygen generated documentation.\n"
+        "///\n"
+        "#^#MESSAGES_DOC#$#\n"
+        "#^#FIELDS_DOC#$#\n"
+        "#^#INTERFACE_DOC#$#\n"
+        "#^#FRAME_DOC#$#\n"
+        "#^#CUSTOMIZE_DOC#$#\n"
+        "#^#VERSION_DOC#$#\n"
+        "#^#APPEND#$#\n"
+        "\n";
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NAME", m_generator.schemaName()));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(getAppendReq(DocFile))));
+    replacements.insert(std::make_pair("MESSAGES_DOC", getMessagesDoc()));
+    replacements.insert(std::make_pair("FIELDS_DOC", getFieldsDoc()));
+    replacements.insert(std::make_pair("INTERFACE_DOC", getInterfacesDoc()));
+    replacements.insert(std::make_pair("FRAME_DOC", getFramesDoc()));
+    replacements.insert(std::make_pair("CUSTOMIZE_DOC", getCustomizeDoc()));
+    replacements.insert(std::make_pair("VERSION_DOC", getVersionDoc()));
 
     stream << common::processTemplate(Template, replacements);
 
@@ -499,6 +541,282 @@ bool Doxygen::writeMainpage() const
         return false;
     }
     return true;
+}
+
+std::string Doxygen::getMessagesDoc() const
+{
+    static const std::string Templ = 
+        "/// @section main_messages Available Message Classes\n"
+        "/// The following namespaces contain all the classes describing available messages:\n"
+        "#^#LIST#$#\n"
+        "///"
+        ;
+
+    common::StringsList nsList;
+    auto addToListFunc = 
+        [&nsList](const std::string& str)
+        {
+            auto dir = ba::replace_all_copy(str, "::", "/");
+            nsList.push_back(
+                "/// @li @ref " + str + " (residing in @b " + dir + " directory)."
+            );
+        };
+
+    addToListFunc(m_generator.mainNamespace() + "::" + common::messageStr());
+
+    auto scopes = m_generator.getNonDefaultNamespacesScopes();
+    for (auto& s : scopes) {
+        addToListFunc(s + "::" + common::messageStr());
+    }        
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("LIST", common::listToString(nsList, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
+}
+
+std::string Doxygen::getFieldsDoc() const
+{
+    static const std::string Templ = 
+        "/// @section main_fields Available Common Fields\n"
+        "/// The following namespaces contain all definition of all the fields,\n"
+        "/// which can be references by multiple messages:\n"
+        "#^#LIST#$#\n"
+        "///"
+        ;
+
+    common::StringsList nsList;
+    auto addToListFunc = 
+        [&nsList](const std::string& str)
+        {
+            auto dir = ba::replace_all_copy(str, "::", "/");
+            nsList.push_back(
+                "/// @li @ref " + str + " (residing in @b " + dir + " directory)."
+            );
+        };
+
+    addToListFunc(m_generator.mainNamespace() + "::" + common::fieldStr());
+
+    auto scopes = m_generator.getNonDefaultNamespacesScopes();
+    for (auto& s : scopes) {
+        addToListFunc(s + "::" + common::fieldStr());
+    }        
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("LIST", common::listToString(nsList, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
+}
+
+std::string Doxygen::getInterfacesDoc() const
+{
+    static const std::string Templ = 
+        "/// @section main_interfaces Common Interface Classes\n"
+        "/// The available common interface classes are:\n"
+        "#^#LIST#$#\n"
+        "///";
+
+    auto interfaces = m_generator.getAllInterfaces();
+    assert(!interfaces.empty());
+
+    common::StringsList list;
+    for (auto& i : interfaces) {
+        auto scope = m_generator.scopeForInterface(i->externalRef(), true, true);
+        auto file = ba::replace_all_copy(scope, "::", "/") + common::headerSuffix();
+        list.push_back(
+            "/// @li @ref " + scope +
+            " from @b " + file + " header file).");
+    }
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);        
+}
+
+std::string Doxygen::getFramesDoc() const
+{
+    static const std::string Templ = 
+        "/// @section main_frames Frame (Protocol Stack) Classes\n"
+        "/// The available frame (protocol stack) classes are:\n"
+        "#^#LIST#$#\n"
+        "///\n"
+        "/// Every frame class/type definition receives (as a template parameter) a list of\n"
+        "/// @b input message types it is expected to recognize. Default defintion\n"
+        "/// uses @ref #^#PROT_NAMESPACE#$#::AllMessages (defined in @b #^#PROT_NAMESPACE#$#/AllMessages.h).\n"
+        "/// @n If protocol defines any uni-directional message, then it is recommended to use\n"
+        "/// either @ref #^#PROT_NAMESPACE#$#::ServerInputMessages (from @b #^#PROT_NAMESPACE#$#/ServerInputMessages.h)\n"
+        "/// or @ref #^#PROT_NAMESPACE#$#::ClientInputMessages  (from @b #^#PROT_NAMESPACE#$#/ClientInputMessages.h)\n"
+        "#^#PLATFORMS#$#\n"
+        "///";
+
+    auto frames = m_generator.getAllFrames();
+    assert(!frames.empty());
+
+    common::StringsList list;
+    for (auto& f : frames) {
+        auto scope = m_generator.scopeForFrame(f->externalRef(), true, true);
+        auto file = ba::replace_all_copy(scope, "::", "/") + common::headerSuffix();
+        list.push_back(
+            "/// @li @ref " + scope +
+            " from @b " + file + " header file).");
+    }
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
+    repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
+    repl.insert(std::make_pair("PLATFORMS", getPlatformsDoc()));
+    return common::processTemplate(Templ, repl);        
+}
+
+std::string Doxygen::getPlatformsDoc() const
+{
+    auto platforms = m_generator.platforms();
+    if (platforms.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ = 
+        "///\n"
+        "/// There are also platform specific definitions:\n"
+        "#^#LIST#$#\n"
+        "///";
+
+    common::StringsList list;
+    for (auto& p : platforms) {
+        auto addToListFunc = 
+            [this, &p, &list](const std::string& type)
+            {
+                auto scope = 
+                    m_generator.mainNamespace() + "::" + 
+                    common::nameToClassCopy(p) + type + "InputMessages";
+
+                auto file = ba::replace_all_copy(scope, "::", "/") + common::headerSuffix();
+
+                auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
+                list.push_back(std::move(str));
+            };
+
+        addToListFunc("Server");
+        addToListFunc("Client");
+    }
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);        
+}
+
+std::string Doxygen::getCustomizeDoc() const
+{
+    static const std::string Templ = 
+        "/// @section main_customization Customization\n"
+        "/// Depending on the value of @b customization option passed to the @b commsdsl2comms\n"
+        "/// code generator, the latter generates @ref #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+        "/// struct (defined in @b  #^#PROT_NAMESPACE#$#/DefaultOptions.h file),\n"
+        "/// which is used by default thoughout the protocol definition classes.\n"
+        "/// The struct contains all the available type definition, which can be used to\n"
+        "/// customize default data structures and/or behaviour of various classes.\n"
+        "/// If any additional customization is required, just recreate similar struct with\n"
+        "/// relevant types overriden with new definition. The easiest way is to extend\n"
+        "/// the #^#PROT_NAMESPACE#$#::DefaultOptions. For example:\n"
+        "/// @code\n"
+        "/// struct MyOptions : public #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+        "/// {\n"
+        "///     struct field : public #^#PROT_NAMESPACE#$#::DefaultOptions::field\n"
+        "///     {\n"
+        "///         // use comms::util::StaticString as storage type\n"
+        "///         using SomeStringField = comms::option::FixedSizeStorage<32>;\n"
+        "///     };\n"
+        "/// };\n"
+        "/// @endcode\n"
+        "/// @b NOTE, that inner scope of structs in the #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+        "/// resembles scope of namespaces used in protocol definition.\n" 
+        "///\n"
+        "/// The @b COMMS library also provides a flexible way to configure polymorphic\n"
+        "/// interface for the message classes. If the defined protocol has multiple\n"
+        "/// uni-directional messages (marked using @b sender property in the schema),\n"
+        "/// then it is recommended to define two separate interfaces: one for input,\n"
+        "/// other for output:\n"
+        "/// @code\n"
+        "/// using MyInputMsg =\n"
+        "///    #^#INTERFACE#$#<\n"
+        "///        comms::option::ReadIterator<const std::uint8_t*>, // for polymorphic read\n"
+        "///        comms::option::Handler<MyHandler> // for polymorphic dispatch\n"
+        "///    >;\n"
+        "///\n"
+        "/// using MyOutputMsg =\n"
+        "///    #^#INTERFACE#$#<\n"
+        "///        comms::option::WriteIterator<std::uint8_t*>, // for polymorphic write\n"
+        "///        comms::option::LengthInfoInterface, // for polymorphic serialisation length retrieval\n"
+        "///        comms::option::IdInfoInterface // for polymorphic message ID retrieval\n"
+        "///    >;\n"
+        "/// @endcode\n"
+        "/// In case there are only few uni-directional messages, it may make sence to define\n"
+        "/// single interface class:\n"
+        "/// @code\n"
+        "/// using MyMsg =\n"
+        "///    #^#INTERFACE#$#<\n"
+        "///        comms::option::ReadIterator<const std::uint8_t*>, // for polymorphic read\n"
+        "///        comms::option::Handler<MyHandler> // for polymorphic dispatch\n"
+        "///        comms::option::WriteIterator<std::uint8_t*>, // for polymorphic write\n"
+        "///        comms::option::LengthInfoInterface, // for polymorphic serialisation length retrieval\n"
+        "///        comms::option::IdInfoInterface // for polymorphic message ID retrieval\n"
+        "///    >;\n"
+        "/// @endcode\n"
+        "/// In this case the code generator may also define #^#PROT_NAMESPACE#$#::ServerDefaultOptions\n"
+        "/// (check for existence of #^#PROT_NAMESPACE#$#/ServerDefaultOptions.h file) and\n"
+        "/// #^#PROT_NAMESPACE#$#::ClientDefaultOptions (check for existence of #^#PROT_NAMESPACE#$#/ClientDefaultOptions.h file).\n"
+        "/// These structs suppress generation of unnecessary virtual functions which are not\n"
+        "/// going to be used. Consiger using this structs as options instead of default\n"
+        "/// #^#PROT_NAMESPACE#$#::DefaultOptions."
+        ;
+
+    auto allInterfaces = m_generator.getAllInterfaces();
+    assert(!allInterfaces.empty());
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(allInterfaces.front()->externalRef(), true, true)));
+    repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
+
+    return common::processTemplate(Templ, repl);
+}
+
+std::string Doxygen::getVersionDoc() const
+{
+    if (!m_generator.versionDependentCode()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ = 
+        "///\n"
+        "/// @section main_version Version Dependent Code\n"
+        "/// The generated code is version dependent. The version information is stored in\n"
+        "/// one of the fields held by a common interface class (see @ref main_interfaces).\n"
+        "/// When presence of the field depends on the protocol version, it is defined as\n"
+        "/// @b comms::field::Optional field which wraps a proper field definition. Please\n"
+        "/// remember to use @b field() member function to access the wrapped field, before\n"
+        "/// using @b value() member function to access the actual value.\n"
+        "/// @code\n"
+        "/// void handle(SomeMessage& msg)\n"
+        "/// {\n"
+        "///     auto& versionDependentField = msg.field_someVersionDependentField();\n"
+        "///     auto& wrappedField = versionDependentField.field();\n"
+        "///     auto actualValue = wrappedField.value();\n"
+        "///     ...\n"
+        "/// }\n"
+        "/// @endcode\n"
+        "/// Every default constructed message will have a version of the schema with\n"
+        "/// all relevant fields being marked present/missing based on this version information.\n"
+        "/// If there is a need to send a message with different protocol version information,\n"
+        "/// the message needs to be brought into a consistent state by calling its @b doRefresh()\n"
+        "/// member function (or @b refresh() in case of proper polymorphic behavior has been enabled)\n"
+        "/// after version information has been updated.\n"
+        "/// @code\n"
+        "///     #^#PROT_NAMESPACE#$#::message::SomeMsg<MyOutputMsg> msg;\n"
+        "///     msg.version() = 4U;\n"
+        "///     msg.doRefresh(); // will update exists/missing state of every dependent field\n"
+        "/// @endcode";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
+    return common::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms

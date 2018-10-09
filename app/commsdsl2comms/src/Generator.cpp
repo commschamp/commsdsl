@@ -1176,7 +1176,7 @@ Generator::PluginsAccessList Generator::getPlugins() const
 
 const Interface* Generator::getDefaultInterface() const
 {
-    InterfacesList list = getAllInterfaces();
+    auto list = getAllInterfaces();
 
     if (list.empty()) {
         assert(!"Should not happen");
@@ -1449,6 +1449,25 @@ Generator::NamespacesScopesList Generator::getNonDefaultNamespacesScopes() const
     return result;
 }
 
+Generator::InterfacesAccessList Generator::getAllInterfaces() const
+{
+    InterfacesAccessList result;
+    for (auto& n : m_namespaces) {
+        auto subResult = n->getAllInterfaces();
+        result.insert(result.end(), subResult.begin(), subResult.end());
+    }
+    return result;
+}
+
+Generator::FramesAccessList Generator::getAllFrames() const
+{
+    FramesAccessList result;
+    for (auto& n : m_namespaces) {
+        auto nList = n->getAllFrames();
+        result.insert(result.end(), nList.begin(), nList.end());
+    }
+    return result;
+}
 
 std::pair<std::string, std::string>
 Generator::namespacesForElement(
@@ -1866,26 +1885,6 @@ bool Generator::preparePlugins()
 
     return true;
 
-}
-
-Generator::InterfacesList Generator::getAllInterfaces() const
-{
-    InterfacesList result;
-    for (auto& n : m_namespaces) {
-        auto nList = n->getAllInterfaces();
-        result.insert(result.end(), nList.begin(), nList.end());
-    }
-    return result;
-}
-
-Generator::FramesList Generator::getAllFrames() const
-{
-    FramesList result;
-    for (auto& n : m_namespaces) {
-        auto nList = n->getAllFrames();
-        result.insert(result.end(), nList.begin(), nList.end());
-    }
-    return result;
 }
 
 std::string Generator::getOptionsBody(GetOptionsFunc func) const

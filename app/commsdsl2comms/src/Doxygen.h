@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 namespace commsdsl2comms
 {
 
@@ -17,7 +19,14 @@ private:
     bool writeNamespaces() const;
     bool writeMainpage() const;
 
-private:
+    std::string getMessagesDoc() const;
+    std::string getFieldsDoc() const;
+    std::string getInterfacesDoc() const;
+    std::string getFramesDoc() const;
+    std::string getPlatformsDoc() const;
+    std::string getCustomizeDoc() const;
+    std::string getVersionDoc() const;
+
     Generator& m_generator;
 };
 

@@ -26,6 +26,8 @@ public:
     using PluginsAccessList = std::vector<const Plugin*>;
     using NamespacesScopesList = Namespace::NamespacesScopesList;
     using PlatformsList = commsdsl::Protocol::PlatformsList;
+    using InterfacesAccessList = Namespace::InterfacesAccessList;
+    using FramesAccessList = Namespace::FramesAccessList;
 
     Generator(ProgramOptions& options, Logger& logger)
       : m_options(options), m_logger(logger)
@@ -333,13 +335,14 @@ public:
     std::string getExtraAppendForFile(const std::vector<std::string>& elems) const;
 
     NamespacesScopesList getNonDefaultNamespacesScopes() const;
-
+    InterfacesAccessList getAllInterfaces() const;
+    FramesAccessList getAllFrames() const;
+    
 private:
 
     using NamespacesList = Namespace::NamespacesList;
     using PluginsList = std::vector<PluginPtr>;
-    using InterfacesList = Namespace::InterfacesAccessList;
-    using FramesList = Namespace::FramesAccessList;
+    
 
     bool parseOptions();
     bool parseCustomization();
@@ -399,8 +402,6 @@ private:
         const std::string& ext = common::headerSuffix()) const;
 
     bool preparePlugins();
-    InterfacesList getAllInterfaces() const;
-    FramesList getAllFrames() const;
 
     typedef std::string (Namespace::*GetOptionsFunc)() const;
     std::string getOptionsBody(GetOptionsFunc func) const;
