@@ -100,6 +100,11 @@ public:
 
     bool isVersionOptional() const;
 
+    unsigned sinceVersion() const
+    {
+        return m_dslObj.sinceVersion();
+    }
+
     void setForcedFailOnInvalid()
     {
         m_focedFailOnInvalid = true;

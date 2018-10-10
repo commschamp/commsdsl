@@ -29,6 +29,7 @@ public:
         List,
         Ref,
         Optional,
+        Variant,
         NumOfValues
     };
 

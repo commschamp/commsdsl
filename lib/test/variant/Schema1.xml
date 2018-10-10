@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema1"
+        id="1"
+        endian="big">
+    <fields>
+        <variant name="Variant1">
+            <bundle name="P1">
+                <int name="type" type="uint8" validValue="0" failOnInvalid="true" />
+                <int name="value" type="uint32" />
+            </bundle>
+            <bundle name="P2">
+                <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true" />
+                <int name="value" type="uint8" />
+            </bundle>
+        </variant>
+    </fields>
+</schema>

@@ -1,4 +1,4 @@
-#include "BundleField.h"
+#include "VariantField.h"
 
 #include <type_traits>
 #include <numeric>
@@ -40,14 +40,14 @@ const std::string ClassTemplate(
     "#^#MEMBERS_STRUCT_DEF#$#\n"
     "#^#PREFIX#$#"
     "class #^#CLASS_NAME#$# : public\n"
-    "    comms::field::Bundle<\n"
+    "    comms::field::Variant<\n"
     "        #^#PROT_NAMESPACE#$#::field::FieldBase<>,\n"
     "        typename #^#ORIG_CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
     "        #^#FIELD_OPTS#$#\n"
     "    >\n"
     "{\n"
     "    using Base = \n"
-    "        comms::field::Bundle<\n"
+    "        comms::field::Variant<\n"
     "            #^#PROT_NAMESPACE#$#::field::FieldBase<>,\n"
     "            typename #^#ORIG_CLASS_NAME#$#Members#^#MEMBERS_OPT#$#::All#^#COMMA#$#\n"
     "            #^#FIELD_OPTS#$#\n"
@@ -68,9 +68,9 @@ const std::string ClassTemplate(
 
 } // namespace
 
-bool BundleField::prepareImpl()
+bool VariantField::prepareImpl()
 {
-    auto obj = bundleFieldDslObj();
+    auto obj = variantFieldDslObj();
     auto members = obj.members();
     m_members.reserve(members.size());
     for (auto& m : members) {
@@ -84,15 +84,21 @@ bool BundleField::prepareImpl()
             return false;
         }
 
+        if ((generator().versionDependentCode()) && 
+            (obj.sinceVersion() < ptr->sinceVersion())) {
+            generator().logger().error("Currently version dependent members of variant are not supported!");
+            return false;
+        }
+
         m_members.push_back(std::move(ptr));
     }
     return true;
 }
 
-void BundleField::updateIncludesImpl(IncludesList& includes) const
+void VariantField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
-        "comms/field/Bundle.h",
+        "comms/field/Variant.h",
         "<tuple>"
     };
 
@@ -103,25 +109,14 @@ void BundleField::updateIncludesImpl(IncludesList& includes) const
     }
 }
 
-void BundleField::updatePluginIncludesImpl(Field::IncludesList& includes) const
+void VariantField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
     for (auto& m : m_members) {
         m->updatePluginIncludes(includes);
     }
 }
 
-std::size_t BundleField::minLengthImpl() const
-{
-    return
-        std::accumulate(
-            m_members.begin(), m_members.end(), std::size_t(0),
-            [](std::size_t soFar, auto& m)
-            {
-                return soFar + m->minLength();
-            });
-}
-
-std::string BundleField::getClassDefinitionImpl(
+std::string VariantField::getClassDefinitionImpl(
     const std::string& scope,
     const std::string& className) const
 {
@@ -153,7 +148,7 @@ std::string BundleField::getClassDefinitionImpl(
     return common::processTemplate(ClassTemplate, replacements);
 }
 
-std::string BundleField::getExtraDefaultOptionsImpl(const std::string& scope) const
+std::string VariantField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
     std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     StringsList options;
@@ -176,7 +171,7 @@ std::string BundleField::getExtraDefaultOptionsImpl(const std::string& scope) co
     return common::processTemplate(MembersOptionsTemplate, replacements);
 }
 
-std::string BundleField::getPluginAnonNamespaceImpl(
+std::string VariantField::getPluginAnonNamespaceImpl(
     const std::string& scope,
     bool forcedSerialisedHidden,
     bool serHiddenParam) const
@@ -204,10 +199,10 @@ std::string BundleField::getPluginAnonNamespaceImpl(
     return common::processTemplate(Templ, replacements);
 }
 
-std::string BundleField::getPluginPropertiesImpl(bool serHiddenParam) const
+std::string VariantField::getPluginPropertiesImpl(bool serHiddenParam) const
 {
     common::StringsList props;
-    props.reserve(m_members.size());
+    props.reserve(m_members.size() + 1);
     auto prefix =
         common::nameToClassCopy(name()) + common::membersSuffixStr() +
         "::createProps_";
@@ -220,32 +215,46 @@ std::string BundleField::getPluginPropertiesImpl(bool serHiddenParam) const
         props.push_back(std::move(str));
     }
 
+    auto obj = variantFieldDslObj();
+    if (obj.displayIdxReadOnlyHidden()) {
+        props.push_back(".setIndexHidden()");
+    }
+
+    props.push_back(".serialisedHidden()");
+
     return common::listToString(props, "\n", common::emptyString());
 }
 
-std::string BundleField::getFieldOpts(const std::string& scope) const
+std::string VariantField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;
 
     updateExtraOptions(scope, options);
 
-    bool hasCustomReadRefresh =
-        std::any_of(
-            m_members.begin(), m_members.end(),
-            [](auto& m) {
-                assert(m);
-                return m->hasCustomReadRefresh();
-            });
-
-    if (hasCustomReadRefresh) {
-        common::addToList("comms::option::HasCustomRead", options);
-        common::addToList("comms::option::HasCustomRefresh", options);
+    auto obj = variantFieldDslObj();
+    auto idx = obj.defaultMemberIdx();
+    if (idx < m_members.size()) {
+        auto opt = "comms::option::DefaultVariantIndex<" + common::numToString(idx) + '>';
+        common::addToList(opt, options);
     }
+
+    // bool hasCustomReadRefresh =
+    //     std::any_of(
+    //         m_members.begin(), m_members.end(),
+    //         [](auto& m) {
+    //             assert(m);
+    //             return m->hasCustomReadRefresh();
+    //         });
+
+    // if (hasCustomReadRefresh) {
+    //     common::addToList("comms::option::HasCustomRead", options);
+    //     common::addToList("comms::option::HasCustomRefresh", options);
+    // }
 
     return common::listToString(options, ",\n", common::emptyString());
 }
 
-std::string BundleField::getMembersDef(const std::string& scope) const
+std::string VariantField::getMembersDef(const std::string& scope) const
 {
     auto className = common::nameToClassCopy(name());
     std::string memberScope;
@@ -277,17 +286,17 @@ std::string BundleField::getMembersDef(const std::string& scope) const
 
 }
 
-std::string BundleField::getAccess() const
+std::string VariantField::getAccess() const
 {
     static const std::string Templ =
         "/// @brief Allow access to internal fields.\n"
-        "/// @details See definition of @b COMMS_FIELD_MEMBERS_ACCESS macro\n"
-        "///     related to @b comms::field::Bundle class from COMMS library\n"
+        "/// @details See definition of @b COMMS_VARIANT_MEMBERS_ACCESS macro\n"
+        "///     related to @b comms::field::Variant class from COMMS library\n"
         "///     for details.\n"
         "///\n"
         "///     The generated access functions are:\n"
         "#^#ACCESS_DOC#$#\n"
-        "COMMS_FIELD_MEMBERS_ACCESS(\n"
+        "COMMS_VARIANT_MEMBERS_ACCESS(\n"
         "    #^#NAMES#$#\n"
         ");\n";
 
@@ -300,11 +309,10 @@ std::string BundleField::getAccess() const
     for (auto& m : m_members) {
         namesList.push_back(common::nameToAccessCopy(m->name()));
         std::string accessStr =
-            "///     @li @b field_" + namesList.back() +
-            "() - for " + scope +
+            "///     @li @b initField_" + namesList.back() +
+            "() and @b accessField_" + namesList.back() + " - for " + scope +
             common::nameToClassCopy(m->name()) + " member field.";
         accessDocList.push_back(std::move(accessStr));
-        
     }
 
     common::ReplacementMap replacements;
@@ -313,27 +321,29 @@ std::string BundleField::getAccess() const
     return common::processTemplate(Templ, replacements);
 }
 
-std::string BundleField::getRead() const
+std::string VariantField::getRead() const
 {
-    auto customRead = getCustomRead();
-    if (!customRead.empty()) {
-        return customRead;
-    }
+    return getCustomRead();
+    // auto customRead = getCustomRead();
+    // if (!customRead.empty()) {
+    //     return customRead;
+    // }
 
-    return getReadForFields(m_members);
+    // return getReadForFields(m_members);
 }
 
-std::string BundleField::getRefresh() const
+std::string VariantField::getRefresh() const
 {
-    auto customRefresh = getCustomRefresh();
-    if (!customRefresh.empty()) {
-        return customRefresh;
-    }
+    return getCustomRefresh();
+    // auto customRefresh = getCustomRefresh();
+    // if (!customRefresh.empty()) {
+    //     return customRefresh;
+    // }
 
-    return getPublicRefreshForFields(m_members, false);
+    // return getPublicRefreshForFields(m_members, false);
 }
 
-std::string BundleField::getPrivate() const
+std::string VariantField::getPrivate() const
 {
     auto str = getExtraPrivate();
     auto refreshStr = getPrivateRefreshForFields(m_members);

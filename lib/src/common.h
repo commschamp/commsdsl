@@ -52,6 +52,7 @@ const std::string& infStr();
 const std::string& negInfStr();
 const std::string& bitfieldStr();
 const std::string& bundleStr();
+const std::string& variantStr();
 const std::string& membersStr();
 const std::string& sinceVersionStr();
 const std::string& deprecatedStr();
@@ -122,6 +123,8 @@ const std::string& senderStr();
 const std::string& clientStr();
 const std::string& serverStr();
 const std::string& bothStr();
+const std::string& defaultMemberStr();
+const std::string& displayIdxReadOnlyHiddenStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

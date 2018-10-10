@@ -24,6 +24,7 @@ set (
     "StringField.cpp"
     "DataField.cpp"
     "ListField.cpp"
+    "VariantField.cpp"
     "FieldBase.cpp"
     "DefaultOptions.cpp"
     "MsgId.cpp"

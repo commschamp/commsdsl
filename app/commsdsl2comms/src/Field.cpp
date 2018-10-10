@@ -20,6 +20,7 @@
 #include "StringField.h"
 #include "DataField.h"
 #include "ListField.h"
+#include "VariantField.h"
 #include "common.h"
 
 namespace ba = boost::algorithm;
@@ -176,6 +177,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
         /* List */ [](Generator& g, commsdsl::Field f) { return createListField(g, f); },
         /* Ref */ [](Generator& g, commsdsl::Field f) { return createRefField(g, f); },
         /* Optional */ [](Generator& g, commsdsl::Field f) { return createOptionalField(g, f); },
+        /* Variant */ [](Generator& g, commsdsl::Field f) { return createVariantField(g, f); },
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;

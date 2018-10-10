@@ -228,6 +228,12 @@ const std::string& bundleStr()
     return Str;
 }
 
+const std::string& variantStr()
+{
+    static const std::string Str("variant");
+    return Str;
+}
+
 const std::string& membersStr()
 {
     static const std::string Str("members");
@@ -645,6 +651,18 @@ const std::string& serverStr()
 const std::string& bothStr()
 {
     static const std::string Str("both");
+    return Str;
+}
+
+const std::string& defaultMemberStr()
+{
+    static const std::string Str("defaultMember");
+    return Str;
+}
+
+const std::string& displayIdxReadOnlyHiddenStr()
+{
+    static const std::string Str("displayIdxReadOnlyHidden");
     return Str;
 }
 
