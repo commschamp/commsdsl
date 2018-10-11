@@ -19,13 +19,12 @@ configuration:
     - Debug
     - Release
 
-#environment:
-#    matrix:
-#        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-#          TOOLCHAIN: msvc14
-#        - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
-#          TOOLCHAIN: msvc15
-          
+environment:
+    matrix:
+        - CPP_STD: 11
+          QT_VER: 5.6.3
+        - CPP_STD: 14
+          QT_VER: 5.6.3
 
 install:
     - call script\appveyor_install.bat
