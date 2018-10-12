@@ -288,7 +288,9 @@ Generator::startProtocolPluginSrcWrite(const std::string& name)
     return startPluginWrite(name, false, common::pluginStr());
 }
 
-std::string Generator::startProtocolPluginJsonWrite(const std::string& name)
+std::string Generator::startProtocolPluginCommonWrite(
+    const std::string& name,
+    const std::string& extension)
 {
     if (name.empty()) {
         assert(!"Should not happen");
@@ -303,7 +305,6 @@ std::string Generator::startProtocolPluginJsonWrite(const std::string& name)
         return common::emptyString();
     }
 
-    std::string extension = ".json";
     auto className = refToName(name);
     assert(!className.empty());
     common::nameToClass(className);

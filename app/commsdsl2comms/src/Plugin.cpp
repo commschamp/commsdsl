@@ -46,7 +46,8 @@ bool Plugin::write()
         writeProtocolSrc() &&
         writePluginHeader() &&
         writePluginSrc() &&
-        writePluginJson();
+        writePluginJson() &&
+        writePluginConfig();
 }
 
 const std::string& Plugin::adjustedName() const
@@ -294,17 +295,12 @@ bool Plugin::writePluginHeader()
 
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
-    auto id = m_generator.schemaName();
-    if (!m_name.empty()) {
-        id += '.' + m_name;
-    }
-
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(pluginClassName())));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("ID", std::move(id)));
+    replacements.insert(std::make_pair("ID", pluginId()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(pluginClassName())));
 
     std::string str = common::processTemplate(Templ, replacements);
@@ -381,7 +377,7 @@ bool Plugin::writePluginSrc()
 
 bool Plugin::writePluginJson()
 {
-    auto filePath = m_generator.startProtocolPluginJsonWrite(pluginClassName());
+    auto filePath = m_generator.startProtocolPluginCommonWrite(pluginClassName(), ".json");
 
     if (filePath.empty()) {
         return true;
@@ -423,6 +419,41 @@ bool Plugin::writePluginJson()
     return true;
 }
 
+bool Plugin::writePluginConfig()
+{
+    auto filePath = m_generator.startProtocolPluginCommonWrite(common::nameToClassCopy(common::updateNameCopy(adjustedName())), ".cfg");
+
+    if (filePath.empty()) {
+        return true;
+    }
+
+    static const std::string Templ =
+        "{\n"
+        "    \"cc_plugins_list\": [\n"
+        "        \"cc.EchoSocketPlugin\",\n"
+        "        \"#^#ID#$#\"\n"
+        "    ]\n"
+        "}\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("ID", pluginId()));
+    std::string str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
 std::string Plugin::protClassName() const
 {
     return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + ProtSuffix;
@@ -431,6 +462,16 @@ std::string Plugin::protClassName() const
 std::string Plugin::pluginClassName() const
 {
     return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + PluginSuffix;
+}
+
+std::string Plugin::pluginId() const
+{
+    auto id = m_generator.schemaName();
+    if (!m_name.empty()) {
+        id += '.' + m_name;
+    }
+
+    return id;
 }
 
 } // namespace commsdsl2comms

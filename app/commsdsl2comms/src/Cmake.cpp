@@ -254,6 +254,17 @@ bool Cmake::writePlugin() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("SOURCES", m_generator.pluginCommonSources()));
     replacements.insert(std::make_pair("PLUGINS", common::listToString(calls, "\n", "\n")));
+    if (plugins.size() == 1U) {
+        auto str =
+            "if (OPT_FULL_SOLUTION)\n"
+            "    install (\n"
+            "        FILES plugin/" + common::nameToClassCopy(plugins.front()->adjustedName()) + ".cfg\n"
+            "        DESTINATION ${CONFIG_INSTALL_DIR}\n"
+            "        RENAME \"default.cfg\")\n"
+            "endif()\n\n";
+        replacements.insert(std::make_pair("DEFAULT_INSTALL", std::move(str)));
+
+    }
 
     std::vector<std::string> appendPath = {
         common::pluginNsStr(),
@@ -309,6 +320,9 @@ bool Cmake::writePlugin() const
         "    install (\n"
         "        TARGETS ${name}\n"
         "        DESTINATION ${PLUGIN_INSTALL_DIR})\n\n"
+        "    install (\n"
+        "        FILES plugin/${protocol}.cfg\n"
+        "        DESTINATION ${CONFIG_INSTALL_DIR})\n\n"
         "endfunction()\n\n"
         "######################################################################\n\n"
         "if (NOT Qt5Core_FOUND)\n"
@@ -320,6 +334,7 @@ bool Cmake::writePlugin() const
         "endif ()\n\n"
         "cc_plugin_all_messages()\n\n"
         "#^#PLUGINS#$#\n"
+        "#^#DEFAULT_INSTALL#$#\n"
         "#^#APPEND#$#\n";
 
     auto str = common::processTemplate(Template, replacements);

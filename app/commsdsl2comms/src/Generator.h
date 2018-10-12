@@ -104,7 +104,9 @@ public:
     std::pair<std::string, std::string>
     startProtocolPluginSrcWrite(const std::string& name);
 
-    std::string startProtocolPluginJsonWrite(const std::string& name);
+    std::string startProtocolPluginCommonWrite(
+        const std::string& name,
+        const std::string& extension);
 
     std::pair<std::string, std::string>
     startGenericProtocolWrite(const std::string& name);

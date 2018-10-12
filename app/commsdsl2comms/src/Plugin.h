@@ -44,8 +44,10 @@ private:
     bool writePluginHeader();
     bool writePluginSrc();
     bool writePluginJson();
+    bool writePluginConfig();
     std::string protClassName() const;
     std::string pluginClassName() const;
+    std::string pluginId() const;
 
     Generator& m_generator;
     std::string m_frame;
