@@ -60,7 +60,7 @@ bool SchemaImpl::processNode()
         return false;
     }
 
-    if (!common::isValidName(m_name)) {
+    if ((!m_name.empty()) && (!common::isValidName(m_name))) {
         logError(m_protocol.logger()) << XmlWrap::logPrefix(m_node) <<
               "Property \"" << common::nameStr() << "\" has unexpected value (" << m_name << ").";
         return false;

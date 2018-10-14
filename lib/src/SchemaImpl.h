@@ -18,6 +18,11 @@ public:
 
     bool processNode();
 
+    ::xmlNodePtr getNode() const
+    {
+        return m_node;
+    }
+
     const PropsMap& props() const
     {
         return m_props;

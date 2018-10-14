@@ -297,6 +297,12 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
 
     if (!m_schema) {
         m_schema = std::move(schema);
+
+        if (m_schema->name().empty()) {
+            logError() << XmlWrap::logPrefix(m_schema->getNode()) <<
+                "First schema definition must define \"" << common::nameStr << "\" property.";
+            return false;
+        }
         return true;
     }
 
