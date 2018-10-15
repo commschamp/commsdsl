@@ -42,6 +42,12 @@ const std::string& versionStr()
     return Str;
 }
 
+const std::string& dslVersionStr()
+{
+    static const std::string Str("dslVersion");
+    return Str;
+}
+
 const std::string& descriptionStr()
 {
     static const std::string Str("description");

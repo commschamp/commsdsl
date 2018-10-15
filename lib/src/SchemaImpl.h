@@ -48,6 +48,11 @@ public:
         return m_version;
     }
 
+    unsigned dslVersion() const
+    {
+        return m_dslVersion;
+    }
+
     Endian endian() const
     {
         return m_endian;
@@ -97,6 +102,7 @@ private:
     std::string m_description;
     unsigned m_id = 0U;
     unsigned m_version = 0;
+    unsigned m_dslVersion = 0;
     Endian m_endian = Endian_NumOfValues;
     bool m_nonUniqueMsgIdAllowed = false;
 };

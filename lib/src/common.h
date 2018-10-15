@@ -21,6 +21,7 @@ const std::string& nameStr();
 const std::string& displayNameStr();
 const std::string& idStr();
 const std::string& versionStr();
+const std::string& dslVersionStr();
 const std::string& descriptionStr();
 const std::string& endianStr();
 const std::string& bigStr();

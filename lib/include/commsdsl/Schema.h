@@ -29,6 +29,8 @@ public:
 
     unsigned version() const;
 
+    unsigned dslVersion() const;
+
     Endian endian() const;
 
     bool nonUniqueMsgIdAllowed() const;

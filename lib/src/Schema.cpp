@@ -59,6 +59,16 @@ unsigned Schema::version() const
     return m_pImpl->version();
 }
 
+unsigned Schema::dslVersion() const
+{
+    if (!valid()) {
+        assert(!"Unexpected call on invalid schema object");
+        return std::numeric_limits<unsigned>::max();
+    }
+
+    return m_pImpl->dslVersion();
+}
+
 Endian Schema::endian() const
 {
     if (!valid()) {

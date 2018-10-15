@@ -25,6 +25,7 @@ namespace commsdsl2comms
 namespace
 {
 
+const unsigned MaxDslVersion = 1U;
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
@@ -870,6 +871,13 @@ bool Generator::parseSchemaFiles(const FilesList& files)
         }
 
         m_schemaVersion = newVersion;
+    }
+
+    if (MaxDslVersion < schema.dslVersion()) {
+        m_logger.error(
+            "Required DSL version is too big (" + std::to_string(schema.dslVersion()) +
+            "), upgrade your code generator.");
+        return false;
     }
 
     m_minRemoteVersion = m_options.getMinRemoteVersion();

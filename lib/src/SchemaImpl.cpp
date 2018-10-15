@@ -18,6 +18,7 @@ const XmlWrap::NamesList PropNames = {
     common::nameStr(),
     common::idStr(),
     common::versionStr(),
+    common::dslVersionStr(),
     common::endianStr(),
     common::descriptionStr(),
     common::nonUniqueMsgIdAllowedStr()
@@ -53,6 +54,7 @@ bool SchemaImpl::processNode()
         (!updateStringProperty(m_props, common::descriptionStr(), m_description)) ||
         (!updateUnsignedProperty(m_props, common::idStr(), m_id)) ||
         (!updateUnsignedProperty(m_props, common::versionStr(), m_version)) ||
+        (!updateUnsignedProperty(m_props, common::dslVersionStr(), m_dslVersion)) ||
         (!updateEndianProperty(m_props, common::endianStr(), m_endian)) ||
         (!updateBooleanProperty(m_props, common::nonUniqueMsgIdAllowedStr(), m_nonUniqueMsgIdAllowed)) ||
         (!updateExtraAttrs()) ||
