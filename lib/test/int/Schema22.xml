@@ -156,32 +156,32 @@
         <int name="U28_F1" type="int8" units=" na " />
         <int name="U28_F2" type="int8" units=" nanoamp " />
         <int name="U28_F3" type="int8" units=" nanoamps " />
-        <int name="U28_F4" type="int8" units=" nanoamper " />
-        <int name="U28_F5" type="int8" units=" nanoampers " />
+        <int name="U28_F4" type="int8" units=" nanoampere " />
+        <int name="U28_F5" type="int8" units=" nanoamperes " />
 
         <int name="U29_F1" type="int8" units=" ua " />
         <int name="U29_F2" type="int8" units=" microamp " />
         <int name="U29_F3" type="int8" units=" microamps " />
-        <int name="U29_F4" type="int8" units=" microamper " />
-        <int name="U29_F5" type="int8" units=" microampers " />
+        <int name="U29_F4" type="int8" units=" microampere " />
+        <int name="U29_F5" type="int8" units=" microamperes " />
         
         <int name="U30_F1" type="int8" units=" ma " />
         <int name="U30_F2" type="int8" units=" milliamp " />
         <int name="U30_F3" type="int8" units=" milliamps " />
-        <int name="U30_F4" type="int8" units=" milliamper " />
-        <int name="U30_F5" type="int8" units=" milliampers " />
+        <int name="U30_F4" type="int8" units=" milliampere " />
+        <int name="U30_F5" type="int8" units=" milliamperes " />
         
         <int name="U31_F1" type="int8" units=" a " />
         <int name="U31_F2" type="int8" units=" amp " />
         <int name="U31_F3" type="int8" units=" amps " />
-        <int name="U31_F4" type="int8" units=" amper " />
-        <int name="U31_F5" type="int8" units=" ampers " />
+        <int name="U31_F4" type="int8" units=" ampere " />
+        <int name="U31_F5" type="int8" units=" amperes " />
 
         <int name="U32_F1" type="int8" units=" ka " />
         <int name="U32_F2" type="int8" units=" kiloamp " />
         <int name="U32_F3" type="int8" units=" kiloamps " />
-        <int name="U32_F4" type="int8" units=" kiloamper " />
-        <int name="U32_F5" type="int8" units=" kiloampers " />
+        <int name="U32_F4" type="int8" units=" kiloampere " />
+        <int name="U32_F5" type="int8" units=" kiloamperes " />
         
         <int name="U33_F1" type="int8" units=" nv " />
         <int name="U33_F2" type="int8" units=" nanovolt " />
