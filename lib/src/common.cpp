@@ -809,6 +809,7 @@ bool isFpSpecial(const std::string& str)
 Units strToUnits(const std::string& str, bool* ok)
 {
     static const std::map<std::string, Units> Map = {
+        std::make_pair(emptyString(), Units::Unknown),
         std::make_pair("ns", Units::Nanoseconds),
         std::make_pair("nanosec", Units::Nanoseconds),
         std::make_pair("nanosecs", Units::Nanoseconds),
