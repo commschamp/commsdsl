@@ -67,7 +67,7 @@ const XmlWrap::NamesList& ListFieldImpl::extraPropsNamesImpl() const
     return List;
 }
 
-const XmlWrap::NamesList&ListFieldImpl::extraPossiblePropsNamesImpl() const
+const XmlWrap::NamesList& ListFieldImpl::extraPossiblePropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
         common::elementStr(),

@@ -58,7 +58,7 @@ const XmlWrap::NamesList& StringFieldImpl::extraPropsNamesImpl() const
     return List;
 }
 
-const XmlWrap::NamesList&StringFieldImpl::extraPossiblePropsNamesImpl() const
+const XmlWrap::NamesList& StringFieldImpl::extraPossiblePropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
         common::lengthPrefixStr(),

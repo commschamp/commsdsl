@@ -594,9 +594,9 @@ const std::string& displayOffsetStr()
     return Str;
 }
 
-const std::string& externalModeCtrlStr()
+const std::string& displayExtModeCtrlStr()
 {
-    static const std::string Str("externalModeCtrl");
+    static const std::string Str("displayExtModeCtrl");
     return Str;
 }
 

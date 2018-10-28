@@ -73,7 +73,7 @@ FieldImpl::Ptr BitfieldFieldImpl::cloneImpl() const
     return Ptr(new BitfieldFieldImpl(*this));
 }
 
-const XmlWrap::NamesList&BitfieldFieldImpl::extraPropsNamesImpl() const
+const XmlWrap::NamesList& BitfieldFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
         common::endianStr(),
