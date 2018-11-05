@@ -82,6 +82,9 @@ bool LayerImpl::parse()
     XmlWrap::NamesList expectedChildren = commonProps();
     expectedChildren.insert(expectedChildren.end(), commonPossibleProps().begin(), commonPossibleProps().end());
     expectedChildren.insert(expectedChildren.end(), extraPropsNames.begin(), extraPropsNames.end());
+
+    auto supportedFields = FieldImpl::supportedTypes();
+    expectedChildren.insert(expectedChildren.end(), supportedFields.begin(), supportedFields.end());
     if (!updateExtraChildren(expectedChildren)) {
         return false;
     }
@@ -403,45 +406,94 @@ bool LayerImpl::checkFieldFromRef()
 bool LayerImpl::checkFieldAsChild()
 {
     auto children = XmlWrap::getChildren(getNode(), common::fieldStr());
-    if (children.empty()) {
-        return true;
-    }
-
     if (1U < children.size()) {
-        logError() << "There must be only one occurance of \"" << common::fieldStr() << "\".";
+        logError() << "There must be only one occurance of \"" << common::fieldStr() << "\" child element.";
         return false;
     }
 
-    auto child = children.front();
-    auto fields = XmlWrap::getChildren(child);
-    if (1U < fields.size()) {
-        logError() << XmlWrap::logPrefix(child) <<
-            "The \"" << common::fieldStr() << "\" element is expected to define only "
-            "single field";
+    auto fieldTypes = XmlWrap::getChildren(getNode(), FieldImpl::supportedTypes());
+    if ((0U < children.size()) && (0U < fieldTypes.size())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                  "The frame layer element does not support "
+                  "stand alone field as child element together with \"" <<
+                  common::fieldStr() << "\" child element.";
         return false;
     }
 
-    auto iter = props().find(common::fieldStr());
-    bool hasInProps = iter != props().end();
-    if (fields.empty()) {
-        assert(hasInProps);
+    if (children.empty() && fieldTypes.empty()) {
         return true;
     }
 
-    if (hasInProps) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-            "The \"" << common::fieldStr() << "\" element is expected to define only "
-            "single field";
-        return false;
-    }
+    ::xmlNodePtr fieldNode = nullptr;
+    do {
+        if (fieldTypes.empty()) {
+            break;
+        }
 
-    auto fieldNode = fields.front();
-    assert(fieldNode->name != nullptr);
+        if (1U < fieldTypes.size()) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "The frame layer element is expected to define only "
+                "single field";
+            return false;
+        }
+
+        auto allChildren = XmlWrap::getChildren(getNode());
+        if (allChildren.size() != fieldTypes.size()) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                  "The field type of frame layer "
+                  " must be defined inside \"<" << common::fieldsStr() << ">\" child element "
+                  "when there are other property describing children.";
+            return false;
+        }
+
+        if (props().find(common::fieldStr()) != props().end()) {
+            logError() << "There must be only one occurance of \"" << common::fieldStr() << "\" definition.";
+            return false;
+        }
+
+        fieldNode = fieldTypes.front();
+    } while (false);
+
+
+    do {
+        if (fieldNode != nullptr) {
+            assert(children.empty());
+            break;
+        }
+
+        assert(!children.empty());
+
+        auto child = children.front();
+        auto fields = XmlWrap::getChildren(child);
+        if (1U < fields.size()) {
+            logError() << XmlWrap::logPrefix(child) <<
+                "The \"" << common::fieldStr() << "\" element is expected to define only "
+                "single field";
+            return false;
+        }
+
+        if (props().find(common::fieldStr()) == props().end()) {
+            fieldNode = fields.front();
+            break;
+        }
+
+        auto attrs = XmlWrap::parseNodeProps(getNode());
+        if (attrs.find(common::fieldsStr()) != attrs.end()) {
+            logError() << "There must be only one occurance of \"" << common::fieldStr() << "\" definition.";
+            return false;
+        }
+
+        // The field element is parsed as property
+        return true;
+    } while (false);
+
+    assert (fieldNode != nullptr);
+
     std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
     auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
     if (!field) {
-        logError() << XmlWrap::logPrefix(fieldNode) <<
-            "Unknown field type \"" << fieldKind << "\".";
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Unknown field type \"" << fieldKind << "\"";
         return false;
     }
 
@@ -452,6 +504,7 @@ bool LayerImpl::checkFieldAsChild()
 
     m_extField = nullptr;
     m_field = std::move(field);
+    assert(m_field->externalRef().empty());
     return true;
 }
 
