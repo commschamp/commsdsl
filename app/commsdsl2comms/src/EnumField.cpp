@@ -677,7 +677,22 @@ void EnumField::checkDefaultValueOpt(StringsList& list) const
 
 void EnumField::checkLengthOpt(StringsList& list) const
 {
-    auto bitLength = dslObj().bitLength();
+    auto obj = enumFieldDslObj();
+    auto type = obj.type();
+
+    if ((type == commsdsl::EnumField::Type::Intvar) ||
+        (type == commsdsl::EnumField::Type::Uintvar)) {
+        auto str =
+            "comms::option::VarLength<" +
+            common::numToString(obj.minLength()) +
+            ", " +
+            common::numToString(obj.maxLength()) +
+            '>';
+        list.push_back(std::move(str));
+        return;
+    }
+
+    auto bitLength = obj.bitLength();
     if (bitLength != 0U) {
         list.push_back("comms::option::FixedBitLength<" + common::numToString(bitLength) + '>');
         return;
@@ -700,8 +715,6 @@ void EnumField::checkLengthOpt(StringsList& list) const
     static_assert(LengthMapSize == static_cast<decltype(LengthMapSize)>(commsdsl::IntField::Type::NumOfValues),
             "Incorrect map");
 
-    auto obj = enumFieldDslObj();
-    auto type = obj.type();
     std::size_t idx = static_cast<std::size_t>(type);
     if (LengthMapSize <= idx) {
         return;

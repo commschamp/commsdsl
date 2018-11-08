@@ -16,21 +16,21 @@ public:
     SetField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
 protected:
-    virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual void updateIncludesImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
-        const std::string& className) const override;
+        const std::string& className) const override final;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,
         const std::string& nameOverride,
-        bool forcedVersionOptional) const override;
+        bool forcedVersionOptional) const override final;
     virtual std::string getCompareToFieldImpl(
         const std::string& op,
         const Field& field,
         const std::string& nameOverride,
-        bool forcedVersionOptional) const override;
-    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
+        bool forcedVersionOptional) const override final;
+    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
 
 private:
     using StringsList = common::StringsList;

@@ -33,6 +33,14 @@
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="E1" />
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <enum name="f1" type="uintvar" length="2">
+            <validValue name="v1" val="0" />
+            <validValue name="v2" val="128" />
+        </enum>
+    </message>
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />

@@ -69,9 +69,9 @@ public:
     }
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override;
+    virtual Kind kindImpl() const override final;
+    virtual Ptr cloneImpl() const override final;
+    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override final;
 
 private:
     bool hasUpdatedValue();
@@ -113,9 +113,9 @@ public:
 
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override;
+    virtual Kind kindImpl() const override final;
+    virtual Ptr cloneImpl() const override final;
+    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override final;
 
 private:
     List m_conds;

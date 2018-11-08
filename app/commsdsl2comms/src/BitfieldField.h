@@ -15,18 +15,18 @@ public:
     BitfieldField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
 protected:
-    virtual bool prepareImpl() override;
-    virtual void updateIncludesImpl(IncludesList& includes) const override;
-    virtual void updatePluginIncludesImpl(IncludesList& includes) const override;
+    virtual bool prepareImpl() override final;
+    virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updatePluginIncludesImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
-        const std::string& className) const override;
-    virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override;
+        const std::string& className) const override final;
+    virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
     virtual std::string getPluginAnonNamespaceImpl(
         const std::string& scope,
         bool forcedSerialisedHidden,
-        bool serHiddenParam) const override;
-    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
+        bool serHiddenParam) const override final;
+    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
 
 private:
     using StringsList = common::StringsList;

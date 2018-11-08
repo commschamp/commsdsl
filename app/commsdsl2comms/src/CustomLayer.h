@@ -20,12 +20,12 @@ public:
     }
 
 protected:
-    virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual void updateIncludesImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         std::string& prevLayer,
-        bool& hasInputMessages) const override;
-    virtual bool isCustomizableImpl() const override;
+        bool& hasInputMessages) const override final;
+    virtual bool isCustomizableImpl() const override final;
 
 private:
     commsdsl::CustomLayer customLayerDslObj() const

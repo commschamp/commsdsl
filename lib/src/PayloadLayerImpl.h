@@ -12,9 +12,9 @@ public:
     PayloadLayerImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual bool verifyImpl(const LayersList& layers) override;
-    virtual bool mustHaveFieldImpl() const override;
+    virtual Kind kindImpl() const override final;
+    virtual bool verifyImpl(const LayersList& layers) override final;
+    virtual bool mustHaveFieldImpl() const override final;
 
 };
 

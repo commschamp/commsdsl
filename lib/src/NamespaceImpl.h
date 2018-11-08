@@ -149,7 +149,7 @@ public:
     unsigned countMessageIds() const;
 
 protected:
-    virtual ObjKind objKindImpl() const override;
+    virtual ObjKind objKindImpl() const override final;
 
 private:
 

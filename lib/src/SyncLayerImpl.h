@@ -12,7 +12,7 @@ public:
     SyncLayerImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
 protected:
-    virtual Kind kindImpl() const override;
+    virtual Kind kindImpl() const override final;
 };
 
 } // namespace commsdsl

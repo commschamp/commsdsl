@@ -15,12 +15,12 @@ public:
     ChecksumLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
 
 protected:
-    virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual void updateIncludesImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         std::string& prevLayer,
-        bool& hasInputMessages) const override;
-    virtual bool rearangeImpl(LayersList& layers, bool& success) override;
+        bool& hasInputMessages) const override final;
+    virtual bool rearangeImpl(LayersList& layers, bool& success) override final;
 
 private:
     commsdsl::ChecksumLayer checksumLayerDslObj() const

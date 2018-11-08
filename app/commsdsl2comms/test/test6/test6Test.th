@@ -2,11 +2,13 @@
 
 #include "test6/Message.h"
 #include "test6/message/Msg1.h"
+#include "test6/message/Msg2.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     using Interface =
         test6::Message<
@@ -20,6 +22,7 @@ public:
         >;
 
     using Msg1 = test6::message::Msg1<Interface>;
+    using Msg2 = test6::message::Msg2<Interface>;
 
     void polymorphicNameCheck(const Interface& msg, const char* value)
     {
@@ -43,4 +46,11 @@ void TestSuite::test1()
     msg1.version() = 4U;
     TS_ASSERT(msg1.refresh());
     TS_ASSERT(msg1.field_f1().valid());
+}
+
+void TestSuite::test2()
+{
+    Msg2 msg;
+    TS_ASSERT_EQUALS(msg.doMinLength(), 1U);
+    TS_ASSERT_EQUALS(msg.doMaxLength(), 2U);
 }

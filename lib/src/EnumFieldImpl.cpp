@@ -108,6 +108,15 @@ bool EnumFieldImpl::parseImpl()
 
 std::size_t EnumFieldImpl::minLengthImpl() const
 {
+    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
+        return 1U;
+    }
+
+    return m_state.m_length;
+}
+
+std::size_t EnumFieldImpl::maxLengthImpl() const
+{
     return m_state.m_length;
 }
 

@@ -28,15 +28,15 @@ public:
     }
 
 protected:
-    virtual Kind kindImpl() const override;
-    virtual Ptr cloneImpl() const override;
-    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
-    virtual bool reuseImpl(const FieldImpl& other) override;
-    virtual bool parseImpl() override;
-    virtual std::size_t minLengthImpl() const override;
-    virtual std::size_t maxLengthImpl() const override;
-    virtual bool isComparableToValueImpl(const std::string& val) const override;
-    virtual bool isComparableToFieldImpl(const FieldImpl& field) const override;
+    virtual Kind kindImpl() const override final;
+    virtual Ptr cloneImpl() const override final;
+    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override final;
+    virtual bool reuseImpl(const FieldImpl& other) override final;
+    virtual bool parseImpl() override final;
+    virtual std::size_t minLengthImpl() const override final;
+    virtual std::size_t maxLengthImpl() const override final;
+    virtual bool isComparableToValueImpl(const std::string& val) const override final;
+    virtual bool isComparableToFieldImpl(const FieldImpl& field) const override final;
 
 private:
     const FieldImpl* m_field = nullptr;
