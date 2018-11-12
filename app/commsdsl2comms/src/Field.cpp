@@ -135,14 +135,14 @@ std::string Field::getClassDefinition(
         if (m_dslObj.isDeprecatedRemoved()) {
             assert(m_dslObj.deprecatedSince() < commsdsl::Protocol::notYetDeprecated());
             if (m_dslObj.sinceVersion() == 0U) {
-                versionOpt = "ExistsUntilVersion<" + common::numToString(m_dslObj.deprecatedSince()) + '>';
+                versionOpt = "ExistsUntilVersion<" + common::numToString(m_dslObj.deprecatedSince() - 1) + '>';
             }
             else {
                 versionOpt =
                     "ExistsBetweenVersions<" +
                     common::numToString(m_dslObj.sinceVersion()) +
                     ", " +
-                    common::numToString(m_dslObj.deprecatedSince()) +
+                    common::numToString(m_dslObj.deprecatedSince() - 1) +
                     '>';
             }
         }
@@ -432,13 +432,24 @@ std::string Field::dslCondToString(
 
 bool Field::isVersionOptional() const
 {
-    return
-        (m_generator.versionDependentCode()) &&
-        (m_parentVersion < m_dslObj.sinceVersion()) &&
-        (m_generator.isElementOptional(
-            m_dslObj.sinceVersion(),
-            m_dslObj.deprecatedSince(),
-             m_dslObj.isDeprecatedRemoved()));
+    if (!m_generator.versionDependentCode()) {
+        return false;
+    }
+
+    if (!m_generator.isElementOptional(m_dslObj.sinceVersion(), m_dslObj.deprecatedSince(), m_dslObj.isDeprecatedRemoved())) {
+        return false;
+    }
+
+    if (m_parentVersion < m_dslObj.sinceVersion()) {
+        return true;
+    }
+    
+    if ((m_dslObj.deprecatedSince() < commsdsl::Protocol::notYetDeprecated()) &&
+        (m_dslObj.isDeprecatedRemoved())) {
+        return true;
+    }
+
+    return false;
 }
 
 std::string Field::getReadForFields(
