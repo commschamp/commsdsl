@@ -28,9 +28,9 @@ while (TRUE)
     ExternalProject_Add(
         ${INTERNAL_LIBXML_TGT}
         PREFIX "${LIBXML2_DIR}"
-        STAMP_DIR "${LIBXML2_DIR}"
         GIT_REPOSITORY "https://github.com/GNOME/libxml2.git"
         GIT_TAG "v2.9.7"
+        UPDATE_DISCONNECTED 1
         CONFIGURE_COMMAND
             cscript ${LIBXML2_BIN_DIR}/configure.js ftp=no html=no iconv=no compiler=msvc static=yes ${LIBXML2_CRUNTIME} bindir=install\\bin incdir=install\\include libdir=install\\lib sodir=install\\bin
         SOURCE_DIR "${LIBXML2_SRC_DIR}"
