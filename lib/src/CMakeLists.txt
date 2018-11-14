@@ -28,6 +28,7 @@ while (TRUE)
     ExternalProject_Add(
         ${INTERNAL_LIBXML_TGT}
         PREFIX "${LIBXML2_DIR}"
+        STAMP_DIR "${LIBXML2_DIR}/stamp"
         GIT_REPOSITORY "https://github.com/GNOME/libxml2.git"
         GIT_TAG "v2.9.7"
         UPDATE_DISCONNECTED 1
