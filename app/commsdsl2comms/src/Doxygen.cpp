@@ -510,7 +510,7 @@ bool Doxygen::writeMainpage() const
         "/// for detailed explanation on how to use them.\n"
         "///\n"
         "/// @b NOTE, that the generated protocol code is mostly declarative statements\n"
-        "/// of classes and types definitions. It is self exlanatory and easy to read.\n"
+        "/// of classes and types definitions. It is self explanatory and easy to read.\n"
         "/// In many cases it is easier to read and understand the generated code, than the\n"
         "/// doxygen generated documentation. Please spend some time on browsing around\n"
         "/// and looking at the generated code in addition to reading this documentation.\n"
