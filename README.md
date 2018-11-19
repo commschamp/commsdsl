@@ -52,16 +52,19 @@ version for all the subsequent messages.
 
 #### Real Life Open Protocols
 - [cc.mqtt311.commsdsl](https://github.com/arobenko/cc.mqtt311.commsdsl) - 
-Defines MQTT v3.1.1 protocol, where message ID shares
+Defines [MQTT v3.1.1](http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.pdf)
+protocol, where message ID shares
 the same byte with extra flags, that may define existence of the fields in
 message payload as well as influence how message needs to be processed. The protocol
 definition also contains snippets of custom code that are injected by the
 **commsdsl2comms** into the generated one.
 - [cc.mqtt5.commsdsl](https://github.com/arobenko/cc.mqtt5.commsdsl) - 
-Defines MQTT v5 protocol. Similar to v3.1.1, but also adds a heterogeneous lists of 
+Defines [MQTT v5](http://docs.oasis-open.org/mqtt/mqtt/v5.0/cs02/mqtt-v5.0-cs02.html) 
+protocol. Similar to v3.1.1, but also adds a heterogeneous list of 
 various properties.
 - [cc.mqttsn.commsdsl](https://github.com/arobenko/cc.mqttsn.commsdsl) - 
-Defines MQTT-SN protocol, where field of remaining length of the message can 
+Defines [MQTT-SN](http://mqtt.org/2013/12/mqtt-for-sensor-networks-mqtt-sn) 
+protocol, where field of remaining length of the message can 
 have either 1 or 3 bytes length, depending on the value it contains.
 - [cc.ublox.commsdsl](https://github.com/arobenko/cc.ublox.commsdsl) - 
 Defines **UBX** protocol used by various
@@ -75,7 +78,7 @@ for [CommsChampion Tools](https://github.com/arobenko/comms_champion#commschampi
 Please open root CMakeLists.txt file and see available build options.
 The generated project also defines `doc_<protocol_name>` target which can be
 used to build doxygen documentation of the protocol definition. The 
-`<protocol_name` portion of the build target is name of the protocol specified
+`<protocol_name>` portion of the build target is name of the protocol specified
 in schema definition file(s).
 ```
 $> make doc_demo1
@@ -119,7 +122,7 @@ perform filesystem operations (_Boost::filesystem_), and various string manipula
 algorithms. In case Boost libraries are not installed in expected default location
 (mostly happens on Windows systems), use variables described in 
 [CMake documentation](https://cmake.org/cmake/help/v3.8/module/FindBoost.html) 
-to help the latter find required libraries and headers.
+to help CMake find required libraries and headers.
 It is recommended to use `-DBoost_USE_STATIC_LIBS=ON` parameter to force
 linkage with static Boost libraries.
 Also on Windows systems there is no need to build [libxml2](http://xmlsoft.org) 
@@ -136,12 +139,23 @@ $> make install
 ### Windows Build
 ```
 $> cd C:\source\of\this\project
-$> mkdir build && cd build
+$> mkdir build
+$> cd build
 $> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \ 
     -DCMAKE_INSTALL_PREFIX=%cd%/install -DCOMMSDSL_NO_TESTS=ON \
     -DBOOST_ROOT="C:\Libraries\boost_1_65_1" -DBoost_USE_STATIC_LIBS=ON ..
 $> nmake install
 ```
+
+# Branching Model
+This repository will follow the 
+[Successful Git Branching Model](http://nvie.com/posts/a-successful-git-branching-model/).
+
+The **master** branch will always point to the latest release, the
+development is performed on **develop** branch. As the result it is safe
+to just clone the sources of this repository and use it without
+any extra manipulations of looking for the latest stable version among the tags and
+checking it out.
 
 # Contact Information
 For bug reports, feature requests, or any other question you may open an issue
