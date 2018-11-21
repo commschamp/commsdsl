@@ -77,7 +77,8 @@ po::options_description createDescription()
             "  * \"limited\" - For limited customization of variable length fields and messages\n"
             "  * \"none\" - No compile time customization is allowed.")
         (CommsChampionTagStr.c_str(), po::value<std::string>()->default_value(CommsChampionTag),
-            "Default tag/branch of the CommsChampion project.")
+            "Default tag/branch of the CommsChampion project, will be used  by the "
+            "main \"CMakeLists.txt\" file of the generated project.")
         (ProtocolStr.c_str(), po::value<std::vector<std::string> >(),
             "Protocol information for plugin generation. Exepected to be in the following format:\n"
             "\"frame_id:interface_id:protocol_name:description\".\nCan be used multiple times "
