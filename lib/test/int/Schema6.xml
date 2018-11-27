@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema6"
+        id="1"
+        endian="little">
+    <fields>
+        <int name="Int1" type="uint64" defaultValue="0xffffffffffffffff">
+            <special name="Null" val="18446744073709551615" />
+        </int>
+    </fields>
+</schema>

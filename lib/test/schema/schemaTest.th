@@ -1,0 +1,149 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class SchemaTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+};
+
+void SchemaTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void SchemaTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void SchemaTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema1");
+    TS_ASSERT_EQUALS(schema.description(), "Some Description");
+    TS_ASSERT_EQUALS(schema.id(), 1);
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.dslVersion(), 0);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::Endian_Big);
+    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    TS_ASSERT(schema.extraAttributes().empty());
+    TS_ASSERT(schema.extraElements().empty());
+}
+
+void SchemaTestSuite::test2()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema2");
+    TS_ASSERT_EQUALS(schema.description(), "Some Description");
+    TS_ASSERT_EQUALS(schema.id(), 1);
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::Endian_Big);
+    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    auto& extraAttrs = schema.extraAttributes();
+    auto& extraChildren = schema.extraElements();
+    TS_ASSERT_EQUALS(extraAttrs.size(), 1U);
+    TS_ASSERT_EQUALS(extraAttrs.begin()->first, "extraAttr");
+    TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
+    TS_ASSERT_EQUALS(extraChildren.size(), 1U);
+    TS_TRACE(extraChildren.front());
+}
+
+void SchemaTestSuite::test3()
+{
+    m_status.m_preValidateFunc =
+        [](commsdsl::Protocol& p)
+        {
+            p.addExpectedExtraPrefix("prefix.");
+        };
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema3");
+    TS_ASSERT_EQUALS(schema.description(), "Some Description");
+    TS_ASSERT_EQUALS(schema.id(), 1);
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::Endian_Big);
+    TS_ASSERT(schema.nonUniqueMsgIdAllowed());
+    auto& extraAttrs = schema.extraAttributes();
+    auto& extraChildren = schema.extraElements();
+    TS_ASSERT_EQUALS(extraAttrs.size(), 1U);
+    TS_ASSERT_EQUALS(extraAttrs.begin()->first, "prefix.extraAttr");
+    TS_ASSERT_EQUALS(extraAttrs.begin()->second, "hello");
+    TS_ASSERT_EQUALS(extraChildren.size(), 1U);
+    TS_TRACE(extraChildren.front());
+}
+
+void SchemaTestSuite::test4()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema4");
+    TS_ASSERT_EQUALS(schema.description(), "Some Description");
+    TS_ASSERT_EQUALS(schema.id(), 1);
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::Endian_Big);
+    TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
+    TS_ASSERT(schema.extraAttributes().empty());
+    TS_ASSERT(schema.extraElements().empty());
+    auto& platforms = protocol->platforms();
+    TS_ASSERT_EQUALS(platforms.size(), 3U);
+    TS_ASSERT_EQUALS(platforms[0], "plat1");
+    TS_ASSERT_EQUALS(platforms[1], "plat2");
+    TS_ASSERT_EQUALS(platforms[2], "plat3");
+}
+
+void SchemaTestSuite::test5()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema5");
+    TS_ASSERT_EQUALS(schema.id(), 1);
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::Endian_Big);
+    TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
+    TS_ASSERT(schema.extraAttributes().empty());
+    TS_ASSERT(schema.extraElements().empty());
+    auto& platforms = protocol->platforms();
+    TS_ASSERT_EQUALS(platforms.size(), 2U);
+    TS_ASSERT_EQUALS(platforms[0], "plat1");
+    TS_ASSERT_EQUALS(platforms[1], "plat2");
+}
+
+void SchemaTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+
+    auto schema = protocol->schema();
+    TS_ASSERT_EQUALS(schema.name(), "Schema6");
+    TS_ASSERT_EQUALS(schema.version(), 5);
+    TS_ASSERT_EQUALS(schema.dslVersion(), 3);
+    TS_ASSERT_EQUALS(schema.endian(), commsdsl::Endian_Big);
+    TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
+    TS_ASSERT(schema.extraAttributes().empty());
+    TS_ASSERT(schema.extraElements().empty());
+}

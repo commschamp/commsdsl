@@ -1,0 +1,4 @@
+bool someFuncProtected() const
+{
+    return someFuncPrivate();
+}

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema29"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="E1" type="uint32" />
+        <list name="L1" element="E1">
+            <lengthPrefix>
+                <int name="P" type="uint8" />
+            </lengthPrefix>
+        </list>        
+        <bundle name="B1">
+            <int name="P1" type="uint8" />
+            <list reuse="L1" countPrefix="$P1" />
+        </bundle>
+    </fields>
+</schema>

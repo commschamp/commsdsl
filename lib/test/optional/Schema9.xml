@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9"
+        id="1"
+        endian="big">
+    <fields>
+        <enum name="Enum1" type="int8">
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="2" />
+        </enum>
+        <bundle name="Bundle1">
+            <int name="Mem1" type="uint8" />
+            <optional name= "Opt1">
+                <field>
+                    <int name="I1" type="uint8" />
+                </field>
+                <cond value="$Mem1 &gt;= Enum1.V2" />
+            </optional>
+        </bundle>
+    </fields>
+</schema>

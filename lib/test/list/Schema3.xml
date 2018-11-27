@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="little">
+    <fields>
+        <int name="I1" type="uint16" />
+        <list name="List1" element="I1">
+            <countPrefix>
+                <int name="Count" type="uint16" />
+            </countPrefix>
+        </list>
+    </fields>
+</schema>

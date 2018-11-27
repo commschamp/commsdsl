@@ -1,0 +1,6 @@
+// @brief Overriding write function
+template <typename TIter>
+comms::ErrorStatus wite(TIter& iter, std::size_t len) const
+{
+    return Base::write(iter, len);
+}

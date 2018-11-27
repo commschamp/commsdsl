@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema >
+    <name value="Schema4" />
+    <id value="1" />
+    <endian value="big" />
+    <version value="5" />
+    <platforms>
+        <platform name="plat1" />
+        <platform>
+            <name>plat3</name>
+        </platform>
+    </platforms>
+    <platform>
+        <name value="plat2" />
+    </platform>
+    <description>
+        Some    
+        Description
+    </description>
+</schema>

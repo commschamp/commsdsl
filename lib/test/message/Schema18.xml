@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema18"
+        id="1"
+        endian="Little"
+        version="5">
+    
+    <fields>
+        <enum name="MsgId" type="uint8">
+            <validValue name="Msg1" val="0" />
+            <validValue name="Msg2" val="1" />
+            <validValue name="Msg3" val="2" />
+            <validValue name="Msg4" val="3" />
+        </enum>
+    </fields>
+    <message name="Msg1" id="MsgId.Msg1" />
+    <message name="Msg2" id="MsgId.Msg2" sender="both" customizable="false" />
+    <message name="Msg3" id="MsgId.Msg3">
+        <sender value="client"/>
+        <customizable value="true"/>
+    </message>
+    <message name="Msg4" id="MsgId.Msg4" sender="server" customizable="0" />
+</schema>

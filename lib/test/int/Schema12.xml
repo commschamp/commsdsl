@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema12"
+        id="1"
+        endian="little">
+        
+    <fields>
+        <enum name="Enum1" type="int32">
+            <validValue name="Val1" val="101" />
+        </enum>
+        <int name="Int1" type="int8" defaultValue="val1">
+            <special name="val1" val="100" />
+            <special name="val2" val="Enum1.Val1" />
+            <special name="otherVal2" val="val2" />
+            <validRange value="[val1, val2]" />
+            <validRange value="[110, 120]" />
+        </int>
+    </fields>
+</schema>

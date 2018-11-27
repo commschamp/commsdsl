@@ -1,0 +1,70 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test22/Message.h"
+#include "test22/message/Msg1.h"
+#include "test22/message/Msg2.h"
+#include "test22/frame/Frame.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+
+    using Interface =
+        test22::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Msg1 = test22::message::Msg1<Interface>;
+    using Msg2 = test22::message::Msg2<Interface>;
+    using Frame = test22::frame::Frame<Interface>;
+};
+
+void TestSuite::test1()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        1, 5
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test22::MsgId_M1);
+    auto* msg = static_cast<const Msg1*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg->field_f1().field_short().value(), 5U);
+    TS_ASSERT(msg->field_f1().field_long().isMissing());
+}
+
+void TestSuite::test2()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        2, 5, 0xab, 0xcd
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test22::MsgId_M2);
+    auto* msg = static_cast<const Msg2*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg->field_short().value(), 5U);
+    TS_ASSERT(msg->field_long().doesExist());
+}

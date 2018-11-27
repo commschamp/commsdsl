@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="big"
+        version="5">
+    <ns>
+        <name>ns1</name>
+        <fields>
+            <int name="F1" type="uint8" />
+            <int name="F2" type="uint8" />
+        </fields>
+        <description> 
+            NS1
+        </description>
+    </ns>
+    <ns name="ns1" description="NS1 Again">
+        <fields>
+            <ref name="F3" field="ns1.F1" />
+        </fields>
+    </ns>
+</schema>

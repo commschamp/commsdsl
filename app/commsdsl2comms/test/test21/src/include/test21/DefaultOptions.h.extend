@@ -1,0 +1,12 @@
+#pragma once
+
+#include "DefaultOptionsOrig.h"
+
+namespace test21
+{
+
+using DefaultOptions = DefaultOptionsOrig;
+
+} // namespace test21
+
+

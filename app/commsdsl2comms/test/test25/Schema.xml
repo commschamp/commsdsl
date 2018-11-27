@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test25"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
+        </enum>
+        <int name="E1" type="uint32" />
+        <int name="Version" type="uint8" />
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <int name="P1" type="uint8" displayReadOnly="true" />
+        <int name="P2" type="uint8" displayReadOnly="true" />
+        <int name="P3" type="uint8" displayReadOnly="true" />
+        <int name="P4" type="uint8" displayReadOnly="true" />
+        <list name="L1" element="E1" countPrefix="$P1" />
+        <list name="L2" element="E1" lengthPrefix="$P2" />
+        <list name="L3" element="E1" elemLengthPrefix="$P4" countPrefix="$P3" elemFixedLength="true" />
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <int name="P1" type="uint8" displayReadOnly="true" />
+        <int name="P2" type="uint8" displayReadOnly="true" />
+        <list name="L1" element="E1" countPrefix="$P1" />
+        <list name="L2" element="E1" lengthPrefix="$P2" sinceVersion="2"/>
+        <int name="P3" type="uint8" sinceVersion="3" displayReadOnly="true" />
+        <int name="P4" type="uint8" sinceVersion="3" displayReadOnly="true"/>
+        <list name="L3" element="E1" elemLengthPrefix="$P4" countPrefix="$P3">
+            <elemFixedLength value="true" />
+            <sinceVersion value="3" />
+        </list>
+    </message>    
+
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>      
+
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <value name="Version" field="Version" interfaceFieldName="version" />
+        <payload name="Data" />
+    </frame>     
+</schema>

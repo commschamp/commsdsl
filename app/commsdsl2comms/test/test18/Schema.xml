@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test18"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        <int type="uint16" name="Size" />
+        <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
+        <int name="Version" type="uint8" semanticType="version" />
+        <int name="Checksum" type="uint16" />
+    </fields>
+    
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>      
+    
+    <frame name="TestFrame1" >
+        <id name="Id" field="MsgId" />
+        <payload name="Data">
+            <description>
+                This is very very very very very very very very very very
+                very long long long long long long long long long long long
+                long long long long long long long long long long long long
+                description.
+            </description>
+        </payload>
+    </frame>
+    
+    <frame name="TestFrame2" >
+        <size name="Size">
+            <field>
+                <int type="uint16" name="Size" />
+            </field>
+        </size>
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame3" >
+        <id name="Id" field="MsgId" />
+        <size name="Size" field="Size" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame4" >
+        <sync name="Sync">
+            <field>
+                <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
+            </field>
+        </sync>
+        <size name="Size" field="Size" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame5" >
+        <sync name="Sync">
+            <field>
+                <ref name="Sync" field="Sync" />
+            </field>
+        </sync>
+        <size name="Size" field="Size" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame6" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+    
+    <frame name="TestFrame7" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <value name="Version" field="Version" interfaceFieldName="version" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>  
+    
+    <frame name="TestFrame8" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <id name="Id" field="MsgId" />
+        <value name="Version" interfaceFieldName="version">
+            <field>
+                <int name="Version" type="uint8" semanticType="version"/>
+            </field>
+        </value>
+        <payload name="Data" />
+    </frame>        
+    
+    <frame name="TestFrame9" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <value name="Version" interfaceFieldName="version" pseudo="true">
+            <field>
+                <ref name="Version" field="Version" />
+            </field>
+        </value>        
+        <id name="Id" field="MsgId" />        
+        <payload name="Data" />
+    </frame>        
+    
+    <frame name="TestFrame10" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size">
+            <field>
+                <int name="Size" type="uint16" serOffset="2" displayOffset="2" />
+            </field>
+        </size>
+        <id name="Id" field="MsgId" />        
+        <payload name="Data" />
+        <checksum name="Checksum" from="Size" field="Checksum" alg="sum" />
+    </frame>        
+    
+    <frame name="TestFrame11" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size">
+            <field>
+                <int name="Size" type="uint16" serOffset="2" />
+            </field>
+        </size>
+        <id name="Id" field="MsgId" />        
+        <checksum name="DataChecksum" until="Data" alg="custom" algName="Sum" >
+            <field>
+                <int name="Checksum" type="uint8" />
+            </field>
+        </checksum>
+        <payload name="Data" />
+        <checksum name="Checksum" from="Size" field="Checksum" alg="crc-16" />
+    </frame>  
+    
+    <frame name="TestFrame12" >
+        <custom name="Size" field="Size" />
+        <custom name="Id" field="MsgId">
+            <idReplacement value="true" />
+        </custom>   
+        <payload name="Data" />
+    </frame>           
+    
+    <message name="Msg1" id="MsgId.M1" />
+</schema>

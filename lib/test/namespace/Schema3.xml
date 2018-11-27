@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="big"
+        version="5">
+    <ns extraAttr1="hello">
+        <name>ns1</name>
+        <fields>
+            <int name="F1" type="uint8" />
+            <int name="F2" type="uint8" />
+        </fields>
+        <description> 
+            NS1
+        </description>
+        <extraChild1>Hello</extraChild1>
+    </ns>
+    <ns name="ns1" extraAttr2="hello" >
+        <fields>
+            <ref name="F3" field="ns1.F1" />
+        </fields>
+        <extraChild2>Hello</extraChild2>
+    </ns>
+</schema>

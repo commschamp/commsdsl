@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test23"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
+            <validValue name="M4" val="4" />
+        </enum>
+        <int name="Version" type="uint8" />
+        <bundle name="B1">
+            <int name="Len1" type="uint8" />
+            <int name="Len2" type="uint8" />
+            <data name="Data1" lengthPrefix="$Len1"/>
+            <data name="Data2" lengthPrefix="$Len2" sinceVersion="2" />
+            <int name="Len3" type="uint8" sinceVersion="2"/>
+            <data name="Data3" lengthPrefix="$Len3" sinceVersion="2" />
+        </bundle>
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <int name="Len" type="uint8" />
+        <int name="Reserved" type="uint8" />
+        <string name="Str" lengthPrefix="$Len" />
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <int name="Len" type="uint8" />
+        <int name="Reserved" type="uint8" />
+        <string name="Str" lengthPrefix="$Len" sinceVersion="2" />
+    </message>
+
+    <message name="Msg3" id="MsgId.M3">
+        <int name="Len" type="uint8" sinceVersion="2"/>
+        <int name="Reserved" type="uint8" sinceVersion="2"/>
+        <string name="Str" lengthPrefix="$Len" sinceVersion="2" />
+    </message>
+
+    <message name="Msg4" id="MsgId.M4">
+        <ref field="B1" />
+    </message>
+
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>      
+
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <value name="Version" field="Version" interfaceFieldName="version" />
+        <payload name="Data" />
+    </frame>       
+</schema>

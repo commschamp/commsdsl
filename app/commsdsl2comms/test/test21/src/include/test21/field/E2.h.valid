@@ -1,0 +1,5 @@
+// @brief Overriding valid function
+bool valid() const
+{
+    return Base::valid();
+}

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema3"
+        id="1"
+        endian="little">
+    <fields>
+        <enum name="Enum1" type="uint16" nonUniqueAllowed="true" defaultValue="V5" >
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="1" />
+            <validValue name="V3" val="2" />
+            <validValue name="V4" val="5" />
+            <validValue name="V5" val="2" />
+            <endian value="Big" />
+            <hexAssign>True</hexAssign>
+        </enum>
+    </fields>
+</schema>

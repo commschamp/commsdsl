@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema5"
+        id="1"
+        endian="big">
+    <fields>
+        <enum name="MsgId" type="uint8">
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+    </fields>
+    <ns name="ns1">
+        <frame name="Generic">
+            <payload name="Data" />
+            <id name="Id" field="MsgId"/>
+        </frame>
+    </ns>
+</schema>

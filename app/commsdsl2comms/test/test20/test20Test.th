@@ -1,0 +1,30 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test20/Message.h"
+#include "test20/message/Msg1.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+//    void test2();
+
+    using Interface =
+        test20::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Msg1 = test20::message::Msg1<Interface>;
+};
+
+void TestSuite::test1()
+{
+    Msg1 msg;
+    static_cast<void>(msg);
+}

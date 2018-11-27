@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema6"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <int name="F1" type="uint8"/>
+        </fields>
+    </ns>
+    <ns name="ns2">
+        <fields>
+            <ref field="ns1.F1"/>
+        </fields>
+    </ns>    
+    
+    <ns name="ns3">
+        <fields>
+            <ref reuse="ns2.F1"/>
+        </fields>
+    </ns>    
+    
+    <ns name="ns4">
+        <fields>
+            <ref field="ns3.F1"/>
+        </fields>
+    </ns>    
+</schema>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema6"
+        id="1"
+        endian="big">
+    <fields>
+        <string name="String1" zeroTermSuffix="1">
+            <length>100</length>
+        </string>
+    </fields>
+</schema>

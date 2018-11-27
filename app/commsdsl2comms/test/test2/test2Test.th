@@ -1,0 +1,63 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test2/Interface.h"
+#include "test2/frame/Frame.h"
+#include "test2/message/Msg1.h"
+#include "test2/message/Msg2.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+
+    using Interface =
+        test2::Interface<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Msg1 = test2::message::Msg1<Interface>;
+    using Msg2 = test2::message::Msg2<Interface>;
+    using Frame = test2::frame::Frame<Interface>;
+
+    void polymorphicNameCheck(const Interface& msg, const char* value)
+    {
+        TS_ASSERT_EQUALS(msg.name(), value);
+    }
+
+    void polymorphicLengthCheck(const Interface& msg, std::size_t len)
+    {
+        TS_ASSERT_EQUALS(msg.length(), len);
+    }
+};
+
+void TestSuite::test1()
+{
+    Msg1 msg1;
+    polymorphicNameCheck(msg1, "Msg1");
+    polymorphicLengthCheck(msg1, 4U);
+    TS_ASSERT_EQUALS(msg1.version(), 5U);
+
+    Msg2 msg2;
+    polymorphicNameCheck(msg2, "Msg2");
+    polymorphicLengthCheck(msg2, 8U);
+
+}
+
+void TestSuite::test2()
+{
+    Frame frame;
+    Frame::MsgPtr msg;
+    static const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    auto es = frame.read(msg, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msg->getId(), 1U);
+}

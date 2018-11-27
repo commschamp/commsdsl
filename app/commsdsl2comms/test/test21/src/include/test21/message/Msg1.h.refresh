@@ -1,0 +1,6 @@
+/// @brief Custom refresh
+bool doRefresh()
+{
+    return Base::doRefresh();
+}
+

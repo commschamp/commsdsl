@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test16"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+
+        <int name="DataCount" type="uint8" />
+        <int name="Elem" type="uint32" defaultValue="0xabcd"/>
+        <list name="L1" count="5" element="Elem"/>
+        <list name="L2" countPrefix="DataCount">
+            <element>
+                <int name="elem" type="uint32"/>
+            </element>
+        </list>
+        <list name="L3">
+            <element>
+                <int name="Elem" type="uint32"/>
+            </element>
+            <lengthPrefix>
+                <int name="Length" type="uint8"/>
+            </lengthPrefix>
+            <elemLengthPrefix>
+                <int name="ElemLength" type="uint8"/>
+            </elemLengthPrefix>
+        </list>
+    </fields>
+    
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>      
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="f1" field="L1" />
+        <ref name="f2" field="L2" />
+        <ref name="f3" field="L3" />
+        <list name="f4" reuse="L3" elemLengthPrefix="DataCount" elemFixedLength="true" sinceVersion="2" />
+    </message>
+    
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
+</schema>

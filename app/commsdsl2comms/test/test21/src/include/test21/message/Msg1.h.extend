@@ -1,0 +1,17 @@
+#pragma once 
+
+#include "Msg1Orig.h"
+
+namespace test21
+{
+
+namespace message
+{
+
+/// @brief New definition of Msg1.
+template <typename TMsgBase, typename TOpt = test21::DefaultOptions>
+class Msg1 : public Msg1Orig<TMsgBase, TOpt> {};
+
+} // namespace message
+
+} // namespace test21

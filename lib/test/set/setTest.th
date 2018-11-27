@@ -1,0 +1,530 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class SetTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
+    void test10();
+    void test11();
+    void test12();
+    void test13();
+    void test14();
+    void test15();
+    void test16();
+    void test17();
+};
+
+void SetTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void SetTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void SetTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Set1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), commsdsl::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(setField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(setField.minLength(), 1U);
+    TS_ASSERT_EQUALS(setField.bitLength(), 0U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT(!setField.isNonUniqueAllowed());
+    TS_ASSERT(setField.isUnique());
+    TS_ASSERT(!setField.validCheckVersion());
+    TS_ASSERT_EQUALS(bits.size(), 3);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b1 = bits.find("B1")->second;
+    auto& b2 = bits.find("B2")->second;
+    auto& b3 = bits.find("B3")->second;
+    TS_ASSERT_EQUALS(b1.m_idx, 0);
+    TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b1.m_description, "desc1");
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b1.m_reserved, false);
+    TS_ASSERT_EQUALS(b1.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b2.m_idx, 1);
+    TS_ASSERT_EQUALS(b2.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b2.m_description, "desc2");
+    TS_ASSERT_EQUALS(b2.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b2.m_reserved, false);
+    TS_ASSERT_EQUALS(b2.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b3.m_idx, 2);
+    TS_ASSERT_EQUALS(b3.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b3.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b3.m_description, "desc3");
+    TS_ASSERT_EQUALS(b3.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b3.m_reserved, false);
+    TS_ASSERT_EQUALS(b3.m_reservedValue, false);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B1");
+    TS_ASSERT_EQUALS(revBits.find(1)->second, "B2");
+    TS_ASSERT_EQUALS(revBits.find(2)->second, "B3");
+}
+
+void SetTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Set1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), commsdsl::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(setField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(setField.minLength(), 2U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), true);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), true);
+    TS_ASSERT(!setField.isNonUniqueAllowed());
+    TS_ASSERT(setField.isUnique());
+    TS_ASSERT_EQUALS(bits.size(), 4);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b1 = bits.find("B1")->second;
+    auto& b2 = bits.find("B2")->second;
+    auto& b3 = bits.find("B3")->second;
+    auto& res1 = bits.find("res1")->second;
+    TS_ASSERT_EQUALS(b1.m_idx, 0);
+    TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT(b1.m_description.empty());
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b1.m_reserved, false);
+    TS_ASSERT_EQUALS(b1.m_reservedValue, true);
+    TS_ASSERT_EQUALS(b2.m_idx, 2);
+    TS_ASSERT_EQUALS(b2.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT(b2.m_description.empty());
+    TS_ASSERT_EQUALS(b2.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b2.m_reserved, false);
+    TS_ASSERT_EQUALS(b2.m_reservedValue, true);
+    TS_ASSERT_EQUALS(b3.m_idx, 8);
+    TS_ASSERT_EQUALS(b3.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b3.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT(b3.m_description.empty());
+    TS_ASSERT_EQUALS(b3.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b3.m_reserved, false);
+    TS_ASSERT_EQUALS(b3.m_reservedValue, true);
+    TS_ASSERT_EQUALS(res1.m_idx, 1);
+    TS_ASSERT_EQUALS(res1.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(res1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(res1.m_defaultValue, false);
+    TS_ASSERT_EQUALS(res1.m_reserved, true);
+    TS_ASSERT_EQUALS(res1.m_reservedValue, false);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B1");
+    TS_ASSERT_EQUALS(revBits.find(1)->second, "res1");
+    TS_ASSERT_EQUALS(revBits.find(2)->second, "B2");
+    TS_ASSERT_EQUALS(revBits.find(8)->second, "B3");
+}
+
+void SetTestSuite::test3()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test5()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Set1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), commsdsl::IntField::Type::Uint32);
+    TS_ASSERT_EQUALS(setField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(setField.minLength(), 3U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT(setField.isNonUniqueAllowed());
+    TS_ASSERT(!setField.isUnique());
+    TS_ASSERT_EQUALS(bits.size(), 5);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b0 = bits.find("B0")->second;
+    auto& b2 = bits.find("B2")->second;
+    auto& b8 = bits.find("B8")->second;
+    auto& b16 = bits.find("B16")->second;
+    auto& otherB2 = bits.find("otherB2")->second;
+    TS_ASSERT_EQUALS(b0.m_idx, 0);
+    TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b0.m_reserved, false);
+    TS_ASSERT_EQUALS(b0.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b2.m_idx, 2);
+    TS_ASSERT_EQUALS(b8.m_idx, 8);
+    TS_ASSERT_EQUALS(b16.m_idx, 16);
+    TS_ASSERT_EQUALS(otherB2.m_idx, 2);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
+    TS_ASSERT_EQUALS(revBits.find(8)->second, "B8");
+    TS_ASSERT_EQUALS(revBits.find(16)->second, "B16");
+    auto revB2 = revBits.equal_range(2);
+    TS_ASSERT_EQUALS(std::distance(revB2.first, revB2.second), 2);
+}
+
+void SetTestSuite::test6()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Set1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), commsdsl::IntField::Type::Uint32);
+    TS_ASSERT_EQUALS(setField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(setField.minLength(), 3U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT(setField.isNonUniqueAllowed());
+    TS_ASSERT(!setField.isUnique());
+    TS_ASSERT(setField.validCheckVersion());
+    TS_ASSERT_EQUALS(bits.size(), 3);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b0 = bits.find("B0")->second;
+    auto& b2 = bits.find("B2")->second;
+    auto& otherB2 = bits.find("otherB2")->second;
+    TS_ASSERT_EQUALS(b0.m_idx, 0);
+    TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b0.m_reserved, false);
+    TS_ASSERT_EQUALS(b0.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b2.m_idx, 2);
+    TS_ASSERT_EQUALS(b2.m_sinceVersion, 2);
+    TS_ASSERT_EQUALS(b2.m_deprecatedSince, 3);
+    TS_ASSERT_EQUALS(b2.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b2.m_reserved, false);
+    TS_ASSERT_EQUALS(b2.m_reservedValue, false);
+    TS_ASSERT_EQUALS(otherB2.m_idx, 2);
+    TS_ASSERT_EQUALS(otherB2.m_sinceVersion, 3);
+    TS_ASSERT_EQUALS(otherB2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(otherB2.m_defaultValue, true);
+    TS_ASSERT_EQUALS(otherB2.m_reserved, false);
+    TS_ASSERT_EQUALS(otherB2.m_reservedValue, false);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
+    auto revB2 = revBits.equal_range(2);
+    TS_ASSERT_EQUALS(std::distance(revB2.first, revB2.second), 2);
+}
+
+void SetTestSuite::test8()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Set1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), commsdsl::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(setField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(setField.minLength(), 2U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT(!setField.isNonUniqueAllowed());
+    TS_ASSERT(setField.isUnique());
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_idx, 0);
+    TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b0.m_reserved, false);
+    TS_ASSERT_EQUALS(b0.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b1.m_idx, 1);
+    TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b1.m_reserved, false);
+    TS_ASSERT_EQUALS(b1.m_reservedValue, false);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
+    TS_ASSERT_EQUALS(revBits.find(1)->second, "B1");
+}
+
+void SetTestSuite::test9()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Set1");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    TS_ASSERT_EQUALS(setField.type(), commsdsl::IntField::Type::Uint32);
+    TS_ASSERT_EQUALS(setField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(setField.minLength(), 3U);
+    // Other checks are irrelevant
+}
+
+void SetTestSuite::test10()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test11()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test12()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test13()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "Set2");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), commsdsl::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(setField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(setField.minLength(), 1U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), true);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT(!setField.isNonUniqueAllowed());
+    TS_ASSERT(setField.isUnique());
+    TS_ASSERT_EQUALS(bits.size(), 3);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    auto& b2 = bits.find("B2")->second;
+    TS_ASSERT_EQUALS(b0.m_idx, 0);
+    TS_ASSERT_EQUALS(b0.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b0.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b0.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b0.m_reserved, false);
+    TS_ASSERT_EQUALS(b0.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b1.m_idx, 1);
+    TS_ASSERT_EQUALS(b1.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b1.m_reserved, false);
+    TS_ASSERT_EQUALS(b1.m_reservedValue, false);
+    TS_ASSERT_EQUALS(b2.m_idx, 2);
+    TS_ASSERT_EQUALS(b2.m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(b2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(b2.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b2.m_reserved, false);
+    TS_ASSERT_EQUALS(b2.m_reservedValue, false);
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
+    TS_ASSERT_EQUALS(revBits.find(1)->second, "B1");
+    TS_ASSERT_EQUALS(revBits.find(2)->second, "B2");
+}
+
+void SetTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test15()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "Set2");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    auto& revBits = setField.revBits();
+    TS_ASSERT_EQUALS(setField.type(), commsdsl::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(setField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(setField.minLength(), 1U);
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT(setField.isNonUniqueAllowed());
+    TS_ASSERT(!setField.isUnique());
+    TS_ASSERT_EQUALS(bits.size(), 3);
+    TS_ASSERT_EQUALS(revBits.size(), bits.size());
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    auto& otherB1 = bits.find("otherB1")->second;
+    TS_ASSERT_EQUALS(b0.m_idx, 0);
+    TS_ASSERT_EQUALS(b0.m_displayName, "Bit 0");
+    TS_ASSERT_EQUALS(b1.m_idx, 1);
+    TS_ASSERT_EQUALS(b1.m_displayName, "Bit 1");
+    TS_ASSERT_EQUALS(otherB1.m_idx, 1);
+    TS_ASSERT_EQUALS(otherB1.m_displayName, "Other Bit 1");
+    TS_ASSERT_EQUALS(revBits.find(0)->second, "B0");
+    auto r1 = revBits.equal_range(1);
+    TS_ASSERT_EQUALS(std::distance(r1.first, r1.second), 2);
+}
+
+void SetTestSuite::test16()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+}

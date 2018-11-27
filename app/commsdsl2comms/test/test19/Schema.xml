@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test19"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        <int type="uint16" name="Size" />
+        <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
+        <int name="Version" type="uint8" semanticType="version" />
+        <int name="Timestamp" type="uint32" />
+        <int name="Checksum" type="uint8" />
+    </fields>
+    
+    <interface name="Interface1">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>     
+    
+    <interface name="Interface2">
+        <int name="version" type="uint8" semanticType="version" />
+        <int name="timestamp" type="uint32" />        
+    </interface>     
+    
+    <frame name="TestFrame1" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <value name="Version" field="Version" interfaceFieldName="version" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>  
+    
+    <frame name="TestFrame2" >
+        <sync name="Sync" field="Sync" />
+        <size name="Size" field="Size" />
+        <value name="Version" field="Version" interfaceFieldName="version" />
+        <value name="Timestamp" field="Timestamp" interfaceFieldName="timestamp" interfaces="Interface2" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+        <checksum name="Checksum" from="Size" field="Checksum" alg="sum" />
+    </frame>      
+    
+    <message name="Msg1" id="MsgId.M1" />
+</schema>

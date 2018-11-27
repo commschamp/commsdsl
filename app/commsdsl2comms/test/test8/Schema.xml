@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test8"
+        id="1"
+        endian="big"
+        version="10">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        
+        <set name="S1" length="1" validCheckVersion="1" nonUniqueAllowed="true">
+            <bit name="b3" idx="3" >
+                <description>
+                    Some very very very very very very very very very very very very
+                    very very very very very very very very very very very
+                    long long long long long long long long long long long long long 
+                    long long long long description.
+                </description>
+            </bit>
+            <bit name="b2" idx="2" defaultValue="true" description="Short description"/>
+            <bit name="b0" idx="0" sinceVersion="3" />
+            <bit name="b5" idx="5" sinceVersion="3" deprecated="4" description="Another desc"/>
+            <bit name="b4" idx="4" deprecated="3" reservedValue="true" />
+            <bit name="b4_2" idx="4" sinceVersion="4" deprecated="6" reservedValue="true" />
+            <bit name="b4_3" idx="4" sinceVersion="7" reservedValue="true" />
+            <bit name="b1" idx="1" reserved="true" reservedValue="true" defaultValue="true" />
+        </set>   
+    </fields>
+    
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>    
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="f1" field="S1" />
+        <set name="f2" type="uint8" sinceVersion="2" deprecated="3" >
+            <bit name="b0" idx="0" description="bit b0" />
+            <bit name="b3" idx="3" description="bit b3"  />
+            <description>
+                    Some very very very very very very very very very very very very
+                    very very very very very very very very very very very
+                    long long long long long long long long long long long long long 
+                    long long long long description.
+            </description>
+        </set>
+    </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
+</schema>

@@ -1,0 +1,262 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test18/Message.h"
+#include "test18/message/Msg1.h"
+#include "test18/frame/TestFrame1.h"
+#include "test18/frame/TestFrame2.h"
+#include "test18/frame/TestFrame3.h"
+#include "test18/frame/TestFrame4.h"
+#include "test18/frame/TestFrame5.h"
+#include "test18/frame/TestFrame6.h"
+#include "test18/frame/TestFrame7.h"
+#include "test18/frame/TestFrame8.h"
+#include "test18/frame/TestFrame9.h"
+#include "test18/frame/TestFrame10.h"
+#include "test18/frame/TestFrame11.h"
+#include "test18/frame/TestFrame12.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
+    void test10();\
+    void test11();
+    void test12();
+
+    using Interface =
+        test18::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Frame1 = test18::frame::TestFrame1<Interface>;
+    using Frame2 = test18::frame::TestFrame2<Interface>;
+    using Frame3 = test18::frame::TestFrame3<Interface>;
+    using Frame4 = test18::frame::TestFrame4<Interface>;
+    using Frame5 = test18::frame::TestFrame5<Interface>;
+    using Frame6 = test18::frame::TestFrame6<Interface>;
+    using Frame7 = test18::frame::TestFrame7<Interface>;
+    using Frame8 = test18::frame::TestFrame8<Interface>;
+    using Frame9 = test18::frame::TestFrame9<Interface>;
+    using Frame10 = test18::frame::TestFrame10<Interface>;
+    using Frame11 = test18::frame::TestFrame11<Interface>;
+    using Frame12 = test18::frame::TestFrame12<Interface>;
+
+    using Msg1 = test18::message::Msg1<Interface>;
+};
+
+void TestSuite::test1()
+{
+    using Frame = Frame1;
+    Frame frame;
+    static const std::uint8_t Buf[] = {1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+}
+
+void TestSuite::test2()
+{
+    using Frame = Frame2;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0, 1, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+}
+
+void TestSuite::test3()
+{
+    using Frame = Frame3;
+    Frame frame;
+    static const std::uint8_t Buf[] = {1, 0, 0};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+}
+
+void TestSuite::test4()
+{
+    using Frame = Frame4;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 1, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+
+    static const std::uint8_t ErrBuf[] = {0xaa, 0xcd, 0, 1, 1};
+    static const std::size_t ErrBufSize = std::extent<decltype(ErrBuf)>::value;
+    readIter = comms::readIteratorFor<Interface>(&ErrBuf[0]);
+    es = frame.read(msgPtr, readIter, ErrBufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::ProtocolError);
+}
+
+void TestSuite::test5()
+{
+    using Frame = Frame5;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 1, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+
+    static const std::uint8_t ErrBuf[] = {0xaa, 0xcd, 0, 1, 1};
+    static const std::size_t ErrBufSize = std::extent<decltype(ErrBuf)>::value;
+    readIter = comms::readIteratorFor<Interface>(&ErrBuf[0]);
+    es = frame.read(msgPtr, readIter, ErrBufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::ProtocolError);
+}
+
+void TestSuite::test6()
+{
+    using Frame = Frame6;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 1, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+
+    static const std::uint8_t ErrBuf[] = {0xaa, 0xcd, 0, 1, 1};
+    static const std::size_t ErrBufSize = std::extent<decltype(ErrBuf)>::value;
+    readIter = comms::readIteratorFor<Interface>(&ErrBuf[0]);
+    es = frame.read(msgPtr, readIter, ErrBufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::ProtocolError);
+}
+
+void TestSuite::test7()
+{
+    using Frame = Frame7;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 2, 5, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(msgPtr->version(), 5U);
+
+}
+
+void TestSuite::test8()
+{
+    using Frame = Frame8;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 2, 1, 5};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(msgPtr->version(), 5U);
+}
+
+void TestSuite::test9()
+{
+    using Frame = Frame9;
+    Frame frame;
+    frame.layer_version().pseudoField().value() = 4U;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 1, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(msgPtr->version(), 4U);
+}
+
+void TestSuite::test10()
+{
+    using Frame = Frame10;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0xab, 0xcd, 0, 3, 1, 0, 4};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    Frame::AllFields fields;
+    auto es = frame.readFieldsCached(fields, msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(frame.layer_sync().accessCachedField(fields).value(), 0xabcd);
+    TS_ASSERT_EQUALS(frame.layer_checksum().accessCachedField(fields).value(), 4U);
+    TS_ASSERT_EQUALS(frame.layer_size().accessCachedField(fields).value(), 1U);
+    TS_ASSERT_EQUALS(frame.layer_id().accessCachedField(fields).value(), test18::MsgId_M1);
+    TS_ASSERT(frame.layer_data().accessCachedField(fields).value().empty());
+}
+
+void TestSuite::test11()
+{
+    using Frame = Frame11;
+    Frame frame;
+    Msg1 msg;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    Frame::AllFields fields;
+    auto es = frame.writeFieldsCached(fields, msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(frame.layer_sync().accessCachedField(fields).value(), 0xabcd);
+    TS_ASSERT_EQUALS(frame.layer_checksum().accessCachedField(fields).value(), 0x5140);
+    TS_ASSERT_EQUALS(frame.layer_size().accessCachedField(fields).value(), 2U);
+    TS_ASSERT_EQUALS(frame.layer_id().accessCachedField(fields).value(), test18::MsgId_M1);
+    TS_ASSERT_EQUALS(frame.layer_dataChecksum().accessCachedField(fields).value(), 0U);
+    TS_ASSERT(frame.layer_data().accessCachedField(fields).value().empty());
+}
+
+void TestSuite::test12()
+{
+    using Frame = Frame12;
+    Frame frame;
+    static const std::uint8_t Buf[] = {0, 1, 1};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    Frame::MsgPtr msgPtr;
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test18::MsgId_M1);
+}

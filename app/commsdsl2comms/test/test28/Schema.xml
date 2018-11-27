@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test28"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+        </enum>
+        <variant name="Variant1">
+            <bundle name="P1">
+                <int name="type" type="uint8" validValue="0" failOnInvalid="true"  displayReadOnly="true"/>
+                <int name="value" type="uint32" />
+            </bundle>
+            <bundle name="P2">
+                <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true"  displayReadOnly="true"/>
+                <int name="value" type="uint8" />
+            </bundle>
+        </variant>
+
+        <variant name="Variant2" reuse="Variant1" defaultMember="P1" displayIdxReadOnlyHidden="true" />
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref field="Variant1" />
+        <ref field="Variant2" />
+    </message>
+
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>     
+</schema>

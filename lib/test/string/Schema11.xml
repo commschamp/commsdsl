@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema11"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <string name="String1" defaultValue="hello" >
+                <lengthPrefix>
+                    <int name="Prefix" type="int16" />
+                </lengthPrefix>
+            </string>
+            <int name="Prefix" type="uint8" />
+            <string name="String2" reuse="ns1.String1" lengthPrefix="ns1.Prefix" />
+        </fields>
+    </ns>
+</schema>

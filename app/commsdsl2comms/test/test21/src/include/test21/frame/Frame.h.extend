@@ -1,0 +1,25 @@
+#pragma once
+
+#include "FrameOrig.h"
+
+namespace test21
+{
+
+namespace frame
+{
+
+/// @brief Definition of <b>"Frame"</b> frame class.
+/// @tparam TOpt Frame definition options
+/// @headerfile "test21/frame/Frame.h"
+template <
+   typename TMessage,
+   typename TAllMessages = test21::AllMessages<TMessage>,
+   typename TOpt = test21::DefaultOptions
+>
+using Frame = FrameOrig<TMessage, TAllMessages, TOpt>;
+
+} // namespace frame
+
+} // namespace test21
+
+

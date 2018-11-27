@@ -1,0 +1,6 @@
+// @brief Overriding read function
+template <typename TIter>
+comms::ErrorStatus read(TIter& iter, std::size_t len)
+{
+    return Base::read(iter, len);
+}

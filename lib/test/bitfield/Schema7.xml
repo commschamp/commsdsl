@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema7"
+        id="1"
+        endian="big">
+    <fields>
+        <enum name="Enum1" type="uint8">
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="2" />
+        </enum>
+        <set name="Set1" type="uint8">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+        </set>
+        <int name="Int1" type="uint16"/>
+
+        <bitfield name="Bitfield1" >
+            <members>
+                <enum name="Enum1" reuse="Enum1" bitLength="4" />
+                <set name="Set1" reuse="Set1" />
+                <int name="Int1" reuse="Int1" bitLength="12" />
+            </members>   
+            <endian value="little" />
+        </bitfield>
+    </fields>
+</schema>

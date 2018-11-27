@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema1"
+        id="1"
+        endian="big"
+        version="5">
+    <ns>
+        <name>ns1</name>
+        <fields>
+            <int name="F1" type="uint8" />
+            <ref name="F2" field="ns1.F1" />
+        </fields>
+        <description> 
+            NS1
+        </description>
+    </ns>
+</schema>

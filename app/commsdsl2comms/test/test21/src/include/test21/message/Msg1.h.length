@@ -1,0 +1,6 @@
+/// @brief Custom length 
+std::size_t doLength() const
+{
+    return Base::doLength();
+}
+

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <set name="Set1" type="uint32" length="3" >
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+        </set>
+    </fields>
+</schema>

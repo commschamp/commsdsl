@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test3"
+        id="1"
+        endian="big"
+        version="5">
+    <ns name="ns1">
+        <fields>
+            <int name="Int1" type="uint32" />
+            <ref name="Int2" field="ns1.Int1" />
+        </fields>
+        <message name="Msg1" id="1">
+            <ref name="f1" field="ns1.Int2" />
+        </message>
+        <frame name="Frame">
+            <id name="ID">
+                <field>
+                    <int type="uint8" name="id" />
+                </field>
+            </id>
+            <payload name="Data" />
+        </frame>
+    </ns>
+</schema>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema5"
+        id="1"
+        endian="big">
+    <fields>
+        <data name="Data1">
+            <lengthPrefix>
+                <int name="DataLen" type="uint8" />
+            </lengthPrefix>
+        </data>
+    </fields>
+</schema>

@@ -1,0 +1,864 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class OptionalTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
+    void test10();
+    void test11();
+    void test12();
+    void test13();
+    void test14();
+    void test15();
+    void test16();
+    void test17();
+    void test18();
+    void test19();
+    void test20();
+    void test21();
+    void test22();
+    void test23();
+    void test24();
+    void test25();
+    void test26();
+    void test27();
+    void test28();
+};
+
+void OptionalTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void OptionalTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void OptionalTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Opt1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+    TS_ASSERT_EQUALS(field.maxLength(), 1U);
+    TS_ASSERT_EQUALS(field.bitLength(), 0U);
+
+    commsdsl::OptionalField optField(field);
+    auto wrappedField = optField.field();
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::Field::Kind::Int);
+
+    TS_ASSERT(!optField.cond().valid());
+}
+
+void OptionalTestSuite::test2()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "Opt1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(field.minLength(), 0U);
+    TS_ASSERT_EQUALS(field.maxLength(), 1U);
+    TS_ASSERT_EQUALS(field.bitLength(), 0U);
+
+    commsdsl::OptionalField optField(field);
+    auto wrappedField = optField.field();
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::Field::Kind::Int);
+
+    TS_ASSERT(!optField.cond().valid());
+}
+
+void OptionalTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 4U);
+    TS_ASSERT_EQUALS(field.bitLength(), 0U);
+
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Optional)
+
+    commsdsl::OptionalField opt1(mem2);
+    auto cond1 = opt1.cond();
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond1(cond1);
+    TS_ASSERT(exprCond1.left().empty());
+    TS_ASSERT(exprCond1.op().empty());
+    TS_ASSERT_EQUALS(exprCond1.right(), "$Mem1.b0");
+
+    commsdsl::OptionalField opt2(mem3);
+    auto cond2 = opt2.cond();
+    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond2(cond2);
+    TS_ASSERT(exprCond2.left().empty());
+    TS_ASSERT_EQUALS(exprCond2.op(), "!");
+    TS_ASSERT_EQUALS(exprCond2.right(), "$Mem1.b0");
+}
+
+void OptionalTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test5()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto wrappedField = optField.field();
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::Field::Kind::Int);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "=");
+    TS_ASSERT_EQUALS(exprCond.right(), "5");
+}
+
+void OptionalTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto wrappedField = optField.field();
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::Field::Kind::Int);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "<=");
+    TS_ASSERT_EQUALS(exprCond.right(), "5");
+}
+
+void OptionalTestSuite::test8()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 2U);
+    TS_ASSERT_EQUALS(field.maxLength(), 3U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem3);
+    auto wrappedField = optField.field();
+    TS_ASSERT_EQUALS(wrappedField.kind(), commsdsl::Field::Kind::Int);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "!=");
+    TS_ASSERT_EQUALS(exprCond.right(), "$Mem2");
+}
+
+void OptionalTestSuite::test9()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), ">=");
+    TS_ASSERT_EQUALS(exprCond.right(), "Enum1.V2");
+}
+
+void OptionalTestSuite::test10()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Enum1");
+    TS_ASSERT_EQUALS(exprCond.op(), "<=");
+    TS_ASSERT_EQUALS(exprCond.right(), "2");
+}
+
+void OptionalTestSuite::test11()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Enum);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Enum1");
+    TS_ASSERT_EQUALS(exprCond.op(), "<=");
+    TS_ASSERT_EQUALS(exprCond.right(), "V2");
+}
+
+void OptionalTestSuite::test12()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "!=");
+    TS_ASSERT_EQUALS(exprCond.right(), "S1");
+}
+
+void OptionalTestSuite::test13()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test14()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Ref);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "<");
+    TS_ASSERT_EQUALS(exprCond.right(), "S1");
+}
+
+void OptionalTestSuite::test15()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 4U);
+    TS_ASSERT_EQUALS(field.maxLength(), 5U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "=");
+    TS_ASSERT_EQUALS(exprCond.right(), "Nan");
+}
+
+void OptionalTestSuite::test16()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 12U);
+    TS_ASSERT_EQUALS(field.maxLength(), 13U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem3);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), "!=");
+    TS_ASSERT_EQUALS(exprCond.right(), "$Mem2");
+}
+
+void OptionalTestSuite::test17()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 4U);
+    TS_ASSERT_EQUALS(field.maxLength(), 5U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$Mem1");
+    TS_ASSERT_EQUALS(exprCond.op(), ">");
+    TS_ASSERT_EQUALS(exprCond.right(), "3.5");
+}
+
+void OptionalTestSuite::test18()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 8U);
+    TS_ASSERT_EQUALS(field.maxLength(), 9U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Float);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem3);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::List);
+    commsdsl::OptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), commsdsl::OptCondList::Type::And);
+    auto conditions = listCond.conditions();
+    TS_ASSERT_EQUALS(conditions.size(), 2U);
+    auto& cond1 = conditions[0];
+    auto& cond2 = conditions[1];
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr expr1(cond1);
+    TS_ASSERT_EQUALS(expr1.left(), "$Mem1");
+    TS_ASSERT_EQUALS(expr1.op(), "=");
+    TS_ASSERT_EQUALS(expr1.right(), "NAN");
+    commsdsl::OptCondExpr expr2(cond2);
+    TS_ASSERT_EQUALS(expr2.left(), "$Mem2");
+    TS_ASSERT_EQUALS(expr2.op(), "!=");
+    TS_ASSERT_EQUALS(expr2.right(), "0");
+}
+
+void OptionalTestSuite::test19()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem2);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::List);
+    commsdsl::OptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), commsdsl::OptCondList::Type::Or);
+    auto conditions = listCond.conditions();
+    TS_ASSERT_EQUALS(conditions.size(), 2U);
+    auto& cond1 = conditions[0];
+    auto& cond2 = conditions[1];
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::OptCond::Kind::Expr);
+    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr expr1(cond1);
+    TS_ASSERT(expr1.left().empty());
+    TS_ASSERT(expr1.op().empty());
+    TS_ASSERT_EQUALS(expr1.right(), "$Set1.b0");
+    commsdsl::OptCondExpr expr2(cond2);
+    TS_ASSERT(expr2.left().empty());
+    TS_ASSERT_EQUALS(expr2.op(), "!");
+    TS_ASSERT_EQUALS(expr2.right(), "$Set1.b1");
+}
+
+void OptionalTestSuite::test20()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 2U);
+    TS_ASSERT_EQUALS(field.maxLength(), 3U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 3U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+    auto& mem3 = members[2];
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField optField(mem3);
+    auto cond = optField.cond();
+    TS_ASSERT(optField.cond().valid());
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::List);
+    commsdsl::OptCondList listCond(cond);
+    TS_ASSERT_EQUALS(listCond.type(), commsdsl::OptCondList::Type::And);
+    auto conditions = listCond.conditions();
+    TS_ASSERT_EQUALS(conditions.size(), 2U);
+    auto& cond1 = conditions[0];
+    auto& cond2 = conditions[1];
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::OptCond::Kind::List);
+    TS_ASSERT_EQUALS(cond2.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondList listCond2(cond1);
+    TS_ASSERT_EQUALS(listCond2.type(), commsdsl::OptCondList::Type::Or);
+    auto subConditions = listCond2.conditions();
+    auto& subCond1 = subConditions[0];
+    auto& subCond2 = subConditions[1];
+    commsdsl::OptCondExpr expr1(subCond1);
+    TS_ASSERT(expr1.left().empty());
+    TS_ASSERT(expr1.op().empty());
+    TS_ASSERT_EQUALS(expr1.right(), "$Set1.b0");
+    commsdsl::OptCondExpr expr2(subCond2);
+    TS_ASSERT(expr2.left().empty());
+    TS_ASSERT_EQUALS(expr2.op(), "!");
+    TS_ASSERT_EQUALS(expr2.right(), "$Set1.b1");
+    commsdsl::OptCondExpr expr3(cond2);
+    TS_ASSERT_EQUALS(expr3.left(), "$I1");
+    TS_ASSERT_EQUALS(expr3.op(), "=");
+    TS_ASSERT_EQUALS(expr3.right(), "0");
+}
+
+void OptionalTestSuite::test21()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Bundle1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.minLength(), 1U);
+    TS_ASSERT_EQUALS(field.maxLength(), 2U);
+
+    commsdsl::BundleField bundleField(field);
+    auto members = bundleField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+
+    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::Field::Kind::Set);
+    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::Field::Kind::Optional);
+
+    commsdsl::OptionalField opt(mem2);
+    auto cond = opt.cond();
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::OptCond::Kind::Expr);
+    commsdsl::OptCondExpr exprCond(cond);
+    TS_ASSERT(exprCond.left().empty());
+    TS_ASSERT_EQUALS(exprCond.op(), "!");
+    TS_ASSERT_EQUALS(exprCond.right(), "$Set1.b0");
+
+    auto optField = opt.field();
+    TS_ASSERT_EQUALS(optField.kind(), commsdsl::Field::Kind::Ref);
+}
+
+void OptionalTestSuite::test22()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test23()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test24()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test25()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test26()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test27()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test28()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
+    TS_ASSERT(protocol);
+}

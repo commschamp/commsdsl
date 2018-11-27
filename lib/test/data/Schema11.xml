@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema11"
+        id="5"
+        endian="big">
+    <ns name="ns1">        
+        <fields>
+            <enum name="Prefix" type="uint8" >
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="2" />
+            </enum>
+            <data name="Data2" lengthPrefix="ns1.Prefix" />
+        </fields>
+    </ns>
+</schema>

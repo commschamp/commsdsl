@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema>
+    <name>Schema1</name>
+    <id>1</id>
+    <endian>Big</endian>
+    <version>5</version>
+    <description> Some Description </description>
+    <nonUniqueMsgIdAllowed>True</nonUniqueMsgIdAllowed>
+</schema>

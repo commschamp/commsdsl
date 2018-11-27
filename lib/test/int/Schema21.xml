@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema21"
+        id="1"
+        endian="big"
+        version="3">
+
+    <fields>
+        <int name="Int1" type="uint16">
+            <units>metres / second</units>
+        </int>
+        <int name="Int2" reuse="Int1" />
+        <int name="Int3" reuse="Int2" units="mm" />
+    </fields>
+           
+</schema>

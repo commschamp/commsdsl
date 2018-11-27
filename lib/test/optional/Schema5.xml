@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema5"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="Bundle1">
+            <set name="Mem1" type="uint8">
+                <bit name="b0" idx="0" />
+            </set>
+            <optional name= "Opt1">
+                <field>
+                    <int name="I1" type="uint8" />
+                </field>
+                <cond>$Mem1.b1</cond>
+            </optional>
+            <optional name="Opt2" cond="$Mem1.b0">
+                <field>
+                    <int name="I2" type="uint16" />
+                </field>
+            </optional>
+        </bundle>
+    </fields>
+</schema>

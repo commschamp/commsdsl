@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema2"
+        id="1"
+        endian="Little">
+    <ns name="my_ns">
+        <fields>
+            <float name="Float1" type="double" defaultValue="nan" >
+                <special name="Null" val="NaN" />
+                <special name="S1" val="-inf" />
+                <special name="S2" val="Inf" />
+            </float>
+            <float name="Float2" type="float" defaultValue="inf" validFullRange="true">
+                <validValue value="inf" />
+                <validValue value="Nan" />
+                <endian>Big</endian>
+            </float>        
+        </fields>
+    </ns>
+</schema>

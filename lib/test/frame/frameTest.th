@@ -1,0 +1,506 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class FrameTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
+    void test10();
+    void test11();
+    void test12();
+    void test13();
+    void test14();
+    void test15();
+    void test16();
+    void test17();
+    void test18();
+    void test19();
+    void test20();
+};
+
+void FrameTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void FrameTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void FrameTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& f1 = frames[0];
+    TS_ASSERT_EQUALS(f1.name(), "Generic");
+
+    auto layers = f1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 1U);
+
+    TS_ASSERT_EQUALS(layers.front().kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT(!layers.front().hasField());
+    TS_ASSERT_EQUALS(layers.front().name(), "Data");
+}
+
+void FrameTestSuite::test2()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test3()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 2U);
+
+    auto& gNs = namespaces.front();
+    TS_ASSERT(gNs.name().empty());
+
+    auto& ns1 = namespaces.back();
+    TS_ASSERT_EQUALS(ns1.name(), "ns1");
+
+    auto frames = ns1.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 2U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Id);
+    TS_ASSERT_EQUALS(l1.name(), "Id");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT_EQUALS(f1.externalRef(), "MsgId");
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l2.name(), "Data");
+    TS_ASSERT(!l2.hasField());
+}
+
+void FrameTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test5()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test6()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 3U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+    auto& l3 = layers[2];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Size);
+    TS_ASSERT_EQUALS(l1.name(), "Size");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT(f1.externalRef().empty());
+
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Id);
+    TS_ASSERT_EQUALS(l2.name(), "Id");
+    TS_ASSERT(l2.hasField());
+    auto f2 = l2.field();
+    TS_ASSERT_EQUALS(f2.externalRef(), "ns1.MsgId");
+
+    TS_ASSERT_EQUALS(l3.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l3.name(), "Data");
+    TS_ASSERT(!l3.hasField());
+}
+
+void FrameTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 4U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+    auto& l3 = layers[2];
+    auto& l4 = layers[3];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Sync);
+    TS_ASSERT_EQUALS(l1.name(), "Sync");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT_EQUALS(f1.externalRef(), "ns1.Sync");
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Id);
+    TS_ASSERT_EQUALS(l2.name(), "Id");
+    TS_ASSERT(l2.hasField());
+    auto f2 = l2.field();
+    TS_ASSERT_EQUALS(f2.externalRef(), "ns1.MsgId");
+
+    TS_ASSERT_EQUALS(l3.kind(), commsdsl::Layer::Kind::Size);
+    TS_ASSERT_EQUALS(l3.name(), "Size");
+    TS_ASSERT(l3.hasField());
+    auto f3 = l3.field();
+    TS_ASSERT(f3.externalRef().empty());
+
+    TS_ASSERT_EQUALS(l4.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l4.name(), "Data");
+    TS_ASSERT(!l4.hasField());
+}
+
+void FrameTestSuite::test8()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 5U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+    auto& l3 = layers[2];
+    auto& l4 = layers[3];
+    auto& l5 = layers[4];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Sync);
+    TS_ASSERT_EQUALS(l1.name(), "Sync");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT_EQUALS(f1.externalRef(), "ns1.Sync");
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Size);
+    TS_ASSERT_EQUALS(l2.name(), "Size");
+    TS_ASSERT(l2.hasField());
+    auto f2 = l2.field();
+    TS_ASSERT(f2.externalRef().empty());
+
+    TS_ASSERT_EQUALS(l3.kind(), commsdsl::Layer::Kind::Id);
+    TS_ASSERT_EQUALS(l3.name(), "Id");
+    TS_ASSERT(l3.hasField());
+    auto f3 = l3.field();
+    TS_ASSERT_EQUALS(f3.externalRef(), "ns1.MsgId");
+
+    TS_ASSERT_EQUALS(l4.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l4.name(), "Data");
+    TS_ASSERT(!l4.hasField());
+
+    TS_ASSERT_EQUALS(l5.kind(), commsdsl::Layer::Kind::Checksum);
+    TS_ASSERT_EQUALS(l5.name(), "Checksum");
+    TS_ASSERT(l5.hasField());
+    auto f5 = l5.field();
+    TS_ASSERT(f5.externalRef().empty());
+    commsdsl::ChecksumLayer checksum(l5);
+    TS_ASSERT_EQUALS(checksum.alg(), commsdsl::ChecksumLayer::Alg::Crc_CCITT);
+    TS_ASSERT_EQUALS(checksum.fromLayer(), l2.name());
+    TS_ASSERT(checksum.untilLayer().empty());
+    TS_ASSERT(!checksum.verifyBeforeRead());
+}
+
+void FrameTestSuite::test9()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 5U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+    auto& l3 = layers[2];
+    auto& l4 = layers[3];
+    auto& l5 = layers[4];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Sync);
+    TS_ASSERT_EQUALS(l1.name(), "Sync");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT_EQUALS(f1.externalRef(), "ns1.Sync");
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Size);
+    TS_ASSERT_EQUALS(l2.name(), "Size");
+    TS_ASSERT(l2.hasField());
+    auto f2 = l2.field();
+    TS_ASSERT(f2.externalRef().empty());
+
+    TS_ASSERT_EQUALS(l3.kind(), commsdsl::Layer::Kind::Checksum);
+    TS_ASSERT_EQUALS(l3.name(), "Checksum");
+    TS_ASSERT(l3.hasField());
+    auto f3 = l3.field();
+    TS_ASSERT(f3.externalRef().empty());
+    commsdsl::ChecksumLayer checksum(l3);
+    TS_ASSERT_EQUALS(checksum.alg(), commsdsl::ChecksumLayer::Alg::Custom);
+    TS_ASSERT_EQUALS(checksum.customAlgName(), "MyAlg");
+    TS_ASSERT(checksum.fromLayer().empty());
+    TS_ASSERT_EQUALS(checksum.untilLayer(), l5.name());
+    TS_ASSERT(checksum.verifyBeforeRead());
+
+    TS_ASSERT_EQUALS(l4.kind(), commsdsl::Layer::Kind::Id);
+    TS_ASSERT_EQUALS(l4.name(), "Id");
+    TS_ASSERT(l4.hasField());
+    auto f4 = l4.field();
+    TS_ASSERT_EQUALS(f4.externalRef(), "ns1.MsgId");
+
+    TS_ASSERT_EQUALS(l5.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l5.name(), "Data");
+    TS_ASSERT(!l5.hasField());
+}
+
+void FrameTestSuite::test10()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test11()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test12()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test13()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test15()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 3U);
+
+    auto& l2 = layers[1];
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Value);
+    TS_ASSERT_EQUALS(l2.name(), "Version");
+    TS_ASSERT(l2.hasField());
+    auto f2 = l2.field();
+    TS_ASSERT_EQUALS(f2.externalRef(), "ns1.Version");
+    commsdsl::ValueLayer valueLayer(l2);
+    auto interfaces = valueLayer.interfaces();
+    TS_ASSERT_EQUALS(interfaces.size(), 1U);
+    TS_ASSERT_EQUALS(interfaces.front().externalRef(), "ns1.Message");
+    TS_ASSERT_EQUALS(valueLayer.fieldIdx(), 0U);
+    TS_ASSERT(!valueLayer.pseudo());
+}
+
+void FrameTestSuite::test16()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test17()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto frames = ns.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 3U);
+
+    auto& l2 = layers[1];
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Value);
+    TS_ASSERT_EQUALS(l2.name(), "Version");
+    TS_ASSERT(l2.hasField());
+    auto f2 = l2.field();
+    TS_ASSERT_EQUALS(f2.externalRef(), "ns1.Version");
+    commsdsl::ValueLayer valueLayer(l2);
+    auto interfaces = valueLayer.interfaces();
+    TS_ASSERT_EQUALS(interfaces.size(), 1U);
+    TS_ASSERT_EQUALS(interfaces.front().externalRef(), "ns1.Message");
+    TS_ASSERT_EQUALS(valueLayer.fieldIdx(), 0U);
+    TS_ASSERT(valueLayer.pseudo());
+}
+
+void FrameTestSuite::test18()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+}
+
+void FrameTestSuite::test19()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns1 = namespaces.front();
+    TS_ASSERT_EQUALS(ns1.name(), "ns1");
+
+    auto frames = ns1.frames();
+    TS_ASSERT_EQUALS(frames.size(), 1U);
+
+    auto& frame1 = frames[0];
+    TS_ASSERT_EQUALS(frame1.name(), "Generic");
+
+    auto layers = frame1.layers();
+    TS_ASSERT_EQUALS(layers.size(), 2U);
+
+    auto& l1 = layers[0];
+    auto& l2 = layers[1];
+
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Layer::Kind::Custom);
+    TS_ASSERT_EQUALS(l1.name(), "Header");
+    TS_ASSERT(l1.hasField());
+    auto f1 = l1.field();
+    TS_ASSERT(f1.externalRef().empty());
+    TS_ASSERT_EQUALS(f1.kind(), commsdsl::Field::Kind::Bundle);
+
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Layer::Kind::Payload);
+    TS_ASSERT_EQUALS(l2.name(), "Data");
+    TS_ASSERT(!l2.hasField());
+}
+
+void FrameTestSuite::test20()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+}

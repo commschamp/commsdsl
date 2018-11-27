@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema9"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <enum name="MsgId" type="uint8">
+                <validValue name="M1" val="1" />
+                <validValue name="M2" val="2" />
+            </enum>
+            <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" />
+        </fields>
+    
+        <frame name="Generic">
+            <sync name="Sync" field="ns1.Sync" />
+            <size name="Size">
+                <field>
+                    <int type="uintvar" name="Size" />
+                </field>
+            </size>
+            <checksum name="Checksum" alg="Custom" until="Data">
+                <algName value="MyAlg" />
+                <field>
+                    <int name="Checksum" type="uint16" />
+                </field>
+                <verifyBeforeRead>True</verifyBeforeRead>
+            </checksum>
+            <id name="Id" field="ns1.MsgId"/>        
+            <payload name="Data" />
+        </frame>
+    </ns>
+</schema>

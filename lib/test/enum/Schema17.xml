@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema16"
+        id="1"
+        endian="Little"
+        version="2">
+    <fields>
+        <enum name="Enum1" type="uint32" length="3" defaultValue="V3">
+            <validValue name="V1" val="1" />
+            <validValue name="V3" val="2" />
+            <validValue name="V2" val="2"/>
+        </enum>
+    </fields>
+</schema>

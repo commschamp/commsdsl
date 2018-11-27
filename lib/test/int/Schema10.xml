@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema10"
+        id="1"
+        endian="little">
+    <fields>
+        <int name="Int1" type="uintvar" serOffset="-100" defaultValue="100"/>
+        <int name="Int2" type="uintvar" length="8" serOffset="-100" defaultValue="100" />
+        <int name="Int3" type="uintvar" length="3" serOffset="-100" defaultValue="100" />
+    </fields>
+</schema>

@@ -1,0 +1,17 @@
+#pragma once
+
+#include "AllMessagesOrig.h"
+
+namespace test21
+{
+
+namespace cc_plugin
+{
+
+using AllMessages = AllMessagesOrig;
+
+} // namespace cc_plugin
+
+} // namespace test21
+
+

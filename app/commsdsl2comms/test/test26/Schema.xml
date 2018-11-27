@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test26"
+        id="1"
+        endian="big"
+        version="5"
+        nonUniqueMsgIdAllowed="true">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+        </enum>
+    </fields>
+    
+    <message name="Msg1_v1" id="MsgId.M1" order="0">
+        <int name="version" type="uint8" validValue="1" failOnInvalid="true" />
+    </message>
+
+    <message name="Msg1_v2" id="MsgId.M1" order="1">
+        <int name="version" type="uint8" validValue="2" failOnInvalid="true" />
+    </message>
+
+    <message name="Msg1_v3" id="MsgId.M1" order="2">
+        <int name="version" type="uint8" validValue="3" failOnInvalid="true" />
+    </message>
+
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>     
+</schema>

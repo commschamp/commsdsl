@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test14"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+
+        <int name="StrLen" type="uint8" />
+        <string name="S1" length="10" defaultValue="hello"/>
+        <string name="S2" defaultValue="hello" lengthPrefix="StrLen" />
+        <string name="S3" defaultValue="hello">
+            <lengthPrefix>
+                <int name="length" type="uint8" />
+            </lengthPrefix>
+        </string>
+        <string name="S4" zeroTermSuffix="true" />
+    </fields>
+    
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>      
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="f1" field="S1" />
+        <ref name="f2" field="S2" />
+        <ref name="f3" field="S3" />
+        <ref name="f4" field="S4" />
+
+        <string name="f10">
+            <lengthPrefix>
+                <int name="length" type="uint8" />
+            </lengthPrefix>
+        </string>
+                
+    </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
+</schema>

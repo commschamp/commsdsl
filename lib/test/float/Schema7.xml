@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema7"
+        id="1"
+        endian="big"
+        version="2">
+    <fields>
+        <float name="Float1" type="float">
+            <validRange value="[-100.123, 210.111]" sinceVersion="1"/>
+        </float>
+        <float reuse="Float1" name="Float2" type="double" />
+    </fields>
+</schema>

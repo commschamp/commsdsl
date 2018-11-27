@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test6"
+        id="1"
+        endian="little"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        
+        <enum name="E1" type="uint16" nonUniqueAllowed="true" validCheckVersion="true" >
+            <validValue name="V1" val="1" />
+            <validValue name="V5" val="5" sinceVersion="2" />
+            <validValue name="V7" val="7" sinceVersion="3" deprecated="4" />
+            <validValue name="V8" val="8" sinceVersion="3" deprecated="4" />
+            <validValue name="V10" val="10" sinceVersion="3" deprecated="4" />
+            <validValue name="V11" val="11" deprecated="5" />
+            <validValue name="V12" val="12" />
+            <validValue name="V12_2" val="12" />
+            <validValue name="V15" val="15" />
+            <validValue name="V16" val="16" />
+            <validValue name="V17" val="17" />
+            <validValue name="V3" val="3" />
+            <defaultValue>V1</defaultValue>
+        </enum>                
+    </fields>
+    
+    <interface name="Message">
+        <int name="version" type="uint8" semanticType="version" />
+    </interface>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="f1" field="E1" />
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <enum name="f1" type="uintvar" length="2">
+            <validValue name="v1" val="0" />
+            <validValue name="v2" val="128" />
+        </enum>
+    </message>
+
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
+</schema>

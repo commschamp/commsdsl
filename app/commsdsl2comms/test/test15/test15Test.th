@@ -1,0 +1,31 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test15/Message.h"
+#include "test15/message/Msg1.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+
+    using Interface =
+        test15::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Msg1 = test15::message::Msg1<Interface>;
+};
+
+void TestSuite::test1()
+{
+    Msg1 msg;
+    TS_ASSERT_EQUALS(msg.field_f1().value().size(), 5U);
+    TS_ASSERT(msg.field_f10().doesExist());
+    TS_ASSERT(!msg.refresh());
+}

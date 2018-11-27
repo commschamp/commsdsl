@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema19"
+        id="1"
+        endian="Little"
+        version="2">
+    <fields>
+        <enum name="Enum1" type="uintvar" length="2">
+            <validValue name="V1" val="0" displayName="Value1"/>
+            <validValue name="V2" val="128" />
+        </enum>
+    </fields>
+</schema>

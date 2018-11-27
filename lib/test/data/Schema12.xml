@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema12"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="I1" type="uint8" />
+        <ref field="I1" name="R1" />
+    </fields>
+    <message name="M1" id="1">
+        <ref name="F1" field="R1" />
+        <enum name="F2" type="uint8">
+            <validValue name="V1" val="1" />
+        </enum>
+        <data name="F3" lengthPrefix="$F1" />
+    </message>
+</schema>

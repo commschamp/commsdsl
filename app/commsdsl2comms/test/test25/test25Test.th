@@ -1,0 +1,136 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test25/Message.h"
+#include "test25/message/Msg1.h"
+#include "test25/message/Msg2.h"
+#include "test25/frame/Frame.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+
+    using Interface =
+        test25::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Msg1 = test25::message::Msg1<Interface>;
+    using Msg2 = test25::message::Msg2<Interface>;
+    using Frame = test25::frame::Frame<Interface>;
+};
+
+void TestSuite::test1()
+{
+    static const std::uint8_t Buf[] =
+    {
+        1, 5, 
+        1, 4, 1, 4,
+        1, 2, 3, 4,
+        5, 6, 7, 8,
+        0xa, 0xb, 0xc, 0xd
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test25::MsgId_M1);
+    auto* msg = static_cast<const Msg1*>(msgPtr.get());
+    auto& l1 = msg->field_l1();
+    auto& l2 = msg->field_l2();
+    auto& l3 = msg->field_l3();
+
+    TS_ASSERT_EQUALS(l1.value().size(), 1U);
+    TS_ASSERT_EQUALS(l1.value()[0].value(), 0x01020304);
+    TS_ASSERT_EQUALS(l2.value().size(), 1U);
+    TS_ASSERT_EQUALS(l2.value()[0].value(), 0x05060708);
+    TS_ASSERT_EQUALS(l3.value().size(), 1U);
+    TS_ASSERT_EQUALS(l3.value()[0].value(), 0x0a0b0c0d);
+}
+
+void TestSuite::test2()
+{
+    do {
+        static const std::uint8_t Buf[] =
+        {
+            2, 5, 
+            1, 4, 
+            1, 2, 3, 4,
+            5, 6, 7, 8,
+            1, 4,
+            0xa, 0xb, 0xc, 0xd
+        };
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        Frame frame;
+
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        TS_ASSERT(msgPtr);
+        TS_ASSERT_EQUALS(msgPtr->getId(), test25::MsgId_M2);
+        auto* msg = static_cast<Msg2*>(msgPtr.get());
+        auto& l1 = msg->field_l1();
+        auto& l2 = msg->field_l2();
+        auto& l3 = msg->field_l3();
+
+        TS_ASSERT_EQUALS(l1.value().size(), 1U);
+        TS_ASSERT_EQUALS(l1.value()[0].value(), 0x01020304);
+        TS_ASSERT(l2.doesExist());
+        TS_ASSERT_EQUALS(l2.field().value().size(), 1U);
+        TS_ASSERT_EQUALS(l2.field().value()[0].value(), 0x05060708);
+        TS_ASSERT(l3.doesExist());
+        TS_ASSERT_EQUALS(l3.field().value().size(), 1U);
+        TS_ASSERT_EQUALS(l3.field().value()[0].value(), 0x0a0b0c0d);
+
+        msg->version() = 2U;
+        TS_ASSERT(msg->refresh());
+        TS_ASSERT(l2.doesExist());
+        TS_ASSERT(l3.isMissing());
+
+        l2.field().value().resize(2U);
+        TS_ASSERT(msg->refresh());
+        TS_ASSERT_EQUALS(msg->field_p2().value(), 8U);
+    } while (false);
+
+    do {
+        static const std::uint8_t Buf[] =
+        {
+            2, 1, 
+            1, 4, 
+            1, 2, 3, 4,
+        };
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        Frame frame;
+
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        TS_ASSERT(msgPtr);
+        TS_ASSERT_EQUALS(msgPtr->getId(), test25::MsgId_M2);
+        auto* msg = static_cast<Msg2*>(msgPtr.get());
+        auto& l1 = msg->field_l1();
+        auto& l2 = msg->field_l2();
+        auto& l3 = msg->field_l3();
+
+        TS_ASSERT_EQUALS(l1.value().size(), 1U);
+        TS_ASSERT_EQUALS(l1.value()[0].value(), 0x01020304);
+        TS_ASSERT(l2.isMissing());
+        TS_ASSERT(l3.isMissing());
+    } while (false);    
+}

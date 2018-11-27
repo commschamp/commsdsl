@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema prefix.extraAttr="hello">
+    <name value="Schema3" />
+    <id value="1" />
+    <endian value="big" />
+    <version value="5" />
+    <description value="Some Description" />
+    <nonUniqueMsgIdAllowed value="1" />
+    <prefix.extraChild attr="bla"> BLA BLA </prefix.extraChild>
+</schema>

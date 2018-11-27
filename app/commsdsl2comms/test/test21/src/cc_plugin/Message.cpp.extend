@@ -1,0 +1,2 @@
+#include "Message.h"
+#include "MessageOrig.cpp"
