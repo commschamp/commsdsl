@@ -25,7 +25,7 @@ namespace commsdsl2comms
 namespace
 {
 
-const std::string CommsChampionTag("develop");
+const std::string CommsChampionTag("v0.28");
 const std::string HelpStr("help");
 const std::string FullHelpStr(HelpStr + ",h");
 const std::string QuietStr("quiet");
