@@ -12,7 +12,6 @@ option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 # COMMS_INSTALL_DIR - Path to externally built and installed CommsChampion project
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
 
-
 if (NOT CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 14)
 endif()
@@ -136,6 +135,8 @@ while (TRUE)
 endwhile ()
 
 include(GNUInstallDirs)
+
+set (CC_TAG "develop")
 
 add_subdirectory(lib)
 add_subdirectory(app)
