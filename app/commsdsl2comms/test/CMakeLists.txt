@@ -58,7 +58,7 @@ function (test_func name)
         add_custom_target(${plugin_build_tgt} ALL
             COMMAND ${CMAKE_COMMAND}
                 -DPROJ_DIR=${output_dir}
-                -DCOMMS_INSTALL_DIR="${cc_install_dir}"
+                -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
                 -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
                 -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} 
@@ -94,7 +94,7 @@ macro (cc_external)
     set (cc_main_dir "${CMAKE_BINARY_DIR}/comms_champion")
     set (cc_src_dir "${cc_main_dir}/src")
     set (cc_bin_dir "${cc_main_dir}/build")
-    set (cc_install_dir "${cc_main_dir}/install")
+    set (COMMS_INSTALL_DIR "${cc_main_dir}/install")
     set (cc_qt_dir_opt)
 
     find_package (Git REQUIRED)
@@ -125,7 +125,7 @@ macro (cc_external)
         endif ()
     endif ()
 
-    set (EXT_CC_INSTALL_DIR ${cc_install_dir})
+    set (EXT_CC_INSTALL_DIR ${COMMS_INSTALL_DIR})
     include (${cc_src_dir}/cmake/DefineExternalProjectTargets.cmake)
 
     include(ExternalProject)
@@ -143,9 +143,9 @@ macro (cc_external)
         PREFIX "${cc_main_dir}"
         SOURCE_DIR "${cc_src_dir}"
         BINARY_DIR "${cc_bin_dir}"
-        INSTALL_DIR "${cc_install_dir}"
+        INSTALL_DIR "${COMMS_INSTALL_DIR}"
         CMAKE_ARGS
-            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${cc_install_dir}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${COMMS_INSTALL_DIR}
             -DCC_NO_UNIT_TESTS=ON ${cc_libs_only_opt} -DCC_NO_WARN_AS_ERR=ON
             -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -171,6 +171,10 @@ endif ()
 if (NOT CC_COMMS_FOUND)
     message (WARNING "Path ${COMMS_INSTALL_DIR} doesn't contain COMMS library headers, unittesting is skipped")
     return()
+endif ()
+
+if (NOT TARGET cc::comms_champion)
+    message (FATAL_ERROR "cc::comms_champion target is not defined")
 endif ()
 
 #include_directories(${CC_INCLUDE_DIRS})
