@@ -25,7 +25,13 @@ namespace commsdsl2comms
 namespace
 {
 
-const std::string CommsChampionTag("v0.28");
+#ifdef CC_TAG
+#define CC_TAG_QUITE_(x_) #x_
+#define CC_TAG_QUITE(x_) CC_TAG_QUITE_(x_)
+const std::string CommsChampionTag(CC_TAG_QUITE(CC_TAG));
+#else
+const std::string CommsChampionTag("master");
+#endif
 const std::string HelpStr("help");
 const std::string FullHelpStr(HelpStr + ",h");
 const std::string QuietStr("quiet");
