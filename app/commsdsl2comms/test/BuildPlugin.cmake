@@ -8,6 +8,7 @@
 
 set (build_dir "${PROJ_DIR}/build")
 file (MAKE_DIRECTORY ${build_dir})
+message (STATUS "Compiling with CMAKE_C_COMPILER=${CMAKE_C_COMPILER} and CMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}")
 execute_process(
     COMMAND ${CMAKE_COMMAND} 
         -DOPT_FULL_SOLUTION=OFF -DOPT_CC_MAIN_INSTALL_DIR=${COMMS_INSTALL_DIR} 
