@@ -54,6 +54,10 @@ function (test_func name)
 #    endif ()
 
     if (CC_COMMS_CHAMPION_FOUND)
+        if (NOT TARGET cc::comms_champion)
+            message (FATAL_ERROR "cc::comms_champion target is not defined")
+        endif () 
+
         set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
         add_custom_target(${plugin_build_tgt} ALL
             COMMAND ${CMAKE_COMMAND}
@@ -133,10 +137,10 @@ macro (cc_external)
         set (cc_qt_dir_opt -DCC_QT_DIR=${COMMSDSL_QT_DIR})
     endif ()
 
-    set (cc_libs_only_opt "-DCC_COMMS_LIB_ONLY=ON")
-    if (UNIX)
+    #set (cc_libs_only_opt "-DCC_COMMS_LIB_ONLY=ON")
+    #if (UNIX)
         set (cc_libs_only_opt "-DCC_LIBS_ONLY=ON")
-    endif ()
+    #endif ()
 
     ExternalProject_Add(
         "${CC_EXTERNAL_TGT}"
@@ -173,9 +177,9 @@ if (NOT CC_COMMS_FOUND)
     return()
 endif ()
 
-if (NOT TARGET cc::comms_champion)
-    message (FATAL_ERROR "cc::comms_champion target is not defined")
-endif ()
+if (NOT TARGET cc::comms)
+    message (FATAL_ERROR "cc::comms target is not defined")
+endif () 
 
 #include_directories(${CC_INCLUDE_DIRS})
 #
