@@ -53,10 +53,22 @@ function (test_func name)
 #                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
 #    endif ()
 
-    if (CC_COMMS_CHAMPION_FOUND)
+    while (TRUE)
+        if (NOT CC_COMMS_CHAMPION_FOUND)
+            message (WARNING "cc::comms_champion is not available")
+            break ()
+        endif ()
+
         if (NOT TARGET cc::comms_champion)
             message (FATAL_ERROR "cc::comms_champion target is not defined")
         endif () 
+
+        if (CMAKE_CL_64)
+            message (STATUS 
+                "Skipping plugin build because sub-project "
+                "will be compiled 32 bit instead of 64. No idea why.")
+                break ()
+        endif ()
 
         set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
         add_custom_target(${plugin_build_tgt} ALL
@@ -75,7 +87,9 @@ function (test_func name)
         if (CC_EXTERNAL)
             add_dependencies(${plugin_build_tgt} ${CC_EXTERNAL_TGT})
         endif ()
-    endif ()
+        
+        break()
+    endwhile()
 
 endfunction ()
 
