@@ -162,7 +162,7 @@ bool Cmake::writeMain() const
         "            message (WARNING \"git clone/checkout failed\")\n"
         "        endif ()\n"
         "    endif ()\n\n"
-        "    set (EXT_CC_INSTALL_DIR ${cc_install_dir})\n"
+        "    set (EXT_CC_INSTALL_DIR ${install_dir})\n"
         "    include (${cc_src_dir}/cmake/DefineExternalProjectTargets.cmake)\n\n"
         "    ExternalProject_Add(\n"
         "        \"${CC_EXTERNAL_TGT}\"\n"
