@@ -181,7 +181,7 @@ bool Cmake::writeMain() const
         "            COMMAND ${CMAKE_COMMAND} --build ${cc_bin_dir} --target deploy_qt\n"
         "            WORKING_DIRECTORY ${cc_bin_dir}\n"
         "        )\n\n"
-        "        target_add_dependencies(\"deploy_qt\" ${CC_EXTERNAL_TGT})\n"
+        "        add_dependencies(\"deploy_qt\" ${CC_EXTERNAL_TGT})\n"
         "    endif ()\n"
         "endmacro()\n\n"
         "######################################################################\n\n"
