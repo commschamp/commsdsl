@@ -173,6 +173,7 @@ bool Cmake::writeMain() const
         "            ${cc_qt_dir_opt} ${ct_lib_only_opt}\n"
         "    )\n\n"
         "    if (deploy_tgt AND WIN32 AND OPT_QT_DIR)\n"
+        "        message (STATUS \"Qt5 deployment is available by building \\\"deploy_qt\\\" target\")\n"
         "        add_custom_target (\"deploy_qt\"\n"
         "            COMMAND ${CMAKE_COMMAND} --build ${cc_bin_dir} --target deploy_qt\n"
         "            WORKING_DIRECTORY ${cc_bin_dir}\n"
