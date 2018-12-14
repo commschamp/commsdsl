@@ -63,7 +63,7 @@ bool Cmake::writeMain() const
         "project (\"#^#PROJ_NAME#$#\")\n\n"
         "option (OPT_LIB_ONLY \"Install only protocol library, no other libraries/plugings are built/installed.\" OFF)\n"
         "option (OPT_THIS_AND_COMMS_LIBS_ONLY \"Install this protocol and COMMS libraries only, no other applications/plugings are built/installed.\" OFF)\n"
-        "option (OPT_FULL_SOLUTION \"Build and install full solution, including CommsChampion sources.\" ON)\n"
+        "option (OPT_FULL_SOLUTION \"Build and install full solution, including CommsChampion.\" ON)\n"
         "option (OPT_NO_WARN_AS_ERR \"Do NOT treat warning as error\" OFF)\n"
         "option (OPT_NO_CCACHE \"Disable use of ccache on UNIX system\" OFF)\n\n"
         "# Other parameters:\n"
