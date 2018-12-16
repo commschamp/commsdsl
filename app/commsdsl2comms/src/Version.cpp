@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "FieldBase.h"
+#include "Version.h"
 
 #include <fstream>
 
@@ -21,6 +21,7 @@
 
 #include "Generator.h"
 #include "common.h"
+#include "EnumField.h"
 
 namespace bf = boost::filesystem;
 
@@ -32,36 +33,34 @@ namespace
 
 const std::string Template(
     "/// @file\n"
-    "/// @brief Contains definition of base class of all the fields.\n\n"
+    "/// @brief Contains protocol version definition.\n\n"
     "#pragma once\n\n"
-    "#include \"comms/Field.h\"\n"
-    "#include \"comms/options.h\"\n"
-    "#include \"#^#PROT_NAMESPACE#$#/Version.h\"\n\n"
+    "#include \"comms/version.h\"\n\n"
+    "/// @brief Version of the protocol library as single numeric value\n"
+    "#define #^#NS#$#_VERSION (#^#VERSION#$#)\n\n"
     "#^#BEG_NAMESPACE#$#\n"
-    "/// @brief Common base class for all the fields.\n"
-    "/// @tparam TOpt Extra options.\n"
-    "template <typename... TOpt>\n"
-    "using #^#CLASS_NAME#$# =\n"
-    "    comms::Field<\n"
-    "        TOpt...,\n"
-    "        #^#OPTIONS#$#\n"
-    "    >;\n\n"
+    "/// @brief Version of the protocol library as single numeric value\n"
+    "inline constexpr unsigned version()\n"
+    "{\n"
+    "    return #^#NS#$#_VERSION;\n"
+    "}\n\n"
     "#^#END_NAMESPACE#$#\n"
+    "static_assert(COMMS_MAKE_VERSION(#^#COMMS_MIN#$#) <= comms::version(),\n"
+    "    \"The version of COMMS library is too old\");\n\n"
 );
 
 } // namespace
 
-bool FieldBase::write(Generator& generator)
+bool Version::write(Generator& generator)
 {
-    FieldBase obj(generator);
+    Version obj(generator);
     return obj.writeDefinition();
 }
 
-bool FieldBase::writeDefinition() const
+bool Version::writeDefinition() const
 {
-    auto startInfo = m_generator.startFieldProtocolWrite(common::fieldBaseStr());
+    auto startInfo = m_generator.startGenericProtocolWrite(common::versionStr());
     auto& filePath = startInfo.first;
-    auto& className = startInfo.second;
 
     if (filePath.empty()) {
         return true;
@@ -73,19 +72,14 @@ bool FieldBase::writeDefinition() const
         return false;
     }
 
-    common::StringsList options;
-    options.push_back(common::dslEndianToOpt(m_generator.schemaEndian()));
-    // TODO: version type
-    std::string optionsStr = common::listToString(options, ",\n", common::emptyString());
 
     common::ReplacementMap replacements;
-    auto namespaces = m_generator.namespacesForField(common::fieldBaseStr());
+    auto namespaces = m_generator.namespacesForRoot();
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("OPTIONS", std::move(optionsStr)));
-    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
-    replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
-
+    replacements.insert(std::make_pair("NS", common::toUpperCopy(m_generator.mainNamespace())));
+    replacements.insert(std::make_pair("COMMS_MIN", m_generator.getMinCommsVersionStr()));
+    replacements.insert(std::make_pair("VERSION", common::numToString(m_generator.schemaVersion())));
     auto str = common::processTemplate(Template, replacements);
     stream << str;
 

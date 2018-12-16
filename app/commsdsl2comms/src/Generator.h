@@ -354,6 +354,8 @@ public:
     NamespacesScopesList getNonDefaultNamespacesScopes() const;
     InterfacesAccessList getAllInterfaces() const;
     FramesAccessList getAllFrames() const;
+
+    const std::string& getMinCommsVersionStr() const;
     
 private:
 

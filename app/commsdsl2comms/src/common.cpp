@@ -219,6 +219,12 @@ const std::string& docStr()
     return Str;
 }
 
+const std::string& versionStr()
+{
+    static const std::string Str("version");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {
@@ -668,6 +674,23 @@ std::string toLowerCopy(const std::string& str)
 {
     std::string copy(str);
     toLower(copy);
+    return copy;
+}
+
+void toUpper(std::string& str)
+{
+    std::transform(
+        str.begin(), str.end(), str.begin(),
+        [](char ch)
+        {
+            return static_cast<char>(std::toupper(ch));
+        });
+}
+
+std::string toUpperCopy(const std::string& str)
+{
+    std::string copy(str);
+    toUpper(copy);
     return copy;
 }
 

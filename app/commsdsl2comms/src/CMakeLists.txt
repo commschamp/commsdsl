@@ -43,6 +43,7 @@ set (
     "common.cpp"
     "Plugin.cpp"
     "Doxygen.cpp"
+    "Version.cpp"
 )
 
 add_executable(${APP_NAME} ${src})
