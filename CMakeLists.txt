@@ -136,7 +136,7 @@ endwhile ()
 
 include(GNUInstallDirs)
 
-set (CC_TAG "develop")
+set (CC_TAG "v1.0")
 
 add_subdirectory(lib)
 add_subdirectory(app)

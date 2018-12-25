@@ -69,7 +69,9 @@ have either 1 or 3 bytes length, depending on the value it contains.
 - [cc.ublox.commsdsl](https://github.com/arobenko/cc.ublox.commsdsl) - 
 Defines **UBX** protocol used by various
 [u-blox GPS receivers](https://www.u-blox.com/en/position-time). The protocol
-itself is quite complex with hundreds of messages.
+itself is quite complex with hundreds of messages. It uses custom checksum
+calculation algorithms and injects multiple code snippets to fix incorrect
+or incomplete functionality available by default.
 
 # How to Use Generated Code
 The **commsdsl2comms** generates CMake project, which contains 

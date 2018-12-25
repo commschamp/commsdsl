@@ -108,7 +108,6 @@ endfunction ()
 
 macro (cc_external)
     set (CC_EXTERNAL TRUE)
-    set (cc_tag "develop")
     set (cc_main_dir "${CMAKE_BINARY_DIR}/comms_champion")
     set (cc_src_dir "${cc_main_dir}/src")
     set (cc_bin_dir "${cc_main_dir}/build")

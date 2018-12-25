@@ -661,6 +661,10 @@ std::string Doxygen::getFramesDoc() const
         "/// either @ref #^#PROT_NAMESPACE#$#::ServerInputMessages (from @b #^#PROT_NAMESPACE#$#/ServerInputMessages.h)\n"
         "/// or @ref #^#PROT_NAMESPACE#$#::ClientInputMessages  (from @b #^#PROT_NAMESPACE#$#/ClientInputMessages.h)\n"
         "#^#PLATFORMS#$#\n"
+        "/// @b NOTE, that the frame definition does not exactly follow the recommended\n"
+        "/// instructions from <b>Protocol Stack Definition Tutorial</b> page of @b COMMS\n"
+        "/// library documentation. The extra customization (see @ref main_customization below)\n"
+        "/// is performed by passing options to the layers themselves.\n"
         "///";
 
     auto frames = m_generator.getAllFrames();
@@ -780,8 +784,13 @@ std::string Doxygen::getCustomizeDoc() const
         "/// (check for existence of #^#PROT_NAMESPACE#$#/ServerDefaultOptions.h file) and\n"
         "/// #^#PROT_NAMESPACE#$#::ClientDefaultOptions (check for existence of #^#PROT_NAMESPACE#$#/ClientDefaultOptions.h file).\n"
         "/// These structs suppress generation of unnecessary virtual functions which are not\n"
-        "/// going to be used. Consiger using this structs as options instead of default\n"
-        "/// #^#PROT_NAMESPACE#$#::DefaultOptions."
+        "/// going to be used. Consider using this structs as options instead of default\n"
+        "/// #^#PROT_NAMESPACE#$#::DefaultOptions.\n"
+        "///\n"
+        "/// In case non-custom &lt;id&gt; layer has been used in schema (files), custom,\n"
+        "/// application-specific allocation options to it may include\n"
+        "/// @b comms::option::InPlaceAllocation and/or @b comms::option::SupportGenericMessage.\n"
+        "/// Please see the documentation of the @b COMMS library itself for more details."
         ;
 
     auto allInterfaces = m_generator.getAllInterfaces();
