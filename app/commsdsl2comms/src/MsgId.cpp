@@ -37,7 +37,8 @@ const std::string Template(
     "/// @file\n"
     "/// @brief Contains definition of message ids enumeration.\n\n"
     "#pragma once\n\n"
-    "#include <cstdint>\n\n"
+    "#include <cstdint>\n"
+    "#include \"#^#PROT_NAMESPACE#$#/Version.h\"\n\n"
     "#^#BEG_NAMESPACE#$#\n"
     "/// @brief Message ids enumeration.\n"
     "enum #^#ENUM_NAME#$# #^#TYPE#$#\n"
@@ -77,6 +78,7 @@ bool MsgId::writeDefinition() const
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("ENUM_NAME", std::move(enumName)));
+    replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
 
     std::string idsStr;
     std::string typeStr;

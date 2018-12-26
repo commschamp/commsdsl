@@ -30,6 +30,7 @@
 #include "AllMessages.h"
 #include "Cmake.h"
 #include "Doxygen.h"
+#include "Version.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -41,6 +42,7 @@ namespace
 {
 
 const unsigned MaxDslVersion = 1U;
+const std::string MinCommsVersionStr("1, 0, 0");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
@@ -950,6 +952,7 @@ bool Generator::writeFiles()
 {
     if ((!FieldBase::write(*this)) ||
         (!MsgId::write(*this)) ||
+        (!Version::write(*this)) ||
         (!AllMessages::write(*this))) {
         return false;
     }
@@ -1491,6 +1494,11 @@ Generator::FramesAccessList Generator::getAllFrames() const
         result.insert(result.end(), nList.begin(), nList.end());
     }
     return result;
+}
+
+const std::string& Generator::getMinCommsVersionStr() const
+{
+    return MinCommsVersionStr;
 }
 
 std::pair<std::string, std::string>

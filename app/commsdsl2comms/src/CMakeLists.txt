@@ -43,11 +43,12 @@ set (
     "common.cpp"
     "Plugin.cpp"
     "Doxygen.cpp"
+    "Version.cpp"
 )
 
 add_executable(${APP_NAME} ${src})
 target_link_libraries(${APP_NAME} ${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES} ${LIBCOMMSDSL_LIBRARIES})
-target_compile_definitions (${APP_NAME} PRIVATE "-DBOOST_NO_CXX11_SCOPED_ENUMS")
+target_compile_definitions (${APP_NAME} PRIVATE -DBOOST_NO_CXX11_SCOPED_ENUMS -DCC_TAG=${CC_TAG})
 
 if (WIN32)
     target_link_libraries(${APP_NAME} Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)

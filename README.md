@@ -69,13 +69,25 @@ have either 1 or 3 bytes length, depending on the value it contains.
 - [cc.ublox.commsdsl](https://github.com/arobenko/cc.ublox.commsdsl) - 
 Defines **UBX** protocol used by various
 [u-blox GPS receivers](https://www.u-blox.com/en/position-time). The protocol
-itself is quite complex with hundreds of messages.
+itself is quite complex with hundreds of messages. It uses custom checksum
+calculation algorithms and injects multiple code snippets to fix incorrect
+or incomplete functionality available by default.
 
 # How to Use Generated Code
 The **commsdsl2comms** generates CMake project, which contains 
 headers-only protocol definition library as well as code of protocol plugin 
 for [CommsChampion Tools](https://github.com/arobenko/comms_champion#commschampion-tools).
 Please open root CMakeLists.txt file and see available build options.
+
+When built as "full solution" (**OPT_FULL_SOLUTION**  option is **ON**) on Windows system,
+cmake generated **deploy_qt** build target, which invokes **deploy_qt** target of the
+checked out and built [CommsChampion](https://github.com/arobenko/comms_champion) project. This
+target will invoke **windeployqt.exe** utility from used Qt5 installation to deploy all 
+relevant Qt5 libraries.
+```
+$> nmake deploy_qt5
+```
+
 The generated project also defines `doc_<protocol_name>` target which can be
 used to build doxygen documentation of the protocol definition. The 
 `<protocol_name>` portion of the build target is name of the protocol specified

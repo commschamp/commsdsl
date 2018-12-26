@@ -60,6 +60,7 @@ const std::string& pluginStr();
 const std::string& origSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
 const std::string& docStr();
+const std::string& versionStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
@@ -100,6 +101,8 @@ const std::string& displayName(const std::string& dslDisplayName, const std::str
 
 void toLower(std::string& str);
 std::string toLowerCopy(const std::string& str);
+void toUpper(std::string& str);
+std::string toUpperCopy(const std::string& str);
 
 } // namespace common
 
