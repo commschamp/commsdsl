@@ -77,7 +77,7 @@ bool Cmake::writeMain() const
         "set (LIB_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_LIBDIR})\n"
         "set (BIN_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_BINDIR})\n"
         "set (INC_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_INCLUDEDIR})\n"
-        "set (CONFIG_INSTALL_DIR ${INSTALL_DIR}/etc/CommsChampion)\n"
+        "set (CONFIG_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/CommsChampion)\n"
         "set (PLUGIN_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_LIBDIR}/CommsChampion/plugin)\n"
         "set (DOC_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_DOCDIR})\n\n"
         "find_package (Doxygen)\n"
