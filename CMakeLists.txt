@@ -137,7 +137,7 @@ endwhile ()
 
 include(GNUInstallDirs)
 
-if (${CC_TAG}" STREQUAL "")
+if ("${CC_TAG}" STREQUAL "")
     set (CC_TAG "develop")
 endif()
 
