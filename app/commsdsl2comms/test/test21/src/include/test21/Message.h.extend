@@ -5,6 +5,7 @@
 namespace test21
 {
 
+/// @brief New message interface
 template <typename... TOpt>
 using Message = MessageOrig<TOpt...>;
 

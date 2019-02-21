@@ -56,7 +56,8 @@ bool Doxygen::write(Generator& generator)
 
 bool Doxygen::writeConf() const
 {
-    auto filePath = m_generator.startProtocolDocWrite("doxygen.conf");
+    static const std::string DocFile("doxygen.conf");
+    auto filePath = m_generator.startProtocolDocWrite(DocFile);
 
     if (filePath.empty()) {
         return true;
@@ -205,10 +206,13 @@ bool Doxygen::writeConf() const
         "PERL_PATH              = /usr/bin/perl\n"
         "CLASS_DIAGRAMS         = YES\n"
         "HIDE_UNDOC_RELATIONS   = YES\n"
-        "HAVE_DOT               = NO\n\n";
+        "HAVE_DOT               = NO\n"
+        "#^#APPEND#$#\n"
+        "\n";
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NAME", m_generator.schemaName()));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(getAppendReq(DocFile))));
 
     stream << common::processTemplate(Template, replacements);
 
