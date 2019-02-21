@@ -41,6 +41,11 @@ public:
     void test32();
     void test33();
     void test34();
+    void test35();
+    void test36();
+    void test37();
+    void test38();    
+    void test39();
 };
 
 void ListTestSuite::setUp()
@@ -764,4 +769,59 @@ void ListTestSuite::test34()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
     TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test35()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test36()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema36.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test37()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test38()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema38.xml");
+    TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test39()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema39.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "List50");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+
+    commsdsl::ListField listField(field);
+    auto elem = listField.elementField();
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT(!listField.elemFixedLength());
 }

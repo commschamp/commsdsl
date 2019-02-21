@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema15"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="DataLength" type="uint8" displayName="Length" />
+        <data name="Data" lengthPrefix="DataLength" />
+        <data name="Data50">
+            <!-- Invalid use of lengthPrefix child -->
+            <lengthPrefix reuse="DataLength" validMax="50" />
+        </data>    
+    </fields>
+</schema>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema39"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="Count" type="uint8"/>
+        <int name="Elem" type="uint32"/>
+        <list name="List50" countPrefix="Count">
+            <element value="Elem" />
+        </list>    
+    </fields>
+</schema>

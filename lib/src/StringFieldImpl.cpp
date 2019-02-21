@@ -392,8 +392,14 @@ bool StringFieldImpl::checkPrefixAsChild()
     auto iter = props().find(common::lengthPrefixStr());
     bool hasInProps = iter != props().end();
     if (prefixFields.empty()) {
-        assert(hasInProps);
-        return true;
+        if (hasInProps) {
+            return true;
+        }
+
+        logError() << XmlWrap::logPrefix(child) <<
+            "The \"" << common::lengthPrefixStr() << "\" element "
+            "is expected to define field as child element";
+        return false;
     }
 
     if (hasInProps) {

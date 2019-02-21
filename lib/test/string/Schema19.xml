@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema19"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="StringLength" type="uint8" displayName="Length" />
+        <string name="String" lengthPrefix="StringLength" />
+        <string name="String50">
+            <lengthPrefix reuse="StringLength" />
+        </string>    
+    </fields>
+</schema>
