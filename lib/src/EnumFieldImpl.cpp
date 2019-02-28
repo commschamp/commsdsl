@@ -562,7 +562,7 @@ bool EnumFieldImpl::updateHexAssign()
 
     if (!IntFieldImpl::isTypeUnsigned(m_state.m_type)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Cannot set \"" << hexAssign() << "\" property with signed types.";
+            "Cannot set \"" << common::hexAssignStr() << "\" property with signed types.";
         return false;
     }
 

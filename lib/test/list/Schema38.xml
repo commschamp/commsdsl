@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema38"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="Count" type="uint8"/>
+        <int name="Elem" type="uint32"/>
+        <list name="Data50" countPrefix="Count">
+            <!-- Invalid use of element child -->
+            <element reuse="Elem" defaultValue="1U" />
+        </list>    
+    </fields>
+</schema>

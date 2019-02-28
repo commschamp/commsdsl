@@ -25,6 +25,7 @@ public:
     void test16();
     void test17();
     void test18();
+    void test19();
 };
 
 void StringTestSuite::setUp()
@@ -382,5 +383,13 @@ void StringTestSuite::test18()
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test19()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
 }

@@ -11,6 +11,7 @@ option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 # COMMSDSL_QT_DIR - Path to Qt5 installation directory, needed to build generated testing projects.
 # COMMS_INSTALL_DIR - Path to externally built and installed CommsChampion project
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
+# CC_TAG - Tag/branch of CommsChampion project to use instead of default
 
 if (NOT CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 14)
@@ -136,7 +137,9 @@ endwhile ()
 
 include(GNUInstallDirs)
 
-set (CC_TAG "v1.0")
+if ("${CC_TAG}" STREQUAL "")
+    set (CC_TAG "v1.1")
+endif()
 
 add_subdirectory(lib)
 add_subdirectory(app)

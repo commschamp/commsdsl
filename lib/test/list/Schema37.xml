@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema37"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="Count" type="uint8"/>
+        <int name="Elem" type="uint32"/>
+        <list name="Data50" element="Elem" countPrefix="Count">
+            <!-- Invalid use of elemLengthPrefix child -->
+            <elemLengthPrefix reuse="Count" validMax="50" />
+        </list>    
+    </fields>
+</schema>

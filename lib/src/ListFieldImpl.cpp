@@ -492,8 +492,15 @@ bool ListFieldImpl::checkElementAsChild()
         }
 
         if (props().find(common::elementStr()) == props().end()) {
-            fieldNode = fields.front();
-            break;
+            if (!fields.empty()) {
+                fieldNode = fields.front();
+                break;
+            }
+
+            logError() << XmlWrap::logPrefix(child) <<
+                "The \"" << common::elementStr() << "\" node "
+                "is expected to define field as child element";
+            return false;
         }
 
         auto attrs = XmlWrap::parseNodeProps(getNode());
@@ -615,6 +622,15 @@ bool ListFieldImpl::checkPrefixAsChild(
     auto iter = props().find(type);
     bool hasInProps = iter != props().end();
     if (prefixFields.empty()) {
+        if (hasInProps) {
+            return true;
+        }
+
+        logError() << XmlWrap::logPrefix(child) <<
+            "The \"" << type << "\" element "
+            "is expected to define field as child element";
+        return false;
+
         assert(hasInProps);
         return true;
     }
