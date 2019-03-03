@@ -83,7 +83,8 @@ public:
     std::string getClassPrefix(
             const std::string& suffix,
             bool checkForOptional = true,
-            const std::string& extraDoc = common::emptyString()) const;
+            const std::string& extraDetails = common::emptyString(),
+            const std::string& extraDoxygen = common::emptyString()) const;
 
     const std::string& externalRef() const
     {

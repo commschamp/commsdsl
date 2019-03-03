@@ -243,10 +243,13 @@ bool Field::writeFiles() const
 std::string Field::getClassPrefix(
     const std::string& className,
     bool checkForOptional,
-    const std::string& extraDoc) const
+    const std::string& extraDetails,
+    const std::string& extraDoxygen) const
 {
     std::string str;
     bool optional = checkForOptional && isVersionOptional();
+    auto& doxygenPrefix = common::doxygenPrefixStr();
+
     if (optional) {
         std::string classNameCpy(className);
         if (common::optFieldSuffixStr().size() <= classNameCpy.size()) {
@@ -262,13 +265,11 @@ std::string Field::getClassPrefix(
 
         auto& desc = m_dslObj.description();
         do {
-            if (desc.empty() && extraDoc.empty()) {
+            if (desc.empty() && extraDetails.empty()) {
                 break;
             }
 
-
             str += "/// @details\n";
-            auto& doxygenPrefix = common::doxygenPrefixStr();
 
             if (!desc.empty()) {
                 auto multiDesc = common::makeMultilineCopy(desc);
@@ -279,7 +280,7 @@ std::string Field::getClassPrefix(
                 str += '\n';
             }
 
-            if (extraDoc.empty()) {
+            if (extraDetails.empty()) {
                 break;
             }
 
@@ -288,12 +289,19 @@ std::string Field::getClassPrefix(
                 str += '\n';
             }
 
-            auto updateExtraDoc = common::insertIndentCopy(extraDoc);
+            auto updateExtraDoc = common::insertIndentCopy(extraDetails);
             updateExtraDoc.insert(updateExtraDoc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
             ba::replace_all(updateExtraDoc, "\n", "\n" + doxygenPrefix);
             str += updateExtraDoc;
             str += '\n';
         } while (false);
+    }
+
+    if (!extraDoxygen.empty()) {
+        auto updateExtraDoxygen = doxygenPrefix + extraDoxygen;
+        ba::replace_all(updateExtraDoxygen, "\n", "\n" + doxygenPrefix);
+        str += updateExtraDoxygen;
+        str += '\n';
     }
 
     if (!m_externalRef.empty()) {
