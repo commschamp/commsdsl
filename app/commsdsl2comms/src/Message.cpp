@@ -95,7 +95,7 @@ const std::string Template(
     "#^#APPEND#$#\n"
 );
 
-static const std::string PluginSingleInterfaceHeaderTemplate(
+static const std::string PluginSingleInterfacePimplHeaderTemplate(
     "#pragma once\n\n"
     "#include <memory>\n"
     "#include <QtCore/QVariantList>\n"
@@ -130,6 +130,34 @@ static const std::string PluginSingleInterfaceHeaderTemplate(
     "#^#APPEND#$#\n"
 );
 
+static const std::string PluginSingleInterfaceHeaderTemplate(
+    "#pragma once\n\n"
+    "#include <memory>\n"
+    "#include <QtCore/QVariantList>\n"
+    "#include \"comms_champion/ProtocolMessageBase.h\"\n"
+    "#include #^#MESSAGE_INC#$#\n"
+    "#include #^#INTERFACE_INC#$#\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "class #^#CLASS_NAME#$# : public\n"
+    "    comms_champion::ProtocolMessageBase<\n"
+    "        #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>,\n"
+    "        #^#CLASS_NAME#$#\n"
+    "    >\n"    
+    "{\n"
+    "public:\n"
+    "    #^#CLASS_NAME#$#();\n"
+    "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&) = delete;\n"
+    "    #^#CLASS_NAME#$#(#^#CLASS_NAME#$#&&) = delete;\n"
+    "    virtual ~#^#CLASS_NAME#$#();\n"
+    "    #^#CLASS_NAME#$#& operator=(const #^#CLASS_NAME#$#&);\n"
+    "    #^#CLASS_NAME#$#& operator=(#^#CLASS_NAME#$#&&);\n\n"
+    "protected:\n"
+    "    virtual const QVariantList& fieldsPropertiesImpl() const override;\n"
+    "};\n\n"
+    "#^#END_NAMESPACE#$#\n\n"
+    "#^#APPEND#$#\n"
+);
+
 static const std::string PluginMultiInterfaceHeaderTemplate(
     "#pragma once\n\n"
     "#include <QtCore/QVariantList>\n"
@@ -157,7 +185,7 @@ static const std::string PluginMultiInterfaceHeaderTemplate(
     "#^#APPEND#$#\n"
 );
 
-static const std::string PluginSingleInterfaceSrcTemplate(
+static const std::string PluginSingleInterfacePimplSrcTemplate(
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
     "#include \"comms_champion/property/field.h\"\n"
     "#include \"comms_champion/ProtocolMessageBase.h\"\n"
@@ -255,6 +283,35 @@ static const std::string PluginSingleInterfaceSrcTemplate(
     "{\n"
     "    return m_pImpl->refresh();\n"
     "}\n\n"  
+    "#^#END_NAMESPACE#$#\n"
+    "#^#APPEND#$#\n"
+);
+
+static const std::string PluginSingleInterfaceSrcTemplate(
+    "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+    "#include \"comms_champion/property/field.h\"\n"
+    "#^#INCLUDES#$#\n"
+    "namespace cc = comms_champion;\n\n"
+    "#^#BEGIN_NAMESPACE#$#\n"
+    "namespace\n"
+    "{\n\n"
+    "#^#FIELDS_PROPS#$#\n"
+    "QVariantList createProps()\n"
+    "{\n"
+    "    QVariantList props;\n"
+    "    #^#PROPS_APPENDS#$#\n"
+    "    return props;\n"
+    "}\n\n"
+    "} // namespace\n\n"
+    "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() = default;\n"
+    "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n"
+    "#^#CLASS_NAME#$#& #^#CLASS_NAME#$#::operator=(const #^#CLASS_NAME#$#&) = default;\n"
+    "#^#CLASS_NAME#$#& #^#CLASS_NAME#$#::operator=(#^#CLASS_NAME#$#&&) = default;\n\n"
+    "const QVariantList& #^#CLASS_NAME#$#::fieldsPropertiesImpl() const\n"
+    "{\n"
+    "    static const QVariantList Props = createProps();\n"
+    "    return Props;\n"
+    "}\n\n"
     "#^#END_NAMESPACE#$#\n"
     "#^#APPEND#$#\n"
 );
@@ -549,7 +606,11 @@ bool Message::writePluginHeader()
     if (defaultInterface != nullptr) {
         replacements.insert(std::make_pair("INTERFACE_INC", m_generator.headerfileForInterfaceInPlugin(defaultInterface->externalRef())));
         replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterfaceInPlugin(defaultInterface->externalRef())));
-        templ = &PluginSingleInterfaceHeaderTemplate;
+        templ = &PluginSingleInterfacePimplHeaderTemplate;
+
+        if (defaultInterface->hasFields()) {
+            templ = &PluginSingleInterfaceHeaderTemplate;
+        }
     }
 
     auto str = common::processTemplate(*templ, replacements);
@@ -613,7 +674,11 @@ bool Message::writePluginSrc()
     if (defaultInterface != nullptr) {
         replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
         replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterfaceInPlugin(defaultInterface->externalRef())));
-        templ = &PluginSingleInterfaceSrcTemplate;
+        templ = &PluginSingleInterfacePimplSrcTemplate;
+
+        if (defaultInterface->hasFields()) {
+            templ = &PluginSingleInterfaceSrcTemplate;
+        }
     }
 
     auto str = common::processTemplate(*templ, replacements);
