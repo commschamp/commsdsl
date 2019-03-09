@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -95,38 +95,6 @@ const std::string Template(
     "#^#APPEND#$#\n"
 );
 
-// static const std::string PluginSingleInterfaceHeaderTemplate(
-//     "#pragma once\n\n"
-//     "#include <QtCore/QVariantList>\n"
-//     "#include \"comms_champion/ProtocolMessageBase.h\"\n"
-//     "#include #^#MESSAGE_INC#$#\n"
-//     "#include #^#INTERFACE_INC#$#\n\n"
-//     "#^#BEGIN_NAMESPACE#$#\n"
-//     "class #^#CLASS_NAME#$# : public\n"
-//     "    comms_champion::ProtocolMessageBase<\n"
-//     "        #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>,\n"
-//     "        #^#CLASS_NAME#$#\n"
-//     "    >\n"
-//     "{\n"
-//     "public:\n"
-//     "    #^#CLASS_NAME#$#();\n"
-//     "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&) = delete;\n"
-//     "    #^#CLASS_NAME#$#(#^#CLASS_NAME#$#&&) = delete;\n"
-//     "    virtual ~#^#CLASS_NAME#$#();\n"
-//     "    #^#CLASS_NAME#$#& operator=(const #^#CLASS_NAME#$#&);\n"
-//     "    #^#CLASS_NAME#$#& operator=(#^#CLASS_NAME#$#&&);\n\n"
-//     "protected:\n"
-//     "    virtual const QVariantList& fieldsPropertiesImpl() const override;\n"
-//     "};\n\n"
-//     "#^#END_NAMESPACE#$#\n\n"
-//     "extern template class #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>;\n"
-//     "extern template class comms_champion::ProtocolMessageBase<\n"
-//     "    #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>,\n"
-//     "    #^#CLASS_PLUGIN_SCOPE#$##^#CLASS_NAME#$#\n"
-//     ">;\n\n"
-//     "#^#APPEND#$#\n"
-// );
-
 static const std::string PluginSingleInterfaceHeaderTemplate(
     "#pragma once\n\n"
     "#include <memory>\n"
@@ -188,41 +156,6 @@ static const std::string PluginMultiInterfaceHeaderTemplate(
     "#^#END_NAMESPACE#$#\n"
     "#^#APPEND#$#\n"
 );
-
-// static const std::string PluginSingleInterfaceSrcTemplate(
-//     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
-//     "#include \"comms_champion/property/field.h\"\n"
-//     "#^#INCLUDES#$#\n"
-//     "namespace cc = comms_champion;\n\n"
-//     "template class #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>;\n"
-//     "template class cc::ProtocolMessageBase<\n"
-//     "    #^#PROT_MESSAGE#$#<#^#INTERFACE#$#>,\n"
-//     "    #^#CLASS_PLUGIN_SCOPE#$##^#CLASS_NAME#$#\n"
-//     ">;\n\n"    
-//     "#^#BEGIN_NAMESPACE#$#\n"
-//     "namespace\n"
-//     "{\n\n"
-//     "#^#FIELDS_PROPS#$#\n"
-//     "QVariantList createProps()\n"
-//     "{\n"
-//     "    QVariantList props;\n"
-//     "    #^#PROPS_APPENDS#$#\n"
-//     "    return props;\n"
-//     "}\n\n"
-//     "} // namespace\n\n"
-//     "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() = default;\n"
-//     "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n"
-//     "#^#CLASS_NAME#$#& #^#CLASS_NAME#$#::operator=(const #^#CLASS_NAME#$#&) = default;\n"
-//     "#^#CLASS_NAME#$#& #^#CLASS_NAME#$#::operator=(#^#CLASS_NAME#$#&&) = default;\n"
-//     "\n"
-//     "const QVariantList& #^#CLASS_NAME#$#::fieldsPropertiesImpl() const\n"
-//     "{\n"
-//     "    static const QVariantList Props = createProps();\n"
-//     "    return Props;\n"
-//     "}\n\n"
-//     "#^#END_NAMESPACE#$#\n"
-//     "#^#APPEND#$#\n"
-// );
 
 static const std::string PluginSingleInterfaceSrcTemplate(
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"

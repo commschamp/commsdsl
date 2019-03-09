@@ -45,8 +45,10 @@ const std::string Template(
     "    return #^#NS#$#_VERSION;\n"
     "}\n\n"
     "#^#END_NAMESPACE#$#\n"
+    "// Generated compile time check for minimal supported version of the COMMS library\n"
     "static_assert(COMMS_MAKE_VERSION(#^#COMMS_MIN#$#) <= comms::version(),\n"
     "    \"The version of COMMS library is too old\");\n\n"
+    "#^#APPEND#$#\n"
 );
 
 } // namespace
@@ -72,6 +74,8 @@ bool Version::writeDefinition() const
         return false;
     }
 
+    auto versionHeaderFileName = 
+        common::nameToClassCopy(common::versionStr()) + common::headerSuffix();
 
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForRoot();
@@ -80,6 +84,7 @@ bool Version::writeDefinition() const
     replacements.insert(std::make_pair("NS", common::toUpperCopy(m_generator.mainNamespace())));
     replacements.insert(std::make_pair("COMMS_MIN", m_generator.getMinCommsVersionStr()));
     replacements.insert(std::make_pair("VERSION", common::numToString(m_generator.schemaVersion())));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForProtocolDefFile(versionHeaderFileName)));
     auto str = common::processTemplate(Template, replacements);
     stream << str;
 

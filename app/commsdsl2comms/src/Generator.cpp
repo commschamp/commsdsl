@@ -1432,6 +1432,21 @@ std::string Generator::getExtraAppendForFile(const std::string& file) const
     return getExtraAppendForFile(elems);
 }
 
+std::string Generator::getExtraAppendForProtocolDefFile(const std::string& file) const
+{
+    if (file.empty()) {
+        return common::emptyString();
+    }
+
+    std::vector<std::string> elems = {
+        common::includeStr(),
+        mainNamespace(),
+        file
+    };
+
+    return getExtraAppendForFile(elems);
+}
+
 std::string Generator::getExtraAppendForFile(const std::vector<std::string>& elems) const
 {
     if (elems.empty()) {
