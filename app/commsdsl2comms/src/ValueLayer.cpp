@@ -23,6 +23,16 @@
 namespace commsdsl2comms
 {
 
+bool ValueLayer::prepareImpl()
+{
+    auto obj = valueLayerDslObj();
+    if (obj.pseudo()) {
+        setFieldForcedPseudo();
+    }
+
+    return true;
+}
+
 void ValueLayer::updateIncludesImpl(Layer::IncludesList& includes) const
 {
     static const common::StringsList List = {

@@ -475,6 +475,11 @@ bool Field::isVersionOptional() const
     return false;
 }
 
+bool Field::isPseudo() const
+{
+    return m_forcedPseudo || m_dslObj.isPseudo();
+}
+
 std::string Field::getReadForFields(
     const FieldsList& fields,
     bool forMessage,
@@ -868,7 +873,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         replacements.insert(std::make_pair("SER_HIDDEN_CAST", "static_cast<void>(serHidden);"));
     }
 
-    if (forcedSerialisedHidden) {
+    if (forcedSerialisedHidden || m_forcedPseudo || m_dslObj.isPseudo()) {
         replacements.insert(std::make_pair("SER_HIDDEN", ".serialisedHidden()"));
     }
     else if (serHiddenParam) {
@@ -925,6 +930,11 @@ bool Field::isLimitedCustomizableImpl() const
     return false;
 }
 
+void Field::setForcedPseudoImpl()
+{
+    // Do nothing
+}
+
 std::string Field::getNameFunc() const
 {
     auto customName = m_generator.getCustomNameForField(m_externalRef);
@@ -965,7 +975,7 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
         common::addToList("comms::option::HasCustomRefresh", options);
     }
 
-    if (m_dslObj.isPseudo()) {
+    if (m_forcedPseudo || m_dslObj.isPseudo()) {
         common::addToList("comms::option::EmptySerialization", options);
     }
 

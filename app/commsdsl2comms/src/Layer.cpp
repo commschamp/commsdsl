@@ -209,7 +209,13 @@ std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
         assert(dslField.valid());
         auto extRef = dslField.externalRef();
         assert(!extRef.empty());
-        return m_generator.scopeForField(extRef, true, true) + "<>";
+        std::string templateParams;
+        if (m_forcedFieldPseudo) {
+            templateParams = 
+                m_generator.mainNamespace() + "::" + 
+                common::defaultOptionsStr() + ", comms::option::EmptySerialization";
+        }        
+        return m_generator.scopeForField(extRef, true, true) + '<' + templateParams + '>';
     }
 
     return scope + common::nameToClassCopy(name()) + "::Field";
@@ -244,7 +250,7 @@ std::string Layer::getPluginCreatePropsFunc(const std::string& scope) const
             static const std::string Templ =
                 "static QVariantMap createProps_#^#NAME#$#()\n"
                 "{\n"
-                "    return #^#EXT_SCOPE#$#createProps_#^#EXT_NAME#$#(\"#^#DISP_NAME#$#\");\n"
+                "    return #^#EXT_SCOPE#$#createProps_#^#EXT_NAME#$#(\"#^#DISP_NAME#$#\"#^#SER_HIDDEN#$#);\n"
                 "}\n";
 
 
@@ -255,6 +261,11 @@ std::string Layer::getPluginCreatePropsFunc(const std::string& scope) const
             replacements.insert(std::make_pair("EXT_SCOPE", std::move(extScope)));
             replacements.insert(std::make_pair("EXT_NAME", common::nameToAccessCopy(dslField.name())));
             replacements.insert(std::make_pair("DISP_NAME", dispName));
+
+            if (m_forcedFieldPseudo) {
+                replacements.insert(std::make_pair("SER_HIDDEN", ", true"));
+            }
+
             func = common::processTemplate(Templ, replacements);
             break;
         }
@@ -340,11 +351,7 @@ std::string Layer::getFieldType() const
             "::" + common::nameToClassCopy(m_field->name());
     }
 
-    std::string extraOpt;
-    if (m_forcedFieldFailOnInvalid) {
-        extraOpt = ", comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError> ";
-    }
-
+    std::string extraOpt = extraOpsForExternalField();
     auto extRef = m_dslObj.field().externalRef();
     assert(!extRef.empty());
     auto* fieldPtr = m_generator.findField(extRef, true);
@@ -363,6 +370,14 @@ void Layer::setFieldForcedFailOnInvalid()
     m_forcedFieldFailOnInvalid = true;
     if (m_field) {
         m_field->setForcedFailOnInvalid();
+    }
+}
+
+void Layer::setFieldForcedPseudo()
+{
+    m_forcedFieldPseudo = true;
+    if (m_field) {
+        m_field->setForcedPseudo();
     }
 }
 
@@ -392,6 +407,20 @@ bool Layer::rearangeImpl(LayersList& layers, bool& success)
 bool Layer::isCustomizableImpl() const
 {
     return false;
+}
+
+std::string Layer::extraOpsForExternalField() const
+{
+    std::string extraOpt;
+    if (m_forcedFieldFailOnInvalid) {
+        extraOpt += ", comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError> ";
+    }
+
+    if (m_forcedFieldPseudo) {
+        extraOpt += ", comms::option::EmptySerialization";
+    }
+
+    return extraOpt;
 }
 
 } // namespace commsdsl2comms
