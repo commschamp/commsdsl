@@ -97,6 +97,7 @@ protected:
     }
 
     void setFieldForcedFailOnInvalid();
+    void setFieldForcedPseudo();
 
 
     virtual bool prepareImpl();
@@ -116,10 +117,13 @@ private:
         return isCustomizableImpl();
     }
 
+    std::string extraOpsForExternalField() const;
+
     Generator& m_generator;
     commsdsl::Layer m_dslObj;
     FieldPtr m_field;
     bool m_forcedFieldFailOnInvalid = false;
+    bool m_forcedFieldPseudo = false;
 };
 
 using LayerPtr = Layer::Ptr;

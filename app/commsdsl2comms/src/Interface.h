@@ -50,6 +50,7 @@ public:
     }
 
     bool hasVersion() const;
+    bool hasFields() const;
 
 private:
 

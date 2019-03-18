@@ -83,7 +83,8 @@ public:
     std::string getClassPrefix(
             const std::string& suffix,
             bool checkForOptional = true,
-            const std::string& extraDoc = common::emptyString()) const;
+            const std::string& extraDetails = common::emptyString(),
+            const std::string& extraDoxygen = common::emptyString()) const;
 
     const std::string& externalRef() const
     {
@@ -124,6 +125,14 @@ public:
     {
         m_focedFailOnInvalid = true;
     }
+
+    void setForcedPseudo()
+    {
+        m_forcedPseudo = true;
+        setForcedPseudoImpl();
+    }
+
+    bool isPseudo() const;
 
     static std::string getReadForFields(
         const FieldsList& fields,
@@ -211,6 +220,7 @@ protected:
     virtual bool hasCustomReadRefreshImpl() const;
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const;
     virtual bool isLimitedCustomizableImpl() const;
+    virtual void setForcedPseudoImpl();
 
     std::string getNameFunc() const;
 
@@ -242,9 +252,10 @@ private:
     commsdsl::Field m_dslObj;
     std::string m_externalRef;
     unsigned m_parentVersion = 0U;
-    bool m_focedFailOnInvalid = false;
     std::string m_customRead;
     std::string m_customRefresh;
+    bool m_focedFailOnInvalid = false;
+    bool m_forcedPseudo = false;
 };
 
 using FieldPtr = Field::Ptr;

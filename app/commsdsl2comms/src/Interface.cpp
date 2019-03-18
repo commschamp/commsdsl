@@ -230,6 +230,11 @@ bool Interface::hasVersion() const
             });
 }
 
+bool Interface::hasFields() const
+{
+    return !m_fields.empty();
+}
+
 bool Interface::writeProtocol()
 {
     auto names =

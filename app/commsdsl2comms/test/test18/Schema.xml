@@ -98,11 +98,7 @@
     <frame name="TestFrame9" >
         <sync name="Sync" field="Sync" />
         <size name="Size" field="Size" />
-        <value name="Version" interfaceFieldName="version" pseudo="true">
-            <field>
-                <ref name="Version" field="Version" />
-            </field>
-        </value>        
+        <value name="Version" interfaceFieldName="version" pseudo="true" field="Version" />
         <id name="Id" field="MsgId" />        
         <payload name="Data" />
     </frame>        

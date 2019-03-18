@@ -349,6 +349,7 @@ public:
     std::string getExtraAppendForPluginSrcInPlugin(const std::string& externalRef) const;    
 
     std::string getExtraAppendForFile(const std::string& file) const;
+    std::string getExtraAppendForProtocolDefFile(const std::string& file) const;
     std::string getExtraAppendForFile(const std::vector<std::string>& elems) const;
 
     NamespacesScopesList getNonDefaultNamespacesScopes() const;

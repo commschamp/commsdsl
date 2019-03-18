@@ -243,10 +243,13 @@ bool Field::writeFiles() const
 std::string Field::getClassPrefix(
     const std::string& className,
     bool checkForOptional,
-    const std::string& extraDoc) const
+    const std::string& extraDetails,
+    const std::string& extraDoxygen) const
 {
     std::string str;
     bool optional = checkForOptional && isVersionOptional();
+    auto& doxygenPrefix = common::doxygenPrefixStr();
+
     if (optional) {
         std::string classNameCpy(className);
         if (common::optFieldSuffixStr().size() <= classNameCpy.size()) {
@@ -262,13 +265,11 @@ std::string Field::getClassPrefix(
 
         auto& desc = m_dslObj.description();
         do {
-            if (desc.empty() && extraDoc.empty()) {
+            if (desc.empty() && extraDetails.empty()) {
                 break;
             }
 
-
             str += "/// @details\n";
-            auto& doxygenPrefix = common::doxygenPrefixStr();
 
             if (!desc.empty()) {
                 auto multiDesc = common::makeMultilineCopy(desc);
@@ -279,7 +280,7 @@ std::string Field::getClassPrefix(
                 str += '\n';
             }
 
-            if (extraDoc.empty()) {
+            if (extraDetails.empty()) {
                 break;
             }
 
@@ -288,12 +289,19 @@ std::string Field::getClassPrefix(
                 str += '\n';
             }
 
-            auto updateExtraDoc = common::insertIndentCopy(extraDoc);
+            auto updateExtraDoc = common::insertIndentCopy(extraDetails);
             updateExtraDoc.insert(updateExtraDoc.begin(), doxygenPrefix.begin(), doxygenPrefix.end());
             ba::replace_all(updateExtraDoc, "\n", "\n" + doxygenPrefix);
             str += updateExtraDoc;
             str += '\n';
         } while (false);
+    }
+
+    if (!extraDoxygen.empty()) {
+        auto updateExtraDoxygen = doxygenPrefix + extraDoxygen;
+        ba::replace_all(updateExtraDoxygen, "\n", "\n" + doxygenPrefix);
+        str += updateExtraDoxygen;
+        str += '\n';
     }
 
     if (!m_externalRef.empty()) {
@@ -465,6 +473,11 @@ bool Field::isVersionOptional() const
     }
 
     return false;
+}
+
+bool Field::isPseudo() const
+{
+    return m_forcedPseudo || m_dslObj.isPseudo();
 }
 
 std::string Field::getReadForFields(
@@ -860,7 +873,7 @@ std::string Field::getPluginPropsDefFuncBodyImpl(
         replacements.insert(std::make_pair("SER_HIDDEN_CAST", "static_cast<void>(serHidden);"));
     }
 
-    if (forcedSerialisedHidden) {
+    if (forcedSerialisedHidden || m_forcedPseudo || m_dslObj.isPseudo()) {
         replacements.insert(std::make_pair("SER_HIDDEN", ".serialisedHidden()"));
     }
     else if (serHiddenParam) {
@@ -917,6 +930,11 @@ bool Field::isLimitedCustomizableImpl() const
     return false;
 }
 
+void Field::setForcedPseudoImpl()
+{
+    // Do nothing
+}
+
 std::string Field::getNameFunc() const
 {
     auto customName = m_generator.getCustomNameForField(m_externalRef);
@@ -957,7 +975,7 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
         common::addToList("comms::option::HasCustomRefresh", options);
     }
 
-    if (m_dslObj.isPseudo()) {
+    if (m_forcedPseudo || m_dslObj.isPseudo()) {
         common::addToList("comms::option::EmptySerialization", options);
     }
 
