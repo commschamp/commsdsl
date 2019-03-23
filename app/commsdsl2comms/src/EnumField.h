@@ -67,7 +67,7 @@ private:
 
     using ValidRangesList = std::vector<RangeInfo>;
 
-    std::string getEnumeration() const;
+    std::string getEnumeration(const std::string& scope) const;
     std::string getFieldBaseParams() const;
     std::string getEnumType(const std::string& className) const;
     std::string getFieldOpts(const std::string& scope) const;

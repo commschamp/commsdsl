@@ -249,14 +249,17 @@ std::string EnumField::getClassDefinitionImpl(
     
     std::string extraDoxStr;
     if (dslObj().semanticType() != commsdsl::Field::SemanticType::MessageId) {
-        extraDoxStr = 
-            "@see @ref " + 
-            generator().scopeForField(name(), true, false) + 
-            getEnumType(common::nameToClassCopy(name()));
+        auto scopeStr = scope + getEnumType(common::nameToClassCopy(name()));
+        static const std::string OptPrefix("TOpt");
+        if (ba::starts_with(scopeStr, OptPrefix)) {
+            scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
+        }
+
+        extraDoxStr = "@see @ref " + scopeStr;
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("ENUMERATION", getEnumeration()));
+    replacements.insert(std::make_pair("ENUMERATION", getEnumeration(scope)));
     replacements.insert(std::make_pair("PREFIX", getClassPrefix(className, true, std::string(), extraDoxStr)));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
@@ -447,7 +450,7 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
-std::string EnumField::getEnumeration() const
+std::string EnumField::getEnumeration(const std::string& scope) const
 {
     if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
         return common::emptyString();
@@ -460,9 +463,15 @@ std::string EnumField::getEnumeration() const
         "    #^#VALUES#$#\n"
         "};\n";
 
+    auto scopeStr = scope + common::nameToClassCopy(name());
+    static const std::string OptPrefix("TOpt");
+    if (ba::starts_with(scopeStr, OptPrefix)) {
+        scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
+    }
+
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("SCOPE", generator().scopeForField(name(), true, true)));
+    replacements.insert(std::make_pair("SCOPE", std::move(scopeStr)));
     replacements.insert(std::make_pair("TYPE", IntField::convertType(enumFieldDslObj().type())));
     replacements.insert(std::make_pair("VALUES", getValuesDefinition()));
     return common::processTemplate(Templ, replacements);
