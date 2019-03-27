@@ -72,6 +72,12 @@ private:
     std::string getEnumType(const std::string& className) const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getValid() const;
+    std::string getValueNameFunc() const;
+    std::string getValueNameFuncDirectBody() const;
+    std::string getValueNameFuncBinSearchBody() const;
+    std::string getValueNameBinSearchPairs() const;
+    std::string getBigUnsignedValueNameBinSearchPairs() const;
+    bool isDirectValueNameMapping() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;

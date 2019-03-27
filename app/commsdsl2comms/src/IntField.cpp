@@ -143,6 +143,21 @@ const std::string& IntField::convertType(commsdsl::IntField::Type value, std::si
     return TypeMap[base + offset];
 }
 
+bool IntField::isUnsignedType(commsdsl::IntField::Type value)
+{
+    static const commsdsl::IntField::Type Map[] = {
+        commsdsl::IntField::Type::Uint8,
+        commsdsl::IntField::Type::Uint16,
+        commsdsl::IntField::Type::Uint32,
+        commsdsl::IntField::Type::Uint64,
+        commsdsl::IntField::Type::Uintvar,
+    };
+
+    auto iter = std::find(std::begin(Map), std::end(Map), value);
+    return iter != std::end(Map);
+}
+
+
 void IntField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
@@ -835,19 +850,9 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
 
 bool IntField::isUnsigned() const
 {
-    static const commsdsl::IntField::Type Map[] = {
-        commsdsl::IntField::Type::Uint8,
-        commsdsl::IntField::Type::Uint16,
-        commsdsl::IntField::Type::Uint32,
-        commsdsl::IntField::Type::Uint64,
-        commsdsl::IntField::Type::Uintvar,
-    };
-
     auto obj = intFieldDslObj();
     auto type = obj.type();
-
-    auto iter = std::find(std::begin(Map), std::end(Map), type);
-    return iter != std::end(Map);
+    return isUnsignedType(type);
 }
 
 } // namespace commsdsl2comms

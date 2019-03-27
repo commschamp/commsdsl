@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,6 +51,7 @@ const std::string ClassTemplate(
     "public:\n"
     "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
+    "    #^#VALUE_NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
@@ -72,6 +73,7 @@ const std::string StructTemplate(
     "    >\n"
     "{\n"
     "    #^#NAME#$#\n"
+    "    #^#VALUE_NAME#$#\n"
     "};\n"
 );
 
@@ -237,6 +239,15 @@ void EnumField::updateIncludesImpl(IncludesList& includes) const
         common::mergeInclude("<iterator>", includes);
         common::mergeInclude("<algorithm>", includes);
     }
+
+    if (isDirectValueNameMapping()) {
+        common::mergeInclude("<type_traits>", includes);       
+    }
+    else {
+        common::mergeInclude("<iterator>", includes);
+        common::mergeInclude("<algorithm>", includes);
+        common::mergeInclude("<utility>", includes);
+    }
 }
 
 std::string EnumField::getClassDefinitionImpl(
@@ -267,6 +278,7 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("VALUE_NAME", getValueNameFunc()));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -543,7 +555,7 @@ std::string EnumField::getValid() const
 
         common::StringsList valuesStrings;
 
-        bool isVersion =
+        bool isMessageId =
             obj.semanticType() == commsdsl::Field::SemanticType::MessageId;
         auto& revValues = obj.revValues();
         auto prevIter = revValues.end();
@@ -554,7 +566,7 @@ std::string EnumField::getValid() const
             }
 
             std::string prefix;
-            if (isVersion) {
+            if (isMessageId) {
                  prefix = generator().mainNamespace() + "::" + common::msgIdPrefixStr();
             }
             else {
@@ -679,6 +691,344 @@ std::string EnumField::getValid() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CONDITIONS", std::move(condStr)));
     return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNameFunc() const
+{
+    auto obj = enumFieldDslObj();
+    auto& revValues = obj.revValues();
+    assert(!revValues.empty());
+    std::string body;
+    if (isDirectValueNameMapping()) {
+        body = getValueNameFuncDirectBody();
+    }
+    else {
+        body = getValueNameFuncBinSearchBody();
+    }
+
+    static const std::string Templ = 
+        "/// @brief Retrieve name of the enum value\n"
+        "static const char* valueName(#^#ENUM_TYPE#$# val)\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
+    replacements.insert(std::make_pair("BODY", std::move(body)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNameFuncDirectBody() const
+{
+    auto obj = enumFieldDslObj();
+    auto& revValues = obj.revValues();
+    auto& values = obj.values();
+    assert(!revValues.empty());
+
+    std::intmax_t nextValue = 0;
+    StringsList names;
+    for (auto& v : revValues) {
+        if (v.first < nextValue) {
+            continue;
+        }
+
+        while (nextValue < v.first) {
+            names.push_back("nullptr");
+            ++nextValue;
+        }
+
+        auto getDisplayNameFunc = 
+            [](auto& infoPair) -> const std::string&
+            {
+                if (infoPair.second.m_displayName.empty()) {
+                    return infoPair.first;
+                }
+
+                if (infoPair.second.m_displayName == "_") {
+                    return common::emptyString();
+                }
+
+                return infoPair.second.m_displayName;
+            };
+
+        ++nextValue;
+        auto addElementNameFunc = 
+            [&names, getDisplayNameFunc](auto& infoPair) 
+            {
+                names.push_back('\"' + getDisplayNameFunc(infoPair) + '\"');
+            };
+
+        auto valIter = values.find(v.second);
+        assert(valIter != values.end());
+        if (generator().schemaVersion() < valIter->second.m_deprecatedSince) {
+            addElementNameFunc(*valIter);
+            continue;
+        }
+
+        auto allRevValues = revValues.equal_range(v.first);
+        bool foundNotDeprecated = false;
+        for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
+            auto vIter = values.find(iter->second);
+            assert(vIter != values.end());
+            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+                addElementNameFunc(*vIter);
+                foundNotDeprecated = true;
+                break;
+            }
+        }
+
+        if (foundNotDeprecated) {
+            continue;
+        }
+
+        addElementNameFunc(*valIter);
+    }
+
+    std::string namesStr = common::listToString(names, ",\n", common::emptyString());
+
+    static const std::string Templ = 
+        "static const char* Map[] = {\n"
+        "    #^#NAMES#$#\n"
+        "};\n"
+        "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
+        "if (MapSize <= static_cast<std::size_t>(val)) {\n"
+        "    return nullptr;\n"
+        "}\n\n"
+        "return Map[static_cast<std::size_t>(val)];";
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAMES", std::move(namesStr)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNameFuncBinSearchBody() const
+{
+    auto obj = enumFieldDslObj();
+    auto type = obj.type();
+
+    std::string names;
+    if ((type == commsdsl::EnumField::Type::Uint64) ||
+        ((type == commsdsl::EnumField::Type::Uintvar) && (sizeof(std::uint64_t) <= obj.maxLength()))) {
+        names = getBigUnsignedValueNameBinSearchPairs();
+    }
+    else {
+        names = getValueNameBinSearchPairs();
+    }
+
+    static const std::string Templ = 
+        "using NameInfo = std::pair<#^#ENUM_NAME#$#, const char*>;\n"
+        "static const NameInfo Map[] = {\n"
+        "    #^#NAMES#$#\n"
+        "};\n\n"
+        "auto iter = std::lower_bound(\n"
+        "    std::begin(Map), std::end(Map), val,\n"
+        "    [](const NameInfo& info, #^#ENUM_NAME#$# v) -> bool\n"
+        "    {\n"
+        "        return info.first < v;\n"
+        "    });\n\n"
+        "if ((iter == std::end(Map)) || (iter->first != val)) {\n"
+        "    return nullptr;\n"
+        "}\n\n"
+        "return iter->second;";
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAMES", std::move(names)));
+    replacements.insert(std::make_pair("ENUM_NAME", getEnumType(common::nameToClassCopy(name()))));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNameBinSearchPairs() const
+{
+    auto obj = enumFieldDslObj();
+    auto& revValues = obj.revValues();
+    auto& values = obj.values();
+    assert(!revValues.empty());
+    bool isMessageId =
+        obj.semanticType() == commsdsl::Field::SemanticType::MessageId;    
+
+    bool firstElem = true;
+    std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
+    StringsList names;
+    for (auto& v : revValues) {
+        if ((!firstElem) && (lastValue == v.first)) {
+            continue;
+        }
+
+        auto getDisplayNameFunc = 
+            [](auto& infoPair) -> const std::string&
+            {
+                if (infoPair.second.m_displayName.empty()) {
+                    return infoPair.first;
+                }
+
+                if (infoPair.second.m_displayName == "_") {
+                    return common::emptyString();
+                }
+
+                return infoPair.second.m_displayName;
+            };
+
+        auto getValueStrFunc = 
+            [this, isMessageId](const std::string& s)
+            {
+                if (isMessageId) {
+                    return generator().mainNamespace() + "::" + common::msgIdPrefixStr() + s;
+                }
+
+                return getEnumType(common::nameToClassCopy(name())) + "::" + s;
+            };
+
+        auto addElementNameFunc = 
+            [this, &names, &v, &firstElem, &lastValue, getDisplayNameFunc, &getValueStrFunc](auto& infoPair) 
+            {
+                auto str = 
+                    "std::make_pair(" +
+                    getValueStrFunc(v.second) +
+                    ", \"" + getDisplayNameFunc(infoPair) +
+                    "\")";
+                names.push_back(std::move(str));
+                firstElem = false;
+                lastValue = v.first;
+            };
+
+        auto valIter = values.find(v.second);
+        assert(valIter != values.end());
+        if (generator().schemaVersion() < valIter->second.m_deprecatedSince) {
+            addElementNameFunc(*valIter);
+            continue;
+        }
+
+        auto allRevValues = revValues.equal_range(v.first);
+        bool foundNotDeprecated = false;
+        for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
+            auto vIter = values.find(iter->second);
+            assert(vIter != values.end());
+            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+                addElementNameFunc(*vIter);
+                foundNotDeprecated = true;
+                break;
+            }
+        }
+
+        if (foundNotDeprecated) {
+            continue;
+        }
+
+        addElementNameFunc(*valIter);
+    }
+
+    return common::listToString(names, ",\n", common::emptyString());
+}
+
+std::string EnumField::getBigUnsignedValueNameBinSearchPairs() const
+{
+    auto obj = enumFieldDslObj();
+    auto& revValues = obj.revValues();
+    assert(!revValues.empty());
+
+    std::vector<std::uintmax_t> valuesSeq;
+    valuesSeq.reserve(revValues.size());
+    for (auto& v : revValues) {
+        valuesSeq.push_back(static_cast<std::uintmax_t>(v.first));
+    }
+    std::sort(valuesSeq.begin(), valuesSeq.end());
+
+    auto& values = obj.values();
+    bool firstElem = true;
+    std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
+    StringsList names;
+    for (auto& posV : valuesSeq) {
+        auto castedV = static_cast<std::intmax_t>(posV);
+        if ((!firstElem) && (lastValue == castedV)) {
+            continue;
+        }
+
+        auto revIter = revValues.find(castedV);
+        assert(revIter != revValues.end());
+        auto& v = *revIter;
+
+        auto getDisplayNameFunc = 
+            [](auto& infoPair) -> const std::string&
+            {
+                if (infoPair.second.m_displayName.empty()) {
+                    return infoPair.first;
+                }
+
+                if (infoPair.second.m_displayName == "_") {
+                    return common::emptyString();
+                }
+
+                return infoPair.second.m_displayName;
+            };
+
+        auto addElementNameFunc = 
+            [this, &names, &v, &firstElem, &lastValue, getDisplayNameFunc](auto& infoPair) 
+            {
+                auto str = 
+                    "std::make_pair(" +
+                    getEnumType(common::nameToClassCopy(name())) +
+                    "::" + v.second + ", \"" + getDisplayNameFunc(infoPair) +
+                    "\")";
+                names.push_back(std::move(str));
+                firstElem = false;
+                lastValue = v.first;
+            };
+
+        auto valIter = values.find(v.second);
+        assert(valIter != values.end());
+        if (generator().schemaVersion() < valIter->second.m_deprecatedSince) {
+            addElementNameFunc(*valIter);
+            continue;
+        }
+
+        auto allRevValues = revValues.equal_range(v.first);
+        bool foundNotDeprecated = false;
+        for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
+            auto vIter = values.find(iter->second);
+            assert(vIter != values.end());
+            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+                addElementNameFunc(*vIter);
+                foundNotDeprecated = true;
+                break;
+            }
+        }
+
+        if (foundNotDeprecated) {
+            continue;
+        }
+
+        addElementNameFunc(*valIter);
+    }
+
+    return common::listToString(names, ",\n", common::emptyString());
+}
+
+bool EnumField::isDirectValueNameMapping() const
+{
+    auto obj = enumFieldDslObj();
+    auto& revValues = obj.revValues();
+    assert(!revValues.empty());
+    auto firstIter = revValues.begin();
+    if (firstIter->first < 0) {
+        // has negative numbers
+        return false;
+    }
+
+
+    auto lastIter = revValues.end();
+    std::advance(lastIter, -1);
+    auto lastVal = static_cast<std::uintmax_t>(lastIter->first);
+    auto maxDirectAllowed = static_cast<std::size_t>(revValues.size() * 1.1f);
+    if ((maxDirectAllowed <= lastVal) && (10 <= lastVal)) {
+        // Too sparse
+        return false;
+    }
+
+    return true;
 }
 
 void EnumField::checkDefaultValueOpt(StringsList& list) const
