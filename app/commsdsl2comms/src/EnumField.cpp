@@ -881,7 +881,7 @@ std::string EnumField::getValueNameBinSearchPairs() const
             };
 
         auto addElementNameFunc = 
-            [this, &names, &v, &firstElem, &lastValue, getDisplayNameFunc, &getValueStrFunc](auto& infoPair) 
+            [&names, &v, &firstElem, &lastValue, getDisplayNameFunc, &getValueStrFunc](auto& infoPair) 
             {
                 auto str = 
                     "std::make_pair(" +
