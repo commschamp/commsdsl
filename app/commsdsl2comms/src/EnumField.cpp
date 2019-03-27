@@ -696,8 +696,6 @@ std::string EnumField::getValid() const
 std::string EnumField::getValueNameFunc() const
 {
     auto obj = enumFieldDslObj();
-    auto& revValues = obj.revValues();
-    assert(!revValues.empty());
     std::string body;
     if (isDirectValueNameMapping()) {
         body = getValueNameFuncDirectBody();
