@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,6 +50,7 @@ const std::string ClassTemplate(
     "    #^#BITS_ACCESS#$#\n"
     "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
+    "    #^#BIT_NAME#$#\n"
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
@@ -68,6 +69,7 @@ void SetField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
         "comms/field/BitmaskValue.h",
+        "<type_traits>"
     };
 
     common::mergeIncludes(List, includes);
@@ -85,6 +87,7 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("BITS_ACCESS", getBitsAccess()));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("BIT_NAME", getBitName()));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -561,6 +564,95 @@ std::string SetField::getValid() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CONDITIONS", std::move(condStr)));
     return common::processTemplate(Templ, replacements);
+}
+
+std::string SetField::getBitName() const
+{
+    auto obj = setFieldDslObj();
+    auto& bits = obj.bits();
+    auto& revBits = obj.revBits();
+    std::intmax_t nextBit = 0;
+    StringsList names;
+    for (auto& b : revBits) {
+        if (b.first < nextBit) {
+            continue;
+        }
+
+        while (nextBit < b.first) {
+            names.push_back("nullptr");
+            ++nextBit;
+        }
+
+        auto getDisplayNameFunc = 
+            [](auto& infoPair) -> const std::string&
+            {
+                if (infoPair.second.m_displayName.empty()) {
+                    return infoPair.first;
+                }
+
+                if (infoPair.second.m_displayName == "_") {
+                    return common::emptyString();
+                }
+
+                return infoPair.second.m_displayName;
+            };
+
+        ++nextBit;
+        auto addElementNameFunc = 
+            [&names, getDisplayNameFunc](auto& infoPair) 
+            {
+                names.push_back('\"' + getDisplayNameFunc(infoPair) + '\"');
+            };
+
+        auto bitIter = bits.find(b.second);
+        assert(bitIter != bits.end());
+        if ((!obj.isNonUniqueAllowed()) || 
+            (generator().schemaVersion() < bitIter->second.m_deprecatedSince) ||
+            (obj.isUnique())) {
+            addElementNameFunc(*bitIter);
+            continue;
+        }
+
+        auto allRevBits = revBits.equal_range(b.first);
+        bool foundNotDeprecated = false;
+        for (auto iter = allRevBits.first; iter != allRevBits.second; ++iter) {
+            auto bIter = bits.find(iter->second);
+            assert(bIter != bits.end());
+            if (generator().schemaVersion() < bIter->second.m_deprecatedSince) {
+                addElementNameFunc(*bIter);
+                foundNotDeprecated = true;
+                break;
+            }
+        }
+
+        if (foundNotDeprecated) {
+            continue;
+        }
+
+        addElementNameFunc(*bitIter);
+    }
+
+    std::string namesStr = common::listToString(names, ",\n", common::emptyString());
+
+    static const std::string Templ =
+        "/// @brief Retrieve name of the bit\n"
+        "static const char* bitName(BitIdx idx)\n"
+        "{\n"
+        "    static const char* Map[] = {\n"
+        "        #^#NAMES#$#\n"
+        "    };\n\n"
+        "    static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n"
+        "    static_assert(MapSize == BitIdx_numOfValues, \"Invalid map\");\n\n"
+        "    if (MapSize <= static_cast<std::size_t>(idx)) {\n"
+        "        return nullptr;\n"
+        "    }\n\n"
+        "    return Map[static_cast<std::size_t>(idx)];\n"
+        "}\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAMES", std::move(namesStr)));
+    return common::processTemplate(Templ, replacements);
+
 }
 
 void SetField::checkLengthOpt(StringsList& list) const

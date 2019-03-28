@@ -761,7 +761,9 @@ std::string EnumField::getValueNameFuncDirectBody() const
 
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
-        if (generator().schemaVersion() < valIter->second.m_deprecatedSince) {
+        if ((!obj.isNonUniqueAllowed()) ||
+            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (obj.isUnique()) {
             addElementNameFunc(*valIter);
             continue;
         }
