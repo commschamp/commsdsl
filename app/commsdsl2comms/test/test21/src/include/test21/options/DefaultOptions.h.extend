@@ -5,8 +5,13 @@
 namespace test21
 {
 
+namespace options
+{
+
 /// @brief New default options
 using DefaultOptions = DefaultOptionsOrig;
+
+} // namespace options
 
 } // namespace test21
 

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -289,7 +289,7 @@ std::string VariantField::getMembersDef(const std::string& scope) const
     std::string prefix;
     if (!externalRef().empty()) {
         prefix += "/// @tparam TOpt Protocol options.\n";
-        prefix += "template <typename TOpt = " + generator().mainNamespace() + "::" + common::defaultOptionsStr() + ">";
+        prefix += "template <typename TOpt = " + generator().scopeForOptions(common::defaultOptionsStr(), true, true) + ">";
     }
 
     common::ReplacementMap replacements;

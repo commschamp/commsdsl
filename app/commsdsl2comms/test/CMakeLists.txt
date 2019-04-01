@@ -88,6 +88,13 @@ function (test_func name)
             add_dependencies(${plugin_build_tgt} ${CC_EXTERNAL_TGT})
         endif ()
         
+        if (DOXYGEN_FOUND)
+            add_custom_target(doc_${name}
+                COMMAND COMMAND ${CMAKE_COMMAND} --build ${output_dir}/build --target doc_${name}
+                DEPENDS ${plugin_build_tgt} 
+            )
+        endif ()
+        
         break()
     endwhile()
 
@@ -201,6 +208,8 @@ endif ()
 #endif ()
 
 include_directories ("${CXXTEST_INCLUDE_DIR}")
+
+find_package (Doxygen)
 
 test_func (test1)
 test_func (test2)

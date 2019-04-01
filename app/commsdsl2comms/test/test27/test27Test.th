@@ -3,8 +3,8 @@
 #include "test27/Message.h"
 #include "test27/message/Msg1.h"
 #include "test27/message/Msg2.h"
-#include "test27/ClientDefaultOptions.h"
-#include "test27/ServerDefaultOptions.h"
+#include "test27/options/ClientDefaultOptions.h"
+#include "test27/options/ServerDefaultOptions.h"
 #include "test27/frame/Frame.h"
 
 class TestSuite : public CxxTest::TestSuite
@@ -26,10 +26,10 @@ public:
             comms::option::RefreshInterface
         >;
 
-    using ClientMsg1 = test27::message::Msg1<Interface, test27::ClientDefaultOptions>;
-    using ServerMsg1 = test27::message::Msg1<Interface, test27::ServerDefaultOptions>;
-    using ClientMsg2 = test27::message::Msg2<Interface, test27::ClientDefaultOptions>;
-    using ServerMsg2 = test27::message::Msg2<Interface, test27::ServerDefaultOptions>;
+    using ClientMsg1 = test27::message::Msg1<Interface, test27::options::ClientDefaultOptions>;
+    using ServerMsg1 = test27::message::Msg1<Interface, test27::options::ServerDefaultOptions>;
+    using ClientMsg2 = test27::message::Msg2<Interface, test27::options::ClientDefaultOptions>;
+    using ServerMsg2 = test27::message::Msg2<Interface, test27::options::ServerDefaultOptions>;
 };
 
 void TestSuite::test1()

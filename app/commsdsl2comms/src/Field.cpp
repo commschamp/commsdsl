@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,8 +68,7 @@ void Field::updateIncludes(Field::IncludesList& includes) const
     common::mergeInclude(m_generator.headerfileForField(common::fieldBaseStr(), false), includes);
 
     if (!m_externalRef.empty()) {
-        auto inc =
-            m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix();
+        auto inc = m_generator.headerfileForOptions(common::defaultOptionsStr(), false);
         common::mergeInclude(inc, includes);
     }
 
@@ -308,9 +307,7 @@ std::string Field::getClassPrefix(
         str += "/// @tparam TOpt Protocol options.\n";
         str += "/// @tparam TExtraOpts Extra options.\n";
         str += "template <typename TOpt = ";
-        str += m_generator.mainNamespace();
-        str += "::";
-        str += common::defaultOptionsStr();
+        str += m_generator.scopeForOptions(common::defaultOptionsStr(), true, true);
         str += ", typename... TExtraOpts>\n";
     }
 

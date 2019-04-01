@@ -867,7 +867,7 @@ std::string ListField::getMembersDef(const std::string& scope) const
     std::string prefix;
     if (!externalRef().empty()) {
         prefix += "/// @tparam TOpt Protocol options.\n";
-        prefix += "template <typename TOpt = " + generator().mainNamespace() + "::" + common::defaultOptionsStr() + ">";
+        prefix += "template <typename TOpt = " + generator().scopeForOptions(common::defaultOptionsStr(), true, true) + ">";
     }
 
     static const std::string Templ =

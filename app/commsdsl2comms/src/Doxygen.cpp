@@ -461,6 +461,8 @@ bool Doxygen::writeNamespaces() const
         "/// @brief Main namespace for the custom frame layers.\n\n"
         "/// @namespace #^#NS#$#::frame::checksum\n"
         "/// @brief Main namespace for the custom frame layers.\n\n"
+        "/// @namespace #^#NS#$#::options\n"
+        "/// @brief Main namespace for the various protocol options.\n\n"
         "#^#OTHER_NS#$#\n"
         "#^#APPEND#$#\n"
         ;
@@ -732,25 +734,25 @@ std::string Doxygen::getCustomizeDoc() const
     static const std::string Templ = 
         "/// @section main_customization Customization\n"
         "/// Depending on the value of @b customization option passed to the @b commsdsl2comms\n"
-        "/// code generator, the latter generates @ref #^#PROT_NAMESPACE#$#::DefaultOptions\n"
-        "/// struct (defined in @b  #^#PROT_NAMESPACE#$#/DefaultOptions.h file),\n"
+        "/// code generator, the latter generates @ref #^#OPTIONS#$#\n"
+        "/// struct (defined in @b #^#OPTIONS_HDR#$# file),\n"
         "/// which is used by default thoughout the protocol definition classes.\n"
         "/// The struct contains all the available type definition, which can be used to\n"
         "/// customize default data structures and/or behaviour of various classes.\n"
         "/// If any additional customization is required, just recreate similar struct with\n"
         "/// relevant types overriden with new definition. The easiest way is to extend\n"
-        "/// the #^#PROT_NAMESPACE#$#::DefaultOptions. For example:\n"
+        "/// the #^#OPTIONS#$#. For example:\n"
         "/// @code\n"
-        "/// struct MyOptions : public #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+        "/// struct MyOptions : public #^#OPTIONS#$#\n"
         "/// {\n"
-        "///     struct field : public #^#PROT_NAMESPACE#$#::DefaultOptions::field\n"
+        "///     struct field : public #^#OPTIONS#$#::field\n"
         "///     {\n"
         "///         // use comms::util::StaticString as storage type\n"
         "///         using SomeStringField = comms::option::FixedSizeStorage<32>;\n"
         "///     };\n"
         "/// };\n"
         "/// @endcode\n"
-        "/// @b NOTE, that inner scope of structs in the #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+        "/// @b NOTE, that inner scope of structs in the #^#OPTIONS#$#\n"
         "/// resembles scope of namespaces used in protocol definition.\n" 
         "///\n"
         "/// The @b COMMS library also provides a flexible way to configure polymorphic\n"
@@ -784,12 +786,12 @@ std::string Doxygen::getCustomizeDoc() const
         "///        comms::option::IdInfoInterface // for polymorphic message ID retrieval\n"
         "///    >;\n"
         "/// @endcode\n"
-        "/// In this case the code generator may also define #^#PROT_NAMESPACE#$#::ServerDefaultOptions\n"
-        "/// (check for existence of #^#PROT_NAMESPACE#$#/ServerDefaultOptions.h file) and\n"
-        "/// #^#PROT_NAMESPACE#$#::ClientDefaultOptions (check for existence of #^#PROT_NAMESPACE#$#/ClientDefaultOptions.h file).\n"
+        "/// In this case the code generator may also define #^#SERVER_OPTIONS#$#\n"
+        "/// (check for existence of #^#SERVER_OPTIONS_HDR#$# file) and\n"
+        "/// #^#CLIENT_OPTIONS#$# (check for existence of #^#CLIENT_OPTIONS_HDR#$# file).\n"
         "/// These structs suppress generation of unnecessary virtual functions which are not\n"
         "/// going to be used. Consider using this structs as options instead of default\n"
-        "/// #^#PROT_NAMESPACE#$#::DefaultOptions.\n"
+        "/// #^#OPTIONS#$#.\n"
         "///\n"
         "/// In case non-custom &lt;id&gt; layer has been used in schema (files), custom,\n"
         "/// application-specific allocation options to it may include\n"
@@ -803,6 +805,12 @@ std::string Doxygen::getCustomizeDoc() const
     common::ReplacementMap repl;
     repl.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(allInterfaces.front()->externalRef(), true, true)));
     repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
+    repl.insert(std::make_pair("OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("CLIENT_OPTIONS", m_generator.scopeForOptions("Client" + common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("SERVER_OPTIONS", m_generator.scopeForOptions("Server" + common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("OPTIONS_HDR", m_generator.headerfileForOptions(common::defaultOptionsStr(), false)));
+    repl.insert(std::make_pair("CLIENT_OPTIONS_HDR", m_generator.headerfileForOptions("Client" + common::defaultOptionsStr(), false)));
+    repl.insert(std::make_pair("SERVER_OPTIONS_HDR", m_generator.headerfileForOptions("Server" + common::defaultOptionsStr(), false)));
 
     return common::processTemplate(Templ, repl);
 }

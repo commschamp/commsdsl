@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -124,6 +124,9 @@ public:
         const std::string& extension);
 
     std::pair<std::string, std::string>
+    startOptionsProtocolWrite(const std::string& name);
+
+    std::pair<std::string, std::string>
     startGenericProtocolWrite(const std::string& name);
 
     std::pair<std::string, std::string>
@@ -162,6 +165,9 @@ public:
     namespacesForPluginDef(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
+    namespacesForOptions() const;
+
+    std::pair<std::string, std::string>
     namespacesForRoot() const;
 
     std::pair<std::string, std::string>
@@ -186,6 +192,8 @@ public:
     std::string headerfileForCustomChecksum(const std::string& name, bool quotes = true);
 
     std::string headerfileForCustomLayer(const std::string& name, bool quotes = true);
+
+    std::string headerfileForOptions(const std::string& name, bool quotes = true);
 
     std::string scopeForMessage(
         const std::string& externalRef,
@@ -232,6 +240,11 @@ public:
         const std::string& externalRef,
         bool mainIncluded = true,
         bool appendSep = true);
+
+    std::string scopeForOptions(
+        const std::string& externalRef,
+        bool mainIncluded = false,
+        bool classIncluded = false);
 
     const std::string& mainNamespace() const
     {

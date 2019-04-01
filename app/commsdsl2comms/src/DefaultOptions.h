@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@ private:
     explicit DefaultOptions(Generator& generator) : m_generator(generator) {}
 
     bool writeDefinition() const;
-    bool writeClientServerWrite(bool client) const;
+    bool writeClientServer(bool client) const;
 
     Generator& m_generator;
 };

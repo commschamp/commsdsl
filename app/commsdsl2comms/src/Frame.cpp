@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ const std::string Template(
     "/// @tparam TOpt Protocol options.\n"
     "/// @see @ref #^#CLASS_NAME#$#\n"
     "/// @headerfile #^#HEADERFILE#$#\n"
-    "template <typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
+    "template <typename TOpt = #^#OPTIONS#$#>\n"
     "struct #^#ORIG_CLASS_NAME#$#Layers\n"
     "{\n"
     "    #^#LAYERS_DEF#$#\n"
@@ -63,7 +63,7 @@ const std::string Template(
     "template <\n"
     "   typename TMessage,\n"
     "   #^#INPUT_MESSAGES#$#\n"
-    "   typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+    "   typename TOpt = #^#OPTIONS#$#\n"
     ">\n"
     "class #^#CLASS_NAME#$# : public\n"
     "    #^#FRAME_DEF#$#\n"
@@ -200,6 +200,7 @@ bool Frame::writeProtocol()
     replacements.insert(std::make_pair("INPUT_MESSAGES", getInputMessages()));
     replacements.insert(std::make_pair("INPUT_MESSAGES_DOC", getInputMessagesDoc()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFrame(m_externalRef)));
+    replacements.insert(std::make_pair("OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
 
     auto namespaces = m_generator.namespacesForFrame(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -635,7 +636,7 @@ std::string Frame::getIncludes() const
 //        common::mergeInclude("<tuple>", includes);
 //    }
 
-    common::mergeInclude(m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix(), includes);
+    common::mergeInclude(m_generator.headerfileForOptions(common::defaultOptionsStr(), false), includes);
     common::mergeInclude(m_generator.mainNamespace() + '/' + common::allMessagesStr() + common::headerSuffix(), includes);
     return common::includesToStatements(includes);
 }

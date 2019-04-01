@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -32,13 +32,13 @@ bool DefaultOptions::write(Generator& generator)
     DefaultOptions obj(generator);
     return 
         obj.writeDefinition() &&
-        obj.writeClientServerWrite(true) &&
-        obj.writeClientServerWrite(false);
+        obj.writeClientServer(true) &&
+        obj.writeClientServer(false);
 }
 
 bool DefaultOptions::writeDefinition() const
 {
-    auto info = m_generator.startGenericProtocolWrite(common::defaultOptionsStr());
+    auto info = m_generator.startOptionsProtocolWrite(common::defaultOptionsStr());
     auto& fileName = info.first;
     auto& className = info.second;
 
@@ -47,7 +47,7 @@ bool DefaultOptions::writeDefinition() const
     }
 
     common::ReplacementMap replacements;
-    auto namespaces = m_generator.namespacesForRoot();
+    auto namespaces = m_generator.namespacesForOptions();
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
@@ -85,7 +85,7 @@ bool DefaultOptions::writeDefinition() const
     return true;
 }
 
-bool DefaultOptions::writeClientServerWrite(bool client) const
+bool DefaultOptions::writeClientServer(bool client) const
 {
     std::string type;
     std::string body;
@@ -103,7 +103,7 @@ bool DefaultOptions::writeClientServerWrite(bool client) const
         return true;
     }
 
-    auto info = m_generator.startGenericProtocolWrite(type + common::defaultOptionsStr());
+    auto info = m_generator.startOptionsProtocolWrite(type + common::defaultOptionsStr());
     auto& fileName = info.first;
     auto& className = info.second;
 
@@ -112,7 +112,7 @@ bool DefaultOptions::writeClientServerWrite(bool client) const
     }
 
     common::ReplacementMap replacements;
-    auto namespaces = m_generator.namespacesForRoot();
+    auto namespaces = m_generator.namespacesForOptions();
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));

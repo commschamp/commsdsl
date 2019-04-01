@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,7 +66,8 @@ bool AllMessages::writeProtocolDefinition() const
                 msgInfo.m_messages.reserve(allMessages.size());
                 msgInfo.m_includes.reserve(allMessages.size() + 2);
                 common::mergeInclude("<tuple>", msgInfo.m_includes);
-                common::mergeInclude(m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix(), msgInfo.m_includes);
+                auto optionsHeader = m_generator.headerfileForOptions(common::defaultOptionsStr(), false);
+                common::mergeInclude(optionsHeader, msgInfo.m_includes);
             };
         
         updateFunc(p.second.m_all);                
@@ -166,6 +167,7 @@ bool AllMessages::writeProtocolDefinition() const
             replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(info.m_includes)));
             replacements.insert(std::make_pair("MESSAGES", common::listToString(info.m_messages, ",\n", common::emptyString())));
             replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+            replacements.insert(std::make_pair("OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
 
             if (!platName.empty()) {
                 replacements.insert(std::make_pair("PLAT_NAME", '\"' + platName + "\" "));
@@ -184,7 +186,7 @@ bool AllMessages::writeProtocolDefinition() const
                 "/// @brief Messages of the protocol in ascending order.\n"
                 "/// @tparam TBase Base class of all the messages.\n"
                 "/// @tparam TOpt Protocol definition options.\n"
-                "template <typename TBase, typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
+                "template <typename TBase, typename TOpt = #^#OPTIONS#$#>\n"
                 "using #^#CLASS_NAME#$# =\n"
                 "    std::tuple<\n"
                 "        #^#MESSAGES#$#\n"

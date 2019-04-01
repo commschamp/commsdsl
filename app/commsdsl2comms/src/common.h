@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ const std::string& origSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
 const std::string& docStr();
 const std::string& versionStr();
+const std::string& optionsStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

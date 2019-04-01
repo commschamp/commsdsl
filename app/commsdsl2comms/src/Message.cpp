@@ -47,7 +47,7 @@ const std::string Template(
     "/// @tparam TOpt Extra options\n"
     "/// @see @ref #^#CLASS_NAME#$#\n"
     "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
-    "template <typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
+    "template <typename TOpt = #^#OPTIONS#$#>\n"
     "struct #^#ORIG_CLASS_NAME#$#Fields\n"
     "{\n"
     "    #^#FIELDS_DEF#$#\n"
@@ -64,7 +64,7 @@ const std::string Template(
     "/// @tparam TMsgBase Base (interface) class.\n"
     "/// @tparam TOpt Extra options\n"
     "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
-    "template <typename TMsgBase, typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
+    "template <typename TMsgBase, typename TOpt = #^#OPTIONS#$#>\n"
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::MessageBase<\n"
     "        TMsgBase,\n"
@@ -551,6 +551,7 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
     replacements.insert(std::make_pair("EXTRA_OPTIONS", getExtraOptions()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForMessage(m_externalRef)));
+    replacements.insert(std::make_pair("OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
     if (!replacements["EXTRA_OPTIONS"].empty()) {
         replacements.insert(std::make_pair("COMMA", ","));
     }
@@ -739,7 +740,7 @@ std::string Message::getIncludes() const
         "<tuple>",
         "comms/MessageBase.h",
         m_generator.mainNamespace() + '/' + common::msgIdEnumNameStr() + common::headerSuffix(),
-        m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix()
+        m_generator.headerfileForOptions(common::defaultOptionsStr(), false)
     };
     common::mergeIncludes(MessageIncludes, includes);
 

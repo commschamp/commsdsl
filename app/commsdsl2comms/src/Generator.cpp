@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -356,6 +356,12 @@ std::string Generator::startProtocolPluginCommonWrite(
 }
 
 std::pair<std::string, std::string>
+Generator::startOptionsProtocolWrite(const std::string& name)
+{
+    return startProtocolWrite(name, common::optionsStr());
+}
+
+std::pair<std::string, std::string>
 Generator::startGenericProtocolWrite(const std::string& name)
 {
     return startProtocolWrite(name);
@@ -438,6 +444,12 @@ std::pair<std::string, std::string>
 Generator::namespacesForPluginDef(const std::string& name) const
 {
     return namespacesForElement(name, common::pluginStr(), true);
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForOptions() const
+{
+    return namespacesForElement(common::emptyString(), common::optionsStr());
 }
 
 std::pair<std::string, std::string>
@@ -536,6 +548,12 @@ std::string Generator::headerfileForCustomLayer(const std::string& name, bool qu
 
     return headerfileForElement(name, quotes, subNs);
 }
+
+std::string Generator::headerfileForOptions(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes, common::optionsStr());
+}
+
 
 std::string Generator::scopeForMessage(
     const std::string& externalRef,
@@ -645,6 +663,15 @@ std::string Generator::scopeForNamespace(
 
     return result;
 }
+
+std::string Generator::scopeForOptions(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(name, mainIncluded, classIncluded, common::optionsStr());
+}
+
 
 std::string Generator::getDefaultOptionsBody() const
 {
@@ -1576,7 +1603,8 @@ Generator::namespacesForElement(
     return std::make_pair(std::move(begStr), std::move(endStr));
 }
 
-std::string Generator::scopeForElement(const std::string& externalRef,
+std::string Generator::scopeForElement(
+    const std::string& externalRef,
     bool mainIncluded,
     bool classIncluded,
     const std::string& subNs,
