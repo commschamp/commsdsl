@@ -62,6 +62,8 @@ const std::string& forceEmptyDisplayNameStr();
 const std::string& docStr();
 const std::string& versionStr();
 const std::string& optionsStr();
+const std::string& bareMetalStr();
+const std::string& seqDefaultSizeStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

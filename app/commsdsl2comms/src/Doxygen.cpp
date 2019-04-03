@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -786,12 +786,16 @@ std::string Doxygen::getCustomizeDoc() const
         "///        comms::option::IdInfoInterface // for polymorphic message ID retrieval\n"
         "///    >;\n"
         "/// @endcode\n"
-        "/// In this case the code generator may also define #^#SERVER_OPTIONS#$#\n"
-        "/// (check for existence of #^#SERVER_OPTIONS_HDR#$# file) and\n"
-        "/// #^#CLIENT_OPTIONS#$# (check for existence of #^#CLIENT_OPTIONS_HDR#$# file).\n"
+        "/// In this case the code generator may also define @b #^#SERVER_OPTIONS#$#\n"
+        "/// (check for existence of @b #^#SERVER_OPTIONS_HDR#$# file) and\n"
+        "/// @b #^#CLIENT_OPTIONS#$# (check for existence of @b #^#CLIENT_OPTIONS_HDR#$# file).\n"
         "/// These structs suppress generation of unnecessary virtual functions which are not\n"
         "/// going to be used. Consider using this structs as options instead of default\n"
         "/// #^#OPTIONS#$#.\n"
+        "///\n"
+        "/// Also there is @ref #^#BARE_METAL_OPTIONS#$#\n"
+        "/// (defined in @b #^#BARE_METAL_OPTIONS_HDR#$# file) which can help in defining\n"
+        "/// options for bare-metal applications. It exclude all usage of dynamic memory allocation.\n"
         "///\n"
         "/// In case non-custom &lt;id&gt; layer has been used in schema (files), custom,\n"
         "/// application-specific allocation options to it may include\n"
@@ -811,6 +815,8 @@ std::string Doxygen::getCustomizeDoc() const
     repl.insert(std::make_pair("OPTIONS_HDR", m_generator.headerfileForOptions(common::defaultOptionsStr(), false)));
     repl.insert(std::make_pair("CLIENT_OPTIONS_HDR", m_generator.headerfileForOptions("Client" + common::defaultOptionsStr(), false)));
     repl.insert(std::make_pair("SERVER_OPTIONS_HDR", m_generator.headerfileForOptions("Server" + common::defaultOptionsStr(), false)));
+    repl.insert(std::make_pair("BARE_METAL_OPTIONS", m_generator.scopeForOptions(common::bareMetalStr() + common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("BARE_METAL_OPTIONS_HDR", m_generator.headerfileForOptions(common::bareMetalStr() + common::defaultOptionsStr(), false)));
 
     return common::processTemplate(Templ, repl);
 }

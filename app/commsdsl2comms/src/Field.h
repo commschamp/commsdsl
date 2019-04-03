@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ public:
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
     std::string getDefaultOptions(const std::string& scope) const;
+    std::string getBareMetalDefaultOptions(const std::string& scope) const;
 
     commsdsl::Field::SemanticType semanticType() const
     {
@@ -196,6 +197,8 @@ protected:
         const std::string& scope,
         const std::string& className) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
+    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const;
+    virtual std::string getBareMetalOptionStrImpl() const;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,

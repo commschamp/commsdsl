@@ -688,6 +688,11 @@ std::string Generator::getServerDefaultOptionsBody() const
     return getOptionsBody(&Namespace::getServerOptions);
 }
 
+std::string Generator::getBareMetalDefaultOptionsBody() const
+{
+    return getOptionsBody(&Namespace::getBareMetalDefaultOptions);
+}
+
 std::string Generator::getMessageIdStr(const std::string& externalRef, std::uintmax_t id) const
 {
     if (m_messageIdField == nullptr) {

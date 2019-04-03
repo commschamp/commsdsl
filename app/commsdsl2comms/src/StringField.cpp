@@ -189,29 +189,23 @@ std::string StringField::getClassDefinitionImpl(
 
 std::string StringField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    if (!m_prefix) {
-        return common::emptyString();
+    return getExtraOptions(scope, &Field::getDefaultOptions);
+}
+
+std::string StringField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
+}
+
+std::string StringField::getBareMetalOptionStrImpl() const
+{
+    auto obj = stringFieldDslObj();
+    auto fixedLength = obj.fixedLength();
+    if (fixedLength != 0U) {
+        return "comms::option::SequenceFixedSizeUseFixedSizeStorage";
     }
 
-    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
-    auto fieldOptions = m_prefix->getDefaultOptions(memberScope);
-
-    if (fieldOptions.empty()) {
-        return common::emptyString();
-    }
-
-    const std::string Templ =
-        "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
-        "struct #^#CLASS_NAME#$#Members\n"
-        "{\n"
-        "    #^#OPTIONS#$#\n"
-        "};\n";
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("SCOPE", scope));
-    replacements.insert(std::make_pair("OPTIONS", std::move(fieldOptions)));
-    return common::processTemplate(Templ, replacements);
+    return "comms::option::SequenceFixedSize<" + common::seqDefaultSizeStr() + '>';
 }
 
 std::string StringField::getCompareToValueImpl(
@@ -567,6 +561,33 @@ void StringField::checkForcingOpt(StringsList& list) const
     }
 
     common::addToList("comms::option::SequenceLengthForcingEnabled", list);
+}
+
+std::string StringField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const
+{
+    if (!m_prefix) {
+        return common::emptyString();
+    }
+
+    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    auto fieldOptions = (m_prefix.get()->*func)(memberScope);
+
+    if (fieldOptions.empty()) {
+        return common::emptyString();
+    }
+
+    const std::string Templ =
+        "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
+        "struct #^#CLASS_NAME#$#Members\n"
+        "{\n"
+        "    #^#OPTIONS#$#\n"
+        "};\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("OPTIONS", std::move(fieldOptions)));
+    return common::processTemplate(Templ, replacements);
 }
 
 } // namespace commsdsl2comms

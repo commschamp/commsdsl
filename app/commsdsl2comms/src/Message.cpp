@@ -395,60 +395,7 @@ bool Message::write()
 
 std::string Message::getDefaultOptions() const
 {
-    std::string fieldsOpts;
-    auto addFieldOptsFunc =
-        [&fieldsOpts](const std::string& str)
-        {
-            if (str.empty()) {
-                return;
-            }
-
-            if (!fieldsOpts.empty()) {
-                fieldsOpts += '\n';
-            }
-
-            fieldsOpts += str;
-        };
-
-    auto scope = m_generator.scopeForMessage(m_externalRef, true, true) + common::fieldsSuffixStr() + "::";
-    for (auto& f : m_fields) {
-        addFieldOptsFunc(f->getDefaultOptions(scope));
-    }
-
-    static const std::string Templ =
-        "/// @brief Extra options for fields of @ref #^#MESSAGE_SCOPE#$# message.\n"
-        "struct #^#MESSAGE_NAME#$#Fields\n"
-        "{\n"
-        "    #^#FIELDS_OPTS#$#\n"
-        "}; // struct #^#MESSAGE_NAME#$#Fields\n\n"
-        "#^#MESSAGE_OPT#$#\n";
-
-    static const std::string NoFieldsTempl =
-        "#^#MESSAGE_OPT#$#\n";
-
-    auto* templ = &Templ;
-    if (m_fields.empty() || fieldsOpts.empty()) {
-        templ = &NoFieldsTempl;
-    }
-
-    bool customizable = isCustomizable();
-    if ((!customizable) && (templ == &NoFieldsTempl)) {
-        return common::emptyString();
-    }
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
-    replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
-
-    if (customizable) {
-        static const std::string OptTempl = 
-            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
-            "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;";
-        replacements.insert(std::make_pair("MESSAGE_OPT", common::processTemplate(OptTempl, replacements)));
-    }
-
-    return common::processTemplate(*templ, replacements);
+    return getOptions(&Field::getDefaultOptions);
 }
 
 std::string Message::getClientOptions() const
@@ -517,6 +464,11 @@ std::string Message::getServerOptions() const
         "    >;\n";
 
     return common::processTemplate(Templ, replacements);
+}
+
+std::string Message::getBareMetalDefaultOptions() const
+{
+    return getOptions(&Field::getBareMetalDefaultOptions);
 }
 
 bool Message::writeProtocol()
@@ -1002,6 +954,64 @@ bool Message::isCustomizable() const
     }
 
     return m_dslObj.sender() != commsdsl::Message::Sender::Both;
+}
+
+std::string Message::getOptions(GetFieldOptionsFunc func) const
+{
+    std::string fieldsOpts;
+    auto addFieldOptsFunc =
+        [&fieldsOpts](const std::string& str)
+        {
+            if (str.empty()) {
+                return;
+            }
+
+            if (!fieldsOpts.empty()) {
+                fieldsOpts += '\n';
+            }
+
+            fieldsOpts += str;
+        };
+
+    auto scope = m_generator.scopeForMessage(m_externalRef, true, true) + common::fieldsSuffixStr() + "::";
+    for (auto& f : m_fields) {
+        addFieldOptsFunc((f.get()->*func)(scope));
+    }
+
+    static const std::string Templ =
+        "/// @brief Extra options for fields of @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "struct #^#MESSAGE_NAME#$#Fields\n"
+        "{\n"
+        "    #^#FIELDS_OPTS#$#\n"
+        "}; // struct #^#MESSAGE_NAME#$#Fields\n\n"
+        "#^#MESSAGE_OPT#$#\n";
+
+    static const std::string NoFieldsTempl =
+        "#^#MESSAGE_OPT#$#\n";
+
+    auto* templ = &Templ;
+    if (m_fields.empty() || fieldsOpts.empty()) {
+        templ = &NoFieldsTempl;
+    }
+
+    bool customizable = isCustomizable();
+    if ((!customizable) && (templ == &NoFieldsTempl)) {
+        return common::emptyString();
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
+    replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
+
+    if (customizable) {
+        static const std::string OptTempl =
+            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;";
+        replacements.insert(std::make_pair("MESSAGE_OPT", common::processTemplate(OptTempl, replacements)));
+    }
+
+    return common::processTemplate(*templ, replacements);
 }
 
 }

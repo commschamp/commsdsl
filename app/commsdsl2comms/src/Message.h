@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,6 +53,7 @@ public:
     std::string getDefaultOptions() const;
     std::string getClientOptions() const;
     std::string getServerOptions() const;
+    std::string getBareMetalDefaultOptions() const;
 
     std::uintmax_t id() const
     {
@@ -65,6 +66,8 @@ public:
     }
 
 private:
+
+    using GetFieldOptionsFunc = std::string (Field::*)(const std::string&) const;
 
     bool writeProtocol();
     bool writePluginHeader();
@@ -89,6 +92,7 @@ private:
 
     bool mustImplementReadRefresh() const;
     bool isCustomizable() const;
+    std::string getOptions(GetFieldOptionsFunc func) const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;

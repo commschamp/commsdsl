@@ -274,6 +274,7 @@ public:
     std::string getDefaultOptionsBody() const;
     std::string getClientDefaultOptionsBody() const;
     std::string getServerDefaultOptionsBody() const;
+    std::string getBareMetalDefaultOptionsBody() const;
 
     std::string getMessageIdStr(const std::string& externalRef, uintmax_t id) const;
 

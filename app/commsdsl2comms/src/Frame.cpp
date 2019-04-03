@@ -174,6 +174,12 @@ std::string Frame::getDefaultOptions() const
     return common::processTemplate(Templ, replacements);
 }
 
+std::string Frame::getBareMetalDefaultOptions() const
+{
+    // TODO:
+    return common::emptyString();
+}
+
 bool Frame::writeProtocol()
 {
     auto names =

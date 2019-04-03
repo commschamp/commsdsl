@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -390,45 +390,23 @@ std::string ListField::getClassDefinitionImpl(
 
 std::string ListField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    std::string memberScope =
-        scope + common::nameToClassCopy(name()) +
-        common::membersSuffixStr() + "::";
-    StringsList options;
+    return getExtraOptions(scope, &Field::getDefaultOptions);
+}
 
-    auto addToOptionsFunc = 
-        [&memberScope, &options](const FieldPtr& f)
-        {
-            if (!f) {
-                return;
-            }
+std::string ListField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
+}
 
-            auto o = f->getDefaultOptions(memberScope);
-            if (!o.empty()) {
-                options.push_back(o);
-            }
-        };
-
-    addToOptionsFunc(m_element);
-    addToOptionsFunc(m_lengthPrefix);
-    addToOptionsFunc(m_countPrefix);
-    addToOptionsFunc(m_elemLengthPrefix);
-
-    if (options.empty()) {
-        return common::emptyString();
+std::string ListField::getBareMetalOptionStrImpl() const
+{
+    auto obj = listFieldDslObj();
+    auto fixedCount = obj.fixedCount();
+    if (fixedCount != 0U) {
+        return "comms::option::SequenceFixedSizeUseFixedSizeStorage";
     }
-    
-    const std::string Templ =
-        "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
-        "struct #^#CLASS_NAME#$#Members\n"
-        "{\n"
-        "    #^#OPTIONS#$#\n"
-        "};\n";
 
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("SCOPE", scope));
-    replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
-    return common::processTemplate(Templ, replacements);
+    return "comms::option::SequenceFixedSize<" + common::seqDefaultSizeStr() + '>';
 }
 
 std::string ListField::getCompareToValueImpl(
@@ -1057,5 +1035,49 @@ std::string ListField::getPrefixName() const
     assert(lengthPrefix.valid());
     return common::displayName(lengthPrefix.displayName(), lengthPrefix.name());
 }
+
+std::string ListField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const
+{
+    std::string memberScope =
+        scope + common::nameToClassCopy(name()) +
+        common::membersSuffixStr() + "::";
+    StringsList options;
+
+    auto addToOptionsFunc =
+        [&memberScope, &options, func](const FieldPtr& f)
+        {
+            if (!f) {
+                return;
+            }
+
+            auto o = (f.get()->*func)(memberScope);
+            if (!o.empty()) {
+                options.push_back(o);
+            }
+        };
+
+    addToOptionsFunc(m_element);
+    addToOptionsFunc(m_lengthPrefix);
+    addToOptionsFunc(m_countPrefix);
+    addToOptionsFunc(m_elemLengthPrefix);
+
+    if (options.empty()) {
+        return common::emptyString();
+    }
+
+    const std::string Templ =
+        "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
+        "struct #^#CLASS_NAME#$#Members\n"
+        "{\n"
+        "    #^#OPTIONS#$#\n"
+        "};\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
+}
+
 
 } // namespace commsdsl2comms

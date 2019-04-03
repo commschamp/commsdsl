@@ -29,6 +29,7 @@ private:
 
     bool writeDefinition() const;
     bool writeClientServer(bool client) const;
+    bool writeBareMetal() const;
 
     Generator& m_generator;
 };

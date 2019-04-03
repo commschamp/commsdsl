@@ -170,25 +170,12 @@ std::string BundleField::getClassDefinitionImpl(
 
 std::string BundleField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
-    StringsList options;
-    options.reserve(m_members.size());
-    for (auto& m : m_members) {
-        auto opt = m->getDefaultOptions(memberScope);
-        if (!opt.empty()) {
-            options.push_back(std::move(opt));
-        }
-    }
+    return getExtraOptions(scope, &Field::getDefaultOptions);
+}
 
-    if (options.empty()) {
-        return common::emptyString();
-    }
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("SCOPE", scope));
-    replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
-    return common::processTemplate(MembersOptionsTemplate, replacements);
+std::string BundleField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
 }
 
 std::string BundleField::getPluginAnonNamespaceImpl(
@@ -366,5 +353,32 @@ std::string BundleField::getPrivate() const
     static const std::string Prefix("private:\n");
     return Prefix + str; 
 }
+
+std::string BundleField::getExtraOptions(
+    const std::string& scope,
+    GetExtraOptionsFunc func) const
+{
+    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    StringsList options;
+    options.reserve(m_members.size());
+    for (auto& m : m_members) {
+        assert(m);
+        auto opt = (m.get()->*func)(memberScope);
+        if (!opt.empty()) {
+            options.push_back(std::move(opt));
+        }
+    }
+
+    if (options.empty()) {
+        return common::emptyString();
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
+    return common::processTemplate(MembersOptionsTemplate, replacements);
+}
+
 
 } // namespace commsdsl2comms

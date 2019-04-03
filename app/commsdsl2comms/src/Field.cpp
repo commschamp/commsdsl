@@ -231,6 +231,36 @@ std::string Field::getDefaultOptions(const std::string& scope) const
             " = comms::option::EmptyOption;\n";
 }
 
+std::string Field::getBareMetalDefaultOptions(const std::string& scope) const
+{
+    auto fullScope = scope;
+    if (!m_externalRef.empty()) {
+        fullScope += common::fieldStr() + "::";
+    }
+
+    auto str = getExtraBareMetalDefaultOptionsImpl(fullScope);
+    
+    if (!isCustomizable()) {
+        return str;
+    }   
+
+    auto optStr = getBareMetalOptionStrImpl();
+    if (optStr.empty()) {
+        return str;
+    } 
+
+    if (!str.empty()) {
+        str += '\n';
+    }
+
+    return
+        str +
+        "/// @brief Extra options for @ref " +
+        fullScope + common::nameToClassCopy(name()) + " field.\n" +
+        "using " + common::nameToClassCopy(name()) +
+            " = " + optStr + ";\n";
+}
+
 bool Field::writeFiles() const
 {
     return
@@ -725,6 +755,17 @@ std::string Field::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
     static_cast<void>(scope);
     return common::emptyString();
+}
+
+std::string Field::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+{
+    static_cast<void>(scope);
+    return common::emptyString();
+}
+
+std::string Field::getBareMetalOptionStrImpl() const
+{
+    return "comms::option::EmptyOption";
 }
 
 std::string Field::getCompareToValueImpl(const std::string& op,

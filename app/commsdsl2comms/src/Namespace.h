@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,6 +62,7 @@ public:
     std::string getDefaultOptions() const;
     std::string getClientOptions() const;
     std::string getServerOptions() const;
+    std::string getBareMetalDefaultOptions() const;
 
     NamespacesScopesList getNamespacesScopes() const;
     MessagesAccessList getAllMessages() const;
@@ -97,8 +98,16 @@ private:
     bool prepareFrames();
     void recordAccessedField(const Field* field);
 
-    typedef std::string (Message::*GetClientServerOptionsFunc)() const;
-    std::string getClientServerOptions(GetClientServerOptionsFunc) const;
+    using GetNamespaceOptionsFunc = std::string (Namespace::*)() const;
+    using GetFieldOptionsFunc = std::string (Field::*)(const std::string& scope) const;
+    using GetMessageOptionsFunc = std::string (Message::*)() const;
+    using GetFrameOptionsFunc = std::string (Frame::*)() const;
+    std::string getClientServerOptions(GetMessageOptionsFunc) const;
+    std::string getOptions(
+        GetNamespaceOptionsFunc nsFunc,
+        GetFieldOptionsFunc fieldFunc,
+        GetMessageOptionsFunc messageFunc,
+        GetFrameOptionsFunc frameFunc) const;
 
     Generator& m_generator;
     commsdsl::Namespace m_dslObj;

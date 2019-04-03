@@ -231,6 +231,18 @@ const std::string& optionsStr()
     return Str;
 }
 
+const std::string& bareMetalStr()
+{
+    static const std::string Str("BareMetal");
+    return Str;
+}
+
+const std::string& seqDefaultSizeStr()
+{
+    static const std::string Str("DEFAULT_SEQ_FIXED_STORAGE_SIZE");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {
