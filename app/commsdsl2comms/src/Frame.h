@@ -56,6 +56,7 @@ public:
     }
 
 private:
+    using GetLayerOptionsFunc = std::string (Layer::*)(const std::string&) const;
 
     bool writeProtocol();
     bool writePluginTransportMessageHeader();
@@ -73,6 +74,7 @@ private:
 
     bool hasIdLayer() const;
     unsigned calcBackPayloadOffset() const;
+    std::string getOptions(GetLayerOptionsFunc func) const;
 
     Generator& m_generator;
     commsdsl::Frame m_dslObj;

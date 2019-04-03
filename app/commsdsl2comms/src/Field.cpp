@@ -228,7 +228,7 @@ std::string Field::getDefaultOptions(const std::string& scope) const
         "/// @brief Extra options for @ref " +
         fullScope + common::nameToClassCopy(name()) + " field.\n" +
         "using " + common::nameToClassCopy(name()) +
-            " = comms::option::EmptyOption;\n";
+            " = " + common::emptyOptionString() + ";\n";
 }
 
 std::string Field::getBareMetalDefaultOptions(const std::string& scope) const

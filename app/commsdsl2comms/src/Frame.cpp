@@ -146,38 +146,12 @@ bool Frame::write()
 
 std::string Frame::getDefaultOptions() const
 {
-    common::StringsList layersOpts;
-    layersOpts.reserve(m_layers.size());
-    auto scope = m_generator.scopeForFrame(m_externalRef, true, true) + common::layersSuffixStr() + "::";
-    for (auto iter = m_layers.rbegin(); iter != m_layers.rend(); ++iter) {
-        auto opt = (*iter)->getDefaultOptions(scope);
-        if (!opt.empty()) {
-            layersOpts.push_back(std::move(opt));
-        }
-    }
-
-    if (layersOpts.empty()) {
-        return common::emptyString();
-    }
-
-    static const std::string Templ = 
-        "/// @brief Extra options for Layers of @ref #^#FRAME_SCOPE#$# frame.\n"
-        "struct #^#CLASS_NAME#$#Layers\n"
-        "{\n"
-        "    #^#LAYERS_OPTS#$#\n"
-        "}; // struct #^#CLASS_NAME#$#Layers\n";
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(m_dslObj.name())));
-    replacements.insert(std::make_pair("FRAME_SCOPE", m_generator.scopeForFrame(externalRef(), true, true)));
-    replacements.insert(std::make_pair("LAYERS_OPTS", common::listToString(layersOpts, "\n", common::emptyString())));
-    return common::processTemplate(Templ, replacements);
+    return getOptions(&Layer::getDefaultOptions);
 }
 
 std::string Frame::getBareMetalDefaultOptions() const
 {
-    // TODO:
-    return common::emptyString();
+    return getOptions(&Layer::getBareMetalDefaultOptions);
 }
 
 bool Frame::writeProtocol()
@@ -788,6 +762,36 @@ unsigned Frame::calcBackPayloadOffset() const
                 assert(l.field().valid());
                 return soFar + l.field().minLength();
             });
+}
+
+std::string Frame::getOptions(GetLayerOptionsFunc func) const
+{
+    common::StringsList layersOpts;
+    layersOpts.reserve(m_layers.size());
+    auto scope = m_generator.scopeForFrame(m_externalRef, true, true) + common::layersSuffixStr() + "::";
+    for (auto iter = m_layers.rbegin(); iter != m_layers.rend(); ++iter) {
+        auto opt = ((*iter).get()->*func)(scope);
+        if (!opt.empty()) {
+            layersOpts.push_back(std::move(opt));
+        }
+    }
+
+    if (layersOpts.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Extra options for Layers of @ref #^#FRAME_SCOPE#$# frame.\n"
+        "struct #^#CLASS_NAME#$#Layers\n"
+        "{\n"
+        "    #^#LAYERS_OPTS#$#\n"
+        "}; // struct #^#CLASS_NAME#$#Layers\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(m_dslObj.name())));
+    replacements.insert(std::make_pair("FRAME_SCOPE", m_generator.scopeForFrame(externalRef(), true, true)));
+    replacements.insert(std::make_pair("LAYERS_OPTS", common::listToString(layersOpts, "\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
 }
 
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,6 +66,12 @@ std::string IdLayer::getClassDefinitionImpl(
     prevLayer = common::nameToClassCopy(name());
     hasInputMessages = true;
     return common::processTemplate(Templ, replacements);
+}
+
+const std::string& IdLayer::getBareMetalOptionStrImpl() const
+{
+    static const std::string Str("comms::option::InPlaceAllocation");
+    return Str;
 }
 
 bool IdLayer::isCustomizableImpl() const

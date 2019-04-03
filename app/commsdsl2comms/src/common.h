@@ -64,6 +64,7 @@ const std::string& versionStr();
 const std::string& optionsStr();
 const std::string& bareMetalStr();
 const std::string& seqDefaultSizeStr();
+const std::string& emptyOptionString();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

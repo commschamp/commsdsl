@@ -243,6 +243,12 @@ const std::string& seqDefaultSizeStr()
     return Str;
 }
 
+const std::string& emptyOptionString()
+{
+    static const std::string Str("comms::option::EmptyOption");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

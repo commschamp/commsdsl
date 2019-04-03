@@ -189,6 +189,7 @@ bool DefaultOptions::writeBareMetal() const
         "#pragma once\n\n"
         "#ifndef #^#SEQ_DEFAULT_SIZE#$#\n"
         "/// @brief Define default fixed size for various sequence fields\n"
+        "/// @details May be defined during compile time to change the default value.\n"
         "#define #^#SEQ_DEFAULT_SIZE#$# 32\n"
         "#endif\n\n"
         "#^#BEG_NAMESPACE#$#\n"
