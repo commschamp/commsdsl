@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,20 +34,20 @@ const std::string AliasTemplate(
     "#^#PREFIX#$#"
     "using #^#CLASS_NAME#$# =\n"
     "    #^#REF_FIELD#$#<\n"
-    "       #^#OPTS#$#\n"
-    "   >;\n"
+    "        #^#OPTS#$#\n"
+    "    >;\n"
 );
 
 const std::string ClassTemplate(
     "#^#PREFIX#$#"
     "class #^#CLASS_NAME#$# : public\n"
     "    #^#REF_FIELD#$#<\n"
-    "       #^#OPTS#$#\n"
-    "   >\n"
+    "        #^#OPTS#$#\n"
+    "    >\n"
     "{\n"
     "    using Base=\n"
     "        #^#REF_FIELD#$#<\n"
-    "           #^#OPTS#$#\n"
+    "            #^#OPTS#$#\n"
     "        >;\n"
     "public:\n"
     "    #^#PUBLIC#$#\n"
@@ -66,8 +66,8 @@ const std::string StructTemplate(
     "#^#PREFIX#$#"
     "struct #^#CLASS_NAME#$# : public\n"
     "    #^#REF_FIELD#$#<\n"
-    "       #^#OPTS#$#\n"
-    "   >\n"
+    "        #^#OPTS#$#\n"
+    "    >\n"
     "{\n"
     "    #^#NAME_FUNC#$#\n"
     "};\n"

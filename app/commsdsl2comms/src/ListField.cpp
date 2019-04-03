@@ -406,7 +406,7 @@ std::string ListField::getBareMetalOptionStrImpl() const
         return "comms::option::SequenceFixedSizeUseFixedSizeStorage";
     }
 
-    return "comms::option::SequenceFixedSize<" + common::seqDefaultSizeStr() + '>';
+    return "comms::option::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
 }
 
 std::string ListField::getCompareToValueImpl(
