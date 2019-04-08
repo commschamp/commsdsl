@@ -76,6 +76,8 @@ public:
 
     std::string pluginDir();
 
+    std::string testDir();
+
     std::pair<std::string, std::string>
     startMessageProtocolWrite(const std::string& externalRef);
 

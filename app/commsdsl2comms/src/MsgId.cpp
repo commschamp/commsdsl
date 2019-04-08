@@ -87,7 +87,6 @@ bool MsgId::writeDefinition() const
         assert(msgIdField->kind() == commsdsl::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const EnumField*>(msgIdField);
         auto values = castedMsgIdField->getValuesList();
-        // TODO: generate doxygen description
         auto& prefix = common::msgIdPrefixStr();
         for (auto& v : values) {
             v.insert(v.begin(), prefix.begin(), prefix.end());

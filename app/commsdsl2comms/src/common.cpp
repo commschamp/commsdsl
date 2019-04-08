@@ -249,6 +249,18 @@ const std::string& emptyOptionString()
     return Str;
 }
 
+const std::string& inputTestStr()
+{
+    static const std::string Str("input_test");
+    return Str;    
+}
+
+const std::string& testStr()
+{
+    static const std::string Str("test");
+    return Str;    
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

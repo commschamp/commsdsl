@@ -31,6 +31,7 @@
 #include "Cmake.h"
 #include "Doxygen.h"
 #include "Version.h"
+#include "Test.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -197,6 +198,17 @@ std::string Generator::outputDir()
 std::string Generator::pluginDir()
 {
     auto dir = m_pathPrefix / common::pluginNsStr();
+    if (!createDir(dir)) {
+        m_logger.error("Failed to create \"" + dir.string() + "\" directory.");
+        return common::emptyString();
+    }
+
+    return dir.string();
+}
+
+std::string Generator::testDir()
+{
+    auto dir = m_pathPrefix / common::testStr();
     if (!createDir(dir)) {
         m_logger.error("Failed to create \"" + dir.string() + "\" directory.");
         return common::emptyString();
@@ -1007,6 +1019,7 @@ bool Generator::writeFiles()
     if ((!DefaultOptions::write(*this)) ||
         (!Cmake::write(*this)) ||
         (!Doxygen::write(*this)) ||
+        (!Test::write(*this)) ||
         (!writeExtraFiles())){
         return false;
     }
