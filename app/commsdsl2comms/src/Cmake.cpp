@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,10 @@ namespace commsdsl2comms
 bool Cmake::write(Generator& generator)
 {
     Cmake obj(generator);
-    return obj.writeMain() && obj.writePlugin();
+    return 
+        obj.writeMain() && 
+        obj.writePlugin() &&
+        obj.writeTest();
 }
 
 bool Cmake::writeMain() const
@@ -394,5 +397,72 @@ bool Cmake::writePlugin() const
     }
     return true;
 }
+
+bool Cmake::writeTest() const
+{
+    auto dir = m_generator.testDir();
+    if (dir.empty()) {
+        return false;
+    }
+
+    bf::path filePath(dir);
+    filePath /= common::cmakeListsFileStr();
+
+    std::string filePathStr(filePath.string());
+
+    m_generator.logger().info("Generating " + filePathStr);
+    std::ofstream stream(filePathStr);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePathStr + "\" for writing.");
+        return false;
+    }
+
+    std::vector<std::string> appendPath = {
+        common::testStr(),
+        common::cmakeListsFileStr()
+    };
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("PROJ_NS", m_generator.mainNamespace()));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(appendPath)));
+
+    static const std::string Template =
+        "######################################################################\n"
+        "function (define_test name)\n"
+        "    set (src ${name}.cpp)\n"
+        "    add_executable(${name} ${src})\n"
+        "    target_link_libraries(${name} PRIVATE #^#PROJ_NS#$#)\n\n"
+        "    set (extra_defs)\n"
+        "    if (NOT \"${OPT_EXAMPLE_LOCAL_OPTIONS}\" STREQUAL \"\")\n"
+        "        set (extra_defs \"${extra_defs} -DLOCAL_OPTIONS=${OPT_EXAMPLE_LOCAL_OPTIONS}\")\n"
+        "    endif ()\n\n"
+        "    if (NOT \"${OPT_EXAMPLE_PROT_OPTIONS}\" STREQUAL \"\")\n"
+        "        set (extra_defs \"${extra_defs} -DPROT_OPTIONS=${OPT_EXAMPLE_PROT_OPTIONS}\")\n"
+        "    endif ()\n\n"
+        "    if (NOT \"${OPT_EXAMPLE_FRAME}\" STREQUAL \"\")\n"
+        "        set (extra_defs \"${extra_defs} -DFRAME=${OPT_EXAMPLE_FRAME}\")\n"
+        "    endif ()\n\n"
+        "    if (NOT \"${extra_defs}\" STREQUAL \"\")\n"
+        "        target_compile_definitions(${name} PRIVATE ${extra_defs})\n"
+        "    endif ()\n\n"
+        "    install (\n"
+        "        TARGETS ${name}\n"
+        "        DESTINATION ${BIN_INSTALL_DIR}\n"
+        "    )\n"
+        "endfunction ()\n\n"
+        "######################################################################\n\n"
+        "define_test(#^#PROJ_NS#$#_input_test)\n"
+        "#^#APPEND#$#\n";
+
+    auto str = common::processTemplate(Template, replacements);
+    stream << str;
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePathStr + "\".");
+        return false;
+    }
+    return true;
+}
+
 
 } // namespace commsdsl2comms
