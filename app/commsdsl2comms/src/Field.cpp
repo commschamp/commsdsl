@@ -128,12 +128,19 @@ std::string Field::getClassDefinition(
         str += getClassPrefix(classNameCpy, false);
 
         static const std::string Templ =
-            "using #^#CLASS_NAME#$# =\n"
+            "struct #^#CLASS_NAME#$# : public\n"
             "    comms::field::Optional<\n"
             "        #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#,\n"
             "        comms::option::#^#DEFAULT_MODE_OPT#$#,\n"
             "        comms::option::#^#VERSIONS_OPT#$#\n"
-            "    >;\n";
+            "    >\n"
+            "{\n"
+            "    /// @brief Name of the field.\n"
+            "    static const char* name()\n"
+            "    {\n"
+            "        return #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#::name();\n"
+            "    }\n"
+            "};\n";
 
         std::string fieldParams;
         if (!m_externalRef.empty()) {

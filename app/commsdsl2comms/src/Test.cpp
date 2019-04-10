@@ -60,9 +60,15 @@ bool Test::writeInputTest() const
     assert(!allFrames.empty());
     auto* firstFrame = allFrames.front();
 
+    auto allInterfaces = m_generator.getAllInterfaces();
+    assert(!allInterfaces.empty());
+    auto* firstInterface = allInterfaces.front();
+    assert(!firstInterface->name().empty());
+
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NS", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("DEFAULT_FRAME", common::nameToClassCopy(firstFrame->name())));
+    replacements.insert(std::make_pair("DEFAULT_INTERFACE", common::nameToClassCopy(firstInterface->name())));
     replacements.insert(std::make_pair("ID_TYPE", m_generator.mainNamespace() + "::" + common::msgIdEnumNameStr()));
     
     auto* idField = m_generator.getMessageIdField();
@@ -83,40 +89,40 @@ bool Test::writeInputTest() const
         "#include <array>\n"
         "#include <vector>\n"
         "#include <iomanip>\n\n"
-        "#include \"comms/fields.h\"\n"
-        "#include \"#^#PROJ_NS#$#/Message.h\"\n\n"
+        "#include \"comms/fields.h\"\n\n"
         "#define QUOTES_(x_) #x_\n"
         "#define QUOTES(x_) QUOTES_(x_)\n\n"
         "#define HEADER(x_) x_.h\n"
         "#define PATH(x_, y_) x_/y_\n"
         "#define SCOPE(x_, y_) x_::y_2\n\n"
+        "// Select appropriate interface\n"
+        "#ifndef INTERFACE\n"
+        "#define INTERFACE #^#DEFAULT_INTERFACE#$#\n"
+        "#endif\n\n"
         "// Select appropriate options\n"
-        "#if defined(LOCAL_OPTIONS)\n"
-        "#include QUOTES(HEADER(PROT_OPTIONS))\n"
-        "using AppOptions = LOCAL_OPTIONS;\n"
-        "#elif defined(PROT_OPTIONS)\n"
-        "#include QUOTES(PATH(PATH(#^#PROJ_NS#$#, options), HEADER(PROT_OPTIONS)))\n"
-        "using AppOptions = SCOPE(SCOPE(#^#PROJ_NS#$#, options), PROT_OPTIONS);\n"
-        "#else\n"
-        "using AppOptions = SCOPE(SCOPE(#^#PROJ_NS#$#, options), DefaultOptions);\n"
+        "#ifndef OPTIONS\n"
+        "#define OPTIONS DefaultOptions\n"
         "#endif\n\n"
         "// Select appropriate frame\n"
         "#ifndef FRAME \n"
         "#define FRAME #^#DEFAULT_FRAME#$#\n"
         "#endif\n\n"
+        "#include QUOTES(PATH(#^#PROJ_NS#$#, HEADER(INTERFACE)))\n"
+        "#include QUOTES(PATH(PATH(#^#PROJ_NS#$#, options), HEADER(OPTIONS)))\n"
         "#include QUOTES(PATH(PATH(#^#PROJ_NS#$#, frame), HEADER(FRAME)))\n\n"
         "namespace\n"
         "{\n\n"
         "class Handler;\n"
         "using Message = \n"
-        "    #^#PROJ_NS#$#::Message<\n"
+        "    #^#PROJ_NS#$#::INTERFACE<\n"
         "        comms::option::ReadIterator<const char*>,\n"
         "        comms::option::WriteIterator<char*>,\n"
         "        comms::option::LengthInfoInterface,\n"
         "        comms::option::Handler<Handler>\n"
         "    >;\n\n"
-        "using AllMessages = #^#PROJ_NS#$#::AllMessages<Message, AppOptions>;\n\n"
-        "using Frame = #^#PROJ_NS#$#::frame::FRAME<Message, AllMessages, AppOptions>;\n"
+        "using AppOptions = #^#PROJ_NS#$#::options::OPTIONS;\n"
+        "using AllMessages = #^#PROJ_NS#$#::AllMessages<Message, AppOptions>;\n"
+        "using Frame = #^#PROJ_NS#$#::frame::FRAME<Message, AllMessages, AppOptions>;\n\n"
         "Frame frame;\n\n"
         "void printIndent(unsigned indent)\n"
         "{\n"
@@ -426,11 +432,7 @@ bool Test::writeInputTest() const
         "    std::array<char, 1024> buf;\n"
         "    std::vector<char> input;\n"
         "    while (true) {\n"
-        "        std::size_t len = std::fread(buf.data(), sizeof(buf[0]), buf.size(), stdin);\n"
-        "        if (len < 0) {\n"
-        "            std::cerr << \"Error reading input data\" << std::endl;\n"
-        "            return -1;\n"
-        "        }\n\n"
+        "        std::size_t len = std::fread(buf.data(), sizeof(buf[0]), buf.size(), stdin);\n\n"
         "        if(std::ferror(stdin)) {\n"
         "            if (std::feof(stdin)) {\n"
         "                return 0;\n"
