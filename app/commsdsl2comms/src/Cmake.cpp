@@ -132,7 +132,7 @@ bool Cmake::writeMain() const
         "    string(REPLACE \";\" \" \" extra_flags \"${extra_flags_list}\")\n"
         "    set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} ${extra_flags}\")\n"
         "elseif (MSVC)\n"
-        "    add_definitions(\"/bigobj\")\n"
+        "    add_definitions(\"/bigobj\" \"-D_CRT_SECURE_NO_WARNINGS\")\n"
         "    if (OPT_WARN_AS_ERR)\n"
         "        add_definitions(\"/WX\")\n"
         "    endif ()\n"
