@@ -55,11 +55,25 @@ bool Cmake::writeMain() const
         return false;
     }
 
+    auto allInterfaces = m_generator.getAllInterfaces();
+    assert(!allInterfaces.empty());
+    auto* firstInterface = allInterfaces.front();
+    assert(!firstInterface->name().empty());
+
+    auto allFrames = m_generator.getAllFrames();
+    assert(!allFrames.empty());
+    auto* firstFrame = allFrames.front();
+    assert(!firstFrame->name().empty());
+
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NAME", m_generator.schemaName()));
     replacements.insert(std::make_pair("PROJ_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("CC_TAG", m_generator.commsChampionTag()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(common::cmakeListsFileStr())));
+    replacements.insert(std::make_pair("DEFAULT_INTERFACE", m_generator.scopeForInterface(firstInterface->externalRef(), true, true)));
+    replacements.insert(std::make_pair("DEFAULT_FRAME", m_generator.scopeForFrame(firstFrame->externalRef(), true, true)));
+    replacements.insert(std::make_pair("DEFAULT_OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+
 
     static const std::string Template = 
         "cmake_minimum_required (VERSION 3.1)\n"
@@ -71,9 +85,9 @@ bool Cmake::writeMain() const
         "# Other parameters:\n"
         "# OPT_QT_DIR - Path to custom Qt5 install directory.\n"
         "# OPT_CC_MAIN_INSTALL_DIR - Path to CommsChampion external install directory (if such already built).\n"
-        "# OPT_EXAMPLE_INTERFACE - Name of the interface class for example applications.\n"
-        "# OPT_EXAMPLE_OPTIONS - Name of the options header file for example applications.\n"
-        "# OPT_EXAMPLE_FRAME - Name of the frame class for example applications.\n\n"
+        "# OPT_EXAMPLE_OPTIONS - Class name of the options for example applications, defaults to #^#DEFAULT_OPTIONS#$#.\n"        
+        "# OPT_EXAMPLE_INTERFACE - Class name of the interface for example applications, defaults to #^#DEFAULT_INTERFACE#$#.\n"
+        "# OPT_EXAMPLE_FRAME - Class name of the frame for example applications, defaults to #^#DEFAULT_FRAME#$#.\n\n"
         "if (NOT CMAKE_CXX_STANDARD)\n"
         "    set (CMAKE_CXX_STANDARD 11)\n"
         "endif()\n\n"
@@ -410,14 +424,28 @@ bool Cmake::writeTest() const
         return false;
     }
 
+    auto allInterfaces = m_generator.getAllInterfaces();
+    assert(!allInterfaces.empty());
+    auto* firstInterface = allInterfaces.front();
+    assert(!firstInterface->name().empty());
+
+    auto allFrames = m_generator.getAllFrames();
+    assert(!allFrames.empty());
+    auto* firstFrame = allFrames.front();
+    assert(!firstFrame->name().empty());
+
     std::vector<std::string> appendPath = {
         common::testStr(),
         common::cmakeListsFileStr()
     };
+    
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NS", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(appendPath)));
+    replacements.insert(std::make_pair("INTERFACE_SCOPE", m_generator.scopeForInterface(firstInterface->externalRef(), true, true)));
+    replacements.insert(std::make_pair("FRAME_SCOPE", m_generator.scopeForFrame(firstFrame->externalRef(), true, true)));
+    replacements.insert(std::make_pair("OPTIONS_SCOPE", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
 
     static const std::string Template =
         "######################################################################\n"
@@ -427,15 +455,24 @@ bool Cmake::writeTest() const
         "    target_link_libraries(${name} PRIVATE #^#PROJ_NS#$#)\n\n"
         "    set (extra_defs)\n"
         "    if (NOT \"${OPT_EXAMPLE_INTERFACE}\" STREQUAL \"\")\n"
-        "        set (extra_defs \"${extra_defs} -DINTERFACE=${OPT_EXAMPLE_INTERFACE}\")\n"
+        "        list (APPEND extra_defs -DINTERFACE=${OPT_EXAMPLE_INTERFACE})\n"
         "    endif ()\n\n"
-        "    if (NOT \"${OPT_EXAMPLE_OPTIONS}\" STREQUAL \"\")\n"
-        "        set (extra_defs \"${extra_defs} -DOPTIONS=${OPT_EXAMPLE_OPTIONS}\")\n"
-        "    endif ()\n\n"
+        "    if (NOT \"${OPT_EXAMPLE_INTERFACE_HEADER}\" STREQUAL \"\")\n"
+        "        list (APPEND extra_defs -DINTERFACE_HEADER=${OPT_EXAMPLE_INTERFACE_HEADER})\n"
+        "    endif ()\n\n"        
         "    if (NOT \"${OPT_EXAMPLE_FRAME}\" STREQUAL \"\")\n"
-        "        set (extra_defs \"${extra_defs} -DFRAME=${OPT_EXAMPLE_FRAME}\")\n"
+        "        list (APPEND extra_defs -DFRAME=${OPT_EXAMPLE_FRAME})\n"
         "    endif ()\n\n"
-        "    if (NOT \"${extra_defs}\" STREQUAL \"\")\n"
+        "    if (NOT \"${OPT_EXAMPLE_FRAME_HEADER}\" STREQUAL \"\")\n"
+        "        list (APPEND extra_defs -DFRAME_HEADER=${OPT_EXAMPLE_FRAME_HEADER})\n"
+        "    endif ()\n\n"        
+        "    if (NOT \"${OPT_EXAMPLE_OPTIONS}\" STREQUAL \"\")\n"
+        "        list (APPEND extra_defs -DOPTIONS=${OPT_EXAMPLE_OPTIONS})\n"
+        "    endif ()\n\n"
+        "    if (NOT \"${OPT_EXAMPLE_OPTIONS_HEADER}\" STREQUAL \"\")\n"
+        "        list (APPEND extra_defs -DOPTIONS_HEADER=${OPT_EXAMPLE_OPTIONS_HEADER})\n"
+        "    endif ()\n\n"        
+        "    if (extra_defs)\n"
         "        target_compile_definitions(${name} PRIVATE ${extra_defs})\n"
         "    endif ()\n\n"
         "    install (\n"
@@ -444,6 +481,18 @@ bool Cmake::writeTest() const
         "    )\n"
         "endfunction ()\n\n"
         "######################################################################\n\n"
+        "if (\"${OPT_EXAMPLE_INTERFACE}\" STREQUAL \"\")\n"
+        "    set (OPT_EXAMPLE_INTERFACE \"#^#INTERFACE_SCOPE#$#\")\n"
+        "endif ()\n\n"
+        "if (\"${OPT_EXAMPLE_FRAME}\" STREQUAL \"\")\n"
+        "    set (OPT_EXAMPLE_FRAME \"#^#FRAME_SCOPE#$#\")\n"
+        "endif ()\n\n"
+        "if (\"${OPT_EXAMPLE_OPTIONS}\" STREQUAL \"\")\n"
+        "    set (OPT_EXAMPLE_OPTIONS \"#^#OPTIONS_SCOPE#$#\")\n"
+        "endif ()\n\n"
+        "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_INTERFACE_HEADER \"${OPT_EXAMPLE_INTERFACE}.h\")\n"
+        "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_FRAME_HEADER \"${OPT_EXAMPLE_FRAME}.h\")\n"
+        "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_OPTIONS_HEADER \"${OPT_EXAMPLE_OPTIONS}.h\")\n"
         "define_test(#^#PROJ_NS#$#_input_test)\n"
         "#^#APPEND#$#\n";
 

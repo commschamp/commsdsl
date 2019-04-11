@@ -56,19 +56,8 @@ bool Test::writeInputTest() const
         return false;
     }
 
-    auto allFrames = m_generator.getAllFrames();
-    assert(!allFrames.empty());
-    auto* firstFrame = allFrames.front();
-
-    auto allInterfaces = m_generator.getAllInterfaces();
-    assert(!allInterfaces.empty());
-    auto* firstInterface = allInterfaces.front();
-    assert(!firstInterface->name().empty());
-
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NS", m_generator.mainNamespace()));
-    replacements.insert(std::make_pair("DEFAULT_FRAME", common::nameToClassCopy(firstFrame->name())));
-    replacements.insert(std::make_pair("DEFAULT_INTERFACE", common::nameToClassCopy(firstInterface->name())));
     replacements.insert(std::make_pair("ID_TYPE", m_generator.mainNamespace() + "::" + common::msgIdEnumNameStr()));
     
     auto* idField = m_generator.getMessageIdField();
@@ -92,37 +81,40 @@ bool Test::writeInputTest() const
         "#include \"comms/fields.h\"\n\n"
         "#define QUOTES_(x_) #x_\n"
         "#define QUOTES(x_) QUOTES_(x_)\n\n"
-        "#define HEADER(x_) x_.h\n"
-        "#define PATH(x_, y_) x_/y_\n"
-        "#define SCOPE(x_, y_) x_::y_2\n\n"
-        "// Select appropriate interface\n"
+        "#ifndef INTERFACE_HEADER\n"
+        "#error \"Interface header needs to be defined\"\n"
+        "#endif\n\n"
         "#ifndef INTERFACE\n"
-        "#define INTERFACE #^#DEFAULT_INTERFACE#$#\n"
+        "#error \"Interface type needs to be defined\"\n"
         "#endif\n\n"
-        "// Select appropriate options\n"
+        "#ifndef FRAME_HEADER\n"
+        "#error \"Frame header needs to be defined\"\n"
+        "#endif\n\n"
+        "#ifndef FRAME\n"
+        "#error \"Frame type needs to be defined\"\n"
+        "#endif\n\n"
+        "#ifndef OPTIONS_HEADER\n"
+        "#error \"Options header needs to be defined\"\n"
+        "#endif\n\n"
         "#ifndef OPTIONS\n"
-        "#define OPTIONS DefaultOptions\n"
+        "#error \"Options type needs to be defined\"\n"
         "#endif\n\n"
-        "// Select appropriate frame\n"
-        "#ifndef FRAME \n"
-        "#define FRAME #^#DEFAULT_FRAME#$#\n"
-        "#endif\n\n"
-        "#include QUOTES(PATH(#^#PROJ_NS#$#, HEADER(INTERFACE)))\n"
-        "#include QUOTES(PATH(PATH(#^#PROJ_NS#$#, options), HEADER(OPTIONS)))\n"
-        "#include QUOTES(PATH(PATH(#^#PROJ_NS#$#, frame), HEADER(FRAME)))\n\n"
+        "#include QUOTES(INTERFACE_HEADER)\n"
+        "#include QUOTES(FRAME_HEADER)\n"
+        "#include QUOTES(OPTIONS_HEADER)\n"
         "namespace\n"
         "{\n\n"
         "class Handler;\n"
         "using Message = \n"
-        "    #^#PROJ_NS#$#::INTERFACE<\n"
+        "    INTERFACE<\n"
         "        comms::option::ReadIterator<const char*>,\n"
         "        comms::option::WriteIterator<char*>,\n"
         "        comms::option::LengthInfoInterface,\n"
         "        comms::option::Handler<Handler>\n"
         "    >;\n\n"
-        "using AppOptions = #^#PROJ_NS#$#::options::OPTIONS;\n"
+        "using AppOptions = OPTIONS;\n"
         "using AllMessages = #^#PROJ_NS#$#::AllMessages<Message, AppOptions>;\n"
-        "using Frame = #^#PROJ_NS#$#::frame::FRAME<Message, AllMessages, AppOptions>;\n\n"
+        "using Frame = FRAME<Message, AllMessages, AppOptions>;\n\n"
         "Frame frame;\n\n"
         "void printIndent(unsigned indent)\n"
         "{\n"
