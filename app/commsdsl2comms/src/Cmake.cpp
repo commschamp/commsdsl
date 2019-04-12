@@ -492,7 +492,10 @@ bool Cmake::writeTest() const
         "endif ()\n\n"
         "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_INTERFACE_HEADER \"${OPT_EXAMPLE_INTERFACE}.h\")\n"
         "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_FRAME_HEADER \"${OPT_EXAMPLE_FRAME}.h\")\n"
-        "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_OPTIONS_HEADER \"${OPT_EXAMPLE_OPTIONS}.h\")\n"
+        "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_OPTIONS_HEADER \"${OPT_EXAMPLE_OPTIONS}.h\")\n\n"
+        "if (\"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"Clang\")\n"
+        "    set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -Wno-unneeded-internal-declaration\")\n"
+        "endif ()\n\n"
         "define_test(#^#PROJ_NS#$#_input_test)\n"
         "#^#APPEND#$#\n";
 
