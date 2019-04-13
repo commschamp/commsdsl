@@ -43,7 +43,7 @@ public:
     FrameImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FrameImpl(const FrameImpl&) = delete;
     FrameImpl(FrameImpl&&) = default;
-    ~FrameImpl() = default;
+    virtual ~FrameImpl() final = default;
 
     ::xmlNodePtr getNode() const
     {

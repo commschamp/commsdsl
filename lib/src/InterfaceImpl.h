@@ -43,7 +43,7 @@ public:
     InterfaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     InterfaceImpl(const InterfaceImpl&) = delete;
     InterfaceImpl(InterfaceImpl&&) = default;
-    ~InterfaceImpl() = default;
+    virtual ~InterfaceImpl() final = default;
 
     ::xmlNodePtr getNode() const
     {
