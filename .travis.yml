@@ -212,6 +212,36 @@ matrix:
           packages:
             - clang-3.9
             - g++-5        
+      env: _CC=clang-3.9 _CXX=clang++-3.9  
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-3.9
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.9
+            - g++-5        
+      env: _CC=clang-3.9 _CXX=clang++-3.9  _BUILD="-DCMAKE_BUILD_TYPE=Release"
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-3.9
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.9
+            - g++-5        
+      env: _CC=clang-3.9 _CXX=clang++-3.9  _BUILD="-DCMAKE_BUILD_TYPE=MinSizeRel"      
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-3.9
+            - ubuntu-toolchain-r-test
+          packages:
+            - clang-3.9
+            - g++-5        
       env: _CC=clang-3.9 _CXX=clang++-3.9  _BUILD="-DCOMMSDSL_TESTS_CXX_STANDARD=14"
     - os: linux
       addons:
@@ -232,7 +262,7 @@ matrix:
           packages:
             - clang-3.9
             - g++-5        
-      env: _CC=clang-3.9 _CXX=clang++-3.9  _BUILD="-DCMAKE_BUILD_TYPE=MinSizeRel -DCOMMSDSL_TESTS_CXX_STANDARD=14"      
+      env: _CC=clang-3.9 _CXX=clang++-3.9  _BUILD="-DCMAKE_BUILD_TYPE=MinSizeRel -DCOMMSDSL_TESTS_CXX_STANDARD=14"            
     - os: linux
       addons:
         apt:
