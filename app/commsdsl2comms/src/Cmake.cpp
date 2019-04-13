@@ -302,7 +302,7 @@ bool Cmake::writePlugin() const
     replacements.insert(std::make_pair("PLUGINS", common::listToString(calls, "\n", "\n")));
     if (plugins.size() == 1U) {
         auto str =
-            "if (OPT_FULL_SOLUTION)\n"
+            "if (TARGET ${CC_EXTERNAL_TGT})\n"
             "    install (\n"
             "        FILES plugin/" + common::nameToClassCopy(plugins.front()->adjustedName()) + ".cfg\n"
             "        DESTINATION ${CONFIG_INSTALL_DIR}\n"
@@ -336,7 +336,7 @@ bool Cmake::writePlugin() const
         "            set (PLUGIN_INSTALL_DIR \"${INSTALL_DIR}/${rel_plugin_install_path}\")\n"
         "        endif()\n"
         "    endif ()\n\n"
-        "    if (OPT_FULL_SOLUTION)\n"
+        "    if (TARGET ${CC_EXTERNAL_TGT})\n"
         "        add_dependencies(${name} ${CC_EXTERNAL_TGT})\n"
         "    endif ()\n"
         "endfunction()\n\n"
@@ -452,7 +452,7 @@ bool Cmake::writeTest() const
         "function (define_test name)\n"
         "    set (src ${name}.cpp)\n"
         "    add_executable(${name} ${src})\n"
-        "    target_link_libraries(${name} PRIVATE #^#PROJ_NS#$#)\n\n"
+        "    target_link_libraries(${name} PRIVATE cc::comms #^#PROJ_NS#$#)\n\n"
         "    set (extra_defs)\n"
         "    if (NOT \"${OPT_EXAMPLE_INTERFACE}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DINTERFACE=${OPT_EXAMPLE_INTERFACE})\n"
@@ -478,7 +478,10 @@ bool Cmake::writeTest() const
         "    install (\n"
         "        TARGETS ${name}\n"
         "        DESTINATION ${BIN_INSTALL_DIR}\n"
-        "    )\n"
+        "    )\n\n"
+        "    if (TARGET ${CC_EXTERNAL_TGT})\n"
+        "        add_dependencies(${name} ${CC_EXTERNAL_TGT})\n"
+        "    endif ()\n"        
         "endfunction ()\n\n"
         "######################################################################\n\n"
         "if (\"${OPT_EXAMPLE_INTERFACE}\" STREQUAL \"\")\n"
