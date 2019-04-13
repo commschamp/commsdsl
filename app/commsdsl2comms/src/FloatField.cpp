@@ -358,7 +358,7 @@ const std::string& FloatField::getFieldType() const
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<decltype(TypeMapSize)>(commsdsl::FloatField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::FloatField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(obj.type());

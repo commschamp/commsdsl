@@ -111,7 +111,7 @@ const std::string& IntField::convertType(commsdsl::IntField::Type value, std::si
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<decltype(TypeMapSize)>(commsdsl::IntField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::IntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(value);
@@ -618,7 +618,7 @@ void IntField::checkLengthOpt(StringsList& list) const
     };
 
     static const std::size_t LengthMapSize = std::extent<decltype(LengthMap)>::value;
-    static_assert(LengthMapSize == static_cast<decltype(LengthMapSize)>(commsdsl::IntField::Type::NumOfValues),
+    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::IntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(type);

@@ -45,7 +45,7 @@ public:
     MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     MessageImpl(const MessageImpl&) = delete;
     MessageImpl(MessageImpl&&) = default;
-    ~MessageImpl() = default;
+    virtual ~MessageImpl() final {};
 
     ::xmlNodePtr getNode() const
     {

@@ -77,6 +77,9 @@ public:
     }
 
 protected:
+    Object() = default;
+    ~Object() = default;
+    
     virtual ObjKind objKindImpl() const = 0;
 
     void setDeprecated(unsigned val)

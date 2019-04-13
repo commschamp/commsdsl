@@ -614,7 +614,7 @@ const std::string& dslEndianToOpt(commsdsl::Endian value)
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == static_cast<decltype(MapSize)>(commsdsl::Endian_NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::Endian_NumOfValues),
         "Invalid map");
 
     if (commsdsl::Endian_NumOfValues <= value) {
@@ -673,9 +673,8 @@ const std::string& dslUnitsToOpt(commsdsl::Units value)
         /* Kilovolts */ "comms::option::UnitsKilovolts",
     };
 
-    static const std::size_t UnitsMapSize =
-        std::extent<decltype(UnitsMap)>::value;
-    static_assert(static_cast<decltype(UnitsMapSize)>(commsdsl::Units::NumOfValues) == UnitsMapSize,
+    static const std::size_t UnitsMapSize = std::extent<decltype(UnitsMap)>::value;
+    static_assert(static_cast<std::size_t>(commsdsl::Units::NumOfValues) == UnitsMapSize,
         "Invalid Map");
 
     auto idx = static_cast<unsigned>(value);

@@ -201,15 +201,13 @@ if (NOT TARGET cc::comms)
     message (FATAL_ERROR "cc::comms target is not defined")
 endif () 
 
-#include_directories(${CC_INCLUDE_DIRS})
-#
-#if (CC_PLUGIN_LIBRARY_DIRS)
-#    link_directories("${CC_PLUGIN_LIBRARY_DIRS}")
-#endif ()
-
 include_directories ("${CXXTEST_INCLUDE_DIR}")
 
 find_package (Doxygen)
+
+if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9"))
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
+endif ()
 
 test_func (test1)
 test_func (test2)

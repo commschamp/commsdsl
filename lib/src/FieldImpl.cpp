@@ -625,7 +625,7 @@ bool FieldImpl::updateSemanticType()
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<decltype(MapSize)>(SemanticType::NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(SemanticType::NumOfValues),
         "Invalid map");
 
     if (iter->second.empty()) {

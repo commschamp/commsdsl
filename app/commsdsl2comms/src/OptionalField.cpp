@@ -378,11 +378,11 @@ void OptionalField::checkModeOpt(OptionalField::StringsList& options) const
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == static_cast<decltype(MapSize)>(commsdsl::OptionalField::Mode::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::OptionalField::Mode::NumOfValues), "Invalid map");
 
     auto obj = optionalFieldDslObj();
     auto mode = obj.defaultMode();
-    auto idx = static_cast<decltype(MapSize)>(mode);
+    auto idx = static_cast<std::size_t>(mode);
     if (MapSize <= idx) {
         assert(!"Should not happen");
         idx = 0U;

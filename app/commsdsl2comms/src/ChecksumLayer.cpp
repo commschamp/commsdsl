@@ -49,10 +49,10 @@ void ChecksumLayer::updateIncludesImpl(Layer::IncludesList& includes) const
     };
 
     const std::size_t ChecksumMapSize = std::extent<decltype(ChecksumMap)>::value;
-    static_assert(ChecksumMapSize == static_cast<decltype(ChecksumMapSize)>(commsdsl::ChecksumLayer::Alg::NumOfValues),
+    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::ChecksumLayer::Alg::NumOfValues),
             "Invalid map");
 
-    auto idx = static_cast<decltype(ChecksumMapSize)>(obj.alg());
+    auto idx = static_cast<std::size_t>(obj.alg());
     if (ChecksumMapSize <= idx) {
         assert(!"Should not happen");
         idx = 0U;
@@ -211,7 +211,7 @@ std::string ChecksumLayer::getAlg() const
     };
 
     const std::size_t ClassMapSize = std::extent<decltype(ClassMap)>::value;
-    static_assert(ClassMapSize == static_cast<decltype(ClassMapSize)>(commsdsl::ChecksumLayer::Alg::NumOfValues),
+    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::ChecksumLayer::Alg::NumOfValues),
             "Invalid map");
 
 
