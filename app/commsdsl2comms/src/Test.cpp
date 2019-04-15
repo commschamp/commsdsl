@@ -415,7 +415,6 @@ bool Test::writeInputTest() const
         "        assert(consumed <= len);\n\n"
         "        if (es == comms::ErrorStatus::Success) {\n"
         "            assert(msgPtr); // If read is successful, msgPtr is expected to hold a valid pointer\n"
-        "            assert(frame.length(*msgPtr) <= diff);\n"
         "            msgPtr->dispatch(handler); // Dispatch message for handling\n"
         "        }\n"
         "    }\n"
