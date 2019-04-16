@@ -33,6 +33,8 @@ public:
     bool quietRequested() const;
     bool warnAsErrRequested() const;
     bool versionIndependentCodeRequested() const;
+    bool pluginBuildDisableRequested() const;
+    bool testsBuildDisableRequested() const;
 
     std::string getFilesListFile() const;
     std::string getFilesListPrefix() const;

@@ -56,6 +56,8 @@ const std::string WarnAsErrStr("warn-as-err");
 const std::string VersionIndependentCodeStr("version-independent-code");
 const std::string ProtocolStr("protocol");
 const std::string CustomizationStr("customization");
+const std::string DisablePluginStr("no-plugin-build-by-default");
+const std::string DisableTestsStr("no-tests-build-by-default");
 
 po::options_description createDescription()
 {
@@ -97,6 +99,11 @@ po::options_description createDescription()
             "By default the generated code is version dependent if at least one defined "
             "interface has \"version\" field. Use this switch to forcefully disable generation "
             "of version denendent code.")
+        (DisablePluginStr.c_str(),
+            "Make the plugin build in the generated project disabled by default.")
+        (DisableTestsStr.c_str(),
+            "Make the test application(s) build in the generated project disabled by default.")
+
     ;
     return desc;
 }
@@ -173,6 +180,16 @@ bool ProgramOptions::warnAsErrRequested() const
 bool ProgramOptions::versionIndependentCodeRequested() const
 {
     return 0 < m_vm.count(VersionIndependentCodeStr);
+}
+
+bool ProgramOptions::pluginBuildDisableRequested() const
+{
+    return 0 < m_vm.count(DisablePluginStr);
+}
+
+bool ProgramOptions::testsBuildDisableRequested() const
+{
+    return 0 < m_vm.count(DisableTestsStr);
 }
 
 std::string ProgramOptions::getFilesListFile() const

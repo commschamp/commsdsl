@@ -316,6 +316,16 @@ public:
         return m_customizationLevel;
     }
 
+    bool isTestsBuildDisabled() const
+    {
+        return m_options.testsBuildDisableRequested();
+    }
+
+    bool isPluginBuildDisabled() const
+    {
+        return m_options.pluginBuildDisableRequested();
+    }
+
     std::string pluginCommonSources() const;
 
     PluginsAccessList getPlugins() const;

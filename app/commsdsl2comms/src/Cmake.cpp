@@ -65,6 +65,16 @@ bool Cmake::writeMain() const
     auto* firstFrame = allFrames.front();
     assert(!firstFrame->name().empty());
 
+    std::string build_test_opt("ON");
+    if (m_generator.isTestsBuildDisabled()) {
+        build_test_opt = "OFF";
+    }
+
+    std::string build_plugin_opt("ON");
+    if (m_generator.isPluginBuildDisabled()) {
+        build_plugin_opt = "OFF";
+    }
+
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NAME", m_generator.schemaName()));
     replacements.insert(std::make_pair("PROJ_NAMESPACE", m_generator.mainNamespace()));
@@ -73,13 +83,14 @@ bool Cmake::writeMain() const
     replacements.insert(std::make_pair("DEFAULT_INTERFACE", m_generator.scopeForInterface(firstInterface->externalRef(), true, true)));
     replacements.insert(std::make_pair("DEFAULT_FRAME", m_generator.scopeForFrame(firstFrame->externalRef(), true, true)));
     replacements.insert(std::make_pair("DEFAULT_OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
-
+    replacements.insert(std::make_pair("BUILD_TEST_OPT", build_test_opt));
+    replacements.insert(std::make_pair("BUILD_PLUGIN_OPT", build_plugin_opt));
 
     static const std::string Template = 
         "cmake_minimum_required (VERSION 3.1)\n"
         "project (\"#^#PROJ_NAME#$#\")\n\n"
-        "option (OPT_BUILD_TEST \"Build and install test applications.\" ON)\n"
-        "option (OPT_BUILD_PLUGIN \"Build and install CommsChampion plugin.\" ON)\n"
+        "option (OPT_BUILD_TEST \"Build and install test applications.\" #^#BUILD_TEST_OPT#$#)\n"
+        "option (OPT_BUILD_PLUGIN \"Build and install CommsChampion plugin.\" #^#BUILD_PLUGIN_OPT#$#)\n"
         "option (OPT_WARN_AS_ERR \"Treat warning as error\" ON)\n"
         "option (OPT_USE_CCACHE \"Use of ccache on UNIX system\" ON)\n\n"
         "# Other parameters:\n"
