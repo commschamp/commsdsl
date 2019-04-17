@@ -157,6 +157,10 @@ bool IntField::isUnsignedType(commsdsl::IntField::Type value)
     return iter != std::end(Map);
 }
 
+bool IntField::isUnsignedType() const
+{
+    return isUnsignedType(intFieldDslObj().type());
+}
 
 void IntField::updateIncludesImpl(IncludesList& includes) const
 {

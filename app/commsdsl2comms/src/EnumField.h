@@ -34,6 +34,7 @@ public:
     std::string getValuesDefinition() const;
     std::string getValueName(std::intmax_t value) const;
     const std::string& underlyingType() const;
+    bool isUnsignedUnderlyingType() const;
 
     unsigned hexWidth() const;
 

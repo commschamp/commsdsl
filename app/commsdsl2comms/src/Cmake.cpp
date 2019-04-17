@@ -83,6 +83,7 @@ bool Cmake::writeMain() const
     replacements.insert(std::make_pair("DEFAULT_INTERFACE", m_generator.scopeForInterface(firstInterface->externalRef(), true, true)));
     replacements.insert(std::make_pair("DEFAULT_FRAME", m_generator.scopeForFrame(firstFrame->externalRef(), true, true)));
     replacements.insert(std::make_pair("DEFAULT_OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    replacements.insert(std::make_pair("DEFAULT_INPUT", m_generator.scopeForInput(common::allMessagesStr(), true, true)));
     replacements.insert(std::make_pair("BUILD_TEST_OPT", build_test_opt));
     replacements.insert(std::make_pair("BUILD_PLUGIN_OPT", build_plugin_opt));
 
@@ -99,6 +100,7 @@ bool Cmake::writeMain() const
         "# OPT_EXAMPLE_OPTIONS - Class name of the options for example applications, defaults to #^#DEFAULT_OPTIONS#$#.\n"        
         "# OPT_EXAMPLE_INTERFACE - Class name of the interface for example applications, defaults to #^#DEFAULT_INTERFACE#$#.\n"
         "# OPT_EXAMPLE_FRAME - Class name of the frame for example applications, defaults to #^#DEFAULT_FRAME#$#.\n\n"
+        "# OPT_EXAMPLE_INPUT_MESSAGES - All input messages bundle, defaults to #^#DEFAULT_INPUT#$#.\n\n"
         "if (NOT CMAKE_CXX_STANDARD)\n"
         "    set (CMAKE_CXX_STANDARD 11)\n"
         "endif()\n\n"
@@ -457,6 +459,7 @@ bool Cmake::writeTest() const
     replacements.insert(std::make_pair("INTERFACE_SCOPE", m_generator.scopeForInterface(firstInterface->externalRef(), true, true)));
     replacements.insert(std::make_pair("FRAME_SCOPE", m_generator.scopeForFrame(firstFrame->externalRef(), true, true)));
     replacements.insert(std::make_pair("OPTIONS_SCOPE", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    replacements.insert(std::make_pair("INPUT_SCOPE", m_generator.scopeForInput(common::allMessagesStr(), true, true)));
 
     static const std::string Template =
         "######################################################################\n"
@@ -483,6 +486,12 @@ bool Cmake::writeTest() const
         "    if (NOT \"${OPT_EXAMPLE_OPTIONS_HEADER}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DOPTIONS_HEADER=${OPT_EXAMPLE_OPTIONS_HEADER})\n"
         "    endif ()\n\n"        
+        "    if (NOT \"${OPT_EXAMPLE_INPUT_MESSAGES}\" STREQUAL \"\")\n"
+        "        list (APPEND extra_defs -DINPUT_MESSAGES=${OPT_EXAMPLE_INPUT_MESSAGES})\n"
+        "    endif ()\n\n"
+        "    if (NOT \"${OPT_EXAMPLE_INPUT_MESSAGES_HEADER}\" STREQUAL \"\")\n"
+        "        list (APPEND extra_defs -DINPUT_MESSAGES_HEADER=${OPT_EXAMPLE_INPUT_MESSAGES_HEADER})\n"
+        "    endif ()\n\n"
         "    if (extra_defs)\n"
         "        target_compile_definitions(${name} PRIVATE ${extra_defs})\n"
         "    endif ()\n\n"
@@ -504,9 +513,13 @@ bool Cmake::writeTest() const
         "if (\"${OPT_EXAMPLE_OPTIONS}\" STREQUAL \"\")\n"
         "    set (OPT_EXAMPLE_OPTIONS \"#^#OPTIONS_SCOPE#$#\")\n"
         "endif ()\n\n"
+        "if (\"${OPT_EXAMPLE_INPUT_MESSAGES}\" STREQUAL \"\")\n"
+        "    set (OPT_EXAMPLE_INPUT_MESSAGES \"#^#INPUT_SCOPE#$#\")\n"
+        "endif ()\n\n"
         "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_INTERFACE_HEADER \"${OPT_EXAMPLE_INTERFACE}.h\")\n"
         "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_FRAME_HEADER \"${OPT_EXAMPLE_FRAME}.h\")\n"
-        "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_OPTIONS_HEADER \"${OPT_EXAMPLE_OPTIONS}.h\")\n\n"
+        "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_OPTIONS_HEADER \"${OPT_EXAMPLE_OPTIONS}.h\")\n"
+        "string (REPLACE \"::\" \"/\" OPT_EXAMPLE_INPUT_MESSAGES_HEADER \"${OPT_EXAMPLE_INPUT_MESSAGES}.h\")\n\n"
         "if (\"${CMAKE_CXX_COMPILER_ID}\" STREQUAL \"Clang\")\n"
         "    set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -Wno-unneeded-internal-declaration\")\n"
         "endif ()\n\n"

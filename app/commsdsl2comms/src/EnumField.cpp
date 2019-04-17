@@ -207,6 +207,12 @@ const std::string& EnumField::underlyingType() const
     return IntField::convertType(obj.type());
 }
 
+bool EnumField::isUnsignedUnderlyingType() const
+{
+    auto obj = enumFieldDslObj();
+    return IntField::isUnsignedType(obj.type());
+}
+
 unsigned EnumField::hexWidth() const
 {
     auto obj = enumFieldDslObj();

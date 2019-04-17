@@ -22,6 +22,7 @@
 #include "Generator.h"
 #include "common.h"
 #include "EnumField.h"
+#include "IntField.h"
 
 namespace bf = boost::filesystem;
 
@@ -57,18 +58,38 @@ bool Test::writeInputTest() const
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("INPUT_MESSAGES", m_generator.scopeForInput(common::allMessagesStr(), true, true)));
-    replacements.insert(std::make_pair("ID_TYPE", m_generator.mainNamespace() + "::" + common::msgIdEnumNameStr()));
     
+    std::string idType;
     auto* idField = m_generator.getMessageIdField();
     if ((idField != nullptr) && (idField->kind() == commsdsl::Field::Kind::Enum)) {
         auto* enumMsgIdField = static_cast<const EnumField*>(idField);
+        if (enumMsgIdField->isUnsignedUnderlyingType()) {
+            idType = "std::uintmax_t";
+        }
+        else {
+            idType = "std::intmax_t";
+        }
+
         auto hexWidth = enumMsgIdField->hexWidth();
         if (hexWidth != 0U) {
             replacements.insert(std::make_pair("BEFORE_ID", " << \"0x\" << std::hex << std::setfill('0') << std::setw(" + std::to_string(hexWidth) + ")"));
             replacements.insert(std::make_pair("AFTER_ID", " << std::dec"));
         }
     }
+    else if ((idField != nullptr) && (idField->kind() == commsdsl::Field::Kind::Int)) {
+        auto* intMsgIdField = static_cast<const IntField*>(idField);
+        if (intMsgIdField->isUnsignedType()) {
+            idType = "std::uintmax_t";
+        }
+        else {
+            idType = "std::intmax_t";
+        }
+    }
+    else {
+        idType = m_generator.mainNamespace() + "::" + common::msgIdEnumNameStr();
+    }
+
+    replacements.insert(std::make_pair("ID_TYPE", idType));
 
     static const std::string Template = 
         "#include <iostream>\n"
@@ -99,9 +120,16 @@ bool Test::writeInputTest() const
         "#ifndef OPTIONS\n"
         "#error \"Options type needs to be defined\"\n"
         "#endif\n\n"
+        "#ifndef INPUT_MESSAGES_HEADER\n"
+        "#error \"Input messages header needs to be defined\"\n"
+        "#endif\n\n"
+        "#ifndef INPUT_MESSAGES\n"
+        "#error \"Input messages type needs to be defined\"\n"
+        "#endif\n\n"
         "#include QUOTES(INTERFACE_HEADER)\n"
         "#include QUOTES(FRAME_HEADER)\n"
-        "#include QUOTES(OPTIONS_HEADER)\n\n"
+        "#include QUOTES(OPTIONS_HEADER)\n"
+        "#include QUOTES(INPUT_MESSAGES_HEADER)\n\n"
         "namespace\n"
         "{\n\n"
         "struct Handler;\n"
@@ -113,8 +141,8 @@ bool Test::writeInputTest() const
         "        comms::option::Handler<Handler>\n"
         "    >;\n\n"
         "using AppOptions = OPTIONS;\n"
-        "using AllMessages = #^#INPUT_MESSAGES#$#<Message, AppOptions>;\n"
-        "using Frame = FRAME<Message, AllMessages, AppOptions>;\n\n"
+        "using InputMessages = INPUT_MESSAGES<Message, AppOptions>;\n"
+        "using Frame = FRAME<Message, InputMessages, AppOptions>;\n\n"
         "Frame frame;\n\n"
         "void printIndent(unsigned indent)\n"
         "{\n"

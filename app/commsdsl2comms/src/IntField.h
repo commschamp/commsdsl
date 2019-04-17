@@ -31,7 +31,8 @@ public:
 
     static const std::string& convertType(commsdsl::IntField::Type value, std::size_t len = 0);
     static bool isUnsignedType(commsdsl::IntField::Type value);
-    
+    bool isUnsignedType() const;
+
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
