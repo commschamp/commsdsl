@@ -40,7 +40,7 @@ void ValueLayer::updateIncludesImpl(Layer::IncludesList& includes) const
     };
 
     common::mergeIncludes(List, includes);
-    common::mergeInclude(generator().mainNamespace() + '/' + common::allMessagesStr() + common::headerSuffix(), includes);
+    common::mergeInclude(generator().headerfileForInput(common::allMessagesStr(), false), includes);
 }
 
 std::string ValueLayer::getClassDefinitionImpl(

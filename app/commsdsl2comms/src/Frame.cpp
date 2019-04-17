@@ -545,10 +545,7 @@ bool Frame::writePluginHeader()
 
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
-    auto allMessagesInclude =
-        "#include \"" + common::pluginNsStr() + '/' +
-        common::allMessagesStr() + common::headerSuffix() + "\"";
-
+    auto allMessagesInclude = "#include " + m_generator.headerfileForInputInPlugin(common::allMessagesStr());
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("FRAME_SCOPE", std::move(scope)));
@@ -556,7 +553,7 @@ bool Frame::writePluginHeader()
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("FRAME_INCLUDE", m_generator.headerfileForFrame(m_externalRef, true)));
     replacements.insert(std::make_pair("ALL_MESSAGES_INCLUDE", std::move(allMessagesInclude)));
-    replacements.insert(std::make_pair("ALL_MESSAGES", m_generator.mainNamespace() + "::" + common::pluginNsStr() + "::" + common::allMessagesStr()));
+    replacements.insert(std::make_pair("ALL_MESSAGES", m_generator.scopeForInputInPlugin(common::allMessagesStr())));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFrameHeaderInPlugin(m_externalRef)));
 
     std::string interfaceStr = "TInterface";
@@ -617,7 +614,7 @@ std::string Frame::getIncludes() const
 //    }
 
     common::mergeInclude(m_generator.headerfileForOptions(common::defaultOptionsStr(), false), includes);
-    common::mergeInclude(m_generator.mainNamespace() + '/' + common::allMessagesStr() + common::headerSuffix(), includes);
+    common::mergeInclude(m_generator.headerfileForInput(common::allMessagesStr(), false), includes);
     return common::includesToStatements(includes);
 }
 
@@ -710,8 +707,7 @@ std::string Frame::getInputMessages() const
     }
 
     return
-        "typename TAllMessages = " + m_generator.mainNamespace() +
-            "::" + common::allMessagesStr() + "<TMessage>,";
+        "typename TAllMessages = " + m_generator.scopeForInput(common::allMessagesStr(), true, true) + "<TMessage>,";
 }
 
 std::string Frame::getInputMessagesDoc() const

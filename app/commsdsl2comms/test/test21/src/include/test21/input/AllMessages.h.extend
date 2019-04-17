@@ -1,5 +1,5 @@
 /// @file
-/// @brief Contains definition of @ref test21::AllMessages definition.
+/// @brief Contains definition of @ref test21::input::AllMessages definition.
 
 #pragma once
 
@@ -8,11 +8,16 @@
 namespace test21
 {
 
+namespace input
+{
+
 /// @brief All messages of the protocol in ascending order.
 /// @tparam TBase Base class of all the messages.
 /// @tparam TOpt Protocol definition options.
 template <typename TBase, typename TOpt = test21::options::DefaultOptions>
 using AllMessages = AllMessagesOrig<TBase, TOpt>;
+
+} // namespace input
 
 } // namespace test21
 

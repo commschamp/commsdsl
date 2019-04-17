@@ -463,6 +463,8 @@ bool Doxygen::writeNamespaces() const
         "/// @brief Main namespace for the custom frame layers.\n\n"
         "/// @namespace #^#NS#$#::options\n"
         "/// @brief Main namespace for the various protocol options.\n\n"
+        "/// @namespace #^#NS#$#::input\n"
+        "/// @brief Main namespace for hold input messages bundles.\n\n"
         "#^#OTHER_NS#$#\n"
         "#^#APPEND#$#\n"
         ;
@@ -662,10 +664,10 @@ std::string Doxygen::getFramesDoc() const
         "///\n"
         "/// Every frame class/type definition receives (as a template parameter) a list of\n"
         "/// @b input message types it is expected to recognize. Default defintion\n"
-        "/// uses @ref #^#PROT_NAMESPACE#$#::AllMessages (defined in @b #^#PROT_NAMESPACE#$#/AllMessages.h).\n"
+        "/// uses @ref #^#ALL_MESSAGES#$# (defined in @b #^#ALL_MEASSAGES_HEADER#$#).\n"
         "/// @n If protocol defines any uni-directional message, then it is recommended to use\n"
-        "/// either @ref #^#PROT_NAMESPACE#$#::ServerInputMessages (from @b #^#PROT_NAMESPACE#$#/ServerInputMessages.h)\n"
-        "/// or @ref #^#PROT_NAMESPACE#$#::ClientInputMessages  (from @b #^#PROT_NAMESPACE#$#/ClientInputMessages.h)\n"
+        "/// either @ref #^#SERVER_MESSAGES#$# (from @b #^#SERVER_MESSAGES_HEADER#$#)\n"
+        "/// or @ref #^#CLIENT_MESSAGES#$#  (from @b #^#CLIENT_MESSAGES_HEADER#$#)\n"
         "#^#PLATFORMS#$#\n"
         "/// @b NOTE, that the frame definition does not exactly follow the recommended\n"
         "/// instructions from <b>Protocol Stack Definition Tutorial</b> page of @b COMMS\n"
@@ -689,6 +691,13 @@ std::string Doxygen::getFramesDoc() const
     repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
     repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     repl.insert(std::make_pair("PLATFORMS", getPlatformsDoc()));
+    repl.insert(std::make_pair("ALL_MESSAGES", m_generator.scopeForInput(common::allMessagesStr(), true, true)));
+    repl.insert(std::make_pair("ALL_MESSAGES_HEADER", m_generator.headerfileForInput(common::allMessagesStr(), false)));
+    repl.insert(std::make_pair("SERVER_MESSAGES", m_generator.scopeForInput(common::serverInputMessagesStr(), true, true)));
+    repl.insert(std::make_pair("SERVER_MESSAGES_HEADER", m_generator.headerfileForInput(common::serverInputMessagesStr(), false)));
+    repl.insert(std::make_pair("CLIENT_MESSAGES", m_generator.scopeForInput(common::clientInputMessagesStr(), true, true)));
+    repl.insert(std::make_pair("CLIENT_MESSAGES_HEADER", m_generator.headerfileForInput(common::clientInputMessagesStr(), false)));
+
     return common::processTemplate(Templ, repl);        
 }
 
@@ -710,12 +719,9 @@ std::string Doxygen::getPlatformsDoc() const
         auto addToListFunc = 
             [this, &p, &list](const std::string& type)
             {
-                auto scope = 
-                    m_generator.mainNamespace() + "::" + 
-                    common::nameToClassCopy(p) + type + "InputMessages";
-
-                auto file = ba::replace_all_copy(scope, "::", "/") + common::headerSuffix();
-
+                auto name = common::nameToClassCopy(p) + type + "InputMessages";
+                auto scope = m_generator.scopeForInput(name);
+                auto file = m_generator.headerfileForInput(name, false);
                 auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
                 list.push_back(std::move(str));
             };

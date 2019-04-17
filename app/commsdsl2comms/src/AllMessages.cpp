@@ -145,7 +145,7 @@ bool AllMessages::writeProtocolDefinition() const
                const std::string& platName = common::emptyString(),
                const std::string& inputName = common::emptyString())
         {
-            auto startInfo = m_generator.startGenericProtocolWrite(fileName);
+            auto startInfo = m_generator.startInputProtocolWrite(fileName);
             auto& filePath = startInfo.first;
             auto& className = startInfo.second;
 
@@ -160,7 +160,7 @@ bool AllMessages::writeProtocolDefinition() const
             }
 
             common::ReplacementMap replacements;
-            auto namespaces = m_generator.namespacesForRoot();
+            auto namespaces = m_generator.namespacesForInput();
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
@@ -334,7 +334,7 @@ bool AllMessages::writePluginDefinition() const
             }
 
 
-            auto startInfo = m_generator.startGenericPluginHeaderWrite(fileName);
+            auto startInfo = m_generator.startInputPluginHeaderWrite(fileName);
             auto& filePath = startInfo.first;
             auto& className = startInfo.second;
 
@@ -349,7 +349,7 @@ bool AllMessages::writePluginDefinition() const
             }
 
             common::ReplacementMap replacements;
-            auto namespaces = m_generator.namespacesForPlugin();
+            auto namespaces = m_generator.namespacesForInputInPlugin();
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));

@@ -24,7 +24,7 @@ public:
 
     using Msg1 = test29::message::Msg1<Interface, test29::options::BareMetalDefaultOptions>;
     using Msg2 = test29::message::Msg2<Interface, test29::options::BareMetalDefaultOptions>;    
-    using AllMessages = test29::AllMessages<Interface, test29::options::BareMetalDefaultOptions>;
+    using AllMessages = test29::input::AllMessages<Interface, test29::options::BareMetalDefaultOptions>;
     using Frame = test29::frame::Frame<Interface, AllMessages, test29::options::BareMetalDefaultOptions>;
 };
 

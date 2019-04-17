@@ -57,7 +57,7 @@ bool Test::writeInputTest() const
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("PROJ_NS", m_generator.mainNamespace()));
+    replacements.insert(std::make_pair("INPUT_MESSAGES", m_generator.scopeForInput(common::allMessagesStr(), true, true)));
     replacements.insert(std::make_pair("ID_TYPE", m_generator.mainNamespace() + "::" + common::msgIdEnumNameStr()));
     
     auto* idField = m_generator.getMessageIdField();
@@ -101,7 +101,7 @@ bool Test::writeInputTest() const
         "#endif\n\n"
         "#include QUOTES(INTERFACE_HEADER)\n"
         "#include QUOTES(FRAME_HEADER)\n"
-        "#include QUOTES(OPTIONS_HEADER)\n"
+        "#include QUOTES(OPTIONS_HEADER)\n\n"
         "namespace\n"
         "{\n\n"
         "struct Handler;\n"
@@ -113,7 +113,7 @@ bool Test::writeInputTest() const
         "        comms::option::Handler<Handler>\n"
         "    >;\n\n"
         "using AppOptions = OPTIONS;\n"
-        "using AllMessages = #^#PROJ_NS#$#::AllMessages<Message, AppOptions>;\n"
+        "using AllMessages = #^#INPUT_MESSAGES#$#<Message, AppOptions>;\n"
         "using Frame = FRAME<Message, AllMessages, AppOptions>;\n\n"
         "Frame frame;\n\n"
         "void printIndent(unsigned indent)\n"
@@ -461,6 +461,7 @@ bool Test::writeInputTest() const
         m_generator.logger().error("Failed to write \"" + filePathStr + "\".");
         return false;
     }
+
     return true;
 }
 

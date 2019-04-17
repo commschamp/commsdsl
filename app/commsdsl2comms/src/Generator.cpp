@@ -374,6 +374,18 @@ Generator::startOptionsProtocolWrite(const std::string& name)
 }
 
 std::pair<std::string, std::string>
+Generator::startInputProtocolWrite(const std::string& name)
+{
+    return startProtocolWrite(name, common::inputStr());
+}
+
+std::pair<std::string, std::string>
+Generator::startInputPluginHeaderWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef, true, common::inputStr());
+}
+
+std::pair<std::string, std::string>
 Generator::startGenericProtocolWrite(const std::string& name)
 {
     return startProtocolWrite(name);
@@ -462,6 +474,18 @@ std::pair<std::string, std::string>
 Generator::namespacesForOptions() const
 {
     return namespacesForElement(common::emptyString(), common::optionsStr());
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForInput() const
+{
+    return namespacesForElement(common::emptyString(), common::inputStr());
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForInputInPlugin() const
+{
+    return namespacesForElement(common::emptyString(), common::inputStr(), true);
 }
 
 std::pair<std::string, std::string>
@@ -566,6 +590,15 @@ std::string Generator::headerfileForOptions(const std::string& name, bool quotes
     return headerfileForElement(name, quotes, common::optionsStr());
 }
 
+std::string Generator::headerfileForInput(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes, common::inputStr());
+}
+
+std::string Generator::headerfileForInputInPlugin(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes, common::inputStr(), true);
+}
 
 std::string Generator::scopeForMessage(
     const std::string& externalRef,
@@ -684,6 +717,18 @@ std::string Generator::scopeForOptions(
     return scopeForElement(name, mainIncluded, classIncluded, common::optionsStr());
 }
 
+std::string Generator::scopeForInput(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(name, mainIncluded, classIncluded, common::inputStr());
+}
+
+std::string Generator::scopeForInputInPlugin(const std::string& externalRef)
+{
+    return scopeForElement(externalRef, true, true, common::inputStr(), true);
+}
 
 std::string Generator::getDefaultOptionsBody() const
 {

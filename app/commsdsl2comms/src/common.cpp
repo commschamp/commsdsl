@@ -159,6 +159,18 @@ const std::string& allMessagesStr()
     return Str;
 }
 
+const std::string& serverInputMessagesStr()
+{
+    static const std::string Str("ServerInputMessages");
+    return Str;
+}
+
+const std::string& clientInputMessagesStr()
+{
+    static const std::string Str("ClientInputMessages");
+    return Str;
+}
+
 const std::string& checksumStr()
 {
     static const std::string Str("checksum");
@@ -258,6 +270,12 @@ const std::string& inputTestStr()
 const std::string& testStr()
 {
     static const std::string Str("test");
+    return Str;    
+}
+
+const std::string& inputStr()
+{
+    static const std::string Str("input");
     return Str;    
 }
 

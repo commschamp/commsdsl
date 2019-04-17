@@ -2,6 +2,7 @@
 build*
 CMakeLists.txt.user*
 .vscode
+*creator.user
 
 # Prerequisites
 *.d

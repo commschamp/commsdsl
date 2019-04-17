@@ -50,6 +50,8 @@ const std::string& defaultOptionsStr();
 const std::string& msgIdEnumNameStr();
 const std::string& msgIdPrefixStr();
 const std::string& allMessagesStr();
+const std::string& serverInputMessagesStr();
+const std::string& clientInputMessagesStr();
 const std::string& checksumStr();
 const std::string& layerStr();
 const std::string& pluginNsStr();
@@ -67,6 +69,7 @@ const std::string& seqDefaultSizeStr();
 const std::string& emptyOptionString();
 const std::string& inputTestStr();
 const std::string& testStr();
+const std::string& inputStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
