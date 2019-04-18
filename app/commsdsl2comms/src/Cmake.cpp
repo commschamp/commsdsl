@@ -99,7 +99,7 @@ bool Cmake::writeMain() const
         "# OPT_CC_MAIN_INSTALL_DIR - Path to CommsChampion external install directory (if such already built).\n"
         "# OPT_EXAMPLE_OPTIONS - Class name of the options for example applications, defaults to #^#DEFAULT_OPTIONS#$#.\n"        
         "# OPT_EXAMPLE_INTERFACE - Class name of the interface for example applications, defaults to #^#DEFAULT_INTERFACE#$#.\n"
-        "# OPT_EXAMPLE_FRAME - Class name of the frame for example applications, defaults to #^#DEFAULT_FRAME#$#.\n\n"
+        "# OPT_EXAMPLE_FRAME - Class name of the frame for example applications, defaults to #^#DEFAULT_FRAME#$#.\n"
         "# OPT_EXAMPLE_INPUT_MESSAGES - All input messages bundle, defaults to #^#DEFAULT_INPUT#$#.\n\n"
         "if (NOT CMAKE_CXX_STANDARD)\n"
         "    set (CMAKE_CXX_STANDARD 11)\n"
