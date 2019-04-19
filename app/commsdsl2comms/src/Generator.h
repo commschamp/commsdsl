@@ -338,14 +338,14 @@ public:
         return m_customizationLevel;
     }
 
-    bool isTestsBuildDisabled() const
+    bool testsBuildEnabledByDefault() const
     {
-        return m_options.testsBuildDisableRequested();
+        return m_options.testsBuildEnabledByDefault();
     }
 
-    bool isPluginBuildDisabled() const
+    bool pluginBuildEnabledByDefault() const
     {
-        return m_options.pluginBuildDisableRequested();
+        return m_options.pluginBuildEnabledByDefault();
     }
 
     std::string pluginCommonSources() const;

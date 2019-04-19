@@ -56,8 +56,8 @@ const std::string WarnAsErrStr("warn-as-err");
 const std::string VersionIndependentCodeStr("version-independent-code");
 const std::string ProtocolStr("protocol");
 const std::string CustomizationStr("customization");
-const std::string DisablePluginStr("no-plugin-build-by-default");
-const std::string DisableTestsStr("no-tests-build-by-default");
+const std::string GeneratedPluginBuildEnable("enable-plugin-build-by-default");
+const std::string GeneratedTestsBuildEnable("enable-tests-build-by-default");
 
 po::options_description createDescription()
 {
@@ -99,10 +99,10 @@ po::options_description createDescription()
             "By default the generated code is version dependent if at least one defined "
             "interface has \"version\" field. Use this switch to forcefully disable generation "
             "of version denendent code.")
-        (DisablePluginStr.c_str(),
-            "Make the plugin build in the generated project disabled by default.")
-        (DisableTestsStr.c_str(),
-            "Make the test application(s) build in the generated project disabled by default.")
+        (GeneratedPluginBuildEnable.c_str(), po::value<bool>()->default_value(false),
+            "Enable build of the CommsChampion Tools plugin in the generated project by default. Boolean parameter.")
+        (GeneratedTestsBuildEnable.c_str(), po::value<bool>()->default_value(false),
+            "Enable build of the test application(s) in the generated project by default. Boolean parameter.")
 
     ;
     return desc;
@@ -182,14 +182,14 @@ bool ProgramOptions::versionIndependentCodeRequested() const
     return 0 < m_vm.count(VersionIndependentCodeStr);
 }
 
-bool ProgramOptions::pluginBuildDisableRequested() const
+bool ProgramOptions::pluginBuildEnabledByDefault() const
 {
-    return 0 < m_vm.count(DisablePluginStr);
+    return m_vm[GeneratedPluginBuildEnable].as<bool>();
 }
 
-bool ProgramOptions::testsBuildDisableRequested() const
+bool ProgramOptions::testsBuildEnabledByDefault() const
 {
-    return 0 < m_vm.count(DisableTestsStr);
+    return m_vm[GeneratedTestsBuildEnable].as<bool>();
 }
 
 std::string ProgramOptions::getFilesListFile() const

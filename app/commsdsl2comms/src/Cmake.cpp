@@ -65,14 +65,14 @@ bool Cmake::writeMain() const
     auto* firstFrame = allFrames.front();
     assert(!firstFrame->name().empty());
 
-    std::string build_test_opt("ON");
-    if (m_generator.isTestsBuildDisabled()) {
-        build_test_opt = "OFF";
+    std::string build_test_opt("OFF");
+    if (m_generator.testsBuildEnabledByDefault()) {
+        build_test_opt = "ON";
     }
 
-    std::string build_plugin_opt("ON");
-    if (m_generator.isPluginBuildDisabled()) {
-        build_plugin_opt = "OFF";
+    std::string build_plugin_opt("OFF");
+    if (m_generator.pluginBuildEnabledByDefault()) {
+        build_plugin_opt = "ON";
     }
 
     common::ReplacementMap replacements;
