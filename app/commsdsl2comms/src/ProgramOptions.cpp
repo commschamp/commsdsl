@@ -46,8 +46,9 @@ const std::string InputFilesPrefixStr("input-files-prefix");
 const std::string FullInputFilesPrefixStr(InputFilesPrefixStr + ",p");
 const std::string NamespaceStr("namespace");
 const std::string FullNamespaceStr(NamespaceStr + ",n");
-const std::string ForceVerStr("force-version");
-const std::string FullForceVerStr(ForceVerStr + ",V");
+const std::string ForceVerStr("force-schema-version");
+const std::string ProtocolVerStr("protocol-version");
+const std::string FullProtocolVerStr(ProtocolVerStr + ",V");
 const std::string MinRemoteVerStr("min-remote-version");
 const std::string FullMinRemoteVerStr(MinRemoteVerStr + ",m");
 const std::string InputFileStr("input-file");
@@ -75,8 +76,11 @@ po::options_description createDescription()
             "Prefix for the values from the list file.")
         (FullNamespaceStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Force protocol namespace. Defaults to schema name.")
-        (FullForceVerStr.c_str(), po::value<unsigned>(),
+        (ForceVerStr.c_str(), po::value<unsigned>(),
             "Force schema version. Must not be greater than version specified in schema file.")
+        (FullProtocolVerStr.c_str(), po::value<std::string>()->default_value(std::string()),
+            "Specify semantic version of the generated protocol code using <major>.<minor>.<patch> format to "
+            "make this information available in the generated code")
         (FullMinRemoteVerStr.c_str(), po::value<unsigned>()->default_value(0U),
             "Set minimal supported remote version. Defaults to 0.")
         (CustomizationStr.c_str(), po::value<std::string>()->default_value("limited"),
@@ -272,6 +276,12 @@ std::string ProgramOptions::getCustomizationLevel() const
 {
     return m_vm[CustomizationStr].as<std::string>();
 }
+
+std::string ProgramOptions::getProtocolVersion() const
+{
+    return m_vm[ProtocolVerStr].as<std::string>();
+}
+
 
 } // namespace commsdsl2comms
 

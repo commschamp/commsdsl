@@ -348,6 +348,11 @@ public:
         return m_options.pluginBuildEnabledByDefault();
     }
 
+    std::string getProtocolVersion() const
+    {
+        return m_options.getProtocolVersion();
+    }
+
     std::string pluginCommonSources() const;
 
     PluginsAccessList getPlugins() const;
