@@ -76,7 +76,7 @@ or incomplete functionality available by default.
 # How to Use Generated Code
 Please refer to 
 [Generated CMake Project Walkthrough](https://github.com/arobenko/commsdsl/wiki/Generated-CMake-Project-Walkthrough)
-wiki page
+wiki page.
 
 # Versioning
 This project will use [Semantic Versioning](https://semver.org/), where
