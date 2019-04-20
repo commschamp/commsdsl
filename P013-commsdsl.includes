@@ -1,6 +1,0 @@
-app/commsdsl2comms/src
-app/commsdsl2comms/test/test18/src/include/test18/frame/checksum
-app/commsdsl2comms/test/test18/src/include/test18/frame/layer
-lib/include/commsdsl
-lib/src
-lib/test
