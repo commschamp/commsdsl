@@ -123,6 +123,23 @@ $> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \
 $> nmake install
 ```
 
+# Supported Compilers
+This project (the code generator and [CommsDSL](https://github.com/arobenko/CommsDSL-Specification) 
+parsing library) is implemented using C++14 programming language. As the result,
+the supported compilers are:
+- **GCC**: >=5
+- **Clang**: >=3.9
+- **MSVC**: >= 2015
+
+The **generated** project however contains C++11 valid code and supports a bit earlier
+versions of the compilers:
+- **GCC**: >=4.8
+- **Clang**: >=3.8
+- **MSVC**: >= 2015
+
+In some occasions **gcc** as early as v4.7 can be used to compile protocol
+code definition.
+
 # Branching Model
 This repository will follow the 
 [Successful Git Branching Model](http://nvie.com/posts/a-successful-git-branching-model/).
