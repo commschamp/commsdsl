@@ -145,7 +145,7 @@ bool Doxygen::writeConf() const
         "RECURSIVE              = YES\n"
         "EXCLUDE                = cc_plugin\n"
         "EXCLUDE_SYMLINKS       = NO\n"
-        "EXCLUDE_PATTERNS       = */cc_plugin/* */install/*\n"
+        "EXCLUDE_PATTERNS       = */cc_plugin/* */install/* */test/*\n"
         "EXCLUDE_SYMBOLS        = *details *cc_plugin\n"
         "EXAMPLE_RECURSIVE      = NO\n"
         "FILTER_SOURCE_FILES    = NO\n"
