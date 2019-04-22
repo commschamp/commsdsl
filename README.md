@@ -29,8 +29,8 @@ uses [COMMS library](https://github.com/arobenko/comms_champion#comms-library),
 which is provided under **GPLv3 / Commercial** dual licensing scheme. Unless
 commercial closed source license is obtained for the 
 [COMMS library](https://github.com/arobenko/comms_champion#comms-library), the
-generated code must remain open source and the picked license be compatible 
-with **GPLv3**.
+generated code as well as integrating business logic must remain open source 
+and the picked license be compatible with **GPLv3**.
 
 The code of this project (libraries and tools it contains) 
 is licensed under [Apache v2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
