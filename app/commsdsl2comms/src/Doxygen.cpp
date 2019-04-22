@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -145,7 +145,7 @@ bool Doxygen::writeConf() const
         "RECURSIVE              = YES\n"
         "EXCLUDE                = cc_plugin\n"
         "EXCLUDE_SYMLINKS       = NO\n"
-        "EXCLUDE_PATTERNS       = */cc_plugin/* */install/*\n"
+        "EXCLUDE_PATTERNS       = */cc_plugin/* */install/* */test/*\n"
         "EXCLUDE_SYMBOLS        = *details *cc_plugin\n"
         "EXAMPLE_RECURSIVE      = NO\n"
         "FILTER_SOURCE_FILES    = NO\n"
@@ -461,6 +461,10 @@ bool Doxygen::writeNamespaces() const
         "/// @brief Main namespace for the custom frame layers.\n\n"
         "/// @namespace #^#NS#$#::frame::checksum\n"
         "/// @brief Main namespace for the custom frame layers.\n\n"
+        "/// @namespace #^#NS#$#::options\n"
+        "/// @brief Main namespace for the various protocol options.\n\n"
+        "/// @namespace #^#NS#$#::input\n"
+        "/// @brief Main namespace for hold input messages bundles.\n\n"
         "#^#OTHER_NS#$#\n"
         "#^#APPEND#$#\n"
         ;
@@ -660,10 +664,10 @@ std::string Doxygen::getFramesDoc() const
         "///\n"
         "/// Every frame class/type definition receives (as a template parameter) a list of\n"
         "/// @b input message types it is expected to recognize. Default defintion\n"
-        "/// uses @ref #^#PROT_NAMESPACE#$#::AllMessages (defined in @b #^#PROT_NAMESPACE#$#/AllMessages.h).\n"
+        "/// uses @ref #^#ALL_MESSAGES#$# (defined in @b #^#ALL_MEASSAGES_HEADER#$#).\n"
         "/// @n If protocol defines any uni-directional message, then it is recommended to use\n"
-        "/// either @ref #^#PROT_NAMESPACE#$#::ServerInputMessages (from @b #^#PROT_NAMESPACE#$#/ServerInputMessages.h)\n"
-        "/// or @ref #^#PROT_NAMESPACE#$#::ClientInputMessages  (from @b #^#PROT_NAMESPACE#$#/ClientInputMessages.h)\n"
+        "/// either @ref #^#SERVER_MESSAGES#$# (from @b #^#SERVER_MESSAGES_HEADER#$#)\n"
+        "/// or @ref #^#CLIENT_MESSAGES#$#  (from @b #^#CLIENT_MESSAGES_HEADER#$#)\n"
         "#^#PLATFORMS#$#\n"
         "/// @b NOTE, that the frame definition does not exactly follow the recommended\n"
         "/// instructions from <b>Protocol Stack Definition Tutorial</b> page of @b COMMS\n"
@@ -687,6 +691,13 @@ std::string Doxygen::getFramesDoc() const
     repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
     repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     repl.insert(std::make_pair("PLATFORMS", getPlatformsDoc()));
+    repl.insert(std::make_pair("ALL_MESSAGES", m_generator.scopeForInput(common::allMessagesStr(), true, true)));
+    repl.insert(std::make_pair("ALL_MESSAGES_HEADER", m_generator.headerfileForInput(common::allMessagesStr(), false)));
+    repl.insert(std::make_pair("SERVER_MESSAGES", m_generator.scopeForInput(common::serverInputMessagesStr(), true, true)));
+    repl.insert(std::make_pair("SERVER_MESSAGES_HEADER", m_generator.headerfileForInput(common::serverInputMessagesStr(), false)));
+    repl.insert(std::make_pair("CLIENT_MESSAGES", m_generator.scopeForInput(common::clientInputMessagesStr(), true, true)));
+    repl.insert(std::make_pair("CLIENT_MESSAGES_HEADER", m_generator.headerfileForInput(common::clientInputMessagesStr(), false)));
+
     return common::processTemplate(Templ, repl);        
 }
 
@@ -708,12 +719,9 @@ std::string Doxygen::getPlatformsDoc() const
         auto addToListFunc = 
             [this, &p, &list](const std::string& type)
             {
-                auto scope = 
-                    m_generator.mainNamespace() + "::" + 
-                    common::nameToClassCopy(p) + type + "InputMessages";
-
-                auto file = ba::replace_all_copy(scope, "::", "/") + common::headerSuffix();
-
+                auto name = common::nameToClassCopy(p) + type + "InputMessages";
+                auto scope = m_generator.scopeForInput(name);
+                auto file = m_generator.headerfileForInput(name, false);
                 auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
                 list.push_back(std::move(str));
             };
@@ -732,25 +740,25 @@ std::string Doxygen::getCustomizeDoc() const
     static const std::string Templ = 
         "/// @section main_customization Customization\n"
         "/// Depending on the value of @b customization option passed to the @b commsdsl2comms\n"
-        "/// code generator, the latter generates @ref #^#PROT_NAMESPACE#$#::DefaultOptions\n"
-        "/// struct (defined in @b  #^#PROT_NAMESPACE#$#/DefaultOptions.h file),\n"
+        "/// code generator, the latter generates @ref #^#OPTIONS#$#\n"
+        "/// struct (defined in @b #^#OPTIONS_HDR#$# file),\n"
         "/// which is used by default thoughout the protocol definition classes.\n"
         "/// The struct contains all the available type definition, which can be used to\n"
         "/// customize default data structures and/or behaviour of various classes.\n"
         "/// If any additional customization is required, just recreate similar struct with\n"
         "/// relevant types overriden with new definition. The easiest way is to extend\n"
-        "/// the #^#PROT_NAMESPACE#$#::DefaultOptions. For example:\n"
+        "/// the #^#OPTIONS#$#. For example:\n"
         "/// @code\n"
-        "/// struct MyOptions : public #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+        "/// struct MyOptions : public #^#OPTIONS#$#\n"
         "/// {\n"
-        "///     struct field : public #^#PROT_NAMESPACE#$#::DefaultOptions::field\n"
+        "///     struct field : public #^#OPTIONS#$#::field\n"
         "///     {\n"
         "///         // use comms::util::StaticString as storage type\n"
         "///         using SomeStringField = comms::option::FixedSizeStorage<32>;\n"
         "///     };\n"
         "/// };\n"
         "/// @endcode\n"
-        "/// @b NOTE, that inner scope of structs in the #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+        "/// @b NOTE, that inner scope of structs in the #^#OPTIONS#$#\n"
         "/// resembles scope of namespaces used in protocol definition.\n" 
         "///\n"
         "/// The @b COMMS library also provides a flexible way to configure polymorphic\n"
@@ -784,12 +792,16 @@ std::string Doxygen::getCustomizeDoc() const
         "///        comms::option::IdInfoInterface // for polymorphic message ID retrieval\n"
         "///    >;\n"
         "/// @endcode\n"
-        "/// In this case the code generator may also define #^#PROT_NAMESPACE#$#::ServerDefaultOptions\n"
-        "/// (check for existence of #^#PROT_NAMESPACE#$#/ServerDefaultOptions.h file) and\n"
-        "/// #^#PROT_NAMESPACE#$#::ClientDefaultOptions (check for existence of #^#PROT_NAMESPACE#$#/ClientDefaultOptions.h file).\n"
+        "/// In this case the code generator may also define @b #^#SERVER_OPTIONS#$#\n"
+        "/// (check for existence of @b #^#SERVER_OPTIONS_HDR#$# file) and\n"
+        "/// @b #^#CLIENT_OPTIONS#$# (check for existence of @b #^#CLIENT_OPTIONS_HDR#$# file).\n"
         "/// These structs suppress generation of unnecessary virtual functions which are not\n"
         "/// going to be used. Consider using this structs as options instead of default\n"
-        "/// #^#PROT_NAMESPACE#$#::DefaultOptions.\n"
+        "/// #^#OPTIONS#$#.\n"
+        "///\n"
+        "/// Also there is @ref #^#BARE_METAL_OPTIONS#$#\n"
+        "/// (defined in @b #^#BARE_METAL_OPTIONS_HDR#$# file) which can help in defining\n"
+        "/// options for bare-metal applications. It exclude all usage of dynamic memory allocation.\n"
         "///\n"
         "/// In case non-custom &lt;id&gt; layer has been used in schema (files), custom,\n"
         "/// application-specific allocation options to it may include\n"
@@ -803,6 +815,14 @@ std::string Doxygen::getCustomizeDoc() const
     common::ReplacementMap repl;
     repl.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(allInterfaces.front()->externalRef(), true, true)));
     repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
+    repl.insert(std::make_pair("OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("CLIENT_OPTIONS", m_generator.scopeForOptions("Client" + common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("SERVER_OPTIONS", m_generator.scopeForOptions("Server" + common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("OPTIONS_HDR", m_generator.headerfileForOptions(common::defaultOptionsStr(), false)));
+    repl.insert(std::make_pair("CLIENT_OPTIONS_HDR", m_generator.headerfileForOptions("Client" + common::defaultOptionsStr(), false)));
+    repl.insert(std::make_pair("SERVER_OPTIONS_HDR", m_generator.headerfileForOptions("Server" + common::defaultOptionsStr(), false)));
+    repl.insert(std::make_pair("BARE_METAL_OPTIONS", m_generator.scopeForOptions(common::bareMetalStr() + common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("BARE_METAL_OPTIONS_HDR", m_generator.headerfileForOptions(common::bareMetalStr() + common::defaultOptionsStr(), false)));
 
     return common::processTemplate(Templ, repl);
 }

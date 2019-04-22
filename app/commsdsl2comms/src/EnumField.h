@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,6 +34,7 @@ public:
     std::string getValuesDefinition() const;
     std::string getValueName(std::intmax_t value) const;
     const std::string& underlyingType() const;
+    bool isUnsignedUnderlyingType() const;
 
     unsigned hexWidth() const;
 
@@ -72,6 +73,12 @@ private:
     std::string getEnumType(const std::string& className) const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getValid() const;
+    std::string getValueNameFunc() const;
+    std::string getValueNameFuncDirectBody() const;
+    std::string getValueNameFuncBinSearchBody() const;
+    std::string getValueNameBinSearchPairs() const;
+    std::string getBigUnsignedValueNameBinSearchPairs() const;
+    bool isDirectValueNameMapping() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;

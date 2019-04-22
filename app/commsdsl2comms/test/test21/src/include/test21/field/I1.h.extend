@@ -7,7 +7,7 @@ namespace field
 {
 
 /// @brief New definition of I1.
-template <typename TOpt = test21::DefaultOptions, typename... TExtraOpts>
+template <typename TOpt = test21::options::DefaultOptions, typename... TExtraOpts>
 using I1 = I1Orig<TOpt, TExtraOpts...>;
 
 } // namespace field

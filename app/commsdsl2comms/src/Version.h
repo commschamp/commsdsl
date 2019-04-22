@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,9 @@
 
 #pragma once
 
+#include <vector>
+#include <string>
+
 namespace commsdsl2comms
 {
 
@@ -22,6 +25,7 @@ class Generator;
 class Version
 {
 public:
+    using VersionNumbers = std::vector<unsigned>;
     static bool write(Generator& generator);
 
 private:
@@ -29,7 +33,9 @@ private:
 
     bool writeDefinition() const;
 
-private:
+    std::string protVersionDefine(const VersionNumbers& version) const;
+    std::string protVersionFunc() const;
+
     Generator& m_generator;
 };
 

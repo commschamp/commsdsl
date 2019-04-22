@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,6 +59,7 @@ public:
     static Ptr create(Generator& generator, commsdsl::Layer dslObj);
 
     std::string getDefaultOptions(const std::string& scope) const;
+    std::string getBareMetalDefaultOptions(const std::string& scope) const;
 
     bool rearange(LayersList& layers, bool& success)
     {
@@ -106,11 +107,15 @@ protected:
         const std::string& scope,
         std::string& prevLayer,
         bool& hasInputMessages) const = 0;
-    virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
+    virtual const std::string& getDefaultOptionStrImpl() const;
+    virtual const std::string& getBareMetalOptionStrImpl() const;
     virtual bool rearangeImpl(LayersList& layers, bool& success);
     virtual bool isCustomizableImpl() const;
 
 private:
+
+    using GetFieldOptionsFunc = std::string (Field::*)(const std::string& scope) const;
+    using GetOptionStrFunc = const std::string& (Layer::*)() const;
 
     bool isCustomizable() const
     {
@@ -118,6 +123,12 @@ private:
     }
 
     std::string extraOpsForExternalField() const;
+    std::string getOptions(
+        const std::string& scope,
+        GetFieldOptionsFunc fieldFunc,
+        GetOptionStrFunc optionStrFunc) const;
+    const std::string& getDefaultOptionStr() const;
+    const std::string& getBareMetalDefaultOptionStr() const;
 
     Generator& m_generator;
     commsdsl::Layer m_dslObj;

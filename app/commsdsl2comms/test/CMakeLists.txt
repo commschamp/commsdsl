@@ -88,6 +88,13 @@ function (test_func name)
             add_dependencies(${plugin_build_tgt} ${CC_EXTERNAL_TGT})
         endif ()
         
+        if (DOXYGEN_FOUND)
+            add_custom_target(doc_${name}
+                COMMAND COMMAND ${CMAKE_COMMAND} --build ${output_dir}/build --target doc_${name}
+                DEPENDS ${plugin_build_tgt} 
+            )
+        endif ()
+        
         break()
     endwhile()
 
@@ -194,13 +201,13 @@ if (NOT TARGET cc::comms)
     message (FATAL_ERROR "cc::comms target is not defined")
 endif () 
 
-#include_directories(${CC_INCLUDE_DIRS})
-#
-#if (CC_PLUGIN_LIBRARY_DIRS)
-#    link_directories("${CC_PLUGIN_LIBRARY_DIRS}")
-#endif ()
-
 include_directories ("${CXXTEST_INCLUDE_DIR}")
+
+find_package (Doxygen)
+
+if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9"))
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
+endif ()
 
 test_func (test1)
 test_func (test2)
@@ -230,3 +237,4 @@ test_func (test25)
 test_func (test26)
 test_func (test27)
 test_func (test28)
+test_func (test29)

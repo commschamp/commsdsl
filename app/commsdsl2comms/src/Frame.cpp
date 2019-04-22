@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -49,7 +49,7 @@ const std::string Template(
     "/// @tparam TOpt Protocol options.\n"
     "/// @see @ref #^#CLASS_NAME#$#\n"
     "/// @headerfile #^#HEADERFILE#$#\n"
-    "template <typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions>\n"
+    "template <typename TOpt = #^#OPTIONS#$#>\n"
     "struct #^#ORIG_CLASS_NAME#$#Layers\n"
     "{\n"
     "    #^#LAYERS_DEF#$#\n"
@@ -63,7 +63,7 @@ const std::string Template(
     "template <\n"
     "   typename TMessage,\n"
     "   #^#INPUT_MESSAGES#$#\n"
-    "   typename TOpt = #^#PROT_NAMESPACE#$#::DefaultOptions\n"
+    "   typename TOpt = #^#OPTIONS#$#\n"
     ">\n"
     "class #^#CLASS_NAME#$# : public\n"
     "    #^#FRAME_DEF#$#\n"
@@ -146,32 +146,12 @@ bool Frame::write()
 
 std::string Frame::getDefaultOptions() const
 {
-    common::StringsList layersOpts;
-    layersOpts.reserve(m_layers.size());
-    auto scope = m_generator.scopeForFrame(m_externalRef, true, true) + common::layersSuffixStr() + "::";
-    for (auto iter = m_layers.rbegin(); iter != m_layers.rend(); ++iter) {
-        auto opt = (*iter)->getDefaultOptions(scope);
-        if (!opt.empty()) {
-            layersOpts.push_back(std::move(opt));
-        }
-    }
+    return getOptions(&Layer::getDefaultOptions);
+}
 
-    if (layersOpts.empty()) {
-        return common::emptyString();
-    }
-
-    static const std::string Templ = 
-        "/// @brief Extra options for Layers of @ref #^#FRAME_SCOPE#$# frame.\n"
-        "struct #^#CLASS_NAME#$#Layers\n"
-        "{\n"
-        "    #^#LAYERS_OPTS#$#\n"
-        "}; // struct #^#CLASS_NAME#$#Layers\n";
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(m_dslObj.name())));
-    replacements.insert(std::make_pair("FRAME_SCOPE", m_generator.scopeForFrame(externalRef(), true, true)));
-    replacements.insert(std::make_pair("LAYERS_OPTS", common::listToString(layersOpts, "\n", common::emptyString())));
-    return common::processTemplate(Templ, replacements);
+std::string Frame::getBareMetalDefaultOptions() const
+{
+    return getOptions(&Layer::getBareMetalDefaultOptions);
 }
 
 bool Frame::writeProtocol()
@@ -200,6 +180,7 @@ bool Frame::writeProtocol()
     replacements.insert(std::make_pair("INPUT_MESSAGES", getInputMessages()));
     replacements.insert(std::make_pair("INPUT_MESSAGES_DOC", getInputMessagesDoc()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFrame(m_externalRef)));
+    replacements.insert(std::make_pair("OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
 
     auto namespaces = m_generator.namespacesForFrame(m_externalRef);
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -564,10 +545,7 @@ bool Frame::writePluginHeader()
 
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
-    auto allMessagesInclude =
-        "#include \"" + common::pluginNsStr() + '/' +
-        common::allMessagesStr() + common::headerSuffix() + "\"";
-
+    auto allMessagesInclude = "#include " + m_generator.headerfileForInputInPlugin(common::allMessagesStr());
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("FRAME_SCOPE", std::move(scope)));
@@ -575,7 +553,7 @@ bool Frame::writePluginHeader()
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("FRAME_INCLUDE", m_generator.headerfileForFrame(m_externalRef, true)));
     replacements.insert(std::make_pair("ALL_MESSAGES_INCLUDE", std::move(allMessagesInclude)));
-    replacements.insert(std::make_pair("ALL_MESSAGES", m_generator.mainNamespace() + "::" + common::pluginNsStr() + "::" + common::allMessagesStr()));
+    replacements.insert(std::make_pair("ALL_MESSAGES", m_generator.scopeForInputInPlugin(common::allMessagesStr())));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFrameHeaderInPlugin(m_externalRef)));
 
     std::string interfaceStr = "TInterface";
@@ -635,8 +613,8 @@ std::string Frame::getIncludes() const
 //        common::mergeInclude("<tuple>", includes);
 //    }
 
-    common::mergeInclude(m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix(), includes);
-    common::mergeInclude(m_generator.mainNamespace() + '/' + common::allMessagesStr() + common::headerSuffix(), includes);
+    common::mergeInclude(m_generator.headerfileForOptions(common::defaultOptionsStr(), false), includes);
+    common::mergeInclude(m_generator.headerfileForInput(common::allMessagesStr(), false), includes);
     return common::includesToStatements(includes);
 }
 
@@ -729,8 +707,7 @@ std::string Frame::getInputMessages() const
     }
 
     return
-        "typename TAllMessages = " + m_generator.mainNamespace() +
-            "::" + common::allMessagesStr() + "<TMessage>,";
+        "typename TAllMessages = " + m_generator.scopeForInput(common::allMessagesStr(), true, true) + "<TMessage>,";
 }
 
 std::string Frame::getInputMessagesDoc() const
@@ -781,6 +758,36 @@ unsigned Frame::calcBackPayloadOffset() const
                 assert(l.field().valid());
                 return soFar + l.field().minLength();
             });
+}
+
+std::string Frame::getOptions(GetLayerOptionsFunc func) const
+{
+    common::StringsList layersOpts;
+    layersOpts.reserve(m_layers.size());
+    auto scope = m_generator.scopeForFrame(m_externalRef, true, true) + common::layersSuffixStr() + "::";
+    for (auto iter = m_layers.rbegin(); iter != m_layers.rend(); ++iter) {
+        auto opt = ((*iter).get()->*func)(scope);
+        if (!opt.empty()) {
+            layersOpts.push_back(std::move(opt));
+        }
+    }
+
+    if (layersOpts.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Extra options for Layers of @ref #^#FRAME_SCOPE#$# frame.\n"
+        "struct #^#CLASS_NAME#$#Layers\n"
+        "{\n"
+        "    #^#LAYERS_OPTS#$#\n"
+        "}; // struct #^#CLASS_NAME#$#Layers\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(m_dslObj.name())));
+    replacements.insert(std::make_pair("FRAME_SCOPE", m_generator.scopeForFrame(externalRef(), true, true)));
+    replacements.insert(std::make_pair("LAYERS_OPTS", common::listToString(layersOpts, "\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
 }
 
 }

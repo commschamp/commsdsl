@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -201,22 +201,12 @@ std::string OptionalField::getClassDefinitionImpl(
 
 std::string OptionalField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    if (!m_field) {
-        return common::emptyString();
-    }
+    return getExtraOptions(scope, &Field::getDefaultOptions);
+}
 
-    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
-    auto fieldOptions = m_field->getDefaultOptions(memberScope);
-
-    if (fieldOptions.empty()) {
-        return common::emptyString();
-    }
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("SCOPE", scope));
-    replacements.insert(std::make_pair("OPTIONS", std::move(fieldOptions)));
-    return common::processTemplate(MembersOptionsTemplate, replacements);
+std::string OptionalField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
 }
 
 std::string OptionalField::getPluginAnonNamespaceImpl(
@@ -350,7 +340,7 @@ std::string OptionalField::getMembersDef(const std::string& scope) const
     std::string prefix;
     if (!externalRef().empty()) {
         prefix += "/// @tparam TOpt Protocol options.\n";
-        prefix += "template <typename TOpt = " + generator().mainNamespace() + "::" + common::defaultOptionsStr() + ">";
+        prefix += "template <typename TOpt = " + generator().scopeForOptions(common::defaultOptionsStr(), true, true) + ">";
     }
 
     common::ReplacementMap replacements;
@@ -388,11 +378,11 @@ void OptionalField::checkModeOpt(OptionalField::StringsList& options) const
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == static_cast<decltype(MapSize)>(commsdsl::OptionalField::Mode::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::OptionalField::Mode::NumOfValues), "Invalid map");
 
     auto obj = optionalFieldDslObj();
     auto mode = obj.defaultMode();
-    auto idx = static_cast<decltype(MapSize)>(mode);
+    auto idx = static_cast<std::size_t>(mode);
     if (MapSize <= idx) {
         assert(!"Should not happen");
         idx = 0U;
@@ -403,6 +393,26 @@ void OptionalField::checkModeOpt(OptionalField::StringsList& options) const
     }
 
     options.push_back(Map[idx]);
+}
+
+std::string OptionalField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const
+{
+    if (!m_field) {
+        return common::emptyString();
+    }
+
+    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    auto fieldOptions = (m_field.get()->*func)(memberScope);
+
+    if (fieldOptions.empty()) {
+        return common::emptyString();
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("OPTIONS", std::move(fieldOptions)));
+    return common::processTemplate(MembersOptionsTemplate, replacements);
 }
 
 } // namespace commsdsl2comms

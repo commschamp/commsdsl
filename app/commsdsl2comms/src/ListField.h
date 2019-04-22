@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,36 +30,39 @@ public:
     ListField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
 protected:
-    virtual bool prepareImpl() override;
-    virtual void updateIncludesImpl(IncludesList& includes) const override;
-    virtual void updatePluginIncludesImpl(IncludesList& includes) const override;
-    virtual std::size_t maxLengthImpl() const override;
+    virtual bool prepareImpl() override final;
+    virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updatePluginIncludesImpl(IncludesList& includes) const override final;
+    virtual std::size_t maxLengthImpl() const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
-        const std::string& className) const override;
-    virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override;
+        const std::string& className) const override final;
+    virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
+    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const override final;
+    virtual std::string getBareMetalOptionStrImpl() const override final;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,
         const std::string& nameOverride,
-        bool forcedVersionOptional) const override;
+        bool forcedVersionOptional) const override final;
     virtual std::string getCompareToFieldImpl(
         const std::string& op,
         const Field& field,
         const std::string& nameOverride,
-        bool forcedVersionOptional) const override;
+        bool forcedVersionOptional) const override final;
     virtual std::string getPluginAnonNamespaceImpl(
         const std::string& scope,
         bool forcedSerialisedHidden,
-        bool serHiddenParam) const override;
-    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
-    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override;
-    virtual bool hasCustomReadRefreshImpl() const override;
-    virtual std::string getReadPreparationImpl(const FieldsList& fields) const override;
-    virtual bool isLimitedCustomizableImpl() const override;
+        bool serHiddenParam) const override final;
+    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
+    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override final;
+    virtual bool hasCustomReadRefreshImpl() const override final;
+    virtual std::string getReadPreparationImpl(const FieldsList& fields) const override final;
+    virtual bool isLimitedCustomizableImpl() const override final;
 
 private:
     using StringsList = common::StringsList;
+    using GetExtraOptionsFunc = std::string (Field::*)(const std::string&) const;
 
     std::string getFieldOpts(const std::string& scope) const;
     std::string getElement() const;
@@ -71,6 +74,7 @@ private:
     bool checkDetachedPrefixOpt(StringsList& list) const;
     bool isElemForcedSerialisedHiddenInPlugin() const;
     std::string getPrefixName() const;
+    std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const;
 
 
     commsdsl::ListField listFieldDslObj() const

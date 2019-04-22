@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,6 +41,7 @@ protected:
         const std::string& scope,
         const std::string& className) const override final;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
+    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const override final;
     virtual std::string getPluginAnonNamespaceImpl(
         const std::string& scope,
         bool forcedSerialisedHidden,
@@ -52,11 +53,13 @@ protected:
 
 private:
     using StringsList = common::StringsList;
+    using GetExtraOptionsFunc = std::string (Field::*)(const std::string&) const;
 
     std::string getFieldOpts(const std::string& scope) const;
     std::string getMembersDef(const std::string& scope) const;
     std::string getFieldRef() const;
     void checkModeOpt(StringsList& options) const;
+    std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const;
 
     commsdsl::OptionalField optionalFieldDslObj() const
     {

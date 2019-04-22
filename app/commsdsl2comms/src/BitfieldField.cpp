@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -159,25 +159,12 @@ std::string BitfieldField::getClassDefinitionImpl(
 
 std::string BitfieldField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
-    StringsList options;
-    options.reserve(m_members.size());
-    for (auto& m : m_members) {
-        auto opt = m->getDefaultOptions(memberScope);
-        if (!opt.empty()) {
-            options.push_back(std::move(opt));
-        }
-    }
+    return getExtraOptions(scope, &Field::getDefaultOptions);
+}
 
-    if (options.empty()) {
-        return common::emptyString();
-    }
-
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("SCOPE", scope));
-    replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
-    return common::processTemplate(MembersOptionsTemplate, replacements);
+std::string BitfieldField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
 }
 
 std::string BitfieldField::getPluginAnonNamespaceImpl(
@@ -266,7 +253,7 @@ std::string BitfieldField::getMembersDef(
     std::string prefix;
     if (!externalRef().empty()) {
         prefix += "/// @tparam TOpt Protocol options.\n";
-        prefix += "template <typename TOpt = " + generator().mainNamespace() + "::" + common::defaultOptionsStr() + ">";
+        prefix += "template <typename TOpt = " + generator().scopeForOptions(common::defaultOptionsStr(), true, true) + ">";
     }
 
     common::ReplacementMap replacements;
@@ -312,6 +299,32 @@ std::string BitfieldField::getAccess() const
     replacements.insert(std::make_pair("ACCESS_DOC", common::listToString(accessDocList, "\n", common::emptyString())));
     replacements.insert(std::make_pair("NAMES", common::listToString(namesList, ",\n", common::emptyString())));
     return common::processTemplate(Templ, replacements);
+}
+
+std::string BitfieldField::getExtraOptions(
+    const std::string& scope, 
+    GetExtraOptionsFunc func) const
+{
+    std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    StringsList options;
+    options.reserve(m_members.size());
+    for (auto& m : m_members) {
+        assert(m);
+        auto opt = (m.get()->*func)(memberScope);
+        if (!opt.empty()) {
+            options.push_back(std::move(opt));
+        }
+    }
+
+    if (options.empty()) {
+        return common::emptyString();
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
+    return common::processTemplate(MembersOptionsTemplate, replacements);
 }
 
 } // namespace commsdsl2comms

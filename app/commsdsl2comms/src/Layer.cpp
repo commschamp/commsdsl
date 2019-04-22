@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -141,59 +141,12 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
 
 std::string Layer::getDefaultOptions(const std::string& scope) const
 {
-    auto fullScope = scope;
-    // if (!m_externalRef.empty()) {
-    //     fullScope += common::fieldStr() + "::";
-    // }
+    return getOptions(scope, &Field::getDefaultOptions, &Layer::getDefaultOptionStr);
+}
 
-    auto className = common::nameToClassCopy(name());
-    std::string str;
-    do {
-        if (!m_field) {
-            break;
-        }
-
-        auto fieldScope = 
-            fullScope + className + 
-            common::membersSuffixStr() + "::";
-
-        auto opt = m_field->getDefaultOptions(fieldScope);
-        if (opt.empty()) {
-            break;
-        }
-
-        static const std::string Templ = 
-            "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
-            "struct #^#CLASS_NAME#$#Members\n"
-            "{\n"
-            "    #^#FIELD_OPT#$#\n"
-            "};\n\n";
-
-
-
-        common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("SCOPE", scope));
-        replacements.insert(std::make_pair("CLASS_NAME", className));
-        replacements.insert(std::make_pair("FIELD_OPT", std::move(opt)));
-        str += common::processTemplate(Templ, replacements);
-
-    } while (false);
-
-    str += getExtraDefaultOptionsImpl(fullScope);
-    // if (!str.empty()) {
-    //     str += '\n';
-    // }
-
-    if (!isCustomizable()) {
-        return str;
-    }
-
-    return
-        str +
-        "/// @brief Extra options for @ref " +
-        fullScope + className + " layer.\n" +
-        "using " + className +
-            " = comms::option::EmptyOption;\n";
+std::string Layer::getBareMetalDefaultOptions(const std::string& scope) const
+{
+    return getOptions(scope, &Field::getBareMetalDefaultOptions, &Layer::getBareMetalDefaultOptionStr);
 }
 
 std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
@@ -212,8 +165,8 @@ std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
         std::string templateParams;
         if (m_forcedFieldPseudo) {
             templateParams = 
-                m_generator.mainNamespace() + "::" + 
-                common::defaultOptionsStr() + ", comms::option::EmptySerialization";
+                m_generator.scopeForOptions(common::defaultOptionsStr(), true, true) +
+                ", comms::option::EmptySerialization";
         }        
         return m_generator.scopeForField(extRef, true, true) + '<' + templateParams + '>';
     }
@@ -391,10 +344,14 @@ void Layer::updateIncludesImpl(IncludesList& includes) const
     static_cast<void>(includes);
 }
 
-std::string Layer::getExtraDefaultOptionsImpl(const std::string& scope) const
+const std::string& Layer::getDefaultOptionStrImpl() const
 {
-    static_cast<void>(scope);
-    return common::emptyString();
+    return common::emptyOptionString();
+}
+
+const std::string&  Layer::getBareMetalOptionStrImpl() const
+{
+    return common::emptyOptionString();
 }
 
 bool Layer::rearangeImpl(LayersList& layers, bool& success)
@@ -422,5 +379,66 @@ std::string Layer::extraOpsForExternalField() const
 
     return extraOpt;
 }
+
+std::string Layer::getOptions(const std::string& scope,
+    GetFieldOptionsFunc fieldFunc,
+    GetOptionStrFunc optionStrFunc) const
+{
+    auto fullScope = scope;
+    auto className = common::nameToClassCopy(name());
+    std::string str;
+    do {
+        if (!m_field) {
+            break;
+        }
+
+        auto fieldScope =
+            fullScope + className +
+            common::membersSuffixStr() + "::";
+
+        auto opt = (m_field.get()->*fieldFunc)(fieldScope);
+        if (opt.empty()) {
+            break;
+        }
+
+        static const std::string Templ =
+            "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
+            "struct #^#CLASS_NAME#$#Members\n"
+            "{\n"
+            "    #^#FIELD_OPT#$#\n"
+            "};\n\n";
+
+
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("SCOPE", scope));
+        replacements.insert(std::make_pair("CLASS_NAME", className));
+        replacements.insert(std::make_pair("FIELD_OPT", std::move(opt)));
+        str += common::processTemplate(Templ, replacements);
+
+    } while (false);
+
+    if (!isCustomizable()) {
+        return str;
+    }
+
+    return
+        str +
+        "/// @brief Extra options for @ref " +
+        fullScope + className + " layer.\n" +
+        "using " + className + " = " +
+        (this->*optionStrFunc)() + ";\n";
+}
+
+const std::string& Layer::getDefaultOptionStr() const
+{
+    return getDefaultOptionStrImpl();
+}
+
+const std::string& Layer::getBareMetalDefaultOptionStr() const
+{
+    return getBareMetalOptionStrImpl();
+}
+
 
 } // namespace commsdsl2comms

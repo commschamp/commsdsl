@@ -44,6 +44,7 @@ set (
     "Plugin.cpp"
     "Doxygen.cpp"
     "Version.cpp"
+    "Test.cpp"
 )
 
 add_executable(${APP_NAME} ${src})

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -76,6 +76,8 @@ public:
 
     std::string pluginDir();
 
+    std::string testDir();
+
     std::pair<std::string, std::string>
     startMessageProtocolWrite(const std::string& externalRef);
 
@@ -124,6 +126,15 @@ public:
         const std::string& extension);
 
     std::pair<std::string, std::string>
+    startOptionsProtocolWrite(const std::string& name);
+
+    std::pair<std::string, std::string>
+    startInputProtocolWrite(const std::string& name);
+
+    std::pair<std::string, std::string>
+    startInputPluginHeaderWrite(const std::string& externalRef);    
+
+    std::pair<std::string, std::string>
     startGenericProtocolWrite(const std::string& name);
 
     std::pair<std::string, std::string>
@@ -162,6 +173,15 @@ public:
     namespacesForPluginDef(const std::string& externalRef) const;
 
     std::pair<std::string, std::string>
+    namespacesForOptions() const;
+
+    std::pair<std::string, std::string>
+    namespacesForInput() const;    
+
+    std::pair<std::string, std::string>
+    namespacesForInputInPlugin() const;    
+
+    std::pair<std::string, std::string>
     namespacesForRoot() const;
 
     std::pair<std::string, std::string>
@@ -186,6 +206,11 @@ public:
     std::string headerfileForCustomChecksum(const std::string& name, bool quotes = true);
 
     std::string headerfileForCustomLayer(const std::string& name, bool quotes = true);
+
+    std::string headerfileForOptions(const std::string& name, bool quotes = true);
+
+    std::string headerfileForInput(const std::string& name, bool quotes = true);
+    std::string headerfileForInputInPlugin(const std::string& name, bool quotes = true);
 
     std::string scopeForMessage(
         const std::string& externalRef,
@@ -233,6 +258,18 @@ public:
         bool mainIncluded = true,
         bool appendSep = true);
 
+    std::string scopeForOptions(
+        const std::string& externalRef,
+        bool mainIncluded = false,
+        bool classIncluded = false);
+
+    std::string scopeForInput(
+        const std::string& externalRef,
+        bool mainIncluded = false,
+        bool classIncluded = false);
+
+    std::string scopeForInputInPlugin(const std::string& externalRef);
+
     const std::string& mainNamespace() const
     {
         return m_mainNamespace;
@@ -261,6 +298,7 @@ public:
     std::string getDefaultOptionsBody() const;
     std::string getClientDefaultOptionsBody() const;
     std::string getServerDefaultOptionsBody() const;
+    std::string getBareMetalDefaultOptionsBody() const;
 
     std::string getMessageIdStr(const std::string& externalRef, uintmax_t id) const;
 
@@ -298,6 +336,21 @@ public:
     CustomizationLevel customizationLevel() const
     {
         return m_customizationLevel;
+    }
+
+    bool testsBuildEnabledByDefault() const
+    {
+        return m_options.testsBuildEnabledByDefault();
+    }
+
+    bool pluginBuildEnabledByDefault() const
+    {
+        return m_options.pluginBuildEnabledByDefault();
+    }
+
+    std::string getProtocolVersion() const
+    {
+        return m_options.getProtocolVersion();
     }
 
     std::string pluginCommonSources() const;

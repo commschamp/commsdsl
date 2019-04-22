@@ -1,0 +1,92 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test29/Message.h"
+#include "test29/message/Msg1.h"
+#include "test29/frame/Frame.h"
+#include "test29/options/BareMetalDefaultOptions.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();    
+
+    using Interface =
+        test29::Message<
+            comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface
+        >;
+
+    using Msg1 = test29::message::Msg1<Interface, test29::options::BareMetalDefaultOptions>;
+    using Msg2 = test29::message::Msg2<Interface, test29::options::BareMetalDefaultOptions>;    
+    using AllMessages = test29::input::AllMessages<Interface, test29::options::BareMetalDefaultOptions>;
+    using Frame = test29::frame::Frame<Interface, AllMessages, test29::options::BareMetalDefaultOptions>;
+};
+
+void TestSuite::test1()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        1, 
+        (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
+        0xb, 0xc, 0xd, 
+        0xaa, 0xaa, 0xbb, 0xbb
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test29::MsgId_M1);
+    auto* msg = static_cast<const Msg1*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg->field_f1().value(), "hello");
+    TS_ASSERT_EQUALS(msg->field_f2().value()[0], 0xb);
+    TS_ASSERT_EQUALS(msg->field_f2().value()[1], 0xc);
+    TS_ASSERT_EQUALS(msg->field_f2().value()[2], 0xd);
+    TS_ASSERT_EQUALS(msg->field_f3().value()[0].value(), 0xaaaa);
+    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);    
+    
+    auto msg2 = frame.createMsg(test29::MsgId_M2);
+    TS_ASSERT(msg2 == nullptr);
+}
+
+void TestSuite::test2()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        2, 
+        5, (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
+        3, 0xb, 0xc, 0xd, 
+        2, 0xaa, 0xaa, 0xbb, 0xbb
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test29::MsgId_M2);
+    auto* msg = static_cast<const Msg2*>(msgPtr.get());
+    TS_ASSERT(msg != nullptr);
+    TS_ASSERT_EQUALS(msg->field_f1().value().c_str(), "hello");
+    TS_ASSERT_EQUALS(msg->field_f2().value()[0], 0xb);
+    TS_ASSERT_EQUALS(msg->field_f2().value()[1], 0xc);
+    TS_ASSERT_EQUALS(msg->field_f2().value()[2], 0xd);
+    TS_ASSERT_EQUALS(msg->field_f3().value()[0].value(), 0xaaaa);
+    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);    
+    
+    auto msg2 = frame.createMsg(test29::MsgId_M1);
+    TS_ASSERT(msg2 == nullptr);
+}

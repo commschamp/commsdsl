@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -159,6 +159,18 @@ const std::string& allMessagesStr()
     return Str;
 }
 
+const std::string& serverInputMessagesStr()
+{
+    static const std::string Str("ServerInputMessages");
+    return Str;
+}
+
+const std::string& clientInputMessagesStr()
+{
+    static const std::string Str("ClientInputMessages");
+    return Str;
+}
+
 const std::string& checksumStr()
 {
     static const std::string Str("checksum");
@@ -223,6 +235,48 @@ const std::string& versionStr()
 {
     static const std::string Str("version");
     return Str;
+}
+
+const std::string& optionsStr()
+{
+    static const std::string Str("options");
+    return Str;
+}
+
+const std::string& bareMetalStr()
+{
+    static const std::string Str("BareMetal");
+    return Str;
+}
+
+const std::string& seqDefaultSizeStr()
+{
+    static const std::string Str("DEFAULT_SEQ_FIXED_STORAGE_SIZE");
+    return Str;
+}
+
+const std::string& emptyOptionString()
+{
+    static const std::string Str("comms::option::EmptyOption");
+    return Str;
+}
+
+const std::string& inputTestStr()
+{
+    static const std::string Str("input_test");
+    return Str;    
+}
+
+const std::string& testStr()
+{
+    static const std::string Str("test");
+    return Str;    
+}
+
+const std::string& inputStr()
+{
+    static const std::string Str("input");
+    return Str;    
 }
 
 void nameToClass(std::string& str)
@@ -578,7 +632,7 @@ const std::string& dslEndianToOpt(commsdsl::Endian value)
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == static_cast<decltype(MapSize)>(commsdsl::Endian_NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::Endian_NumOfValues),
         "Invalid map");
 
     if (commsdsl::Endian_NumOfValues <= value) {
@@ -637,9 +691,8 @@ const std::string& dslUnitsToOpt(commsdsl::Units value)
         /* Kilovolts */ "comms::option::UnitsKilovolts",
     };
 
-    static const std::size_t UnitsMapSize =
-        std::extent<decltype(UnitsMap)>::value;
-    static_assert(static_cast<decltype(UnitsMapSize)>(commsdsl::Units::NumOfValues) == UnitsMapSize,
+    static const std::size_t UnitsMapSize = std::extent<decltype(UnitsMap)>::value;
+    static_assert(static_cast<std::size_t>(commsdsl::Units::NumOfValues) == UnitsMapSize,
         "Invalid Map");
 
     auto idx = static_cast<unsigned>(value);

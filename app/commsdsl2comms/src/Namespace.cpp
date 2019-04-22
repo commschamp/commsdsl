@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -129,113 +129,11 @@ bool Namespace::writeFields()
 
 std::string Namespace::getDefaultOptions() const
 {
-
-    auto addFunc =
-        [](const std::string& str, std::string& result)
-        {
-            if (str.empty()) {
-                return;
-            }
-
-            if (!result.empty()) {
-                result += '\n';
-            }
-
-            result += str;
-        };
-
-    std::string namespacesOpts;
-    for (auto& n : m_namespaces) {
-        addFunc(n->getDefaultOptions(), namespacesOpts);
-    }
-
-    std::string fieldsOpts;
-    auto scope = m_generator.scopeForNamespace(externalRef());
-    for (auto& f : m_fields) {
-        auto iter = m_accessedFields.find(f.get());
-        if (iter == m_accessedFields.end()) {
-            continue;
-        }
-
-        addFunc(f->getDefaultOptions(scope), fieldsOpts);
-    }
-
-    std::string messagesOpts;
-    for (auto& m : m_messages) {
-        addFunc(m->getDefaultOptions(), messagesOpts);
-    }
-    std::string framesOpts;
-    for (auto& f : m_frames) {
-        addFunc(f->getDefaultOptions(), framesOpts);
-    }
-
-    if (!fieldsOpts.empty()) {
-        static const std::string FieldsWrapTempl =
-            "/// @brief Extra options for fields.\n"
-            "struct field\n"
-            "{\n"
-            "    #^#FIELDS_OPTS#$#\n"
-            "}; // struct field\n";
-
-        common::ReplacementMap replacmenents;
-        replacmenents.insert(std::make_pair("FIELDS_OPTS", fieldsOpts));
-        fieldsOpts = common::processTemplate(FieldsWrapTempl, replacmenents);
-    }
-
-    if (!messagesOpts.empty()) {
-        static const std::string MessageWrapTempl =
-            "/// @brief Extra options for messages.\n"
-            "struct message\n"
-            "{\n"
-            "    #^#MESSAGES_OPTS#$#\n"
-            "}; // struct message\n";
-
-        common::ReplacementMap replacmenents;
-        replacmenents.insert(std::make_pair("MESSAGES_OPTS", messagesOpts));
-        messagesOpts = common::processTemplate(MessageWrapTempl, replacmenents);
-    }
-
-    if (!framesOpts.empty()) {
-        static const std::string FrameWrapTempl =
-            "/// @brief Extra options for frames.\n"
-            "struct frame\n"
-            "{\n"
-            "    #^#FRAMES_OPTS#$#\n"
-            "}; // struct frame\n";
-
-        common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("FRAMES_OPTS", framesOpts));
-        framesOpts = common::processTemplate(FrameWrapTempl, replacements);
-    }
-
-    common::ReplacementMap replacmenents;
-    replacmenents.insert(std::make_pair("NAMESPACE_NAME", name()));
-    replacmenents.insert(std::make_pair("NAMESPACES_OPTS", std::move(namespacesOpts)));
-    replacmenents.insert(std::make_pair("MESSAGES_OPTS", std::move(messagesOpts)));
-    replacmenents.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
-    replacmenents.insert(std::make_pair("FRAMES_OPTS", std::move(framesOpts)));
-
-    static const std::string Templ =
-        "/// @brief Scope for extra options for fields and messages in the namespace.\n"
-        "struct #^#NAMESPACE_NAME#$#\n"
-        "{\n"
-        "    #^#NAMESPACES_OPTS#$#\n"
-        "    #^#FIELDS_OPTS#$#\n"
-        "    #^#MESSAGES_OPTS#$#\n"
-        "    #^#FRAMES_OPTS#$#\n"
-        "};\n";
-
-    static const std::string GlobalTempl =
-        "#^#FIELDS_OPTS#$#\n"
-        "#^#MESSAGES_OPTS#$#\n"
-        "#^#FRAMES_OPTS#$#\n";
-
-    auto* templ = &Templ;
-    if (name().empty()) {
-        templ = &GlobalTempl;
-    }
-
-    return common::processTemplate(*templ, replacmenents);
+    return getOptions(
+        &Namespace::getDefaultOptions,
+        &Field::getDefaultOptions,
+        &Message::getDefaultOptions,
+        &Frame::getDefaultOptions);
 }
 
 std::string Namespace::getClientOptions() const
@@ -246,6 +144,15 @@ std::string Namespace::getClientOptions() const
 std::string Namespace::getServerOptions() const
 {
     return getClientServerOptions(&Message::getServerOptions);
+}
+
+std::string Namespace::getBareMetalDefaultOptions() const
+{
+    return getOptions(
+        &Namespace::getBareMetalDefaultOptions,
+        &Field::getBareMetalDefaultOptions,
+        &Message::getBareMetalDefaultOptions,
+        &Frame::getBareMetalDefaultOptions);
 }
 
 Namespace::NamespacesScopesList Namespace::getNamespacesScopes() const
@@ -715,7 +622,7 @@ bool commsdsl2comms::Namespace::hasFrame() const
             });
 }
 
-std::string Namespace::getClientServerOptions(GetClientServerOptionsFunc func) const
+std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func) const
 {
     common::StringsList messagesOpts;
     for (auto& m : m_messages) {
@@ -752,12 +659,127 @@ std::string Namespace::getClientServerOptions(GetClientServerOptionsFunc func) c
         templ = &GlobalTempl;
     }
 
-    common::ReplacementMap replacmenents;
-    replacmenents.insert(std::make_pair("NAMESPACE_NAME", name()));
-    replacmenents.insert(std::make_pair("NAMESPACE_SCOPE", m_generator.scopeForNamespace(externalRef(), false, false)));
-    replacmenents.insert(std::make_pair("MESSAGES_OPTS", common::listToString(messagesOpts, "\n", common::emptyString())));
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAMESPACE_NAME", name()));
+    replacements.insert(std::make_pair("NAMESPACE_SCOPE", m_generator.scopeForNamespace(externalRef(), false, false)));
+    replacements.insert(std::make_pair("MESSAGES_OPTS", common::listToString(messagesOpts, "\n", common::emptyString())));
 
-    return common::processTemplate(*templ, replacmenents);
+    return common::processTemplate(*templ, replacements);
+}
+
+std::string Namespace::getOptions(
+    GetNamespaceOptionsFunc nsFunc,
+    GetFieldOptionsFunc fieldFunc,
+    GetMessageOptionsFunc messageFunc,
+    GetFrameOptionsFunc frameFunc) const
+{
+
+    auto addFunc =
+        [](const std::string& str, std::string& result)
+        {
+            if (str.empty()) {
+                return;
+            }
+
+            if (!result.empty()) {
+                result += '\n';
+            }
+
+            result += str;
+        };
+
+    std::string namespacesOpts;
+    for (auto& n : m_namespaces) {
+        addFunc((n.get()->*nsFunc)(), namespacesOpts);
+    }
+
+    std::string fieldsOpts;
+    auto scope = m_generator.scopeForNamespace(externalRef());
+    for (auto& f : m_fields) {
+        auto iter = m_accessedFields.find(f.get());
+        if (iter == m_accessedFields.end()) {
+            continue;
+        }
+
+        addFunc((f.get()->*fieldFunc)(scope), fieldsOpts);
+    }
+
+    std::string messagesOpts;
+    for (auto& m : m_messages) {
+        addFunc((m.get()->*messageFunc)(), messagesOpts);
+    }
+    std::string framesOpts;
+    for (auto& f : m_frames) {
+        addFunc((f.get()->*frameFunc)(), framesOpts);
+    }
+
+    if (!fieldsOpts.empty()) {
+        static const std::string FieldsWrapTempl =
+            "/// @brief Extra options for fields.\n"
+            "struct field\n"
+            "{\n"
+            "    #^#FIELDS_OPTS#$#\n"
+            "}; // struct field\n";
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("FIELDS_OPTS", fieldsOpts));
+        fieldsOpts = common::processTemplate(FieldsWrapTempl, replacements);
+    }
+
+    if (!messagesOpts.empty()) {
+        static const std::string MessageWrapTempl =
+            "/// @brief Extra options for messages.\n"
+            "struct message\n"
+            "{\n"
+            "    #^#MESSAGES_OPTS#$#\n"
+            "}; // struct message\n";
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("MESSAGES_OPTS", messagesOpts));
+        messagesOpts = common::processTemplate(MessageWrapTempl, replacements);
+    }
+
+    if (!framesOpts.empty()) {
+        static const std::string FrameWrapTempl =
+            "/// @brief Extra options for frames.\n"
+            "struct frame\n"
+            "{\n"
+            "    #^#FRAMES_OPTS#$#\n"
+            "}; // struct frame\n";
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("FRAMES_OPTS", framesOpts));
+        framesOpts = common::processTemplate(FrameWrapTempl, replacements);
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAMESPACE_NAME", name()));
+    replacements.insert(std::make_pair("NAMESPACES_OPTS", std::move(namespacesOpts)));
+    replacements.insert(std::make_pair("MESSAGES_OPTS", std::move(messagesOpts)));
+    replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
+    replacements.insert(std::make_pair("FRAMES_OPTS", std::move(framesOpts)));
+
+    static const std::string Templ =
+        "/// @brief Scope for extra options for fields and messages in the namespace.\n"
+        "struct #^#NAMESPACE_NAME#$#\n"
+        "{\n"
+        "    #^#NAMESPACES_OPTS#$#\n"
+        "    #^#FIELDS_OPTS#$#\n"
+        "    #^#MESSAGES_OPTS#$#\n"
+        "    #^#FRAMES_OPTS#$#\n"
+        "};\n";
+
+    static const std::string GlobalTempl =
+        "#^#FIELDS_OPTS#$#\n"
+        "#^#MESSAGES_OPTS#$#\n"
+        "#^#FRAMES_OPTS#$#\n";
+
+    auto* templ = &Templ;
+    if (name().empty()) {
+        templ = &GlobalTempl;
+    }
+
+    return common::processTemplate(*templ, replacements);
 }
 
 }

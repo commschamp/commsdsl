@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,8 +68,7 @@ void Field::updateIncludes(Field::IncludesList& includes) const
     common::mergeInclude(m_generator.headerfileForField(common::fieldBaseStr(), false), includes);
 
     if (!m_externalRef.empty()) {
-        auto inc =
-            m_generator.mainNamespace() + '/' + common::defaultOptionsStr() + common::headerSuffix();
+        auto inc = m_generator.headerfileForOptions(common::defaultOptionsStr(), false);
         common::mergeInclude(inc, includes);
     }
 
@@ -129,12 +128,19 @@ std::string Field::getClassDefinition(
         str += getClassPrefix(classNameCpy, false);
 
         static const std::string Templ =
-            "using #^#CLASS_NAME#$# =\n"
+            "struct #^#CLASS_NAME#$# : public\n"
             "    comms::field::Optional<\n"
             "        #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#,\n"
             "        comms::option::#^#DEFAULT_MODE_OPT#$#,\n"
             "        comms::option::#^#VERSIONS_OPT#$#\n"
-            "    >;\n";
+            "    >\n"
+            "{\n"
+            "    /// @brief Name of the field.\n"
+            "    static const char* name()\n"
+            "    {\n"
+            "        return #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#::name();\n"
+            "    }\n"
+            "};\n";
 
         std::string fieldParams;
         if (!m_externalRef.empty()) {
@@ -229,7 +235,37 @@ std::string Field::getDefaultOptions(const std::string& scope) const
         "/// @brief Extra options for @ref " +
         fullScope + common::nameToClassCopy(name()) + " field.\n" +
         "using " + common::nameToClassCopy(name()) +
-            " = comms::option::EmptyOption;\n";
+            " = " + common::emptyOptionString() + ";\n";
+}
+
+std::string Field::getBareMetalDefaultOptions(const std::string& scope) const
+{
+    auto fullScope = scope;
+    if (!m_externalRef.empty()) {
+        fullScope += common::fieldStr() + "::";
+    }
+
+    auto str = getExtraBareMetalDefaultOptionsImpl(fullScope);
+    
+    if (!isCustomizable()) {
+        return str;
+    }   
+
+    auto optStr = getBareMetalOptionStrImpl();
+    if (optStr.empty()) {
+        return str;
+    } 
+
+    if (!str.empty()) {
+        str += '\n';
+    }
+
+    return
+        str +
+        "/// @brief Extra options for @ref " +
+        fullScope + common::nameToClassCopy(name()) + " field.\n" +
+        "using " + common::nameToClassCopy(name()) +
+            " = " + optStr + ";\n";
 }
 
 bool Field::writeFiles() const
@@ -308,9 +344,7 @@ std::string Field::getClassPrefix(
         str += "/// @tparam TOpt Protocol options.\n";
         str += "/// @tparam TExtraOpts Extra options.\n";
         str += "template <typename TOpt = ";
-        str += m_generator.mainNamespace();
-        str += "::";
-        str += common::defaultOptionsStr();
+        str += m_generator.scopeForOptions(common::defaultOptionsStr(), true, true);
         str += ", typename... TExtraOpts>\n";
     }
 
@@ -728,6 +762,17 @@ std::string Field::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
     static_cast<void>(scope);
     return common::emptyString();
+}
+
+std::string Field::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+{
+    static_cast<void>(scope);
+    return common::emptyString();
+}
+
+std::string Field::getBareMetalOptionStrImpl() const
+{
+    return "comms::option::EmptyOption";
 }
 
 std::string Field::getCompareToValueImpl(const std::string& op,

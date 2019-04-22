@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,6 +31,7 @@
 #include "Cmake.h"
 #include "Doxygen.h"
 #include "Version.h"
+#include "Test.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -42,7 +43,7 @@ namespace
 {
 
 const unsigned MaxDslVersion = 1U;
-const std::string MinCommsVersionStr("1, 0, 0");
+const std::string MinCommsVersionStr("1, 2, 2");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
@@ -205,6 +206,17 @@ std::string Generator::pluginDir()
     return dir.string();
 }
 
+std::string Generator::testDir()
+{
+    auto dir = m_pathPrefix / common::testStr();
+    if (!createDir(dir)) {
+        m_logger.error("Failed to create \"" + dir.string() + "\" directory.");
+        return common::emptyString();
+    }
+
+    return dir.string();
+}
+
 std::pair<std::string, std::string> Generator::startMessageProtocolWrite(
     const std::string& externalRef)
 {
@@ -356,6 +368,24 @@ std::string Generator::startProtocolPluginCommonWrite(
 }
 
 std::pair<std::string, std::string>
+Generator::startOptionsProtocolWrite(const std::string& name)
+{
+    return startProtocolWrite(name, common::optionsStr());
+}
+
+std::pair<std::string, std::string>
+Generator::startInputProtocolWrite(const std::string& name)
+{
+    return startProtocolWrite(name, common::inputStr());
+}
+
+std::pair<std::string, std::string>
+Generator::startInputPluginHeaderWrite(const std::string& externalRef)
+{
+    return startPluginWrite(externalRef, true, common::inputStr());
+}
+
+std::pair<std::string, std::string>
 Generator::startGenericProtocolWrite(const std::string& name)
 {
     return startProtocolWrite(name);
@@ -438,6 +468,24 @@ std::pair<std::string, std::string>
 Generator::namespacesForPluginDef(const std::string& name) const
 {
     return namespacesForElement(name, common::pluginStr(), true);
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForOptions() const
+{
+    return namespacesForElement(common::emptyString(), common::optionsStr());
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForInput() const
+{
+    return namespacesForElement(common::emptyString(), common::inputStr());
+}
+
+std::pair<std::string, std::string>
+Generator::namespacesForInputInPlugin() const
+{
+    return namespacesForElement(common::emptyString(), common::inputStr(), true);
 }
 
 std::pair<std::string, std::string>
@@ -535,6 +583,21 @@ std::string Generator::headerfileForCustomLayer(const std::string& name, bool qu
     };
 
     return headerfileForElement(name, quotes, subNs);
+}
+
+std::string Generator::headerfileForOptions(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes, common::optionsStr());
+}
+
+std::string Generator::headerfileForInput(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes, common::inputStr());
+}
+
+std::string Generator::headerfileForInputInPlugin(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes, common::inputStr(), true);
 }
 
 std::string Generator::scopeForMessage(
@@ -646,6 +709,27 @@ std::string Generator::scopeForNamespace(
     return result;
 }
 
+std::string Generator::scopeForOptions(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(name, mainIncluded, classIncluded, common::optionsStr());
+}
+
+std::string Generator::scopeForInput(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(name, mainIncluded, classIncluded, common::inputStr());
+}
+
+std::string Generator::scopeForInputInPlugin(const std::string& externalRef)
+{
+    return scopeForElement(externalRef, true, true, common::inputStr(), true);
+}
+
 std::string Generator::getDefaultOptionsBody() const
 {
     return getOptionsBody(&Namespace::getDefaultOptions);
@@ -659,6 +743,11 @@ std::string Generator::getClientDefaultOptionsBody() const
 std::string Generator::getServerDefaultOptionsBody() const
 {
     return getOptionsBody(&Namespace::getServerOptions);
+}
+
+std::string Generator::getBareMetalDefaultOptionsBody() const
+{
+    return getOptionsBody(&Namespace::getBareMetalDefaultOptions);
 }
 
 std::string Generator::getMessageIdStr(const std::string& externalRef, std::uintmax_t id) const
@@ -975,6 +1064,7 @@ bool Generator::writeFiles()
     if ((!DefaultOptions::write(*this)) ||
         (!Cmake::write(*this)) ||
         (!Doxygen::write(*this)) ||
+        (!Test::write(*this)) ||
         (!writeExtraFiles())){
         return false;
     }
@@ -1576,7 +1666,8 @@ Generator::namespacesForElement(
     return std::make_pair(std::move(begStr), std::move(endStr));
 }
 
-std::string Generator::scopeForElement(const std::string& externalRef,
+std::string Generator::scopeForElement(
+    const std::string& externalRef,
     bool mainIncluded,
     bool classIncluded,
     const std::string& subNs,

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,8 @@ public:
     bool quietRequested() const;
     bool warnAsErrRequested() const;
     bool versionIndependentCodeRequested() const;
+    bool pluginBuildEnabledByDefault() const;
+    bool testsBuildEnabledByDefault() const;
 
     std::string getFilesListFile() const;
     std::string getFilesListPrefix() const;
@@ -47,6 +49,8 @@ public:
     std::string getCommsChampionTag() const;
     std::vector<std::string> getPlugins() const;
     std::string getCustomizationLevel() const;
+    std::string getProtocolVersion () const;
+    
 private:
     boost::program_options::variables_map m_vm;
 };

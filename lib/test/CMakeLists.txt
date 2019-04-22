@@ -35,6 +35,10 @@ set (common_test_src
     "CommonTestSuite.cpp"
 )
 
+if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9"))
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
+endif ()
+
 add_library(${COMMON_TEST_LIB_NAME} STATIC ${common_test_src})
 target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME})
 

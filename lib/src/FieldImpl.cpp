@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -625,7 +625,7 @@ bool FieldImpl::updateSemanticType()
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<decltype(MapSize)>(SemanticType::NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(SemanticType::NumOfValues),
         "Invalid map");
 
     if (iter->second.empty()) {

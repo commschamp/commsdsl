@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@ void IdLayer::updateIncludesImpl(Layer::IncludesList& includes) const
     };
 
     common::mergeIncludes(List, includes);
-    common::mergeInclude(generator().mainNamespace() + '/' + common::allMessagesStr() + common::headerSuffix(), includes);
+    common::mergeInclude(generator().headerfileForInput(common::allMessagesStr(), false), includes);
 }
 
 std::string IdLayer::getClassDefinitionImpl(
@@ -66,6 +66,12 @@ std::string IdLayer::getClassDefinitionImpl(
     prevLayer = common::nameToClassCopy(name());
     hasInputMessages = true;
     return common::processTemplate(Templ, replacements);
+}
+
+const std::string& IdLayer::getBareMetalOptionStrImpl() const
+{
+    static const std::string Str("comms::option::InPlaceAllocation");
+    return Str;
 }
 
 bool IdLayer::isCustomizableImpl() const

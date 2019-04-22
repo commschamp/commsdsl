@@ -5,6 +5,13 @@ image:
 init:
     - git config --global core.autocrlf input
 
+notifications:
+  - provider: Email
+    to:
+      - arobenko@gmail.com
+    on_build_failure: true
+    on_build_status_changed: true
+
 clone_folder: c:\projects\commsdsl
 shallow_clone: true             
 
@@ -23,9 +30,6 @@ environment:
     matrix:
         - CPP_STD: 11
           QT_VER: 5.6.3
-        - CPP_STD: 11
-          QT_VER: 5.6.3
-          CC_TAG: v1.0
         - CPP_STD: 14
           QT_VER: 5.6.3
 

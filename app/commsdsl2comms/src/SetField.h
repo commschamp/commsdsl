@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,6 +55,7 @@ private:
     std::string getFieldOpts(const std::string& scope) const;
     std::string getBitsAccess() const;
     std::string getValid() const;
+    std::string getBitName() const;
     void checkLengthOpt(StringsList& list) const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkReservedBitsOpt(StringsList& list) const;

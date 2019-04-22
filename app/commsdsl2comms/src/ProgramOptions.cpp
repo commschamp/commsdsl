@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -46,8 +46,9 @@ const std::string InputFilesPrefixStr("input-files-prefix");
 const std::string FullInputFilesPrefixStr(InputFilesPrefixStr + ",p");
 const std::string NamespaceStr("namespace");
 const std::string FullNamespaceStr(NamespaceStr + ",n");
-const std::string ForceVerStr("force-version");
-const std::string FullForceVerStr(ForceVerStr + ",V");
+const std::string ForceVerStr("force-schema-version");
+const std::string ProtocolVerStr("protocol-version");
+const std::string FullProtocolVerStr(ProtocolVerStr + ",V");
 const std::string MinRemoteVerStr("min-remote-version");
 const std::string FullMinRemoteVerStr(MinRemoteVerStr + ",m");
 const std::string InputFileStr("input-file");
@@ -56,6 +57,8 @@ const std::string WarnAsErrStr("warn-as-err");
 const std::string VersionIndependentCodeStr("version-independent-code");
 const std::string ProtocolStr("protocol");
 const std::string CustomizationStr("customization");
+const std::string GeneratedPluginBuildEnable("enable-plugin-build-by-default");
+const std::string GeneratedTestsBuildEnable("enable-tests-build-by-default");
 
 po::options_description createDescription()
 {
@@ -73,8 +76,11 @@ po::options_description createDescription()
             "Prefix for the values from the list file.")
         (FullNamespaceStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Force protocol namespace. Defaults to schema name.")
-        (FullForceVerStr.c_str(), po::value<unsigned>(),
+        (ForceVerStr.c_str(), po::value<unsigned>(),
             "Force schema version. Must not be greater than version specified in schema file.")
+        (FullProtocolVerStr.c_str(), po::value<std::string>()->default_value(std::string()),
+            "Specify semantic version of the generated protocol code using <major>.<minor>.<patch> format to "
+            "make this information available in the generated code")
         (FullMinRemoteVerStr.c_str(), po::value<unsigned>()->default_value(0U),
             "Set minimal supported remote version. Defaults to 0.")
         (CustomizationStr.c_str(), po::value<std::string>()->default_value("limited"),
@@ -97,6 +103,11 @@ po::options_description createDescription()
             "By default the generated code is version dependent if at least one defined "
             "interface has \"version\" field. Use this switch to forcefully disable generation "
             "of version denendent code.")
+        (GeneratedPluginBuildEnable.c_str(), po::value<bool>()->default_value(false),
+            "Enable build of the CommsChampion Tools plugin in the generated project by default. Boolean parameter.")
+        (GeneratedTestsBuildEnable.c_str(), po::value<bool>()->default_value(false),
+            "Enable build of the test application(s) in the generated project by default. Boolean parameter.")
+
     ;
     return desc;
 }
@@ -173,6 +184,16 @@ bool ProgramOptions::warnAsErrRequested() const
 bool ProgramOptions::versionIndependentCodeRequested() const
 {
     return 0 < m_vm.count(VersionIndependentCodeStr);
+}
+
+bool ProgramOptions::pluginBuildEnabledByDefault() const
+{
+    return m_vm[GeneratedPluginBuildEnable].as<bool>();
+}
+
+bool ProgramOptions::testsBuildEnabledByDefault() const
+{
+    return m_vm[GeneratedTestsBuildEnable].as<bool>();
 }
 
 std::string ProgramOptions::getFilesListFile() const
@@ -255,6 +276,12 @@ std::string ProgramOptions::getCustomizationLevel() const
 {
     return m_vm[CustomizationStr].as<std::string>();
 }
+
+std::string ProgramOptions::getProtocolVersion() const
+{
+    return m_vm[ProtocolVerStr].as<std::string>();
+}
+
 
 } // namespace commsdsl2comms
 

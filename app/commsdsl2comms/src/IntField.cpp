@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -111,7 +111,7 @@ const std::string& IntField::convertType(commsdsl::IntField::Type value, std::si
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<decltype(TypeMapSize)>(commsdsl::IntField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::IntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(value);
@@ -141,6 +141,25 @@ const std::string& IntField::convertType(commsdsl::IntField::Type value, std::si
 
     auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int64);
     return TypeMap[base + offset];
+}
+
+bool IntField::isUnsignedType(commsdsl::IntField::Type value)
+{
+    static const commsdsl::IntField::Type Map[] = {
+        commsdsl::IntField::Type::Uint8,
+        commsdsl::IntField::Type::Uint16,
+        commsdsl::IntField::Type::Uint32,
+        commsdsl::IntField::Type::Uint64,
+        commsdsl::IntField::Type::Uintvar,
+    };
+
+    auto iter = std::find(std::begin(Map), std::end(Map), value);
+    return iter != std::end(Map);
+}
+
+bool IntField::isUnsignedType() const
+{
+    return isUnsignedType(intFieldDslObj().type());
 }
 
 void IntField::updateIncludesImpl(IncludesList& includes) const
@@ -603,7 +622,7 @@ void IntField::checkLengthOpt(StringsList& list) const
     };
 
     static const std::size_t LengthMapSize = std::extent<decltype(LengthMap)>::value;
-    static_assert(LengthMapSize == static_cast<decltype(LengthMapSize)>(commsdsl::IntField::Type::NumOfValues),
+    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::IntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(type);
@@ -835,19 +854,9 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
 
 bool IntField::isUnsigned() const
 {
-    static const commsdsl::IntField::Type Map[] = {
-        commsdsl::IntField::Type::Uint8,
-        commsdsl::IntField::Type::Uint16,
-        commsdsl::IntField::Type::Uint32,
-        commsdsl::IntField::Type::Uint64,
-        commsdsl::IntField::Type::Uintvar,
-    };
-
     auto obj = intFieldDslObj();
     auto type = obj.type();
-
-    auto iter = std::find(std::begin(Map), std::end(Map), type);
-    return iter != std::end(Map);
+    return isUnsignedType(type);
 }
 
 } // namespace commsdsl2comms

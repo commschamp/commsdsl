@@ -1,5 +1,5 @@
 //
-// Copyright 2018 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -87,7 +87,6 @@ bool MsgId::writeDefinition() const
         assert(msgIdField->kind() == commsdsl::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const EnumField*>(msgIdField);
         auto values = castedMsgIdField->getValuesList();
-        // TODO: generate doxygen description
         auto& prefix = common::msgIdPrefixStr();
         for (auto& v : values) {
             v.insert(v.begin(), prefix.begin(), prefix.end());

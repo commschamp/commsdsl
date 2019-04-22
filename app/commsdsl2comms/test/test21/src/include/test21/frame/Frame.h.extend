@@ -13,8 +13,8 @@ namespace frame
 /// @headerfile "test21/frame/Frame.h"
 template <
    typename TMessage,
-   typename TAllMessages = test21::AllMessages<TMessage>,
-   typename TOpt = test21::DefaultOptions
+   typename TAllMessages = test21::input::AllMessages<TMessage>,
+   typename TOpt = test21::options::DefaultOptions
 >
 using Frame = FrameOrig<TMessage, TAllMessages, TOpt>;
 
