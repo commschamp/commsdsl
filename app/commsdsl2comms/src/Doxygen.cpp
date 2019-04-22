@@ -720,7 +720,7 @@ std::string Doxygen::getPlatformsDoc() const
             [this, &p, &list](const std::string& type)
             {
                 auto name = common::nameToClassCopy(p) + type + "InputMessages";
-                auto scope = m_generator.scopeForInput(name);
+                auto scope = m_generator.scopeForInput(name, true, true);
                 auto file = m_generator.headerfileForInput(name, false);
                 auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
                 list.push_back(std::move(str));
