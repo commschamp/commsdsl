@@ -241,6 +241,17 @@ ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
     return messages;
 }
 
+bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion)
+{
+    assert(m_schema);
+    auto currDslVersion = m_schema->dslVersion();
+    if (currDslVersion == 0U) {
+        return true;
+    }
+
+    return minDslVersion <= currDslVersion;
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);

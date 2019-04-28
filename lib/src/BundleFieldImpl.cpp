@@ -253,6 +253,21 @@ bool BundleFieldImpl::updateMembers()
         return false;
     }
 
+    auto lengthFieldsCount =
+        std::count_if(
+            m_members.begin(), m_members.end(),
+            [this](auto& m)
+            {
+                return m->semanticType() == SemanticType::Length;
+            });
+
+    if (1 < lengthFieldsCount) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "No more that single field with semantiType=\"" << common::lengthStr() << "\" "
+            "is allowed within \"" << common::bundleStr() << "\".";
+        return false;
+    }
+
     return true;
 }
 

@@ -53,6 +53,7 @@ public:
         None,
         Version,
         MessageId,
+        Length,
         NumOfValues
     };
 

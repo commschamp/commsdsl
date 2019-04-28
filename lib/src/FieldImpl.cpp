@@ -40,6 +40,12 @@
 namespace commsdsl
 {
 
+namespace {
+
+const unsigned MinDslVersionForLengthSemanticType  = 2U;
+
+} // namespace
+
 FieldImpl::Ptr FieldImpl::create(
     const std::string& kind,
     ::xmlNodePtr node,
@@ -621,7 +627,8 @@ bool FieldImpl::updateSemanticType()
     static const std::string Map[] = {
         /* None */ common::noneStr(),
         /* Version */ common::versionStr(),
-        /* MessageId */ common::toLowerCopy(common::messageIdStr())
+        /* MessageId */ common::toLowerCopy(common::messageIdStr()),
+        /* Length */ common::lengthStr(),
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -642,6 +649,7 @@ bool FieldImpl::updateSemanticType()
 
     m_state.m_semanticType =
         static_cast<SemanticType>(std::distance(std::begin(Map), valIter));
+
     return true;
 }
 
@@ -804,8 +812,39 @@ bool FieldImpl::verifySemanticType() const
     if (semanticType() == SemanticType::MessageId) {
         if (kind() != Kind::Enum) {
             logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::messageIdStr() << "\" is applicable only to " <<
-                "enum fields.";
+                "Semantic type \"" << common::messageIdStr() << "\" is applicable only to \"" <<
+                common::enumStr() << "\" fields.";
+            return false;
+        }
+        return true;
+    }
+
+    if (semanticType() == SemanticType::Length) {
+        if (!m_protocol.isFeatureSupported(MinDslVersionForLengthSemanticType)) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Semantic type \"" << common::lengthStr() << "\" supported only since "
+                "DSL v" << MinDslVersionForLengthSemanticType << ", please update \"" <<
+                common::dslVersionStr() << "\" property of your schema.";
+            return false;
+        }
+
+        if (kind() != Kind::Int) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Semantic type \"" << common::lengthStr() << "\" is applicable only to \"" <<
+                common::intStr() << "\" fields.";
+            return false;
+        }
+
+
+        auto parent = getParent();
+        if ((parent == nullptr) ||
+            (parent->objKind() != ObjKind::Field) ||
+            (static_cast<const FieldImpl*>(parent)->kind() != Kind::Bundle)) {
+
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Semantic type \"" << common::lengthStr() << "\" is applicable only to "
+                "members of \"" << common::bundleStr() << "\" field.";
+
             return false;
         }
 

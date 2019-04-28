@@ -95,6 +95,8 @@ public:
         return m_platforms;
     }
 
+    bool isFeatureSupported(unsigned minDslVersion);
+
 private:
     struct XmlDocFree
     {
