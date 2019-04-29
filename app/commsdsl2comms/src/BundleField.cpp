@@ -231,7 +231,7 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
 
     updateExtraOptions(scope, options);
 
-    bool hasCustomReadRefresh =
+    bool membersHaveCustomReadRefresh =
         std::any_of(
             m_members.begin(), m_members.end(),
             [](auto& m) {
@@ -239,9 +239,23 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
                 return m->hasCustomReadRefresh();
             });
 
-    if (hasCustomReadRefresh) {
+    if (membersHaveCustomReadRefresh) {
         common::addToList("comms::option::HasCustomRead", options);
         common::addToList("comms::option::HasCustomRefresh", options);
+    }
+
+    auto lengthFieldIter = 
+         std::find_if(
+            m_members.begin(), m_members.end(),
+            [](auto& m) {
+                assert(m);
+                return m->semanticType() == commsdsl::Field::SemanticType::Length;
+            });   
+
+    if (lengthFieldIter != m_members.end()) {
+        auto idx = static_cast<unsigned>(std::distance(m_members.begin(), lengthFieldIter));
+        auto optStr = "comms::option::RemLengthMemberField<" + common::numToString(idx) + '>';
+        common::addToList(optStr, options);
     }
 
     return common::listToString(options, ",\n", common::emptyString());

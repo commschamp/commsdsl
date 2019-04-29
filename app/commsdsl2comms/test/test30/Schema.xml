@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test30"
+        id="1"
+        endian="big"
+        version="5">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+        </enum>
+        
+        <bundle name="B1">
+            <int name="Length" type="uint8" semanticType="length" />
+            <string name="Str">
+                <lengthPrefix>
+                    <int name="Length" type="uint8" />
+                </lengthPrefix>
+            </string>
+        </bundle>
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="F1" field="B1" />
+        <int name="F2" type="uint16" />
+    </message>
+    
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>     
+</schema>

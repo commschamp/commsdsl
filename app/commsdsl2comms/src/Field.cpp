@@ -544,16 +544,28 @@ std::string Field::getReadForFields(
         readFunc = "doRead";
     }
 
+    bool esDeclared = false;
+    auto esAssignment =
+        [&esDeclared]() -> std::string
+        {
+            std::string str;
+            if (!esDeclared) {
+                str += "auto ";
+                esDeclared = true;
+            }
+            str += "es = ";
+            return str;
+        };
+
     common::StringsList reads;
-    std::size_t prevPos = 0U;
     for (auto fPosIdx = 0U; fPosIdx < customReadFields.size(); ++fPosIdx) {
         auto fPos = customReadFields[fPosIdx];
         assert(fPos != 0);
         auto& m = fields[fPos];
         auto accessName = common::nameToAccessCopy(m->name());
-        if (prevPos == 0) {
+        if ((!esDeclared) && (fPos != 0U)) {
             auto str = 
-                "auto es = Base::template " + readUntilStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
+                esAssignment() + "Base::template " + readUntilStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
                 "if (es != comms::ErrorStatus::Success) {\n"
                 "    return es;\n"
                 "}\n";
@@ -567,24 +579,22 @@ std::string Field::getReadForFields(
 
         if (fPos == customReadFields.back()) {
             auto str = 
-                "es = Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
+                esAssignment() + "Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
                 "if (es != comms::ErrorStatus::Success) {\n"
                 "    return es;\n"
                 "}\n";
             reads.push_back(std::move(str));
-            prevPos = fPos;
             continue;
         }
 
         assert((fPosIdx + 1) < customReadFields.size());
         auto nextName = common::nameToAccessCopy(fields[customReadFields[fPosIdx + 1]]->name());
         auto str = 
-            "es = Base::template " + readFromUntilStr + "<FieldIdx_" + accessName + ", FieldIdx_" + nextName + ">(iter, len);\n"
+            esAssignment() + "Base::template " + readFromUntilStr + "<FieldIdx_" + accessName + ", FieldIdx_" + nextName + ">(iter, len);\n"
             "if (es != comms::ErrorStatus::Success) {\n"
             "    return es;\n"
             "}\n";
         reads.push_back(std::move(str));
-        prevPos = fPos;
     }
 
     static const std::string Templ =
