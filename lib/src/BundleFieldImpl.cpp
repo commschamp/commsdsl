@@ -260,7 +260,7 @@ bool BundleFieldImpl::updateMembers()
     auto lengthFieldsCount =
         std::count_if(
             m_members.begin(), m_members.end(),
-            [this](auto& m)
+            [](auto& m)
             {
                 return m->semanticType() == SemanticType::Length;
             });
