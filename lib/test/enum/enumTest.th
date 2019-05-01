@@ -26,6 +26,9 @@ public:
     void test17();
     void test18();
     void test19();
+    void test20();   
+    void test21();
+    void test22();
 };
 
 void EnumTestSuite::setUp()
@@ -546,3 +549,28 @@ void EnumTestSuite::test19()
     TS_ASSERT_EQUALS(enumField.maxLength(), 2U);
 }
 
+void EnumTestSuite::test20()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test21()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test22()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+}

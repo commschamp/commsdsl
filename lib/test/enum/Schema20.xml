@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema20"
+        id="1"
+        endian="Little"
+        version="2">
+    <fields>
+        <enum name="Enum1" type="uint64">
+            <validValue name="V1" val="0"/>
+            <validValue name="V2" val="0xffffffffffffffff" />
+        </enum>
+        <enum name="Enum2" type="uint32">
+            <validValue name="V1" val="Enum1.V1"/>
+            <validValue name="V2" val="Enum1.V2" />
+        </enum>        
+    </fields>
+</schema>

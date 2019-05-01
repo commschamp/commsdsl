@@ -404,6 +404,39 @@ bool IntFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
     return ((fieldKind == Kind::Int) || (fieldKind == Kind::Enum));
 }
 
+bool IntFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    auto updateIsBigUnsignedFunc =
+        [this, &val, &isBigUnsigned]()
+        {
+            static const std::uintmax_t BigUnsignedThreshold =
+                 static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+
+            isBigUnsigned =
+                IntFieldImpl::isBigUnsigned(m_state.m_type) &&
+                (BigUnsignedThreshold < static_cast<std::uintmax_t>(val));
+        };
+
+    if (ref.empty()) {
+        val = m_state.m_defaultValue;
+        updateIsBigUnsignedFunc();
+        return true;
+    }
+
+    auto iter = m_state.m_specials.find(ref);
+    if (iter == m_state.m_specials.end()) {
+        return false;
+    }
+
+    val = iter->second.m_value;
+    updateIsBigUnsignedFunc();
+    return true;
+}
+
 bool IntFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -1478,18 +1511,35 @@ bool IntFieldImpl::strToNumeric(
     if (common::isValidName(str)) {
         // Check among specials
         auto iter = m_state.m_specials.find(str);
-        if (iter == m_state.m_specials.end()) {
-            return false;
+        if (iter != m_state.m_specials.end()) {
+            val = iter->second.m_value;
+            return true;
         }
-
-        val = iter->second.m_value;
-        return true;
     }
 
     if (common::isValidRefName(str)) {
-        return protocol().strToEnumValue(str, val, false);
-    }
+         bool bigUnsigned = false;
+         if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
+             return false;
+         }
 
+         if ((!bigUnsigned) && (val < 0) && (isUnsigned(m_state.m_type))) {
+             logError() << XmlWrap::logPrefix(getNode()) <<
+                 "Cannot assign negative value (" << val << " references as " <<
+                str << ") to field with positive type.";
+             return false;
+         }
+
+         if (bigUnsigned && (!isBigUnsigned(m_state.m_type))) {
+             logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot assign such big positive number (" <<
+                static_cast<std::uintmax_t>(val) << " referenced as " <<
+                str << ").";
+             return false;
+
+         }
+         return true;
+     }
 
     bool ok = false;
     if (isBigUnsigned(m_state.m_type)) {

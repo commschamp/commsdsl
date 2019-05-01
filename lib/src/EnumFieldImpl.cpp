@@ -157,6 +157,10 @@ bool EnumFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
 
 bool EnumFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
+    if (ref.empty()) {
+        return false;
+    }
+
     auto iter = m_state.m_values.find(ref);
     if (iter == m_state.m_values.end()) {
         return false;
@@ -609,15 +613,19 @@ bool EnumFieldImpl::strToNumeric(
 
         if ((!bigUnsigned) && (val < 0) && (IntFieldImpl::isUnsigned(m_state.m_type))) {
             logError() << XmlWrap::logPrefix(getNode()) <<
-                "Cannot assign negative value to enum with positive type";
+                "Cannot assign negative value (" << val << " references as " <<
+                str << ") to field with positive type.";
+
             return false;
         }
 
         if (bigUnsigned && (!IntFieldImpl::isBigUnsigned(m_state.m_type))) {
             logError() << XmlWrap::logPrefix(getNode()) <<
-                "Cannot assign such big positive number.";
-            return false;
+                "Cannot assign such big positive number (" <<
+                static_cast<std::uintmax_t>(val) << " referenced as " <<
+                str << ").";
 
+            return false;
         }
         return true;
     }

@@ -1227,10 +1227,10 @@ bool isValidRefName(const char* buf, std::size_t len)
         return false;
     }
 
-
     auto iter = std::find(buf, endBuf, '.');
     while (iter != endBuf) {
         auto nextPosIter = iter + 1;
+        assert(nextPosIter < endBuf);
         auto nextIter = std::find(nextPosIter, endBuf, '.');
         if (nextIter == nextPosIter) {
             return false; // sequential dots without name in the middle

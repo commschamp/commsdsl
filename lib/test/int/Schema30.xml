@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema29"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <ns name="ns1">
+        <fields>
+            <int name="Int1" type="int32" defaultValue="-1"/>
+            <int name="Int2" type="uint32" defaultValue="ns1.Int1"/>
+        </fields>
+    </ns>
+</schema>

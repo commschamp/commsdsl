@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema28"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <ns name="ns1">
+        <fields>
+            <int name="Int1" type="uint64" defaultValue="0xffffffffffffffff"/>
+            <int name="Int2" type="uint64" defaultValue="ns1.Int1"/>
+        </fields>
+    </ns>
+</schema>

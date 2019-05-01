@@ -229,7 +229,9 @@ bool ProtocolImpl::strToNumeric(
         [this, &ref, &val, &isBigUnsigned]() -> bool
         {
             auto iter = m_namespaces.find(common::emptyString());
-            assert(iter != m_namespaces.end());
+            if (iter == m_namespaces.end()) {
+                return false;
+            }
             assert(iter->second);
             return iter->second->strToNumeric(ref, val, isBigUnsigned);
         };
@@ -286,7 +288,7 @@ ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
     return messages;
 }
 
-bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion)
+bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
 {
     assert(m_schema);
     auto currDslVersion = m_schema->dslVersion();
@@ -295,6 +297,11 @@ bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion)
     }
 
     return minDslVersion <= currDslVersion;
+}
+
+bool ProtocolImpl::isFieldValueReferenceSupported() const
+{
+    return isFeatureSupported(2U);
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)

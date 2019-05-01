@@ -97,7 +97,8 @@ public:
         return m_platforms;
     }
 
-    bool isFeatureSupported(unsigned minDslVersion);
+    bool isFeatureSupported(unsigned minDslVersion) const;
+    bool isFieldValueReferenceSupported() const;
 
 private:
     struct XmlDocFree
