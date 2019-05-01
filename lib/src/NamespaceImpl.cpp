@@ -326,6 +326,37 @@ unsigned NamespaceImpl::countMessageIds() const
             });
 }
 
+bool NamespaceImpl::strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    auto firstDotPos = ref.find_first_of('.');
+    if (firstDotPos == std::string::npos) {
+        auto fieldIter = m_fields.find(ref);
+        if (fieldIter == m_fields.end()) {
+            return false;
+        }
+
+        assert(fieldIter->second);
+        return fieldIter->second->strToNumeric(common::emptyString(), val, isBigUnsigned);
+    }
+
+    std::string firstName(ref, 0, firstDotPos);
+    std::string restName(ref, firstDotPos + 1);
+    assert(!firstName.empty());
+    auto nsIter = m_namespaces.find(firstName);
+    if (nsIter != m_namespaces.end()) {
+        assert(nsIter->second);
+        return nsIter->second->strToNumeric(restName, val, isBigUnsigned);
+    }
+
+    auto fieldIter = m_fields.find(firstName);
+    if (fieldIter == m_fields.end()) {
+        return false;
+    }
+
+    assert(fieldIter->second);
+    return fieldIter->second->strToNumeric(restName, val, isBigUnsigned);
+}
+
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
     return ObjKind::Namespace;

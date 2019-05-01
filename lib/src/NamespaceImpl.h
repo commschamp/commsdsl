@@ -163,6 +163,8 @@ public:
 
     unsigned countMessageIds() const;
 
+    bool strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
+
 protected:
     virtual ObjKind objKindImpl() const override final;
 

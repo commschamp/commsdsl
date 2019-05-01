@@ -155,6 +155,22 @@ bool EnumFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
     return ((fieldKind == Kind::Int) || (fieldKind == Kind::Enum));
 }
 
+bool EnumFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    auto iter = m_state.m_values.find(ref);
+    if (iter == m_state.m_values.end()) {
+        return false;
+    }
+
+    static const std::uintmax_t BigUnsignedThreshold =
+         static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+    val = iter->second.m_value;
+    isBigUnsigned =
+        IntFieldImpl::isBigUnsigned(m_state.m_type) &&
+        (BigUnsignedThreshold < static_cast<std::uintmax_t>(val));
+    return true;
+}
+
 bool EnumFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -584,8 +600,26 @@ bool EnumFieldImpl::strToNumeric(
         return true;
     }
 
-    if (common::isValidRefName(str)) {
-        return protocol().strToEnumValue(str, val, false);
+   if (common::isValidRefName(str)) {
+
+        bool bigUnsigned = false;
+        if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
+            return false;
+        }
+
+        if ((!bigUnsigned) && (val < 0) && (IntFieldImpl::isUnsigned(m_state.m_type))) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot assign negative value to enum with positive type";
+            return false;
+        }
+
+        if (bigUnsigned && (!IntFieldImpl::isBigUnsigned(m_state.m_type))) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot assign such big positive number.";
+            return false;
+
+        }
+        return true;
     }
 
     bool ok = false;

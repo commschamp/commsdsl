@@ -334,6 +334,14 @@ bool FieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
     return false;
 }
 
+bool FieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+    static_cast<void>(isBigUnsigned);
+    return false;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);

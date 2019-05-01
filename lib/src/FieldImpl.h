@@ -174,6 +174,10 @@ public:
         return m_state.m_extraChildren;
     }
 
+    bool strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+    {
+        return strToNumericImpl(ref, val, isBigUnsigned);
+    }
 
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
@@ -217,6 +221,7 @@ protected:
     virtual std::size_t bitLengthImpl() const;
     virtual bool isComparableToValueImpl(const std::string& val) const;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const;
+    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

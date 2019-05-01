@@ -78,6 +78,8 @@ public:
 
     bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
+    bool strToNumeric(const std::string& ref, bool checkRef, std::intmax_t& val, bool& isBigUnsigned) const;
+
     MessagesList allMessages() const;
 
     void addExpectedExtraPrefix(const std::string& value)

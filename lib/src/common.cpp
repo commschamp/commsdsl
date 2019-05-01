@@ -1201,19 +1201,20 @@ bool isValidName(const std::string& value)
                 });
 }
 
-bool isValidRefName(const std::string& value)
+bool isValidRefName(const char* buf, std::size_t len)
 {
-    if (value.empty()) {
+    if (len == 0U) {
         return false;
     }
 
-    if ((std::isalpha(value[0]) == 0) && (value[0] != '_')) {
+    if ((std::isalpha(buf[0]) == 0) && (buf[0] != '_')) {
         return false;
     }
 
+    auto endBuf = buf + len;
     bool validChars =
         std::all_of(
-            value.begin(), value.end(),
+            buf, endBuf,
             [](char ch)
             {
                 return (std::isalnum(ch) != 0) || (ch == '_') || (ch == '.');
@@ -1222,20 +1223,40 @@ bool isValidRefName(const std::string& value)
         return false;
     }
 
-    if (value[value.size() - 1] == '.') {
+    if (buf[len - 1] == '.') {
         return false;
     }
 
-    auto dotPos = value.find_first_of('.');
-    while (dotPos != std::string::npos) {
-        auto nextPos = value.find_first_of('.', dotPos + 1);
-        if (nextPos <= (dotPos + 1)) {
+
+    auto iter = std::find(buf, endBuf, '.');
+    while (iter != endBuf) {
+        auto nextPosIter = iter + 1;
+        auto nextIter = std::find(nextPosIter, endBuf, '.');
+        if (nextIter == nextPosIter) {
             return false; // sequential dots without name in the middle
         }
-        dotPos = nextPos;
+        iter = nextIter;
     }
 
     return true;
+}
+
+bool isValidRefName(const std::string& value)
+{
+    return isValidRefName(value.c_str(), value.size());
+}
+
+bool isValidExternalRefName(const std::string& value)
+{
+    if (value.size() <= 1U) {
+        return false;
+    }
+
+    if (value[0] != '^') {
+        return false;
+    }
+
+    return isValidRefName(&value[1], value.size() - 1U);
 }
 
 } // namespace common

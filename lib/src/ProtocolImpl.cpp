@@ -206,6 +206,51 @@ bool ProtocolImpl::strToEnumValue(
     return true;
 }
 
+bool ProtocolImpl::strToNumeric(
+    const std::string& ref,
+    bool checkRef,
+    std::intmax_t& val,
+    bool& isBigUnsigned) const
+{
+    do {
+        if (!checkRef) {
+            assert(common::isValidRefName(ref));
+            break;
+        }
+
+
+        if (!common::isValidRefName(ref)) {
+            return false;
+        }
+
+    } while (false);
+
+    auto redirectToGlobalNs =
+        [this, &ref, &val, &isBigUnsigned]() -> bool
+        {
+            auto iter = m_namespaces.find(common::emptyString());
+            assert(iter != m_namespaces.end());
+            assert(iter->second);
+            return iter->second->strToNumeric(ref, val, isBigUnsigned);
+        };
+
+    auto firstDotPos = ref.find_first_of('.');
+    if (firstDotPos == std::string::npos) {
+        return redirectToGlobalNs();
+    }
+
+    std::string ns(ref, 0, firstDotPos);
+    assert(!ns.empty());
+    auto nsIter = m_namespaces.find(ns);
+    if (nsIter == m_namespaces.end()) {
+        return redirectToGlobalNs();
+    }
+
+    assert(nsIter->second);
+    std::string subRef(ref, firstDotPos + 1);
+    return nsIter->second->strToNumeric(subRef, val, isBigUnsigned);
+}
+
 ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
 {
     auto total =
