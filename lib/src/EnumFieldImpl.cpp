@@ -433,7 +433,7 @@ bool EnumFieldImpl::updateValues()
         std::intmax_t val = 0;
         if (!strToNumeric(valIter->second, val)) {
             logError() << XmlWrap::logPrefix(vNode) << "Value of \"" << nameIter->second <<
-                          "\" cannot be recognized.";
+                          "\" (" << valIter->second << ") cannot be recognized.";
             return false;
         }
 
@@ -596,16 +596,13 @@ bool EnumFieldImpl::strToNumeric(
     if (common::isValidName(str)) {
         // Check among specials
         auto iter = m_state.m_values.find(str);
-        if (iter == m_state.m_values.end()) {
-            return false;
+        if (iter != m_state.m_values.end()) {
+            val = iter->second.m_value;
+            return true;
         }
-
-        val = iter->second.m_value;
-        return true;
     }
 
    if (common::isValidRefName(str)) {
-
         bool bigUnsigned = false;
         if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
             return false;
