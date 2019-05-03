@@ -395,7 +395,7 @@ std::size_t IntFieldImpl::bitLengthImpl() const
 bool IntFieldImpl::isComparableToValueImpl(const std::string& val) const
 {
     std::intmax_t value = 0;
-    return strToNumeric(val, value);
+    return strToValue(val, value);
 }
 
 bool IntFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
@@ -434,6 +434,23 @@ bool IntFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, 
 
     val = iter->second.m_value;
     updateIsBigUnsignedFunc();
+    return true;
+}
+
+bool IntFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    std::intmax_t intVal = 0;
+    bool isBigUnsigned = false;
+    if (!strToNumeric(ref, intVal, isBigUnsigned)) {
+        return false;
+    }
+
+    if (!isBigUnsigned) {
+        val = static_cast<double>(intVal);
+        return true;
+    }
+
+    val = static_cast<double>(static_cast<std::uintmax_t>(intVal));
     return true;
 }
 
@@ -750,7 +767,7 @@ bool IntFieldImpl::updateDefaultValue()
         };
 
     std::intmax_t val = 0;
-    if (!strToNumeric(valueStr, val)) {
+    if (!strToValue(valueStr, val)) {
         logError() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
                       "\" cannot be recongized (" << valueStr << ").";
         return false;
@@ -1020,7 +1037,7 @@ bool IntFieldImpl::updateSpecials()
         assert(valIter != props.end());
 
         std::intmax_t val = 0;
-        if (!strToNumeric(valIter->second, val)) {
+        if (!strToValue(valIter->second, val)) {
             logError() << XmlWrap::logPrefix(s) << "Special value \"" << nameIter->second <<
                           "\" cannot be recognized.";
             return false;
@@ -1410,14 +1427,14 @@ bool IntFieldImpl::validateValidRangeStr(const std::string& str, std::intmax_t& 
     }
 
     minVal = 0;
-    if (!strToNumeric(range.first, minVal)) {
+    if (!strToValue(range.first, minVal)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Invalid min value in valid range (" << str << ").";
         return false;
     }
 
     maxVal = 0;
-    if (!strToNumeric(range.second, maxVal)) {
+    if (!strToValue(range.second, maxVal)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Invalid max value in valid range (" << str << ").";
         return false;
@@ -1471,7 +1488,7 @@ bool IntFieldImpl::validateValidValueStr(
     std::intmax_t& val)
 {
     val = 0;
-    if (!strToNumeric(str, val)) {
+    if (!strToValue(str, val)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Property value \"" << type << "\" of int element \"" <<
                       name() << "\" cannot be properly parsed.";
@@ -1504,7 +1521,7 @@ bool IntFieldImpl::validateValidValueStr(
     return true;
 }
 
-bool IntFieldImpl::strToNumeric(
+bool IntFieldImpl::strToValue(
     const std::string& str,
     std::intmax_t& val) const
 {

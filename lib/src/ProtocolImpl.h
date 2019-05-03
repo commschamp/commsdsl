@@ -79,6 +79,7 @@ public:
     bool strToEnumValue(const std::string& ref, std::intmax_t& val, bool checkRef = true) const;
 
     bool strToNumeric(const std::string& ref, bool checkRef, std::intmax_t& val, bool& isBigUnsigned) const;
+    bool strToFp(const std::string& ref, bool checkRef, double& val) const;
 
     MessagesList allMessages() const;
 
@@ -112,6 +113,7 @@ private:
     using XmlDocPtr = std::unique_ptr<::xmlDoc, XmlDocFree>;
     using DocsList = std::vector<XmlDocPtr>;
     using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
+    using StrToValueConvertFunc = std::function<bool (const NamespaceImpl& ns, const std::string& ref)>;
 
     static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
     void handleXmlError(xmlErrorPtr err);
@@ -123,6 +125,7 @@ private:
     bool validateAllMessages();
     unsigned countMessageIds() const;
     const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
+    bool strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;

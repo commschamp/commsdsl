@@ -18,7 +18,13 @@ public:
     void test8();
     void test9();
     void test10();
-    void test11();    
+    void test11();
+    void test12();
+    void test13();
+    void test14();
+    void test15();
+    void test16();
+    void test17();
 
 private:
     static const double Epsilon;
@@ -516,4 +522,105 @@ void FloatTestSuite::test11()
     } while (false);
 }
 
+void FloatTestSuite::test12()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields.back();
+        TS_ASSERT_EQUALS(field.name(), "F2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        TS_ASSERT(std::isinf(floatField.defaultValue()));
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(specialValues.size(), 1U);
+        TS_ASSERT(std::isnan(specialValues.find("S1")->second.m_value));
+    } while (false);
+}
+
+void FloatTestSuite::test13()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields.back();
+        TS_ASSERT_EQUALS(field.name(), "F2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), static_cast<double>(0xffff));
+    } while (false);
+}
+
+void FloatTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+}
+
+void FloatTestSuite::test15()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+}
+
+void FloatTestSuite::test16()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields.back();
+        TS_ASSERT_EQUALS(field.name(), "F2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), static_cast<double>(3));
+        auto& specialValues = floatField.specialValues();
+
+        auto& s1 = specialValues.find("S1")->second;
+        auto& s2 = specialValues.find("S2")->second;
+        TS_ASSERT_EQUALS(s1.m_value, static_cast<double>(1));
+        TS_ASSERT_EQUALS(s2.m_value, static_cast<double>(2));
+
+    } while (false);
+}
+
+void FloatTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+}

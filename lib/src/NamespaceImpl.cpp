@@ -328,34 +328,34 @@ unsigned NamespaceImpl::countMessageIds() const
 
 bool NamespaceImpl::strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
-    auto firstDotPos = ref.find_first_of('.');
-    if (firstDotPos == std::string::npos) {
-        auto fieldIter = m_fields.find(ref);
-        if (fieldIter == m_fields.end()) {
-            return false;
-        }
-
-        assert(fieldIter->second);
-        return fieldIter->second->strToNumeric(common::emptyString(), val, isBigUnsigned);
-    }
-
-    std::string firstName(ref, 0, firstDotPos);
-    std::string restName(ref, firstDotPos + 1);
-    assert(!firstName.empty());
-    auto nsIter = m_namespaces.find(firstName);
-    if (nsIter != m_namespaces.end()) {
-        assert(nsIter->second);
-        return nsIter->second->strToNumeric(restName, val, isBigUnsigned);
-    }
-
-    auto fieldIter = m_fields.find(firstName);
-    if (fieldIter == m_fields.end()) {
-        return false;
-    }
-
-    assert(fieldIter->second);
-    return fieldIter->second->strToNumeric(restName, val, isBigUnsigned);
+    return
+        strToValue(
+            ref,
+            [&val, &isBigUnsigned](const NamespaceImpl& ns, const std::string& str)
+            {
+                return ns.strToNumeric(str, val, isBigUnsigned);
+            },
+            [&val, &isBigUnsigned](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToNumeric(str, val, isBigUnsigned);
+            });
 }
+
+bool NamespaceImpl::strToFp(const std::string& ref, double& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const NamespaceImpl& ns, const std::string& str)
+            {
+                return ns.strToFp(str, val);
+            },
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToFp(str, val);
+            });
+}
+
 
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
@@ -589,6 +589,37 @@ bool NamespaceImpl::updateExtraChildren()
     static const XmlWrap::NamesList ChildrenNames = allNames();
     m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
+}
+
+bool NamespaceImpl::strToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const
+{
+    auto firstDotPos = ref.find_first_of('.');
+    if (firstDotPos == std::string::npos) {
+        auto fieldIter = m_fields.find(ref);
+        if (fieldIter == m_fields.end()) {
+            return false;
+        }
+
+        assert(fieldIter->second);
+        return fFunc(*fieldIter->second, common::emptyString());
+    }
+
+    std::string firstName(ref, 0, firstDotPos);
+    std::string restName(ref, firstDotPos + 1);
+    assert(!firstName.empty());
+    auto nsIter = m_namespaces.find(firstName);
+    if (nsIter != m_namespaces.end()) {
+        assert(nsIter->second);
+        return nsFunc(*nsIter->second, restName);
+    }
+
+    auto fieldIter = m_fields.find(firstName);
+    if (fieldIter == m_fields.end()) {
+        return false;
+    }
+
+    assert(fieldIter->second);
+    return fFunc(*fieldIter->second, restName);
 }
 
 LogWrapper NamespaceImpl::logError() const

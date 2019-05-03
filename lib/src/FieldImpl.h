@@ -73,6 +73,8 @@ public:
         return kindImpl();
     }
 
+    const std::string& kindStr() const;
+
     SemanticType semanticType() const
     {
         return m_state.m_semanticType;
@@ -179,6 +181,11 @@ public:
         return strToNumericImpl(ref, val, isBigUnsigned);
     }
 
+    bool strToFp(const std::string& ref, double& val) const
+    {
+        return strToFpImpl(ref, val);
+    }
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -222,6 +229,7 @@ protected:
     virtual bool isComparableToValueImpl(const std::string& val) const;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
+    virtual bool strToFpImpl(const std::string& ref, double& val) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

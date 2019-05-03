@@ -146,7 +146,7 @@ std::size_t EnumFieldImpl::bitLengthImpl() const
 bool EnumFieldImpl::isComparableToValueImpl(const std::string& val) const
 {
     std::intmax_t value = 0;
-    return strToNumeric(val, value);
+    return strToValue(val, value);
 }
 
 bool EnumFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
@@ -157,8 +157,25 @@ bool EnumFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
 
 bool EnumFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
-    if (ref.empty()) {
+    if (ref.empty() && (!protocol().isFieldValueReferenceSupported())) {
         return false;
+    }
+
+    auto updateIsBigUnsignedFunc =
+        [this, &val, &isBigUnsigned]()
+        {
+            static const std::uintmax_t BigUnsignedThreshold =
+                 static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+
+            isBigUnsigned =
+                IntFieldImpl::isBigUnsigned(m_state.m_type) &&
+                (BigUnsignedThreshold < static_cast<std::uintmax_t>(val));
+        };
+
+    if (ref.empty()) {
+        val = m_state.m_defaultValue;
+        updateIsBigUnsignedFunc();
+        return true;
     }
 
     auto iter = m_state.m_values.find(ref);
@@ -166,12 +183,25 @@ bool EnumFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val,
         return false;
     }
 
-    static const std::uintmax_t BigUnsignedThreshold =
-         static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
     val = iter->second.m_value;
-    isBigUnsigned =
-        IntFieldImpl::isBigUnsigned(m_state.m_type) &&
-        (BigUnsignedThreshold < static_cast<std::uintmax_t>(val));
+    updateIsBigUnsignedFunc();
+    return true;
+}
+
+bool EnumFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    std::intmax_t intVal = 0;
+    bool isBigUnsigned = false;
+    if (!strToNumeric(ref, intVal, isBigUnsigned)) {
+        return false;
+    }
+
+    if (!isBigUnsigned) {
+        val = static_cast<double>(intVal);
+        return true;
+    }
+
+    val = static_cast<double>(static_cast<std::uintmax_t>(intVal));
     return true;
 }
 
@@ -431,7 +461,7 @@ bool EnumFieldImpl::updateValues()
         assert(valIter != props.end());
 
         std::intmax_t val = 0;
-        if (!strToNumeric(valIter->second, val)) {
+        if (!strToValue(valIter->second, val)) {
             logError() << XmlWrap::logPrefix(vNode) << "Value of \"" << nameIter->second <<
                           "\" (" << valIter->second << ") cannot be recognized.";
             return false;
@@ -556,7 +586,7 @@ bool EnumFieldImpl::updateDefaultValue()
         };
 
     std::intmax_t val = 0;
-    if (!strToNumeric(valueStr, val)) {
+    if (!strToValue(valueStr, val)) {
         logError() << XmlWrap::logPrefix(getNode()) << "Default value (" << valueStr <<
                       ") cannot be recognized.";
         return false;
@@ -589,7 +619,7 @@ bool EnumFieldImpl::updateHexAssign()
     return true;
 }
 
-bool EnumFieldImpl::strToNumeric(
+bool EnumFieldImpl::strToValue(
     const std::string& str,
     std::intmax_t& val) const
 {

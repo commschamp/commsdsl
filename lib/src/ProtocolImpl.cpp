@@ -212,46 +212,29 @@ bool ProtocolImpl::strToNumeric(
     std::intmax_t& val,
     bool& isBigUnsigned) const
 {
-    do {
-        if (!checkRef) {
-            assert(common::isValidRefName(ref));
-            break;
-        }
-
-
-        if (!common::isValidRefName(ref)) {
-            return false;
-        }
-
-    } while (false);
-
-    auto redirectToGlobalNs =
-        [this, &ref, &val, &isBigUnsigned]() -> bool
-        {
-            auto iter = m_namespaces.find(common::emptyString());
-            if (iter == m_namespaces.end()) {
-                return false;
-            }
-            assert(iter->second);
-            return iter->second->strToNumeric(ref, val, isBigUnsigned);
-        };
-
-    auto firstDotPos = ref.find_first_of('.');
-    if (firstDotPos == std::string::npos) {
-        return redirectToGlobalNs();
-    }
-
-    std::string ns(ref, 0, firstDotPos);
-    assert(!ns.empty());
-    auto nsIter = m_namespaces.find(ns);
-    if (nsIter == m_namespaces.end()) {
-        return redirectToGlobalNs();
-    }
-
-    assert(nsIter->second);
-    std::string subRef(ref, firstDotPos + 1);
-    return nsIter->second->strToNumeric(subRef, val, isBigUnsigned);
+    return
+        strToValue(
+            ref, checkRef,
+            [&val, &isBigUnsigned](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToNumeric(str, val, isBigUnsigned);
+            });
 }
+
+bool ProtocolImpl::strToFp(
+    const std::string& ref,
+    bool checkRef,
+    double& val) const
+{
+    return
+        strToValue(
+            ref, checkRef,
+            [&val](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToFp(str, val);
+            });
+}
+
 
 ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
 {
@@ -683,6 +666,49 @@ const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool ch
 
     assert(ns != nullptr);
     return ns;
+}
+
+bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const
+{
+    do {
+        if (!checkRef) {
+            assert(common::isValidRefName(ref));
+            break;
+        }
+
+
+        if (!common::isValidRefName(ref)) {
+            return false;
+        }
+
+    } while (false);
+
+    auto redirectToGlobalNs =
+        [this, &func, &ref]() -> bool
+        {
+            auto iter = m_namespaces.find(common::emptyString());
+            if (iter == m_namespaces.end()) {
+                return false;
+            }
+            assert(iter->second);
+            return func(*iter->second, ref);
+        };
+
+    auto firstDotPos = ref.find_first_of('.');
+    if (firstDotPos == std::string::npos) {
+        return redirectToGlobalNs();
+    }
+
+    std::string ns(ref, 0, firstDotPos);
+    assert(!ns.empty());
+    auto nsIter = m_namespaces.find(ns);
+    if (nsIter == m_namespaces.end()) {
+        return redirectToGlobalNs();
+    }
+
+    assert(nsIter->second);
+    std::string subRef(ref, firstDotPos + 1);
+    return func(*nsIter->second, subRef);
 }
 
 LogWrapper ProtocolImpl::logError() const

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema15"
+        id="1"
+        endian="big"
+        version="2"
+        dslVersion="1">
+    <fields>
+        <float name="F1" type="float" defaultValue="nan">
+            <special name="S1" val="inf" />
+        </float>
+        <float name="F2" type="float" defaultValue="F1.S1">
+            <special name="S1" val="F1" />
+        </float>
+    </fields>
+</schema>

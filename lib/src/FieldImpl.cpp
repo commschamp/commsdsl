@@ -157,6 +157,31 @@ const std::string& FieldImpl::description() const
     return *m_state.m_description;
 }
 
+const std::string& FieldImpl::kindStr() const
+{
+    static const std::string* const Map[] = {
+        /* Int */ &common::intStr(),
+        /* Enum */ &common::enumStr(),
+        /* Set */ &common::setStr(),
+        /* Float */ &common::floatStr(),
+        /* Bitfield */ &common::bitfieldStr(),
+        /* Bundle */ &common::bundleStr(),
+        /* String */ &common::stringStr(),
+        /* Data */ &common::dataStr(),
+        /* List */ &common::listStr(),
+        /* Ref */ &common::refStr(),
+        /* Optional */ &common::optionalStr(),
+        /* Variant */ &common::variantStr()
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == (unsigned)Kind::NumOfValues, "Invalid map");
+
+    auto idx = static_cast<unsigned>(kind());
+    assert(idx < MapSize);
+    return *Map[idx];
+}
+
 XmlWrap::NamesList FieldImpl::supportedTypes()
 {
     XmlWrap::NamesList result;
@@ -339,6 +364,26 @@ bool FieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, boo
     static_cast<void>(ref);
     static_cast<void>(val);
     static_cast<void>(isBigUnsigned);
+
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting integral numeric value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
+    return false;
+}
+
+bool FieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting floating point value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
     return false;
 }
 

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema14"
+        id="1"
+        endian="big"
+        version="2"
+        dslVersion="1">
+    <fields>
+        <int name="F1" type="int32" defaultValue="0xffff" />
+        <float name="F2" type="float" defaultValue="F1" />
+    </fields>
+</schema>
