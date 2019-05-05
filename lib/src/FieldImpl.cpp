@@ -376,15 +376,19 @@ bool FieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, boo
 
 bool FieldImpl::strToFpImpl(const std::string& ref, double& val) const
 {
-    static_cast<void>(ref);
-    static_cast<void>(val);
-    if (protocol().isFieldValueReferenceSupported()) {
-        logWarning() <<
-            "Extracting floating point value from \"" << kindStr() <<
-            "\" field is not supported.";
+    std::intmax_t intVal = 0;
+    bool isBigUnsigned = false;
+    if (!strToNumeric(ref, intVal, isBigUnsigned)) {
+        return false;
     }
 
-    return false;
+    if (!isBigUnsigned) {
+        val = static_cast<double>(intVal);
+        return true;
+    }
+
+    val = static_cast<double>(static_cast<std::uintmax_t>(intVal));
+    return true;
 }
 
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)

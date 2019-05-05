@@ -188,23 +188,6 @@ bool EnumFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val,
     return true;
 }
 
-bool EnumFieldImpl::strToFpImpl(const std::string& ref, double& val) const
-{
-    std::intmax_t intVal = 0;
-    bool isBigUnsigned = false;
-    if (!strToNumeric(ref, intVal, isBigUnsigned)) {
-        return false;
-    }
-
-    if (!isBigUnsigned) {
-        val = static_cast<double>(intVal);
-        return true;
-    }
-
-    val = static_cast<double>(static_cast<std::uintmax_t>(intVal));
-    return true;
-}
-
 bool EnumFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);

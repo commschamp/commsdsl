@@ -128,6 +128,27 @@ std::size_t SetFieldImpl::bitLengthImpl() const
     return Base::bitLengthImpl();
 }
 
+bool SetFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    isBigUnsigned = false;
+    if (ref.empty()) {
+        val = static_cast<std::intmax_t>(m_state.m_defaultBitValue);
+        return true;
+    }
+
+    auto iter = m_state.m_bits.find(ref);
+    if (iter == m_state.m_bits.end()) {
+        return false;
+    }
+
+    val = static_cast<std::intmax_t>(iter->second.m_defaultValue);
+    return true;
+}
+
 bool SetFieldImpl::updateEndian()
 {
     if (!validateSinglePropInstance(common::endianStr())) {
@@ -582,6 +603,17 @@ bool SetFieldImpl::updateBits()
     }
 
     return true;
+}
+
+bool SetFieldImpl::strToValue(const std::string& str, bool& val) const
+{
+    ok = false;
+    val = common::strToBool(str, &ok);
+    if (ok) {
+        return true;
+    }
+
+    // TODO: external reference
 }
 
 } // namespace commsdsl
