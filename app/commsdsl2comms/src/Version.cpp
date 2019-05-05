@@ -169,7 +169,7 @@ std::string Version::protVersionDefine(const VersionNumbers& version) const
         "/// @brief Patch version of the protocol library.\n"
         "#define #^#NS#$#_PATCH_VERSION (#^#PATCH_VERSION#$#)\n\n"        
         "/// @brief Full version of the protocol library as single number.\n"
-        "#define #^#NS#$#_VERSION (COMMS_MAKE_VERSION(#^#NS#$#_MAJOR_VERSION, #^#NS#$#_MINOR_VERSION, #^#NS#$#_MINOR_VERSION))\n\n";
+        "#define #^#NS#$#_VERSION (COMMS_MAKE_VERSION(#^#NS#$#_MAJOR_VERSION, #^#NS#$#_MINOR_VERSION, #^#NS#$#_PATCH_VERSION))\n\n";
 
     return common::processTemplate(Templ, repl);            
 }
