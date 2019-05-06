@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema31"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <set name="F1" length="1">
+            <bit name="B0" idx="0" defaultValue="true" />
+        </set>
+        <int name="F2" type="uint8" defaultValue="F1">
+            <special name="S1" val="F1.B0" />
+        </int>
+    </fields>
+</schema>

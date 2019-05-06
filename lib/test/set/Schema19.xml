@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema18"
+<schema name="Schema19"
         id="1"
         endian="big"
-        version="5">
+        version="5"
+        dslVersion="1">
     <fields>
         <set name="S1" type="uint8">
             <bit name="B0" idx="0" defaultValue="true"/>

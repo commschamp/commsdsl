@@ -235,6 +235,19 @@ bool ProtocolImpl::strToFp(
             });
 }
 
+bool ProtocolImpl::strToBool(
+    const std::string& ref,
+    bool checkRef,
+    bool& val) const
+{
+    return
+        strToValue(
+            ref, checkRef,
+            [&val](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToBool(str, val);
+            });
+}
 
 ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
 {

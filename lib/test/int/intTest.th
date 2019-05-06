@@ -38,6 +38,7 @@ public:
     void test29();
     void test30();   
     void test31();
+    void test32();
 };
 
 void IntTestSuite::setUp()
@@ -1613,3 +1614,26 @@ void IntTestSuite::test31()
     TS_ASSERT(protocol);
 }
 
+void IntTestSuite::test32()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F2");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 0U);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1);
+}

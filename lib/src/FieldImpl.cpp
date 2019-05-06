@@ -391,6 +391,20 @@ bool FieldImpl::strToFpImpl(const std::string& ref, double& val) const
     return true;
 }
 
+bool FieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting boolean value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
+    return false;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);

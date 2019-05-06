@@ -165,6 +165,7 @@ public:
 
     bool strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
     bool strToFp(const std::string& ref, double& val) const;
+    bool strToBool(const std::string& ref, bool& val) const;
 
 protected:
     virtual ObjKind objKindImpl() const override final;
