@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema34"
+        id="1"
+        endian="big">
+    <fields>
+        <bitfield name="F1">
+            <int name="M1" type="uint8" bitLength="4">
+                <special name="S1" val="10" />
+            </int>
+            <int name="M2" type="uint8" bitLength="4" defaultValue="5" />
+        </bitfield>
+        <int name="F2" type="uint8" defaultValue="F1">
+            <special name="S1" val="F1.M2" />
+        </int>
+    </fields>
+</schema>

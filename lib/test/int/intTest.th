@@ -39,6 +39,8 @@ public:
     void test30();   
     void test31();
     void test32();
+    void test33();
+    void test34();
 };
 
 void IntTestSuite::setUp()
@@ -1636,4 +1638,37 @@ void IntTestSuite::test32()
     TS_ASSERT_EQUALS(intField.defaultValue(), 0U);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1);
+}
+
+void IntTestSuite::test33()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F2");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 10);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 5);
+}
+
+void IntTestSuite::test34()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
+    TS_ASSERT(protocol);
 }
