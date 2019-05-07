@@ -141,6 +141,52 @@ std::size_t BundleFieldImpl::maxLengthImpl() const
     return sum;
 }
 
+bool BundleFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    if (ref.empty()) {
+        return Base::strToNumericImpl(ref, val, isBigUnsigned);
+    }
+
+    return
+        strToValue(
+            ref,
+            [&val, &isBigUnsigned](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToNumeric(str, val, isBigUnsigned);
+            });
+}
+
+bool BundleFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    if (ref.empty()) {
+        return Base::strToFpImpl(ref, val);
+    }
+
+    return
+        strToValue(
+            ref,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToFp(str, val);
+            });
+    }
+
+bool BundleFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+{
+    if (ref.empty()) {
+        return Base::strToBoolImpl(ref, val);
+    }
+
+    return
+        strToValue(
+            ref,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToBool(str, val);
+            });
+}
+
+
 bool BundleFieldImpl::updateMembers()
 {
     if (!m_members.empty()) {
@@ -274,5 +320,37 @@ bool BundleFieldImpl::updateMembers()
 
     return true;
 }
+
+bool BundleFieldImpl::strToValue(
+    const std::string& ref,
+    StrToValueFieldConvertFunc&& forwardFunc) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    auto firstDotPos = ref.find_first_of('.');
+    std::string firstName(ref, 0, firstDotPos);
+
+    auto iter = std::find_if(
+        m_members.begin(), m_members.end(),
+        [&firstName](auto& m)
+        {
+            return m->name() == firstName;
+        });
+
+    if (iter == m_members.end()) {
+        return false;
+    }
+
+    std::string restName;
+    if (firstDotPos != std::string::npos) {
+        restName.assign(ref, firstDotPos + 1);
+    }
+
+    return forwardFunc(**iter, restName);
+}
+
+
 
 } // namespace commsdsl

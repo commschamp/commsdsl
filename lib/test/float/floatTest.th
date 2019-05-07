@@ -26,6 +26,7 @@ public:
     void test16();
     void test17();
     void test18();
+    void test19();
 
 private:
     static const double Epsilon;
@@ -653,3 +654,36 @@ void FloatTestSuite::test18()
 
     } while (false);
 }
+
+void FloatTestSuite::test19()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    do {
+        auto& field = fields.back();
+        TS_ASSERT_EQUALS(field.name(), "F2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        TS_ASSERT_EQUALS(floatField.defaultValue(), static_cast<double>(1));
+        auto& specialValues = floatField.specialValues();
+
+        auto& s1 = specialValues.find("S1")->second;
+        auto& s2 = specialValues.find("S2")->second;
+        auto& s3 = specialValues.find("S3")->second;
+
+        TS_ASSERT_EQUALS(s1.m_value, static_cast<double>(5));
+        TS_ASSERT_EQUALS(s2.m_value, static_cast<double>(5.3));
+        TS_ASSERT_EQUALS(s3.m_value, static_cast<double>(3.4));
+    } while (false);
+}
+

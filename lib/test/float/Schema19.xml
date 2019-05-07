@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema19"
+        id="1"
+        endian="big"
+        version="2"
+        dslVersion="2">
+    <fields>
+        <bundle name="F1">
+            <set name="M1" type="uint8">
+                <bit name="B0" idx="0" defaultValue="true"/>
+            </set>
+            <int name="M2" type="uint8">
+                <special name="V1" val="5" />
+            </int>
+            <float name="M3" type="float" defaultValue="5.3" />
+            <float name="M4" type="float">
+                <special name="S1" val="3.4" />
+            </float>
+        </bundle>
+        <float name="F2" type="float" defaultValue="F1.M1.B0">
+            <special name="S1" val="F1.M2.V1" />
+            <special name="S2" val="F1.M3" />
+            <special name="S3" val="F1.M4.S1" />
+        </float>
+    </fields>
+</schema>

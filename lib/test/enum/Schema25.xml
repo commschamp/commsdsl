@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema25"
+        id="1"
+        endian="big"
+        version="2">
+    <ns name="ns1">
+        <fields>
+            <bundle name="F1">
+                <enum name="M1" type="uint8" defaultValue="3">
+                    <validValue name="V1" val="1" />
+                    <validValue name="V2" val="2" />
+                </enum>
+                <int name="M2" type="uint8" defaultValue="4" />
+            </bundle>
+            <enum name="F2" type="int32" defaultValue="ns1.F1.M2">
+                <validValue name="V1" val="ns1.F1.M1.V1"/>
+                <validValue name="V2" val="ns1.F1.M1.V2"/>
+                <validValue name="V3" val="ns1.F1.M1"/>
+            </enum>
+        </fields>
+    </ns>
+</schema>
