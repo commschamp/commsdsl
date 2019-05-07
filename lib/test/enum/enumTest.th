@@ -30,6 +30,7 @@ public:
     void test21();
     void test22();
     void test23();
+    void test24();
 };
 
 void EnumTestSuite::setUp()
@@ -601,3 +602,31 @@ void EnumTestSuite::test23()
     TS_ASSERT_EQUALS(v1.m_value, 8);    
 }
 
+void EnumTestSuite::test24()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
+
+    commsdsl::EnumField enumField(field);
+    auto& values = enumField.values();
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 4);
+    TS_ASSERT_EQUALS(values.size(), 3);
+    auto& v1 = values.find("V1")->second;
+    auto& v2 = values.find("V2")->second;
+    auto& v3 = values.find("V3")->second;
+    TS_ASSERT_EQUALS(v1.m_value, 1);
+    TS_ASSERT_EQUALS(v2.m_value, 2);
+    TS_ASSERT_EQUALS(v3.m_value, 3);
+}
