@@ -186,6 +186,20 @@ bool BundleFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
             });
 }
 
+bool BundleFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
+{
+    if (ref.empty()) {
+        return Base::strToStringImpl(ref, val);
+    }
+
+    return
+        strToValue(
+            ref,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToString(str, val);
+            });
+}
 
 bool BundleFieldImpl::updateMembers()
 {

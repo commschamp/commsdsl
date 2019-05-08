@@ -58,5 +58,24 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
 
     bool validateResult = protocol->validate();
     TS_ASSERT_EQUALS(validateResult, m_status.m_expValidateResult);
+
+    auto dotPos = schema.find_last_of('.');
+    auto slashPos = schema.find_last_of('/');
+    auto backSlashPos = schema.find_last_of('\\');
+
+    if (backSlashPos == std::string::npos) {
+        backSlashPos = slashPos;
+    }
+
+    if (slashPos == std::string::npos) {
+        slashPos = backSlashPos;
+    }
+
+    slashPos = std::max(slashPos, backSlashPos);
+    TS_ASSERT_DIFFERS(slashPos, std::string::npos);
+    TS_ASSERT_LESS_THAN(slashPos, dotPos);
+    ++slashPos;
+    auto expSchemaName = schema.substr(slashPos, dotPos - slashPos);
+    TS_ASSERT_EQUALS(protocol->schema().name(), expSchemaName);
     return protocol;
 }
