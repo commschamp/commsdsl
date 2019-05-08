@@ -81,6 +81,7 @@ public:
     bool strToNumeric(const std::string& ref, bool checkRef, std::intmax_t& val, bool& isBigUnsigned) const;
     bool strToFp(const std::string& ref, bool checkRef, double& val) const;
     bool strToBool(const std::string& ref, bool checkRef, bool& val) const;
+    bool strToString(const std::string& ref, bool checkRef, std::string& val) const;
 
     MessagesList allMessages() const;
 

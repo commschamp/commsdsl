@@ -191,6 +191,11 @@ public:
         return strToBoolImpl(ref, val);
     }
 
+    bool strToString(const std::string& ref, std::string& val) const
+    {
+        return strToStringImpl(ref, val);
+    }
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -236,6 +241,7 @@ protected:
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
     virtual bool strToFpImpl(const std::string& ref, double& val) const;
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const;
+    virtual bool strToStringImpl(const std::string& ref, std::string& val) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

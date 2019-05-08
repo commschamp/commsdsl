@@ -405,6 +405,20 @@ bool FieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
     return false;
 }
 
+bool FieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting string value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
+    return false;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema20"
+        id="1"
+        endian="big">
+    <fields>
+        <string name="S1" defaultValue="hello" />
+        <string name="S2" defaultValue="^S1" />
+    </fields>
+</schema>

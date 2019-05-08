@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema21"
+        id="1"
+        endian="big"
+        dslVersion="1">
+    <fields>
+        <string name="S1" defaultValue="hello" />
+        <string name="S2" defaultValue="^S1" />
+    </fields>
+</schema>

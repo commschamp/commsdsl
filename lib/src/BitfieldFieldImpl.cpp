@@ -354,7 +354,7 @@ bool BitfieldFieldImpl::strToValue(
 
     std::string restName;
     if (firstDotPos != std::string::npos) {
-        restName.assign(ref, firstDotPos + 1);
+        restName.assign(ref, firstDotPos + 1, std::string::npos);
     }
 
     return forwardFunc(**iter, restName);

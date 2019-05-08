@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema23"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <string name="S2" defaultValue="^S1" />
+    </fields>
+</schema>
