@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema17"
+        id="1"
+        endian="big"
+        dslVersion="1">
+    <fields>
+        <data name="D1" length="5" defaultValue="01 02 03 04 05"/>
+        <data name="D2" length="5" defaultValue=" ^D1 "/>
+    </fields>
+</schema>

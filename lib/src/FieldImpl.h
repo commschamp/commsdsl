@@ -196,6 +196,11 @@ public:
         return strToStringImpl(ref, val);
     }
 
+    bool strToData(const std::string& ref, std::vector<std::uint8_t>& val) const
+    {
+        return strToDataImpl(ref, val);
+    }
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -242,6 +247,7 @@ protected:
     virtual bool strToFpImpl(const std::string& ref, double& val) const;
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const;
+    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

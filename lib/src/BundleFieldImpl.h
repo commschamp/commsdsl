@@ -49,6 +49,7 @@ protected:
     virtual bool strToFpImpl(const std::string& ref, double& val) const override final;
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override final;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override final;
+    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
 
 private:
     using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;

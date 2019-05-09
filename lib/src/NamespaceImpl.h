@@ -167,6 +167,7 @@ public:
     bool strToFp(const std::string& ref, double& val) const;
     bool strToBool(const std::string& ref, bool& val) const;
     bool strToString(const std::string& ref, std::string& val) const;
+    bool strToData(const std::string& ref, std::vector<std::uint8_t>& val) const;
 
 protected:
     virtual ObjKind objKindImpl() const override final;

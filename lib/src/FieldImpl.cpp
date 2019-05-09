@@ -419,6 +419,20 @@ bool FieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
     return false;
 }
 
+bool FieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting data value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
+    return false;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);

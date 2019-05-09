@@ -386,6 +386,21 @@ bool NamespaceImpl::strToString(const std::string& ref, std::string& val) const
             });
 }
 
+bool NamespaceImpl::strToData(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const NamespaceImpl& ns, const std::string& str)
+            {
+                return ns.strToData(str, val);
+            },
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToData(str, val);
+            });
+}
+
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
     return ObjKind::Namespace;

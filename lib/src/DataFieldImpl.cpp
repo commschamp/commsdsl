@@ -163,6 +163,20 @@ std::size_t DataFieldImpl::maxLengthImpl() const
     return std::numeric_limits<std::size_t>::max();
 }
 
+bool DataFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    if (!ref.empty()) {
+        return false;
+    }
+
+    val = m_state.m_defaultValue;
+    return true;
+}
+
 bool DataFieldImpl::updateDefaultValue()
 {
     if (!validateSinglePropInstance(common::defaultValueStr())) {
@@ -175,17 +189,35 @@ bool DataFieldImpl::updateDefaultValue()
             break;
         }
 
-        std::string str = iter->second;
+        auto& origStr = iter->second;
+        auto reportErrorFunc =
+            [this, &origStr]()
+            {
+                logError() << XmlWrap::logPrefix(getNode()) <<
+                    "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
+                    "\" has unexpected value (" << origStr << "), expected to "
+                    "be hex values string with even number of non-white characters.";
+            };
 
+        if ((!origStr.empty()) &&
+            (origStr.front() == '^') &&
+            (protocol().isFieldValueReferenceSupported())) {
+            if (!protocol().strToData(std::string(origStr, 1), true, m_state.m_defaultValue)) {
+                reportErrorFunc();
+                return false;
+            }
+
+            return true;
+        }
+
+
+        std::string str = iter->second;
         str.erase(
             std::remove(str.begin(), str.end(), ' '),
             str.end());
 
         if ((str.size() %2) != 0) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
-                "\" has unexpected value (" << iter->second << "), expected to "
-                "be hex values string with even number of non-white characters.";
+            reportErrorFunc();
             return false;
 
         }
@@ -201,10 +233,7 @@ bool DataFieldImpl::updateDefaultValue()
                 });
 
         if (!validChars) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
-                          "\" has unexpected value (" << iter->second << "), expected to "
-                          "be hex values string.";
+            reportErrorFunc();
             return false;
         }
 

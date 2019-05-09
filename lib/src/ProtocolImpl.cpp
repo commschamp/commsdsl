@@ -263,6 +263,20 @@ bool ProtocolImpl::strToString(
             });
 }
 
+bool ProtocolImpl::strToData(
+    const std::string& ref,
+    bool checkRef,
+    std::vector<std::uint8_t>& val) const
+{
+    return
+        strToValue(
+            ref, checkRef,
+            [&val](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToData(str, val);
+            });
+}
+
 ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
 {
     auto total =

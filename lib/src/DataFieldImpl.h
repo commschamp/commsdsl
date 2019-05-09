@@ -77,6 +77,7 @@ protected:
     virtual bool verifySiblingsImpl(const FieldsList& fields) const override final;
     virtual std::size_t minLengthImpl() const override final;
     virtual std::size_t maxLengthImpl() const override final;
+    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
 
 private:
     bool updateDefaultValue();

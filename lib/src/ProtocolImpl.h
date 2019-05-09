@@ -82,6 +82,7 @@ public:
     bool strToFp(const std::string& ref, bool checkRef, double& val) const;
     bool strToBool(const std::string& ref, bool checkRef, bool& val) const;
     bool strToString(const std::string& ref, bool checkRef, std::string& val) const;
+    bool strToData(const std::string& ref, bool checkRef, std::vector<std::uint8_t>& val) const;
 
     MessagesList allMessages() const;
 

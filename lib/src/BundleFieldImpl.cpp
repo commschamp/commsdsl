@@ -201,6 +201,21 @@ bool BundleFieldImpl::strToStringImpl(const std::string& ref, std::string& val) 
             });
 }
 
+bool BundleFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    if (ref.empty()) {
+        return Base::strToDataImpl(ref, val);
+    }
+
+    return
+        strToValue(
+            ref,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToData(str, val);
+            });
+}
+
 bool BundleFieldImpl::updateMembers()
 {
     if (!m_members.empty()) {
