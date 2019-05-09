@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema22"
+        id="1"
+        endian="big"
+        version="5"
+        dslVersion="2">
+    <fields>
+        <set name="F1" type="uint8">
+            <bit name="B0" idx="0" defaultValue="true"/>
+            <bit name="B1" idx="1" defaultValue="false"/>
+        </set>
+    
+        <bundle name="F2">
+            <ref name="M1" field="F1" />
+            <ref name="M2" field="F1" />
+        </bundle>
+        
+        <set name="F3" type="uint8" defaultValue="F2.M1">
+            <bit name="B0" idx="0" defaultValue="F2.M2.B0"/>
+            <bit name="B1" idx="1" defaultValue="F2.M2.B1"/>
+        </set>
+    </fields>
+</schema>

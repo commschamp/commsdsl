@@ -112,4 +112,72 @@ bool RefFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
     return m_field->isComparableToField(field);
 }
 
+bool RefFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    return
+        strToValue(
+            ref,
+            [&val, &isBigUnsigned](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToNumeric(str, val, isBigUnsigned);
+            });
+}
+
+bool RefFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToFp(str, val);
+            });
+    }
+
+bool RefFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToBool(str, val);
+            });
+}
+
+bool RefFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToString(str, val);
+            });
+}
+
+bool RefFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToData(str, val);
+            });
+}
+
+bool RefFieldImpl::strToValue(
+    const std::string& ref,
+    StrToValueFieldConvertFunc&& forwardFunc) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    assert(m_field != nullptr);
+    return forwardFunc(*m_field, ref);
+}
+
+
 } // namespace commsdsl

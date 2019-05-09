@@ -1021,8 +1021,9 @@ bool IntFieldImpl::updateSpecials()
 
         std::intmax_t val = 0;
         if (!strToValue(valIter->second, val)) {
-            logError() << XmlWrap::logPrefix(s) << "Special value \"" << nameIter->second <<
-                          "\" cannot be recognized.";
+            logError() << XmlWrap::logPrefix(s) <<
+                "Value of special \"" << nameIter->second <<
+                "\" (" << valIter->second << ") cannot be recognized.";
             return false;
         }
 

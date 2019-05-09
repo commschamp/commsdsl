@@ -28,6 +28,7 @@ public:
     void test19();
     void test20();
     void test21();
+    void test22();
 };
 
 void SetTestSuite::setUp()
@@ -623,5 +624,33 @@ void SetTestSuite::test21()
     auto& b1 = bits.find("B1")->second;
     TS_ASSERT_EQUALS(b0.m_defaultValue, false);
     TS_ASSERT_EQUALS(b1.m_defaultValue, true);
+}
+
+void SetTestSuite::test22()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
 }
 

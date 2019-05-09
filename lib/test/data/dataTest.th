@@ -26,6 +26,7 @@ public:
     void test17();
     void test18();
     void test19();
+    void test20();
 };
 
 void DataTestSuite::setUp()
@@ -385,4 +386,26 @@ void DataTestSuite::test19()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
+}
+
+void DataTestSuite::test20()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Data);
+
+    commsdsl::DataField dataField(field);
+    commsdsl::DataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    TS_ASSERT_EQUALS(dataField.defaultValue(), expDefaultValue);
 }

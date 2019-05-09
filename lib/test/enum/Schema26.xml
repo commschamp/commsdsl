@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema26"
+        id="1"
+        endian="big"
+        version="2">
+        
+    <ns name="ns1">
+        <fields>
+            <enum name="F1" type="uint8" defaultValue="3">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="2" />
+            </enum>
+            <bundle name="F2">
+                <ref name="M1" field="ns1.F1" />
+                <ref name="M2" field="ns1.F1" />
+            </bundle>
+            <enum name="F3" type="uint8" defaultValue="ns1.F2.M1">
+                <validValue name="V1" val="ns1.F2.M1.V1" />
+                <validValue name="V2" val="ns1.F2.M1.V2" />
+            </enum>
+        </fields>
+    </ns>
+</schema>
