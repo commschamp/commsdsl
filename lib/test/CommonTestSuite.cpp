@@ -1,4 +1,5 @@
 #include "CommonTestSuite.h"
+#include <algorithm>
 
 void CommonTestSuite::commonSetUp()
 {
