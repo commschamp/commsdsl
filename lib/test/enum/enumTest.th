@@ -33,6 +33,8 @@ public:
     void test24();
     void test25();
     void test26();
+    void test27();
+    void test28();
 };
 
 void EnumTestSuite::setUp()
@@ -687,4 +689,39 @@ void EnumTestSuite::test26()
     auto& v2 = values.find("V2")->second;
     TS_ASSERT_EQUALS(v1.m_value, 1);
     TS_ASSERT_EQUALS(v2.m_value, 2);
+}
+
+void EnumTestSuite::test27()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
+
+    commsdsl::EnumField enumField(field);
+    auto& values = enumField.values();
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 3);
+    TS_ASSERT_EQUALS(values.size(), 2);
+    auto& v1 = values.find("V1")->second;
+    auto& v2 = values.find("V2")->second;
+    TS_ASSERT_EQUALS(v1.m_value, 1);
+    TS_ASSERT_EQUALS(v2.m_value, 2);
+}
+
+void EnumTestSuite::test28()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
+    TS_ASSERT(protocol);
 }

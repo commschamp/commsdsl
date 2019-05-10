@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema28"
+        id="1"
+        endian="big"
+        version="2"
+        dslVersion="1">
+        
+    <ns name="ns1">
+        <fields>
+            <optional name="F1">
+                <enum name="F1" type="uint8" defaultValue="3">
+                    <validValue name="V1" val="1" />
+                    <validValue name="V2" val="2" />
+                </enum>
+            </optional>
+            <enum name="F2" type="uint8" defaultValue="ns1.F1.F1">
+                <validValue name="V1" val="ns1.F1.F1.V1" />
+                <validValue name="V2" val="ns1.F1.F1.V2" />
+            </enum>
+        </fields>
+    </ns>
+</schema>
