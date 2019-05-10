@@ -87,6 +87,8 @@ private:
     bool checkPrefixAsChild();
     const FieldImpl* getPrefixField() const;
 
+    bool strToValue(const std::string& str, ValueType& val) const;
+
     struct State
     {
         ValueType m_defaultValue;

@@ -189,75 +189,14 @@ bool DataFieldImpl::updateDefaultValue()
             break;
         }
 
-        auto& origStr = iter->second;
-        auto reportErrorFunc =
-            [this, &origStr]()
-            {
-                logError() << XmlWrap::logPrefix(getNode()) <<
-                    "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
-                    "\" has unexpected value (" << origStr << "), expected to "
-                    "be hex values string with even number of non-white characters.";
-            };
-
-        if ((!origStr.empty()) &&
-            (origStr.front() == '^') &&
-            (protocol().isFieldValueReferenceSupported())) {
-            if (!protocol().strToData(std::string(origStr, 1), true, m_state.m_defaultValue)) {
-                reportErrorFunc();
-                return false;
-            }
-
-            return true;
-        }
-
-
-        std::string str = iter->second;
-        str.erase(
-            std::remove(str.begin(), str.end(), ' '),
-            str.end());
-
-        if ((str.size() %2) != 0) {
-            reportErrorFunc();
-            return false;
-
-        }
-
-        auto validChars =
-            std::all_of(
-                str.begin(), str.end(),
-                [](char ch)
-                {
-                    auto c = static_cast<char>(std::tolower(ch));
-                    return (('0' <= c) && (c <='9')) ||
-                           (('a' <= c) && (c <= 'f'));
-                });
-
-        if (!validChars) {
-            reportErrorFunc();
+        if (!strToValue(iter->second, m_state.m_defaultValue)) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Property \"" << common::defaultValueStr() << "\" of element \"" << name() <<
+                "\" has unexpected value (" << iter->second << "), expected to "
+                "be hex values string with even number of non-white characters.";
             return false;
         }
 
-        m_state.m_defaultValue.clear();
-        m_state.m_defaultValue.reserve(str.size() / 2U);
-        std::string byteStr;
-        for (auto ch : str) {
-            byteStr.push_back(ch);
-            if (byteStr.size() <= 1U) {
-                continue;
-            }
-
-            try {
-                auto byte = static_cast<std::uint8_t>(std::stoul(byteStr, 0, 16));
-                m_state.m_defaultValue.push_back(byte);
-                byteStr.clear();
-            }
-            catch (...) {
-                assert(!"Should not happen");
-                return false;
-            }
-        }
-
-        assert(m_state.m_defaultValue.size() == (str.size() / 2U));
     } while (false);
     if ((m_state.m_length != 0U) &&
         (m_state.m_length < m_state.m_defaultValue.size())) {
@@ -458,5 +397,57 @@ const FieldImpl* DataFieldImpl::getPrefixField() const
     return m_prefixField.get();
 }
 
+bool DataFieldImpl::strToValue(const std::string& str, ValueType& val) const
+{
+    if ((!str.empty()) && (str[0] == '^') && protocol().isFieldValueReferenceSupported()) {
+        return protocol().strToData(std::string(str, 1), false, val);
+    }
+
+    std::string adjStr = str;
+    adjStr.erase(
+        std::remove(adjStr.begin(), adjStr.end(), ' '),
+        adjStr.end());
+
+    if ((adjStr.size() %2) != 0) {
+        return false;
+    }
+
+    auto validChars =
+        std::all_of(
+            adjStr.begin(), adjStr.end(),
+            [](char ch)
+            {
+                auto c = static_cast<char>(std::tolower(ch));
+                return (('0' <= c) && (c <='9')) ||
+                       (('a' <= c) && (c <= 'f'));
+            });
+
+    if (!validChars) {
+        return false;
+    }
+
+    val.clear();
+    val.reserve(adjStr.size() / 2U);
+    std::string byteStr;
+    for (auto ch : adjStr) {
+        byteStr.push_back(ch);
+        if (byteStr.size() <= 1U) {
+            continue;
+        }
+
+        try {
+            auto byte = static_cast<std::uint8_t>(std::stoul(byteStr, 0, 16));
+            val.push_back(byte);
+            byteStr.clear();
+        }
+        catch (...) {
+            assert(!"Should not happen");
+            return false;
+        }
+    }
+
+    assert(val.size() == (adjStr.size() / 2U));
+    return true;
+}
 
 } // namespace commsdsl
