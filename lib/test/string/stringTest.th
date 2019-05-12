@@ -36,6 +36,7 @@ public:
     void test27();
     void test28();
     void test29();
+    void test30();
 };
 
 void StringTestSuite::setUp()
@@ -594,4 +595,24 @@ void StringTestSuite::test29()
 
     commsdsl::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello!");
+}
+
+void StringTestSuite::test30()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "bla");
 }

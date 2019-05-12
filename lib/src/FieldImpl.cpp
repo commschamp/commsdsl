@@ -581,6 +581,131 @@ bool FieldImpl::checkDetachedPrefixAllowed() const
     return result;
 }
 
+bool FieldImpl::strToValueOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    FieldImpl::StrToValueFieldConvertFunc &&func) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    auto firstDotPos = ref.find_first_of('.');
+    std::string firstName(ref, 0, firstDotPos);
+
+    auto iter = std::find_if(
+        fields.begin(), fields.end(),
+        [&firstName](auto& m)
+        {
+            return m->name() == firstName;
+        });
+
+    if (iter == fields.end()) {
+        return false;
+    }
+
+    std::string restName;
+    if (firstDotPos != std::string::npos) {
+        restName.assign(ref, firstDotPos + 1, std::string::npos);
+    }
+
+    return func(**iter, restName);
+
+}
+
+bool FieldImpl::strToNumericOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    std::intmax_t &val,
+    bool &isBigUnsigned) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToNumericImpl(ref, val, isBigUnsigned);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val, &isBigUnsigned](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToNumeric(str, val, isBigUnsigned);
+            });
+
+}
+
+bool FieldImpl::strToFpOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    double &val) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToFpImpl(ref, val);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToFp(str, val);
+    });
+}
+
+bool FieldImpl::strToBoolOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    bool &val) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToBoolImpl(ref, val);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToBool(str, val);
+    });
+}
+
+bool FieldImpl::strToStringOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    std::string &val) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToStringImpl(ref, val);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToString(str, val);
+            });
+
+}
+
+bool FieldImpl::strToDataOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    std::vector<std::uint8_t> &val) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToDataImpl(ref, val);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToData(str, val);
+            });
+}
+
 bool FieldImpl::checkReuse()
 {
     if (!validateSinglePropInstance(common::reuseStr())) {

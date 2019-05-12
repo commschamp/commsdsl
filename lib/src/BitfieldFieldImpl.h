@@ -58,14 +58,8 @@ protected:
 
 
 private:
-    using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;
-
     bool updateEndian();
     bool updateMembers();
-
-    bool strToValue(
-        const std::string& ref,
-        StrToValueFieldConvertFunc&& forwardFunc) const;
 
     Endian m_endian = Endian_NumOfValues;
     FieldsList m_members;

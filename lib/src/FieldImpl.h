@@ -261,8 +261,39 @@ protected:
     static Kind getNonRefFieldKind(const FieldImpl& field);
     bool checkDetachedPrefixAllowed() const;
 
-private:
+    using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;
+    bool strToValueOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        StrToValueFieldConvertFunc&& func) const;
 
+    bool strToNumericOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        std::intmax_t& val,
+        bool& isBigUnsigned) const;
+
+    bool strToFpOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        double& val) const;
+
+    bool strToBoolOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        bool& val) const;
+
+    bool strToStringOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        std::string& val) const;
+
+    bool strToDataOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        std::vector<std::uint8_t>& val) const;
+
+private:
     using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
     using CreateMap = std::map<std::string, CreateFunc>;
 

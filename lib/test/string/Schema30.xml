@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema30"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <variant name="F1">
+            <bundle name="P1">
+                <int name="type" type="uint8" validValue="0" failOnInvalid="true" />
+                <int name="value" type="uint32" />
+            </bundle>
+            <bundle name="P2">
+                <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true" />
+                <string name="value" defaultValue="bla" />
+            </bundle>
+        </variant>
+        <ref name="F2" field="F1" />
+        <string name="F3" defaultValue="^F2.P2.value" />
+    </fields>
+</schema>

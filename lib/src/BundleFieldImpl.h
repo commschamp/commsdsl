@@ -52,12 +52,7 @@ protected:
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
 
 private:
-    using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;
-
     bool updateMembers();
-    bool strToValue(
-        const std::string& ref,
-        StrToValueFieldConvertFunc&& forwardFunc) const;
 
     FieldsList m_members;
 };
