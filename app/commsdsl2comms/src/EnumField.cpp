@@ -153,10 +153,10 @@ common::StringsList EnumField::getValuesList() const
         }
         else if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
             if (!iter->second.m_displayName.empty()) {
-                docStr = "///< message id <b>" + iter->second.m_displayName + "</b>.";
+                docStr = "///< message id of <b>" + iter->second.m_displayName + "</b> message.";
             }
             else {
-                docStr = "///< message id @b " + v.second;
+                docStr = "///< message id of @b " + v.second + " message.";
             }
         }
         else if (!iter->second.m_displayName.empty()) {
