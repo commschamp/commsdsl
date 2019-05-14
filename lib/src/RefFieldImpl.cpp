@@ -22,6 +22,13 @@
 namespace commsdsl
 {
 
+namespace
+{
+const std::size_t BitsInByte =
+        std::numeric_limits<std::uint8_t>::digits;
+static_assert(BitsInByte == 8U, "Invalid assumption");  
+} // namespace  
+
 RefFieldImpl::RefFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
@@ -42,7 +49,8 @@ FieldImpl::Ptr RefFieldImpl::cloneImpl() const
 const XmlWrap::NamesList& RefFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
-        common::fieldStr()
+        common::fieldStr(),
+        common::bitLengthStr(),
     };
 
     return List;
@@ -52,6 +60,7 @@ bool RefFieldImpl::reuseImpl(const FieldImpl& other)
 {
     assert(other.kind() == kind());
     auto& castedOther = static_cast<const RefFieldImpl&>(other);
+    m_state = castedOther.m_state;
     m_field = castedOther.m_field;
     assert(m_field != nullptr);
     return true;
@@ -85,7 +94,7 @@ bool RefFieldImpl::parseImpl()
         setDisplayName(m_field->displayName());
     }
 
-    return true;
+    return updateBitLength();
 }
 
 std::size_t RefFieldImpl::minLengthImpl() const
@@ -98,6 +107,15 @@ std::size_t RefFieldImpl::maxLengthImpl() const
 {
     assert(m_field != nullptr);
     return m_field->maxLength();
+}
+
+std::size_t RefFieldImpl::bitLengthImpl() const
+{
+    if (isBitfieldMember()) {
+        return m_state.m_bitLength;
+    }
+
+    return Base::bitLengthImpl();
 }
 
 bool RefFieldImpl::isComparableToValueImpl(const std::string& val) const
@@ -165,6 +183,47 @@ bool RefFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_
             {
                 return f.strToData(str, val);
             });
+}
+
+bool RefFieldImpl::updateBitLength()
+{
+    if (!validateSinglePropInstance(common::bitLengthStr())) {
+        return false;
+    }
+
+    if (!isBitfieldMember()) {
+        logWarning() << XmlWrap::logPrefix((getNode())) <<
+                        "The property \"" << common::bitLengthStr() << "\" is "
+                        "applicable only to the members of \"" << common::bitfieldStr() << "\"";
+        return true;
+    }
+
+    auto& valStr = common::getStringProp(props(), common::bitLengthStr());
+    assert(0 < maxLength());
+    auto maxBitLength = maxLength() * BitsInByte;
+    if (valStr.empty()) {
+        if (m_state.m_bitLength == 0) {
+            m_state.m_bitLength = maxBitLength;
+            return true;
+        }
+
+        assert(m_state.m_bitLength <= maxBitLength);
+        return true;
+    }    
+
+    bool ok = false;
+    m_state.m_bitLength = common::strToUnsigned(valStr, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
+        return false;
+    }
+
+    assert(m_field != nullptr);
+    if (!m_field->validateBitLengthValue(getNode(), m_state.m_bitLength)) {
+        return false;
+    }
+
+    return true;
 }
 
 bool RefFieldImpl::strToValue(

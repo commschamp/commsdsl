@@ -94,6 +94,7 @@ protected:
     virtual bool isComparableToValueImpl(const std::string& val) const override final;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const override final;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override final;
+    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override final;
 
 private:
     bool updateType();

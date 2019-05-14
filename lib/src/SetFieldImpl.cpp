@@ -29,6 +29,14 @@
 namespace commsdsl
 {
 
+namespace
+{
+const std::size_t BitsInByte =
+        std::numeric_limits<std::uint8_t>::digits;
+static_assert(BitsInByte == 8U, "Invalid assumption");    
+
+} // namespace 
+
 SetFieldImpl::SetFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
@@ -166,6 +174,20 @@ bool SetFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
     }
 
     val = iter->second.m_defaultValue;
+    return true;
+}
+
+bool SetFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    assert(0U < m_state.m_length);
+    auto maxBitLength = m_state.m_length * BitsInByte;
+    if (maxBitLength < bitLength) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
+                      "maximal length available by the type and/or forced serialisation length.";
+        return false;
+    }
+
     return true;
 }
 

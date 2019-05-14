@@ -173,7 +173,8 @@ std::string RefField::getClassDefinitionImpl(
     auto* templ = &ClassTemplate;
     if (shouldUseStruct(replacements)) {
         templ = &StructTemplate;
-        if (replacements.find("NAME_FUNC") == replacements.end()) {
+        if ((replacements.find("NAME_FUNC") == replacements.end()) &&
+            (refObj.bitLength() == 0U)) {
             templ = &AliasTemplate;
         }
     }
@@ -309,6 +310,11 @@ std::string RefField::getOpts(const std::string& scope) const
     StringsList options;
     options.push_back("TOpt");
     updateExtraOptions(scope, options);
+    auto obj = refFieldDslObj();
+    auto bitLength = obj.bitLength();
+    if (bitLength != 0U) {
+        options.push_back("comms::option::FixedBitLength<" + common::numToString(bitLength) + '>');
+    }
     return common::listToString(options, ",\n", common::emptyString());
 }
 

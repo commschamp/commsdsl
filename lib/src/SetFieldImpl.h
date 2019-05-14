@@ -91,6 +91,7 @@ protected:
     virtual std::size_t bitLengthImpl() const override final;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override final;
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override final;
+    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override final;
 
 private:
     bool updateEndian();
