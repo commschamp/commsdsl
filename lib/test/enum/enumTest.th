@@ -36,6 +36,9 @@ public:
     void test27();
     void test28();
     void test29();
+    void test30();
+    void test31();
+    void test32();
 };
 
 void EnumTestSuite::setUp()
@@ -752,4 +755,72 @@ void EnumTestSuite::test29()
     auto& v2 = values.find("V2")->second;
     TS_ASSERT_EQUALS(v1.m_value, 1);
     TS_ASSERT_EQUALS(v2.m_value, 2);
+}
+
+void EnumTestSuite::test30()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
+
+    commsdsl::EnumField enumField(field);
+    auto& values = enumField.values();
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 1);
+    TS_ASSERT_EQUALS(enumField.displayName(), "Desc1");
+    TS_ASSERT_EQUALS(values.size(), 2);
+    auto& v1 = values.find("V1")->second;
+    auto& v2 = values.find("V2")->second;
+    TS_ASSERT_EQUALS(v1.m_value, 1);
+    TS_ASSERT_EQUALS(v1.m_displayName, "Desc2");
+    TS_ASSERT_EQUALS(v2.m_value, 2);
+    TS_ASSERT_EQUALS(v2.m_displayName, "Desc3");
+}
+
+void EnumTestSuite::test31()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Enum);
+
+    commsdsl::EnumField enumField(field);
+    auto& values = enumField.values();
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 1);
+    TS_ASSERT_EQUALS(enumField.displayName(), "^ns1.F1");
+    TS_ASSERT_EQUALS(values.size(), 2);
+    auto& v1 = values.find("V1")->second;
+    auto& v2 = values.find("V2")->second;
+    TS_ASSERT_EQUALS(v1.m_value, 1);
+    TS_ASSERT_EQUALS(v1.m_displayName, "^ns1.F2");
+    TS_ASSERT_EQUALS(v2.m_value, 2);
+    TS_ASSERT_EQUALS(v2.m_displayName, "^ns1.F3");
+}
+
+void EnumTestSuite::test32()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
 }

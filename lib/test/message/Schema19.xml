@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema19"
+        id="1"
+        endian="Little"
+        version="5">
+    
+    <fields>
+        <string name="Msg1Name" defaultValue="Message 1" />
+        <string name="Msg2Name" defaultValue="Message 2" />
+        <enum name="MsgId" type="uint8">
+            <validValue name="Msg1" val="0" displayName="^Msg1Name" />
+            <validValue name="Msg2" val="1" displayName="^Msg2Name" />
+        </enum>
+    </fields>
+    <message name="Msg1" id="MsgId.Msg1" displayName="^Msg1Name" />
+    <message name="Msg2" id="MsgId.Msg2" displayName="^Msg2Name" />
+</schema>

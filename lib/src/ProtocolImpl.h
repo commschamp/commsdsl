@@ -84,6 +84,8 @@ public:
     bool strToString(const std::string& ref, bool checkRef, std::string& val) const;
     bool strToData(const std::string& ref, bool checkRef, std::vector<std::uint8_t>& val) const;
 
+    bool strToStringValue(const std::string& str, std::string& val) const;
+
     MessagesList allMessages() const;
 
     void addExpectedExtraPrefix(const std::string& value)

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema27"
+        id="1"
+        endian="big"
+        version="5"
+        dslVersion="2">
+    <fields>
+        <string name="F1" defaultValue="Desc1" />
+        <string name="F2" defaultValue="Desc2" />
+        <string name="F3" defaultValue="Desc3" />
+
+        <set name="F4" type="uint8" displayName="^F1">
+            <bit name="B0" idx="0" displayName="\^F2"/>
+            <bit name="B1" idx="1" displayName="^F3"/>
+        </set>
+    </fields>
+</schema>

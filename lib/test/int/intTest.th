@@ -46,6 +46,7 @@ public:
     void test37();
     void test38();
     void test39();
+    void test40();
 };
 
 void IntTestSuite::setUp()
@@ -1779,3 +1780,32 @@ void IntTestSuite::test39()
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 0);
 }
+
+void IntTestSuite::test40()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema40.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg1 = messages.front();
+
+    auto fields = msg1.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F1");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 1);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 10);
+}
+

@@ -217,12 +217,12 @@ protected:
 
     void setName(const std::string& val)
     {
-        m_state.m_name = &val;
+        m_state.m_name = val;
     }
 
     void setDisplayName(const std::string& val)
     {
-        m_state.m_displayName = &val;
+        m_state.m_displayName = val;
     }
 
     LogWrapper logError() const;
@@ -251,7 +251,11 @@ protected:
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);
-    bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
+    bool validateAndUpdateStringPropValue(
+            const std::string& str,
+            std::string &value,
+            bool mustHave = false,
+            bool allowDeref = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
 
@@ -299,9 +303,9 @@ private:
 
     struct ReusableState
     {
-        const std::string* m_name = nullptr;
-        const std::string* m_displayName = nullptr;
-        const std::string* m_description = nullptr;
+        std::string m_name;
+        std::string m_displayName;
+        std::string m_description;
         PropsMap m_extraAttrs;
         ContentsList m_extraChildren;
         SemanticType m_semanticType = SemanticType::None;

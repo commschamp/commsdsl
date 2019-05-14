@@ -33,6 +33,9 @@ public:
     void test24();
     void test25();
     void test26();
+    void test27();
+    void test28();
+    void test29();
 };
 
 void SetTestSuite::setUp()
@@ -728,4 +731,66 @@ void SetTestSuite::test26()
     auto& b1 = bits.find("B1")->second;
     TS_ASSERT_EQUALS(b0.m_defaultValue, true);
     TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+}
+
+void SetTestSuite::test27()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.displayName(), "Desc1");
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_displayName, "^F2");
+    TS_ASSERT_EQUALS(b1.m_displayName, "Desc3");
+}
+
+void SetTestSuite::test28()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.displayName(), "^F1");
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_displayName, "^F2");
+    TS_ASSERT_EQUALS(b1.m_displayName, "^F3");
+}
+
+void SetTestSuite::test29()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
+    TS_ASSERT(protocol);
 }

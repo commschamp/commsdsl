@@ -762,4 +762,41 @@ LogWrapper ProtocolImpl::logWarning() const
     return commsdsl::logWarning(m_logger);
 }
 
+bool ProtocolImpl::strToStringValue(
+    const std::string &str,
+    std::string &val) const
+{
+    if (str.empty() || (!isFieldValueReferenceSupported())) {
+        val = str;
+        return true;
+    }
+
+    static const char Prefix = '^';
+    if (str[0] == Prefix) {
+        return strToString(std::string(str, 1), true, val);
+    }
+
+    auto prefixPos = str.find_first_of(Prefix);
+    if (prefixPos == std::string::npos) {
+        val = str;
+        return true;
+    }
+
+    assert(0U < prefixPos);
+    bool allBackSlashes =
+        std::all_of(
+            str.begin(), str.begin() + prefixPos,
+            [](char ch)
+            {
+                return ch == '\\';
+            });
+    if (!allBackSlashes) {
+        val = str;
+        return true;
+    }
+
+    val.assign(str, 1, std::string::npos);
+    return true;
+}
+
 } // namespace commsdsl

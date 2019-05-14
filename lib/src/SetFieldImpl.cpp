@@ -630,8 +630,10 @@ bool SetFieldImpl::updateBits()
         }
 
         auto dispNameIter = props.find(common::displayNameStr());
-        if (dispNameIter != props.end()) {
-            info.m_displayName = dispNameIter->second;
+        if ((dispNameIter != props.end()) &&
+            (!protocol().strToStringValue(dispNameIter->second, info.m_displayName))) {
+            XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::displayNameStr(), dispNameIter->second, protocol().logger());
+            return false;
         }
 
         m_state.m_bits.emplace(nameIter->second, info);

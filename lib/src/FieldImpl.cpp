@@ -141,20 +141,17 @@ bool FieldImpl::parse()
 
 const std::string& FieldImpl::name() const
 {
-    assert(m_state.m_name != nullptr);
-    return *m_state.m_name;
+    return m_state.m_name;
 }
 
 const std::string& FieldImpl::displayName() const
 {
-    assert(m_state.m_displayName != nullptr);
-    return *m_state.m_displayName;
+    return m_state.m_displayName;
 }
 
 const std::string& FieldImpl::description() const
 {
-    assert(m_state.m_description != nullptr);
-    return *m_state.m_description;
+    return m_state.m_description;
 }
 
 const std::string& FieldImpl::kindStr() const
@@ -276,9 +273,6 @@ FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)
 {
-    m_state.m_name = &common::emptyString();
-    m_state.m_displayName = &common::emptyString();
-    m_state.m_description = &common::emptyString();
 }
 
 FieldImpl::FieldImpl(const FieldImpl&) = default;
@@ -445,19 +439,30 @@ bool FieldImpl::validateNoPropInstance(const std::string& str)
 
 bool FieldImpl::validateAndUpdateStringPropValue(
     const std::string& str,
-    const std::string*& valuePtr,
-    bool mustHave)
+    std::string& value,
+    bool mustHave,
+    bool allowDeref)
 {
     if (!validateSinglePropInstance(str, mustHave)) {
         return false;
     }
 
     auto iter = m_props.find(str);
-    if (iter != m_props.end()) {
-        valuePtr = &iter->second;
+    if (iter == m_props.end()) {
+        assert(!mustHave);
+        return true;
     }
 
-    assert(iter != m_props.end() || (!mustHave));
+    if (!allowDeref) {
+        value = iter->second;
+        return true;
+    }
+
+    if (!protocol().strToStringValue(iter->second, value)) {
+        reportUnexpectedPropertyValue(str, iter->second);
+        return false;
+    }
+
     return true;
 }
 
@@ -748,12 +753,12 @@ bool FieldImpl::updateName()
 
 bool FieldImpl::updateDescription()
 {
-    return validateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description);
+    return validateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description, false, true);
 }
 
 bool FieldImpl::updateDisplayName()
 {
-    return validateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName);
+    return validateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName, false, true);
 }
 
 bool FieldImpl::updateVersions()
@@ -1081,16 +1086,15 @@ bool FieldImpl::verifySemanticType() const
 
 bool FieldImpl::verifyName() const
 {
-    assert(m_state.m_name != nullptr);
-    if (m_state.m_name->empty()) {
+    if (m_state.m_name.empty()) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Missing value for mandatory property \"" << common::nameStr() << "\" for \"" << m_node->name << "\" element.";
         return false;
     }
 
-    if (!common::isValidName(*m_state.m_name)) {
+    if (!common::isValidName(m_state.m_name)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                "Invalid value for name property \"" << *m_state.m_name << "\".";
+                "Invalid value for name property \"" << m_state.m_name << "\".";
         return false;
     }
 
