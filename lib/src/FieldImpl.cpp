@@ -430,9 +430,8 @@ bool FieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>&
 bool FieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
 {
     static_cast<void>(bitLength);
-    assert(!"This function is not supposed to be called");
     logError() << XmlWrap::logPrefix(node) <<
-        "This field type cannot be used as member of \"" <<
+        "The field of kind \"" << kindStr() << "\" cannot be used or referenced as a member of \"" <<
         common::bitfieldStr() << "\".";    
     return false;
 }

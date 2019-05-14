@@ -17,6 +17,7 @@ public:
     void test8();
     void test9();
     void test10();
+    void test11();
 };
 
 void BitfieldTestSuite::setUp()
@@ -275,4 +276,12 @@ void BitfieldTestSuite::test10()
 
     TS_ASSERT_EQUALS(mem1.bitLength(), 5U);
     TS_ASSERT_EQUALS(mem2.bitLength(), 3U);
+}
+
+void BitfieldTestSuite::test11()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
 }

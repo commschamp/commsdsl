@@ -19,12 +19,14 @@
             <bit name="B0" idx="0" />
             <bit name="B1" idx="1" />
             <bit name="B2" idx="2" />
-        </set>        
+        </set>    
+
+        <ref name="R1" field="E1" />    
     </fields>
     
     <message name="Msg1" id="MsgId.M1">
         <bitfield name="F1">
-            <ref name="M1" field="E1" bitLength="4" />
+            <ref name="M1" field="R1" bitLength="4" />
             <ref name="M2" field="S1" bitLength="4" />
         </bitfield>
     </message>

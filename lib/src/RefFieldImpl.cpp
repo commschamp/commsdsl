@@ -18,6 +18,7 @@
 #include <cassert>
 #include "common.h"
 #include "ProtocolImpl.h"
+#include "BitfieldFieldImpl.h"
 
 namespace commsdsl
 {
@@ -86,6 +87,11 @@ bool RefFieldImpl::parseImpl()
         return false;
     }
 
+    bool result = updateBitLength();
+    if (!result) {
+        return false;
+    }
+
     if (name().empty()) {
         setName(m_field->name());
     }
@@ -94,7 +100,7 @@ bool RefFieldImpl::parseImpl()
         setDisplayName(m_field->displayName());
     }
 
-    return updateBitLength();
+    return true;
 }
 
 std::size_t RefFieldImpl::minLengthImpl() const
@@ -185,17 +191,16 @@ bool RefFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_
             });
 }
 
+bool RefFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    assert(m_field != nullptr);
+    return m_field->validateBitLengthValue(node, bitLength);
+}
+
 bool RefFieldImpl::updateBitLength()
 {
     if (!validateSinglePropInstance(common::bitLengthStr())) {
         return false;
-    }
-
-    if (!isBitfieldMember()) {
-        logWarning() << XmlWrap::logPrefix((getNode())) <<
-                        "The property \"" << common::bitLengthStr() << "\" is "
-                        "applicable only to the members of \"" << common::bitfieldStr() << "\"";
-        return true;
     }
 
     auto& valStr = common::getStringProp(props(), common::bitLengthStr());
@@ -208,6 +213,13 @@ bool RefFieldImpl::updateBitLength()
         }
 
         assert(m_state.m_bitLength <= maxBitLength);
+        return true;
+    }    
+
+    if (!isBitfieldMember()) {
+        logWarning() << XmlWrap::logPrefix((getNode())) <<
+                        "The property \"" << common::bitLengthStr() << "\" is "
+                        "applicable only to the members of \"" << common::bitfieldStr() << "\"";
         return true;
     }    
 
