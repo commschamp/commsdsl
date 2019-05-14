@@ -36,6 +36,7 @@ const std::string HelpStr("help");
 const std::string FullHelpStr(HelpStr + ",h");
 const std::string QuietStr("quiet");
 const std::string FullQuietStr(QuietStr + ",q");
+const std::string VersionStr("version");
 const std::string OutputDirStr("output-dir");
 const std::string FullOutputDirStr(OutputDirStr + ",o");
 const std::string CodeInputDirStr("code-input-dir");
@@ -65,6 +66,7 @@ po::options_description createDescription()
     po::options_description desc("Options");
     desc.add_options()
         (FullHelpStr.c_str(), "This help.")
+        (VersionStr.c_str(), "Print version string and exit.")        
         (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
         (FullOutputDirStr.c_str(), po::value<std::string>()->default_value(std::string()),
             "Output directory path. Empty means current.")
@@ -174,6 +176,11 @@ bool ProgramOptions::helpRequested() const
 bool ProgramOptions::quietRequested() const
 {
     return 0 < m_vm.count(QuietStr);
+}
+
+bool ProgramOptions::versionRequested() const
+{
+    return 0 < m_vm.count(VersionStr);
 }
 
 bool ProgramOptions::warnAsErrRequested() const

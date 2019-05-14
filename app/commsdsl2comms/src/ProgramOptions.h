@@ -31,6 +31,7 @@ public:
 
     bool helpRequested() const;
     bool quietRequested() const;
+    bool versionRequested() const;
     bool warnAsErrRequested() const;
     bool versionIndependentCodeRequested() const;
     bool pluginBuildEnabledByDefault() const;
