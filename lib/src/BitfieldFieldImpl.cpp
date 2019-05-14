@@ -30,20 +30,9 @@ namespace commsdsl
 namespace
 {
 
-const XmlWrap::NamesList& bundleSupportedTypes()
-{
-    static const XmlWrap::NamesList Names = {
-        common::intStr(),
-        common::enumStr(),
-        common::setStr()
-    };
-
-    return Names;
-}
-
 XmlWrap::NamesList getExtraNames()
 {
-    auto names = bundleSupportedTypes();
+    auto names = BitfieldFieldImpl::supportedTypes();
     names.push_back(common::membersStr());
     return names;
 }
@@ -76,6 +65,18 @@ BitfieldFieldImpl::Members BitfieldFieldImpl::membersList() const
             return Field(elem.get());
         });
     return result;
+}
+
+const XmlWrap::NamesList& BitfieldFieldImpl::supportedTypes()
+{
+    static const XmlWrap::NamesList Names = {
+        common::intStr(),
+        common::enumStr(),
+        common::setStr(),
+        common::refStr()
+    };
+
+    return Names;    
 }
 
 FieldImpl::Kind BitfieldFieldImpl::kindImpl() const
@@ -191,7 +192,7 @@ bool BitfieldFieldImpl::updateMembers()
             return false;
         }
 
-        auto memberFieldsTypes = XmlWrap::getChildren(getNode(), bundleSupportedTypes());
+        auto memberFieldsTypes = XmlWrap::getChildren(getNode(), supportedTypes());
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
             logError() << XmlWrap::logPrefix(getNode()) <<
                           "The \"" << common::bitfieldStr() << "\" element does not support "
@@ -231,7 +232,7 @@ bool BitfieldFieldImpl::updateMembers()
         if (0U < membersNodes.size()) {
             assert(0U == memberFieldsTypes.size());
             memberFieldsTypes = XmlWrap::getChildren(membersNodes.front());
-            auto cleanMemberFieldsTypes = XmlWrap::getChildren(membersNodes.front(), bundleSupportedTypes());
+            auto cleanMemberFieldsTypes = XmlWrap::getChildren(membersNodes.front(), supportedTypes());
             if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
                 logError() << XmlWrap::logPrefix(membersNodes.front()) <<
                               "The \"" << common::membersStr() << "\" child node of \"" <<

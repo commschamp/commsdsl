@@ -16,6 +16,8 @@ public:
     void test7();
     void test8();
     void test9();
+    void test10();
+    void test11();
 };
 
 void BitfieldTestSuite::setUp()
@@ -239,5 +241,47 @@ void BitfieldTestSuite::test9()
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+}
+
+void BitfieldTestSuite::test10()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT(field.displayName().empty());
+    TS_ASSERT(field.description().empty());
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bitfield);
+
+    commsdsl::BitfieldField bitfieldField(field);
+    TS_ASSERT_EQUALS(bitfieldField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(bitfieldField.minLength(), 1U);
+    TS_ASSERT_EQUALS(bitfieldField.bitLength(), 0U);
+    auto members = bitfieldField.members();
+    TS_ASSERT_EQUALS(members.size(), 2U);
+
+    auto& mem1 = members[0];
+    auto& mem2 = members[1];
+
+    TS_ASSERT_EQUALS(mem1.bitLength(), 5U);
+    TS_ASSERT_EQUALS(mem2.bitLength(), 3U);
+}
+
+void BitfieldTestSuite::test11()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
 }

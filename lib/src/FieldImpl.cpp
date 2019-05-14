@@ -427,6 +427,15 @@ bool FieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>&
     return false;
 }
 
+bool FieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    static_cast<void>(bitLength);
+    logError() << XmlWrap::logPrefix(node) <<
+        "The field of kind \"" << kindStr() << "\" cannot be used or referenced as a member of \"" <<
+        common::bitfieldStr() << "\".";    
+    return false;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);

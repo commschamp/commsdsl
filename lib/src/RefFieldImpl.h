@@ -50,6 +50,7 @@ protected:
     virtual bool parseImpl() override final;
     virtual std::size_t minLengthImpl() const override final;
     virtual std::size_t maxLengthImpl() const override final;
+    virtual std::size_t bitLengthImpl() const override final;
     virtual bool isComparableToValueImpl(const std::string& val) const override final;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const override final;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override final;
@@ -57,14 +58,23 @@ protected:
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override final;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override final;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
+    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override final;
 
 private:
     using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;
+
+    bool updateBitLength();
 
     bool strToValue(
         const std::string& ref,
         StrToValueFieldConvertFunc&& forwardFunc) const;
 
+    struct State
+    {
+        std::size_t m_bitLength = 0U;
+    };    
+
+    State m_state;
     const FieldImpl* m_field = nullptr;
 };
 

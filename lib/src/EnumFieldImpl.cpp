@@ -32,6 +32,10 @@ namespace commsdsl
 namespace
 {
 
+const std::size_t BitsInByte =
+        std::numeric_limits<std::uint8_t>::digits;
+static_assert(BitsInByte == 8U, "Invalid assumption");    
+
 } // namespace
 
 EnumFieldImpl::EnumFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -188,6 +192,26 @@ bool EnumFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val,
     return true;
 }
 
+bool EnumFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Bitfield member cannot have variable length type.";
+        return false;
+    }
+
+    assert(0U < m_state.m_length);
+    auto maxBitLength = m_state.m_length * BitsInByte;
+    if (maxBitLength < bitLength) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
+                      "maximal length available by the type and/or forced serialisation length.";
+        return false;
+    }
+
+    return true;
+}
+
 bool EnumFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -295,10 +319,6 @@ bool EnumFieldImpl::updateBitLength()
         return false;
     }
 
-    static const std::size_t BitsInByte =
-         std::numeric_limits<std::uint8_t>::digits;
-    static_assert(BitsInByte == 8U, "Invalid assumption");
-
     auto maxBitLength = m_state.m_length * BitsInByte;
     assert((m_state.m_bitLength == 0) || (m_state.m_bitLength == maxBitLength));
     auto& valStr = common::getStringProp(props(), common::bitLengthStr());
@@ -321,23 +341,14 @@ bool EnumFieldImpl::updateBitLength()
         return true;
     }
 
-    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
-        logError() << XmlWrap::logPrefix((getNode())) <<
-                      "Bitfield member cannot have variable length type.";
-        return false;
-    }
-
     bool ok = false;
     m_state.m_bitLength = common::strToUnsigned(valStr, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
         return false;
-    }
+    }    
 
-    if (maxBitLength < m_state.m_bitLength) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
-                      "maximal length available by the type and/or forced serialisation length.";
+    if (!validateBitLengthValue(m_state.m_bitLength)) {
         return false;
     }
 

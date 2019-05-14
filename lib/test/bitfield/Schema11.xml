@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema11"
+        id="1"
+        endian="big">
+    <fields>
+        <enum name="F1" type="uint8" defaultValue="V1">
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="2" />
+        </enum>
+        <string name="F2" length="5" defaultValue="hello" />
+        <bitfield name="F3" >
+            <members>
+                <int name="M1" type="uint8" bitLength="5" />
+                <ref name="M2" field="F2" bitLength="3" />
+            </members>   
+        </bitfield>
+    </fields>
+</schema>

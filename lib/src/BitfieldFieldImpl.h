@@ -42,6 +42,7 @@ public:
 
     Members membersList() const;
 
+    static const XmlWrap::NamesList& supportedTypes();
 
 protected:
 

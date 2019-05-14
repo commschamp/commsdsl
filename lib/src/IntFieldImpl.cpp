@@ -32,6 +32,10 @@ namespace commsdsl
 namespace
 {
 
+const std::size_t BitsInByte =
+        std::numeric_limits<std::uint8_t>::digits;
+static_assert(BitsInByte == 8U, "Invalid assumption");    
+
 static_assert(
     static_cast<std::intmax_t>(std::numeric_limits<std::uintmax_t>::max()) == -1,
     "The code expects 2's compliment negative integers representation.");
@@ -437,6 +441,26 @@ bool IntFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, 
     return true;
 }
 
+bool IntFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Bitfield member cannot have variable length type.";
+        return false;
+    }
+
+    assert(0U < m_state.m_length);
+    auto maxBitLength = m_state.m_length * BitsInByte;
+    if (maxBitLength < bitLength) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
+                      "maximal length available by the type and/or forced serialisation length.";
+        return false;
+    }
+
+    return true;
+}
+
 bool IntFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -546,10 +570,6 @@ bool IntFieldImpl::updateBitLength()
         return false;
     }
 
-    static const std::size_t BitsInByte =
-         std::numeric_limits<std::uint8_t>::digits;
-    static_assert(BitsInByte == 8U, "Invalid assumption");
-
     auto maxBitLength = m_state.m_length * BitsInByte;
     assert((m_state.m_bitLength == 0) || (m_state.m_bitLength == maxBitLength));
     auto& valStr = common::getStringProp(props(), common::bitLengthStr());
@@ -572,12 +592,6 @@ bool IntFieldImpl::updateBitLength()
         return true;
     }
 
-    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
-        logError() << XmlWrap::logPrefix((getNode())) <<
-                      "Bitfield member cannot have variable length type.";
-        return false;
-    }
-
     bool ok = false;
     m_state.m_bitLength = common::strToUnsigned(valStr, &ok);
     if (!ok) {
@@ -585,10 +599,7 @@ bool IntFieldImpl::updateBitLength()
         return false;
     }
 
-    if (maxBitLength < m_state.m_bitLength) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
-                      "maximal length available by the type and/or forced serialisation length.";
+    if (!validateBitLengthValue(m_state.m_bitLength)) {
         return false;
     }
 

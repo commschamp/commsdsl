@@ -42,7 +42,7 @@ namespace commsdsl2comms
 namespace
 {
 
-const unsigned MaxDslVersion = 1U;
+const unsigned MaxDslVersion = 2U;
 const std::string MinCommsVersionStr("1, 2, 2");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");

@@ -201,6 +201,16 @@ public:
         return strToDataImpl(ref, val);
     }
 
+    bool validateBitLengthValue(::xmlNodePtr node, std::size_t bitLength) const
+    {
+        return validateBitLengthValueImpl(node, bitLength);
+    }
+
+    bool validateBitLengthValue(std::size_t bitLength) const
+    {
+        return validateBitLengthValue(m_node, bitLength);
+    }
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -248,6 +258,7 @@ protected:
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const;
+    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);
