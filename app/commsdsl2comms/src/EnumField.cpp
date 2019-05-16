@@ -1052,8 +1052,8 @@ void EnumField::checkDefaultValueOpt(StringsList& list) const
     }
 
     auto type = obj.type();
-    if ((type == commsdsl::EnumField::Type::Uint64) ||
-        (type == commsdsl::EnumField::Type::Uintvar)) {
+    if ((defaultValue < 0) &&
+        ((type == commsdsl::EnumField::Type::Uint64) || (type == commsdsl::EnumField::Type::Uintvar))) {
         auto str =
             "comms::option::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue)) +

@@ -1005,7 +1005,10 @@ std::string Field::getNameFunc() const
         "}\n";
 }
 
-void Field::updateExtraOptions(const std::string& scope, common::StringsList& options) const
+void Field::updateExtraOptions(
+    const std::string& scope,
+    common::StringsList& options,
+    bool ignoreFailOnInvalid) const
 {
     if (!m_externalRef.empty()) {
         options.push_back("TExtraOpts...");
@@ -1015,10 +1018,10 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
         options.push_back("typename " + scope + common::nameToClassCopy(name()));
     }
 
-    if (m_focedFailOnInvalid) {
+    if ((!ignoreFailOnInvalid) && m_focedFailOnInvalid) {
         options.push_back("comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
     }
-    else if (m_dslObj.isFailOnInvalid()) {
+    else if ((!ignoreFailOnInvalid) && m_dslObj.isFailOnInvalid()) {
         common::addToList("comms::option::FailOnInvalid<>", options);
     }
 
@@ -1111,6 +1114,23 @@ std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
     }
 
     return common::dslEndianToOpt(endian);
+}
+
+bool Field::isCustomizable() const
+{
+    if (m_generator.customizationLevel() == CustomizationLevel::Full) {
+        return true;
+    }
+
+    if (m_dslObj.isCustomizable()) {
+        return true;
+    }
+
+    if (m_generator.customizationLevel() == CustomizationLevel::None) {
+        return false;
+    }
+
+    return isLimitedCustomizableImpl();
 }
 
 bool Field::writeProtocolDefinitionFile() const
@@ -1273,23 +1293,6 @@ std::string Field::getPluginIncludes() const
     common::mergeInclude(m_generator.headerfileForField(m_externalRef, false), includes);
     updatePluginIncludesImpl(includes);
     return common::includesToStatements(includes);
-}
-
-bool Field::isCustomizable() const
-{
-    if (m_generator.customizationLevel() == CustomizationLevel::Full) {
-        return true;
-    }
-
-    if (m_dslObj.isCustomizable()) {
-        return true;
-    }
-
-    if (m_generator.customizationLevel() == CustomizationLevel::None) {
-        return false;
-    }
-
-    return isLimitedCustomizableImpl();
 }
 
 } // namespace commsdsl2comms

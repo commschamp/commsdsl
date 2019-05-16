@@ -706,8 +706,8 @@ void SetField::checkDefaultValueOpt(StringsList& list) const
     }
 
     auto type = obj.type();
-    if ((type == commsdsl::SetField::Type::Uint64) ||
-        (type == commsdsl::SetField::Type::Uintvar)) {
+    if ((defaultValue < 0) &&
+        ((type == commsdsl::SetField::Type::Uint64) || (type == commsdsl::SetField::Type::Uintvar))) {
         auto str =
             "comms::option::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue), true) +

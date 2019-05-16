@@ -22,6 +22,7 @@
 
 #include "Generator.h"
 #include "common.h"
+#include "IntField.h"
 
 namespace ba = boost::algorithm;
 
@@ -82,6 +83,65 @@ const std::string ClassTemplate(
 );
 
 } // namespace
+
+bool BundleField::startsWithValidPropKey() const
+{
+    if (m_members.empty()) {
+        return false;
+    }
+
+    auto& first = m_members.front();
+    if (first->kind() != commsdsl::Field::Kind::Int) {
+        return false;
+    }
+
+    auto& keyField = static_cast<const IntField&>(*first);
+    if (!keyField.isValidPropKey()) {
+        return false;
+    }
+
+    // Valid only if there is no non-default read
+    return getRead().empty();
+}
+
+std::string BundleField::getPropKeyType() const
+{
+    if (m_members.empty()) {
+        return common::emptyString();
+    }
+
+    auto& first = m_members.front();
+    if (first->kind() != commsdsl::Field::Kind::Int) {
+        return common::emptyString();
+    }
+
+    auto& keyField = static_cast<const IntField&>(*first);
+    return keyField.getPropKeyType();
+}
+
+std::string BundleField::getFirstMemberName() const
+{
+    if (m_members.empty()) {
+        return common::emptyString();
+    }
+
+    return m_members.front()->name();
+}
+
+std::string BundleField::getPropKeyValueStr() const
+{
+    if (m_members.empty()) {
+        return common::emptyString();
+    }
+
+    auto& first = m_members.front();
+    if (first->kind() != commsdsl::Field::Kind::Int) {
+        return common::emptyString();
+    }
+
+    auto& keyField = static_cast<const IntField&>(*first);
+    return keyField.getPropKeyValueStr();
+}
 
 bool BundleField::prepareImpl()
 {

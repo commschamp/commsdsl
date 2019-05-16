@@ -227,7 +227,10 @@ protected:
 
     std::string getNameFunc() const;
 
-    void updateExtraOptions(const std::string& scope, common::StringsList& options) const;
+    void updateExtraOptions(
+        const std::string& scope,
+        common::StringsList& options,
+        bool ignoreFailOnInvalid = false) const;
 
     const std::string& getCustomRead() const;
     std::string getCustomWrite() const;
@@ -241,6 +244,8 @@ protected:
     std::string getFullPrivate() const;
     std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
 
+    bool isCustomizable() const;
+
 private:
 
     bool writeProtocolDefinitionFile() const;
@@ -248,8 +253,6 @@ private:
     bool writePluginScrFile() const;
 
     std::string getPluginIncludes() const;
-
-    bool isCustomizable() const;
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;

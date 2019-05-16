@@ -29,6 +29,11 @@ class BundleField : public Field
 public:
     BundleField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
+    bool startsWithValidPropKey() const;
+    std::string getPropKeyType() const;
+    std::string getFirstMemberName() const;
+    std::string getPropKeyValueStr() const;
+
 protected:
     virtual bool prepareImpl() override final;
     virtual void updateIncludesImpl(IncludesList& includes) const override final;

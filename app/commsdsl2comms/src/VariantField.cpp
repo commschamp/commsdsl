@@ -22,6 +22,7 @@
 
 #include "Generator.h"
 #include "common.h"
+#include "BundleField.h"
 
 namespace ba = boost::algorithm;
 
@@ -240,18 +241,9 @@ std::string VariantField::getFieldOpts(const std::string& scope) const
         common::addToList(opt, options);
     }
 
-    // bool hasCustomReadRefresh =
-    //     std::any_of(
-    //         m_members.begin(), m_members.end(),
-    //         [](auto& m) {
-    //             assert(m);
-    //             return m->hasCustomReadRefresh();
-    //         });
-
-    // if (hasCustomReadRefresh) {
-    //     common::addToList("comms::option::HasCustomRead", options);
-    //     common::addToList("comms::option::HasCustomRefresh", options);
-    // }
+    if (hasOptimizedRead()) {
+        common::addToList("comms::option::HasCustomRead", options);
+    }
 
     return common::listToString(options, ",\n", common::emptyString());
 }
@@ -312,7 +304,7 @@ std::string VariantField::getAccess() const
         namesList.push_back(common::nameToAccessCopy(m->name()));
         std::string accessStr =
             "///     @li @b initField_" + namesList.back() +
-            "() and @b accessField_" + namesList.back() + " - for " + scope +
+            "() and @b accessField_" + namesList.back() + "() - for " + scope +
             common::nameToClassCopy(m->name()) + " member field.";
         accessDocList.push_back(std::move(accessStr));
     }
@@ -325,13 +317,109 @@ std::string VariantField::getAccess() const
 
 std::string VariantField::getRead() const
 {
-    return getCustomRead();
-    // auto customRead = getCustomRead();
-    // if (!customRead.empty()) {
-    //     return customRead;
-    // }
+     auto customRead = getCustomRead();
+     if (!customRead.empty()) {
+         return customRead;
+     }
 
-    // return getReadForFields(m_members);
+     if (!hasOptimizedRead()) {
+         return common::emptyString();
+     }
+
+    std::string keyFieldType;
+    StringsList cases;
+    bool hasDefault = false;
+    for (auto& m : m_members) {
+        assert(m->kind() == commsdsl::Field::Kind::Bundle);
+
+        auto& bundle = static_cast<const BundleField&>(*m);
+
+        if (keyFieldType.empty()) {
+            assert(bundle.startsWithValidPropKey());
+            keyFieldType = bundle.getPropKeyType();
+        }
+
+        auto propKeyName = bundle.getFirstMemberName();
+        if (propKeyName.empty()) {
+            assert(!"Something is wrong");
+            return common::emptyString();
+        }
+
+        if (bundle.startsWithValidPropKey()) {
+            auto valStr = bundle.getPropKeyValueStr();
+            if (valStr.empty()) {
+                assert(!"Something is wrong");
+                return common::emptyString();
+            }
+
+            static const std::string Templ =
+                "case #^#VAL#$#:\n"
+                "    {\n"
+                "        auto& field_#^#BUNDLE_NAME#$# = initField_#^#BUNDLE_NAME#$#();\n"
+                "        COMMS_ASSERT(field_#^#BUNDLE_NAME#$#.field_#^#KEY_NAME#$#().value() == commonKeyField.value());\n"
+                "        return field_#^#BUNDLE_NAME#$#.template readFrom<1>(iter, len);\n"
+                "    }";
+
+            common::ReplacementMap repl;
+            repl.insert(std::make_pair("VAL", std::move(valStr)));
+            repl.insert(std::make_pair("BUNDLE_NAME", common::nameToAccessCopy(bundle.name())));
+            repl.insert(std::make_pair("KEY_NAME", common::nameToAccessCopy(propKeyName)));
+            cases.push_back(common::processTemplate(Templ, repl));
+            continue;
+        }
+
+        // Last "catch all" element
+        assert(&m == &m_members.back());
+
+        static const std::string Templ =
+            "default:\n"
+            "    initField_#^#BUNDLE_NAME#$#().field_#^#KEY_NAME#$#().value() = commonKeyField.value();\n"
+            "    return accessField_#^#BUNDLE_NAME#$#().template readFrom<1>(iter, len);";
+
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("BUNDLE_NAME", common::nameToAccessCopy(bundle.name())));
+        repl.insert(std::make_pair("KEY_NAME", common::nameToAccessCopy(propKeyName)));
+        cases.push_back(common::processTemplate(Templ, repl));
+        hasDefault = true;
+    }
+
+    if (!hasDefault) {
+        static const std::string DefaultBreakStr =
+            "default:\n"
+            "    break;";
+        cases.push_back(DefaultBreakStr);
+    }
+
+    auto casesStr = common::listToString(cases, "\n", common::emptyString());
+
+     common::ReplacementMap repl;
+     repl.insert(std::make_pair("KEY_FIELD_TYPE", std::move(keyFieldType)));
+     repl.insert(std::make_pair("CASES", std::move(casesStr)));
+
+
+     static const std::string Templ =
+         "/// @brief Optimized read functionality.\n"
+         "template <typename TIter>\n"
+         "comms::ErrorStatus read(TIter& iter, std::size_t len)\n"
+         "{\n"
+         "    using CommonKeyField=\n"
+         "        #^#KEY_FIELD_TYPE#$#;\n"
+         "    CommonKeyField commonKeyField;\n"
+         "    auto origIter = iter;\n"
+         "    auto es = commonKeyField.read(iter, len);\n"
+         "    if (es != comms::ErrorStatus::Success) {\n"
+         "        return es;\n"
+         "    }\n\n"
+         "    auto consumedLen = static_cast<std::size_t>(std::distance(origIter, iter));\n"
+         "    COMMS_ASSERT(consumedLen <= len);\n"
+         "    len -= consumedLen;\n\n"
+         "    switch (commonKeyField.value()) {\n"
+         "    #^#CASES#$#\n"
+         "    };\n"
+         "    return comms::ErrorStatus::InvalidMsgData;\n"
+         "}\n";
+
+     return common::processTemplate(Templ, repl);
 }
 
 std::string VariantField::getRefresh() const
@@ -385,6 +473,49 @@ std::string VariantField::getExtraOptions(const std::string& scope, GetExtraOpti
     replacements.insert(std::make_pair("SCOPE", scope));
     replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
     return common::processTemplate(MembersOptionsTemplate, replacements);
+}
+
+bool VariantField::hasOptimizedRead() const
+{
+    if (m_members.size() <= 1U) {
+        return false;
+    }
+
+    std::string propType;
+    for (auto& m : m_members) {
+        if (m->kind() != commsdsl::Field::Kind::Bundle) {
+            return false;
+        }
+
+        auto& bundle = static_cast<const BundleField&>(*m);
+        bool validPropKey = bundle.startsWithValidPropKey();
+        if ((!validPropKey) && (&m != &m_members.back())) {
+            return false;
+        }
+
+        if (!validPropKey) {
+            // last "catch all" element
+            continue;
+        }
+
+        std::string propTypeTmp = bundle.getPropKeyType();
+        if (propTypeTmp.empty()) {
+            return false;
+        }
+
+        if (propType.empty()) {
+            propType = std::move(propTypeTmp);
+            continue;
+        }
+
+        if (propTypeTmp != propType) {
+            // Type is not the same between elements
+            return false;
+        }
+    }
+
+    assert(!propType.empty());
+    return !propType.empty();
 }
 
 } // namespace commsdsl2comms

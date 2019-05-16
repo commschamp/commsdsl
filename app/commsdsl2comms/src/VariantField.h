@@ -55,6 +55,7 @@ private:
     std::string getRefresh() const;
     std::string getPrivate() const;
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const;
+    bool hasOptimizedRead() const;
 
     commsdsl::VariantField variantFieldDslObj() const
     {

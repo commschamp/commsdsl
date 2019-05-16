@@ -162,6 +162,72 @@ bool IntField::isUnsignedType() const
     return isUnsignedType(intFieldDslObj().type());
 }
 
+bool IntField::isValidPropKey() const
+{
+    auto obj = intFieldDslObj();
+    if (!obj.isFailOnInvalid()) {
+        return false;
+    }
+
+    if (obj.isPseudo()) {
+        return false;
+    }
+
+    auto& validRanges = obj.validRanges();
+    if (validRanges.size() != 1U) {
+        return false;
+    }
+
+    auto& r = validRanges.front();
+    if (r.m_min != r.m_max) {
+        return false;
+    }
+
+    if (r.m_min != obj.defaultValue()) {
+        return false;
+    }
+
+    return true;
+}
+
+std::string IntField::getPropKeyType() const
+{
+    assert(isValidPropKey());
+
+    if ((!getCustomRead().empty()) ||
+        (!getCustomRefresh().empty()) ||
+        (isCustomizable())) {
+        return common::emptyString();
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
+    replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
+    replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));
+    replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(common::emptyString(), true)));
+
+    if (!replacements["FIELD_OPTS"].empty()) {
+        replacements["FIELD_TYPE"] += ',';
+    }
+
+    static const std::string Templ =
+        "comms::field::IntValue<\n"
+        "    #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
+        "    #^#FIELD_TYPE#$#\n"
+        "    #^#FIELD_OPTS#$#\n"
+        ">";
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string IntField::getPropKeyValueStr() const
+{
+    auto val = intFieldDslObj().defaultValue();
+    if (isUnsigned()) {
+        return common::numToString(static_cast<std::uintmax_t>(val));
+    }
+    return common::numToString(val);
+}
+
 void IntField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
@@ -374,18 +440,22 @@ std::string IntField::getFieldChangedSignType() const
     return str;
 }
 
-std::string IntField::getFieldOpts(const std::string& scope) const
+std::string IntField::getFieldOpts(const std::string& scope, bool reduced) const
 {
     StringsList options;
 
-    updateExtraOptions(scope, options);
+    updateExtraOptions(scope, options, reduced);
 
-    checkDefaultValueOpt(options);
     checkLengthOpt(options);
     checkSerOffsetOpt(options);
     checkScalingOpt(options);
     checkUnitsOpt(options);
-    checkValidRangesOpt(options);
+
+    if (!reduced) {
+        checkDefaultValueOpt(options);
+        checkValidRangesOpt(options);
+    }
+
     return common::listToString(options, ",\n", common::emptyString());
 }
 
@@ -566,8 +636,8 @@ void IntField::checkDefaultValueOpt(StringsList& list) const
     }
 
     auto type = obj.type();
-    if ((type == commsdsl::IntField::Type::Uint64) ||
-        (type == commsdsl::IntField::Type::Uintvar)) {
+    if ((defaultValue < 0) &&
+        ((type == commsdsl::IntField::Type::Uint64) || (type == commsdsl::IntField::Type::Uintvar))) {
         auto str =
             "comms::option::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue)) +
