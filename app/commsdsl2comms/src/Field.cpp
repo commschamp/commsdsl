@@ -509,6 +509,15 @@ bool Field::isVersionOptional() const
     return false;
 }
 
+bool Field::isVersionDependent() const
+{
+    if (!m_generator.versionDependentCode()) {
+        return false;
+    }
+
+    return isVersionOptional() || isVersionDependentImpl();
+}
+
 bool Field::isPseudo() const
 {
     return m_forcedPseudo || m_dslObj.isPseudo();
@@ -988,6 +997,11 @@ bool Field::isLimitedCustomizableImpl() const
 void Field::setForcedPseudoImpl()
 {
     // Do nothing
+}
+
+bool Field::isVersionDependentImpl() const
+{
+    return false;
 }
 
 std::string Field::getNameFunc() const

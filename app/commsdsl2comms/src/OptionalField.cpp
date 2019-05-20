@@ -318,6 +318,11 @@ std::string OptionalField::getReadPreparationImpl(const FieldsList& fields) cons
     return "refresh_" + common::nameToAccessCopy(name()) + "();\n";
 }
 
+bool OptionalField::isVersionDependentImpl() const
+{
+    return m_field && m_field->isVersionDependent();
+}
+
 std::string OptionalField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

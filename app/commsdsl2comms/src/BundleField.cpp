@@ -285,6 +285,17 @@ std::string BundleField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
+bool BundleField::isVersionDependentImpl() const
+{
+    return
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                return m->isVersionDependent();
+            });
+}
+
 std::string BundleField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

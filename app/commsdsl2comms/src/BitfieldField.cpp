@@ -215,6 +215,18 @@ std::string BitfieldField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
+bool BitfieldField::isVersionDependentImpl() const
+{
+    assert(
+        std::none_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                return m->isVersionDependent();
+            }));
+    return Base::isVersionDependentImpl();
+}
+
 std::string BitfieldField::getFieldBaseParams() const
 {
     auto obj = bitfieldFieldDslObj();

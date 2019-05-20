@@ -241,3 +241,5 @@ test_func (test29)
 test_func (test30)
 test_func (test31)
 test_func (test32)
+test_func (test33)
+

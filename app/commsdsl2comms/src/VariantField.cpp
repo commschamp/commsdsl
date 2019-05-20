@@ -228,6 +228,17 @@ std::string VariantField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
+bool VariantField::isVersionDependentImpl() const
+{
+    return
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                return m->isVersionDependent();
+            });
+}
+
 std::string VariantField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;
@@ -317,14 +328,14 @@ std::string VariantField::getAccess() const
 
 std::string VariantField::getRead() const
 {
-     auto customRead = getCustomRead();
-     if (!customRead.empty()) {
-         return customRead;
-     }
+    auto customRead = getCustomRead();
+    if (!customRead.empty()) {
+        return customRead;
+    }
 
-     if (!hasOptimizedRead()) {
-         return common::emptyString();
-     }
+    if (!hasOptimizedRead()) {
+        return common::emptyString();
+    }
 
     std::string keyFieldType;
     StringsList cases;
@@ -357,6 +368,7 @@ std::string VariantField::getRead() const
                 "    {\n"
                 "        auto& field_#^#BUNDLE_NAME#$# = initField_#^#BUNDLE_NAME#$#();\n"
                 "        COMMS_ASSERT(field_#^#BUNDLE_NAME#$#.field_#^#KEY_NAME#$#().value() == commonKeyField.value());\n"
+                "        #^#VERSION_ASSIGN#$#\n"
                 "        return field_#^#BUNDLE_NAME#$#.template readFrom<1>(iter, len);\n"
                 "    }";
 
@@ -364,6 +376,13 @@ std::string VariantField::getRead() const
             repl.insert(std::make_pair("VAL", std::move(valStr)));
             repl.insert(std::make_pair("BUNDLE_NAME", common::nameToAccessCopy(bundle.name())));
             repl.insert(std::make_pair("KEY_NAME", common::nameToAccessCopy(propKeyName)));
+
+            if (m->isVersionDependent()) {
+                auto assignStr =
+                    "field_" + common::nameToAccessCopy(bundle.name()) +
+                    ".setVersion(Base::getVersion());";
+                repl.insert(std::make_pair("VERSION_ASSIGN", std::move(assignStr)));
+            }
             cases.push_back(common::processTemplate(Templ, repl));
             continue;
         }
@@ -374,11 +393,20 @@ std::string VariantField::getRead() const
         static const std::string Templ =
             "default:\n"
             "    initField_#^#BUNDLE_NAME#$#().field_#^#KEY_NAME#$#().value() = commonKeyField.value();\n"
+            "    #^#VERSION_ASSIGN#$#\n"
             "    return accessField_#^#BUNDLE_NAME#$#().template readFrom<1>(iter, len);";
 
         common::ReplacementMap repl;
         repl.insert(std::make_pair("BUNDLE_NAME", common::nameToAccessCopy(bundle.name())));
         repl.insert(std::make_pair("KEY_NAME", common::nameToAccessCopy(propKeyName)));
+
+        if (m->isVersionDependent()) {
+            auto assignStr =
+                "accessField_" + common::nameToAccessCopy(bundle.name()) +
+                "().setVersion(Base::getVersion());";
+            repl.insert(std::make_pair("VERSION_ASSIGN", std::move(assignStr)));
+        }
+
         cases.push_back(common::processTemplate(Templ, repl));
         hasDefault = true;
     }
@@ -396,12 +424,18 @@ std::string VariantField::getRead() const
      repl.insert(std::make_pair("KEY_FIELD_TYPE", std::move(keyFieldType)));
      repl.insert(std::make_pair("CASES", std::move(casesStr)));
 
+     if (isVersionDependent()) {
+        static const std::string CheckStr =
+            "static_assert(Base::isVersionDependent(), \"The field must be recognised as version dependent\");";
+        repl.insert(std::make_pair("VERSION_DEP", CheckStr));
+     }
 
      static const std::string Templ =
          "/// @brief Optimized read functionality.\n"
          "template <typename TIter>\n"
          "comms::ErrorStatus read(TIter& iter, std::size_t len)\n"
          "{\n"
+         "    #^#VERSION_DEP#$#\n"
          "    using CommonKeyField=\n"
          "        #^#KEY_FIELD_TYPE#$#;\n"
          "    CommonKeyField commonKeyField;\n"

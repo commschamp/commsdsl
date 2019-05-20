@@ -116,6 +116,7 @@ public:
     }
 
     bool isVersionOptional() const;
+    bool isVersionDependent() const;
 
     unsigned sinceVersion() const
     {
@@ -224,6 +225,7 @@ protected:
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const;
     virtual bool isLimitedCustomizableImpl() const;
     virtual void setForcedPseudoImpl();
+    virtual bool isVersionDependentImpl() const;
 
     std::string getNameFunc() const;
 
