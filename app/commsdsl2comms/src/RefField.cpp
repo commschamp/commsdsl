@@ -247,13 +247,16 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
     bool serHiddenParam) const
 {
     static const std::string Templ =
+        "#^#SER_HIDDEN_CAST#$#\n"
         "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n";
 
     static const std::string TemplWithField =
+        "#^#SER_HIDDEN_CAST#$#\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
         "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n";
 
     static const std::string VerOptTempl =
+        "#^#SER_HIDDEN_CAST#$#\n"
         "using InnerField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#Field;\n"
         "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
@@ -295,8 +298,12 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
         replacements.insert(std::make_pair("NAME_PROP", "Field::name()"));
     }
 
+    static const std::string CastStr("static_cast<void>(serHidden);");
     if (forcedSerialisedHidden) {
         replacements.insert(std::make_pair("SER_HIDDEN", ", true"));
+        if (serHiddenParam) {
+            replacements.insert(std::make_pair("SER_HIDDEN_CAST", CastStr));
+        }
     }
     else if (serHiddenParam) {
         replacements.insert(std::make_pair("SER_HIDDEN", ", serHidden"));
