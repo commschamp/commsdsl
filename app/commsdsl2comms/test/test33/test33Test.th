@@ -82,7 +82,7 @@ void TestSuite::test3()
     f1_p2.field_value().value() = 0x1;
     f1_p2.field_value2().field().value() = 0x0a0b0c0d;
     msg.field_f2().value() = 0xabcd;
-    TS_ASSERT(msg.refresh());
+    TS_ASSERT(!msg.refresh());
 
     do {
         static const std::uint8_t Buf[] = {
