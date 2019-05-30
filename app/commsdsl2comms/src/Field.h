@@ -134,6 +134,12 @@ public:
         setForcedPseudoImpl();
     }
 
+    void setForcedNoOptionsConfig()
+    {
+        m_forcedNoOptionsConfig = true;
+        setForcedNoOptionsConfigImpl();
+    }
+
     bool isPseudo() const;
 
     static std::string getReadForFields(
@@ -189,6 +195,12 @@ protected:
         return m_dslObj;
     }
 
+    bool isForcedNoOptionsConfig() const
+    {
+        return m_forcedNoOptionsConfig;
+    }
+
+
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const;
@@ -225,6 +237,7 @@ protected:
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const;
     virtual bool isLimitedCustomizableImpl() const;
     virtual void setForcedPseudoImpl();
+    virtual void setForcedNoOptionsConfigImpl();
     virtual bool isVersionDependentImpl() const;
 
     std::string getNameFunc() const;
@@ -264,6 +277,7 @@ private:
     std::string m_customRefresh;
     bool m_focedFailOnInvalid = false;
     bool m_forcedPseudo = false;
+    bool m_forcedNoOptionsConfig = false;
 };
 
 using FieldPtr = Field::Ptr;

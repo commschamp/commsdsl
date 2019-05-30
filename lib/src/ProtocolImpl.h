@@ -105,6 +105,7 @@ public:
 
     bool isFeatureSupported(unsigned minDslVersion) const;
     bool isFieldValueReferenceSupported() const;
+    bool isSemanticTypeLengthSupported() const;
 
 private:
     struct XmlDocFree

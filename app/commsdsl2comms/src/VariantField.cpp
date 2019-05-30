@@ -228,6 +228,20 @@ std::string VariantField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
+void VariantField::setForcedPseudoImpl()
+{
+    for (auto& m : m_members) {
+        m->setForcedPseudo();
+    }
+}
+
+void VariantField::setForcedNoOptionsConfigImpl()
+{
+    for (auto& m : m_members) {
+        m->setForcedNoOptionsConfig();
+    }
+}
+
 bool VariantField::isVersionDependentImpl() const
 {
     return

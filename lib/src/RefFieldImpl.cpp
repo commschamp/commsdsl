@@ -100,6 +100,10 @@ bool RefFieldImpl::parseImpl()
         setDisplayName(m_field->displayName());
     }
 
+    if (semanticType() == SemanticType::None) {
+        setSemanticType(m_field->semanticType());
+    }
+
     return true;
 }
 
@@ -195,6 +199,12 @@ bool RefFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bit
 {
     assert(m_field != nullptr);
     return m_field->validateBitLengthValue(node, bitLength);
+}
+
+bool RefFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    assert(m_field != nullptr);
+    return m_field->verifySemanticType(node, type);
 }
 
 bool RefFieldImpl::updateBitLength()

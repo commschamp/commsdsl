@@ -1543,11 +1543,20 @@ void IntTestSuite::test25()
 
 void IntTestSuite::test26()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
-    m_status.m_expValidateResult = false;
-
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
     TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    commsdsl::IntField intField(fields[0]);
+    TS_ASSERT_EQUALS(intField.semanticType(), commsdsl::Field::SemanticType::Length);
 }
 
 void IntTestSuite::test27()

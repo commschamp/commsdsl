@@ -999,6 +999,11 @@ void Field::setForcedPseudoImpl()
     // Do nothing
 }
 
+void Field::setForcedNoOptionsConfigImpl()
+{
+    // Do nothing
+}
+
 bool Field::isVersionDependentImpl() const
 {
     return false;

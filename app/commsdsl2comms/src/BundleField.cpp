@@ -285,6 +285,20 @@ std::string BundleField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
+void BundleField::setForcedPseudoImpl()
+{
+    for (auto& m : m_members) {
+        m->setForcedPseudo();
+    }
+}
+
+void BundleField::setForcedNoOptionsConfigImpl()
+{
+    for (auto& m : m_members) {
+        m->setForcedNoOptionsConfig();
+    }
+}
+
 bool BundleField::isVersionDependentImpl() const
 {
     return

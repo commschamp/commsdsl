@@ -59,6 +59,7 @@ protected:
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override final;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override final;
+    virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override final;
 
 private:
     using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;

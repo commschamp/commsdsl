@@ -269,6 +269,55 @@ bool FieldImpl::isComparableToField(const FieldImpl& field) const
     return isComparableToFieldImpl(field);
 }
 
+bool FieldImpl::verifySemanticType() const
+{
+    return verifySemanticType(getNode(), semanticType());
+}
+
+bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
+{
+    if (type == SemanticType::None) {
+        return true;
+    }
+
+    if (verifySemanticTypeImpl(node, type)) {
+        return true;
+    }
+
+    if (type == SemanticType::Version) {
+        logError() << XmlWrap::logPrefix(node) <<
+            "Semantic type \"" << common::versionStr() << "\" is applicable only to \"" <<
+            common::intStr() << "\" fields or \"" << common::refStr() << "\" to them.";
+        return false;
+    }
+
+    if (type == SemanticType::MessageId) {
+        logError() << XmlWrap::logPrefix(node) <<
+            "Semantic type \"" << common::messageIdStr() << "\" is applicable only to \"" <<
+            common::enumStr() << "\" fields.";
+        return false;
+    }
+
+    if (type == SemanticType::Length) {
+        if (!m_protocol.isSemanticTypeLengthSupported()) {
+            logError() << XmlWrap::logPrefix(node) <<
+                "Semantic type \"" << common::lengthStr() << "\" supported only since "
+                "DSL v" << MinDslVersionForLengthSemanticType << ", please update \"" <<
+                common::dslVersionStr() << "\" property of your schema.";
+            return false;
+        }
+
+        logError() << XmlWrap::logPrefix(node) <<
+            "Semantic type \"" << common::lengthStr() << "\" is applicable only to \"" <<
+            common::intStr() << "\" fields, and should be used only with members of \"" <<
+            common::bundleStr() << "\" fields.";
+        return false;
+    }
+
+    assert(!"Unhandled semantic type, please fix");
+    return true;
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)
@@ -433,6 +482,13 @@ bool FieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLen
     logError() << XmlWrap::logPrefix(node) <<
         "The field of kind \"" << kindStr() << "\" cannot be used or referenced as a member of \"" <<
         common::bitfieldStr() << "\".";    
+    return false;
+}
+
+bool FieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    static_cast<void>(type);
     return false;
 }
 
@@ -1028,69 +1084,6 @@ const FieldImpl::CreateMap& FieldImpl::createMap()
     };
 
     return Map;
-}
-
-bool FieldImpl::verifySemanticType() const
-{
-    if (semanticType() == SemanticType::None) {
-        return true;
-    }
-
-    if (semanticType() == SemanticType::Version) {
-        if (kind() != Kind::Int) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::versionStr() << "\" is applicable only to " <<
-                "integral value fields.";
-            return false;
-        }
-
-        return true;
-    }
-
-    if (semanticType() == SemanticType::MessageId) {
-        if (kind() != Kind::Enum) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::messageIdStr() << "\" is applicable only to \"" <<
-                common::enumStr() << "\" fields.";
-            return false;
-        }
-        return true;
-    }
-
-    if (semanticType() == SemanticType::Length) {
-        if (!m_protocol.isFeatureSupported(MinDslVersionForLengthSemanticType)) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::lengthStr() << "\" supported only since "
-                "DSL v" << MinDslVersionForLengthSemanticType << ", please update \"" <<
-                common::dslVersionStr() << "\" property of your schema.";
-            return false;
-        }
-
-        if (kind() != Kind::Int) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::lengthStr() << "\" is applicable only to \"" <<
-                common::intStr() << "\" fields.";
-            return false;
-        }
-
-
-        auto parent = getParent();
-        if ((parent == nullptr) ||
-            (parent->objKind() != ObjKind::Field) ||
-            (static_cast<const FieldImpl*>(parent)->kind() != Kind::Bundle)) {
-
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::lengthStr() << "\" is applicable only to "
-                "members of \"" << common::bundleStr() << "\" field.";
-
-            return false;
-        }
-
-        return true;
-    }
-
-    assert(!"Unhandled semantic type, please fix");
-    return true;
 }
 
 bool FieldImpl::verifyName() const

@@ -212,6 +212,12 @@ bool EnumFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bi
     return true;
 }
 
+bool EnumFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    return type == SemanticType::MessageId;
+}
+
 bool EnumFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);

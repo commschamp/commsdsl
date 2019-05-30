@@ -461,6 +461,21 @@ bool IntFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bit
     return true;
 }
 
+bool IntFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    if (type == SemanticType::Version) {
+        return true;
+    }
+
+    if ((type == SemanticType::Length) &&
+        (protocol().isSemanticTypeLengthSupported())) {
+        return true;
+    }
+
+    return false;
+}
+
 bool IntFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);

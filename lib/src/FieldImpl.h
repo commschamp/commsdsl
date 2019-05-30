@@ -211,6 +211,9 @@ public:
         return validateBitLengthValue(m_node, bitLength);
     }
 
+    bool verifySemanticType() const;
+    bool verifySemanticType(::xmlNodePtr node, SemanticType type) const;
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -233,6 +236,11 @@ protected:
     void setDisplayName(const std::string& val)
     {
         m_state.m_displayName = val;
+    }
+
+    void setSemanticType(SemanticType val)
+    {
+        m_state.m_semanticType = val;
     }
 
     LogWrapper logError() const;
@@ -259,6 +267,7 @@ protected:
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const;
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
+    virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);
@@ -341,7 +350,6 @@ private:
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 
-    bool verifySemanticType() const;
     bool verifyName() const;
 
     static const CreateMap& createMap();

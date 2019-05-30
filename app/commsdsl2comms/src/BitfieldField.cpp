@@ -215,6 +215,20 @@ std::string BitfieldField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
+void BitfieldField::setForcedPseudoImpl()
+{
+    for (auto& m : m_members) {
+        m->setForcedPseudo();
+    }
+}
+
+void BitfieldField::setForcedNoOptionsConfigImpl()
+{
+    for (auto& m : m_members) {
+        m->setForcedNoOptionsConfig();
+    }
+}
+
 bool BitfieldField::isVersionDependentImpl() const
 {
     assert(

@@ -308,7 +308,14 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
 std::string RefField::getOpts(const std::string& scope) const
 {
     StringsList options;
-    options.push_back("TOpt");
+
+    if (isForcedNoOptionsConfig()) {
+        options.push_back(generator().scopeForOptions(common::defaultOptionsStr(), true, true));
+    }
+    else {
+        options.push_back("TOpt");
+    }
+
     updateExtraOptions(scope, options);
     auto obj = refFieldDslObj();
     auto bitLength = obj.bitLength();
