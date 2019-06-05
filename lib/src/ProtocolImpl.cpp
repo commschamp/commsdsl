@@ -333,6 +333,10 @@ bool ProtocolImpl::isSemanticTypeLengthSupported() const
     return isFeatureSupported(2U);
 }
 
+bool ProtocolImpl::isSemanticTypeRefInheritanceSupported() const
+{
+    return isFeatureSupported(2U);
+}
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {

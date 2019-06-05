@@ -100,7 +100,9 @@ bool RefFieldImpl::parseImpl()
         setDisplayName(m_field->displayName());
     }
 
-    if (semanticType() == SemanticType::None) {
+    if ((protocol().isSemanticTypeRefInheritanceSupported()) &&
+        (semanticType() == SemanticType::None) &&
+        (m_field->semanticType() != SemanticType::MessageId)) {
         setSemanticType(m_field->semanticType());
     }
 
