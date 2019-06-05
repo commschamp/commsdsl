@@ -44,10 +44,7 @@ const XmlWrap::NamesList& messageSupportedTypes()
 
 MessageImpl::MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
-    m_protocol(protocol),
-    m_name(&common::emptyString()),
-    m_displayName(&common::emptyString()),
-    m_description(&common::emptyString())
+    m_protocol(protocol)
 {
 }
 
@@ -77,20 +74,17 @@ bool MessageImpl::parse()
 
 const std::string& MessageImpl::name() const
 {
-    assert(m_name != nullptr);
-    return *m_name;
+    return m_name;
 }
 
 const std::string& MessageImpl::displayName() const
 {
-    assert(m_displayName != nullptr);
-    return *m_displayName;
+    return m_displayName;
 }
 
 const std::string& MessageImpl::description() const
 {
-    assert(m_description != nullptr);
-    return *m_description;
+    return m_description;
 }
 
 std::size_t MessageImpl::minLength() const
@@ -177,19 +171,30 @@ bool MessageImpl::validateSinglePropInstance(const std::string& str, bool mustHa
 
 bool MessageImpl::validateAndUpdateStringPropValue(
     const std::string& str,
-    const std::string*& valuePtr,
-    bool mustHave)
+    std::string& value,
+    bool mustHave,
+    bool allowDeref)
 {
     if (!validateSinglePropInstance(str, mustHave)) {
         return false;
     }
 
     auto iter = m_props.find(str);
-    if (iter != m_props.end()) {
-        valuePtr = &iter->second;
+    if (iter == m_props.end()) {
+        assert(!mustHave);
+        return true;
     }
 
-    assert(iter != m_props.end() || (!mustHave));
+    if (!allowDeref) {
+        value = iter->second;
+        return true;
+    }
+
+    if (!m_protocol.strToStringValue(iter->second, value)) {
+        reportUnexpectedPropertyValue(str, iter->second);
+        return false;
+    }
+
     return true;
 }
 
@@ -229,15 +234,14 @@ XmlWrap::NamesList MessageImpl::allNames()
 
 bool MessageImpl::updateName()
 {
-    assert(m_name != nullptr);
-    bool mustHave = m_name->empty();
+    bool mustHave = m_name.empty();
     if (!validateAndUpdateStringPropValue(common::nameStr(), m_name, mustHave)) {
         return false;
     }
 
-    if (!common::isValidName(*m_name)) {
+    if (!common::isValidName(m_name)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Invalid value for name property \"" << *m_name << "\".";
+                      "Invalid value for name property \"" << m_name << "\".";
         return false;
     }
 
@@ -246,12 +250,12 @@ bool MessageImpl::updateName()
 
 bool MessageImpl::updateDescription()
 {
-    return validateAndUpdateStringPropValue(common::descriptionStr(), m_description);
+    return validateAndUpdateStringPropValue(common::descriptionStr(), m_description, false, true);
 }
 
 bool MessageImpl::updateDisplayName()
 {
-    return validateAndUpdateStringPropValue(common::displayNameStr(), m_displayName);
+    return validateAndUpdateStringPropValue(common::displayNameStr(), m_displayName, false, true);
 }
 
 bool MessageImpl::updateId()

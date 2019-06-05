@@ -181,6 +181,26 @@ bool FloatFieldImpl::isComparableToValueImpl(const std::string& val) const
     return strToValue(val, value, true);
 }
 
+bool FloatFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    if (ref.empty()) {
+        val = m_state.m_defaultValue;
+        return true;
+    }
+
+    auto iter = m_state.m_specials.find(ref);
+    if (iter == m_state.m_specials.end()) {
+        return false;
+    }
+
+    val = iter->second.m_value;
+    return true;
+}
+
 bool FloatFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -483,11 +503,10 @@ bool FloatFieldImpl::updateSpecials()
         auto valIter = props.find(common::valStr());
         assert(valIter != props.end());
 
-        bool ok = false;
-        double val = common::strToDouble(valIter->second, &ok);
-        if (!ok) {
-            logError() << XmlWrap::logPrefix(s) << "Special value \"" << nameIter->second <<
-                          "\" cannot be recognized.";
+        double val = 0.0;
+        if (!strToValue(valIter->second, val)) {
+            logError() << XmlWrap::logPrefix(s) <<
+                "Value of \"" << nameIter->second << "\" (" << valIter->second << ") cannot be recognized.";
             return false;
         }
 
@@ -495,7 +514,8 @@ bool FloatFieldImpl::updateSpecials()
         if ((!isSpecial) &&
             ((val < m_state.m_typeAllowedMinValue) || (m_state.m_typeAllowedMaxValue < val))) {
             this->logError() << XmlWrap::logPrefix(s) <<
-                            "Special value \"" << nameIter->second << "\" is outside the range of available values within a type.";
+                "Special value \"" << nameIter->second << "\" (" <<
+                valIter->second << ") is outside the range of available values within a type.";
             return false;
         }
 
@@ -952,17 +972,23 @@ bool FloatFieldImpl::strToValue(
             break;
         }
 
-        if (!common::isValidName(str)) {
-            break;
+        if (common::isValidName(str)) {
+            auto iter = m_state.m_specials.find(str);
+            if (iter != m_state.m_specials.end()) {
+                val = iter->second.m_value;
+                return true;
+            }
         }
 
-        auto iter = m_state.m_specials.find(str);
-        if (iter == m_state.m_specials.end()) {
-            return false;
-        }
+        if (common::isValidRefName(str)) {
 
-        val = iter->second.m_value;
-        return true;
+             if (!protocol().strToFp(str, false, val)) {
+                 return false;
+             }
+
+             return true;
+         }
+
     } while (false);
 
     bool ok = false;

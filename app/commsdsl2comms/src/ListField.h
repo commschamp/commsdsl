@@ -59,6 +59,7 @@ protected:
     virtual bool hasCustomReadRefreshImpl() const override final;
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const override final;
     virtual bool isLimitedCustomizableImpl() const override final;
+    virtual bool isVersionDependentImpl() const override final;
 
 private:
     using StringsList = common::StringsList;

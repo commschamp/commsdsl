@@ -83,6 +83,7 @@ protected:
     virtual bool verifySiblingsImpl(const FieldsList& fields) const override final;
     virtual std::size_t minLengthImpl() const override final;
     virtual std::size_t maxLengthImpl() const override final;
+    virtual bool strToStringImpl(const std::string& ref, std::string& val) const override final;
 
 private:
     bool updateDefaultValue();
@@ -93,6 +94,7 @@ private:
     bool checkPrefixFromRef();
     bool checkPrefixAsChild();
     const FieldImpl* getPrefixField() const;
+    bool strToValue(const std::string& str, std::string& val) const;
 
     struct State
     {

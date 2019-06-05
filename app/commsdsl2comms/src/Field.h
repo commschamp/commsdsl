@@ -116,6 +116,7 @@ public:
     }
 
     bool isVersionOptional() const;
+    bool isVersionDependent() const;
 
     unsigned sinceVersion() const
     {
@@ -131,6 +132,12 @@ public:
     {
         m_forcedPseudo = true;
         setForcedPseudoImpl();
+    }
+
+    void setForcedNoOptionsConfig()
+    {
+        m_forcedNoOptionsConfig = true;
+        setForcedNoOptionsConfigImpl();
     }
 
     bool isPseudo() const;
@@ -188,6 +195,12 @@ protected:
         return m_dslObj;
     }
 
+    bool isForcedNoOptionsConfig() const
+    {
+        return m_forcedNoOptionsConfig;
+    }
+
+
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const;
@@ -224,10 +237,15 @@ protected:
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const;
     virtual bool isLimitedCustomizableImpl() const;
     virtual void setForcedPseudoImpl();
+    virtual void setForcedNoOptionsConfigImpl();
+    virtual bool isVersionDependentImpl() const;
 
     std::string getNameFunc() const;
 
-    void updateExtraOptions(const std::string& scope, common::StringsList& options) const;
+    void updateExtraOptions(
+        const std::string& scope,
+        common::StringsList& options,
+        bool ignoreFailOnInvalid = false) const;
 
     const std::string& getCustomRead() const;
     std::string getCustomWrite() const;
@@ -241,6 +259,8 @@ protected:
     std::string getFullPrivate() const;
     std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
 
+    bool isCustomizable() const;
+
 private:
 
     bool writeProtocolDefinitionFile() const;
@@ -248,8 +268,6 @@ private:
     bool writePluginScrFile() const;
 
     std::string getPluginIncludes() const;
-
-    bool isCustomizable() const;
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;
@@ -259,6 +277,7 @@ private:
     std::string m_customRefresh;
     bool m_focedFailOnInvalid = false;
     bool m_forcedPseudo = false;
+    bool m_forcedNoOptionsConfig = false;
 };
 
 using FieldPtr = Field::Ptr;

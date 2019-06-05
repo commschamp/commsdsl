@@ -119,7 +119,7 @@ private:
     static XmlWrap::NamesList allNames();
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
-    bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
+    bool validateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false, bool allowDeref = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool updateName();
     bool updateDescription();
@@ -142,9 +142,9 @@ private:
     PropsMap m_extraAttrs;
     ContentsList m_extraChildren;
 
-    const std::string* m_name = nullptr;
-    const std::string* m_displayName = nullptr;
-    const std::string* m_description = nullptr;
+    std::string m_name;
+    std::string m_displayName;
+    std::string m_description;
     std::uintmax_t m_id = 0;
     unsigned m_order = 0;
     std::vector<FieldImplPtr> m_fields;

@@ -93,6 +93,9 @@ protected:
     virtual std::size_t bitLengthImpl() const override final;
     virtual bool isComparableToValueImpl(const std::string& val) const override final;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const override final;
+    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override final;
+    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override final;
+    virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override final;
 
 private:
     bool updateType();
@@ -105,7 +108,7 @@ private:
     bool updateValues();
     bool updateDefaultValue();
     bool updateHexAssign();
-    bool strToNumeric(const std::string& str, std::intmax_t& val) const;
+    bool strToValue(const std::string& str, std::intmax_t& val) const;
 
     struct State
     {

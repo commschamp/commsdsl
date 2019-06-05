@@ -731,6 +731,27 @@ bool ListField::isLimitedCustomizableImpl() const
     return true;
 }
 
+bool ListField::isVersionDependentImpl() const
+{
+    if (m_element && m_element->isVersionDependent()) {
+        return true;
+    }
+
+    if (m_countPrefix && m_countPrefix->isVersionDependent()) {
+        return true;
+    }
+
+    if (m_lengthPrefix && m_lengthPrefix->isVersionDependent()) {
+        return true;
+    }
+
+    if (m_elemLengthPrefix && m_elemLengthPrefix->isVersionDependent()) {
+        return true;
+    }
+
+    return false;
+}
+
 std::string ListField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

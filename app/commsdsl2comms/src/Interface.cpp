@@ -148,7 +148,8 @@ std::string PluginHeaderAliasTemplate =
 
 std::string PluginSrcTemplate = 
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
-    "#include \"comms_champion/property/field.h\"\n\n"
+    "#include \"comms_champion/property/field.h\"\n"
+    "#^#INCLUDES#$#\n"
     "namespace cc = comms_champion;\n\n"
     "#^#BEGIN_NAMESPACE#$#\n"
     "namespace\n"
@@ -196,6 +197,8 @@ bool Interface::prepare()
         if (!ptr->prepare(0U)) {
             return false;
         }
+
+        ptr->setForcedNoOptionsConfig();
         m_fields.push_back(std::move(ptr));
     }
 
@@ -383,11 +386,13 @@ bool Interface::writePluginSrc()
         scope += common::nameToClassCopy(name()) + common::fieldsSuffixStr() + "::";
         common::StringsList fieldsProps;
         common::StringsList appends;
+        common::StringsList includes;
         fieldsProps.reserve(m_fields.size());
         fieldsProps.reserve(appends.size());
         for (auto& f : m_fields) {
             fieldsProps.push_back(f->getPluginCreatePropsFunc(scope, true, false));
             appends.push_back("props.append(createProps_" + common::nameToAccessCopy(f->name()) + "());");
+            f->updatePluginIncludes(includes);
         }
 
         auto namespaces = m_generator.namespacesForInterfaceInPlugin(m_externalRef);
@@ -400,6 +405,7 @@ bool Interface::writePluginSrc()
         replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", "\n")));
         replacements.insert(std::make_pair("PROPS_APPENDS", common::listToString(appends, "\n", common::emptyString())));
         replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForInterfaceSrcInPlugin(m_externalRef)));
+        replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
 
         if (0U < hexWidth) {
             auto func =

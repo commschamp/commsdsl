@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema17"
+        id="1"
+        endian="big"
+        version="2"
+        dslVersion="1">
+    <fields>
+        <enum name="F1" type="int32" defaultValue="3">
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="2" />
+        </enum>
+        <float name="F2" type="float" defaultValue="F1">
+            <special name="S1" val="F1.V1" />
+            <special name="S2" val="F1.V2" />
+        </float>
+    </fields>
+</schema>

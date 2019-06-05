@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema21"
+        id="1"
+        endian="big">
+    <fields>
+        <optional name="F1">
+            <data name="F1" defaultValue="01 02 03 04 05" />
+        </optional>
+        <bundle name="F2">
+            <ref name="M1" field="F1" />
+            <ref name="M2" field="F1" />
+        </bundle>
+        <ref name="F3" field="F2" />
+        <data name="F4" defaultValue="^F3.M1.F1" />
+    </fields>
+</schema>

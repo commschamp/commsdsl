@@ -22,6 +22,13 @@ public:
     void test13();
     void test14();
     void test15();
+    void test16();
+    void test17();
+    void test18();
+    void test19();
+    void test20();
+    void test21();
+    void test22();
 };
 
 void DataTestSuite::setUp()
@@ -319,4 +326,132 @@ void DataTestSuite::test15()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
+}
+
+void DataTestSuite::test16()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "D2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Data);
+
+    commsdsl::DataField dataField(field);
+    commsdsl::DataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    TS_ASSERT_EQUALS(dataField.defaultValue(), expDefaultValue);
+    TS_ASSERT_EQUALS(dataField.fixedLength(), 5U);
+}
+
+void DataTestSuite::test17()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+}
+
+void DataTestSuite::test18()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "D2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Data);
+
+    commsdsl::DataField dataField(field);
+    commsdsl::DataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    TS_ASSERT_EQUALS(dataField.defaultValue(), expDefaultValue);
+    TS_ASSERT_EQUALS(dataField.fixedLength(), 5U);
+}
+
+void DataTestSuite::test19()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+}
+
+void DataTestSuite::test20()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Data);
+
+    commsdsl::DataField dataField(field);
+    commsdsl::DataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    TS_ASSERT_EQUALS(dataField.defaultValue(), expDefaultValue);
+}
+
+void DataTestSuite::test21()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Data);
+
+    commsdsl::DataField dataField(field);
+    commsdsl::DataField::ValueType expDefaultValue{0x01, 0x02, 0x03, 0x04, 0x05};
+    TS_ASSERT_EQUALS(dataField.defaultValue(), expDefaultValue);
+}
+
+void DataTestSuite::test22()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Data);
+
+    commsdsl::DataField dataField(field);
+    commsdsl::DataField::ValueType expDefaultValue{0xab, 0xcd};
+    TS_ASSERT_EQUALS(dataField.defaultValue(), expDefaultValue);
 }

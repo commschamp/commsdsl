@@ -173,7 +173,8 @@ std::string RefField::getClassDefinitionImpl(
     auto* templ = &ClassTemplate;
     if (shouldUseStruct(replacements)) {
         templ = &StructTemplate;
-        if (replacements.find("NAME_FUNC") == replacements.end()) {
+        if ((replacements.find("NAME_FUNC") == replacements.end()) &&
+            (refObj.bitLength() == 0U)) {
             templ = &AliasTemplate;
         }
     }
@@ -246,13 +247,16 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
     bool serHiddenParam) const
 {
     static const std::string Templ =
+        "#^#SER_HIDDEN_CAST#$#\n"
         "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n";
 
     static const std::string TemplWithField =
+        "#^#SER_HIDDEN_CAST#$#\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
         "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n";
 
     static const std::string VerOptTempl =
+        "#^#SER_HIDDEN_CAST#$#\n"
         "using InnerField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#Field;\n"
         "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
@@ -294,8 +298,12 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
         replacements.insert(std::make_pair("NAME_PROP", "Field::name()"));
     }
 
+    static const std::string CastStr("static_cast<void>(serHidden);");
     if (forcedSerialisedHidden) {
         replacements.insert(std::make_pair("SER_HIDDEN", ", true"));
+        if (serHiddenParam) {
+            replacements.insert(std::make_pair("SER_HIDDEN_CAST", CastStr));
+        }
     }
     else if (serHiddenParam) {
         replacements.insert(std::make_pair("SER_HIDDEN", ", serHidden"));
@@ -307,8 +315,20 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
 std::string RefField::getOpts(const std::string& scope) const
 {
     StringsList options;
-    options.push_back("TOpt");
+
+    if (isForcedNoOptionsConfig()) {
+        options.push_back(generator().scopeForOptions(common::defaultOptionsStr(), true, true));
+    }
+    else {
+        options.push_back("TOpt");
+    }
+
     updateExtraOptions(scope, options);
+    auto obj = refFieldDslObj();
+    auto bitLength = obj.bitLength();
+    if (bitLength != 0U) {
+        options.push_back("comms::option::FixedBitLength<" + common::numToString(bitLength) + '>');
+    }
     return common::listToString(options, ",\n", common::emptyString());
 }
 

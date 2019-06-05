@@ -32,6 +32,10 @@ namespace commsdsl
 namespace
 {
 
+const std::size_t BitsInByte =
+        std::numeric_limits<std::uint8_t>::digits;
+static_assert(BitsInByte == 8U, "Invalid assumption");    
+
 } // namespace
 
 EnumFieldImpl::EnumFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -146,13 +150,72 @@ std::size_t EnumFieldImpl::bitLengthImpl() const
 bool EnumFieldImpl::isComparableToValueImpl(const std::string& val) const
 {
     std::intmax_t value = 0;
-    return strToNumeric(val, value);
+    return strToValue(val, value);
 }
 
 bool EnumFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
 {
     auto fieldKind = field.kind();
     return ((fieldKind == Kind::Int) || (fieldKind == Kind::Enum));
+}
+
+bool EnumFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    if (ref.empty() && (!protocol().isFieldValueReferenceSupported())) {
+        return false;
+    }
+
+    auto updateIsBigUnsignedFunc =
+        [this, &val, &isBigUnsigned]()
+        {
+            static const std::uintmax_t BigUnsignedThreshold =
+                 static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+
+            isBigUnsigned =
+                IntFieldImpl::isBigUnsigned(m_state.m_type) &&
+                (BigUnsignedThreshold < static_cast<std::uintmax_t>(val));
+        };
+
+    if (ref.empty()) {
+        val = m_state.m_defaultValue;
+        updateIsBigUnsignedFunc();
+        return true;
+    }
+
+    auto iter = m_state.m_values.find(ref);
+    if (iter == m_state.m_values.end()) {
+        return false;
+    }
+
+    val = iter->second.m_value;
+    updateIsBigUnsignedFunc();
+    return true;
+}
+
+bool EnumFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Bitfield member cannot have variable length type.";
+        return false;
+    }
+
+    assert(0U < m_state.m_length);
+    auto maxBitLength = m_state.m_length * BitsInByte;
+    if (maxBitLength < bitLength) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
+                      "maximal length available by the type and/or forced serialisation length.";
+        return false;
+    }
+
+    return true;
+}
+
+bool EnumFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    return type == SemanticType::MessageId;
 }
 
 bool EnumFieldImpl::updateType()
@@ -262,10 +325,6 @@ bool EnumFieldImpl::updateBitLength()
         return false;
     }
 
-    static const std::size_t BitsInByte =
-         std::numeric_limits<std::uint8_t>::digits;
-    static_assert(BitsInByte == 8U, "Invalid assumption");
-
     auto maxBitLength = m_state.m_length * BitsInByte;
     assert((m_state.m_bitLength == 0) || (m_state.m_bitLength == maxBitLength));
     auto& valStr = common::getStringProp(props(), common::bitLengthStr());
@@ -288,23 +347,14 @@ bool EnumFieldImpl::updateBitLength()
         return true;
     }
 
-    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
-        logError() << XmlWrap::logPrefix((getNode())) <<
-                      "Bitfield member cannot have variable length type.";
-        return false;
-    }
-
     bool ok = false;
     m_state.m_bitLength = common::strToUnsigned(valStr, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::bitLengthStr(), valStr);
         return false;
-    }
+    }    
 
-    if (maxBitLength < m_state.m_bitLength) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
-                      "maximal length available by the type and/or forced serialisation length.";
+    if (!validateBitLengthValue(m_state.m_bitLength)) {
         return false;
     }
 
@@ -411,9 +461,9 @@ bool EnumFieldImpl::updateValues()
         assert(valIter != props.end());
 
         std::intmax_t val = 0;
-        if (!strToNumeric(valIter->second, val)) {
+        if (!strToValue(valIter->second, val)) {
             logError() << XmlWrap::logPrefix(vNode) << "Value of \"" << nameIter->second <<
-                          "\" cannot be recognized.";
+                          "\" (" << valIter->second << ") cannot be recognized.";
             return false;
         }
 
@@ -473,8 +523,10 @@ bool EnumFieldImpl::updateValues()
         }
 
         auto dispNameIter = props.find(common::displayNameStr());
-        if (dispNameIter != props.end()) {
-            info.m_displayName = dispNameIter->second;
+        if ((dispNameIter != props.end()) &&
+            (!protocol().strToStringValue(dispNameIter->second, info.m_displayName))) {
+            XmlWrap::reportUnexpectedPropertyValue(vNode, nameIter->second, common::displayNameStr(), dispNameIter->second, protocol().logger());
+            return false;
         }
 
         m_state.m_values.emplace(nameIter->second, info);
@@ -536,7 +588,7 @@ bool EnumFieldImpl::updateDefaultValue()
         };
 
     std::intmax_t val = 0;
-    if (!strToNumeric(valueStr, val)) {
+    if (!strToValue(valueStr, val)) {
         logError() << XmlWrap::logPrefix(getNode()) << "Default value (" << valueStr <<
                       ") cannot be recognized.";
         return false;
@@ -569,23 +621,42 @@ bool EnumFieldImpl::updateHexAssign()
     return true;
 }
 
-bool EnumFieldImpl::strToNumeric(
+bool EnumFieldImpl::strToValue(
     const std::string& str,
     std::intmax_t& val) const
 {
     if (common::isValidName(str)) {
         // Check among specials
         auto iter = m_state.m_values.find(str);
-        if (iter == m_state.m_values.end()) {
+        if (iter != m_state.m_values.end()) {
+            val = iter->second.m_value;
+            return true;
+        }
+    }
+
+   if (common::isValidRefName(str)) {
+        bool bigUnsigned = false;
+        if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
             return false;
         }
 
-        val = iter->second.m_value;
-        return true;
-    }
+        if ((!bigUnsigned) && (val < 0) && (IntFieldImpl::isUnsigned(m_state.m_type))) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot assign negative value (" << val << " references as " <<
+                str << ") to field with positive type.";
 
-    if (common::isValidRefName(str)) {
-        return protocol().strToEnumValue(str, val, false);
+            return false;
+        }
+
+        if (bigUnsigned && (!IntFieldImpl::isBigUnsigned(m_state.m_type))) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot assign such big positive number (" <<
+                static_cast<std::uintmax_t>(val) << " referenced as " <<
+                str << ").";
+
+            return false;
+        }
+        return true;
     }
 
     bool ok = false;

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema24"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <int name="F1" type="uint8" defaultValue="10" />
+        <string name="S2" defaultValue="^F1" />
+    </fields>
+</schema>

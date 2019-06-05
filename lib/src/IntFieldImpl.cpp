@@ -32,6 +32,10 @@ namespace commsdsl
 namespace
 {
 
+const std::size_t BitsInByte =
+        std::numeric_limits<std::uint8_t>::digits;
+static_assert(BitsInByte == 8U, "Invalid assumption");    
+
 static_assert(
     static_cast<std::intmax_t>(std::numeric_limits<std::uintmax_t>::max()) == -1,
     "The code expects 2's compliment negative integers representation.");
@@ -395,13 +399,81 @@ std::size_t IntFieldImpl::bitLengthImpl() const
 bool IntFieldImpl::isComparableToValueImpl(const std::string& val) const
 {
     std::intmax_t value = 0;
-    return strToNumeric(val, value);
+    return strToValue(val, value);
 }
 
 bool IntFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
 {
     auto fieldKind = field.kind();
     return ((fieldKind == Kind::Int) || (fieldKind == Kind::Enum));
+}
+
+bool IntFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    auto updateIsBigUnsignedFunc =
+        [this, &val, &isBigUnsigned]()
+        {
+            static const std::uintmax_t BigUnsignedThreshold =
+                 static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+
+            isBigUnsigned =
+                IntFieldImpl::isBigUnsigned(m_state.m_type) &&
+                (BigUnsignedThreshold < static_cast<std::uintmax_t>(val));
+        };
+
+    if (ref.empty()) {
+        val = m_state.m_defaultValue;
+        updateIsBigUnsignedFunc();
+        return true;
+    }
+
+    auto iter = m_state.m_specials.find(ref);
+    if (iter == m_state.m_specials.end()) {
+        return false;
+    }
+
+    val = iter->second.m_value;
+    updateIsBigUnsignedFunc();
+    return true;
+}
+
+bool IntFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Bitfield member cannot have variable length type.";
+        return false;
+    }
+
+    assert(0U < m_state.m_length);
+    auto maxBitLength = m_state.m_length * BitsInByte;
+    if (maxBitLength < bitLength) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
+                      "maximal length available by the type and/or forced serialisation length.";
+        return false;
+    }
+
+    return true;
+}
+
+bool IntFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    if (type == SemanticType::Version) {
+        return true;
+    }
+
+    if ((type == SemanticType::Length) &&
+        (protocol().isSemanticTypeLengthSupported())) {
+        return true;
+    }
+
+    return false;
 }
 
 bool IntFieldImpl::updateType()
@@ -513,10 +585,6 @@ bool IntFieldImpl::updateBitLength()
         return false;
     }
 
-    static const std::size_t BitsInByte =
-         std::numeric_limits<std::uint8_t>::digits;
-    static_assert(BitsInByte == 8U, "Invalid assumption");
-
     auto maxBitLength = m_state.m_length * BitsInByte;
     assert((m_state.m_bitLength == 0) || (m_state.m_bitLength == maxBitLength));
     auto& valStr = common::getStringProp(props(), common::bitLengthStr());
@@ -539,12 +607,6 @@ bool IntFieldImpl::updateBitLength()
         return true;
     }
 
-    if ((m_state.m_type == Type::Intvar) || (m_state.m_type == Type::Uintvar)) {
-        logError() << XmlWrap::logPrefix((getNode())) <<
-                      "Bitfield member cannot have variable length type.";
-        return false;
-    }
-
     bool ok = false;
     m_state.m_bitLength = common::strToUnsigned(valStr, &ok);
     if (!ok) {
@@ -552,10 +614,7 @@ bool IntFieldImpl::updateBitLength()
         return false;
     }
 
-    if (maxBitLength < m_state.m_bitLength) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
-                      "maximal length available by the type and/or forced serialisation length.";
+    if (!validateBitLengthValue(m_state.m_bitLength)) {
         return false;
     }
 
@@ -717,7 +776,7 @@ bool IntFieldImpl::updateDefaultValue()
         };
 
     std::intmax_t val = 0;
-    if (!strToNumeric(valueStr, val)) {
+    if (!strToValue(valueStr, val)) {
         logError() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
                       "\" cannot be recongized (" << valueStr << ").";
         return false;
@@ -987,9 +1046,10 @@ bool IntFieldImpl::updateSpecials()
         assert(valIter != props.end());
 
         std::intmax_t val = 0;
-        if (!strToNumeric(valIter->second, val)) {
-            logError() << XmlWrap::logPrefix(s) << "Special value \"" << nameIter->second <<
-                          "\" cannot be recognized.";
+        if (!strToValue(valIter->second, val)) {
+            logError() << XmlWrap::logPrefix(s) <<
+                "Value of special \"" << nameIter->second <<
+                "\" (" << valIter->second << ") cannot be recognized.";
             return false;
         }
 
@@ -1377,14 +1437,14 @@ bool IntFieldImpl::validateValidRangeStr(const std::string& str, std::intmax_t& 
     }
 
     minVal = 0;
-    if (!strToNumeric(range.first, minVal)) {
+    if (!strToValue(range.first, minVal)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Invalid min value in valid range (" << str << ").";
         return false;
     }
 
     maxVal = 0;
-    if (!strToNumeric(range.second, maxVal)) {
+    if (!strToValue(range.second, maxVal)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Invalid max value in valid range (" << str << ").";
         return false;
@@ -1438,7 +1498,7 @@ bool IntFieldImpl::validateValidValueStr(
     std::intmax_t& val)
 {
     val = 0;
-    if (!strToNumeric(str, val)) {
+    if (!strToValue(str, val)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
                       "Property value \"" << type << "\" of int element \"" <<
                       name() << "\" cannot be properly parsed.";
@@ -1471,25 +1531,42 @@ bool IntFieldImpl::validateValidValueStr(
     return true;
 }
 
-bool IntFieldImpl::strToNumeric(
+bool IntFieldImpl::strToValue(
     const std::string& str,
     std::intmax_t& val) const
 {
     if (common::isValidName(str)) {
         // Check among specials
         auto iter = m_state.m_specials.find(str);
-        if (iter == m_state.m_specials.end()) {
-            return false;
+        if (iter != m_state.m_specials.end()) {
+            val = iter->second.m_value;
+            return true;
         }
-
-        val = iter->second.m_value;
-        return true;
     }
 
     if (common::isValidRefName(str)) {
-        return protocol().strToEnumValue(str, val, false);
-    }
+         bool bigUnsigned = false;
+         if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
+             return false;
+         }
 
+         if ((!bigUnsigned) && (val < 0) && (isUnsigned(m_state.m_type))) {
+             logError() << XmlWrap::logPrefix(getNode()) <<
+                 "Cannot assign negative value (" << val << " references as " <<
+                str << ") to field with positive type.";
+             return false;
+         }
+
+         if (bigUnsigned && (!isBigUnsigned(m_state.m_type))) {
+             logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot assign such big positive number (" <<
+                static_cast<std::uintmax_t>(val) << " referenced as " <<
+                str << ").";
+             return false;
+
+         }
+         return true;
+     }
 
     bool ok = false;
     if (isBigUnsigned(m_state.m_type)) {

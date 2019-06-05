@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema22"
+        id="1"
+        endian="big"
+        version="2">
+    <ns name="ns1">
+        <fields>
+            <enum name="Enum1" type="int32">
+                <validValue name="V1" val="0xffffff"/>
+                <validValue name="V2" val="-1" />
+            </enum>
+            <enum name="Enum2" type="int16">
+                <validValue name="V1" val="ns1.Enum1.V1"/>
+            </enum>        
+        </fields>
+    </ns>
+</schema>

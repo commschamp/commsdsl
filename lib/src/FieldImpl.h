@@ -73,6 +73,8 @@ public:
         return kindImpl();
     }
 
+    const std::string& kindStr() const;
+
     SemanticType semanticType() const
     {
         return m_state.m_semanticType;
@@ -174,6 +176,43 @@ public:
         return m_state.m_extraChildren;
     }
 
+    bool strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+    {
+        return strToNumericImpl(ref, val, isBigUnsigned);
+    }
+
+    bool strToFp(const std::string& ref, double& val) const
+    {
+        return strToFpImpl(ref, val);
+    }
+
+    bool strToBool(const std::string& ref, bool& val) const
+    {
+        return strToBoolImpl(ref, val);
+    }
+
+    bool strToString(const std::string& ref, std::string& val) const
+    {
+        return strToStringImpl(ref, val);
+    }
+
+    bool strToData(const std::string& ref, std::vector<std::uint8_t>& val) const
+    {
+        return strToDataImpl(ref, val);
+    }
+
+    bool validateBitLengthValue(::xmlNodePtr node, std::size_t bitLength) const
+    {
+        return validateBitLengthValueImpl(node, bitLength);
+    }
+
+    bool validateBitLengthValue(std::size_t bitLength) const
+    {
+        return validateBitLengthValue(m_node, bitLength);
+    }
+
+    bool verifySemanticType() const;
+    bool verifySemanticType(::xmlNodePtr node, SemanticType type) const;
 
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
@@ -191,12 +230,17 @@ protected:
 
     void setName(const std::string& val)
     {
-        m_state.m_name = &val;
+        m_state.m_name = val;
     }
 
     void setDisplayName(const std::string& val)
     {
-        m_state.m_displayName = &val;
+        m_state.m_displayName = val;
+    }
+
+    void setSemanticType(SemanticType val)
+    {
+        m_state.m_semanticType = val;
     }
 
     LogWrapper logError() const;
@@ -217,10 +261,21 @@ protected:
     virtual std::size_t bitLengthImpl() const;
     virtual bool isComparableToValueImpl(const std::string& val) const;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const;
+    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
+    virtual bool strToFpImpl(const std::string& ref, double& val) const;
+    virtual bool strToBoolImpl(const std::string& ref, bool& val) const;
+    virtual bool strToStringImpl(const std::string& ref, std::string& val) const;
+    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const;
+    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
+    virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);
-    bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
+    bool validateAndUpdateStringPropValue(
+            const std::string& str,
+            std::string &value,
+            bool mustHave = false,
+            bool allowDeref = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
 
@@ -230,16 +285,47 @@ protected:
     static Kind getNonRefFieldKind(const FieldImpl& field);
     bool checkDetachedPrefixAllowed() const;
 
-private:
+    using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;
+    bool strToValueOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        StrToValueFieldConvertFunc&& func) const;
 
+    bool strToNumericOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        std::intmax_t& val,
+        bool& isBigUnsigned) const;
+
+    bool strToFpOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        double& val) const;
+
+    bool strToBoolOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        bool& val) const;
+
+    bool strToStringOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        std::string& val) const;
+
+    bool strToDataOnFields(
+        const std::string& ref,
+        const FieldsList& fields,
+        std::vector<std::uint8_t>& val) const;
+
+private:
     using CreateFunc = std::function<Ptr (::xmlNodePtr n, ProtocolImpl& p)>;
     using CreateMap = std::map<std::string, CreateFunc>;
 
     struct ReusableState
     {
-        const std::string* m_name = nullptr;
-        const std::string* m_displayName = nullptr;
-        const std::string* m_description = nullptr;
+        std::string m_name;
+        std::string m_displayName;
+        std::string m_description;
         PropsMap m_extraAttrs;
         ContentsList m_extraChildren;
         SemanticType m_semanticType = SemanticType::None;
@@ -264,7 +350,6 @@ private:
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 
-    bool verifySemanticType() const;
     bool verifyName() const;
 
     static const CreateMap& createMap();

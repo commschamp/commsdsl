@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema31"
+        id="1"
+        endian="big"
+        dslVersion="1">
+    <fields>
+        <int name="Int1" type="uint8" defaultValue="5"/>
+        <int name="Int2" type="uint8" defaultValue="Int1"/>
+    </fields>
+</schema>

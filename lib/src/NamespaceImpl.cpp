@@ -326,6 +326,81 @@ unsigned NamespaceImpl::countMessageIds() const
             });
 }
 
+bool NamespaceImpl::strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    return
+        strToValue(
+            ref,
+            [&val, &isBigUnsigned](const NamespaceImpl& ns, const std::string& str)
+            {
+                return ns.strToNumeric(str, val, isBigUnsigned);
+            },
+            [&val, &isBigUnsigned](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToNumeric(str, val, isBigUnsigned);
+            });
+}
+
+bool NamespaceImpl::strToFp(const std::string& ref, double& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const NamespaceImpl& ns, const std::string& str)
+            {
+                return ns.strToFp(str, val);
+            },
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToFp(str, val);
+            });
+}
+
+bool NamespaceImpl::strToBool(const std::string& ref, bool& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const NamespaceImpl& ns, const std::string& str)
+            {
+                return ns.strToBool(str, val);
+            },
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToBool(str, val);
+            });
+}
+
+bool NamespaceImpl::strToString(const std::string& ref, std::string& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const NamespaceImpl& ns, const std::string& str)
+            {
+                return ns.strToString(str, val);
+            },
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToString(str, val);
+            });
+}
+
+bool NamespaceImpl::strToData(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    return
+        strToValue(
+            ref,
+            [&val](const NamespaceImpl& ns, const std::string& str)
+            {
+                return ns.strToData(str, val);
+            },
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToData(str, val);
+            });
+}
+
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
     return ObjKind::Namespace;
@@ -558,6 +633,37 @@ bool NamespaceImpl::updateExtraChildren()
     static const XmlWrap::NamesList ChildrenNames = allNames();
     m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
+}
+
+bool NamespaceImpl::strToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const
+{
+    auto firstDotPos = ref.find_first_of('.');
+    if (firstDotPos == std::string::npos) {
+        auto fieldIter = m_fields.find(ref);
+        if (fieldIter == m_fields.end()) {
+            return false;
+        }
+
+        assert(fieldIter->second);
+        return fFunc(*fieldIter->second, common::emptyString());
+    }
+
+    std::string firstName(ref, 0, firstDotPos);
+    std::string restName(ref, firstDotPos + 1);
+    assert(!firstName.empty());
+    auto nsIter = m_namespaces.find(firstName);
+    if (nsIter != m_namespaces.end()) {
+        assert(nsIter->second);
+        return nsFunc(*nsIter->second, restName);
+    }
+
+    auto fieldIter = m_fields.find(firstName);
+    if (fieldIter == m_fields.end()) {
+        return false;
+    }
+
+    assert(fieldIter->second);
+    return fFunc(*fieldIter->second, restName);
 }
 
 LogWrapper NamespaceImpl::logError() const

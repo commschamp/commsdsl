@@ -206,6 +206,77 @@ bool ProtocolImpl::strToEnumValue(
     return true;
 }
 
+bool ProtocolImpl::strToNumeric(
+    const std::string& ref,
+    bool checkRef,
+    std::intmax_t& val,
+    bool& isBigUnsigned) const
+{
+    return
+        strToValue(
+            ref, checkRef,
+            [&val, &isBigUnsigned](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToNumeric(str, val, isBigUnsigned);
+            });
+}
+
+bool ProtocolImpl::strToFp(
+    const std::string& ref,
+    bool checkRef,
+    double& val) const
+{
+    return
+        strToValue(
+            ref, checkRef,
+            [&val](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToFp(str, val);
+            });
+}
+
+bool ProtocolImpl::strToBool(
+    const std::string& ref,
+    bool checkRef,
+    bool& val) const
+{
+    return
+        strToValue(
+            ref, checkRef,
+            [&val](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToBool(str, val);
+            });
+}
+
+bool ProtocolImpl::strToString(
+    const std::string& ref,
+    bool checkRef,
+    std::string& val) const
+{
+    return
+        strToValue(
+            ref, checkRef,
+            [&val](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToString(str, val);
+            });
+}
+
+bool ProtocolImpl::strToData(
+    const std::string& ref,
+    bool checkRef,
+    std::vector<std::uint8_t>& val) const
+{
+    return
+        strToValue(
+            ref, checkRef,
+            [&val](const NamespaceImpl& ns, const std::string& str) -> bool
+            {
+               return ns.strToData(str, val);
+            });
+}
+
 ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
 {
     auto total =
@@ -239,6 +310,32 @@ ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
         });
 
     return messages;
+}
+
+bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
+{
+    assert(m_schema);
+    auto currDslVersion = m_schema->dslVersion();
+    if (currDslVersion == 0U) {
+        return true;
+    }
+
+    return minDslVersion <= currDslVersion;
+}
+
+bool ProtocolImpl::isFieldValueReferenceSupported() const
+{
+    return isFeatureSupported(2U);
+}
+
+bool ProtocolImpl::isSemanticTypeLengthSupported() const
+{
+    return isFeatureSupported(2U);
+}
+
+bool ProtocolImpl::isSemanticTypeRefInheritanceSupported() const
+{
+    return isFeatureSupported(2U);
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
@@ -622,6 +719,49 @@ const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool ch
     return ns;
 }
 
+bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const
+{
+    do {
+        if (!checkRef) {
+            assert(common::isValidRefName(ref));
+            break;
+        }
+
+
+        if (!common::isValidRefName(ref)) {
+            return false;
+        }
+
+    } while (false);
+
+    auto redirectToGlobalNs =
+        [this, &func, &ref]() -> bool
+        {
+            auto iter = m_namespaces.find(common::emptyString());
+            if (iter == m_namespaces.end()) {
+                return false;
+            }
+            assert(iter->second);
+            return func(*iter->second, ref);
+        };
+
+    auto firstDotPos = ref.find_first_of('.');
+    if (firstDotPos == std::string::npos) {
+        return redirectToGlobalNs();
+    }
+
+    std::string ns(ref, 0, firstDotPos);
+    assert(!ns.empty());
+    auto nsIter = m_namespaces.find(ns);
+    if (nsIter == m_namespaces.end()) {
+        return redirectToGlobalNs();
+    }
+
+    assert(nsIter->second);
+    std::string subRef(ref, firstDotPos + 1);
+    return func(*nsIter->second, subRef);
+}
+
 LogWrapper ProtocolImpl::logError() const
 {
     return commsdsl::logError(m_logger);
@@ -630,6 +770,43 @@ LogWrapper ProtocolImpl::logError() const
 LogWrapper ProtocolImpl::logWarning() const
 {
     return commsdsl::logWarning(m_logger);
+}
+
+bool ProtocolImpl::strToStringValue(
+    const std::string &str,
+    std::string &val) const
+{
+    if (str.empty() || (!isFieldValueReferenceSupported())) {
+        val = str;
+        return true;
+    }
+
+    static const char Prefix = '^';
+    if (str[0] == Prefix) {
+        return strToString(std::string(str, 1), true, val);
+    }
+
+    auto prefixPos = str.find_first_of(Prefix);
+    if (prefixPos == std::string::npos) {
+        val = str;
+        return true;
+    }
+
+    assert(0U < prefixPos);
+    bool allBackSlashes =
+        std::all_of(
+            str.begin(), str.begin() + prefixPos,
+            [](char ch)
+            {
+                return ch == '\\';
+            });
+    if (!allBackSlashes) {
+        val = str;
+        return true;
+    }
+
+    val.assign(str, 1, std::string::npos);
+    return true;
 }
 
 } // namespace commsdsl

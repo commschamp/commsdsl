@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema39"
+        id="1"
+        endian="big">
+    <fields>
+        <variant name="F1">
+            <bundle name="P1">
+                <int name="type" type="uint8" validValue="0" failOnInvalid="true" />
+                <int name="value" type="uint32" />
+            </bundle>
+            <bundle name="P2">
+                <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true" />
+                <int name="value" type="uint8" />
+            </bundle>
+        </variant>
+        <int name="F2" type="uint8" defaultValue="F1.P2.type">
+            <special name="S1" val="F1.P1.type" />
+        </int>
+    </fields>
+</schema>

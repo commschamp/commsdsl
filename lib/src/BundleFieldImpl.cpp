@@ -126,6 +126,10 @@ std::size_t BundleFieldImpl::maxLengthImpl() const
 {
     std::size_t sum = 0U;
     for (auto& m : m_members) {
+        if (m->semanticType() == SemanticType::Length) {
+            return std::numeric_limits<std::size_t>::max();
+        }
+        
         auto val = m->maxLength();
         if (val == std::numeric_limits<std::size_t>::max()) {
             return val;
@@ -135,6 +139,31 @@ std::size_t BundleFieldImpl::maxLengthImpl() const
     }
 
     return sum;
+}
+
+bool BundleFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    return strToNumericOnFields(ref, m_members, val, isBigUnsigned);
+}
+
+bool BundleFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    return strToFpOnFields(ref, m_members, val);
+}
+
+bool BundleFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+{
+    return strToBoolOnFields(ref, m_members, val);
+}
+
+bool BundleFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
+{
+    return strToStringOnFields(ref, m_members, val);
+}
+
+bool BundleFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    return strToDataOnFields(ref, m_members, val);
 }
 
 bool BundleFieldImpl::updateMembers()
@@ -250,6 +279,21 @@ bool BundleFieldImpl::updateMembers()
     if (!hasSameVer) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "There must be at least one member with the same version as the parent bundle.";
+        return false;
+    }
+
+    auto lengthFieldsCount =
+        std::count_if(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                return m->semanticType() == SemanticType::Length;
+            });
+
+    if (1 < lengthFieldsCount) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "No more that single field with semantiType=\"" << common::lengthStr() << "\" "
+            "is allowed within \"" << common::bundleStr() << "\".";
         return false;
     }
 

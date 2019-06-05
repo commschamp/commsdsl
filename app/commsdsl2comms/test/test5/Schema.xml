@@ -4,14 +4,22 @@
         endian="big"
         version="5">
     <fields>
+        <string name="Msg1Name" defaultValue="Message1" />
+        <string name="Msg2Name" defaultValue="Message2" />
+        <string name="Msg5Name" defaultValue="Message5" />
+        <string name="Msg7Name" defaultValue="Message7" />
+        <string name="Msg10Name" defaultValue="Message10" />
+        <string name="Msg20Name" defaultValue="Message20" />
+        <string name="Msg25Name" defaultValue="Message25" />
+        
         <enum name="MsgId" type="uint8" semanticType="messageId" hexAssign="true">
-            <validValue name="m1" val="1" />
-            <validValue name="m2" val="2" />
-            <validValue name="m5" val="5" />
-            <validValue name="m7" val="7" />
-            <validValue name="m10" val="10" />
-            <validValue name="m20" val="20" />
-            <validValue name="m25" val="25" />
+            <validValue name="m1" val="1" displayName="^Msg1Name"/>
+            <validValue name="m2" val="2" displayName="^Msg2Name" />
+            <validValue name="m5" val="5" displayName="^Msg5Name" />
+            <validValue name="m7" val="7" displayName="^Msg7Name" />
+            <validValue name="m10" val="10" displayName="^Msg10Name" />
+            <validValue name="m20" val="20" displayName="^Msg20Name" />
+            <validValue name="m25" val="25" displayName="^Msg25Name" />
         </enum>
         
         <enum name="E1" type="uint16">
@@ -40,7 +48,7 @@
         </enum>                
     </fields>
     
-    <message name="Msg1" id="MsgId.m1">
+    <message name="Msg1" id="MsgId.m1" displayName="^Msg1Name">
         <ref name="f1" field="E1" />
         <ref name="f2" field="MsgId" />
         <ref name="f3" field="E2" />

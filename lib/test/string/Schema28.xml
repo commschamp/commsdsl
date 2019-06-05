@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema28"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <string name="F1" defaultValue="hello!" />
+        <optional name="F2" field="F1" />
+        <ref name="F3" field="F2" />
+        <string name="F4" defaultValue="^F3.F1" />
+    </fields>
+</schema>

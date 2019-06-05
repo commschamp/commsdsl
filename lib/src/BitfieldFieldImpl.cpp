@@ -30,20 +30,9 @@ namespace commsdsl
 namespace
 {
 
-const XmlWrap::NamesList& bundleSupportedTypes()
-{
-    static const XmlWrap::NamesList Names = {
-        common::intStr(),
-        common::enumStr(),
-        common::setStr()
-    };
-
-    return Names;
-}
-
 XmlWrap::NamesList getExtraNames()
 {
-    auto names = bundleSupportedTypes();
+    auto names = BitfieldFieldImpl::supportedTypes();
     names.push_back(common::membersStr());
     return names;
 }
@@ -76,6 +65,18 @@ BitfieldFieldImpl::Members BitfieldFieldImpl::membersList() const
             return Field(elem.get());
         });
     return result;
+}
+
+const XmlWrap::NamesList& BitfieldFieldImpl::supportedTypes()
+{
+    static const XmlWrap::NamesList Names = {
+        common::intStr(),
+        common::enumStr(),
+        common::setStr(),
+        common::refStr()
+    };
+
+    return Names;    
 }
 
 FieldImpl::Kind BitfieldFieldImpl::kindImpl() const
@@ -138,6 +139,21 @@ std::size_t BitfieldFieldImpl::minLengthImpl() const
     }) / 8U;
 }
 
+bool BitfieldFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    return strToNumericOnFields(ref, m_members, val, isBigUnsigned);
+}
+
+bool BitfieldFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    return strToFpOnFields(ref, m_members, val);
+}
+
+bool BitfieldFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+{
+    return strToBoolOnFields(ref, m_members, val);
+}
+
 bool BitfieldFieldImpl::updateEndian()
 {
     if (!validateSinglePropInstance(common::endianStr())) {
@@ -176,7 +192,7 @@ bool BitfieldFieldImpl::updateMembers()
             return false;
         }
 
-        auto memberFieldsTypes = XmlWrap::getChildren(getNode(), bundleSupportedTypes());
+        auto memberFieldsTypes = XmlWrap::getChildren(getNode(), supportedTypes());
         if ((0U < membersNodes.size()) && (0U < memberFieldsTypes.size())) {
             logError() << XmlWrap::logPrefix(getNode()) <<
                           "The \"" << common::bitfieldStr() << "\" element does not support "
@@ -216,7 +232,7 @@ bool BitfieldFieldImpl::updateMembers()
         if (0U < membersNodes.size()) {
             assert(0U == memberFieldsTypes.size());
             memberFieldsTypes = XmlWrap::getChildren(membersNodes.front());
-            auto cleanMemberFieldsTypes = XmlWrap::getChildren(membersNodes.front(), bundleSupportedTypes());
+            auto cleanMemberFieldsTypes = XmlWrap::getChildren(membersNodes.front(), supportedTypes());
             if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
                 logError() << XmlWrap::logPrefix(membersNodes.front()) <<
                               "The \"" << common::membersStr() << "\" child node of \"" <<

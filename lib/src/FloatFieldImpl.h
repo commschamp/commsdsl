@@ -90,6 +90,7 @@ protected:
     virtual bool parseImpl() override final;
     virtual std::size_t minLengthImpl() const override final;
     virtual bool isComparableToValueImpl(const std::string& val) const override final;
+    virtual bool strToFpImpl(const std::string& ref, double& val) const override final;
 
 private:
     bool updateType();

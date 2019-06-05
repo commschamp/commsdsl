@@ -170,16 +170,38 @@ std::size_t StringFieldImpl::maxLengthImpl() const
     return std::numeric_limits<std::size_t>::max();
 }
 
-bool StringFieldImpl::updateDefaultValue()
+bool StringFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
 {
-    if (!validateSinglePropInstance(common::defaultValueStr())) {
+    if (!protocol().isFieldValueReferenceSupported()) {
         return false;
     }
 
-    auto iter = props().find(common::defaultValueStr());
-    if (iter != props().end()) {
-        m_state.m_defaultValue = iter->second;
+    if (ref.empty()) {
+        val = m_state.m_defaultValue;
+        return true;
     }
+
+    return false;
+}
+
+bool StringFieldImpl::updateDefaultValue()
+{
+    auto& propName = common::defaultValueStr();
+    if (!validateSinglePropInstance(propName)) {
+        return false;
+    }
+
+    auto iter = props().find(propName);
+    do {
+        if (iter == props().end()) {
+            break;
+        }
+
+        if (!strToValue(iter->second, m_state.m_defaultValue)) {
+            reportUnexpectedPropertyValue(propName, iter->second);
+            return false;
+        }
+    } while (false);
 
     if ((m_state.m_length != 0U) && (m_state.m_length < m_state.m_defaultValue.size())) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
@@ -445,6 +467,11 @@ const FieldImpl* StringFieldImpl::getPrefixField() const
 
     assert(m_prefixField);
     return m_prefixField.get();
+}
+
+bool StringFieldImpl::strToValue(const std::string& str, std::string& val) const
+{
+    return protocol().strToStringValue(str, val);
 }
 
 

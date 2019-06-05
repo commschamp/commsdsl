@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema32"
+        id="1"
+        endian="big"
+        version="2"
+        dslVersion="2">
+        
+    <ns name="ns1">
+        <fields>
+            <string name="F1" defaultValue="Desc1" />
+            <string name="F2" defaultValue="Desc2" />
+            <string name="F3" defaultValue="Desc3" />
+            <enum name="F4" type="uint8" defaultValue="V1" displayName="^ns1.F1">
+                <validValue name="V1" val="1" displayName="^ns1.F2" />
+                <validValue name="V2" val="2" displayName="^ns1.F4" />
+            </enum>
+        </fields>
+    </ns>
+</schema>

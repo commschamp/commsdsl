@@ -24,6 +24,18 @@ public:
     void test15();
     void test16();
     void test17();
+    void test18();
+    void test19();
+    void test20();
+    void test21();
+    void test22();
+    void test23();
+    void test24();
+    void test25();
+    void test26();
+    void test27();
+    void test28();
+    void test29();
 };
 
 void SetTestSuite::setUp()
@@ -526,5 +538,259 @@ void SetTestSuite::test17()
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test18()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "S2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+}
+
+void SetTestSuite::test19()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test20()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b1.m_defaultValue, true);
+}
+
+void SetTestSuite::test21()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_defaultValue, false);
+    TS_ASSERT_EQUALS(b1.m_defaultValue, true);
+}
+
+void SetTestSuite::test22()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+}
+
+void SetTestSuite::test23()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(setField.reservedBitValue(), false);
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+}
+
+void SetTestSuite::test24()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test25()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
+    TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test26()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.defaultBitValue(), false);
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_defaultValue, true);
+    TS_ASSERT_EQUALS(b1.m_defaultValue, false);
+}
+
+void SetTestSuite::test27()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.displayName(), "Desc1");
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_displayName, "^F2");
+    TS_ASSERT_EQUALS(b1.m_displayName, "Desc3");
+}
+
+void SetTestSuite::test28()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Set);
+
+    commsdsl::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.displayName(), "^F1");
+    TS_ASSERT_EQUALS(bits.size(), 2);
+    auto& b0 = bits.find("B0")->second;
+    auto& b1 = bits.find("B1")->second;
+    TS_ASSERT_EQUALS(b0.m_displayName, "^F2");
+    TS_ASSERT_EQUALS(b1.m_displayName, "^F3");
+}
+
+void SetTestSuite::test29()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
     TS_ASSERT(protocol);
 }

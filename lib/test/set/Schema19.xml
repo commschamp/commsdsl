@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema19"
+        id="1"
+        endian="big"
+        version="5"
+        dslVersion="1">
+    <fields>
+        <set name="S1" type="uint8">
+            <bit name="B0" idx="0" defaultValue="true"/>
+            <bit name="B1" idx="1" />
+        </set>
+        
+        <set name="S2" type="uint8" defaultValue="S1" reservedValue="S1.B1">
+            <bit name="B0" idx="0" defaultValue="S1.B0"/>
+            <bit name="B1" idx="1" defaultValue="S1.B1"/>
+        </set>
+    </fields>
+</schema>

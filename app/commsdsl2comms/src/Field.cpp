@@ -509,6 +509,15 @@ bool Field::isVersionOptional() const
     return false;
 }
 
+bool Field::isVersionDependent() const
+{
+    if (!m_generator.versionDependentCode()) {
+        return false;
+    }
+
+    return isVersionOptional() || isVersionDependentImpl();
+}
+
 bool Field::isPseudo() const
 {
     return m_forcedPseudo || m_dslObj.isPseudo();
@@ -544,16 +553,28 @@ std::string Field::getReadForFields(
         readFunc = "doRead";
     }
 
+    bool esDeclared = false;
+    auto esAssignment =
+        [&esDeclared]() -> std::string
+        {
+            std::string str;
+            if (!esDeclared) {
+                str += "auto ";
+                esDeclared = true;
+            }
+            str += "es = ";
+            return str;
+        };
+
     common::StringsList reads;
-    std::size_t prevPos = 0U;
     for (auto fPosIdx = 0U; fPosIdx < customReadFields.size(); ++fPosIdx) {
         auto fPos = customReadFields[fPosIdx];
         assert(fPos != 0);
         auto& m = fields[fPos];
         auto accessName = common::nameToAccessCopy(m->name());
-        if (prevPos == 0) {
+        if ((!esDeclared) && (fPos != 0U)) {
             auto str = 
-                "auto es = Base::template " + readUntilStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
+                esAssignment() + "Base::template " + readUntilStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
                 "if (es != comms::ErrorStatus::Success) {\n"
                 "    return es;\n"
                 "}\n";
@@ -567,24 +588,22 @@ std::string Field::getReadForFields(
 
         if (fPos == customReadFields.back()) {
             auto str = 
-                "es = Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
+                esAssignment() + "Base::template " + readFromStr + "<FieldIdx_" + accessName + ">(iter, len);\n"
                 "if (es != comms::ErrorStatus::Success) {\n"
                 "    return es;\n"
                 "}\n";
             reads.push_back(std::move(str));
-            prevPos = fPos;
             continue;
         }
 
         assert((fPosIdx + 1) < customReadFields.size());
         auto nextName = common::nameToAccessCopy(fields[customReadFields[fPosIdx + 1]]->name());
         auto str = 
-            "es = Base::template " + readFromUntilStr + "<FieldIdx_" + accessName + ", FieldIdx_" + nextName + ">(iter, len);\n"
+            esAssignment() + "Base::template " + readFromUntilStr + "<FieldIdx_" + accessName + ", FieldIdx_" + nextName + ">(iter, len);\n"
             "if (es != comms::ErrorStatus::Success) {\n"
             "    return es;\n"
             "}\n";
         reads.push_back(std::move(str));
-        prevPos = fPos;
     }
 
     static const std::string Templ =
@@ -980,6 +999,16 @@ void Field::setForcedPseudoImpl()
     // Do nothing
 }
 
+void Field::setForcedNoOptionsConfigImpl()
+{
+    // Do nothing
+}
+
+bool Field::isVersionDependentImpl() const
+{
+    return false;
+}
+
 std::string Field::getNameFunc() const
 {
     auto customName = m_generator.getCustomNameForField(m_externalRef);
@@ -995,7 +1024,10 @@ std::string Field::getNameFunc() const
         "}\n";
 }
 
-void Field::updateExtraOptions(const std::string& scope, common::StringsList& options) const
+void Field::updateExtraOptions(
+    const std::string& scope,
+    common::StringsList& options,
+    bool ignoreFailOnInvalid) const
 {
     if (!m_externalRef.empty()) {
         options.push_back("TExtraOpts...");
@@ -1005,10 +1037,10 @@ void Field::updateExtraOptions(const std::string& scope, common::StringsList& op
         options.push_back("typename " + scope + common::nameToClassCopy(name()));
     }
 
-    if (m_focedFailOnInvalid) {
+    if ((!ignoreFailOnInvalid) && m_focedFailOnInvalid) {
         options.push_back("comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
     }
-    else if (m_dslObj.isFailOnInvalid()) {
+    else if ((!ignoreFailOnInvalid) && m_dslObj.isFailOnInvalid()) {
         common::addToList("comms::option::FailOnInvalid<>", options);
     }
 
@@ -1101,6 +1133,23 @@ std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
     }
 
     return common::dslEndianToOpt(endian);
+}
+
+bool Field::isCustomizable() const
+{
+    if (m_generator.customizationLevel() == CustomizationLevel::Full) {
+        return true;
+    }
+
+    if (m_dslObj.isCustomizable()) {
+        return true;
+    }
+
+    if (m_generator.customizationLevel() == CustomizationLevel::None) {
+        return false;
+    }
+
+    return isLimitedCustomizableImpl();
 }
 
 bool Field::writeProtocolDefinitionFile() const
@@ -1263,23 +1312,6 @@ std::string Field::getPluginIncludes() const
     common::mergeInclude(m_generator.headerfileForField(m_externalRef, false), includes);
     updatePluginIncludesImpl(includes);
     return common::includesToStatements(includes);
-}
-
-bool Field::isCustomizable() const
-{
-    if (m_generator.customizationLevel() == CustomizationLevel::Full) {
-        return true;
-    }
-
-    if (m_dslObj.isCustomizable()) {
-        return true;
-    }
-
-    if (m_generator.customizationLevel() == CustomizationLevel::None) {
-        return false;
-    }
-
-    return isLimitedCustomizableImpl();
 }
 
 } // namespace commsdsl2comms

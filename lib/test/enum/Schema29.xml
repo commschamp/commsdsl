@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema29"
+        id="1"
+        endian="big"
+        version="2"
+        dslVersion="2">
+        
+    <ns name="ns1">
+        <fields>
+            <variant name="F1">
+                <bundle name="P1">
+                    <int name="type" type="uint8" validValue="0" failOnInvalid="true" />
+                    <int name="value" type="uint32" />
+                </bundle>
+                <bundle name="P2">
+                    <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true" />
+                    <enum name="value" type="uint8" defaultValue="V1">
+                        <validValue name="V1" val="1" />
+                        <validValue name="V2" val="2" />
+                    </enum>
+                </bundle>
+            </variant>
+            <enum name="F2" type="uint8" defaultValue="ns1.F1.P2.value">
+                <validValue name="V1" val="ns1.F1.P2.value.V1" />
+                <validValue name="V2" val="ns1.F1.P2.value.V2" />
+            </enum>
+        </fields>
+    </ns>
+</schema>

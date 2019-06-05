@@ -163,10 +163,19 @@ public:
 
     unsigned countMessageIds() const;
 
+    bool strToNumeric(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
+    bool strToFp(const std::string& ref, double& val) const;
+    bool strToBool(const std::string& ref, bool& val) const;
+    bool strToString(const std::string& ref, std::string& val) const;
+    bool strToData(const std::string& ref, std::vector<std::uint8_t>& val) const;
+
 protected:
     virtual ObjKind objKindImpl() const override final;
 
 private:
+
+    using StrToValueNsConvertFunc = std::function<bool (const NamespaceImpl& ns, const std::string& ref)>;
+    using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;
 
     bool processNamespace(::xmlNodePtr node);
     bool processMultipleFields(::xmlNodePtr node);
@@ -178,6 +187,7 @@ private:
     bool processMultipleFrames(::xmlNodePtr node);
     bool updateExtraAttrs();
     bool updateExtraChildren();
+    bool strToValue(const std::string& ref, StrToValueNsConvertFunc&& nsFunc, StrToValueFieldConvertFunc&& fFunc) const;
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;

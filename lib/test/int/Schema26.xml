@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema26"
+        id="1"
+        endian="big"
+        version="3"
+        dslVersion="2">
+
+    <fields>
+        <int name="Int1" type="int32" semanticType="length" />
+    </fields>
+           
+</schema>

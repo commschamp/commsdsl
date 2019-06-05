@@ -26,6 +26,17 @@ public:
     void test17();
     void test18();
     void test19();
+    void test20();
+    void test21();
+    void test22();
+    void test23();
+    void test24();
+    void test25();
+    void test26();
+    void test27();
+    void test28();
+    void test29();
+    void test30();
 };
 
 void StringTestSuite::setUp()
@@ -392,4 +403,216 @@ void StringTestSuite::test19()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test20()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "S2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
+}
+
+void StringTestSuite::test21()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "S2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "^S1");
+}
+
+void StringTestSuite::test22()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 6U);
+
+    do {
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "S1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+        commsdsl::StringField stringField(field);
+        TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
+    } while (false);
+
+    do {
+        auto& field = fields[2];
+        TS_ASSERT_EQUALS(field.name(), "S2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+        commsdsl::StringField stringField(field);
+        TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
+    } while (false);
+
+    do {
+        auto& field = fields[3];
+        TS_ASSERT_EQUALS(field.name(), "S3");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+        commsdsl::StringField stringField(field);
+        TS_ASSERT_EQUALS(stringField.defaultValue(), "^S1");
+    } while (false);
+
+    do {
+        auto& field = fields[4];
+        TS_ASSERT_EQUALS(field.name(), "S4");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+        commsdsl::StringField stringField(field);
+        TS_ASSERT_EQUALS(stringField.defaultValue(), "\\\\\\^S1");
+    } while (false);
+
+    do {
+        auto& field = fields[5];
+        TS_ASSERT_EQUALS(field.name(), "S5");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+        commsdsl::StringField stringField(field);
+        TS_ASSERT_EQUALS(stringField.defaultValue(), "\\.\\\\\\^S1");
+    } while (false);
+}
+
+void StringTestSuite::test23()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test24()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test25()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "S2");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
+}
+
+void StringTestSuite::test26()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test27()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
+}
+
+void StringTestSuite::test28()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
+    TS_ASSERT(protocol);
+}
+
+void StringTestSuite::test29()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F4");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "hello!");
+}
+
+void StringTestSuite::test30()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F3");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+
+    commsdsl::StringField stringField(field);
+    TS_ASSERT_EQUALS(stringField.defaultValue(), "bla");
 }

@@ -43,6 +43,9 @@ protected:
         bool forcedSerialisedHidden,
         bool serHiddenParam) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
+    virtual void setForcedPseudoImpl() override final;
+    virtual void setForcedNoOptionsConfigImpl() override final;
+    virtual bool isVersionDependentImpl() const override final;
 
 private:
     using StringsList = common::StringsList;
@@ -55,6 +58,7 @@ private:
     std::string getRefresh() const;
     std::string getPrivate() const;
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const;
+    bool hasOptimizedRead() const;
 
     commsdsl::VariantField variantFieldDslObj() const
     {

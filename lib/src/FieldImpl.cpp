@@ -40,6 +40,12 @@
 namespace commsdsl
 {
 
+namespace {
+
+const unsigned MinDslVersionForLengthSemanticType  = 2U;
+
+} // namespace
+
 FieldImpl::Ptr FieldImpl::create(
     const std::string& kind,
     ::xmlNodePtr node,
@@ -135,20 +141,42 @@ bool FieldImpl::parse()
 
 const std::string& FieldImpl::name() const
 {
-    assert(m_state.m_name != nullptr);
-    return *m_state.m_name;
+    return m_state.m_name;
 }
 
 const std::string& FieldImpl::displayName() const
 {
-    assert(m_state.m_displayName != nullptr);
-    return *m_state.m_displayName;
+    return m_state.m_displayName;
 }
 
 const std::string& FieldImpl::description() const
 {
-    assert(m_state.m_description != nullptr);
-    return *m_state.m_description;
+    return m_state.m_description;
+}
+
+const std::string& FieldImpl::kindStr() const
+{
+    static const std::string* const Map[] = {
+        /* Int */ &common::intStr(),
+        /* Enum */ &common::enumStr(),
+        /* Set */ &common::setStr(),
+        /* Float */ &common::floatStr(),
+        /* Bitfield */ &common::bitfieldStr(),
+        /* Bundle */ &common::bundleStr(),
+        /* String */ &common::stringStr(),
+        /* Data */ &common::dataStr(),
+        /* List */ &common::listStr(),
+        /* Ref */ &common::refStr(),
+        /* Optional */ &common::optionalStr(),
+        /* Variant */ &common::variantStr()
+    };
+
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == (unsigned)Kind::NumOfValues, "Invalid map");
+
+    auto idx = static_cast<unsigned>(kind());
+    assert(idx < MapSize);
+    return *Map[idx];
 }
 
 XmlWrap::NamesList FieldImpl::supportedTypes()
@@ -241,13 +269,59 @@ bool FieldImpl::isComparableToField(const FieldImpl& field) const
     return isComparableToFieldImpl(field);
 }
 
+bool FieldImpl::verifySemanticType() const
+{
+    return verifySemanticType(getNode(), semanticType());
+}
+
+bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
+{
+    if (type == SemanticType::None) {
+        return true;
+    }
+
+    if (verifySemanticTypeImpl(node, type)) {
+        return true;
+    }
+
+    if (type == SemanticType::Version) {
+        logError() << XmlWrap::logPrefix(node) <<
+            "Semantic type \"" << common::versionStr() << "\" is applicable only to \"" <<
+            common::intStr() << "\" fields or \"" << common::refStr() << "\" to them.";
+        return false;
+    }
+
+    if (type == SemanticType::MessageId) {
+        logError() << XmlWrap::logPrefix(node) <<
+            "Semantic type \"" << common::messageIdStr() << "\" is applicable only to \"" <<
+            common::enumStr() << "\" fields.";
+        return false;
+    }
+
+    if (type == SemanticType::Length) {
+        if (!m_protocol.isSemanticTypeLengthSupported()) {
+            logError() << XmlWrap::logPrefix(node) <<
+                "Semantic type \"" << common::lengthStr() << "\" supported only since "
+                "DSL v" << MinDslVersionForLengthSemanticType << ", please update \"" <<
+                common::dslVersionStr() << "\" property of your schema.";
+            return false;
+        }
+
+        logError() << XmlWrap::logPrefix(node) <<
+            "Semantic type \"" << common::lengthStr() << "\" is applicable only to \"" <<
+            common::intStr() << "\" fields, and should be used only with members of \"" <<
+            common::bundleStr() << "\" fields.";
+        return false;
+    }
+
+    assert(!"Unhandled semantic type, please fix");
+    return true;
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)
 {
-    m_state.m_name = &common::emptyString();
-    m_state.m_displayName = &common::emptyString();
-    m_state.m_description = &common::emptyString();
 }
 
 FieldImpl::FieldImpl(const FieldImpl&) = default;
@@ -328,6 +402,96 @@ bool FieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
     return false;
 }
 
+bool FieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+    static_cast<void>(isBigUnsigned);
+
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting integral numeric value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
+    return false;
+}
+
+bool FieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    std::intmax_t intVal = 0;
+    bool isBigUnsigned = false;
+    if (!strToNumeric(ref, intVal, isBigUnsigned)) {
+        return false;
+    }
+
+    if (!isBigUnsigned) {
+        val = static_cast<double>(intVal);
+        return true;
+    }
+
+    val = static_cast<double>(static_cast<std::uintmax_t>(intVal));
+    return true;
+}
+
+bool FieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting boolean value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
+    return false;
+}
+
+bool FieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting string value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
+    return false;
+}
+
+bool FieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    static_cast<void>(ref);
+    static_cast<void>(val);
+
+    if (protocol().isFieldValueReferenceSupported()) {
+        logWarning() <<
+            "Extracting data value from \"" << kindStr() <<
+            "\" field is not supported.";
+    }
+
+    return false;
+}
+
+bool FieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    static_cast<void>(bitLength);
+    logError() << XmlWrap::logPrefix(node) <<
+        "The field of kind \"" << kindStr() << "\" cannot be used or referenced as a member of \"" <<
+        common::bitfieldStr() << "\".";    
+    return false;
+}
+
+bool FieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    static_cast<void>(type);
+    return false;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);
@@ -340,19 +504,30 @@ bool FieldImpl::validateNoPropInstance(const std::string& str)
 
 bool FieldImpl::validateAndUpdateStringPropValue(
     const std::string& str,
-    const std::string*& valuePtr,
-    bool mustHave)
+    std::string& value,
+    bool mustHave,
+    bool allowDeref)
 {
     if (!validateSinglePropInstance(str, mustHave)) {
         return false;
     }
 
     auto iter = m_props.find(str);
-    if (iter != m_props.end()) {
-        valuePtr = &iter->second;
+    if (iter == m_props.end()) {
+        assert(!mustHave);
+        return true;
     }
 
-    assert(iter != m_props.end() || (!mustHave));
+    if (!allowDeref) {
+        value = iter->second;
+        return true;
+    }
+
+    if (!protocol().strToStringValue(iter->second, value)) {
+        reportUnexpectedPropertyValue(str, iter->second);
+        return false;
+    }
+
     return true;
 }
 
@@ -476,6 +651,131 @@ bool FieldImpl::checkDetachedPrefixAllowed() const
     return result;
 }
 
+bool FieldImpl::strToValueOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    FieldImpl::StrToValueFieldConvertFunc &&func) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    auto firstDotPos = ref.find_first_of('.');
+    std::string firstName(ref, 0, firstDotPos);
+
+    auto iter = std::find_if(
+        fields.begin(), fields.end(),
+        [&firstName](auto& m)
+        {
+            return m->name() == firstName;
+        });
+
+    if (iter == fields.end()) {
+        return false;
+    }
+
+    std::string restName;
+    if (firstDotPos != std::string::npos) {
+        restName.assign(ref, firstDotPos + 1, std::string::npos);
+    }
+
+    return func(**iter, restName);
+
+}
+
+bool FieldImpl::strToNumericOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    std::intmax_t &val,
+    bool &isBigUnsigned) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToNumericImpl(ref, val, isBigUnsigned);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val, &isBigUnsigned](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToNumeric(str, val, isBigUnsigned);
+            });
+
+}
+
+bool FieldImpl::strToFpOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    double &val) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToFpImpl(ref, val);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToFp(str, val);
+    });
+}
+
+bool FieldImpl::strToBoolOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    bool &val) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToBoolImpl(ref, val);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToBool(str, val);
+    });
+}
+
+bool FieldImpl::strToStringOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    std::string &val) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToStringImpl(ref, val);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToString(str, val);
+            });
+
+}
+
+bool FieldImpl::strToDataOnFields(
+    const std::string &ref,
+    const FieldsList &fields,
+    std::vector<std::uint8_t> &val) const
+{
+    if (ref.empty()) {
+        return FieldImpl::strToDataImpl(ref, val);
+    }
+
+    return
+        strToValueOnFields(
+            ref, fields,
+            [&val](const FieldImpl& f, const std::string& str)
+            {
+                return f.strToData(str, val);
+            });
+}
+
 bool FieldImpl::checkReuse()
 {
     if (!validateSinglePropInstance(common::reuseStr())) {
@@ -518,12 +818,12 @@ bool FieldImpl::updateName()
 
 bool FieldImpl::updateDescription()
 {
-    return validateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description);
+    return validateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description, false, true);
 }
 
 bool FieldImpl::updateDisplayName()
 {
-    return validateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName);
+    return validateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName, false, true);
 }
 
 bool FieldImpl::updateVersions()
@@ -621,7 +921,8 @@ bool FieldImpl::updateSemanticType()
     static const std::string Map[] = {
         /* None */ common::noneStr(),
         /* Version */ common::versionStr(),
-        /* MessageId */ common::toLowerCopy(common::messageIdStr())
+        /* MessageId */ common::toLowerCopy(common::messageIdStr()),
+        /* Length */ common::lengthStr(),
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
@@ -642,6 +943,7 @@ bool FieldImpl::updateSemanticType()
 
     m_state.m_semanticType =
         static_cast<SemanticType>(std::distance(std::begin(Map), valIter));
+
     return true;
 }
 
@@ -784,50 +1086,17 @@ const FieldImpl::CreateMap& FieldImpl::createMap()
     return Map;
 }
 
-bool FieldImpl::verifySemanticType() const
-{
-    if (semanticType() == SemanticType::None) {
-        return true;
-    }
-
-    if (semanticType() == SemanticType::Version) {
-        if (kind() != Kind::Int) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::versionStr() << "\" is applicable only to " <<
-                "integral value fields.";
-            return false;
-        }
-
-        return true;
-    }
-
-    if (semanticType() == SemanticType::MessageId) {
-        if (kind() != Kind::Enum) {
-            logError() << XmlWrap::logPrefix(getNode()) <<
-                "Semantic type \"" << common::messageIdStr() << "\" is applicable only to " <<
-                "enum fields.";
-            return false;
-        }
-
-        return true;
-    }
-
-    assert(!"Unhandled semantic type, please fix");
-    return true;
-}
-
 bool FieldImpl::verifyName() const
 {
-    assert(m_state.m_name != nullptr);
-    if (m_state.m_name->empty()) {
+    if (m_state.m_name.empty()) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Missing value for mandatory property \"" << common::nameStr() << "\" for \"" << m_node->name << "\" element.";
         return false;
     }
 
-    if (!common::isValidName(*m_state.m_name)) {
+    if (!common::isValidName(m_state.m_name)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                "Invalid value for name property \"" << *m_state.m_name << "\".";
+                "Invalid value for name property \"" << m_state.m_name << "\".";
         return false;
     }
 

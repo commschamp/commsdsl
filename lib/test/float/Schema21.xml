@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema21"
+        id="1"
+        endian="big"
+        version="2"
+        dslVersion="2">
+    <fields>
+        <variant name="F1">
+            <bundle name="P1">
+                <int name="type" type="uint8" validValue="0" failOnInvalid="true" />
+                <int name="value" type="uint32" />
+            </bundle>
+            <bundle name="P2">
+                <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true" />
+                <float name="value" type="float" defaultValue="nan">
+                    <special name="S1" val="inf" />
+                    <special name="S2" val="-inf" />
+                </float>
+            </bundle>
+        </variant>
+        <float name="F2" type="float" defaultValue="F1.P2.value">
+            <special name="S1" val="F1.P2.value.S1" />
+            <special name="S2" val="F1.P2.value.S2" />
+        </float>
+    </fields>
+</schema>

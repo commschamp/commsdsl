@@ -29,6 +29,14 @@
 namespace commsdsl
 {
 
+namespace
+{
+const std::size_t BitsInByte =
+        std::numeric_limits<std::uint8_t>::digits;
+static_assert(BitsInByte == 8U, "Invalid assumption");    
+
+} // namespace 
+
 SetFieldImpl::SetFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
@@ -126,6 +134,61 @@ std::size_t SetFieldImpl::bitLengthImpl() const
     }
 
     return Base::bitLengthImpl();
+}
+
+bool SetFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    isBigUnsigned = false;
+    if (ref.empty()) {
+        val = static_cast<std::intmax_t>(m_state.m_defaultBitValue);
+        return true;
+    }
+
+    auto iter = m_state.m_bits.find(ref);
+    if (iter == m_state.m_bits.end()) {
+        return false;
+    }
+
+    val = static_cast<std::intmax_t>(iter->second.m_defaultValue);
+    return true;
+}
+
+bool SetFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+{
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    if (ref.empty()) {
+        val = m_state.m_defaultBitValue;
+        return true;
+    }
+
+    auto iter = m_state.m_bits.find(ref);
+    if (iter == m_state.m_bits.end()) {
+        return false;
+    }
+
+    val = iter->second.m_defaultValue;
+    return true;
+}
+
+bool SetFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+{
+    assert(0U < m_state.m_length);
+    auto maxBitLength = m_state.m_length * BitsInByte;
+    if (maxBitLength < bitLength) {
+        logError() << XmlWrap::logPrefix(node) <<
+                      "Value of property \"" << common::bitLengthStr() << "\" exceeds "
+                      "maximal length available by the type and/or forced serialisation length.";
+        return false;
+    }
+
+    return true;
 }
 
 bool SetFieldImpl::updateEndian()
@@ -323,12 +386,34 @@ bool SetFieldImpl::updateValidCheckVersion()
 
 bool SetFieldImpl::updateDefaultValue()
 {
-    return validateAndUpdateBoolPropValue(common::defaultValueStr(), m_state.m_defaultBitValue);
+    auto& propName = common::defaultValueStr();
+    auto iter = props().find(propName);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!strToValue(iter->second, m_state.m_defaultBitValue)) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }
+
+    return true;
 }
 
 bool SetFieldImpl::updateReservedValue()
 {
-    return validateAndUpdateBoolPropValue(common::reservedValueStr(), m_state.m_reservedBitValue);
+    auto& propName = common::reservedValueStr();
+    auto iter = props().find(propName);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!strToValue(iter->second, m_state.m_reservedBitValue)) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }
+
+    return true;
 }
 
 bool SetFieldImpl::updateBits()
@@ -459,9 +544,7 @@ bool SetFieldImpl::updateBits()
                 break;
             }
 
-            ok = false;
-            info.m_defaultValue = common::strToBool(bitDefaultValueStr, &ok);
-            if (!ok) {
+            if (!strToValue(bitDefaultValueStr, info.m_defaultValue)) {
                 XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::defaultValueStr(), bitDefaultValueStr, protocol().logger());
                 return false;
             }
@@ -474,9 +557,7 @@ bool SetFieldImpl::updateBits()
                 break;
             }
 
-            ok = false;
-            info.m_reserved = common::strToBool(bitReservedStr, &ok);
-            if (!ok) {
+            if (!strToValue(bitReservedStr, info.m_reserved)) {
                 XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::reservedStr(), bitReservedStr, protocol().logger());
                 return false;
             }
@@ -490,9 +571,7 @@ bool SetFieldImpl::updateBits()
                 break;
             }
 
-            ok = false;
-            info.m_reservedValue = common::strToBool(bitReservedValueStr, &ok);
-            if (!ok) {
+            if (!strToValue(bitReservedValueStr, info.m_reservedValue)) {
                 XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::reservedValueStr(), bitReservedValueStr, protocol().logger());
                 return false;
             }
@@ -573,8 +652,10 @@ bool SetFieldImpl::updateBits()
         }
 
         auto dispNameIter = props.find(common::displayNameStr());
-        if (dispNameIter != props.end()) {
-            info.m_displayName = dispNameIter->second;
+        if ((dispNameIter != props.end()) &&
+            (!protocol().strToStringValue(dispNameIter->second, info.m_displayName))) {
+            XmlWrap::reportUnexpectedPropertyValue(b, nameIter->second, common::displayNameStr(), dispNameIter->second, protocol().logger());
+            return false;
         }
 
         m_state.m_bits.emplace(nameIter->second, info);
@@ -582,6 +663,21 @@ bool SetFieldImpl::updateBits()
     }
 
     return true;
+}
+
+bool SetFieldImpl::strToValue(const std::string& str, bool& val) const
+{
+    bool ok = false;
+    val = common::strToBool(str, &ok);
+    if (ok) {
+        return true;
+    }
+
+    if (!protocol().isFieldValueReferenceSupported()) {
+        return false;
+    }
+
+    return protocol().strToBool(str, true, val);
 }
 
 } // namespace commsdsl

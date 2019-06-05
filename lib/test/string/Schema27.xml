@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema27"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <string name="F1" defaultValue="hello" />
+        <bundle name="F2">
+            <ref name="M1" field="F1" />
+            <ref name="M2" field="F1" />
+        </bundle>
+        <ref name="F3" field="F2" />
+        <string name="F4" defaultValue="^F3.M1" />
+    </fields>
+</schema>

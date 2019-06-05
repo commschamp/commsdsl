@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema27"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <int name="Int1" type="uint8" defaultValue="5"/>
+        <int name="Int2" type="uint8" defaultValue="Int1"/>
+        <int name="Int3" type="uint8">
+            <special name="S1" val="Int2" />
+        </int>
+        <int name="Int4" type="uint8" defaultValue="Int3.S1">
+            <special name="S1" val="Int3.S1" />
+        </int>        
+    </fields>
+</schema>

@@ -32,6 +32,9 @@ public:
     static const std::string& convertType(commsdsl::IntField::Type value, std::size_t len = 0);
     static bool isUnsignedType(commsdsl::IntField::Type value);
     bool isUnsignedType() const;
+    bool isValidPropKey() const;
+    std::string getPropKeyType() const;
+    std::string getPropKeyValueStr() const;
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
@@ -56,7 +59,7 @@ private:
     std::string getFieldBaseParams() const;
     const std::string& getFieldType() const;
     std::string getFieldChangedSignType() const;
-    std::string getFieldOpts(const std::string& scope) const;
+    std::string getFieldOpts(const std::string& scope, bool reduced = false) const;
     std::string getSpecials() const;
     std::string getValid() const;
     void checkDefaultValueOpt(StringsList& list) const;

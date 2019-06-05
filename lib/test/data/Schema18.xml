@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema18"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="B1">
+            <int name="M1" type="uint8" />
+            <data name="D1" lengthPrefix="$M1" defaultValue="01 02 03 04 05"/>
+        </bundle>
+
+        <data name="D2" length="5" defaultValue="^B1.D1"/>
+    </fields>
+</schema>

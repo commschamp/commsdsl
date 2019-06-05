@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema23"
+        id="1"
+        endian="big"
+        version="2">
+    <ns name="ns1">
+        <fields>
+            <int name="A1" type="uint8" defaultValue="S1">
+                <special name="S1" val="8" />
+            </int>
+            <enum name="E1" type="int32" defaultValue="V1">
+                <validValue name="V1" val="ns1.A1.S1"/>
+            </enum>
+        </fields>
+    </ns>
+</schema>

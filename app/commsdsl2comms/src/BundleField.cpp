@@ -22,6 +22,7 @@
 
 #include "Generator.h"
 #include "common.h"
+#include "IntField.h"
 
 namespace ba = boost::algorithm;
 
@@ -82,6 +83,65 @@ const std::string ClassTemplate(
 );
 
 } // namespace
+
+bool BundleField::startsWithValidPropKey() const
+{
+    if (m_members.empty()) {
+        return false;
+    }
+
+    auto& first = m_members.front();
+    if (first->kind() != commsdsl::Field::Kind::Int) {
+        return false;
+    }
+
+    auto& keyField = static_cast<const IntField&>(*first);
+    if (!keyField.isValidPropKey()) {
+        return false;
+    }
+
+    // Valid only if there is no non-default read
+    return getRead().empty();
+}
+
+std::string BundleField::getPropKeyType() const
+{
+    if (m_members.empty()) {
+        return common::emptyString();
+    }
+
+    auto& first = m_members.front();
+    if (first->kind() != commsdsl::Field::Kind::Int) {
+        return common::emptyString();
+    }
+
+    auto& keyField = static_cast<const IntField&>(*first);
+    return keyField.getPropKeyType();
+}
+
+std::string BundleField::getFirstMemberName() const
+{
+    if (m_members.empty()) {
+        return common::emptyString();
+    }
+
+    return m_members.front()->name();
+}
+
+std::string BundleField::getPropKeyValueStr() const
+{
+    if (m_members.empty()) {
+        return common::emptyString();
+    }
+
+    auto& first = m_members.front();
+    if (first->kind() != commsdsl::Field::Kind::Int) {
+        return common::emptyString();
+    }
+
+    auto& keyField = static_cast<const IntField&>(*first);
+    return keyField.getPropKeyValueStr();
+}
 
 bool BundleField::prepareImpl()
 {
@@ -225,13 +285,38 @@ std::string BundleField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
+void BundleField::setForcedPseudoImpl()
+{
+    for (auto& m : m_members) {
+        m->setForcedPseudo();
+    }
+}
+
+void BundleField::setForcedNoOptionsConfigImpl()
+{
+    for (auto& m : m_members) {
+        m->setForcedNoOptionsConfig();
+    }
+}
+
+bool BundleField::isVersionDependentImpl() const
+{
+    return
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                return m->isVersionDependent();
+            });
+}
+
 std::string BundleField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;
 
     updateExtraOptions(scope, options);
 
-    bool hasCustomReadRefresh =
+    bool membersHaveCustomReadRefresh =
         std::any_of(
             m_members.begin(), m_members.end(),
             [](auto& m) {
@@ -239,9 +324,23 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
                 return m->hasCustomReadRefresh();
             });
 
-    if (hasCustomReadRefresh) {
+    if (membersHaveCustomReadRefresh) {
         common::addToList("comms::option::HasCustomRead", options);
         common::addToList("comms::option::HasCustomRefresh", options);
+    }
+
+    auto lengthFieldIter = 
+         std::find_if(
+            m_members.begin(), m_members.end(),
+            [](auto& m) {
+                assert(m);
+                return m->semanticType() == commsdsl::Field::SemanticType::Length;
+            });   
+
+    if (lengthFieldIter != m_members.end()) {
+        auto idx = static_cast<unsigned>(std::distance(m_members.begin(), lengthFieldIter));
+        auto optStr = "comms::option::RemLengthMemberField<" + common::numToString(idx) + '>';
+        common::addToList(optStr, options);
     }
 
     return common::listToString(options, ",\n", common::emptyString());

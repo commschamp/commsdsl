@@ -145,6 +145,31 @@ std::size_t VariantFieldImpl::maxLengthImpl() const
     return sum;
 }
 
+bool VariantFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+{
+    return strToNumericOnFields(ref, m_members, val, isBigUnsigned);
+}
+
+bool VariantFieldImpl::strToFpImpl(const std::string& ref, double& val) const
+{
+    return strToFpOnFields(ref, m_members, val);
+}
+
+bool VariantFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+{
+    return strToBoolOnFields(ref, m_members, val);
+}
+
+bool VariantFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
+{
+    return strToStringOnFields(ref, m_members, val);
+}
+
+bool VariantFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+{
+    return strToDataOnFields(ref, m_members, val);
+}
+
 bool VariantFieldImpl::updateMembers()
 {
     if (!m_members.empty()) {

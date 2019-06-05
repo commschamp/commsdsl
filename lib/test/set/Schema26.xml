@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema26"
+        id="1"
+        endian="big"
+        version="5"
+        dslVersion="2">
+    <fields>
+        <variant name="F1">
+            <bundle name="P1">
+                <int name="type" type="uint8" validValue="0" failOnInvalid="true" />
+                <int name="value" type="uint32" />
+            </bundle>
+            <bundle name="P2">
+                <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true" />
+                <set name="value" type="uint8">
+                    <bit name="B0" idx="0" defaultValue="true"/>
+                    <bit name="B1" idx="1" defaultValue="false"/>
+                </set>
+            </bundle>
+        </variant>
+
+        <set name="F2" type="uint8" defaultValue="F1.P2.value">
+            <bit name="B0" idx="0" defaultValue="F1.P2.value.B0"/>
+            <bit name="B1" idx="1" defaultValue="F1.P2.value.B1"/>
+        </set>
+    </fields>
+</schema>

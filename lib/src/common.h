@@ -164,7 +164,9 @@ void normaliseString(std::string& str);
 std::pair<std::string, std::string> parseRange(const std::string& str, bool* ok = nullptr);
 
 bool isValidName(const std::string& value);
+bool isValidRefName(const char* buf, std::size_t len);
 bool isValidRefName(const std::string& value);
+bool isValidExternalRefName(const std::string& value);
 
 } // namespace common
 

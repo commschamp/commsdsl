@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema10"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <bundle name="Bundle1">
+            <enum name="Enum1" type="uint8">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="2" />
+            </enum>
+            <int name="Int1" type="uint8" semanticType="length" />
+            <int name="Int2" type="uint8" semanticType="length" />
+            <set name="Set1" type="uint8">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </bundle>
+    </fields>
+</schema>

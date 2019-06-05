@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema21"
+        id="1"
+        endian="big"
+        version="5"
+        dslVersion="2">
+    <fields>
+        <bundle name="F1">
+            <set name="M1" type="uint8">
+                <bit name="B0" idx="0" defaultValue="true"/>
+                <bit name="B1" idx="1" />
+            </set>
+            <set name="M2" type="uint8" defaultValue="true">
+                <bit name="B0" idx="0" defaultValue="false"/>
+                <bit name="B1" idx="1" />
+            </set>
+        </bundle>
+        
+        <set name="F2" type="uint8" defaultValue="F1.M1" reservedValue="F1.M1.B1">
+            <bit name="B0" idx="0" defaultValue="F1.M2.B0"/>
+            <bit name="B1" idx="1" defaultValue="F1.M2.B1"/>
+        </set>
+    </fields>
+</schema>

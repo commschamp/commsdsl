@@ -31,6 +31,22 @@ public:
     void test22();
     void test23();
     void test24();
+    void test25();
+    void test26();
+    void test27();    
+    void test28();    
+    void test29();
+    void test30();   
+    void test31();
+    void test32();
+    void test33();
+    void test34();
+    void test35();
+    void test36();
+    void test37();
+    void test38();
+    void test39();
+    void test40();
 };
 
 void IntTestSuite::setUp()
@@ -1515,3 +1531,290 @@ void IntTestSuite::test24()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
 }
+
+void IntTestSuite::test25()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test26()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    commsdsl::IntField intField(fields[0]);
+    TS_ASSERT_EQUALS(intField.semanticType(), commsdsl::Field::SemanticType::Length);
+}
+
+void IntTestSuite::test27()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 4U);
+    
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "Int4");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 5);
+}
+
+void IntTestSuite::test28()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+    
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "Int2");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint64);
+    TS_ASSERT_EQUALS(static_cast<std::uintmax_t>(intField.defaultValue()), 0xffffffffffffffff);
+}
+
+void IntTestSuite::test29()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);    
+    m_status.m_expValidateResult = false;
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test30()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);    
+    m_status.m_expValidateResult = false;
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test31()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test32()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F2");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 0U);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1);
+}
+
+void IntTestSuite::test33()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F2");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 10);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 5);
+}
+
+void IntTestSuite::test34()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test35()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F2");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 10);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 5);
+}
+
+void IntTestSuite::test36()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema36.xml");
+    TS_ASSERT(protocol);
+}
+
+void IntTestSuite::test37()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F3");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 10);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 20);
+}
+
+void IntTestSuite::test38()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema38.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F2");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 10);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 20);
+}
+
+void IntTestSuite::test39()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema39.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F2");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 1);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 0);
+}
+
+void IntTestSuite::test40()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema40.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg1 = messages.front();
+
+    auto fields = msg1.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& f = fields.back();
+    TS_ASSERT_EQUALS(f.name(), "F1");
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+
+    commsdsl::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.defaultValue(), 1);
+    auto& specialValues = intField.specialValues();
+    TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 10);
+}
+

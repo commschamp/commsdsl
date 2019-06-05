@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema38"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <optional name="F1" defaultMode="exist">
+                <int name="F1" type="uint8" defaultValue="10">
+                    <special name="S1" val="20" />
+                </int>
+            </optional>
+            <int name="F2" type="uint8" defaultValue="ns1.F1.F1">
+                <special name="S1" val="ns1.F1.F1.S1" />
+            </int>
+        </fields>
+    </ns>
+</schema>

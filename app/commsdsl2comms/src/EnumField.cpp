@@ -153,10 +153,10 @@ common::StringsList EnumField::getValuesList() const
         }
         else if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
             if (!iter->second.m_displayName.empty()) {
-                docStr = "///< message id <b>" + iter->second.m_displayName + "</b>.";
+                docStr = "///< message id of <b>" + iter->second.m_displayName + "</b> message.";
             }
             else {
-                docStr = "///< message id @b " + v.second;
+                docStr = "///< message id of @b " + v.second + " message.";
             }
         }
         else if (!iter->second.m_displayName.empty()) {
@@ -1052,8 +1052,8 @@ void EnumField::checkDefaultValueOpt(StringsList& list) const
     }
 
     auto type = obj.type();
-    if ((type == commsdsl::EnumField::Type::Uint64) ||
-        (type == commsdsl::EnumField::Type::Uintvar)) {
+    if ((defaultValue < 0) &&
+        ((type == commsdsl::EnumField::Type::Uint64) || (type == commsdsl::EnumField::Type::Uintvar))) {
         auto str =
             "comms::option::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue)) +

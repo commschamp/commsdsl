@@ -29,6 +29,11 @@ class BundleField : public Field
 public:
     BundleField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
+    bool startsWithValidPropKey() const;
+    std::string getPropKeyType() const;
+    std::string getFirstMemberName() const;
+    std::string getPropKeyValueStr() const;
+
 protected:
     virtual bool prepareImpl() override final;
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
@@ -44,6 +49,9 @@ protected:
         bool forcedSerialisedHidden,
         bool serHiddenParam) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
+    virtual void setForcedPseudoImpl() override final;
+    virtual void setForcedNoOptionsConfigImpl() override final;
+    virtual bool isVersionDependentImpl() const override final;
 
 private:
     using StringsList = common::StringsList;

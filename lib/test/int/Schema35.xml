@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema35"
+        id="1"
+        endian="big">
+    <fields>
+        <bundle name="F1">
+            <int name="M1" type="uint8">
+                <special name="S1" val="10" />
+            </int>
+            <int name="M2" type="uint8" defaultValue="5" />
+        </bundle>
+        <int name="F2" type="uint8" defaultValue="F1.M1.S1">
+            <special name="S1" val="F1.M2" />
+        </int>
+    </fields>
+</schema>

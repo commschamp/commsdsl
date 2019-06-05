@@ -23,6 +23,7 @@
 #include <boost/algorithm/string.hpp>
 
 #include "commsdsl/Protocol.h"
+#include "commsdsl/version.h"
 
 #include "ProgramOptions.h"
 #include "Logger.h"
@@ -78,6 +79,14 @@ int main(int argc, const char* argv[])
             options.printHelp(std::cout);
             return 0;
         }
+
+        if (options.versionRequested()) {
+            std::cout << 
+                commsdsl::versionMajor() << '.' << 
+                commsdsl::versionMinor() << '.' <<
+                commsdsl::versionPatch() << std::endl;
+            return 0;
+        }        
 
         if (options.quietRequested()) {
             logger.setMinLevel(commsdsl::ErrorLevel_Warning);

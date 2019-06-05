@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema25"
+        id="1"
+        endian="big"
+        dslVersion="2">
+    <fields>
+        <bundle name="F1">
+            <int name="M1" type="uint8" defaultValue="10" />            
+            <string name="M2" defaultValue="hello" />
+        </bundle>
+
+        <string name="S2" defaultValue="^F1.M2" />
+    </fields>
+</schema>
