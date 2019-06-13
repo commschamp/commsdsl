@@ -70,6 +70,7 @@ const std::string& emptyOptionString();
 const std::string& inputTestStr();
 const std::string& testStr();
 const std::string& inputStr();
+const std::string& dispatchStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

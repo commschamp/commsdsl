@@ -32,6 +32,7 @@
 #include "Doxygen.h"
 #include "Version.h"
 #include "Test.h"
+#include "Dispatch.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -386,6 +387,12 @@ Generator::startInputPluginHeaderWrite(const std::string& externalRef)
 }
 
 std::pair<std::string, std::string>
+Generator::startDispatchProtocolWrite(const std::string& name)
+{
+    return startProtocolWrite(name, common::dispatchStr());
+}
+
+std::pair<std::string, std::string>
 Generator::startGenericProtocolWrite(const std::string& name)
 {
     return startProtocolWrite(name);
@@ -489,6 +496,12 @@ Generator::namespacesForInputInPlugin() const
 }
 
 std::pair<std::string, std::string>
+Generator::namespacesForDispatch() const
+{
+    return namespacesForElement(common::emptyString(), common::dispatchStr());
+}
+
+std::pair<std::string, std::string>
 Generator::namespacesForRoot() const
 {
     std::string begStr =
@@ -545,14 +558,14 @@ std::string Generator::headerfileForFieldInPlugin(const std::string& externalRef
     return headerfileForElement(externalRef, quotes, common::fieldStr(), true);
 }
 
-std::string Generator::headerfileForInterface(const std::string& externalRef)
+std::string Generator::headerfileForInterface(const std::string& externalRef, bool quotes)
 {
     std::string externalRefCpy(externalRef);
     if (externalRefCpy.empty()) {
         externalRefCpy = common::messageClassStr();
     }
 
-    return headerfileForElement(externalRefCpy, true);
+    return headerfileForElement(externalRefCpy, quotes);
 }
 
 std::string Generator::headerfileForInterfaceInPlugin(const std::string& externalRef, bool quotes)
@@ -598,6 +611,11 @@ std::string Generator::headerfileForInput(const std::string& name, bool quotes)
 std::string Generator::headerfileForInputInPlugin(const std::string& name, bool quotes)
 {
     return headerfileForElement(name, quotes, common::inputStr(), true);
+}
+
+std::string Generator::headerfileForRoot(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes);
 }
 
 std::string Generator::scopeForMessage(
@@ -1042,7 +1060,8 @@ bool Generator::writeFiles()
     if ((!FieldBase::write(*this)) ||
         (!MsgId::write(*this)) ||
         (!Version::write(*this)) ||
-        (!AllMessages::write(*this))) {
+        (!AllMessages::write(*this)) ||
+        (!Dispatch::write(*this))) {
         return false;
     }
 

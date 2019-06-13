@@ -279,6 +279,12 @@ const std::string& inputStr()
     return Str;    
 }
 
+const std::string& dispatchStr()
+{
+    static const std::string Str("dispatch");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

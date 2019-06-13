@@ -135,6 +135,9 @@ public:
     startInputPluginHeaderWrite(const std::string& externalRef);    
 
     std::pair<std::string, std::string>
+    startDispatchProtocolWrite(const std::string& name);
+
+    std::pair<std::string, std::string>
     startGenericProtocolWrite(const std::string& name);
 
     std::pair<std::string, std::string>
@@ -182,6 +185,9 @@ public:
     namespacesForInputInPlugin() const;    
 
     std::pair<std::string, std::string>
+    namespacesForDispatch() const;
+
+    std::pair<std::string, std::string>
     namespacesForRoot() const;
 
     std::pair<std::string, std::string>
@@ -199,7 +205,7 @@ public:
 
     std::string headerfileForFieldInPlugin(const std::string& externalRef, bool quotes = true);
 
-    std::string headerfileForInterface(const std::string& externalRef);
+    std::string headerfileForInterface(const std::string& externalRef, bool quotes = true);
 
     std::string headerfileForInterfaceInPlugin(const std::string& externalRef, bool quotes = true);
 
@@ -211,6 +217,8 @@ public:
 
     std::string headerfileForInput(const std::string& name, bool quotes = true);
     std::string headerfileForInputInPlugin(const std::string& name, bool quotes = true);
+
+    std::string headerfileForRoot(const std::string& name, bool quotes = true);
 
     std::string scopeForMessage(
         const std::string& externalRef,
