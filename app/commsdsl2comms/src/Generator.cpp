@@ -748,6 +748,14 @@ std::string Generator::scopeForInputInPlugin(const std::string& externalRef)
     return scopeForElement(externalRef, true, true, common::inputStr(), true);
 }
 
+std::string Generator::scopeForRoot(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(name, mainIncluded, classIncluded);
+}
+
 std::string Generator::getDefaultOptionsBody() const
 {
     return getOptionsBody(&Namespace::getDefaultOptions);

@@ -15,6 +15,12 @@
 
 #pragma once
 
+#include <string>
+
+#include "commsdsl/Message.h"
+
+#include "common.h"
+
 namespace commsdsl2comms
 {
 
@@ -23,6 +29,19 @@ class Dispatch
 {
 public:
     static bool write(Generator& generator);
+
+private:
+    using DslMessagesList = std::vector<commsdsl::Message>;
+
+    explicit Dispatch(Generator& generator) : m_generator(generator) {}
+
+    bool writeProtocolDefinition() const;
+    std::string getDispatchFunc(
+        const std::string& funcName,
+        const std::string& interface,
+        const DslMessagesList& messages) const;
+
+    Generator& m_generator;
 };
 
 } // namespace commsdsl2comms

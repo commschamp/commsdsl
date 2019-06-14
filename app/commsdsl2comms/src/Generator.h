@@ -278,6 +278,12 @@ public:
 
     std::string scopeForInputInPlugin(const std::string& externalRef);
 
+    std::string scopeForRoot(
+        const std::string& externalRef,
+        bool mainIncluded = false,
+        bool classIncluded = false);
+
+
     const std::string& mainNamespace() const
     {
         return m_mainNamespace;

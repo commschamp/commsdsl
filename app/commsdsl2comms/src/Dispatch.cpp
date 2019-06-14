@@ -18,20 +18,29 @@
 #include <fstream>
 
 #include <boost/filesystem.hpp>
+#include <boost/algorithm/string.hpp>
 
 #include "Generator.h"
 #include "common.h"
 
 namespace bf = boost::filesystem;
+namespace ba = boost::algorithm;
 
 namespace commsdsl2comms
 {
 
 bool Dispatch::write(Generator& generator)
 {
+    Dispatch obj(generator);
+    return obj.writeProtocolDefinition();
+}
+
+
+bool Dispatch::writeProtocolDefinition() const
+{
     struct MessagesInfo
     {
-        common::StringsList m_messages;
+        DslMessagesList m_messages;
         common::StringsList m_includes;
     };
 
@@ -46,26 +55,27 @@ bool Dispatch::write(Generator& generator)
     PlatformsMap platformsMap;
     platformsMap.insert(std::make_pair(std::string(), PlatformInfo()));
 
-    auto& platforms = generator.platforms();
+    auto& platforms = m_generator.platforms();
     for (auto& p : platforms) {
         platformsMap.insert(std::make_pair(p, PlatformInfo()));
     };
 
-    auto allMessages = generator.getAllDslMessages();
+    auto allMessages = m_generator.getAllDslMessages();
 
     for (auto& p : platformsMap) {
         auto updateFunc =
-            [&generator, &allMessages](auto& msgInfo, const std::string& inputName)
+            [this, &allMessages](auto& msgInfo, const std::string& inputName)
             {
                 msgInfo.m_messages.reserve(allMessages.size());
-                auto inputHeader = generator.headerfileForInput(inputName, false);
+                common::mergeInclude("<type_traits>", msgInfo.m_includes);
+                auto inputHeader = m_generator.headerfileForInput(inputName, false);
                 common::mergeInclude(inputHeader, msgInfo.m_includes);
-                auto msgIdHeader = generator.headerfileForRoot(common::msgIdEnumNameStr(), false);
+                auto msgIdHeader = m_generator.headerfileForRoot(common::msgIdEnumNameStr(), false);
                 common::mergeInclude(msgIdHeader, msgInfo.m_includes);
 
-                auto interfaces = generator.getAllInterfaces();
+                auto interfaces = m_generator.getAllInterfaces();
                 for (auto& i : interfaces) {
-                    auto inc = generator.headerfileForInterface(i->externalRef(), false);
+                    auto inc = m_generator.headerfileForInterface(i->externalRef(), false);
                     common::mergeInclude(inc, msgInfo.m_includes);
                 }
             };
@@ -85,18 +95,17 @@ bool Dispatch::write(Generator& generator)
     for (auto m : allMessages) {
         assert(m.valid());
 
-        if (!generator.doesElementExist(m.sinceVersion(), m.deprecatedSince(), m.isDeprecatedRemoved())) {
+        if (!m_generator.doesElementExist(m.sinceVersion(), m.deprecatedSince(), m.isDeprecatedRemoved())) {
             continue;
         }
 
         auto extRef = m.externalRef();
         assert(!extRef.empty());
 
-        auto msgStr = generator.scopeForMessage(extRef, true, true) + "<TBase, TOpt>";
         auto addToMessageInfoFunc =
-            [&msgStr](MessagesInfo& info)
+            [m](MessagesInfo& info)
             {
-                info.m_messages.push_back(msgStr);
+                info.m_messages.push_back(m);
             };
 
         bool serverInput = m.sender() != commsdsl::Message::Sender::Server;
@@ -145,12 +154,12 @@ bool Dispatch::write(Generator& generator)
 
 
     auto writeFileFunc =
-        [&generator](const MessagesInfo& info,
+        [this](const MessagesInfo& info,
                const std::string& fileName,
                const std::string& platName = common::emptyString(),
                const std::string& inputName = common::emptyString())
         {
-            auto startInfo = generator.startDispatchProtocolWrite(fileName);
+            auto startInfo = m_generator.startDispatchProtocolWrite(fileName);
             auto& filePath = startInfo.first;
             auto& funcName = startInfo.second;
             static_cast<void>(funcName); // TODO: remove
@@ -161,15 +170,25 @@ bool Dispatch::write(Generator& generator)
 
             std::ofstream stream(filePath);
             if (!stream) {
-                generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+                m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
                 return false;
             }
 
+            common::StringsList funcs;
+            for (auto& i : m_generator.getAllInterfaces()) {
+                funcs.push_back(
+                    getDispatchFunc(
+                        common::nameToAccessCopy(fileName),
+                        i->externalRef(),
+                        info.m_messages));
+            }
+
             common::ReplacementMap replacements;
-            auto namespaces = generator.namespacesForDispatch();
+            auto namespaces = m_generator.namespacesForDispatch();
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(info.m_includes)));
+            replacements.insert(std::make_pair("FUNCS", common::listToString(funcs, "\n", common::emptyString())));
 
             if (!platName.empty()) {
                 replacements.insert(std::make_pair("PLAT_NAME", '\"' + platName + "\" "));
@@ -185,6 +204,7 @@ bool Dispatch::write(Generator& generator)
                 "#pragma once\n\n"
                 "#^#INCLUDES#$#\n"
                 "#^#BEG_NAMESPACE#$#\n"
+                "#^#FUNCS#$#\n"
                 "#^#END_NAMESPACE#$#\n";
 
             auto str = common::processTemplate(Templ, replacements);
@@ -192,7 +212,7 @@ bool Dispatch::write(Generator& generator)
 
             stream.flush();
             if (!stream.good()) {
-                generator.logger().error("Failed to write \"" + filePath + "\".");
+                m_generator.logger().error("Failed to write \"" + filePath + "\".");
                 return false;
             }
             return true;
@@ -216,7 +236,7 @@ bool Dispatch::write(Generator& generator)
             }
 
             if (allName == AllPrefix) {
-                generator.logger().error("Invalid platform name: \"" + p.first + "\".");
+                m_generator.logger().error("Invalid platform name: \"" + p.first + "\".");
                 return false;
             }
 
@@ -240,5 +260,91 @@ bool Dispatch::write(Generator& generator)
 
     return true;
 }
+
+std::string Dispatch::getDispatchFunc(
+    const std::string& funcName,
+    const std::string& interface,
+    const DslMessagesList& messages) const
+{
+    using MsgMap = std::map<std::uintmax_t, DslMessagesList>;
+    MsgMap msgMap;
+    for (auto& m : messages) {
+        msgMap[m.id()].push_back(m);
+    }
+
+    common::StringsList cases;
+    for (auto& elem : msgMap) {
+        auto& msgList = elem.second;
+        assert(!msgList.empty());
+        auto idStr =
+                common::msgIdPrefixStr() +
+                ba::replace_all_copy(msgList.front().externalRef(), ".", "_");
+
+        static const std::string MsgCaseTempl =
+            "case #^#MSG_ID#$#:\n"
+            "{\n"
+            "    using MsgType = #^#MSG_TYPE#$#<InterfaceType, TProtOptions>;\n"
+            "    auto& castedMsg = static_cast<MsgType&>(msg);\n"
+            "    return handler.handle(castedMsg);\n"
+            "}";
+
+        if (msgList.size() == 1) {
+            common::ReplacementMap repl;
+            repl.insert(std::make_pair("MSG_ID", idStr));
+            repl.insert(std::make_pair("MSG_TYPE", m_generator.scopeForMessage(msgList.front().externalRef(), true, true)));
+            cases.push_back(common::processTemplate(MsgCaseTempl, repl));
+            continue;
+        }
+
+        common::StringsList offsetCases;
+        for (auto idx=0U; idx < msgList.size(); ++idx) {
+            common::ReplacementMap repl;
+            repl.insert(std::make_pair("MSG_ID", common::numToString(idx)));
+            repl.insert(std::make_pair("MSG_TYPE", m_generator.scopeForMessage(msgList[idx].externalRef(), true, true)));
+            offsetCases.push_back(common::processTemplate(MsgCaseTempl, repl));
+        }
+
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("MSG_ID", idStr));
+        repl.insert(std::make_pair("IDX_CASES", common::listToString(offsetCases, "\n", common::emptyString())));
+
+        static const std::string Templ =
+            "case #^#MSG_ID#$#:\n"
+            "{\n"
+            "    switch (idx) {\n"
+            "    #^#IDX_CASES#$#\n"
+            "    default:\n"
+            "        return handler.dispatch(msg);\n"
+            "    };\n"
+            "}";
+        cases.push_back(common::processTemplate(Templ, repl));
+    }
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("FUNC", funcName));
+    repl.insert(std::make_pair("MSG_ID_TYPE", m_generator.scopeForRoot(common::msgIdEnumNameStr(), true, true)));
+    repl.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(interface, true, true)));
+    repl.insert(std::make_pair("CASES", common::listToString(cases, "\n", common::emptyString())));
+
+    static const std::string Templ =
+        "template<tepename TProtOptions, typename THandler, typename... TOpt>\n"
+        "auto #^#FUNC#$#(\n"
+        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    std::size_t idx,\n"
+        "    #^#INTERFACE#$#<TOpt...>& msg,\n"
+        "    THandler& handler) -> decltype(handler.handle(msg))\n"
+        "{\n"
+        "    using InterfaceType = typename std::decay<decltype(msg)>::type;"
+        "    switch(id) {\n"
+        "    #^#CASES#$#\n"
+        "    default:\n"
+        "        break;\n"
+        "    };\n\n"
+        "    return handler.dispatch(msg);\n"
+        "}\n";
+
+    return common::processTemplate(Templ, repl);
+}
+
 
 } // namespace commsdsl2comms
