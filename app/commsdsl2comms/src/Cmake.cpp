@@ -204,7 +204,7 @@ bool Cmake::writeMain() const
         "        PREFIX \"${cc_main_dir}\"\n"
         "        STAMP_DIR \"${cc_bin_dir}\"\n"
         "        GIT_REPOSITORY ${cc_repo}\n"
-        "        GIT_TAG ${COMMS_TAG}\n"
+        "        GIT_TAG ${cc_tag}\n"
         "        SOURCE_DIR \"${cc_src_dir}\"\n"
         "        BINARY_DIR \"${cc_bin_dir}\"\n"
         "        INSTALL_DIR \"${cc_install_dir}\"\n"
