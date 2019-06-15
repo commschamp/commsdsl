@@ -186,7 +186,7 @@ bool Cmake::writeMain() const
         "        )\n\n"
         "        execute_process (\n"
         "            COMMAND \n"
-        "                ${GIT_EXECUTABLE} clone -b ${COMMS_TAG} --depth 1 ${cc_repo} ${cc_src_dir}\n"
+        "                ${GIT_EXECUTABLE} clone -b ${cc_tag} --depth 1 ${cc_repo} ${cc_src_dir}\n"
         "            RESULT_VARIABLE git_result\n"
         "        )\n\n"
         "        if (NOT \"${git_result}\" STREQUAL \"0\")\n"
