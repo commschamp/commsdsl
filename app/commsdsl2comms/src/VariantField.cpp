@@ -77,8 +77,19 @@ const std::string ClassTemplate(
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "    #^#CURR_FIELD_EXEC#$#\n"
     "#^#PROTECTED#$#\n"
-    "#^#PRIVATE#$#\n"
+    "private:\n"
+    "    template <std::size_t TIdx, typename TField, typename TFunc>\n"
+    "    static void memFieldDispatch(TField&& f, TFunc&& func)\n"
+    "    {\n"
+    "        #ifdef _MSC_VER\n"
+    "            func.operator()<TIdx>(std::forward<TField>(f)); // VS compiler\n"
+    "        #else // #ifdef _MSC_VER\n"
+    "            func.template operator()<TIdx>(std::forward<TField>(f)); // All other compilers\n"
+    "        #endif // #ifdef _MSC_VER\n"
+    "    }\n"
+    "    #^#PRIVATE#$#\n"
     "};\n"
 );
 
@@ -148,6 +159,7 @@ std::string VariantField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getRefresh()));
+    replacements.insert(std::make_pair("CURR_FIELD_EXEC", getCurrFieldExec()));
     replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope)));
     replacements.insert(std::make_pair("ACCESS", getAccess()));
     replacements.insert(std::make_pair("PRIVATE", getPrivate()));
@@ -452,7 +464,7 @@ std::string VariantField::getRead() const
          "    #^#VERSION_DEP#$#\n"
          "    using CommonKeyField=\n"
          "        #^#KEY_FIELD_TYPE#$#;\n"
-         "    CommonKeyField commonKeyField;\n"
+         "    CommonKeyField commonKeyField;\n\n"
          "    auto origIter = iter;\n"
          "    auto es = commonKeyField.read(iter, len);\n"
          "    if (es != comms::ErrorStatus::Success) {\n"
@@ -473,12 +485,45 @@ std::string VariantField::getRead() const
 std::string VariantField::getRefresh() const
 {
     return getCustomRefresh();
-    // auto customRefresh = getCustomRefresh();
-    // if (!customRefresh.empty()) {
-    //     return customRefresh;
-    // }
+}
 
-    // return getPublicRefreshForFields(m_members, false);
+std::string VariantField::getCurrFieldExec() const
+{
+    StringsList cases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string Templ =
+            "case FieldIdx_#^#MEM_NAME#$#:\n"
+            "    memFieldDispatch<FieldIdx_#^#MEM_NAME#$#>(accessField_#^#MEM_NAME#$#(), std::forward<TFunc>(func));\n"
+            "    break;";
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("IDX", common::numToString(idx)));
+        repl.insert(std::make_pair("MEM_NAME", common::nameToAccessCopy(m_members[idx]->name())));
+        cases.push_back(common::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "/// @brief Optimized currFieldExec functionality#^#VARIANT#$#.\n"
+        "/// @details Replaces the currFieldExec() member function defined\n"
+        "///    by @b comms::field::Variant.\n"
+        "template <typename TFunc>\n"
+        "void currFieldExec(TFunc&& func) #^#CONST#$#\n"
+        "{\n"
+        "    switch (Base::currentField()) {\n"
+        "    #^#CASES#$#\n"
+        "    default:\n"
+        "        COMMS_ASSERT(!\"Invalid field execution\");\n"
+        "        break;\n"
+        "    }\n"
+        "}\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("CASES", common::listToString(cases, "\n", common::emptyString())));
+    auto str = common::processTemplate(Templ, repl);
+    str += "\n";
+    repl.insert(std::make_pair("VARIANT", " (const variant)"));
+    repl.insert(std::make_pair("CONST", "const"));
+    str += common::processTemplate(Templ, repl);
+    return str;
 }
 
 std::string VariantField::getPrivate() const
@@ -495,9 +540,7 @@ std::string VariantField::getPrivate() const
         return str;
     }
 
-    common::insertIndent(str);
-    static const std::string Prefix("private:\n");
-    return Prefix + str; 
+    return '\n' + str;
 }
 
 std::string VariantField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const

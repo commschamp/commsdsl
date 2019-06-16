@@ -24,6 +24,21 @@ public:
 
     using Msg1 = test32::message::Msg1<Interface>;
     using Frame = test32::frame::Frame<Interface>;
+
+    class TypeVerifier
+    {
+    public:
+        TypeVerifier(std::uint8_t type) : m_type(type) {}
+
+        template <std::size_t TIdx, typename TField>
+        void operator()(TField& field)
+        {
+            TS_ASSERT(field.field_type().value() == m_type);
+        }
+
+    private:
+        std::uint8_t m_type = 0U;
+    };
 };
 
 void TestSuite::test1()
@@ -44,6 +59,7 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
     auto* msg = static_cast<const Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 0U);
+    msg->field_f1().currFieldExec(TypeVerifier(0));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_p1().field_value().value(), 0x01020304);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 }
@@ -68,6 +84,9 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 1U);
     TS_ASSERT_EQUALS(msg->field_f1().accessField_p2().field_value().value(), 0x01);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
+
+    auto* nonConstMsg = const_cast<Msg1*>(msg);
+    nonConstMsg->field_f1().currFieldExec(TypeVerifier(1));
 }
 
 void TestSuite::test3()
@@ -88,6 +107,7 @@ void TestSuite::test3()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
     auto* msg = static_cast<const Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 2U);
+    msg->field_f1().currFieldExec(TypeVerifier(5));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_any().field_type().value(), 0x05);
     TS_ASSERT_EQUALS(msg->field_f1().accessField_any().field_length().value(), 0x04);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
