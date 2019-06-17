@@ -38,8 +38,8 @@ private:
     bool writeProtocolDefinition() const;
     std::string getDispatchFunc(
         const std::string& funcName,
-        const std::string& interface,
         const DslMessagesList& messages) const;
+    std::string getIdString(std::uintmax_t value) const;
 
     Generator& m_generator;
 };

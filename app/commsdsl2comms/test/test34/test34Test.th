@@ -1,0 +1,164 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test34/Message.h"
+#include "test34/message/Msg1_1.h"
+#include "test34/message/Msg1_2.h"
+#include "test34/message/Msg2.h"
+#include "test34/frame/Frame.h"
+#include "test34/dispatch/DispatchAllMessages.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+//    void test2();
+//    void test3();
+
+    struct Interface : public
+        test34::Message<
+            /*comms::option::IdInfoInterface,
+            comms::option::ReadIterator<const std::uint8_t*>,
+            comms::option::WriteIterator<std::uint8_t*>,
+            comms::option::LengthInfoInterface,
+            comms::option::ValidCheckInterface,
+            comms::option::NameInterface,
+            comms::option::RefreshInterface*/
+        >
+    {
+        virtual ~Interface() {}
+    };
+
+    using Msg1_1 = test34::message::Msg1_1<Interface>;
+    using Msg1_2 = test34::message::Msg1_2<Interface>;
+    using Msg2 = test34::message::Msg2<Interface>;
+    using Frame = test34::frame::Frame<Interface>;
+
+    static_assert(
+        std::is_base_of<Interface, typename Frame::MsgPtr::element_type>::value,
+        "Unexpected interface");
+
+    class Handler
+    {
+    public:
+        void handle(const Msg1_1&)
+        {
+            ++m_msg1_1;
+        }
+
+        void handle(const Msg1_2&)
+        {
+            ++m_msg1_2;
+        }
+
+        void handle(const Msg2&)
+        {
+            ++m_msg2;
+        }
+
+        void handle(const Interface&)
+        {
+            ++m_unknown;
+        }
+
+        unsigned m_msg1_1 = 0U;
+        unsigned m_msg1_2 = 0U;
+        unsigned m_msg2 = 0U;
+        unsigned m_unknown = 0U;
+    };
+};
+
+void TestSuite::test1()
+{
+    static const std::uint8_t Buf[] = {
+        0x1, 0, 0x1, 0x2, 0x3, 0x4
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    Frame::AllFields allFields;
+
+    auto readIter = &Buf[0];
+    auto es = frame.readFieldsCached(allFields, msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    auto id = frame.layer_id().accessCachedField(allFields).value();
+    TS_ASSERT_EQUALS(id, test34::MsgId_M1);
+    auto* msg = static_cast<const Msg1_1*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg->field_f1().value(), 0x01020304);
+
+    Handler handler;
+    test34::dispatch::dispatchAllMessages<test34::options::DefaultOptions>(id, 0, *msgPtr, handler);
+    TS_ASSERT_EQUALS(handler.m_msg1_1, 1U);
+}
+
+//void TestSuite::test2()
+//{
+//    static const std::uint8_t Buf[] = {
+//        0x1, 2, 1, 2, 0x1, 0x2, 0xab, 0xcd
+//    };
+//    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+//    Frame::MsgPtr msgPtr;
+//    Frame frame;
+
+//    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+//    auto es = frame.read(msgPtr, readIter, BufSize);
+//    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+//    TS_ASSERT(msgPtr);
+//    TS_ASSERT_EQUALS(msgPtr->getId(), test34::MsgId_M1);
+//    auto* msg = static_cast<const Msg1*>(msgPtr.get());
+//    TS_ASSERT_EQUALS(msg->field_f1().currentField(), 1U);
+//    TS_ASSERT_EQUALS(msg->field_f1().accessField_p2().field_value().value(), 0x01);
+//    TS_ASSERT(msg->field_f1().accessField_p2().field_value2().isMissing());
+//    TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
+//}
+
+//void TestSuite::test3()
+//{
+//    Msg1 msg;
+//    TS_ASSERT_EQUALS(msg.field_f1().getVersion(), 5U);
+//    auto& f1_p2 = msg.field_f1().initField_p2();
+//    TS_ASSERT(f1_p2.field_value2().doesExist());
+//    f1_p2.field_value().value() = 0x1;
+//    f1_p2.field_value2().field().value() = 0x0a0b0c0d;
+//    msg.field_f2().value() = 0xabcd;
+//    TS_ASSERT(!msg.refresh());
+
+//    do {
+//        static const std::uint8_t Buf[] = {
+//            0x1, 5, 1, 5, 0x1, 0xa, 0xb, 0xc, 0xd, 0xab, 0xcd
+//        };
+//        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+//        Frame frame;
+//        std::vector<std::uint8_t> outBuf;
+//        outBuf.resize(frame.length(msg));
+//        auto writeIter = &outBuf[0];
+//        auto es = frame.write(msg, writeIter, outBuf.size());
+//        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+//        TS_ASSERT_EQUALS(outBuf.size(), BufSize);
+//        TS_ASSERT(std::equal(outBuf.begin(), outBuf.end(), std::begin(Buf)));
+//    } while (false);
+
+//    do {
+//        msg.transportField_version().value() = 2;
+//        TS_ASSERT(msg.refresh());
+//        static const std::uint8_t Buf[] = {
+//            0x1, 2, 1, 1, 0x1, 0xab, 0xcd
+//        };
+//        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+//        Frame frame;
+//        std::vector<std::uint8_t> outBuf;
+//        outBuf.resize(frame.length(msg));
+//        auto writeIter = &outBuf[0];
+//        auto es = frame.write(msg, writeIter, outBuf.size());
+//        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+//        TS_ASSERT_EQUALS(outBuf.size(), BufSize);
+//        TS_ASSERT(std::equal(outBuf.begin(), outBuf.end(), std::begin(Buf)));
+//    } while (false);
+
+//}
+

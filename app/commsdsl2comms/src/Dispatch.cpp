@@ -22,6 +22,7 @@
 
 #include "Generator.h"
 #include "common.h"
+#include "EnumField.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -72,12 +73,6 @@ bool Dispatch::writeProtocolDefinition() const
                 common::mergeInclude(inputHeader, msgInfo.m_includes);
                 auto msgIdHeader = m_generator.headerfileForRoot(common::msgIdEnumNameStr(), false);
                 common::mergeInclude(msgIdHeader, msgInfo.m_includes);
-
-                auto interfaces = m_generator.getAllInterfaces();
-                for (auto& i : interfaces) {
-                    auto inc = m_generator.headerfileForInterface(i->externalRef(), false);
-                    common::mergeInclude(inc, msgInfo.m_includes);
-                }
             };
 
         auto& inputPrefix = p.first;
@@ -174,21 +169,17 @@ bool Dispatch::writeProtocolDefinition() const
                 return false;
             }
 
-            common::StringsList funcs;
-            for (auto& i : m_generator.getAllInterfaces()) {
-                funcs.push_back(
-                    getDispatchFunc(
-                        common::nameToAccessCopy(fileName),
-                        i->externalRef(),
-                        info.m_messages));
-            }
+            auto func =
+                getDispatchFunc(
+                    common::nameToAccessCopy(fileName),
+                    info.m_messages);
 
             common::ReplacementMap replacements;
             auto namespaces = m_generator.namespacesForDispatch();
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(info.m_includes)));
-            replacements.insert(std::make_pair("FUNCS", common::listToString(funcs, "\n", common::emptyString())));
+            replacements.insert(std::make_pair("FUNCS", func));
 
             if (!platName.empty()) {
                 replacements.insert(std::make_pair("PLAT_NAME", '\"' + platName + "\" "));
@@ -263,7 +254,6 @@ bool Dispatch::writeProtocolDefinition() const
 
 std::string Dispatch::getDispatchFunc(
     const std::string& funcName,
-    const std::string& interface,
     const DslMessagesList& messages) const
 {
     using MsgMap = std::map<std::uintmax_t, DslMessagesList>;
@@ -276,9 +266,7 @@ std::string Dispatch::getDispatchFunc(
     for (auto& elem : msgMap) {
         auto& msgList = elem.second;
         assert(!msgList.empty());
-        auto idStr =
-                common::msgIdPrefixStr() +
-                ba::replace_all_copy(msgList.front().externalRef(), ".", "_");
+        auto idStr = getIdString(elem.first);
 
         static const std::string MsgCaseTempl =
             "case #^#MSG_ID#$#:\n"
@@ -314,8 +302,9 @@ std::string Dispatch::getDispatchFunc(
             "    switch (idx) {\n"
             "    #^#IDX_CASES#$#\n"
             "    default:\n"
-            "        return handler.dispatch(msg);\n"
+            "        return handler.handle(msg);\n"
             "    };\n"
+            "    break;\n"
             "}";
         cases.push_back(common::processTemplate(Templ, repl));
     }
@@ -323,28 +312,57 @@ std::string Dispatch::getDispatchFunc(
     common::ReplacementMap repl;
     repl.insert(std::make_pair("FUNC", funcName));
     repl.insert(std::make_pair("MSG_ID_TYPE", m_generator.scopeForRoot(common::msgIdEnumNameStr(), true, true)));
-    repl.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(interface, true, true)));
     repl.insert(std::make_pair("CASES", common::listToString(cases, "\n", common::emptyString())));
 
     static const std::string Templ =
-        "template<tepename TProtOptions, typename THandler, typename... TOpt>\n"
+        "template<typename TProtOptions, typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
         "    std::size_t idx,\n"
-        "    #^#INTERFACE#$#<TOpt...>& msg,\n"
+        "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
         "{\n"
-        "    using InterfaceType = typename std::decay<decltype(msg)>::type;"
+        "    using InterfaceType = typename std::decay<decltype(msg)>::type;\n"
         "    switch(id) {\n"
         "    #^#CASES#$#\n"
         "    default:\n"
         "        break;\n"
         "    };\n\n"
-        "    return handler.dispatch(msg);\n"
+        "    return handler.handle(msg);\n"
         "}\n";
 
     return common::processTemplate(Templ, repl);
 }
 
+std::string Dispatch::getIdString(std::uintmax_t value) const
+{
+    auto numValueFunc =
+        [this, value]()
+        {
+            return
+                "static_cast<" +
+                m_generator.scopeForRoot(common::msgIdEnumNameStr(), true, true) +
+                ">(" +
+                common::numToString(value) +
+                ")";
+        };
+
+    auto* idField = m_generator.getMessageIdField();
+    if (idField == nullptr) {
+        return numValueFunc();
+    }
+
+    if (idField->kind() != commsdsl::Field::Kind::Enum) {
+        return numValueFunc();
+    }
+
+    auto* castedMsgIdField = static_cast<const EnumField*>(idField);
+    auto valStr = castedMsgIdField->getValueName(static_cast<std::intmax_t>(value));
+    if (valStr.empty()) {
+        return numValueFunc();
+    }
+
+    return m_generator.scopeForRoot(common::msgIdPrefixStr() + valStr, true, true);
+}
 
 } // namespace commsdsl2comms
