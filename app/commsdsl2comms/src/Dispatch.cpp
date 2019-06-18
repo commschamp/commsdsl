@@ -83,8 +83,8 @@ bool Dispatch::writeProtocolDefinition() const
             updateFunc(p.second.m_all, inputPrefix + "Messages");
         }
 
-        updateFunc(p.second.m_serverInput, inputPrefix + common::clientInputMessagesStr());
-        updateFunc(p.second.m_clientInput, inputPrefix + common::serverInputMessagesStr());
+        updateFunc(p.second.m_serverInput, inputPrefix + common::serverInputMessagesStr());
+        updateFunc(p.second.m_clientInput, inputPrefix + common::clientInputMessagesStr());
     }
 
     for (auto m : allMessages) {
@@ -262,6 +262,14 @@ std::string Dispatch::getDispatchFunc(
         msgMap[m.id()].push_back(m);
     }
 
+    bool hasMultipleMessagesWithSameId =
+        std::any_of(
+            msgMap.begin(), msgMap.end(),
+            [](auto& elem)
+            {
+                return 1U < elem.second.size();
+            });
+
     common::StringsList cases;
     for (auto& elem : msgMap) {
         auto& msgList = elem.second;
@@ -309,12 +317,154 @@ std::string Dispatch::getDispatchFunc(
         cases.push_back(common::processTemplate(Templ, repl));
     }
 
+    auto allInterfaces = m_generator.getAllInterfaces();
+    assert(!allInterfaces.empty());
+
+    std::string msg1Name;
+    std::string msg2Name;
+    if (2 <= messages.size()) {
+        msg1Name = messages[0].externalRef();
+        msg2Name = messages[1].externalRef();
+    }
+    else if (1 == messages.size()){
+        msg1Name = messages[0].externalRef();
+        msg2Name = "SomeOtherMessage";
+    }
+    else {
+        msg1Name = "SomeMessage";
+        msg2Name = "SomeOtherMessage";
+    }
+
+
     common::ReplacementMap repl;
     repl.insert(std::make_pair("FUNC", funcName));
     repl.insert(std::make_pair("MSG_ID_TYPE", m_generator.scopeForRoot(common::msgIdEnumNameStr(), true, true)));
     repl.insert(std::make_pair("CASES", common::listToString(cases, "\n", common::emptyString())));
+    repl.insert(std::make_pair("DEFAULT_OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(allInterfaces.front()->externalRef(), true, true)));
+    repl.insert(std::make_pair("MSG1_NAME", msg1Name));
+    repl.insert(std::make_pair("MSG2_NAME", msg2Name));
+    repl.insert(std::make_pair("MSG1", m_generator.scopeForMessage(msg1Name, true, true)));
+    repl.insert(std::make_pair("MSG2", m_generator.scopeForMessage(msg2Name, true, true)));
 
-    static const std::string Templ =
+    static const std::string SingleMessagePerIdTempl =
+        "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @tparam TProtOptions Protocol options struct used for the application,\n"
+        "///     like @ref #^#DEFAULT_OPTIONS#$#.\n"
+        "/// @tparam TMsg Type of the message interface class.\n"
+        "/// @tparam THandler Type of the handler object.\n"
+        "/// @param[in] id Numeric message ID.\n"
+        "/// @param[in] msg Message object held by reference to its interface class.\n"
+        "/// @param[in] handler Reference to handling object. Must define\n"
+        "///     @b handle() member function for every message type it exects\n"
+        "///     to handle and one for the interface class as well.\n"
+        "///     @code\n"
+        "///     using MyInterface = #^#INTERFACE#$#<...>;\n"
+        "///     using My#^#MSG1_NAME#$# = #^#MSG1#$#<MyInterface, #^#DEFAULT_OPTIONS#$#>;\n"
+        "///     using My#^#MSG2_NAME#$# = #^#MSG2#$#<MyInterface, #^#DEFAULT_OPTIONS#$#>;\n"
+        "///     struct MyHandler {\n"
+        "///         void handle(My#^#MSG1_NAME#$#& msg) {...}\n"
+        "///         void handle(My#^#MSG2_NAME#$#& msg) {...}\n"
+        "///         ...\n"
+        "///         // Handle all unexpected or irrelevant messages.\n"
+        "///         void handle(MyInterface& msg) {...}\n"
+        "///     };\n"
+        "///     @endcode\n"
+        "///     Every @b handle() function may return a value, but every\n"
+        "///     function must return the @b same type.\n"
+        "template<typename TProtOptions, typename TMsg, typename THandler>\n"
+        "auto #^#FUNC#$#(\n"
+        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TMsg& msg,\n"
+        "    THandler& handler) -> decltype(handler.handle(msg))\n"
+        "{\n"
+        "    using InterfaceType = typename std::decay<decltype(msg)>::type;\n"
+        "    switch(id) {\n"
+        "    #^#CASES#$#\n"
+        "    default:\n"
+        "        break;\n"
+        "    };\n\n"
+        "    return handler.handle(msg);\n"
+        "}\n\n"
+        "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @details Same as other #^#FUNC#$#(), but receives extra @b idx parameter.\n"
+        "/// @param[in] id Numeric message ID.\n"
+        "/// @param[in] idx Index of the message among messages with the same ID.\n"
+        "///     Expected to be @b 0.\n"
+        "/// @param[in] msg Message object held by reference to its interface class.\n"
+        "/// @param[in] handler Reference to handling object.\n"
+        "/// @see #^#FUNC#$#()\n"
+        "template<typename TProtOptions, typename TMsg, typename THandler>\n"
+        "auto #^#FUNC#$#(\n"
+        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    std::size_t idx,\n"
+        "    TMsg& msg,\n"
+        "    THandler& handler) -> decltype(handler.handle(msg))\n"
+        "{\n"
+        "    if (idx != 0U) {\n"
+        "        return handler.handle(msg);\n"
+        "    }\n"
+        "    return #^#FUNC#$#(id, msg, handler);\n"
+        "}\n\n"
+        "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @details Same as other #^#FUNC#$#(), but passing\n"
+        "///     #^#DEFAULT_OPTIONS#$# as first template parameter."
+        "/// @param[in] id Numeric message ID.\n"
+        "/// @param[in] msg Message object held by reference to its interface class.\n"
+        "/// @param[in] handler Reference to handling object.\n"
+        "/// @see #^#FUNC#$#()\n"
+        "template<typename TMsg, typename THandler>\n"
+        "auto #^#FUNC#$#DefaultOptions(\n"
+        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TMsg& msg,\n"
+        "    THandler& handler) -> decltype(handler.handle(msg))\n"
+        "{\n"
+        "    return #^#FUNC#$#<#^#DEFAULT_OPTIONS#$#>(id, msg, handler);\n"
+        "}\n\n"
+        "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @details Same as other #^#FUNC#$#DefaultOptions(), \n"
+        "///     but receives extra @b idx parameter.\n"
+        "/// @param[in] id Numeric message ID.\n"
+        "/// @param[in] idx Index of the message among messages with the same ID.\n"
+        "/// @param[in] msg Message object held by reference to its interface class.\n"
+        "/// @param[in] handler Reference to handling object.\n"
+        "/// @see #^#FUNC#$#DefaultOptions()\n"
+        "template<typename TMsg, typename THandler>\n"
+        "auto #^#FUNC#$#DefaultOptions(\n"
+        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    std::size_t idx,\n"
+        "    TMsg& msg,\n"
+        "    THandler& handler) -> decltype(handler.handle(msg))\n"
+        "{\n"
+        "    return #^#FUNC#$#<#^#DEFAULT_OPTIONS#$#>(id, idx, msg, handler);\n"
+        "}\n";
+
+    static const std::string MultipleMessagesPerIdTempl =
+        "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @tparam TProtOptions Protocol options struct used for the application,\n"
+        "///     like @ref #^#DEFAULT_OPTIONS#$#.\n"
+        "/// @tparam TMsg Type of the message interface class.\n"
+        "/// @tparam THandler Type of the handler object.\n"
+        "/// @param[in] id Numeric message ID.\n"
+        "/// @param[in] idx Index of the message among messages with the same ID.\n"
+        "/// @param[in] msg Message object held by reference to its interface class.\n"
+        "/// @param[in] handler Reference to handling object. Must define\n"
+        "///     @b handle() member function for every message type it exects\n"
+        "///     to handle and one for the interface class as well.\n"
+        "///     @code\n"
+        "///     using MyInterface = #^#INTERFACE#$#<...>;\n"
+        "///     using My#^#MSG1_NAME#$# = #^#MSG1#$#<MyInterface, #^#DEFAULT_OPTIONS#$#>;\n"
+        "///     using My#^#MSG2_NAME#$# = #^#MSG2#$#<MyInterface, #^#DEFAULT_OPTIONS#$#>;\n"
+        "///     struct MyHandler {\n"
+        "///         void handle(My#^#MSG1_NAME#$#& msg) {...}\n"
+        "///         void handle(My#^#MSG2_NAME#$#& msg) {...}\n"
+        "///         ...\n"
+        "///         // Handle all unexpected or irrelevant messages.\n"
+        "///         void handle(MyInterface& msg) {...}\n"
+        "///     };\n"
+        "///     @endcode\n"
+        "///     Every @b handle() function may return a value, but every\n"
+        "///     function must return the @b same type.\n"
         "template<typename TProtOptions, typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
@@ -329,9 +479,62 @@ std::string Dispatch::getDispatchFunc(
         "        break;\n"
         "    };\n\n"
         "    return handler.handle(msg);\n"
+        "}\n\n"
+        "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @details Same as other #^#FUNC#$#(), but without @b idx parameter.\n"
+        "/// @param[in] id Numeric message ID.\n"
+        "/// @param[in] idx Index of the message among messages with the same ID.\n"
+        "///     Expected to be @b 0.\n"
+        "/// @param[in] msg Message object held by reference to its interface class.\n"
+        "/// @param[in] handler Reference to handling object.\n"
+        "/// @see #^#FUNC#$#()\n"
+        "template<typename TProtOptions, typename TMsg, typename THandler>\n"
+        "auto #^#FUNC#$#(\n"
+        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TMsg& msg,\n"
+        "    THandler& handler) -> decltype(handler.handle(msg))\n"
+        "{\n"
+        "    return #^#FUNC#$#(id, 0U, msg, handler);\n"
+        "}\n\n"
+        "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @details Same as other #^#FUNC#$#(), but passing\n"
+        "///     #^#DEFAULT_OPTIONS#$# as first template parameter."
+        "/// @param[in] id Numeric message ID.\n"
+        "/// @param[in] idx Index of the message among messages with the same ID.\n"
+        "/// @param[in] msg Message object held by reference to its interface class.\n"
+        "/// @param[in] handler Reference to handling object.\n"
+        "/// @see #^#FUNC#$#()\n"
+        "template<typename TMsg, typename THandler>\n"
+        "auto #^#FUNC#$#DefaultOptions(\n"
+        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    std::size_t idx,\n"
+        "    TMsg& msg,\n"
+        "    THandler& handler) -> decltype(handler.handle(msg))\n"
+        "{\n"
+        "    return #^#FUNC#$#<#^#DEFAULT_OPTIONS#$#>(id, idx, msg, handler);\n"
+        "}\n\n"
+        "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @details Same as other #^#FUNC#$#DefaultOptions(), \n"
+        "///     but without @b idx parameter.\n"
+        "/// @param[in] id Numeric message ID.\n"
+        "/// @param[in] msg Message object held by reference to its interface class.\n"
+        "/// @param[in] handler Reference to handling object.\n"
+        "/// @see #^#FUNC#$#DefaultOptions()\n"
+        "template<typename TMsg, typename THandler>\n"
+        "auto #^#FUNC#$#DefaultOptions(\n"
+        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TMsg& msg,\n"
+        "    THandler& handler) -> decltype(handler.handle(msg))\n"
+        "{\n"
+        "    return #^#FUNC#$#<#^#DEFAULT_OPTIONS#$#>(id, msg, handler);\n"
         "}\n";
 
-    return common::processTemplate(Templ, repl);
+    auto* templ = &SingleMessagePerIdTempl;
+    if (hasMultipleMessagesWithSameId) {
+        templ = &MultipleMessagesPerIdTempl;
+    }
+
+    return common::processTemplate(*templ, repl);
 }
 
 std::string Dispatch::getIdString(std::uintmax_t value) const

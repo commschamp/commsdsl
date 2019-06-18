@@ -89,7 +89,7 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(msg->field_f1().value(), 0x01020304);
 
     Handler handler;
-    test34::dispatch::dispatchAllMessages<test34::options::DefaultOptions>(id, 0, *msgPtr, handler);
+    test34::dispatch::dispatchAllMessagesDefaultOptions(id, 0, *msgPtr, handler);
     TS_ASSERT_EQUALS(handler.m_msg1_1, 1U);
 }
 
