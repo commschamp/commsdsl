@@ -331,6 +331,7 @@ std::string Dispatch::getDispatchFunc(
 
     static const std::string SingleMessagePerIdTempl =
         "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @details @b switch statement based (on message ID) cast and dispatch functionality.\n"
         "/// @tparam TProtOptions Protocol options struct used for the application,\n"
         "///     like @ref #^#DEFAULT_OPTIONS#$#.\n"
         "/// @tparam TMsg Type of the message interface class.\n"
@@ -427,6 +428,7 @@ std::string Dispatch::getDispatchFunc(
 
     static const std::string MultipleMessagesPerIdTempl =
         "/// @brief Dispatch message object to its appropriate handling function.\n"
+        "/// @details @b switch statement based (on message ID) cast and dispatch functionality.\n"
         "/// @tparam TProtOptions Protocol options struct used for the application,\n"
         "///     like @ref #^#DEFAULT_OPTIONS#$#.\n"
         "/// @tparam TMsg Type of the message interface class.\n"
