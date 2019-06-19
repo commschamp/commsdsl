@@ -218,6 +218,8 @@ public:
     std::string headerfileForInput(const std::string& name, bool quotes = true);
     std::string headerfileForInputInPlugin(const std::string& name, bool quotes = true);
 
+    std::string headerfileForDispatch(const std::string& name, bool quotes = true);
+
     std::string headerfileForRoot(const std::string& name, bool quotes = true);
 
     std::string scopeForMessage(
@@ -277,6 +279,11 @@ public:
         bool classIncluded = false);
 
     std::string scopeForInputInPlugin(const std::string& externalRef);
+
+    std::string scopeForDispatch(
+        const std::string& externalRef,
+        bool mainIncluded = false,
+        bool classIncluded = false);
 
     std::string scopeForRoot(
         const std::string& externalRef,

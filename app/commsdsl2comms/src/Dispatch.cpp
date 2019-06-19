@@ -211,32 +211,15 @@ bool Dispatch::writeProtocolDefinition() const
 
     for (auto& p : platformsMap) {
         static const std::string DispatchPrefix = "Dispatch";
-        static const std::string AllPrefix = "All";
-        static const std::string MessagesSuffix = "Messages";
+        static const std::string MessageSuffix = "Message";
         static const std::string ServerInputStr = "ServerInput";
         static const std::string ClientInputStr = "ClientInput";
-        auto allName = common::nameToClassCopy(p.first);
-        std::string serverName;
-        std::string clientName;
-        do {
-            if (allName.empty()) {
-                allName = DispatchPrefix + AllPrefix + MessagesSuffix;
-                serverName = DispatchPrefix + ServerInputStr + MessagesSuffix;
-                clientName = DispatchPrefix + ClientInputStr + MessagesSuffix;
-                break;
-            }
+        auto platformName = common::nameToClassCopy(p.first);
+        std::string allName = DispatchPrefix + platformName + MessageSuffix;
+        std::string serverName = (DispatchPrefix + platformName + ServerInputStr + MessageSuffix);
+        std::string clientName = (DispatchPrefix + platformName + ClientInputStr + MessageSuffix);
 
-            if (allName == AllPrefix) {
-                m_generator.logger().error("Invalid platform name: \"" + p.first + "\".");
-                return false;
-            }
-
-            serverName = (DispatchPrefix + allName + ServerInputStr + MessagesSuffix);
-            clientName = (DispatchPrefix + allName + ClientInputStr + MessagesSuffix);
-            allName = DispatchPrefix + allName + MessagesSuffix;
-        } while (false);
-
-        if (!writeFileFunc(p.second.m_all, allName, p.first)) {
+        if (!writeFileFunc(p.second.m_all, allName, p.first, "all")) {
             return false;
         }
 
@@ -346,6 +329,7 @@ std::string Dispatch::getDispatchFunc(
     repl.insert(std::make_pair("MSG2_NAME", msg2Name));
     repl.insert(std::make_pair("MSG1", m_generator.scopeForMessage(msg1Name, true, true)));
     repl.insert(std::make_pair("MSG2", m_generator.scopeForMessage(msg2Name, true, true)));
+    repl.insert(std::make_pair("HEADERFILE", m_generator.headerfileForDispatch(common::nameToClassCopy(funcName), false)));
 
     static const std::string SingleMessagePerIdTempl =
         "/// @brief Dispatch message object to its appropriate handling function.\n"
@@ -372,6 +356,7 @@ std::string Dispatch::getDispatchFunc(
         "///     @endcode\n"
         "///     Every @b handle() function may return a value, but every\n"
         "///     function must return the @b same type.\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
         "template<typename TProtOptions, typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
@@ -394,6 +379,7 @@ std::string Dispatch::getDispatchFunc(
         "/// @param[in] msg Message object held by reference to its interface class.\n"
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see #^#FUNC#$#()\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
         "template<typename TProtOptions, typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
@@ -413,6 +399,7 @@ std::string Dispatch::getDispatchFunc(
         "/// @param[in] msg Message object held by reference to its interface class.\n"
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see #^#FUNC#$#()\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
         "template<typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#DefaultOptions(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
@@ -429,6 +416,7 @@ std::string Dispatch::getDispatchFunc(
         "/// @param[in] msg Message object held by reference to its interface class.\n"
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see #^#FUNC#$#DefaultOptions()\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
         "template<typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#DefaultOptions(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
@@ -465,6 +453,7 @@ std::string Dispatch::getDispatchFunc(
         "///     @endcode\n"
         "///     Every @b handle() function may return a value, but every\n"
         "///     function must return the @b same type.\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
         "template<typename TProtOptions, typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
@@ -488,6 +477,7 @@ std::string Dispatch::getDispatchFunc(
         "/// @param[in] msg Message object held by reference to its interface class.\n"
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see #^#FUNC#$#()\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
         "template<typename TProtOptions, typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
@@ -504,6 +494,7 @@ std::string Dispatch::getDispatchFunc(
         "/// @param[in] msg Message object held by reference to its interface class.\n"
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see #^#FUNC#$#()\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
         "template<typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#DefaultOptions(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"
@@ -520,6 +511,7 @@ std::string Dispatch::getDispatchFunc(
         "/// @param[in] msg Message object held by reference to its interface class.\n"
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see #^#FUNC#$#DefaultOptions()\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
         "template<typename TMsg, typename THandler>\n"
         "auto #^#FUNC#$#DefaultOptions(\n"
         "    #^#MSG_ID_TYPE#$# id,\n"

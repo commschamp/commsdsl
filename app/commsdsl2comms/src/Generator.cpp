@@ -613,6 +613,11 @@ std::string Generator::headerfileForInputInPlugin(const std::string& name, bool 
     return headerfileForElement(name, quotes, common::inputStr(), true);
 }
 
+std::string Generator::headerfileForDispatch(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes, common::dispatchStr());
+}
+
 std::string Generator::headerfileForRoot(const std::string& name, bool quotes)
 {
     return headerfileForElement(name, quotes);
@@ -746,6 +751,14 @@ std::string Generator::scopeForInput(
 std::string Generator::scopeForInputInPlugin(const std::string& externalRef)
 {
     return scopeForElement(externalRef, true, true, common::inputStr(), true);
+}
+
+std::string Generator::scopeForDispatch(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(name, mainIncluded, classIncluded, common::dispatchStr());
 }
 
 std::string Generator::scopeForRoot(

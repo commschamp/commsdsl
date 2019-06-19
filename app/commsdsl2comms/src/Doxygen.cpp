@@ -145,7 +145,7 @@ bool Doxygen::writeConf() const
         "RECURSIVE              = YES\n"
         "EXCLUDE                = cc_plugin\n"
         "EXCLUDE_SYMLINKS       = NO\n"
-        "EXCLUDE_PATTERNS       = */cc_plugin/* */install/* */test/*\n"
+        "EXCLUDE_PATTERNS       = */cc_plugin/* */install/*\n"
         "EXCLUDE_SYMBOLS        = *details *cc_plugin\n"
         "EXAMPLE_RECURSIVE      = NO\n"
         "FILTER_SOURCE_FILES    = NO\n"
@@ -465,6 +465,8 @@ bool Doxygen::writeNamespaces() const
         "/// @brief Main namespace for the various protocol options.\n\n"
         "/// @namespace #^#NS#$#::input\n"
         "/// @brief Main namespace for hold input messages bundles.\n\n"
+        "/// @namespace #^#NS#$#::dispatch\n"
+        "/// @brief Main namespace for the various message dispatch functions.\n\n"
         "#^#OTHER_NS#$#\n"
         "#^#APPEND#$#\n"
         ;
@@ -475,19 +477,26 @@ bool Doxygen::writeNamespaces() const
         static const std::string Templ =
             "/// @namespace #^#NS#$#\n"
             "/// @brief Additional protocol specific namespace.\n\n"
-            "/// @namespace #^#NS#$#::message\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::message\n"
             "/// @brief Namespace for all the messages in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::field\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::field\n"
             "/// @brief Namespace for all the stand alone fields defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame\n"
             "/// @brief Namespace for all the frames defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame::layer\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame::layer\n"
             "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame::checksum\n"
-            "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame::checksum\n"
+            "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::options\n"
+            "/// @brief Namespace for the various protocol options defined in @ref #^#NS#$# namespace.\n\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::input\n"
+            "/// @brief Namespace for hold input messages bundles defined in @ref #^#NS#$# namespace.\n\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::dispatch\n"
+            "/// @brief Namespace for the various message dispatch functionss defined in @ref #^#NS#$# namespace.\n\n"
             ;
 
         common::ReplacementMap repl;
+        repl.insert(std::make_pair("MAIN", m_generator.mainNamespace()));
         repl.insert(std::make_pair("NS", s));
         otherNs.push_back(common::processTemplate(Templ, repl));
     }
@@ -664,7 +673,7 @@ std::string Doxygen::getFramesDoc() const
         "///\n"
         "/// Every frame class/type definition receives (as a template parameter) a list of\n"
         "/// @b input message types it is expected to recognize. Default defintion\n"
-        "/// uses @ref #^#ALL_MESSAGES#$# (defined in @b #^#ALL_MEASSAGES_HEADER#$#).\n"
+        "/// uses @ref #^#ALL_MESSAGES#$# (defined in @b #^#ALL_MESSAGES_HEADER#$#).\n"
         "/// @n If protocol defines any uni-directional message, then it is recommended to use\n"
         "/// either @ref #^#SERVER_MESSAGES#$# (from @b #^#SERVER_MESSAGES_HEADER#$#)\n"
         "/// or @ref #^#CLIENT_MESSAGES#$#  (from @b #^#CLIENT_MESSAGES_HEADER#$#)\n"
@@ -673,6 +682,9 @@ std::string Doxygen::getFramesDoc() const
         "/// instructions from <b>Protocol Stack Definition Tutorial</b> page of @b COMMS\n"
         "/// library documentation. The extra customization (see @ref main_customization below)\n"
         "/// is performed by passing options to the layers themselves.\n"
+        "///\n"
+        "/// The available bundles of option messages are:\n"
+        "#^#MESSAGES_LIST#$#\n"
         "///";
 
     auto frames = m_generator.getAllFrames();
@@ -684,11 +696,34 @@ std::string Doxygen::getFramesDoc() const
         auto file = ba::replace_all_copy(scope, "::", "/") + common::headerSuffix();
         list.push_back(
             "/// @li @ref " + scope +
-            " from @b " + file + " header file).");
+            " (from @b " + file + " header file).");
     }
+
+    common::StringsList messagesList;
+    auto addToMessagesListFunc =
+        [this, &messagesList](const std::string& name)
+        {
+            auto scope = m_generator.scopeForInput(name, true, true);
+            auto file = m_generator.headerfileForInput(name, false);
+            auto str = "/// @li @ref " + scope + " (from @b " + file + " header file).";
+            messagesList.push_back(std::move(str));
+        };
+
+    addToMessagesListFunc(common::allMessagesStr());
+    addToMessagesListFunc(common::serverInputMessagesStr());
+    addToMessagesListFunc(common::clientInputMessagesStr());
+
+    auto& platforms = m_generator.platforms();
+    for (auto& p : platforms) {
+        addToMessagesListFunc(p + "Messages");
+        addToMessagesListFunc(p + common::serverInputMessagesStr());
+        addToMessagesListFunc(p + common::clientInputMessagesStr());
+    };
+
 
     common::ReplacementMap repl;
     repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
+    repl.insert(std::make_pair("MESSAGES_LIST", common::listToString(messagesList, "\n", common::emptyString())));
     repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     repl.insert(std::make_pair("PLATFORMS", getPlatformsDoc()));
     repl.insert(std::make_pair("ALL_MESSAGES", m_generator.scopeForInput(common::allMessagesStr(), true, true)));
