@@ -52,6 +52,8 @@ const std::string& msgIdPrefixStr();
 const std::string& allMessagesStr();
 const std::string& serverInputMessagesStr();
 const std::string& clientInputMessagesStr();
+const std::string& serverInputStr();
+const std::string& clientInputStr();
 const std::string& checksumStr();
 const std::string& layerStr();
 const std::string& pluginNsStr();

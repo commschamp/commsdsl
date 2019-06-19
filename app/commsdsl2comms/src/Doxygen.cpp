@@ -551,6 +551,7 @@ bool Doxygen::writeMainpage() const
         "#^#FIELDS_DOC#$#\n"
         "#^#INTERFACE_DOC#$#\n"
         "#^#FRAME_DOC#$#\n"
+        "#^#DISPATCH_DOC#$#\n"
         "#^#CUSTOMIZE_DOC#$#\n"
         "#^#VERSION_DOC#$#\n"
         "#^#APPEND#$#\n"
@@ -563,6 +564,7 @@ bool Doxygen::writeMainpage() const
     replacements.insert(std::make_pair("FIELDS_DOC", getFieldsDoc()));
     replacements.insert(std::make_pair("INTERFACE_DOC", getInterfacesDoc()));
     replacements.insert(std::make_pair("FRAME_DOC", getFramesDoc()));
+    replacements.insert(std::make_pair("DISPATCH_DOC", getDispatchDoc()));
     replacements.insert(std::make_pair("CUSTOMIZE_DOC", getCustomizeDoc()));
     replacements.insert(std::make_pair("VERSION_DOC", getVersionDoc()));
 
@@ -734,6 +736,52 @@ std::string Doxygen::getFramesDoc() const
     repl.insert(std::make_pair("CLIENT_MESSAGES_HEADER", m_generator.headerfileForInput(common::clientInputMessagesStr(), false)));
 
     return common::processTemplate(Templ, repl);        
+}
+
+std::string Doxygen::getDispatchDoc() const
+{
+    static const std::string Templ =
+        "/// @section main_dispatch Dispatching Message Objects\n"
+        "/// The generated code provides various helper functions to dispatch\n"
+        "/// message object (held by pointer / reference to its interface class)\n"
+        "/// to its appropriate handling function.\n"
+        "///\n"
+        "/// The available functions are:\n"
+        "#^#LIST#$#\n"
+        "///";
+
+    common::StringsList list;
+    auto addToListFunc =
+        [this, &list](const std::string& name)
+        {
+            auto adjustedName = common::nameToAccessCopy(name);
+            auto scope = m_generator.scopeForDispatch(name, true, false) + adjustedName;
+            auto defaultScope = scope + common::defaultOptionsStr();
+            auto file = m_generator.headerfileForDispatch(name, false);
+            auto str = "/// @li @ref " + scope + "\n/// (defined in @b " + file + " header file).";
+            list.push_back(std::move(str));
+            auto defaultOptStr = "/// @li @ref " + defaultScope + "\n/// (defined in @b " + file + " header file).";
+            list.push_back(std::move(defaultOptStr));
+        };
+
+    auto addPlatformFunc =
+        [&addToListFunc](const std::string& platform)
+        {
+            static const std::string Prefix("Dispatch");
+            static const std::string Suffix("Message");
+            addToListFunc(Prefix + platform + Suffix);
+            addToListFunc(Prefix + platform + common::serverInputStr() + Suffix);
+            addToListFunc(Prefix + platform + common::clientInputStr() + Suffix);
+        };
+
+    addPlatformFunc(common::emptyString());
+    for (auto& p : m_generator.platforms()) {
+        addPlatformFunc(p);
+    }
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string Doxygen::getPlatformsDoc() const

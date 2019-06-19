@@ -212,12 +212,10 @@ bool Dispatch::writeProtocolDefinition() const
     for (auto& p : platformsMap) {
         static const std::string DispatchPrefix = "Dispatch";
         static const std::string MessageSuffix = "Message";
-        static const std::string ServerInputStr = "ServerInput";
-        static const std::string ClientInputStr = "ClientInput";
         auto platformName = common::nameToClassCopy(p.first);
         std::string allName = DispatchPrefix + platformName + MessageSuffix;
-        std::string serverName = (DispatchPrefix + platformName + ServerInputStr + MessageSuffix);
-        std::string clientName = (DispatchPrefix + platformName + ClientInputStr + MessageSuffix);
+        std::string serverName = (DispatchPrefix + platformName + common::serverInputStr() + MessageSuffix);
+        std::string clientName = (DispatchPrefix + platformName + common::clientInputStr() + MessageSuffix);
 
         if (!writeFileFunc(p.second.m_all, allName, p.first, "all")) {
             return false;
@@ -394,7 +392,7 @@ std::string Dispatch::getDispatchFunc(
         "}\n\n"
         "/// @brief Dispatch message object to its appropriate handling function.\n"
         "/// @details Same as other #^#FUNC#$#(), but passing\n"
-        "///     #^#DEFAULT_OPTIONS#$# as first template parameter."
+        "///     #^#DEFAULT_OPTIONS#$# as first template parameter.\n"
         "/// @param[in] id Numeric message ID.\n"
         "/// @param[in] msg Message object held by reference to its interface class.\n"
         "/// @param[in] handler Reference to handling object.\n"
@@ -488,7 +486,7 @@ std::string Dispatch::getDispatchFunc(
         "}\n\n"
         "/// @brief Dispatch message object to its appropriate handling function.\n"
         "/// @details Same as other #^#FUNC#$#(), but passing\n"
-        "///     #^#DEFAULT_OPTIONS#$# as first template parameter."
+        "///     #^#DEFAULT_OPTIONS#$# as first template parameter.\n"
         "/// @param[in] id Numeric message ID.\n"
         "/// @param[in] idx Index of the message among messages with the same ID.\n"
         "/// @param[in] msg Message object held by reference to its interface class.\n"

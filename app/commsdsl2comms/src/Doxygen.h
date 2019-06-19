@@ -38,6 +38,7 @@ private:
     std::string getFieldsDoc() const;
     std::string getInterfacesDoc() const;
     std::string getFramesDoc() const;
+    std::string getDispatchDoc() const;
     std::string getPlatformsDoc() const;
     std::string getCustomizeDoc() const;
     std::string getVersionDoc() const;

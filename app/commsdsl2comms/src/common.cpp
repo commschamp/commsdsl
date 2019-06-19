@@ -171,6 +171,18 @@ const std::string& clientInputMessagesStr()
     return Str;
 }
 
+const std::string& serverInputStr()
+{
+    static const std::string Str("ServerInput");
+    return Str;
+}
+
+const std::string& clientInputStr()
+{
+    static const std::string Str("ClientInput");
+    return Str;
+}
+
 const std::string& checksumStr()
 {
     static const std::string Str("checksum");
