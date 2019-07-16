@@ -145,7 +145,7 @@ bool Doxygen::writeConf() const
         "RECURSIVE              = YES\n"
         "EXCLUDE                = cc_plugin\n"
         "EXCLUDE_SYMLINKS       = NO\n"
-        "EXCLUDE_PATTERNS       = */cc_plugin/* */install/* */test/*\n"
+        "EXCLUDE_PATTERNS       = */cc_plugin/* */install/*\n"
         "EXCLUDE_SYMBOLS        = *details *cc_plugin\n"
         "EXAMPLE_RECURSIVE      = NO\n"
         "FILTER_SOURCE_FILES    = NO\n"
@@ -465,6 +465,8 @@ bool Doxygen::writeNamespaces() const
         "/// @brief Main namespace for the various protocol options.\n\n"
         "/// @namespace #^#NS#$#::input\n"
         "/// @brief Main namespace for hold input messages bundles.\n\n"
+        "/// @namespace #^#NS#$#::dispatch\n"
+        "/// @brief Main namespace for the various message dispatch functions.\n\n"
         "#^#OTHER_NS#$#\n"
         "#^#APPEND#$#\n"
         ;
@@ -475,19 +477,26 @@ bool Doxygen::writeNamespaces() const
         static const std::string Templ =
             "/// @namespace #^#NS#$#\n"
             "/// @brief Additional protocol specific namespace.\n\n"
-            "/// @namespace #^#NS#$#::message\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::message\n"
             "/// @brief Namespace for all the messages in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::field\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::field\n"
             "/// @brief Namespace for all the stand alone fields defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame\n"
             "/// @brief Namespace for all the frames defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame::layer\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame::layer\n"
             "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame::checksum\n"
-            "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame::checksum\n"
+            "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::options\n"
+            "/// @brief Namespace for the various protocol options defined in @ref #^#NS#$# namespace.\n\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::input\n"
+            "/// @brief Namespace for hold input messages bundles defined in @ref #^#NS#$# namespace.\n\n"
+            "/// @namespace #^#MAIN#$#::#^#NS#$#::dispatch\n"
+            "/// @brief Namespace for the various message dispatch functionss defined in @ref #^#NS#$# namespace.\n\n"
             ;
 
         common::ReplacementMap repl;
+        repl.insert(std::make_pair("MAIN", m_generator.mainNamespace()));
         repl.insert(std::make_pair("NS", s));
         otherNs.push_back(common::processTemplate(Templ, repl));
     }
@@ -542,6 +551,7 @@ bool Doxygen::writeMainpage() const
         "#^#FIELDS_DOC#$#\n"
         "#^#INTERFACE_DOC#$#\n"
         "#^#FRAME_DOC#$#\n"
+        "#^#DISPATCH_DOC#$#\n"
         "#^#CUSTOMIZE_DOC#$#\n"
         "#^#VERSION_DOC#$#\n"
         "#^#APPEND#$#\n"
@@ -554,6 +564,7 @@ bool Doxygen::writeMainpage() const
     replacements.insert(std::make_pair("FIELDS_DOC", getFieldsDoc()));
     replacements.insert(std::make_pair("INTERFACE_DOC", getInterfacesDoc()));
     replacements.insert(std::make_pair("FRAME_DOC", getFramesDoc()));
+    replacements.insert(std::make_pair("DISPATCH_DOC", getDispatchDoc()));
     replacements.insert(std::make_pair("CUSTOMIZE_DOC", getCustomizeDoc()));
     replacements.insert(std::make_pair("VERSION_DOC", getVersionDoc()));
 
@@ -664,7 +675,7 @@ std::string Doxygen::getFramesDoc() const
         "///\n"
         "/// Every frame class/type definition receives (as a template parameter) a list of\n"
         "/// @b input message types it is expected to recognize. Default defintion\n"
-        "/// uses @ref #^#ALL_MESSAGES#$# (defined in @b #^#ALL_MEASSAGES_HEADER#$#).\n"
+        "/// uses @ref #^#ALL_MESSAGES#$# (defined in @b #^#ALL_MESSAGES_HEADER#$#).\n"
         "/// @n If protocol defines any uni-directional message, then it is recommended to use\n"
         "/// either @ref #^#SERVER_MESSAGES#$# (from @b #^#SERVER_MESSAGES_HEADER#$#)\n"
         "/// or @ref #^#CLIENT_MESSAGES#$#  (from @b #^#CLIENT_MESSAGES_HEADER#$#)\n"
@@ -673,6 +684,9 @@ std::string Doxygen::getFramesDoc() const
         "/// instructions from <b>Protocol Stack Definition Tutorial</b> page of @b COMMS\n"
         "/// library documentation. The extra customization (see @ref main_customization below)\n"
         "/// is performed by passing options to the layers themselves.\n"
+        "///\n"
+        "/// The available bundles of option messages are:\n"
+        "#^#MESSAGES_LIST#$#\n"
         "///";
 
     auto frames = m_generator.getAllFrames();
@@ -684,11 +698,34 @@ std::string Doxygen::getFramesDoc() const
         auto file = ba::replace_all_copy(scope, "::", "/") + common::headerSuffix();
         list.push_back(
             "/// @li @ref " + scope +
-            " from @b " + file + " header file).");
+            " (from @b " + file + " header file).");
     }
+
+    common::StringsList messagesList;
+    auto addToMessagesListFunc =
+        [this, &messagesList](const std::string& name)
+        {
+            auto scope = m_generator.scopeForInput(name, true, true);
+            auto file = m_generator.headerfileForInput(name, false);
+            auto str = "/// @li @ref " + scope + " (from @b " + file + " header file).";
+            messagesList.push_back(std::move(str));
+        };
+
+    addToMessagesListFunc(common::allMessagesStr());
+    addToMessagesListFunc(common::serverInputMessagesStr());
+    addToMessagesListFunc(common::clientInputMessagesStr());
+
+    auto& platforms = m_generator.platforms();
+    for (auto& p : platforms) {
+        addToMessagesListFunc(p + "Messages");
+        addToMessagesListFunc(p + common::serverInputMessagesStr());
+        addToMessagesListFunc(p + common::clientInputMessagesStr());
+    };
+
 
     common::ReplacementMap repl;
     repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
+    repl.insert(std::make_pair("MESSAGES_LIST", common::listToString(messagesList, "\n", common::emptyString())));
     repl.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     repl.insert(std::make_pair("PLATFORMS", getPlatformsDoc()));
     repl.insert(std::make_pair("ALL_MESSAGES", m_generator.scopeForInput(common::allMessagesStr(), true, true)));
@@ -699,6 +736,53 @@ std::string Doxygen::getFramesDoc() const
     repl.insert(std::make_pair("CLIENT_MESSAGES_HEADER", m_generator.headerfileForInput(common::clientInputMessagesStr(), false)));
 
     return common::processTemplate(Templ, repl);        
+}
+
+std::string Doxygen::getDispatchDoc() const
+{
+    static const std::string Templ =
+        "/// @section main_dispatch Dispatching Message Objects\n"
+        "/// The generated code provides various @b switch statement based helper\n"
+        "/// functions to dispatch message object\n"
+        "/// (held by pointer / reference to its interface class) to its appropriate\n"
+        "/// handling function.\n"
+        "///\n"
+        "/// The available functions are:\n"
+        "#^#LIST#$#\n"
+        "///";
+
+    common::StringsList list;
+    auto addToListFunc =
+        [this, &list](const std::string& name)
+        {
+            auto adjustedName = common::nameToAccessCopy(name);
+            auto scope = m_generator.scopeForDispatch(name, true, false) + adjustedName;
+            auto defaultScope = scope + common::defaultOptionsStr();
+            auto file = m_generator.headerfileForDispatch(name, false);
+            auto str = "/// @li @ref " + scope + "\n/// (defined in @b " + file + " header file).";
+            list.push_back(std::move(str));
+            auto defaultOptStr = "/// @li @ref " + defaultScope + "\n/// (defined in @b " + file + " header file).";
+            list.push_back(std::move(defaultOptStr));
+        };
+
+    auto addPlatformFunc =
+        [&addToListFunc](const std::string& platform)
+        {
+            static const std::string Prefix("Dispatch");
+            static const std::string Suffix("Message");
+            addToListFunc(Prefix + platform + Suffix);
+            addToListFunc(Prefix + platform + common::serverInputStr() + Suffix);
+            addToListFunc(Prefix + platform + common::clientInputStr() + Suffix);
+        };
+
+    addPlatformFunc(common::emptyString());
+    for (auto& p : m_generator.platforms()) {
+        addPlatformFunc(p);
+    }
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string Doxygen::getPlatformsDoc() const
@@ -754,7 +838,7 @@ std::string Doxygen::getCustomizeDoc() const
         "///     struct field : public #^#OPTIONS#$#::field\n"
         "///     {\n"
         "///         // use comms::util::StaticString as storage type\n"
-        "///         using SomeStringField = comms::option::FixedSizeStorage<32>;\n"
+        "///         using SomeStringField = comms::option::app::FixedSizeStorage<32>;\n"
         "///     };\n"
         "/// };\n"
         "/// @endcode\n"
@@ -769,15 +853,15 @@ std::string Doxygen::getCustomizeDoc() const
         "/// @code\n"
         "/// using MyInputMsg =\n"
         "///    #^#INTERFACE#$#<\n"
-        "///        comms::option::ReadIterator<const std::uint8_t*>, // for polymorphic read\n"
-        "///        comms::option::Handler<MyHandler> // for polymorphic dispatch\n"
+        "///        comms::option::app::ReadIterator<const std::uint8_t*>, // for polymorphic read\n"
+        "///        comms::option::app::Handler<MyHandler> // for polymorphic dispatch\n"
         "///    >;\n"
         "///\n"
         "/// using MyOutputMsg =\n"
         "///    #^#INTERFACE#$#<\n"
-        "///        comms::option::WriteIterator<std::uint8_t*>, // for polymorphic write\n"
-        "///        comms::option::LengthInfoInterface, // for polymorphic serialisation length retrieval\n"
-        "///        comms::option::IdInfoInterface // for polymorphic message ID retrieval\n"
+        "///        comms::option::app::WriteIterator<std::uint8_t*>, // for polymorphic write\n"
+        "///        comms::option::app::LengthInfoInterface, // for polymorphic serialisation length retrieval\n"
+        "///        comms::option::app::IdInfoInterface // for polymorphic message ID retrieval\n"
         "///    >;\n"
         "/// @endcode\n"
         "/// In case there are only few uni-directional messages, it may make sence to define\n"
@@ -785,11 +869,11 @@ std::string Doxygen::getCustomizeDoc() const
         "/// @code\n"
         "/// using MyMsg =\n"
         "///    #^#INTERFACE#$#<\n"
-        "///        comms::option::ReadIterator<const std::uint8_t*>, // for polymorphic read\n"
-        "///        comms::option::Handler<MyHandler> // for polymorphic dispatch\n"
-        "///        comms::option::WriteIterator<std::uint8_t*>, // for polymorphic write\n"
-        "///        comms::option::LengthInfoInterface, // for polymorphic serialisation length retrieval\n"
-        "///        comms::option::IdInfoInterface // for polymorphic message ID retrieval\n"
+        "///        comms::option::app::ReadIterator<const std::uint8_t*>, // for polymorphic read\n"
+        "///        comms::option::app::Handler<MyHandler> // for polymorphic dispatch\n"
+        "///        comms::option::app::WriteIterator<std::uint8_t*>, // for polymorphic write\n"
+        "///        comms::option::app::LengthInfoInterface, // for polymorphic serialisation length retrieval\n"
+        "///        comms::option::app::IdInfoInterface // for polymorphic message ID retrieval\n"
         "///    >;\n"
         "/// @endcode\n"
         "/// In this case the code generator may also define @b #^#SERVER_OPTIONS#$#\n"
@@ -805,7 +889,7 @@ std::string Doxygen::getCustomizeDoc() const
         "///\n"
         "/// In case non-custom &lt;id&gt; layer has been used in schema (files), custom,\n"
         "/// application-specific allocation options to it may include\n"
-        "/// @b comms::option::InPlaceAllocation and/or @b comms::option::SupportGenericMessage.\n"
+        "/// @b comms::option::app::InPlaceAllocation and/or @b comms::option::app::SupportGenericMessage.\n"
         "/// Please see the documentation of the @b COMMS library itself for more details."
         ;
 

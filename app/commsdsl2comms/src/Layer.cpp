@@ -166,7 +166,7 @@ std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
         if (m_forcedFieldPseudo) {
             templateParams = 
                 m_generator.scopeForOptions(common::defaultOptionsStr(), true, true) +
-                ", comms::option::EmptySerialization";
+                ", comms::option::def::EmptySerialization";
         }        
         return m_generator.scopeForField(extRef, true, true) + '<' + templateParams + '>';
     }
@@ -370,11 +370,11 @@ std::string Layer::extraOpsForExternalField() const
 {
     std::string extraOpt;
     if (m_forcedFieldFailOnInvalid) {
-        extraOpt += ", comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError> ";
+        extraOpt += ", comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError> ";
     }
 
     if (m_forcedFieldPseudo) {
-        extraOpt += ", comms::option::EmptySerialization";
+        extraOpt += ", comms::option::def::EmptySerialization";
     }
 
     return extraOpt;

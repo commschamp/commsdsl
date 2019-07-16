@@ -70,7 +70,7 @@ std::string IdLayer::getClassDefinitionImpl(
 
 const std::string& IdLayer::getBareMetalOptionStrImpl() const
 {
-    static const std::string Str("comms::option::InPlaceAllocation");
+    static const std::string Str("comms::option::app::InPlaceAllocation");
     return Str;
 }
 

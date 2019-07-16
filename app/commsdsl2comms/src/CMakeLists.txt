@@ -30,6 +30,7 @@ set (
     "MsgId.cpp"
     "Interface.cpp"
     "AllMessages.cpp"
+    "Dispatch.cpp"
     "Frame.cpp"
     "Layer.cpp"
     "PayloadLayer.cpp"

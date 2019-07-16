@@ -106,7 +106,7 @@ std::string ChecksumLayer::getClassDefinitionImpl(
 
     if (obj.verifyBeforeRead()) {
         replacements.insert(std::make_pair("COMMA", ","));
-        replacements.insert(std::make_pair("EXTRA_OPT", "comms::option::ChecksumLayerVerifyBeforeRead"));
+        replacements.insert(std::make_pair("EXTRA_OPT", "comms::option::def::ChecksumLayerVerifyBeforeRead"));
     }
 
     prevLayer = common::nameToClassCopy(name());
