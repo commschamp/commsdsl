@@ -133,7 +133,7 @@ bool Test::writeInputTest() const
         "#include QUOTES(INPUT_MESSAGES_HEADER)\n\n"
         "namespace\n"
         "{\n\n"
-        "struct Handler;\n"
+        "class Handler;\n"
         "using Message = \n"
         "    INTERFACE<\n"
         "        comms::option::app::ReadIterator<const char*>,\n"
