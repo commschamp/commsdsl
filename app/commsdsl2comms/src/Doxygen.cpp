@@ -742,9 +742,10 @@ std::string Doxygen::getDispatchDoc() const
 {
     static const std::string Templ =
         "/// @section main_dispatch Dispatching Message Objects\n"
-        "/// The generated code provides various helper functions to dispatch\n"
-        "/// message object (held by pointer / reference to its interface class)\n"
-        "/// to its appropriate handling function.\n"
+        "/// The generated code provides various @b switch statement based helper\n"
+        "/// functions to dispatch message object\n"
+        "/// (held by pointer / reference to its interface class) to its appropriate\n"
+        "/// handling function.\n"
         "///\n"
         "/// The available functions are:\n"
         "#^#LIST#$#\n"
