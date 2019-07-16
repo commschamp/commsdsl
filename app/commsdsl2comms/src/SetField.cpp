@@ -659,11 +659,11 @@ void SetField::checkLengthOpt(StringsList& list) const
 {
     auto bitLength = dslObj().bitLength();
     if (bitLength != 0U) {
-        list.push_back("comms::option::FixedBitLength<" + common::numToString(bitLength) + '>');
+        list.push_back("comms::option::def::FixedBitLength<" + common::numToString(bitLength) + '>');
         return;
     }
 
-    list.push_back("comms::option::FixedLength<" + common::numToString(setFieldDslObj().minLength()) + '>');
+    list.push_back("comms::option::def::FixedLength<" + common::numToString(setFieldDslObj().minLength()) + '>');
 }
 
 void SetField::checkDefaultValueOpt(StringsList& list) const
@@ -708,7 +708,7 @@ void SetField::checkDefaultValueOpt(StringsList& list) const
     auto type = obj.type();
     if ((type == commsdsl::SetField::Type::Uint64) || (type == commsdsl::SetField::Type::Uintvar)) {
         auto str =
-            "comms::option::DefaultBigUnsignedNumValue<" +
+            "comms::option::def::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue), true) +
             '>';
         list.push_back(std::move(str));
@@ -716,7 +716,7 @@ void SetField::checkDefaultValueOpt(StringsList& list) const
     }
 
     auto str =
-        "comms::option::DefaultNumValue<" +
+        "comms::option::def::DefaultNumValue<" +
         common::numToString(defaultValue, true) +
         '>';
     list.push_back(std::move(str));
@@ -789,7 +789,7 @@ void SetField::checkReservedBitsOpt(SetField::StringsList& list) const
     reservedMask &= mask;
 
     if (mustHandleBitsInValidFunc) {
-        list.push_back("comms::option::VersionStorage");
+        list.push_back("comms::option::def::VersionStorage");
     }
 
     if (reservedMask == 0U) {
@@ -797,7 +797,7 @@ void SetField::checkReservedBitsOpt(SetField::StringsList& list) const
     }
 
     std::string str =
-        "comms::option::BitmaskReservedBits<" +
+        "comms::option::def::BitmaskReservedBits<" +
         common::numToString(reservedMask, true) +
         ", " +
         common::numToString(reservedValue, true) +

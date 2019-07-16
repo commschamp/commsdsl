@@ -274,12 +274,12 @@ std::string VariantField::getFieldOpts(const std::string& scope) const
     auto obj = variantFieldDslObj();
     auto idx = obj.defaultMemberIdx();
     if (idx < m_members.size()) {
-        auto opt = "comms::option::DefaultVariantIndex<" + common::numToString(idx) + '>';
+        auto opt = "comms::option::def::DefaultVariantIndex<" + common::numToString(idx) + '>';
         common::addToList(opt, options);
     }
 
     if (hasOptimizedRead()) {
-        common::addToList("comms::option::HasCustomRead", options);
+        common::addToList("comms::option::def::HasCustomRead", options);
     }
 
     return common::listToString(options, ",\n", common::emptyString());

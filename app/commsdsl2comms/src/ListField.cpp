@@ -403,10 +403,10 @@ std::string ListField::getBareMetalOptionStrImpl() const
     auto obj = listFieldDslObj();
     auto fixedCount = obj.fixedCount();
     if (fixedCount != 0U) {
-        return "comms::option::SequenceFixedSizeUseFixedSizeStorage";
+        return "comms::option::app::SequenceFixedSizeUseFixedSizeStorage";
     }
 
-    return "comms::option::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
+    return "comms::option::app::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
 }
 
 std::string ListField::getCompareToValueImpl(
@@ -893,7 +893,7 @@ void ListField::checkFixedSizeOpt(ListField::StringsList& list) const
     }
 
     auto str =
-        "comms::option::SequenceFixedSize<" +
+        "comms::option::def::SequenceFixedSize<" +
         common::numToString(static_cast<std::uintmax_t>(fixedCount)) +
         ">";
     list.push_back(std::move(str));
@@ -930,7 +930,7 @@ void ListField::checkCountPrefixOpt(ListField::StringsList& list) const
         static_cast<void>(fieldPtr);
     }
 
-    list.push_back("comms::option::SequenceSizeFieldPrefix<" + prefixName + '>');
+    list.push_back("comms::option::def::SequenceSizeFieldPrefix<" + prefixName + '>');
 }
 
 void ListField::checkLengthPrefixOpt(ListField::StringsList& list) const
@@ -964,7 +964,7 @@ void ListField::checkLengthPrefixOpt(ListField::StringsList& list) const
         static_cast<void>(fieldPtr);
     }
 
-    list.push_back("comms::option::SequenceSerLengthFieldPrefix<" + prefixName + '>');
+    list.push_back("comms::option::def::SequenceSerLengthFieldPrefix<" + prefixName + '>');
 }
 
 void ListField::checkElemLengthPrefixOpt(StringsList& list) const
@@ -1003,22 +1003,22 @@ void ListField::checkElemLengthPrefixOpt(StringsList& list) const
         opt = "SequenceElemFixedSerLengthFieldPrefix";
     }
 
-    list.push_back("comms::option::" + opt + "<" + prefixName + '>');
+    list.push_back("comms::option::def::" + opt + "<" + prefixName + '>');
 }
 
 bool ListField::checkDetachedPrefixOpt(StringsList& list) const
 {
     auto obj = listFieldDslObj();
     if (!obj.detachedCountPrefixFieldName().empty()) {
-        list.push_back("comms::option::SequenceSizeForcingEnabled");
+        list.push_back("comms::option::def::SequenceSizeForcingEnabled");
     }
 
     if (!obj.detachedLengthPrefixFieldName().empty()) {
-        list.push_back("comms::option::SequenceLengthForcingEnabled");
+        list.push_back("comms::option::def::SequenceLengthForcingEnabled");
     }
 
     if (!obj.detachedElemLengthPrefixFieldName().empty()) {
-        list.push_back("comms::option::SequenceElemLengthForcingEnabled");
+        list.push_back("comms::option::def::SequenceElemLengthForcingEnabled");
     }
     return true;
 }

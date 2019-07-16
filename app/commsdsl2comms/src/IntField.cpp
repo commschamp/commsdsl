@@ -624,7 +624,7 @@ void IntField::checkDefaultValueOpt(StringsList& list) const
     auto defaultValue = obj.defaultValue();
     if ((defaultValue == 0) &&
         (semanticType() == commsdsl::Field::SemanticType::Version)) {
-        std::string opt = "comms::option::DefaultNumValue<";
+        std::string opt = "comms::option::def::DefaultNumValue<";
         opt += common::numToString(generator().schemaVersion());
         opt += '>';
         list.push_back(std::move(opt));
@@ -639,7 +639,7 @@ void IntField::checkDefaultValueOpt(StringsList& list) const
     if ((defaultValue < 0) &&
         ((type == commsdsl::IntField::Type::Uint64) || (type == commsdsl::IntField::Type::Uintvar))) {
         auto str =
-            "comms::option::DefaultBigUnsignedNumValue<" +
+            "comms::option::def::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue)) +
             '>';
         list.push_back(std::move(str));
@@ -647,7 +647,7 @@ void IntField::checkDefaultValueOpt(StringsList& list) const
     }
 
     auto str =
-        "comms::option::DefaultNumValue<" +
+        "comms::option::def::DefaultNumValue<" +
         common::numToString(defaultValue) +
         '>';
     list.push_back(std::move(str));
@@ -660,7 +660,7 @@ void IntField::checkLengthOpt(StringsList& list) const
     if ((type == commsdsl::IntField::Type::Intvar) ||
         (type == commsdsl::IntField::Type::Uintvar)) {
         auto str =
-            "comms::option::VarLength<" +
+            "comms::option::def::VarLength<" +
             common::numToString(obj.minLength()) +
             ", " +
             common::numToString(obj.maxLength()) +
@@ -671,7 +671,7 @@ void IntField::checkLengthOpt(StringsList& list) const
 
     if (obj.bitLength() != 0U) {
         auto str =
-            "comms::option::FixedBitLength<" +
+            "comms::option::def::FixedBitLength<" +
             common::numToString(obj.bitLength()) +
             '>';
         list.push_back(std::move(str));
@@ -707,7 +707,7 @@ void IntField::checkLengthOpt(StringsList& list) const
             secondParam = ", false";
         }
         auto str =
-            "comms::option::FixedLength<" +
+            "comms::option::def::FixedLength<" +
             common::numToString(obj.minLength()) + secondParam +
             '>';
         list.push_back(std::move(str));
@@ -723,7 +723,7 @@ void IntField::checkSerOffsetOpt(IntField::StringsList& list) const
     }
 
     auto str =
-        "comms::option::NumValueSerOffset<" +
+        "comms::option::def::NumValueSerOffset<" +
         common::numToString(serOffset) +
         '>';
     list.push_back(std::move(str));
@@ -746,7 +746,7 @@ void IntField::checkScalingOpt(IntField::StringsList& list) const
     }
 
     auto str =
-        "comms::option::ScalingRatio<" +
+        "comms::option::def::ScalingRatio<" +
         common::numToString(num) +
         ", " +
         common::numToString(denom) +
@@ -859,7 +859,7 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
         }
 
         bool big = false;
-        std::string str = "comms::option::";
+        std::string str = "comms::option::def::";
         do {
             if (!bigUnsigned) {
                 break;
@@ -914,10 +914,10 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
     }
 
     if (versionStorageRequired) {
-        list.push_back("comms::option::VersionStorage");
+        list.push_back("comms::option::def::VersionStorage");
 
         if (!addedRangeOpt) {
-            list.push_back("comms::option::InvalidByDefault");
+            list.push_back("comms::option::def::InvalidByDefault");
         }
     }
 }

@@ -131,8 +131,8 @@ std::string Field::getClassDefinition(
             "struct #^#CLASS_NAME#$# : public\n"
             "    comms::field::Optional<\n"
             "        #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#,\n"
-            "        comms::option::#^#DEFAULT_MODE_OPT#$#,\n"
-            "        comms::option::#^#VERSIONS_OPT#$#\n"
+            "        comms::option::def::#^#DEFAULT_MODE_OPT#$#,\n"
+            "        comms::option::def::#^#VERSIONS_OPT#$#\n"
             "    >\n"
             "{\n"
             "    /// @brief Name of the field.\n"
@@ -791,7 +791,7 @@ std::string Field::getExtraBareMetalDefaultOptionsImpl(const std::string& scope)
 
 std::string Field::getBareMetalOptionStrImpl() const
 {
-    return "comms::option::EmptyOption";
+    return "comms::option::app::EmptyOption";
 }
 
 std::string Field::getCompareToValueImpl(const std::string& op,
@@ -1038,22 +1038,22 @@ void Field::updateExtraOptions(
     }
 
     if ((!ignoreFailOnInvalid) && m_focedFailOnInvalid) {
-        options.push_back("comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
+        options.push_back("comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
     }
     else if ((!ignoreFailOnInvalid) && m_dslObj.isFailOnInvalid()) {
-        common::addToList("comms::option::FailOnInvalid<>", options);
+        common::addToList("comms::option::def::FailOnInvalid<>", options);
     }
 
     if (!m_customRead.empty()) {
-        common::addToList("comms::option::HasCustomRead", options);
+        common::addToList("comms::option::def::HasCustomRead", options);
     }
 
     if (!m_customRefresh.empty()) {
-        common::addToList("comms::option::HasCustomRefresh", options);
+        common::addToList("comms::option::def::HasCustomRefresh", options);
     }
 
     if (m_forcedPseudo || m_dslObj.isPseudo()) {
-        common::addToList("comms::option::EmptySerialization", options);
+        common::addToList("comms::option::def::EmptySerialization", options);
     }
 
 

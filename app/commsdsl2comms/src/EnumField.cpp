@@ -1055,7 +1055,7 @@ void EnumField::checkDefaultValueOpt(StringsList& list) const
     if ((defaultValue < 0) &&
         ((type == commsdsl::EnumField::Type::Uint64) || (type == commsdsl::EnumField::Type::Uintvar))) {
         auto str =
-            "comms::option::DefaultBigUnsignedNumValue<" +
+            "comms::option::def::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue)) +
             '>';
         list.push_back(std::move(str));
@@ -1063,7 +1063,7 @@ void EnumField::checkDefaultValueOpt(StringsList& list) const
     }
 
     auto str =
-        "comms::option::DefaultNumValue<" +
+        "comms::option::def::DefaultNumValue<" +
         common::numToString(defaultValue) +
         '>';
     list.push_back(std::move(str));
@@ -1077,7 +1077,7 @@ void EnumField::checkLengthOpt(StringsList& list) const
     if ((type == commsdsl::EnumField::Type::Intvar) ||
         (type == commsdsl::EnumField::Type::Uintvar)) {
         auto str =
-            "comms::option::VarLength<" +
+            "comms::option::def::VarLength<" +
             common::numToString(obj.minLength()) +
             ", " +
             common::numToString(obj.maxLength()) +
@@ -1088,7 +1088,7 @@ void EnumField::checkLengthOpt(StringsList& list) const
 
     auto bitLength = obj.bitLength();
     if (bitLength != 0U) {
-        list.push_back("comms::option::FixedBitLength<" + common::numToString(bitLength) + '>');
+        list.push_back("comms::option::def::FixedBitLength<" + common::numToString(bitLength) + '>');
         return;
     }
 
@@ -1117,7 +1117,7 @@ void EnumField::checkLengthOpt(StringsList& list) const
     assert(LengthMap[idx] != 0);
     if (LengthMap[idx] != obj.minLength()) {
         auto str =
-            "comms::option::FixedLength<" +
+            "comms::option::def::FixedLength<" +
             common::numToString(obj.minLength()) +
             '>';
         list.push_back(std::move(str));
@@ -1140,7 +1140,7 @@ void EnumField::checkValidRangesOpt(EnumField::StringsList& list) const
     auto addOptFunc =
         [&list, bigUnsigned](auto& r)
         {
-            std::string str = "comms::option::";
+            std::string str = "comms::option::def::";
             do {
                 if (!bigUnsigned) {
                     break;
@@ -1212,8 +1212,8 @@ void EnumField::checkValidRangesOpt(EnumField::StringsList& list) const
 
     if (uncondStartIter == m_validRanges.end()) {
         // No unconditionals found;
-        list.push_back("comms::option::VersionStorage");
-        list.push_back("comms::option::InvalidByDefault");
+        list.push_back("comms::option::def::VersionStorage");
+        list.push_back("comms::option::def::InvalidByDefault");
         return;
     }
 
@@ -1231,7 +1231,7 @@ void EnumField::checkValidRangesOpt(EnumField::StringsList& list) const
         static_cast<std::size_t>(std::distance(uncondStartIter, uncondEndIter));
 
     if (uncondCount != m_validRanges.size()) {
-        list.push_back("comms::option::VersionStorage");
+        list.push_back("comms::option::def::VersionStorage");
     }
 
     for (auto iter = uncondStartIter; iter != uncondEndIter; ++iter) {

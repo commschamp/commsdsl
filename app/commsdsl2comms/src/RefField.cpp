@@ -327,7 +327,7 @@ std::string RefField::getOpts(const std::string& scope) const
     auto obj = refFieldDslObj();
     auto bitLength = obj.bitLength();
     if (bitLength != 0U) {
-        options.push_back("comms::option::FixedBitLength<" + common::numToString(bitLength) + '>');
+        options.push_back("comms::option::def::FixedBitLength<" + common::numToString(bitLength) + '>');
     }
     return common::listToString(options, ",\n", common::emptyString());
 }

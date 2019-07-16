@@ -1,5 +1,6 @@
 #include "cxxtest/TestSuite.h"
 
+#include "comms/iterator.h"
 #include "test1/Message.h"
 #include "test1/frame/Frame.h"
 #include "test1/message/Msg1.h"
@@ -14,13 +15,13 @@ public:
 
     using Interface =
         test1::Message<
-            comms::option::IdInfoInterface,
-            comms::option::ReadIterator<const std::uint8_t*>,
-            comms::option::WriteIterator<std::uint8_t*>,
-            comms::option::LengthInfoInterface,
-            comms::option::ValidCheckInterface,
-            comms::option::NameInterface,
-            comms::option::RefreshInterface
+            comms::option::app::IdInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
+            comms::option::app::NameInterface,
+            comms::option::app::RefreshInterface
         >;
 
     using Msg1 = test1::message::Msg1<Interface>;

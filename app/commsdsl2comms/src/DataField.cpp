@@ -203,10 +203,10 @@ std::string DataField::getBareMetalOptionStrImpl() const
     auto obj = dataFieldDslObj();
     auto fixedLength = obj.fixedLength();
     if (fixedLength != 0U) {
-        return "comms::option::SequenceFixedSizeUseFixedSizeStorage";
+        return "comms::option::app::SequenceFixedSizeUseFixedSizeStorage";
     }
 
-    return "comms::option::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
+    return "comms::option::app::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
 }
 
 std::string DataField::getCompareToValueImpl(
@@ -450,7 +450,7 @@ void DataField::checkFixedLengthOpt(DataField::StringsList& list) const
     }
 
     auto str =
-        "comms::option::SequenceFixedSize<" +
+        "comms::option::def::SequenceFixedSize<" +
         common::numToString(static_cast<std::uintmax_t>(fixedLen)) +
         ">";
     list.push_back(std::move(str));
@@ -487,7 +487,7 @@ void DataField::checkPrefixOpt(DataField::StringsList& list) const
         static_cast<void>(fieldPtr);
     }
 
-    list.push_back("comms::option::SequenceSerLengthFieldPrefix<" + prefixName + '>');
+    list.push_back("comms::option::def::SequenceSerLengthFieldPrefix<" + prefixName + '>');
 }
 
 void DataField::checkForcingOpt(StringsList& list) const
@@ -498,7 +498,7 @@ void DataField::checkForcingOpt(StringsList& list) const
         return;
     }
 
-    common::addToList("comms::option::SequenceLengthForcingEnabled", list);
+    common::addToList("comms::option::def::SequenceLengthForcingEnabled", list);
 }
 
 std::string DataField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const

@@ -69,10 +69,10 @@ const std::string Template(
     "    comms::MessageBase<\n"
     "        TMsgBase,\n"
     "        #^#CUSTOMIZATION_OPT#$#\n"
-    "        comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
-    "        comms::option::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
-    "        comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
-    "        comms::option::HasName#^#COMMA#$#\n"
+    "        comms::option::def::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
+    "        comms::option::def::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
+    "        comms::option::def::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
+    "        comms::option::def::HasName#^#COMMA#$#\n"
     "        #^#EXTRA_OPTIONS#$#\n"
     "    >\n"
     "{\n"
@@ -81,10 +81,10 @@ const std::string Template(
     "        comms::MessageBase<\n"
     "            TMsgBase,\n"
     "            #^#CUSTOMIZATION_OPT#$#\n"
-    "            comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
-    "            comms::option::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
-    "            comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
-    "            comms::option::HasName#^#COMMA#$#\n"
+    "            comms::option::def::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
+    "            comms::option::def::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
+    "            comms::option::def::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
+    "            comms::option::def::HasName#^#COMMA#$#\n"
     "            #^#EXTRA_OPTIONS#$#\n"
     "        >;\n"
     "\n"
@@ -413,8 +413,8 @@ std::string Message::getClientOptions() const
             "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
             "using #^#MESSAGE_NAME#$# =\n"
             "    std::tuple<\n"
-            "        comms::option::NoReadImpl,\n"
-            "        comms::option::NoDispatchImpl\n"
+            "        comms::option::app::NoReadImpl,\n"
+            "        comms::option::app::NoDispatchImpl\n"
             "    >;\n";
 
         return common::processTemplate(Templ, replacements);
@@ -425,8 +425,8 @@ std::string Message::getClientOptions() const
         "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# =\n"
         "    std::tuple<\n"
-        "        comms::option::NoWriteImpl,\n"
-        "        comms::option::NoRefreshImpl\n"
+        "        comms::option::app::NoWriteImpl,\n"
+        "        comms::option::app::NoRefreshImpl\n"
         "    >;\n";
 
     return common::processTemplate(Templ, replacements);
@@ -447,8 +447,8 @@ std::string Message::getServerOptions() const
             "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
             "using #^#MESSAGE_NAME#$# =\n"
             "    std::tuple<\n"
-            "        comms::option::NoWriteImpl,\n"
-            "        comms::option::NoRefreshImpl\n"
+            "        comms::option::app::NoWriteImpl,\n"
+            "        comms::option::app::NoRefreshImpl\n"
             "    >;\n";        
 
         return common::processTemplate(Templ, replacements);
@@ -459,8 +459,8 @@ std::string Message::getServerOptions() const
         "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# =\n"
         "    std::tuple<\n"
-        "        comms::option::NoReadImpl,\n"
-        "        comms::option::NoDispatchImpl\n"
+        "        comms::option::app::NoReadImpl,\n"
+        "        comms::option::app::NoDispatchImpl\n"
         "    >;\n";
 
     return common::processTemplate(Templ, replacements);
@@ -913,7 +913,7 @@ std::string Message::getRefreshFunc() const
 std::string Message::getExtraOptions() const
 {
     if ((!m_customRefresh.empty()) || (mustImplementReadRefresh())) {
-        return "comms::option::HasCustomRefresh";
+        return "comms::option::def::HasCustomRefresh";
     }
 
     return common::emptyString();
@@ -1007,7 +1007,7 @@ std::string Message::getOptions(GetFieldOptionsFunc func) const
     if (customizable) {
         static const std::string OptTempl =
             "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
-            "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;";
+            "using #^#MESSAGE_NAME#$# = comms::option::app::EmptyOption;";
         replacements.insert(std::make_pair("MESSAGE_OPT", common::processTemplate(OptTempl, replacements)));
     }
 

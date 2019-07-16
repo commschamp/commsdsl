@@ -15,15 +15,7 @@ public:
 //    void test3();
 
     struct Interface : public
-        test34::Message<
-            /*comms::option::IdInfoInterface,
-            comms::option::ReadIterator<const std::uint8_t*>,
-            comms::option::WriteIterator<std::uint8_t*>,
-            comms::option::LengthInfoInterface,
-            comms::option::ValidCheckInterface,
-            comms::option::NameInterface,
-            comms::option::RefreshInterface*/
-        >
+        test34::Message<>
     {
         virtual ~Interface() {}
     };

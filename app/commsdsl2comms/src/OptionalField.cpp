@@ -376,8 +376,8 @@ void OptionalField::checkModeOpt(OptionalField::StringsList& options) const
 {
     static const std::string Map[] = {
         common::emptyString(),
-        "comms::option::ExistsByDefault",
-        "comms::option::MissingByDefault"
+        "comms::option::def::ExistsByDefault",
+        "comms::option::def::MissingByDefault"
     };
 
     static const std::size_t MapSize =
