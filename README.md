@@ -137,9 +137,6 @@ versions of the compilers:
 - **Clang**: >=3.8
 - **MSVC**: >= 2015
 
-In some occasions **gcc** as early as v4.7 can be used to compile protocol
-code definition.
-
 # Branching Model
 This repository will follow the 
 [Successful Git Branching Model](http://nvie.com/posts/a-successful-git-branching-model/).
