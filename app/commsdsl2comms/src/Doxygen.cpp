@@ -685,7 +685,7 @@ std::string Doxygen::getFramesDoc() const
         "/// library documentation. The extra customization (see @ref main_customization below)\n"
         "/// is performed by passing options to the layers themselves.\n"
         "///\n"
-        "/// The available bundles of option messages are:\n"
+        "/// The available bundles of input messages are:\n"
         "#^#MESSAGES_LIST#$#\n"
         "///";
 
@@ -742,10 +742,12 @@ std::string Doxygen::getDispatchDoc() const
 {
     static const std::string Templ =
         "/// @section main_dispatch Dispatching Message Objects\n"
-        "/// The generated code provides various @b switch statement based helper\n"
-        "/// functions to dispatch message object\n"
-        "/// (held by pointer / reference to its interface class) to its appropriate\n"
-        "/// handling function.\n"
+        "/// While the @b COMMS library provides various built-in ways of \n"
+        "/// dispatching message objects into their respective handlers\n"
+        "/// (see <b>Advanced Guide to Message Dispatching</b> page of the\n"
+        "/// @b COMMS library documentation), the generated code also provides\n"
+        "/// additional auxiliary dispatch functions which are @b switch statement\n"
+        "/// based.\n"
         "///\n"
         "/// The available functions are:\n"
         "#^#LIST#$#\n"
@@ -777,7 +779,7 @@ std::string Doxygen::getDispatchDoc() const
 
     addPlatformFunc(common::emptyString());
     for (auto& p : m_generator.platforms()) {
-        addPlatformFunc(p);
+        addPlatformFunc(common::nameToClassCopy(p));
     }
 
     common::ReplacementMap repl;
