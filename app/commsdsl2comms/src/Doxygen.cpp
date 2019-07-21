@@ -477,26 +477,25 @@ bool Doxygen::writeNamespaces() const
         static const std::string Templ =
             "/// @namespace #^#NS#$#\n"
             "/// @brief Additional protocol specific namespace.\n\n"
-            "/// @namespace #^#MAIN#$#::#^#NS#$#::message\n"
+            "/// @namespace #^#NS#$#::message\n"
             "/// @brief Namespace for all the messages in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#MAIN#$#::#^#NS#$#::field\n"
+            "/// @namespace #^#NS#$#::field\n"
             "/// @brief Namespace for all the stand alone fields defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame\n"
+            "/// @namespace #^#NS#$#::frame\n"
             "/// @brief Namespace for all the frames defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame::layer\n"
+            "/// @namespace #^#NS#$#::frame::layer\n"
             "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#MAIN#$#::#^#NS#$#::frame::checksum\n"
+            "/// @namespace #^#NS#$#::frame::checksum\n"
             "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#MAIN#$#::#^#NS#$#::options\n"
+            "/// @namespace #^#NS#$#::options\n"
             "/// @brief Namespace for the various protocol options defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#MAIN#$#::#^#NS#$#::input\n"
+            "/// @namespace #^#NS#$#::input\n"
             "/// @brief Namespace for hold input messages bundles defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#MAIN#$#::#^#NS#$#::dispatch\n"
+            "/// @namespace #^#NS#$#::dispatch\n"
             "/// @brief Namespace for the various message dispatch functionss defined in @ref #^#NS#$# namespace.\n\n"
             ;
 
         common::ReplacementMap repl;
-        repl.insert(std::make_pair("MAIN", m_generator.mainNamespace()));
         repl.insert(std::make_pair("NS", s));
         otherNs.push_back(common::processTemplate(Templ, repl));
     }
