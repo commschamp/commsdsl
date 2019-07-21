@@ -416,7 +416,8 @@ std::string Layer::getOptions(
         }
 
         static const std::string Templ =
-            "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
+            "/// @brief Extra options for all the member fields of\n"
+            "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
             "struct #^#CLASS_NAME#$#Members\n"
             "{\n"
             "    #^#FIELD_OPT#$#\n"
@@ -436,11 +437,12 @@ std::string Layer::getOptions(
         return str;
     }
 
+    auto docStr = "/// @brief Extra options for @ref " +
+            fullScope + className + " layer.";
     return
         str +
-        "/// @brief Extra options for @ref " +
-        fullScope + className + " layer.\n" +
-        "using " + className + " = " +
+        common::makeDoxygenMultilineCopy(docStr, 40) +
+        "\nusing " + className + " = " +
         (this->*optionStrFunc)() + ";\n";
 }
 

@@ -46,7 +46,8 @@ const std::string MembersDefTemplate =
     "};\n";
 
 const std::string MembersOptionsTemplate =
-    "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
+    "/// @brief Extra options for all the member fields of\n"
+    "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
     "    #^#OPTIONS#$#\n"

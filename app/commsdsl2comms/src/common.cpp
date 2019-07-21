@@ -468,6 +468,17 @@ std::string makeMultilineCopy(const std::string& value, unsigned len)
     return result;
 }
 
+std::string makeDoxygenMultilineCopy(const std::string& value, unsigned len)
+{
+    if (value.size() <= len) {
+        return value;
+    }
+
+    auto multiline = makeMultilineCopy(value, len);
+    ba::replace_all(multiline, "\n", "\n///     ");
+    return multiline;
+}
+
 void insertIndent(std::string& str)
 {
     auto& indent = indentStr();

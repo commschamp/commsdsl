@@ -410,7 +410,8 @@ std::string Message::getClientOptions() const
 
     if (m_dslObj.sender() == Sender::Client) {
         static const std::string Templ = 
-            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "/// @brief Extra options for\n"
+            "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
             "using #^#MESSAGE_NAME#$# =\n"
             "    std::tuple<\n"
             "        comms::option::app::NoReadImpl,\n"
@@ -422,7 +423,8 @@ std::string Message::getClientOptions() const
 
     assert(m_dslObj.sender() == Sender::Server);
     static const std::string Templ = 
-        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "/// @brief Extra options for\n"
+        "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# =\n"
         "    std::tuple<\n"
         "        comms::option::app::NoWriteImpl,\n"
@@ -444,7 +446,8 @@ std::string Message::getServerOptions() const
 
     if (m_dslObj.sender() == Sender::Client) {
         static const std::string Templ = 
-            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "/// @brief Extra options for\n"
+            "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
             "using #^#MESSAGE_NAME#$# =\n"
             "    std::tuple<\n"
             "        comms::option::app::NoWriteImpl,\n"
@@ -456,7 +459,8 @@ std::string Message::getServerOptions() const
 
     assert(m_dslObj.sender() == Sender::Server);
     static const std::string Templ = 
-        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "/// @brief Extra options for\n"
+        "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# =\n"
         "    std::tuple<\n"
         "        comms::option::app::NoReadImpl,\n"
@@ -979,7 +983,8 @@ std::string Message::getOptions(GetFieldOptionsFunc func) const
     }
 
     static const std::string Templ =
-        "/// @brief Extra options for fields of @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "/// @brief Extra options for fields of\n"
+        "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
         "struct #^#MESSAGE_NAME#$#Fields\n"
         "{\n"
         "    #^#FIELDS_OPTS#$#\n"
@@ -1006,7 +1011,8 @@ std::string Message::getOptions(GetFieldOptionsFunc func) const
 
     if (customizable) {
         static const std::string OptTempl =
-            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "/// @brief Extra options for\n"
+            "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
             "using #^#MESSAGE_NAME#$# = comms::option::app::EmptyOption;";
         replacements.insert(std::make_pair("MESSAGE_OPT", common::processTemplate(OptTempl, replacements)));
     }

@@ -1087,7 +1087,8 @@ std::string ListField::getExtraOptions(const std::string& scope, GetExtraOptions
     }
 
     const std::string Templ =
-        "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
+        "/// @brief Extra options for all the member fields of\n"
+        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
         "struct #^#CLASS_NAME#$#Members\n"
         "{\n"
         "    #^#OPTIONS#$#\n"

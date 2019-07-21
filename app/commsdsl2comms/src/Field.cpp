@@ -230,11 +230,13 @@ std::string Field::getDefaultOptions(const std::string& scope) const
         str += '\n';
     }
 
+    auto docStr = "/// @brief Extra options for @ref " +
+        fullScope + common::nameToClassCopy(name()) + " field.";
+
     return
         str +
-        "/// @brief Extra options for @ref " +
-        fullScope + common::nameToClassCopy(name()) + " field.\n" +
-        "using " + common::nameToClassCopy(name()) +
+        common::makeDoxygenMultilineCopy(docStr, 40) +
+        "\nusing " + common::nameToClassCopy(name()) +
             " = " + common::emptyOptionString() + ";\n";
 }
 
@@ -260,11 +262,13 @@ std::string Field::getBareMetalDefaultOptions(const std::string& scope) const
         str += '\n';
     }
 
+    auto docStr = "/// @brief Extra options for @ref " +
+        fullScope + common::nameToClassCopy(name()) + " field.";
+
     return
         str +
-        "/// @brief Extra options for @ref " +
-        fullScope + common::nameToClassCopy(name()) + " field.\n" +
-        "using " + common::nameToClassCopy(name()) +
+        common::makeDoxygenMultilineCopy(docStr, 40) +
+        "\nusing " + common::nameToClassCopy(name()) +
             " = " + optStr + ";\n";
 }
 

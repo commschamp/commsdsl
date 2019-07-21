@@ -91,6 +91,8 @@ std::string numToString(unsigned value, unsigned hexWidth = 0U)
 }
 
 std::string makeMultilineCopy(const std::string& value, unsigned len = 60);
+std::string makeDoxygenMultilineCopy(const std::string& value, unsigned len = 60);
+
 void insertIndent(std::string& str);
 std::string insertIndentCopy(const std::string& str);
 
