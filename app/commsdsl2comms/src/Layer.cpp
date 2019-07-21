@@ -315,6 +315,10 @@ std::string Layer::getFieldType() const
 
 std::string Layer::getExtraOpt(const std::string& scope) const
 {
+    if (!isCustomizable()) {
+        return common::emptyString();
+    }
+
     return "typename " + scope + common::nameToClassCopy(name());
 }
 
@@ -366,6 +370,15 @@ bool Layer::isCustomizableImpl() const
     return false;
 }
 
+bool Layer::isCustomizable() const
+{
+    if (m_generator.customizationLevel() == CustomizationLevel::None) {
+        return false;
+    }
+
+    return isCustomizableImpl();
+}
+
 std::string Layer::extraOpsForExternalField() const
 {
     std::string extraOpt;
@@ -380,7 +393,8 @@ std::string Layer::extraOpsForExternalField() const
     return extraOpt;
 }
 
-std::string Layer::getOptions(const std::string& scope,
+std::string Layer::getOptions(
+    const std::string& scope,
     GetFieldOptionsFunc fieldFunc,
     GetOptionStrFunc optionStrFunc) const
 {

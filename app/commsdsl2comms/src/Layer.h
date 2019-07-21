@@ -117,10 +117,7 @@ private:
     using GetFieldOptionsFunc = std::string (Field::*)(const std::string& scope) const;
     using GetOptionStrFunc = const std::string& (Layer::*)() const;
 
-    bool isCustomizable() const
-    {
-        return isCustomizableImpl();
-    }
+    bool isCustomizable() const;
 
     std::string extraOpsForExternalField() const;
     std::string getOptions(
