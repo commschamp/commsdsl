@@ -53,7 +53,7 @@ const std::string AliasTemplate(
     "    comms::Message<\n"
     "        TOpt...,\n"
     "        #^#ENDIAN#$#,\n"
-    "        comms::option::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>\n"
+    "        comms::option::def::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>\n"
     "    >;\n\n"
     "#^#END_NAMESPACE#$#\n"
     "#^#APPEND#$#\n"
@@ -87,7 +87,7 @@ const std::string ClassTemplate(
     "    comms::Message<\n"
     "        TOpt...,\n"
     "        #^#ENDIAN#$#,\n"
-    "        comms::option::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>,\n"
+    "        comms::option::def::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>,\n"
     "        #^#FIELDS_OPTIONS#$#\n"
     "    >\n"
     "{\n"
@@ -95,7 +95,7 @@ const std::string ClassTemplate(
     "        comms::Message<\n"
     "            TOpt...,\n"
     "            #^#ENDIAN#$#,\n"
-    "            comms::option::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>,\n"
+    "            comms::option::def::MsgIdType<#^#PROT_NAMESPACE#$#::MsgId>,\n"
     "            #^#FIELDS_OPTIONS#$#\n"
     "        >;\n"
     "public:\n"
@@ -537,7 +537,7 @@ std::string Interface::getFieldsDef() const
 std::string Interface::getFieldsOpts() const
 {
     std::string result =
-        "comms::option::ExtraTransportFields<" +
+        "comms::option::def::ExtraTransportFields<" +
         common::nameToClassCopy(m_dslObj.name()) + 
         common::fieldsSuffixStr() + 
         "::All>";
@@ -552,7 +552,7 @@ std::string Interface::getFieldsOpts() const
 
     if (iter != m_fields.end()) {
         result += ",\n";
-        result += "comms::option::VersionInExtraTransportFields<";
+        result += "comms::option::def::VersionInExtraTransportFields<";
         result += common::numToString(static_cast<std::size_t>(std::distance(m_fields.begin(), iter)));
         result += ">";
     }

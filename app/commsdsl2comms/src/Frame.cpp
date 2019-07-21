@@ -777,7 +777,8 @@ std::string Frame::getOptions(GetLayerOptionsFunc func) const
     }
 
     static const std::string Templ =
-        "/// @brief Extra options for Layers of @ref #^#FRAME_SCOPE#$# frame.\n"
+        "/// @brief Extra options for Layers of\n"
+        "///     @ref #^#FRAME_SCOPE#$# frame.\n"
         "struct #^#CLASS_NAME#$#Layers\n"
         "{\n"
         "    #^#LAYERS_OPTS#$#\n"

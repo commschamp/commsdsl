@@ -1,9 +1,11 @@
 #include "cxxtest/TestSuite.h"
 
+#include "comms/iterator.h"
 #include "test1/Message.h"
 #include "test1/frame/Frame.h"
 #include "test1/message/Msg1.h"
 #include "test1/message/Msg2.h"
+#include "test1/dispatch/DispatchMessage.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
@@ -13,13 +15,13 @@ public:
 
     using Interface =
         test1::Message<
-            comms::option::IdInfoInterface,
-            comms::option::ReadIterator<const std::uint8_t*>,
-            comms::option::WriteIterator<std::uint8_t*>,
-            comms::option::LengthInfoInterface,
-            comms::option::ValidCheckInterface,
-            comms::option::NameInterface,
-            comms::option::RefreshInterface
+            comms::option::app::IdInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
+            comms::option::app::NameInterface,
+            comms::option::app::RefreshInterface
         >;
 
     using Msg1 = test1::message::Msg1<Interface>;
@@ -30,6 +32,30 @@ public:
     {
         TS_ASSERT_EQUALS(msg.name(), value);
     }
+
+    class Handler
+    {
+    public:
+        void handle(const Msg1&)
+        {
+            ++m_msg1;
+        }
+
+        void handle(const Msg2&)
+        {
+            ++m_msg2;
+        }
+
+        void handle(const Interface&)
+        {
+            ++m_unknown;
+        }
+
+        unsigned m_msg1 = 0U;
+        unsigned m_msg2 = 0U;
+        unsigned m_unknown = 0U;
+    };
+
 };
 
 void TestSuite::test1()
@@ -52,4 +78,8 @@ void TestSuite::test2()
     auto es = frame.read(msg, readIter, BufSize);
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(msg->getId(), 1U);
+
+    Handler handler;
+    test1::dispatch::dispatchMessageDefaultOptions(test1::MsgId_Msg1, *msg, handler);
+    TS_ASSERT_EQUALS(handler.m_msg1, 1U);
 }

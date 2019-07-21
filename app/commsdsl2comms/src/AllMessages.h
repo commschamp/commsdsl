@@ -30,7 +30,6 @@ private:
     bool writeProtocolDefinition() const;
     bool writePluginDefinition() const;
 
-private:
     Generator& m_generator;
 };
 

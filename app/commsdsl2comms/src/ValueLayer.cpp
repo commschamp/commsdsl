@@ -78,7 +78,7 @@ std::string ValueLayer::getClassDefinitionImpl(
 
     if (obj.pseudo()) {
         replacements.insert(std::make_pair("COMMA", ","));
-        replacements.insert(std::make_pair("EXTRA_OPT", "comms::option::PseudoValue"));
+        replacements.insert(std::make_pair("EXTRA_OPT", "comms::option::def::PseudoValue"));
     }
 
     prevLayer = common::nameToClassCopy(name());

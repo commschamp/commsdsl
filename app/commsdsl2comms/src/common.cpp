@@ -171,6 +171,18 @@ const std::string& clientInputMessagesStr()
     return Str;
 }
 
+const std::string& serverInputStr()
+{
+    static const std::string Str("ServerInput");
+    return Str;
+}
+
+const std::string& clientInputStr()
+{
+    static const std::string Str("ClientInput");
+    return Str;
+}
+
 const std::string& checksumStr()
 {
     static const std::string Str("checksum");
@@ -257,7 +269,7 @@ const std::string& seqDefaultSizeStr()
 
 const std::string& emptyOptionString()
 {
-    static const std::string Str("comms::option::EmptyOption");
+    static const std::string Str("comms::option::app::EmptyOption");
     return Str;
 }
 
@@ -277,6 +289,12 @@ const std::string& inputStr()
 {
     static const std::string Str("input");
     return Str;    
+}
+
+const std::string& dispatchStr()
+{
+    static const std::string Str("dispatch");
+    return Str;
 }
 
 void nameToClass(std::string& str)
@@ -448,6 +466,17 @@ std::string makeMultilineCopy(const std::string& value, unsigned len)
     }
 
     return result;
+}
+
+std::string makeDoxygenMultilineCopy(const std::string& value, unsigned len)
+{
+    if (value.size() <= len) {
+        return value;
+    }
+
+    auto multiline = makeMultilineCopy(value, len);
+    ba::replace_all(multiline, "\n", "\n///     ");
+    return multiline;
 }
 
 void insertIndent(std::string& str)
@@ -625,8 +654,8 @@ void addToList(const std::string& what, StringsList& to)
 const std::string& dslEndianToOpt(commsdsl::Endian value)
 {
     static const std::string Map[] = {
-        "comms::option::LittleEndian",
-        "comms::option::BigEndian"
+        "comms::option::def::LittleEndian",
+        "comms::option::def::BigEndian"
     };
 
     static const std::size_t MapSize =
@@ -652,43 +681,43 @@ const std::string& dslUnitsToOpt(commsdsl::Units value)
 
     static const std::string UnitsMap[] = {
         /* Unknown */ common::emptyString(),
-        /* Nanoseconds */ "comms::option::UnitsNanoseconds",
-        /* Microseconds */ "comms::option::UnitsMicroseconds",
-        /* Milliseconds */ "comms::option::UnitsMilliseconds",
-        /* Seconds */ "comms::option::UnitsSeconds",
-        /* Minutes */ "comms::option::UnitsMinutes",
-        /* Hours */ "comms::option::UnitsHours",
-        /* Days */ "comms::option::UnitsDays",
-        /* Weeks */ "comms::option::UnitsWeeks",
-        /* Nanometers */ "comms::option::UnitsNanometers",
-        /* Micrometers */ "comms::option::UnitsMicrometers",
-        /* Millimeters */ "comms::option::UnitsMillimeters",
-        /* Centimeters */ "comms::option::UnitsCentimeters",
-        /* Meters */ "comms::option::UnitsMeters",
-        /* Kilometers */ "comms::option::UnitsKilometers",
-        /* NanometersPerSecond */ "comms::option::UnitsNanometersPerSecond",
-        /* MicrometersPerSecond */ "comms::option::UnitsMicrometersPerSecond",
-        /* MillimetersPerSecond */ "comms::option::UnitsMillimetersPerSecond",
-        /* CentimetersPerSecond */ "comms::option::UnitsCentimetersPerSecond",
-        /* MetersPerSecond */ "comms::option::UnitsMetersPerSecond",
-        /* KilometersPerSecond */ "comms::option::UnitsKilometersPerSecond",
-        /* KilometersPerHour */ "comms::option::UnitsKilometersPerHour",
-        /* Hertz */ "comms::option::UnitsHertz",
-        /* KiloHertz */ "comms::option::UnitsKilohertz",
-        /* MegaHertz */ "comms::option::UnitsMegahertz",
-        /* GigaHertz */ "comms::option::UnitsGigahertz",
-        /* Degrees */ "comms::option::UnitsDegrees",
-        /* Radians */ "comms::option::UnitsRadians",
-        /* Nanoamps */ "comms::option::UnitsNanoamps",
-        /* Microamps */ "comms::option::UnitsMicroamps",
-        /* Milliamps */ "comms::option::UnitsMilliamps",
-        /* Amps */ "comms::option::UnitsAmps",
-        /* Kiloamps */ "comms::option::UnitsKiloamps",
-        /* Nanovolts */ "comms::option::UnitsNanovolts",
-        /* Microvolts */ "comms::option::UnitsMicrovolts",
-        /* Millivolts */ "comms::option::UnitsMillivolts",
-        /* Volts */ "comms::option::UnitsVolts",
-        /* Kilovolts */ "comms::option::UnitsKilovolts",
+        /* Nanoseconds */ "comms::option::def::UnitsNanoseconds",
+        /* Microseconds */ "comms::option::def::UnitsMicroseconds",
+        /* Milliseconds */ "comms::option::def::UnitsMilliseconds",
+        /* Seconds */ "comms::option::def::UnitsSeconds",
+        /* Minutes */ "comms::option::def::UnitsMinutes",
+        /* Hours */ "comms::option::def::UnitsHours",
+        /* Days */ "comms::option::def::UnitsDays",
+        /* Weeks */ "comms::option::def::UnitsWeeks",
+        /* Nanometers */ "comms::option::def::UnitsNanometers",
+        /* Micrometers */ "comms::option::def::UnitsMicrometers",
+        /* Millimeters */ "comms::option::def::UnitsMillimeters",
+        /* Centimeters */ "comms::option::def::UnitsCentimeters",
+        /* Meters */ "comms::option::def::UnitsMeters",
+        /* Kilometers */ "comms::option::def::UnitsKilometers",
+        /* NanometersPerSecond */ "comms::option::def::UnitsNanometersPerSecond",
+        /* MicrometersPerSecond */ "comms::option::def::UnitsMicrometersPerSecond",
+        /* MillimetersPerSecond */ "comms::option::def::UnitsMillimetersPerSecond",
+        /* CentimetersPerSecond */ "comms::option::def::UnitsCentimetersPerSecond",
+        /* MetersPerSecond */ "comms::option::def::UnitsMetersPerSecond",
+        /* KilometersPerSecond */ "comms::option::def::UnitsKilometersPerSecond",
+        /* KilometersPerHour */ "comms::option::def::UnitsKilometersPerHour",
+        /* Hertz */ "comms::option::def::UnitsHertz",
+        /* KiloHertz */ "comms::option::def::UnitsKilohertz",
+        /* MegaHertz */ "comms::option::def::UnitsMegahertz",
+        /* GigaHertz */ "comms::option::def::UnitsGigahertz",
+        /* Degrees */ "comms::option::def::UnitsDegrees",
+        /* Radians */ "comms::option::def::UnitsRadians",
+        /* Nanoamps */ "comms::option::def::UnitsNanoamps",
+        /* Microamps */ "comms::option::def::UnitsMicroamps",
+        /* Milliamps */ "comms::option::def::UnitsMilliamps",
+        /* Amps */ "comms::option::def::UnitsAmps",
+        /* Kiloamps */ "comms::option::def::UnitsKiloamps",
+        /* Nanovolts */ "comms::option::def::UnitsNanovolts",
+        /* Microvolts */ "comms::option::def::UnitsMicrovolts",
+        /* Millivolts */ "comms::option::def::UnitsMillivolts",
+        /* Volts */ "comms::option::def::UnitsVolts",
+        /* Kilovolts */ "comms::option::def::UnitsKilovolts",
     };
 
     static const std::size_t UnitsMapSize = std::extent<decltype(UnitsMap)>::value;

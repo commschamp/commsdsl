@@ -69,10 +69,10 @@ const std::string Template(
     "    comms::MessageBase<\n"
     "        TMsgBase,\n"
     "        #^#CUSTOMIZATION_OPT#$#\n"
-    "        comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
-    "        comms::option::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
-    "        comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
-    "        comms::option::HasName#^#COMMA#$#\n"
+    "        comms::option::def::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
+    "        comms::option::def::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
+    "        comms::option::def::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
+    "        comms::option::def::HasName#^#COMMA#$#\n"
     "        #^#EXTRA_OPTIONS#$#\n"
     "    >\n"
     "{\n"
@@ -81,10 +81,10 @@ const std::string Template(
     "        comms::MessageBase<\n"
     "            TMsgBase,\n"
     "            #^#CUSTOMIZATION_OPT#$#\n"
-    "            comms::option::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
-    "            comms::option::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
-    "            comms::option::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
-    "            comms::option::HasName#^#COMMA#$#\n"
+    "            comms::option::def::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
+    "            comms::option::def::FieldsImpl<typename #^#ORIG_CLASS_NAME#$#Fields<TOpt>::All>,\n"
+    "            comms::option::def::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
+    "            comms::option::def::HasName#^#COMMA#$#\n"
     "            #^#EXTRA_OPTIONS#$#\n"
     "        >;\n"
     "\n"
@@ -410,11 +410,12 @@ std::string Message::getClientOptions() const
 
     if (m_dslObj.sender() == Sender::Client) {
         static const std::string Templ = 
-            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "/// @brief Extra options for\n"
+            "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
             "using #^#MESSAGE_NAME#$# =\n"
             "    std::tuple<\n"
-            "        comms::option::NoReadImpl,\n"
-            "        comms::option::NoDispatchImpl\n"
+            "        comms::option::app::NoReadImpl,\n"
+            "        comms::option::app::NoDispatchImpl\n"
             "    >;\n";
 
         return common::processTemplate(Templ, replacements);
@@ -422,11 +423,12 @@ std::string Message::getClientOptions() const
 
     assert(m_dslObj.sender() == Sender::Server);
     static const std::string Templ = 
-        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "/// @brief Extra options for\n"
+        "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# =\n"
         "    std::tuple<\n"
-        "        comms::option::NoWriteImpl,\n"
-        "        comms::option::NoRefreshImpl\n"
+        "        comms::option::app::NoWriteImpl,\n"
+        "        comms::option::app::NoRefreshImpl\n"
         "    >;\n";
 
     return common::processTemplate(Templ, replacements);
@@ -444,11 +446,12 @@ std::string Message::getServerOptions() const
 
     if (m_dslObj.sender() == Sender::Client) {
         static const std::string Templ = 
-            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "/// @brief Extra options for\n"
+            "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
             "using #^#MESSAGE_NAME#$# =\n"
             "    std::tuple<\n"
-            "        comms::option::NoWriteImpl,\n"
-            "        comms::option::NoRefreshImpl\n"
+            "        comms::option::app::NoWriteImpl,\n"
+            "        comms::option::app::NoRefreshImpl\n"
             "    >;\n";        
 
         return common::processTemplate(Templ, replacements);
@@ -456,11 +459,12 @@ std::string Message::getServerOptions() const
 
     assert(m_dslObj.sender() == Sender::Server);
     static const std::string Templ = 
-        "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "/// @brief Extra options for\n"
+        "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
         "using #^#MESSAGE_NAME#$# =\n"
         "    std::tuple<\n"
-        "        comms::option::NoReadImpl,\n"
-        "        comms::option::NoDispatchImpl\n"
+        "        comms::option::app::NoReadImpl,\n"
+        "        comms::option::app::NoDispatchImpl\n"
         "    >;\n";
 
     return common::processTemplate(Templ, replacements);
@@ -913,7 +917,7 @@ std::string Message::getRefreshFunc() const
 std::string Message::getExtraOptions() const
 {
     if ((!m_customRefresh.empty()) || (mustImplementReadRefresh())) {
-        return "comms::option::HasCustomRefresh";
+        return "comms::option::def::HasCustomRefresh";
     }
 
     return common::emptyString();
@@ -979,7 +983,8 @@ std::string Message::getOptions(GetFieldOptionsFunc func) const
     }
 
     static const std::string Templ =
-        "/// @brief Extra options for fields of @ref #^#MESSAGE_SCOPE#$# message.\n"
+        "/// @brief Extra options for fields of\n"
+        "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
         "struct #^#MESSAGE_NAME#$#Fields\n"
         "{\n"
         "    #^#FIELDS_OPTS#$#\n"
@@ -1006,8 +1011,9 @@ std::string Message::getOptions(GetFieldOptionsFunc func) const
 
     if (customizable) {
         static const std::string OptTempl =
-            "/// @brief Extra options for @ref #^#MESSAGE_SCOPE#$# message.\n"
-            "using #^#MESSAGE_NAME#$# = comms::option::EmptyOption;";
+            "/// @brief Extra options for\n"
+            "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
+            "using #^#MESSAGE_NAME#$# = comms::option::app::EmptyOption;";
         replacements.insert(std::make_pair("MESSAGE_OPT", common::processTemplate(OptTempl, replacements)));
     }
 

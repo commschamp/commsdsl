@@ -39,7 +39,8 @@ const std::string MembersDefTemplate =
     "};\n";
 
 const std::string MembersOptionsTemplate =
-    "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# optional.\n"
+    "/// @brief Extra options for all the member fields of\n"
+    "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# optional.\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
     "    #^#OPTIONS#$#\n"
@@ -376,8 +377,8 @@ void OptionalField::checkModeOpt(OptionalField::StringsList& options) const
 {
     static const std::string Map[] = {
         common::emptyString(),
-        "comms::option::ExistsByDefault",
-        "comms::option::MissingByDefault"
+        "comms::option::def::ExistsByDefault",
+        "comms::option::def::MissingByDefault"
     };
 
     static const std::size_t MapSize =

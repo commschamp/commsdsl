@@ -57,7 +57,7 @@ std::string PayloadLayer::getClassDefinitionImpl(
 
 const std::string& PayloadLayer::getBareMetalOptionStrImpl() const
 {
-    static const std::string Str("comms::option::FixedSizeStorage<" + common::seqDefaultSizeStr() + " * 8>");
+    static const std::string Str("comms::option::app::FixedSizeStorage<" + common::seqDefaultSizeStr() + " * 8>");
     return Str;
 }
 

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,31 +17,29 @@
 
 #include <string>
 
+#include "commsdsl/Message.h"
+
+#include "common.h"
+
 namespace commsdsl2comms
 {
 
 class Generator;
-class Doxygen
+class Dispatch
 {
 public:
     static bool write(Generator& generator);
 
 private:
-    explicit Doxygen(Generator& generator) : m_generator(generator) {}
+    using DslMessagesList = std::vector<commsdsl::Message>;
 
-    bool writeConf() const;
-    bool writeLayout() const;
-    bool writeNamespaces() const;
-    bool writeMainpage() const;
+    explicit Dispatch(Generator& generator) : m_generator(generator) {}
 
-    std::string getMessagesDoc() const;
-    std::string getFieldsDoc() const;
-    std::string getInterfacesDoc() const;
-    std::string getFramesDoc() const;
-    std::string getDispatchDoc() const;
-    std::string getPlatformsDoc() const;
-    std::string getCustomizeDoc() const;
-    std::string getVersionDoc() const;
+    bool writeProtocolDefinition() const;
+    std::string getDispatchFunc(
+        const std::string& funcName,
+        const DslMessagesList& messages) const;
+    std::string getIdString(std::uintmax_t value) const;
 
     Generator& m_generator;
 };

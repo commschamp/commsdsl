@@ -202,10 +202,10 @@ std::string StringField::getBareMetalOptionStrImpl() const
     auto obj = stringFieldDslObj();
     auto fixedLength = obj.fixedLength();
     if (fixedLength != 0U) {
-        return "comms::option::SequenceFixedSizeUseFixedSizeStorage";
+        return "comms::option::app::SequenceFixedSizeUseFixedSizeStorage";
     }
 
-    return "comms::option::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
+    return "comms::option::app::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
 }
 
 std::string StringField::getCompareToValueImpl(
@@ -491,7 +491,7 @@ void StringField::checkFixedLengthOpt(StringField::StringsList& list) const
     }
 
     auto str =
-        "comms::option::SequenceFixedSize<" +
+        "comms::option::def::SequenceFixedSize<" +
         common::numToString(static_cast<std::uintmax_t>(fixedLen)) +
         ">";
     list.push_back(std::move(str));
@@ -528,7 +528,7 @@ void StringField::checkPrefixOpt(StringField::StringsList& list) const
         static_cast<void>(fieldPtr);
     }
 
-    list.push_back("comms::option::SequenceSerLengthFieldPrefix<" + prefixName + '>');
+    list.push_back("comms::option::def::SequenceSerLengthFieldPrefix<" + prefixName + '>');
 }
 
 void StringField::checkSuffixOpt(StringField::StringsList& list) const
@@ -539,11 +539,11 @@ void StringField::checkSuffixOpt(StringField::StringsList& list) const
     }
 
     static const std::string Templ =
-        "comms::option::SequenceTerminationFieldSuffix<\n"
+        "comms::option::def::SequenceTerminationFieldSuffix<\n"
         "    comms::field::IntValue<\n"
         "        #^#PROT_NAMESPACE#$#::field::FieldBase<>,\n"
         "        std::uint8_t,\n"
-        "        comms::option::ValidNumValueRange<0, 0>\n"
+        "        comms::option::def::ValidNumValueRange<0, 0>\n"
         "    >\n"
         ">";
 
@@ -560,7 +560,7 @@ void StringField::checkForcingOpt(StringsList& list) const
         return;
     }
 
-    common::addToList("comms::option::SequenceLengthForcingEnabled", list);
+    common::addToList("comms::option::def::SequenceLengthForcingEnabled", list);
 }
 
 std::string StringField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const
@@ -577,7 +577,8 @@ std::string StringField::getExtraOptions(const std::string& scope, GetExtraOptio
     }
 
     const std::string Templ =
-        "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
+        "/// @brief Extra options for all the member fields of\n"
+        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
         "struct #^#CLASS_NAME#$#Members\n"
         "{\n"
         "    #^#OPTIONS#$#\n"

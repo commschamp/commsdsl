@@ -52,6 +52,8 @@ const std::string& msgIdPrefixStr();
 const std::string& allMessagesStr();
 const std::string& serverInputMessagesStr();
 const std::string& clientInputMessagesStr();
+const std::string& serverInputStr();
+const std::string& clientInputStr();
 const std::string& checksumStr();
 const std::string& layerStr();
 const std::string& pluginNsStr();
@@ -70,6 +72,7 @@ const std::string& emptyOptionString();
 const std::string& inputTestStr();
 const std::string& testStr();
 const std::string& inputStr();
+const std::string& dispatchStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
@@ -88,6 +91,8 @@ std::string numToString(unsigned value, unsigned hexWidth = 0U)
 }
 
 std::string makeMultilineCopy(const std::string& value, unsigned len = 60);
+std::string makeDoxygenMultilineCopy(const std::string& value, unsigned len = 60);
+
 void insertIndent(std::string& str);
 std::string insertIndentCopy(const std::string& str);
 

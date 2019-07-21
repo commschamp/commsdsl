@@ -56,6 +56,7 @@ private:
     std::string getAccess() const;
     std::string getRead() const;
     std::string getRefresh() const;
+    std::string getCurrFieldExec() const;
     std::string getPrivate() const;
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const;
     bool hasOptimizedRead() const;

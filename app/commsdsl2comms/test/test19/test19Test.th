@@ -1,5 +1,6 @@
 #include "cxxtest/TestSuite.h"
 
+#include "comms/iterator.h"
 #include "test19/Interface1.h"
 #include "test19/Interface2.h"
 #include "test19/message/Msg1.h"
@@ -14,24 +15,24 @@ public:
 
     using Interface1 =
         test19::Interface1<
-            comms::option::IdInfoInterface,
-            comms::option::ReadIterator<const std::uint8_t*>,
-            comms::option::WriteIterator<std::uint8_t*>,
-            comms::option::LengthInfoInterface,
-            comms::option::ValidCheckInterface,
-            comms::option::NameInterface,
-            comms::option::RefreshInterface
+            comms::option::app::IdInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
+            comms::option::app::NameInterface,
+            comms::option::app::RefreshInterface
         >;
 
     using Interface2 =
         test19::Interface2<
-            comms::option::IdInfoInterface,
-            comms::option::ReadIterator<const std::uint8_t*>,
-            comms::option::WriteIterator<std::uint8_t*>,
-            comms::option::LengthInfoInterface,
-            comms::option::ValidCheckInterface,
-            comms::option::NameInterface,
-            comms::option::RefreshInterface
+            comms::option::app::IdInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
+            comms::option::app::NameInterface,
+            comms::option::app::RefreshInterface
         >;
 
     using Frame1 = test19::frame::TestFrame1<Interface1>;

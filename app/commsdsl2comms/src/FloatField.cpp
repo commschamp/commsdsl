@@ -663,7 +663,7 @@ void FloatField::checkVersionOpt(FloatField::StringsList& list) const
     }
 
     if (versionDependent) {
-        list.push_back("comms::option::VersionStorage");
+        list.push_back("comms::option::def::VersionStorage");
     }
 }
 
@@ -672,7 +672,7 @@ void FloatField::checkValidityOpt(FloatField::StringsList& list) const
     auto obj = floatFieldDslObj();
 
     if (!obj.validRanges().empty()) {
-        list.push_back("comms::option::InvalidByDefault");
+        list.push_back("comms::option::def::InvalidByDefault");
     }
 }
 

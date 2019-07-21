@@ -23,10 +23,10 @@
 #define COMMSDSL_MAJOR_VERSION 2U
 
 /// @brief Minor verion of the library
-#define COMMSDSL_MINOR_VERSION 0U
+#define COMMSDSL_MINOR_VERSION 1U
 
 /// @brief Patch level of the library
-#define COMMSDSL_PATCH_VERSION 2U
+#define COMMSDSL_PATCH_VERSION 0U
 
 /// @brief Macro to create numeric version as single unsigned number
 #define COMMSDSL_MAKE_VERSION(major_, minor_, patch_) \

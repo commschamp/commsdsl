@@ -51,7 +51,7 @@ std::string IdLayer::getClassDefinitionImpl(
         "        #^#FIELD_TYPE#$#,\n"
         "        TMessage,\n"
         "        TAllMessages,\n"
-        "        #^#PREV_LAYER#$#,\n"
+        "        #^#PREV_LAYER#$##^#COMMA#$#\n"
         "        #^#EXTRA_OPT#$#\n"
         "    >;\n";
     
@@ -63,6 +63,10 @@ std::string IdLayer::getClassDefinitionImpl(
     replacements.insert(std::make_pair("EXTRA_OPT", getExtraOpt(scope)));
     replacements.insert(std::make_pair("PREV_LAYER", prevLayer));
 
+    if (!replacements["EXTRA_OPT"].empty()) {
+        replacements.insert(std::make_pair("COMMA", ","));
+    }
+
     prevLayer = common::nameToClassCopy(name());
     hasInputMessages = true;
     return common::processTemplate(Templ, replacements);
@@ -70,7 +74,7 @@ std::string IdLayer::getClassDefinitionImpl(
 
 const std::string& IdLayer::getBareMetalOptionStrImpl() const
 {
-    static const std::string Str("comms::option::InPlaceAllocation");
+    static const std::string Str("comms::option::app::InPlaceAllocation");
     return Str;
 }
 

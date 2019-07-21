@@ -46,7 +46,8 @@ const std::string MembersDefTemplate =
     "};\n";
 
 const std::string MembersOptionsTemplate =
-    "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
+    "/// @brief Extra options for all the member fields of\n"
+    "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
     "    #^#OPTIONS#$#\n"
@@ -325,8 +326,8 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
             });
 
     if (membersHaveCustomReadRefresh) {
-        common::addToList("comms::option::HasCustomRead", options);
-        common::addToList("comms::option::HasCustomRefresh", options);
+        common::addToList("comms::option::def::HasCustomRead", options);
+        common::addToList("comms::option::def::HasCustomRefresh", options);
     }
 
     auto lengthFieldIter = 
@@ -339,7 +340,7 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
 
     if (lengthFieldIter != m_members.end()) {
         auto idx = static_cast<unsigned>(std::distance(m_members.begin(), lengthFieldIter));
-        auto optStr = "comms::option::RemLengthMemberField<" + common::numToString(idx) + '>';
+        auto optStr = "comms::option::def::RemLengthMemberField<" + common::numToString(idx) + '>';
         common::addToList(optStr, options);
     }
 

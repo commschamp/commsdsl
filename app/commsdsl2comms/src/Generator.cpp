@@ -32,6 +32,7 @@
 #include "Doxygen.h"
 #include "Version.h"
 #include "Test.h"
+#include "Dispatch.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -43,7 +44,7 @@ namespace
 {
 
 const unsigned MaxDslVersion = 2U;
-const std::string MinCommsVersionStr("1, 3, 0");
+const std::string MinCommsVersionStr("2, 0, 0");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
@@ -386,6 +387,12 @@ Generator::startInputPluginHeaderWrite(const std::string& externalRef)
 }
 
 std::pair<std::string, std::string>
+Generator::startDispatchProtocolWrite(const std::string& name)
+{
+    return startProtocolWrite(name, common::dispatchStr());
+}
+
+std::pair<std::string, std::string>
 Generator::startGenericProtocolWrite(const std::string& name)
 {
     return startProtocolWrite(name);
@@ -489,6 +496,12 @@ Generator::namespacesForInputInPlugin() const
 }
 
 std::pair<std::string, std::string>
+Generator::namespacesForDispatch() const
+{
+    return namespacesForElement(common::emptyString(), common::dispatchStr());
+}
+
+std::pair<std::string, std::string>
 Generator::namespacesForRoot() const
 {
     std::string begStr =
@@ -545,14 +558,14 @@ std::string Generator::headerfileForFieldInPlugin(const std::string& externalRef
     return headerfileForElement(externalRef, quotes, common::fieldStr(), true);
 }
 
-std::string Generator::headerfileForInterface(const std::string& externalRef)
+std::string Generator::headerfileForInterface(const std::string& externalRef, bool quotes)
 {
     std::string externalRefCpy(externalRef);
     if (externalRefCpy.empty()) {
         externalRefCpy = common::messageClassStr();
     }
 
-    return headerfileForElement(externalRefCpy, true);
+    return headerfileForElement(externalRefCpy, quotes);
 }
 
 std::string Generator::headerfileForInterfaceInPlugin(const std::string& externalRef, bool quotes)
@@ -598,6 +611,16 @@ std::string Generator::headerfileForInput(const std::string& name, bool quotes)
 std::string Generator::headerfileForInputInPlugin(const std::string& name, bool quotes)
 {
     return headerfileForElement(name, quotes, common::inputStr(), true);
+}
+
+std::string Generator::headerfileForDispatch(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes, common::dispatchStr());
+}
+
+std::string Generator::headerfileForRoot(const std::string& name, bool quotes)
+{
+    return headerfileForElement(name, quotes);
 }
 
 std::string Generator::scopeForMessage(
@@ -728,6 +751,22 @@ std::string Generator::scopeForInput(
 std::string Generator::scopeForInputInPlugin(const std::string& externalRef)
 {
     return scopeForElement(externalRef, true, true, common::inputStr(), true);
+}
+
+std::string Generator::scopeForDispatch(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(name, mainIncluded, classIncluded, common::dispatchStr());
+}
+
+std::string Generator::scopeForRoot(
+    const std::string& name,
+    bool mainIncluded,
+    bool classIncluded)
+{
+    return scopeForElement(name, mainIncluded, classIncluded);
 }
 
 std::string Generator::getDefaultOptionsBody() const
@@ -1042,7 +1081,8 @@ bool Generator::writeFiles()
     if ((!FieldBase::write(*this)) ||
         (!MsgId::write(*this)) ||
         (!Version::write(*this)) ||
-        (!AllMessages::write(*this))) {
+        (!AllMessages::write(*this)) ||
+        (!Dispatch::write(*this))) {
         return false;
     }
 

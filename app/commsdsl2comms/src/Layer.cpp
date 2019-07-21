@@ -166,7 +166,7 @@ std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
         if (m_forcedFieldPseudo) {
             templateParams = 
                 m_generator.scopeForOptions(common::defaultOptionsStr(), true, true) +
-                ", comms::option::EmptySerialization";
+                ", comms::option::def::EmptySerialization";
         }        
         return m_generator.scopeForField(extRef, true, true) + '<' + templateParams + '>';
     }
@@ -315,6 +315,10 @@ std::string Layer::getFieldType() const
 
 std::string Layer::getExtraOpt(const std::string& scope) const
 {
+    if (!isCustomizable()) {
+        return common::emptyString();
+    }
+
     return "typename " + scope + common::nameToClassCopy(name());
 }
 
@@ -366,21 +370,31 @@ bool Layer::isCustomizableImpl() const
     return false;
 }
 
+bool Layer::isCustomizable() const
+{
+    if (m_generator.customizationLevel() == CustomizationLevel::None) {
+        return false;
+    }
+
+    return isCustomizableImpl();
+}
+
 std::string Layer::extraOpsForExternalField() const
 {
     std::string extraOpt;
     if (m_forcedFieldFailOnInvalid) {
-        extraOpt += ", comms::option::FailOnInvalid<comms::ErrorStatus::ProtocolError> ";
+        extraOpt += ", comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError> ";
     }
 
     if (m_forcedFieldPseudo) {
-        extraOpt += ", comms::option::EmptySerialization";
+        extraOpt += ", comms::option::def::EmptySerialization";
     }
 
     return extraOpt;
 }
 
-std::string Layer::getOptions(const std::string& scope,
+std::string Layer::getOptions(
+    const std::string& scope,
     GetFieldOptionsFunc fieldFunc,
     GetOptionStrFunc optionStrFunc) const
 {
@@ -402,7 +416,8 @@ std::string Layer::getOptions(const std::string& scope,
         }
 
         static const std::string Templ =
-            "/// @brief Extra options for all the member fields of @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
+            "/// @brief Extra options for all the member fields of\n"
+            "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
             "struct #^#CLASS_NAME#$#Members\n"
             "{\n"
             "    #^#FIELD_OPT#$#\n"
@@ -422,11 +437,12 @@ std::string Layer::getOptions(const std::string& scope,
         return str;
     }
 
+    auto docStr = "/// @brief Extra options for @ref " +
+            fullScope + className + " layer.";
     return
         str +
-        "/// @brief Extra options for @ref " +
-        fullScope + className + " layer.\n" +
-        "using " + className + " = " +
+        common::makeDoxygenMultilineCopy(docStr, 40) +
+        "\nusing " + className + " = " +
         (this->*optionStrFunc)() + ";\n";
 }
 
