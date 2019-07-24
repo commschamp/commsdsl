@@ -59,6 +59,7 @@ private:
     std::string getFieldBaseParams() const;
     const std::string& getFieldType() const;
     std::string getOpts(const std::string& scope) const;
+    std::string getPropsUpdate() const;
 
     commsdsl::RefField refFieldDslObj() const
     {

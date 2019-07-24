@@ -179,8 +179,6 @@ std::string RefField::getClassDefinitionImpl(
         }
     }
 
-    // TODO: check display name is empty
-
     return common::processTemplate(*templ, replacements);
 }
 
@@ -248,17 +246,22 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
 {
     static const std::string Templ =
         "#^#SER_HIDDEN_CAST#$#\n"
-        "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n";
+        "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n"
+        "#^#EXTRA_PROPS#$#\n"
+        "return props;\n";
 
     static const std::string TemplWithField =
         "#^#SER_HIDDEN_CAST#$#\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
-        "return #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n";
+        "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n"
+        "#^#EXTRA_PROPS#$#\n"
+        "return props;\n";
 
     static const std::string VerOptTempl =
         "#^#SER_HIDDEN_CAST#$#\n"
         "using InnerField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#Field;\n"
         "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$##^#SER_HIDDEN#$#);\n\n"
+        "#^#EXTRA_PROPS#$#\n"
         "using Field = #^#FIELD_SCOPE#$##^#CLASS_NAME#$##^#TEMPL_PARAMS#$#;\n"
         "return\n"
         "    cc::property::field::ForField<Field>()\n"
@@ -280,6 +283,8 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("PLUGIN_SCOPE", generator().scopeForFieldInPlugin(refFieldDslObj().field().externalRef())));
     replacements.insert(std::make_pair("REF_NAME", common::nameToAccessCopy(refFieldDslObj().field().name())));
+    replacements.insert(std::make_pair("UPDATE_PROPS", getPropsUpdate()));
+
     if (!scope.empty()) {
         replacements.insert(std::make_pair("FIELD_SCOPE", scope));
     }
@@ -330,6 +335,42 @@ std::string RefField::getOpts(const std::string& scope) const
         options.push_back("comms::option::def::FixedBitLength<" + common::numToString(bitLength) + '>');
     }
     return common::listToString(options, ",\n", common::emptyString());
+}
+
+std::string RefField::getPropsUpdate() const
+{
+    auto refObj = refFieldDslObj().field();
+    auto fieldPtr = generator().findField(refObj.externalRef());
+    if (fieldPtr == nullptr) {
+        assert(!"Unexpected");
+        return common::emptyString();
+    }
+
+    common::StringsList updates;
+
+    bool displayReadOnly = dslObj().isDisplayReadOnly();
+    if (displayReadOnly != fieldPtr->dslObj().isDisplayReadOnly()) {
+        updates.push_back(".readOnly(" + common::boolToString(displayReadOnly) + ')');
+    }
+
+    bool displayHidden = dslObj().isDisplayHidden();
+    if (displayHidden != fieldPtr->dslObj().isDisplayHidden()) {
+        updates.push_back(".hidden(" + common::boolToString(displayHidden) + ')');
+    }
+
+    if (updates.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "auto extraProps =\n"
+        "    cc::property::field::Common()\n"
+        "        #^#UPDATES#$#;\n"
+        "extraProps.setTo(props);";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("UPDATES", common::listToString(updates, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms

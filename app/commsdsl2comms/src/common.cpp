@@ -399,6 +399,17 @@ std::string numToString(std::intmax_t value)
     return stream.str();
 }
 
+const std::string& boolToString(bool value)
+{
+    if (value) {
+        static const std::string TrueStr("true");
+        return TrueStr;
+    }
+
+    static const std::string FalseStr("false");
+    return FalseStr;
+}
+
 std::string makeMultilineCopy(const std::string& value, unsigned len)
 {
     if (value.size() <= len) {

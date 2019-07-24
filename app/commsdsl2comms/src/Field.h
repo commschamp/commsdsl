@@ -180,6 +180,11 @@ public:
         return getPluginPropertiesImpl(serHiddenParam);
     }
 
+    const commsdsl::Field& dslObj() const
+    {
+        return m_dslObj;
+    }
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),
@@ -188,11 +193,6 @@ protected:
     Generator& generator() const
     {
         return m_generator;
-    }
-
-    const commsdsl::Field& dslObj() const
-    {
-        return m_dslObj;
     }
 
     bool isForcedNoOptionsConfig() const
