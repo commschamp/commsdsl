@@ -214,6 +214,8 @@ public:
     bool verifySemanticType() const;
     bool verifySemanticType(::xmlNodePtr node, SemanticType type) const;
 
+    std::string schemaPos() const;
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);

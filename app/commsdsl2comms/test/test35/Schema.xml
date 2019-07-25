@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test35"
+        id="1"
+        endian="big"
+        version="2">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+        
+        <int name="Version" type="uint8" semanticType="version" />
+    </fields>
+        
+    <interface name="Message">
+        <ref field="Version" displayHidden="true" />
+    </interface>      
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref field="Version"/>
+    </message>
+    
+    <message name="Msg2" id="MsgId.M2">
+        <int name="F1" type="uint8" sinceVersion="2" />
+    </message>
+
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <value name="Version" interfaceFieldName="Version" pseudo="true">
+            <ref field="Version" />
+        </value>
+        <payload name="Data" />
+    </frame>       
+</schema>

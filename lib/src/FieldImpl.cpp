@@ -318,6 +318,11 @@ bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
     return true;
 }
 
+std::string FieldImpl::schemaPos() const
+{
+    return XmlWrap::logPrefix(m_node);
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)

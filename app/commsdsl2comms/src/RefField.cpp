@@ -95,6 +95,29 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
 
 } // namespace
 
+bool RefField::prepareImpl()
+{
+    auto obj = refFieldDslObj();
+    auto fieldObj = obj.field();
+    if (fieldObj.isPseudo() != obj.isPseudo()) {
+        generator().logger().error(
+            obj.schemaPos() +
+            "Having \"pseudo\" property value for <ref> field \"" + name() +
+            "\" that differs to one of the referenced field is not supported by the code generator.");
+        return false;
+    }
+
+    if (fieldObj.isFailOnInvalid() != obj.isFailOnInvalid()) {
+        generator().logger().error(
+            obj.schemaPos() +
+            "Having \"failOnInvalid\" property value for <ref> field \"" + name() +
+            "\" that differs to one of the referenced field is not supported by the code generator.");
+        return false;
+    }
+
+    return true;
+}
+
 void RefField::updateIncludesImpl(IncludesList& includes) const
 {
     auto inc =
@@ -283,7 +306,7 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("PLUGIN_SCOPE", generator().scopeForFieldInPlugin(refFieldDslObj().field().externalRef())));
     replacements.insert(std::make_pair("REF_NAME", common::nameToAccessCopy(refFieldDslObj().field().name())));
-    replacements.insert(std::make_pair("UPDATE_PROPS", getPropsUpdate()));
+    replacements.insert(std::make_pair("EXTRA_PROPS", getPropsUpdate()));
 
     if (!scope.empty()) {
         replacements.insert(std::make_pair("FIELD_SCOPE", scope));
@@ -303,8 +326,8 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
         replacements.insert(std::make_pair("NAME_PROP", "Field::name()"));
     }
 
-    static const std::string CastStr("static_cast<void>(serHidden);");
-    if (forcedSerialisedHidden) {
+   static const std::string CastStr("static_cast<void>(serHidden);");
+    if (forcedSerialisedHidden || isPseudo()) {
         replacements.insert(std::make_pair("SER_HIDDEN", ", true"));
         if (serHiddenParam) {
             replacements.insert(std::make_pair("SER_HIDDEN_CAST", CastStr));
