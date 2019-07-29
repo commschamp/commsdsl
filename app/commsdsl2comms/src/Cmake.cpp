@@ -179,7 +179,7 @@ bool Cmake::writeMain() const
         "    set (cc_main_dir \"${CMAKE_BINARY_DIR}/comms_champion\")\n"
         "    set (cc_src_dir \"${cc_main_dir}/src\")\n"
         "    set (cc_bin_dir \"${cc_main_dir}/build\")\n"
-        "    set (cc_install_dir \"${INSTALL_DIR}\")\n\n"
+        "    set (cc_install_dir \"${CMAKE_INSTALL_PREFIX}\")\n\n"
         "    if (NOT \"${OPT_QT_DIR}\" STREQUAL \"\")\n"
         "        set (cc_qt_dir_opt -DCC_QT_DIR=${OPT_QT_DIR})\n"
         "        set (EXT_QT_DIR ${OPT_QT_DIR})\n"
