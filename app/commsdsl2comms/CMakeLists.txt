@@ -6,6 +6,6 @@ add_subdirectory (test)
 if (UNIX)
     install(
         PROGRAMS script/${APP_NAME}.sh
-        DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
+        DESTINATION ${CMAKE_INSTALL_BINDIR}
     )
 endif ()
