@@ -34,6 +34,7 @@ namespace
 
 const std::string ProtSuffix("Protocol");
 const std::string PluginSuffix("Plugin");
+const std::string WidgetSuffix("ConfigWidget");
 
 } // namespace
 
@@ -62,7 +63,9 @@ bool Plugin::write()
         writePluginHeader() &&
         writePluginSrc() &&
         writePluginJson() &&
-        writePluginConfig();
+        writePluginConfig() &&
+        writeVersionConfigWidgetHeader() &&
+        writeVersionConfigWidgetSrc();
 }
 
 const std::string& Plugin::adjustedName() const
@@ -72,6 +75,12 @@ const std::string& Plugin::adjustedName() const
         nameToUse = &m_generator.schemaName();
     }
     return *nameToUse;
+}
+
+bool Plugin::hasConfigWidget() const
+{
+    assert(m_interfacePtr != nullptr);
+    return (m_interfacePtr->hasVersion());
 }
 
 bool Plugin::writeProtocolHeader()
@@ -469,6 +478,141 @@ bool Plugin::writePluginConfig()
     return true;
 }
 
+bool Plugin::writeVersionConfigWidgetHeader()
+{
+    if (!hasConfigWidget()) {
+        return true;
+    }
+
+    auto startInfo = m_generator.startProtocolPluginHeaderWrite(configWidgetClassName());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#pragma once\n\n"
+        "#include <QtWidgets/QWidget>\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "class #^#CLASS_NAME#$# : public QWidget\n"
+        "{\n"
+        "    Q_OBJECT\n"
+        "public:\n"
+        "    explicit #^#CLASS_NAME#$#(int& version);\n\n"
+        "private slots:\n"
+        "    void versionChanged(int value);\n\n"
+        "private:\n"
+        "    int& m_version;\n"
+        "};\n\n"
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n"
+    ;
+
+    auto namespaces = m_generator.namespacesForPluginDef(className);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(configWidgetClassName())));
+
+    std::string str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Plugin::writeVersionConfigWidgetSrc()
+{
+    if (!hasConfigWidget()) {
+        return true;
+    }
+
+    auto startInfo = m_generator.startProtocolPluginSrcWrite(configWidgetClassName());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+        "#include <QtWidgets/QHBoxLayout>\n"
+        "#include <QtWidgets/QLabel>\n"
+        "#include <QtWidgets/QSpacerItem>\n"
+        "#include <QtWidgets/QSpinBox>\n"
+        "#include <QtWidgets/QVBoxLayout>\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(int& version) :\n"
+        "    m_version(version)\n"
+        "{\n"
+        "    auto* versionLabel = new QLabel(\"Default Version:\");\n"
+        "    auto* versionSpinBox = new QSpinBox;\n"
+        "    versionSpinBox->setMaximum(99999999);\n"
+        "    versionSpinBox->setValue(version);\n"
+        "    auto* versionSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);\n"
+        "    auto* versionLayoutLayout = new QHBoxLayout();\n"
+        "    versionLayoutLayout->addWidget(versionLabel);\n"
+        "    versionLayoutLayout->addWidget(versionSpinBox);\n"
+        "    versionLayoutLayout->addItem(versionSpacer);\n\n"
+        "    auto* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);\n\n"
+        "    auto* verticalLayout = new QVBoxLayout(this);\n"
+        "    verticalLayout->addLayout(versionLayoutLayout);\n"
+        "    verticalLayout->addItem(verticalSpacer);\n\n"
+        "    setLayout(verticalLayout);\n\n"
+        "    connect(\n"
+        "        versionSpinBox, SIGNAL(valueChanged(int)),\n"
+        "        this, SLOT(versionChanged(int)));\n"
+        "}\n\n"
+        "void #^#CLASS_NAME#$#::versionChanged(int value)\n"
+        "{\n"
+        "    m_version = value;\n"
+        "}\n\n"
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n"
+    ;
+
+    auto namespaces = m_generator.namespacesForPluginDef(className);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(configWidgetClassName())));
+
+    std::string str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
 std::string Plugin::protClassName() const
 {
     return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + ProtSuffix;
@@ -477,6 +621,11 @@ std::string Plugin::protClassName() const
 std::string Plugin::pluginClassName() const
 {
     return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + PluginSuffix;
+}
+
+std::string Plugin::configWidgetClassName() const
+{
+    return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + WidgetSuffix;
 }
 
 std::string Plugin::pluginId() const
