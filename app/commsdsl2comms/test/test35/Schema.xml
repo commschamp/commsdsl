@@ -13,7 +13,7 @@
     </fields>
         
     <interface name="Message">
-        <ref field="Version" displayHidden="true" />
+        <ref field="Version" />
     </interface>      
     
     <message name="Msg1" id="MsgId.M1">
@@ -25,9 +25,12 @@
     </message>
 
     <frame name="Frame">
+        <size name="Size">
+            <int name="Size" type="uint8" />
+        </size>
         <id name="ID" field="MsgId" />
         <value name="Version" interfaceFieldName="Version" pseudo="true">
-            <ref field="Version" />
+            <ref field="Version" displayHidden="true" />
         </value>
         <payload name="Data" />
     </frame>       

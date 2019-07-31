@@ -36,6 +36,7 @@ protected:
         const std::string& scope,
         std::string& prevLayer,
         bool& hasInputMessages) const override final;
+    virtual bool isPseudoVersionLayerImpl() const override final;
 
 private:
     commsdsl::ValueLayer valueLayerDslObj() const

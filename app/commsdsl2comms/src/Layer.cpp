@@ -370,6 +370,11 @@ bool Layer::isCustomizableImpl() const
     return false;
 }
 
+bool Layer::isPseudoVersionLayerImpl() const
+{
+    return false;
+}
+
 bool Layer::isCustomizable() const
 {
     if (m_generator.customizationLevel() == CustomizationLevel::None) {

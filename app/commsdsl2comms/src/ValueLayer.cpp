@@ -85,4 +85,18 @@ std::string ValueLayer::getClassDefinitionImpl(
     return common::processTemplate(Templ, replacements);
 }
 
+bool ValueLayer::isPseudoVersionLayerImpl() const
+{
+    auto obj = valueLayerDslObj();
+    if (!obj.pseudo()) {
+        return false;
+    }
+
+    if (memberField()->semanticType() == commsdsl::Field::SemanticType::Version) {
+        return true;
+    }
+
+    return false;
+}
+
 } // namespace commsdsl2comms

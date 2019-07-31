@@ -285,7 +285,7 @@ bool Plugin::writeProtocolSrc()
     }
 
     if (hasConfigWidget()) {
-        static const std::string VerImplPub =
+        static const std::string VerImplPubTempl =
             "int getVersion() const\n"
             "{\n"
             "    return m_version;\n"
@@ -293,6 +293,7 @@ bool Plugin::writeProtocolSrc()
             "void setVersion(int value)\n"
             "{\n"
             "    m_version = value;\n"
+            "    #^#UPDATE_FRAME#$#\n"
             "}\n";
 
         static const std::string VerImplProtected =
@@ -324,7 +325,9 @@ bool Plugin::writeProtocolSrc()
             "        std::get<VersionIdx>(castedMsg.transportFields()).value() =\n"
             "            static_cast<#^#INTERFACE_TYPE#$#::VersionType>(m_version);\n"
             "        castedMsg.refresh();\n"
+            "        updateMessage(msg);\n"
             "    }\n\n"
+            "    #^#UPDATE_FRAME#$#\n"
             "    int m_version = #^#DEFAULT_VERSION#$#;\n";
 
         static const std::string VerApiTempl =
@@ -337,14 +340,42 @@ bool Plugin::writeProtocolSrc()
             "    m_pImpl->setVersion(value);\n"
             "}\n";
 
+        common::ReplacementMap replVerImplPubTempl;
+
         common::ReplacementMap replVerImplPrivateTempl;
         replVerImplPrivateTempl.insert(std::make_pair("DEFAULT_VERSION", common::numToString(m_generator.schemaVersion())));
         replVerImplPrivateTempl.insert(std::make_pair("INTERFACE_TYPE", m_generator.scopeForInterfaceInPlugin(m_interfacePtr->externalRef())));
 
+        auto pseudoLayers = m_framePtr->getPseudoVersionLayers();
+        common::StringsList pseudoUpdates;
+        for (auto& l : pseudoLayers) {
+            auto layerTypeStr = "LayerType_" + common::nameToClassCopy(l);
+            auto layerAccStr = "layer_" + common::nameToAccessCopy(l);
+            auto str =
+                "auto& " + layerAccStr + " = protocolStack()." + layerAccStr + "();\n"
+                "using " + layerTypeStr + " = typename std::decay<decltype(" + layerAccStr + ")>::type;\n" +
+                layerAccStr + ".pseudoField().value() =\n"
+                "    static_cast<" + layerTypeStr + "::Field::ValueType>(m_version);\n";
+            pseudoUpdates.push_back(std::move(str));
+        }
+
+        if (!pseudoUpdates.empty()) {
+            static const std::string UpdateFrameTempl =
+                "void updateFrame()\n"
+                "{\n"
+                "    #^#UPDATES#$#\n"
+                "}\n";
+
+            common::ReplacementMap replUpdateFrameTempl;
+            replUpdateFrameTempl.insert(std::make_pair("UPDATES", common::listToString(pseudoUpdates, common::emptyString(), common::emptyString())));
+            replVerImplPrivateTempl.insert(std::make_pair("UPDATE_FRAME", common::processTemplate(UpdateFrameTempl, replUpdateFrameTempl)));
+            replVerImplPubTempl.insert(std::make_pair("UPDATE_FRAME", "updateFrame();"));
+        }
+
         common::ReplacementMap replVerApiTempl;
         replVerApiTempl.insert(std::make_pair("CLASS_NAME", className));
 
-        replacements.insert(std::make_pair("VERSION_IMPL_PUBLIC", VerImplPub));
+        replacements.insert(std::make_pair("VERSION_IMPL_PUBLIC", common::processTemplate(VerImplPubTempl, replVerImplPubTempl)));
         replacements.insert(std::make_pair("VERSION_IMPL_PROTECTED", VerImplProtected));
         replacements.insert(std::make_pair("VERSION_IMPL_PRIVATE", common::processTemplate(VerImplPrivateTempl, replVerImplPrivateTempl)));
         replacements.insert(std::make_pair("VERSION_API", common::processTemplate(VerApiTempl, replVerApiTempl)));

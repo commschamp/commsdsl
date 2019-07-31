@@ -21,7 +21,7 @@ public:
 void TestSuite::test1()
 {
     static const std::uint8_t Buf1[] = {
-        0x1, 2, 0x2, 0x5
+        0x2, 0x1, 2, 0x2, 0x2, 0x5
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
@@ -60,7 +60,7 @@ void TestSuite::test1()
 
 
     static const std::uint8_t Buf2[] = {
-        0x1, 1, 0x2
+        0x2, 0x1, 1, 0x1, 0x2
     };
     static const std::size_t Buf2Size = std::extent<decltype(Buf2)>::value;
     comsumed = comms::processAllWithDispatch(&Buf2[0], Buf2Size, frame, handler);
