@@ -238,6 +238,17 @@ bool Interface::hasFields() const
     return !m_fields.empty();
 }
 
+std::vector<std::string> Interface::getVersionFields() const
+{
+    std::vector<std::string> result;
+    for (auto& f : m_fields) {
+        if (f->semanticType() == commsdsl::Field::SemanticType::Version) {
+            result.push_back(f->name());
+        }
+    }
+    return result;
+}
+
 bool Interface::writeProtocol()
 {
     auto names =

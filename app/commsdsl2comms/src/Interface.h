@@ -51,6 +51,7 @@ public:
 
     bool hasVersion() const;
     bool hasFields() const;
+    std::vector<std::string> getVersionFields() const;
 
 private:
 

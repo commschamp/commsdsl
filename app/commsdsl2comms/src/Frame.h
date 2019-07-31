@@ -18,6 +18,7 @@
 #include <map>
 #include <string>
 #include <memory>
+#include <vector>
 
 #include "commsdsl/Frame.h"
 
@@ -54,6 +55,8 @@ public:
     {
         return m_externalRef;
     }
+
+    std::vector<std::string> getPseudoVersionLayers(const std::vector<std::string>& interfaceVersionFields) const;
 
 private:
     using GetLayerOptionsFunc = std::string (Layer::*)(const std::string&) const;

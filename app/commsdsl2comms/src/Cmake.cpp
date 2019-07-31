@@ -319,7 +319,14 @@ bool Cmake::writePlugin() const
     auto plugins = m_generator.getPlugins();
     for (auto* p : plugins) {
         auto pName = common::nameToClassCopy(p->adjustedName());
-        calls.push_back("cc_plugin (\"" + pName + "\")");
+
+        static const std::string FalseStr = "FALSE";
+        static const std::string TrueStr = "TRUE";
+        const std::string* hasConfigWidget = &FalseStr;
+        if (p->hasConfigWidget()) {
+            hasConfigWidget = &TrueStr;
+        }
+        calls.push_back("cc_plugin (\"" + pName + "\" " + *hasConfigWidget + ")");
     }
 
     common::ReplacementMap replacements;
@@ -367,7 +374,7 @@ bool Cmake::writePlugin() const
         "    endif ()\n"
         "endfunction()\n\n"
         "######################################################################\n\n"
-        "function (cc_plugin protocol)\n"
+        "function (cc_plugin protocol has_config_widget)\n"
         "    set (name \"cc_plugin_${protocol}\")\n\n"
         "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/${protocol}.json\")\n"
         "    set (stamp_file \"${CMAKE_CURRENT_BINARY_DIR}/${protocol}_refresh_stamp.txt\")\n\n"
@@ -384,6 +391,10 @@ bool Cmake::writePlugin() const
         "    set (hdr\n"
         "        plugin/${protocol}Plugin.h\n"
         "    )\n\n"
+        "    if (has_config_widget)\n"
+        "        list (APPEND src plugin/${protocol}ConfigWidget.cpp)\n"
+        "        list (APPEND hdr plugin/${protocol}ConfigWidget.h)\n"
+        "    endif ()\n\n"
         "    qt5_wrap_cpp(moc ${hdr})\n\n"
         "    set(extra_link_opts)\n"
         "    if (CMAKE_COMPILER_IS_GNUCC)\n"

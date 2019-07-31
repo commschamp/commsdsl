@@ -52,6 +52,8 @@ public:
 
     const std::string& adjustedName() const;
 
+    bool hasConfigWidget() const;
+
 private:
 
     bool writeProtocolHeader();
@@ -60,8 +62,11 @@ private:
     bool writePluginSrc();
     bool writePluginJson();
     bool writePluginConfig();
+    bool writeVersionConfigWidgetHeader();
+    bool writeVersionConfigWidgetSrc();
     std::string protClassName() const;
     std::string pluginClassName() const;
+    std::string configWidgetClassName() const;
     std::string pluginId() const;
 
     Generator& m_generator;
