@@ -85,7 +85,7 @@ std::string ValueLayer::getClassDefinitionImpl(
     return common::processTemplate(Templ, replacements);
 }
 
-bool ValueLayer::isPseudoVersionLayerImpl() const
+bool ValueLayer::isPseudoVersionLayerImpl(const std::vector<std::string>& interfaceVersionFields) const
 {
     auto obj = valueLayerDslObj();
     if (!obj.pseudo()) {
@@ -93,6 +93,11 @@ bool ValueLayer::isPseudoVersionLayerImpl() const
     }
 
     if (memberField()->semanticType() == commsdsl::Field::SemanticType::Version) {
+        return true;
+    }
+
+    auto iter = std::find(interfaceVersionFields.begin(), interfaceVersionFields.end(), obj.fieldName());
+    if (iter != interfaceVersionFields.end()) {
         return true;
     }
 

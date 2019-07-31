@@ -370,8 +370,9 @@ bool Layer::isCustomizableImpl() const
     return false;
 }
 
-bool Layer::isPseudoVersionLayerImpl() const
+bool Layer::isPseudoVersionLayerImpl(const std::vector<std::string>& interfaceVersionFields) const
 {
+    static_cast<void>(interfaceVersionFields);
     return false;
 }
 

@@ -346,7 +346,8 @@ bool Plugin::writeProtocolSrc()
         replVerImplPrivateTempl.insert(std::make_pair("DEFAULT_VERSION", common::numToString(m_generator.schemaVersion())));
         replVerImplPrivateTempl.insert(std::make_pair("INTERFACE_TYPE", m_generator.scopeForInterfaceInPlugin(m_interfacePtr->externalRef())));
 
-        auto pseudoLayers = m_framePtr->getPseudoVersionLayers();
+        auto versionFields = m_interfacePtr->getVersionFields();
+        auto pseudoLayers = m_framePtr->getPseudoVersionLayers(versionFields);
         common::StringsList pseudoUpdates;
         for (auto& l : pseudoLayers) {
             auto layerTypeStr = "LayerType_" + common::nameToClassCopy(l);

@@ -70,9 +70,9 @@ public:
     std::string getFieldAccNameForPlugin() const;
     std::string getPluginCreatePropsFunc(const std::string& scope) const;
 
-    bool isPseudoVersionLayer() const
+    bool isPseudoVersionLayer(const std::vector<std::string>& interfaceVersionFields) const
     {
-        return isPseudoVersionLayerImpl();
+        return isPseudoVersionLayerImpl(interfaceVersionFields);
     }
 protected:
     Layer(Generator& generator, commsdsl::Layer field)
@@ -121,7 +121,7 @@ protected:
     virtual const std::string& getBareMetalOptionStrImpl() const;
     virtual bool rearangeImpl(LayersList& layers, bool& success);
     virtual bool isCustomizableImpl() const;
-    virtual bool isPseudoVersionLayerImpl() const;
+    virtual bool isPseudoVersionLayerImpl(const std::vector<std::string>& interfaceVersionFields) const;
 
 private:
 
