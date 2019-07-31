@@ -104,6 +104,7 @@ bool Plugin::writeProtocolHeader()
         "public:\n"
         "    #^#CLASS_NAME#$#();\n"
         "    virtual ~#^#CLASS_NAME#$#();\n\n"
+        "    #^#VERSION_API#$#\n"
         "protected:\n"
         "    virtual const QString& nameImpl() const override;\n"
         "    virtual MessagesList readImpl(const comms_champion::DataInfo& dataInfo, bool final) override;\n"
@@ -129,6 +130,13 @@ bool Plugin::writeProtocolHeader()
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(protClassName())));
+
+    if (hasConfigWidget()) {
+        static const std::string VerApi =
+            "int getVersion() const;\n"
+            "void setVersion(int value);\n";
+        replacements.insert(std::make_pair("VERSION_API", VerApi));
+    }
 
     std::string str = common::processTemplate(Templ, replacements);
 
@@ -160,6 +168,7 @@ bool Plugin::writeProtocolSrc()
 
     static const std::string Templ =
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+    "#include <cassert>\n"
     "#include \"comms_champion/ProtocolBase.h\"\n"
     "#^#INTERFACE_INC#$#\n"
     "#include \"#^#FRAME_HEADER#$#\"\n"
@@ -181,21 +190,25 @@ bool Plugin::writeProtocolSrc()
     "    friend class #^#PROT_NAMESPACE#$#::cc_plugin::plugin::#^#CLASS_NAME#$#;\n\n"
     "    #^#CLASS_NAME#$#Impl() = default;\n"
     "    virtual ~#^#CLASS_NAME#$#Impl() = default;\n\n"
+    "    #^#VERSION_IMPL_PUBLIC#$#\n"
     "protected:\n"
     "    virtual const QString& nameImpl() const override\n"
     "    {\n"
     "        static const QString Str(\"#^#PROT_NAME#$#\");\n"
     "        return Str;\n"
     "    }\n\n"
+    "    #^#VERSION_IMPL_PROTECTED#$#\n"
     "    using Base::createInvalidMessageImpl;\n"
     "    using Base::createRawDataMessageImpl;\n"
-    "    using Base::createExtraInfoMessageImpl;\n"
+    "    using Base::createExtraInfoMessageImpl;\n\n"
+    "#^#VERSION_IMPL_PRIVATE#$#\n"
     "};\n\n"
     "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#()\n"
     "  : m_pImpl(new #^#CLASS_NAME#$#Impl())\n"
     "{\n"
     "}\n\n"
     "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
+    "#^#VERSION_API#$#\n"
     "const QString& #^#CLASS_NAME#$#::nameImpl() const\n"
     "{\n"
     "    return m_pImpl->name();\n"
@@ -254,7 +267,7 @@ bool Plugin::writeProtocolSrc()
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -269,6 +282,72 @@ bool Plugin::writeProtocolSrc()
         assert(m_interfacePtr != nullptr);
         replacements.insert(std::make_pair("INTERFACE_TEMPL_PARAM", '<' + m_generator.scopeForInterfaceInPlugin(m_interfacePtr->externalRef()) + '>'));
         replacements.insert(std::make_pair("INTERFACE_INC", "#include " + m_generator.headerfileForInterfaceInPlugin(m_interfacePtr->externalRef(), true)));
+    }
+
+    if (hasConfigWidget()) {
+        static const std::string VerImplPub =
+            "int getVersion() const\n"
+            "{\n"
+            "    return m_version;\n"
+            "}\n\n"
+            "void setVersion(int value)\n"
+            "{\n"
+            "    m_version = value;\n"
+            "}\n";
+
+        static const std::string VerImplProtected =
+            "virtual MessagesList createAllMessagesImpl() override\n"
+            "{\n"
+            "    auto list = Base::createAllMessagesImpl();\n"
+            "    for (auto& mPtr : list) {\n"
+            "        updateMessageWithVersion(*mPtr);\n"
+            "    }\n"
+            "    return list;\n"
+            "}\n\n"
+            "virtual cc::MessagePtr createMessageImpl(const QString& idAsString, unsigned idx) override\n"
+            "{\n"
+            "    auto mPtr = Base::createMessageImpl(idAsString, idx);\n"
+            "    updateMessageWithVersion(*mPtr);\n"
+            "    return mPtr;\n"
+            "}\n\n";
+
+        static const std::string VerImplPrivateTempl =
+            "private:\n"
+            "    void updateMessageWithVersion(cc::Message& msg)\n"
+            "    {\n"
+            "        assert(dynamic_cast<#^#INTERFACE_TYPE#$#*>(&msg) != nullptr);\n"
+            "        static_assert(#^#INTERFACE_TYPE#$#::hasVersionInTransportFields(),\n"
+            "            \"Interface type is expected to has version in transport fields\");\n"
+            "        static const std::size_t VersionIdx = \n"
+            "            #^#INTERFACE_TYPE#$#::InterfaceOptions::VersionInExtraTransportFields;\n"
+            "        auto& castedMsg = static_cast<#^#INTERFACE_TYPE#$#&>(msg);\n"
+            "        std::get<VersionIdx>(castedMsg.transportFields()).value() =\n"
+            "            static_cast<#^#INTERFACE_TYPE#$#::VersionType>(m_version);\n"
+            "        castedMsg.refresh();\n"
+            "    }\n\n"
+            "    int m_version = #^#DEFAULT_VERSION#$#;\n";
+
+        static const std::string VerApiTempl =
+            "int #^#CLASS_NAME#$#::getVersion() const\n"
+            "{\n"
+            "    return m_pImpl->getVersion();\n"
+            "}\n\n"
+            "void #^#CLASS_NAME#$#::setVersion(int value)\n"
+            "{\n"
+            "    m_pImpl->setVersion(value);\n"
+            "}\n";
+
+        common::ReplacementMap replVerImplPrivateTempl;
+        replVerImplPrivateTempl.insert(std::make_pair("DEFAULT_VERSION", common::numToString(m_generator.schemaVersion())));
+        replVerImplPrivateTempl.insert(std::make_pair("INTERFACE_TYPE", m_generator.scopeForInterfaceInPlugin(m_interfacePtr->externalRef())));
+
+        common::ReplacementMap replVerApiTempl;
+        replVerApiTempl.insert(std::make_pair("CLASS_NAME", className));
+
+        replacements.insert(std::make_pair("VERSION_IMPL_PUBLIC", VerImplPub));
+        replacements.insert(std::make_pair("VERSION_IMPL_PROTECTED", VerImplProtected));
+        replacements.insert(std::make_pair("VERSION_IMPL_PRIVATE", common::processTemplate(VerImplPrivateTempl, replVerImplPrivateTempl)));
+        replacements.insert(std::make_pair("VERSION_API", common::processTemplate(VerApiTempl, replVerApiTempl)));
     }
 
     std::string str = common::processTemplate(Templ, replacements);
@@ -303,7 +382,8 @@ bool Plugin::writePluginHeader()
         "#pragma once\n\n"
         "#include <QtCore/QObject>\n"
         "#include <QtCore/QtPlugin>\n"
-        "#include \"comms_champion/Plugin.h\"\n\n"
+        "#include \"comms_champion/Plugin.h\"\n"
+        "#include \"comms_champion/Protocol.h\"\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "class #^#CLASS_NAME#$# : public comms_champion::Plugin\n"
         "{\n"
@@ -313,6 +393,9 @@ bool Plugin::writePluginHeader()
         "public:\n"
         "    #^#CLASS_NAME#$#();\n"
         "    virtual ~#^#CLASS_NAME#$#();\n"
+        "private:\n"
+        "    comms_champion::ProtocolPtr m_protocol;\n"
+        "    #^#VERSION_STORAGE#$#\n"
         "};\n\n"
         "#^#END_NAMESPACE#$#\n"
         "#^#APPEND#$#\n";
@@ -326,6 +409,11 @@ bool Plugin::writePluginHeader()
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("ID", pluginId()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(pluginClassName())));
+
+    if (hasConfigWidget()) {
+        auto verStr = "int m_version = " + common::numToString(m_generator.schemaVersion()) + ";";
+        replacements.insert(std::make_pair("VERSION_STORAGE", std::move(verStr)));
+    }
 
     std::string str = common::processTemplate(Templ, replacements);
 
@@ -358,16 +446,20 @@ bool Plugin::writePluginSrc()
     static const std::string Templ =
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"#^#PROTOCOL_CLASS_NAME#$#.h\"\n\n"
+        "#^#WIDGET_INCLUDE#$#\n"
         "namespace cc = comms_champion;\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#()\n"
+        "  : m_protocol(new #^#PROTOCOL_CLASS_NAME#$#())\n"
         "{\n"
         "    pluginProperties()\n"
         "        .setProtocolCreateFunc(\n"
-        "            []() -> cc::ProtocolPtr\n"
+        "            [this]() -> cc::ProtocolPtr\n"
         "            {\n"
-        "                return cc::ProtocolPtr(new #^#PROTOCOL_CLASS_NAME#$#());\n"
-        "            });\n"
+        "                return m_protocol;\n"
+        "            })\n"
+        "        #^#CONFIG_WIDGET_FUNC#$#"
+        "    ;\n"
         "}\n\n"
         "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
         "#^#END_NAMESPACE#$#\n"
@@ -381,6 +473,29 @@ bool Plugin::writePluginSrc()
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginSrcInPlugin(pluginClassName())));
+
+    if (hasConfigWidget()) {
+        static const std::string WidgetTempl =
+            ".setConfigWidgetCreateFunc(\n"
+            "    [this]() -> QWidget*\n"
+            "    {\n"
+            "        auto* w =\n"
+            "            new #^#WIDGET_CLASS#$#(\n"
+            "                static_cast<#^#PROT_CLASS#$#*>(m_protocol.get())->getVersion());\n"
+            "        w->setVersionUpdateCb(\n"
+            "            [this](int value) {\n"
+            "                static_cast<#^#PROT_CLASS#$#*>(m_protocol.get())->setVersion(value);\n"
+            "            });\n"
+            "        return w;\n"
+            "    })\n";
+
+        common::ReplacementMap widgetRepl;
+        widgetRepl.insert(std::make_pair("WIDGET_CLASS", configWidgetClassName()));
+        widgetRepl.insert(std::make_pair("PROT_CLASS", protClassName()));
+
+        replacements.insert(std::make_pair("WIDGET_INCLUDE", "#include \"" + configWidgetClassName() + ".h\""));
+        replacements.insert(std::make_pair("CONFIG_WIDGET_FUNC", common::processTemplate(WidgetTempl, widgetRepl)));
+    }
 
     std::string str = common::processTemplate(Templ, replacements);
 
@@ -495,17 +610,24 @@ bool Plugin::writeVersionConfigWidgetHeader()
 
     static const std::string Templ =
         "#pragma once\n\n"
+        "#include <functional>\n"
         "#include <QtWidgets/QWidget>\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "class #^#CLASS_NAME#$# : public QWidget\n"
         "{\n"
         "    Q_OBJECT\n"
         "public:\n"
-        "    explicit #^#CLASS_NAME#$#(int& version);\n\n"
+        "    using VersionUpdateCb = std::function<void (int)>;\n\n"
+        "    explicit #^#CLASS_NAME#$#(int version);\n\n"
+        "    template <typename TFunc>\n"
+        "    void setVersionUpdateCb(TFunc&& func)\n"
+        "    {\n"
+        "        m_versionUpdateCb = std::forward<TFunc>(func);\n"
+        "    }\n\n"
         "private slots:\n"
         "    void versionChanged(int value);\n\n"
-        "private:\n"
-        "    int& m_version;\n"
+        "private:"
+        "    VersionUpdateCb m_versionUpdateCb;"
         "};\n\n"
         "#^#END_NAMESPACE#$#\n"
         "#^#APPEND#$#\n"
@@ -559,8 +681,7 @@ bool Plugin::writeVersionConfigWidgetSrc()
         "#include <QtWidgets/QSpinBox>\n"
         "#include <QtWidgets/QVBoxLayout>\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
-        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(int& version) :\n"
-        "    m_version(version)\n"
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(int version)"
         "{\n"
         "    auto* versionLabel = new QLabel(\"Default Version:\");\n"
         "    auto* versionSpinBox = new QSpinBox;\n"
@@ -582,7 +703,9 @@ bool Plugin::writeVersionConfigWidgetSrc()
         "}\n\n"
         "void #^#CLASS_NAME#$#::versionChanged(int value)\n"
         "{\n"
-        "    m_version = value;\n"
+        "    if (m_versionUpdateCb) {\n"
+        "        m_versionUpdateCb(value);\n"
+        "    }\n"
         "}\n\n"
         "#^#END_NAMESPACE#$#\n"
         "#^#APPEND#$#\n"

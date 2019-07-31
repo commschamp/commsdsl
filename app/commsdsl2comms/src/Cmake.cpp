@@ -326,7 +326,7 @@ bool Cmake::writePlugin() const
         if (p->hasConfigWidget()) {
             hasConfigWidget = &TrueStr;
         }
-        calls.push_back("cc_plugin (\"" + pName + "\", " + *hasConfigWidget + ")");
+        calls.push_back("cc_plugin (\"" + pName + "\" " + *hasConfigWidget + ")");
     }
 
     common::ReplacementMap replacements;
