@@ -1,0 +1,82 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test36/Message.h"
+#include "test36/message/Msg1.h"
+#include "test36/frame/Frame.h"
+#include "comms/process.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+
+    using Interface =
+        test36::Message<
+            comms::option::app::IdInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
+            comms::option::app::NameInterface,
+            comms::option::app::RefreshInterface
+        >;
+
+    using Msg1 = test36::message::Msg1<Interface>;
+    using Frame = test36::frame::Frame<Interface>;
+
+
+};
+
+void TestSuite::test1()
+{
+    class Handler
+    {
+    public:
+        void handle(Msg1& msg)
+        {
+            static_cast<void>(msg);
+            m_msg1Received = true;
+        }
+
+        void handle(Interface& msg)
+        {
+            static_cast<void>(msg);
+            m_msg1Received = false;
+        }
+
+        bool getMsg1Received() const
+        {
+            return m_msg1Received;
+        }
+
+        void reset()
+        {
+            m_msg1Received = false;
+        }
+
+    private:
+        bool m_msg1Received = false;
+    };
+
+
+    static const std::uint8_t Buf1[] = {
+        0x1, 0x1, 0x2
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame frame;
+    Handler handler;
+    auto comsumed = comms::processAllWithDispatch(&Buf1[0], Buf1Size, frame, handler);
+    TS_ASSERT_EQUALS(comsumed, Buf1Size);
+    TS_ASSERT(handler.getMsg1Received());
+
+
+    static const std::uint8_t Buf2[] = {
+        0x1, 0x0
+    };
+    static const std::size_t Buf2Size = std::extent<decltype(Buf2)>::value;
+    handler.reset();
+    comsumed = comms::processAllWithDispatch(&Buf2[0], Buf2Size, frame, handler);
+    TS_ASSERT_EQUALS(comsumed, Buf2Size);
+    TS_ASSERT(handler.getMsg1Received());
+}

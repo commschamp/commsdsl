@@ -136,6 +136,12 @@ std::size_t SetFieldImpl::bitLengthImpl() const
     return Base::bitLengthImpl();
 }
 
+bool SetFieldImpl::isBitCheckableImpl(const std::string& val) const
+{
+    auto iter = m_state.m_bits.find(val);
+    return iter != m_state.m_bits.end();
+}
+
 bool SetFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
     if (!protocol().isFieldValueReferenceSupported()) {

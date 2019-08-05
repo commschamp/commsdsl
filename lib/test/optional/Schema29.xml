@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema29"
+        id="1"
+        endian="big">
+    <fields>
+        <set name="S1" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+        </set>
+    </fields>
+    <message name="M1" id="1">
+        <ref field="S1" />
+        <optional name="F2" cond="$S1.B0">
+            <int name="F2" type="uint8" />
+        </optional>
+    </message>
+</schema>

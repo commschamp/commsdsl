@@ -434,7 +434,9 @@ std::string Field::dslCondToString(
             return common::emptyString();
         }
 
-        assert(rightField->kind() == commsdsl::Field::Kind::Set);
+        assert(
+            (rightField->kind() == commsdsl::Field::Kind::Set) ||
+            (rightField->kind() == commsdsl::Field::Kind::Ref));
         std::string valueStr;
         if (dotPos != std::string::npos) {
             valueStr.assign(fieldRef.begin() + dotPos + 1, fieldRef.end());

@@ -149,6 +149,11 @@ public:
 
     std::string externalRef() const;
 
+    bool isBitCheckable(const std::string& val) const
+    {
+        return isBitCheckableImpl(val);
+    }
+
     bool isComparableToValue(const std::string& val) const
     {
         return isComparableToValueImpl(val);
@@ -261,6 +266,7 @@ protected:
     virtual std::size_t minLengthImpl() const = 0;
     virtual std::size_t maxLengthImpl() const;
     virtual std::size_t bitLengthImpl() const;
+    virtual bool isBitCheckableImpl(const std::string& val) const;
     virtual bool isComparableToValueImpl(const std::string& val) const;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
