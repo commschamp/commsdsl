@@ -115,6 +115,8 @@ if (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
 endif ()
 
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${COMMSDSL_VERSION})
+
 target_include_directories(${PROJECT_NAME} 
     PRIVATE ${LIBXML2_INCLUDE_DIR}
     PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/include>
