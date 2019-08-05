@@ -150,5 +150,20 @@ install(
 )
 
 install(
-    EXPORT LibCommsdslTargets DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
+    EXPORT LibCommsdslTargets 
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
+    NAMESPACE commsdsl::
 )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
+    VERSION ${COMMSDSL_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+    
+install (
+    FILES ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
+)    
+
+
