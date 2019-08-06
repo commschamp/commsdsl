@@ -145,6 +145,8 @@ public:
 
     std::string startProtocolDocWrite(const std::string& name);
 
+    std::string startLicenseWrite(const std::string& name);
+
     std::pair<std::string, std::string>
     startGenericPluginSrcWrite(const std::string& name);
 

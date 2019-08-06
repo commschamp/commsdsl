@@ -46,6 +46,7 @@ set (
     "Doxygen.cpp"
     "Version.cpp"
     "Test.cpp"
+    "License.cpp"
 )
 
 add_executable(${APP_NAME} ${src})
