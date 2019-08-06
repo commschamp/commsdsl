@@ -45,13 +45,13 @@ function (test_func name)
         add_dependencies(${testName} ${CC_EXTERNAL_TGT})
     endif ()
     
-#    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
-#        add_test(NAME "${testName}_valgrind"
-#             COMMAND ${CMAKE_COMMAND}
-#                -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
-#                -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
-#                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
-#    endif ()
+    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
+        add_test(NAME "${testName}_valgrind"
+             COMMAND ${CMAKE_COMMAND}
+                -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
+                -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
+                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
+    endif ()
 
     while (TRUE)
         if (NOT CC_COMMS_CHAMPION_FOUND)

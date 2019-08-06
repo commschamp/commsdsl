@@ -78,6 +78,7 @@ bool Cmake::writeMain() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NAME", m_generator.schemaName()));
     replacements.insert(std::make_pair("PROJ_NAMESPACE", m_generator.mainNamespace()));
+    replacements.insert(std::make_pair("PROJ_CAP_NAMESPACE", common::toUpperCopy(m_generator.mainNamespace())));
     replacements.insert(std::make_pair("CC_TAG", m_generator.commsChampionTag()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(common::cmakeListsFileStr())));
     replacements.insert(std::make_pair("DEFAULT_INTERFACE", m_generator.scopeForInterface(firstInterface->externalRef(), true, true)));
@@ -281,6 +282,27 @@ bool Cmake::writeMain() const
         "    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/#^#PROJ_NAMESPACE#$#\n"
         "    DESTINATION ${INC_INSTALL_DIR}\n"
         ")\n\n"
+        "file (READ \"${CMAKE_SOURCE_DIR}/include/#^#PROJ_NAMESPACE#$#/Version.h\" version_file)\n"
+        "string (REGEX MATCH \"#^#PROJ_CAP_NAMESPACE#$#_MAJOR_VERSION[^0-9]*([0-9]*)U*\" _ ${version_file})\n"
+        "set (major_ver ${CMAKE_MATCH_1})\n"
+        "string (REGEX MATCH \"#^#PROJ_CAP_NAMESPACE#$#_MINOR_VERSION[^0-9]*([0-9]*)U*\" _ ${version_file})\n"
+        "set (minor_ver ${CMAKE_MATCH_1})\n"
+        "string (REGEX MATCH \"#^#PROJ_CAP_NAMESPACE#$#_PATCH_VERSION[^0-9]*([0-9]*)U*\" _ ${version_file})\n"
+        "set (patch_ver ${CMAKE_MATCH_1})\n"
+        "if ((NOT \"${major_ver}\" STREQUAL \"\") AND\n"
+        "    (NOT \"${minor_ver}\" STREQUAL \"\") AND\n"
+        "    (NOT \"${patch_ver}\" STREQUAL \"\"))\n"
+        "    set (#^#PROJ_CAP_NAMESPACE#$#_VERSION \"${major_ver}.${minor_ver}.${patch_ver}\")\n\n"
+        "    message (STATUS \"Detected version ${#^#PROJ_CAP_NAMESPACE#$#_VERSION} of the protocol\")\n"
+        "    include(CMakePackageConfigHelpers)\n"
+        "    write_basic_package_version_file(\n"
+        "        ${CMAKE_BINARY_DIR}/#^#PROJ_NAMESPACE#$#ConfigVersion.cmake\n"
+        "        VERSION ${#^#PROJ_CAP_NAMESPACE#$#_VERSION}\n"
+        "        COMPATIBILITY AnyNewerVersion)\n\n"
+        "    install (\n"
+        "        FILES ${CMAKE_BINARY_DIR}/#^#PROJ_NAMESPACE#$#ConfigVersion.cmake\n"
+        "        DESTINATION ${LIB_INSTALL_DIR}/#^#PROJ_NAMESPACE#$#/cmake/)\n"
+        "endif ()\n\n"
         "######################################################################\n\n"
         "if (OPT_BUILD_TEST)\n"
         "    add_subdirectory(test)\n"
