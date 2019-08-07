@@ -142,7 +142,7 @@ endwhile ()
 include(GNUInstallDirs)
 
 if ("${CC_TAG}" STREQUAL "")
-    set (CC_TAG "develop")
+    set (CC_TAG "v2.0.1")
 endif()
 
 add_subdirectory(lib)
