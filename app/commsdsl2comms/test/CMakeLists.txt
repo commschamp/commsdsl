@@ -45,13 +45,13 @@ function (test_func name)
         add_dependencies(${testName} ${CC_EXTERNAL_TGT})
     endif ()
     
-#    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
-#        add_test(NAME "${testName}_valgrind"
-#             COMMAND ${CMAKE_COMMAND}
-#                -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
-#                -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
-#                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
-#    endif ()
+    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
+        add_test(NAME "${testName}_valgrind"
+             COMMAND ${CMAKE_COMMAND}
+                -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
+                -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
+                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
+    endif ()
 
     while (TRUE)
         if (NOT CC_COMMS_CHAMPION_FOUND)
@@ -81,7 +81,7 @@ function (test_func name)
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
                 -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
-            DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
+            DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake" ${testName}
         )
 
         if (CC_EXTERNAL)
@@ -116,15 +116,16 @@ endfunction ()
 macro (cc_external)
     set (CC_EXTERNAL TRUE)
     set (cc_main_dir "${CMAKE_BINARY_DIR}/comms_champion")
-    set (cc_src_dir "${cc_main_dir}/src")
+    set (cc_src_dir "${EXTERNALS_DIR}/comms_champion")
     set (cc_bin_dir "${cc_main_dir}/build")
     set (COMMS_INSTALL_DIR "${cc_main_dir}/install")
     set (cc_qt_dir_opt)
+    set (cc_repo "https://github.com/arobenko/comms_champion.git")
 
     find_package (Git REQUIRED)
     if (EXISTS "${cc_src_dir}/.git")
         execute_process (
-            COMMAND ${GIT_EXECUTABLE} fetch --depth 1
+            COMMAND ${GIT_EXECUTABLE} pull 
             WORKING_DIRECTORY ${cc_src_dir}
         )
     
@@ -138,9 +139,12 @@ macro (cc_external)
         )
         
         execute_process (
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${cc_src_dir}"
+        )        
+        
+        execute_process (
             COMMAND 
-                ${GIT_EXECUTABLE} clone -b ${CC_TAG} --depth 1 https://github.com/arobenko/comms_champion.git
-                    ${cc_src_dir}
+                ${GIT_EXECUTABLE} clone -b ${CC_TAG} --depth 1 ${cc_repo} ${cc_src_dir}
             RESULT_VARIABLE git_result
         )
 
@@ -157,14 +161,14 @@ macro (cc_external)
         set (cc_qt_dir_opt -DCC_QT_DIR=${COMMSDSL_QT_DIR})
     endif ()
 
-    #set (cc_libs_only_opt "-DCC_COMMS_LIB_ONLY=ON")
-    #if (UNIX)
-        set (cc_libs_only_opt "-DCC_LIBS_ONLY=ON")
-    #endif ()
+    set (cc_libs_only_opt "-DCC_LIBS_ONLY=ON")
 
     ExternalProject_Add(
         "${CC_EXTERNAL_TGT}"
         PREFIX "${cc_main_dir}"
+        STAMP_DIR "${cc_main_dir}"
+        GIT_REPOSITORY "${cc_repo}"
+        GIT_TAG "${CC_TAG}"
         SOURCE_DIR "${cc_src_dir}"
         BINARY_DIR "${cc_bin_dir}"
         INSTALL_DIR "${COMMS_INSTALL_DIR}"
@@ -243,4 +247,8 @@ test_func (test31)
 test_func (test32)
 test_func (test33)
 test_func (test34)
+test_func (test35)
+test_func (test36)
+test_func (test37)
+
 

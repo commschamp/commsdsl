@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test37" endian="big">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="0" />
+        </enum>
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <int name="F1" type="uint8"/>
+    </message>
+    
+	<frame name="Frame">
+        <sync name="Sync">
+            <int name="Sync" type="uint16" defaultValue="0xabcd" validValue="0xabcd" failOnInvalid="true"/>
+        </sync>
+        <size name="Size">
+            <int name="Size" type="uint16" serOffset="4" displayOffset="4"/>
+        </size>
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+		<checksum name="Checksum" alg="sum " from="Size">
+            <int name="Checksum" type="uint16" />
+        </checksum>
+    </frame>      
+</schema>

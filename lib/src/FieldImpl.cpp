@@ -318,6 +318,11 @@ bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
     return true;
 }
 
+std::string FieldImpl::schemaPos() const
+{
+    return XmlWrap::logPrefix(m_node);
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)
@@ -388,6 +393,12 @@ std::size_t FieldImpl::maxLengthImpl() const
 std::size_t FieldImpl::bitLengthImpl() const
 {
     return 0U;
+}
+
+bool FieldImpl::isBitCheckableImpl(const std::string& val) const
+{
+    static_cast<void>(val);
+    return false;
 }
 
 bool FieldImpl::isComparableToValueImpl(const std::string& val) const

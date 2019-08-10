@@ -73,6 +73,7 @@ if ((UNIX) AND (NOT COMMSDSL_NO_CCACHE))
     endif(CCACHE_FOUND)
 endif ()
 
+set (EXTERNALS_DIR "${CMAKE_SOURCE_DIR}/externals")
 while (TRUE)
     if (COMMSDSL_NO_TESTS)
         break ()
@@ -87,8 +88,8 @@ while (TRUE)
     set (repo_name "cxxtest")
     set (repo_tag "4.4")
     set (repo_url "https://github.com/CxxTest/cxxtest.git")
-    set (stamp "${CMAKE_CURRENT_BINARY_DIR}/${repo_name}.stamp")
-    if ((EXISTS ${stamp}) AND (EXISTS "${CMAKE_CURRENT_BINARY_DIR}/${repo_name}"))
+    set (stamp "${EXTERNALS_DIR}/cxxtest/cxxtest.stamp")
+    if (EXISTS ${stamp}) 
         execute_process (
             COMMAND ${GIT_EXECUTABLE} checkout ${repo_tag}
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${repo_name}
@@ -97,11 +98,14 @@ while (TRUE)
         execute_process (
             COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/${repo_name}"
         )
+        
+        execute_process (
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${EXTERNALS_DIR}"
+        )        
 
         execute_process (
-            COMMAND 
-                ${GIT_EXECUTABLE} clone -b ${repo_tag} --depth 1 ${repo_url} ${CMAKE_CURRENT_BINARY_DIR}/${repo_name}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMAND ${GIT_EXECUTABLE} clone -b ${repo_tag} --depth 1 ${repo_url} 
+            WORKING_DIRECTORY ${EXTERNALS_DIR}
             RESULT_VARIABLE git_result
         )
 
@@ -115,7 +119,7 @@ while (TRUE)
         )
     endif ()
 
-    set (CXXTEST_INCLUDE_DIR "${CMAKE_CURRENT_BINARY_DIR}/cxxtest")
+    set (CXXTEST_INCLUDE_DIR "${EXTERNALS_DIR}/cxxtest")
     set (CXXTEST_PYTHON_TESTGEN_EXECUTABLE "${CXXTEST_INCLUDE_DIR}/bin/cxxtestgen")
 
     find_package (CxxTest)
@@ -138,7 +142,7 @@ endwhile ()
 include(GNUInstallDirs)
 
 if ("${CC_TAG}" STREQUAL "")
-    set (CC_TAG "v2.0")
+    set (CC_TAG "v2.0.1")
 endif()
 
 add_subdirectory(lib)

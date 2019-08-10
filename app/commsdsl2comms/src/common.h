@@ -90,6 +90,8 @@ std::string numToString(unsigned value, unsigned hexWidth = 0U)
     return numToString(static_cast<std::uintmax_t>(value), hexWidth);
 }
 
+const std::string& boolToString(bool value);
+
 std::string makeMultilineCopy(const std::string& value, unsigned len = 60);
 std::string makeDoxygenMultilineCopy(const std::string& value, unsigned len = 60);
 

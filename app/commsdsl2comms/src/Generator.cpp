@@ -33,6 +33,7 @@
 #include "Version.h"
 #include "Test.h"
 #include "Dispatch.h"
+#include "License.h"
 
 namespace bf = boost::filesystem;
 namespace ba = boost::algorithm;
@@ -44,7 +45,7 @@ namespace
 {
 
 const unsigned MaxDslVersion = 2U;
-const std::string MinCommsVersionStr("2, 0, 0");
+const std::string MinCommsVersionStr("2, 0, 1");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
@@ -407,6 +408,11 @@ Generator::startGenericPluginHeaderWrite(const std::string& name)
 std::string Generator::startProtocolDocWrite(const std::string& name)
 {
     return startGenericWrite(name, common::docStr());
+}
+
+std::string Generator::startLicenseWrite(const std::string& name)
+{
+    return startGenericWrite(name);
 }
 
 std::pair<std::string, std::string>
@@ -1104,6 +1110,7 @@ bool Generator::writeFiles()
     if ((!DefaultOptions::write(*this)) ||
         (!Cmake::write(*this)) ||
         (!Doxygen::write(*this)) ||
+        (!License::write(*this)) ||
         (!Test::write(*this)) ||
         (!writeExtraFiles())){
         return false;

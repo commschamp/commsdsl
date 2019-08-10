@@ -137,6 +137,12 @@ bool Field::isFailOnInvalid() const
     return m_pImpl->isFailOnInvalid();
 }
 
+std::string Field::schemaPos() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->schemaPos();
+}
+
 const Field::AttributesMap& Field::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

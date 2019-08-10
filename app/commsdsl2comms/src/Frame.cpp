@@ -154,6 +154,18 @@ std::string Frame::getBareMetalDefaultOptions() const
     return getOptions(&Layer::getBareMetalDefaultOptions);
 }
 
+std::vector<std::string> Frame::getPseudoVersionLayers(
+    const std::vector<std::string>& interfaceVersionFields) const
+{
+    std::vector<std::string> result;
+    for (auto& l : m_layers) {
+        if (l->isPseudoVersionLayer(interfaceVersionFields)) {
+            result.push_back(l->name());
+        }
+    }
+    return result;
+}
+
 bool Frame::writeProtocol()
 {
     auto names =

@@ -34,6 +34,7 @@ namespace
 
 const std::string ProtSuffix("Protocol");
 const std::string PluginSuffix("Plugin");
+const std::string WidgetSuffix("ConfigWidget");
 
 } // namespace
 
@@ -62,7 +63,9 @@ bool Plugin::write()
         writePluginHeader() &&
         writePluginSrc() &&
         writePluginJson() &&
-        writePluginConfig();
+        writePluginConfig() &&
+        writeVersionConfigWidgetHeader() &&
+        writeVersionConfigWidgetSrc();
 }
 
 const std::string& Plugin::adjustedName() const
@@ -72,6 +75,12 @@ const std::string& Plugin::adjustedName() const
         nameToUse = &m_generator.schemaName();
     }
     return *nameToUse;
+}
+
+bool Plugin::hasConfigWidget() const
+{
+    assert(m_interfacePtr != nullptr);
+    return (m_interfacePtr->hasVersion());
 }
 
 bool Plugin::writeProtocolHeader()
@@ -95,6 +104,7 @@ bool Plugin::writeProtocolHeader()
         "public:\n"
         "    #^#CLASS_NAME#$#();\n"
         "    virtual ~#^#CLASS_NAME#$#();\n\n"
+        "    #^#VERSION_API#$#\n"
         "protected:\n"
         "    virtual const QString& nameImpl() const override;\n"
         "    virtual MessagesList readImpl(const comms_champion::DataInfo& dataInfo, bool final) override;\n"
@@ -120,6 +130,13 @@ bool Plugin::writeProtocolHeader()
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(protClassName())));
+
+    if (hasConfigWidget()) {
+        static const std::string VerApi =
+            "int getVersion() const;\n"
+            "void setVersion(int value);\n";
+        replacements.insert(std::make_pair("VERSION_API", VerApi));
+    }
 
     std::string str = common::processTemplate(Templ, replacements);
 
@@ -151,6 +168,7 @@ bool Plugin::writeProtocolSrc()
 
     static const std::string Templ =
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+    "#include <cassert>\n"
     "#include \"comms_champion/ProtocolBase.h\"\n"
     "#^#INTERFACE_INC#$#\n"
     "#include \"#^#FRAME_HEADER#$#\"\n"
@@ -172,21 +190,25 @@ bool Plugin::writeProtocolSrc()
     "    friend class #^#PROT_NAMESPACE#$#::cc_plugin::plugin::#^#CLASS_NAME#$#;\n\n"
     "    #^#CLASS_NAME#$#Impl() = default;\n"
     "    virtual ~#^#CLASS_NAME#$#Impl() = default;\n\n"
+    "    #^#VERSION_IMPL_PUBLIC#$#\n"
     "protected:\n"
     "    virtual const QString& nameImpl() const override\n"
     "    {\n"
     "        static const QString Str(\"#^#PROT_NAME#$#\");\n"
     "        return Str;\n"
     "    }\n\n"
+    "    #^#VERSION_IMPL_PROTECTED#$#\n"
     "    using Base::createInvalidMessageImpl;\n"
     "    using Base::createRawDataMessageImpl;\n"
-    "    using Base::createExtraInfoMessageImpl;\n"
+    "    using Base::createExtraInfoMessageImpl;\n\n"
+    "#^#VERSION_IMPL_PRIVATE#$#\n"
     "};\n\n"
     "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#()\n"
     "  : m_pImpl(new #^#CLASS_NAME#$#Impl())\n"
     "{\n"
     "}\n\n"
     "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
+    "#^#VERSION_API#$#\n"
     "const QString& #^#CLASS_NAME#$#::nameImpl() const\n"
     "{\n"
     "    return m_pImpl->name();\n"
@@ -245,7 +267,7 @@ bool Plugin::writeProtocolSrc()
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -260,6 +282,104 @@ bool Plugin::writeProtocolSrc()
         assert(m_interfacePtr != nullptr);
         replacements.insert(std::make_pair("INTERFACE_TEMPL_PARAM", '<' + m_generator.scopeForInterfaceInPlugin(m_interfacePtr->externalRef()) + '>'));
         replacements.insert(std::make_pair("INTERFACE_INC", "#include " + m_generator.headerfileForInterfaceInPlugin(m_interfacePtr->externalRef(), true)));
+    }
+
+    if (hasConfigWidget()) {
+        static const std::string VerImplPubTempl =
+            "int getVersion() const\n"
+            "{\n"
+            "    return m_version;\n"
+            "}\n\n"
+            "void setVersion(int value)\n"
+            "{\n"
+            "    m_version = value;\n"
+            "    #^#UPDATE_FRAME#$#\n"
+            "}\n";
+
+        static const std::string VerImplProtected =
+            "virtual MessagesList createAllMessagesImpl() override\n"
+            "{\n"
+            "    auto list = Base::createAllMessagesImpl();\n"
+            "    for (auto& mPtr : list) {\n"
+            "        updateMessageWithVersion(*mPtr);\n"
+            "    }\n"
+            "    return list;\n"
+            "}\n\n"
+            "virtual cc::MessagePtr createMessageImpl(const QString& idAsString, unsigned idx) override\n"
+            "{\n"
+            "    auto mPtr = Base::createMessageImpl(idAsString, idx);\n"
+            "    updateMessageWithVersion(*mPtr);\n"
+            "    return mPtr;\n"
+            "}\n\n";
+
+        static const std::string VerImplPrivateTempl =
+            "private:\n"
+            "    void updateMessageWithVersion(cc::Message& msg)\n"
+            "    {\n"
+            "        assert(dynamic_cast<#^#INTERFACE_TYPE#$#*>(&msg) != nullptr);\n"
+            "        static_assert(#^#INTERFACE_TYPE#$#::hasVersionInTransportFields(),\n"
+            "            \"Interface type is expected to has version in transport fields\");\n"
+            "        static const std::size_t VersionIdx = \n"
+            "            #^#INTERFACE_TYPE#$#::InterfaceOptions::VersionInExtraTransportFields;\n"
+            "        auto& castedMsg = static_cast<#^#INTERFACE_TYPE#$#&>(msg);\n"
+            "        std::get<VersionIdx>(castedMsg.transportFields()).value() =\n"
+            "            static_cast<#^#INTERFACE_TYPE#$#::VersionType>(m_version);\n"
+            "        castedMsg.refresh();\n"
+            "        updateMessage(msg);\n"
+            "    }\n\n"
+            "    #^#UPDATE_FRAME#$#\n"
+            "    int m_version = #^#DEFAULT_VERSION#$#;\n";
+
+        static const std::string VerApiTempl =
+            "int #^#CLASS_NAME#$#::getVersion() const\n"
+            "{\n"
+            "    return m_pImpl->getVersion();\n"
+            "}\n\n"
+            "void #^#CLASS_NAME#$#::setVersion(int value)\n"
+            "{\n"
+            "    m_pImpl->setVersion(value);\n"
+            "}\n";
+
+        common::ReplacementMap replVerImplPubTempl;
+
+        common::ReplacementMap replVerImplPrivateTempl;
+        replVerImplPrivateTempl.insert(std::make_pair("DEFAULT_VERSION", common::numToString(m_generator.schemaVersion())));
+        replVerImplPrivateTempl.insert(std::make_pair("INTERFACE_TYPE", m_generator.scopeForInterfaceInPlugin(m_interfacePtr->externalRef())));
+
+        auto versionFields = m_interfacePtr->getVersionFields();
+        auto pseudoLayers = m_framePtr->getPseudoVersionLayers(versionFields);
+        common::StringsList pseudoUpdates;
+        for (auto& l : pseudoLayers) {
+            auto layerTypeStr = "LayerType_" + common::nameToClassCopy(l);
+            auto layerAccStr = "layer_" + common::nameToAccessCopy(l);
+            auto str =
+                "auto& " + layerAccStr + " = protocolStack()." + layerAccStr + "();\n"
+                "using " + layerTypeStr + " = typename std::decay<decltype(" + layerAccStr + ")>::type;\n" +
+                layerAccStr + ".pseudoField().value() =\n"
+                "    static_cast<" + layerTypeStr + "::Field::ValueType>(m_version);\n";
+            pseudoUpdates.push_back(std::move(str));
+        }
+
+        if (!pseudoUpdates.empty()) {
+            static const std::string UpdateFrameTempl =
+                "void updateFrame()\n"
+                "{\n"
+                "    #^#UPDATES#$#\n"
+                "}\n";
+
+            common::ReplacementMap replUpdateFrameTempl;
+            replUpdateFrameTempl.insert(std::make_pair("UPDATES", common::listToString(pseudoUpdates, common::emptyString(), common::emptyString())));
+            replVerImplPrivateTempl.insert(std::make_pair("UPDATE_FRAME", common::processTemplate(UpdateFrameTempl, replUpdateFrameTempl)));
+            replVerImplPubTempl.insert(std::make_pair("UPDATE_FRAME", "updateFrame();"));
+        }
+
+        common::ReplacementMap replVerApiTempl;
+        replVerApiTempl.insert(std::make_pair("CLASS_NAME", className));
+
+        replacements.insert(std::make_pair("VERSION_IMPL_PUBLIC", common::processTemplate(VerImplPubTempl, replVerImplPubTempl)));
+        replacements.insert(std::make_pair("VERSION_IMPL_PROTECTED", VerImplProtected));
+        replacements.insert(std::make_pair("VERSION_IMPL_PRIVATE", common::processTemplate(VerImplPrivateTempl, replVerImplPrivateTempl)));
+        replacements.insert(std::make_pair("VERSION_API", common::processTemplate(VerApiTempl, replVerApiTempl)));
     }
 
     std::string str = common::processTemplate(Templ, replacements);
@@ -294,7 +414,8 @@ bool Plugin::writePluginHeader()
         "#pragma once\n\n"
         "#include <QtCore/QObject>\n"
         "#include <QtCore/QtPlugin>\n"
-        "#include \"comms_champion/Plugin.h\"\n\n"
+        "#include \"comms_champion/Plugin.h\"\n"
+        "#include \"comms_champion/Protocol.h\"\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "class #^#CLASS_NAME#$# : public comms_champion::Plugin\n"
         "{\n"
@@ -304,6 +425,9 @@ bool Plugin::writePluginHeader()
         "public:\n"
         "    #^#CLASS_NAME#$#();\n"
         "    virtual ~#^#CLASS_NAME#$#();\n"
+        "private:\n"
+        "    comms_champion::ProtocolPtr m_protocol;\n"
+        "    #^#VERSION_STORAGE#$#\n"
         "};\n\n"
         "#^#END_NAMESPACE#$#\n"
         "#^#APPEND#$#\n";
@@ -317,6 +441,11 @@ bool Plugin::writePluginHeader()
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("ID", pluginId()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(pluginClassName())));
+
+    if (hasConfigWidget()) {
+        auto verStr = "int m_version = " + common::numToString(m_generator.schemaVersion()) + ";";
+        replacements.insert(std::make_pair("VERSION_STORAGE", std::move(verStr)));
+    }
 
     std::string str = common::processTemplate(Templ, replacements);
 
@@ -349,16 +478,20 @@ bool Plugin::writePluginSrc()
     static const std::string Templ =
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"#^#PROTOCOL_CLASS_NAME#$#.h\"\n\n"
+        "#^#WIDGET_INCLUDE#$#\n"
         "namespace cc = comms_champion;\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#()\n"
+        "  : m_protocol(new #^#PROTOCOL_CLASS_NAME#$#())\n"
         "{\n"
         "    pluginProperties()\n"
         "        .setProtocolCreateFunc(\n"
-        "            []() -> cc::ProtocolPtr\n"
+        "            [this]() -> cc::ProtocolPtr\n"
         "            {\n"
-        "                return cc::ProtocolPtr(new #^#PROTOCOL_CLASS_NAME#$#());\n"
-        "            });\n"
+        "                return m_protocol;\n"
+        "            })\n"
+        "        #^#CONFIG_WIDGET_FUNC#$#"
+        "    ;\n"
         "}\n\n"
         "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
         "#^#END_NAMESPACE#$#\n"
@@ -372,6 +505,29 @@ bool Plugin::writePluginSrc()
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginSrcInPlugin(pluginClassName())));
+
+    if (hasConfigWidget()) {
+        static const std::string WidgetTempl =
+            ".setConfigWidgetCreateFunc(\n"
+            "    [this]() -> QWidget*\n"
+            "    {\n"
+            "        auto* w =\n"
+            "            new #^#WIDGET_CLASS#$#(\n"
+            "                static_cast<#^#PROT_CLASS#$#*>(m_protocol.get())->getVersion());\n"
+            "        w->setVersionUpdateCb(\n"
+            "            [this](int value) {\n"
+            "                static_cast<#^#PROT_CLASS#$#*>(m_protocol.get())->setVersion(value);\n"
+            "            });\n"
+            "        return w;\n"
+            "    })\n";
+
+        common::ReplacementMap widgetRepl;
+        widgetRepl.insert(std::make_pair("WIDGET_CLASS", configWidgetClassName()));
+        widgetRepl.insert(std::make_pair("PROT_CLASS", protClassName()));
+
+        replacements.insert(std::make_pair("WIDGET_INCLUDE", "#include \"" + configWidgetClassName() + ".h\""));
+        replacements.insert(std::make_pair("CONFIG_WIDGET_FUNC", common::processTemplate(WidgetTempl, widgetRepl)));
+    }
 
     std::string str = common::processTemplate(Templ, replacements);
 
@@ -469,6 +625,149 @@ bool Plugin::writePluginConfig()
     return true;
 }
 
+bool Plugin::writeVersionConfigWidgetHeader()
+{
+    if (!hasConfigWidget()) {
+        return true;
+    }
+
+    auto startInfo = m_generator.startProtocolPluginHeaderWrite(configWidgetClassName());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#pragma once\n\n"
+        "#include <functional>\n"
+        "#include <QtWidgets/QWidget>\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "class #^#CLASS_NAME#$# : public QWidget\n"
+        "{\n"
+        "    Q_OBJECT\n"
+        "public:\n"
+        "    using VersionUpdateCb = std::function<void (int)>;\n\n"
+        "    explicit #^#CLASS_NAME#$#(int version);\n\n"
+        "    template <typename TFunc>\n"
+        "    void setVersionUpdateCb(TFunc&& func)\n"
+        "    {\n"
+        "        m_versionUpdateCb = std::forward<TFunc>(func);\n"
+        "    }\n\n"
+        "private slots:\n"
+        "    void versionChanged(int value);\n\n"
+        "private:"
+        "    VersionUpdateCb m_versionUpdateCb;"
+        "};\n\n"
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n"
+    ;
+
+    auto namespaces = m_generator.namespacesForPluginDef(className);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(configWidgetClassName())));
+
+    std::string str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool Plugin::writeVersionConfigWidgetSrc()
+{
+    if (!hasConfigWidget()) {
+        return true;
+    }
+
+    auto startInfo = m_generator.startProtocolPluginSrcWrite(configWidgetClassName());
+    auto& filePath = startInfo.first;
+    auto& className = startInfo.second;
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+        "#include <QtWidgets/QHBoxLayout>\n"
+        "#include <QtWidgets/QLabel>\n"
+        "#include <QtWidgets/QSpacerItem>\n"
+        "#include <QtWidgets/QSpinBox>\n"
+        "#include <QtWidgets/QVBoxLayout>\n\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(int version)"
+        "{\n"
+        "    auto* versionLabel = new QLabel(\"Default Version:\");\n"
+        "    auto* versionSpinBox = new QSpinBox;\n"
+        "    versionSpinBox->setMaximum(99999999);\n"
+        "    versionSpinBox->setValue(version);\n"
+        "    auto* versionSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);\n"
+        "    auto* versionLayoutLayout = new QHBoxLayout();\n"
+        "    versionLayoutLayout->addWidget(versionLabel);\n"
+        "    versionLayoutLayout->addWidget(versionSpinBox);\n"
+        "    versionLayoutLayout->addItem(versionSpacer);\n\n"
+        "    auto* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);\n\n"
+        "    auto* verticalLayout = new QVBoxLayout(this);\n"
+        "    verticalLayout->addLayout(versionLayoutLayout);\n"
+        "    verticalLayout->addItem(verticalSpacer);\n\n"
+        "    setLayout(verticalLayout);\n\n"
+        "    connect(\n"
+        "        versionSpinBox, SIGNAL(valueChanged(int)),\n"
+        "        this, SLOT(versionChanged(int)));\n"
+        "}\n\n"
+        "void #^#CLASS_NAME#$#::versionChanged(int value)\n"
+        "{\n"
+        "    if (m_versionUpdateCb) {\n"
+        "        m_versionUpdateCb(value);\n"
+        "    }\n"
+        "}\n\n"
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n"
+    ;
+
+    auto namespaces = m_generator.namespacesForPluginDef(className);
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("CLASS_NAME", className));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForPluginHeaderInPlugin(configWidgetClassName())));
+
+    std::string str = common::processTemplate(Templ, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
 std::string Plugin::protClassName() const
 {
     return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + ProtSuffix;
@@ -477,6 +776,11 @@ std::string Plugin::protClassName() const
 std::string Plugin::pluginClassName() const
 {
     return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + PluginSuffix;
+}
+
+std::string Plugin::configWidgetClassName() const
+{
+    return common::nameToClassCopy(common::updateNameCopy(adjustedName())) + WidgetSuffix;
 }
 
 std::string Plugin::pluginId() const

@@ -46,6 +46,7 @@ set (
     "Doxygen.cpp"
     "Version.cpp"
     "Test.cpp"
+    "License.cpp"
 )
 
 add_executable(${APP_NAME} ${src})
@@ -57,7 +58,7 @@ if (WIN32)
 endif ()
 
 install(TARGETS ${APP_NAME}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
 FILE(GLOB_RECURSE commsdsl2comms.all_headers "*.h")

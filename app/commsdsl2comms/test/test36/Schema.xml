@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test36" endian="big">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+
+        <set name="S1" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+        </set>
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="F1" field="S1" />
+        <optional name="F2" cond="$F1.B0">
+            <int name="F2" type="uint8" />
+        </optional>
+    </message>
+    <frame name="Frame">
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>       
+</schema>

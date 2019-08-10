@@ -243,25 +243,23 @@ bool OptCondExprImpl::verifyBitCheck(const OptCondImpl::FieldsList& fields, ::xm
 
     std::size_t remPos = 1;
     auto field = findField(fields, m_right, remPos);
-    if ((field == nullptr) ||
-        (field->kind() != FieldImpl::Kind::Set)) {
-        logError(logger) << XmlWrap::logPrefix(node) <<
-            "The \"" << m_right << "\" string is expected to dereference existing bit in existing \"" <<
-            common::setStr() << "\" field";
-        return false;
-    }
+    do {
+        if (field == nullptr) {
+            break;
+        }
 
+        std::string bitName(m_right, remPos);
+        if (!field->isBitCheckable(bitName)) {
+            break;
+        }
 
-    auto setField = static_cast<const SetFieldImpl*>(field);
-    std::string bitName(m_right, remPos);
-    auto iter = setField->bits().find(bitName);
-    if (iter == setField->bits().end()) {
-        logError(logger) << XmlWrap::logPrefix(node) <<
-            "The \"" << m_right << "\" string is expected to dereference existing bit in existing \"" <<
-            common::setStr() << "\" field";
-        return false;
-    }
-    return true;
+        return true;
+    } while (false);
+
+    logError(logger) << XmlWrap::logPrefix(node) <<
+        "The \"" << m_right << "\" string is expected to dereference existing bit in existing <" <<
+        common::setStr() << "> field or <" << common::refStr() << "> to it.";
+    return false;
 }
 
 bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const

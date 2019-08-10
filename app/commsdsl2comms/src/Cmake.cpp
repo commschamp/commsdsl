@@ -78,6 +78,7 @@ bool Cmake::writeMain() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PROJ_NAME", m_generator.schemaName()));
     replacements.insert(std::make_pair("PROJ_NAMESPACE", m_generator.mainNamespace()));
+    replacements.insert(std::make_pair("PROJ_CAP_NAMESPACE", common::toUpperCopy(m_generator.mainNamespace())));
     replacements.insert(std::make_pair("CC_TAG", m_generator.commsChampionTag()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForFile(common::cmakeListsFileStr())));
     replacements.insert(std::make_pair("DEFAULT_INTERFACE", m_generator.scopeForInterface(firstInterface->externalRef(), true, true)));
@@ -97,6 +98,8 @@ bool Cmake::writeMain() const
         "option (OPT_WARN_AS_ERR \"Treat warning as error\" ON)\n"
         "option (OPT_USE_CCACHE \"Use of ccache on UNIX system\" ON)\n\n"
         "# Other parameters:\n"
+        "# OPT_CMAKE_EXPORT_NAMESPACE - Set namespace for a protocol library\n"
+        "#     exported via generated *Config.cmake file. Defaults to \"cc\".\n"
         "# OPT_CC_TAG - Override default tag of comms_champion project.\n"
         "# OPT_QT_DIR - Path to custom Qt5 install directory.\n"
         "# OPT_CC_MAIN_INSTALL_DIR - Path to CommsChampion external install directory\n"
@@ -115,14 +118,13 @@ bool Cmake::writeMain() const
         "if (NOT CMAKE_CXX_STANDARD)\n"
         "    set (CMAKE_CXX_STANDARD 11)\n"
         "endif()\n\n"        
-        "set (INSTALL_DIR ${CMAKE_INSTALL_PREFIX})\n\n"
         "include(GNUInstallDirs)\n"
-        "set (LIB_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_LIBDIR})\n"
-        "set (BIN_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_BINDIR})\n"
-        "set (INC_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_INCLUDEDIR})\n"
-        "set (CONFIG_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_DATADIR}/CommsChampion)\n"
-        "set (PLUGIN_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_LIBDIR}/CommsChampion/plugin)\n"
-        "set (DOC_INSTALL_DIR ${INSTALL_DIR}/${CMAKE_INSTALL_DOCDIR})\n\n"
+        "set (LIB_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR})\n"
+        "set (BIN_INSTALL_DIR ${CMAKE_INSTALL_BINDIR})\n"
+        "set (INC_INSTALL_DIR ${CMAKE_INSTALL_INCLUDEDIR})\n"
+        "set (CONFIG_INSTALL_DIR ${CMAKE_INSTALL_DATADIR}/CommsChampion)\n"
+        "set (PLUGIN_INSTALL_DIR ${CMAKE_INSTALL_LIBDIR}/CommsChampion/plugin)\n"
+        "set (DOC_INSTALL_DIR ${CMAKE_INSTALL_DOCDIR})\n\n"
         "######################################################################\n\n"
         "if (OPT_BUILD_PLUGIN)\n"
         "    if (NOT \"${OPT_QT_DIR}\" STREQUAL \"\")\n"
@@ -180,7 +182,7 @@ bool Cmake::writeMain() const
         "    set (cc_main_dir \"${CMAKE_BINARY_DIR}/comms_champion\")\n"
         "    set (cc_src_dir \"${cc_main_dir}/src\")\n"
         "    set (cc_bin_dir \"${cc_main_dir}/build\")\n"
-        "    set (cc_install_dir \"${INSTALL_DIR}\")\n\n"
+        "    set (cc_install_dir \"${CMAKE_INSTALL_PREFIX}\")\n\n"
         "    if (NOT \"${OPT_QT_DIR}\" STREQUAL \"\")\n"
         "        set (cc_qt_dir_opt -DCC_QT_DIR=${OPT_QT_DIR})\n"
         "        set (EXT_QT_DIR ${OPT_QT_DIR})\n"
@@ -241,8 +243,7 @@ bool Cmake::writeMain() const
         "# Define documentation target\n"
         "find_package (Doxygen)\n"
         "if (DOXYGEN_FOUND)\n"
-        "    set (doc_output_dir \"${DOC_INSTALL_DIR}\")\n"
-        "    make_directory (${doc_output_dir})\n\n"
+        "    set (doc_output_dir \"${CMAKE_INSTALL_PREFIX}/${DOC_INSTALL_DIR}\")\n"
         "    set (match_str \"OUTPUT_DIRECTORY[^\\n]*\")\n"
         "    set (replacement_str \"OUTPUT_DIRECTORY = ${doc_output_dir}\")\n"
         "    set (config_file \"${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen.conf\")\n"
@@ -252,6 +253,7 @@ bool Cmake::writeMain() const
         "    file (WRITE \"${OPT_DOXYGEN_CONFIG_FILE}\" \"${modified_config_text}\")\n"
         "    set (doc_tgt \"doc_#^#PROJ_NAMESPACE#$#\")\n"
         "    add_custom_target (\"${doc_tgt}\"\n"
+        "        COMMAND ${CMAKE_COMMAND} -E make_directory ${doc_output_dir}\n"
         "        COMMAND ${DOXYGEN_EXECUTABLE} ${OPT_DOXYGEN_CONFIG_FILE}\n"
         "        WORKING_DIRECTORY ${CMAKE_SOURCE_DIR})\n"
         "endif ()\n\n"
@@ -268,14 +270,39 @@ bool Cmake::writeMain() const
         "    endif()\n\n"
         "    target_link_libraries(#^#PROJ_NAMESPACE#$# INTERFACE cc::comms)\n"
         "endif ()\n\n"
+        "if (\"${OPT_CMAKE_EXPORT_NAMESPACE}\" STREQUAL \"\")\n"
+        "    set (OPT_CMAKE_EXPORT_NAMESPACE \"cc\")\n"
+        "endif ()\n\n"
         "install(TARGETS #^#PROJ_NAMESPACE#$# EXPORT #^#PROJ_NAMESPACE#$#Config)\n"
         "install(EXPORT #^#PROJ_NAMESPACE#$#Config\n"
         "    DESTINATION ${LIB_INSTALL_DIR}/#^#PROJ_NAMESPACE#$#/cmake\n"
+        "    NAMESPACE ${OPT_CMAKE_EXPORT_NAMESPACE}::\n"
         ")\n\n"
         "install (\n"
         "    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/#^#PROJ_NAMESPACE#$#\n"
         "    DESTINATION ${INC_INSTALL_DIR}\n"
         ")\n\n"
+        "file (READ \"${CMAKE_SOURCE_DIR}/include/#^#PROJ_NAMESPACE#$#/Version.h\" version_file)\n"
+        "string (REGEX MATCH \"#^#PROJ_CAP_NAMESPACE#$#_MAJOR_VERSION[^0-9]*([0-9]*)U*\" _ ${version_file})\n"
+        "set (major_ver ${CMAKE_MATCH_1})\n"
+        "string (REGEX MATCH \"#^#PROJ_CAP_NAMESPACE#$#_MINOR_VERSION[^0-9]*([0-9]*)U*\" _ ${version_file})\n"
+        "set (minor_ver ${CMAKE_MATCH_1})\n"
+        "string (REGEX MATCH \"#^#PROJ_CAP_NAMESPACE#$#_PATCH_VERSION[^0-9]*([0-9]*)U*\" _ ${version_file})\n"
+        "set (patch_ver ${CMAKE_MATCH_1})\n"
+        "if ((NOT \"${major_ver}\" STREQUAL \"\") AND\n"
+        "    (NOT \"${minor_ver}\" STREQUAL \"\") AND\n"
+        "    (NOT \"${patch_ver}\" STREQUAL \"\"))\n"
+        "    set (#^#PROJ_CAP_NAMESPACE#$#_VERSION \"${major_ver}.${minor_ver}.${patch_ver}\")\n\n"
+        "    message (STATUS \"Detected version ${#^#PROJ_CAP_NAMESPACE#$#_VERSION} of the protocol\")\n"
+        "    include(CMakePackageConfigHelpers)\n"
+        "    write_basic_package_version_file(\n"
+        "        ${CMAKE_BINARY_DIR}/#^#PROJ_NAMESPACE#$#ConfigVersion.cmake\n"
+        "        VERSION ${#^#PROJ_CAP_NAMESPACE#$#_VERSION}\n"
+        "        COMPATIBILITY AnyNewerVersion)\n\n"
+        "    install (\n"
+        "        FILES ${CMAKE_BINARY_DIR}/#^#PROJ_NAMESPACE#$#ConfigVersion.cmake\n"
+        "        DESTINATION ${LIB_INSTALL_DIR}/#^#PROJ_NAMESPACE#$#/cmake/)\n"
+        "endif ()\n\n"
         "######################################################################\n\n"
         "if (OPT_BUILD_TEST)\n"
         "    add_subdirectory(test)\n"
@@ -320,7 +347,14 @@ bool Cmake::writePlugin() const
     auto plugins = m_generator.getPlugins();
     for (auto* p : plugins) {
         auto pName = common::nameToClassCopy(p->adjustedName());
-        calls.push_back("cc_plugin (\"" + pName + "\")");
+
+        static const std::string FalseStr = "FALSE";
+        static const std::string TrueStr = "TRUE";
+        const std::string* hasConfigWidget = &FalseStr;
+        if (p->hasConfigWidget()) {
+            hasConfigWidget = &TrueStr;
+        }
+        calls.push_back("cc_plugin (\"" + pName + "\" " + *hasConfigWidget + ")");
     }
 
     common::ReplacementMap replacements;
@@ -360,7 +394,7 @@ bool Cmake::writePlugin() const
         "    if (CC_COMMS_CHAMPION_FOUND)\n"
         "        if (CC_PLUGIN_DIR)\n"
         "            file (RELATIVE_PATH rel_plugin_install_path \"${CC_ROOT_DIR}\" \"${CC_PLUGIN_DIR}\")\n"
-        "            set (PLUGIN_INSTALL_DIR \"${INSTALL_DIR}/${rel_plugin_install_path}\")\n"
+        "            set (PLUGIN_INSTALL_DIR \"${rel_plugin_install_path}\")\n"
         "        endif()\n"
         "    endif ()\n\n"
         "    if (TARGET ${CC_EXTERNAL_TGT})\n"
@@ -368,7 +402,7 @@ bool Cmake::writePlugin() const
         "    endif ()\n"
         "endfunction()\n\n"
         "######################################################################\n\n"
-        "function (cc_plugin protocol)\n"
+        "function (cc_plugin protocol has_config_widget)\n"
         "    set (name \"cc_plugin_${protocol}\")\n\n"
         "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/${protocol}.json\")\n"
         "    set (stamp_file \"${CMAKE_CURRENT_BINARY_DIR}/${protocol}_refresh_stamp.txt\")\n\n"
@@ -385,6 +419,10 @@ bool Cmake::writePlugin() const
         "    set (hdr\n"
         "        plugin/${protocol}Plugin.h\n"
         "    )\n\n"
+        "    if (has_config_widget)\n"
+        "        list (APPEND src plugin/${protocol}ConfigWidget.cpp)\n"
+        "        list (APPEND hdr plugin/${protocol}ConfigWidget.h)\n"
+        "    endif ()\n\n"
         "    qt5_wrap_cpp(moc ${hdr})\n\n"
         "    set(extra_link_opts)\n"
         "    if (CMAKE_COMPILER_IS_GNUCC)\n"

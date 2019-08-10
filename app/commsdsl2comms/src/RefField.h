@@ -30,6 +30,7 @@ public:
     RefField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
 protected:
+    virtual bool prepareImpl() override;
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const override final;
     virtual std::size_t minLengthImpl() const override final;
@@ -59,6 +60,7 @@ private:
     std::string getFieldBaseParams() const;
     const std::string& getFieldType() const;
     std::string getOpts(const std::string& scope) const;
+    std::string getPropsUpdate() const;
 
     commsdsl::RefField refFieldDslObj() const
     {

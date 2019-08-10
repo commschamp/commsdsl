@@ -133,7 +133,7 @@ bool DefaultOptions::writeClientServer(bool client) const
         "#include \"DefaultOptions.h\"\n\n"
         "#^#BEG_NAMESPACE#$#\n"
         "/// @brief Default options of the protocol for a #^#TYPE#$#.\n"
-        "struct #^#CLASS_NAME#$#\n"
+        "struct #^#CLASS_NAME#$# : public DefaultOptions\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n\n"

@@ -3,6 +3,7 @@ build*
 CMakeLists.txt.user*
 .vscode
 *creator.user
+externals*
 
 # Prerequisites
 *.d

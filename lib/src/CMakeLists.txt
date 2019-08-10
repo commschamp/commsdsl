@@ -115,6 +115,8 @@ if (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
 endif ()
 
+set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${COMMSDSL_VERSION})
+
 target_include_directories(${PROJECT_NAME} 
     PRIVATE ${LIBXML2_INCLUDE_DIR}
     PUBLIC $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/lib/include>
@@ -126,9 +128,9 @@ target_compile_definitions(${PROJECT_NAME}
 
 install(
     TARGETS ${PROJECT_NAME} EXPORT "LibCommsdslTargets"
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     INCLUDES DESTINATION $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
@@ -146,9 +148,24 @@ configure_file(LibCommsdslConfig.cmake.in
 install(
     FILES
     "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibCommsdslConfig.cmake"
-    DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/LibCommsdsl/cmake/
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
 )
 
 install(
-    EXPORT LibCommsdslTargets DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/LibCommsdsl/cmake/
+    EXPORT LibCommsdslTargets 
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
+    NAMESPACE commsdsl::
 )
+
+include(CMakePackageConfigHelpers)
+write_basic_package_version_file(
+    ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
+    VERSION ${COMMSDSL_VERSION}
+    COMPATIBILITY AnyNewerVersion)
+    
+install (
+    FILES ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
+)    
+
+
