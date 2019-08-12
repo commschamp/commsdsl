@@ -99,6 +99,32 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
         hasNoValue("PRIVATE");
 }
 
+std::uintmax_t maxTypeValue(commsdsl::EnumField::Type val)
+{
+    static const std::uintmax_t Map[] = {
+        /* Int8 */ std::numeric_limits<std::int8_t>::max(),
+        /* Uint8 */ std::numeric_limits<std::uint8_t>::max(),
+        /* Int16 */ std::numeric_limits<std::int16_t>::max(),
+        /* Uint16 */ std::numeric_limits<std::uint16_t>::max(),
+        /* Int32 */ std::numeric_limits<std::int32_t>::max(),
+        /* Uint32 */ std::numeric_limits<std::uint32_t>::max(),
+        /* Int64 */ std::numeric_limits<std::int64_t>::max(),
+        /* Uint64 */ std::numeric_limits<std::uint64_t>::max(),
+        /* Intvar */ std::numeric_limits<std::int64_t>::max(),
+        /* Uintvar */ std::numeric_limits<std::uint64_t>::max()
+    };
+    static const std::size_t MapSize =
+            std::extent<decltype(Map)>::value;
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::EnumField::Type::NumOfValues),
+            "Invalid map");
+
+    if (commsdsl::EnumField::Type::NumOfValues <= val) {
+        assert(!"Should not happen");
+        val = commsdsl::EnumField::Type::Uint64;
+    }
+    return Map[static_cast<unsigned>(val)];
+}
+
 } // namespace
 
 common::StringsList EnumField::getValuesList() const
@@ -112,11 +138,43 @@ common::StringsList EnumField::getValuesList() const
     bool bigUnsigned =
         (type == commsdsl::EnumField::Type::Uint64) ||
         (type == commsdsl::EnumField::Type::Uintvar);
+    unsigned hexW = hexWidth();
+
+    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
+    using SortedRevValues = std::vector<RevValueInfo>;
+    SortedRevValues sortedRevValues;
+    for (auto& v : obj.revValues()) {
+        sortedRevValues.push_back(std::make_pair(v.first, &v.second));
+    }
+
+    if (bigUnsigned) {
+        std::sort(
+            sortedRevValues.begin(), sortedRevValues.end(),
+            [](const auto& elem1, const auto& elem2) -> bool
+            {
+                return static_cast<std::uintmax_t>(elem1.first) < static_cast<std::uintmax_t>(elem2.first);
+            });
+    }
+
+    auto valToStrFunc =
+        [bigUnsigned, hexW](std::intmax_t val) -> std::string
+        {
+            if ((bigUnsigned) || (0U < hexW)) {
+                return common::numToString(static_cast<std::uintmax_t>(val), hexW);
+            }
+            else {
+                return common::numToString(val);
+            }
+        };
 
     common::StringsList valuesStrings;
+    valuesStrings.reserve(sortedRevValues.size() + 3);
+    valuesStrings.resize(1); // Leave spece for "FirstValue"
     auto& values = obj.values();
-    for (auto& v : obj.revValues()) {
-        auto iter = values.find(v.second);
+
+
+    for (auto& v : sortedRevValues) {
+        auto iter = values.find(*v.second);
         if (iter == values.end()) {
             assert(!"Should not happen");
             continue;
@@ -135,16 +193,8 @@ common::StringsList EnumField::getValuesList() const
         static const std::string Templ =
             "#^#NAME#$# = #^#VALUE#$#, \n";
 
-        unsigned hexW = hexWidth();
 
-        std::string valStr;
-        if ((bigUnsigned) || (0U < hexW)) {
-            valStr = common::numToString(static_cast<std::uintmax_t>(v.first), hexW);
-        }
-        else {
-            valStr = common::numToString(v.first);
-        }
-
+        std::string valStr = valToStrFunc(v.first);
         std::string docStr;
         if (!iter->second.m_description.empty()) {
             docStr = "///< " + iter->second.m_description;
@@ -156,19 +206,19 @@ common::StringsList EnumField::getValuesList() const
                 docStr = "///< message id of <b>" + iter->second.m_displayName + "</b> message.";
             }
             else {
-                docStr = "///< message id of @b " + v.second + " message.";
+                docStr = "///< message id of @b " + *v.second + " message.";
             }
         }
         else if (!iter->second.m_displayName.empty()) {
             docStr = "///< value <b>" + iter->second.m_displayName + "</b>.";
         }
         else {
-            docStr = "///< value @b " + v.second;
+            docStr = "///< value @b " + *v.second;
         }
 
         assert(!valStr.empty());
         common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("NAME", v.second));
+        replacements.insert(std::make_pair("NAME", *v.second));
         replacements.insert(std::make_pair("VALUE", std::move(valStr)));
         auto templ = common::processTemplate(Templ, replacements);
         assert(2U <= templ.size());
@@ -179,6 +229,69 @@ common::StringsList EnumField::getValuesList() const
         docRepl.insert(std::make_pair("DOC", std::move(docStr)));
         valuesStrings.push_back(common::processTemplate(templ, docRepl));
     }
+
+    if (!sortedRevValues.empty()) {
+        auto addNameSuffixFunc =
+            [&values](const std::string& n) -> std::string
+            {
+                std::string suffix;
+                while (true) {
+                    auto s = n + suffix;
+                    if (values.find(s) == values.end()) {
+                        return s;
+                    }
+
+                    suffix += '_';
+                }
+            };
+
+        auto lowerCount =
+            std::count_if(
+                values.begin(), values.end(),
+                [](auto& v)
+                {
+                    assert(!v.first.empty());
+                    return std::tolower(v.first[0]) == static_cast<int>(v.first[0]);
+                });
+
+        auto adjustFirstLetterNameFunc =
+            [&values, lowerCount](const std::string& s)
+            {
+                if (static_cast<std::size_t>(lowerCount) <= (values.size() / 2)) {
+                    return s;
+                }
+
+                auto sCpy = s;
+                assert(!s.empty());
+                sCpy[0] = static_cast<char>(sCpy[0]);
+                return sCpy;
+            };
+
+        auto createValueStrFunc =
+            [&adjustFirstLetterNameFunc, &addNameSuffixFunc, &valToStrFunc](const std::string& n, std::intmax_t val, const std::string& doc) -> std::string
+            {
+                return
+                    adjustFirstLetterNameFunc(addNameSuffixFunc(n)) + " = " +
+                    valToStrFunc(val) + ", ///< " + doc + '\n';
+
+            };
+
+        valuesStrings[0] = createValueStrFunc("FirstValue", sortedRevValues.front().first, "First defined value.");
+        valuesStrings.push_back(createValueStrFunc("LastValue", sortedRevValues.back().first, "Last defined value."));
+
+        bool putLimit =
+            (!bigUnsigned) &&
+            sortedRevValues.back().first < static_cast<std::intmax_t>(maxTypeValue(obj.type()));
+
+        if (bigUnsigned) {
+            putLimit = static_cast<std::uintmax_t>(sortedRevValues.back().first) < maxTypeValue(obj.type());
+        }
+
+        if (putLimit) {
+            valuesStrings.push_back(createValueStrFunc("ValuesLimit", sortedRevValues.back().first + 1, "Upper limit for defined values."));
+        }
+    }
+
     return valuesStrings;
 }
 
