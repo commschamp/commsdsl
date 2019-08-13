@@ -17,6 +17,7 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <cstring>
 
 #include <boost/algorithm/string.hpp>
 
@@ -102,16 +103,16 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
 std::uintmax_t maxTypeValue(commsdsl::EnumField::Type val)
 {
     static const std::uintmax_t Map[] = {
-        /* Int8 */ std::numeric_limits<std::int8_t>::max(),
-        /* Uint8 */ std::numeric_limits<std::uint8_t>::max(),
-        /* Int16 */ std::numeric_limits<std::int16_t>::max(),
-        /* Uint16 */ std::numeric_limits<std::uint16_t>::max(),
-        /* Int32 */ std::numeric_limits<std::int32_t>::max(),
-        /* Uint32 */ std::numeric_limits<std::uint32_t>::max(),
-        /* Int64 */ std::numeric_limits<std::int64_t>::max(),
-        /* Uint64 */ std::numeric_limits<std::uint64_t>::max(),
-        /* Intvar */ std::numeric_limits<std::int64_t>::max(),
-        /* Uintvar */ std::numeric_limits<std::uint64_t>::max()
+        /* Int8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int8_t>::max()),
+        /* Uint8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint8_t>::max()),
+        /* Int16 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int16_t>::max()),
+        /* Uint16 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint16_t>::max()),
+        /* Int32 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int32_t>::max()),
+        /* Uint32 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint32_t>::max()),
+        /* Int64 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int64_t>::max()),
+        /* Uint64 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint64_t>::max()),
+        /* Intvar */ static_cast<std::uintmax_t>(std::numeric_limits<std::int64_t>::max()),
+        /* Uintvar */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint64_t>::max())
     };
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
