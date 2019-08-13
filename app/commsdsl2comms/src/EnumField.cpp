@@ -17,7 +17,7 @@
 
 #include <type_traits>
 #include <algorithm>
-#include <cstring>
+#include <cctype>
 
 #include <boost/algorithm/string.hpp>
 
