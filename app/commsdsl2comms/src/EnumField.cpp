@@ -170,7 +170,7 @@ common::StringsList EnumField::getValuesList() const
 
     common::StringsList valuesStrings;
     valuesStrings.reserve(sortedRevValues.size() + 3);
-    valuesStrings.resize(1); // Leave spece for "FirstValue"
+    //valuesStrings.resize(1); // Leave spece for "FirstValue"
     auto& values = obj.values();
 
 
@@ -277,7 +277,8 @@ common::StringsList EnumField::getValuesList() const
 
             };
 
-        valuesStrings[0] = createValueStrFunc("FirstValue", sortedRevValues.front().first, "First defined value.");
+        valuesStrings.push_back("\n// --- Extra values generated for convenience ---\n");
+        valuesStrings.push_back(createValueStrFunc("FirstValue", sortedRevValues.front().first, "First defined value."));
         valuesStrings.push_back(createValueStrFunc("LastValue", sortedRevValues.back().first, "Last defined value."));
 
         bool putLimit =

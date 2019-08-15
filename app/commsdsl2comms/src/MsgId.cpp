@@ -89,7 +89,9 @@ bool MsgId::writeDefinition() const
         auto values = castedMsgIdField->getValuesList();
         auto& prefix = common::msgIdPrefixStr();
         for (auto& v : values) {
-            v.insert(v.begin(), prefix.begin(), prefix.end());
+            if (!ba::contains(v, "// ---")) {
+                v.insert(v.begin(), prefix.begin(), prefix.end());
+            }
         }
 
         idsStr = common::listToString(values, common::emptyString(), common::emptyString());
