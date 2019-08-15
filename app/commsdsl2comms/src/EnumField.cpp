@@ -552,17 +552,39 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
     static_cast<void>(serHiddenParam);
     common::StringsList props;
     auto obj = enumFieldDslObj();
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::EnumField::Type::Uint64) ||
+        (type == commsdsl::EnumField::Type::Uintvar);
+
+    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
+    using SortedRevValues = std::vector<RevValueInfo>;
+    SortedRevValues sortedRevValues;
+    for (auto& v : obj.revValues()) {
+        sortedRevValues.push_back(std::make_pair(v.first, &v.second));
+    }
+
+    if (bigUnsigned) {
+        std::sort(
+            sortedRevValues.begin(), sortedRevValues.end(),
+            [](const auto& elem1, const auto& elem2) -> bool
+            {
+                return static_cast<std::uintmax_t>(elem1.first) < static_cast<std::uintmax_t>(elem2.first);
+            });
+    }
+
     auto& values = obj.values();
-    auto& revValues = obj.revValues();
-    props.reserve(revValues.size());
+    //auto& revValues = obj.revValues();
+
+    props.reserve(sortedRevValues.size());
     std::intmax_t prevValue = 0;
     bool prevValueValid = false;
-    for (auto& rVal : revValues) {
+    for (auto& rVal : sortedRevValues) {
         if ((prevValueValid) && (prevValue == rVal.first)) {
             continue;
         }
 
-        auto iter = values.find(rVal.second);
+        auto iter = values.find(*rVal.second);
         assert(iter != values.end());
         auto& v = *iter;
 

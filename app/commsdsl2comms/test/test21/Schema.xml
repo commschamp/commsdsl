@@ -76,13 +76,12 @@
     
     
     <message name="Msg2" id="MsgId.M2" sender="client">
-        <enum name="F1" type="uint32">
+        <enum name="F1" type="uint64">
             <validValue name="V1" val="0" />
             <validValue name="V2" val="0x7fffffff" />
             <validValue name="V3" val="0xffffffff" />
-
-            <!--validValue name="V2" val="0x7fffffffffffffff" /-->
-            <!--validValue name="V3" val="0xffffffffffffffff" /-->
+            <validValue name="V4" val="0x7fffffffffffffff" />
+            <validValue name="V5" val="0xffffffffffffffff" />
         </enum>
     </message>
     
