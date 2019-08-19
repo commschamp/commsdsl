@@ -109,6 +109,7 @@ bool ListField::prepareImpl()
         }
 
         m_element = create(generator(), elementField);
+        m_element->setMemberChild();
         if (!m_element->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -125,6 +126,7 @@ bool ListField::prepareImpl()
         }
 
         m_countPrefix = create(generator(), prefix);
+        m_countPrefix->setMemberChild();
         if (!m_countPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -150,6 +152,7 @@ bool ListField::prepareImpl()
         }
 
         m_lengthPrefix = create(generator(), prefix);
+        m_lengthPrefix->setMemberChild();
         if (!m_lengthPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -173,6 +176,7 @@ bool ListField::prepareImpl()
         }
 
         m_elemLengthPrefix = create(generator(), prefix);
+        m_elemLengthPrefix->setMemberChild();
         if (!m_elemLengthPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }

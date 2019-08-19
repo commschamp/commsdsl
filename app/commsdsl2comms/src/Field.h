@@ -69,6 +69,11 @@ public:
         const std::string& scope,
         const std::string& className = common::emptyString()) const;
 
+    std::string getCommonPreDefinition() const
+    {
+        return getCommonPreDefinitionImpl();
+    }
+
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
     std::string getDefaultOptions(const std::string& scope) const;
@@ -140,6 +145,11 @@ public:
         setForcedNoOptionsConfigImpl();
     }
 
+    void setMemberChild()
+    {
+        m_memberChild = true;
+    }
+
     bool isPseudo() const;
 
     static std::string getReadForFields(
@@ -200,6 +210,11 @@ protected:
         return m_forcedNoOptionsConfig;
     }
 
+    bool isMemberChild() const
+    {
+        return m_memberChild;
+    }
+
 
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
@@ -239,6 +254,7 @@ protected:
     virtual void setForcedPseudoImpl();
     virtual void setForcedNoOptionsConfigImpl();
     virtual bool isVersionDependentImpl() const;
+    virtual std::string getCommonPreDefinitionImpl() const;
 
     std::string getNameFunc() const;
 
@@ -268,6 +284,7 @@ private:
     bool writePluginScrFile() const;
 
     std::string getPluginIncludes() const;
+    std::string getClassPreDefinitionInternal(const std::string& className) const;
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;
@@ -278,6 +295,7 @@ private:
     bool m_focedFailOnInvalid = false;
     bool m_forcedPseudo = false;
     bool m_forcedNoOptionsConfig = false;
+    bool m_memberChild = false;
 };
 
 using FieldPtr = Field::Ptr;

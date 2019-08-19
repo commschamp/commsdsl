@@ -124,6 +124,7 @@ bool OptionalField::prepareImpl()
         return false;
     }
 
+    ptr->setMemberChild();
     if (!ptr->prepare(obj.sinceVersion())) {
         return false;
     }
