@@ -69,9 +69,9 @@ public:
         const std::string& scope,
         const std::string& className = common::emptyString()) const;
 
-    std::string getCommonPreDefinition() const
+    std::string getCommonPreDefinition(const std::string& scope) const
     {
-        return getCommonPreDefinitionImpl();
+        return getCommonPreDefinitionImpl(scope);
     }
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
@@ -254,7 +254,7 @@ protected:
     virtual void setForcedPseudoImpl();
     virtual void setForcedNoOptionsConfigImpl();
     virtual bool isVersionDependentImpl() const;
-    virtual std::string getCommonPreDefinitionImpl() const;
+    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const;
 
     std::string getNameFunc() const;
 
@@ -284,7 +284,7 @@ private:
     bool writePluginScrFile() const;
 
     std::string getPluginIncludes() const;
-    std::string getClassPreDefinitionInternal(const std::string& className) const;
+    std::string getClassPreDefinitionInternal(const std::string& scope, const std::string& className) const;
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;

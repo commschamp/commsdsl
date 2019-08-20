@@ -939,9 +939,15 @@ std::string Message::getExtraPublic() const
 
 std::string Message::getCommonPreDef() const
 {
+    auto scope =
+        "TOpt::" +
+        getNamespaceScope() +
+        common::fieldsSuffixStr() +
+        "::";
+
     common::StringsList defs;
     for (auto& f : m_fields) {
-        auto str = f->getCommonPreDefinition();
+        auto str = f->getCommonPreDefinition(scope);
         if (!str.empty()) {
             defs.emplace_back(std::move(str));
         }
@@ -955,7 +961,7 @@ std::string Message::getCommonPreDef() const
         "/// @brief Common fields definitions from @ref #^#CLASS_NAME#$#Fields.\n"
         "/// @see @ref #^#CLASS_NAME#$#Fields\n"
         "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
-        "struct #^#ORIG_CLASS_NAME#$#FieldsCommon\n"
+        "struct #^#CLASS_NAME#$#FieldsCommon\n"
         "{\n"
         "    #^#FIELDS_DEF#$#\n"
         "};\n";

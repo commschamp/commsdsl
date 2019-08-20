@@ -605,18 +605,20 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
-std::string EnumField::getEnumeration(const std::string& scope) const
+std::string EnumField::getCommonPreDefinitionImpl(const std::string& scope) const
+{
+    if (!isMemberChild()) {
+        return common::emptyString();
+    }
+
+    return getEnumeration(scope, false);
+}
+
+std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemberChild) const
 {
     if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
         return common::emptyString();
     }
-
-    static const std::string Templ =
-        "/// @brief Values enumerator for @ref #^#SCOPE#$# field.\n"
-        "enum class #^#NAME#$#Val : #^#TYPE#$#\n"
-        "{\n"
-        "    #^#VALUES#$#\n"
-        "};\n";
 
     auto scopeStr = scope + common::nameToClassCopy(name());
     static const std::string OptPrefix("TOpt");
@@ -626,7 +628,40 @@ std::string EnumField::getEnumeration(const std::string& scope) const
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("SCOPE", std::move(scopeStr)));
+    replacements.insert(std::make_pair("SCOPE", scopeStr));
+
+    if (checkIfMemberChild && isMemberChild()) {
+        static const std::string CommonStr("Common::");
+        auto adjustedScope = ba::replace_all_copy(scopeStr, "::", CommonStr);
+
+        auto messagePrefix = generator().mainNamespace() + CommonStr + common::messageStr() + CommonStr;
+        if (ba::starts_with(adjustedScope, messagePrefix)) {
+            auto newPrefix = generator().mainNamespace() + "::" + common::messageStr() + "::";
+            ba::replace_first(adjustedScope, messagePrefix, newPrefix);
+        }
+
+        auto fieldPrefix = generator().mainNamespace() + CommonStr + common::fieldStr() + CommonStr;
+        if (ba::starts_with(adjustedScope, fieldPrefix)) {
+            auto newPrefix = generator().mainNamespace() + "::" + common::fieldStr() + "::";
+            ba::replace_first(adjustedScope, fieldPrefix, newPrefix);
+        }
+
+        static const std::string MemChildTempl =
+            "/// @brief Values enumerator for @ref #^#SCOPE#$# field.\n"
+            "using #^#NAME#$#Val = #^#ADJ_SCOPE#$#Val;\n";
+
+        replacements.insert(std::make_pair("ADJ_SCOPE", std::move(adjustedScope)));
+        return common::processTemplate(MemChildTempl, replacements);
+    }
+
+    static const std::string Templ =
+        "/// @brief Values enumerator for @ref #^#SCOPE#$# field.\n"
+        "enum class #^#NAME#$#Val : #^#TYPE#$#\n"
+        "{\n"
+        "    #^#VALUES#$#\n"
+        "};\n";
+
+
     replacements.insert(std::make_pair("TYPE", IntField::convertType(enumFieldDslObj().type())));
     replacements.insert(std::make_pair("VALUES", getValuesDefinition()));
     return common::processTemplate(Templ, replacements);

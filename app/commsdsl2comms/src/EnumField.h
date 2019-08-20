@@ -54,6 +54,7 @@ protected:
         const std::string& nameOverride,
         bool forcedVersionOptional) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
+    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
 
 private:
     using StringsList = common::StringsList;
@@ -68,7 +69,7 @@ private:
 
     using ValidRangesList = std::vector<RangeInfo>;
 
-    std::string getEnumeration(const std::string& scope) const;
+    std::string getEnumeration(const std::string& scope, bool checkIfMemberChild = true) const;
     std::string getFieldBaseParams() const;
     std::string getEnumType(const std::string& className) const;
     std::string getFieldOpts(const std::string& scope) const;
