@@ -81,6 +81,28 @@
                     <int name="Count" type="uint8" />
                 </countPrefix>
             </list>
+            <optional name="m5" defaultMode="missing" cond="$m1 = 1">
+                <enum name="m5" type="uint8">
+                    <validValue name="v1" val="0" />
+                    <validValue name="v2" val="1" />
+                </enum>
+            </optional>
+            <variant name="m6">
+                <bundle name="p1">
+                    <int name="key" type="uint8" validValue="0" failOnInvalid="true" />
+                    <enum name="val" type="uint8">
+                        <validValue name="v1" val="0" />
+                        <validValue name="v2" val="1" />
+                    </enum>
+                </bundle>
+                <bundle name="p2">
+                    <int name="key" type="uint8" defaultValue="1" validValue="1" failOnInvalid="true" />
+                    <enum name="val" type="uint8" defaultValue="v1">
+                        <validValue name="v1" val="5" />
+                        <validValue name="v2" val="6" />
+                    </enum>
+                </bundle>
+            </variant>
         </bundle>
     </message>
     

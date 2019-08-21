@@ -325,6 +325,40 @@ bool OptionalField::isVersionDependentImpl() const
     return m_field && m_field->isVersionDependent();
 }
 
+std::string OptionalField::getCommonPreDefinitionImpl(const std::string& scope) const
+{
+    if (!m_field) {
+        return common::emptyString();
+    }
+
+    auto scopeStr = scope + common::nameToClassCopy(name());
+    static const std::string OptPrefix("TOpt");
+    if (ba::starts_with(scopeStr, OptPrefix)) {
+        scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
+    }
+
+    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    auto str = m_field->getCommonPreDefinition(updatedScope);
+    if (str.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Scope for all the common definitions of the member fields of\n"
+        "///     @ref #^#SCOPE#$# optional.\n"
+        "struct #^#CLASS_NAME#$#MembersCommon\n"
+        "{\n"
+        "    #^#DEFS#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", scopeStr));
+    repl.insert(std::make_pair("DEFS", std::move(str)));
+    return common::processTemplate(Templ, repl);
+}
+
+
 std::string OptionalField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

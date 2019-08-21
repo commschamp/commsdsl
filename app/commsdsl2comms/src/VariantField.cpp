@@ -108,6 +108,7 @@ bool VariantField::prepareImpl()
             return false;
         }
 
+        ptr->setMemberChild();
         if (!ptr->prepare(obj.sinceVersion())) {
             return false;
         }
@@ -264,6 +265,42 @@ bool VariantField::isVersionDependentImpl() const
             {
                 return m->isVersionDependent();
             });
+}
+
+std::string VariantField::getCommonPreDefinitionImpl(const std::string& scope) const
+{
+    common::StringsList defs;
+    auto scopeStr = scope + common::nameToClassCopy(name());
+    static const std::string OptPrefix("TOpt");
+    if (ba::starts_with(scopeStr, OptPrefix)) {
+        scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
+    }
+
+    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    for (auto& m : m_members) {
+        auto str = m->getCommonPreDefinition(updatedScope);
+        if (!str.empty()) {
+            defs.emplace_back(std::move(str));
+        }
+    }
+
+    if (defs.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Scope for all the common definitions of the member fields of\n"
+        "///     @ref #^#SCOPE#$# bundle.\n"
+        "struct #^#CLASS_NAME#$#MembersCommon\n"
+        "{\n"
+        "    #^#DEFS#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", scopeStr));
+    repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string VariantField::getFieldOpts(const std::string& scope) const
