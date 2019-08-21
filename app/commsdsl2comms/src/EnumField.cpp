@@ -600,10 +600,6 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
 
 std::string EnumField::getCommonPreDefinitionImpl(const std::string& scope) const
 {
-//    if (!isMemberChild()) {
-//        return common::emptyString();
-//    }
-
     static const std::string Templ =
         "#^#ENUM_DEF#$#\n"
         "/// @brief Common functions for\n"
@@ -1534,25 +1530,6 @@ bool EnumField::prepareRanges() const
         m_validRanges.end());
 
     return true;
-}
-
-std::string EnumField::scopeForCommon(const std::string& scope) const
-{
-    static const std::string CommonStr("Common::");
-    auto adjustedScope = ba::replace_all_copy(scope, "::", CommonStr);
-
-    auto messagePrefix = generator().mainNamespace() + CommonStr + common::messageStr() + CommonStr;
-    if (ba::starts_with(adjustedScope, messagePrefix)) {
-        auto newPrefix = generator().mainNamespace() + "::" + common::messageStr() + "::";
-        ba::replace_first(adjustedScope, messagePrefix, newPrefix);
-    }
-
-    auto fieldPrefix = generator().mainNamespace() + CommonStr + common::fieldStr() + CommonStr;
-    if (ba::starts_with(adjustedScope, fieldPrefix)) {
-        auto newPrefix = generator().mainNamespace() + "::" + common::fieldStr() + "::";
-        ba::replace_first(adjustedScope, fieldPrefix, newPrefix);
-    }
-    return adjustedScope;
 }
 
 } // namespace commsdsl2comms

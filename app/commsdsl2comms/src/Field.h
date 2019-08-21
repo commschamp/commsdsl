@@ -278,6 +278,7 @@ protected:
     bool isCustomizable() const;
 
     std::string adjustScopeWithNamespace(const std::string& scope) const;
+    std::string scopeForCommon(const std::string& scope) const;
 
 private:
 

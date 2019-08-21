@@ -1173,6 +1173,25 @@ std::string Field::adjustScopeWithNamespace(const std::string& scope) const
     return scope;
 }
 
+std::string Field::scopeForCommon(const std::string& scope) const
+{
+    static const std::string CommonStr("Common::");
+    auto adjustedScope = ba::replace_all_copy(scope, "::", CommonStr);
+
+    auto messagePrefix = generator().mainNamespace() + CommonStr + common::messageStr() + CommonStr;
+    if (ba::starts_with(adjustedScope, messagePrefix)) {
+        auto newPrefix = generator().mainNamespace() + "::" + common::messageStr() + "::";
+        ba::replace_first(adjustedScope, messagePrefix, newPrefix);
+    }
+
+    auto fieldPrefix = generator().mainNamespace() + CommonStr + common::fieldStr() + CommonStr;
+    if (ba::starts_with(adjustedScope, fieldPrefix)) {
+        auto newPrefix = generator().mainNamespace() + "::" + common::fieldStr() + "::";
+        ba::replace_first(adjustedScope, fieldPrefix, newPrefix);
+    }
+    return adjustedScope;
+}
+
 bool Field::writeProtocolDefinitionFile() const
 {
     auto startInfo = m_generator.startFieldProtocolWrite(m_externalRef);
