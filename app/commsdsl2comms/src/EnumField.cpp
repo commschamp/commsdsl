@@ -170,7 +170,6 @@ common::StringsList EnumField::getValuesList() const
 
     common::StringsList valuesStrings;
     valuesStrings.reserve(sortedRevValues.size() + 3);
-    //valuesStrings.resize(1); // Leave spece for "FirstValue"
     auto& values = obj.values();
 
 
@@ -246,25 +245,24 @@ common::StringsList EnumField::getValuesList() const
                 }
             };
 
-        auto lowerCount =
-            std::count_if(
-                values.begin(), values.end(),
-                [](auto& v)
-                {
-                    assert(!v.first.empty());
-                    return std::tolower(v.first[0]) == static_cast<int>(v.first[0]);
-                });
+        auto& firstElem = sortedRevValues.front();
+        assert(firstElem.second != nullptr);
+        assert(!firstElem.second->empty());
+        auto firstLetter = firstElem.second->front();
+        bool useLower = (std::tolower(firstLetter) == static_cast<int>(firstLetter));
 
         auto adjustFirstLetterNameFunc =
-            [&values, lowerCount](const std::string& s)
+            [useLower](const std::string& s)
             {
-                if (static_cast<std::size_t>(lowerCount) <= (values.size() / 2)) {
+                if (!useLower) {
+                    assert(!s.empty());
+                    assert(s[0] == static_cast<char>(std::toupper(s[0])));
                     return s;
                 }
 
                 auto sCpy = s;
                 assert(!s.empty());
-                sCpy[0] = static_cast<char>(sCpy[0]);
+                sCpy[0] = static_cast<char>(std::tolower(sCpy[0]));
                 return sCpy;
             };
 
