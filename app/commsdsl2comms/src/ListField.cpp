@@ -755,6 +755,54 @@ bool ListField::isVersionDependentImpl() const
 
     return false;
 }
+std::string ListField::getCommonPreDefinitionImpl(const std::string& scope) const
+{
+    common::StringsList defs;
+    auto scopeStr = scope + common::nameToClassCopy(name());
+    static const std::string OptPrefix("TOpt");
+    if (ba::starts_with(scopeStr, OptPrefix)) {
+        scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
+    }
+
+    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    auto updateDefsFor =
+        [&defs, updatedScope](const FieldPtr& f)
+        {
+            if (!f) {
+                return;
+            }
+
+            auto str = f->getCommonPreDefinition(updatedScope);
+            if (str.empty()) {
+                return;
+            }
+
+            defs.emplace_back(std::move(str));
+        };
+
+    updateDefsFor(m_element);
+    updateDefsFor(m_countPrefix);
+    updateDefsFor(m_lengthPrefix);
+    updateDefsFor(m_elemLengthPrefix);
+
+    if (defs.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Scope for all the common definitions of the member fields of\n"
+        "///     @ref #^#SCOPE#$# list.\n"
+        "struct #^#CLASS_NAME#$#MembersCommon\n"
+        "{\n"
+        "    #^#DEFS#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", scopeStr));
+    repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
+}
 
 std::string ListField::getFieldOpts(const std::string& scope) const
 {
@@ -874,7 +922,8 @@ std::string ListField::getMembersDef(const std::string& scope) const
     }
 
     static const std::string Templ =
-        "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# list.\n"
+        "/// @brief Scope for all the member fields of "
+        "///     @ref #^#CLASS_NAME#$# list.\n"
         "#^#EXTRA_PREFIX#$#\n"
         "struct #^#CLASS_NAME#$#Members\n"
         "{\n"
@@ -1092,7 +1141,7 @@ std::string ListField::getExtraOptions(const std::string& scope, GetExtraOptions
 
     const std::string Templ =
         "/// @brief Extra options for all the member fields of\n"
-        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
+        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# list.\n"
         "struct #^#CLASS_NAME#$#Members\n"
         "{\n"
         "    #^#OPTIONS#$#\n"

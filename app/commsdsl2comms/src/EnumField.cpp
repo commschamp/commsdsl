@@ -647,7 +647,8 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
         }
 
         static const std::string MemChildTempl =
-            "/// @brief Values enumerator for @ref #^#SCOPE#$# field.\n"
+            "/// @brief Values enumerator for\n"
+            "///     @ref #^#SCOPE#$# field.\n"
             "using #^#NAME#$#Val = #^#ADJ_SCOPE#$#Val;\n";
 
         replacements.insert(std::make_pair("ADJ_SCOPE", std::move(adjustedScope)));
@@ -655,7 +656,8 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
     }
 
     static const std::string Templ =
-        "/// @brief Values enumerator for @ref #^#SCOPE#$# field.\n"
+        "/// @brief Values enumerator for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
         "enum class #^#NAME#$#Val : #^#TYPE#$#\n"
         "{\n"
         "    #^#VALUES#$#\n"

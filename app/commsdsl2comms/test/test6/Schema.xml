@@ -52,6 +52,35 @@
                 <validValue name="v1" val="5" />
                 <validValue name="v2" val="6" />
             </enum>
+            <bitfield name="m3">
+                <enum name="e1" type="uint8" bitLength="3">
+                    <validValue name="v1" val="0" />
+                    <validValue name="v2" val="1" />
+                </enum>
+                <enum name="e2" type="uint8" bitLength="5">
+                    <validValue name="v1" val="1" />
+                    <validValue name="v2" val="2" />
+                    <validValue name="v3" val="3" />
+                </enum>
+            </bitfield>
+            <list name="m4">
+                <element>
+                    <bundle name="elem">
+                        <enum name="e1" type="uint8">
+                            <validValue name="v1" val="0" />
+                            <validValue name="v2" val="1" />
+                        </enum>
+                        <enum name="e2" type="uint8">
+                            <validValue name="v1" val="1" />
+                            <validValue name="v2" val="2" />
+                            <validValue name="v3" val="3" />
+                        </enum>
+                    </bundle>
+                </element>
+                <countPrefix>
+                    <int name="Count" type="uint8" />
+                </countPrefix>
+            </list>
         </bundle>
     </message>
     

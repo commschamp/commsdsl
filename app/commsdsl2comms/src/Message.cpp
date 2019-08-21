@@ -958,7 +958,7 @@ std::string Message::getCommonPreDef() const
     }
 
     static const std::string Templ =
-        "/// @brief Common fields definitions from @ref #^#CLASS_NAME#$#Fields.\n"
+        "/// @brief Common definitions for fields from @ref #^#CLASS_NAME#$#Fields.\n"
         "/// @see @ref #^#CLASS_NAME#$#Fields\n"
         "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
         "struct #^#CLASS_NAME#$#FieldsCommon\n"

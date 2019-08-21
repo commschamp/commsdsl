@@ -198,6 +198,29 @@ std::size_t BundleField::minLengthImpl() const
             });
 }
 
+std::size_t BundleField::maxLengthImpl() const
+{
+    static const std::size_t MaxLen =
+        std::numeric_limits<std::size_t>::max();
+
+    return
+        std::accumulate(
+            m_members.begin(), m_members.end(), std::size_t(0),
+            [](std::size_t soFar, auto& m)
+            {
+                if (soFar == MaxLen) {
+                    return MaxLen;
+                }
+
+                auto fLen = m->maxLength();
+                if ((MaxLen - soFar) <= fLen) {
+                    return MaxLen;
+                }
+
+                return soFar + fLen;
+            });
+}
+
 std::string BundleField::getClassDefinitionImpl(
     const std::string& scope,
     const std::string& className) const
