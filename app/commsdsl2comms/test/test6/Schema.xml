@@ -7,7 +7,8 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
-            <validValue name="M3" val="3" />            
+            <validValue name="M3" val="3" />         
+            <validValue name="M4" val="4" />
         </enum>
         
         <enum name="E1" type="uint16" nonUniqueAllowed="true" validCheckVersion="true" >
@@ -105,6 +106,18 @@
             </variant>
         </bundle>
     </message>
+    
+    <message name="Msg4" id="MsgId.M4">
+        <enum name="f1" type="uint8">
+            <validValue name="v1" val="0" />
+            <validValue name="v2" val="1" />
+        </enum>
+        
+        <enum name="f2" type="uint8" sinceVersion="2">
+            <validValue name="v1" val="0" />
+            <validValue name="v2" val="1" />
+        </enum>        
+    </message>    
     
 
     <frame name="Frame">

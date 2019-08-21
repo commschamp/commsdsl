@@ -75,6 +75,7 @@ private:
     std::string getFieldOpts(const std::string& scope) const;
     std::string getValid() const;
     std::string getValueNameFunc() const;
+    std::string getValueNameWrapFunc(const std::string& scope) const;
     std::string getValueNameFuncDirectBody() const;
     std::string getValueNameFuncBinSearchBody() const;
     std::string getValueNameBinSearchPairs() const;
@@ -84,6 +85,7 @@ private:
     void checkLengthOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
     bool prepareRanges() const;
+    std::string scopeForCommon(const std::string& scope) const;
 
     commsdsl::EnumField enumFieldDslObj() const
     {

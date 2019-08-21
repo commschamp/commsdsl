@@ -331,11 +331,7 @@ std::string OptionalField::getCommonPreDefinitionImpl(const std::string& scope) 
         return common::emptyString();
     }
 
-    auto scopeStr = scope + common::nameToClassCopy(name());
-    static const std::string OptPrefix("TOpt");
-    if (ba::starts_with(scopeStr, OptPrefix)) {
-        scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
-    }
+    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
 
     auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
     auto str = m_field->getCommonPreDefinition(updatedScope);

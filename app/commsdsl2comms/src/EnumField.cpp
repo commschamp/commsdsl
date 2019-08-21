@@ -379,12 +379,7 @@ std::string EnumField::getClassDefinitionImpl(
     
     std::string extraDoxStr;
     if (dslObj().semanticType() != commsdsl::Field::SemanticType::MessageId) {
-        auto scopeStr = scope + getEnumType(common::nameToClassCopy(name()));
-        static const std::string OptPrefix("TOpt");
-        if (ba::starts_with(scopeStr, OptPrefix)) {
-            scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
-        }
-
+        auto scopeStr = adjustScopeWithNamespace(scope + getEnumType(common::nameToClassCopy(name())));
         extraDoxStr = "@see @ref " + scopeStr;
     }
 
@@ -397,7 +392,7 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
-    replacements.insert(std::make_pair("VALUE_NAME", getValueNameFunc()));
+    replacements.insert(std::make_pair("VALUE_NAME", getValueNameWrapFunc(scope)));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -605,11 +600,26 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
 
 std::string EnumField::getCommonPreDefinitionImpl(const std::string& scope) const
 {
-    if (!isMemberChild()) {
-        return common::emptyString();
-    }
+//    if (!isMemberChild()) {
+//        return common::emptyString();
+//    }
 
-    return getEnumeration(scope, false);
+    static const std::string Templ =
+        "#^#ENUM_DEF#$#\n"
+        "/// @brief Common functions for\n"
+        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# field.\n"
+        "struct #^#CLASS_NAME#$#Common\n"
+        "{\n"
+        "    #^#VAL_NAME_FUNC#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("ENUM_DEF", getEnumeration(scope, false)));
+    repl.insert(std::make_pair("SCOPE", adjustScopeWithNamespace(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("VAL_NAME_FUNC", getValueNameFunc()));
+
+    return common::processTemplate(Templ, repl);
 }
 
 std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemberChild) const
@@ -618,37 +628,24 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
         return common::emptyString();
     }
 
-    auto scopeStr = scope + common::nameToClassCopy(name());
-    static const std::string OptPrefix("TOpt");
-    if (ba::starts_with(scopeStr, OptPrefix)) {
-        scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
+    if (checkIfMemberChild && (!isMemberChild())) {
+        return common::emptyString();
     }
+
+    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scopeStr));
 
     if (checkIfMemberChild && isMemberChild()) {
-        static const std::string CommonStr("Common::");
-        auto adjustedScope = ba::replace_all_copy(scopeStr, "::", CommonStr);
-
-        auto messagePrefix = generator().mainNamespace() + CommonStr + common::messageStr() + CommonStr;
-        if (ba::starts_with(adjustedScope, messagePrefix)) {
-            auto newPrefix = generator().mainNamespace() + "::" + common::messageStr() + "::";
-            ba::replace_first(adjustedScope, messagePrefix, newPrefix);
-        }
-
-        auto fieldPrefix = generator().mainNamespace() + CommonStr + common::fieldStr() + CommonStr;
-        if (ba::starts_with(adjustedScope, fieldPrefix)) {
-            auto newPrefix = generator().mainNamespace() + "::" + common::fieldStr() + "::";
-            ba::replace_first(adjustedScope, fieldPrefix, newPrefix);
-        }
 
         static const std::string MemChildTempl =
             "/// @brief Values enumerator for\n"
             "///     @ref #^#SCOPE#$# field.\n"
             "using #^#NAME#$#Val = #^#ADJ_SCOPE#$#Val;\n";
 
+        auto adjustedScope = scopeForCommon(scopeStr);
         replacements.insert(std::make_pair("ADJ_SCOPE", std::move(adjustedScope)));
         return common::processTemplate(MemChildTempl, replacements);
     }
@@ -894,6 +891,24 @@ std::string EnumField::getValueNameFunc() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
     replacements.insert(std::make_pair("BODY", std::move(body)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNameWrapFunc(const std::string& scope) const
+{
+
+    static const std::string Templ =
+        "/// @brief Retrieve name of the enum value\n"
+        "static const char* valueName(#^#ENUM_TYPE#$# val)\n"
+        "{\n"
+        "    return #^#SCOPE#$##^#CLASS_NAME#$#Common::valueName(val);\n"
+        "}\n";
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
+    replacements.insert(std::make_pair("SCOPE", scopeForCommon(adjustScopeWithNamespace(scope))));
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     return common::processTemplate(Templ, replacements);
 }
 
@@ -1521,5 +1536,23 @@ bool EnumField::prepareRanges() const
     return true;
 }
 
+std::string EnumField::scopeForCommon(const std::string& scope) const
+{
+    static const std::string CommonStr("Common::");
+    auto adjustedScope = ba::replace_all_copy(scope, "::", CommonStr);
+
+    auto messagePrefix = generator().mainNamespace() + CommonStr + common::messageStr() + CommonStr;
+    if (ba::starts_with(adjustedScope, messagePrefix)) {
+        auto newPrefix = generator().mainNamespace() + "::" + common::messageStr() + "::";
+        ba::replace_first(adjustedScope, messagePrefix, newPrefix);
+    }
+
+    auto fieldPrefix = generator().mainNamespace() + CommonStr + common::fieldStr() + CommonStr;
+    if (ba::starts_with(adjustedScope, fieldPrefix)) {
+        auto newPrefix = generator().mainNamespace() + "::" + common::fieldStr() + "::";
+        ba::replace_first(adjustedScope, fieldPrefix, newPrefix);
+    }
+    return adjustedScope;
+}
 
 } // namespace commsdsl2comms

@@ -1164,6 +1164,15 @@ bool Field::isCustomizable() const
     return isLimitedCustomizableImpl();
 }
 
+std::string Field::adjustScopeWithNamespace(const std::string& scope) const
+{
+    static const std::string OptPrefix("TOpt");
+    if (ba::starts_with(scope, OptPrefix)) {
+        return generator().mainNamespace() + scope.substr(OptPrefix.size());
+    }
+    return scope;
+}
+
 bool Field::writeProtocolDefinitionFile() const
 {
     auto startInfo = m_generator.startFieldProtocolWrite(m_externalRef);
@@ -1190,7 +1199,7 @@ bool Field::writeProtocolDefinitionFile() const
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition(scope, className)));
-    replacements.insert(std::make_pair("CLASS_PRE_DEF", getClassPreDefinitionInternal(scope, className)));
+    replacements.insert(std::make_pair("CLASS_PRE_DEF", getCommonPreDefinition(scope)));
     replacements.insert(std::make_pair("FIELD_NAME", displayName()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(m_externalRef)));
 
@@ -1329,26 +1338,26 @@ std::string Field::getPluginIncludes() const
     return common::includesToStatements(includes);
 }
 
-std::string Field::getClassPreDefinitionInternal(const std::string& scope, const std::string& className) const
-{
-    auto str = getCommonPreDefinition(scope);
-    if (str.empty()) {
-        return str;
-    }
+//std::string Field::getClassPreDefinitionInternal(const std::string& scope, const std::string& className) const
+//{
+//    auto str = getCommonPreDefinition(scope);
+//    if (str.empty()) {
+//        return str;
+//    }
 
-    static const std::string Templ =
-        "/// @brief Common definitions for field @ref #^#SCOPE#$##^#CLASS_NAME#$#\n"
-        "struct #^#ORIG_CLASS_NAME#$#Common\n"
-        "{\n"
-        "    #^#DEFS#$#\n"
-        "};\n";
+//    static const std::string Templ =
+//        "/// @brief Common definitions for field @ref #^#SCOPE#$##^#CLASS_NAME#$#\n"
+//        "struct #^#ORIG_CLASS_NAME#$#Common\n"
+//        "{\n"
+//        "    #^#DEFS#$#\n"
+//        "};\n";
 
-    common::ReplacementMap repl;
-    repl.insert(std::make_pair("SCOPE", scope));
-    repl.insert(std::make_pair("CLASS_NAME", className));
-    repl.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("DEF", std::move(str)));
-    return common::processTemplate(Templ, repl);
-}
+//    common::ReplacementMap repl;
+//    repl.insert(std::make_pair("SCOPE", scope));
+//    repl.insert(std::make_pair("CLASS_NAME", className));
+//    repl.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
+//    repl.insert(std::make_pair("DEF", std::move(str)));
+//    return common::processTemplate(Templ, repl);
+//}
 
 } // namespace commsdsl2comms

@@ -277,6 +277,8 @@ protected:
 
     bool isCustomizable() const;
 
+    std::string adjustScopeWithNamespace(const std::string& scope) const;
+
 private:
 
     bool writeProtocolDefinitionFile() const;
@@ -284,7 +286,7 @@ private:
     bool writePluginScrFile() const;
 
     std::string getPluginIncludes() const;
-    std::string getClassPreDefinitionInternal(const std::string& scope, const std::string& className) const;
+//    std::string getClassPreDefinitionInternal(const std::string& scope, const std::string& className) const;
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;

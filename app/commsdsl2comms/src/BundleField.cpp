@@ -338,11 +338,7 @@ bool BundleField::isVersionDependentImpl() const
 std::string BundleField::getCommonPreDefinitionImpl(const std::string& scope) const
 {
     common::StringsList defs;
-    auto scopeStr = scope + common::nameToClassCopy(name());
-    static const std::string OptPrefix("TOpt");
-    if (ba::starts_with(scopeStr, OptPrefix)) {
-        scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
-    }
+    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
 
     auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
     for (auto& m : m_members) {
