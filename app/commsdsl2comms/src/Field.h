@@ -69,10 +69,7 @@ public:
         const std::string& scope,
         const std::string& className = common::emptyString()) const;
 
-    std::string getCommonPreDefinition(const std::string& scope) const
-    {
-        return getCommonPreDefinitionImpl(scope);
-    }
+    std::string getCommonPreDefinition(const std::string& scope) const;
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
@@ -150,6 +147,11 @@ public:
         m_memberChild = true;
     }
 
+    void setCommonPreDefDisabled(bool val = true)
+    {
+        m_commonPreDefDisabled = val;
+    }
+
     bool isPseudo() const;
 
     static std::string getReadForFields(
@@ -215,6 +217,10 @@ protected:
         return m_memberChild;
     }
 
+    bool isCommonPreDefDisabled() const
+    {
+        return m_commonPreDefDisabled;
+    }
 
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
@@ -299,6 +305,7 @@ private:
     bool m_forcedPseudo = false;
     bool m_forcedNoOptionsConfig = false;
     bool m_memberChild = false;
+    bool m_commonPreDefDisabled = false;
 };
 
 using FieldPtr = Field::Ptr;

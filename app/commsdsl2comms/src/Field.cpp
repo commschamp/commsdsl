@@ -183,6 +183,15 @@ std::string Field::getClassDefinition(
     return str;
 }
 
+std::string Field::getCommonPreDefinition(const std::string& scope) const
+{
+    if (isCommonPreDefDisabled()) {
+        return common::emptyString();
+    }
+
+    return getCommonPreDefinitionImpl(scope);
+}
+
 Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
 {
     using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Field)>;
@@ -1178,17 +1187,20 @@ std::string Field::scopeForCommon(const std::string& scope) const
     static const std::string CommonStr("Common::");
     auto adjustedScope = ba::replace_all_copy(scope, "::", CommonStr);
 
-    auto messagePrefix = generator().mainNamespace() + CommonStr + common::messageStr() + CommonStr;
-    if (ba::starts_with(adjustedScope, messagePrefix)) {
-        auto newPrefix = generator().mainNamespace() + "::" + common::messageStr() + "::";
-        ba::replace_first(adjustedScope, messagePrefix, newPrefix);
-    }
+    auto restorePrefixFunc =
+        [this, &adjustedScope](const std::string& ns)
+        {
+            auto resultPrefix = generator().mainNamespace() + "::" + ns + "::";
+            auto wrongPrefix = ba::replace_all_copy(resultPrefix, "::", CommonStr);
+            if (ba::starts_with(adjustedScope, wrongPrefix)) {
+                ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
+            }
+        };
 
-    auto fieldPrefix = generator().mainNamespace() + CommonStr + common::fieldStr() + CommonStr;
-    if (ba::starts_with(adjustedScope, fieldPrefix)) {
-        auto newPrefix = generator().mainNamespace() + "::" + common::fieldStr() + "::";
-        ba::replace_first(adjustedScope, fieldPrefix, newPrefix);
-    }
+    restorePrefixFunc(common::messageStr());
+    restorePrefixFunc(common::fieldStr());
+    restorePrefixFunc(common::frameStr());
+
     return adjustedScope;
 }
 

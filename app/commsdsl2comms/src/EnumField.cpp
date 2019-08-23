@@ -392,7 +392,6 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
-    replacements.insert(std::make_pair("VALUE_NAME", getValueNameWrapFunc(scope)));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -401,6 +400,13 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+
+    if (isCommonPreDefDisabled()) {
+        replacements.insert(std::make_pair("VALUE_NAME", getValueNameFunc()));
+    }
+    else {
+        replacements.insert(std::make_pair("VALUE_NAME", getValueNameWrapFunc(scope)));
+    }
 
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["ENUM_TYPE"] += ',';
@@ -600,6 +606,7 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
 
 std::string EnumField::getCommonPreDefinitionImpl(const std::string& scope) const
 {
+    assert(!isCommonPreDefDisabled());
     static const std::string Templ =
         "#^#ENUM_DEF#$#\n"
         "/// @brief Common functions for\n"
@@ -624,7 +631,7 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
         return common::emptyString();
     }
 
-    if (checkIfMemberChild && (!isMemberChild())) {
+    if (checkIfMemberChild && (!isMemberChild()) && (!isCommonPreDefDisabled())) {
         return common::emptyString();
     }
 
@@ -634,7 +641,7 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
     replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scopeStr));
 
-    if (checkIfMemberChild && isMemberChild()) {
+    if (checkIfMemberChild && isMemberChild() && (!isCommonPreDefDisabled())) {
 
         static const std::string MemChildTempl =
             "/// @brief Values enumerator for\n"

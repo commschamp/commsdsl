@@ -69,6 +69,7 @@ private:
     std::string getDescription() const;
     std::string getIncludes() const;
     std::string getLayersDef() const;
+    std::string getCommonPreDef() const;
     std::string getFrameDef() const;
     std::string getLayersAccess() const;
     std::string getLayersAccessDoc() const;

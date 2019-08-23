@@ -87,7 +87,6 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("BITS_ACCESS", getBitsAccess()));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
-    replacements.insert(std::make_pair("BIT_NAME", getBitNameWrap(scope)));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -96,6 +95,14 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+
+    if (isCommonPreDefDisabled()) {
+        replacements.insert(std::make_pair("BIT_NAME", getBitName()));
+    }
+    else {
+        replacements.insert(std::make_pair("BIT_NAME", getBitNameWrap(scope)));
+    }
+
 
     return common::processTemplate(ClassTemplate, replacements);
 }
@@ -175,6 +182,7 @@ std::string SetField::getPluginPropertiesImpl(bool serHiddenParam) const
 
 std::string SetField::getCommonPreDefinitionImpl(const std::string& scope) const
 {
+    assert(!isCommonPreDefDisabled());
     static const std::string Templ =
         "/// @brief Common functions for\n"
         "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# field.\n"

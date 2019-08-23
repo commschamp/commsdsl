@@ -110,6 +110,7 @@ bool ListField::prepareImpl()
 
         m_element = create(generator(), elementField);
         m_element->setMemberChild();
+        m_element->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!m_element->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -127,6 +128,7 @@ bool ListField::prepareImpl()
 
         m_countPrefix = create(generator(), prefix);
         m_countPrefix->setMemberChild();
+        m_countPrefix->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!m_countPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -153,6 +155,7 @@ bool ListField::prepareImpl()
 
         m_lengthPrefix = create(generator(), prefix);
         m_lengthPrefix->setMemberChild();
+        m_lengthPrefix->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!m_lengthPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -177,6 +180,7 @@ bool ListField::prepareImpl()
 
         m_elemLengthPrefix = create(generator(), prefix);
         m_elemLengthPrefix->setMemberChild();
+        m_elemLengthPrefix->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!m_elemLengthPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
