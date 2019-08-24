@@ -17,6 +17,7 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <cctype>
 
 #include <boost/algorithm/string.hpp>
 
@@ -99,6 +100,32 @@ bool shouldUseStruct(const common::ReplacementMap& replacements)
         hasNoValue("PRIVATE");
 }
 
+std::uintmax_t maxTypeValue(commsdsl::EnumField::Type val)
+{
+    static const std::uintmax_t Map[] = {
+        /* Int8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int8_t>::max()),
+        /* Uint8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint8_t>::max()),
+        /* Int16 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int16_t>::max()),
+        /* Uint16 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint16_t>::max()),
+        /* Int32 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int32_t>::max()),
+        /* Uint32 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint32_t>::max()),
+        /* Int64 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int64_t>::max()),
+        /* Uint64 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint64_t>::max()),
+        /* Intvar */ static_cast<std::uintmax_t>(std::numeric_limits<std::int64_t>::max()),
+        /* Uintvar */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint64_t>::max())
+    };
+    static const std::size_t MapSize =
+            std::extent<decltype(Map)>::value;
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::EnumField::Type::NumOfValues),
+            "Invalid map");
+
+    if (commsdsl::EnumField::Type::NumOfValues <= val) {
+        assert(!"Should not happen");
+        val = commsdsl::EnumField::Type::Uint64;
+    }
+    return Map[static_cast<unsigned>(val)];
+}
+
 } // namespace
 
 common::StringsList EnumField::getValuesList() const
@@ -112,11 +139,42 @@ common::StringsList EnumField::getValuesList() const
     bool bigUnsigned =
         (type == commsdsl::EnumField::Type::Uint64) ||
         (type == commsdsl::EnumField::Type::Uintvar);
+    unsigned hexW = hexWidth();
+
+    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
+    using SortedRevValues = std::vector<RevValueInfo>;
+    SortedRevValues sortedRevValues;
+    for (auto& v : obj.revValues()) {
+        sortedRevValues.push_back(std::make_pair(v.first, &v.second));
+    }
+
+    if (bigUnsigned) {
+        std::sort(
+            sortedRevValues.begin(), sortedRevValues.end(),
+            [](const auto& elem1, const auto& elem2) -> bool
+            {
+                return static_cast<std::uintmax_t>(elem1.first) < static_cast<std::uintmax_t>(elem2.first);
+            });
+    }
+
+    auto valToStrFunc =
+        [bigUnsigned, hexW](std::intmax_t val) -> std::string
+        {
+            if ((bigUnsigned) || (0U < hexW)) {
+                return common::numToString(static_cast<std::uintmax_t>(val), hexW);
+            }
+            else {
+                return common::numToString(val);
+            }
+        };
 
     common::StringsList valuesStrings;
+    valuesStrings.reserve(sortedRevValues.size() + 3);
     auto& values = obj.values();
-    for (auto& v : obj.revValues()) {
-        auto iter = values.find(v.second);
+
+
+    for (auto& v : sortedRevValues) {
+        auto iter = values.find(*v.second);
         if (iter == values.end()) {
             assert(!"Should not happen");
             continue;
@@ -135,16 +193,8 @@ common::StringsList EnumField::getValuesList() const
         static const std::string Templ =
             "#^#NAME#$# = #^#VALUE#$#, \n";
 
-        unsigned hexW = hexWidth();
 
-        std::string valStr;
-        if ((bigUnsigned) || (0U < hexW)) {
-            valStr = common::numToString(static_cast<std::uintmax_t>(v.first), hexW);
-        }
-        else {
-            valStr = common::numToString(v.first);
-        }
-
+        std::string valStr = valToStrFunc(v.first);
         std::string docStr;
         if (!iter->second.m_description.empty()) {
             docStr = "///< " + iter->second.m_description;
@@ -156,19 +206,19 @@ common::StringsList EnumField::getValuesList() const
                 docStr = "///< message id of <b>" + iter->second.m_displayName + "</b> message.";
             }
             else {
-                docStr = "///< message id of @b " + v.second + " message.";
+                docStr = "///< message id of @b " + *v.second + " message.";
             }
         }
         else if (!iter->second.m_displayName.empty()) {
             docStr = "///< value <b>" + iter->second.m_displayName + "</b>.";
         }
         else {
-            docStr = "///< value @b " + v.second;
+            docStr = "///< value @b " + *v.second;
         }
 
         assert(!valStr.empty());
         common::ReplacementMap replacements;
-        replacements.insert(std::make_pair("NAME", v.second));
+        replacements.insert(std::make_pair("NAME", *v.second));
         replacements.insert(std::make_pair("VALUE", std::move(valStr)));
         auto templ = common::processTemplate(Templ, replacements);
         assert(2U <= templ.size());
@@ -179,6 +229,69 @@ common::StringsList EnumField::getValuesList() const
         docRepl.insert(std::make_pair("DOC", std::move(docStr)));
         valuesStrings.push_back(common::processTemplate(templ, docRepl));
     }
+
+    if (!sortedRevValues.empty()) {
+        auto addNameSuffixFunc =
+            [&values](const std::string& n) -> std::string
+            {
+                std::string suffix;
+                while (true) {
+                    auto s = n + suffix;
+                    if (values.find(s) == values.end()) {
+                        return s;
+                    }
+
+                    suffix += '_';
+                }
+            };
+
+        auto& firstElem = sortedRevValues.front();
+        assert(firstElem.second != nullptr);
+        assert(!firstElem.second->empty());
+        auto firstLetter = firstElem.second->front();
+        bool useLower = (std::tolower(firstLetter) == static_cast<int>(firstLetter));
+
+        auto adjustFirstLetterNameFunc =
+            [useLower](const std::string& s)
+            {
+                if (!useLower) {
+                    assert(!s.empty());
+                    assert(s[0] == static_cast<char>(std::toupper(s[0])));
+                    return s;
+                }
+
+                auto sCpy = s;
+                assert(!s.empty());
+                sCpy[0] = static_cast<char>(std::tolower(sCpy[0]));
+                return sCpy;
+            };
+
+        auto createValueStrFunc =
+            [&adjustFirstLetterNameFunc, &addNameSuffixFunc, &valToStrFunc](const std::string& n, std::intmax_t val, const std::string& doc) -> std::string
+            {
+                return
+                    adjustFirstLetterNameFunc(addNameSuffixFunc(n)) + " = " +
+                    valToStrFunc(val) + ", ///< " + doc + '\n';
+
+            };
+
+        valuesStrings.push_back("\n// --- Extra values generated for convenience ---\n");
+        valuesStrings.push_back(createValueStrFunc("FirstValue", sortedRevValues.front().first, "First defined value."));
+        valuesStrings.push_back(createValueStrFunc("LastValue", sortedRevValues.back().first, "Last defined value."));
+
+        bool putLimit =
+            (!bigUnsigned) &&
+            sortedRevValues.back().first < static_cast<std::intmax_t>(maxTypeValue(obj.type()));
+
+        if (bigUnsigned) {
+            putLimit = static_cast<std::uintmax_t>(sortedRevValues.back().first) < maxTypeValue(obj.type());
+        }
+
+        if (putLimit) {
+            valuesStrings.push_back(createValueStrFunc("ValuesLimit", sortedRevValues.back().first + 1, "Upper limit for defined values."));
+        }
+    }
+
     return valuesStrings;
 }
 
@@ -266,12 +379,7 @@ std::string EnumField::getClassDefinitionImpl(
     
     std::string extraDoxStr;
     if (dslObj().semanticType() != commsdsl::Field::SemanticType::MessageId) {
-        auto scopeStr = scope + getEnumType(common::nameToClassCopy(name()));
-        static const std::string OptPrefix("TOpt");
-        if (ba::starts_with(scopeStr, OptPrefix)) {
-            scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
-        }
-
+        auto scopeStr = adjustScopeWithNamespace(scope + getEnumType(common::nameToClassCopy(name())));
         extraDoxStr = "@see @ref " + scopeStr;
     }
 
@@ -284,7 +392,6 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
-    replacements.insert(std::make_pair("VALUE_NAME", getValueNameFunc()));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -293,6 +400,13 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+
+    if (isCommonPreDefDisabled()) {
+        replacements.insert(std::make_pair("VALUE_NAME", getValueNameFunc()));
+    }
+    else {
+        replacements.insert(std::make_pair("VALUE_NAME", getValueNameWrapFunc(scope)));
+    }
 
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["ENUM_TYPE"] += ',';
@@ -438,17 +552,39 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
     static_cast<void>(serHiddenParam);
     common::StringsList props;
     auto obj = enumFieldDslObj();
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::EnumField::Type::Uint64) ||
+        (type == commsdsl::EnumField::Type::Uintvar);
+
+    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
+    using SortedRevValues = std::vector<RevValueInfo>;
+    SortedRevValues sortedRevValues;
+    for (auto& v : obj.revValues()) {
+        sortedRevValues.push_back(std::make_pair(v.first, &v.second));
+    }
+
+    if (bigUnsigned) {
+        std::sort(
+            sortedRevValues.begin(), sortedRevValues.end(),
+            [](const auto& elem1, const auto& elem2) -> bool
+            {
+                return static_cast<std::uintmax_t>(elem1.first) < static_cast<std::uintmax_t>(elem2.first);
+            });
+    }
+
     auto& values = obj.values();
-    auto& revValues = obj.revValues();
-    props.reserve(revValues.size());
+    //auto& revValues = obj.revValues();
+
+    props.reserve(sortedRevValues.size());
     std::intmax_t prevValue = 0;
     bool prevValueValid = false;
-    for (auto& rVal : revValues) {
+    for (auto& rVal : sortedRevValues) {
         if ((prevValueValid) && (prevValue == rVal.first)) {
             continue;
         }
 
-        auto iter = values.find(rVal.second);
+        auto iter = values.find(*rVal.second);
         assert(iter != values.end());
         auto& v = *iter;
 
@@ -468,28 +604,64 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
-std::string EnumField::getEnumeration(const std::string& scope) const
+std::string EnumField::getCommonPreDefinitionImpl(const std::string& scope) const
+{
+    assert(!isCommonPreDefDisabled());
+    static const std::string Templ =
+        "#^#ENUM_DEF#$#\n"
+        "/// @brief Common functions for\n"
+        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# field.\n"
+        "struct #^#CLASS_NAME#$#Common\n"
+        "{\n"
+        "    #^#VAL_NAME_FUNC#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("ENUM_DEF", getEnumeration(scope, false)));
+    repl.insert(std::make_pair("SCOPE", adjustScopeWithNamespace(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("VAL_NAME_FUNC", getValueNameFunc()));
+
+    return common::processTemplate(Templ, repl);
+}
+
+std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemberChild) const
 {
     if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
         return common::emptyString();
     }
 
+    if (checkIfMemberChild && (!isMemberChild()) && (!isCommonPreDefDisabled())) {
+        return common::emptyString();
+    }
+
+    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("SCOPE", scopeStr));
+
+    if (checkIfMemberChild && isMemberChild() && (!isCommonPreDefDisabled())) {
+
+        static const std::string MemChildTempl =
+            "/// @brief Values enumerator for\n"
+            "///     @ref #^#SCOPE#$# field.\n"
+            "using #^#NAME#$#Val = #^#ADJ_SCOPE#$#Val;\n";
+
+        auto adjustedScope = scopeForCommon(scopeStr);
+        replacements.insert(std::make_pair("ADJ_SCOPE", std::move(adjustedScope)));
+        return common::processTemplate(MemChildTempl, replacements);
+    }
+
     static const std::string Templ =
-        "/// @brief Values enumerator for @ref #^#SCOPE#$# field.\n"
+        "/// @brief Values enumerator for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
         "enum class #^#NAME#$#Val : #^#TYPE#$#\n"
         "{\n"
         "    #^#VALUES#$#\n"
         "};\n";
 
-    auto scopeStr = scope + common::nameToClassCopy(name());
-    static const std::string OptPrefix("TOpt");
-    if (ba::starts_with(scopeStr, OptPrefix)) {
-        scopeStr = generator().mainNamespace() + scopeStr.substr(OptPrefix.size());
-    }
 
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
-    replacements.insert(std::make_pair("SCOPE", std::move(scopeStr)));
     replacements.insert(std::make_pair("TYPE", IntField::convertType(enumFieldDslObj().type())));
     replacements.insert(std::make_pair("VALUES", getValuesDefinition()));
     return common::processTemplate(Templ, replacements);
@@ -722,6 +894,24 @@ std::string EnumField::getValueNameFunc() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
     replacements.insert(std::make_pair("BODY", std::move(body)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNameWrapFunc(const std::string& scope) const
+{
+
+    static const std::string Templ =
+        "/// @brief Retrieve name of the enum value\n"
+        "static const char* valueName(#^#ENUM_TYPE#$# val)\n"
+        "{\n"
+        "    return #^#SCOPE#$##^#CLASS_NAME#$#Common::valueName(val);\n"
+        "}\n";
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
+    replacements.insert(std::make_pair("SCOPE", scopeForCommon(adjustScopeWithNamespace(scope))));
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     return common::processTemplate(Templ, replacements);
 }
 
@@ -1348,6 +1538,5 @@ bool EnumField::prepareRanges() const
 
     return true;
 }
-
 
 } // namespace commsdsl2comms

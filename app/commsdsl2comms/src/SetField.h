@@ -46,6 +46,7 @@ protected:
         const std::string& nameOverride,
         bool forcedVersionOptional) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
+    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
 
 private:
     using StringsList = common::StringsList;
@@ -56,6 +57,7 @@ private:
     std::string getBitsAccess() const;
     std::string getValid() const;
     std::string getBitName() const;
+    std::string getBitNameWrap(const std::string& scope) const;
     void checkLengthOpt(StringsList& list) const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkReservedBitsOpt(StringsList& list) const;

@@ -98,6 +98,7 @@ bool Layer::prepare()
         }
 
         m_field = Field::create(m_generator, dslField);
+        m_field->setMemberChild();
         if (!m_field->prepare(0U)) {
             return false;
         }
@@ -245,6 +246,34 @@ std::string Layer::getPluginCreatePropsFunc(const std::string& scope) const
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("FUNC", std::move(func)));
     return common::processTemplate(Templ, replacements);
+}
+
+std::string Layer::getCommonPreDefinition(const std::string& scope) const
+{
+    if (!m_field) {
+        return common::emptyString();
+    }
+
+    auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    auto str = m_field->getCommonPreDefinition(fullScope);
+    if (str.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Scope for all the common definitions of the fields defined in\n"
+        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$#Members struct.\n"
+        "struct #^#CLASS_NAME#$#MembersCommon\n"
+        "{\n"
+        "    #^#DEF#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scope));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("DEF", std::move(str)));
+
+    return common::processTemplate(Templ, repl);
 }
 
 const Field* Layer::getField() const

@@ -39,6 +39,7 @@ protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const override final;
     virtual std::size_t minLengthImpl() const override final;
+    virtual std::size_t maxLengthImpl() const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         const std::string& className) const override final;
@@ -52,6 +53,7 @@ protected:
     virtual void setForcedPseudoImpl() override final;
     virtual void setForcedNoOptionsConfigImpl() override final;
     virtual bool isVersionDependentImpl() const override final;
+    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
 
 private:
     using StringsList = common::StringsList;

@@ -45,6 +45,7 @@ const std::string Template(
     "\n"
     "#^#INCLUDES#$#\n"
     "#^#BEGIN_NAMESPACE#$#\n"
+    "#^#COMMON_PRE_DEF#$#\n"
     "/// @brief Layers definition of @ref #^#CLASS_NAME#$# frame class.\n"
     "/// @tparam TOpt Protocol options.\n"
     "/// @see @ref #^#CLASS_NAME#$#\n"
@@ -186,6 +187,7 @@ bool Frame::writeProtocol()
     replacements.insert(std::make_pair("INCLUDES", getIncludes()));
     replacements.insert(std::make_pair("HEADERFILE", m_generator.headerfileForFrame(m_externalRef)));
     replacements.insert(std::make_pair("LAYERS_DEF", getLayersDef()));
+    replacements.insert(std::make_pair("COMMON_PRE_DEF", getCommonPreDef()));
     replacements.insert(std::make_pair("FRAME_DEF", getFrameDef()));
     replacements.insert(std::make_pair("LAYERS_ACCESS_LIST", getLayersAccess()));
     replacements.insert(std::make_pair("ACCESS_FUNCS_DOC", getLayersAccessDoc()));
@@ -559,7 +561,7 @@ bool Frame::writePluginHeader()
 
     auto allMessagesInclude = "#include " + m_generator.headerfileForInputInPlugin(common::allMessagesStr());
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("FRAME_SCOPE", std::move(scope)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -666,6 +668,44 @@ std::string Frame::getLayersDef() const
     defs.push_back(common::processTemplate(StackDefTempl, replacements));
 
     return common::listToString(defs, "\n", common::emptyString());
+
+}
+
+std::string Frame::getCommonPreDef() const
+{
+    common::StringsList defs;
+    defs.reserve(m_layers.size());
+
+    auto scope =
+        m_generator.scopeForFrame(externalRef(), true, true) +
+        common::layersSuffixStr() +
+        "::";
+
+    for (auto& l : m_layers) {
+        auto str = l->getCommonPreDefinition(scope);
+        if (!str.empty()) {
+            defs.emplace_back(std::move(str));
+        }
+    }
+
+    if (defs.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Common definitions for fields from @ref #^#CLASS_NAME#$#Layers.\n"
+        "/// @see @ref #^#CLASS_NAME#$#Layers\n"
+        "/// @headerfile #^#FRAME_HEADERFILE#$#\n"
+        "struct #^#CLASS_NAME#$#LayersCommon\n"
+        "{\n"
+        "    #^#FIELDS_DEF#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("FRAME_HEADERFILE", m_generator.headerfileForFrame(m_externalRef)));
+    repl.insert(std::make_pair("FIELDS_DEF", common::listToString(defs, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
 
 }
 

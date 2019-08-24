@@ -7,6 +7,8 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />         
+            <validValue name="M4" val="4" />
         </enum>
         
         <enum name="E1" type="uint16" nonUniqueAllowed="true" validCheckVersion="true" >
@@ -40,6 +42,83 @@
             <validValue name="v2" val="128" />
         </enum>
     </message>
+    
+    <message name="Msg3" id="MsgId.M3">
+        <bundle name="f1">
+            <enum name="m1" type="uint8">
+                <validValue name="v1" val="0" />
+                <validValue name="v2" val="1" />
+            </enum>
+            <enum name="m2" type="uint8">
+                <validValue name="v1" val="5" />
+                <validValue name="v2" val="6" />
+            </enum>
+            <bitfield name="m3">
+                <enum name="e1" type="uint8" bitLength="3">
+                    <validValue name="v1" val="0" />
+                    <validValue name="v2" val="1" />
+                </enum>
+                <enum name="e2" type="uint8" bitLength="5">
+                    <validValue name="v1" val="1" />
+                    <validValue name="v2" val="2" />
+                    <validValue name="v3" val="3" />
+                </enum>
+            </bitfield>
+            <list name="m4">
+                <element>
+                    <bundle name="elem">
+                        <enum name="e1" type="uint8">
+                            <validValue name="v1" val="0" />
+                            <validValue name="v2" val="1" />
+                        </enum>
+                        <enum name="e2" type="uint8">
+                            <validValue name="v1" val="1" />
+                            <validValue name="v2" val="2" />
+                            <validValue name="v3" val="3" />
+                        </enum>
+                    </bundle>
+                </element>
+                <countPrefix>
+                    <int name="Count" type="uint8" />
+                </countPrefix>
+            </list>
+            <optional name="m5" defaultMode="missing" cond="$m1 = 1">
+                <enum name="m5" type="uint8">
+                    <validValue name="v1" val="0" />
+                    <validValue name="v2" val="1" />
+                </enum>
+            </optional>
+            <variant name="m6">
+                <bundle name="p1">
+                    <int name="key" type="uint8" validValue="0" failOnInvalid="true" />
+                    <enum name="val" type="uint8">
+                        <validValue name="v1" val="0" />
+                        <validValue name="v2" val="1" />
+                    </enum>
+                </bundle>
+                <bundle name="p2">
+                    <int name="key" type="uint8" defaultValue="1" validValue="1" failOnInvalid="true" />
+                    <enum name="val" type="uint8" defaultValue="v1">
+                        <validValue name="v1" val="5" />
+                        <validValue name="v2" val="6" />
+                    </enum>
+                </bundle>
+            </variant>
+        </bundle>
+    </message>
+    
+    <message name="Msg4" id="MsgId.M4">
+        <enum name="f1" type="uint8">
+            <validValue name="v1" val="0" />
+            <validValue name="v2" val="1" />
+        </enum>
+        
+        <enum name="f2" type="uint8" sinceVersion="2">
+            <validValue name="v1" val="0" />
+            <validValue name="v2" val="1" />
+        </enum>        
+    </message>    
+    
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />

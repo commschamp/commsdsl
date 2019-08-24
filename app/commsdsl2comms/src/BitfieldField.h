@@ -46,6 +46,7 @@ protected:
     virtual void setForcedPseudoImpl() override final;
     virtual void setForcedNoOptionsConfigImpl() override final;
     virtual bool isVersionDependentImpl() const override final;
+    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
 
 private:
     using StringsList = common::StringsList;

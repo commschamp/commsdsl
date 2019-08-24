@@ -33,7 +33,7 @@ namespace
 {
 
 const std::string MembersDefTemplate =
-    "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# bitfield.\n"
+    "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# bundle.\n"
     "#^#EXTRA_PREFIX#$#\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
@@ -47,7 +47,7 @@ const std::string MembersDefTemplate =
 
 const std::string MembersOptionsTemplate =
     "/// @brief Extra options for all the member fields of\n"
-    "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
+    "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# bundle.\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
     "    #^#OPTIONS#$#\n"
@@ -156,6 +156,8 @@ bool BundleField::prepareImpl()
             return false;
         }
 
+        ptr->setMemberChild();
+        ptr->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!ptr->prepare(obj.sinceVersion())) {
             return false;
         }
@@ -194,6 +196,29 @@ std::size_t BundleField::minLengthImpl() const
             [](std::size_t soFar, auto& m)
             {
                 return soFar + m->minLength();
+            });
+}
+
+std::size_t BundleField::maxLengthImpl() const
+{
+    static const std::size_t MaxLen =
+        std::numeric_limits<std::size_t>::max();
+
+    return
+        std::accumulate(
+            m_members.begin(), m_members.end(), std::size_t(0),
+            [](std::size_t soFar, auto& m)
+            {
+                if (soFar == MaxLen) {
+                    return MaxLen;
+                }
+
+                auto fLen = m->maxLength();
+                if ((MaxLen - soFar) <= fLen) {
+                    return MaxLen;
+                }
+
+                return soFar + fLen;
             });
 }
 
@@ -309,6 +334,38 @@ bool BundleField::isVersionDependentImpl() const
             {
                 return m->isVersionDependent();
             });
+}
+
+std::string BundleField::getCommonPreDefinitionImpl(const std::string& scope) const
+{
+    common::StringsList defs;
+    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
+
+    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    for (auto& m : m_members) {
+        auto str = m->getCommonPreDefinition(updatedScope);
+        if (!str.empty()) {
+            defs.emplace_back(std::move(str));
+        }
+    }
+
+    if (defs.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Scope for all the common definitions of the member fields of\n"
+        "///     @ref #^#SCOPE#$# bundle.\n"
+        "struct #^#CLASS_NAME#$#MembersCommon\n"
+        "{\n"
+        "    #^#DEFS#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", scopeStr));
+    repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string BundleField::getFieldOpts(const std::string& scope) const

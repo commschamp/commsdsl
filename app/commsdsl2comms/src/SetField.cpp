@@ -87,7 +87,6 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("BITS_ACCESS", getBitsAccess()));
     replacements.insert(std::make_pair("NAME", getNameFunc()));
-    replacements.insert(std::make_pair("BIT_NAME", getBitName()));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -96,6 +95,14 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+
+    if (isCommonPreDefDisabled()) {
+        replacements.insert(std::make_pair("BIT_NAME", getBitName()));
+    }
+    else {
+        replacements.insert(std::make_pair("BIT_NAME", getBitNameWrap(scope)));
+    }
+
 
     return common::processTemplate(ClassTemplate, replacements);
 }
@@ -171,6 +178,25 @@ std::string SetField::getPluginPropertiesImpl(bool serHiddenParam) const
         props.push_back(".add(" + common::numToString(rBit.first) + ", \"" + *bitName + "\")");
     }
     return common::listToString(props, "\n", common::emptyString());
+}
+
+std::string SetField::getCommonPreDefinitionImpl(const std::string& scope) const
+{
+    assert(!isCommonPreDefDisabled());
+    static const std::string Templ =
+        "/// @brief Common functions for\n"
+        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# field.\n"
+        "struct #^#CLASS_NAME#$#Common\n"
+        "{\n"
+        "    #^#BIT_NAME_FUNC#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", adjustScopeWithNamespace(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("BIT_NAME_FUNC", getBitName()));
+
+    return common::processTemplate(Templ, repl);
 }
 
 std::string SetField::getExtraDoc() const
@@ -636,23 +662,38 @@ std::string SetField::getBitName() const
 
     static const std::string Templ =
         "/// @brief Retrieve name of the bit\n"
-        "static const char* bitName(BitIdx idx)\n"
+        "static const char* bitName(std::size_t idx)\n"
         "{\n"
         "    static const char* Map[] = {\n"
         "        #^#NAMES#$#\n"
         "    };\n\n"
         "    static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n"
-        "    static_assert(MapSize == BitIdx_numOfValues, \"Invalid map\");\n\n"
-        "    if (MapSize <= static_cast<std::size_t>(idx)) {\n"
+        "    if (MapSize <= idx) {\n"
         "        return nullptr;\n"
         "    }\n\n"
-        "    return Map[static_cast<std::size_t>(idx)];\n"
+        "    return Map[idx];\n"
         "}\n";
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAMES", std::move(namesStr)));
     return common::processTemplate(Templ, replacements);
+}
 
+std::string SetField::getBitNameWrap(const std::string& scope) const
+{
+    static const std::string Templ =
+        "/// @brief Retrieve name of the bit\n"
+        "static const char* bitName(BitIdx idx)\n"
+        "{\n"
+        "    return\n"
+        "        #^#SCOPE#$##^#CLASS_NAME#$#Common::bitName(\n"
+        "            static_cast<std::size_t>(idx));\n"
+        "}\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("SCOPE", scopeForCommon(adjustScopeWithNamespace(scope))));
+    replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Templ, replacements);
 }
 
 void SetField::checkLengthOpt(StringsList& list) const

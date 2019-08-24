@@ -183,6 +183,15 @@ std::string Field::getClassDefinition(
     return str;
 }
 
+std::string Field::getCommonPreDefinition(const std::string& scope) const
+{
+    if (isCommonPreDefDisabled()) {
+        return common::emptyString();
+    }
+
+    return getCommonPreDefinitionImpl(scope);
+}
+
 Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
 {
     using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Field)>;
@@ -1015,6 +1024,12 @@ bool Field::isVersionDependentImpl() const
     return false;
 }
 
+std::string Field::getCommonPreDefinitionImpl(const std::string& scope) const
+{
+    static_cast<void>(scope);
+    return common::emptyString();
+}
+
 std::string Field::getNameFunc() const
 {
     auto customName = m_generator.getCustomNameForField(m_externalRef);
@@ -1158,6 +1173,37 @@ bool Field::isCustomizable() const
     return isLimitedCustomizableImpl();
 }
 
+std::string Field::adjustScopeWithNamespace(const std::string& scope) const
+{
+    static const std::string OptPrefix("TOpt");
+    if (ba::starts_with(scope, OptPrefix)) {
+        return generator().mainNamespace() + scope.substr(OptPrefix.size());
+    }
+    return scope;
+}
+
+std::string Field::scopeForCommon(const std::string& scope) const
+{
+    static const std::string CommonStr("Common::");
+    auto adjustedScope = ba::replace_all_copy(scope, "::", CommonStr);
+
+    auto restorePrefixFunc =
+        [this, &adjustedScope](const std::string& ns)
+        {
+            auto resultPrefix = generator().mainNamespace() + "::" + ns + "::";
+            auto wrongPrefix = ba::replace_all_copy(resultPrefix, "::", CommonStr);
+            if (ba::starts_with(adjustedScope, wrongPrefix)) {
+                ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
+            }
+        };
+
+    restorePrefixFunc(common::messageStr());
+    restorePrefixFunc(common::fieldStr());
+    restorePrefixFunc(common::frameStr());
+
+    return adjustedScope;
+}
+
 bool Field::writeProtocolDefinitionFile() const
 {
     auto startInfo = m_generator.startFieldProtocolWrite(m_externalRef);
@@ -1178,11 +1224,13 @@ bool Field::writeProtocolDefinitionFile() const
 
     auto namespaces = m_generator.namespacesForField(m_externalRef);
 
+    auto scope = "TOpt::" + m_generator.scopeForField(m_externalRef);
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
-    replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition("TOpt::" + m_generator.scopeForField(m_externalRef), className)));
+    replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition(scope, className)));
+    replacements.insert(std::make_pair("CLASS_PRE_DEF", getCommonPreDefinition(scope)));
     replacements.insert(std::make_pair("FIELD_NAME", displayName()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(m_externalRef)));
 
@@ -1194,6 +1242,7 @@ bool Field::writeProtocolDefinitionFile() const
         "\n"
         "#^#INCLUDES#$#\n"
         "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#CLASS_PRE_DEF#$#\n"
         "#^#CLASS_DEF#$#\n"
         "#^#END_NAMESPACE#$#\n"
         "#^#APPEND#$#\n"
@@ -1319,5 +1368,27 @@ std::string Field::getPluginIncludes() const
     updatePluginIncludesImpl(includes);
     return common::includesToStatements(includes);
 }
+
+//std::string Field::getClassPreDefinitionInternal(const std::string& scope, const std::string& className) const
+//{
+//    auto str = getCommonPreDefinition(scope);
+//    if (str.empty()) {
+//        return str;
+//    }
+
+//    static const std::string Templ =
+//        "/// @brief Common definitions for field @ref #^#SCOPE#$##^#CLASS_NAME#$#\n"
+//        "struct #^#ORIG_CLASS_NAME#$#Common\n"
+//        "{\n"
+//        "    #^#DEFS#$#\n"
+//        "};\n";
+
+//    common::ReplacementMap repl;
+//    repl.insert(std::make_pair("SCOPE", scope));
+//    repl.insert(std::make_pair("CLASS_NAME", className));
+//    repl.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
+//    repl.insert(std::make_pair("DEF", std::move(str)));
+//    return common::processTemplate(Templ, repl);
+//}
 
 } // namespace commsdsl2comms
