@@ -529,6 +529,8 @@ std::string ListField::getPluginPropertiesImpl(bool serHiddenParam) const
         props.push_back(".prefixName(\"" + getPrefixName() + "\")");
         props.push_back(".showPrefix()");
     } while (false);
+
+    props.push_back(".appendIndexToElementName()");
     return common::listToString(props, "\n", common::emptyString());
 }
 
