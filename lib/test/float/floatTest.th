@@ -29,6 +29,9 @@ public:
     void test19();
     void test20();
     void test21();
+    void test22();
+    void test23();
+    void test24();
 
 private:
     static const double Epsilon;
@@ -748,5 +751,45 @@ void FloatTestSuite::test21()
 
         TS_ASSERT(std::isinf(s1.m_value));
         TS_ASSERT(std::isinf(s2.m_value));
+    } while (false);
+}
+
+void FloatTestSuite::test22()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+}
+
+void FloatTestSuite::test23()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+}
+
+void FloatTestSuite::test24()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    do {
+        auto& ns = namespaces.front();
+        TS_ASSERT(ns.name().empty());
+
+        auto fields = ns.fields();
+        TS_ASSERT_EQUALS(fields.size(), 1U);
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "F1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+
+        commsdsl::FloatField floatField(field);
+        auto& specialValues = floatField.specialValues();
+        TS_ASSERT_EQUALS(specialValues.size(), 3U);
     } while (false);
 }

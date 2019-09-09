@@ -20,6 +20,7 @@
 #include <iterator>
 #include <limits>
 #include <cassert>
+#include <map>
 
 #include "common.h"
 #include "ProtocolImpl.h"
@@ -136,6 +137,7 @@ std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t bitsLen)
 IntFieldImpl::IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
+    m_state.m_nonUniqueSpecialsAllowed = !protocol.isNonUniqueSpecialsAllowedSupported();
 }
 
 IntFieldImpl::Type IntFieldImpl::parseTypeValue(const std::string& value)
@@ -329,6 +331,7 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::validMinStr(),
         common::validMaxStr(),
         common::validCheckVersionStr(),
+        common::nonUniqueSpecialsAllowedStr(),
         common::displayDesimalsStr(),
         common::displayOffsetStr(),
         common::signExtStr()
@@ -364,6 +367,7 @@ bool IntFieldImpl::parseImpl()
         updateScaling() &&
         updateSerOffset() &&
         updateMinMaxValues() &&
+        updateNonUniqueSpecialsAllowed() &&
         updateSpecials() &&
         updateDefaultValue() &&
         updateValidCheckVersion() &&
@@ -987,10 +991,19 @@ bool IntFieldImpl::updateValidRanges()
     return true;
 }
 
+bool IntFieldImpl::updateNonUniqueSpecialsAllowed()
+{
+    return validateAndUpdateBoolPropValue(common::nonUniqueSpecialsAllowedStr(), m_state.m_nonUniqueSpecialsAllowed);
+}
+
 bool IntFieldImpl::updateSpecials()
 {
     bool bigUnsignedType = isBigUnsigned(m_state.m_type);
     auto specials = XmlWrap::getChildren(getNode(), common::specialStr());
+
+    using RecSpecials = std::multimap<std::intmax_t, std::string>;
+    RecSpecials recSpecials;
+
     for (auto* s : specials) {
         static const XmlWrap::NamesList PropNames = {
             common::nameStr(),
@@ -1051,6 +1064,19 @@ bool IntFieldImpl::updateSpecials()
                 "Value of special \"" << nameIter->second <<
                 "\" (" << valIter->second << ") cannot be recognized.";
             return false;
+        }
+
+        if (!m_state.m_nonUniqueSpecialsAllowed) {
+            auto recIter = recSpecials.find(val);
+            if (recIter != recSpecials.end()) {
+                logError() << XmlWrap::logPrefix(s) <<
+                    "Value of special \"" << nameIter->second <<
+                    "\" (" << valIter->second << ") has already been defined as \"" <<
+                    recIter->second << "\".";
+                return false;
+            }
+
+            recSpecials.insert(std::make_pair(val, nameIter->second));
         }
 
         auto checkSpecialInRangeFunc =

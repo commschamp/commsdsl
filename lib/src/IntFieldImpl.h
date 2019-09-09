@@ -154,6 +154,7 @@ private:
     bool updateScaling();
     bool updateValidCheckVersion();
     bool updateValidRanges();
+    bool updateNonUniqueSpecialsAllowed();
     bool updateSpecials();
     bool updateUnits();
     bool updateDisplayDecimals();
@@ -195,6 +196,7 @@ private:
         std::intmax_t m_displayOffset = 0U;
         bool m_validCheckVersion = false;
         bool m_signExt = true;
+        bool m_nonUniqueSpecialsAllowed = false;
     };
 
     State m_state;

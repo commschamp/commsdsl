@@ -20,6 +20,7 @@
 #include <cassert>
 #include <limits>
 #include <cmath>
+#include <map>
 
 #include "common.h"
 #include "util.h"
@@ -105,6 +106,7 @@ double maxValueForType(FloatFieldImpl::Type value)
 FloatFieldImpl::FloatFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
+    m_state.m_nonUniqueSpecialsAllowed = !protocol.isNonUniqueSpecialsAllowedSupported();
 }
 
 FieldImpl::Kind FloatFieldImpl::kindImpl() const
@@ -132,7 +134,8 @@ const XmlWrap::NamesList&FloatFieldImpl::extraPropsNamesImpl() const
         common::validMaxStr(),
         common::validCheckVersionStr(),
         common::unitsStr(),
-        common::displayDesimalsStr()
+        common::displayDesimalsStr(),
+        common::nonUniqueSpecialsAllowedStr(),
     };
 
     return List;
@@ -162,6 +165,7 @@ bool FloatFieldImpl::parseImpl()
         updateEndian() &&
         updateLength() &&
         updateMinMaxValues() &&
+        updateNonUniqueSpecialsAllowed() &&
         updateSpecials() &&
         updateDefaultValue() &&
         updateValidCheckVersion() &&
@@ -445,9 +449,18 @@ bool FloatFieldImpl::updateValidRanges()
     return true;
 }
 
+bool FloatFieldImpl::updateNonUniqueSpecialsAllowed()
+{
+    return validateAndUpdateBoolPropValue(common::nonUniqueSpecialsAllowedStr(), m_state.m_nonUniqueSpecialsAllowed);
+}
+
 bool FloatFieldImpl::updateSpecials()
 {
     auto specials = XmlWrap::getChildren(getNode(), common::specialStr());
+
+    using RecSpecials = std::multimap<double, std::string>;
+    RecSpecials recSpecials;
+    std::string prevNanSpecial;
 
     for (auto* s : specials) {
         static const XmlWrap::NamesList PropNames = {
@@ -508,6 +521,37 @@ bool FloatFieldImpl::updateSpecials()
             logError() << XmlWrap::logPrefix(s) <<
                 "Value of \"" << nameIter->second << "\" (" << valIter->second << ") cannot be recognized.";
             return false;
+        }
+
+        if (!m_state.m_nonUniqueSpecialsAllowed) {
+            bool reportError = false;
+            const std::string* prevDefName = nullptr;
+            do {
+                if (std::isnan(val)) {
+                    reportError = !prevNanSpecial.empty();
+                    prevNanSpecial = nameIter->second;
+                    prevDefName = &prevNanSpecial;
+                    break;
+                }
+
+                auto recIter = recSpecials.find(val);
+                if (recIter != recSpecials.end()) {
+                    reportError = true;
+                    prevDefName = &(recIter->second);
+                }
+                else {
+                    recSpecials.insert(std::make_pair(val, nameIter->second));
+                }
+            } while (false);
+
+            if (reportError) {
+                assert(prevDefName != nullptr);
+                logError() << XmlWrap::logPrefix(s) <<
+                    "Value of special \"" << nameIter->second <<
+                    "\" (" << valIter->second << ") has already been defined as \"" <<
+                    *prevDefName << "\".";
+                return false;
+            }
         }
 
         bool isSpecial = std::isnan(val) || std::isinf(val);

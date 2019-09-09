@@ -100,6 +100,7 @@ private:
     bool updateDefaultValue();
     bool updateValidCheckVersion();
     bool updateValidRanges();
+    bool updateNonUniqueSpecialsAllowed();
     bool updateSpecials();
     bool updateUnits();
     bool updateDisplayDecimals();
@@ -139,6 +140,7 @@ private:
         Units m_units = Units::Unknown;
         unsigned m_displayDecimals = 0U;
         bool m_validCheckVersion = false;
+        bool m_nonUniqueSpecialsAllowed = false;
     };
 
     State m_state;
