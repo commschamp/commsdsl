@@ -791,5 +791,12 @@ void FloatTestSuite::test24()
         commsdsl::FloatField floatField(field);
         auto& specialValues = floatField.specialValues();
         TS_ASSERT_EQUALS(specialValues.size(), 3U);
+        auto s1 = specialValues.find("S1");
+        auto s2 = specialValues.find("S2");
+        auto s3 = specialValues.find("S3");
+
+        TS_ASSERT_EQUALS(s1->second.m_displayName, "Special 1");
+        TS_ASSERT(s2->second.m_displayName.empty());
+        TS_ASSERT(s3->second.m_displayName.empty());
     } while (false);
 }

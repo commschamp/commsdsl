@@ -55,6 +55,7 @@ public:
         unsigned m_sinceVersion = 0;
         unsigned m_deprecatedSince = Protocol::notYetDeprecated();
         std::string m_description;
+        std::string m_displayName;
     };
     using SpecialValues = std::map<std::string, SpecialValueInfo>;
 

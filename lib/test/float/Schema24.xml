@@ -6,7 +6,7 @@
         dslVersion="2">
     <fields>
         <float name="F1" type="double" defaultValue="inf" nonUniqueSpecialsAllowed="true">
-            <special name="S1" val="inf" />
+            <special name="S1" val="inf" displayName="Special 1"/>
             <special name="S2" val="-Inf" />
             <special name="S3" val="Inf" />
         </float>

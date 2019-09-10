@@ -468,7 +468,8 @@ bool FloatFieldImpl::updateSpecials()
             common::valStr(),
             common::sinceVersionStr(),
             common::deprecatedStr(),
-            common::descriptionStr()
+            common::descriptionStr(),
+            common::displayNameStr()
         };
 
         auto props = XmlWrap::parseNodeProps(s);
@@ -493,6 +494,10 @@ bool FloatFieldImpl::updateSpecials()
         }
 
         if (!XmlWrap::validateSinglePropInstance(s, props, common::descriptionStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::displayNameStr(), protocol().logger())) {
             return false;
         }
 
@@ -575,6 +580,11 @@ bool FloatFieldImpl::updateSpecials()
         auto descIter = props.find(common::descriptionStr());
         if (descIter != props.end()) {
             info.m_description = descIter->second;
+        }
+
+        auto displayNameIter = props.find(common::displayNameStr());
+        if (displayNameIter != props.end()) {
+            info.m_displayName = displayNameIter->second;
         }
 
         m_state.m_specials.emplace(nameIter->second, info);

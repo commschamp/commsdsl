@@ -1047,7 +1047,9 @@ void IntTestSuite::test11()
     auto s2 = specialValues.find("val2");
     auto s3 = specialValues.find("otherVal2");
     TS_ASSERT_EQUALS(s1->second.m_value, 100);
+    TS_ASSERT_EQUALS(s1->second.m_displayName, "Value 1");
     TS_ASSERT_EQUALS(s2->second.m_value, 101);
+    TS_ASSERT(s2->second.m_displayName.empty());
     TS_ASSERT_EQUALS(s3->second.m_value, 101);
 }
 
