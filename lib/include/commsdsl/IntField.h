@@ -89,6 +89,7 @@ public:
     unsigned displayDecimals() const;
     std::intmax_t displayOffset() const;
     bool signExt() const;
+    bool displaySpecials() const;
 };
 
 inline

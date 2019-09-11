@@ -70,6 +70,8 @@ public:
     bool validCheckVersion() const;
     Units units() const;
     unsigned displayDecimals() const;
+    bool displaySpecials() const;
+    bool hasNonUniqueSpecials() const;
 };
 
 inline

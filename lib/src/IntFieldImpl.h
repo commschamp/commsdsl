@@ -112,6 +112,11 @@ public:
         return m_state.m_signExt;
     }
 
+    bool displaySpecials() const
+    {
+        return m_state.m_displaySpecials;
+    }
+
     static Type parseTypeValue(const std::string& value);
 
     static std::size_t maxTypeLength(Type t);
@@ -160,6 +165,7 @@ private:
     bool updateDisplayDecimals();
     bool updateDisplayOffset();
     bool updateSignExt();
+    bool updateDisplaySpecials();
     bool checkValidRangeAsAttr(const PropsMap& xmlAttrs);
     bool checkValidRangeAsChild(::xmlNodePtr child);
     bool checkValidRangeProps(const PropsMap& xmlAttrs);
@@ -197,6 +203,7 @@ private:
         bool m_validCheckVersion = false;
         bool m_signExt = true;
         bool m_nonUniqueSpecialsAllowed = false;
+        bool m_displaySpecials = true;
     };
 
     State m_state;

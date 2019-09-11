@@ -743,6 +743,7 @@ void FloatTestSuite::test21()
         TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
 
         commsdsl::FloatField floatField(field);
+        TS_ASSERT(!floatField.displaySpecials());
         TS_ASSERT(std::isnan(floatField.defaultValue()));
         auto& specialValues = floatField.specialValues();
 
@@ -789,6 +790,7 @@ void FloatTestSuite::test24()
         TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
 
         commsdsl::FloatField floatField(field);
+        TS_ASSERT(floatField.displaySpecials());
         auto& specialValues = floatField.specialValues();
         TS_ASSERT_EQUALS(specialValues.size(), 3U);
         auto s1 = specialValues.find("S1");

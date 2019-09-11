@@ -84,4 +84,14 @@ unsigned FloatField::displayDecimals() const
     return cast(m_pImpl)->displayDecimals();
 }
 
+bool FloatField::displaySpecials() const
+{
+    return cast(m_pImpl)->displaySpecials();
+}
+
+bool FloatField::hasNonUniqueSpecials() const
+{
+    return cast(m_pImpl)->hasNonUniqueSpecials();
+}
+
 } // namespace commsdsl

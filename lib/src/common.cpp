@@ -693,6 +693,12 @@ const std::string& displayIdxReadOnlyHiddenStr()
     return Str;
 }
 
+const std::string& displaySpecialsStr()
+{
+    static const std::string Str("displaySpecials");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

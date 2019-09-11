@@ -334,7 +334,8 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::nonUniqueSpecialsAllowedStr(),
         common::displayDesimalsStr(),
         common::displayOffsetStr(),
-        common::signExtStr()
+        common::signExtStr(),
+        common::displaySpecialsStr(),
     };
 
     return List;
@@ -375,7 +376,8 @@ bool IntFieldImpl::parseImpl()
         updateUnits() &&
         updateDisplayDecimals() &&
         updateDisplayOffset() &&
-        updateSignExt();
+        updateSignExt() &&
+        updateDisplaySpecials();
 }
 
 std::size_t IntFieldImpl::minLengthImpl() const
@@ -1221,6 +1223,12 @@ bool IntFieldImpl::updateSignExt()
 
     return true;
 }
+
+bool IntFieldImpl::updateDisplaySpecials()
+{
+    return validateAndUpdateBoolPropValue(common::displaySpecialsStr(), m_state.m_displaySpecials);
+}
+
 
 bool IntFieldImpl::checkValidRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
 {

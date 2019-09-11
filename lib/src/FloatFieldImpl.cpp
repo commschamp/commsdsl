@@ -109,6 +109,43 @@ FloatFieldImpl::FloatFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
     m_state.m_nonUniqueSpecialsAllowed = !protocol.isNonUniqueSpecialsAllowedSupported();
 }
 
+bool FloatFieldImpl::hasNonUniqueSpecials() const
+{
+    if (!m_state.m_nonUniqueSpecialsAllowed) {
+        return false;
+    }
+
+
+    std::vector<double> specValues;
+    specValues.reserve(m_state.m_specials.size());
+
+    for (auto& s : m_state.m_specials) {
+        if (std::isnan(s.second.m_value)) {
+            continue;
+        }
+
+        specValues.push_back(s.second.m_value);
+    }
+
+    if ((specValues.size() + 1U) < m_state.m_specials.size()) {
+        // More than one NaN inside
+        return true;
+    }
+
+    std::sort(specValues.begin(), specValues.end());
+
+    bool firstValue = true;
+    double prevValue = 0.0;
+    for (auto s : specValues) {
+        if ((!firstValue) && (prevValue == s)) {
+            return true;
+        }
+        firstValue = false;
+        prevValue = s;
+    }
+    return false;
+}
+
 FieldImpl::Kind FloatFieldImpl::kindImpl() const
 {
     return Kind::Float;
@@ -136,6 +173,7 @@ const XmlWrap::NamesList&FloatFieldImpl::extraPropsNamesImpl() const
         common::unitsStr(),
         common::displayDesimalsStr(),
         common::nonUniqueSpecialsAllowedStr(),
+        common::displaySpecialsStr(),
     };
 
     return List;
@@ -171,7 +209,8 @@ bool FloatFieldImpl::parseImpl()
         updateValidCheckVersion() &&
         updateValidRanges() &&
         updateUnits() &&
-        updateDisplayDecimals();
+        updateDisplayDecimals() &&
+        updateDisplaySpecials();
 }
 
 std::size_t FloatFieldImpl::minLengthImpl() const
@@ -633,6 +672,11 @@ bool FloatFieldImpl::updateDisplayDecimals()
     }
 
     return true;
+}
+
+bool FloatFieldImpl::updateDisplaySpecials()
+{
+    return validateAndUpdateBoolPropValue(common::displaySpecialsStr(), m_state.m_displaySpecials);
 }
 
 bool FloatFieldImpl::checkFullRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)

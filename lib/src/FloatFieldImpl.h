@@ -81,6 +81,13 @@ public:
         return m_state.m_displayDecimals;
     }
 
+    unsigned displaySpecials() const
+    {
+        return m_state.m_displaySpecials;
+    }
+
+    bool hasNonUniqueSpecials() const;
+
 protected:
     virtual Kind kindImpl() const override final;
     virtual Ptr cloneImpl() const override final;
@@ -104,6 +111,7 @@ private:
     bool updateSpecials();
     bool updateUnits();
     bool updateDisplayDecimals();
+    bool updateDisplaySpecials();
     bool checkFullRangeAsAttr(const PropsMap& xmlAttrs);
     bool checkFullRangeAsChild(::xmlNodePtr child);
     bool checkFullRangeProps(const PropsMap& xmlAttrs);
@@ -141,6 +149,7 @@ private:
         unsigned m_displayDecimals = 0U;
         bool m_validCheckVersion = false;
         bool m_nonUniqueSpecialsAllowed = false;
+        bool m_displaySpecials = true;
     };
 
     State m_state;
