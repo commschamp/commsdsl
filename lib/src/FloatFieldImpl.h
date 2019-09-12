@@ -81,7 +81,7 @@ public:
         return m_state.m_displayDecimals;
     }
 
-    unsigned displaySpecials() const
+    bool displaySpecials() const
     {
         return m_state.m_displaySpecials;
     }
