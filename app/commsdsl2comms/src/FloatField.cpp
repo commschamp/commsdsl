@@ -354,7 +354,7 @@ std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
         auto addSpecDisplayNameFunc =
             [&props](double val, const std::string& name, const std::string& displayName)
             {
-                std::string valStr = std::to_string(val);
+                std::string valStr;
                 if (std::isnan(val)) {
                     valStr = "std::numeric_limits<double>::quiet_NaN()";
                 }
@@ -363,6 +363,9 @@ std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
                     if (val < 0.0) {
                         valStr = '-' + valStr;
                     }
+                }
+                else {
+                    valStr = std::to_string(val);
                 }
 
                 auto* nameToAdd = &displayName;
