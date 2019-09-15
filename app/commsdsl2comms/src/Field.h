@@ -270,7 +270,7 @@ protected:
         bool ignoreFailOnInvalid = false) const;
 
     const std::string& getCustomRead() const;
-    std::string getCustomWrite() const;
+    const std::string& getCustomWrite() const;
     std::string getCustomLength() const;
     std::string getCustomValid() const;
     const std::string& getCustomRefresh() const;
@@ -301,6 +301,7 @@ private:
     unsigned m_parentVersion = 0U;
     std::string m_customRead;
     std::string m_customRefresh;
+    std::string m_customWrite;
     bool m_focedFailOnInvalid = false;
     bool m_forcedPseudo = false;
     bool m_forcedNoOptionsConfig = false;

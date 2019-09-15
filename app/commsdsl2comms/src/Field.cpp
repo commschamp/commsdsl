@@ -102,6 +102,7 @@ bool Field::prepare(unsigned parentVersion)
     m_parentVersion = parentVersion;
     m_customRead = m_generator.getCustomReadForField(m_externalRef);
     m_customRefresh = m_generator.getCustomRefreshForField(m_externalRef);
+    m_customWrite = m_generator.getCustomWriteForField(m_externalRef);
     return prepareImpl();
 }
 
@@ -1073,6 +1074,10 @@ void Field::updateExtraOptions(
         common::addToList("comms::option::def::HasCustomRefresh", options);
     }
 
+    if (!m_customWrite.empty()) {
+        common::addToList("comms::option::def::HasCustomWrite", options);
+    }
+
     if (m_forcedPseudo || m_dslObj.isPseudo()) {
         common::addToList("comms::option::def::EmptySerialization", options);
     }
@@ -1085,9 +1090,9 @@ const std::string& Field::getCustomRead() const
     return m_customRead;
 }
 
-std::string Field::getCustomWrite() const
+const std::string& Field::getCustomWrite() const
 {
-    return m_generator.getCustomWriteForField(m_externalRef);
+    return m_customWrite;
 }
 
 std::string Field::getCustomLength() const
