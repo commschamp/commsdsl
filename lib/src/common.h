@@ -78,6 +78,7 @@ const std::string& fieldStr();
 const std::string& nsStr();
 const std::string& enumStr();
 const std::string& nonUniqueAllowedStr();
+const std::string& nonUniqueSpecialsAllowedStr();
 const std::string& nonUniqueMsgIdAllowedStr();
 const std::string& reservedValueStr();
 const std::string& reservedStr();
@@ -141,6 +142,7 @@ const std::string& serverStr();
 const std::string& bothStr();
 const std::string& defaultMemberStr();
 const std::string& displayIdxReadOnlyHiddenStr();
+const std::string& displaySpecialsStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

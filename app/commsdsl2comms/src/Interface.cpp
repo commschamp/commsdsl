@@ -424,7 +424,7 @@ bool Interface::writePluginSrc()
             auto func =
                 "QString " + className + "::idAsStringImpl() const\n"
                 "{\n"
-                "    return QString(\"0x%1\").arg(static_cast<unsigned long long>(getId()), " +
+                "    return \"0x\" + QString(\"%1\").arg(static_cast<unsigned long long>(getId()), " +
                 std::to_string(hexWidth) + ", 16, QChar('0')).toUpper();\n"
                 "}\n";
             replacements.insert(std::make_pair("ID_FUNC", std::move(func)));

@@ -55,6 +55,7 @@ public:
         unsigned m_sinceVersion = 0;
         unsigned m_deprecatedSince = Protocol::notYetDeprecated();
         std::string m_description;
+        std::string m_displayName;
     };
     using SpecialValues = std::map<std::string, SpecialValueInfo>;
 
@@ -69,6 +70,8 @@ public:
     bool validCheckVersion() const;
     Units units() const;
     unsigned displayDecimals() const;
+    bool displaySpecials() const;
+    bool hasNonUniqueSpecials() const;
 };
 
 inline

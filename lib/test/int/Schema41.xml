@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema41" endian="big">
+    <fields>
+        <int name="F1" type="uint8" defaultValue="1">
+            <special name="S1" val="10" />
+            <special name="S2" val="10" />
+        </int>
+    </fields>
+</schema>

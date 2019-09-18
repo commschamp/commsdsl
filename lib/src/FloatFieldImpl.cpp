@@ -20,6 +20,7 @@
 #include <cassert>
 #include <limits>
 #include <cmath>
+#include <map>
 
 #include "common.h"
 #include "util.h"
@@ -105,6 +106,44 @@ double maxValueForType(FloatFieldImpl::Type value)
 FloatFieldImpl::FloatFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
+    m_state.m_nonUniqueSpecialsAllowed = !protocol.isNonUniqueSpecialsAllowedSupported();
+}
+
+bool FloatFieldImpl::hasNonUniqueSpecials() const
+{
+    if (!m_state.m_nonUniqueSpecialsAllowed) {
+        return false;
+    }
+
+
+    std::vector<double> specValues;
+    specValues.reserve(m_state.m_specials.size());
+
+    for (auto& s : m_state.m_specials) {
+        if (std::isnan(s.second.m_value)) {
+            continue;
+        }
+
+        specValues.push_back(s.second.m_value);
+    }
+
+    if ((specValues.size() + 1U) < m_state.m_specials.size()) {
+        // More than one NaN inside
+        return true;
+    }
+
+    std::sort(specValues.begin(), specValues.end());
+
+    bool firstValue = true;
+    double prevValue = 0.0;
+    for (auto s : specValues) {
+        if ((!firstValue) && (prevValue == s)) {
+            return true;
+        }
+        firstValue = false;
+        prevValue = s;
+    }
+    return false;
 }
 
 FieldImpl::Kind FloatFieldImpl::kindImpl() const
@@ -132,7 +171,9 @@ const XmlWrap::NamesList&FloatFieldImpl::extraPropsNamesImpl() const
         common::validMaxStr(),
         common::validCheckVersionStr(),
         common::unitsStr(),
-        common::displayDesimalsStr()
+        common::displayDesimalsStr(),
+        common::nonUniqueSpecialsAllowedStr(),
+        common::displaySpecialsStr(),
     };
 
     return List;
@@ -162,12 +203,14 @@ bool FloatFieldImpl::parseImpl()
         updateEndian() &&
         updateLength() &&
         updateMinMaxValues() &&
+        updateNonUniqueSpecialsAllowed() &&
         updateSpecials() &&
         updateDefaultValue() &&
         updateValidCheckVersion() &&
         updateValidRanges() &&
         updateUnits() &&
-        updateDisplayDecimals();
+        updateDisplayDecimals() &&
+        updateDisplaySpecials();
 }
 
 std::size_t FloatFieldImpl::minLengthImpl() const
@@ -445,9 +488,18 @@ bool FloatFieldImpl::updateValidRanges()
     return true;
 }
 
+bool FloatFieldImpl::updateNonUniqueSpecialsAllowed()
+{
+    return validateAndUpdateBoolPropValue(common::nonUniqueSpecialsAllowedStr(), m_state.m_nonUniqueSpecialsAllowed);
+}
+
 bool FloatFieldImpl::updateSpecials()
 {
     auto specials = XmlWrap::getChildren(getNode(), common::specialStr());
+
+    using RecSpecials = std::multimap<double, std::string>;
+    RecSpecials recSpecials;
+    std::string prevNanSpecial;
 
     for (auto* s : specials) {
         static const XmlWrap::NamesList PropNames = {
@@ -455,7 +507,8 @@ bool FloatFieldImpl::updateSpecials()
             common::valStr(),
             common::sinceVersionStr(),
             common::deprecatedStr(),
-            common::descriptionStr()
+            common::descriptionStr(),
+            common::displayNameStr()
         };
 
         auto props = XmlWrap::parseNodeProps(s);
@@ -480,6 +533,10 @@ bool FloatFieldImpl::updateSpecials()
         }
 
         if (!XmlWrap::validateSinglePropInstance(s, props, common::descriptionStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::displayNameStr(), protocol().logger())) {
             return false;
         }
 
@@ -510,6 +567,37 @@ bool FloatFieldImpl::updateSpecials()
             return false;
         }
 
+        if (!m_state.m_nonUniqueSpecialsAllowed) {
+            bool reportError = false;
+            const std::string* prevDefName = nullptr;
+            do {
+                if (std::isnan(val)) {
+                    reportError = !prevNanSpecial.empty();
+                    prevNanSpecial = nameIter->second;
+                    prevDefName = &prevNanSpecial;
+                    break;
+                }
+
+                auto recIter = recSpecials.find(val);
+                if (recIter != recSpecials.end()) {
+                    reportError = true;
+                    prevDefName = &(recIter->second);
+                }
+                else {
+                    recSpecials.insert(std::make_pair(val, nameIter->second));
+                }
+            } while (false);
+
+            if (reportError) {
+                assert(prevDefName != nullptr);
+                logError() << XmlWrap::logPrefix(s) <<
+                    "Value of special \"" << nameIter->second <<
+                    "\" (" << valIter->second << ") has already been defined as \"" <<
+                    *prevDefName << "\".";
+                return false;
+            }
+        }
+
         bool isSpecial = std::isnan(val) || std::isinf(val);
         if ((!isSpecial) &&
             ((val < m_state.m_typeAllowedMinValue) || (m_state.m_typeAllowedMaxValue < val))) {
@@ -531,6 +619,11 @@ bool FloatFieldImpl::updateSpecials()
         auto descIter = props.find(common::descriptionStr());
         if (descIter != props.end()) {
             info.m_description = descIter->second;
+        }
+
+        auto displayNameIter = props.find(common::displayNameStr());
+        if (displayNameIter != props.end()) {
+            info.m_displayName = displayNameIter->second;
         }
 
         m_state.m_specials.emplace(nameIter->second, info);
@@ -579,6 +672,11 @@ bool FloatFieldImpl::updateDisplayDecimals()
     }
 
     return true;
+}
+
+bool FloatFieldImpl::updateDisplaySpecials()
+{
+    return validateAndUpdateBoolPropValue(common::displaySpecialsStr(), m_state.m_displaySpecials);
 }
 
 bool FloatFieldImpl::checkFullRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)

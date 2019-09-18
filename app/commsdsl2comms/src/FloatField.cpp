@@ -18,6 +18,8 @@
 #include <type_traits>
 #include <cmath>
 #include <limits>
+#include <map>
+#include <set>
 
 #include <boost/algorithm/string.hpp>
 
@@ -332,13 +334,119 @@ std::string FloatField::getClassDefinitionImpl(
 std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
 {
     static_cast<void>(serHiddenParam);
+    common::StringsList props;
     auto obj = floatFieldDslObj();
     auto decimals = obj.displayDecimals();
-    if (decimals == 0U) {
-        return common::emptyString();
+    if (decimals != 0U) {
+        props.push_back(".decimals(" + common::numToString(decimals) + ")");
     }
 
-    return ".decimals(" + common::numToString(decimals) + ")";
+    do {
+        if (!obj.displaySpecials()) {
+            break;
+        }
+
+        auto& specials = obj.specialValues();
+        if (specials.empty()) {
+            break;
+        }
+
+        auto addSpecDisplayNameFunc =
+            [&props](double val, const std::string& name, const std::string& displayName)
+            {
+                std::string valStr;
+                if (std::isnan(val)) {
+                    valStr = "std::numeric_limits<double>::quiet_NaN()";
+                }
+                else if (std::isinf(val)) {
+                    valStr = "std::numeric_limits<double>::infinity()";
+                    if (val < 0.0) {
+                        valStr = '-' + valStr;
+                    }
+                }
+                else {
+                    valStr = std::to_string(val);
+                }
+
+                auto* nameToAdd = &displayName;
+                if (nameToAdd->empty()) {
+                    nameToAdd = &name;
+                }
+
+                props.push_back(".addSpecial(\"" + *nameToAdd + "\", " + valStr + ")");
+            };
+
+        for (auto& s : specials) {
+            addSpecDisplayNameFunc(s.second.m_value, s.first, s.second.m_displayName);
+        }
+        break;
+
+        // The code below removes duplicates, but probably not needed.
+//        if (!obj.hasNonUniqueSpecials()) {
+//            for (auto& s : specials) {
+//                addSpecDisplayNameFunc(s.second.m_value, s.first, s.second.m_displayName);
+//            }
+//            break;
+//        }
+
+//        using SpecialsDisplayMap = std::multimap<double, std::pair<const std::string*, const std::string*> >;
+//        using SpecialsValuesSet = std::set<double>;
+//        using SpecialsNanList = std::vector<std::pair<const std::string*, const std::string*> >;
+
+//        SpecialsDisplayMap displayMap;
+//        SpecialsValuesSet specialsSet;
+//        SpecialsNanList specialNans;
+//        for (auto& s : specials) {
+//            if (std::isnan(s.second.m_value)) {
+//                specialNans.push_back(std::make_pair(&s.first, &s.second.m_displayName));
+//                continue;
+//            }
+
+//            specialsSet.insert(s.second.m_value);
+//            displayMap.insert(std::make_pair(s.second.m_value, std::make_pair(&s.first, &s.second.m_displayName)));
+//        }
+
+//        if (!specialNans.empty()) {
+//            auto nanIter =
+//                std::find_if(
+//                    specialNans.begin(), specialNans.end(),
+//                    [](auto& elem)
+//                    {
+//                        return !elem.second->empty();
+//                    });
+
+//            if (nanIter == specialNans.end()) {
+//                nanIter = specialNans.begin();
+//            }
+
+//            assert(nanIter != specialNans.end());
+//            addSpecDisplayNameFunc(std::numeric_limits<double>::quiet_NaN(), *nanIter->first, *nanIter->second);
+//        }
+
+//        for (auto val : specialsSet) {
+//            auto mapIter = displayMap.equal_range(val);
+//            assert(mapIter.first != mapIter.second);
+//            auto iter =
+//                std::find_if(
+//                    mapIter.first, mapIter.second,
+//                    [](auto& elem)
+//                    {
+//                        return !elem.second.second->empty(); // displayName is not empty
+//                    });
+//            if (iter == mapIter.second) {
+//                iter = mapIter.first;
+//            }
+
+//            addSpecDisplayNameFunc(val, *(iter->second.first), *(iter->second.second));
+//        }
+
+    } while (false);
+
+    if (props.empty()) {
+        return common::emptyString();
+    }
+    return common::listToString(props, "\n", common::emptyString());
+
 }
 
 std::string FloatField::getFieldBaseParams() const

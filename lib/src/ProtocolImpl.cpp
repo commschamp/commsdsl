@@ -338,6 +338,11 @@ bool ProtocolImpl::isSemanticTypeRefInheritanceSupported() const
     return isFeatureSupported(2U);
 }
 
+bool ProtocolImpl::isNonUniqueSpecialsAllowedSupported() const
+{
+    return isFeatureSupported(2U);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);

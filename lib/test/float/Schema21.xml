@@ -18,7 +18,7 @@
                 </float>
             </bundle>
         </variant>
-        <float name="F2" type="float" defaultValue="F1.P2.value">
+        <float name="F2" type="float" defaultValue="F1.P2.value" displaySpecials="false" >
             <special name="S1" val="F1.P2.value.S1" />
             <special name="S2" val="F1.P2.value.S2" />
         </float>

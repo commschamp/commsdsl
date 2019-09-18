@@ -401,6 +401,34 @@ std::string IntField::getPluginPropertiesImpl(bool serHiddenParam) const
         props.push_back(".displayOffset(" + common::numToString(offset) + ')');
     }
 
+    auto& specials = obj.specialValues();
+    if (!specials.empty() && (obj.displaySpecials())) {
+        auto type = obj.type();
+        bool bigUnsigned =
+            (type == commsdsl::IntField::Type::Uint64) ||
+            (type == commsdsl::IntField::Type::Uintvar);
+
+        auto addSpecDisplayNameFunc =
+            [&props, bigUnsigned](std::intmax_t val, const std::string& name, const std::string& displayName)
+            {
+                auto valStr = common::numToString(val);
+                if (bigUnsigned) {
+                    valStr = "static_cast<long long>(" + common::numToString(static_cast<std::uintmax_t>(val)) + ")";
+                }
+
+                auto* nameToAdd = &displayName;
+                if (nameToAdd->empty()) {
+                    nameToAdd = &name;
+                }
+
+                props.push_back(".addSpecial(\"" + *nameToAdd + "\", " + valStr + ")");
+            };
+
+        for (auto& s : specials) {
+            addSpecDisplayNameFunc(s.second.m_value, s.first, s.second.m_displayName);
+        }
+    }
+
     if (props.empty()) {
         return common::emptyString();
     }

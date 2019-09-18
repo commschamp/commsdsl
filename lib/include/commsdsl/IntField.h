@@ -67,6 +67,7 @@ public:
         unsigned m_sinceVersion = 0;
         unsigned m_deprecatedSince = Protocol::notYetDeprecated();
         std::string m_description;
+        std::string m_displayName;
     };
 
     using SpecialValues = std::map<std::string, SpecialValueInfo>;
@@ -88,6 +89,7 @@ public:
     unsigned displayDecimals() const;
     std::intmax_t displayOffset() const;
     bool signExt() const;
+    bool displaySpecials() const;
 };
 
 inline

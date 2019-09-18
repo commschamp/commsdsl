@@ -4,8 +4,8 @@
         endian="little">
         
     <fields>
-        <int name="Int1" type="int8" defaultValue="val1">
-            <special name="val1" val="100" />
+        <int name="Int1" type="int8" defaultValue="val1" nonUniqueSpecialsAllowed="true" displaySpecials="false">
+            <special name="val1" val="100" displayName="Value 1"/>
             <special name="val2" val="101" />
             <special name="otherVal2" val="val2" />
             <validRange value="[val1, val2]" />

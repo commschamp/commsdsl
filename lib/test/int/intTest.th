@@ -47,6 +47,7 @@ public:
     void test38();
     void test39();
     void test40();
+    void test41();
 };
 
 void IntTestSuite::setUp()
@@ -1022,6 +1023,7 @@ void IntTestSuite::test11()
     TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
 
     commsdsl::IntField intField(field);
+    TS_ASSERT(!intField.displaySpecials());
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
@@ -1046,7 +1048,9 @@ void IntTestSuite::test11()
     auto s2 = specialValues.find("val2");
     auto s3 = specialValues.find("otherVal2");
     TS_ASSERT_EQUALS(s1->second.m_value, 100);
+    TS_ASSERT_EQUALS(s1->second.m_displayName, "Value 1");
     TS_ASSERT_EQUALS(s2->second.m_value, 101);
+    TS_ASSERT(s2->second.m_displayName.empty());
     TS_ASSERT_EQUALS(s3->second.m_value, 101);
 }
 
@@ -1816,5 +1820,14 @@ void IntTestSuite::test40()
     TS_ASSERT_EQUALS(intField.defaultValue(), 1);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 10);
+    TS_ASSERT(intField.displaySpecials());
 }
 
+void IntTestSuite::test41()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema41.xml");
+    TS_ASSERT(protocol);
+}

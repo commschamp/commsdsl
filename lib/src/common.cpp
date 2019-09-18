@@ -309,6 +309,12 @@ const std::string& nonUniqueAllowedStr()
     return Str;
 }
 
+const std::string& nonUniqueSpecialsAllowedStr()
+{
+    static const std::string Str("nonUniqueSpecialsAllowed");
+    return Str;
+}
+
 const std::string& nonUniqueMsgIdAllowedStr()
 {
     static const std::string Str("nonUniqueMsgIdAllowed");
@@ -684,6 +690,12 @@ const std::string& defaultMemberStr()
 const std::string& displayIdxReadOnlyHiddenStr()
 {
     static const std::string Str("displayIdxReadOnlyHidden");
+    return Str;
+}
+
+const std::string& displaySpecialsStr()
+{
+    static const std::string Str("displaySpecials");
     return Str;
 }
 

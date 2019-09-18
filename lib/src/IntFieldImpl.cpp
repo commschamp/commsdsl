@@ -20,6 +20,7 @@
 #include <iterator>
 #include <limits>
 #include <cassert>
+#include <map>
 
 #include "common.h"
 #include "ProtocolImpl.h"
@@ -136,6 +137,7 @@ std::uintmax_t calcMaxUnsignedValue(IntFieldImpl::Type t, std::size_t bitsLen)
 IntFieldImpl::IntFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
+    m_state.m_nonUniqueSpecialsAllowed = !protocol.isNonUniqueSpecialsAllowedSupported();
 }
 
 IntFieldImpl::Type IntFieldImpl::parseTypeValue(const std::string& value)
@@ -329,9 +331,11 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::validMinStr(),
         common::validMaxStr(),
         common::validCheckVersionStr(),
+        common::nonUniqueSpecialsAllowedStr(),
         common::displayDesimalsStr(),
         common::displayOffsetStr(),
-        common::signExtStr()
+        common::signExtStr(),
+        common::displaySpecialsStr(),
     };
 
     return List;
@@ -364,6 +368,7 @@ bool IntFieldImpl::parseImpl()
         updateScaling() &&
         updateSerOffset() &&
         updateMinMaxValues() &&
+        updateNonUniqueSpecialsAllowed() &&
         updateSpecials() &&
         updateDefaultValue() &&
         updateValidCheckVersion() &&
@@ -371,7 +376,8 @@ bool IntFieldImpl::parseImpl()
         updateUnits() &&
         updateDisplayDecimals() &&
         updateDisplayOffset() &&
-        updateSignExt();
+        updateSignExt() &&
+        updateDisplaySpecials();
 }
 
 std::size_t IntFieldImpl::minLengthImpl() const
@@ -987,17 +993,27 @@ bool IntFieldImpl::updateValidRanges()
     return true;
 }
 
+bool IntFieldImpl::updateNonUniqueSpecialsAllowed()
+{
+    return validateAndUpdateBoolPropValue(common::nonUniqueSpecialsAllowedStr(), m_state.m_nonUniqueSpecialsAllowed);
+}
+
 bool IntFieldImpl::updateSpecials()
 {
     bool bigUnsignedType = isBigUnsigned(m_state.m_type);
     auto specials = XmlWrap::getChildren(getNode(), common::specialStr());
+
+    using RecSpecials = std::multimap<std::intmax_t, std::string>;
+    RecSpecials recSpecials;
+
     for (auto* s : specials) {
         static const XmlWrap::NamesList PropNames = {
             common::nameStr(),
             common::valStr(),
             common::sinceVersionStr(),
             common::deprecatedStr(),
-            common::descriptionStr()
+            common::descriptionStr(),
+            common::displayNameStr(),
         };
 
         auto props = XmlWrap::parseNodeProps(s);
@@ -1022,6 +1038,10 @@ bool IntFieldImpl::updateSpecials()
         }
 
         if (!XmlWrap::validateSinglePropInstance(s, props, common::descriptionStr(), protocol().logger())) {
+            return false;
+        }
+
+        if (!XmlWrap::validateSinglePropInstance(s, props, common::displayNameStr(), protocol().logger())) {
             return false;
         }
 
@@ -1051,6 +1071,19 @@ bool IntFieldImpl::updateSpecials()
                 "Value of special \"" << nameIter->second <<
                 "\" (" << valIter->second << ") cannot be recognized.";
             return false;
+        }
+
+        if (!m_state.m_nonUniqueSpecialsAllowed) {
+            auto recIter = recSpecials.find(val);
+            if (recIter != recSpecials.end()) {
+                logError() << XmlWrap::logPrefix(s) <<
+                    "Value of special \"" << nameIter->second <<
+                    "\" (" << valIter->second << ") has already been defined as \"" <<
+                    recIter->second << "\".";
+                return false;
+            }
+
+            recSpecials.insert(std::make_pair(val, nameIter->second));
         }
 
         auto checkSpecialInRangeFunc =
@@ -1095,6 +1128,11 @@ bool IntFieldImpl::updateSpecials()
         auto descIter = props.find(common::descriptionStr());
         if (descIter != props.end()) {
             info.m_description = descIter->second;
+        }
+
+        auto displayNameIter = props.find(common::displayNameStr());
+        if (displayNameIter != props.end()) {
+            info.m_displayName = displayNameIter->second;
         }
 
         m_state.m_specials.emplace(nameIter->second, info);
@@ -1185,6 +1223,12 @@ bool IntFieldImpl::updateSignExt()
 
     return true;
 }
+
+bool IntFieldImpl::updateDisplaySpecials()
+{
+    return validateAndUpdateBoolPropValue(common::displaySpecialsStr(), m_state.m_displaySpecials);
+}
+
 
 bool IntFieldImpl::checkValidRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
 {

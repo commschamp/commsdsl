@@ -15,6 +15,7 @@
             <validRange value="[5, 10]" deprecated="2" />
             <validValue value="20" sinceVersion="2" />
             <validRange value="[30, 40]" sinceVersion="3" />
+            <special name="S1" val="5" />
         </int>
         <int name="I3" type="uint32" />
     </fields>
