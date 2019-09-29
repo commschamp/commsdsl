@@ -50,6 +50,7 @@ protected:
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override final;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override final;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
+    virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const override final;
 
 private:
     bool updateMembers();

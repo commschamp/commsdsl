@@ -218,6 +218,7 @@ public:
 
     bool verifySemanticType() const;
     bool verifySemanticType(::xmlNodePtr node, SemanticType type) const;
+    bool verifyAliasedMember(const std::string& fieldName);
 
     std::string schemaPos() const;
 
@@ -276,6 +277,7 @@ protected:
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const;
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const;
+    virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

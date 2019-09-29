@@ -106,6 +106,8 @@ set (
     "ChecksumLayerImpl.cpp"
     "ValueLayerImpl.cpp"
     "CustomLayerImpl.cpp"
+    "Alias.cpp"
+    "AliasImpl.cpp"
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})

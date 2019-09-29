@@ -26,6 +26,7 @@
 #include "commsdsl/Message.h"
 #include "commsdsl/Protocol.h"
 #include "FieldImpl.h"
+#include "AliasImpl.h"
 
 namespace commsdsl
 {
@@ -38,6 +39,7 @@ public:
     using Ptr = std::unique_ptr<MessageImpl>;
     using PropsMap = XmlWrap::PropsMap;
     using FieldsList = Message::FieldsList;
+    using AliasesList = Message::AliasesList;
     using ContentsList = XmlWrap::ContentsList;
     using PlatformsList = Protocol::PlatformsList;
     using Sender = Message::Sender;
@@ -78,6 +80,7 @@ public:
     std::size_t maxLength() const;
 
     FieldsList fieldsList() const;
+    AliasesList aliasesList() const;
 
     std::string externalRef() const;
 
@@ -131,8 +134,11 @@ private:
     bool updateCustomizable();
     bool updateSender();
     bool copyFields();
+    bool copyAliases();
     bool updateFields();
+    bool updateAliases();
     void cloneFieldsFrom(const MessageImpl& other);
+    void cloneAliasesFrom(const MessageImpl& other);
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -148,8 +154,10 @@ private:
     std::uintmax_t m_id = 0;
     unsigned m_order = 0;
     std::vector<FieldImplPtr> m_fields;
+    std::vector<AliasImplPtr> m_aliases;
     PlatformsList m_platforms;
     Sender m_sender = Sender::Both;
+    const MessageImpl* m_copyFieldsFromMsg = nullptr;
     bool m_customizable = false;
 };
 

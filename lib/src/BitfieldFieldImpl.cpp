@@ -154,6 +154,30 @@ bool BitfieldFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
     return strToBoolOnFields(ref, m_members, val);
 }
 
+bool BitfieldFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
+{
+    auto dotPos = fieldName.find('.');
+    std::string memFieldName(fieldName, 0, dotPos);
+    auto iter =
+        std::find_if(
+            m_members.begin(), m_members.end(),
+            [&memFieldName](auto& f)
+            {
+                return memFieldName == f->name();
+            });
+
+    if (iter == m_members.end()) {
+        return false;
+    }
+
+    if (fieldName.size() <= dotPos) {
+        return true;
+    }
+
+    std::string restFieldName(fieldName, dotPos + 1);
+    return (*iter)->verifyAliasedMember(restFieldName);
+}
+
 bool BitfieldFieldImpl::updateEndian()
 {
     if (!validateSinglePropInstance(common::endianStr())) {

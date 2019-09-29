@@ -318,6 +318,15 @@ bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
     return true;
 }
 
+bool FieldImpl::verifyAliasedMember(const std::string& fieldName)
+{
+    if (fieldName.empty()) {
+        return true;
+    }
+
+    return verifyAliasedMemberImpl(fieldName);
+}
+
 std::string FieldImpl::schemaPos() const
 {
     return XmlWrap::logPrefix(m_node);
@@ -500,6 +509,12 @@ bool FieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) con
 {
     static_cast<void>(node);
     static_cast<void>(type);
+    return false;
+}
+
+bool FieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
+{
+    static_cast<void>(fieldName);
     return false;
 }
 

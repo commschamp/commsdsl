@@ -166,6 +166,30 @@ bool BundleFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uin
     return strToDataOnFields(ref, m_members, val);
 }
 
+bool BundleFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
+{
+    auto dotPos = fieldName.find('.');
+    std::string memFieldName(fieldName, 0, dotPos);
+    auto iter =
+        std::find_if(
+            m_members.begin(), m_members.end(),
+            [&memFieldName](auto& f)
+            {
+                return memFieldName == f->name();
+            });
+
+    if (iter == m_members.end()) {
+        return false;
+    }
+
+    if (fieldName.size() <= dotPos) {
+        return true;
+    }
+
+    std::string restFieldName(fieldName, dotPos + 1);
+    return (*iter)->verifyAliasedMember(restFieldName);
+}
+
 bool BundleFieldImpl::updateMembers()
 {
     if (!m_members.empty()) {

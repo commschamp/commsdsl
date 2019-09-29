@@ -343,6 +343,11 @@ bool ProtocolImpl::isNonUniqueSpecialsAllowedSupported() const
     return isFeatureSupported(2U);
 }
 
+bool ProtocolImpl::isFieldAliasSupported() const
+{
+    return isFeatureSupported(3U);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);

@@ -68,6 +68,8 @@ bool MessageImpl::parse()
         updateSender() &&
         copyFields() &&
         updateFields() &&
+        copyAliases() &&
+        updateAliases() &&
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -126,6 +128,19 @@ MessageImpl::FieldsList MessageImpl::fieldsList() const
         [](auto& f)
         {
             return Field(f.get());
+        });
+    return result;
+}
+
+MessageImpl::AliasesList MessageImpl::aliasesList() const
+{
+    AliasesList result;
+    result.reserve(m_aliases.size());
+    std::transform(
+        m_aliases.begin(), m_aliases.end(), std::back_inserter(result),
+        [](auto& a)
+        {
+            return Alias(a.get());
         });
     return result;
 }
@@ -200,7 +215,7 @@ bool MessageImpl::validateAndUpdateStringPropValue(
 
 void MessageImpl::reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
-    XmlWrap::reportUnexpectedPropertyValue(m_node, name(), propName, propValue, m_protocol.logger());
+    XmlWrap::reportUnexpectedPropertyValue(m_node, common::messageStr(), propName, propValue, m_protocol.logger());
 }
 
 const XmlWrap::NamesList& MessageImpl::commonProps()
@@ -214,6 +229,7 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::deprecatedStr(),
         common::removedStr(),
         common::copyFieldsFromStr(),
+        common::copyFieldsAliasesStr(),
         common::orderStr(),
         common::platformsStr(),
         common::customizableStr(),
@@ -229,6 +245,7 @@ XmlWrap::NamesList MessageImpl::allNames()
     auto& fieldTypes = messageSupportedTypes();
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
     names.push_back(common::fieldsStr());
+    names.push_back(common::aliasStr());
     return names;
 }
 
@@ -509,14 +526,14 @@ bool MessageImpl::copyFields()
         return true;
     }
 
-    auto* otherMsg = m_protocol.findMessage(iter->second);
-    if (otherMsg == nullptr) {
+    m_copyFieldsFromMsg = m_protocol.findMessage(iter->second);
+    if (m_copyFieldsFromMsg == nullptr) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "Invalid reference to other message \"" << iter->second << "\".";
         return false;
     }
 
-    cloneFieldsFrom(*otherMsg);
+    cloneFieldsFrom(*m_copyFieldsFromMsg);
 
     if (!m_fields.empty()) {
         m_fields.erase(
@@ -533,6 +550,73 @@ bool MessageImpl::copyFields()
         for (auto& m : m_fields) {
             m->setSinceVersion(std::max(getSinceVersion(), m->getSinceVersion()));
         }
+    }
+    return true;
+}
+
+bool MessageImpl::copyAliases()
+{
+    auto& propStr = common::copyFieldsAliasesStr();
+    if (!validateSinglePropInstance(propStr)) {
+        return false;
+    }
+
+    auto iter = props().find(propStr);
+    if (iter != props().end() && (!m_protocol.isFieldAliasSupported())) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Unexpected property \"" << propStr << "\".";
+        return false;
+    }
+
+    if (!m_protocol.isFieldAliasSupported()) {
+        return true;
+    }
+
+    bool copyAliases = true;
+    if (iter != props().end()) {
+        bool ok = false;
+        copyAliases = common::strToBool(iter->second, &ok);
+        if (!ok) {
+            reportUnexpectedPropertyValue(propStr, iter->second);
+            return false;
+        }
+    }
+
+    if (!copyAliases) {
+        return true;
+    }
+
+    if ((iter != props().end()) && (m_copyFieldsFromMsg == nullptr)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "Property \"" << propStr << "\" is inapplicable without \"" << common::copyFieldsFromStr() << "\".";
+        return true;
+    }
+
+    if (m_copyFieldsFromMsg == nullptr) {
+        return true;
+    }
+
+    cloneAliasesFrom(*m_copyFieldsFromMsg);
+
+    if (!m_aliases.empty()) {
+        m_aliases.erase(
+            std::remove_if(
+                m_aliases.begin(), m_aliases.end(),
+                [this](auto& alias)
+                {
+                    auto& fieldName = alias->fieldName();
+                    assert(!fieldName.empty());
+                    auto iter =
+                        std::find_if(
+                            m_fields.begin(), m_fields.end(),
+                            [&fieldName](auto& f)
+                            {
+                                return fieldName == f->name();
+                            });
+
+                    return iter == m_fields.end();
+                }),
+            m_aliases.end());
     }
     return true;
 }
@@ -619,11 +703,132 @@ bool MessageImpl::updateFields()
     return true;
 }
 
+bool MessageImpl::updateAliases()
+{
+    do {
+        auto aliasNodes = XmlWrap::getChildren(getNode(), common::aliasStr());
+
+        if (aliasNodes.empty()) {
+            break;
+        }
+
+        m_aliases.reserve(m_aliases.size() + aliasNodes.size());
+        for (auto* aNode : aliasNodes) {
+            auto alias = AliasImpl::create(aNode, m_protocol);
+            if (!alias) {
+                assert(!"Internal error");
+                logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Internal error, failed to create objects for member aliases.";
+                return false;
+            }
+
+            if (!alias->parse()) {
+                return false;
+            }
+
+            auto& aliasName = alias->name();
+            assert(!aliasName.empty());
+            auto checkSameNameFunc =
+                [&aliasName](const std::string& n) -> bool
+                {
+                    if (n.size() != aliasName.size()) {
+                        return false;
+                    }
+
+                    if (std::tolower(aliasName[0]) != std::tolower(n[0])) {
+                        return false;
+                    }
+
+                    return std::equal(aliasName.begin() + 1, aliasName.end(), n.begin() + 1);
+                };
+
+            auto fieldSameNameIter =
+                std::find_if(
+                    m_fields.begin(), m_fields.end(),
+                    [&checkSameNameFunc](auto& f)
+                    {
+                        return checkSameNameFunc(f->name());
+                    });
+
+            if (fieldSameNameIter != m_fields.end()) {
+                logError() << XmlWrap::logPrefix(getNode()) <<
+                    "Cannot create alias with name \"" << aliasName << "\", because field "
+                    "with the same name has been already defined.";
+                return false;
+            }
+
+            auto aliasSameNameIter =
+                std::find_if(
+                    m_aliases.begin(), m_aliases.end(),
+                    [&checkSameNameFunc](auto& a)
+                    {
+                        return checkSameNameFunc(a->name());
+                    });
+
+            if (aliasSameNameIter != m_aliases.end()) {
+                logError() << XmlWrap::logPrefix(getNode()) <<
+                    "Cannot create alias with name \"" << aliasName << "\", because other alias "
+                    "with the same name has been already defined.";
+                return false;
+            }
+
+            auto& aliasedFieldName = alias->fieldName();
+            auto dotPos = aliasedFieldName.find('.');
+            std::string firstAliasedFieldName(aliasedFieldName, 0, dotPos);
+
+            auto aliasedFieldIter =
+                std::find_if(
+                    m_fields.begin(), m_fields.end(),
+                    [&firstAliasedFieldName](auto& f)
+                    {
+                        return firstAliasedFieldName == f->name();
+                    });
+
+            auto reportNotFoundFieldFunc =
+                [this, &aliasedFieldName]()
+                {
+                    logError() << XmlWrap::logPrefix(getNode()) <<
+                        "Aliased field(s) with name \"" << aliasedFieldName << "\", hasn't been found.";
+                };
+
+            if (aliasedFieldIter == m_fields.end()) {
+                reportNotFoundFieldFunc();
+                return false;
+            }
+
+            if (dotPos < aliasedFieldName.size()) {
+                std::string restAliasedFieldName(aliasedFieldName, dotPos + 1);
+                if (!(*aliasedFieldIter)->verifyAliasedMember(restAliasedFieldName)) {
+                    reportNotFoundFieldFunc();
+                    return false;
+                }
+            }
+
+            m_aliases.push_back(std::move(alias));
+        }
+
+        if (!FieldImpl::validateMembersNames(m_fields, m_protocol.logger())) {
+            return false;
+        }
+
+    } while (false);
+
+    return true;
+}
+
 void MessageImpl::cloneFieldsFrom(const MessageImpl& other)
 {
     m_fields.reserve(other.m_fields.size());
     for (auto& f : other.m_fields) {
         m_fields.push_back(f->clone());
+    }
+}
+
+void MessageImpl::cloneAliasesFrom(const MessageImpl& other)
+{
+    m_aliases.reserve(other.m_aliases.size());
+    for (auto& a : other.m_aliases) {
+        m_aliases.push_back(a->clone());
     }
 }
 

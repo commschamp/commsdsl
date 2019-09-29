@@ -1,0 +1,89 @@
+#include <limits>
+
+#include "CommonTestSuite.h"
+
+class AliasTestSuite : public CommonTestSuite, public CxxTest::TestSuite
+{
+public:
+    void setUp();
+    void tearDown();
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+};
+
+void AliasTestSuite::setUp()
+{
+    CommonTestSuite::commonSetUp();
+}
+
+void AliasTestSuite::tearDown()
+{
+    CommonTestSuite::commonTearDown();
+}
+
+void AliasTestSuite::test1()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg1 = messages[0];
+    TS_ASSERT_EQUALS(msg1.name(), "Msg1");
+
+    auto aliases = msg1.aliases();
+    TS_ASSERT_EQUALS(aliases.size(), 2U);
+
+    auto& a0 = aliases[0];
+    auto& a1 = aliases[1];
+
+    TS_ASSERT_EQUALS(a0.name(), "A1");
+    TS_ASSERT_EQUALS(a0.description(), "A1");
+    TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+
+    TS_ASSERT_EQUALS(a1.name(), "A2");
+    TS_ASSERT_EQUALS(a1.description(), "A2");
+    TS_ASSERT_EQUALS(a1.fieldName(), "F2");
+}
+
+void AliasTestSuite::test2()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
+    TS_ASSERT(protocol);
+}
+
+void AliasTestSuite::test3()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
+    TS_ASSERT(protocol);
+}
+
+void AliasTestSuite::test4()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
+    TS_ASSERT(protocol);
+}
+
+void AliasTestSuite::test5()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+}
