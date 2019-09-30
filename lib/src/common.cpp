@@ -711,6 +711,12 @@ const std::string& aliasStr()
     return Str;
 }
 
+const std::string& reuseAliasesStr()
+{
+    static const std::string Str("reuseAliases");
+    return Str;
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

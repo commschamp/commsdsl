@@ -606,7 +606,7 @@ bool MessageImpl::copyAliases()
                 {
                     auto& fieldName = alias->fieldName();
                     assert(!fieldName.empty());
-                    auto iter =
+                    auto fieldIter =
                         std::find_if(
                             m_fields.begin(), m_fields.end(),
                             [&fieldName](auto& f)
@@ -614,7 +614,7 @@ bool MessageImpl::copyAliases()
                                 return fieldName == f->name();
                             });
 
-                    return iter == m_fields.end();
+                    return fieldIter == m_fields.end();
                 }),
             m_aliases.end());
     }
@@ -705,113 +705,39 @@ bool MessageImpl::updateFields()
 
 bool MessageImpl::updateAliases()
 {
-    do {
-        auto aliasNodes = XmlWrap::getChildren(getNode(), common::aliasStr());
+    auto aliasNodes = XmlWrap::getChildren(getNode(), common::aliasStr());
 
-        if (aliasNodes.empty()) {
-            break;
-        }
+    if (aliasNodes.empty()) {
+        return true;
+    }
 
-        m_aliases.reserve(m_aliases.size() + aliasNodes.size());
-        for (auto* aNode : aliasNodes) {
-            auto alias = AliasImpl::create(aNode, m_protocol);
-            if (!alias) {
-                assert(!"Internal error");
-                logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Internal error, failed to create objects for member aliases.";
-                return false;
-            }
+    if (!m_protocol.isFieldAliasSupported()) {
+        logError() << XmlWrap::logPrefix(aliasNodes.front()) <<
+              "Using \"" << common::aliasStr() << "\" nodes for too early \"" <<
+              common::dslVersionStr() << "\".";
+        return false;
+    }
 
-            if (!alias->parse()) {
-                return false;
-            }
-
-            auto& aliasName = alias->name();
-            assert(!aliasName.empty());
-            auto checkSameNameFunc =
-                [&aliasName](const std::string& n) -> bool
-                {
-                    if (n.size() != aliasName.size()) {
-                        return false;
-                    }
-
-                    if (std::tolower(aliasName[0]) != std::tolower(n[0])) {
-                        return false;
-                    }
-
-                    return std::equal(aliasName.begin() + 1, aliasName.end(), n.begin() + 1);
-                };
-
-            auto fieldSameNameIter =
-                std::find_if(
-                    m_fields.begin(), m_fields.end(),
-                    [&checkSameNameFunc](auto& f)
-                    {
-                        return checkSameNameFunc(f->name());
-                    });
-
-            if (fieldSameNameIter != m_fields.end()) {
-                logError() << XmlWrap::logPrefix(getNode()) <<
-                    "Cannot create alias with name \"" << aliasName << "\", because field "
-                    "with the same name has been already defined.";
-                return false;
-            }
-
-            auto aliasSameNameIter =
-                std::find_if(
-                    m_aliases.begin(), m_aliases.end(),
-                    [&checkSameNameFunc](auto& a)
-                    {
-                        return checkSameNameFunc(a->name());
-                    });
-
-            if (aliasSameNameIter != m_aliases.end()) {
-                logError() << XmlWrap::logPrefix(getNode()) <<
-                    "Cannot create alias with name \"" << aliasName << "\", because other alias "
-                    "with the same name has been already defined.";
-                return false;
-            }
-
-            auto& aliasedFieldName = alias->fieldName();
-            auto dotPos = aliasedFieldName.find('.');
-            std::string firstAliasedFieldName(aliasedFieldName, 0, dotPos);
-
-            auto aliasedFieldIter =
-                std::find_if(
-                    m_fields.begin(), m_fields.end(),
-                    [&firstAliasedFieldName](auto& f)
-                    {
-                        return firstAliasedFieldName == f->name();
-                    });
-
-            auto reportNotFoundFieldFunc =
-                [this, &aliasedFieldName]()
-                {
-                    logError() << XmlWrap::logPrefix(getNode()) <<
-                        "Aliased field(s) with name \"" << aliasedFieldName << "\", hasn't been found.";
-                };
-
-            if (aliasedFieldIter == m_fields.end()) {
-                reportNotFoundFieldFunc();
-                return false;
-            }
-
-            if (dotPos < aliasedFieldName.size()) {
-                std::string restAliasedFieldName(aliasedFieldName, dotPos + 1);
-                if (!(*aliasedFieldIter)->verifyAliasedMember(restAliasedFieldName)) {
-                    reportNotFoundFieldFunc();
-                    return false;
-                }
-            }
-
-            m_aliases.push_back(std::move(alias));
-        }
-
-        if (!FieldImpl::validateMembersNames(m_fields, m_protocol.logger())) {
+    m_aliases.reserve(m_aliases.size() + aliasNodes.size());
+    for (auto* aNode : aliasNodes) {
+        auto alias = AliasImpl::create(aNode, m_protocol);
+        if (!alias) {
+            assert(!"Internal error");
+            logError() << XmlWrap::logPrefix(alias->getNode()) <<
+                  "Internal error, failed to create objects for member aliases.";
             return false;
         }
 
-    } while (false);
+        if (!alias->parse()) {
+            return false;
+        }
+
+        if (!alias->verifyAlias(m_aliases, m_fields)) {
+            return false;
+        }
+
+        m_aliases.push_back(std::move(alias));
+    }
 
     return true;
 }

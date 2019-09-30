@@ -145,6 +145,7 @@ const std::string& defaultMemberStr();
 const std::string& displayIdxReadOnlyHiddenStr();
 const std::string& displaySpecialsStr();
 const std::string& aliasStr();
+const std::string& reuseAliasesStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

@@ -16,6 +16,7 @@
 #pragma once
 
 #include "Field.h"
+#include "Alias.h"
 
 namespace commsdsl
 {
@@ -27,11 +28,13 @@ class COMMSDSL_API BundleField : public Field
 public:
 
     using Members = std::vector<Field>;
+    using Aliases = std::vector<Alias>;
 
     explicit BundleField(const BundleFieldImpl* impl);
     explicit BundleField(Field field);
 
     Members members() const;
+    Aliases aliases() const;
 };
 
 } // namespace commsdsl

@@ -20,6 +20,7 @@
 #include <memory>
 
 #include "XmlWrap.h"
+#include "FieldImpl.h"
 
 namespace commsdsl
 {
@@ -72,6 +73,13 @@ public:
     static Ptr create(::xmlNodePtr node, ProtocolImpl& protocol);
 
     bool parse();
+
+    ::xmlNodePtr getNode() const
+    {
+        return m_node;
+    }
+
+    bool verifyAlias(const std::vector<Ptr>& aliases, const std::vector<FieldImplPtr>& fields) const;
 
 protected:
     AliasImpl(::xmlNodePtr node, ProtocolImpl& protocol) : m_node(node), m_protocol(protocol) {}

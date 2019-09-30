@@ -49,4 +49,9 @@ BundleField::Members BundleField::members() const
     return cast(m_pImpl)->membersList();
 }
 
+BundleField::Aliases BundleField::aliases() const
+{
+    return cast(m_pImpl)->aliasesList();
+}
+
 } // namespace commsdsl

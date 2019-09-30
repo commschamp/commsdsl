@@ -41,6 +41,7 @@ XmlWrap::NamesList getExtraNames()
 {
     auto names = bundleSupportedTypes();
     names.push_back(common::membersStr());
+    names.push_back(common::aliasStr());
     return names;
 }
 
@@ -73,6 +74,19 @@ BundleFieldImpl::Members BundleFieldImpl::membersList() const
     return result;
 }
 
+BundleFieldImpl::AliasesList BundleFieldImpl::aliasesList() const
+{
+    AliasesList result;
+    result.reserve(m_aliases.size());
+    std::transform(
+        m_aliases.begin(), m_aliases.end(), std::back_inserter(result),
+        [](auto& elem)
+        {
+            return Alias(elem.get());
+        });
+    return result;
+}
+
 FieldImpl::Kind BundleFieldImpl::kindImpl() const
 {
     return Kind::Bundle;
@@ -81,6 +95,15 @@ FieldImpl::Kind BundleFieldImpl::kindImpl() const
 FieldImpl::Ptr BundleFieldImpl::cloneImpl() const
 {
     return Ptr(new BundleFieldImpl(*this));
+}
+
+const XmlWrap::NamesList& BundleFieldImpl::extraPropsNamesImpl() const
+{
+    static const XmlWrap::NamesList List = {
+        common::reuseAliasesStr()
+    };
+
+    return List;
 }
 
 const XmlWrap::NamesList& BundleFieldImpl::extraChildrenNamesImpl() const
@@ -102,13 +125,39 @@ bool BundleFieldImpl::reuseImpl(const FieldImpl& other)
             return elem->clone();
         });
     assert(m_members.size() == castedOther.m_members.size());
+
+    do {
+        if (!protocol().isFieldAliasSupported()) {
+            break;
+        }
+
+        bool reuseAliases = true;
+        if (!validateAndUpdateBoolPropValue(common::reuseAliasesStr(), reuseAliases)) {
+            return false;
+        }
+
+        if (!reuseAliases) {
+            break;
+        }
+
+        m_aliases.reserve(castedOther.m_aliases.size());
+        std::transform(
+            castedOther.m_aliases.begin(), castedOther.m_aliases.end(), std::back_inserter(m_aliases),
+            [](auto& elem)
+            {
+                return elem->clone();
+            });
+        assert(m_aliases.size() == castedOther.m_aliases.size());
+    } while (false);
+
     return true;
 }
 
 bool BundleFieldImpl::parseImpl()
 {
     return
-        updateMembers();
+        updateMembers() &&
+        updateAliases();
 }
 
 std::size_t BundleFieldImpl::minLengthImpl() const
@@ -319,6 +368,66 @@ bool BundleFieldImpl::updateMembers()
             "No more that single field with semantiType=\"" << common::lengthStr() << "\" "
             "is allowed within \"" << common::bundleStr() << "\".";
         return false;
+    }
+
+    return true;
+}
+
+bool BundleFieldImpl::updateAliases()
+{
+    if (!m_aliases.empty()) {
+        // Remove aliases in case their aliased fields were removed
+        m_aliases.erase(
+            std::remove_if(
+                m_aliases.begin(), m_aliases.end(),
+                [this](auto& alias)
+                {
+                    auto& fieldName = alias->fieldName();
+                    auto iter =
+                        std::find_if(
+                            m_members.begin(), m_members.end(),
+                            [&fieldName](auto& m)
+                            {
+                                return m->name() == fieldName;
+                            });
+
+                    return iter == m_members.end();
+                }),
+            m_aliases.end());
+    }
+
+    auto aliasNodes = XmlWrap::getChildren(getNode(), common::aliasStr());
+
+    if (aliasNodes.empty()) {
+        return true;
+    }
+
+    if (!protocol().isFieldAliasSupported()) {
+        logError() << XmlWrap::logPrefix(aliasNodes.front()) <<
+              "Using \"" << common::aliasStr() << "\" nodes for too early \"" <<
+              common::dslVersionStr() << "\".";
+        return false;
+    }
+
+    m_aliases.reserve(m_aliases.size() + aliasNodes.size());
+    for (auto* aNode : aliasNodes) {
+        auto alias = AliasImpl::create(aNode, protocol());
+        if (!alias) {
+            assert(!"Internal error");
+            logError() << XmlWrap::logPrefix(alias->getNode()) <<
+                  "Internal error, failed to create objects for member aliases.";
+            return false;
+        }
+
+        if (!alias->parse()) {
+            return false;
+        }
+
+        if (!alias->verifyAlias(m_aliases, m_members)) {
+            return false;
+        }
+
+        m_aliases.push_back(std::move(alias));
     }
 
     return true;

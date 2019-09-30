@@ -16,6 +16,7 @@
 #include "AliasImpl.h"
 
 #include <cassert>
+#include <iterator>
 
 #include "common.h"
 #include "ProtocolImpl.h"
@@ -81,6 +82,91 @@ bool AliasImpl::parse()
     return true;
 }
 
+bool AliasImpl::verifyAlias(
+    const std::vector<Ptr>& aliases,
+    const std::vector<FieldImplPtr>& fields) const
+{
+    auto& aliasName = name();
+    assert(!aliasName.empty());
+    auto checkSameNameFunc =
+        [&aliasName](const std::string& n) -> bool
+        {
+            if (n.size() != aliasName.size()) {
+                return false;
+            }
+
+            if (std::tolower(aliasName[0]) != std::tolower(n[0])) {
+                return false;
+            }
+
+            return std::equal(aliasName.begin() + 1, aliasName.end(), n.begin() + 1);
+        };
+
+    auto fieldSameNameIter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [&checkSameNameFunc](auto& f)
+            {
+                return checkSameNameFunc(f->name());
+            });
+
+    if (fieldSameNameIter != fields.end()) {
+        logError(m_protocol.logger()) << XmlWrap::logPrefix(getNode()) <<
+            "Cannot create alias with name \"" << aliasName << "\", because field "
+            "with the same name has been already defined.";
+        return false;
+    }
+
+    auto aliasSameNameIter =
+        std::find_if(
+            aliases.begin(), aliases.end(),
+            [&checkSameNameFunc](auto& a)
+            {
+                return checkSameNameFunc(a->name());
+            });
+
+    if (aliasSameNameIter != aliases.end()) {
+        logError(m_protocol.logger()) << XmlWrap::logPrefix(getNode()) <<
+            "Cannot create alias with name \"" << aliasName << "\", because other alias "
+            "with the same name has been already defined.";
+        return false;
+    }
+
+    auto& aliasedFieldName = fieldName();
+    auto dotPos = aliasedFieldName.find('.');
+    std::string firstAliasedFieldName(aliasedFieldName, 0, dotPos);
+
+    auto aliasedFieldIter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [&firstAliasedFieldName](auto& f)
+            {
+                return firstAliasedFieldName == f->name();
+            });
+
+    auto reportNotFoundFieldFunc =
+        [this, &aliasedFieldName]()
+        {
+            logError(m_protocol.logger()) << XmlWrap::logPrefix(getNode()) <<
+                "Aliased field(s) with name \"" << aliasedFieldName << "\", hasn't been found.";
+        };
+
+    if (aliasedFieldIter == fields.end()) {
+        reportNotFoundFieldFunc();
+        return false;
+    }
+
+    if (dotPos < aliasedFieldName.size()) {
+        std::string restAliasedFieldName(aliasedFieldName, dotPos + 1);
+        if (!(*aliasedFieldIter)->verifyAliasedMember(restAliasedFieldName)) {
+            reportNotFoundFieldFunc();
+            return false;
+        }
+    }
+
+    return true;
+}
+
 bool AliasImpl::updateName(const PropsMap& props)
 {
     bool mustHave = m_state.m_name.empty();
@@ -114,7 +200,7 @@ bool AliasImpl::updateFieldName(const PropsMap& props)
 
     m_state.m_fieldName.erase(m_state.m_fieldName.begin()); // remove '$';
 
-    if (!common::isValidName(m_state.m_fieldName)) {
+    if (!common::isValidRefName(m_state.m_fieldName)) {
         reportUnexpectedPropertyValue(common::fieldStr(), m_state.m_fieldName);
         return false;
     }

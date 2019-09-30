@@ -12,6 +12,13 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
+    void test7();
+    void test8();
+    void test9();
+    void test10();
+    void test11();
+    void test12();
 };
 
 void AliasTestSuite::setUp()
@@ -85,5 +92,147 @@ void AliasTestSuite::test5()
     m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
+    TS_ASSERT(protocol);
+}
+
+void AliasTestSuite::test6()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
+    TS_ASSERT(protocol);
+}
+
+void AliasTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& msg2 = messages.back();
+    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+
+    auto aliases = msg2.aliases();
+    TS_ASSERT_EQUALS(aliases.size(), 2U);
+
+    auto& a0 = aliases[0];
+    auto& a1 = aliases[1];
+
+    TS_ASSERT_EQUALS(a0.name(), "A1");
+    TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+
+    TS_ASSERT_EQUALS(a1.name(), "A2");
+    TS_ASSERT_EQUALS(a1.fieldName(), "F2");
+}
+
+void AliasTestSuite::test8()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& msg2 = messages.back();
+    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+
+    auto aliases = msg2.aliases();
+    TS_ASSERT_EQUALS(aliases.size(), 1U);
+
+    auto& a0 = aliases[0];
+
+    TS_ASSERT_EQUALS(a0.name(), "A2");
+    TS_ASSERT_EQUALS(a0.fieldName(), "F2");
+}
+
+void AliasTestSuite::test9()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& msg2 = messages.back();
+    TS_ASSERT_EQUALS(msg2.id(), 5);
+    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+
+    auto aliases = msg2.aliases();
+    TS_ASSERT_EQUALS(aliases.size(), 1U);
+
+    auto& a0 = aliases[0];
+
+    TS_ASSERT_EQUALS(a0.name(), "A2");
+    TS_ASSERT_EQUALS(a0.fieldName(), "F2");
+}
+
+void AliasTestSuite::test10()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& f1 = fields[0];
+    TS_ASSERT_EQUALS(f1.kind(), commsdsl::Field::Kind::Bundle);
+
+    commsdsl::BundleField bundle1(f1);
+    auto aliases = bundle1.aliases();
+    TS_ASSERT_EQUALS(aliases.size(), 3U);
+
+    auto& a0 = aliases[0];
+    auto& a1 = aliases[1];
+    auto& a2 = aliases[2];
+
+    TS_ASSERT_EQUALS(a0.name(), "A1");
+    TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+
+    TS_ASSERT_EQUALS(a1.name(), "A2");
+    TS_ASSERT_EQUALS(a1.fieldName(), "F2.M1");
+
+    TS_ASSERT_EQUALS(a2.name(), "A3");
+    TS_ASSERT_EQUALS(a2.fieldName(), "F2.M2");
+}
+
+void AliasTestSuite::test11()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
+    TS_ASSERT(protocol);
+}
+
+void AliasTestSuite::test12()
+{
+    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
 }
