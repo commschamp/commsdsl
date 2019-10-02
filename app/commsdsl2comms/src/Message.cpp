@@ -852,7 +852,7 @@ std::string Message::getAliases() const
         static const std::string Templ =
             "/// @brief Alias to a member field.\n"
             "/// @details Generates access alias function(s):\n"
-            "///     field_#^#ALIAS_NAME#$#() -> #^#ALIASED_FIELD_DOC#$#\n"
+            "///     @b field_#^#ALIAS_NAME#$#() -> <b>#^#ALIASED_FIELD_DOC#$#</b>\n"
             "COMMS_MSG_FIELD_ALIAS(#^#ALIAS_NAME#$#, #^#ALIASED_FIELD#$#);\n";
 
         std::vector<std::string> aliasedFields;

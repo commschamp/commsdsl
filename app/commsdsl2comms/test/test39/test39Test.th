@@ -62,6 +62,10 @@ void TestSuite::test1()
     msg1.field_a1().value() = 5U;
     msg1.field_a2().value() = 3U;
     msg1.field_a3().value() = 3U;
+    msg1.field_f3().field_a1().value() = 0xa;
+    msg1.field_f3().field_a2().value() = 0xb;
+    msg1.field_f3().field_a3().value() = 0xc;
+    TS_ASSERT_EQUALS(msg1.field_a4().value(), msg1.field_f3().field_m2().field_m1().value());
 
     outBuf.resize(frame.length(msg1));
     auto* writeIter = &outBuf[0];
@@ -69,7 +73,7 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
 
     static const std::uint8_t ExpectedBuf[] = {
-        0x0, 0x3, 0x1, 0x5, 0x33
+        0x0, 0x6, 0x1, 0x5, 0x33, 0xa, 0xb, 0xc
     };
     static const std::size_t ExpectedBufSize = std::extent<decltype(ExpectedBuf)>::value;
     TS_ASSERT_EQUALS(outBuf.size(), ExpectedBufSize);

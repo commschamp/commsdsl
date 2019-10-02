@@ -71,6 +71,7 @@ const std::string ClassTemplate(
     "        >;\n"
     "public:\n"
     "    #^#ACCESS#$#\n"
+    "    #^#ALIASES#$#\n"
     "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
@@ -240,6 +241,7 @@ std::string BundleField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("REFRESH", getRefresh()));
     replacements.insert(std::make_pair("MEMBERS_STRUCT_DEF", getMembersDef(scope)));
     replacements.insert(std::make_pair("ACCESS", getAccess()));
+    replacements.insert(std::make_pair("ALIASES", getAliases()));
     replacements.insert(std::make_pair("PRIVATE", getPrivate()));
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
@@ -495,6 +497,81 @@ std::string BundleField::getAccess() const
     replacements.insert(std::make_pair("ACCESS_DOC", common::listToString(accessDocList, "\n", common::emptyString())));
     replacements.insert(std::make_pair("NAMES", common::listToString(namesList, ",\n", common::emptyString())));
     return common::processTemplate(Templ, replacements);
+}
+
+std::string BundleField::getAliases() const
+{
+    auto obj = bundleFieldDslObj();
+    auto aliases = obj.aliases();
+    if (aliases.empty()) {
+        return common::emptyString();
+    }
+
+    common::StringsList result;
+    for (auto& a : aliases) {
+        auto& fieldName = a.fieldName();
+        assert(!fieldName.empty());
+
+        auto dotPos = fieldName.find('.');
+        std::string firstFieldName(fieldName, 0, dotPos);
+        auto iter =
+            std::find_if(
+                m_members.begin(), m_members.end(),
+                [&firstFieldName](auto& f)
+                {
+                    return firstFieldName == f->name();
+                });
+
+        if (iter == m_members.end()) {
+            continue;
+        }
+
+        std::string restFieldName;
+        if (dotPos != std::string::npos) {
+            restFieldName.assign(fieldName, dotPos + 1, fieldName.size());
+        }
+
+        if (!restFieldName.empty() && (!(*iter)->verifyAlias(restFieldName))) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "/// @brief Alias to a member field.\n"
+            "/// @details Generates access alias function(s):\n"
+            "///     @b field_#^#ALIAS_NAME#$#() -> <b>#^#ALIASED_FIELD_DOC#$#</b>\n"
+            "COMMS_FIELD_ALIAS(#^#ALIAS_NAME#$#, #^#ALIASED_FIELD#$#);\n";
+
+        std::vector<std::string> aliasedFields;
+        ba::split(aliasedFields, fieldName, ba::is_any_of("."));
+        std::string aliasedFieldDocStr;
+        std::string aliasedFieldStr;
+        for (auto& f : aliasedFields) {
+            common::nameToAccess(f);
+
+            if (!aliasedFieldDocStr.empty()) {
+                aliasedFieldDocStr += '.';
+            }
+            aliasedFieldDocStr += "field_" + f + "()";
+
+            if (!aliasedFieldStr.empty()) {
+                aliasedFieldStr += ", ";
+            }
+
+            aliasedFieldStr += f;
+        }
+
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("ALIAS_NAME", common::nameToAccessCopy(a.name())));
+        repl.insert(std::make_pair("ALIASED_FIELD_DOC", std::move(aliasedFieldDocStr)));
+        repl.insert(std::make_pair("ALIASED_FIELD", std::move(aliasedFieldStr)));
+        result.push_back(common::processTemplate(Templ, repl));
+    }
+
+    if (result.empty()) {
+        return common::emptyString();
+    }
+
+    return common::listToString(result, "\n", common::emptyString());
 }
 
 std::string BundleField::getRead() const
