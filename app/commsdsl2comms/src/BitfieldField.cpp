@@ -276,6 +276,31 @@ std::string BitfieldField::getCommonPreDefinitionImpl(const std::string& scope) 
     return common::processTemplate(Templ, repl);
 }
 
+bool BitfieldField::verifyAliasImpl(const std::string& fieldName) const
+{
+    assert(!fieldName.empty());
+    auto dotPos = fieldName.find('.');
+    std::string firstFieldName(fieldName, 0, dotPos);
+    auto iter =
+        std::find_if(
+            m_members.begin(), m_members.end(),
+            [&firstFieldName](auto& f)
+            {
+                return firstFieldName == f->name();
+            });
+
+    if (iter == m_members.end()) {
+        return false;
+    }
+
+    if (dotPos == std::string::npos) {
+        return true;
+    }
+
+    std::string restFieldName(fieldName, dotPos + 1);
+    return (*iter)->verifyAlias(restFieldName);
+}
+
 std::string BitfieldField::getFieldBaseParams() const
 {
     auto obj = bitfieldFieldDslObj();

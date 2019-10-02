@@ -368,6 +368,31 @@ std::string BundleField::getCommonPreDefinitionImpl(const std::string& scope) co
     return common::processTemplate(Templ, repl);
 }
 
+bool BundleField::verifyAliasImpl(const std::string& fieldName) const
+{
+    assert(!fieldName.empty());
+    auto dotPos = fieldName.find('.');
+    std::string firstFieldName(fieldName, 0, dotPos);
+    auto iter =
+        std::find_if(
+            m_members.begin(), m_members.end(),
+            [&firstFieldName](auto& f)
+            {
+                return firstFieldName == f->name();
+            });
+
+    if (iter == m_members.end()) {
+        return false;
+    }
+
+    if (dotPos == std::string::npos) {
+        return true;
+    }
+
+    std::string restFieldName(fieldName, dotPos + 1);
+    return (*iter)->verifyAlias(restFieldName);
+}
+
 std::string BundleField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

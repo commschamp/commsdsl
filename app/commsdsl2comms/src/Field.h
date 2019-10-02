@@ -197,6 +197,8 @@ public:
         return m_dslObj;
     }
 
+    bool verifyAlias(const std::string& fieldName) const;
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),
@@ -261,6 +263,7 @@ protected:
     virtual void setForcedNoOptionsConfigImpl();
     virtual bool isVersionDependentImpl() const;
     virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const;
+    virtual bool verifyAliasImpl(const std::string& fieldName) const;
 
     std::string getNameFunc() const;
 

@@ -768,6 +768,15 @@ std::string Field::getPluginAnonNamespace(
     return common::processTemplate(Templ, replacements);
 }
 
+bool Field::verifyAlias(const std::string& fieldName) const
+{
+    if (fieldName.empty()) {
+        return true;
+    }
+
+    return verifyAliasImpl(fieldName);
+}
+
 bool Field::prepareImpl()
 {
     return true;
@@ -1029,6 +1038,12 @@ std::string Field::getCommonPreDefinitionImpl(const std::string& scope) const
 {
     static_cast<void>(scope);
     return common::emptyString();
+}
+
+bool Field::verifyAliasImpl(const std::string& fieldName) const
+{
+    static_cast<void>(fieldName);
+    return false;
 }
 
 std::string Field::getNameFunc() const
