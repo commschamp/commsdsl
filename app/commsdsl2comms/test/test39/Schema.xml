@@ -29,12 +29,24 @@
                         <int name="M2" type="uint8" />
                     </bundle>
                 </members>
-                <alias name="A1" field="$M1" />
+                <alias name="A1" field="$M1">
+                    <description>
+                        Some very long long long long long long long long long long
+                        long long long long long long long long long long long long
+                        long long long long long long long long long long long description.
+                    </description>
+                </alias>
                 <alias name="A2" field="$M2.M1" />
                 <alias name="A3" field="$M2.M2" />
             </bundle>
         </fields>
-        <alias name="A1" field="$F1" />
+        <alias name="A1" field="$F1">
+            <description>
+                Some very long long long long long long long long long long
+                long long long long long long long long long long long long
+                long long long long long long long long long long long description.
+            </description>
+        </alias>
         <alias name="A2" field="$F2.M1" />
         <alias name="A3" field="$F2.M2" />
         <alias name="A4" field="$F3.M2.M1" />

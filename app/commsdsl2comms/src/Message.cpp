@@ -851,7 +851,9 @@ std::string Message::getAliases() const
 
         static const std::string Templ =
             "/// @brief Alias to a member field.\n"
-            "/// @details Generates access alias function(s):\n"
+            "/// @details\n"
+            "#^#ALIAS_DESC#$#\n"
+            "///     Generates field access alias function(s):\n"
             "///     @b field_#^#ALIAS_NAME#$#() -> <b>#^#ALIASED_FIELD_DOC#$#</b>\n"
             "COMMS_MSG_FIELD_ALIAS(#^#ALIAS_NAME#$#, #^#ALIASED_FIELD#$#);\n";
 
@@ -874,10 +876,16 @@ std::string Message::getAliases() const
             aliasedFieldStr += f;
         }
 
+        auto desc = common::makeDoxygenMultilineCopy(a.description());
+        if (!desc.empty()) {
+            desc = common::doxygenPrefixStr() + common::indentStr() + desc + " @n";
+        }
+
         common::ReplacementMap repl;
         repl.insert(std::make_pair("ALIAS_NAME", common::nameToAccessCopy(a.name())));
         repl.insert(std::make_pair("ALIASED_FIELD_DOC", std::move(aliasedFieldDocStr)));
         repl.insert(std::make_pair("ALIASED_FIELD", std::move(aliasedFieldStr)));
+        repl.insert(std::make_pair("ALIAS_DESC", std::move(desc)));
         result.push_back(common::processTemplate(Templ, repl));
     }
 

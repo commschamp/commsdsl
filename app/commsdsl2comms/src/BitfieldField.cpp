@@ -359,7 +359,7 @@ std::string BitfieldField::getAccess() const
         "///     related to @b comms::field::Bitfield class from COMMS library\n"
         "///     for details.\n"
         "///\n"
-        "///      The generated access functions are:\n"
+        "///     The generated access functions are:\n"
         "#^#ACCESS_DOC#$#\n"
         "COMMS_FIELD_MEMBERS_ACCESS(\n"
         "    #^#NAMES#$#\n"
