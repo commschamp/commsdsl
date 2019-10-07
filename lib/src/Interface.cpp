@@ -53,6 +53,12 @@ Interface::FieldsList Interface::fields() const
     return m_pImpl->fieldsList();
 }
 
+Interface::AliasesList Interface::aliases() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->aliasesList();
+}
+
 std::string Interface::externalRef() const
 {
     assert(m_pImpl != nullptr);

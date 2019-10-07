@@ -26,6 +26,7 @@
 #include "commsdsl/Interface.h"
 #include "commsdsl/Protocol.h"
 #include "FieldImpl.h"
+#include "AliasImpl.h"
 
 namespace commsdsl
 {
@@ -38,6 +39,7 @@ public:
     using Ptr = std::unique_ptr<InterfaceImpl>;
     using PropsMap = XmlWrap::PropsMap;
     using FieldsList = Interface::FieldsList;
+    using AliasesList = Interface::AliasesList;
     using ContentsList = XmlWrap::ContentsList;
 
     InterfaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
@@ -62,6 +64,7 @@ public:
     const std::string& description() const;
 
     FieldsList fieldsList() const;
+    AliasesList aliasesList() const;
 
     std::string externalRef() const;
 
@@ -96,7 +99,10 @@ private:
     bool updateDescription();
     bool copyFields();
     bool updateFields();
+    bool copyAliases();
+    bool updateAliases();
     void cloneFieldsFrom(const InterfaceImpl& other);
+    void cloneAliasesFrom(const InterfaceImpl& other);
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -108,7 +114,9 @@ private:
 
     const std::string* m_name = nullptr;
     const std::string* m_description = nullptr;
+    const InterfaceImpl* m_copyFieldsFromInterface = nullptr;
     std::vector<FieldImplPtr> m_fields;
+    std::vector<AliasImplPtr> m_aliases;
 };
 
 using InterfaceImplPtr = InterfaceImpl::Ptr;

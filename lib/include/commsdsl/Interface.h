@@ -21,6 +21,7 @@
 
 #include "CommsdslApi.h"
 #include "Field.h"
+#include "Alias.h"
 
 namespace commsdsl
 {
@@ -32,6 +33,7 @@ public:
     using FieldsList = std::vector<Field>;
     using AttributesMap = Schema::AttributesMap;
     using ElementsList = Schema::ElementsList;
+    using AliasesList = std::vector<Alias>;
 
     explicit Interface(const InterfaceImpl* impl);
     Interface(const Interface& other);
@@ -41,6 +43,7 @@ public:
     const std::string& name() const;
     const std::string& description() const;
     FieldsList fields() const;
+    AliasesList aliases() const;
     std::string externalRef() const;
 
     const AttributesMap& extraAttributes() const;

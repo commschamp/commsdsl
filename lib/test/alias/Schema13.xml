@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema13" endian="big">
+    <fields>
+        <string name="Desc" defaultValue="A1" />
+    </fields>
+
+    <interface name="I1">
+        <fields>
+            <int name="F1" type="uint8" />
+            <int name="F2" type="uint8" />
+        </fields>
+        <alias name="A1" field="$F1" description="^Desc" />
+        <alias>
+            <name value="A2" />
+            <field>$F2</field>
+            <description>A2</description>
+        </alias>
+    </interface>
+</schema>

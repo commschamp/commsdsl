@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema15" endian="big">
+    <interface name="I1">
+        <fields>
+            <int name="F1" type="uint8" />
+            <int name="F2" type="uint8" />
+        </fields>
+        <alias name="A1" field="$F1" />
+        <alias name="F1" field="$F1" />
+    </interface>
+</schema>

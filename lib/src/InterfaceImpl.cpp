@@ -63,6 +63,8 @@ bool InterfaceImpl::parse()
         updateDescription() &&
         copyFields() &&
         updateFields() &&
+        copyAliases() &&
+        updateAliases() &&
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -88,6 +90,19 @@ InterfaceImpl::FieldsList InterfaceImpl::fieldsList() const
         [](auto& f)
         {
             return Field(f.get());
+        });
+    return result;
+}
+
+InterfaceImpl::AliasesList InterfaceImpl::aliasesList() const
+{
+    AliasesList result;
+    result.reserve(m_aliases.size());
+    std::transform(
+        m_aliases.begin(), m_aliases.end(), std::back_inserter(result),
+        [](auto& a)
+        {
+            return Alias(a.get());
         });
     return result;
 }
@@ -176,6 +191,7 @@ const XmlWrap::NamesList& InterfaceImpl::commonProps()
         common::nameStr(),
         common::descriptionStr(),
         common::copyFieldsFromStr(),
+        common::copyFieldsAliasesStr(),
     };
 
     return CommonNames;
@@ -187,6 +203,7 @@ XmlWrap::NamesList InterfaceImpl::allNames()
     auto& fieldTypes = interfaceSupportedTypes();
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
     names.push_back(common::fieldsStr());
+    names.push_back(common::aliasStr());
     return names;
 }
 
@@ -223,14 +240,14 @@ bool InterfaceImpl::copyFields()
         return true;
     }
 
-    auto* other = m_protocol.findInterface(iter->second);
-    if (other == nullptr) {
+    m_copyFieldsFromInterface = m_protocol.findInterface(iter->second);
+    if (m_copyFieldsFromInterface == nullptr) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "Invalid reference to other interface \"" << iter->second << "\".";
         return false;
     }
 
-    cloneFieldsFrom(*other);
+    cloneFieldsFrom(*m_copyFieldsFromInterface);
     return true;
 }
 
@@ -316,12 +333,126 @@ bool InterfaceImpl::updateFields()
     return true;
 }
 
+bool InterfaceImpl::copyAliases()
+{
+    auto& propStr = common::copyFieldsAliasesStr();
+    if (!validateSinglePropInstance(propStr)) {
+        return false;
+    }
+
+    auto iter = props().find(propStr);
+    if (iter != props().end() && (!m_protocol.isFieldAliasSupported())) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Unexpected property \"" << propStr << "\".";
+        return false;
+    }
+
+    if (!m_protocol.isFieldAliasSupported()) {
+        return true;
+    }
+
+    bool copyAliases = true;
+    if (iter != props().end()) {
+        bool ok = false;
+        copyAliases = common::strToBool(iter->second, &ok);
+        if (!ok) {
+            reportUnexpectedPropertyValue(propStr, iter->second);
+            return false;
+        }
+    }
+
+    if (!copyAliases) {
+        return true;
+    }
+
+    if ((iter != props().end()) && (m_copyFieldsFromInterface == nullptr)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "Property \"" << propStr << "\" is inapplicable without \"" << common::copyFieldsFromStr() << "\".";
+        return true;
+    }
+
+    if (m_copyFieldsFromInterface == nullptr) {
+        return true;
+    }
+
+    cloneAliasesFrom(*m_copyFieldsFromInterface);
+
+    if (!m_aliases.empty()) {
+        m_aliases.erase(
+            std::remove_if(
+                m_aliases.begin(), m_aliases.end(),
+                [this](auto& alias)
+                {
+                    auto& fieldName = alias->fieldName();
+                    assert(!fieldName.empty());
+                    auto fieldIter =
+                        std::find_if(
+                            m_fields.begin(), m_fields.end(),
+                            [&fieldName](auto& f)
+                            {
+                                return fieldName == f->name();
+                            });
+
+                    return fieldIter == m_fields.end();
+                }),
+            m_aliases.end());
+    }
+    return true;
+}
+
 void InterfaceImpl::cloneFieldsFrom(const InterfaceImpl& other)
 {
     m_fields.reserve(other.m_fields.size());
     for (auto& f : other.m_fields) {
         m_fields.push_back(f->clone());
     }
+}
+
+void InterfaceImpl::cloneAliasesFrom(const InterfaceImpl& other)
+{
+    m_aliases.reserve(other.m_aliases.size());
+    for (auto& a : other.m_aliases) {
+        m_aliases.push_back(a->clone());
+    }
+}
+
+bool InterfaceImpl::updateAliases()
+{
+    auto aliasNodes = XmlWrap::getChildren(getNode(), common::aliasStr());
+
+    if (aliasNodes.empty()) {
+        return true;
+    }
+
+    if (!m_protocol.isFieldAliasSupported()) {
+        logError() << XmlWrap::logPrefix(aliasNodes.front()) <<
+              "Using \"" << common::aliasStr() << "\" nodes for too early \"" <<
+              common::dslVersionStr() << "\".";
+        return false;
+    }
+
+    m_aliases.reserve(m_aliases.size() + aliasNodes.size());
+    for (auto* aNode : aliasNodes) {
+        auto alias = AliasImpl::create(aNode, m_protocol);
+        if (!alias) {
+            assert(!"Internal error");
+            logError() << XmlWrap::logPrefix(alias->getNode()) <<
+                  "Internal error, failed to create objects for member aliases.";
+            return false;
+        }
+
+        if (!alias->parse()) {
+            return false;
+        }
+
+        if (!alias->verifyAlias(m_aliases, m_fields)) {
+            return false;
+        }
+
+        m_aliases.push_back(std::move(alias));
+    }
+
+    return true;
 }
 
 bool InterfaceImpl::updateExtraAttrs()
