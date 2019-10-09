@@ -109,6 +109,7 @@ const std::string ClassTemplate(
     "    COMMS_MSG_TRANSPORT_FIELDS_ACCESS(\n"
     "        #^#FIELDS_ACCESS_LIST#$#\n"
     "    );\n"
+    "    #^#ALIASES#$#\n"
     "    #^#PUBLIC#$#\n"
     "#^#PROTECTED#$#\n"
     "#^#PRIVATE#$#\n"
@@ -285,6 +286,7 @@ bool Interface::writeProtocol()
         replacements.insert(std::make_pair("FIELDS_OPTIONS", getFieldsOpts()));
         replacements.insert(std::make_pair("ACCESS_FUNCS_DOC", getFieldsAccessDoc()));
         replacements.insert(std::make_pair("FIELDS_DEF", getFieldsDef()));
+        replacements.insert(std::make_pair("ALIASES", getAliases()));
     }
 
     auto extraPublic = m_generator.getExtraPublicForInterface(externalRef());
@@ -486,6 +488,88 @@ std::string Interface::getFieldsAccessList() const
         result += common::nameToAccessCopy(f->name());
     }
     return result;
+}
+
+std::string Interface::getAliases() const
+{
+    auto aliases = m_dslObj.aliases();
+    if (aliases.empty()) {
+        return common::emptyString();
+    }
+
+    common::StringsList result;
+    for (auto& a : aliases) {
+        auto& fieldName = a.fieldName();
+        assert(!fieldName.empty());
+
+        auto dotPos = fieldName.find('.');
+        std::string firstFieldName(fieldName, 0, dotPos);
+        auto iter =
+            std::find_if(
+                m_fields.begin(), m_fields.end(),
+                [&firstFieldName](auto& f)
+                {
+                    return firstFieldName == f->name();
+                });
+
+        if (iter == m_fields.end()) {
+            continue;
+        }
+
+        std::string restFieldName;
+        if (dotPos != std::string::npos) {
+            restFieldName.assign(fieldName, dotPos + 1, fieldName.size());
+        }
+
+        if (!restFieldName.empty() && (!(*iter)->verifyAlias(restFieldName))) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "/// @brief Alias to an extra transport member field.\n"
+            "/// @details\n"
+            "#^#ALIAS_DESC#$#\n"
+            "///     Generates field access alias function(s):\n"
+            "///     @b transportField_#^#ALIAS_NAME#$#() -> <b>transportField_#^#ALIASED_FIELD_DOC#$#</b>\n"
+            "COMMS_MSG_TRANSPORT_FIELD_ALIAS(#^#ALIAS_NAME#$#, #^#ALIASED_FIELD#$#);\n";
+
+        std::vector<std::string> aliasedFields;
+        ba::split(aliasedFields, fieldName, ba::is_any_of("."));
+        std::string aliasedFieldDocStr;
+        std::string aliasedFieldStr;
+        for (auto& f : aliasedFields) {
+            common::nameToAccess(f);
+
+            if (!aliasedFieldDocStr.empty()) {
+                aliasedFieldDocStr += ".field_";
+            }
+            aliasedFieldDocStr += f + "()";
+
+            if (!aliasedFieldStr.empty()) {
+                aliasedFieldStr += ", ";
+            }
+
+            aliasedFieldStr += f;
+        }
+
+        auto desc = common::makeDoxygenMultilineCopy(a.description());
+        if (!desc.empty()) {
+            desc = common::doxygenPrefixStr() + common::indentStr() + desc + " @n";
+        }
+
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("ALIAS_NAME", common::nameToAccessCopy(a.name())));
+        repl.insert(std::make_pair("ALIASED_FIELD_DOC", std::move(aliasedFieldDocStr)));
+        repl.insert(std::make_pair("ALIASED_FIELD", std::move(aliasedFieldStr)));
+        repl.insert(std::make_pair("ALIAS_DESC", std::move(desc)));
+        result.push_back(common::processTemplate(Templ, repl));
+    }
+
+    if (result.empty()) {
+        return common::emptyString();
+    }
+
+    return '\n' + common::listToString(result, "\n", common::emptyString());
 }
 
 std::string Interface::getIncludes() const

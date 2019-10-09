@@ -63,6 +63,9 @@ void TestSuite::test1()
     auto* writeIter = &outBuf[0];
     auto es = frame.write(msg1, writeIter, outBuf.size());
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(&msg1.transportField_f(), &msg1.transportField_flags());
+    TS_ASSERT_EQUALS(&msg1.transportField_b(), &msg1.transportField_flags().field_b());
+    TS_ASSERT_EQUALS(&msg1.transportField_e(), &msg1.transportField_flags().field_e());
 
     Handler handler;
     auto comsumed = comms::processAllWithDispatch(&outBuf[0], outBuf.size(), frame, handler);
