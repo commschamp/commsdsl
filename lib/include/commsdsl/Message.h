@@ -22,6 +22,7 @@
 #include "CommsdslApi.h"
 #include "Field.h"
 #include "Schema.h"
+#include "Alias.h"
 
 namespace commsdsl
 {
@@ -42,6 +43,7 @@ public:
     using AttributesMap = Schema::AttributesMap;
     using ElementsList = Schema::ElementsList;
     using PlatformsList = std::vector<std::string>;
+    using AliasesList = std::vector<Alias>;
 
     explicit Message(const MessageImpl* impl);
     Message(const Message& other);
@@ -59,6 +61,7 @@ public:
     unsigned deprecatedSince() const;
     bool isDeprecatedRemoved() const;
     FieldsList fields() const;
+    AliasesList aliases() const;
     std::string externalRef() const;
     bool isCustomizable() const;
     Sender sender() const;

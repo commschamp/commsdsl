@@ -54,6 +54,7 @@ protected:
     virtual void setForcedNoOptionsConfigImpl() override final;
     virtual bool isVersionDependentImpl() const override final;
     virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
+    virtual bool verifyAliasImpl(const std::string& fieldName) const override final;
 
 private:
     using StringsList = common::StringsList;
@@ -62,6 +63,7 @@ private:
     std::string getFieldOpts(const std::string& scope) const;
     std::string getMembersDef(const std::string& scope) const;
     std::string getAccess() const;
+    std::string getAliases() const;
     std::string getRead() const;
     std::string getRefresh() const;
     std::string getPrivate() const;

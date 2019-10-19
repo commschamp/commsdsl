@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test39" endian="big" dslVersion="3">
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+        </enum>
+    </fields>
+    
+	<frame name="Frame">
+        <size name="Size">
+            <int name="Size" type="uint16" />
+        </size>
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>      
+    
+    <message name="M1" id="MsgId.M1">
+        <fields>
+            <int name="F1" type="uint8" />
+            <bitfield name="F2">
+                <int name="M1" type="uint8" bitLength="4" />
+                <int name="M2" type="uint8" bitLength="4" />
+            </bitfield>
+            <bundle name="F3">
+                <members>
+                    <int name="M1" type="uint8" />
+                    <bundle name="M2">
+                        <int name="M1" type="uint8" />
+                        <int name="M2" type="uint8" />
+                    </bundle>
+                </members>
+                <alias name="A1" field="$M1">
+                    <description>
+                        Some very long long long long long long long long long long
+                        long long long long long long long long long long long long
+                        long long long long long long long long long long long description.
+                    </description>
+                </alias>
+                <alias name="A2" field="$M2.M1" />
+                <alias name="A3" field="$M2.M2" />
+            </bundle>
+        </fields>
+        <alias name="A1" field="$F1">
+            <description>
+                Some very long long long long long long long long long long
+                long long long long long long long long long long long long
+                long long long long long long long long long long long description.
+            </description>
+        </alias>
+        <alias name="A2" field="$F2.M1" />
+        <alias name="A3" field="$F2.M2" />
+        <alias name="A4" field="$F3.M2.M1" />
+    </message>
+</schema>

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,41 +16,34 @@
 #pragma once
 
 #include <string>
-#include <vector>
-#include <cstdint>
 
 #include "CommsdslApi.h"
-#include "Field.h"
-#include "Alias.h"
+#include "Schema.h"
 
 namespace commsdsl
 {
 
-class InterfaceImpl;
-class COMMSDSL_API Interface
+class AliasImpl;
+class COMMSDSL_API Alias
 {
 public:
-    using FieldsList = std::vector<Field>;
+
     using AttributesMap = Schema::AttributesMap;
     using ElementsList = Schema::ElementsList;
-    using AliasesList = std::vector<Alias>;
 
-    explicit Interface(const InterfaceImpl* impl);
-    Interface(const Interface& other);
-    ~Interface();
+    explicit Alias(const AliasImpl* impl);
+    Alias(const Alias& other);
+    ~Alias();
 
-    bool valid() const;
     const std::string& name() const;
     const std::string& description() const;
-    FieldsList fields() const;
-    AliasesList aliases() const;
-    std::string externalRef() const;
+    const std::string& fieldName() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;
 
 protected:
-    const InterfaceImpl* m_pImpl;
+    const AliasImpl* m_pImpl;
 };
 
 } // namespace commsdsl

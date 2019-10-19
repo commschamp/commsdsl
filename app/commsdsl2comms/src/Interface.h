@@ -61,6 +61,7 @@ private:
     std::string getDescription() const;
     std::string getFieldsClassesList() const;
     std::string getFieldsAccessList() const;
+    std::string getAliases() const;
     std::string getIncludes() const;
     std::string getFieldsAccessDoc() const;
     std::string getFieldsDef() const;

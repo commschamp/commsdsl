@@ -17,6 +17,7 @@
 
 #include "commsdsl/BundleField.h"
 #include "FieldImpl.h"
+#include "AliasImpl.h"
 
 namespace commsdsl
 {
@@ -28,6 +29,8 @@ public:
     BundleFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     BundleFieldImpl(const BundleFieldImpl& other);
     using Members = BundleField::Members;
+    using AliasesList = BundleField::Aliases;
+
 
     const FieldsList& members() const
     {
@@ -35,11 +38,13 @@ public:
     }
 
     Members membersList() const;
+    AliasesList aliasesList() const;
 
 protected:
 
     virtual Kind kindImpl() const override final;
     virtual Ptr cloneImpl() const override final;
+    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override final;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override final;
     virtual bool reuseImpl(const FieldImpl &other) override final;
     virtual bool parseImpl() override final;
@@ -50,11 +55,14 @@ protected:
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override final;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override final;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
+    virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const override final;
 
 private:
     bool updateMembers();
+    bool updateAliases();
 
     FieldsList m_members;
+    std::vector<AliasImplPtr> m_aliases;
 };
 
 } // namespace commsdsl

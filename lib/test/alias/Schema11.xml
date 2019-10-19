@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema11" endian="big">
+    <fields>
+        <bundle name="B1">
+            <members>
+                <int name="F1" type="uint8" />
+                <bitfield name="F2">
+                    <int name="M1" type="uint8" bitLength="4"/>
+                    <int name="M2" type="uint8" bitLength="4"/>
+                </bitfield>
+                
+            </members>
+            <alias name="A1" field="$F1" />
+            <alias name="A2" field="$F2.M1" />
+            <alias name="A3" field="$F2.M3" />
+        </bundle>
+    </fields>
+</schema>

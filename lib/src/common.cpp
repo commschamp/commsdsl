@@ -465,6 +465,12 @@ const std::string& copyFieldsFromStr()
     return Str;
 }
 
+const std::string& copyFieldsAliasesStr()
+{
+    static const std::string Str("copyFieldsAliases");
+    return Str;
+}
+
 const std::string& orderStr()
 {
     static const std::string Str("order");
@@ -696,6 +702,18 @@ const std::string& displayIdxReadOnlyHiddenStr()
 const std::string& displaySpecialsStr()
 {
     static const std::string Str("displaySpecials");
+    return Str;
+}
+
+const std::string& aliasStr()
+{
+    static const std::string Str("alias");
+    return Str;
+}
+
+const std::string& reuseAliasesStr()
+{
+    static const std::string Str("reuseAliases");
     return Str;
 }
 

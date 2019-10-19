@@ -81,6 +81,7 @@ private:
     std::string getProtected() const;
     std::string getPrivate() const;
     std::string getFieldsAccess() const;
+    std::string getAliases() const;
     std::string getLengthCheck() const;
     std::string getFieldsDef() const;
     std::string getNamespaceScope() const;

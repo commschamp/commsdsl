@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test38" endian="big" dslVersion="2">
+<schema name="test38" endian="big" dslVersion="3">
     <fields>
         
         <enum name="MsgId" type="uint8" semanticType="messageId" >
@@ -14,17 +14,22 @@
     </fields>
     
     <interface name="Message">
-        <bitfield name="Flags">
-            <set name="B" bitLength="4" displayName="_">
-                <bit name="B0" idx="0" />
-                <bit name="B1" idx="1" />
-            </set>
-            <enum name="E" type="uint8" bitLength="4">
-                <validValue name="V0" val="0" />
-                <validValue name="V1" val="1" />
-                <validValue name="V2" val="2" />
-            </enum>
-        </bitfield>    
+        <fields>
+            <bitfield name="Flags">
+                <set name="B" bitLength="4" displayName="_">
+                    <bit name="B0" idx="0" />
+                    <bit name="B1" idx="1" />
+                </set>
+                <enum name="E" type="uint8" bitLength="4">
+                    <validValue name="V0" val="0" />
+                    <validValue name="V1" val="1" />
+                    <validValue name="V2" val="2" />
+                </enum>
+            </bitfield>    
+        </fields>
+        <alias name="F" field="$Flags" />
+        <alias name="B" field="$Flags.B" />        
+        <alias name="E" field="$Flags.E" />
     </interface>
     
 	<frame name="Frame">

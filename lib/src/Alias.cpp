@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,65 +13,48 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "commsdsl/Interface.h"
+#include "commsdsl/Alias.h"
 #include <cassert>
 
-#include "InterfaceImpl.h"
+#include "AliasImpl.h"
 
 namespace commsdsl
 {
 
-Interface::Interface(const InterfaceImpl* impl)
+Alias::Alias(const AliasImpl* impl)
   : m_pImpl(impl)
 {
 }
 
-Interface::Interface(const Interface &) = default;
+Alias::Alias(const Alias &) = default;
 
-Interface::~Interface() = default;
+Alias::~Alias() = default;
 
-bool Interface::valid() const
-{
-    return m_pImpl != nullptr;
-}
-
-const std::string& Interface::name() const
+const std::string& Alias::name() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->name();
 }
 
-const std::string& Interface::description() const
+const std::string& Alias::description() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->description();
 }
 
-Interface::FieldsList Interface::fields() const
+const std::string& Alias::fieldName() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->fieldsList();
+    return m_pImpl->fieldName();
 }
 
-Interface::AliasesList Interface::aliases() const
-{
-    assert(m_pImpl != nullptr);
-    return m_pImpl->aliasesList();
-}
-
-std::string Interface::externalRef() const
-{
-    assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef();
-}
-
-const Interface::AttributesMap& Interface::extraAttributes() const
+const Alias::AttributesMap& Alias::extraAttributes() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraAttributes();
 }
 
-const Interface::ElementsList& Interface::extraElements() const
+const Alias::ElementsList& Alias::extraElements() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->extraChildren();

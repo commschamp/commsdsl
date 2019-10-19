@@ -101,6 +101,12 @@ Message::FieldsList Message::fields() const
     return m_pImpl->fieldsList();
 }
 
+Message::AliasesList Message::aliases() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->aliasesList();
+}
+
 std::string Message::externalRef() const
 {
     assert(m_pImpl != nullptr);
