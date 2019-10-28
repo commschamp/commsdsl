@@ -1010,6 +1010,7 @@ bool Generator::parseSchemaFiles(const FilesList& files)
     if (m_mainNamespace.empty()) {
         assert(!schema.name().empty());
         m_mainNamespace = common::adjustName(schema.name());
+        m_schemaNamespace = m_mainNamespace;
     }
 
     m_schemaEndian = schema.endian();
@@ -1985,7 +1986,7 @@ std::string Generator::getCustomOpForElement(
         rootDir = common::pluginNsStr();
     }
     else {
-        rootDir = bf::path(common::includeStr()) / m_mainNamespace;
+        rootDir = bf::path(common::includeStr()) / m_schemaNamespace;
     }
 
     auto relDirPath = rootDir / refToPath(ns);

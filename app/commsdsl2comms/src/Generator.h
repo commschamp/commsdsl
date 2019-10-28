@@ -511,6 +511,7 @@ private:
     std::vector<boost::filesystem::path> m_codeInputDirs;
     std::set<boost::filesystem::path> m_createdDirs;
     std::string m_mainNamespace;
+    std::string m_schemaNamespace;
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
     unsigned m_schemaVersion = 0U;
     unsigned m_minRemoteVersion = 0U;
