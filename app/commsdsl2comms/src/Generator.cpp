@@ -17,6 +17,7 @@
 
 #include <fstream>
 #include <iterator>
+#include <algorithm>
 
 #include <boost/algorithm/string.hpp>
 
@@ -174,6 +175,40 @@ bool Generator::isElementOptional(
     }
 
     return false;
+}
+
+std::vector<std::string> Generator::extraMessagesBundles() const
+{
+    std::vector<std::string> result;
+    result.reserve(m_extraMessages.size());
+    std::transform(
+        m_extraMessages.begin(), m_extraMessages.end(), std::back_inserter(result),
+        [](const auto& elem) -> const std::string&
+        {
+            return elem.m_name;
+        });
+    return result;
+}
+
+std::vector<std::string> Generator::bundlesForMessage(const std::string& externalRef)
+{
+    std::vector<std::string> result;
+    for (auto& info : m_extraMessages) {
+        auto iter =
+            std::lower_bound(
+                info.m_dslNames.begin(), info.m_dslNames.end(), externalRef,
+                [](const std::string& n, const std::string& ref)
+                {
+                    return n < ref;
+                });
+
+        if ((iter == info.m_dslNames.end()) || (*iter != externalRef)) {
+            continue;
+        }
+
+        result.push_back(info.m_name);
+    }
+    return result;
 }
 
 std::string Generator::protocolDefRootDir()
@@ -1076,6 +1111,10 @@ bool Generator::prepare()
     }
 
     if (!preparePlugins()) {
+        return false;
+    }
+
+    if (!prepareExternalMessages()) {
         return false;
     }
 
@@ -2071,6 +2110,133 @@ bool Generator::preparePlugins()
 
     return true;
 
+}
+
+bool Generator::prepareExternalMessages()
+{
+    auto extraBundles = m_options.getExtraInputBundles();
+    if (extraBundles.empty()) {
+        return true;
+    }
+
+    auto dslMessages = getAllDslMessages();
+    std::sort(
+        dslMessages.begin(), dslMessages.end(),
+        [](auto m1, auto m2)
+        {
+            return m1.externalRef() < m2.externalRef();
+        });
+
+    auto dslPlatforms = platforms();
+    for (auto& p : dslPlatforms) {
+        common::nameToClass(p);
+    }
+
+    std::sort(
+        dslPlatforms.begin(), dslPlatforms.end(),
+        [](const std::string& p1, const std::string& p2)
+        {
+            return p1 < p2;
+        });
+
+    for (auto& b : extraBundles) {
+        auto reportErrorFunc =
+            [this, &b]()
+            {
+                m_logger.error("Invalid value of \"" + m_options.extraInputBundlesParamStr() + "\" parameter (" + b + ").");
+            };
+
+        auto colonPos = b.find(':');
+        if ((colonPos == std::string::npos) ||
+            (colonPos == 0) ||
+            (b.size() <= (colonPos + 1))) {
+            reportErrorFunc();
+            return false;
+        }
+
+        ExtraMessagesInfo info;
+        info.m_name = b.substr(0, colonPos);
+        assert(!info.m_name.empty());
+        auto allAlphaNum =
+            std::all_of(info.m_name.begin(), info.m_name.end(),
+            [](char ch)
+            {
+               return std::isalnum(ch) != 0;
+            });
+
+        if (!allAlphaNum) {
+            m_logger.error("Invalid bundle name specified with \"" + m_options.extraInputBundlesParamStr() + "\" parameter (" + b + ").");
+            return false;
+        }
+
+
+        common::nameToClass(info.m_name);
+
+        auto platIter =
+            std::lower_bound(
+                dslPlatforms.begin(), dslPlatforms.end(), info.m_name,
+                [](const std::string& pName, const std::string& bName)
+                {
+                    return pName < bName;
+                });
+
+        if ((platIter != dslPlatforms.end()) ||
+            (info.m_name == "All")) {
+            m_logger.error("Bundle name specified with \"" + m_options.extraInputBundlesParamStr() + "\" parameter (" + b + ") reuses name of one of the platforms.");
+            return false;
+        }
+
+        auto filePath = b.substr(colonPos + 1);
+        std::ifstream stream(filePath);
+        if (!stream) {
+            m_logger.error("Invalid file name specified with \"" + m_options.extraInputBundlesParamStr() + "\" parameter (" + b + ").");
+            return false;
+        }
+
+        std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+        ba::split(info.m_dslNames, content, ba::is_any_of(" \r\n"), ba::token_compress_on);
+
+        // trim spaces and check the validity of names
+        for (auto& m : info.m_dslNames) {
+            ba::trim(m);
+            if (m.empty()) {
+                continue;
+            }
+
+            auto iter =
+                std::lower_bound(
+                    dslMessages.begin(), dslMessages.end(), m,
+                    [](commsdsl::Message msg, const std::string& mParam)
+                    {
+                        return msg.externalRef() < mParam;
+                    });
+
+            if ((iter == dslMessages.end()) ||
+                (iter->externalRef() != m)) {
+                m_logger.error("Invalid message name (" + m + ") specified inside \"" + filePath + "\" file.");
+                return false;
+            }
+        }
+
+        info.m_dslNames.erase(
+            std::remove_if(
+                info.m_dslNames.begin(), info.m_dslNames.end(),
+                [](const std::string& n)
+                {
+                    return n.empty();
+                }),
+            info.m_dslNames.end());
+
+        if (info.m_dslNames.empty()) {
+            m_logger.error("The file bundle \"" + info.m_name + "\" doesn't contain any messages.");
+            return false;
+        }
+
+        std::sort(info.m_dslNames.begin(), info.m_dslNames.end());
+        m_extraMessages.push_back(std::move(info));
+    }
+
+    return true;
 }
 
 std::string Generator::getOptionsBody(GetOptionsFunc func) const
