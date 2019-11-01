@@ -60,7 +60,7 @@ const std::string ProtocolStr("protocol");
 const std::string CustomizationStr("customization");
 const std::string GeneratedPluginBuildEnableStr("enable-plugin-build-by-default");
 const std::string GeneratedTestsBuildEnableStr("enable-tests-build-by-default");
-const std::string ExtraInputMessagesBundleStr("extra-input-messages-bundle");
+const std::string ExtraMessagesBundleStr("extra-messages-bundle");
 
 po::options_description createDescription()
 {
@@ -110,7 +110,7 @@ po::options_description createDescription()
             "Enable build of the CommsChampion Tools plugin in the generated project by default. Boolean parameter.")
         (GeneratedTestsBuildEnableStr.c_str(), po::value<bool>()->default_value(false),
             "Enable build of the test application(s) in the generated project by default. Boolean parameter.")
-        (ExtraInputMessagesBundleStr.c_str(), po::value<std::vector<std::string> >(),
+        (ExtraMessagesBundleStr.c_str(), po::value<std::vector<std::string> >(),
             "Provide extra custom bundle of messages, the relevant code will be added to generated "
             "\"input\" and \"dispatch\" protocol definition folders. The format of the parameter is "
             "\'Name:ListFile\'. The external \'ListFile\' needs to contain a new line separated list of message names "
@@ -298,18 +298,18 @@ std::string ProgramOptions::getProtocolVersion() const
 
 std::vector<std::string> ProgramOptions::getExtraInputBundles() const
 {
-    if (m_vm.count(ExtraInputMessagesBundleStr) == 0U) {
+    if (m_vm.count(ExtraMessagesBundleStr) == 0U) {
         return std::vector<std::string>();
     }
 
-    auto bundles = m_vm[ExtraInputMessagesBundleStr].as<std::vector<std::string> >();
+    auto bundles = m_vm[ExtraMessagesBundleStr].as<std::vector<std::string> >();
     assert(!bundles.empty());
     return bundles;
 }
 
-const std::string& ProgramOptions::extraInputBundlesParamStr() const
+const std::string& ProgramOptions::extraMessagesBundlesParamStr() const
 {
-    return ExtraInputMessagesBundleStr;
+    return ExtraMessagesBundleStr;
 }
 
 

@@ -2143,7 +2143,7 @@ bool Generator::prepareExternalMessages()
         auto reportErrorFunc =
             [this, &b]()
             {
-                m_logger.error("Invalid value of \"" + m_options.extraInputBundlesParamStr() + "\" parameter (" + b + ").");
+                m_logger.error("Invalid value of \"" + m_options.extraMessagesBundlesParamStr() + "\" parameter (" + b + ").");
             };
 
         auto colonPos = b.find(':');
@@ -2165,7 +2165,7 @@ bool Generator::prepareExternalMessages()
             });
 
         if (!allAlphaNum) {
-            m_logger.error("Invalid bundle name specified with \"" + m_options.extraInputBundlesParamStr() + "\" parameter (" + b + ").");
+            m_logger.error("Invalid bundle name specified with \"" + m_options.extraMessagesBundlesParamStr() + "\" parameter (" + b + ").");
             return false;
         }
 
@@ -2182,14 +2182,14 @@ bool Generator::prepareExternalMessages()
 
         if ((platIter != dslPlatforms.end()) ||
             (info.m_name == "All")) {
-            m_logger.error("Bundle name specified with \"" + m_options.extraInputBundlesParamStr() + "\" parameter (" + b + ") reuses name of one of the platforms.");
+            m_logger.error("Bundle name specified with \"" + m_options.extraMessagesBundlesParamStr() + "\" parameter (" + b + ") reuses name of one of the platforms.");
             return false;
         }
 
         auto filePath = b.substr(colonPos + 1);
         std::ifstream stream(filePath);
         if (!stream) {
-            m_logger.error("Invalid file name specified with \"" + m_options.extraInputBundlesParamStr() + "\" parameter (" + b + ").");
+            m_logger.error("Invalid file name specified with \"" + m_options.extraMessagesBundlesParamStr() + "\" parameter (" + b + ").");
             return false;
         }
 

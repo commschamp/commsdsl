@@ -253,7 +253,9 @@ std::string Dispatch::getDispatchFunc(
     using MsgMap = std::map<std::uintmax_t, DslMessagesList>;
     MsgMap msgMap;
     for (auto& m : messages) {
-        msgMap[m.id()].push_back(m);
+        auto& msgList = msgMap[m.id()];
+        assert((msgList.empty()) || (msgList.back().name() != m.name())); // Make sure message is not inserted twice
+        msgList.push_back(m);
     }
 
     bool hasMultipleMessagesWithSameId =
