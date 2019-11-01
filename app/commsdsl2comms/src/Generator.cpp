@@ -18,6 +18,7 @@
 #include <fstream>
 #include <iterator>
 #include <algorithm>
+#include <cctype>
 
 #include <boost/algorithm/string.hpp>
 
