@@ -46,6 +46,7 @@ bool AllMessages::writeProtocolDefinition() const
         MessagesInfo m_all;
         MessagesInfo m_serverInput;
         MessagesInfo m_clientInput;
+        bool m_realPlatform = true;
     };
 
     using PlatformsMap = std::map<std::string, PlatformInfo>;
@@ -56,6 +57,12 @@ bool AllMessages::writeProtocolDefinition() const
     for (auto& p : platforms) {
         platformsMap.insert(std::make_pair(p, PlatformInfo()));
     };
+
+    auto bundles = m_generator.extraMessagesBundles();
+    for (auto& b : bundles) {
+        auto& elem = platformsMap[b];
+        elem.m_realPlatform = false;
+    }
 
     auto allMessages = m_generator.getAllDslMessages();
 
@@ -120,12 +127,11 @@ bool AllMessages::writeProtocolDefinition() const
         auto& msgPlatforms = m.platforms();
         if (msgPlatforms.empty()) {
             for (auto& p : platformsMap) {
-                if (p.first.empty()) {
+                if ((p.first.empty()) || (!p.second.m_realPlatform)) {
                     continue;
                 }
                 addToPlatformInfoFunc(p.second);
             }
-            continue;
         }
 
         for (auto& p : msgPlatforms) {
@@ -135,6 +141,16 @@ bool AllMessages::writeProtocolDefinition() const
                 continue;
             }
 
+            addToPlatformInfoFunc(iter->second);
+        }
+
+        auto inBundles = m_generator.bundlesForMessage(extRef);
+        for (auto& b : inBundles) {
+            auto iter = platformsMap.find(b);
+            if (iter == platformsMap.end()) {
+                assert(!"Should not happen");
+                continue;
+            }
             addToPlatformInfoFunc(iter->second);
         }
     }

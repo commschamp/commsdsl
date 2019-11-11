@@ -50,7 +50,7 @@ public:
     Schema schema() const;
     NamespacesList namespaces() const;
 
-    static constexpr unsigned notYetDeprecated()
+    static constexpr unsigned notYetDeprecated() noexcept
     {
         return std::numeric_limits<unsigned>::max();
     }

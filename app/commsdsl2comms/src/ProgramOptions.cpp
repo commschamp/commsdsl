@@ -58,8 +58,9 @@ const std::string WarnAsErrStr("warn-as-err");
 const std::string VersionIndependentCodeStr("version-independent-code");
 const std::string ProtocolStr("protocol");
 const std::string CustomizationStr("customization");
-const std::string GeneratedPluginBuildEnable("enable-plugin-build-by-default");
-const std::string GeneratedTestsBuildEnable("enable-tests-build-by-default");
+const std::string GeneratedPluginBuildEnableStr("enable-plugin-build-by-default");
+const std::string GeneratedTestsBuildEnableStr("enable-tests-build-by-default");
+const std::string ExtraMessagesBundleStr("extra-messages-bundle");
 
 po::options_description createDescription()
 {
@@ -105,11 +106,17 @@ po::options_description createDescription()
             "By default the generated code is version dependent if at least one defined "
             "interface has \"version\" field. Use this switch to forcefully disable generation "
             "of version denendent code.")
-        (GeneratedPluginBuildEnable.c_str(), po::value<bool>()->default_value(false),
+        (GeneratedPluginBuildEnableStr.c_str(), po::value<bool>()->default_value(false),
             "Enable build of the CommsChampion Tools plugin in the generated project by default. Boolean parameter.")
-        (GeneratedTestsBuildEnable.c_str(), po::value<bool>()->default_value(false),
+        (GeneratedTestsBuildEnableStr.c_str(), po::value<bool>()->default_value(false),
             "Enable build of the test application(s) in the generated project by default. Boolean parameter.")
-
+        (ExtraMessagesBundleStr.c_str(), po::value<std::vector<std::string> >(),
+            "Provide extra custom bundle of messages, the relevant code will be added to generated "
+            "\"input\" and \"dispatch\" protocol definition folders. The format of the parameter is "
+            "\'Name:ListFile\'. The external \'ListFile\' needs to contain a new line separated list of message names "
+            "as defined in the CommsDSL. In case the message resides in a namespace its name must be "
+            "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). This "
+            "option can be used multiple times for multiple definitions of such bundles.")
     ;
     return desc;
 }
@@ -195,12 +202,12 @@ bool ProgramOptions::versionIndependentCodeRequested() const
 
 bool ProgramOptions::pluginBuildEnabledByDefault() const
 {
-    return m_vm[GeneratedPluginBuildEnable].as<bool>();
+    return m_vm[GeneratedPluginBuildEnableStr].as<bool>();
 }
 
 bool ProgramOptions::testsBuildEnabledByDefault() const
 {
-    return m_vm[GeneratedTestsBuildEnable].as<bool>();
+    return m_vm[GeneratedTestsBuildEnableStr].as<bool>();
 }
 
 std::string ProgramOptions::getFilesListFile() const
@@ -288,6 +295,23 @@ std::string ProgramOptions::getProtocolVersion() const
 {
     return m_vm[ProtocolVerStr].as<std::string>();
 }
+
+std::vector<std::string> ProgramOptions::getExtraInputBundles() const
+{
+    if (m_vm.count(ExtraMessagesBundleStr) == 0U) {
+        return std::vector<std::string>();
+    }
+
+    auto bundles = m_vm[ExtraMessagesBundleStr].as<std::vector<std::string> >();
+    assert(!bundles.empty());
+    return bundles;
+}
+
+const std::string& ProgramOptions::extraMessagesBundlesParamStr() const
+{
+    return ExtraMessagesBundleStr;
+}
+
 
 
 } // namespace commsdsl2comms

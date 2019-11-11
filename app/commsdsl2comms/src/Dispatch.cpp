@@ -50,6 +50,7 @@ bool Dispatch::writeProtocolDefinition() const
         MessagesInfo m_all;
         MessagesInfo m_serverInput;
         MessagesInfo m_clientInput;
+        bool m_realPlatform = true;
     };
 
     using PlatformsMap = std::map<std::string, PlatformInfo>;
@@ -60,6 +61,12 @@ bool Dispatch::writeProtocolDefinition() const
     for (auto& p : platforms) {
         platformsMap.insert(std::make_pair(p, PlatformInfo()));
     };
+
+    auto bundles = m_generator.extraMessagesBundles();
+    for (auto& b : bundles) {
+        auto& elem = platformsMap[b];
+        elem.m_realPlatform = false;
+    }
 
     auto allMessages = m_generator.getAllDslMessages();
 
@@ -128,12 +135,11 @@ bool Dispatch::writeProtocolDefinition() const
         auto& msgPlatforms = m.platforms();
         if (msgPlatforms.empty()) {
             for (auto& p : platformsMap) {
-                if (p.first.empty()) {
+                if (p.first.empty() || (!p.second.m_realPlatform)) {
                     continue;
                 }
                 addToPlatformInfoFunc(p.second);
             }
-            continue;
         }
 
         for (auto& p : msgPlatforms) {
@@ -145,8 +151,17 @@ bool Dispatch::writeProtocolDefinition() const
 
             addToPlatformInfoFunc(iter->second);
         }
-    }
 
+        auto inBundles = m_generator.bundlesForMessage(extRef);
+        for (auto& b : inBundles) {
+            auto iter = platformsMap.find(b);
+            if (iter == platformsMap.end()) {
+                assert(!"Should not happen");
+                continue;
+            }
+            addToPlatformInfoFunc(iter->second);
+        }
+    }
 
     auto writeFileFunc =
         [this](const MessagesInfo& info,
@@ -156,8 +171,6 @@ bool Dispatch::writeProtocolDefinition() const
         {
             auto startInfo = m_generator.startDispatchProtocolWrite(fileName);
             auto& filePath = startInfo.first;
-            auto& funcName = startInfo.second;
-            static_cast<void>(funcName); // TODO: remove
 
             if (filePath.empty()) {
                 return true;
@@ -240,7 +253,9 @@ std::string Dispatch::getDispatchFunc(
     using MsgMap = std::map<std::uintmax_t, DslMessagesList>;
     MsgMap msgMap;
     for (auto& m : messages) {
-        msgMap[m.id()].push_back(m);
+        auto& msgList = msgMap[m.id()];
+        assert((msgList.empty()) || (msgList.back().name() != m.name())); // Make sure message is not inserted twice
+        msgList.push_back(m);
     }
 
     bool hasMultipleMessagesWithSameId =
@@ -261,8 +276,7 @@ std::string Dispatch::getDispatchFunc(
             "case #^#MSG_ID#$#:\n"
             "{\n"
             "    using MsgType = #^#MSG_TYPE#$#<InterfaceType, TProtOptions>;\n"
-            "    auto& castedMsg = static_cast<MsgType&>(msg);\n"
-            "    return handler.handle(castedMsg);\n"
+            "    return handler.handle(static_cast<MsgType&>(msg));\n"
             "}";
 
         if (msgList.size() == 1) {

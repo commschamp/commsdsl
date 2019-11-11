@@ -70,6 +70,10 @@ public:
         return m_protocol.platforms();
     }
 
+    std::vector<std::string> extraMessagesBundles() const;
+
+    std::vector<std::string> bundlesForMessage(const std::string& externalRef);
+
     std::string protocolDefRootDir();
 
     std::string outputDir();
@@ -438,7 +442,14 @@ private:
 
     using NamespacesList = Namespace::NamespacesList;
     using PluginsList = std::vector<PluginPtr>;
-    
+
+    struct ExtraMessagesInfo
+    {
+        std::string m_name;
+        std::vector<std::string> m_dslNames;
+    };
+
+    using ExtraMessagesInfosList = std::vector<ExtraMessagesInfo>;
 
     bool parseOptions();
     bool parseCustomization();
@@ -498,6 +509,7 @@ private:
         const std::string& ext = common::headerSuffix()) const;
 
     bool preparePlugins();
+    bool prepareExternalMessages();
 
     typedef std::string (Namespace::*GetOptionsFunc)() const;
     std::string getOptionsBody(GetOptionsFunc func) const;
@@ -511,11 +523,13 @@ private:
     std::vector<boost::filesystem::path> m_codeInputDirs;
     std::set<boost::filesystem::path> m_createdDirs;
     std::string m_mainNamespace;
+    std::string m_schemaNamespace;
     commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
     unsigned m_schemaVersion = 0U;
     unsigned m_minRemoteVersion = 0U;
     CustomizationLevel m_customizationLevel = CustomizationLevel::Limited;
     const Field* m_messageIdField = nullptr;
+    ExtraMessagesInfosList m_extraMessages;
     bool m_versionDependentCode = false;
 };
 

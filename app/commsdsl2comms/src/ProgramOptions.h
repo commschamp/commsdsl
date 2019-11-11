@@ -51,6 +51,8 @@ public:
     std::vector<std::string> getPlugins() const;
     std::string getCustomizationLevel() const;
     std::string getProtocolVersion () const;
+    std::vector<std::string> getExtraInputBundles() const;
+    const std::string& extraMessagesBundlesParamStr() const;
     
 private:
     boost::program_options::variables_map m_vm;
