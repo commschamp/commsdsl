@@ -356,13 +356,13 @@ std::string VariantField::getAccess() const
 {
     static const std::string Templ =
         "/// @brief Allow access to internal fields.\n"
-        "/// @details See definition of @b COMMS_VARIANT_MEMBERS_ACCESS macro\n"
+        "/// @details See definition of @b COMMS_VARIANT_MEMBERS_NAMES macro\n"
         "///     related to @b comms::field::Variant class from COMMS library\n"
         "///     for details.\n"
         "///\n"
         "///     The generated access functions are:\n"
         "#^#ACCESS_DOC#$#\n"
-        "COMMS_VARIANT_MEMBERS_ACCESS(\n"
+        "COMMS_VARIANT_MEMBERS_NAMES(\n"
         "    #^#NAMES#$#\n"
         ");\n";
 
