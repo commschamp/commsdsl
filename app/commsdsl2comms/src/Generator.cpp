@@ -1043,10 +1043,10 @@ bool Generator::parseSchemaFiles(const FilesList& files)
     }
 
     auto schema = m_protocol.schema();
+    m_schemaNamespace = common::adjustName(schema.name());
     if (m_mainNamespace.empty()) {
         assert(!schema.name().empty());
-        m_mainNamespace = common::adjustName(schema.name());
-        m_schemaNamespace = m_mainNamespace;
+        m_mainNamespace = m_schemaNamespace;
     }
 
     m_schemaEndian = schema.endian();
@@ -1260,6 +1260,19 @@ bool Generator::writeExtraFiles()
             }
 
             std::string relPath(pathStr, posTmp);
+            do {
+                if (m_mainNamespace == m_schemaNamespace) {
+                    break;
+                }
+
+                auto srcPrefix = (bf::path(common::includeStr()) / m_schemaNamespace).string();
+                if (!ba::starts_with(relPath, srcPrefix)) {
+                    break;
+                }
+
+                auto dstPrefix = (bf::path(common::includeStr()) / m_mainNamespace).string();
+                relPath = dstPrefix + std::string(relPath, srcPrefix.size());
+            } while (false);
             auto destPath = outputDir / relPath;
 
             m_logger.info("Copying " + destPath.string());
@@ -1273,6 +1286,30 @@ bool Generator::writeExtraFiles()
             if (ec) {
                 m_logger.error("Failed to copy with reason: " + ec.message());
                 return false;
+            }
+
+            if (m_mainNamespace != m_schemaNamespace) {
+                // The namespace has changed
+
+                auto destStr = destPath.string();
+                std::ifstream stream(destStr);
+                if (!stream) {
+                    m_logger.error("Failed to open " + destStr + " for modification.");
+                    return false;
+                }
+
+                std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+                stream.close();
+
+                ba::replace_all(content, "namespace " + m_schemaNamespace, "namespace " + m_mainNamespace);
+                std::ofstream outStream(destStr, std::ios_base::trunc);
+                if (!outStream) {
+                    m_logger.error("Failed to modify " + destStr + ".");
+                    return false;
+                }
+
+                outStream << content;
+                m_logger.info("Updated " + destStr + " to have proper main namespace.");
             }
         }
     }
