@@ -14,7 +14,7 @@ function (test_func name)
              COMMAND ${CMAKE_COMMAND}
                 -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
                 -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
-                -P ${CMAKE_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
+                -P ${PROJECT_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
     endif ()
 
 endfunction ()

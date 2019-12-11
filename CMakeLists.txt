@@ -73,7 +73,7 @@ if ((UNIX) AND (NOT COMMSDSL_NO_CCACHE))
     endif(CCACHE_FOUND)
 endif ()
 
-set (EXTERNALS_DIR "${CMAKE_SOURCE_DIR}/externals")
+set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 while (TRUE)
     if (COMMSDSL_NO_TESTS)
         break ()
