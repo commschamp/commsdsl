@@ -1,5 +1,6 @@
 #include "cxxtest/TestSuite.h"
 
+#include "comms/process.h"
 #include "test34/Message.h"
 #include "test34/message/Msg1_1.h"
 #include "test34/message/Msg1_2.h"
@@ -11,7 +12,7 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
-//    void test2();
+    void test2();
 //    void test3();
 
     struct Interface : public
@@ -85,3 +86,17 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(handler.m_msg1_1, 1U);
 }
 
+void TestSuite::test2()
+{
+    static const std::uint8_t Buf[] = {
+        0x1, 0, 0x1, 0x2, 0x3, 0x4
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Frame frame;
+    Handler handler;
+    using Dispatcher = test34::dispatch::MsgDispatcherDefaultOptions;
+    auto comsumed = comms::processAllWithDispatchViaDispatcher<Dispatcher>(&Buf[0], BufSize, frame, handler);
+    TS_ASSERT_EQUALS(comsumed, BufSize);
+    TS_ASSERT_EQUALS(handler.m_msg1_1, 1U);
+}
