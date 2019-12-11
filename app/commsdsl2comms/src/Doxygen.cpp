@@ -750,30 +750,48 @@ std::string Doxygen::getDispatchDoc() const
         "///\n"
         "/// The available functions are:\n"
         "#^#LIST#$#\n"
+        "///\n"
+        "/// There are also some dispatcher objects to be used with\n"
+        "/// @b comms::processAllWithDispatchViaDispatcher() function or similar.\n"
+        "#^#DISPATCHERS_LIST#$#\n"
         "///";
 
     common::StringsList list;
+    common::StringsList dispatcherList;
     auto addToListFunc =
-        [this, &list](const std::string& name)
+        [this, &list, &dispatcherList](const std::string& name)
         {
-            auto adjustedName = common::nameToAccessCopy(name);
+            static const std::string Prefix("Dispatch");
+            static const std::string Suffix("Message");
+
+            auto adjustedName = common::nameToAccessCopy(Prefix + name + Suffix);
+            auto fileName = common::nameToClassCopy(adjustedName);
             auto scope = m_generator.scopeForDispatch(name, true, false) + adjustedName;
             auto defaultScope = scope + common::defaultOptionsStr();
-            auto file = m_generator.headerfileForDispatch(name, false);
+            auto file = m_generator.headerfileForDispatch(fileName, false);
             auto str = "/// @li @ref " + scope + "\n/// (defined in @b " + file + " header file).";
             list.push_back(std::move(str));
             auto defaultOptStr = "/// @li @ref " + defaultScope + "\n/// (defined in @b " + file + " header file).";
             list.push_back(std::move(defaultOptStr));
+
+            static const std::string DispatcherSuffix("MsgDispatcher");
+            auto dispatcherName = common::nameToClassCopy(name) + DispatcherSuffix;
+            auto dispatcherScope = m_generator.scopeForDispatch(dispatcherName, true, true);
+            auto dispatcherDefaultScope = dispatcherScope + common::defaultOptionsStr();
+            auto dispatcherStr =
+                "/// @li @ref " + dispatcherScope + "\n/// (defined in @b " + file + " header file).";
+            dispatcherList.push_back(std::move(dispatcherStr));
+            auto dispatcherDefaultOptionsStr =
+                "/// @li @ref " + dispatcherDefaultScope + "\n/// (defined in @b " + file + " header file).";
+            dispatcherList.push_back(std::move(dispatcherDefaultOptionsStr));
         };
 
     auto addPlatformFunc =
         [&addToListFunc](const std::string& platform)
         {
-            static const std::string Prefix("Dispatch");
-            static const std::string Suffix("Message");
-            addToListFunc(Prefix + platform + Suffix);
-            addToListFunc(Prefix + platform + common::serverInputStr() + Suffix);
-            addToListFunc(Prefix + platform + common::clientInputStr() + Suffix);
+            addToListFunc(platform);
+            addToListFunc(platform + common::serverInputStr());
+            addToListFunc(platform + common::clientInputStr());
         };
 
     addPlatformFunc(common::emptyString());
@@ -783,6 +801,7 @@ std::string Doxygen::getDispatchDoc() const
 
     common::ReplacementMap repl;
     repl.insert(std::make_pair("LIST", common::listToString(list, "\n", common::emptyString())));
+    repl.insert(std::make_pair("DISPATCHERS_LIST", common::listToString(dispatcherList, "\n", common::emptyString())));
     return common::processTemplate(Templ, repl);
 }
 
