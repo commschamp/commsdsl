@@ -100,13 +100,13 @@ const std::string ClassTemplate(
     "        >;\n"
     "public:\n"
     "    /// @brief Allow access to extra transport fields.\n"
-    "    /// @details See definition of @b COMMS_MSG_TRANSPORT_FIELDS_ACCESS macro\n"
+    "    /// @details See definition of @b COMMS_MSG_TRANSPORT_FIELDS_NAMES macro\n"
     "    ///     related to @b comms::Message class from COMMS library\n"
     "    ///     for details.\n"
     "    ///\n"
     "    ///     The generated functions are:\n"
     "    #^#ACCESS_FUNCS_DOC#$#\n"
-    "    COMMS_MSG_TRANSPORT_FIELDS_ACCESS(\n"
+    "    COMMS_MSG_TRANSPORT_FIELDS_NAMES(\n"
     "        #^#FIELDS_ACCESS_LIST#$#\n"
     "    );\n"
     "    #^#ALIASES#$#\n"
@@ -606,9 +606,15 @@ std::string Interface::getFieldsAccessDoc() const
         }
         result += common::doxygenPrefixStr();
         result += common::indentStr();
-        result += "@li @b transportField_";
+        result += "@li @b TransportField_";
         result += common::nameToAccessCopy(f->name());
-        result += "() for @ref ";
+        result +=  " type and @b transportField_";
+        result += common::nameToAccessCopy(f->name());
+        result += "() function for\n";
+        result += common::doxygenPrefixStr();
+        result += common::indentStr();
+        result += common::indentStr();
+        result += "@ref ";
         result += common::nameToClassCopy(m_dslObj.name());
         result += "Fields::";
         result += common::nameToClassCopy(f->name());

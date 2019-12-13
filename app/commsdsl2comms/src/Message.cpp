@@ -780,27 +780,33 @@ std::string Message::getFieldsAccess() const
     }
 
     static const std::string DocPrefix =
-        "/// @brief Allow access to internal fields.\n"
-        "/// @details See definition of @b COMMS_MSG_FIELDS_ACCESS macro\n"
+        "/// @brief Provide names and allow access to internal fields.\n"
+        "/// @details See definition of @b COMMS_MSG_FIELDS_NAMES macro\n"
         "///     related to @b comms::MessageBase class from COMMS library\n"
         "///     for details.\n"
         "///\n"
-        "///     The generated functions are:\n";
+        "///     The generated types and functions are:\n";
 
     std::string result = DocPrefix;
     for (auto& f : m_fields) {
         result += common::doxygenPrefixStr();
         result += common::indentStr();
-        result += "@li @b field_";
+        result += "@li @b Field_";
         result += common::nameToAccessCopy(f->name());
-        result += "() for @ref ";
+        result += " type and @b field_";
+        result += common::nameToAccessCopy(f->name());
+        result += "() fuction\n";
+        result += common::doxygenPrefixStr();
+        result += common::indentStr();
+        result += common::indentStr();
+        result += "for @ref ";
         result += common::nameToClassCopy(name());
         result += "Fields::";
         result += common::nameToClassCopy(f->name());
         result += " field.\n";
     }
 
-    result += "COMMS_MSG_FIELDS_ACCESS(\n";
+    result += "COMMS_MSG_FIELDS_NAMES(\n";
     for (auto& f : m_fields) {
         result += common::indentStr();
         result += common::nameToAccessCopy(f->name());

@@ -192,7 +192,9 @@ bool Dispatch::writeProtocolDefinition() const
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(info.m_includes)));
-            replacements.insert(std::make_pair("FUNCS", func));
+            replacements.insert(std::make_pair("FUNCS", std::move(func)));
+            replacements.insert(std::make_pair("DISPATCHERS", getMsgDispatcher(common::nameToClassCopy(fileName))));
+
 
             if (!platName.empty()) {
                 replacements.insert(std::make_pair("PLAT_NAME", '\"' + platName + "\" "));
@@ -209,6 +211,7 @@ bool Dispatch::writeProtocolDefinition() const
                 "#^#INCLUDES#$#\n"
                 "#^#BEG_NAMESPACE#$#\n"
                 "#^#FUNCS#$#\n"
+                "#^#DISPATCHERS#$#\n"
                 "#^#END_NAMESPACE#$#\n";
 
             auto str = common::processTemplate(Templ, replacements);
@@ -403,7 +406,7 @@ std::string Dispatch::getDispatchFunc(
         "    if (idx != 0U) {\n"
         "        return handler.handle(msg);\n"
         "    }\n"
-        "    return #^#FUNC#$#(id, msg, handler);\n"
+        "    return #^#FUNC#$#<TProtOptions>(id, msg, handler);\n"
         "}\n\n"
         "/// @brief Dispatch message object to its appropriate handling function.\n"
         "/// @details Same as other #^#FUNC#$#(), but passing\n"
@@ -496,7 +499,7 @@ std::string Dispatch::getDispatchFunc(
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
         "{\n"
-        "    return #^#FUNC#$#(id, 0U, msg, handler);\n"
+        "    return #^#FUNC#$#<TProtOptions>(id, 0U, msg, handler);\n"
         "}\n\n"
         "/// @brief Dispatch message object to its appropriate handling function.\n"
         "/// @details Same as other #^#FUNC#$#(), but passing\n"
@@ -538,8 +541,86 @@ std::string Dispatch::getDispatchFunc(
         templ = &MultipleMessagesPerIdTempl;
     }
 
+
     return common::processTemplate(*templ, repl);
 }
+
+std::string Dispatch::getMsgDispatcher(
+    const std::string& fileName) const
+{
+    auto name = ba::replace_first_copy(fileName, "Dispatch", "");
+    ba::replace_last(name, "Message", "");
+    static const std::string Templ =
+        "/// @brief Message dispatcher class to be used with\n"
+        "///     @b comms::processAllWithDispatchViaDispatcher() function (or similar).\n"
+        "/// @tparam TProtOptions Protocol options struct used for the application,\n"
+        "///     like @ref #^#DEFAULT_OPTIONS#$#.\n"
+        "/// @headerfile #^#HEADERFILE#$#\n"
+        "template <typename TProtOptions>\n"
+        "struct #^#NAME#$#MsgDispatcher\n"
+        "{\n"
+        "    /// @brief Class detection tag\n"
+        "    using MsgDispatcherTag = void;\n\n"
+        "    /// @brief Dispatch message to its handler.\n"
+        "    /// @details Uses appropriate @ref dispatch#^#NAME#$#Message() function.\n"
+        "    /// @param[in] id ID of the message.\n"
+        "    /// @param[in] idx Index (or offset) of the message among those having the same numeric ID.\n"
+        "    /// @param[in] msg Reference to message object.\n"
+        "    /// @param[in] handler Reference to handler object.\n"
+        "    /// @return What the @ref dispatch#^#NAME#$#Message() function returns.\n"
+        "    template <typename TMsg, typename THandler>\n"
+        "    static auto dispatch(#^#MAIN_NS#$#::MsgId id, std::size_t idx, TMsg& msg, THandler& handler) ->\n"
+        "        decltype(#^#MAIN_NS#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, idx, msg, handler))\n"
+        "    {\n"
+        "        return #^#MAIN_NS#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, idx, msg, handler);\n"
+        "    }\n\n"
+        "    /// @brief Complementary dispatch function.\n"
+        "    /// @details Same as other dispatch without @b TAllMessages template parameter,\n"
+        "    ///     used by  @b comms::processAllWithDispatchViaDispatcher().\n"
+        "    template <typename TAllMessages, typename TMsg, typename THandler>\n"
+        "    static auto dispatch(#^#MAIN_NS#$#::MsgId id, std::size_t idx, TMsg& msg, THandler& handler) ->\n"
+        "        decltype(dispatch(id, idx, msg, handler))\n"
+        "    {\n"
+        "        return dispatch(id, idx, msg, handler);\n"
+        "    }\n\n"
+        "    /// @brief Dispatch message to its handler.\n"
+        "    /// @details Uses appropriate @ref dispatch#^#NAME#$#Message() function.\n"
+        "    /// @param[in] id ID of the message.\n"
+        "    /// @param[in] msg Reference to message object.\n"
+        "    /// @param[in] handler Reference to handler object.\n"
+        "    /// @return What the @ref dispatch#^#NAME#$#Message() function returns.\n"
+        "    template <typename TMsg, typename THandler>\n"
+        "    static auto dispatch(#^#MAIN_NS#$#::MsgId id, TMsg& msg, THandler& handler) ->\n"
+        "        decltype(#^#MAIN_NS#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, msg, handler))\n"
+        "    {\n"
+        "        return #^#MAIN_NS#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, msg, handler);\n"
+        "    }\n\n"
+        "    /// @brief Complementary dispatch function.\n"
+        "    /// @details Same as other dispatch without @b TAllMessages template parameter,\n"
+        "    ///     used by  @b comms::processAllWithDispatchViaDispatcher().\n"
+        "    template <typename TAllMessages, typename TMsg, typename THandler>\n"
+        "    static auto dispatch(#^#MAIN_NS#$#::MsgId id, TMsg& msg, THandler& handler) ->\n"
+        "        decltype(dispatch(id, msg, handler))\n"
+        "    {\n"
+        "        return dispatch(id, msg, handler);\n"
+        "    }\n"
+        "};\n\n"
+        "/// @brief Message dispatcher class to be used with\n"
+        "///     @b comms::processAllWithDispatchViaDispatcher() function (or similar).\n"
+        "/// @details Same as @ref #^#NAME#$#MsgDispatcher, but passing\n"
+        "///     @ref #^#DEFAULT_OPTIONS#$# as template parameter.\n"
+        "/// @note Defined in #^#HEADERFILE#$#\n"
+        "using #^#NAME#$#MsgDispatcherDefaultOptions =\n"
+        "    #^#NAME#$#MsgDispatcher<#^#DEFAULT_OPTIONS#$#>;\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("NAME", name));
+    repl.insert(std::make_pair("MAIN_NS", m_generator.mainNamespace()));
+    repl.insert(std::make_pair("DEFAULT_OPTIONS", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("HEADERFILE", m_generator.headerfileForDispatch(fileName)));
+    return common::processTemplate(Templ, repl);
+}
+
 
 std::string Dispatch::getIdString(std::uintmax_t value) const
 {

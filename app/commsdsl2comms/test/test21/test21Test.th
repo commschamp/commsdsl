@@ -4,6 +4,7 @@
 #include "test21/message/Msg1.h"
 #include "test21/message/Msg2.h"
 #include "test21/frame/Frame.h"
+#include "test21/dispatch/DispatchMessage.h"
 #include "comms/process.h"
 
 class TestSuite : public CxxTest::TestSuite
@@ -11,6 +12,7 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
 
     using Interface =
         test21::Message<
@@ -26,27 +28,7 @@ public:
     using Msg1 = test21::message::Msg1<Interface>;
     using Msg2 = test21::message::Msg2<Interface>;    
     using Frame = test21::frame::Frame<Interface>;
-};
 
-void TestSuite::test1()
-{
-    Msg1 msg;
-    TS_ASSERT(msg.field_f1().someFunc());
-    TS_ASSERT(msg.field_f2().someFunc());
-    TS_ASSERT(msg.field_f3().someFunc());
-    TS_ASSERT(msg.field_f4().someFunc());
-    TS_ASSERT(msg.field_f5().someFunc());
-    TS_ASSERT(msg.field_f6().someFunc());
-    TS_ASSERT(msg.field_f7().someFunc());
-    TS_ASSERT(msg.field_f8().someFunc());
-    TS_ASSERT(msg.field_f9().someFunc());
-    TS_ASSERT(msg.field_f10().someFunc());
-    TS_ASSERT(msg.field_f11().someFunc());
-    TS_ASSERT(msg.someFunc());
-}
-
-void TestSuite::test2()
-{
     class Handler
     {
     public:
@@ -75,7 +57,27 @@ void TestSuite::test2()
     private:
         bool m_msg2Received = false;
     };
+};
 
+void TestSuite::test1()
+{
+    Msg1 msg;
+    TS_ASSERT(msg.field_f1().someFunc());
+    TS_ASSERT(msg.field_f2().someFunc());
+    TS_ASSERT(msg.field_f3().someFunc());
+    TS_ASSERT(msg.field_f4().someFunc());
+    TS_ASSERT(msg.field_f5().someFunc());
+    TS_ASSERT(msg.field_f6().someFunc());
+    TS_ASSERT(msg.field_f7().someFunc());
+    TS_ASSERT(msg.field_f8().someFunc());
+    TS_ASSERT(msg.field_f9().someFunc());
+    TS_ASSERT(msg.field_f10().someFunc());
+    TS_ASSERT(msg.field_f11().someFunc());
+    TS_ASSERT(msg.someFunc());
+}
+
+void TestSuite::test2()
+{
     std::vector<std::uint8_t> outBuf;
     Frame frame;
     Msg2 msg;
@@ -88,6 +90,25 @@ void TestSuite::test2()
 
     Handler handler;
     auto comsumed = comms::processAllWithDispatch(&outBuf[0], outBuf.size(), frame, handler);
+    TS_ASSERT_EQUALS(comsumed, outBuf.size());
+    TS_ASSERT(handler.getMsg2Received()); // Make sure that Msg1 is received
+}
+
+void TestSuite::test3()
+{
+    std::vector<std::uint8_t> outBuf;
+    Frame frame;
+    Msg2 msg;
+    msg.field_f1().value() = test21::message::Msg2Fields<>::F1Val::V3;
+
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Handler handler;
+    using Dispatcher = test21::dispatch::MsgDispatcherDefaultOptions;
+    auto comsumed = comms::processAllWithDispatchViaDispatcher<Dispatcher>(&outBuf[0], outBuf.size(), frame, handler);
     TS_ASSERT_EQUALS(comsumed, outBuf.size());
     TS_ASSERT(handler.getMsg2Received()); // Make sure that Msg1 is received
 }

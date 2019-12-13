@@ -73,7 +73,7 @@ if ((UNIX) AND (NOT COMMSDSL_NO_CCACHE))
     endif(CCACHE_FOUND)
 endif ()
 
-set (EXTERNALS_DIR "${CMAKE_SOURCE_DIR}/externals")
+set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 while (TRUE)
     if (COMMSDSL_NO_TESTS)
         break ()
@@ -142,7 +142,7 @@ endwhile ()
 include(GNUInstallDirs)
 
 if ("${CC_TAG}" STREQUAL "")
-    set (CC_TAG "v2.2.1")
+    set (CC_TAG "v2.3")
 endif()
 
 add_subdirectory(lib)

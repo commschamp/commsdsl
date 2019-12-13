@@ -39,6 +39,8 @@ private:
     std::string getDispatchFunc(
         const std::string& funcName,
         const DslMessagesList& messages) const;
+    std::string getMsgDispatcher(
+        const std::string& fileName) const;
     std::string getIdString(std::uintmax_t value) const;
 
     Generator& m_generator;
