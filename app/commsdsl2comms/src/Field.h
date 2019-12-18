@@ -58,6 +58,7 @@ public:
 
     using IncludesList = common::StringsList;
     void updateIncludes(IncludesList& includes) const;
+    void updateIncludesCommon(IncludesList& includes) const;
 
     void updatePluginIncludes(IncludesList& includes) const;
 
@@ -70,6 +71,8 @@ public:
         const std::string& className = common::emptyString()) const;
 
     std::string getCommonPreDefinition(const std::string& scope) const;
+
+    std::string getCommonDefinition(const std::string& fullScope) const;
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
@@ -226,6 +229,7 @@ protected:
 
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const;
     virtual std::size_t minLengthImpl() const;
     virtual std::size_t maxLengthImpl() const;
@@ -263,9 +267,11 @@ protected:
     virtual void setForcedNoOptionsConfigImpl();
     virtual bool isVersionDependentImpl() const;
     virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const;
+    virtual std::string getCommonDefinitionBodyImpl(const std::string& fullScope) const;
     virtual bool verifyAliasImpl(const std::string& fieldName) const;
 
     std::string getNameFunc() const;
+    std::string getCommonNameFunc(const std::string& fullScope) const;
 
     void updateExtraOptions(
         const std::string& scope,
@@ -291,6 +297,7 @@ protected:
 
 private:
 
+    bool writeProtocolDefinitionCommonFile() const;
     bool writeProtocolDefinitionFile() const;
     bool writePluginHeaderFile() const;
     bool writePluginScrFile() const;

@@ -79,6 +79,12 @@ void Field::updateIncludes(Field::IncludesList& includes) const
     updateIncludesImpl(includes);
 }
 
+void Field::updateIncludesCommon(Field::IncludesList& includes) const
+{
+    updateIncludesCommonImpl(includes);
+}
+
+
 void Field::updatePluginIncludes(Field::IncludesList& includes) const
 {
     if (!m_externalRef.empty()) {
@@ -193,6 +199,29 @@ std::string Field::getCommonPreDefinition(const std::string& scope) const
     return getCommonPreDefinitionImpl(scope);
 }
 
+std::string Field::getCommonDefinition(
+    const std::string& fullScope) const
+{
+    auto body = getCommonDefinitionBodyImpl(fullScope);
+    if (body.empty()) {
+        return common::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Common functions for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "struct #^#NAME#$#Common\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("BODY", std::move(body)));
+    return common::processTemplate(Templ, repl);
+}
+
 Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
 {
     using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Field)>;
@@ -285,6 +314,7 @@ std::string Field::getBareMetalDefaultOptions(const std::string& scope) const
 bool Field::writeFiles() const
 {
     return
+        writeProtocolDefinitionCommonFile() &&
         writeProtocolDefinitionFile() &&
         writePluginHeaderFile() &&
         writePluginScrFile();
@@ -787,6 +817,11 @@ void Field::updateIncludesImpl(IncludesList& includes) const
     static_cast<void>(includes);
 }
 
+void Field::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    static_cast<void>(includes);
+}
+
 void Field::updatePluginIncludesImpl(IncludesList& includes) const
 {
     static_cast<void>(includes);
@@ -1040,6 +1075,12 @@ std::string Field::getCommonPreDefinitionImpl(const std::string& scope) const
     return common::emptyString();
 }
 
+std::string Field::getCommonDefinitionBodyImpl(const std::string& scope) const
+{
+    static_cast<void>(scope);
+    return common::emptyString();
+}
+
 bool Field::verifyAliasImpl(const std::string& fieldName) const
 {
     static_cast<void>(fieldName);
@@ -1055,6 +1096,21 @@ std::string Field::getNameFunc() const
 
     return
         "/// @brief Name of the field.\n"
+        "static const char* name()\n"
+        "{\n"
+        "    return \"" + displayName() + "\";\n"
+        "}\n";
+}
+
+std::string Field::getCommonNameFunc(const std::string& fullScope) const
+{
+    auto customName = m_generator.getCustomNameForField(m_externalRef + common::commonSuffixStr());
+    if (!customName.empty()) {
+        return customName;
+    }
+
+    return
+        "/// @brief Name of the @ref " + fullScope + " field.\n"
         "static const char* name()\n"
         "{\n"
         "    return \"" + displayName() + "\";\n"
@@ -1222,6 +1278,78 @@ std::string Field::scopeForCommon(const std::string& scope) const
     restorePrefixFunc(common::frameStr());
 
     return adjustedScope;
+}
+
+bool Field::writeProtocolDefinitionCommonFile() const
+{
+    auto fullScope = m_generator.scopeForField(m_externalRef, true, true);
+    auto commonDef = getCommonDefinition(fullScope);
+    if (commonDef.empty()) {
+        return true;
+    }
+
+    auto commonName = m_externalRef + common::commonSuffixStr();
+    auto startInfo = m_generator.startFieldProtocolWrite(commonName);
+    auto& filePath = startInfo.first;
+
+    if (filePath.empty()) {
+        return true;
+    }
+
+    auto className = name() + common::commonSuffixStr();
+    if (startInfo.second != className) {
+        m_generator.logger().error("Renaming the common definitions of \"" + m_externalRef + "\" field is not supported.");
+        return false;
+    }
+
+    assert(!m_externalRef.empty());
+    IncludesList includes;
+    updateIncludesCommon(includes);
+    auto incStr = common::includesToStatements(includes);
+    if (!m_externalRef.empty()) {
+        incStr += m_generator.getExtraIncludeForField(commonName);
+    }
+
+    auto namespaces = m_generator.namespacesForField(m_externalRef);
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("COMMON_DEF", std::move(commonDef)));
+    replacements.insert(std::make_pair("SCOPE", fullScope));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(commonName)));
+
+    static const std::string FileTemplate(
+        "/// @file\n"
+        "/// @brief Contains common template parameters independent functionality of\n"
+        "///    @ref #^#SCOPE#$# field.\n"
+        "\n"
+        "#pragma once\n"
+        "\n"
+        "#^#INCLUDES#$#\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#COMMON_DEF#$#\n"
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n"
+    );
+
+    std::string str = common::processTemplate(FileTemplate, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
 }
 
 bool Field::writeProtocolDefinitionFile() const
