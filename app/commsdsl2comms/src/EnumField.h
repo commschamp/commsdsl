@@ -88,6 +88,7 @@ private:
     void checkLengthOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
     bool prepareRanges() const;
+    void updateIncludesForCommonInternal(IncludesList& includes) const;
 
     commsdsl::EnumField enumFieldDslObj() const
     {

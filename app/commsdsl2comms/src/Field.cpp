@@ -202,6 +202,10 @@ std::string Field::getCommonPreDefinition(const std::string& scope) const
 std::string Field::getCommonDefinition(
     const std::string& fullScope) const
 {
+    if (isCommonPreDefDisabled()) {
+        return common::emptyString();
+    }
+
     auto body = getCommonDefinitionBodyImpl(fullScope);
     if (body.empty()) {
         return common::emptyString();
@@ -1100,6 +1104,26 @@ std::string Field::getNameFunc() const
         "{\n"
         "    return \"" + displayName() + "\";\n"
         "}\n";
+}
+
+std::string Field::getNameCommonWrapFunc(const std::string& scope) const
+{
+    auto customName = m_generator.getCustomNameForField(m_externalRef);
+    if (!customName.empty()) {
+        return customName;
+    }
+
+    static const std::string Templ =
+        "/// @brief Name of the field.\n"
+        "static const char* name()\n"
+        "{\n"
+        "    return #^#SCOPE#$##^#CLASS_NAME#$#Common::name();\n"
+        "}\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scope));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string Field::getCommonNameFunc(const std::string& fullScope) const

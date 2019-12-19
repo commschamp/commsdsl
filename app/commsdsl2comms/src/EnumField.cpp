@@ -341,59 +341,22 @@ void EnumField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
         "comms/field/EnumValue.h",
-        "<cstdint>"
     };
 
     common::mergeIncludes(List, includes);
-    if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
-        auto inc =
-            generator().mainNamespace() + '/' +
-            common::msgIdEnumNameStr() + common::headerSuffix();
-        common::mergeInclude(inc, includes);
+    if (!isMemberChild()) {
+        common::mergeInclude(
+            generator().headerfileForField(externalRef() + common::commonSuffixStr(), false),
+            includes);
+        return;
     }
 
-    prepareRanges();
-
-    if (MaxRangesInOpts < m_validRanges.size()) {
-        common::mergeInclude("<iterator>", includes);
-        common::mergeInclude("<algorithm>", includes);
-    }
-
-    if (isDirectValueNameMapping()) {
-        common::mergeInclude("<type_traits>", includes);       
-    }
-    else {
-        common::mergeInclude("<iterator>", includes);
-        common::mergeInclude("<algorithm>", includes);
-        common::mergeInclude("<utility>", includes);
-    }
+    updateIncludesForCommonInternal(includes);
 }
 
 void EnumField::updateIncludesCommonImpl(IncludesList& includes) const
 {
-    common::mergeInclude("<cstdint>", includes);
-    if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
-        auto inc =
-            generator().mainNamespace() + '/' +
-            common::msgIdEnumNameStr() + common::headerSuffix();
-        common::mergeInclude(inc, includes);
-    }
-
-    prepareRanges();
-
-    if (MaxRangesInOpts < m_validRanges.size()) {
-        common::mergeInclude("<iterator>", includes);
-        common::mergeInclude("<algorithm>", includes);
-    }
-
-    if (isDirectValueNameMapping()) {
-        common::mergeInclude("<type_traits>", includes);
-    }
-    else {
-        common::mergeInclude("<iterator>", includes);
-        common::mergeInclude("<algorithm>", includes);
-        common::mergeInclude("<utility>", includes);
-    }
+    updateIncludesForCommonInternal(includes);
 }
 
 std::string EnumField::getClassDefinitionImpl(
@@ -418,7 +381,6 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
     replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
-    replacements.insert(std::make_pair("NAME", getNameFunc()));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -427,6 +389,14 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+
+    if (isMemberChild()) {
+        replacements.insert(std::make_pair("NAME", getNameFunc()));
+    }
+    else {
+        replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
+    }
+
 
     if (isCommonPreDefDisabled()) {
         replacements.insert(std::make_pair("VALUE_NAME", getValueNameFunc()));
@@ -634,6 +604,20 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
 std::string EnumField::getCommonPreDefinitionImpl(const std::string& scope) const
 {
     assert(!isCommonPreDefDisabled());
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", adjustScopeWithNamespace(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+
+    if (!isMemberChild()) {
+        // global field
+
+        static const std::string Templ =
+            "/// @brief Values enumerator for\n"
+            "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# field.\n"
+            "using #^#CLASS_NAME#$#Val = #^#SCOPE#$##^#CLASS_NAME#$#Common::ValueType;\n";
+        return common::processTemplate(Templ, repl);
+    }
+
     static const std::string Templ =
         "#^#ENUM_DEF#$#\n"
         "/// @brief Common functions for\n"
@@ -643,10 +627,7 @@ std::string EnumField::getCommonPreDefinitionImpl(const std::string& scope) cons
         "    #^#VAL_NAME_FUNC#$#\n"
         "};\n";
 
-    common::ReplacementMap repl;
     repl.insert(std::make_pair("ENUM_DEF", getEnumeration(scope, false)));
-    repl.insert(std::make_pair("SCOPE", adjustScopeWithNamespace(scope)));
-    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     repl.insert(std::make_pair("VAL_NAME_FUNC", getValueNameFunc()));
 
     return common::processTemplate(Templ, repl);
@@ -711,7 +692,14 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
 std::string EnumField::getCommonEnumeration(const std::string& fullScope) const
 {
     if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
-        return common::emptyString();
+        static const std::string Templ =
+            "/// @brief Values enumerator for\n"
+            "///     @ref #^#SCOPE#$# field.\n"
+            "using ValueType = #^#PROT_NAMESPACE#$#::MsgId;\n";
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("SCOPE", fullScope));
+        repl.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
+        return common::processTemplate(Templ, repl);
     }
 
     static const std::string Templ =
@@ -722,11 +710,11 @@ std::string EnumField::getCommonEnumeration(const std::string& fullScope) const
         "    #^#VALUES#$#\n"
         "};\n";
 
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("SCOPE", fullScope));
-    replacements.insert(std::make_pair("TYPE", IntField::convertType(enumFieldDslObj().type())));
-    replacements.insert(std::make_pair("VALUES", getValuesDefinition()));
-    return common::processTemplate(Templ, replacements);
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("TYPE", IntField::convertType(enumFieldDslObj().type())));
+    repl.insert(std::make_pair("VALUES", getValuesDefinition()));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string EnumField::getFieldBaseParams() const
@@ -1603,6 +1591,33 @@ bool EnumField::prepareRanges() const
         m_validRanges.end());
 
     return true;
+}
+
+void EnumField::updateIncludesForCommonInternal(IncludesList& includes) const
+{
+    common::mergeInclude("<cstdint>", includes);
+    if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
+        auto inc =
+            generator().mainNamespace() + '/' +
+            common::msgIdEnumNameStr() + common::headerSuffix();
+        common::mergeInclude(inc, includes);
+    }
+
+    prepareRanges();
+
+    if (MaxRangesInOpts < m_validRanges.size()) {
+        common::mergeInclude("<iterator>", includes);
+        common::mergeInclude("<algorithm>", includes);
+    }
+
+    if (isDirectValueNameMapping()) {
+        common::mergeInclude("<type_traits>", includes);
+    }
+    else {
+        common::mergeInclude("<iterator>", includes);
+        common::mergeInclude("<algorithm>", includes);
+        common::mergeInclude("<utility>", includes);
+    }
 }
 
 } // namespace commsdsl2comms
