@@ -391,6 +391,7 @@ bool Message::write()
     }
 
     return
+        writeProtocolDefinitionCommonFile() &&
         writeProtocol() &&
         writePluginHeader() &&
         writePluginSrc();
@@ -476,6 +477,73 @@ std::string Message::getServerOptions() const
 std::string Message::getBareMetalDefaultOptions() const
 {
     return getOptions(&Field::getBareMetalDefaultOptions);
+}
+
+bool Message::writeProtocolDefinitionCommonFile()
+{
+    // TODO: iterate over fields
+    common::StringsList commonElems;
+    common::StringsList includes;
+    auto msgScope =
+        m_generator.scopeForMessage(m_externalRef, true, true);
+
+    for (auto& f : m_fields) {
+        auto fieldScope = msgScope + common::fieldsSuffixStr() + "::";
+        auto commonDef = f->getCommonDefinition(fieldScope + f->name());
+        if (!commonDef.empty()) {
+            commonElems.push_back(commonDef);
+            f->updateIncludesCommon(includes);
+        }
+
+        auto preDef = f->getCommonPreDefinition(fieldScope);
+        if (!preDef.empty()) {
+            commonElems.push_back(preDef);
+        }
+    }
+
+    if (commonElems.empty()) {
+        return true;
+    }
+
+    auto adjName = m_externalRef + common::fieldsSuffixStr() + common::commonSuffixStr();
+    auto names = m_generator.startMessageProtocolWrite(adjName);
+    auto& filePath = names.first;
+    auto& className = names.second;
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "/// @brief Common types and functions for fields of \n"
+        "///     @ref #^#SCOPE#$# message.\n"
+        "/// @see #^#SCOPE#$#Fields\n"
+        "struct #^#NAME#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", msgScope));
+    repl.insert(std::make_pair("NAME", className));
+    repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
+
+    auto str = common::processTemplate(Templ, repl);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
 }
 
 bool Message::writeProtocol()

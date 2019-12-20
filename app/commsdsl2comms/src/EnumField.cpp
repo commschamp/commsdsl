@@ -63,42 +63,7 @@ const std::string ClassTemplate(
     "};\n"
 );
 
-const std::string StructTemplate(
-    "#^#ENUMERATION#$#\n"
-    "#^#PREFIX#$#"
-    "struct #^#CLASS_NAME#$# : public\n"
-    "    comms::field::EnumValue<\n"
-    "        #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        #^#ENUM_TYPE#$#\n"
-    "        #^#FIELD_OPTS#$#\n"
-    "    >\n"
-    "{\n"
-    "    #^#NAME#$#\n"
-    "    #^#VALUE_NAME#$#\n"
-    "};\n"
-);
-
 const std::size_t MaxRangesInOpts = 5U;
-
-bool shouldUseStruct(const common::ReplacementMap& replacements)
-{
-    auto hasNoValue =
-        [&replacements](const std::string& val)
-        {
-            auto iter = replacements.find(val);
-            return (iter == replacements.end()) || iter->second.empty();
-        };
-
-    return
-        hasNoValue("READ") &&
-        hasNoValue("WRITE") &&
-        hasNoValue("LENGTH") &&
-        hasNoValue("VALID") &&
-        hasNoValue("REFRESH") &&
-        hasNoValue("PUBLIC") &&
-        hasNoValue("PROTECTED") &&
-        hasNoValue("PRIVATE");
-}
 
 std::uintmax_t maxTypeValue(commsdsl::EnumField::Type val)
 {
@@ -369,8 +334,12 @@ std::string EnumField::getClassDefinitionImpl(
     
     std::string extraDoxStr;
     if (dslObj().semanticType() != commsdsl::Field::SemanticType::MessageId) {
-        auto scopeStr = adjustScopeWithNamespace(scope + getEnumType(common::nameToClassCopy(name())));
-        extraDoxStr = "@see @ref " + scopeStr;
+        auto adjScope = adjustScopeWithNamespace(scope);
+        auto scopeStr = adjScope + getEnumType(common::nameToClassCopy(name()));
+        if (!extraDoxStr.empty()) {
+            extraDoxStr += '\n';
+        }
+        extraDoxStr += "@see @ref " + scopeStr;
     }
 
     common::ReplacementMap replacements;
@@ -409,11 +378,7 @@ std::string EnumField::getClassDefinitionImpl(
         replacements["ENUM_TYPE"] += ',';
     }
 
-    const std::string* templPtr = &ClassTemplate;
-    if (shouldUseStruct(replacements)) {
-        templPtr = &StructTemplate;
-    }
-    return common::processTemplate(*templPtr, replacements);
+    return common::processTemplate(ClassTemplate, replacements);
 }
 
 std::string EnumField::getCompareToValueImpl(
@@ -953,14 +918,17 @@ std::string EnumField::getValueNameFunc(bool isCommon) const
 
 std::string EnumField::getValueNameWrapFunc(const std::string& scope) const
 {
-
     static const std::string Templ =
         "/// @brief Retrieve name of the enum value\n"
         "static const char* valueName(#^#ENUM_TYPE#$# val)\n"
         "{\n"
         "    return #^#SCOPE#$##^#CLASS_NAME#$#Common::valueName(val);\n"
+        "}\n\n"
+        "/// @brief Retrieve name of the @b current value\n"
+        "const char* valueName() const\n"
+        "{\n"
+        "    return valueName(Base::value());\n"
         "}\n";
-
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("ENUM_TYPE", getEnumType(common::nameToClassCopy(name()))));

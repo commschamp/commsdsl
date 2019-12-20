@@ -69,6 +69,7 @@ private:
 
     using GetFieldOptionsFunc = std::string (Field::*)(const std::string&) const;
 
+    bool writeProtocolDefinitionCommonFile();
     bool writeProtocol();
     bool writePluginHeader();
     bool writePluginSrc();

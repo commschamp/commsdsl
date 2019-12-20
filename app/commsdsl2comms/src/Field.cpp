@@ -212,7 +212,7 @@ std::string Field::getCommonDefinition(
     }
 
     static const std::string Templ =
-        "/// @brief Common functions for\n"
+        "/// @brief Common types and functions for\n"
         "///     @ref #^#SCOPE#$# field.\n"
         "struct #^#NAME#$#Common\n"
         "{\n"
