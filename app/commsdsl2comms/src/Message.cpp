@@ -481,7 +481,6 @@ std::string Message::getBareMetalDefaultOptions() const
 
 bool Message::writeProtocolDefinitionCommonFile()
 {
-    // TODO: iterate over fields
     common::StringsList commonElems;
     common::StringsList includes;
     auto msgScope =
@@ -489,15 +488,10 @@ bool Message::writeProtocolDefinitionCommonFile()
 
     for (auto& f : m_fields) {
         auto fieldScope = msgScope + common::fieldsSuffixStr() + "::";
-        auto commonDef = f->getCommonDefinition(fieldScope + f->name());
+        auto commonDef = f->getCommonDefinition(fieldScope);
         if (!commonDef.empty()) {
             commonElems.push_back(commonDef);
             f->updateIncludesCommon(includes);
-        }
-
-        auto preDef = f->getCommonPreDefinition(fieldScope);
-        if (!preDef.empty()) {
-            commonElems.push_back(preDef);
         }
     }
 
@@ -516,18 +510,31 @@ bool Message::writeProtocolDefinitionCommonFile()
     }
 
     static const std::string Templ =
+        "/// @file\n"
+        "/// @brief Contains common template parameters independent functionality of\n"
+        "///    @ref #^#SCOPE#$# message fields.\n"
+        "\n"
+        "#pragma once\n"
+        "\n"
+        "#^#INCLUDES#$#\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
         "/// @brief Common types and functions for fields of \n"
         "///     @ref #^#SCOPE#$# message.\n"
         "/// @see #^#SCOPE#$#Fields\n"
         "struct #^#NAME#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
-        "};\n";
+        "};\n"
+        "#^#END_NAMESPACE#$#\n";
 
+    auto namespaces = m_generator.namespacesForMessage(m_externalRef);
     common::ReplacementMap repl;
     repl.insert(std::make_pair("SCOPE", msgScope));
     repl.insert(std::make_pair("NAME", className));
     repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
+    repl.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
+    repl.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    repl.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
 
     auto str = common::processTemplate(Templ, repl);
 
@@ -764,6 +771,7 @@ std::string Message::getIncludes() const
         f->updateIncludes(includes);
     }
 
+
     static const common::StringsList MessageIncludes = {
         "<tuple>",
         "comms/MessageBase.h",
@@ -771,6 +779,19 @@ std::string Message::getIncludes() const
         m_generator.headerfileForOptions(common::defaultOptionsStr(), false)
     };
     common::mergeIncludes(MessageIncludes, includes);
+
+    bool hasCommonDef =
+        std::any_of(
+            m_fields.begin(), m_fields.end(),
+            [](auto& f)
+            {
+                return f->hasCommonDefinition();
+            });
+
+    if (hasCommonDef) {
+        auto refStr = m_externalRef + common::fieldsSuffixStr() + common::commonSuffixStr();
+        common::mergeInclude(m_generator.headerfileForMessage(refStr, false), includes);
+    }
 
     return common::includesToStatements(includes) + m_generator.getExtraIncludeForMessage(m_externalRef);
 }

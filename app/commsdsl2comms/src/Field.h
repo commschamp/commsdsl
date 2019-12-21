@@ -72,7 +72,11 @@ public:
 
     std::string getCommonPreDefinition(const std::string& scope) const;
 
-    std::string getCommonDefinition(const std::string& fullScope) const;
+    std::string getCommonDefinition(const std::string& scope) const;
+    bool hasCommonDefinition() const
+    {
+        return hasCommonDefinitionImpl();
+    }
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
@@ -268,6 +272,8 @@ protected:
     virtual bool isVersionDependentImpl() const;
     virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const;
     virtual std::string getCommonDefinitionBodyImpl(const std::string& fullScope) const;
+    virtual std::string getCommonPostDefinitionImpl(const std::string& fullScope) const;
+    virtual bool hasCommonDefinitionImpl() const;
     virtual bool verifyAliasImpl(const std::string& fieldName) const;
 
     std::string getNameFunc() const;

@@ -200,30 +200,44 @@ std::string Field::getCommonPreDefinition(const std::string& scope) const
 }
 
 std::string Field::getCommonDefinition(
-    const std::string& fullScope) const
+    const std::string& scope) const
 {
     if (isCommonPreDefDisabled()) {
         return common::emptyString();
     }
 
+    auto fullScope = scope + common::nameToClassCopy(name());
     auto body = getCommonDefinitionBodyImpl(fullScope);
-    if (body.empty()) {
+    auto postDef = getCommonPostDefinitionImpl(fullScope);
+    if (body.empty() && postDef.empty()) {
         return common::emptyString();
     }
 
-    static const std::string Templ =
-        "/// @brief Common types and functions for\n"
-        "///     @ref #^#SCOPE#$# field.\n"
-        "struct #^#NAME#$#Common\n"
-        "{\n"
-        "    #^#BODY#$#\n"
-        "};\n";
+    std::string result;
+    if (!body.empty()) {
+        static const std::string Templ =
+            "/// @brief Common types and functions for\n"
+            "///     @ref #^#SCOPE#$# field.\n"
+            "struct #^#NAME#$#Common\n"
+            "{\n"
+            "    #^#BODY#$#\n"
+            "};\n";
 
-    common::ReplacementMap repl;
-    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("SCOPE", fullScope));
-    repl.insert(std::make_pair("BODY", std::move(body)));
-    return common::processTemplate(Templ, repl);
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+        repl.insert(std::make_pair("SCOPE", fullScope));
+        repl.insert(std::make_pair("BODY", std::move(body)));
+        result += common::processTemplate(Templ, repl);
+    }
+
+    if (!postDef.empty()) {
+        if (!result.empty()) {
+            result += '\n';
+        }
+        result += postDef;
+    }
+
+    return result;
 }
 
 Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
@@ -1079,10 +1093,21 @@ std::string Field::getCommonPreDefinitionImpl(const std::string& scope) const
     return common::emptyString();
 }
 
-std::string Field::getCommonDefinitionBodyImpl(const std::string& scope) const
+std::string Field::getCommonDefinitionBodyImpl(const std::string& fullScope) const
 {
-    static_cast<void>(scope);
+    static_cast<void>(fullScope);
     return common::emptyString();
+}
+
+std::string Field::getCommonPostDefinitionImpl(const std::string& fullScope) const
+{
+    static_cast<void>(fullScope);
+    return common::emptyString();
+}
+
+bool Field::hasCommonDefinitionImpl() const
+{
+    return false;
 }
 
 bool Field::verifyAliasImpl(const std::string& fieldName) const
@@ -1121,7 +1146,7 @@ std::string Field::getNameCommonWrapFunc(const std::string& scope) const
         "}\n";
 
     common::ReplacementMap repl;
-    repl.insert(std::make_pair("SCOPE", scope));
+    repl.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
     repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     return common::processTemplate(Templ, repl);
 }
@@ -1306,8 +1331,9 @@ std::string Field::scopeForCommon(const std::string& scope) const
 
 bool Field::writeProtocolDefinitionCommonFile() const
 {
-    auto fullScope = m_generator.scopeForField(m_externalRef, true, true);
-    auto commonDef = getCommonDefinition(fullScope);
+    auto scope = m_generator.scopeForField(m_externalRef, true, false);
+    auto commonDef = getCommonDefinition(scope);
+    assert(hasCommonDefinition() == (!commonDef.empty()));
     if (commonDef.empty()) {
         return true;
     }
@@ -1342,13 +1368,14 @@ bool Field::writeProtocolDefinitionCommonFile() const
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("COMMON_DEF", std::move(commonDef)));
-    replacements.insert(std::make_pair("SCOPE", fullScope));
+    replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(commonName)));
 
     static const std::string FileTemplate(
         "/// @file\n"
         "/// @brief Contains common template parameters independent functionality of\n"
-        "///    @ref #^#SCOPE#$# field.\n"
+        "///    @ref #^#SCOPE#$##^#NAME#$# field.\n"
         "\n"
         "#pragma once\n"
         "\n"

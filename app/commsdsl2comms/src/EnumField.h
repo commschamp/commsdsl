@@ -55,8 +55,10 @@ protected:
         const std::string& nameOverride,
         bool forcedVersionOptional) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
-    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
+//    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
     virtual std::string getCommonDefinitionBodyImpl(const std::string& fullScope) const override final;
+    virtual std::string getCommonPostDefinitionImpl(const std::string& fullScope) const override final;
+    virtual bool hasCommonDefinitionImpl() const override final;
 
 private:
     using StringsList = common::StringsList;
@@ -74,7 +76,7 @@ private:
     std::string getEnumeration(const std::string& scope, bool checkIfMemberChild = true) const;
     std::string getCommonEnumeration(const std::string& fullScope) const;
     std::string getFieldBaseParams() const;
-    std::string getEnumType(const std::string& className, bool isCommon = false) const;
+    std::string getEnumType(bool isCommon = false) const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getValid() const;
     std::string getValueNameFunc(bool isCommon = false) const;
