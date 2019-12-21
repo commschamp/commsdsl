@@ -577,11 +577,10 @@ std::string EnumField::getCommonPostDefinitionImpl(const std::string& fullScope)
     static const std::string Templ =
         "/// @brief Values enumerator for\n"
         "///     @ref #^#FULL_SCOPE#$# field.\n"
-        "using #^#CLASS_NAME#$#Val = #^#ADJ_FULL_SCOPE#$#Common::ValueType;\n";
+        "using #^#CLASS_NAME#$#Val = #^#CLASS_NAME#$#Common::ValueType;\n";
 
     common::ReplacementMap repl;
     repl.insert(std::make_pair("FULL_SCOPE", fullScope));
-    repl.insert(std::make_pair("ADJ_FULL_SCOPE", scopeForCommon(fullScope)));
     repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     return common::processTemplate(Templ, repl);
 }

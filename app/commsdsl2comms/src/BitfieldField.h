@@ -47,7 +47,6 @@ protected:
     virtual void setForcedPseudoImpl() override final;
     virtual void setForcedNoOptionsConfigImpl() override final;
     virtual bool isVersionDependentImpl() const override final;
-//    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
     virtual std::string getCommonPreDefinitionFullImpl(const std::string& fullScope) const override final;
     virtual bool hasCommonDefinitionImpl() const override final;
     virtual bool verifyAliasImpl(const std::string& fieldName) const override final;

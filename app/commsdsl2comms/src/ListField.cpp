@@ -280,6 +280,22 @@ void ListField::updateIncludesImpl(IncludesList& includes) const
     } while (false);
 }
 
+void ListField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    auto updateFunc =
+        [&includes](auto& f)
+        {
+            if (f) {
+                f->updateIncludesCommon(includes);
+            }
+        };
+
+    updateFunc(m_element);
+    updateFunc(m_countPrefix);
+    updateFunc(m_lengthPrefix);
+    updateFunc(m_elemLengthPrefix);
+}
+
 void ListField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
     auto obj = listFieldDslObj();
@@ -761,12 +777,11 @@ bool ListField::isVersionDependentImpl() const
 
     return false;
 }
-std::string ListField::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string ListField::getCommonPreDefinitionFullImpl(const std::string& fullScope) const
 {
     common::StringsList defs;
-    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
 
-    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    auto updatedScope = fullScope + common::membersSuffixStr() + "::";
     auto updateDefsFor =
         [&defs, updatedScope](const FieldPtr& f)
         {
@@ -774,7 +789,7 @@ std::string ListField::getCommonPreDefinitionImpl(const std::string& scope) cons
                 return;
             }
 
-            auto str = f->getCommonPreDefinition(updatedScope);
+            auto str = f->getCommonDefinition(updatedScope);
             if (str.empty()) {
                 return;
             }
@@ -801,9 +816,24 @@ std::string ListField::getCommonPreDefinitionImpl(const std::string& scope) cons
 
     common::ReplacementMap repl;
     repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("SCOPE", scopeStr));
+    repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
     return common::processTemplate(Templ, repl);
+}
+
+bool ListField::hasCommonDefinitionImpl() const
+{
+    auto checkFunc =
+        [](const FieldPtr& f) -> bool
+        {
+            return f && f->hasCommonDefinition();
+        };
+
+    return
+        checkFunc(m_element) &&
+        checkFunc(m_countPrefix) &&
+        checkFunc(m_lengthPrefix) &&
+        checkFunc(m_elemLengthPrefix);
 }
 
 std::string ListField::getFieldOpts(const std::string& scope) const
