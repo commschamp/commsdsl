@@ -182,6 +182,13 @@ void BundleField::updateIncludesImpl(IncludesList& includes) const
     }
 }
 
+void BundleField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    for (auto& m : m_members) {
+        m->updateIncludesCommon(includes);
+    }
+}
+
 void BundleField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
     for (auto& m : m_members) {
@@ -338,14 +345,13 @@ bool BundleField::isVersionDependentImpl() const
             });
 }
 
-std::string BundleField::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string BundleField::getCommonPreDefinitionFullImpl(const std::string& fullScope) const
 {
     common::StringsList defs;
-    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
-
-    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    auto updatedScope =
+        fullScope + common::membersSuffixStr() + "::";
     for (auto& m : m_members) {
-        auto str = m->getCommonPreDefinition(updatedScope);
+        auto str = m->getCommonDefinition(updatedScope);
         if (!str.empty()) {
             defs.emplace_back(std::move(str));
         }
@@ -365,9 +371,21 @@ std::string BundleField::getCommonPreDefinitionImpl(const std::string& scope) co
 
     common::ReplacementMap repl;
     repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("SCOPE", scopeStr));
+    repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
     return common::processTemplate(Templ, repl);
+}
+
+bool BundleField::hasCommonDefinitionImpl() const
+{
+    return
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                assert(m);
+                return m->hasCommonDefinition();
+            });
 }
 
 bool BundleField::verifyAliasImpl(const std::string& fieldName) const

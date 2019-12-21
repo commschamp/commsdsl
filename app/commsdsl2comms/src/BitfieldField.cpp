@@ -120,6 +120,13 @@ void BitfieldField::updateIncludesImpl(IncludesList& includes) const
     }
 }
 
+void BitfieldField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    for (auto& m : m_members) {
+        m->updateIncludesCommon(includes);
+    }
+}
+
 void BitfieldField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
     for (auto& m : m_members) {
@@ -244,14 +251,13 @@ bool BitfieldField::isVersionDependentImpl() const
     return Base::isVersionDependentImpl();
 }
 
-std::string BitfieldField::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string BitfieldField::getCommonPreDefinitionFullImpl(const std::string& fullScope) const
 {
     common::StringsList defs;
-    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
-
-    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    auto updatedScope =
+        fullScope + common::membersSuffixStr() + "::";
     for (auto& m : m_members) {
-        auto str = m->getCommonPreDefinition(updatedScope);
+        auto str = m->getCommonDefinition(updatedScope);
         if (!str.empty()) {
             defs.emplace_back(std::move(str));
         }
@@ -263,7 +269,7 @@ std::string BitfieldField::getCommonPreDefinitionImpl(const std::string& scope) 
 
     static const std::string Templ =
         "/// @brief Scope for all the common definitions of the member fields of\n"
-        "///     @ref #^#SCOPE#$# bitfield.\n"
+        "///     @ref #^#SCOPE#$# bundle.\n"
         "struct #^#CLASS_NAME#$#MembersCommon\n"
         "{\n"
         "    #^#DEFS#$#\n"
@@ -271,9 +277,21 @@ std::string BitfieldField::getCommonPreDefinitionImpl(const std::string& scope) 
 
     common::ReplacementMap repl;
     repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("SCOPE", scopeStr));
+    repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
     return common::processTemplate(Templ, repl);
+}
+
+bool BitfieldField::hasCommonDefinitionImpl() const
+{
+    return
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                assert(m);
+                return m->hasCommonDefinition();
+            });
 }
 
 bool BitfieldField::verifyAliasImpl(const std::string& fieldName) const
