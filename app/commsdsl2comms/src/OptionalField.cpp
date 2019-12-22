@@ -152,6 +152,14 @@ void OptionalField::updateIncludesImpl(IncludesList& includes) const
     common::mergeInclude(generator().headerfileForField(optionalFieldDslObj().field().externalRef(), false), includes);
 }
 
+void OptionalField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    if (m_field) {
+        assert(m_field->externalRef().empty());
+        m_field->updateIncludesCommon(includes);
+    }
+}
+
 void OptionalField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
     if (m_field) {
@@ -326,23 +334,21 @@ bool OptionalField::isVersionDependentImpl() const
     return m_field && m_field->isVersionDependent();
 }
 
-std::string OptionalField::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string OptionalField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     if (!m_field) {
         return common::emptyString();
     }
 
-    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
-
-    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
-    auto str = m_field->getCommonPreDefinition(updatedScope);
+    auto updatedScope = fullScope + common::membersSuffixStr() + "::";
+    auto str = m_field->getCommonDefinition(updatedScope);
     if (str.empty()) {
         return common::emptyString();
     }
 
     static const std::string Templ =
         "/// @brief Scope for all the common definitions of the member fields of\n"
-        "///     @ref #^#SCOPE#$# optional.\n"
+        "///     @ref #^#SCOPE#$# field.\n"
         "struct #^#CLASS_NAME#$#MembersCommon\n"
         "{\n"
         "    #^#DEFS#$#\n"
@@ -350,7 +356,7 @@ std::string OptionalField::getCommonPreDefinitionImpl(const std::string& scope) 
 
     common::ReplacementMap repl;
     repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("SCOPE", scopeStr));
+    repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("DEFS", std::move(str)));
     return common::processTemplate(Templ, repl);
 }
