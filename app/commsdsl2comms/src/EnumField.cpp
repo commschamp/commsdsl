@@ -558,30 +558,29 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
-std::string EnumField::getCommonDefinitionBodyImpl(const std::string& fullScope) const
+std::string EnumField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     static const std::string Templ =
-        "#^#ENUM_DEF#$#\n"
-        "#^#NAME_FUNC#$#\n"
-        "#^#VAL_NAME_FUNC#$#\n";
+        "/// @brief Common types and functions for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "struct #^#NAME#$#Common\n"
+        "{\n"
+        "    #^#ENUM_DEF#$#\n"
+        "    #^#NAME_FUNC#$#\n"
+        "    #^#VAL_NAME_FUNC#$#\n"
+        "};\n\n"
+        "/// @brief Values enumerator for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "using #^#NAME#$#Val = #^#NAME#$#Common::ValueType;\n";
+
+
 
     common::ReplacementMap repl;
+    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("ENUM_DEF", getCommonEnumeration(fullScope)));
     repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
     repl.insert(std::make_pair("VAL_NAME_FUNC", getValueNameFunc(true)));
-    return common::processTemplate(Templ, repl);
-}
-
-std::string EnumField::getCommonPostDefinitionImpl(const std::string& fullScope) const
-{
-    static const std::string Templ =
-        "/// @brief Values enumerator for\n"
-        "///     @ref #^#FULL_SCOPE#$# field.\n"
-        "using #^#CLASS_NAME#$#Val = #^#CLASS_NAME#$#Common::ValueType;\n";
-
-    common::ReplacementMap repl;
-    repl.insert(std::make_pair("FULL_SCOPE", fullScope));
-    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     return common::processTemplate(Templ, repl);
 }
 

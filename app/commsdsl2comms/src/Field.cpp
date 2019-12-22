@@ -202,55 +202,8 @@ std::string Field::getCommonPreDefinition(const std::string& scope) const
 std::string Field::getCommonDefinition(
     const std::string& scope) const
 {
-//    if (isCommonPreDefDisabled()) {
-//        return common::emptyString();
-//    }
-
     auto fullScope = scope + common::nameToClassCopy(name());
-    auto preDef = getCommonPreDefinitionFullImpl(fullScope);
-    auto body = getCommonDefinitionBodyImpl(fullScope);
-    auto postDef = getCommonPostDefinitionImpl(fullScope);
-    if (preDef.empty() && body.empty() && postDef.empty()) {
-        return common::emptyString();
-    }
-
-    std::string result;
-    auto adjustResult =
-        [&result]()
-        {
-            if (!result.empty()) {
-                result += '\n';
-            }
-        };
-
-    if (!preDef.empty()) {
-        result += preDef;
-    }
-
-
-    if (!body.empty()) {
-        static const std::string Templ =
-            "/// @brief Common types and functions for\n"
-            "///     @ref #^#SCOPE#$# field.\n"
-            "struct #^#NAME#$#Common\n"
-            "{\n"
-            "    #^#BODY#$#\n"
-            "};\n";
-
-        common::ReplacementMap repl;
-        repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
-        repl.insert(std::make_pair("SCOPE", fullScope));
-        repl.insert(std::make_pair("BODY", std::move(body)));
-        adjustResult();
-        result += common::processTemplate(Templ, repl);
-    }
-
-    if (!postDef.empty()) {
-        adjustResult();
-        result += postDef;
-    }
-
-    return result;
+    return getCommonDefinitionImpl(fullScope);
 }
 
 Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
@@ -1106,19 +1059,7 @@ std::string Field::getCommonPreDefinitionImpl(const std::string& scope) const
     return common::emptyString();
 }
 
-std::string Field::getCommonPreDefinitionFullImpl(const std::string& fullScope) const
-{
-    static_cast<void>(fullScope);
-    return common::emptyString();
-}
-
-std::string Field::getCommonDefinitionBodyImpl(const std::string& fullScope) const
-{
-    static_cast<void>(fullScope);
-    return common::emptyString();
-}
-
-std::string Field::getCommonPostDefinitionImpl(const std::string& fullScope) const
+std::string Field::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     static_cast<void>(fullScope);
     return common::emptyString();

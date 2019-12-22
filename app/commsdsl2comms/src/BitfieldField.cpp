@@ -251,7 +251,7 @@ bool BitfieldField::isVersionDependentImpl() const
     return Base::isVersionDependentImpl();
 }
 
-std::string BitfieldField::getCommonPreDefinitionFullImpl(const std::string& fullScope) const
+std::string BitfieldField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     common::StringsList defs;
     auto updatedScope =

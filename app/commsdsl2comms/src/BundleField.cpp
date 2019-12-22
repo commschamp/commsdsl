@@ -345,7 +345,7 @@ bool BundleField::isVersionDependentImpl() const
             });
 }
 
-std::string BundleField::getCommonPreDefinitionFullImpl(const std::string& fullScope) const
+std::string BundleField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     common::StringsList defs;
     auto updatedScope =

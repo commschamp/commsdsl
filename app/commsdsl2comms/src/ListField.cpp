@@ -777,7 +777,7 @@ bool ListField::isVersionDependentImpl() const
 
     return false;
 }
-std::string ListField::getCommonPreDefinitionFullImpl(const std::string& fullScope) const
+std::string ListField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     common::StringsList defs;
 

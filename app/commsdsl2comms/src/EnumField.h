@@ -55,8 +55,7 @@ protected:
         const std::string& nameOverride,
         bool forcedVersionOptional) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
-    virtual std::string getCommonDefinitionBodyImpl(const std::string& fullScope) const override final;
-    virtual std::string getCommonPostDefinitionImpl(const std::string& fullScope) const override final;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
     virtual bool hasCommonDefinitionImpl() const override final;
 
 private:

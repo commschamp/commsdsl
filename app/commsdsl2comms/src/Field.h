@@ -271,9 +271,7 @@ protected:
     virtual void setForcedNoOptionsConfigImpl();
     virtual bool isVersionDependentImpl() const;
     virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const;
-    virtual std::string getCommonPreDefinitionFullImpl(const std::string& fullScope) const;
-    virtual std::string getCommonDefinitionBodyImpl(const std::string& fullScope) const;
-    virtual std::string getCommonPostDefinitionImpl(const std::string& fullScope) const;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const;
     virtual bool hasCommonDefinitionImpl() const;
     virtual bool verifyAliasImpl(const std::string& fieldName) const;
 
