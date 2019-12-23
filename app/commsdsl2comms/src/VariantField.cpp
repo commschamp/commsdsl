@@ -305,6 +305,18 @@ std::string VariantField::getCommonDefinitionImpl(const std::string& fullScope) 
     return common::processTemplate(Templ, repl);
 }
 
+bool VariantField::hasCommonDefinitionImpl() const
+{
+    return
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                assert(m);
+                return m->hasCommonDefinition();
+            });
+}
+
 std::string VariantField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

@@ -69,6 +69,14 @@ void SetField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
         "comms/field/BitmaskValue.h",
+    };
+
+    common::mergeIncludes(List, includes);
+}
+
+void SetField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    static const IncludesList List = {
         "<type_traits>"
     };
 
@@ -86,7 +94,7 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("BITS_ACCESS", getBitsAccess()));
-    replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -95,14 +103,7 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
-
-    if (isCommonPreDefDisabled()) {
-        replacements.insert(std::make_pair("BIT_NAME", getBitName()));
-    }
-    else {
         replacements.insert(std::make_pair("BIT_NAME", getBitNameWrap(scope)));
-    }
-
 
     return common::processTemplate(ClassTemplate, replacements);
 }
@@ -180,23 +181,30 @@ std::string SetField::getPluginPropertiesImpl(bool serHiddenParam) const
     return common::listToString(props, "\n", common::emptyString());
 }
 
-std::string SetField::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string SetField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     assert(!isCommonPreDefDisabled());
     static const std::string Templ =
         "/// @brief Common functions for\n"
-        "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# field.\n"
+        "///     @ref #^#SCOPE#$# field.\n"
         "struct #^#CLASS_NAME#$#Common\n"
         "{\n"
+        "    #^#NAME_FUNC#$#\n"
         "    #^#BIT_NAME_FUNC#$#\n"
         "};\n";
 
     common::ReplacementMap repl;
-    repl.insert(std::make_pair("SCOPE", adjustScopeWithNamespace(scope)));
+    repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("BIT_NAME_FUNC", getBitName()));
+    repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
+    repl.insert(std::make_pair("BIT_NAME_FUNC", getBitName(fullScope)));
 
     return common::processTemplate(Templ, repl);
+}
+
+bool SetField::hasCommonDefinitionImpl() const
+{
+    return true;
 }
 
 std::string SetField::getExtraDoc() const
@@ -592,7 +600,7 @@ std::string SetField::getValid() const
     return common::processTemplate(Templ, replacements);
 }
 
-std::string SetField::getBitName() const
+std::string SetField::getBitName(const std::string& fullScope) const
 {
     auto obj = setFieldDslObj();
     auto& bits = obj.bits();
@@ -661,7 +669,8 @@ std::string SetField::getBitName() const
     std::string namesStr = common::listToString(names, ",\n", common::emptyString());
 
     static const std::string Templ =
-        "/// @brief Retrieve name of the bit\n"
+        "/// @brief Retrieve name of the bit of\n"
+        "///     @ref #^#SCOPE#$# field.\n"
         "static const char* bitName(std::size_t idx)\n"
         "{\n"
         "    static const char* Map[] = {\n"
@@ -674,15 +683,16 @@ std::string SetField::getBitName() const
         "    return Map[idx];\n"
         "}\n";
 
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("NAMES", std::move(namesStr)));
-    return common::processTemplate(Templ, replacements);
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("NAMES", std::move(namesStr)));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string SetField::getBitNameWrap(const std::string& scope) const
 {
     static const std::string Templ =
-        "/// @brief Retrieve name of the bit\n"
+        "/// @brief Retrieve name of the bit.\n"
         "static const char* bitName(BitIdx idx)\n"
         "{\n"
         "    return\n"

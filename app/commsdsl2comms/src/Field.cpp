@@ -76,6 +76,13 @@ void Field::updateIncludes(Field::IncludesList& includes) const
         common::mergeInclude("comms/field/Optional.h", includes);
     }
 
+    if ((!isMemberChild()) && (hasCommonDefinition())) {
+        common::mergeInclude(
+            generator().headerfileForField(externalRef() + common::commonSuffixStr(), false),
+            includes);
+        return;
+    }
+
     updateIncludesImpl(includes);
 }
 

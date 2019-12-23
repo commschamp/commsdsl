@@ -361,6 +361,10 @@ std::string OptionalField::getCommonDefinitionImpl(const std::string& fullScope)
     return common::processTemplate(Templ, repl);
 }
 
+bool OptionalField::hasCommonDefinitionImpl() const
+{
+    return m_field && m_field->hasCommonDefinition();
+}
 
 std::string OptionalField::getFieldOpts(const std::string& scope) const
 {

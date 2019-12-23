@@ -310,13 +310,6 @@ void EnumField::updateIncludesImpl(IncludesList& includes) const
     };
 
     common::mergeIncludes(List, includes);
-    if (!isMemberChild()) {
-        common::mergeInclude(
-            generator().headerfileForField(externalRef() + common::commonSuffixStr(), false),
-            includes);
-        return;
-    }
-
     updateIncludesForCommonInternal(includes);
 }
 
