@@ -32,6 +32,7 @@ public:
 protected:
     virtual bool prepareImpl() override;
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const override final;
     virtual std::size_t minLengthImpl() const override final;
     virtual std::size_t maxLengthImpl() const override final;
@@ -53,6 +54,8 @@ protected:
         bool externalName,
         bool forcedSerialisedHidden,
         bool serHiddenParam) const override final;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
+    virtual bool hasCommonDefinitionImpl() const override final;
 
 private:
     using StringsList = common::StringsList;

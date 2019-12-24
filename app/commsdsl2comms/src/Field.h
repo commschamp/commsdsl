@@ -73,6 +73,11 @@ public:
     std::string getCommonPreDefinition(const std::string& scope) const;
 
     std::string getCommonDefinition(const std::string& scope) const;
+    std::string getRefToCommonDefinition(const std::string& fullScope) const
+    {
+        return getRefToCommonDefinitionImpl(fullScope);
+    }
+
     bool hasCommonDefinition() const
     {
         return hasCommonDefinitionImpl();
@@ -273,6 +278,7 @@ protected:
     virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const;
     virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const;
     virtual bool hasCommonDefinitionImpl() const;
+    virtual std::string getRefToCommonDefinitionImpl(const std::string& fullScope) const;
     virtual bool verifyAliasImpl(const std::string& fieldName) const;
 
     std::string getNameFunc() const;
@@ -300,6 +306,7 @@ protected:
 
     std::string adjustScopeWithNamespace(const std::string& scope) const;
     std::string scopeForCommon(const std::string& scope) const;
+    std::string classNameFromFullScope(const std::string& fullScope) const;
 
 private:
 
