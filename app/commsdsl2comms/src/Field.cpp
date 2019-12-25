@@ -1076,25 +1076,10 @@ bool Field::hasCommonDefinitionImpl() const
     return false;
 }
 
-std::string Field::getRefToCommonDefinitionImpl(const std::string& fullScope) const
+std::string Field::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
-    if (!hasCommonDefinition()) {
-        return common::emptyString();
-    }
-
-    static const std::string Templ =
-        "/// @brief Common types and functions for\n"
-        "///     @ref #^#SCOPE#$# field.\n"
-        "using #^#CLASS_NAME#$#Common = #^#COMMON_SCOPE#$#Common;\n";
-
-    auto commonScope = scopeForCommon(m_generator.scopeForField(externalRef(), true, true));
-    std::string className = classNameFromFullScope(fullScope);
-
-    common::ReplacementMap repl;
-    repl.insert(std::make_pair("SCOPE", fullScope));
-    repl.insert(std::make_pair("CLASS_NAME", std::move(className)));
-    repl.insert(std::make_pair("COMMON_SCOPE", std::move(commonScope)));
-    return common::processTemplate(Templ, repl);
+    static_cast<void>(fullScope);
+    return common::emptyString();
 }
 
 bool Field::verifyAliasImpl(const std::string& fieldName) const

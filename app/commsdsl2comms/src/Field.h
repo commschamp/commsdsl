@@ -73,9 +73,9 @@ public:
     std::string getCommonPreDefinition(const std::string& scope) const;
 
     std::string getCommonDefinition(const std::string& scope) const;
-    std::string getRefToCommonDefinition(const std::string& fullScope) const
+    std::string getExtraRefToCommonDefinition(const std::string& fullScope) const
     {
-        return getRefToCommonDefinitionImpl(fullScope);
+        return getExtraRefToCommonDefinitionImpl(fullScope);
     }
 
     bool hasCommonDefinition() const
@@ -278,7 +278,7 @@ protected:
     virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const;
     virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const;
     virtual bool hasCommonDefinitionImpl() const;
-    virtual std::string getRefToCommonDefinitionImpl(const std::string& fullScope) const;
+    virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const;
     virtual bool verifyAliasImpl(const std::string& fieldName) const;
 
     std::string getNameFunc() const;

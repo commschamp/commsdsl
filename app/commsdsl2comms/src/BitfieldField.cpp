@@ -302,8 +302,20 @@ bool BitfieldField::hasCommonDefinitionImpl() const
     return true;
 }
 
-std::string BitfieldField::getRefToCommonDefinitionImpl(const std::string& fullScope) const
+std::string BitfieldField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
+    bool hasMembersCommon =
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                return m->hasCommonDefinition();
+            });
+
+    if (!hasMembersCommon) {
+        return common::emptyString();
+    }
+
     static const std::string Templ =
         "/// @brief Common types and functions for members of\n"
         "///     @ref #^#SCOPE#$# field.\n"
@@ -317,7 +329,7 @@ std::string BitfieldField::getRefToCommonDefinitionImpl(const std::string& fullS
     repl.insert(std::make_pair("CLASS_NAME", std::move(className)));
     repl.insert(std::make_pair("COMMON_SCOPE", std::move(commonScope)));
 
-    return common::processTemplate(Templ, repl) + Base::getRefToCommonDefinitionImpl(fullScope);
+    return common::processTemplate(Templ, repl);
 }
 
 bool BitfieldField::verifyAliasImpl(const std::string& fieldName) const

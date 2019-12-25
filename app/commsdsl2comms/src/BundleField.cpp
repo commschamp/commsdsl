@@ -396,8 +396,20 @@ bool BundleField::hasCommonDefinitionImpl() const
     return true;
 }
 
-std::string BundleField::getRefToCommonDefinitionImpl(const std::string& fullScope) const
+std::string BundleField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
+    bool hasMembersCommon =
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto& m)
+            {
+                return m->hasCommonDefinition();
+            });
+
+    if (!hasMembersCommon) {
+        return common::emptyString();
+    }
+
     static const std::string Templ =
         "/// @brief Common types and functions for members of\n"
         "///     @ref #^#SCOPE#$# field.\n"
@@ -411,7 +423,7 @@ std::string BundleField::getRefToCommonDefinitionImpl(const std::string& fullSco
     repl.insert(std::make_pair("CLASS_NAME", std::move(className)));
     repl.insert(std::make_pair("COMMON_SCOPE", std::move(commonScope)));
 
-    return common::processTemplate(Templ, repl) + Base::getRefToCommonDefinitionImpl(fullScope);
+    return common::processTemplate(Templ, repl);
 }
 
 bool BundleField::verifyAliasImpl(const std::string& fieldName) const

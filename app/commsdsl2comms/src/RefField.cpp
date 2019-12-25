@@ -127,8 +127,18 @@ void RefField::updateIncludesImpl(IncludesList& includes) const
 
 void RefField::updateIncludesCommonImpl(IncludesList& includes) const
 {
+    auto fieldPtr = generator().findField(refFieldDslObj().field().externalRef());
+    if (fieldPtr == nullptr) {
+        assert(!"Unexpected");
+        return;
+    }
+
+    if (!fieldPtr->hasCommonDefinition()) {
+        return;
+    }
+
     auto inc =
-        generator().headerfileForField(refFieldDslObj().field().externalRef() + common::commonSuffixStr(), false);
+        generator().headerfileForField(fieldPtr->externalRef() + common::commonSuffixStr(), false);
     common::mergeInclude(inc, includes);
 }
 
@@ -356,7 +366,22 @@ std::string RefField::getCommonDefinitionImpl(const std::string& fullScope) cons
     auto refObj = refFieldDslObj().field();
     auto fieldPtr = generator().findField(refObj.externalRef());
     assert(fieldPtr != nullptr);
-    return (fieldPtr->getRefToCommonDefinition(fullScope));
+    auto str = fieldPtr->getExtraRefToCommonDefinition(fullScope);
+
+    static const std::string Templ =
+        "/// @brief Common types and functions for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "using #^#CLASS_NAME#$#Common = #^#COMMON_SCOPE#$#Common;\n";
+
+    auto commonScope = scopeForCommon(generator().scopeForField(fieldPtr->externalRef(), true, true));
+    std::string className = classNameFromFullScope(fullScope);
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    repl.insert(std::make_pair("COMMON_SCOPE", std::move(commonScope)));
+    return str + common::processTemplate(Templ, repl);
+
 }
 
 bool RefField::hasCommonDefinitionImpl() const
@@ -365,6 +390,14 @@ bool RefField::hasCommonDefinitionImpl() const
     auto fieldPtr = generator().findField(refObj.externalRef());
     assert(fieldPtr != nullptr);
     return (fieldPtr && fieldPtr->hasCommonDefinition());
+}
+
+std::string RefField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
+{
+    auto refObj = refFieldDslObj().field();
+    auto fieldPtr = generator().findField(refObj.externalRef());
+    assert(fieldPtr != nullptr);
+    return fieldPtr->getExtraRefToCommonDefinition(fullScope);
 }
 
 std::string RefField::getOpts(const std::string& scope) const

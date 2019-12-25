@@ -49,6 +49,7 @@ protected:
     virtual bool isVersionDependentImpl() const override final;
     virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
     virtual bool hasCommonDefinitionImpl() const override final;
+    virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const override final;
 
 private:
     using StringsList = common::StringsList;
