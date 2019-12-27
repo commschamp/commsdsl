@@ -47,6 +47,7 @@ public:
 
     using IncludesList = common::StringsList;
     void updateIncludes(IncludesList& includes) const;
+    void updateIncludesCommon(IncludesList& includes) const;
     void updatePluginIncludes(IncludesList& includes) const;
 
     bool prepare();
@@ -69,7 +70,8 @@ public:
     std::string getFieldScopeForPlugin(const std::string& scope) const;
     std::string getFieldAccNameForPlugin() const;
     std::string getPluginCreatePropsFunc(const std::string& scope) const;
-    std::string getCommonPreDefinition(const std::string& scope) const;
+    std::string getCommonDefinition(const std::string& scope) const;
+    bool hasCommonDefinition() const;
 
     bool isPseudoVersionLayer(const std::vector<std::string>& interfaceVersionFields) const
     {

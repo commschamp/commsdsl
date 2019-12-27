@@ -486,8 +486,8 @@ bool Message::writeProtocolDefinitionCommonFile()
     auto msgScope =
         m_generator.scopeForMessage(m_externalRef, true, true);
 
+    auto fieldScope = msgScope + common::fieldsSuffixStr() + "::";
     for (auto& f : m_fields) {
-        auto fieldScope = msgScope + common::fieldsSuffixStr() + "::";
         auto commonDef = f->getCommonDefinition(fieldScope);
         if (!commonDef.empty()) {
             commonElems.push_back(commonDef);
