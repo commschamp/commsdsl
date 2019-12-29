@@ -273,10 +273,10 @@ bool Interface::writeProtocolDefinitionCommonFile()
         return true;
     }
 
-    auto adjName = m_externalRef + common::fieldsSuffixStr() + common::commonSuffixStr();
+    auto adjName = m_externalRef + common::commonSuffixStr();
     auto names = m_generator.startInterfaceProtocolWrite(adjName);
     auto& filePath = names.first;
-    auto& className = names.second;
+    //auto& className = names.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -295,7 +295,7 @@ bool Interface::writeProtocolDefinitionCommonFile()
         "/// @brief Common types and functions for fields of \n"
         "///     @ref #^#SCOPE#$# interface.\n"
         "/// @see #^#SCOPE#$#Fields\n"
-        "struct #^#NAME#$#\n"
+        "struct #^#NAME#$#FieldsCommon\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n"
@@ -304,7 +304,7 @@ bool Interface::writeProtocolDefinitionCommonFile()
     auto namespaces = m_generator.namespacesForInterface(m_externalRef);
     common::ReplacementMap repl;
     repl.insert(std::make_pair("SCOPE", interfaceScope));
-    repl.insert(std::make_pair("NAME", className));
+    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
     repl.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
     repl.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -666,7 +666,7 @@ std::string Interface::getIncludes() const
                 });
 
         if (hasCommonDef) {
-            auto refStr = m_externalRef + common::fieldsSuffixStr() + common::commonSuffixStr();
+            auto refStr = m_externalRef + common::commonSuffixStr();
             common::mergeInclude(m_generator.headerfileForInterface(refStr, false), includes);
         }
     }

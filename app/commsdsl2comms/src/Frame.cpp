@@ -188,10 +188,10 @@ bool Frame::writeProtocolDefinitionCommonFile()
     }
 
 
-    auto adjName = m_externalRef + common::layersSuffixStr() + common::commonSuffixStr();
+    auto adjName = m_externalRef + common::commonSuffixStr();
     auto names = m_generator.startFrameProtocolWrite(adjName);
     auto& filePath = names.first;
-    auto& className = names.second;
+    //auto& className = names.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -210,7 +210,7 @@ bool Frame::writeProtocolDefinitionCommonFile()
         "/// @brief Common types and functions of fields using in definition of\n"
         "///     @ref #^#SCOPE#$# frame.\n"
         "/// @see #^#SCOPE#$#Layers\n"
-        "struct #^#NAME#$#\n"
+        "struct #^#NAME#$#LayersCommon\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n"
@@ -219,7 +219,7 @@ bool Frame::writeProtocolDefinitionCommonFile()
     auto namespaces = m_generator.namespacesForFrame(m_externalRef);
     common::ReplacementMap repl;
     repl.insert(std::make_pair("SCOPE", frameScope));
-    repl.insert(std::make_pair("NAME", className));
+    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
     repl.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
     repl.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -698,7 +698,7 @@ std::string Frame::getIncludes() const
     }
 
     if (hasCommonDefinition()) {
-        auto refStr = m_externalRef + common::layersSuffixStr() + common::commonSuffixStr();
+        auto refStr = m_externalRef + common::commonSuffixStr();
         common::mergeInclude(m_generator.headerfileForFrame(refStr, false), includes);
     }
 
