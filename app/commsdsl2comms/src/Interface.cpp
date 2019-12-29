@@ -211,6 +211,7 @@ bool Interface::prepare()
 bool Interface::write()
 {
     return
+        writeProtocolDefinitionCommonFile() &&
         writeProtocol() &&
         writePluginHeader() &&
         writePluginSrc();
@@ -250,6 +251,80 @@ std::vector<std::string> Interface::getVersionFields() const
         }
     }
     return result;
+}
+
+bool Interface::writeProtocolDefinitionCommonFile()
+{
+    common::StringsList commonElems;
+    common::StringsList includes;
+    auto interfaceScope =
+        m_generator.scopeForInterface(m_externalRef, true, true);
+
+    auto fieldScope = interfaceScope + common::fieldsSuffixStr() + "::";
+    for (auto& f : m_fields) {
+        auto commonDef = f->getCommonDefinition(fieldScope);
+        if (!commonDef.empty()) {
+            commonElems.push_back(commonDef);
+            f->updateIncludesCommon(includes);
+        }
+    }
+
+    if (commonElems.empty()) {
+        return true;
+    }
+
+    auto adjName = m_externalRef + common::fieldsSuffixStr() + common::commonSuffixStr();
+    auto names = m_generator.startInterfaceProtocolWrite(adjName);
+    auto& filePath = names.first;
+    auto& className = names.second;
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "/// @file\n"
+        "/// @brief Contains common template parameters independent functionality of\n"
+        "///    @ref #^#SCOPE#$# interface fields.\n"
+        "\n"
+        "#pragma once\n"
+        "\n"
+        "#^#INCLUDES#$#\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "/// @brief Common types and functions for fields of \n"
+        "///     @ref #^#SCOPE#$# interface.\n"
+        "/// @see #^#SCOPE#$#Fields\n"
+        "struct #^#NAME#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n"
+        "#^#END_NAMESPACE#$#\n";
+
+    auto namespaces = m_generator.namespacesForInterface(m_externalRef);
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", interfaceScope));
+    repl.insert(std::make_pair("NAME", className));
+    repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
+    repl.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
+    repl.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    repl.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+
+    auto str = common::processTemplate(Templ, repl);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
 }
 
 bool Interface::writeProtocol()
@@ -581,6 +656,19 @@ std::string Interface::getIncludes() const
 
     if (!m_fields.empty()) {
         common::mergeInclude("<tuple>", includes);
+
+        bool hasCommonDef =
+            std::any_of(
+                m_fields.begin(), m_fields.end(),
+                [](auto& f)
+                {
+                    return f->hasCommonDefinition();
+                });
+
+        if (hasCommonDef) {
+            auto refStr = m_externalRef + common::fieldsSuffixStr() + common::commonSuffixStr();
+            common::mergeInclude(m_generator.headerfileForInterface(refStr, false), includes);
+        }
     }
 
     static const common::StringsList InterfaceIncludes = {
@@ -628,8 +716,13 @@ std::string Interface::getFieldsDef() const
 {
     std::string result;
 
+    auto scope =
+        m_generator.scopeForInterface(m_externalRef, true, true) +
+            common::fieldsSuffixStr() +
+            "::";
+
     for (auto& f : m_fields) {
-        result += f->getClassDefinition(common::emptyString());
+        result += f->getClassDefinition(scope);
         if (&f != &m_fields.back()) {
             result += '\n';
         }

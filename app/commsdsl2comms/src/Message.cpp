@@ -771,7 +771,6 @@ std::string Message::getIncludes() const
         f->updateIncludes(includes);
     }
 
-
     static const common::StringsList MessageIncludes = {
         "<tuple>",
         "comms/MessageBase.h",

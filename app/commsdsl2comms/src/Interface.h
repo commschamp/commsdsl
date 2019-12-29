@@ -54,7 +54,7 @@ public:
     std::vector<std::string> getVersionFields() const;
 
 private:
-
+    bool writeProtocolDefinitionCommonFile();
     bool writeProtocol();
     bool writePluginHeader();
     bool writePluginSrc();

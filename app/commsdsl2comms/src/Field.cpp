@@ -1292,11 +1292,33 @@ std::string Field::scopeForCommon(const std::string& scope) const
             if (ba::starts_with(adjustedScope, wrongPrefix)) {
                 ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
             }
+
+            auto nsScopes = m_generator.getNonDefaultNamespacesScopes();
+            std::sort(
+                nsScopes.begin(), nsScopes.end(),
+                [](auto& first, auto& second)
+                {
+                    return first.size() < second.size();
+                });
+
+            for (auto& s : nsScopes) {
+                auto scopeResultPrefix = s + "::" + ns + "::";
+                auto scopeWrongPrefix = ba::replace_all_copy(scopeResultPrefix, "::", CommonStr);
+                if (ba::starts_with(adjustedScope, scopeWrongPrefix)) {
+                    ba::replace_first(adjustedScope, scopeWrongPrefix, scopeResultPrefix);
+                }
+            }
         };
 
     restorePrefixFunc(common::messageStr());
     restorePrefixFunc(common::fieldStr());
     restorePrefixFunc(common::frameStr());
+
+    auto resultPrefix = generator().mainNamespace() + "::";
+    auto wrongPrefix = ba::replace_all_copy(resultPrefix, "::", CommonStr);
+    if (ba::starts_with(adjustedScope, wrongPrefix)) {
+        ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
+    }
 
     return adjustedScope;
 }
@@ -1332,6 +1354,7 @@ bool Field::writeProtocolDefinitionCommonFile() const
     }
 
     auto className = name() + common::commonSuffixStr();
+    common::nameToClass(className);
     if (startInfo.second != className) {
         m_generator.logger().error("Renaming the common definitions of \"" + m_externalRef + "\" field is not supported.");
         return false;
