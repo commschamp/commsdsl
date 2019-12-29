@@ -1105,11 +1105,6 @@ std::string Field::getNameFunc() const
 
 std::string Field::getNameCommonWrapFunc(const std::string& scope) const
 {
-    auto customName = m_generator.getCustomNameForField(m_externalRef);
-    if (!customName.empty()) {
-        return customName;
-    }
-
     static const std::string Templ =
         "/// @brief Name of the field.\n"
         "static const char* name()\n"
@@ -1281,46 +1276,7 @@ std::string Field::adjustScopeWithNamespace(const std::string& scope) const
 
 std::string Field::scopeForCommon(const std::string& scope) const
 {
-    static const std::string CommonStr("Common::");
-    auto adjustedScope = ba::replace_all_copy(scope, "::", CommonStr);
-
-    auto restorePrefixFunc =
-        [this, &adjustedScope](const std::string& ns)
-        {
-            auto resultPrefix = generator().mainNamespace() + "::" + ns + "::";
-            auto wrongPrefix = ba::replace_all_copy(resultPrefix, "::", CommonStr);
-            if (ba::starts_with(adjustedScope, wrongPrefix)) {
-                ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
-            }
-
-            auto nsScopes = m_generator.getNonDefaultNamespacesScopes();
-            std::sort(
-                nsScopes.begin(), nsScopes.end(),
-                [](auto& first, auto& second)
-                {
-                    return first.size() < second.size();
-                });
-
-            for (auto& s : nsScopes) {
-                auto scopeResultPrefix = s + "::" + ns + "::";
-                auto scopeWrongPrefix = ba::replace_all_copy(scopeResultPrefix, "::", CommonStr);
-                if (ba::starts_with(adjustedScope, scopeWrongPrefix)) {
-                    ba::replace_first(adjustedScope, scopeWrongPrefix, scopeResultPrefix);
-                }
-            }
-        };
-
-    restorePrefixFunc(common::messageStr());
-    restorePrefixFunc(common::fieldStr());
-    restorePrefixFunc(common::frameStr());
-
-    auto resultPrefix = generator().mainNamespace() + "::";
-    auto wrongPrefix = ba::replace_all_copy(resultPrefix, "::", CommonStr);
-    if (ba::starts_with(adjustedScope, wrongPrefix)) {
-        ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
-    }
-
-    return adjustedScope;
+    return m_generator.scopeForCommon(scope);
 }
 
 std::string Field::classNameFromFullScope(const std::string& fullScope) const

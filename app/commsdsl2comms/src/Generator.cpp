@@ -1731,6 +1731,50 @@ const std::string& Generator::getMinCommsVersionStr() const
     return MinCommsVersionStr;
 }
 
+std::string Generator::scopeForCommon(const std::string& scope) const
+{
+    static const std::string CommonStr("Common::");
+    auto adjustedScope = ba::replace_all_copy(scope, "::", CommonStr);
+
+    auto restorePrefixFunc =
+        [this, &adjustedScope](const std::string& ns)
+        {
+            auto resultPrefix = mainNamespace() + "::" + ns + "::";
+            auto wrongPrefix = ba::replace_all_copy(resultPrefix, "::", CommonStr);
+            if (ba::starts_with(adjustedScope, wrongPrefix)) {
+                ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
+            }
+
+            auto nsScopes = getNonDefaultNamespacesScopes();
+            std::sort(
+                nsScopes.begin(), nsScopes.end(),
+                [](auto& first, auto& second)
+                {
+                    return first.size() < second.size();
+                });
+
+            for (auto& s : nsScopes) {
+                auto scopeResultPrefix = s + "::" + ns + "::";
+                auto scopeWrongPrefix = ba::replace_all_copy(scopeResultPrefix, "::", CommonStr);
+                if (ba::starts_with(adjustedScope, scopeWrongPrefix)) {
+                    ba::replace_first(adjustedScope, scopeWrongPrefix, scopeResultPrefix);
+                }
+            }
+        };
+
+    restorePrefixFunc(common::messageStr());
+    restorePrefixFunc(common::fieldStr());
+    restorePrefixFunc(common::frameStr());
+
+    auto resultPrefix = mainNamespace() + "::";
+    auto wrongPrefix = ba::replace_all_copy(resultPrefix, "::", CommonStr);
+    if (ba::starts_with(adjustedScope, wrongPrefix)) {
+        ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
+    }
+
+    return adjustedScope;
+}
+
 std::pair<std::string, std::string>
 Generator::namespacesForElement(
     const std::string& externalRef,

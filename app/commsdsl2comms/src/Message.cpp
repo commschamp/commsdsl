@@ -495,14 +495,28 @@ bool Message::writeProtocolDefinitionCommonFile()
         }
     }
 
-    if (commonElems.empty()) {
-        return true;
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", msgScope));
+    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+
+    std::string fieldsCommon;
+    if (!commonElems.empty()) {
+        static const std::string Templ =
+        "/// @brief Common types and functions for fields of \n"
+        "///     @ref #^#SCOPE#$# message.\n"
+        "/// @see #^#SCOPE#$#Fields\n"
+        "struct #^#NAME#$#FieldsCommon\n"
+        "{\n"
+        "    #^#FIELDS_BODY#$#\n"
+        "};\n";
+        repl.insert(std::make_pair("FIELDS_BODY", common::listToString(commonElems, "\n", common::emptyString())));
+        fieldsCommon = common::processTemplate(Templ, repl);
     }
 
-    auto adjName = m_externalRef + common::fieldsSuffixStr() + common::commonSuffixStr();
+    auto adjName = m_externalRef + common::commonSuffixStr();
     auto names = m_generator.startMessageProtocolWrite(adjName);
     auto& filePath = names.first;
-    auto& className = names.second;
+    //auto& className = names.second;
 
     if (filePath.empty()) {
         // Skipping generation
@@ -512,26 +526,25 @@ bool Message::writeProtocolDefinitionCommonFile()
     static const std::string Templ =
         "/// @file\n"
         "/// @brief Contains common template parameters independent functionality of\n"
-        "///    @ref #^#SCOPE#$# message fields.\n"
+        "///    @ref #^#SCOPE#$# message and its fields.\n"
         "\n"
         "#pragma once\n"
         "\n"
         "#^#INCLUDES#$#\n"
         "#^#BEGIN_NAMESPACE#$#\n"
-        "/// @brief Common types and functions for fields of \n"
+        "#^#FIELDS_COMMON#$#\n"
+        "/// @brief Common types and functions of \n"
         "///     @ref #^#SCOPE#$# message.\n"
-        "/// @see #^#SCOPE#$#Fields\n"
-        "struct #^#NAME#$#\n"
+        "/// @see #^#SCOPE#$#\n"
+        "struct #^#NAME#$#Common\n"
         "{\n"
-        "    #^#BODY#$#\n"
-        "};\n"
+        "    #^#NAME_FUNC#$#\n"
+        "};\n\n"
         "#^#END_NAMESPACE#$#\n";
 
     auto namespaces = m_generator.namespacesForMessage(m_externalRef);
-    common::ReplacementMap repl;
-    repl.insert(std::make_pair("SCOPE", msgScope));
-    repl.insert(std::make_pair("NAME", className));
-    repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
+    repl.insert(std::make_pair("FIELDS_COMMON", std::move(fieldsCommon)));
+    repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(msgScope)));
     repl.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
     repl.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     repl.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -779,18 +792,8 @@ std::string Message::getIncludes() const
     };
     common::mergeIncludes(MessageIncludes, includes);
 
-    bool hasCommonDef =
-        std::any_of(
-            m_fields.begin(), m_fields.end(),
-            [](auto& f)
-            {
-                return f->hasCommonDefinition();
-            });
-
-    if (hasCommonDef) {
-        auto refStr = m_externalRef + common::fieldsSuffixStr() + common::commonSuffixStr();
-        common::mergeInclude(m_generator.headerfileForMessage(refStr, false), includes);
-    }
+    auto commonRefStr = m_externalRef + common::commonSuffixStr();
+    common::mergeInclude(m_generator.headerfileForMessage(commonRefStr, false), includes);
 
     return common::includesToStatements(includes) + m_generator.getExtraIncludeForMessage(m_externalRef);
 }
@@ -1069,9 +1072,25 @@ std::string Message::getNameFunc() const
         return str;
     }
 
+    auto fullScope = m_generator.scopeForMessage(m_externalRef, true, true);
     return
         "/// @brief Name of the message.\n"
         "static const char* doName()\n"
+        "{\n"
+        "    return " + m_generator.scopeForCommon(fullScope) + "Common::name();\n"
+        "}\n";
+}
+
+std::string Message::getCommonNameFunc(const std::string& fullScope) const
+{
+    auto customName = m_generator.getCustomNameForMessage(m_externalRef + common::commonSuffixStr());
+    if (!customName.empty()) {
+        return customName;
+    }
+
+    return
+        "/// @brief Name of the @ref " + fullScope + " message.\n"
+        "static const char* name()\n"
         "{\n"
         "    return \"" + getDisplayName() + "\";\n"
         "}\n";

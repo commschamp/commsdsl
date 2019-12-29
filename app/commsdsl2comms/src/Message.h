@@ -87,6 +87,7 @@ private:
     std::string getFieldsDef() const;
     std::string getNamespaceScope() const;
     std::string getNameFunc() const;
+    std::string getCommonNameFunc(const std::string& fullScope) const;
     std::string getReadFunc() const;
     std::string getRefreshFunc() const;
     std::string getExtraOptions() const;

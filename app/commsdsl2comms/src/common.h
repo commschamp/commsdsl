@@ -123,7 +123,6 @@ std::string toLowerCopy(const std::string& str);
 void toUpper(std::string& str);
 std::string toUpperCopy(const std::string& str);
 
-
 } // namespace common
 
 } // namespace commsdsl2comms
