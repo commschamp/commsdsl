@@ -46,6 +46,8 @@ const std::string ClassTemplate(
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
+    "    /// @brief Re-definition of the value type.\n"
+    "    using ValueType = typename Base::ValueType;\n\n"
     "    #^#PUBLIC#$#\n"
     "    #^#SPECIALS#$#\n"
     "    #^#NAME#$#\n"
@@ -251,6 +253,7 @@ std::string IntField::getClassDefinitionImpl(
     const std::string& scope,
     const std::string& className) const
 {
+    auto adjScope = adjustScopeWithNamespace(scope);
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
     replacements.insert(std::make_pair("CLASS_NAME", className));
@@ -258,8 +261,8 @@ std::string IntField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
     replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
-    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
-    replacements.insert(std::make_pair("SPECIALS", getSpecials()));
+    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjScope)));
+    replacements.insert(std::make_pair("SPECIALS", getSpecials(adjScope)));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -570,7 +573,7 @@ std::string IntField::getFieldOpts(const std::string& scope, bool reduced) const
     return common::listToString(options, ",\n", common::emptyString());
 }
 
-std::string IntField::getSpecials() const
+std::string IntField::getSpecials(const std::string& scope) const
 {
     auto obj = intFieldDslObj();
     auto& specials = obj.specialValues();
@@ -587,9 +590,9 @@ std::string IntField::getSpecials() const
         static const std::string Templ(
             "/// @brief Special value <b>\"#^#SPEC_NAME#$#\"</b>.\n"
             "#^#SPECIAL_DOC#$#\n"
-            "static constexpr typename Base::ValueType value#^#SPEC_ACC#$#()\n"
+            "static constexpr ValueType value#^#SPEC_ACC#$#()\n"
             "{\n"
-            "    return static_cast<typename Base::ValueType>(#^#SPEC_VAL#$#);\n"
+            "    return #^#SCOPE#$##^#CLASS_NAME#$#Common::value#^#SPEC_ACC#$#();\n"
             "}\n\n"
             "/// @brief Check the value is equal to special @ref value#^#SPEC_ACC#$#().\n"
             "bool is#^#SPEC_ACC#$#() const\n"
@@ -603,16 +606,6 @@ std::string IntField::getSpecials() const
             "}\n"
         );
 
-        std::string specVal;
-        auto type = obj.type();
-        if ((type == commsdsl::IntField::Type::Uint64) ||
-            (type == commsdsl::IntField::Type::Uintvar)) {
-            specVal = common::numToString(static_cast<std::uintmax_t>(s.second.m_value));
-        }
-        else {
-            specVal = common::numToString(s.second.m_value);
-        }
-
         std::string desc = s.second.m_description;
         if (!desc.empty()) {
             static const std::string Prefix("/// @details ");
@@ -623,8 +616,9 @@ std::string IntField::getSpecials() const
 
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("SPEC_NAME", s.first));
+        replacements.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+        replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
         replacements.insert(std::make_pair("SPEC_ACC", common::nameToClassCopy(s.first)));
-        replacements.insert(std::make_pair("SPEC_VAL", std::move(specVal)));
         replacements.insert(std::make_pair("SPECIAL_DOC", std::move(desc)));
 
         result += common::processTemplate(Templ, replacements);
@@ -712,11 +706,11 @@ std::string IntField::getValid() const
         }
 
         if (r.m_min == r.m_max) {
-            conds.push_back("(static_cast<typename Base::ValueType>(" + minVal + ") == Base::value())");
+            conds.push_back("(static_cast<ValueType>(" + minVal + ") == Base::value())");
         }
         else {
-            conds.push_back("(static_cast<typename Base::ValueType>(" + minVal + ") <= Base::value())");
-            conds.push_back("(Base::value() <= static_cast<typename Base::ValueType>(" + maxVal + "))");
+            conds.push_back("(static_cast<ValueType>(" + minVal + ") <= Base::value())");
+            conds.push_back("(Base::value() <= static_cast<ValueType>(" + maxVal + "))");
         }
 
         common::ReplacementMap replacements;

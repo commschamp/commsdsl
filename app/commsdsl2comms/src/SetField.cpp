@@ -183,7 +183,6 @@ std::string SetField::getPluginPropertiesImpl(bool serHiddenParam) const
 
 std::string SetField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
-    assert(!isCommonPreDefDisabled());
     static const std::string Templ =
         "/// @brief Common functions for\n"
         "///     @ref #^#SCOPE#$# field.\n"

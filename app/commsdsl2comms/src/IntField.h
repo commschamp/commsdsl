@@ -63,7 +63,7 @@ private:
     const std::string& getFieldType() const;
     std::string getFieldChangedSignType() const;
     std::string getFieldOpts(const std::string& scope, bool reduced = false) const;
-    std::string getSpecials() const;
+    std::string getSpecials(const std::string& scope) const;
     std::string getValid() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
