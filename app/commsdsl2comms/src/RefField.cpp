@@ -198,10 +198,7 @@ std::string RefField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
-
-    if (displayName() != fieldPtr->displayName()) {
-        replacements.insert(std::make_pair("NAME_FUNC", getNameFunc()));
-    }
+    replacements.insert(std::make_pair("NAME_FUNC", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
 
     replacements.insert(
         std::make_pair(
@@ -213,7 +210,7 @@ std::string RefField::getClassDefinitionImpl(
     auto* templ = &ClassTemplate;
     if (shouldUseStruct(replacements)) {
         templ = &StructTemplate;
-        if ((replacements.find("NAME_FUNC") == replacements.end()) &&
+        if ((displayName() == fieldPtr->displayName()) &&
             (refObj.bitLength() == 0U)) {
             templ = &AliasTemplate;
         }
@@ -368,19 +365,33 @@ std::string RefField::getCommonDefinitionImpl(const std::string& fullScope) cons
     assert(fieldPtr != nullptr);
     auto str = fieldPtr->getExtraRefToCommonDefinition(fullScope);
 
-    static const std::string Templ =
+    static const std::string AliasTempl =
         "/// @brief Common types and functions for\n"
         "///     @ref #^#SCOPE#$# field.\n"
         "using #^#CLASS_NAME#$#Common = #^#COMMON_SCOPE#$#Common;\n";
 
+    static const std::string InheritanceTempl =
+    "/// @brief Common types and functions for\n"
+    "///     @ref #^#SCOPE#$# field.\n"
+    "struct #^#CLASS_NAME#$#Common : public #^#COMMON_SCOPE#$#Common\n"
+    "{\n"
+    "    #^#NAME_FUNC#$#\n"
+    "};\n";
+
     auto commonScope = scopeForCommon(generator().scopeForField(fieldPtr->externalRef(), true, true));
     std::string className = classNameFromFullScope(fullScope);
 
+    auto* templ = &AliasTempl;
     common::ReplacementMap repl;
     repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("CLASS_NAME", std::move(className)));
     repl.insert(std::make_pair("COMMON_SCOPE", std::move(commonScope)));
-    return str + common::processTemplate(Templ, repl);
+    if (displayName() != fieldPtr->displayName()) {
+        templ = &InheritanceTempl;
+        repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
+    }
+
+    return str + common::processTemplate(*templ, repl);
 
 }
 
