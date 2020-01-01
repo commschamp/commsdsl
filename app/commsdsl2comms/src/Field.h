@@ -262,7 +262,6 @@ protected:
     virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const;
     virtual bool verifyAliasImpl(const std::string& fieldName) const;
 
-    std::string getNameFunc() const;
     std::string getNameCommonWrapFunc(const std::string& scope) const;
     std::string getCommonNameFunc(const std::string& fullScope) const;
 

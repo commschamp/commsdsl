@@ -1068,21 +1068,6 @@ bool Field::verifyAliasImpl(const std::string& fieldName) const
     return false;
 }
 
-std::string Field::getNameFunc() const
-{
-    auto customName = m_generator.getCustomNameForField(m_externalRef);
-    if (!customName.empty()) {
-        return customName;
-    }
-
-    return
-        "/// @brief Name of the field.\n"
-        "static const char* name()\n"
-        "{\n"
-        "    return \"" + displayName() + "\";\n"
-        "}\n";
-}
-
 std::string Field::getNameCommonWrapFunc(const std::string& scope) const
 {
     static const std::string Templ =
