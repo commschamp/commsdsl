@@ -832,17 +832,12 @@ std::string ListField::getCommonDefinitionImpl(const std::string& fullScope) con
     return common::processTemplate(Templ, repl);
 }
 
-bool ListField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string ListField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
     auto checkFunc =
         [](const FieldPtr& f) -> bool
         {
-            return f && f->hasCommonDefinition();
+            return static_cast<bool>(f);
         };
 
     bool hasCommonMembers =

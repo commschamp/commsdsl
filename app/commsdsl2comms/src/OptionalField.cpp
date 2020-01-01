@@ -379,15 +379,9 @@ std::string OptionalField::getCommonDefinitionImpl(const std::string& fullScope)
     return common::processTemplate(Templ, repl);
 }
 
-bool OptionalField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string OptionalField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
-    bool hasMembersCommon = m_field && m_field->hasCommonDefinition();
-    if (!hasMembersCommon) {
+    if (!m_field) {
         return common::emptyString();
     }
 

@@ -577,11 +577,6 @@ std::string EnumField::getCommonDefinitionImpl(const std::string& fullScope) con
     return common::processTemplate(Templ, repl);
 }
 
-bool EnumField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemberChild) const
 {
     if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {

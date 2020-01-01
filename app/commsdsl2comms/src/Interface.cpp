@@ -655,19 +655,8 @@ std::string Interface::getIncludes() const
 
     if (!m_fields.empty()) {
         common::mergeInclude("<tuple>", includes);
-
-        bool hasCommonDef =
-            std::any_of(
-                m_fields.begin(), m_fields.end(),
-                [](auto& f)
-                {
-                    return f->hasCommonDefinition();
-                });
-
-        if (hasCommonDef) {
-            auto refStr = m_externalRef + common::commonSuffixStr();
-            common::mergeInclude(m_generator.headerfileForInterface(refStr, false), includes);
-        }
+        auto refStr = m_externalRef + common::commonSuffixStr();
+        common::mergeInclude(m_generator.headerfileForInterface(refStr, false), includes);
     }
 
     static const common::StringsList InterfaceIncludes = {

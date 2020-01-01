@@ -390,25 +390,8 @@ std::string BundleField::getCommonDefinitionImpl(const std::string& fullScope) c
     return common::processTemplate(Templ, repl);
 }
 
-bool BundleField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string BundleField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
-    bool hasMembersCommon =
-        std::any_of(
-            m_members.begin(), m_members.end(),
-            [](auto& m)
-            {
-                return m->hasCommonDefinition();
-            });
-
-    if (!hasMembersCommon) {
-        return common::emptyString();
-    }
-
     static const std::string Templ =
         "/// @brief Common types and functions for members of\n"
         "///     @ref #^#SCOPE#$# field.\n"

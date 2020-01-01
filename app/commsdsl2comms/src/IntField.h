@@ -54,7 +54,6 @@ protected:
         bool forcedVersionOptional) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
     virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
-    virtual bool hasCommonDefinitionImpl() const override final;
 
 private:
     using StringsList = common::StringsList;

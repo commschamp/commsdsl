@@ -416,11 +416,6 @@ std::string DataField::getCommonDefinitionImpl(const std::string& fullScope) con
     return common::processTemplate(Templ, repl);
 }
 
-bool DataField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string DataField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

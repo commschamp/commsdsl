@@ -133,10 +133,6 @@ void RefField::updateIncludesCommonImpl(IncludesList& includes) const
         return;
     }
 
-    if (!fieldPtr->hasCommonDefinition()) {
-        return;
-    }
-
     auto inc =
         generator().headerfileForField(fieldPtr->externalRef() + common::commonSuffixStr(), false);
     common::mergeInclude(inc, includes);
@@ -356,10 +352,6 @@ std::string RefField::getPluginPropsDefFuncBodyImpl(
 
 std::string RefField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
-    if (!hasCommonDefinition()) {
-        return common::emptyString();
-    }
-
     auto refObj = refFieldDslObj().field();
     auto fieldPtr = generator().findField(refObj.externalRef());
     assert(fieldPtr != nullptr);
@@ -393,14 +385,6 @@ std::string RefField::getCommonDefinitionImpl(const std::string& fullScope) cons
 
     return str + common::processTemplate(*templ, repl);
 
-}
-
-bool RefField::hasCommonDefinitionImpl() const
-{
-    auto refObj = refFieldDslObj().field();
-    auto fieldPtr = generator().findField(refObj.externalRef());
-    assert(fieldPtr != nullptr);
-    return (fieldPtr && fieldPtr->hasCommonDefinition());
 }
 
 std::string RefField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const

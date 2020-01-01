@@ -468,11 +468,6 @@ std::string StringField::getCommonDefinitionImpl(const std::string& fullScope) c
     return common::processTemplate(Templ, repl);
 }
 
-bool StringField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string StringField::getFieldOpts(const std::string& scope) const
 {
     StringsList options;

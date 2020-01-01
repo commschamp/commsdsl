@@ -517,11 +517,6 @@ std::string IntField::getCommonDefinitionImpl(const std::string& fullScope) cons
     return common::processTemplate(Templ, repl);
 }
 
-bool IntField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string IntField::getFieldBaseParams() const
 {
     auto obj = intFieldDslObj();

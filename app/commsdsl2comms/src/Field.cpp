@@ -76,7 +76,7 @@ void Field::updateIncludes(Field::IncludesList& includes) const
         common::mergeInclude("comms/field/Optional.h", includes);
     }
 
-    if ((!isMemberChild()) && (hasCommonDefinition())) {
+    if (!isMemberChild()) {
         common::mergeInclude(
             generator().headerfileForField(externalRef() + common::commonSuffixStr(), false),
             includes);
@@ -1056,11 +1056,6 @@ std::string Field::getCommonDefinitionImpl(const std::string& fullScope) const
     return common::emptyString();
 }
 
-bool Field::hasCommonDefinitionImpl() const
-{
-    return false;
-}
-
 std::string Field::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
     static_cast<void>(fullScope);
@@ -1281,8 +1276,8 @@ bool Field::writeProtocolDefinitionCommonFile() const
 {
     auto scope = m_generator.scopeForField(m_externalRef, true, false);
     auto commonDef = getCommonDefinition(scope);
-    assert(hasCommonDefinition() == (!commonDef.empty()));
     if (commonDef.empty()) {
+        assert(!"Should not happen");
         return true;
     }
 

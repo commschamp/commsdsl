@@ -264,10 +264,10 @@ std::string Layer::getCommonDefinition(const std::string& scope) const
     auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     auto str = m_field->getCommonDefinition(fullScope);
     if (str.empty()) {
+        assert(!"Should not happen");
         return common::emptyString();
     }
 
-    assert(m_field->hasCommonDefinition());
     static const std::string Templ =
         "/// @brief Scope for all the common definitions of the fields defined in\n"
         "///     @ref #^#SCOPE#$##^#CLASS_NAME#$#Members struct.\n"
@@ -286,7 +286,7 @@ std::string Layer::getCommonDefinition(const std::string& scope) const
 
 bool Layer::hasCommonDefinition() const
 {
-    return m_field && m_field->hasCommonDefinition();
+    return static_cast<bool>(m_field);
 }
 
 const Field* Layer::getField() const

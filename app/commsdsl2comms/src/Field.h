@@ -76,11 +76,6 @@ public:
         return getExtraRefToCommonDefinitionImpl(fullScope);
     }
 
-    bool hasCommonDefinition() const
-    {
-        return hasCommonDefinitionImpl();
-    }
-
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
     std::string getDefaultOptions(const std::string& scope) const;
@@ -264,7 +259,6 @@ protected:
     virtual void setForcedNoOptionsConfigImpl();
     virtual bool isVersionDependentImpl() const;
     virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const;
-    virtual bool hasCommonDefinitionImpl() const;
     virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const;
     virtual bool verifyAliasImpl(const std::string& fieldName) const;
 

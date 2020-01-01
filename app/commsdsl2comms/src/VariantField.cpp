@@ -319,26 +319,8 @@ std::string VariantField::getCommonDefinitionImpl(const std::string& fullScope) 
     return common::processTemplate(Templ, repl);
 }
 
-bool VariantField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string VariantField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
-    bool hasMembersCommon =
-        std::any_of(
-            m_members.begin(), m_members.end(),
-            [](auto& m)
-            {
-                assert(m);
-                return m->hasCommonDefinition();
-            });
-
-    if (!hasMembersCommon) {
-        return common::emptyString();
-    }
-
     static const std::string Templ =
         "/// @brief Common types and functions for members of\n"
         "///     @ref #^#SCOPE#$# field.\n"

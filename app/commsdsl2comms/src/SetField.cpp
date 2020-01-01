@@ -201,11 +201,6 @@ std::string SetField::getCommonDefinitionImpl(const std::string& fullScope) cons
     return common::processTemplate(Templ, repl);
 }
 
-bool SetField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string SetField::getExtraDoc() const
 {
     common::StringsList extraDocList;

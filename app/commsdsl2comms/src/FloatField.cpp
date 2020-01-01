@@ -523,11 +523,6 @@ std::string FloatField::getCommonDefinitionImpl(const std::string& fullScope) co
     return common::processTemplate(Templ, repl);
 }
 
-bool FloatField::hasCommonDefinitionImpl() const
-{
-    return true;
-}
-
 std::string FloatField::getFieldBaseParams() const
 {
     auto obj = floatFieldDslObj();
