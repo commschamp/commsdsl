@@ -125,7 +125,6 @@ bool OptionalField::prepareImpl()
     }
 
     ptr->setMemberChild();
-    ptr->setCommonPreDefDisabled(isCommonPreDefDisabled());
     if (!ptr->prepare(obj.sinceVersion())) {
         return false;
     }

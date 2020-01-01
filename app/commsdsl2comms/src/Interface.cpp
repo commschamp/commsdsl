@@ -196,7 +196,6 @@ bool Interface::prepare()
         }
 
         ptr->setMemberChild();
-        ptr->setCommonPreDefDisabled();
         if (!ptr->prepare(0U)) {
             return false;
         }

@@ -43,7 +43,6 @@ const std::string Template(
     "\n"
     "#^#INCLUDES#$#\n"
     "#^#BEGIN_NAMESPACE#$#\n"
-    "#^#COMMON_PRE_DEF#$#\n"
     "/// @brief Fields of @ref #^#CLASS_NAME#$#.\n"
     "/// @tparam TOpt Extra options\n"
     "/// @see @ref #^#CLASS_NAME#$#\n"
@@ -580,7 +579,6 @@ bool Message::writeProtocol()
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("COMMON_PRE_DEF", getCommonPreDef()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("MESSAGE_NAME", getDisplayName()));
@@ -1132,42 +1130,6 @@ std::string Message::getExtraPublic() const
     }
 
     return "\n" + str;
-}
-
-std::string Message::getCommonPreDef() const
-{
-    auto scope =
-        "TOpt::" +
-        getNamespaceScope() +
-        common::fieldsSuffixStr() +
-        "::";
-
-    common::StringsList defs;
-    for (auto& f : m_fields) {
-        auto str = f->getCommonPreDefinition(scope);
-        if (!str.empty()) {
-            defs.emplace_back(std::move(str));
-        }
-    }
-
-    if (defs.empty()) {
-        return common::emptyString();
-    }
-
-    static const std::string Templ =
-        "/// @brief Common definitions for fields from @ref #^#CLASS_NAME#$#Fields.\n"
-        "/// @see @ref #^#CLASS_NAME#$#Fields\n"
-        "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
-        "struct #^#CLASS_NAME#$#FieldsCommon\n"
-        "{\n"
-        "    #^#FIELDS_DEF#$#\n"
-        "};\n";
-
-    common::ReplacementMap repl;
-    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("MESSAGE_HEADERFILE", m_generator.headerfileForMessage(m_externalRef)));
-    repl.insert(std::make_pair("FIELDS_DEF", common::listToString(defs, "\n", common::emptyString())));
-    return common::processTemplate(Templ, repl);
 }
 
 bool Message::mustImplementReadRefresh() const

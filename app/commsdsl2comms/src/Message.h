@@ -92,7 +92,6 @@ private:
     std::string getRefreshFunc() const;
     std::string getExtraOptions() const;
     std::string getExtraPublic() const;
-    std::string getCommonPreDef() const;
 
     bool mustImplementReadRefresh() const;
     bool isCustomizable() const;

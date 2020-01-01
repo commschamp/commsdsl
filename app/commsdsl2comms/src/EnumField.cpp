@@ -588,7 +588,7 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
         return common::emptyString();
     }
 
-    if (checkIfMemberChild && (!isMemberChild()) && (!isCommonPreDefDisabled())) {
+    if (checkIfMemberChild && (!isMemberChild())) {
         return common::emptyString();
     }
 
@@ -598,7 +598,7 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
     replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scopeStr));
 
-    if (checkIfMemberChild && isMemberChild() && (!isCommonPreDefDisabled())) {
+    if (checkIfMemberChild && isMemberChild()) {
 
         static const std::string MemChildTempl =
             "/// @brief Values enumerator for\n"
