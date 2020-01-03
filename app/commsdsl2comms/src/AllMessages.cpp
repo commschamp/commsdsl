@@ -177,6 +177,7 @@ bool AllMessages::writeProtocolDefinition() const
 
             common::ReplacementMap replacements;
             auto namespaces = m_generator.namespacesForInput();
+            replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
@@ -194,6 +195,7 @@ bool AllMessages::writeProtocolDefinition() const
             }
 
             const std::string Template(
+                "#^#GEN_COMMENT#$#\n"
                 "/// @file\n"
                 "/// @brief Contains definition of all #^#PLAT_NAME#$##^#INPUT#$#messages bundle.\n\n"
                 "#pragma once\n\n"
@@ -366,6 +368,7 @@ bool AllMessages::writePluginDefinition() const
 
             common::ReplacementMap replacements;
             auto namespaces = m_generator.namespacesForInputInPlugin();
+            replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
@@ -378,6 +381,7 @@ bool AllMessages::writePluginDefinition() const
             }
 
             const std::string Template(
+                "#^#GEN_COMMENT#$#\n"
                 "#pragma once\n\n"
                 "#^#INCLUDES#$#\n"
                 "#^#BEG_NAMESPACE#$#\n"

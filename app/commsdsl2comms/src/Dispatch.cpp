@@ -189,6 +189,7 @@ bool Dispatch::writeProtocolDefinition() const
 
             common::ReplacementMap replacements;
             auto namespaces = m_generator.namespacesForDispatch();
+            replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
             replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
             replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
             replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(info.m_includes)));
@@ -205,6 +206,7 @@ bool Dispatch::writeProtocolDefinition() const
             }
 
             static const std::string Templ =
+                "#^#GEN_COMMENT#$#\n"
                 "/// @file\n"
                 "/// @brief Contains dispatch to handling function(s) for #^#PLAT_NAME#$##^#INPUT#$#messages.\n\n"
                 "#pragma once\n\n"

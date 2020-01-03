@@ -1293,6 +1293,7 @@ bool Field::writeProtocolDefinitionCommonFile() const
 
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -1302,6 +1303,7 @@ bool Field::writeProtocolDefinitionCommonFile() const
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(commonName)));
 
     static const std::string FileTemplate(
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains common template parameters independent functionality of\n"
         "///    @ref #^#SCOPE#$##^#NAME#$# field.\n"
@@ -1354,6 +1356,7 @@ bool Field::writeProtocolDefinitionFile() const
 
     auto scope = "TOpt::" + m_generator.scopeForField(m_externalRef);
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -1362,6 +1365,7 @@ bool Field::writeProtocolDefinitionFile() const
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(m_externalRef)));
 
     static const std::string FileTemplate(
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of <b>\"#^#FIELD_NAME#$#\"</b> field.\n"
         "\n"
@@ -1402,6 +1406,7 @@ bool Field::writePluginHeaderFile() const
     }
 
     static const std::string Templ(
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n"
         "\n"
         "#include <QtCore/QVariantMap>\n\n"
@@ -1413,6 +1418,7 @@ bool Field::writePluginHeaderFile() const
     auto namespaces = m_generator.namespacesForFieldInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(className)));
@@ -1445,6 +1451,7 @@ bool Field::writePluginScrFile() const
     }
 
     static const std::string Templ(
+        "#^#GEN_COMMENT#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n"
         "\n"
         "#^#INCLUDES#$#\n\n"
@@ -1461,6 +1468,7 @@ bool Field::writePluginScrFile() const
     auto namespaces = m_generator.namespacesForFieldInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));

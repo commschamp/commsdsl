@@ -38,6 +38,7 @@ namespace
 {
 
 const std::string Template(
+    "#^#GEN_COMMENT#$#\n"
     "/// @file\n"
     "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> frame class.\n"
     "\n"
@@ -199,6 +200,7 @@ bool Frame::writeProtocolDefinitionCommonFile()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains common template parameters independent functionality of\n"
         "///    fields used in definition of @ref #^#SCOPE#$# frame.\n"
@@ -218,6 +220,7 @@ bool Frame::writeProtocolDefinitionCommonFile()
 
     auto namespaces = m_generator.namespacesForFrame(m_externalRef);
     common::ReplacementMap repl;
+    repl.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     repl.insert(std::make_pair("SCOPE", frameScope));
     repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
@@ -255,6 +258,7 @@ bool Frame::writeProtocol()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
@@ -303,6 +307,7 @@ bool Frame::writePluginTransportMessageHeader()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n\n"
         "#include <tuple>\n"
         "#include <QtCore/QVariantList>\n"
@@ -358,6 +363,7 @@ bool Frame::writePluginTransportMessageHeader()
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name()) + common::transportMessageSuffixStr()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -438,6 +444,7 @@ bool Frame::writePluginTransportMessageSrc()
     }
 
     static const std::string Templ = 
+        "#^#GEN_COMMENT#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"comms_champion/property/field.h\"\n"
         "#^#INCLUDES#$#\n"
@@ -495,6 +502,7 @@ bool Frame::writePluginTransportMessageSrc()
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -612,6 +620,7 @@ bool Frame::writePluginHeader()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n\n"
         "#include #^#FRAME_INCLUDE#$#\n"
         "#^#INTERFACE_INCLUDE#$#\n"
@@ -635,6 +644,7 @@ bool Frame::writePluginHeader()
 
     auto allMessagesInclude = "#include " + m_generator.headerfileForInputInPlugin(common::allMessagesStr());
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("FRAME_SCOPE", std::move(scope)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));

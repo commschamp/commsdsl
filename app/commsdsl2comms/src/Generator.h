@@ -439,6 +439,8 @@ public:
     const std::string& getMinCommsVersionStr() const;
 
     std::string scopeForCommon(const std::string& scope) const;
+
+    static const std::string& fileGeneratedComment();
     
 private:
 

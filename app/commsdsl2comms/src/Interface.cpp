@@ -37,6 +37,7 @@ namespace
 {
 
 const std::string AliasTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "/// @file\n"
     "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> interface class.\n"
     "\n"
@@ -60,6 +61,7 @@ const std::string AliasTemplate(
 );
 
 const std::string ClassTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "/// @file\n"
     "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> interface class.\n"
     "\n"
@@ -119,6 +121,7 @@ const std::string ClassTemplate(
 );
 
 std::string PluginHeaderTemplate = 
+    "#^#GEN_COMMENT#$#\n"
     "#pragma once\n\n"
     "#include \"comms_champion/MessageBase.h\"\n"
     "#include #^#INTERFACE_INCLUDE#$#\n\n"
@@ -136,6 +139,7 @@ std::string PluginHeaderTemplate =
     "#^#APPEND#$#\n";
 
 std::string PluginHeaderAliasTemplate = 
+    "#^#GEN_COMMENT#$#\n"
     "#pragma once\n\n"
     "#include \"comms_champion/MessageBase.h\"\n"
     "#include #^#INTERFACE_INCLUDE#$#\n\n"
@@ -148,6 +152,7 @@ std::string PluginHeaderAliasTemplate =
     "#^#APPEND#$#\n";
 
 std::string PluginSrcTemplate = 
+    "#^#GEN_COMMENT#$#\n"
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
     "#include \"comms_champion/property/field.h\"\n"
     "#^#INCLUDES#$#\n"
@@ -283,6 +288,7 @@ bool Interface::writeProtocolDefinitionCommonFile()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains common template parameters independent functionality of\n"
         "///    @ref #^#SCOPE#$# interface fields.\n"
@@ -302,6 +308,7 @@ bool Interface::writeProtocolDefinitionCommonFile()
 
     auto namespaces = m_generator.namespacesForInterface(m_externalRef);
     common::ReplacementMap repl;
+    repl.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     repl.insert(std::make_pair("SCOPE", interfaceScope));
     repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
@@ -339,6 +346,7 @@ bool Interface::writeProtocol()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("DOC_DETAILS", getDescription()));
@@ -416,6 +424,7 @@ bool Interface::writePluginHeader()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("INTERFACE_INCLUDE", m_generator.headerfileForInterface(externalRef())));
     replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(externalRef(), true, true)));
@@ -487,6 +496,7 @@ bool Interface::writePluginSrc()
         auto namespaces = m_generator.namespacesForInterfaceInPlugin(m_externalRef);
 
         common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
         replacements.insert(std::make_pair("CLASS_NAME", className));
         replacements.insert(std::make_pair("INTERFACE", m_generator.scopeForInterface(externalRef(), true, true)));
         replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));

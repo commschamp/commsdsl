@@ -58,6 +58,7 @@ bool Test::writeInputTest() const
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     
     std::string idType;
     auto* idField = m_generator.getMessageIdField();
@@ -92,6 +93,7 @@ bool Test::writeInputTest() const
     replacements.insert(std::make_pair("ID_TYPE", idType));
 
     static const std::string Template = 
+        "#^#GEN_COMMENT#$#\n"
         "#include <iostream>\n"
         "#include <fstream>\n"
         "#include <cstring>\n"

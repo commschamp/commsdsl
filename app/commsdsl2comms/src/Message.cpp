@@ -36,6 +36,7 @@ namespace
 {
 
 const std::string Template(
+    "#^#GEN_COMMENT#$#\n"
     "/// @file\n"
     "/// @brief Contains definition of <b>\"#^#MESSAGE_NAME#$#\"</b> message and its fields.\n"
     "\n"
@@ -96,6 +97,7 @@ const std::string Template(
 );
 
 static const std::string PluginSingleInterfacePimplHeaderTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#pragma once\n\n"
     "#include <memory>\n"
     "#include <QtCore/QVariantList>\n"
@@ -131,6 +133,7 @@ static const std::string PluginSingleInterfacePimplHeaderTemplate(
 );
 
 static const std::string PluginSingleInterfaceHeaderTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#pragma once\n\n"
     "#include <memory>\n"
     "#include <QtCore/QVariantList>\n"
@@ -159,6 +162,7 @@ static const std::string PluginSingleInterfaceHeaderTemplate(
 );
 
 static const std::string PluginMultiInterfaceHeaderTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#pragma once\n\n"
     "#include <QtCore/QVariantList>\n"
     "#include \"comms_champion/ProtocolMessageBase.h\"\n"
@@ -186,6 +190,7 @@ static const std::string PluginMultiInterfaceHeaderTemplate(
 );
 
 static const std::string PluginSingleInterfacePimplSrcTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
     "#include \"comms_champion/property/field.h\"\n"
     "#include \"comms_champion/ProtocolMessageBase.h\"\n"
@@ -288,6 +293,7 @@ static const std::string PluginSingleInterfacePimplSrcTemplate(
 );
 
 static const std::string PluginSingleInterfaceSrcTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
     "#include \"comms_champion/property/field.h\"\n"
     "#^#INCLUDES#$#\n"
@@ -523,6 +529,7 @@ bool Message::writeProtocolDefinitionCommonFile()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains common template parameters independent functionality of\n"
         "///    @ref #^#SCOPE#$# message and its fields.\n"
@@ -542,6 +549,7 @@ bool Message::writeProtocolDefinitionCommonFile()
         "#^#END_NAMESPACE#$#\n";
 
     auto namespaces = m_generator.namespacesForMessage(m_externalRef);
+    repl.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     repl.insert(std::make_pair("FIELDS_COMMON", std::move(fieldsCommon)));
     repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(msgScope)));
     repl.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
@@ -579,6 +587,7 @@ bool Message::writeProtocol()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("MESSAGE_NAME", getDisplayName()));
@@ -638,6 +647,7 @@ bool Message::writePluginHeader()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("CLASS_PLUGIN_SCOPE", m_generator.scopeForMessageInPlugin(m_externalRef, true, false)));
     replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
@@ -703,6 +713,7 @@ bool Message::writePluginSrc()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
     replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", common::emptyString())));
