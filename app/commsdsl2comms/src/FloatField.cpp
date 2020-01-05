@@ -50,6 +50,8 @@ const std::string ClassTemplate(
     "            #^#FIELD_OPTS#$#\n"
     "        >;\n"
     "public:\n"
+    "    /// @brief Re-definition of the value type.\n"
+    "    using ValueType = typename Base::ValueType;\n\n"
     "    #^#CONSTRUCTOR#$#\n"
     "    #^#PUBLIC#$#\n"
     "    #^#SPECIALS#$#\n"
@@ -147,7 +149,7 @@ bool isLimit(double val)
 
 std::string limitToString(double val)
 {
-    static const std::string Prefix("std::numeric_limits<typename Base::ValueType>::");
+    static const std::string Prefix("std::numeric_limits<ValueType>::");
     if (std::isnan(val)) {
         return Prefix + "quiet_NaN()";
     }
@@ -188,15 +190,15 @@ std::string valueToString(double val, commsdsl::FloatField::Type type)
 
     auto lowest = getLowest(type);
     if (std::abs(lowest - val) < std::numeric_limits<double>::epsilon()) {
-        return "std::numeric_limits<typename Base::ValueType>::lowest()";
+        return "std::numeric_limits<ValueType>::lowest()";
     }
 
     auto max = getMax(type);
     if (std::abs(max - val) < std::numeric_limits<double>::epsilon()) {
-        return "std::numeric_limits<typename Base::ValueType>::max()";
+        return "std::numeric_limits<ValueType>::max()";
     }
 
-    return "static_cast<typename Base::ValueType>(" + std::to_string(val) + ")";
+    return "static_cast<ValueType>(" + std::to_string(val) + ")";
 }
 
 std::string cmpToString(double val, commsdsl::FloatField::Type type)
@@ -222,7 +224,7 @@ std::string cmpToString(double val, commsdsl::FloatField::Type type)
         return common::processTemplate(Templ, repl);
     }
 
-    return "std::abs(Base::value() - " + valueToString(val, type) + ") < std::numeric_limits<typename Base::ValueType>::epsilon()";
+    return "std::abs(Base::value() - " + valueToString(val, type) + ") < std::numeric_limits<ValueType>::epsilon()";
 }
 
 void addCondition(common::StringsList& condList, std::string&& str)
@@ -268,13 +270,6 @@ void FloatField::updateIncludesImpl(IncludesList& includes) const
             break;
         }
 
-        for (auto& s : obj.specialValues()) {
-            hasLimits = isLimit(s.second.m_value);
-            if (hasLimits) {
-                break;
-            }
-        }
-
         if (hasLimits) {
             break;
         }
@@ -297,10 +292,27 @@ void FloatField::updateIncludesImpl(IncludesList& includes) const
     }
 }
 
+void FloatField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    auto& specials = floatFieldDslObj().specialValues();
+    bool hasLimits =
+        std::any_of(
+            specials.begin(), specials.end(),
+            [](auto& s)
+            {
+                return isLimit(s.second.m_value);
+            });
+
+    if (hasLimits) {
+        common::mergeInclude("<limits>", includes);
+    }
+}
+
 std::string FloatField::getClassDefinitionImpl(
     const std::string& scope,
     const std::string& className) const
 {
+    auto adjScope = adjustScopeWithNamespace(scope);
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("PREFIX", getClassPrefix(className)));
     replacements.insert(std::make_pair("CLASS_NAME", className));
@@ -309,8 +321,8 @@ std::string FloatField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("FIELD_TYPE", getFieldType()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("CONSTRUCTOR", getConstructor()));
-    replacements.insert(std::make_pair("NAME", getNameFunc()));
-    replacements.insert(std::make_pair("SPECIALS", getSpecials()));
+    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjScope)));
+    replacements.insert(std::make_pair("SPECIALS", getSpecials(adjScope)));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -449,6 +461,68 @@ std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
 
 }
 
+std::string FloatField::getCommonDefinitionImpl(const std::string& fullScope) const
+{
+    auto obj = floatFieldDslObj();
+    auto& specials = obj.specialValues();
+    common::StringsList specialsList;
+    for (auto& s : specials) {
+        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        static const std::string SpecialTempl(
+            "/// @brief Special value <b>\"#^#SPEC_NAME#$#\"</b>.\n"
+            "#^#SPECIAL_DOC#$#\n"
+            "static constexpr ValueType value#^#SPEC_ACC#$#()\n"
+            "{\n"
+            "    return static_cast<ValueType>(#^#SPEC_VAL#$#);\n"
+            "}\n\n"
+        );
+
+        std::string specVal;
+        specVal = valueToString(s.second.m_value, obj.type());
+
+        std::string desc = s.second.m_description;
+        if (!desc.empty()) {
+            static const std::string Prefix("/// @details ");
+            desc.insert(desc.begin(), Prefix.begin(), Prefix.end());
+            desc = common::makeMultilineCopy(desc);
+            ba::replace_all(desc, "\n", "\n///     ");
+        }
+
+        common::ReplacementMap replacements;
+        replacements.insert(std::make_pair("SPEC_NAME", s.first));
+        replacements.insert(std::make_pair("SPEC_ACC", common::nameToClassCopy(s.first)));
+        replacements.insert(std::make_pair("SPEC_VAL", std::move(specVal)));
+        replacements.insert(std::make_pair("SPECIAL_DOC", std::move(desc)));
+
+        specialsList.push_back(common::processTemplate(SpecialTempl, replacements));
+    }
+
+    static const std::string Templ =
+        "/// @brief Common types and functions for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "struct #^#NAME#$#Common\n"
+        "{\n"
+        "    /// @brief Re-definition of the value type used by\n"
+        "    ///     #^#SCOPE#$# field.\n"
+        "    using ValueType = #^#VALUE_TYPE#$#;\n\n"
+        "    #^#NAME_FUNC#$#\n"
+        "    #^#SPECIALS#$#\n"
+        "};\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("VALUE_TYPE", getFieldType()));
+    repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
+    if (!specialsList.empty()) {
+        repl.insert(std::make_pair("SPECIALS", common::listToString(specialsList, "\n", "\n")));
+    }
+    return common::processTemplate(Templ, repl);
+}
+
 std::string FloatField::getFieldBaseParams() const
 {
     auto obj = floatFieldDslObj();
@@ -511,7 +585,7 @@ std::string FloatField::getConstructor() const
     return common::processTemplate(Templ, replacements);
 }
 
-std::string FloatField::getSpecials() const
+std::string FloatField::getSpecials(const std::string& scope) const
 {
     auto obj = floatFieldDslObj();
     auto& specials = obj.specialValues();
@@ -528,9 +602,9 @@ std::string FloatField::getSpecials() const
         static const std::string Templ(
             "/// @brief Special value <b>\"#^#SPEC_NAME#$#\"</b>.\n"
             "#^#SPECIAL_DOC#$#\n"
-            "static constexpr typename Base::ValueType value#^#SPEC_ACC#$#()\n"
+            "static constexpr ValueType value#^#SPEC_ACC#$#()\n"
             "{\n"
-            "    return #^#SPEC_VAL#$#;\n"
+            "    return #^#SCOPE#$##^#CLASS_NAME#$#Common::value#^#SPEC_ACC#$#();\n"
             "}\n\n"
             "/// @brief Check the value is equal to special @ref value#^#SPEC_ACC#$#().\n"
             "bool is#^#SPEC_ACC#$#() const\n"
@@ -556,8 +630,9 @@ std::string FloatField::getSpecials() const
         auto type = obj.type();
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("SPEC_NAME", s.first));
+        replacements.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+        replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
         replacements.insert(std::make_pair("SPEC_ACC", common::nameToClassCopy(s.first)));
-        replacements.insert(std::make_pair("SPEC_VAL", valueToString(s.second.m_value, type)));
         replacements.insert(std::make_pair("SPEC_CMP", cmpToString(s.second.m_value, type)));
         replacements.insert(std::make_pair("SPECIAL_DOC", std::move(desc)));
 

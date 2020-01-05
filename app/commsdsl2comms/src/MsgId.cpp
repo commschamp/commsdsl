@@ -34,6 +34,7 @@ namespace
 {
 
 const std::string Template(
+    "#^#GEN_COMMENT#$#\n"
     "/// @file\n"
     "/// @brief Contains definition of message ids enumeration.\n\n"
     "#pragma once\n\n"
@@ -75,6 +76,7 @@ bool MsgId::writeDefinition() const
 
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForRoot();
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("ENUM_NAME", std::move(enumName)));

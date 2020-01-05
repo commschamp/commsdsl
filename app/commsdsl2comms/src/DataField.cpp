@@ -112,6 +112,7 @@ bool DataField::prepareImpl()
     }
 
     m_prefix = create(generator(), prefix);
+    m_prefix->setMemberChild();
     if (!m_prefix->prepare(dslObj().sinceVersion())) {
         return false;
     }
@@ -147,6 +148,13 @@ void DataField::updateIncludesImpl(IncludesList& includes) const
     }
 }
 
+void DataField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    if (m_prefix) {
+        m_prefix->updateIncludesCommon(includes);
+    }
+}
+
 std::size_t DataField::maxLengthImpl() const
 {
     auto obj = dataFieldDslObj();
@@ -166,7 +174,7 @@ std::string DataField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
-    replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -360,6 +368,52 @@ std::string DataField::getReadPreparationImpl(const FieldsList& fields) const
 bool DataField::isLimitedCustomizableImpl() const
 {
     return true;
+}
+
+std::string DataField::getCommonDefinitionImpl(const std::string& fullScope) const
+{
+    std::string membersCommon;
+    do {
+        if (!m_prefix) {
+            break;
+        }
+
+        auto updatedScope = fullScope + common::membersSuffixStr() + "::";
+        auto str = m_prefix->getCommonDefinition(updatedScope);
+        if (str.empty()) {
+            break;
+        }
+
+        static const std::string Templ =
+            "/// @brief Scope for all the common definitions of the member fields of\n"
+            "///     @ref #^#SCOPE#$# field.\n"
+            "struct #^#CLASS_NAME#$#MembersCommon\n"
+            "{\n"
+            "    #^#DEFS#$#\n"
+            "};\n";
+
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+        repl.insert(std::make_pair("SCOPE", fullScope));
+        repl.insert(std::make_pair("DEFS", std::move(str)));
+        membersCommon = common::processTemplate(Templ, repl);
+    } while (false);
+
+    static const std::string Templ =
+        "#^#COMMON#$#\n"
+        "/// @brief Scope for all the common definitions of the\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "struct #^#CLASS_NAME#$#Common\n"
+        "{\n"
+        "    #^#NAME_FUNC#$#\n"
+        "};\n\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("COMMON", std::move(membersCommon)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string DataField::getFieldOpts(const std::string& scope) const

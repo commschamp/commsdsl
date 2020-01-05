@@ -110,7 +110,6 @@ bool ListField::prepareImpl()
 
         m_element = create(generator(), elementField);
         m_element->setMemberChild();
-        m_element->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!m_element->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -128,7 +127,6 @@ bool ListField::prepareImpl()
 
         m_countPrefix = create(generator(), prefix);
         m_countPrefix->setMemberChild();
-        m_countPrefix->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!m_countPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -155,7 +153,6 @@ bool ListField::prepareImpl()
 
         m_lengthPrefix = create(generator(), prefix);
         m_lengthPrefix->setMemberChild();
-        m_lengthPrefix->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!m_lengthPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -180,7 +177,6 @@ bool ListField::prepareImpl()
 
         m_elemLengthPrefix = create(generator(), prefix);
         m_elemLengthPrefix->setMemberChild();
-        m_elemLengthPrefix->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!m_elemLengthPrefix->prepare(dslObj().sinceVersion())) {
             return false;
         }
@@ -280,6 +276,22 @@ void ListField::updateIncludesImpl(IncludesList& includes) const
     } while (false);
 }
 
+void ListField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    auto updateFunc =
+        [&includes](auto& f)
+        {
+            if (f) {
+                f->updateIncludesCommon(includes);
+            }
+        };
+
+    updateFunc(m_element);
+    updateFunc(m_countPrefix);
+    updateFunc(m_lengthPrefix);
+    updateFunc(m_elemLengthPrefix);
+}
+
 void ListField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
     auto obj = listFieldDslObj();
@@ -373,7 +385,7 @@ std::string ListField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
-    replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -761,12 +773,11 @@ bool ListField::isVersionDependentImpl() const
 
     return false;
 }
-std::string ListField::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string ListField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     common::StringsList defs;
-    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
 
-    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    auto updatedScope = fullScope + common::membersSuffixStr() + "::";
     auto updateDefsFor =
         [&defs, updatedScope](const FieldPtr& f)
         {
@@ -774,7 +785,7 @@ std::string ListField::getCommonPreDefinitionImpl(const std::string& scope) cons
                 return;
             }
 
-            auto str = f->getCommonPreDefinition(updatedScope);
+            auto str = f->getCommonDefinition(updatedScope);
             if (str.empty()) {
                 return;
             }
@@ -787,22 +798,71 @@ std::string ListField::getCommonPreDefinitionImpl(const std::string& scope) cons
     updateDefsFor(m_lengthPrefix);
     updateDefsFor(m_elemLengthPrefix);
 
-    if (defs.empty()) {
+    std::string membersCommon;
+    if (!defs.empty()) {
+        static const std::string Templ =
+            "/// @brief Scope for all the common definitions of the member fields of\n"
+            "///     @ref #^#SCOPE#$# list.\n"
+            "struct #^#CLASS_NAME#$#MembersCommon\n"
+            "{\n"
+            "    #^#DEFS#$#\n"
+            "};\n";
+
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+        repl.insert(std::make_pair("SCOPE", fullScope));
+        repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
+        membersCommon = common::processTemplate(Templ, repl);
+    }
+
+    static const std::string Templ =
+        "#^#COMMON#$#\n"
+        "/// @brief Scope for all the common definitions of the\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "struct #^#CLASS_NAME#$#Common\n"
+        "{\n"
+        "    #^#NAME_FUNC#$#\n"
+        "};\n\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("COMMON", std::move(membersCommon)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
+    return common::processTemplate(Templ, repl);
+}
+
+std::string ListField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
+{
+    auto checkFunc =
+        [](const FieldPtr& f) -> bool
+        {
+            return static_cast<bool>(f);
+        };
+
+    bool hasCommonMembers =
+        checkFunc(m_element) ||
+        checkFunc(m_countPrefix) ||
+        checkFunc(m_lengthPrefix) ||
+        checkFunc(m_elemLengthPrefix);
+
+    if (!hasCommonMembers) {
         return common::emptyString();
     }
 
     static const std::string Templ =
-        "/// @brief Scope for all the common definitions of the member fields of\n"
-        "///     @ref #^#SCOPE#$# list.\n"
-        "struct #^#CLASS_NAME#$#MembersCommon\n"
-        "{\n"
-        "    #^#DEFS#$#\n"
-        "};\n";
+        "/// @brief Common types and functions for members of\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "using #^#CLASS_NAME#$#MembersCommon = #^#COMMON_SCOPE#$#MembersCommon;\n\n";
+
+    auto commonScope = scopeForCommon(generator().scopeForField(externalRef(), true, true));
+    std::string className = classNameFromFullScope(fullScope);
 
     common::ReplacementMap repl;
-    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("SCOPE", scopeStr));
-    repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    repl.insert(std::make_pair("COMMON_SCOPE", std::move(commonScope)));
+
     return common::processTemplate(Templ, repl);
 }
 

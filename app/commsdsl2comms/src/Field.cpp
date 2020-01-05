@@ -76,8 +76,20 @@ void Field::updateIncludes(Field::IncludesList& includes) const
         common::mergeInclude("comms/field/Optional.h", includes);
     }
 
+    if (!isMemberChild()) {
+        common::mergeInclude(
+            generator().headerfileForField(externalRef() + common::commonSuffixStr(), false),
+            includes);
+    }
+
     updateIncludesImpl(includes);
 }
+
+void Field::updateIncludesCommon(Field::IncludesList& includes) const
+{
+    updateIncludesCommonImpl(includes);
+}
+
 
 void Field::updatePluginIncludes(Field::IncludesList& includes) const
 {
@@ -184,13 +196,11 @@ std::string Field::getClassDefinition(
     return str;
 }
 
-std::string Field::getCommonPreDefinition(const std::string& scope) const
+std::string Field::getCommonDefinition(
+    const std::string& scope) const
 {
-    if (isCommonPreDefDisabled()) {
-        return common::emptyString();
-    }
-
-    return getCommonPreDefinitionImpl(scope);
+    auto fullScope = scope + common::nameToClassCopy(name());
+    return getCommonDefinitionImpl(fullScope);
 }
 
 Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
@@ -285,6 +295,7 @@ std::string Field::getBareMetalDefaultOptions(const std::string& scope) const
 bool Field::writeFiles() const
 {
     return
+        writeProtocolDefinitionCommonFile() &&
         writeProtocolDefinitionFile() &&
         writePluginHeaderFile() &&
         writePluginScrFile();
@@ -787,6 +798,11 @@ void Field::updateIncludesImpl(IncludesList& includes) const
     static_cast<void>(includes);
 }
 
+void Field::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    static_cast<void>(includes);
+}
+
 void Field::updatePluginIncludesImpl(IncludesList& includes) const
 {
     static_cast<void>(includes);
@@ -1034,9 +1050,15 @@ bool Field::isVersionDependentImpl() const
     return false;
 }
 
-std::string Field::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string Field::getCommonDefinitionImpl(const std::string& fullScope) const
 {
-    static_cast<void>(scope);
+    static_cast<void>(fullScope);
+    return common::emptyString();
+}
+
+std::string Field::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
+{
+    static_cast<void>(fullScope);
     return common::emptyString();
 }
 
@@ -1046,15 +1068,30 @@ bool Field::verifyAliasImpl(const std::string& fieldName) const
     return false;
 }
 
-std::string Field::getNameFunc() const
+std::string Field::getNameCommonWrapFunc(const std::string& scope) const
 {
-    auto customName = m_generator.getCustomNameForField(m_externalRef);
+    static const std::string Templ =
+        "/// @brief Name of the field.\n"
+        "static const char* name()\n"
+        "{\n"
+        "    return #^#SCOPE#$##^#CLASS_NAME#$#Common::name();\n"
+        "}\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Templ, repl);
+}
+
+std::string Field::getCommonNameFunc(const std::string& fullScope) const
+{
+    auto customName = m_generator.getCustomNameForField(m_externalRef + common::commonSuffixStr());
     if (!customName.empty()) {
         return customName;
     }
 
     return
-        "/// @brief Name of the field.\n"
+        "/// @brief Name of the @ref " + fullScope + " field.\n"
         "static const char* name()\n"
         "{\n"
         "    return \"" + displayName() + "\";\n"
@@ -1204,24 +1241,97 @@ std::string Field::adjustScopeWithNamespace(const std::string& scope) const
 
 std::string Field::scopeForCommon(const std::string& scope) const
 {
-    static const std::string CommonStr("Common::");
-    auto adjustedScope = ba::replace_all_copy(scope, "::", CommonStr);
+    return m_generator.scopeForCommon(scope);
+}
 
-    auto restorePrefixFunc =
-        [this, &adjustedScope](const std::string& ns)
-        {
-            auto resultPrefix = generator().mainNamespace() + "::" + ns + "::";
-            auto wrongPrefix = ba::replace_all_copy(resultPrefix, "::", CommonStr);
-            if (ba::starts_with(adjustedScope, wrongPrefix)) {
-                ba::replace_first(adjustedScope, wrongPrefix, resultPrefix);
-            }
-        };
+std::string Field::classNameFromFullScope(const std::string& fullScope) const
+{
+    static const std::string ScopeSep("::");
 
-    restorePrefixFunc(common::messageStr());
-    restorePrefixFunc(common::fieldStr());
-    restorePrefixFunc(common::frameStr());
+    auto lastScopeSepPos = fullScope.rfind(ScopeSep);
+    if (lastScopeSepPos == std::string::npos) {
+        assert(!"Should not happen");
+        return fullScope;
+    }
 
-    return adjustedScope;
+    return std::string(fullScope, lastScopeSepPos + ScopeSep.size());
+}
+
+bool Field::writeProtocolDefinitionCommonFile() const
+{
+    auto scope = m_generator.scopeForField(m_externalRef, true, false);
+    auto commonDef = getCommonDefinition(scope);
+    if (commonDef.empty()) {
+        assert(!"Should not happen");
+        return true;
+    }
+
+    auto commonName = m_externalRef + common::commonSuffixStr();
+    auto startInfo = m_generator.startFieldProtocolWrite(commonName);
+    auto& filePath = startInfo.first;
+
+    if (filePath.empty()) {
+        return true;
+    }
+
+    auto className = name() + common::commonSuffixStr();
+    common::nameToClass(className);
+    if (startInfo.second != className) {
+        m_generator.logger().error("Renaming the common definitions of \"" + m_externalRef + "\" field is not supported.");
+        return false;
+    }
+
+    assert(!m_externalRef.empty());
+    IncludesList includes;
+    updateIncludesCommon(includes);
+    auto incStr = common::includesToStatements(includes);
+    if (!m_externalRef.empty()) {
+        incStr += m_generator.getExtraIncludeForField(commonName);
+    }
+
+    auto namespaces = m_generator.namespacesForField(m_externalRef);
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
+    replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
+    replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("COMMON_DEF", std::move(commonDef)));
+    replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(commonName)));
+
+    static const std::string FileTemplate(
+        "#^#GEN_COMMENT#$#\n"
+        "/// @file\n"
+        "/// @brief Contains common template parameters independent functionality of\n"
+        "///    @ref #^#SCOPE#$##^#NAME#$# field.\n"
+        "\n"
+        "#pragma once\n"
+        "\n"
+        "#^#INCLUDES#$#\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#COMMON_DEF#$#\n"
+        "#^#END_NAMESPACE#$#\n"
+        "#^#APPEND#$#\n"
+    );
+
+    std::string str = common::processTemplate(FileTemplate, replacements);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
 }
 
 bool Field::writeProtocolDefinitionFile() const
@@ -1246,15 +1356,16 @@ bool Field::writeProtocolDefinitionFile() const
 
     auto scope = "TOpt::" + m_generator.scopeForField(m_externalRef);
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("INCLUDES", std::move(incStr)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_DEF", getClassDefinition(scope, className)));
-    replacements.insert(std::make_pair("CLASS_PRE_DEF", getCommonPreDefinition(scope)));
     replacements.insert(std::make_pair("FIELD_NAME", displayName()));
     replacements.insert(std::make_pair("APPEND", m_generator.getExtraAppendForField(m_externalRef)));
 
     static const std::string FileTemplate(
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of <b>\"#^#FIELD_NAME#$#\"</b> field.\n"
         "\n"
@@ -1262,7 +1373,6 @@ bool Field::writeProtocolDefinitionFile() const
         "\n"
         "#^#INCLUDES#$#\n"
         "#^#BEGIN_NAMESPACE#$#\n"
-        "#^#CLASS_PRE_DEF#$#\n"
         "#^#CLASS_DEF#$#\n"
         "#^#END_NAMESPACE#$#\n"
         "#^#APPEND#$#\n"
@@ -1296,6 +1406,7 @@ bool Field::writePluginHeaderFile() const
     }
 
     static const std::string Templ(
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n"
         "\n"
         "#include <QtCore/QVariantMap>\n\n"
@@ -1307,6 +1418,7 @@ bool Field::writePluginHeaderFile() const
     auto namespaces = m_generator.namespacesForFieldInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(className)));
@@ -1339,6 +1451,7 @@ bool Field::writePluginScrFile() const
     }
 
     static const std::string Templ(
+        "#^#GEN_COMMENT#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n"
         "\n"
         "#^#INCLUDES#$#\n\n"
@@ -1355,6 +1468,7 @@ bool Field::writePluginScrFile() const
     auto namespaces = m_generator.namespacesForFieldInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -1388,27 +1502,5 @@ std::string Field::getPluginIncludes() const
     updatePluginIncludesImpl(includes);
     return common::includesToStatements(includes);
 }
-
-//std::string Field::getClassPreDefinitionInternal(const std::string& scope, const std::string& className) const
-//{
-//    auto str = getCommonPreDefinition(scope);
-//    if (str.empty()) {
-//        return str;
-//    }
-
-//    static const std::string Templ =
-//        "/// @brief Common definitions for field @ref #^#SCOPE#$##^#CLASS_NAME#$#\n"
-//        "struct #^#ORIG_CLASS_NAME#$#Common\n"
-//        "{\n"
-//        "    #^#DEFS#$#\n"
-//        "};\n";
-
-//    common::ReplacementMap repl;
-//    repl.insert(std::make_pair("SCOPE", scope));
-//    repl.insert(std::make_pair("CLASS_NAME", className));
-//    repl.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
-//    repl.insert(std::make_pair("DEF", std::move(str)));
-//    return common::processTemplate(Templ, repl);
-//}
 
 } // namespace commsdsl2comms

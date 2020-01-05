@@ -125,7 +125,6 @@ bool OptionalField::prepareImpl()
     }
 
     ptr->setMemberChild();
-    ptr->setCommonPreDefDisabled(isCommonPreDefDisabled());
     if (!ptr->prepare(obj.sinceVersion())) {
         return false;
     }
@@ -150,6 +149,14 @@ void OptionalField::updateIncludesImpl(IncludesList& includes) const
 
 
     common::mergeInclude(generator().headerfileForField(optionalFieldDslObj().field().externalRef(), false), includes);
+}
+
+void OptionalField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    if (m_field) {
+        assert(m_field->externalRef().empty());
+        m_field->updateIncludesCommon(includes);
+    }
 }
 
 void OptionalField::updatePluginIncludesImpl(Field::IncludesList& includes) const
@@ -179,7 +186,7 @@ std::string OptionalField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
-    replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -326,35 +333,72 @@ bool OptionalField::isVersionDependentImpl() const
     return m_field && m_field->isVersionDependent();
 }
 
-std::string OptionalField::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string OptionalField::getCommonDefinitionImpl(const std::string& fullScope) const
+{
+    std::string membersCommon;
+    do {
+        if (!m_field) {
+            break;
+        }
+
+        auto updatedScope = fullScope + common::membersSuffixStr() + "::";
+        auto str = m_field->getCommonDefinition(updatedScope);
+        if (str.empty()) {
+            break;
+        }
+
+        static const std::string Templ =
+            "/// @brief Scope for all the common definitions of the member fields of\n"
+            "///     @ref #^#SCOPE#$# field.\n"
+            "struct #^#CLASS_NAME#$#MembersCommon\n"
+            "{\n"
+            "    #^#DEFS#$#\n"
+            "};\n";
+
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+        repl.insert(std::make_pair("SCOPE", fullScope));
+        repl.insert(std::make_pair("DEFS", std::move(str)));
+        membersCommon = common::processTemplate(Templ, repl);
+    } while (false);
+
+    static const std::string Templ =
+        "#^#COMMON#$#\n"
+        "/// @brief Scope for all the common definitions of the\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "struct #^#CLASS_NAME#$#Common\n"
+        "{\n"
+        "    #^#NAME_FUNC#$#\n"
+        "};\n\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("COMMON", std::move(membersCommon)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
+    return common::processTemplate(Templ, repl);
+}
+
+std::string OptionalField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
 {
     if (!m_field) {
         return common::emptyString();
     }
 
-    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
-
-    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
-    auto str = m_field->getCommonPreDefinition(updatedScope);
-    if (str.empty()) {
-        return common::emptyString();
-    }
-
     static const std::string Templ =
-        "/// @brief Scope for all the common definitions of the member fields of\n"
-        "///     @ref #^#SCOPE#$# optional.\n"
-        "struct #^#CLASS_NAME#$#MembersCommon\n"
-        "{\n"
-        "    #^#DEFS#$#\n"
-        "};\n";
+        "/// @brief Common types and functions for members of\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "using #^#CLASS_NAME#$#MembersCommon = #^#COMMON_SCOPE#$#MembersCommon;\n\n";
+
+    auto commonScope = scopeForCommon(generator().scopeForField(externalRef(), true, true));
+    std::string className = classNameFromFullScope(fullScope);
 
     common::ReplacementMap repl;
-    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("SCOPE", scopeStr));
-    repl.insert(std::make_pair("DEFS", std::move(str)));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    repl.insert(std::make_pair("COMMON_SCOPE", std::move(commonScope)));
     return common::processTemplate(Templ, repl);
 }
-
 
 std::string OptionalField::getFieldOpts(const std::string& scope) const
 {

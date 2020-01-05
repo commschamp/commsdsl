@@ -73,6 +73,9 @@ const std::string& inputTestStr();
 const std::string& testStr();
 const std::string& inputStr();
 const std::string& dispatchStr();
+const std::string& commonSuffixStr();
+const std::string& valSuffixStr();
+const std::string& valueTypeStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);

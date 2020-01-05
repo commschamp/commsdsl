@@ -69,6 +69,7 @@ private:
 
     using GetFieldOptionsFunc = std::string (Field::*)(const std::string&) const;
 
+    bool writeProtocolDefinitionCommonFile();
     bool writeProtocol();
     bool writePluginHeader();
     bool writePluginSrc();
@@ -86,11 +87,11 @@ private:
     std::string getFieldsDef() const;
     std::string getNamespaceScope() const;
     std::string getNameFunc() const;
+    std::string getCommonNameFunc(const std::string& fullScope) const;
     std::string getReadFunc() const;
     std::string getRefreshFunc() const;
     std::string getExtraOptions() const;
     std::string getExtraPublic() const;
-    std::string getCommonPreDef() const;
 
     bool mustImplementReadRefresh() const;
     bool isCustomizable() const;

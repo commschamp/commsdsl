@@ -31,10 +31,12 @@ public:
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         const std::string& className) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
 
 private:
     using StringsList = common::StringsList;
@@ -43,7 +45,7 @@ private:
     const std::string& getFieldType() const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getConstructor() const;
-    std::string getSpecials() const;
+    std::string getSpecials(const std::string& scope) const;
     std::string getValid() const;
     StringsList getVersionBasedConditions() const;
     StringsList getNormalConditions() const;

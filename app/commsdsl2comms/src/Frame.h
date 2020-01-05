@@ -61,6 +61,7 @@ public:
 private:
     using GetLayerOptionsFunc = std::string (Layer::*)(const std::string&) const;
 
+    bool writeProtocolDefinitionCommonFile();
     bool writeProtocol();
     bool writePluginTransportMessageHeader();
     bool writePluginTransportMessageSrc();
@@ -69,7 +70,6 @@ private:
     std::string getDescription() const;
     std::string getIncludes() const;
     std::string getLayersDef() const;
-    std::string getCommonPreDef() const;
     std::string getFrameDef() const;
     std::string getLayersAccess() const;
     std::string getLayersAccessDoc() const;
@@ -79,6 +79,7 @@ private:
     bool hasIdLayer() const;
     unsigned calcBackPayloadOffset() const;
     std::string getOptions(GetLayerOptionsFunc func) const;
+    bool hasCommonDefinition() const;
 
     Generator& m_generator;
     commsdsl::Frame m_dslObj;

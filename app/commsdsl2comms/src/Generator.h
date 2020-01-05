@@ -437,6 +437,10 @@ public:
     FramesAccessList getAllFrames() const;
 
     const std::string& getMinCommsVersionStr() const;
+
+    std::string scopeForCommon(const std::string& scope) const;
+
+    static const std::string& fileGeneratedComment();
     
 private:
 

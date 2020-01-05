@@ -59,6 +59,13 @@ void Layer::updateIncludes(Layer::IncludesList& includes) const
     updateIncludesImpl(includes);
 }
 
+void Layer::updateIncludesCommon(Layer::IncludesList& includes) const
+{
+    if (m_field) {
+        m_field->updateIncludesCommon(includes);
+    }
+}
+
 void Layer::updatePluginIncludes(Layer::IncludesList& includes) const
 {
     if (m_field) {
@@ -248,15 +255,16 @@ std::string Layer::getPluginCreatePropsFunc(const std::string& scope) const
     return common::processTemplate(Templ, replacements);
 }
 
-std::string Layer::getCommonPreDefinition(const std::string& scope) const
+std::string Layer::getCommonDefinition(const std::string& scope) const
 {
     if (!m_field) {
         return common::emptyString();
     }
 
     auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
-    auto str = m_field->getCommonPreDefinition(fullScope);
+    auto str = m_field->getCommonDefinition(fullScope);
     if (str.empty()) {
+        assert(!"Should not happen");
         return common::emptyString();
     }
 
@@ -274,6 +282,11 @@ std::string Layer::getCommonPreDefinition(const std::string& scope) const
     repl.insert(std::make_pair("DEF", std::move(str)));
 
     return common::processTemplate(Templ, repl);
+}
+
+bool Layer::hasCommonDefinition() const
+{
+    return static_cast<bool>(m_field);
 }
 
 const Field* Layer::getField() const

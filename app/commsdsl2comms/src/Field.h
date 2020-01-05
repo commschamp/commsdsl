@@ -58,6 +58,7 @@ public:
 
     using IncludesList = common::StringsList;
     void updateIncludes(IncludesList& includes) const;
+    void updateIncludesCommon(IncludesList& includes) const;
 
     void updatePluginIncludes(IncludesList& includes) const;
 
@@ -69,7 +70,11 @@ public:
         const std::string& scope,
         const std::string& className = common::emptyString()) const;
 
-    std::string getCommonPreDefinition(const std::string& scope) const;
+    std::string getCommonDefinition(const std::string& scope) const;
+    std::string getExtraRefToCommonDefinition(const std::string& fullScope) const
+    {
+        return getExtraRefToCommonDefinitionImpl(fullScope);
+    }
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
@@ -147,11 +152,6 @@ public:
         m_memberChild = true;
     }
 
-    void setCommonPreDefDisabled(bool val = true)
-    {
-        m_commonPreDefDisabled = val;
-    }
-
     bool isPseudo() const;
 
     static std::string getReadForFields(
@@ -219,13 +219,9 @@ protected:
         return m_memberChild;
     }
 
-    bool isCommonPreDefDisabled() const
-    {
-        return m_commonPreDefDisabled;
-    }
-
     virtual bool prepareImpl();
     virtual void updateIncludesImpl(IncludesList& includes) const;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const;
     virtual std::size_t minLengthImpl() const;
     virtual std::size_t maxLengthImpl() const;
@@ -262,10 +258,12 @@ protected:
     virtual void setForcedPseudoImpl();
     virtual void setForcedNoOptionsConfigImpl();
     virtual bool isVersionDependentImpl() const;
-    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const;
+    virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const;
     virtual bool verifyAliasImpl(const std::string& fieldName) const;
 
-    std::string getNameFunc() const;
+    std::string getNameCommonWrapFunc(const std::string& scope) const;
+    std::string getCommonNameFunc(const std::string& fullScope) const;
 
     void updateExtraOptions(
         const std::string& scope,
@@ -288,15 +286,16 @@ protected:
 
     std::string adjustScopeWithNamespace(const std::string& scope) const;
     std::string scopeForCommon(const std::string& scope) const;
+    std::string classNameFromFullScope(const std::string& fullScope) const;
 
 private:
 
+    bool writeProtocolDefinitionCommonFile() const;
     bool writeProtocolDefinitionFile() const;
     bool writePluginHeaderFile() const;
     bool writePluginScrFile() const;
 
     std::string getPluginIncludes() const;
-//    std::string getClassPreDefinitionInternal(const std::string& scope, const std::string& className) const;
 
     Generator& m_generator;
     commsdsl::Field m_dslObj;
@@ -309,7 +308,6 @@ private:
     bool m_forcedPseudo = false;
     bool m_forcedNoOptionsConfig = false;
     bool m_memberChild = false;
-    bool m_commonPreDefDisabled = false;
 };
 
 using FieldPtr = Field::Ptr;

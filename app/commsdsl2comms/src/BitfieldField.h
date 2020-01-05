@@ -32,6 +32,7 @@ public:
 protected:
     virtual bool prepareImpl() override final;
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
@@ -46,7 +47,8 @@ protected:
     virtual void setForcedPseudoImpl() override final;
     virtual void setForcedNoOptionsConfigImpl() override final;
     virtual bool isVersionDependentImpl() const override final;
-    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
+    virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const override final;
     virtual bool verifyAliasImpl(const std::string& fieldName) const override final;
 
 private:

@@ -96,7 +96,6 @@ bool BitfieldField::prepareImpl()
         }
 
         ptr->setMemberChild();
-        ptr->setCommonPreDefDisabled(isCommonPreDefDisabled());
         if (!ptr->prepare(obj.sinceVersion())) {
             return false;
         }
@@ -120,6 +119,13 @@ void BitfieldField::updateIncludesImpl(IncludesList& includes) const
     }
 }
 
+void BitfieldField::updateIncludesCommonImpl(IncludesList& includes) const
+{
+    for (auto& m : m_members) {
+        m->updateIncludesCommon(includes);
+    }
+}
+
 void BitfieldField::updatePluginIncludesImpl(Field::IncludesList& includes) const
 {
     for (auto& m : m_members) {
@@ -138,7 +144,7 @@ std::string BitfieldField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PROT_NAMESPACE", generator().mainNamespace()));
     replacements.insert(std::make_pair("FIELD_BASE_PARAMS", getFieldBaseParams()));
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
-    replacements.insert(std::make_pair("NAME", getNameFunc()));
+    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
@@ -244,35 +250,67 @@ bool BitfieldField::isVersionDependentImpl() const
     return Base::isVersionDependentImpl();
 }
 
-std::string BitfieldField::getCommonPreDefinitionImpl(const std::string& scope) const
+std::string BitfieldField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     common::StringsList defs;
-    auto scopeStr = adjustScopeWithNamespace(scope + common::nameToClassCopy(name()));
-
-    auto updatedScope = scopeStr + common::membersSuffixStr() + "::";
+    auto updatedScope =
+        fullScope + common::membersSuffixStr() + "::";
     for (auto& m : m_members) {
-        auto str = m->getCommonPreDefinition(updatedScope);
+        auto str = m->getCommonDefinition(updatedScope);
         if (!str.empty()) {
             defs.emplace_back(std::move(str));
         }
     }
 
-    if (defs.empty()) {
-        return common::emptyString();
+    std::string membersCommon;
+    if (!defs.empty()) {
+        static const std::string Templ =
+            "/// @brief Scope for all the common definitions of the member fields of\n"
+            "///     @ref #^#SCOPE#$# field.\n"
+            "struct #^#CLASS_NAME#$#MembersCommon\n"
+            "{\n"
+            "    #^#DEFS#$#\n"
+            "};\n";
+
+        common::ReplacementMap repl;
+        repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+        repl.insert(std::make_pair("SCOPE", fullScope));
+        repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
+        membersCommon = common::processTemplate(Templ, repl);
     }
 
     static const std::string Templ =
-        "/// @brief Scope for all the common definitions of the member fields of\n"
-        "///     @ref #^#SCOPE#$# bitfield.\n"
-        "struct #^#CLASS_NAME#$#MembersCommon\n"
+        "#^#COMMON#$#\n"
+        "/// @brief Scope for all the common definitions of the\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "struct #^#CLASS_NAME#$#Common\n"
         "{\n"
-        "    #^#DEFS#$#\n"
-        "};\n";
+        "    #^#NAME_FUNC#$#\n"
+        "};\n\n";
 
     common::ReplacementMap repl;
+    repl.insert(std::make_pair("COMMON", std::move(membersCommon)));
     repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("SCOPE", scopeStr));
-    repl.insert(std::make_pair("DEFS", common::listToString(defs, "\n", common::emptyString())));
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
+    return common::processTemplate(Templ, repl);
+}
+
+std::string BitfieldField::getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const
+{
+    static const std::string Templ =
+        "/// @brief Common types and functions for members of\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "using #^#CLASS_NAME#$#MembersCommon = #^#COMMON_SCOPE#$#MembersCommon;\n\n";
+
+    auto commonScope = scopeForCommon(generator().scopeForField(externalRef(), true, true));
+    std::string className = classNameFromFullScope(fullScope);
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", fullScope));
+    repl.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    repl.insert(std::make_pair("COMMON_SCOPE", std::move(commonScope)));
+
     return common::processTemplate(Templ, repl);
 }
 

@@ -95,6 +95,7 @@ bool Plugin::writeProtocolHeader()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n\n"
         "#include \"comms_champion/Protocol.h\"\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
@@ -126,6 +127,7 @@ bool Plugin::writeProtocolHeader()
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -167,6 +169,7 @@ bool Plugin::writeProtocolSrc()
     }
 
     static const std::string Templ =
+    "#^#GEN_COMMENT#$#\n"
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
     "#include <cassert>\n"
     "#include \"comms_champion/ProtocolBase.h\"\n"
@@ -267,6 +270,7 @@ bool Plugin::writeProtocolSrc()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -411,6 +415,7 @@ bool Plugin::writePluginHeader()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n\n"
         "#include <QtCore/QObject>\n"
         "#include <QtCore/QtPlugin>\n"
@@ -435,6 +440,7 @@ bool Plugin::writePluginHeader()
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(pluginClassName())));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -476,6 +482,7 @@ bool Plugin::writePluginSrc()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"#^#PROTOCOL_CLASS_NAME#$#.h\"\n\n"
         "#^#WIDGET_INCLUDE#$#\n"
@@ -500,6 +507,7 @@ bool Plugin::writePluginSrc()
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("PROTOCOL_CLASS_NAME", protClassName()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -641,6 +649,7 @@ bool Plugin::writeVersionConfigWidgetHeader()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n\n"
         "#include <functional>\n"
         "#include <QtWidgets/QWidget>\n\n"
@@ -668,6 +677,7 @@ bool Plugin::writeVersionConfigWidgetHeader()
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -706,6 +716,7 @@ bool Plugin::writeVersionConfigWidgetSrc()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include <QtWidgets/QHBoxLayout>\n"
         "#include <QtWidgets/QLabel>\n"
@@ -746,6 +757,7 @@ bool Plugin::writeVersionConfigWidgetSrc()
     auto namespaces = m_generator.namespacesForPluginDef(className);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));

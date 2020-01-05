@@ -297,6 +297,24 @@ const std::string& dispatchStr()
     return Str;
 }
 
+const std::string& commonSuffixStr()
+{
+    static const std::string Str("Common");
+    return Str;
+}
+
+const std::string& valSuffixStr()
+{
+    static const std::string Str("Val");
+    return Str;
+}
+
+const std::string& valueTypeStr()
+{
+    static const std::string Str("ValueType");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

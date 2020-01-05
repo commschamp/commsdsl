@@ -38,6 +38,7 @@ namespace
 {
 
 const std::string Template(
+    "#^#GEN_COMMENT#$#\n"
     "/// @file\n"
     "/// @brief Contains definition of <b>\"#^#CLASS_NAME#$#\"</b> frame class.\n"
     "\n"
@@ -45,7 +46,6 @@ const std::string Template(
     "\n"
     "#^#INCLUDES#$#\n"
     "#^#BEGIN_NAMESPACE#$#\n"
-    "#^#COMMON_PRE_DEF#$#\n"
     "/// @brief Layers definition of @ref #^#CLASS_NAME#$# frame class.\n"
     "/// @tparam TOpt Protocol options.\n"
     "/// @see @ref #^#CLASS_NAME#$#\n"
@@ -139,6 +139,7 @@ bool Frame::prepare()
 bool Frame::write()
 {
     return
+        writeProtocolDefinitionCommonFile() &&
         writeProtocol() &&
         writePluginTransportMessageHeader() &&
         writePluginTransportMessageSrc() &&
@@ -167,6 +168,83 @@ std::vector<std::string> Frame::getPseudoVersionLayers(
     return result;
 }
 
+bool Frame::writeProtocolDefinitionCommonFile()
+{
+    common::StringsList commonElems;
+    common::StringsList includes;
+    auto frameScope =
+        m_generator.scopeForFrame(m_externalRef, true, true);
+
+    auto layerScope = frameScope + common::layersSuffixStr() + "::";
+    for (auto& l : m_layers) {
+        auto commonDef = l->getCommonDefinition(layerScope);
+        if (!commonDef.empty()) {
+            commonElems.push_back(commonDef);
+            l->updateIncludesCommon(includes);
+        }
+    }
+
+    if (commonElems.empty()) {
+        return true;
+    }
+
+
+    auto adjName = m_externalRef + common::commonSuffixStr();
+    auto names = m_generator.startFrameProtocolWrite(adjName);
+    auto& filePath = names.first;
+    //auto& className = names.second;
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
+        "/// @file\n"
+        "/// @brief Contains common template parameters independent functionality of\n"
+        "///    fields used in definition of @ref #^#SCOPE#$# frame.\n"
+        "\n"
+        "#pragma once\n"
+        "\n"
+        "#^#INCLUDES#$#\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "/// @brief Common types and functions of fields using in definition of\n"
+        "///     @ref #^#SCOPE#$# frame.\n"
+        "/// @see #^#SCOPE#$#Layers\n"
+        "struct #^#NAME#$#LayersCommon\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n"
+        "#^#END_NAMESPACE#$#\n";
+
+    auto namespaces = m_generator.namespacesForFrame(m_externalRef);
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
+    repl.insert(std::make_pair("SCOPE", frameScope));
+    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+    repl.insert(std::make_pair("BODY", common::listToString(commonElems, "\n", common::emptyString())));
+    repl.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
+    repl.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    repl.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+
+    auto str = common::processTemplate(Templ, repl);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
 bool Frame::writeProtocol()
 {
     auto names =
@@ -180,6 +258,7 @@ bool Frame::writeProtocol()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("PROT_NAMESPACE", m_generator.mainNamespace()));
@@ -187,7 +266,6 @@ bool Frame::writeProtocol()
     replacements.insert(std::make_pair("INCLUDES", getIncludes()));
     replacements.insert(std::make_pair("HEADERFILE", m_generator.headerfileForFrame(m_externalRef)));
     replacements.insert(std::make_pair("LAYERS_DEF", getLayersDef()));
-    replacements.insert(std::make_pair("COMMON_PRE_DEF", getCommonPreDef()));
     replacements.insert(std::make_pair("FRAME_DEF", getFrameDef()));
     replacements.insert(std::make_pair("LAYERS_ACCESS_LIST", getLayersAccess()));
     replacements.insert(std::make_pair("ACCESS_FUNCS_DOC", getLayersAccessDoc()));
@@ -229,6 +307,7 @@ bool Frame::writePluginTransportMessageHeader()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n\n"
         "#include <tuple>\n"
         "#include <QtCore/QVariantList>\n"
@@ -284,6 +363,7 @@ bool Frame::writePluginTransportMessageHeader()
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name()) + common::transportMessageSuffixStr()));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -364,6 +444,7 @@ bool Frame::writePluginTransportMessageSrc()
     }
 
     static const std::string Templ = 
+        "#^#GEN_COMMENT#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"comms_champion/property/field.h\"\n"
         "#^#INCLUDES#$#\n"
@@ -421,6 +502,7 @@ bool Frame::writePluginTransportMessageSrc()
     auto namespaces = m_generator.namespacesForFrameInPlugin(m_externalRef);
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
@@ -538,6 +620,7 @@ bool Frame::writePluginHeader()
     }
 
     static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
         "#pragma once\n\n"
         "#include #^#FRAME_INCLUDE#$#\n"
         "#^#INTERFACE_INCLUDE#$#\n"
@@ -561,6 +644,7 @@ bool Frame::writePluginHeader()
 
     auto allMessagesInclude = "#include " + m_generator.headerfileForInputInPlugin(common::allMessagesStr());
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("FRAME_SCOPE", std::move(scope)));
     replacements.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
@@ -623,6 +707,11 @@ std::string Frame::getIncludes() const
         l->updateIncludes(includes);
     }
 
+    if (hasCommonDefinition()) {
+        auto refStr = m_externalRef + common::commonSuffixStr();
+        common::mergeInclude(m_generator.headerfileForFrame(refStr, false), includes);
+    }
+
 //    if (!m_layers.empty()) {
 //        common::mergeInclude("<tuple>", includes);
 //    }
@@ -668,44 +757,6 @@ std::string Frame::getLayersDef() const
     defs.push_back(common::processTemplate(StackDefTempl, replacements));
 
     return common::listToString(defs, "\n", common::emptyString());
-
-}
-
-std::string Frame::getCommonPreDef() const
-{
-    common::StringsList defs;
-    defs.reserve(m_layers.size());
-
-    auto scope =
-        m_generator.scopeForFrame(externalRef(), true, true) +
-        common::layersSuffixStr() +
-        "::";
-
-    for (auto& l : m_layers) {
-        auto str = l->getCommonPreDefinition(scope);
-        if (!str.empty()) {
-            defs.emplace_back(std::move(str));
-        }
-    }
-
-    if (defs.empty()) {
-        return common::emptyString();
-    }
-
-    static const std::string Templ =
-        "/// @brief Common definitions for fields from @ref #^#CLASS_NAME#$#Layers.\n"
-        "/// @see @ref #^#CLASS_NAME#$#Layers\n"
-        "/// @headerfile #^#FRAME_HEADERFILE#$#\n"
-        "struct #^#CLASS_NAME#$#LayersCommon\n"
-        "{\n"
-        "    #^#FIELDS_DEF#$#\n"
-        "};\n";
-
-    common::ReplacementMap repl;
-    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("FRAME_HEADERFILE", m_generator.headerfileForFrame(m_externalRef)));
-    repl.insert(std::make_pair("FIELDS_DEF", common::listToString(defs, "\n", common::emptyString())));
-    return common::processTemplate(Templ, repl);
 
 }
 
@@ -843,4 +894,15 @@ std::string Frame::getOptions(GetLayerOptionsFunc func) const
     return common::processTemplate(Templ, replacements);
 }
 
+bool Frame::hasCommonDefinition() const
+{
+    return
+        std::any_of(
+            m_layers.begin(), m_layers.end(),
+            [](auto& l)
+            {
+                return l->hasCommonDefinition();
+            });
 }
+
+} // namespace commsdsl2comms

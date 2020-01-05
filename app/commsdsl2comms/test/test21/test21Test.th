@@ -81,7 +81,7 @@ void TestSuite::test2()
     std::vector<std::uint8_t> outBuf;
     Frame frame;
     Msg2 msg;
-    msg.field_f1().value() = test21::message::Msg2Fields<>::F1Val::V3;
+    msg.field_f1().value() = Msg2::Field_f1::ValueType::V3;
     
     outBuf.resize(frame.length(msg));
     auto* writeIter = &outBuf[0];
@@ -99,7 +99,7 @@ void TestSuite::test3()
     std::vector<std::uint8_t> outBuf;
     Frame frame;
     Msg2 msg;
-    msg.field_f1().value() = test21::message::Msg2Fields<>::F1Val::V3;
+    msg.field_f1().value() = Msg2::Field_f1::ValueType::V3;
 
     outBuf.resize(frame.length(msg));
     auto* writeIter = &outBuf[0];

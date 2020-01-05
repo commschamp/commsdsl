@@ -32,6 +32,7 @@ public:
 protected:
     virtual bool prepareImpl() override final;
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const override final;
     virtual std::size_t maxLengthImpl() const override final;
     virtual std::string getClassDefinitionImpl(
@@ -60,7 +61,8 @@ protected:
     virtual std::string getReadPreparationImpl(const FieldsList& fields) const override final;
     virtual bool isLimitedCustomizableImpl() const override final;
     virtual bool isVersionDependentImpl() const override final;
-    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
+    virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const override final;
 
 private:
     using StringsList = common::StringsList;

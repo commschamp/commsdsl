@@ -49,6 +49,7 @@ bool DefaultOptions::writeDefinition() const
 
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForOptions();
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
@@ -61,6 +62,7 @@ bool DefaultOptions::writeDefinition() const
     }
 
     static const std::string Template(
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of protocol default options.\n\n"
         "#pragma once\n\n"
@@ -114,6 +116,7 @@ bool DefaultOptions::writeClientServer(bool client) const
 
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForOptions();
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
@@ -127,6 +130,7 @@ bool DefaultOptions::writeClientServer(bool client) const
     }
 
     static const std::string Template(
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of protocol default options for a #^#TYPE#$#.\n\n"
         "#pragma once\n\n"
@@ -170,6 +174,7 @@ bool DefaultOptions::writeBareMetal() const
 
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForOptions();
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
@@ -183,6 +188,7 @@ bool DefaultOptions::writeBareMetal() const
     }
 
     static const std::string Template(
+        "#^#GEN_COMMENT#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of protocol default options for bare-metal application\n"
         "///    where usage of dynamic memory allocation is disabled.\n\n"

@@ -40,6 +40,7 @@ public:
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         const std::string& className) const override final;
@@ -54,7 +55,7 @@ protected:
         const std::string& nameOverride,
         bool forcedVersionOptional) const override final;
     virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
-    virtual std::string getCommonPreDefinitionImpl(const std::string& scope) const override final;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
 
 private:
     using StringsList = common::StringsList;
@@ -70,21 +71,23 @@ private:
     using ValidRangesList = std::vector<RangeInfo>;
 
     std::string getEnumeration(const std::string& scope, bool checkIfMemberChild = true) const;
+    std::string getCommonEnumeration(const std::string& fullScope) const;
     std::string getFieldBaseParams() const;
-    std::string getEnumType(const std::string& className) const;
+    std::string getEnumType(bool isCommon = false) const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getValid() const;
-    std::string getValueNameFunc() const;
+    std::string getValueNameFunc(bool isCommon = false) const;
     std::string getValueNameWrapFunc(const std::string& scope) const;
     std::string getValueNameFuncDirectBody() const;
-    std::string getValueNameFuncBinSearchBody() const;
-    std::string getValueNameBinSearchPairs() const;
-    std::string getBigUnsignedValueNameBinSearchPairs() const;
+    std::string getValueNameFuncBinSearchBody(bool isCommon) const;
+    std::string getValueNameBinSearchPairs(bool isCommon) const;
+    std::string getBigUnsignedValueNameBinSearchPairs(bool isCommon) const;
     bool isDirectValueNameMapping() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
     bool prepareRanges() const;
+    void updateIncludesForCommonInternal(IncludesList& includes) const;
 
     commsdsl::EnumField enumFieldDslObj() const
     {

@@ -31,6 +31,7 @@ namespace
 {
 
 const std::string Template(
+    "#^#GEN_COMMENT#$#\n"
     "/// @file\n"
     "/// @brief Contains definition of base class of all the fields.\n\n"
     "#pragma once\n\n"
@@ -80,6 +81,7 @@ bool FieldBase::writeDefinition() const
 
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForField(common::fieldBaseStr());
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
     replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
     replacements.insert(std::make_pair("OPTIONS", std::move(optionsStr)));

@@ -36,6 +36,7 @@ namespace
 {
 
 const std::string Template(
+    "#^#GEN_COMMENT#$#\n"
     "/// @file\n"
     "/// @brief Contains definition of <b>\"#^#MESSAGE_NAME#$#\"</b> message and its fields.\n"
     "\n"
@@ -43,7 +44,6 @@ const std::string Template(
     "\n"
     "#^#INCLUDES#$#\n"
     "#^#BEGIN_NAMESPACE#$#\n"
-    "#^#COMMON_PRE_DEF#$#\n"
     "/// @brief Fields of @ref #^#CLASS_NAME#$#.\n"
     "/// @tparam TOpt Extra options\n"
     "/// @see @ref #^#CLASS_NAME#$#\n"
@@ -97,6 +97,7 @@ const std::string Template(
 );
 
 static const std::string PluginSingleInterfacePimplHeaderTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#pragma once\n\n"
     "#include <memory>\n"
     "#include <QtCore/QVariantList>\n"
@@ -132,6 +133,7 @@ static const std::string PluginSingleInterfacePimplHeaderTemplate(
 );
 
 static const std::string PluginSingleInterfaceHeaderTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#pragma once\n\n"
     "#include <memory>\n"
     "#include <QtCore/QVariantList>\n"
@@ -160,6 +162,7 @@ static const std::string PluginSingleInterfaceHeaderTemplate(
 );
 
 static const std::string PluginMultiInterfaceHeaderTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#pragma once\n\n"
     "#include <QtCore/QVariantList>\n"
     "#include \"comms_champion/ProtocolMessageBase.h\"\n"
@@ -187,6 +190,7 @@ static const std::string PluginMultiInterfaceHeaderTemplate(
 );
 
 static const std::string PluginSingleInterfacePimplSrcTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
     "#include \"comms_champion/property/field.h\"\n"
     "#include \"comms_champion/ProtocolMessageBase.h\"\n"
@@ -289,6 +293,7 @@ static const std::string PluginSingleInterfacePimplSrcTemplate(
 );
 
 static const std::string PluginSingleInterfaceSrcTemplate(
+    "#^#GEN_COMMENT#$#\n"
     "#include \"#^#CLASS_NAME#$#.h\"\n\n"
     "#include \"comms_champion/property/field.h\"\n"
     "#^#INCLUDES#$#\n"
@@ -391,6 +396,7 @@ bool Message::write()
     }
 
     return
+        writeProtocolDefinitionCommonFile() &&
         writeProtocol() &&
         writePluginHeader() &&
         writePluginSrc();
@@ -478,6 +484,95 @@ std::string Message::getBareMetalDefaultOptions() const
     return getOptions(&Field::getBareMetalDefaultOptions);
 }
 
+bool Message::writeProtocolDefinitionCommonFile()
+{
+    common::StringsList commonElems;
+    common::StringsList includes;
+    auto msgScope =
+        m_generator.scopeForMessage(m_externalRef, true, true);
+
+    auto fieldScope = msgScope + common::fieldsSuffixStr() + "::";
+    for (auto& f : m_fields) {
+        auto commonDef = f->getCommonDefinition(fieldScope);
+        if (!commonDef.empty()) {
+            commonElems.push_back(commonDef);
+            f->updateIncludesCommon(includes);
+        }
+    }
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", msgScope));
+    repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+
+    std::string fieldsCommon;
+    if (!commonElems.empty()) {
+        static const std::string Templ =
+        "/// @brief Common types and functions for fields of \n"
+        "///     @ref #^#SCOPE#$# message.\n"
+        "/// @see #^#SCOPE#$#Fields\n"
+        "struct #^#NAME#$#FieldsCommon\n"
+        "{\n"
+        "    #^#FIELDS_BODY#$#\n"
+        "};\n";
+        repl.insert(std::make_pair("FIELDS_BODY", common::listToString(commonElems, "\n", common::emptyString())));
+        fieldsCommon = common::processTemplate(Templ, repl);
+    }
+
+    auto adjName = m_externalRef + common::commonSuffixStr();
+    auto names = m_generator.startMessageProtocolWrite(adjName);
+    auto& filePath = names.first;
+    //auto& className = names.second;
+
+    if (filePath.empty()) {
+        // Skipping generation
+        return true;
+    }
+
+    static const std::string Templ =
+        "#^#GEN_COMMENT#$#\n"
+        "/// @file\n"
+        "/// @brief Contains common template parameters independent functionality of\n"
+        "///    @ref #^#SCOPE#$# message and its fields.\n"
+        "\n"
+        "#pragma once\n"
+        "\n"
+        "#^#INCLUDES#$#\n"
+        "#^#BEGIN_NAMESPACE#$#\n"
+        "#^#FIELDS_COMMON#$#\n"
+        "/// @brief Common types and functions of \n"
+        "///     @ref #^#SCOPE#$# message.\n"
+        "/// @see #^#SCOPE#$#\n"
+        "struct #^#NAME#$#Common\n"
+        "{\n"
+        "    #^#NAME_FUNC#$#\n"
+        "};\n\n"
+        "#^#END_NAMESPACE#$#\n";
+
+    auto namespaces = m_generator.namespacesForMessage(m_externalRef);
+    repl.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
+    repl.insert(std::make_pair("FIELDS_COMMON", std::move(fieldsCommon)));
+    repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(msgScope)));
+    repl.insert(std::make_pair("INCLUDES", common::includesToStatements(includes)));
+    repl.insert(std::make_pair("BEGIN_NAMESPACE", std::move(namespaces.first)));
+    repl.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+
+    auto str = common::processTemplate(Templ, repl);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+    stream << str;
+
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+
+    return true;
+}
+
 bool Message::writeProtocol()
 {
     assert(!m_externalRef.empty());
@@ -492,7 +587,7 @@ bool Message::writeProtocol()
     }
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("COMMON_PRE_DEF", getCommonPreDef()));
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", className));
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("MESSAGE_NAME", getDisplayName()));
@@ -552,6 +647,7 @@ bool Message::writePluginHeader()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("CLASS_PLUGIN_SCOPE", m_generator.scopeForMessageInPlugin(m_externalRef, true, false)));
     replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
@@ -617,6 +713,7 @@ bool Message::writePluginSrc()
     }
 
     common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("PROT_MESSAGE", m_generator.scopeForMessage(m_externalRef, true, true)));
     replacements.insert(std::make_pair("FIELDS_PROPS", common::listToString(fieldsProps, "\n", common::emptyString())));
@@ -703,6 +800,9 @@ std::string Message::getIncludes() const
         m_generator.headerfileForOptions(common::defaultOptionsStr(), false)
     };
     common::mergeIncludes(MessageIncludes, includes);
+
+    auto commonRefStr = m_externalRef + common::commonSuffixStr();
+    common::mergeInclude(m_generator.headerfileForMessage(commonRefStr, false), includes);
 
     return common::includesToStatements(includes) + m_generator.getExtraIncludeForMessage(m_externalRef);
 }
@@ -981,9 +1081,25 @@ std::string Message::getNameFunc() const
         return str;
     }
 
+    auto fullScope = m_generator.scopeForMessage(m_externalRef, true, true);
     return
         "/// @brief Name of the message.\n"
         "static const char* doName()\n"
+        "{\n"
+        "    return " + m_generator.scopeForCommon(fullScope) + "Common::name();\n"
+        "}\n";
+}
+
+std::string Message::getCommonNameFunc(const std::string& fullScope) const
+{
+    auto customName = m_generator.getCustomNameForMessage(m_externalRef + common::commonSuffixStr());
+    if (!customName.empty()) {
+        return customName;
+    }
+
+    return
+        "/// @brief Name of the @ref " + fullScope + " message.\n"
+        "static const char* name()\n"
         "{\n"
         "    return \"" + getDisplayName() + "\";\n"
         "}\n";
@@ -1025,42 +1141,6 @@ std::string Message::getExtraPublic() const
     }
 
     return "\n" + str;
-}
-
-std::string Message::getCommonPreDef() const
-{
-    auto scope =
-        "TOpt::" +
-        getNamespaceScope() +
-        common::fieldsSuffixStr() +
-        "::";
-
-    common::StringsList defs;
-    for (auto& f : m_fields) {
-        auto str = f->getCommonPreDefinition(scope);
-        if (!str.empty()) {
-            defs.emplace_back(std::move(str));
-        }
-    }
-
-    if (defs.empty()) {
-        return common::emptyString();
-    }
-
-    static const std::string Templ =
-        "/// @brief Common definitions for fields from @ref #^#CLASS_NAME#$#Fields.\n"
-        "/// @see @ref #^#CLASS_NAME#$#Fields\n"
-        "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
-        "struct #^#CLASS_NAME#$#FieldsCommon\n"
-        "{\n"
-        "    #^#FIELDS_DEF#$#\n"
-        "};\n";
-
-    common::ReplacementMap repl;
-    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
-    repl.insert(std::make_pair("MESSAGE_HEADERFILE", m_generator.headerfileForMessage(m_externalRef)));
-    repl.insert(std::make_pair("FIELDS_DEF", common::listToString(defs, "\n", common::emptyString())));
-    return common::processTemplate(Templ, repl);
 }
 
 bool Message::mustImplementReadRefresh() const
