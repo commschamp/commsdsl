@@ -476,7 +476,7 @@ std::string FloatField::getCommonDefinitionImpl(const std::string& fullScope) co
             "#^#SPECIAL_DOC#$#\n"
             "static constexpr ValueType value#^#SPEC_ACC#$#()\n"
             "{\n"
-            "    return static_cast<ValueType>(#^#SPEC_VAL#$#);\n"
+            "    return #^#SPEC_VAL#$#;\n"
             "}\n\n"
         );
 
