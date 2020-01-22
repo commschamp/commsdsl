@@ -254,6 +254,70 @@ void addRangeComparison(
 
 } // namespace
 
+bool FloatField::prepareImpl()
+{
+    auto obj = floatFieldDslObj();
+    auto& specials = obj.specialValues();
+    m_specials.assign(specials.begin(), specials.end());
+    std::sort(
+        m_specials.begin(), m_specials.end(),
+        [](auto& elem1, auto& elem2)
+        {
+            auto compNames =
+                [&elem1, &elem2]()
+                {
+                    return elem1.first < elem2.first;
+                };
+
+            if (std::isnan(elem1.second.m_value)) {
+                if (std::isnan(elem2.second.m_value)) {
+                    return compNames();
+                }
+
+                return false;
+            }
+
+            if (std::isnan(elem2.second.m_value)) {
+                return true;
+            }
+
+            auto isPositiveInf =
+                [](double val)
+                {
+                    return std::isinf(val) && (val > 0.0);
+                };
+
+            if (isPositiveInf(elem1.second.m_value)) {
+                if (isPositiveInf(elem2.second.m_value)) {
+                    return compNames();
+                }
+
+                return false;
+            }
+
+            auto isNegativeInf =
+                [](double val)
+                {
+                    return std::isinf(val) && (val < 0.0);
+                };
+
+            if (isNegativeInf(elem1.second.m_value)) {
+                if (isNegativeInf(elem2.second.m_value)) {
+                    return compNames();
+                }
+
+                return false;
+            }
+
+            if (elem1.second.m_value != elem2.second.m_value) {
+                return elem1.second.m_value < elem2.second.m_value;
+            }
+
+            return compNames();
+        });
+    return true;
+}
+
 void FloatField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
@@ -294,10 +358,9 @@ void FloatField::updateIncludesImpl(IncludesList& includes) const
 
 void FloatField::updateIncludesCommonImpl(IncludesList& includes) const
 {
-    auto& specials = floatFieldDslObj().specialValues();
     bool hasLimits =
         std::any_of(
-            specials.begin(), specials.end(),
+            m_specials.begin(), m_specials.end(),
             [](auto& s)
             {
                 return isLimit(s.second.m_value);
@@ -358,8 +421,7 @@ std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
             break;
         }
 
-        auto& specials = obj.specialValues();
-        if (specials.empty()) {
+        if (m_specials.empty()) {
             break;
         }
 
@@ -388,7 +450,7 @@ std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
                 props.push_back(".addSpecial(\"" + *nameToAdd + "\", " + valStr + ")");
             };
 
-        for (auto& s : specials) {
+        for (auto& s : m_specials) {
             addSpecDisplayNameFunc(s.second.m_value, s.first, s.second.m_displayName);
         }
         break;
@@ -464,9 +526,8 @@ std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
 std::string FloatField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     auto obj = floatFieldDslObj();
-    auto& specials = obj.specialValues();
     common::StringsList specialsList;
-    for (auto& s : specials) {
+    for (auto& s : m_specials) {
         if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
@@ -588,9 +649,8 @@ std::string FloatField::getConstructor() const
 std::string FloatField::getSpecials(const std::string& scope) const
 {
     auto obj = floatFieldDslObj();
-    auto& specials = obj.specialValues();
     std::string result;
-    for (auto& s : specials) {
+    for (auto& s : m_specials) {
         if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
