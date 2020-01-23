@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -230,6 +230,29 @@ std::string IntField::getPropKeyValueStr() const
     return common::numToString(val);
 }
 
+bool IntField::prepareImpl()
+{
+    auto obj = intFieldDslObj();
+    auto& specials = obj.specialValues();
+    m_specials.assign(specials.begin(), specials.end());
+    bool compareUnsigned = isUnsignedType();
+    std::sort(
+        m_specials.begin(), m_specials.end(),
+        [compareUnsigned](auto& elem1, auto& elem2)
+        {
+            if (elem1.second.m_value == elem2.second.m_value) {
+                return elem1.first < elem2.first;
+            }
+
+            if (compareUnsigned) {
+                return static_cast<std::uintmax_t>(elem1.second.m_value) < static_cast<std::uintmax_t>(elem2.second.m_value);
+            }
+
+            return elem1.second.m_value < elem2.second.m_value;
+        });
+    return true;
+}
+
 void IntField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
@@ -413,8 +436,7 @@ std::string IntField::getPluginPropertiesImpl(bool serHiddenParam) const
         props.push_back(".displayOffset(" + common::numToString(offset) + ')');
     }
 
-    auto& specials = obj.specialValues();
-    if (!specials.empty() && (obj.displaySpecials())) {
+    if (!m_specials.empty() && (obj.displaySpecials())) {
         auto type = obj.type();
         bool bigUnsigned =
             (type == commsdsl::IntField::Type::Uint64) ||
@@ -436,7 +458,7 @@ std::string IntField::getPluginPropertiesImpl(bool serHiddenParam) const
                 props.push_back(".addSpecial(\"" + *nameToAdd + "\", " + valStr + ")");
             };
 
-        for (auto& s : specials) {
+        for (auto& s : m_specials) {
             addSpecDisplayNameFunc(s.second.m_value, s.first, s.second.m_displayName);
         }
     }
@@ -451,9 +473,8 @@ std::string IntField::getPluginPropertiesImpl(bool serHiddenParam) const
 std::string IntField::getCommonDefinitionImpl(const std::string& fullScope) const
 {
     auto obj = intFieldDslObj();
-    auto& specials = obj.specialValues();
     common::StringsList specialsList;
-    for (auto& s : specials) {
+    for (auto& s : m_specials) {
         if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
@@ -570,10 +591,8 @@ std::string IntField::getFieldOpts(const std::string& scope, bool reduced) const
 
 std::string IntField::getSpecials(const std::string& scope) const
 {
-    auto obj = intFieldDslObj();
-    auto& specials = obj.specialValues();
     std::string result;
-    for (auto& s : specials) {
+    for (auto& s : m_specials) {
         if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }

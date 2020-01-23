@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2019 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ public:
     FloatField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
 protected:
+    virtual bool prepareImpl() override final;
     virtual void updateIncludesImpl(IncludesList& includes) const override final;
     virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
     virtual std::string getClassDefinitionImpl(
@@ -40,6 +41,8 @@ protected:
 
 private:
     using StringsList = common::StringsList;
+    using SpecialsListElem = std::pair<std::string, commsdsl::FloatField::SpecialValueInfo>;
+    using SpecialsList = std::vector<SpecialsListElem>;
 
     std::string getFieldBaseParams() const;
     const std::string& getFieldType() const;
@@ -57,6 +60,9 @@ private:
     {
         return commsdsl::FloatField(dslObj());
     }
+
+private:
+    SpecialsList m_specials;
 };
 
 inline
