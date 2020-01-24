@@ -306,7 +306,7 @@ bool FloatField::prepareImpl()
                     return compNames();
                 }
 
-                return false;
+                return true;
             }
 
             if (elem1.second.m_value != elem2.second.m_value) {
