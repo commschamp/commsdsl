@@ -40,8 +40,8 @@ void TestSuite::test1()
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
-    Frame::MsgPtr msgPtr;
     Frame frame;
+    Frame::MsgPtr msgPtr;
 
     auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
     auto es = frame.read(msgPtr, readIter, Buf1Size);
@@ -71,8 +71,8 @@ void TestSuite::test2()
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
-    Frame::MsgPtr msgPtr;
     Frame frame;
+    Frame::MsgPtr msgPtr;
 
     auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
     auto es = frame.read(msgPtr, readIter, Buf1Size);
