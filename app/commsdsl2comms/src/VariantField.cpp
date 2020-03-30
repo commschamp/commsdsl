@@ -398,7 +398,7 @@ std::string VariantField::getAccess() const
         "///     related to @b comms::field::Variant class from COMMS library\n"
         "///     for details.\n"
         "///\n"
-        "///     The generated access functions are:\n"
+        "///     The generated types and access functions are:\n"
         "#^#ACCESS_DOC#$#\n"
         "COMMS_VARIANT_MEMBERS_NAMES(\n"
         "    #^#NAMES#$#\n"
@@ -413,8 +413,9 @@ std::string VariantField::getAccess() const
     for (auto& m : m_members) {
         namesList.push_back(common::nameToAccessCopy(m->name()));
         std::string accessStr =
-            "///     @li @b initField_" + namesList.back() +
-            "() and @b accessField_" + namesList.back() + "() - for " + scope +
+            "///     @li @b Field_" + namesList.back() + " type, @b initField_" + namesList.back() +
+            "() and @b accessField_" + namesList.back() + "() access functions -\n"
+            "///     for " + scope +
             common::nameToClassCopy(m->name()) + " member field.";
         accessDocList.push_back(std::move(accessStr));
     }

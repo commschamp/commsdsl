@@ -895,7 +895,7 @@ std::string Message::getFieldsAccess() const
         result += common::nameToAccessCopy(f->name());
         result += " type and @b field_";
         result += common::nameToAccessCopy(f->name());
-        result += "() fuction\n";
+        result += "() access fuction\n";
         result += common::doxygenPrefixStr();
         result += common::indentStr();
         result += common::indentStr();

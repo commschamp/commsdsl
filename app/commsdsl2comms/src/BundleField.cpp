@@ -510,7 +510,7 @@ std::string BundleField::getAccess() const
         "///     related to @b comms::field::Bundle class from COMMS library\n"
         "///     for details.\n"
         "///\n"
-        "///     The generated access functions are:\n"
+        "///     The generated access types and functions functions are:\n"
         "#^#ACCESS_DOC#$#\n"
         "COMMS_FIELD_MEMBERS_NAMES(\n"
         "    #^#NAMES#$#\n"
@@ -526,8 +526,8 @@ std::string BundleField::getAccess() const
         namesList.push_back(common::nameToAccessCopy(m->name()));
         std::string accessStr =
             "///     @li @b Field_" + namesList.back() +
-            " @b field_" + namesList.back() +
-            "() -\n"
+            "type and @b field_" + namesList.back() +
+            "() access function -\n"
             "///         for " + scope +
             common::nameToClassCopy(m->name()) + " member field.";
         accessDocList.push_back(std::move(accessStr));
