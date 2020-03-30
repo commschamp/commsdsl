@@ -31,7 +31,8 @@ namespace
 {
 
 const std::string MembersDefTemplate =
-    "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# bitfield.\n"
+    "/// @brief Scope for all the member fields of\n"
+    "///     @ref #^#CLASS_NAME#$# bitfield.\n"
     "#^#EXTRA_PREFIX#$#\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"

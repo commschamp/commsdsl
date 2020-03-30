@@ -522,7 +522,8 @@ std::string StringField::getPrefixField(const std::string& scope) const
     }
 
     static const std::string Templ =
-        "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# string.\n"
+        "/// @brief Scope for all the member fields of\n"
+        "///     @ref #^#CLASS_NAME#$# string.\n"
         "#^#EXTRA_PREFIX#$#\n"
         "struct #^#CLASS_NAME#$#Members\n"
         "{\n"
