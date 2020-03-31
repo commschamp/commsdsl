@@ -48,6 +48,7 @@ public:
     void test39();
     void test40();
     void test41();
+    void test42();
 };
 
 void IntTestSuite::setUp()
@@ -1830,4 +1831,28 @@ void IntTestSuite::test41()
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema41.xml");
     TS_ASSERT(protocol);
+}
+
+
+void IntTestSuite::test42()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema42.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());    
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);    
+
+    auto& f1 = fields[0];
+    auto& f2 = fields[1];
+    auto& f3 = fields[2];
+
+    TS_ASSERT(f1.isForceGen());
+    TS_ASSERT(!f2.isForceGen());
+    TS_ASSERT(!f3.isForceGen());
 }

@@ -550,6 +550,11 @@ bool Field::isPseudo() const
     return m_forcedPseudo || m_dslObj.isPseudo();
 }
 
+bool Field::isForceGen() const
+{
+    return m_dslObj.isForceGen();
+}
+
 std::string Field::getReadForFields(
     const FieldsList& fields,
     bool forMessage,

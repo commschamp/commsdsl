@@ -153,6 +153,7 @@ public:
     }
 
     bool isPseudo() const;
+    bool isForceGen() const;
 
     static std::string getReadForFields(
         const FieldsList& fields,

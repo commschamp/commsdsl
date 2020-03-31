@@ -104,7 +104,8 @@ bool FieldImpl::parse()
         updateDisplayReadOnly() &&
         updateDisplayHidden() &&
         updateCustomizable() &&
-        updateFailOnInvalid();
+        updateFailOnInvalid() &&
+        updateForceGen();
 
     if (!result) {
         return false;
@@ -598,7 +599,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::displayReadOnlyStr(),
         common::displayHiddenStr(),
         common::customizableStr(),
-        common::failOnInvalidStr()
+        common::failOnInvalidStr(),
+        common::forceGenStr(),
     };
 
     return CommonNames;
@@ -996,6 +998,11 @@ bool FieldImpl::updateCustomizable()
 bool FieldImpl::updateFailOnInvalid()
 {
     return validateAndUpdateBoolPropValue(common::failOnInvalidStr(), m_state.m_failOnInvalid);
+}
+
+bool FieldImpl::updateForceGen()
+{
+    return validateAndUpdateBoolPropValue(common::forceGenStr(), m_state.m_forceGen);
 }
 
 bool FieldImpl::updateExtraAttrs(const XmlWrap::NamesList& names)

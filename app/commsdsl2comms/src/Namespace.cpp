@@ -528,6 +528,10 @@ bool Namespace::prepareFields()
             return false;
         }
 
+        if (ptr->isForceGen()) {
+            recordAccessedField(ptr.get());
+        }
+
         m_fields.push_back(std::move(ptr));
     }
 

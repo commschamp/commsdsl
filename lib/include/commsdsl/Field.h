@@ -79,6 +79,7 @@ public:
     bool isDisplayHidden() const;
     bool isCustomizable() const;
     bool isFailOnInvalid() const;
+    bool isForceGen() const;
     std::string schemaPos() const;
 
     const AttributesMap& extraAttributes() const;

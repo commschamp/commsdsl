@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema42" endian="big">
+    <fields>
+        <int name="F1" type="uint8" defaultValue="1" forceGen="true" />
+        <int name="F2" type="uint8" forceGen="false" />
+        <int name="F3" type="uint8" />
+    </fields>
+</schema>

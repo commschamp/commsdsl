@@ -105,6 +105,11 @@ public:
         return m_state.m_failOnInvalid;
     }    
 
+    bool isForceGen() const
+    {
+        return m_state.m_forceGen;
+    }
+
     std::size_t minLength() const
     {
         return minLengthImpl();
@@ -344,6 +349,7 @@ private:
         bool m_displayHidden = false;
         bool m_customizable = false;
         bool m_failOnInvalid = false;
+        bool m_forceGen = false;
     };
 
     bool checkReuse();
@@ -357,6 +363,7 @@ private:
     bool updateDisplayHidden();
     bool updateCustomizable();
     bool updateFailOnInvalid();
+    bool updateForceGen();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 
