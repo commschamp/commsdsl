@@ -747,6 +747,11 @@ const std::string& dslUnitsToOpt(commsdsl::Units value)
         /* Millivolts */ "comms::option::def::UnitsMillivolts",
         /* Volts */ "comms::option::def::UnitsVolts",
         /* Kilovolts */ "comms::option::def::UnitsKilovolts",
+        /* Bytes */ "comms::option::def::UnitsBytes",
+        /* Kilobytes */ "comms::option::def::UnitsKilobytes",
+        /* Megabytes */ "comms::option::def::UnitsMegabytes",
+        /* Gigabytes */ "comms::option::def::UnitsGigabytes",
+        /* Terabytes */ "comms::option::def::UnitsTerabytes",
     };
 
     static const std::size_t UnitsMapSize = std::extent<decltype(UnitsMap)>::value;

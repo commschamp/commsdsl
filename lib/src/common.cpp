@@ -1022,6 +1022,21 @@ Units strToUnits(const std::string& str, bool* ok)
         std::make_pair("kv", Units::Kilovolts),
         std::make_pair("kilovolt", Units::Kilovolts),
         std::make_pair("kilovolts", Units::Kilovolts),
+        std::make_pair("b", Units::Bytes),
+        std::make_pair("byte", Units::Bytes),
+        std::make_pair("bytes", Units::Bytes),
+        std::make_pair("kb", Units::Kilobytes),
+        std::make_pair("kilobyte", Units::Kilobytes),
+        std::make_pair("kilobytes", Units::Kilobytes),
+        std::make_pair("mb", Units::Megabytes),
+        std::make_pair("megabyte", Units::Megabytes),
+        std::make_pair("megabytes", Units::Megabytes),        
+        std::make_pair("gb", Units::Gigabytes),
+        std::make_pair("gigabyte", Units::Gigabytes),
+        std::make_pair("gigabytes", Units::Gigabytes),
+        std::make_pair("tb", Units::Terabytes),
+        std::make_pair("terabyte", Units::Terabytes),
+        std::make_pair("terabytes", Units::Terabytes),
     };
 
 

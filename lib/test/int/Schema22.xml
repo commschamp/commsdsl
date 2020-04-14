@@ -203,7 +203,25 @@
         <int name="U38_F2" type="int8" units=" kilovolt " />
         <int name="U38_F3" type="int8" units=" kilovolts " />
         
-        
+        <int name="U39_F1" type="int8" units=" b " />
+        <int name="U39_F2" type="int8" units=" byte " />
+        <int name="U39_F3" type="int8" units=" bytes " />       
+
+        <int name="U40_F1" type="int8" units=" kb " />
+        <int name="U40_F2" type="int8" units=" kilobyte " />
+        <int name="U40_F3" type="int8" units=" kilobytes " />      
+
+        <int name="U41_F1" type="int8" units=" Mb " />
+        <int name="U41_F2" type="int8" units=" Megabyte " />
+        <int name="U41_F3" type="int8" units=" MegaBytes " />       
+
+        <int name="U42_F1" type="int8" units=" gb " />
+        <int name="U42_F2" type="int8" units=" gigabyte " />
+        <int name="U42_F3" type="int8" units=" gigaBytes " />        
+
+        <int name="U43_F1" type="int8" units=" tb " />
+        <int name="U43_F2" type="int8" units=" terabyte " />
+        <int name="U43_F3" type="int8" units=" teraBytes " />                           
     </fields>
     
 </schema>

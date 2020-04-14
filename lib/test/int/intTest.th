@@ -1509,6 +1509,26 @@ void IntTestSuite::test22()
     auto kvOffset = vOffset + vCount;
     auto kvCount = 3;
     verifyUnitsFunc(kvOffset, kvCount, commsdsl::Units::Kilovolts);
+
+    auto bOffset = kvOffset + kvCount;
+    auto bCount = 3;
+    verifyUnitsFunc(bOffset, bCount, commsdsl::Units::Bytes);    
+
+    auto kbOffset = bOffset + bCount;
+    auto kbCount = 3;
+    verifyUnitsFunc(kbOffset, kbCount, commsdsl::Units::Kilobytes);      
+
+    auto mbOffset = kbOffset + kbCount;
+    auto mbCount = 3;
+    verifyUnitsFunc(mbOffset, mbCount, commsdsl::Units::Megabytes);  
+
+    auto gbOffset = mbOffset + mbCount;
+    auto gbCount = 3;
+    verifyUnitsFunc(gbOffset, gbCount, commsdsl::Units::Gigabytes);  
+
+    auto tbOffset = gbOffset + gbCount;
+    auto tbCount = 3;
+    verifyUnitsFunc(tbOffset, tbCount, commsdsl::Units::Terabytes);               
 }
 
 void IntTestSuite::test23()

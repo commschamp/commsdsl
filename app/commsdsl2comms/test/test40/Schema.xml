@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test40"
+        id="1"
+        endian="big">
+    <message name="Msg1" id="1">
+        <int name="Time_ns" type="uint8" units="ns" />
+        <int name="Time_us" type="uint8" units="us" />
+        <int name="Time_ms" type="uint8" units="ms" />
+        <int name="Time_s" type="uint8" units="s" />
+        <int name="Time_min" type="uint8" units="min" />
+        <int name="Time_h" type="uint8" units="h" />
+        <int name="Time_d" type="uint8" units="d" />
+        <int name="Time_w" type="uint8" units="w" />
+
+        <int name="Dist_nm" type="uint8" units="nm" />
+        <int name="Dist_um" type="uint8" units="um" />
+        <int name="Dist_mm" type="uint8" units="mm" />
+        <int name="Dist_cm" type="uint8" units="cm" />
+        <int name="Dist_m" type="uint8" units="m" />
+        <int name="Dist_km" type="uint8" units="km" />
+
+        <int name="Speed_nmps" type="uint8" units="nm/s" />
+        <int name="Speed_umps" type="uint8" units="um/s" />
+        <int name="Speed_mmps" type="uint8" units="mm/s" />
+        <int name="Speed_cmps" type="uint8" units="cm/s" />
+        <int name="Speed_mps" type="uint8" units="m/s" />
+        <int name="Speed_kmps" type="uint8" units="km/s" />
+        <int name="Speed_kmph" type="uint8" units="km/h" />
+
+        <int name="Freq_hz" type="uint8" units="hz" />
+        <int name="Freq_khz" type="uint8" units="khz" />
+        <int name="Freq_mhz" type="uint8" units="mhz" />
+        <int name="Freq_ghz" type="uint8" units="ghz" />
+
+        <int name="Angle_deg" type="uint8" units="deg" />
+        <int name="Angle_rad" type="uint8" units="rad" />
+
+        <int name="Current_na" type="uint8" units="na" />
+        <int name="Current_ua" type="uint8" units="ua" />
+        <int name="Current_ma" type="uint8" units="ma" />
+        <int name="Current_a" type="uint8" units="a" />
+        <int name="Current_ka" type="uint8" units="ka" />
+
+        <int name="Voltage_nv" type="uint8" units="nv" />
+        <int name="Voltage_uv" type="uint8" units="uv" />
+        <int name="Voltage_mv" type="uint8" units="mv" />
+        <int name="Voltage_v" type="uint8" units="v" />
+        <int name="Voltage_kv" type="uint8" units="kv" />
+
+        <int name="Memory_b" type="uint8" units="b" />
+        <int name="Memory_kb" type="uint8" units="kb" />
+        <int name="Memory_mb" type="uint8" units="mb" />
+        <int name="Memory_gb" type="uint8" units="gb" />
+        <int name="Memory_tb" type="uint8" units="tb" />
+    </message>
+
+    <frame name="Frame">
+        <id name="ID">
+            <field>
+                <int type="uint8" name="id" />
+            </field>
+        </id>
+        <payload name="Data" />
+    </frame>
+</schema>

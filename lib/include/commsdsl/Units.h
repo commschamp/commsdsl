@@ -21,6 +21,8 @@ namespace commsdsl
 enum class Units : unsigned
 {
     Unknown,
+
+    // Time
     Nanoseconds,
     Microseconds,
     Milliseconds,
@@ -29,12 +31,16 @@ enum class Units : unsigned
     Hours,
     Days,
     Weeks,
+
+    // Distance  
     Nanometers,
     Micrometers,
     Millimeters,
     Centimeters,
     Meters,
     Kilometers,
+
+    // Speed
     NanometersPerSecond,
     MicrometersPerSecond,
     MillimetersPerSecond,
@@ -42,22 +48,38 @@ enum class Units : unsigned
     MetersPerSecond,
     KilometersPerSecond,
     KilometersPerHour,
+
+    // Frequency
     Hertz,
     KiloHertz,
     MegaHertz,
     GigaHertz,
+
+    // Angle
     Degrees,
     Radians,
+
+    // Electric Current
     Nanoamps,
     Microamps,
     Milliamps,
     Amps,
     Kiloamps,
+
+    // Electric Voltage
     Nanovolts,
     Microvolts,
     Millivolts,
     Volts,
     Kilovolts,
+
+    // Memory Size
+    Bytes,
+    Kilobytes,
+    Megabytes,
+    Gigabytes,
+    Terabytes,
+
     NumOfValues
 };
 
