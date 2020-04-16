@@ -93,13 +93,15 @@ bool DefaultOptions::writeClientServer(bool client) const
     std::string type;
     std::string body;
 
+    static const std::string OptBase("TBase");
+
     if (client) {
         type = "Client";
-        body = m_generator.getClientDefaultOptionsBody();
+        body = m_generator.getClientDefaultOptionsBody(OptBase);
     }
     else {
         type = "Server";
-        body = m_generator.getServerDefaultOptionsBody();
+        body = m_generator.getServerDefaultOptionsBody(OptBase);
     }
 
     if (body.empty()) {
@@ -137,10 +139,14 @@ bool DefaultOptions::writeClientServer(bool client) const
         "#include \"DefaultOptions.h\"\n\n"
         "#^#BEG_NAMESPACE#$#\n"
         "/// @brief Default options of the protocol for a #^#TYPE#$#.\n"
-        "struct #^#CLASS_NAME#$# : public DefaultOptions\n"
+        "/// @tparam TBase Options to use as a basis.\n"
+        "template <typename TBase = #^#DEFAULT_OPT#$#>\n"        
+        "struct #^#CLASS_NAME#$#T : public TBase\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n\n"
+        "/// @brief Alias to @ref #^#CLASS_NAME#$#T with default template parameter.\n"
+        "using #^#CLASS_NAME#$# = #^#CLASS_NAME#$#T<>;\n\n"        
         "#^#END_NAMESPACE#$#\n"
     );
 
@@ -158,7 +164,7 @@ bool DefaultOptions::writeClientServer(bool client) const
 
 bool DefaultOptions::writeBareMetal() const
 {
-    std::string body = m_generator.getBareMetalDefaultOptionsBody();
+    std::string body = m_generator.getBareMetalDefaultOptionsBody("TBase");
 
 //    if (body.empty()) {
 //        return true;
@@ -172,6 +178,10 @@ bool DefaultOptions::writeBareMetal() const
         return true;
     }
 
+    static const common::StringsList Includes = {
+        m_generator.headerfileForOptions(common::defaultOptionsStr(), false)
+    };
+
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForOptions();
     replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
@@ -180,6 +190,9 @@ bool DefaultOptions::writeBareMetal() const
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BODY", std::move(body)));
     replacements.insert(std::make_pair("SEQ_DEFAULT_SIZE", common::seqDefaultSizeStr()));
+    replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(Includes)));
+    replacements.insert(std::make_pair("DEFAULT_OPT", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+
 
     std::ofstream stream(fileName);
     if (!stream) {
@@ -198,13 +211,18 @@ bool DefaultOptions::writeBareMetal() const
         "/// @details May be defined during compile time to change the default value.\n"
         "#define #^#SEQ_DEFAULT_SIZE#$# 32\n"
         "#endif\n\n"
+        "#^#INCLUDES#$#\n"
         "#^#BEG_NAMESPACE#$#\n"
         "/// @brief Default options for bare-metal application where usage of dynamic\n"
         "///    memory allocation is diabled.\n"
-        "struct #^#CLASS_NAME#$#\n"
+        "/// @tparam TBase Options to use as a basis.\n"
+        "template <typename TBase = #^#DEFAULT_OPT#$#>\n"
+        "struct #^#CLASS_NAME#$#T : public TBase\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n\n"
+        "/// @brief Alias to @ref #^#CLASS_NAME#$#T with default template parameter.\n"
+        "using #^#CLASS_NAME#$# = #^#CLASS_NAME#$#T<>;\n\n"
         "#^#END_NAMESPACE#$#\n"
     );
 

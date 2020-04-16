@@ -38,7 +38,7 @@ protected:
         const std::string& scope,
         const std::string& className) const override final;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
-    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const override final;
+    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
     virtual std::string getBareMetalOptionStrImpl() const override final;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
@@ -58,7 +58,7 @@ protected:
 
 private:
     using StringsList = common::StringsList;
-    using GetExtraOptionsFunc = std::string (Field::*)(const std::string&) const;
+    using GetExtraOptionsFunc = std::string (Field::*)(const std::string& base, const std::string& scope) const;
 
     std::string getFieldOpts(const std::string& scope) const;
     std::string getConstructor(const std::string& className) const;
@@ -67,7 +67,7 @@ private:
     void checkPrefixOpt(StringsList& list) const;
     void checkSuffixOpt(StringsList& list) const;
     void checkForcingOpt(StringsList& list) const;
-    std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const;
+    std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
 
 
     commsdsl::StringField stringFieldDslObj() const

@@ -410,12 +410,12 @@ std::string ListField::getClassDefinitionImpl(
 
 std::string ListField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getDefaultOptions);
+    return getExtraOptions(scope, &Field::getDefaultOptions, std::string());
 }
 
-std::string ListField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+std::string ListField::getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
 std::string ListField::getBareMetalOptionStrImpl() const
@@ -1172,21 +1172,28 @@ std::string ListField::getPrefixName() const
     return common::displayName(lengthPrefix.displayName(), lengthPrefix.name());
 }
 
-std::string ListField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const
+std::string ListField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const
 {
+    std::string nextBase;
+    std::string ext;
+    if (!base.empty()) {
+        nextBase = base + "::" + common::nameToClassCopy(name()) + common::membersSuffixStr();
+        ext = " : public " + nextBase;
+    }   
+
     std::string memberScope =
         scope + common::nameToClassCopy(name()) +
         common::membersSuffixStr() + "::";
     StringsList options;
 
     auto addToOptionsFunc =
-        [&memberScope, &options, func](const FieldPtr& f)
+        [&nextBase, &memberScope, &options, func](const FieldPtr& f)
         {
             if (!f) {
                 return;
             }
 
-            auto o = (f.get()->*func)(memberScope);
+            auto o = (f.get()->*func)(nextBase, memberScope);
             if (!o.empty()) {
                 options.push_back(o);
             }
@@ -1204,7 +1211,7 @@ std::string ListField::getExtraOptions(const std::string& scope, GetExtraOptions
     const std::string Templ =
         "/// @brief Extra options for all the member fields of\n"
         "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# list.\n"
-        "struct #^#CLASS_NAME#$#Members\n"
+        "struct #^#CLASS_NAME#$#Members#^#EXT#$#\n"
         "{\n"
         "    #^#OPTIONS#$#\n"
         "};\n";
@@ -1212,6 +1219,7 @@ std::string ListField::getExtraOptions(const std::string& scope, GetExtraOptions
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("EXT", std::move(ext)));
     replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
     return common::processTemplate(Templ, replacements);
 }

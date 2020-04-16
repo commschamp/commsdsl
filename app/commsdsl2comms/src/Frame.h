@@ -48,8 +48,8 @@ public:
 
     bool write();
 
-    std::string getDefaultOptions() const;
-    std::string getBareMetalDefaultOptions() const;
+    std::string getDefaultOptions(const std::string& base) const;
+    std::string getBareMetalDefaultOptions(const std::string& base) const;
 
     const std::string& externalRef() const
     {
@@ -59,7 +59,7 @@ public:
     std::vector<std::string> getPseudoVersionLayers(const std::vector<std::string>& interfaceVersionFields) const;
 
 private:
-    using GetLayerOptionsFunc = std::string (Layer::*)(const std::string&) const;
+    using GetLayerOptionsFunc = std::string (Layer::*)(const std::string& base, const std::string& scope) const;
 
     bool writeProtocolDefinitionCommonFile();
     bool writeProtocol();
@@ -78,7 +78,7 @@ private:
 
     bool hasIdLayer() const;
     unsigned calcBackPayloadOffset() const;
-    std::string getOptions(GetLayerOptionsFunc func) const;
+    std::string getOptions(GetLayerOptionsFunc func, const std::string& base) const;
     bool hasCommonDefinition() const;
 
     Generator& m_generator;

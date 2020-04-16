@@ -323,9 +323,9 @@ public:
     }
 
     std::string getDefaultOptionsBody() const;
-    std::string getClientDefaultOptionsBody() const;
-    std::string getServerDefaultOptionsBody() const;
-    std::string getBareMetalDefaultOptionsBody() const;
+    std::string getClientDefaultOptionsBody(const std::string& base) const;
+    std::string getServerDefaultOptionsBody(const std::string& base) const;
+    std::string getBareMetalDefaultOptionsBody(const std::string& base) const;
 
     std::string getMessageIdStr(const std::string& externalRef, uintmax_t id) const;
 
@@ -515,8 +515,8 @@ private:
     bool preparePlugins();
     bool prepareExternalMessages();
 
-    typedef std::string (Namespace::*GetOptionsFunc)() const;
-    std::string getOptionsBody(GetOptionsFunc func) const;
+    using GetOptionsFunc = std::string (Namespace::*)(const std::string& base) const;
+    std::string getOptionsBody(GetOptionsFunc func, const std::string& base = std::string()) const;
 
     ProgramOptions& m_options;
     Logger& m_logger;

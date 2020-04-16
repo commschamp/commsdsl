@@ -72,10 +72,18 @@ std::string IdLayer::getClassDefinitionImpl(
     return common::processTemplate(Templ, replacements);
 }
 
-const std::string& IdLayer::getBareMetalOptionStrImpl() const
+std::string IdLayer::getBareMetalOptionStrImpl(const std::string& base) const
 {
     static const std::string Str("comms::option::app::InPlaceAllocation");
-    return Str;
+    if (base.empty()) {
+        return Str;
+    }
+
+    return 
+        "std::tuple<\n"
+        "    " + Str + ",\n"
+        "    typename " + base + "::" + common::nameToClassCopy(name()) + "\n"
+        ">";    
 }
 
 bool IdLayer::isCustomizableImpl() const

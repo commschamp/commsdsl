@@ -42,7 +42,7 @@ const std::string MembersDefTemplate =
 const std::string MembersOptionsTemplate =
     "/// @brief Extra options for all the member fields of\n"
     "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# optional.\n"
-    "struct #^#CLASS_NAME#$#Members\n"
+    "struct #^#CLASS_NAME#$#Members#^#EXT#$#\n"
     "{\n"
     "    #^#OPTIONS#$#\n"
     "};\n";
@@ -212,12 +212,12 @@ std::string OptionalField::getClassDefinitionImpl(
 
 std::string OptionalField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getDefaultOptions);
+    return getExtraOptions(scope, &Field::getDefaultOptions, std::string());
 }
 
-std::string OptionalField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+std::string OptionalField::getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
 std::string OptionalField::getPluginAnonNamespaceImpl(
@@ -478,14 +478,21 @@ void OptionalField::checkModeOpt(OptionalField::StringsList& options) const
     options.push_back(Map[idx]);
 }
 
-std::string OptionalField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const
+std::string OptionalField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const
 {
     if (!m_field) {
         return common::emptyString();
     }
 
+    std::string nextBase;
+    std::string ext;
+    if (!base.empty()) {
+        nextBase = base + "::" + common::nameToClassCopy(name()) + common::membersSuffixStr();
+        ext = " : public " + nextBase;
+    }    
+
     std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
-    auto fieldOptions = (m_field.get()->*func)(memberScope);
+    auto fieldOptions = (m_field.get()->*func)(nextBase, memberScope);
 
     if (fieldOptions.empty()) {
         return common::emptyString();
@@ -494,6 +501,7 @@ std::string OptionalField::getExtraOptions(const std::string& scope, GetExtraOpt
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("EXT", std::move(ext)));
     replacements.insert(std::make_pair("OPTIONS", std::move(fieldOptions)));
     return common::processTemplate(MembersOptionsTemplate, replacements);
 }

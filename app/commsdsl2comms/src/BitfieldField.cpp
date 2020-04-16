@@ -47,7 +47,7 @@ const std::string MembersDefTemplate =
 const std::string MembersOptionsTemplate =
     "/// @brief Extra options for all the member fields of\n"
     "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
-    "struct #^#CLASS_NAME#$#Members\n"
+    "struct #^#CLASS_NAME#$#Members#^#EXT#$#\n"
     "{\n"
     "    #^#OPTIONS#$#\n"
     "};\n";
@@ -169,12 +169,12 @@ std::string BitfieldField::getClassDefinitionImpl(
 
 std::string BitfieldField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getDefaultOptions);
+    return getExtraOptions(scope, &Field::getDefaultOptions, std::string());
 }
 
-std::string BitfieldField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+std::string BitfieldField::getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
 std::string BitfieldField::getPluginAnonNamespaceImpl(
@@ -430,14 +430,22 @@ std::string BitfieldField::getAccess() const
 
 std::string BitfieldField::getExtraOptions(
     const std::string& scope, 
-    GetExtraOptionsFunc func) const
+    GetExtraOptionsFunc func,
+    const std::string& base) const
 {
+    std::string nextBase;
+    std::string ext;
+    if (!base.empty()) {
+        nextBase = base + "::" + common::nameToClassCopy(name()) + common::membersSuffixStr();
+        ext = " : public " + nextBase;
+    }
+
     std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     StringsList options;
     options.reserve(m_members.size());
     for (auto& m : m_members) {
         assert(m);
-        auto opt = (m.get()->*func)(memberScope);
+        auto opt = (m.get()->*func)(nextBase, memberScope);
         if (!opt.empty()) {
             options.push_back(std::move(opt));
         }
@@ -450,6 +458,7 @@ std::string BitfieldField::getExtraOptions(
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("EXT", std::move(ext)));
     replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
     return common::processTemplate(MembersOptionsTemplate, replacements);
 }

@@ -38,7 +38,7 @@ protected:
         const std::string& scope,
         const std::string& className) const override final;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
-    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const override final;
+    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
     virtual std::string getPluginAnonNamespaceImpl(
         const std::string& scope,
         bool forcedSerialisedHidden,
@@ -52,7 +52,7 @@ protected:
 
 private:
     using StringsList = common::StringsList;
-    using GetExtraOptionsFunc = std::string (Field::*)(const std::string&) const;
+    using GetExtraOptionsFunc = std::string (Field::*)(const std::string& base, const std::string& scope) const;
 
     std::string getFieldOpts(const std::string& scope) const;
     std::string getMembersDef(const std::string& scope) const;
@@ -61,7 +61,7 @@ private:
     std::string getRefresh() const;
     std::string getCurrFieldExec() const;
     std::string getPrivate() const;
-    std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const;
+    std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
     bool hasOptimizedRead() const;
 
     commsdsl::VariantField variantFieldDslObj() const

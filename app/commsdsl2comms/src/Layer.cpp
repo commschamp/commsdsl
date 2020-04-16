@@ -147,14 +147,14 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
     return Map[idx](generator, field);
 }
 
-std::string Layer::getDefaultOptions(const std::string& scope) const
+std::string Layer::getDefaultOptions(const std::string& base, const std::string& scope) const
 {
-    return getOptions(scope, &Field::getDefaultOptions, &Layer::getDefaultOptionStr);
+    return getOptions(scope, &Field::getDefaultOptions, &Layer::getDefaultOptionStr, base);
 }
 
-std::string Layer::getBareMetalDefaultOptions(const std::string& scope) const
+std::string Layer::getBareMetalDefaultOptions(const std::string& base, const std::string& scope) const
 {
-    return getOptions(scope, &Field::getBareMetalDefaultOptions, &Layer::getBareMetalDefaultOptionStr);
+    return getOptions(scope, &Field::getBareMetalDefaultOptions, &Layer::getBareMetalDefaultOptionStr, base);
 }
 
 std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
@@ -390,13 +390,15 @@ void Layer::updateIncludesImpl(IncludesList& includes) const
     static_cast<void>(includes);
 }
 
-const std::string& Layer::getDefaultOptionStrImpl() const
+std::string Layer::getDefaultOptionStrImpl(const std::string& base) const
 {
+    static_cast<void>(base);
     return common::emptyOptionString();
 }
 
-const std::string&  Layer::getBareMetalOptionStrImpl() const
+std::string  Layer::getBareMetalOptionStrImpl(const std::string& base) const
 {
+    static_cast<void>(base);
     return common::emptyOptionString();
 }
 
@@ -444,21 +446,36 @@ std::string Layer::extraOpsForExternalField() const
 std::string Layer::getOptions(
     const std::string& scope,
     GetFieldOptionsFunc fieldFunc,
-    GetOptionStrFunc optionStrFunc) const
+    GetOptionStrFunc optionStrFunc,
+    const std::string& base) const
 {
+
     auto fullScope = scope;
     auto className = common::nameToClassCopy(name());
+
+    std::string nextBase;
+    std::string nextMembersBase;
+    std::string ext;
+    std::string extMembers;
+    if (!base.empty()) {
+        nextBase = base + className;
+        nextMembersBase = nextBase + common::membersSuffixStr();
+        ext = ": public " + nextBase;
+        extMembers = ext + common::membersSuffixStr();
+    }
+
     std::string str;
     do {
         if (!m_field) {
             break;
         }
 
+
         auto fieldScope =
             fullScope + className +
             common::membersSuffixStr() + "::";
 
-        auto opt = (m_field.get()->*fieldFunc)(fieldScope);
+        auto opt = (m_field.get()->*fieldFunc)(nextMembersBase, fieldScope);
         if (opt.empty()) {
             break;
         }
@@ -466,7 +483,7 @@ std::string Layer::getOptions(
         static const std::string Templ =
             "/// @brief Extra options for all the member fields of\n"
             "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# layer field.\n"
-            "struct #^#CLASS_NAME#$#Members\n"
+            "struct #^#CLASS_NAME#$#Members#^#EXT#$#\n"
             "{\n"
             "    #^#FIELD_OPT#$#\n"
             "};\n\n";
@@ -477,6 +494,7 @@ std::string Layer::getOptions(
         replacements.insert(std::make_pair("SCOPE", scope));
         replacements.insert(std::make_pair("CLASS_NAME", className));
         replacements.insert(std::make_pair("FIELD_OPT", std::move(opt)));
+        replacements.insert(std::make_pair("EXT", std::move(extMembers)));
         str += common::processTemplate(Templ, replacements);
 
     } while (false);
@@ -491,17 +509,17 @@ std::string Layer::getOptions(
         str +
         common::makeDoxygenMultilineCopy(docStr, 40) +
         "\nusing " + className + " = " +
-        (this->*optionStrFunc)() + ";\n";
+        (this->*optionStrFunc)(base) + ";\n";
 }
 
-const std::string& Layer::getDefaultOptionStr() const
+std::string Layer::getDefaultOptionStr(const std::string& base) const
 {
-    return getDefaultOptionStrImpl();
+    return getDefaultOptionStrImpl(base);
 }
 
-const std::string& Layer::getBareMetalDefaultOptionStr() const
+std::string Layer::getBareMetalDefaultOptionStr(const std::string& base) const
 {
-    return getBareMetalOptionStrImpl();
+    return getBareMetalOptionStrImpl(base);
 }
 
 

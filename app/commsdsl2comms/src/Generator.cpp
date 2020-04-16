@@ -814,22 +814,22 @@ std::string Generator::scopeForRoot(
 
 std::string Generator::getDefaultOptionsBody() const
 {
-    return getOptionsBody(&Namespace::getDefaultOptions);
+    return getOptionsBody(&Namespace::getDefaultOptions, std::string());
 }
 
-std::string Generator::getClientDefaultOptionsBody() const
+std::string Generator::getClientDefaultOptionsBody(const std::string& base) const
 {
-    return getOptionsBody(&Namespace::getClientOptions);
+    return getOptionsBody(&Namespace::getClientOptions, base);
 }
 
-std::string Generator::getServerDefaultOptionsBody() const
+std::string Generator::getServerDefaultOptionsBody(const std::string& base) const
 {
-    return getOptionsBody(&Namespace::getServerOptions);
+    return getOptionsBody(&Namespace::getServerOptions, base);
 }
 
-std::string Generator::getBareMetalDefaultOptionsBody() const
+std::string Generator::getBareMetalDefaultOptionsBody(const std::string& base) const
 {
-    return getOptionsBody(&Namespace::getBareMetalDefaultOptions);
+    return getOptionsBody(&Namespace::getBareMetalDefaultOptions, base);
 }
 
 std::string Generator::getMessageIdStr(const std::string& externalRef, std::uintmax_t id) const
@@ -2331,11 +2331,11 @@ bool Generator::prepareExternalMessages()
     return true;
 }
 
-std::string Generator::getOptionsBody(GetOptionsFunc func) const
+std::string Generator::getOptionsBody(GetOptionsFunc func, const std::string& base) const
 {
     std::string result;
     for (auto& n : m_namespaces) {
-        auto str = (n.get()->*func)();
+        auto str = (n.get()->*func)(base);
         if (str.empty()) {
             continue;
         }
