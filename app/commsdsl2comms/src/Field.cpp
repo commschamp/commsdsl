@@ -309,7 +309,7 @@ std::string Field::getBareMetalDefaultOptions(const std::string& base, const std
     static const std::string CombTempl = 
         "std::tuple<\n"
         "    #^#OPT#$#,\n"
-        "    typename #^#BASE_OPT#$#::#^#NAME#$#\n"
+        "    typename #^#BASE#$#::#^#NAME#$#\n"
         ">";
 
     common::ReplacementMap combRepl;

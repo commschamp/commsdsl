@@ -124,6 +124,7 @@ bool DefaultOptions::writeClientServer(bool client) const
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BODY", std::move(body)));
     replacements.insert(std::make_pair("TYPE", common::toLowerCopy(type)));
+    replacements.insert(std::make_pair("DEFAULT_OPT", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
 
     std::ofstream stream(fileName);
     if (!stream) {

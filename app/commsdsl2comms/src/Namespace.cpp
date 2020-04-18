@@ -631,11 +631,16 @@ bool commsdsl2comms::Namespace::hasFrame() const
 std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func, const std::string& base) const
 {
     assert(!base.empty());
-    std::string nextBase = base + "::" + name();
+    std::string nextBase = base;
+    if (!name().empty()) {
+        nextBase += "::" + name();
+    }    
+
+    std::string nextMessageBase = nextBase + "::message";
 
     common::StringsList messagesOpts;
     for (auto& m : m_messages) {
-        auto opt = (m.get()->*func)(nextBase);
+        auto opt = (m.get()->*func)(nextMessageBase);
         if (!opt.empty()) {
             messagesOpts.push_back(std::move(opt));
         }
@@ -650,7 +655,7 @@ std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func, const 
         "struct #^#NAMESPACE_NAME#$# : public #^#BASE#$#::#^#NAMESPACE_SCOPE#$#\n"
         "{\n"
         "    /// @brief Extra options for messages.\n"
-        "    struct message : public #^#BASE#$#::#^#NAMESPACE_SCOPE#$#::message\n"
+        "    struct message : public #^#NEXT_BASE#$#\n"
         "    {\n"
         "        #^#MESSAGES_OPTS#$#\n"
         "    };"
@@ -658,7 +663,7 @@ std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func, const 
 
     static const std::string GlobalTempl =
         "/// @brief Extra options for messages.\n"
-        "struct message : public #^#BASE#$#::message\n"
+        "struct message : public #^#NEXT_BASE#$#\n"
         "{\n"
         "    #^#MESSAGES_OPTS#$#\n"
         "};\n";
@@ -670,7 +675,7 @@ std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func, const 
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAMESPACE_NAME", name()));
-    replacements.insert(std::make_pair("BASE", base));
+    replacements.insert(std::make_pair("NEXT_BASE", std::move(nextMessageBase)));
     replacements.insert(std::make_pair("NAMESPACE_SCOPE", m_generator.scopeForNamespace(externalRef(), false, false)));
     replacements.insert(std::make_pair("MESSAGES_OPTS", common::listToString(messagesOpts, "\n", common::emptyString())));
 
@@ -799,7 +804,7 @@ std::string Namespace::getOptions(
 
     std::string ext;
     if (!base.empty()) {
-        ext = " : public " + base + "::" + name();
+        ext = " : public " + nextBase;
     }
 
     common::ReplacementMap replacements;
