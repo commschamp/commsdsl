@@ -63,6 +63,7 @@ public:
     std::string getClientOptions(const std::string& base) const;
     std::string getServerOptions(const std::string& base) const;
     std::string getBareMetalDefaultOptions(const std::string& base) const;
+    std::string getDataViewDefaultOptions(const std::string& base) const;
 
     NamespacesScopesList getNamespacesScopes() const;
     MessagesAccessList getAllMessages() const;

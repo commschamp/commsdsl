@@ -196,6 +196,11 @@ std::string VariantField::getExtraBareMetalDefaultOptionsImpl(const std::string&
     return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
+std::string VariantField::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getDataViewDefaultOptions, base);
+}
+
 std::string VariantField::getPluginAnonNamespaceImpl(
     const std::string& scope,
     bool forcedSerialisedHidden,

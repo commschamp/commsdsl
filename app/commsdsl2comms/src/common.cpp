@@ -261,6 +261,12 @@ const std::string& bareMetalStr()
     return Str;
 }
 
+const std::string& dataViewStr()
+{
+    static const std::string Str("DataView");
+    return Str;
+}
+
 const std::string& seqDefaultSizeStr()
 {
     static const std::string Str("DEFAULT_SEQ_FIXED_STORAGE_SIZE");

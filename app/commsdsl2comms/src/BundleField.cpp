@@ -273,6 +273,11 @@ std::string BundleField::getExtraBareMetalDefaultOptionsImpl(const std::string& 
     return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
+std::string BundleField::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getDataViewDefaultOptions, base);
+}
+
 std::string BundleField::getPluginAnonNamespaceImpl(
     const std::string& scope,
     bool forcedSerialisedHidden,

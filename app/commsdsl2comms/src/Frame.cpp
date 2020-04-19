@@ -156,6 +156,11 @@ std::string Frame::getBareMetalDefaultOptions(const std::string& base) const
     return getOptions(&Layer::getBareMetalDefaultOptions, base);
 }
 
+std::string Frame::getDataViewDefaultOptions(const std::string& base) const
+{
+    return getOptions(&Layer::getDataViewDefaultOptions, base);
+}
+
 std::vector<std::string> Frame::getPseudoVersionLayers(
     const std::vector<std::string>& interfaceVersionFields) const
 {

@@ -220,6 +220,11 @@ std::string OptionalField::getExtraBareMetalDefaultOptionsImpl(const std::string
     return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
+std::string OptionalField::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getDataViewDefaultOptions, base);
+}
+
 std::string OptionalField::getPluginAnonNamespaceImpl(
     const std::string& scope,
     bool forcedSerialisedHidden,

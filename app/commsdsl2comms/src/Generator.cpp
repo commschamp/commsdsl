@@ -832,6 +832,11 @@ std::string Generator::getBareMetalDefaultOptionsBody(const std::string& base) c
     return getOptionsBody(&Namespace::getBareMetalDefaultOptions, base);
 }
 
+std::string Generator::getDataViewDefaultOptionsBody(const std::string& base) const
+{
+    return getOptionsBody(&Namespace::getDataViewDefaultOptions, base);
+}
+
 std::string Generator::getMessageIdStr(const std::string& externalRef, std::uintmax_t id) const
 {
     if (m_messageIdField == nullptr) {

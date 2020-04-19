@@ -157,6 +157,11 @@ std::string Layer::getBareMetalDefaultOptions(const std::string& base, const std
     return getOptions(scope, &Field::getBareMetalDefaultOptions, &Layer::getBareMetalDefaultOptionStr, base);
 }
 
+std::string Layer::getDataViewDefaultOptions(const std::string& base, const std::string& scope) const
+{
+    return getOptions(scope, &Field::getDataViewDefaultOptions, &Layer::getDataViewDefaultOptionStr, base);
+}
+
 std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
 {
     if (m_field) {
@@ -399,7 +404,13 @@ std::string Layer::getDefaultOptionStrImpl(const std::string& base) const
 std::string  Layer::getBareMetalOptionStrImpl(const std::string& base) const
 {
     static_cast<void>(base);
-    return common::emptyOptionString();
+    return common::emptyString();
+}
+
+std::string  Layer::getDataViewOptionStrImpl(const std::string& base) const
+{
+    static_cast<void>(base);
+    return common::emptyString();
 }
 
 bool Layer::rearangeImpl(LayersList& layers, bool& success)
@@ -499,7 +510,12 @@ std::string Layer::getOptions(
 
     } while (false);
 
-    if (!isCustomizable()) {
+    if (!isCustomizable() || (optionStrFunc == nullptr)) {
+        return str;
+    }
+    
+    auto optStr = (this->*optionStrFunc)(base);
+    if (optStr.empty()) {
         return str;
     }
 
@@ -508,8 +524,7 @@ std::string Layer::getOptions(
     return
         str +
         common::makeDoxygenMultilineCopy(docStr, 40) +
-        "\nusing " + className + " = " +
-        (this->*optionStrFunc)(base) + ";\n";
+        "\nusing " + className + " = " + optStr + ";\n";
 }
 
 std::string Layer::getDefaultOptionStr(const std::string& base) const
@@ -520,6 +535,11 @@ std::string Layer::getDefaultOptionStr(const std::string& base) const
 std::string Layer::getBareMetalDefaultOptionStr(const std::string& base) const
 {
     return getBareMetalOptionStrImpl(base);
+}
+
+std::string Layer::getDataViewDefaultOptionStr(const std::string& base) const
+{
+    return getDataViewOptionStrImpl(base);
 }
 
 

@@ -492,6 +492,11 @@ std::string Message::getBareMetalDefaultOptions(const std::string& base) const
     return getOptions(&Field::getBareMetalDefaultOptions, base);
 }
 
+std::string Message::getDataViewDefaultOptions(const std::string& base) const
+{
+    return getOptions(&Field::getDataViewDefaultOptions, base);
+}
+
 bool Message::writeProtocolDefinitionCommonFile()
 {
     common::StringsList commonElems;

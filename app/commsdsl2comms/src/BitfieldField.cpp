@@ -177,6 +177,11 @@ std::string BitfieldField::getExtraBareMetalDefaultOptionsImpl(const std::string
     return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
+std::string BitfieldField::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getDataViewDefaultOptions, base);
+}
+
 std::string BitfieldField::getPluginAnonNamespaceImpl(
     const std::string& scope,
     bool forcedSerialisedHidden,

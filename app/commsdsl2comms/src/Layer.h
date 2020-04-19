@@ -61,6 +61,7 @@ public:
 
     std::string getDefaultOptions(const std::string& base, const std::string& scope) const;
     std::string getBareMetalDefaultOptions(const std::string& base, const std::string& scope) const;
+    std::string getDataViewDefaultOptions(const std::string& base, const std::string& scope) const;
 
     bool rearange(LayersList& layers, bool& success)
     {
@@ -122,6 +123,7 @@ protected:
         bool& hasInputMessages) const = 0;
     virtual std::string getDefaultOptionStrImpl(const std::string& base) const;
     virtual std::string getBareMetalOptionStrImpl(const std::string& base) const;
+    virtual std::string getDataViewOptionStrImpl(const std::string& base) const;
     virtual bool rearangeImpl(LayersList& layers, bool& success);
     virtual bool isCustomizableImpl() const;
     virtual bool isPseudoVersionLayerImpl(const std::vector<std::string>& interfaceVersionFields) const;
@@ -141,6 +143,7 @@ private:
         const std::string& base) const;
     std::string getDefaultOptionStr(const std::string& base) const;
     std::string getBareMetalDefaultOptionStr(const std::string& base) const;
+    std::string getDataViewDefaultOptionStr(const std::string& base) const;
 
     Generator& m_generator;
     commsdsl::Layer m_dslObj;

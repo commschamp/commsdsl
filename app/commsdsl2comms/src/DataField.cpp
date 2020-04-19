@@ -206,6 +206,11 @@ std::string DataField::getExtraBareMetalDefaultOptionsImpl(const std::string& ba
     return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
+std::string DataField::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
+}
+
 std::string DataField::getBareMetalOptionStrImpl() const
 {
     auto obj = dataFieldDslObj();
@@ -215,6 +220,12 @@ std::string DataField::getBareMetalOptionStrImpl() const
     }
 
     return "comms::option::app::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
+}
+
+std::string DataField::getDataViewOptionStrImpl() const
+{
+    static const std::string Str("comms::option::app::OrigDataView");
+    return Str;
 }
 
 std::string DataField::getCompareToValueImpl(

@@ -54,6 +54,7 @@ public:
     std::string getClientOptions(const std::string& base) const;
     std::string getServerOptions(const std::string& base) const;
     std::string getBareMetalDefaultOptions(const std::string& base) const;
+    std::string getDataViewDefaultOptions(const std::string& base) const;
 
     std::uintmax_t id() const
     {

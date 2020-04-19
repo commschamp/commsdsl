@@ -418,6 +418,11 @@ std::string ListField::getExtraBareMetalDefaultOptionsImpl(const std::string& ba
     return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
+std::string ListField::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getDataViewDefaultOptions, base);
+}
+
 std::string ListField::getBareMetalOptionStrImpl() const
 {
     auto obj = listFieldDslObj();

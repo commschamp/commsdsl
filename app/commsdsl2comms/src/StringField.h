@@ -39,7 +39,9 @@ protected:
         const std::string& className) const override final;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
     virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
+    virtual std::string getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
     virtual std::string getBareMetalOptionStrImpl() const override final;
+    virtual std::string getDataViewOptionStrImpl() const override final;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,

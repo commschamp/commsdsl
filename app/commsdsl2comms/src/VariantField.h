@@ -39,6 +39,7 @@ protected:
         const std::string& className) const override final;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
     virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
+    virtual std::string getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
     virtual std::string getPluginAnonNamespaceImpl(
         const std::string& scope,
         bool forcedSerialisedHidden,

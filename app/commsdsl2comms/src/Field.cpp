@@ -321,6 +321,64 @@ std::string Field::getBareMetalDefaultOptions(const std::string& base, const std
     return common::processTemplate(Templ, repl);    
 }
 
+std::string Field::getDataViewDefaultOptions(const std::string& base, const std::string& scope) const
+{
+    auto fullScope = scope;
+    if (!m_externalRef.empty()) {
+        fullScope += common::fieldStr() + "::";
+    }
+
+    auto str = getExtraDataViewDefaultOptionsImpl(base, fullScope);
+    
+    if (!isCustomizable()) {
+        return str;
+    }   
+
+    auto optStr = getDataViewOptionStrImpl();
+    if (optStr.empty()) {
+        return str;
+    } 
+
+    if (!str.empty()) {
+        str += '\n';
+    }
+
+    auto docStr = "/// @brief Extra options for @ref " +
+        fullScope + common::nameToClassCopy(name()) + " field.";
+
+    auto prefix = 
+        str +
+        common::makeDoxygenMultilineCopy(docStr, 40) +
+        "\nusing " + common::nameToClassCopy(name()) +
+            " = ";
+
+    static const std::string Templ = 
+        "#^#PREFIX#$#\n"
+        "    #^#OPT#$#;";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("PREFIX", std::move(prefix)));
+
+    if (base.empty()) {
+        repl.insert(std::make_pair("OPT", std::move(optStr)));
+        return common::processTemplate(Templ, repl);
+    }
+
+    static const std::string CombTempl = 
+        "std::tuple<\n"
+        "    #^#OPT#$#,\n"
+        "    typename #^#BASE#$#::#^#NAME#$#\n"
+        ">";
+
+    common::ReplacementMap combRepl;
+    combRepl.insert(std::make_pair("OPT", std::move(optStr)));
+    combRepl.insert(std::make_pair("BASE", base));
+    combRepl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
+
+    repl.insert(std::make_pair("OPT", common::processTemplate(CombTempl, combRepl)));
+    return common::processTemplate(Templ, repl);    
+}
+
 bool Field::writeFiles() const
 {
     return
@@ -865,9 +923,21 @@ std::string Field::getExtraBareMetalDefaultOptionsImpl(const std::string& base, 
     return common::emptyString();
 }
 
+std::string Field::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    static_cast<void>(base);
+    static_cast<void>(scope);
+    return common::emptyString();
+}
+
 std::string Field::getBareMetalOptionStrImpl() const
 {
-    return "comms::option::app::EmptyOption";
+    return common::emptyString();
+}
+
+std::string Field::getDataViewOptionStrImpl() const
+{
+    return common::emptyString();
 }
 
 std::string Field::getCompareToValueImpl(const std::string& op,

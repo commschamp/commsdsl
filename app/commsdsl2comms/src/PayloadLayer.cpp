@@ -69,6 +69,20 @@ std::string PayloadLayer::getBareMetalOptionStrImpl(const std::string& base) con
         ">";
 }
 
+std::string PayloadLayer::getDataViewOptionStrImpl(const std::string& base) const
+{
+    static const std::string Str("comms::option::app::OrigDataView");
+    if (base.empty()) {
+        return Str;
+    }
+    
+    return 
+        "std::tuple<\n"
+        "    " + Str + ",\n"
+        "    typename " + base + "::" + common::nameToClassCopy(name()) + "\n"
+        ">";
+}
+
 bool PayloadLayer::isCustomizableImpl() const
 {
     return true;

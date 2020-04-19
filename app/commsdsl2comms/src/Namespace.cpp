@@ -157,6 +157,16 @@ std::string Namespace::getBareMetalDefaultOptions(const std::string& base) const
         base);
 }
 
+std::string Namespace::getDataViewDefaultOptions(const std::string& base) const
+{
+    return getOptions(
+        &Namespace::getDataViewDefaultOptions,
+        &Field::getDataViewDefaultOptions,
+        &Message::getDataViewDefaultOptions,
+        &Frame::getDataViewDefaultOptions,
+        base);
+}
+
 Namespace::NamespacesScopesList Namespace::getNamespacesScopes() const
 {
     NamespacesScopesList result;
