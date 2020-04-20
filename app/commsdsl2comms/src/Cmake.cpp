@@ -184,7 +184,7 @@ bool Cmake::writeMain() const
         "if ((external_cc_needed OR (NOT OPT_NO_COMMS)) AND (\"${OPT_CC_MAIN_INSTALL_DIR}\" STREQUAL \"\"))\n"
         "    set (cc_repo \"https://github.com/arobenko/comms_champion.git\")\n"
         "    set (cc_tag \"${OPT_CC_TAG}\")\n"
-        "    set (cc_main_dir \"${PROJECT_BINARY_DIR}/externals/comms_champion/build\")\n"
+        "    set (cc_main_dir \"${PROJECT_BINARY_DIR}/externals/comms_champion-build\")\n"
         "    set (cc_src_dir \"${OPT_EXTERNALS_DIR}/comms_champion\")\n"
         "    set (cc_bin_dir \"${cc_main_dir}/build\")\n"
         "    set (cc_install_dir \"${CMAKE_INSTALL_PREFIX}\")\n\n"
