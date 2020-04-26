@@ -1,16 +1,19 @@
 #include "cxxtest/TestSuite.h"
 
 #include "comms/iterator.h"
+#include "comms/util/assign.h"
 #include "test29/Message.h"
 #include "test29/message/Msg1.h"
 #include "test29/frame/Frame.h"
 #include "test29/options/BareMetalDefaultOptions.h"
+#include "test29/options/DataViewDefaultOptions.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
     void test2();    
+    void test3();
 
     using Interface =
         test29::Message<
@@ -23,10 +26,34 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test29::message::Msg1<Interface, test29::options::BareMetalDefaultOptions>;
-    using Msg2 = test29::message::Msg2<Interface, test29::options::BareMetalDefaultOptions>;    
-    using AllMessages = test29::input::AllMessages<Interface, test29::options::BareMetalDefaultOptions>;
-    using Frame = test29::frame::Frame<Interface, AllMessages, test29::options::BareMetalDefaultOptions>;
+    using BM_Options = test29::options::BareMetalDefaultOptions;
+    using DV_Options = test29::options::DataViewDefaultOptions;
+
+    using BM_Msg1 = test29::message::Msg1<Interface, BM_Options>;
+    using BM_Msg2 = test29::message::Msg2<Interface, BM_Options>;    
+    using BM_AllMessages = test29::input::AllMessages<Interface, BM_Options>;
+    using BM_Frame = test29::frame::Frame<Interface, BM_AllMessages, BM_Options>;
+
+    using DV_Msg1 = test29::message::Msg1<Interface, DV_Options>;
+    using DV_Msg2 = test29::message::Msg2<Interface, DV_Options>;    
+    using DV_AllMessages = test29::input::AllMessages<Interface, DV_Options>;
+    using DV_Frame = test29::frame::Frame<Interface, DV_AllMessages, DV_Options>;    
+
+#if COMMS_HAS_CPP17_STRING_VIEW 
+    static_assert(std::is_same<DV_Msg1::Field_f1::ValueType, std::string_view>::value, "Unexpected type");
+    static_assert(std::is_same<DV_Msg2::Field_f1::ValueType, std::string_view>::value, "Unexpected type");
+#else
+    static_assert(std::is_same<DV_Msg1::Field_f1::ValueType, comms::util::StringView>::value, "Unexpected type");
+    static_assert(std::is_same<DV_Msg2::Field_f1::ValueType, comms::util::StringView>::value, "Unexpected type");
+#endif    
+
+#if COMMS_HAS_CPP20_SPAN 
+    static_assert(std::is_same<DV_Msg1::Field_f2::ValueType, std::span<std::uint8_t> >::value, "Unexpected type");
+    static_assert(std::is_same<DV_Msg2::Field_f2::ValueType, std::span<std::uint8_t> >::value, "Unexpected type");
+#else
+    static_assert(std::is_same<DV_Msg1::Field_f2::ValueType, comms::util::ArrayView<std::uint8_t> >::value, "Unexpected type");
+    static_assert(std::is_same<DV_Msg2::Field_f2::ValueType, comms::util::ArrayView<std::uint8_t> >::value, "Unexpected type");
+#endif  
 };
 
 void TestSuite::test1()
@@ -40,15 +67,15 @@ void TestSuite::test1()
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
-    Frame frame;
-    Frame::MsgPtr msgPtr;
+    BM_Frame frame;
+    BM_Frame::MsgPtr msgPtr;
 
     auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
     auto es = frame.read(msgPtr, readIter, Buf1Size);
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test29::MsgId_M1);
-    auto* msg = static_cast<const Msg1*>(msgPtr.get());
+    auto* msg = static_cast<const BM_Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().value(), "hello");
     TS_ASSERT_EQUALS(msg->field_f2().value()[0], 0xb);
     TS_ASSERT_EQUALS(msg->field_f2().value()[1], 0xc);
@@ -71,15 +98,15 @@ void TestSuite::test2()
     };
     static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
 
-    Frame frame;
-    Frame::MsgPtr msgPtr;
+    BM_Frame frame;
+    BM_Frame::MsgPtr msgPtr;
 
     auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
     auto es = frame.read(msgPtr, readIter, Buf1Size);
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test29::MsgId_M2);
-    auto* msg = static_cast<const Msg2*>(msgPtr.get());
+    auto* msg = static_cast<const BM_Msg2*>(msgPtr.get());
     TS_ASSERT(msg != nullptr);
     TS_ASSERT_EQUALS(msg->field_f1().value().c_str(), "hello");
     TS_ASSERT_EQUALS(msg->field_f2().value()[0], 0xb);
@@ -90,4 +117,47 @@ void TestSuite::test2()
     
     auto msg2 = frame.createMsg(test29::MsgId_M1);
     TS_ASSERT(msg2 == nullptr);
+}
+
+void TestSuite::test3()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        1, 
+        (std::uint8_t)'h', (std::uint8_t)'e', (std::uint8_t)'l', (std::uint8_t)'l', (std::uint8_t)'o',
+        0xb, 0xc, 0xd, 
+        0xaa, 0xaa, 0xbb, 0xbb
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    DV_Frame frame;
+    DV_Frame::MsgPtr msgPtr;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test29::MsgId_M1);
+    auto* msg = static_cast<const DV_Msg1*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg->field_f1().value(), "hello");
+    TS_ASSERT_EQUALS(&(*msg->field_f1().value().begin()), reinterpret_cast<const char*>(&Buf1[1])); // view on orig buffer
+    TS_ASSERT_EQUALS(msg->field_f2().value()[0], 0xb);
+    TS_ASSERT_EQUALS(msg->field_f2().value()[1], 0xc);
+    TS_ASSERT_EQUALS(msg->field_f2().value()[2], 0xd);
+    TS_ASSERT_EQUALS(&(*msg->field_f2().value().begin()), &Buf1[6]); // view on orig buffer
+    TS_ASSERT_EQUALS(msg->field_f3().value()[0].value(), 0xaaaa);
+    TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);    
+
+    DV_Msg2 msg2;
+    comms::util::assign(msg2.field_f1().value(), msg->field_f1().value().begin(), msg->field_f1().value().end());
+    TS_ASSERT_EQUALS(msg2.field_f1().value(), msg->field_f1().value());
+    TS_ASSERT_EQUALS(&(*msg2.field_f1().value().begin()), reinterpret_cast<const char*>(&Buf1[1])); // view on orig buffer
+
+    comms::util::assign(msg2.field_f2().value(), msg->field_f2().value().begin(), msg->field_f2().value().end());
+    TS_ASSERT_EQUALS(msg2.field_f2().value(), msg->field_f2().value());
+    TS_ASSERT_EQUALS(&(*msg2.field_f2().value().begin()), &Buf1[6]); // view on orig buffer
+
+    
+    // auto msg2 = frame.createMsg(test29::MsgId_M2);
+    // TS_ASSERT(msg2 == nullptr);
 }

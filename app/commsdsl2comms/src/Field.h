@@ -78,8 +78,9 @@ public:
 
     static Ptr create(Generator& generator, commsdsl::Field dslObj);
 
-    std::string getDefaultOptions(const std::string& scope) const;
-    std::string getBareMetalDefaultOptions(const std::string& scope) const;
+    std::string getDefaultOptions(const std::string& base, const std::string& scope) const;
+    std::string getBareMetalDefaultOptions(const std::string& base, const std::string& scope) const;
+    std::string getDataViewDefaultOptions(const std::string& base, const std::string& scope) const;
 
     commsdsl::Field::SemanticType semanticType() const
     {
@@ -153,6 +154,7 @@ public:
     }
 
     bool isPseudo() const;
+    bool isForceGen() const;
 
     static std::string getReadForFields(
         const FieldsList& fields,
@@ -229,8 +231,10 @@ protected:
         const std::string& scope,
         const std::string& className) const = 0;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const;
-    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const;
+    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const;
+    virtual std::string getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const;
     virtual std::string getBareMetalOptionStrImpl() const;
+    virtual std::string getDataViewOptionStrImpl() const;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,

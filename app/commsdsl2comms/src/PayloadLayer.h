@@ -35,7 +35,8 @@ protected:
         const std::string& scope,
         std::string& prevLayer,
         bool& hasInputMessages) const override final;
-    virtual const std::string& getBareMetalOptionStrImpl() const override final;
+    virtual std::string getBareMetalOptionStrImpl(const std::string& base) const override final;
+    virtual std::string getDataViewOptionStrImpl(const std::string& base) const override final;
     virtual bool isCustomizableImpl() const override final;
 
 private:

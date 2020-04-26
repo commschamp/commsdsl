@@ -19,6 +19,8 @@
             <special name="OtherSpecial" val="10" />
         </int>
         <int name="I3" type="uint32" />
+        <int name="Dummy" type="uint8" forceGen="true" />
+        <int name="Dummy2" type="uint8" />
     </fields>
     
     <interface name="Message">

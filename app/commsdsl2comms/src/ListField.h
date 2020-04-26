@@ -39,7 +39,8 @@ protected:
         const std::string& scope,
         const std::string& className) const override final;
     virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
-    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const override final;
+    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
+    virtual std::string getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
     virtual std::string getBareMetalOptionStrImpl() const override final;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
@@ -66,7 +67,7 @@ protected:
 
 private:
     using StringsList = common::StringsList;
-    using GetExtraOptionsFunc = std::string (Field::*)(const std::string&) const;
+    using GetExtraOptionsFunc = std::string (Field::*)(const std::string& base, const std::string& scope) const;
 
     std::string getFieldOpts(const std::string& scope) const;
     std::string getElement() const;
@@ -78,7 +79,7 @@ private:
     bool checkDetachedPrefixOpt(StringsList& list) const;
     bool isElemForcedSerialisedHiddenInPlugin() const;
     std::string getPrefixName() const;
-    std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const;
+    std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
 
 
     commsdsl::ListField listFieldDslObj() const

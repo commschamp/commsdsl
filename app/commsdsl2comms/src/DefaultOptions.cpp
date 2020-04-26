@@ -27,6 +27,14 @@ namespace bf = boost::filesystem;
 namespace commsdsl2comms
 {
 
+namespace 
+{
+
+const std::string BaseTemplateParam("TBase");
+
+} // namespace 
+    
+
 bool DefaultOptions::write(Generator& generator)
 {
     DefaultOptions obj(generator);
@@ -34,7 +42,8 @@ bool DefaultOptions::write(Generator& generator)
         obj.writeDefinition() &&
         obj.writeClientServer(true) &&
         obj.writeClientServer(false) &&
-        obj.writeBareMetal();
+        obj.writeBareMetal() && 
+        obj.writeDataView();
 }
 
 bool DefaultOptions::writeDefinition() const
@@ -95,16 +104,16 @@ bool DefaultOptions::writeClientServer(bool client) const
 
     if (client) {
         type = "Client";
-        body = m_generator.getClientDefaultOptionsBody();
+        body = m_generator.getClientDefaultOptionsBody(BaseTemplateParam);
     }
     else {
         type = "Server";
-        body = m_generator.getServerDefaultOptionsBody();
+        body = m_generator.getServerDefaultOptionsBody(BaseTemplateParam);
     }
 
-    if (body.empty()) {
-        return true;
-    }
+    // if (body.empty()) {
+    //     return true;
+    // }
 
     auto info = m_generator.startOptionsProtocolWrite(type + common::defaultOptionsStr());
     auto& fileName = info.first;
@@ -122,6 +131,8 @@ bool DefaultOptions::writeClientServer(bool client) const
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BODY", std::move(body)));
     replacements.insert(std::make_pair("TYPE", common::toLowerCopy(type)));
+    replacements.insert(std::make_pair("DEFAULT_OPT", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    replacements.insert(std::make_pair("BASE", BaseTemplateParam));
 
     std::ofstream stream(fileName);
     if (!stream) {
@@ -137,10 +148,14 @@ bool DefaultOptions::writeClientServer(bool client) const
         "#include \"DefaultOptions.h\"\n\n"
         "#^#BEG_NAMESPACE#$#\n"
         "/// @brief Default options of the protocol for a #^#TYPE#$#.\n"
-        "struct #^#CLASS_NAME#$# : public DefaultOptions\n"
+        "/// @tparam #^#BASE#$# Options to use as a basis.\n"
+        "template <typename #^#BASE#$# = #^#DEFAULT_OPT#$#>\n"        
+        "struct #^#CLASS_NAME#$#T : public #^#BASE#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n\n"
+        "/// @brief Alias to @ref #^#CLASS_NAME#$#T with default template parameter.\n"
+        "using #^#CLASS_NAME#$# = #^#CLASS_NAME#$#T<>;\n\n"        
         "#^#END_NAMESPACE#$#\n"
     );
 
@@ -158,11 +173,7 @@ bool DefaultOptions::writeClientServer(bool client) const
 
 bool DefaultOptions::writeBareMetal() const
 {
-    std::string body = m_generator.getBareMetalDefaultOptionsBody();
-
-//    if (body.empty()) {
-//        return true;
-//    }
+    std::string body = m_generator.getBareMetalDefaultOptionsBody(BaseTemplateParam);
 
     auto info = m_generator.startOptionsProtocolWrite(common::bareMetalStr() + common::defaultOptionsStr());
     auto& fileName = info.first;
@@ -172,6 +183,10 @@ bool DefaultOptions::writeBareMetal() const
         return true;
     }
 
+    static const common::StringsList Includes = {
+        m_generator.headerfileForOptions(common::defaultOptionsStr(), false)
+    };
+
     common::ReplacementMap replacements;
     auto namespaces = m_generator.namespacesForOptions();
     replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
@@ -180,6 +195,10 @@ bool DefaultOptions::writeBareMetal() const
     replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
     replacements.insert(std::make_pair("BODY", std::move(body)));
     replacements.insert(std::make_pair("SEQ_DEFAULT_SIZE", common::seqDefaultSizeStr()));
+    replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(Includes)));
+    replacements.insert(std::make_pair("DEFAULT_OPT", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    replacements.insert(std::make_pair("BASE", BaseTemplateParam));
+
 
     std::ofstream stream(fileName);
     if (!stream) {
@@ -198,13 +217,85 @@ bool DefaultOptions::writeBareMetal() const
         "/// @details May be defined during compile time to change the default value.\n"
         "#define #^#SEQ_DEFAULT_SIZE#$# 32\n"
         "#endif\n\n"
+        "#^#INCLUDES#$#\n"
         "#^#BEG_NAMESPACE#$#\n"
         "/// @brief Default options for bare-metal application where usage of dynamic\n"
         "///    memory allocation is diabled.\n"
-        "struct #^#CLASS_NAME#$#\n"
+        "/// @tparam #^#BASE#$# Options to use as a basis.\n"
+        "template <typename #^#BASE#$# = #^#DEFAULT_OPT#$#>\n"
+        "struct #^#CLASS_NAME#$#T : public #^#BASE#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n\n"
+        "/// @brief Alias to @ref #^#CLASS_NAME#$#T with default template parameter.\n"
+        "using #^#CLASS_NAME#$# = #^#CLASS_NAME#$#T<>;\n\n"
+        "#^#END_NAMESPACE#$#\n"
+    );
+
+    auto str = common::processTemplate(Template, replacements);
+    stream << str;
+
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + fileName + "\".");
+        return false;
+    }
+
+    return true;
+}
+
+bool DefaultOptions::writeDataView() const
+{
+    std::string body = m_generator.getDataViewDefaultOptionsBody(BaseTemplateParam);
+
+    auto info = m_generator.startOptionsProtocolWrite(common::dataViewStr() + common::defaultOptionsStr());
+    auto& fileName = info.first;
+    auto& className = info.second;
+
+    if (fileName.empty()) {
+        return true;
+    }
+
+    static const common::StringsList Includes = {
+        m_generator.headerfileForOptions(common::defaultOptionsStr(), false)
+    };
+
+    common::ReplacementMap replacements;
+    auto namespaces = m_generator.namespacesForOptions();
+    replacements.insert(std::make_pair("GEN_COMMENT", m_generator.fileGeneratedComment()));
+    replacements.insert(std::make_pair("BEG_NAMESPACE", std::move(namespaces.first)));
+    replacements.insert(std::make_pair("END_NAMESPACE", std::move(namespaces.second)));
+    replacements.insert(std::make_pair("CLASS_NAME", std::move(className)));
+    replacements.insert(std::make_pair("BODY", std::move(body)));
+    replacements.insert(std::make_pair("INCLUDES", common::includesToStatements(Includes)));
+    replacements.insert(std::make_pair("DEFAULT_OPT", m_generator.scopeForOptions(common::defaultOptionsStr(), true, true)));
+    replacements.insert(std::make_pair("BASE", BaseTemplateParam));
+
+
+    std::ofstream stream(fileName);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + fileName + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Template(
+        "#^#GEN_COMMENT#$#\n"
+        "/// @file\n"
+        "/// @brief Contains definition of protocol default options that apply\n"
+        "///     @b comms::option::app::OrigDataView to applicable fields.\n\n"
+        "#pragma once\n\n"
+        "#^#INCLUDES#$#\n"
+        "#^#BEG_NAMESPACE#$#\n"
+        "/// @brief Default options for data view on contiguous buffers to avoid\n"
+        "///    unnecessary copy of data.\n"
+        "/// @tparam #^#BASE#$# Options to use as a basis.\n"
+        "template <typename #^#BASE#$# = #^#DEFAULT_OPT#$#>\n"
+        "struct #^#CLASS_NAME#$#T : public #^#BASE#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n\n"
+        "/// @brief Alias to @ref #^#CLASS_NAME#$#T with default template parameter.\n"
+        "using #^#CLASS_NAME#$# = #^#CLASS_NAME#$#T<>;\n\n"
         "#^#END_NAMESPACE#$#\n"
     );
 

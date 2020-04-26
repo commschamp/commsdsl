@@ -137,6 +137,12 @@ bool Field::isFailOnInvalid() const
     return m_pImpl->isFailOnInvalid();
 }
 
+bool Field::isForceGen() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isForceGen();
+}
+
 std::string Field::schemaPos() const
 {
     assert(m_pImpl != nullptr);

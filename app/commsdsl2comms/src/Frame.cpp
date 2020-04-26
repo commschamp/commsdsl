@@ -146,14 +146,19 @@ bool Frame::write()
         writePluginHeader();
 }
 
-std::string Frame::getDefaultOptions() const
+std::string Frame::getDefaultOptions(const std::string& base) const
 {
-    return getOptions(&Layer::getDefaultOptions);
+    return getOptions(&Layer::getDefaultOptions, base);
 }
 
-std::string Frame::getBareMetalDefaultOptions() const
+std::string Frame::getBareMetalDefaultOptions(const std::string& base) const
 {
-    return getOptions(&Layer::getBareMetalDefaultOptions);
+    return getOptions(&Layer::getBareMetalDefaultOptions, base);
+}
+
+std::string Frame::getDataViewDefaultOptions(const std::string& base) const
+{
+    return getOptions(&Layer::getDataViewDefaultOptions, base);
 }
 
 std::vector<std::string> Frame::getPseudoVersionLayers(
@@ -863,13 +868,19 @@ unsigned Frame::calcBackPayloadOffset() const
             });
 }
 
-std::string Frame::getOptions(GetLayerOptionsFunc func) const
+std::string Frame::getOptions(GetLayerOptionsFunc func, const std::string& base) const
 {
+    std::string nextBase;
+    std::string ext;
+    if (!base.empty()) {
+        nextBase = base + "::" + common::nameToClassCopy(name()) + common::layersSuffixStr();
+        ext = " : public " + nextBase;
+    }
     common::StringsList layersOpts;
     layersOpts.reserve(m_layers.size());
     auto scope = m_generator.scopeForFrame(m_externalRef, true, true) + common::layersSuffixStr() + "::";
     for (auto iter = m_layers.rbegin(); iter != m_layers.rend(); ++iter) {
-        auto opt = ((*iter).get()->*func)(scope);
+        auto opt = ((*iter).get()->*func)(nextBase, scope);
         if (!opt.empty()) {
             layersOpts.push_back(std::move(opt));
         }
@@ -882,7 +893,7 @@ std::string Frame::getOptions(GetLayerOptionsFunc func) const
     static const std::string Templ =
         "/// @brief Extra options for Layers of\n"
         "///     @ref #^#FRAME_SCOPE#$# frame.\n"
-        "struct #^#CLASS_NAME#$#Layers\n"
+        "struct #^#CLASS_NAME#$#Layers#^#EXT#$#\n"
         "{\n"
         "    #^#LAYERS_OPTS#$#\n"
         "}; // struct #^#CLASS_NAME#$#Layers\n";
@@ -891,6 +902,7 @@ std::string Frame::getOptions(GetLayerOptionsFunc func) const
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(m_dslObj.name())));
     replacements.insert(std::make_pair("FRAME_SCOPE", m_generator.scopeForFrame(externalRef(), true, true)));
     replacements.insert(std::make_pair("LAYERS_OPTS", common::listToString(layersOpts, "\n", common::emptyString())));
+    replacements.insert(std::make_pair("EXT", std::move(ext)));
     return common::processTemplate(Templ, replacements);
 }
 

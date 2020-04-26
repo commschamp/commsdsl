@@ -59,10 +59,11 @@ public:
     bool writeFrames();
     bool writeFields();
 
-    std::string getDefaultOptions() const;
-    std::string getClientOptions() const;
-    std::string getServerOptions() const;
-    std::string getBareMetalDefaultOptions() const;
+    std::string getDefaultOptions(const std::string& base) const;
+    std::string getClientOptions(const std::string& base) const;
+    std::string getServerOptions(const std::string& base) const;
+    std::string getBareMetalDefaultOptions(const std::string& base) const;
+    std::string getDataViewDefaultOptions(const std::string& base) const;
 
     NamespacesScopesList getNamespacesScopes() const;
     MessagesAccessList getAllMessages() const;
@@ -98,16 +99,17 @@ private:
     bool prepareFrames();
     void recordAccessedField(const Field* field);
 
-    using GetNamespaceOptionsFunc = std::string (Namespace::*)() const;
-    using GetFieldOptionsFunc = std::string (Field::*)(const std::string& scope) const;
-    using GetMessageOptionsFunc = std::string (Message::*)() const;
-    using GetFrameOptionsFunc = std::string (Frame::*)() const;
-    std::string getClientServerOptions(GetMessageOptionsFunc) const;
+    using GetNamespaceOptionsFunc = std::string (Namespace::*)(const std::string& base) const;
+    using GetFieldOptionsFunc = std::string (Field::*)(const std::string& base, const std::string& scope) const;
+    using GetMessageOptionsFunc = std::string (Message::*)(const std::string& base) const;
+    using GetFrameOptionsFunc = std::string (Frame::*)(const std::string& base) const;
+    std::string getClientServerOptions(GetMessageOptionsFunc, const std::string& base) const;
     std::string getOptions(
         GetNamespaceOptionsFunc nsFunc,
         GetFieldOptionsFunc fieldFunc,
         GetMessageOptionsFunc messageFunc,
-        GetFrameOptionsFunc frameFunc) const;
+        GetFrameOptionsFunc frameFunc,
+        const std::string& base) const;
 
     Generator& m_generator;
     commsdsl::Namespace m_dslObj;

@@ -2,11 +2,13 @@
 
 #include "test4/Message.h"
 #include "test4/message/Msg1.h"
+#include "test4/field/Dummy.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     using Interface =
         test4::Message<
@@ -74,4 +76,10 @@ void TestSuite::test1()
     TS_ASSERT(msg1.field_f5().doesExist());
     TS_ASSERT_EQUALS(msg1.field_f4().field().value(), 0xcdef);
     TS_ASSERT_EQUALS(msg1.field_f5().field().value(), 0x0a0b0c0d);
+}
+
+void TestSuite::test2()
+{
+    test4::field::Dummy<> field;
+    static_cast<void>(field); // Just testing generation of never referenced field.
 }

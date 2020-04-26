@@ -30,6 +30,7 @@ private:
     bool writeDefinition() const;
     bool writeClientServer(bool client) const;
     bool writeBareMetal() const;
+    bool writeDataView() const;
 
     Generator& m_generator;
 };

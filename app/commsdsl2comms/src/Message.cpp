@@ -402,19 +402,21 @@ bool Message::write()
         writePluginSrc();
 }
 
-std::string Message::getDefaultOptions() const
+std::string Message::getDefaultOptions(const std::string& base) const
 {
-    return getOptions(&Field::getDefaultOptions);
+    return getOptions(&Field::getDefaultOptions, base);
 }
 
-std::string Message::getClientOptions() const
+std::string Message::getClientOptions(const std::string& base) const
 {
+    assert(!base.empty());
     if ((m_dslObj.sender() == Sender::Both) || (!isCustomizable())) {
         return common::emptyString();
     }
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("BASE", base));
     replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
 
     if (m_dslObj.sender() == Sender::Client) {
@@ -424,7 +426,8 @@ std::string Message::getClientOptions() const
             "using #^#MESSAGE_NAME#$# =\n"
             "    std::tuple<\n"
             "        comms::option::app::NoReadImpl,\n"
-            "        comms::option::app::NoDispatchImpl\n"
+            "        comms::option::app::NoDispatchImpl,\n"
+            "        typename #^#BASE#$#::#^#MESSAGE_NAME#$#\n"
             "    >;\n";
 
         return common::processTemplate(Templ, replacements);
@@ -437,20 +440,23 @@ std::string Message::getClientOptions() const
         "using #^#MESSAGE_NAME#$# =\n"
         "    std::tuple<\n"
         "        comms::option::app::NoWriteImpl,\n"
-        "        comms::option::app::NoRefreshImpl\n"
+        "        comms::option::app::NoRefreshImpl,\n"
+        "        typename #^#BASE#$#::#^#MESSAGE_NAME#$#\n"
         "    >;\n";
 
     return common::processTemplate(Templ, replacements);
 }
 
-std::string Message::getServerOptions() const
+std::string Message::getServerOptions(const std::string& base) const
 {
+    assert(!base.empty());
     if ((m_dslObj.sender() == Sender::Both) || (!isCustomizable())) {
         return common::emptyString();
     }
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
+    replacements.insert(std::make_pair("BASE", base));
     replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
 
     if (m_dslObj.sender() == Sender::Client) {
@@ -460,7 +466,8 @@ std::string Message::getServerOptions() const
             "using #^#MESSAGE_NAME#$# =\n"
             "    std::tuple<\n"
             "        comms::option::app::NoWriteImpl,\n"
-            "        comms::option::app::NoRefreshImpl\n"
+            "        comms::option::app::NoRefreshImpl,\n"
+            "        typename #^#BASE#$#::#^#MESSAGE_NAME#$#\n"
             "    >;\n";        
 
         return common::processTemplate(Templ, replacements);
@@ -473,15 +480,21 @@ std::string Message::getServerOptions() const
         "using #^#MESSAGE_NAME#$# =\n"
         "    std::tuple<\n"
         "        comms::option::app::NoReadImpl,\n"
-        "        comms::option::app::NoDispatchImpl\n"
+        "        comms::option::app::NoDispatchImpl,\n"
+        "        typename #^#BASE#$#::#^#MESSAGE_NAME#$#\n"
         "    >;\n";
 
     return common::processTemplate(Templ, replacements);
 }
 
-std::string Message::getBareMetalDefaultOptions() const
+std::string Message::getBareMetalDefaultOptions(const std::string& base) const
 {
-    return getOptions(&Field::getBareMetalDefaultOptions);
+    return getOptions(&Field::getBareMetalDefaultOptions, base);
+}
+
+std::string Message::getDataViewDefaultOptions(const std::string& base) const
+{
+    return getOptions(&Field::getDataViewDefaultOptions, base);
 }
 
 bool Message::writeProtocolDefinitionCommonFile()
@@ -895,7 +908,7 @@ std::string Message::getFieldsAccess() const
         result += common::nameToAccessCopy(f->name());
         result += " type and @b field_";
         result += common::nameToAccessCopy(f->name());
-        result += "() fuction\n";
+        result += "() access fuction\n";
         result += common::doxygenPrefixStr();
         result += common::indentStr();
         result += common::indentStr();
@@ -1170,7 +1183,7 @@ bool Message::isCustomizable() const
     return m_dslObj.sender() != commsdsl::Message::Sender::Both;
 }
 
-std::string Message::getOptions(GetFieldOptionsFunc func) const
+std::string Message::getOptions(GetFieldOptionsFunc func, const std::string& base) const
 {
     std::string fieldsOpts;
     auto addFieldOptsFunc =
@@ -1188,14 +1201,21 @@ std::string Message::getOptions(GetFieldOptionsFunc func) const
         };
 
     auto scope = m_generator.scopeForMessage(m_externalRef, true, true) + common::fieldsSuffixStr() + "::";
+    std::string nextBase;
+    std::string ext;
+    if (!base.empty()) {
+        nextBase = base + "::" + common::nameToClassCopy(name()) + common::fieldsSuffixStr();
+        ext = " : public " + nextBase;
+    }
+
     for (auto& f : m_fields) {
-        addFieldOptsFunc((f.get()->*func)(scope));
+        addFieldOptsFunc((f.get()->*func)(nextBase, scope));
     }
 
     static const std::string Templ =
         "/// @brief Extra options for fields of\n"
         "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
-        "struct #^#MESSAGE_NAME#$#Fields\n"
+        "struct #^#MESSAGE_NAME#$#Fields#^#EXT#$#\n"
         "{\n"
         "    #^#FIELDS_OPTS#$#\n"
         "}; // struct #^#MESSAGE_NAME#$#Fields\n\n"
@@ -1218,6 +1238,7 @@ std::string Message::getOptions(GetFieldOptionsFunc func) const
     replacements.insert(std::make_pair("MESSAGE_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
     replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
+    replacements.insert(std::make_pair("EXT", std::move(ext)));
 
     if (customizable) {
         static const std::string OptTempl =

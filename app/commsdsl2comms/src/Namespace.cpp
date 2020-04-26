@@ -127,32 +127,44 @@ bool Namespace::writeFields()
     return true;
 }
 
-std::string Namespace::getDefaultOptions() const
+std::string Namespace::getDefaultOptions(const std::string& base) const
 {
     return getOptions(
         &Namespace::getDefaultOptions,
         &Field::getDefaultOptions,
         &Message::getDefaultOptions,
-        &Frame::getDefaultOptions);
+        &Frame::getDefaultOptions,
+        base);
 }
 
-std::string Namespace::getClientOptions() const
+std::string Namespace::getClientOptions(const std::string& base) const
 {
-    return getClientServerOptions(&Message::getClientOptions);
+    return getClientServerOptions(&Message::getClientOptions, base);
 }
 
-std::string Namespace::getServerOptions() const
+std::string Namespace::getServerOptions(const std::string& base) const
 {
-    return getClientServerOptions(&Message::getServerOptions);
+    return getClientServerOptions(&Message::getServerOptions, base);
 }
 
-std::string Namespace::getBareMetalDefaultOptions() const
+std::string Namespace::getBareMetalDefaultOptions(const std::string& base) const
 {
     return getOptions(
         &Namespace::getBareMetalDefaultOptions,
         &Field::getBareMetalDefaultOptions,
         &Message::getBareMetalDefaultOptions,
-        &Frame::getBareMetalDefaultOptions);
+        &Frame::getBareMetalDefaultOptions,
+        base);
+}
+
+std::string Namespace::getDataViewDefaultOptions(const std::string& base) const
+{
+    return getOptions(
+        &Namespace::getDataViewDefaultOptions,
+        &Field::getDataViewDefaultOptions,
+        &Message::getDataViewDefaultOptions,
+        &Frame::getDataViewDefaultOptions,
+        base);
 }
 
 Namespace::NamespacesScopesList Namespace::getNamespacesScopes() const
@@ -528,6 +540,10 @@ bool Namespace::prepareFields()
             return false;
         }
 
+        if (ptr->isForceGen()) {
+            recordAccessedField(ptr.get());
+        }
+
         m_fields.push_back(std::move(ptr));
     }
 
@@ -622,11 +638,19 @@ bool commsdsl2comms::Namespace::hasFrame() const
             });
 }
 
-std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func) const
+std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func, const std::string& base) const
 {
+    assert(!base.empty());
+    std::string nextBase = base;
+    if (!name().empty()) {
+        nextBase += "::" + name();
+    }    
+
+    std::string nextMessageBase = nextBase + "::message";
+
     common::StringsList messagesOpts;
     for (auto& m : m_messages) {
-        auto opt = (m.get()->*func)();
+        auto opt = (m.get()->*func)(nextMessageBase);
         if (!opt.empty()) {
             messagesOpts.push_back(std::move(opt));
         }
@@ -638,10 +662,10 @@ std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func) const
 
     static const std::string Templ =
         "/// @brief Scope for extra options for fields and messages in the namespace.\n"
-        "struct #^#NAMESPACE_NAME#$# : public DefaultOptions::#^#NAMESPACE_SCOPE#$#\n"
+        "struct #^#NAMESPACE_NAME#$# : public #^#BASE#$#::#^#NAMESPACE_SCOPE#$#\n"
         "{\n"
         "    /// @brief Extra options for messages.\n"
-        "    struct message : public DefaultOptions::#^#NAMESPACE_SCOPE#$#::message\n"
+        "    struct message : public #^#NEXT_BASE#$#\n"
         "    {\n"
         "        #^#MESSAGES_OPTS#$#\n"
         "    };"
@@ -649,7 +673,7 @@ std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func) const
 
     static const std::string GlobalTempl =
         "/// @brief Extra options for messages.\n"
-        "struct message : public DefaultOptions::message\n"
+        "struct message : public #^#NEXT_BASE#$#\n"
         "{\n"
         "    #^#MESSAGES_OPTS#$#\n"
         "};\n";
@@ -661,6 +685,7 @@ std::string Namespace::getClientServerOptions(GetMessageOptionsFunc func) const
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAMESPACE_NAME", name()));
+    replacements.insert(std::make_pair("NEXT_BASE", std::move(nextMessageBase)));
     replacements.insert(std::make_pair("NAMESPACE_SCOPE", m_generator.scopeForNamespace(externalRef(), false, false)));
     replacements.insert(std::make_pair("MESSAGES_OPTS", common::listToString(messagesOpts, "\n", common::emptyString())));
 
@@ -671,7 +696,8 @@ std::string Namespace::getOptions(
     GetNamespaceOptionsFunc nsFunc,
     GetFieldOptionsFunc fieldFunc,
     GetMessageOptionsFunc messageFunc,
-    GetFrameOptionsFunc frameFunc) const
+    GetFrameOptionsFunc frameFunc,
+    const std::string& base) const
 {
 
     auto addFunc =
@@ -688,9 +714,25 @@ std::string Namespace::getOptions(
             result += str;
         };
 
+    std::string nextBase;
+    std::string nextFieldsBase;
+    std::string nextMessageBase;
+    std::string nextFrameBase;
+
+    if (!base.empty()) {
+        nextBase = base;
+        if (!name().empty()) {
+            nextBase += "::" + name();
+        }
+        nextFieldsBase = nextBase + "::field";
+        nextMessageBase = nextBase + "::message";
+        nextFrameBase = nextBase + "::frame";
+    }        
+
+
     std::string namespacesOpts;
     for (auto& n : m_namespaces) {
-        addFunc((n.get()->*nsFunc)(), namespacesOpts);
+        addFunc((n.get()->*nsFunc)(nextBase), namespacesOpts);
     }
 
     std::string fieldsOpts;
@@ -701,55 +743,78 @@ std::string Namespace::getOptions(
             continue;
         }
 
-        addFunc((f.get()->*fieldFunc)(scope), fieldsOpts);
+        addFunc((f.get()->*fieldFunc)(nextFieldsBase, scope), fieldsOpts);
     }
 
     std::string messagesOpts;
     for (auto& m : m_messages) {
-        addFunc((m.get()->*messageFunc)(), messagesOpts);
+        addFunc((m.get()->*messageFunc)(nextMessageBase), messagesOpts);
     }
     std::string framesOpts;
     for (auto& f : m_frames) {
-        addFunc((f.get()->*frameFunc)(), framesOpts);
+        addFunc((f.get()->*frameFunc)(nextFrameBase), framesOpts);
     }
 
     if (!fieldsOpts.empty()) {
         static const std::string FieldsWrapTempl =
             "/// @brief Extra options for fields.\n"
-            "struct field\n"
+            "struct field#^#EXT#$#\n"
             "{\n"
             "    #^#FIELDS_OPTS#$#\n"
             "}; // struct field\n";
 
+        std::string ext;
+        if (!base.empty()) {
+            ext = " : public " + nextFieldsBase;
+        }            
+
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("FIELDS_OPTS", fieldsOpts));
+        replacements.insert(std::make_pair("EXT", std::move(ext)));
         fieldsOpts = common::processTemplate(FieldsWrapTempl, replacements);
     }
 
     if (!messagesOpts.empty()) {
         static const std::string MessageWrapTempl =
             "/// @brief Extra options for messages.\n"
-            "struct message\n"
+            "struct message#^#EXT#$#\n"
             "{\n"
             "    #^#MESSAGES_OPTS#$#\n"
             "}; // struct message\n";
 
+        std::string ext;
+        if (!base.empty()) {
+            ext = " : public " + nextMessageBase;
+        }
+
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("MESSAGES_OPTS", messagesOpts));
+        replacements.insert(std::make_pair("EXT", std::move(ext)));
         messagesOpts = common::processTemplate(MessageWrapTempl, replacements);
     }
 
     if (!framesOpts.empty()) {
         static const std::string FrameWrapTempl =
             "/// @brief Extra options for frames.\n"
-            "struct frame\n"
+            "struct frame#^#EXT#$#\n"
             "{\n"
             "    #^#FRAMES_OPTS#$#\n"
             "}; // struct frame\n";
 
+        std::string ext;
+        if (!base.empty()) {
+            ext = " : public " + nextFrameBase;
+        }
+
         common::ReplacementMap replacements;
         replacements.insert(std::make_pair("FRAMES_OPTS", framesOpts));
+        replacements.insert(std::make_pair("EXT", std::move(ext)));
         framesOpts = common::processTemplate(FrameWrapTempl, replacements);
+    }
+
+    std::string ext;
+    if (!base.empty()) {
+        ext = " : public " + nextBase;
     }
 
     common::ReplacementMap replacements;
@@ -758,10 +823,11 @@ std::string Namespace::getOptions(
     replacements.insert(std::make_pair("MESSAGES_OPTS", std::move(messagesOpts)));
     replacements.insert(std::make_pair("FIELDS_OPTS", std::move(fieldsOpts)));
     replacements.insert(std::make_pair("FRAMES_OPTS", std::move(framesOpts)));
+    replacements.insert(std::make_pair("EXT", std::move(ext)));
 
     static const std::string Templ =
         "/// @brief Scope for extra options for fields and messages in the namespace.\n"
-        "struct #^#NAMESPACE_NAME#$#\n"
+        "struct #^#NAMESPACE_NAME#$##^#EXT#$#\n"
         "{\n"
         "    #^#NAMESPACES_OPTS#$#\n"
         "    #^#FIELDS_OPTS#$#\n"
@@ -773,6 +839,8 @@ std::string Namespace::getOptions(
         "#^#FIELDS_OPTS#$#\n"
         "#^#MESSAGES_OPTS#$#\n"
         "#^#FRAMES_OPTS#$#\n";
+
+    
 
     auto* templ = &Templ;
     if (name().empty()) {

@@ -67,6 +67,7 @@ const std::string& docStr();
 const std::string& versionStr();
 const std::string& optionsStr();
 const std::string& bareMetalStr();
+const std::string& dataViewStr();
 const std::string& seqDefaultSizeStr();
 const std::string& emptyOptionString();
 const std::string& inputTestStr();

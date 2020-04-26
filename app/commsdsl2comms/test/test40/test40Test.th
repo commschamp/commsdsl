@@ -1,0 +1,73 @@
+#include "cxxtest/TestSuite.h"
+
+#include "comms/units.h"
+#include "test40/Message.h"
+#include "test40/frame/Frame.h"
+#include "test40/message/Msg1.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+
+    using Interface =
+        test40::Message<>;
+
+    using Msg1 = test40::message::Msg1<Interface>;
+    using Frame = test40::frame::Frame<Interface>;
+
+};
+
+void TestSuite::test1()
+{
+    // Just testing units
+    static_assert(comms::units::isNanoseconds<Msg1::Field_time_ns>(), "Invalid units");
+    static_assert(comms::units::isMicroseconds<Msg1::Field_time_us>(), "Invalid units");
+    static_assert(comms::units::isMilliseconds<Msg1::Field_time_ms>(), "Invalid units");
+    static_assert(comms::units::isSeconds<Msg1::Field_time_s>(), "Invalid units");
+    static_assert(comms::units::isMinutes<Msg1::Field_time_min>(), "Invalid units");
+    static_assert(comms::units::isHours<Msg1::Field_time_h>(), "Invalid units");
+    static_assert(comms::units::isDays<Msg1::Field_time_d>(), "Invalid units");
+    static_assert(comms::units::isWeeks<Msg1::Field_time_w>(), "Invalid units");
+
+    static_assert(comms::units::isNanometers<Msg1::Field_dist_nm>(), "Invalid units");
+    static_assert(comms::units::isMicrometers<Msg1::Field_dist_um>(), "Invalid units");
+    static_assert(comms::units::isMillimeters<Msg1::Field_dist_mm>(), "Invalid units");
+    static_assert(comms::units::isCentimeters<Msg1::Field_dist_cm>(), "Invalid units");
+    static_assert(comms::units::isMeters<Msg1::Field_dist_m>(), "Invalid units");
+    static_assert(comms::units::isKilometers<Msg1::Field_dist_km>(), "Invalid units");
+
+    static_assert(comms::units::isNanometersPerSecond<Msg1::Field_speed_nmps>(), "Invalid units");
+    static_assert(comms::units::isMicrometersPerSecond<Msg1::Field_speed_umps>(), "Invalid units");
+    static_assert(comms::units::isMillimetersPerSecond<Msg1::Field_speed_mmps>(), "Invalid units");
+    static_assert(comms::units::isCentimetersPerSecond<Msg1::Field_speed_cmps>(), "Invalid units");
+    static_assert(comms::units::isMetersPerSecond<Msg1::Field_speed_mps>(), "Invalid units");
+    static_assert(comms::units::isKilometersPerSecond<Msg1::Field_speed_kmps>(), "Invalid units");
+    static_assert(comms::units::isKilometersPerHour<Msg1::Field_speed_kmph>(), "Invalid units");
+
+    static_assert(comms::units::isHertz<Msg1::Field_freq_hz>(), "Invalid units");
+    static_assert(comms::units::isKilohertz<Msg1::Field_freq_khz>(), "Invalid units");
+    static_assert(comms::units::isMegahertz<Msg1::Field_freq_mhz>(), "Invalid units");
+    static_assert(comms::units::isGigahertz<Msg1::Field_freq_ghz>(), "Invalid units");
+
+    static_assert(comms::units::isDegrees<Msg1::Field_angle_deg>(), "Invalid units");
+    static_assert(comms::units::isRadians<Msg1::Field_angle_rad>(), "Invalid units");
+
+    static_assert(comms::units::isNanoamps<Msg1::Field_current_na>(), "Invalid units");
+    static_assert(comms::units::isMicroamps<Msg1::Field_current_ua>(), "Invalid units");
+    static_assert(comms::units::isMilliamps<Msg1::Field_current_ma>(), "Invalid units");
+    static_assert(comms::units::isAmps<Msg1::Field_current_a>(), "Invalid units");
+    static_assert(comms::units::isKiloamps<Msg1::Field_current_ka>(), "Invalid units");
+
+    static_assert(comms::units::isNanovolts<Msg1::Field_voltage_nv>(), "Invalid units");
+    static_assert(comms::units::isMicrovolts<Msg1::Field_voltage_uv>(), "Invalid units");
+    static_assert(comms::units::isMillivolts<Msg1::Field_voltage_mv>(), "Invalid units");
+    static_assert(comms::units::isVolts<Msg1::Field_voltage_v>(), "Invalid units");
+    static_assert(comms::units::isKilovolts<Msg1::Field_voltage_kv>(), "Invalid units");
+
+    static_assert(comms::units::isBytes<Msg1::Field_memory_b>(), "Invalid units");
+    static_assert(comms::units::isKilobytes<Msg1::Field_memory_kb>(), "Invalid units");
+    static_assert(comms::units::isMegabytes<Msg1::Field_memory_mb>(), "Invalid units");
+    static_assert(comms::units::isGigabytes<Msg1::Field_memory_gb>(), "Invalid units");
+    static_assert(comms::units::isTerabytes<Msg1::Field_memory_tb>(), "Invalid units");
+}

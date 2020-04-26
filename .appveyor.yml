@@ -1,22 +1,13 @@
 image:
     - Visual Studio 2015
     - Visual Studio 2017
+    - Visual Studio 2019    
 
 init:
     - git config --global core.autocrlf input
 
-notifications:
-  - provider: Email
-    to:
-      - arobenko@gmail.com
-    on_build_failure: true
-    on_build_status_changed: true
-
 clone_folder: c:\projects\commsdsl
 shallow_clone: true             
-
-matrix:
-    fast_finish: false
 
 platform:
     - x64
@@ -29,10 +20,20 @@ configuration:
 environment:
     matrix:
         - CPP_STD: 11
-          QT_VER: 5.6.3
         - CPP_STD: 14
-          QT_VER: 5.6.3
+        - CPP_STD: 17
+        - CPP_STD: 20
 
+matrix:
+    fast_finish: false
+    exclude:
+        - image: Visual Studio 2015
+          CPP_STD: 17 
+        - image: Visual Studio 2015
+          CPP_STD: 20    
+        - image: Visual Studio 2017
+          CPP_STD: 20                           
+        
 install:
     - call script\appveyor_install.bat
     - set PATH=%PATH%;%QTDIR%\bin
@@ -43,7 +44,7 @@ build_script:
     - mkdir %BUILD_DIR%
     - cd %BUILD_DIR%
     - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" \
-        -DBOOST_ROOT="C:\Libraries\boost_1_65_1" -DBoost_USE_STATIC_LIBS=ON \
+        -DBOOST_ROOT="%BOOST_DIR%" -DBoost_USE_STATIC_LIBS=ON \
         -DCOMMSDSL_QT_DIR=%QTDIR% -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% \
         -DCC_TAG=%CC_TAG%
     - set PATH=%BUILD_DIR%\lib\src;%PATH%

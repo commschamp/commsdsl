@@ -846,7 +846,7 @@ std::string Doxygen::getCustomizeDoc() const
         "/// Depending on the value of @b customization option passed to the @b commsdsl2comms\n"
         "/// code generator, the latter generates @ref #^#OPTIONS#$#\n"
         "/// struct (defined in @b #^#OPTIONS_HDR#$# file),\n"
-        "/// which is used by default thoughout the protocol definition classes.\n"
+        "/// which is used by default throughout the protocol definition classes.\n"
         "/// The struct contains all the available type definition, which can be used to\n"
         "/// customize default data structures and/or behaviour of various classes.\n"
         "/// If any additional customization is required, just recreate similar struct with\n"
@@ -897,8 +897,8 @@ std::string Doxygen::getCustomizeDoc() const
         "///    >;\n"
         "/// @endcode\n"
         "/// In this case the code generator may also define @b #^#SERVER_OPTIONS#$#\n"
-        "/// (check for existence of @b #^#SERVER_OPTIONS_HDR#$# file) and\n"
-        "/// @b #^#CLIENT_OPTIONS#$# (check for existence of @b #^#CLIENT_OPTIONS_HDR#$# file).\n"
+        "/// (defined in @b #^#SERVER_OPTIONS_HDR#$# file) and\n"
+        "/// @b #^#CLIENT_OPTIONS#$# (defined in @b #^#CLIENT_OPTIONS_HDR#$# file).\n"
         "/// These structs suppress generation of unnecessary virtual functions which are not\n"
         "/// going to be used. Consider using this structs as options instead of default\n"
         "/// #^#OPTIONS#$#.\n"
@@ -910,7 +910,31 @@ std::string Doxygen::getCustomizeDoc() const
         "/// In case non-custom &lt;id&gt; layer has been used in schema (files), custom,\n"
         "/// application-specific allocation options to it may include\n"
         "/// @b comms::option::app::InPlaceAllocation and/or @b comms::option::app::SupportGenericMessage.\n"
-        "/// Please see the documentation of the @b COMMS library itself for more details."
+        "/// Please see the documentation of the @b COMMS library itself for more details.\n"
+        "///\n"
+        "/// In many cases the input buffer is sequential (not circular), where the end of message payload\n"
+        "/// never precedes its beginning and the processing is implemented in a way where message objects\n"
+        "/// never outlive the input buffer. In such scenarios it could be a waste of memory / CPU cycles to\n"
+        "/// copy bytes from the input buffer to internal storage of the fields like &lt;string&gt;\n"
+        "/// (@b comms::field::String) and/or &lt;data&gt; (@b comms::field::ArrayList of raw bytes).\n"
+        "/// The generated code also provides #^#DATA_VIEW_OPTIONS#$# (defined in\n"
+        "/// @b #^#DATA_VIEW_OPTIONS_HDR#$# file) where relevant fields apply @b comms::option::app::OrigDataView\n"
+        "/// option.\n"
+        "///\n"
+        "/// Also note that the specified extension options are implemented as the following template classes\n"
+        "/// which receive other options as their base class and apply relevant changes on top.\n"
+        "/// @li @ref #^#CLIENT_OPTIONS#$#T\n"
+        "/// @li @ref #^#SERVER_OPTIONS#$#T\n"
+        "/// @li @ref #^#BARE_METAL_OPTIONS#$#T\n"
+        "/// @li @ref #^#DATA_VIEW_OPTIONS#$#T\n"
+        "///\n"
+        "/// As the result it is possible to combine them. For example:\n"
+        "/// @code\n"
+        "/// using MyOptions=\n"
+        "///     #^#DATA_VIEW_OPTIONS#$#T<\n"
+        "///         #^#CLIENT_OPTIONS#$#\n"
+        "///     >;\n"
+        "/// @endcode"
         ;
 
     auto allInterfaces = m_generator.getAllInterfaces();
@@ -927,6 +951,8 @@ std::string Doxygen::getCustomizeDoc() const
     repl.insert(std::make_pair("SERVER_OPTIONS_HDR", m_generator.headerfileForOptions("Server" + common::defaultOptionsStr(), false)));
     repl.insert(std::make_pair("BARE_METAL_OPTIONS", m_generator.scopeForOptions(common::bareMetalStr() + common::defaultOptionsStr(), true, true)));
     repl.insert(std::make_pair("BARE_METAL_OPTIONS_HDR", m_generator.headerfileForOptions(common::bareMetalStr() + common::defaultOptionsStr(), false)));
+    repl.insert(std::make_pair("DATA_VIEW_OPTIONS", m_generator.scopeForOptions(common::dataViewStr() + common::defaultOptionsStr(), true, true)));
+    repl.insert(std::make_pair("DATA_VIEW_OPTIONS_HDR", m_generator.headerfileForOptions(common::dataViewStr() + common::defaultOptionsStr(), false)));
 
     return common::processTemplate(Templ, repl);
 }

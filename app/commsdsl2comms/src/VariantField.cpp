@@ -33,7 +33,8 @@ namespace
 {
 
 const std::string MembersDefTemplate =
-    "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# bitfield.\n"
+    "/// @brief Scope for all the member fields of\n"
+    "///     @ref #^#CLASS_NAME#$# bitfield.\n"
     "#^#EXTRA_PREFIX#$#\n"
     "struct #^#CLASS_NAME#$#Members\n"
     "{\n"
@@ -48,7 +49,7 @@ const std::string MembersDefTemplate =
 const std::string MembersOptionsTemplate =
     "/// @brief Extra options for all the member fields of\n"
     "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# bitfield.\n"
-    "struct #^#CLASS_NAME#$#Members\n"
+    "struct #^#CLASS_NAME#$#Members#^#EXT#$#\n"
     "{\n"
     "    #^#OPTIONS#$#\n"
     "};\n";
@@ -187,12 +188,17 @@ std::string VariantField::getClassDefinitionImpl(
 
 std::string VariantField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getDefaultOptions);
+    return getExtraOptions(scope, &Field::getDefaultOptions, std::string());
 }
 
-std::string VariantField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+std::string VariantField::getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
+}
+
+std::string VariantField::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getDataViewDefaultOptions, base);
 }
 
 std::string VariantField::getPluginAnonNamespaceImpl(
@@ -397,7 +403,7 @@ std::string VariantField::getAccess() const
         "///     related to @b comms::field::Variant class from COMMS library\n"
         "///     for details.\n"
         "///\n"
-        "///     The generated access functions are:\n"
+        "///     The generated types and access functions are:\n"
         "#^#ACCESS_DOC#$#\n"
         "COMMS_VARIANT_MEMBERS_NAMES(\n"
         "    #^#NAMES#$#\n"
@@ -412,8 +418,9 @@ std::string VariantField::getAccess() const
     for (auto& m : m_members) {
         namesList.push_back(common::nameToAccessCopy(m->name()));
         std::string accessStr =
-            "///     @li @b initField_" + namesList.back() +
-            "() and @b accessField_" + namesList.back() + "() - for " + scope +
+            "///     @li @b Field_" + namesList.back() + " type, @b initField_" + namesList.back() +
+            "() and @b accessField_" + namesList.back() + "() access functions -\n"
+            "///     for " + scope +
             common::nameToClassCopy(m->name()) + " member field.";
         accessDocList.push_back(std::move(accessStr));
     }
@@ -615,13 +622,20 @@ std::string VariantField::getPrivate() const
     return '\n' + str;
 }
 
-std::string VariantField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const
+std::string VariantField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const
 {
+    std::string nextBase;
+    std::string ext;
+    if (!base.empty()) {
+        nextBase = base + "::" + common::nameToClassCopy(name()) + common::membersSuffixStr();
+        ext = " : public " + nextBase;
+    }
+
     std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     StringsList options;
     options.reserve(m_members.size());
     for (auto& m : m_members) {
-        auto opt = (m.get()->*func)(memberScope);
+        auto opt = (m.get()->*func)(nextBase, memberScope);
         if (!opt.empty()) {
             options.push_back(std::move(opt));
         }
@@ -634,6 +648,7 @@ std::string VariantField::getExtraOptions(const std::string& scope, GetExtraOpti
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("EXT", std::move(ext)));
     replacements.insert(std::make_pair("OPTIONS", common::listToString(options, "\n", common::emptyString())));
     return common::processTemplate(MembersOptionsTemplate, replacements);
 }

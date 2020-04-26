@@ -55,10 +55,32 @@ std::string PayloadLayer::getClassDefinitionImpl(
     return common::processTemplate(Templ, replacements);
 }
 
-const std::string& PayloadLayer::getBareMetalOptionStrImpl() const
+std::string PayloadLayer::getBareMetalOptionStrImpl(const std::string& base) const
 {
     static const std::string Str("comms::option::app::FixedSizeStorage<" + common::seqDefaultSizeStr() + " * 8>");
-    return Str;
+    if (base.empty()) {
+        return Str;
+    }
+    
+    return 
+        "std::tuple<\n"
+        "    " + Str + ",\n"
+        "    typename " + base + "::" + common::nameToClassCopy(name()) + "\n"
+        ">";
+}
+
+std::string PayloadLayer::getDataViewOptionStrImpl(const std::string& base) const
+{
+    static const std::string Str("comms::option::app::OrigDataView");
+    if (base.empty()) {
+        return Str;
+    }
+    
+    return 
+        "std::tuple<\n"
+        "    " + Str + ",\n"
+        "    typename " + base + "::" + common::nameToClassCopy(name()) + "\n"
+        ">";
 }
 
 bool PayloadLayer::isCustomizableImpl() const

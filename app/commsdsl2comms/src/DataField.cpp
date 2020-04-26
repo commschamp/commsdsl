@@ -198,12 +198,17 @@ std::string DataField::getClassDefinitionImpl(
 
 std::string DataField::getExtraDefaultOptionsImpl(const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getDefaultOptions);
+    return getExtraOptions(scope, &Field::getDefaultOptions, std::string());
 }
 
-std::string DataField::getExtraBareMetalDefaultOptionsImpl(const std::string& scope) const
+std::string DataField::getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const
 {
-    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions);
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
+}
+
+std::string DataField::getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const
+{
+    return getExtraOptions(scope, &Field::getBareMetalDefaultOptions, base);
 }
 
 std::string DataField::getBareMetalOptionStrImpl() const
@@ -215,6 +220,12 @@ std::string DataField::getBareMetalOptionStrImpl() const
     }
 
     return "comms::option::app::FixedSizeStorage<" + common::seqDefaultSizeStr() + '>';
+}
+
+std::string DataField::getDataViewOptionStrImpl() const
+{
+    static const std::string Str("comms::option::app::OrigDataView");
+    return Str;
 }
 
 std::string DataField::getCompareToValueImpl(
@@ -481,7 +492,8 @@ std::string DataField::getPrefixField(const std::string& scope) const
     }
 
     static const std::string Templ =
-        "/// @brief Scope for all the member fields of @ref #^#CLASS_NAME#$# list.\n"
+        "/// @brief Scope for all the member fields of\n"
+        "///     @ref #^#CLASS_NAME#$# list.\n"
         "#^#EXTRA_PREFIX#$#\n"
         "struct #^#CLASS_NAME#$#Members\n"
         "{\n"
@@ -555,14 +567,20 @@ void DataField::checkForcingOpt(StringsList& list) const
     common::addToList("comms::option::def::SequenceLengthForcingEnabled", list);
 }
 
-std::string DataField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func) const
+std::string DataField::getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const
 {
     if (!m_prefix) {
         return common::emptyString();
     }
 
+    std::string nextBase;
+    std::string ext;
+    if (!base.empty()) {
+        nextBase = base + "::" + common::nameToClassCopy(name()) + common::membersSuffixStr();
+        ext = " : public " + nextBase;
+    }      
     std::string memberScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
-    auto fieldOptions = (m_prefix.get()->*func)(memberScope);
+    auto fieldOptions = (m_prefix.get()->*func)(nextBase, memberScope);
 
     if (fieldOptions.empty()) {
         return common::emptyString();
@@ -571,7 +589,7 @@ std::string DataField::getExtraOptions(const std::string& scope, GetExtraOptions
     const std::string Templ =
         "/// @brief Extra options for all the member fields of\n"
         "///     @ref #^#SCOPE#$##^#CLASS_NAME#$# string.\n"
-        "struct #^#CLASS_NAME#$#Members\n"
+        "struct #^#CLASS_NAME#$#Members#^#EXT#$#\n"
         "{\n"
         "    #^#OPTIONS#$#\n"
         "};\n";
@@ -579,6 +597,7 @@ std::string DataField::getExtraOptions(const std::string& scope, GetExtraOptions
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("SCOPE", scope));
+    replacements.insert(std::make_pair("EXT", std::move(ext)));
     replacements.insert(std::make_pair("OPTIONS", std::move(fieldOptions)));
     return common::processTemplate(Templ, replacements);
 }

@@ -63,7 +63,7 @@ function (test_func name)
             message (FATAL_ERROR "cc::comms_champion target is not defined")
         endif () 
 
-        if (CMAKE_CL_64)
+        if (WIN32 AND (CMAKE_SIZEOF_VOID_P EQUAL 8))
             message (STATUS 
                 "Skipping plugin build because sub-project "
                 "will be compiled 32 bit instead of 64. No idea why.")
@@ -252,5 +252,6 @@ test_func (test36)
 test_func (test37)
 test_func (test38)
 test_func (test39)
+test_func (test40)
 
 

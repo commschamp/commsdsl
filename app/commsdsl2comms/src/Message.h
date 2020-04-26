@@ -50,10 +50,11 @@ public:
 
     bool write();
 
-    std::string getDefaultOptions() const;
-    std::string getClientOptions() const;
-    std::string getServerOptions() const;
-    std::string getBareMetalDefaultOptions() const;
+    std::string getDefaultOptions(const std::string& base) const;
+    std::string getClientOptions(const std::string& base) const;
+    std::string getServerOptions(const std::string& base) const;
+    std::string getBareMetalDefaultOptions(const std::string& base) const;
+    std::string getDataViewDefaultOptions(const std::string& base) const;
 
     std::uintmax_t id() const
     {
@@ -67,7 +68,7 @@ public:
 
 private:
 
-    using GetFieldOptionsFunc = std::string (Field::*)(const std::string&) const;
+    using GetFieldOptionsFunc = std::string (Field::*)(const std::string& base, const std::string& scope) const;
 
     bool writeProtocolDefinitionCommonFile();
     bool writeProtocol();
@@ -95,7 +96,7 @@ private:
 
     bool mustImplementReadRefresh() const;
     bool isCustomizable() const;
-    std::string getOptions(GetFieldOptionsFunc func) const;
+    std::string getOptions(GetFieldOptionsFunc func, const std::string& base) const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;

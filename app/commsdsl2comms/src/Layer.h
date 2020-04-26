@@ -59,8 +59,9 @@ public:
 
     static Ptr create(Generator& generator, commsdsl::Layer dslObj);
 
-    std::string getDefaultOptions(const std::string& scope) const;
-    std::string getBareMetalDefaultOptions(const std::string& scope) const;
+    std::string getDefaultOptions(const std::string& base, const std::string& scope) const;
+    std::string getBareMetalDefaultOptions(const std::string& base, const std::string& scope) const;
+    std::string getDataViewDefaultOptions(const std::string& base, const std::string& scope) const;
 
     bool rearange(LayersList& layers, bool& success)
     {
@@ -120,16 +121,17 @@ protected:
         const std::string& scope,
         std::string& prevLayer,
         bool& hasInputMessages) const = 0;
-    virtual const std::string& getDefaultOptionStrImpl() const;
-    virtual const std::string& getBareMetalOptionStrImpl() const;
+    virtual std::string getDefaultOptionStrImpl(const std::string& base) const;
+    virtual std::string getBareMetalOptionStrImpl(const std::string& base) const;
+    virtual std::string getDataViewOptionStrImpl(const std::string& base) const;
     virtual bool rearangeImpl(LayersList& layers, bool& success);
     virtual bool isCustomizableImpl() const;
     virtual bool isPseudoVersionLayerImpl(const std::vector<std::string>& interfaceVersionFields) const;
 
 private:
 
-    using GetFieldOptionsFunc = std::string (Field::*)(const std::string& scope) const;
-    using GetOptionStrFunc = const std::string& (Layer::*)() const;
+    using GetFieldOptionsFunc = std::string (Field::*)(const std::string& base, const std::string& scope) const;
+    using GetOptionStrFunc = std::string (Layer::*)(const std::string& base) const;
 
     bool isCustomizable() const;
 
@@ -137,9 +139,11 @@ private:
     std::string getOptions(
         const std::string& scope,
         GetFieldOptionsFunc fieldFunc,
-        GetOptionStrFunc optionStrFunc) const;
-    const std::string& getDefaultOptionStr() const;
-    const std::string& getBareMetalDefaultOptionStr() const;
+        GetOptionStrFunc optionStrFunc,
+        const std::string& base) const;
+    std::string getDefaultOptionStr(const std::string& base) const;
+    std::string getBareMetalDefaultOptionStr(const std::string& base) const;
+    std::string getDataViewDefaultOptionStr(const std::string& base) const;
 
     Generator& m_generator;
     commsdsl::Layer m_dslObj;

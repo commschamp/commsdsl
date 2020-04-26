@@ -48,6 +48,7 @@ public:
     void test39();
     void test40();
     void test41();
+    void test42();
 };
 
 void IntTestSuite::setUp()
@@ -1508,6 +1509,26 @@ void IntTestSuite::test22()
     auto kvOffset = vOffset + vCount;
     auto kvCount = 3;
     verifyUnitsFunc(kvOffset, kvCount, commsdsl::Units::Kilovolts);
+
+    auto bOffset = kvOffset + kvCount;
+    auto bCount = 3;
+    verifyUnitsFunc(bOffset, bCount, commsdsl::Units::Bytes);    
+
+    auto kbOffset = bOffset + bCount;
+    auto kbCount = 3;
+    verifyUnitsFunc(kbOffset, kbCount, commsdsl::Units::Kilobytes);      
+
+    auto mbOffset = kbOffset + kbCount;
+    auto mbCount = 3;
+    verifyUnitsFunc(mbOffset, mbCount, commsdsl::Units::Megabytes);  
+
+    auto gbOffset = mbOffset + mbCount;
+    auto gbCount = 3;
+    verifyUnitsFunc(gbOffset, gbCount, commsdsl::Units::Gigabytes);  
+
+    auto tbOffset = gbOffset + gbCount;
+    auto tbCount = 3;
+    verifyUnitsFunc(tbOffset, tbCount, commsdsl::Units::Terabytes);               
 }
 
 void IntTestSuite::test23()
@@ -1830,4 +1851,28 @@ void IntTestSuite::test41()
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema41.xml");
     TS_ASSERT(protocol);
+}
+
+
+void IntTestSuite::test42()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema42.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());    
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);    
+
+    auto& f1 = fields[0];
+    auto& f2 = fields[1];
+    auto& f3 = fields[2];
+
+    TS_ASSERT(f1.isForceGen());
+    TS_ASSERT(!f2.isForceGen());
+    TS_ASSERT(!f3.isForceGen());
 }
