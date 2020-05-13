@@ -161,7 +161,7 @@ std::size_t StringField::maxLengthImpl() const
         return Base::maxLengthImpl();
     }
 
-    return std::numeric_limits<std::size_t>::max();
+    return common::maxPossibleLength();
 }
 
 std::string StringField::getClassDefinitionImpl(

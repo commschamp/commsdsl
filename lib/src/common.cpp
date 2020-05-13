@@ -32,6 +32,7 @@ namespace
 {
 
 const std::size_t MaxPossibleLength = std::numeric_limits<std::size_t>::max();
+
 }
 
 const std::string& emptyString()

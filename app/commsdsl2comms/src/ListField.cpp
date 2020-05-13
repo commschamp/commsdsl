@@ -373,7 +373,7 @@ std::size_t ListField::maxLengthImpl() const
         return Base::maxLengthImpl();
     }
 
-    return std::numeric_limits<std::size_t>::max();
+    return common::maxPossibleLength();
 }
 
 std::string ListField::getClassDefinitionImpl(

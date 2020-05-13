@@ -33,6 +33,13 @@ namespace commsdsl2comms
 namespace common
 {
 
+namespace
+{
+
+const std::size_t MaxPossibleLength = std::numeric_limits<std::size_t>::max();
+
+}
+
 const std::string& emptyString()
 {
     static const std::string Str;
@@ -816,6 +823,19 @@ std::string toUpperCopy(const std::string& str)
     return copy;
 }
 
+std::size_t maxPossibleLength()
+{
+    return MaxPossibleLength;
+}
+
+std::size_t addLength(std::size_t len1, std::size_t len2)
+{
+    if ((MaxPossibleLength - len1) <= len2) {
+        return MaxPossibleLength;
+    }
+
+    return len1 + len2;
+}
 
 } // namespace common
 

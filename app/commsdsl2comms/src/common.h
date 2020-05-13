@@ -124,6 +124,9 @@ std::string toLowerCopy(const std::string& str);
 void toUpper(std::string& str);
 std::string toUpperCopy(const std::string& str);
 
+std::size_t maxPossibleLength();
+std::size_t addLength(std::size_t len1, std::size_t len2);
+
 } // namespace common
 
 } // namespace commsdsl2comms

@@ -162,7 +162,7 @@ std::size_t DataField::maxLengthImpl() const
         return Base::maxLengthImpl();
     }
 
-    return std::numeric_limits<std::size_t>::max();
+    return common::maxPossibleLength();
 }
 
 std::string DataField::getClassDefinitionImpl(

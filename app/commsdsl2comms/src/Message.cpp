@@ -1017,44 +1017,32 @@ std::string Message::getAliases() const
 
 std::string Message::getLengthCheck() const
 {
-    static const std::size_t MaxLen =
-        std::numeric_limits<std::size_t>::max();
-
     auto minLength =
         std::accumulate(
             m_fields.begin(), m_fields.end(), std::size_t(0),
             [](std::size_t soFar, auto& f)
             {
-                return soFar + f->minLength();
+                return common::addLength(soFar, f->minLength());
             });
     auto maxLength =
         std::accumulate(
             m_fields.begin(), m_fields.end(), std::size_t(0),
             [](std::size_t soFar, auto& f)
             {
-                if (soFar == MaxLen) {
-                    return MaxLen;
-                }
-
-                auto fLen = f->maxLength();
-                if ((MaxLen - soFar) <= fLen) {
-                    return MaxLen;
-                }
-
-                return soFar + fLen;
+                return common::addLength(soFar, f->maxLength());
             });
 
     std::string result =
             "// Compile time check for serialisation length.\n"
             "static const std::size_t MsgMinLen = Base::doMinLength();\n";
-    if (maxLength != MaxLen) {
+    if (maxLength != common::maxPossibleLength()) {
         result += "static const std::size_t MsgMaxLen = Base::doMaxLength();\n";
     }
     result += "static_assert(MsgMinLen == ";
     result += common::numToString(minLength);
     result += ", \"Unexpected min serialisation length\");\n";
 
-    if (maxLength != MaxLen) {
+    if (maxLength != common::maxPossibleLength()) {
         result += "static_assert(MsgMaxLen == ";
         result += common::numToString(maxLength);
         result += ", \"Unexpected max serialisation length\");\n";
