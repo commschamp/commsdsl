@@ -20,12 +20,19 @@
 #include <cctype>
 #include <cmath>
 #include <cassert>
+#include <limits>
 
 namespace commsdsl
 {
 
 namespace common
 {
+
+namespace
+{
+
+const std::size_t MaxPossibleLength = std::numeric_limits<std::size_t>::max();
+}
 
 const std::string& emptyString()
 {
@@ -1308,6 +1315,30 @@ bool isValidExternalRefName(const std::string& value)
     }
 
     return isValidRefName(&value[1], value.size() - 1U);
+}
+
+std::size_t maxPossibleLength()
+{
+    return MaxPossibleLength;
+}
+
+void addToLength(std::size_t newLen, std::size_t& accLen)
+{
+    if ((MaxPossibleLength - accLen) <= newLen) {
+        accLen = MaxPossibleLength;
+        return;
+    }
+
+    accLen += newLen;
+}
+
+std::size_t mulLength(std::size_t len, std::size_t factor)
+{
+    if ((((MaxPossibleLength - 1) / factor) + 1) <= len) {
+        return MaxPossibleLength;
+    }
+
+    return len * factor;
 }
 
 } // namespace common

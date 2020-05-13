@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema40"
+        id="1"
+        endian="big">
+    <fields>
+        <int name="PropKeyCommon" type="uint8" failOnInvalid="true"/>
+
+        <variant name="KeyValueProp">
+            <bundle name="Prop1">
+                <int reuse="PropKeyCommon" name="Key" defaultValue="1" validValue="1" />
+                <int name="Length" type="uint8" semanticType="length" />
+                <int name="Val" type="uint16" />
+            </bundle>
+
+            <bundle name="Prop2">
+                <int reuse="PropKeyCommon" name="Key" defaultValue="2" validValue="2" />
+                <int name="Length" type="uint8" semanticType="length" />
+                <float name="Val" type="float" defaultValue="nan" />
+            </bundle>
+
+            <bundle name="Prop3">
+                <int reuse="PropKeyCommon" name="Key" defaultValue="3" validValue="3" />
+                <int name="Length" type="uint8" semanticType="length" />
+                <string name="Val">
+                    <lengthPrefix>
+                        <int name="Length" type="uint8" />
+                    </lengthPrefix>
+                </string>
+            </bundle>
+        </variant>
+
+        <list name="List" element="KeyValueProp" count="3" />
+    </fields>
+</schema>

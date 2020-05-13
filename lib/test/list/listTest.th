@@ -1,4 +1,5 @@
 #include <limits>
+#include <algorithm>
 
 #include "CommonTestSuite.h"
 
@@ -46,6 +47,7 @@ public:
     void test37();
     void test38();    
     void test39();
+    void test40();
 };
 
 void ListTestSuite::setUp()
@@ -824,4 +826,31 @@ void ListTestSuite::test39()
     auto elem = listField.elementField();
     TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
     TS_ASSERT(!listField.elemFixedLength());
+}
+
+void ListTestSuite::test40()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema40.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto iter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [](auto& f)
+            {
+                return f.kind() == commsdsl::Field::Kind::List;
+            });
+    TS_ASSERT_DIFFERS(iter, fields.end());
+
+    commsdsl::ListField listField(*iter);
+    TS_ASSERT_EQUALS(listField.name(), "List");
+    TS_ASSERT_EQUALS(listField.maxLength(), std::numeric_limits<std::size_t>::max());
 }

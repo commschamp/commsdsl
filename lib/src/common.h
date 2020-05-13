@@ -174,6 +174,10 @@ bool isValidRefName(const char* buf, std::size_t len);
 bool isValidRefName(const std::string& value);
 bool isValidExternalRefName(const std::string& value);
 
+std::size_t maxPossibleLength();
+void addToLength(std::size_t newLen, std::size_t& accLen);
+std::size_t mulLength(std::size_t len, std::size_t factor);
+
 } // namespace common
 
 } // namespace commsdsl
