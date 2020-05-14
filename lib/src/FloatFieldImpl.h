@@ -26,7 +26,7 @@
 namespace commsdsl
 {
 
-class FloatFieldImpl : public FieldImpl
+class FloatFieldImpl final : public FieldImpl
 {
     using Base = FieldImpl;
 public:
@@ -89,15 +89,15 @@ public:
     bool hasNonUniqueSpecials() const;
 
 protected:
-    virtual Kind kindImpl() const override final;
-    virtual Ptr cloneImpl() const override final;
-    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override final;
-    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override final;
-    virtual bool reuseImpl(const FieldImpl& other) override final;
-    virtual bool parseImpl() override final;
-    virtual std::size_t minLengthImpl() const override final;
-    virtual bool isComparableToValueImpl(const std::string& val) const override final;
-    virtual bool strToFpImpl(const std::string& ref, double& val) const override final;
+    virtual Kind kindImpl() const override;
+    virtual Ptr cloneImpl() const override;
+    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
+    virtual bool reuseImpl(const FieldImpl& other) override;
+    virtual bool parseImpl() override;
+    virtual std::size_t minLengthImpl() const override;
+    virtual bool isComparableToValueImpl(const std::string& val) const override;
+    virtual bool strToFpImpl(const std::string& ref, double& val) const override;
 
 private:
     bool updateType();

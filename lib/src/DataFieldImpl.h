@@ -26,7 +26,7 @@
 namespace commsdsl
 {
 
-class DataFieldImpl : public FieldImpl
+class DataFieldImpl final : public FieldImpl
 {
     using Base = FieldImpl;
 public:
@@ -67,17 +67,17 @@ public:
 
 
 protected:
-    virtual Kind kindImpl() const override final;
-    virtual Ptr cloneImpl() const override final;
-    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override final;
-    virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const override final;
-    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override final;
-    virtual bool reuseImpl(const FieldImpl& other) override final;
-    virtual bool parseImpl() override final;
-    virtual bool verifySiblingsImpl(const FieldsList& fields) const override final;
-    virtual std::size_t minLengthImpl() const override final;
-    virtual std::size_t maxLengthImpl() const override final;
-    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
+    virtual Kind kindImpl() const override;
+    virtual Ptr cloneImpl() const override;
+    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const override;
+    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
+    virtual bool reuseImpl(const FieldImpl& other) override;
+    virtual bool parseImpl() override;
+    virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
+    virtual std::size_t minLengthImpl() const override;
+    virtual std::size_t maxLengthImpl() const override;
+    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
 
 private:
     bool updateDefaultValue();

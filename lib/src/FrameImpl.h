@@ -31,7 +31,7 @@ namespace commsdsl
 {
 
 class ProtocolImpl;
-class FrameImpl : public Object
+class FrameImpl final : public Object
 {
     using Base = Object;
 public:
@@ -43,7 +43,7 @@ public:
     FrameImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FrameImpl(const FrameImpl&) = delete;
     FrameImpl(FrameImpl&&) = default;
-    virtual ~FrameImpl() final = default;
+    virtual ~FrameImpl() = default;
 
     ::xmlNodePtr getNode() const
     {
@@ -76,7 +76,7 @@ public:
 
 protected:
 
-    virtual ObjKind objKindImpl() const override final;
+    virtual ObjKind objKindImpl() const override;
 
 private:
     LogWrapper logError() const;

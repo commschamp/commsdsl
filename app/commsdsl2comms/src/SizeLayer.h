@@ -23,18 +23,18 @@
 namespace commsdsl2comms
 {
 
-class SizeLayer : public Layer
+class SizeLayer final : public Layer
 {
     using Base = Layer;
 public:
     SizeLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
 
 protected:
-    virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         std::string& prevLayer,
-        bool& hasInputMessages) const override final;
+        bool& hasInputMessages) const override;
 
 private:
     commsdsl::SizeLayer sizeLayerDslObj() const

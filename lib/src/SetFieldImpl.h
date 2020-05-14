@@ -26,7 +26,7 @@
 namespace commsdsl
 {
 
-class SetFieldImpl : public FieldImpl
+class SetFieldImpl final : public FieldImpl
 {
     using Base = FieldImpl;
 public:
@@ -81,18 +81,18 @@ public:
     }
 
 protected:
-    virtual Kind kindImpl() const override final;
-    virtual Ptr cloneImpl() const override final;
-    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override final;
-    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override final;
-    virtual bool reuseImpl(const FieldImpl& other) override final;
-    virtual bool parseImpl() override final;
-    virtual std::size_t minLengthImpl() const override final;
-    virtual std::size_t bitLengthImpl() const override final;
-    virtual bool isBitCheckableImpl(const std::string& val) const override final;
-    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override final;
-    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override final;
-    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override final;
+    virtual Kind kindImpl() const override;
+    virtual Ptr cloneImpl() const override;
+    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
+    virtual bool reuseImpl(const FieldImpl& other) override;
+    virtual bool parseImpl() override;
+    virtual std::size_t minLengthImpl() const override;
+    virtual std::size_t bitLengthImpl() const override;
+    virtual bool isBitCheckableImpl(const std::string& val) const override;
+    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
+    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
+    virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
 
 private:
     bool updateEndian();

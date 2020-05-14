@@ -32,7 +32,7 @@ namespace commsdsl
 {
 
 class ProtocolImpl;
-class InterfaceImpl : public Object
+class InterfaceImpl final : public Object
 {
     using Base = Object;
 public:
@@ -45,7 +45,7 @@ public:
     InterfaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     InterfaceImpl(const InterfaceImpl&) = delete;
     InterfaceImpl(InterfaceImpl&&) = default;
-    virtual ~InterfaceImpl() final = default;
+    virtual ~InterfaceImpl() = default;
 
     ::xmlNodePtr getNode() const
     {
@@ -82,7 +82,7 @@ public:
 
 protected:
 
-    virtual ObjKind objKindImpl() const override final;
+    virtual ObjKind objKindImpl() const override;
 
 private:
     LogWrapper logError() const;
