@@ -203,7 +203,6 @@ bool Doxygen::writeConf() const
         "ALLEXTERNALS           = NO\n"
         "EXTERNAL_GROUPS        = YES\n"
         "EXTERNAL_PAGES         = YES\n"
-        "PERL_PATH              = /usr/bin/perl\n"
         "CLASS_DIAGRAMS         = YES\n"
         "HIDE_UNDOC_RELATIONS   = YES\n"
         "HAVE_DOT               = NO\n"
