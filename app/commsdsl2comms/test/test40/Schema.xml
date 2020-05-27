@@ -53,6 +53,19 @@
         <int name="Memory_gb" type="uint8" units="gb" />
         <int name="Memory_tb" type="uint8" units="tb" />
     </message>
+    
+    <message name="Msg2" id="2">
+        <optional name="F1" defaultMode="missing">
+            <list name="List">
+                <element>
+                    <data name="Element" length="64"/>
+                </element>
+                <countPrefix>
+                    <int name="Counter" type="uint8" />
+                </countPrefix>
+            </list>
+        </optional>
+    </message>    
 
     <frame name="Frame">
         <id name="ID">

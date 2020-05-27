@@ -170,6 +170,13 @@ void OptionalField::updatePluginIncludesImpl(Field::IncludesList& includes) cons
     common::mergeInclude(generator().headerfileForFieldInPlugin(optionalFieldDslObj().field().externalRef(), false), includes);
 }
 
+std::size_t OptionalField::maxLengthImpl() const
+{
+    auto* fieldPtr = getField();
+    assert(fieldPtr != nullptr);
+    return fieldPtr->maxLength();
+}
+
 std::string OptionalField::getClassDefinitionImpl(
     const std::string& scope,
     const std::string& className) const
@@ -509,6 +516,15 @@ std::string OptionalField::getExtraOptions(const std::string& scope, GetExtraOpt
     replacements.insert(std::make_pair("EXT", std::move(ext)));
     replacements.insert(std::make_pair("OPTIONS", std::move(fieldOptions)));
     return common::processTemplate(MembersOptionsTemplate, replacements);
+}
+
+const Field* OptionalField::getField() const
+{
+    if (m_field) {
+        return m_field.get();
+    }
+
+    return generator().findField(optionalFieldDslObj().field().externalRef());
 }
 
 } // namespace commsdsl2comms
