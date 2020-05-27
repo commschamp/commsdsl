@@ -5,6 +5,11 @@
 # CMAKE_CXX_COMPILER
 # CMAKE_BUILD_TYPE
 # CMAKE_CXX_STANDARD
+# PATH
+
+if (NOT "${PATH}" STREQUAL "")
+    set (ENV{PATH} "${PATH}")
+endif ()
 
 set (build_dir "${PROJ_DIR}/build")
 file (MAKE_DIRECTORY ${build_dir})
