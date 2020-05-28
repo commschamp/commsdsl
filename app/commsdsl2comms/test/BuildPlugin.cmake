@@ -7,6 +7,8 @@
 # CMAKE_CXX_STANDARD
 # PATH_ENV
 
+message (STATUS "Plugin build script envoked for ${PROJ_DIR}")
+
 if (NOT "${PATH_ENV}" STREQUAL "")
     message (STATUS "Updating environment PATH=${PATH_ENV}")
     set (ENV{PATH} "${PATH_ENV}")
