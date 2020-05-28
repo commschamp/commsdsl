@@ -5,10 +5,11 @@
 # CMAKE_CXX_COMPILER
 # CMAKE_BUILD_TYPE
 # CMAKE_CXX_STANDARD
-# PATH
+# PATH_ENV
 
-if (NOT "${PATH}" STREQUAL "")
-    set (ENV{PATH} "${PATH}")
+if (NOT "${PATH_ENV}" STREQUAL "")
+    message (STATUS "Updating environment PATH=${PATH_ENV}")
+    set (ENV{PATH} "${PATH_ENV}")
 endif ()
 
 set (build_dir "${PROJ_DIR}/build")
