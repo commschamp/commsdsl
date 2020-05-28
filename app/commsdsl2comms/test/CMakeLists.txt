@@ -66,7 +66,7 @@ function (test_func name)
         set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
         add_custom_target(${plugin_build_tgt} ALL
             COMMAND ${CMAKE_COMMAND}
-                -DPROJ_DIR=${output_dir} -DPATH="$ENV{PATH}"
+                -DPROJ_DIR=${output_dir} 
                 -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
                 -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
