@@ -68,13 +68,13 @@ function (test_func name)
         set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
         add_custom_target(${plugin_build_tgt} ALL
             COMMAND ${CMAKE_COMMAND}
-                -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
                 -DPROJ_DIR=${output_dir} 
                 -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
                 -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
                 ${COMPILER_OPTIONS}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
+                -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
             DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake" ${testName}
         )
 
