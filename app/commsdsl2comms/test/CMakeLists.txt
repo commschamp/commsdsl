@@ -69,8 +69,7 @@ function (test_func name)
                 -DPROJ_DIR=${output_dir} -DPATH_ENV="$ENV{PATH}"
                 -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
                 -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
-                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} 
+                ${COMPILER_OPTIONS}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
                 -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
@@ -168,8 +167,7 @@ macro (cc_external)
         CMAKE_ARGS
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${COMMS_INSTALL_DIR}
             -DCC_NO_UNIT_TESTS=ON ${cc_libs_only_opt} -DCC_NO_WARN_AS_ERR=ON
-            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD} ${COMPILER_OPTIONS}
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             ${cc_qt_dir_opt}
     )
