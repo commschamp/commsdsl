@@ -54,6 +54,7 @@ function (test_func name)
     endif ()
 
     while (TRUE)
+        message (STATUS "COMMSDSL_TEST_BUILD_CC_PLUGIN=${COMMSDSL_TEST_BUILD_CC_PLUGIN}")
         if (NOT COMMSDSL_TEST_BUILD_CC_PLUGIN)
             message (STATUS "Skipping build of ${APP_NAME}.${name}_plugin_build_tgt")
             break ()
