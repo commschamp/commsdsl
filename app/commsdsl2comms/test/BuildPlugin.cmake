@@ -6,17 +6,8 @@
 # CMAKE_TOOLCHAIN_FILE
 # CMAKE_BUILD_TYPE
 # CMAKE_CXX_STANDARD
-# GENERATED_TEST_ENV_SETUP_SCRIPT
-# GENERATED_TEST_ENV_SETUP_SCRIPT_PARAM
 
 message (STATUS "Plugin build script envoked for ${PROJ_DIR}")
-
-if (NOT "${PATH_ENV}" STREQUAL "")
-    message (STATUS "Updating environment PATH=${PATH_ENV}")
-    set (ENV{PATH} "${PATH_ENV}")
-endif ()
-
-message ("Plugin: PATH=$ENV{PATH}")
 
 set (COMPILER_OPTIONS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER})
 if (CMAKE_TOOLCHAIN_FILE AND EXISTS ${CMAKE_TOOLCHAIN_FILE})
@@ -34,21 +25,6 @@ endif ()
 
 set (build_dir "${PROJ_DIR}/build")
 file (MAKE_DIRECTORY ${build_dir})
-
-if ((NOT "${GENERATED_TEST_ENV_SETUP_SCRIPT}" STREQUAL "") AND EXISTS ${GENERATED_TEST_ENV_SETUP_SCRIPT})
-    message(STATUS "Loading environment from ${GENERATED_TEST_ENV_SETUP_SCRIPT} ${GENERATED_TEST_ENV_SETUP_SCRIPT_PARAM}")
-    execute_process(
-        COMMAND "${GENERATED_TEST_ENV_SETUP_SCRIPT}" "${GENERATED_TEST_ENV_SETUP_SCRIPT_PARAM}"
-        WORKING_DIRECTORY ${build_dir}
-        RESULT_VARIABLE environment_result
-    )
-
-    if (NOT ${environment_result} EQUAL 0)
-        message (WARNING "Environment setup has failed!!!")
-    endif ()
-else ()
-    message (STATUS "No test environment setup: ${GENERATED_TEST_ENV_SETUP_SCRIPT}")
-endif()
 
 message (STATUS "Compiling with ${COMPILER_OPTIONS}")
 execute_process(

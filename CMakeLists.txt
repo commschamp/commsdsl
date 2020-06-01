@@ -5,6 +5,7 @@ option (COMMSDSL_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 option (COMMSDSL_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
+option (COMMSDSL_TEST_BUILD_CC_PLUGIN "Build CommsChampion plugin in commsdsl2comms unittiesting" ON)
 
 # Additional variables to be used if needed
 # ---------------------------
@@ -12,8 +13,6 @@ option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 # COMMS_INSTALL_DIR - Path to externally built and installed CommsChampion project
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
 # CC_TAG - Tag/branch of CommsChampion project to use instead of default
-# GENERATED_TEST_ENV_SETUP_SCRIPT - Environment setup script for generated test builds, applicable to Windows platform
-# GENERATED_TEST_ENV_SETUP_SCRIPT_PARAM - Extra parameter to ${GENERATED_TEST_ENV_SETUP_SCRIPT}
 
 if (NOT CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 14)
