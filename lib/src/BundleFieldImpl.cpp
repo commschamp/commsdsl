@@ -176,15 +176,10 @@ std::size_t BundleFieldImpl::maxLengthImpl() const
     std::size_t sum = 0U;
     for (auto& m : m_members) {
         if (m->semanticType() == SemanticType::Length) {
-            return std::numeric_limits<std::size_t>::max();
-        }
-        
-        auto val = m->maxLength();
-        if (val == std::numeric_limits<std::size_t>::max()) {
-            return val;
+            return common::maxPossibleLength();
         }
 
-        sum += val;
+        common::addToLength(m->maxLength(), sum);
     }
 
     return sum;

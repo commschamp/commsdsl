@@ -23,7 +23,7 @@
 namespace commsdsl
 {
 
-class VariantFieldImpl : public FieldImpl
+class VariantFieldImpl final : public FieldImpl
 {
     using Base = FieldImpl;
 public:
@@ -50,19 +50,19 @@ public:
 
 protected:
 
-    virtual Kind kindImpl() const override final;
-    virtual Ptr cloneImpl() const override final;
-    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override final;
-    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override final;
-    virtual bool reuseImpl(const FieldImpl &other) override final;
-    virtual bool parseImpl() override final;
-    virtual std::size_t minLengthImpl() const override final;
-    virtual std::size_t maxLengthImpl() const override final;
-    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override final;
-    virtual bool strToFpImpl(const std::string& ref, double& val) const override final;
-    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override final;
-    virtual bool strToStringImpl(const std::string& ref, std::string& val) const override final;
-    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override final;
+    virtual Kind kindImpl() const override;
+    virtual Ptr cloneImpl() const override;
+    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
+    virtual bool reuseImpl(const FieldImpl &other) override;
+    virtual bool parseImpl() override;
+    virtual std::size_t minLengthImpl() const override;
+    virtual std::size_t maxLengthImpl() const override;
+    virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
+    virtual bool strToFpImpl(const std::string& ref, double& val) const override;
+    virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
+    virtual bool strToStringImpl(const std::string& ref, std::string& val) const override;
+    virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
 
 private:
 

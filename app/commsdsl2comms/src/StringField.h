@@ -23,40 +23,40 @@
 namespace commsdsl2comms
 {
 
-class StringField : public Field
+class StringField final : public Field
 {
     using Base = Field;
 public:
     StringField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
 protected:
-    virtual bool prepareImpl() override final;
-    virtual void updateIncludesImpl(IncludesList& includes) const override final;
-    virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
-    virtual std::size_t maxLengthImpl() const override final;
+    virtual bool prepareImpl() override;
+    virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const override;
+    virtual std::size_t maxLengthImpl() const override;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
-        const std::string& className) const override final;
-    virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override final;
-    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
-    virtual std::string getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const override final;
-    virtual std::string getBareMetalOptionStrImpl() const override final;
-    virtual std::string getDataViewOptionStrImpl() const override final;
+        const std::string& className) const override;
+    virtual std::string getExtraDefaultOptionsImpl(const std::string& scope) const override;
+    virtual std::string getExtraBareMetalDefaultOptionsImpl(const std::string& base, const std::string& scope) const override;
+    virtual std::string getExtraDataViewDefaultOptionsImpl(const std::string& base, const std::string& scope) const override;
+    virtual std::string getBareMetalOptionStrImpl() const override;
+    virtual std::string getDataViewOptionStrImpl() const override;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,
         const std::string& nameOverride,
-        bool forcedVersionOptional) const override final;
+        bool forcedVersionOptional) const override;
     virtual std::string getCompareToFieldImpl(
         const std::string& op,
         const Field& field,
         const std::string& nameOverride,
-        bool forcedVersionOptional) const override final;
-    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override final;
-    virtual bool hasCustomReadRefreshImpl() const override final;
-    virtual std::string getReadPreparationImpl(const FieldsList& fields) const override final;
-    virtual bool isLimitedCustomizableImpl() const override final;
-    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
+        bool forcedVersionOptional) const override;
+    virtual std::string getPrivateRefreshBodyImpl(const FieldsList& fields) const override;
+    virtual bool hasCustomReadRefreshImpl() const override;
+    virtual std::string getReadPreparationImpl(const FieldsList& fields) const override;
+    virtual bool isLimitedCustomizableImpl() const override;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override;
 
 private:
     using StringsList = common::StringsList;

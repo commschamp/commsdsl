@@ -21,7 +21,7 @@
 namespace commsdsl
 {
 
-class ValueLayerImpl : public LayerImpl
+class ValueLayerImpl final : public LayerImpl
 {
     using Base = LayerImpl;
 public:
@@ -45,10 +45,10 @@ public:
 
 
 protected:
-    virtual Kind kindImpl() const override final;
-    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override final;
-    virtual bool parseImpl() override final;
-    virtual bool verifyImpl(const LayersList& layers) override final;
+    virtual Kind kindImpl() const override;
+    virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual bool parseImpl() override;
+    virtual bool verifyImpl(const LayersList& layers) override;
 
 private:
     bool updateInterfaces();

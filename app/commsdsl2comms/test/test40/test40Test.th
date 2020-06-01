@@ -9,11 +9,13 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     using Interface =
         test40::Message<>;
 
     using Msg1 = test40::message::Msg1<Interface>;
+    using Msg2 = test40::message::Msg2<Interface>;
     using Frame = test40::frame::Frame<Interface>;
 
 };
@@ -70,4 +72,10 @@ void TestSuite::test1()
     static_assert(comms::units::isMegabytes<Msg1::Field_memory_mb>(), "Invalid units");
     static_assert(comms::units::isGigabytes<Msg1::Field_memory_gb>(), "Invalid units");
     static_assert(comms::units::isTerabytes<Msg1::Field_memory_tb>(), "Invalid units");
+}
+
+void TestSuite::test2()
+{
+    Msg2 msg;
+    static_cast<void>(msg); // Just testing compilation
 }

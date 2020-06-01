@@ -5,6 +5,7 @@ option (COMMSDSL_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 option (COMMSDSL_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
+option (COMMSDSL_TEST_BUILD_CC_PLUGIN "Build CommsChampion plugin in commsdsl2comms unittiesting" ON)
 
 # Additional variables to be used if needed
 # ---------------------------
@@ -15,6 +16,12 @@ option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 
 if (NOT CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 14)
+endif()
+
+set (COMPILER_OPTIONS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER})
+if (CMAKE_TOOLCHAIN_FILE AND EXISTS ${CMAKE_TOOLCHAIN_FILE})
+    message(STATUS "Loading toolchain from ${CMAKE_TOOLCHAIN_FILE}")
+    set (COMPILER_OPTIONS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
 endif()
 
 if ("${COMMSDSL_INSTALL_DIR}" STREQUAL "")

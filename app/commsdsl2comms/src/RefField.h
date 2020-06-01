@@ -23,7 +23,7 @@
 namespace commsdsl2comms
 {
 
-class RefField : public Field
+class RefField final : public Field
 {
     using Base = Field;
 public:
@@ -31,31 +31,31 @@ public:
 
 protected:
     virtual bool prepareImpl() override;
-    virtual void updateIncludesImpl(IncludesList& includes) const override final;
-    virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
-    virtual void updatePluginIncludesImpl(IncludesList& includes) const override final;
-    virtual std::size_t minLengthImpl() const override final;
-    virtual std::size_t maxLengthImpl() const override final;
+    virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const override;
+    virtual void updatePluginIncludesImpl(IncludesList& includes) const override;
+    virtual std::size_t minLengthImpl() const override;
+    virtual std::size_t maxLengthImpl() const override;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
-        const std::string& className) const override final;
+        const std::string& className) const override;
     virtual std::string getCompareToValueImpl(
         const std::string& op,
         const std::string& value,
         const std::string& nameOverride,
-        bool forcedVersionOptional) const override final;
+        bool forcedVersionOptional) const override;
     virtual std::string getCompareToFieldImpl(
         const std::string& op,
         const Field& field,
         const std::string& nameOverride,
-        bool forcedVersionOptional) const override final;
+        bool forcedVersionOptional) const override;
     virtual std::string getPluginPropsDefFuncBodyImpl(
         const std::string& scope,
         bool externalName,
         bool forcedSerialisedHidden,
-        bool serHiddenParam) const override final;
-    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
-    virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const override final;
+        bool serHiddenParam) const override;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override;
+    virtual std::string getExtraRefToCommonDefinitionImpl(const std::string& fullScope) const override;
 
 private:
     using StringsList = common::StringsList;

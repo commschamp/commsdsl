@@ -59,7 +59,7 @@ protected:
     virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const = 0;
 };
 
-class OptCondExprImpl : public OptCondImpl
+class OptCondExprImpl final: public OptCondImpl
 {
 public:
     OptCondExprImpl() = default;
@@ -84,9 +84,9 @@ public:
     }
 
 protected:
-    virtual Kind kindImpl() const override final;
-    virtual Ptr cloneImpl() const override final;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override final;
+    virtual Kind kindImpl() const override;
+    virtual Ptr cloneImpl() const override;
+    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override;
 
 private:
     bool hasUpdatedValue();
@@ -104,7 +104,7 @@ private:
     std::string m_right;
 };
 
-class OptCondListImpl : public OptCondImpl
+class OptCondListImpl final : public OptCondImpl
 {
     using Base = OptCondImpl;
 public:
@@ -128,9 +128,9 @@ public:
 
 
 protected:
-    virtual Kind kindImpl() const override final;
-    virtual Ptr cloneImpl() const override final;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override final;
+    virtual Kind kindImpl() const override;
+    virtual Ptr cloneImpl() const override;
+    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override;
 
 private:
     List m_conds;

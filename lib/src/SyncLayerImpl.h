@@ -20,14 +20,14 @@
 namespace commsdsl
 {
 
-class SyncLayerImpl : public LayerImpl
+class SyncLayerImpl final : public LayerImpl
 {
     using Base = LayerImpl;
 public:
     SyncLayerImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
 protected:
-    virtual Kind kindImpl() const override final;
+    virtual Kind kindImpl() const override;
 };
 
 } // namespace commsdsl

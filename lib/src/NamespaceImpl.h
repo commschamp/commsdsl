@@ -33,7 +33,7 @@ namespace commsdsl
 {
 
 class ProtocolImpl;
-class NamespaceImpl : public Object
+class NamespaceImpl final : public Object
 {
 public:
 
@@ -170,7 +170,7 @@ public:
     bool strToData(const std::string& ref, std::vector<std::uint8_t>& val) const;
 
 protected:
-    virtual ObjKind objKindImpl() const override final;
+    virtual ObjKind objKindImpl() const override;
 
 private:
 

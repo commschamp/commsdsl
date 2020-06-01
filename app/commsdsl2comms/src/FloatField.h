@@ -23,21 +23,21 @@
 namespace commsdsl2comms
 {
 
-class FloatField : public Field
+class FloatField final : public Field
 {
     using Base = Field;
 public:
     FloatField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
 
 protected:
-    virtual bool prepareImpl() override final;
-    virtual void updateIncludesImpl(IncludesList& includes) const override final;
-    virtual void updateIncludesCommonImpl(IncludesList& includes) const override final;
+    virtual bool prepareImpl() override;
+    virtual void updateIncludesImpl(IncludesList& includes) const override;
+    virtual void updateIncludesCommonImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
-        const std::string& className) const override final;
-    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override final;
-    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override final;
+        const std::string& className) const override;
+    virtual std::string getPluginPropertiesImpl(bool serHiddenParam) const override;
+    virtual std::string getCommonDefinitionImpl(const std::string& fullScope) const override;
 
 private:
     using StringsList = common::StringsList;

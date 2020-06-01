@@ -106,15 +106,9 @@ std::size_t MessageImpl::minLength() const
 
 std::size_t MessageImpl::maxLength() const
 {
-    static const auto MaxLen = std::numeric_limits<std::size_t>::max();
     std::size_t soFar = 0U;
     for (auto& f : m_fields) {
-        auto fMaxLen = f->maxLength();
-        if ((MaxLen - fMaxLen) <= soFar) {
-            return MaxLen;
-        }
-
-        soFar += fMaxLen;
+        common::addToLength(f->maxLength(), soFar);
     }
     return soFar;
 }

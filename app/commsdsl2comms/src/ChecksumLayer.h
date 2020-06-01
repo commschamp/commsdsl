@@ -23,19 +23,19 @@
 namespace commsdsl2comms
 {
 
-class ChecksumLayer : public Layer
+class ChecksumLayer final : public Layer
 {
     using Base = Layer;
 public:
     ChecksumLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
 
 protected:
-    virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         std::string& prevLayer,
-        bool& hasInputMessages) const override final;
-    virtual bool rearangeImpl(LayersList& layers, bool& success) override final;
+        bool& hasInputMessages) const override;
+    virtual bool rearangeImpl(LayersList& layers, bool& success) override;
 
 private:
     commsdsl::ChecksumLayer checksumLayerDslObj() const

@@ -132,10 +132,11 @@ std::size_t VariantFieldImpl::minLengthImpl() const
 
 std::size_t VariantFieldImpl::maxLengthImpl() const
 {
+    auto maxLen = common::maxPossibleLength();
     std::size_t sum = 0U;
     for (auto& m : m_members) {
         auto val = m->maxLength();
-        if (val == std::numeric_limits<std::size_t>::max()) {
+        if (val == maxLen) {
             return val;
         }
 

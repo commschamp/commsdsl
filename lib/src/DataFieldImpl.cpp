@@ -157,10 +157,12 @@ std::size_t DataFieldImpl::maxLengthImpl() const
         auto* prefixField = getPrefixField();
         assert(prefixField->kind() == Field::Kind::Int);
         auto& castedPrefix = static_cast<const IntFieldImpl&>(*prefixField);
-        return castedPrefix.maxLength() + static_cast<std::size_t>(castedPrefix.maxValue());
+        auto len = castedPrefix.maxLength();
+        common::addToLength(static_cast<std::size_t>(castedPrefix.maxValue()), len);
+        return len;
     }
 
-    return std::numeric_limits<std::size_t>::max();
+    return common::maxPossibleLength();
 }
 
 bool DataFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const

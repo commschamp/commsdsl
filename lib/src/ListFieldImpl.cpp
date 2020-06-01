@@ -159,10 +159,9 @@ std::size_t ListFieldImpl::minLengthImpl() const
 
 std::size_t ListFieldImpl::maxLengthImpl() const
 {
-    static const std::size_t MaxLen = std::numeric_limits<std::size_t>::max();
     std::size_t extraLen = 0U;
     if (hasElemLengthPrefixField()) {
-        extraLen += elemLengthPrefixField().maxLength();
+        common::addToLength(elemLengthPrefixField().maxLength(), extraLen);
     }
 
     assert(elementField().valid());
@@ -170,10 +169,11 @@ std::size_t ListFieldImpl::maxLengthImpl() const
     if (m_state.m_count != 0U) {
 
         if (!m_state.m_elemFixedLength) {
-            extraLen *= m_state.m_count;
+            extraLen = common::mulLength(extraLen, m_state.m_count);
         }
 
-        return (m_state.m_count * elemMaxLength) + extraLen;
+        common::addToLength(common::mulLength(elemMaxLength, m_state.m_count), extraLen);
+        return extraLen;
     }
 
     if (hasCountPrefixField()) {
@@ -181,30 +181,15 @@ std::size_t ListFieldImpl::maxLengthImpl() const
         assert(prefixField->kind() == Field::Kind::Int);
         auto& castedPrefix = static_cast<const IntFieldImpl&>(*prefixField);
         std::size_t count = static_cast<std::size_t>(castedPrefix.maxValue());
-        std::size_t result = std::min(MaxLen / count, elemMaxLength) * count;
+        auto result = common::mulLength(elemMaxLength, count);
 
-        if ((MaxLen - castedPrefix.maxLength()) <= result) {
-            return MaxLen;
+        common::addToLength(castedPrefix.maxLength(), result);
+
+        if (!m_state.m_elemFixedLength) {
+            extraLen = common::mulLength(extraLen, count);
         }
 
-        result += castedPrefix.maxLength();
-
-
-        if (m_state.m_elemFixedLength) {
-            if ((MaxLen - extraLen) <= result) {
-                return MaxLen;
-            }
-
-            return result + extraLen;
-        }
-
-        extraLen *= std::min(MaxLen / count, extraLen) * count;
-
-        if ((MaxLen - extraLen) <= result) {
-            return MaxLen;
-        }
-
-        result += extraLen;
+        common::addToLength(extraLen, result);
         return result;
     }
 
@@ -213,13 +198,11 @@ std::size_t ListFieldImpl::maxLengthImpl() const
         assert(prefixField->kind() == Field::Kind::Int);
         auto& castedPrefix = static_cast<const IntFieldImpl&>(*prefixField);
         std::size_t result = static_cast<std::size_t>(castedPrefix.maxValue());
-        if ((MaxLen - castedPrefix.maxLength()) <= result) {
-            return MaxLen;
-        }
-        return result + castedPrefix.maxLength();
+        common::addToLength(castedPrefix.maxLength(), result);
+        return result;
     }
 
-    return MaxLen;
+    return common::maxPossibleLength();
 }
 
 void ListFieldImpl::cloneFields(const ListFieldImpl& other)

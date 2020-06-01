@@ -54,6 +54,12 @@ function (test_func name)
     endif ()
 
     while (TRUE)
+        message (STATUS "COMMSDSL_TEST_BUILD_CC_PLUGIN=${COMMSDSL_TEST_BUILD_CC_PLUGIN}")
+        if (NOT COMMSDSL_TEST_BUILD_CC_PLUGIN)
+            message (STATUS "Skipping build of ${APP_NAME}.${name}_plugin_build_tgt")
+            break ()
+        endif ()
+        
         if (NOT CC_COMMS_CHAMPION_FOUND)
             message (WARNING "cc::comms_champion is not available")
             break ()
@@ -62,22 +68,14 @@ function (test_func name)
         if (NOT TARGET cc::comms_champion)
             message (FATAL_ERROR "cc::comms_champion target is not defined")
         endif () 
-
-        if (WIN32 AND (CMAKE_SIZEOF_VOID_P EQUAL 8))
-            message (STATUS 
-                "Skipping plugin build because sub-project "
-                "will be compiled 32 bit instead of 64. No idea why.")
-                break ()
-        endif ()
-
+        
         set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
         add_custom_target(${plugin_build_tgt} ALL
             COMMAND ${CMAKE_COMMAND}
-                -DPROJ_DIR=${output_dir}
+                -DPROJ_DIR=${output_dir} 
                 -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
                 -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
-                -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER} 
+                ${COMPILER_OPTIONS}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
                 -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
@@ -175,8 +173,7 @@ macro (cc_external)
         CMAKE_ARGS
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${COMMS_INSTALL_DIR}
             -DCC_NO_UNIT_TESTS=ON ${cc_libs_only_opt} -DCC_NO_WARN_AS_ERR=ON
-            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}
-            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD} ${COMPILER_OPTIONS}
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             ${cc_qt_dir_opt}
     )

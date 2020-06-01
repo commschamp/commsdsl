@@ -23,19 +23,19 @@
 namespace commsdsl2comms
 {
 
-class SyncLayer : public Layer
+class SyncLayer final : public Layer
 {
     using Base = Layer;
 public:
     SyncLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
 
 protected:
-    virtual bool prepareImpl() override final;
-    virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual bool prepareImpl() override;
+    virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         std::string& prevLayer,
-        bool& hasInputMessages) const override final;
+        bool& hasInputMessages) const override;
 
 private:
     commsdsl::SyncLayer sizeLayerDslObj() const

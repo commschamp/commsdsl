@@ -23,7 +23,7 @@
 namespace commsdsl2comms
 {
 
-class CustomLayer : public Layer
+class CustomLayer final : public Layer
 {
     using Base = Layer;
 public:
@@ -35,12 +35,12 @@ public:
     }
 
 protected:
-    virtual void updateIncludesImpl(IncludesList& includes) const override final;
+    virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         std::string& prevLayer,
-        bool& hasInputMessages) const override final;
-    virtual bool isCustomizableImpl() const override final;
+        bool& hasInputMessages) const override;
+    virtual bool isCustomizableImpl() const override;
 
 private:
     commsdsl::CustomLayer customLayerDslObj() const
