@@ -42,6 +42,7 @@ build_script:
     - set BUILD_DIR=%APPVEYOR_BUILD_FOLDER%\build.%PLATFORM%.%CONFIGURATION%.%TOOLCHAIN%
     - set BUILD_PLUGIN_OPT=OFF
     - if "%PLATFORM%"=="x86" set BUILD_PLUGIN_OPT=ON
+    - if "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2019" set BUILD_PLUGIN_OPT=OFF
     - if exist %BUILD_DIR% rmdir /S /Q %BUILD_DIR%
     - mkdir %BUILD_DIR%
     - cd %BUILD_DIR%
