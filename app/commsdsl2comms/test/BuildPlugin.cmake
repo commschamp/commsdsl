@@ -46,7 +46,8 @@ if ((NOT "${GENERATED_TEST_ENV_SETUP_SCRIPT}" STREQUAL "") AND EXISTS ${GENERATE
     if (NOT ${environment_result} EQUAL 0)
         message (WARNING "Environment setup has failed!!!")
     endif ()
-    
+else ()
+    message (STATUS "No test environment setup: ${GENERATED_TEST_ENV_SETUP_SCRIPT}")
 endif()
 
 message (STATUS "Compiling with ${COMPILER_OPTIONS}")
