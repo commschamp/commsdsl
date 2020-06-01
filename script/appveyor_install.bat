@@ -42,7 +42,7 @@ IF "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
     exit -1
 )
 
-call "%ENV_SCRIPT%" %ENV_SCRIPT_PARAM%
+call %ENV_SCRIPT% %ENV_SCRIPT_PARAM%
 
 set QTDIR_PREFIX=C:/Qt/%QT_VER%
 IF "%PLATFORM%"=="x86" (
