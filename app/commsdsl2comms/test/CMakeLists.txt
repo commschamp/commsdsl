@@ -73,7 +73,7 @@ function (test_func name)
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
                 -DGENERATED_TEST_ENV_SETUP_SCRIPT="${GENERATED_TEST_ENV_SETUP_SCRIPT}"
-                -GENERATED_TEST_ENV_SETUP_SCRIPT_PARAM="${GENERATED_TEST_ENV_SETUP_SCRIPT_PARAM}"
+                -DGENERATED_TEST_ENV_SETUP_SCRIPT_PARAM="${GENERATED_TEST_ENV_SETUP_SCRIPT_PARAM}"
                 -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
             DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake" ${testName}
         )
