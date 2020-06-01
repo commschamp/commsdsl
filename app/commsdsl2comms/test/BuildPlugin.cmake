@@ -31,6 +31,9 @@ if (NOT "${CMAKE_CXX_COMPILER}" STREQUAL "")
     set (ENV{CXX} "${CMAKE_CXX_COMPILER}")
 endif ()
 
+set (build_dir "${PROJ_DIR}/build")
+file (MAKE_DIRECTORY ${build_dir})
+
 if ((NOT "${GENERATED_TEST_BUILD_SETUP_SCRIPT}" STREQUAL "") AND EXISTS ${GENERATED_TEST_BUILD_SETUP_SCRIPT})
     message(STATUS "Loading environment from ${CMAKE_TOOLCHAIN_FILE}")
     execute_process(
@@ -45,8 +48,6 @@ if ((NOT "${GENERATED_TEST_BUILD_SETUP_SCRIPT}" STREQUAL "") AND EXISTS ${GENERA
     
 endif()
 
-set (build_dir "${PROJ_DIR}/build")
-file (MAKE_DIRECTORY ${build_dir})
 message (STATUS "Compiling with ${COMPILER_OPTIONS}")
 execute_process(
     COMMAND ${CMAKE_COMMAND} 
