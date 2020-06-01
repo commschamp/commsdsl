@@ -6,7 +6,6 @@
 # CMAKE_TOOLCHAIN_FILE
 # CMAKE_BUILD_TYPE
 # CMAKE_CXX_STANDARD
-# PATH_ENV
 
 message (STATUS "Plugin build script envoked for ${PROJ_DIR}")
 
@@ -22,6 +21,14 @@ if (CMAKE_TOOLCHAIN_FILE AND EXISTS ${CMAKE_TOOLCHAIN_FILE})
     message(STATUS "Loading toolchain from ${CMAKE_TOOLCHAIN_FILE}")
     set (COMPILER_OPTIONS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
 endif()
+
+if (NOT "${CMAKE_C_COMPILER}" STREQUAL "")
+    set (ENV{CC} "${CMAKE_C_COMPILER}")
+endif ()
+
+if (NOT "${CMAKE_CXX_COMPILER}" STREQUAL "")
+    set (ENV{CXX} "${CMAKE_CXX_COMPILER}")
+endif ()
 
 set (build_dir "${PROJ_DIR}/build")
 file (MAKE_DIRECTORY ${build_dir})

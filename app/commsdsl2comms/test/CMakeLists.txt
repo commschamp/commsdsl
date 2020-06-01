@@ -63,8 +63,6 @@ function (test_func name)
             message (FATAL_ERROR "cc::comms_champion target is not defined")
         endif () 
         
-        message ("PATH=$ENV{PATH}")
-
         set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
         add_custom_target(${plugin_build_tgt} ALL
             COMMAND ${CMAKE_COMMAND}
