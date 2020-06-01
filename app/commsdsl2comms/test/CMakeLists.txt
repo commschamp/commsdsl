@@ -72,6 +72,7 @@ function (test_func name)
                 ${COMPILER_OPTIONS}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
+                -DCMAKE_HOST_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR}
                 -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
             DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake" ${testName}
         )
@@ -203,8 +204,6 @@ find_package (Doxygen)
 if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9"))
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 endif ()
-
-message ("CMAKE_HOST_SYSTEM_PROCESSOR=${CMAKE_HOST_SYSTEM_PROCESSOR}")
 
 test_func (test1)
 test_func (test2)
