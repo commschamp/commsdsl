@@ -129,22 +129,23 @@ void DataField::updateIncludesImpl(IncludesList& includes) const
 
     common::mergeIncludes(List, includes);
 
+    auto obj = dataFieldDslObj();
+    if (!obj.defaultValue().empty()) {
+        common::mergeInclude("<iterator>", includes);
+        common::mergeInclude("comms/util/assign.h", includes);
+    }    
+
     if (m_prefix) {
         m_prefix->updateIncludes(includes);
         return;
     }
-
-    auto obj = dataFieldDslObj();
+    
     if (obj.hasLengthPrefixField()) {
         auto prefix = obj.lengthPrefixField();
         assert(prefix.valid());
         auto prefixRef = prefix.externalRef();
         assert(!prefixRef.empty());
         common::mergeInclude(generator().headerfileForField(prefixRef, false), includes);
-    }
-
-    if (!obj.defaultValue().empty()) {
-        common::mergeInclude("<iterator>", includes);
     }
 }
 
@@ -454,7 +455,7 @@ std::string DataField::getConstructor(const std::string& className) const
         "    static const std::uint8_t Data[] = {\n"
         "        #^#BYTES#$#\n"
         "    };\n"
-        "    Base::value().assign(std::begin(Data), std::end(Data));\n"
+        "    comms::util::assign(Base::value(), std::begin(Data), std::end(Data));\n"
         "}\n";
 
     common::StringsList bytes;
