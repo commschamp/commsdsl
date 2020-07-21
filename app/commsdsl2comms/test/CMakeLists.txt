@@ -249,5 +249,6 @@ test_func (test37)
 test_func (test38)
 test_func (test39)
 test_func (test40)
+test_func (test41)
 
 
