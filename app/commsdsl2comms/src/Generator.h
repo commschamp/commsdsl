@@ -61,6 +61,8 @@ public:
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
 
+    bool isElementDeprecated(unsigned deprecatedSince) const;        
+
     bool isElementOptional(unsigned sinceVersion,
         unsigned deprecatedSince = commsdsl::Protocol::notYetDeprecated(),
         bool deprecatedRemoved = true) const;

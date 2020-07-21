@@ -452,6 +452,11 @@ std::string Field::getClassPrefix(
         str += '\n';
     }
 
+    auto deprecatedVersion = m_dslObj.deprecatedSince();
+    if (m_generator.isElementDeprecated(deprecatedVersion)) {
+        str += "/// @deprecated Since version " + std::to_string(deprecatedVersion) + '\n';
+    }
+
     if (!m_externalRef.empty()) {
         str += "/// @tparam TOpt Protocol options.\n";
         str += "/// @tparam TExtraOpts Extra options.\n";

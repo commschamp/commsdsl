@@ -65,6 +65,7 @@ const std::string Template(
     "/// @tparam TMsgBase Base (interface) class.\n"
     "/// @tparam TOpt Extra options\n"
     "/// @headerfile #^#MESSAGE_HEADERFILE#$#\n"
+    "#^#DEPRECATED#$#\n"
     "template <typename TMsgBase, typename TOpt = #^#OPTIONS#$#>\n"
     "class #^#CLASS_NAME#$# : public\n"
     "    comms::MessageBase<\n"
@@ -605,6 +606,7 @@ bool Message::writeProtocol()
     replacements.insert(std::make_pair("ORIG_CLASS_NAME", common::nameToClassCopy(name())));
     replacements.insert(std::make_pair("MESSAGE_NAME", getDisplayName()));
     replacements.insert(std::make_pair("DOC_DETAILS", getDescription()));
+    replacements.insert(std::make_pair("DEPRECATED", getDeprecated()));
     replacements.insert(std::make_pair("MESSAGE_ID", m_generator.getMessageIdStr(m_externalRef, m_dslObj.id())));
 
     auto namespaces = m_generator.namespacesForMessage(m_externalRef);
@@ -785,6 +787,16 @@ std::string Message::getDescription() const
         desc += " @n";
     }
     return desc;
+}
+
+std::string Message::getDeprecated() const
+{
+    auto deprecatedVer = m_dslObj.deprecatedSince();
+    if (!m_generator.isElementDeprecated(deprecatedVer)) {
+        return common::emptyString();
+    }
+
+    return "/// @deprecated Since version " + std::to_string(deprecatedVer) + '.';
 }
 
 std::string Message::getFieldsClassesList() const

@@ -163,6 +163,11 @@ bool Generator::doesElementExist(
     return true;
 }
 
+bool Generator::isElementDeprecated(unsigned deprecatedSince) const
+{
+    return deprecatedSince < schemaVersion();
+} 
+
 bool Generator::isElementOptional(
     unsigned sinceVersion,
     unsigned deprecatedSince,
