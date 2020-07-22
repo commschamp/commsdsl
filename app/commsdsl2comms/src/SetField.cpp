@@ -252,6 +252,9 @@ std::string SetField::getBitsAccess() const
     auto obj = setFieldDslObj();
     std::uintmax_t usedBits = 0U;
     common::StringsList names;
+
+    std::map<std::string, unsigned> deprecatedBits;
+    auto bits = obj.bits();
     for (auto& bitInfo : obj.revBits()) {
         auto idx = bitInfo.first;
         if (MaxBits <= idx) {
@@ -262,7 +265,26 @@ std::string SetField::getBitsAccess() const
         auto mask = static_cast<std::uintmax_t>(1) << idx;
         usedBits |= mask;
         names.push_back(bitInfo.second);
+
+        auto iter = bits.find(bitInfo.second);
+        assert(iter != bits.end());
+        if (generator().isElementDeprecated(iter->second.m_deprecatedSince)) {
+            deprecatedBits.insert(std::make_pair(bitInfo.second, iter->second.m_deprecatedSince));
+        }
     }
+
+    auto getDeprecatedStr = 
+        [&deprecatedBits](const std::string& n) -> std::string
+        {
+            auto iter = deprecatedBits.find(n);
+            if (iter == deprecatedBits.end()) {
+                return common::emptyString();
+            }
+
+            return 
+                "\n"
+                "///          Deprecated since version " + std::to_string(iter->second) + '.';
+        };    
 
     if (obj.isUnique() && (((usedBits + 1) & usedBits) == 0U)) {
         // sequential
@@ -282,9 +304,12 @@ std::string SetField::getBitsAccess() const
         accessDoc.reserve(names.size());
         std::transform(
             names.begin(), names.end(), std::back_inserter(accessDoc),
-            [](auto& n)
+            [&getDeprecatedStr](auto& n)
             {
-                return "///      @li @b BitIdx_" + n + ", @b getBitValue_" + n + "() and @b setBitValue_" + n + "().";
+                return 
+                    "///      @li @b BitIdx_" + n + ", @b getBitValue_" + n + 
+                    "() and @b setBitValue_" + n + "()." + 
+                    getDeprecatedStr(n);
             });
 
         common::ReplacementMap replacements;
@@ -319,21 +344,22 @@ std::string SetField::getBitsAccess() const
     bitsDoc.reserve(names.size());
     std::transform(
         names.begin(), names.end(), std::back_inserter(bitsDoc),
-        [](auto& n)
+        [&getDeprecatedStr](auto& n)
         {
-            return "///      @li @b BitIdx_" + n + ".";
+            return "///      @li @b BitIdx_" + n + "." + getDeprecatedStr(n);
         });
 
     common::StringsList accessDoc;
     accessDoc.reserve(names.size());
     std::transform(
         names.begin(), names.end(), std::back_inserter(accessDoc),
-        [](auto& n)
+        [&getDeprecatedStr](auto& n)
         {
-            return "///      @li @b getBitValue_" + n + "() and @b setBitValue_" + n + "().";
+            return 
+                "///      @li @b getBitValue_" + n + "() and @b setBitValue_" + 
+                n + "()." + getDeprecatedStr(n);
         });
 
-    auto bits = obj.bits();
     common::StringsList bitsList;
     bitsList.reserve(bits.size());
     std::transform(

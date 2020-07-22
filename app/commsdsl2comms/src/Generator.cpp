@@ -48,7 +48,7 @@ namespace
 {
 
 const unsigned MaxDslVersion = 3U;
-const std::string MinCommsVersionStr("2, 4, 1");
+const std::string MinCommsVersionStr("2, 4, 2");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
@@ -162,6 +162,11 @@ bool Generator::doesElementExist(
 
     return true;
 }
+
+bool Generator::isElementDeprecated(unsigned deprecatedSince) const
+{
+    return deprecatedSince < schemaVersion();
+} 
 
 bool Generator::isElementOptional(
     unsigned sinceVersion,

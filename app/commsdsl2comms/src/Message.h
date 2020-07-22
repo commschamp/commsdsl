@@ -76,6 +76,7 @@ private:
     bool writePluginSrc();
     const std::string& getDisplayName() const;
     std::string getDescription() const;
+    std::string getDeprecated() const;
     std::string getFieldsClassesList() const;
     std::string getIncludes() const;
     std::string getBody() const;

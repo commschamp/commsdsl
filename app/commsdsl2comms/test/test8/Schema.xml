@@ -32,7 +32,7 @@
         <int name="version" type="uint8" semanticType="version" />
     </interface>    
     
-    <message name="Msg1" id="MsgId.M1">
+    <message name="Msg1" id="MsgId.M1" deprecated="8">
         <ref name="f1" field="S1" />
         <set name="f2" type="uint8" sinceVersion="2" deprecated="3" >
             <bit name="b0" idx="0" description="bit b0" />

@@ -165,7 +165,6 @@ common::StringsList EnumField::getValuesList() const
         if (!iter->second.m_description.empty()) {
             docStr = "///< " + iter->second.m_description;
             docStr = common::makeMultilineCopy(docStr, 40);
-            ba::replace_all(docStr, "\n", "\n///  ");
         }
         else if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
             if (!iter->second.m_displayName.empty()) {
@@ -179,8 +178,14 @@ common::StringsList EnumField::getValuesList() const
             docStr = "///< value <b>" + iter->second.m_displayName + "</b>.";
         }
         else {
-            docStr = "///< value @b " + *v.second;
+            docStr = "///< value @b " + *v.second + '.';
         }
+
+        auto deprecatedVer = iter->second.m_deprecatedSince;
+        if (generator().isElementDeprecated(deprecatedVer)) {
+            docStr += "\nDeprecated since version " + std::to_string(deprecatedVer) + '.';
+        }
+        ba::replace_all(docStr, "\n", "\n///  ");
 
         assert(!valStr.empty());
         common::ReplacementMap replacements;
