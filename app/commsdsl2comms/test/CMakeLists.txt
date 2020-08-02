@@ -102,10 +102,11 @@ if ("${COMMS_INSTALL_DIR}" STREQUAL "")
         set (qt_dir_opt QT_DIR ${COMMSDSL_QT_DIR})
     endif ()    
 
-    set (COMMS_INSTALL_DIR "${CMAKE_BINARY_DIR}/comms_champion/install")
+    set (COMMS_BUILD_DIR "${CMAKE_BINARY_DIR}/comms_champion")
+    set (COMMS_INSTALL_DIR "${COMMS_BUILD_DIR}/install")
     cc_build_as_external_project(
         SRC_DIR ${CC_SRC_DIR} 
-        BUILD_DIR ${CMAKE_BINARY_DIR}/comms_champion
+        BUILD_DIR ${COMMS_BUILD_DIR}
         INSTALL_DIR ${COMMS_INSTALL_DIR}
         TAG ${CC_TAG} 
         ${qt_dir_opt}
@@ -113,7 +114,7 @@ if ("${COMMS_INSTALL_DIR}" STREQUAL "")
             ${COMPILER_OPTIONS}
             -DCC_NO_UNIT_TESTS=ON
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-            -DCC_NO_WARN_AS_ERR=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCC_LIBS_ONLY=ON
     )
     
