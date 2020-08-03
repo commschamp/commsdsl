@@ -239,6 +239,17 @@ std::string Generator::outputDir()
     return m_pathPrefix.string();
 }
 
+std::string Generator::cmakeDir()
+{
+    auto dir = m_pathPrefix / common::cmakeDirStr();
+    if (!createDir(dir)) {
+        m_logger.error("Failed to create \"" + dir.string() + "\" directory.");
+        return common::emptyString();
+    }
+
+    return dir.string();
+}
+
 std::string Generator::pluginDir()
 {
     auto dir = m_pathPrefix / common::pluginNsStr();

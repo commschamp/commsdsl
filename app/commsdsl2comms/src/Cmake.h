@@ -30,6 +30,7 @@ private:
     bool writeMain() const;
     bool writePlugin() const;
     bool writeTest() const;
+    bool writePrefetch() const;
 
 private:
     Generator& m_generator;

@@ -1,7 +1,7 @@
 set (CC_FETCH_DEFAULT_REPO "https://github.com/arobenko/comms_champion.git")
 set (CC_FETCH_DEFAULT_TAG "master")
 
-function (cc_fetch)
+function (cc_prefetch)
     set (_prefix CC_FETCH)
     set (_options)
     set (_oneValueArgs SRC_DIR REPO TAG)
@@ -24,7 +24,7 @@ function (cc_fetch)
         find_package(Git REQUIRED)
     endif ()
 
-    if (EXISTS "${CC_FETCH_SRC_DIR}/.git")
+    if (EXISTS "${CC_FETCH_SRC_DIR}/CC_External.cmake")
         return ()
     endif()    
 

@@ -27,13 +27,19 @@ namespace bf = boost::filesystem;
 namespace commsdsl2comms
 {
 
+namespace
+{
+const std::string FetchScriptStr("CC_Prefetch.cmake");
+}
+
 bool Cmake::write(Generator& generator)
 {
     Cmake obj(generator);
     return 
         obj.writeMain() && 
         obj.writePlugin() &&
-        obj.writeTest();
+        obj.writeTest() &&
+        obj.writePrefetch();
 }
 
 bool Cmake::writeMain() const
@@ -188,67 +194,33 @@ bool Cmake::writeMain() const
         "    set (external_cc_needed TRUE)\n"
         "endif ()\n\n"
         "if ((external_cc_needed OR (NOT OPT_NO_COMMS)) AND (\"${OPT_CC_MAIN_INSTALL_DIR}\" STREQUAL \"\"))\n"
-        "    set (cc_repo \"https://github.com/arobenko/comms_champion.git\")\n"
-        "    set (cc_tag \"${OPT_CC_TAG}\")\n"
-        "    set (cc_main_dir \"${PROJECT_BINARY_DIR}/externals/comms_champion-build\")\n"
-        "    set (cc_src_dir \"${OPT_EXTERNALS_DIR}/comms_champion\")\n"
-        "    set (cc_bin_dir \"${cc_main_dir}/build\")\n"
-        "    set (cc_install_dir \"${CMAKE_INSTALL_PREFIX}\")\n\n"
+        "    include (${PROJECT_SOURCE_DIR}/cmake/CC_Prefetch.cmake)\n"
+        "    cc_prefetch(SRC_DIR \"${OPT_EXTERNALS_DIR}/comms_champion\" TAG \"develop\")\n"
+        "    include(${OPT_EXTERNALS_DIR}/comms_champion/cmake/CC_External.cmake)\n\n"
+        "    set (qt_dir_opt)\n"
         "    if (NOT \"${OPT_QT_DIR}\" STREQUAL \"\")\n"
-        "        set (cc_qt_dir_opt -DCC_QT_DIR=${OPT_QT_DIR})\n"
-        "        set (EXT_QT_DIR ${OPT_QT_DIR})\n"
+        "        set (qt_dir_opt QT_DIR \"${OPT_QT_DIR}\")\n"
         "    endif ()\n\n"
+        "    set (no_tools_opt)\n"
         "    if (NOT ${OPT_BUILD_PLUGIN})\n"
-        "        set (cc_lib_only_opt -DCC_COMMS_LIB_ONLY=ON)\n"
-        "        set (EXT_CC_NO_COMMS_CHAMPION TRUE)\n"
+        "        set (no_tools_opt NO_TOOLS)\n"
         "    endif ()\n\n"
+        "    set (cc_update_disconnected_opt)\n"
         "    if (${OPT_EXTERNALS_UPDATE_DISCONNECTED})\n"
-        "        set (cc_update_disconnected_opt UPDATE_DISCONNECTED 1)\n"
+        "        set (cc_update_disconnected_opt \"UPDATE_DISCONNECTED\")\n"
         "    endif ()\n\n"
-        "    find_package (Git REQUIRED)\n"
-        "    set (ext_targets_inc_file \"${cc_src_dir}/cmake/DefineExternalProjectTargets.cmake\")\n"
-        "    if (NOT EXISTS \"${ext_targets_inc_file}\")\n"
-        "        execute_process (\n"
-        "            COMMAND ${CMAKE_COMMAND} -E remove_directory \"${cc_src_dir}\"\n"
-        "        )\n\n"
-        "        execute_process (\n"
-        "            COMMAND \n"
-        "                ${GIT_EXECUTABLE} clone -b ${cc_tag} --depth 1 ${cc_repo} ${cc_src_dir}\n"
-        "            RESULT_VARIABLE git_result\n"
-        "        )\n\n"
-        "        if (NOT \"${git_result}\" STREQUAL \"0\")\n"
-        "            message (FATAL_ERROR \"git clone/checkout failed\")\n"
-        "        endif ()\n\n"
-        "        if (NOT EXISTS \"${ext_targets_inc_file}\")\n"
-        "             message (FATAL_ERROR \"Incompatible version of ${cc_repo}, please use different tag.\")\n"
-        "        endif ()\n\n"
-        "    endif ()\n\n"
-        "    set (EXT_CC_INSTALL_DIR ${cc_install_dir})\n"
-        "    include (${ext_targets_inc_file})\n\n"
-        "    include(ExternalProject)\n"
-        "    ExternalProject_Add(\n"
-        "        \"${CC_EXTERNAL_TGT}\"\n"
-        "        PREFIX \"${cc_main_dir}\"\n"
-        "        STAMP_DIR \"${cc_bin_dir}\"\n"
-        "        GIT_REPOSITORY ${cc_repo}\n"
-        "        GIT_TAG ${cc_tag}\n"
-        "        SOURCE_DIR \"${cc_src_dir}\"\n"
-        "        BINARY_DIR \"${cc_bin_dir}\"\n"
-        "        INSTALL_DIR \"${cc_install_dir}\"\n"
-        "        ${cc_update_disconnected_opt}\n"
+        "    cc_build_as_external_project(\n"
+        "        SRC_DIR ${OPT_EXTERNALS_DIR}/comms_champion\n"
+        "        BUILD_DIR ${OPT_EXTERNALS_DIR}/comms_champion-build\n"
+        "        INSTALL_DIR \"${CMAKE_INSTALL_PREFIX}\"\n"
+        "        TAG ${OPT_CC_TAG}\n"
+        "        TGT ${CC_EXTERNAL_TGT}\n"
+        "        ${qt_dir_opt} ${no_tools_opt} ${cc_update_disconnected_opt}\n"
         "        CMAKE_ARGS\n"
-        "            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_INSTALL_PREFIX=${cc_install_dir}\n"
-        "            -DCC_NO_UNIT_TESTS=ON -DCC_NO_WARN_AS_ERR=ON -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}\n"
-        "            ${COMPILER_OPTIONS} ${cc_qt_dir_opt} ${cc_lib_only_opt}\n"
-        "    )\n\n"
-        "    if (WIN32 AND (NOT \"${OPT_QT_DIR}\" STREQUAL \"\"))\n"
-        "        message (STATUS \"Qt5 deployment is available by building \\\"deploy_qt\\\" target\")\n"
-        "        add_custom_target (\"deploy_qt\"\n"
-        "            COMMAND ${CMAKE_COMMAND} --build ${cc_bin_dir} --target deploy_qt\n"
-        "            WORKING_DIRECTORY ${cc_bin_dir}\n"
-        "        )\n\n"
-        "        add_dependencies(\"deploy_qt\" ${CC_EXTERNAL_TGT})\n"
-        "    endif ()\n"
+        "            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_CXX_STANDARD=${CMAKE_CXX_STANDARD}\n"
+        "            -DCC_NO_UNIT_TESTS=ON -DCC_NO_WARN_AS_ERR=ON\n"
+        "            ${COMPILER_OPTIONS}\n"
+        ")\n"
         "elseif (external_cc_needed)\n"
         "    list (APPEND CMAKE_PREFIX_PATH \"${OPT_CC_MAIN_INSTALL_DIR}\")\n"
         "    find_package(CommsChampion NO_MODULE)\n"
@@ -466,8 +438,13 @@ bool Cmake::writePlugin() const
         "if (CMAKE_COMPILER_IS_GNUCC)\n"
         "    set (CMAKE_CXX_FLAGS \"${CMAKE_CXX_FLAGS} -ftemplate-backtrace-limit=0\")\n"
         "endif ()\n\n"
-        "if (CC_COMMS_CHAMPION_FOUND)\n"
-        "    include_directories (${CC_INCLUDE_DIRS})\n"
+        "if (TARGET cc::comms_champion)\n"
+        "    get_target_property(cc_inc cc::comms_champion INTERFACE_INCLUDE_DIRECTORIES)\n\n"
+        "    if (NOT cc_inc)\n"
+        "        message (FATAL_ERROR \"No include directories are specified for cc::comms_champion\")\n"
+        "    endif ()\n\n"
+        "    # Global include is required for \"moc\"\n"
+        "    include_directories (${cc_inc})\n"
         "endif ()\n\n"
         "cc_plugin_all_messages()\n\n"
         "#^#PLUGINS#$#\n"
@@ -603,6 +580,74 @@ bool Cmake::writeTest() const
         return false;
     }
     return true;
+}
+
+bool Cmake::writePrefetch() const
+{
+    auto dir = m_generator.cmakeDir();
+    if (dir.empty()) {
+        return false;
+    }
+
+    bf::path filePath(dir);
+    filePath /= FetchScriptStr;
+
+    std::string filePathStr(filePath.string());
+
+    m_generator.logger().info("Generating " + filePathStr);
+    std::ofstream stream(filePathStr);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePathStr + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Contents = 
+        "set (CC_FETCH_DEFAULT_REPO \"https://github.com/arobenko/comms_champion.git\")\n"
+        "set (CC_FETCH_DEFAULT_TAG \"master\")\n\n"
+        "function (cc_prefetch)\n"
+        "    set (_prefix CC_FETCH)\n"
+        "    set (_options)\n"
+        "    set (_oneValueArgs SRC_DIR REPO TAG)\n"
+        "    set (_mutiValueArgs)\n"
+        "    cmake_parse_arguments(${_prefix} \"${_options}\" \"${_oneValueArgs}\" \"${_mutiValueArgs}\" ${ARGN})\n\n"
+        "    if (NOT CC_FETCH_SRC_DIR)\n"
+        "        message (FATAL_ERROR \"The SRC_DIR parameter is not provided\")\n"
+        "    endif ()\n\n"
+        "    if (NOT CC_FETCH_REPO)\n"
+        "        set (CC_FETCH_REPO ${CC_FETCH_DEFAULT_REPO})\n"
+        "    endif ()\n\n"
+        "    if (NOT CC_FETCH_TAG)\n"
+        "        set (CC_FETCH_TAG ${CC_FETCH_DEFAULT_TAG})\n"
+        "    endif ()\n\n"
+        "    if (NOT GIT_FOUND)\n"
+        "        find_package(Git REQUIRED)\n"
+        "    endif ()\n\n"
+        "    if (EXISTS \"${CC_FETCH_SRC_DIR}/cmake/CC_External.cmake\")\n"
+        "        return ()\n"
+        "    endif()\n\n"
+        "    execute_process (\n"
+        "        COMMAND ${CMAKE_COMMAND} -E remove_directory \"${CC_FETCH_SRC_DIR}\"\n"
+        "    )\n\n"
+        "    execute_process (\n"
+        "        COMMAND ${CMAKE_COMMAND} -E make_directory \"${CC_FETCH_SRC_DIR}\"\n"
+        "    )\n\n"
+        "    execute_process (\n"
+        "        COMMAND\n"
+        "            ${GIT_EXECUTABLE} clone -b ${CC_FETCH_TAG} --depth 1 ${CC_FETCH_REPO} ${CC_FETCH_SRC_DIR}\n"
+        "        RESULT_VARIABLE git_result\n"
+        "    )\n\n"
+        "    if (NOT \"${git_result}\" STREQUAL \"0\")\n"
+        "        message (WARNING \"git clone/checkout failed\")\n"
+        "    endif ()\n\n"
+        "endfunction()\n";
+
+    stream << Contents;
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePathStr + "\".");
+        return false;
+    }
+    return true;        
 }
 
 
