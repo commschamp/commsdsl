@@ -1,3 +1,17 @@
+# This file contains contains a function that prefetches comms_champion project. 
+
+# ******************************************************
+#     cc_prefetch(
+#         SRC_DIR <src_dir>
+#         [TAG <tag>]
+#         [REPO <repo>]
+#     )
+#
+# - SRC_DIR - A directory where comms_champion sources will end up.
+# - TAG - Override the default tag to checkout.
+# - REPO - Override the default repository of the comms_champion.
+#
+
 set (CC_FETCH_DEFAULT_REPO "https://github.com/arobenko/comms_champion.git")
 set (CC_FETCH_DEFAULT_TAG "master")
 
@@ -24,7 +38,7 @@ function (cc_prefetch)
         find_package(Git REQUIRED)
     endif ()
 
-    if (EXISTS "${CC_FETCH_SRC_DIR}/CC_External.cmake")
+    if (EXISTS "${CC_FETCH_SRC_DIR}/cmake/CC_External.cmake")
         return ()
     endif()    
 
