@@ -18,6 +18,10 @@ if (NOT CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 14)
 endif()
 
+if ("${CC_TAG}" STREQUAL "")
+    set (CC_TAG "develop")
+endif()
+
 set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
 set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 
@@ -26,7 +30,7 @@ if (COMMS_INSTALL_DIR)
 elseif (NOT COMMSDSL_NO_TESTS)
     set (CC_SRC_DIR "${EXTERNALS_DIR}/comms_champion")
     include (${CMAKE_SCIPTS_DIR}/CC_Prefetch.cmake)
-    cc_prefetch(SRC_DIR ${CC_SRC_DIR} TAG develop)
+    cc_prefetch(SRC_DIR ${CC_SRC_DIR} TAG ${CC_TAG})
     set (CC_CMAKE_DIR ${CC_SRC_DIR}/cmake)
 endif ()
 
@@ -96,10 +100,6 @@ if (NOT COMMSDSL_NO_TESTS)
 endif ()
 
 include(GNUInstallDirs)
-
-if ("${CC_TAG}" STREQUAL "")
-    set (CC_TAG "develop")
-endif()
 
 add_subdirectory(lib)
 add_subdirectory(app)
