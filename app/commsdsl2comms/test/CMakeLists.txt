@@ -127,8 +127,6 @@ if (NOT TARGET cc::comms)
     message (FATAL_ERROR "cc::comms target is not defined")
 endif () 
 
-# include_directories ("${CXXTEST_INCLUDE_DIR}")
-
 find_package (Doxygen)
 
 if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9"))

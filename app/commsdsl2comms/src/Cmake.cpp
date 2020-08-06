@@ -211,7 +211,7 @@ bool Cmake::writeMain() const
         "    endif ()\n\n"
         "    cc_build_as_external_project(\n"
         "        SRC_DIR ${OPT_EXTERNALS_DIR}/comms_champion\n"
-        "        BUILD_DIR ${OPT_EXTERNALS_DIR}/comms_champion-build\n"
+        "        BUILD_DIR ${PROJECT_BINARY_DIR}/comms_champion\n"
         "        INSTALL_DIR \"${CMAKE_INSTALL_PREFIX}\"\n"
         "        TAG ${OPT_CC_TAG}\n"
         "        TGT ${CC_EXTERNAL_TGT}\n"
