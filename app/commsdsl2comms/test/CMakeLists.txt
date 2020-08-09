@@ -58,7 +58,7 @@ function (test_func name)
                 -DPROJ_DIR=${output_dir} 
                 -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
                 -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
-                ${COMPILER_OPTIONS}
+                ${COMPILER_OPTIONS} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
                 -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
