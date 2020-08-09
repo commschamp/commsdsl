@@ -111,7 +111,6 @@ if ("${COMMS_INSTALL_DIR}" STREQUAL "")
         TAG ${CC_TAG} 
         ${qt_dir_opt}
         CMAKE_ARGS 
-            ${COMPILER_OPTIONS}
             -DCC_NO_UNIT_TESTS=ON
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             -DCC_NO_WARN_AS_ERR=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
