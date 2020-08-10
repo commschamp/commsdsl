@@ -3,30 +3,24 @@ function (test_func name)
     set (testDir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
     set (tests "${testDir}/${name}Test.th")
     set (testName "libcommsdsl.${name}Test")
-    set (runner "libcommsdsl.${name}TestRunner.cpp")
 
-    CXXTEST_ADD_TEST (${testName} ${runner} ${tests})
+    set (valgrand_opt)
+    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
+        set (valgrand_opt VALGRIND_EXECUTABLE ${VALGRIND_EXECUTABLE})
+    endif ()
+    cc_cxxtest_add_test(NAME ${testName} SRC ${tests} ${valgrand_opt} NO_COMMS_LIB_DEP)    
+
     target_compile_definitions (${testName} PRIVATE "-DSCHEMAS_DIR=\"${testDir}\"")
     target_link_libraries(${testName} ${COMMON_TEST_LIB_NAME} ${PROJECT_NAME})
-
-    if (COMMSDSL_VALGRIND_TESTS AND VALGRIND_EXECUTABLE)
-        add_test(NAME "${testName}_valgrind"
-             COMMAND ${CMAKE_COMMAND}
-                -DTEST_EXECUTABLE=$<TARGET_FILE:${testName}>
-                -DVALGRIND_EXECUTABLE=${VALGRIND_EXECUTABLE}
-                -P ${PROJECT_SOURCE_DIR}/cmake/ScriptRunUnitTestWithValgrind.cmake)
-    endif ()
-
 endfunction ()
 
 #################################################################
 
-if (NOT CXXTEST_FOUND)
-    return()
-endif ()
+if (NOT BUILD_TESTING)
+    return ()
+endif ()  
 
 include_directories (
-    "${CXXTEST_INCLUDE_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}"
 )
 
@@ -40,7 +34,7 @@ if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9
 endif ()
 
 add_library(${COMMON_TEST_LIB_NAME} STATIC ${common_test_src})
-target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME})
+target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME} cxxtest::cxxtest)
 
 test_func (int)
 test_func (float)

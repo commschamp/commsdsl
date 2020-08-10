@@ -328,6 +328,12 @@ const std::string& valueTypeStr()
     return Str;
 }
 
+const std::string& cmakeDirStr()
+{
+    static const std::string Str("cmake");
+    return Str;
+}
+
 void nameToClass(std::string& str)
 {
     if (str.empty()) {

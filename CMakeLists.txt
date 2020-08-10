@@ -18,15 +18,27 @@ if (NOT CMAKE_CXX_STANDARD)
     set (CMAKE_CXX_STANDARD 14)
 endif()
 
+if ("${CC_TAG}" STREQUAL "")
+    set (CC_TAG "v3.0")
+endif()
+
+set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
+set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
+
+if (COMMS_INSTALL_DIR)
+    set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
+elseif (NOT COMMSDSL_NO_TESTS)
+    set (CC_SRC_DIR "${EXTERNALS_DIR}/comms_champion")
+    include (${CMAKE_SCIPTS_DIR}/CC_Prefetch.cmake)
+    cc_prefetch(SRC_DIR ${CC_SRC_DIR} TAG ${CC_TAG})
+    set (CC_CMAKE_DIR ${CC_SRC_DIR}/cmake)
+endif ()
+
 set (COMPILER_OPTIONS -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER})
 if (CMAKE_TOOLCHAIN_FILE AND EXISTS ${CMAKE_TOOLCHAIN_FILE})
     message(STATUS "Loading toolchain from ${CMAKE_TOOLCHAIN_FILE}")
     set (COMPILER_OPTIONS -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE})
 endif()
-
-if ("${COMMSDSL_INSTALL_DIR}" STREQUAL "")
-    set (COMMSDSL_INSTALL_DIR "${CMAKE_BINARY_DIR}/install")
-endif ()
 
 if ((CMAKE_COMPILER_IS_GNUCC) OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang"))
     set (extra_flags_list
@@ -70,8 +82,6 @@ elseif (MSVC)
     
 endif ()
 
-enable_testing ()
-
 if ((UNIX) AND (NOT COMMSDSL_NO_CCACHE))
     find_program(CCACHE_FOUND ccache)
     if(CCACHE_FOUND)
@@ -80,77 +90,16 @@ if ((UNIX) AND (NOT COMMSDSL_NO_CCACHE))
     endif(CCACHE_FOUND)
 endif ()
 
-set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
-while (TRUE)
-    if (COMMSDSL_NO_TESTS)
-        break ()
-    endif ()
-        
-    find_package (Git)
-    if (NOT GIT_FOUND)
-        message (WARNING "Git is required to check out external projects for testing")
-        break ()
-    endif ()
+if (NOT COMMSDSL_NO_TESTS)
+    include (${CC_CMAKE_DIR}/CC_CxxtestFuncs.cmake)
+    cc_get_cxxtest(INSTALL_PREFIX ${EXTERNALS_DIR})
 
-    set (repo_name "cxxtest")
-    set (repo_tag "4.4")
-    set (repo_url "https://github.com/CxxTest/cxxtest.git")
-    set (stamp "${EXTERNALS_DIR}/cxxtest/cxxtest.stamp")
-    if (EXISTS ${stamp}) 
-        execute_process (
-            COMMAND ${GIT_EXECUTABLE} checkout ${repo_tag}
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${repo_name}
-        )
-    else ()
-        execute_process (
-            COMMAND ${CMAKE_COMMAND} -E remove_directory "${CMAKE_CURRENT_BINARY_DIR}/${repo_name}"
-        )
-        
-        execute_process (
-            COMMAND ${CMAKE_COMMAND} -E make_directory "${EXTERNALS_DIR}"
-        )        
-
-        execute_process (
-            COMMAND ${GIT_EXECUTABLE} clone -b ${repo_tag} --depth 1 ${repo_url} 
-            WORKING_DIRECTORY ${EXTERNALS_DIR}
-            RESULT_VARIABLE git_result
-        )
-
-        if (NOT "${git_result}" STREQUAL "0")
-            message (WARNING "git clone/checkout of ${repo_name} failed")
-            break ()
-        endif ()
- 
-        execute_process (
-            COMMAND ${CMAKE_COMMAND} -E touch "${stamp}"
-        )
-    endif ()
-
-    set (CXXTEST_INCLUDE_DIR "${EXTERNALS_DIR}/cxxtest")
-    set (CXXTEST_PYTHON_TESTGEN_EXECUTABLE "${CXXTEST_INCLUDE_DIR}/bin/cxxtestgen")
-
-    find_package (CxxTest)
-    if (NOT CXXTEST_FOUND)
-        message (WARNING "Wrong cxxtest paths, must be fixed, cannot do testing...")
-        break()
-    endif ()
-    
     if (COMMSDSL_VALGRIND_TESTS)
-        if ("${COMMSDSL_VALGRAND_EXE_NAME}" STREQUAL "")
-            set (COMMSDSL_VALGRAND_EXE_NAME "valgrind")
-        endif ()
-        find_program(VALGRIND_EXECUTABLE NAMES "${COMMSDSL_VALGRAND_EXE_NAME}")
+        find_program(VALGRIND_EXECUTABLE NAMES "valgrind")
     endif ()    
-    
-    enable_testing ()
-    break ()
-endwhile ()
+endif ()
 
 include(GNUInstallDirs)
-
-if ("${CC_TAG}" STREQUAL "")
-    set (CC_TAG "v2.4.2")
-endif()
 
 add_subdirectory(lib)
 add_subdirectory(app)

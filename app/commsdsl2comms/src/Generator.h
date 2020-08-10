@@ -80,6 +80,8 @@ public:
 
     std::string outputDir();
 
+    std::string cmakeDir();
+
     std::string pluginDir();
 
     std::string testDir();

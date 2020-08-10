@@ -77,6 +77,7 @@ const std::string& dispatchStr();
 const std::string& commonSuffixStr();
 const std::string& valSuffixStr();
 const std::string& valueTypeStr();
+const std::string& cmakeDirStr();
 
 void nameToClass(std::string& str);
 std::string nameToClassCopy(const std::string& str);
@@ -87,6 +88,7 @@ std::string updateNameCopy(const std::string& str);
 std::string adjustName(const std::string& str);
 std::string numToString(std::uintmax_t value, unsigned hexWidth = 0U);
 std::string numToString(std::intmax_t value);
+
 
 inline
 std::string numToString(unsigned value, unsigned hexWidth = 0U)

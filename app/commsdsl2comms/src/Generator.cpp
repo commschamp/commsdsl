@@ -48,7 +48,7 @@ namespace
 {
 
 const unsigned MaxDslVersion = 3U;
-const std::string MinCommsVersionStr("2, 4, 2");
+const std::string MinCommsVersionStr("3, 0, 0");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
@@ -237,6 +237,17 @@ std::string Generator::outputDir()
     }
 
     return m_pathPrefix.string();
+}
+
+std::string Generator::cmakeDir()
+{
+    auto dir = m_pathPrefix / common::cmakeDirStr();
+    if (!createDir(dir)) {
+        m_logger.error("Failed to create \"" + dir.string() + "\" directory.");
+        return common::emptyString();
+    }
+
+    return dir.string();
 }
 
 std::string Generator::pluginDir()
