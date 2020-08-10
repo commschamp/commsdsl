@@ -193,7 +193,7 @@ bool Cmake::writeMain() const
         "endif ()\n\n"
         "if ((external_cc_needed OR (NOT OPT_NO_COMMS)) AND (\"${OPT_CC_MAIN_INSTALL_DIR}\" STREQUAL \"\"))\n"
         "    include (${PROJECT_SOURCE_DIR}/cmake/CC_Prefetch.cmake)\n"
-        "    cc_prefetch(SRC_DIR \"${OPT_EXTERNALS_DIR}/comms_champion\" TAG \"develop\")\n"
+        "    cc_prefetch(SRC_DIR \"${OPT_EXTERNALS_DIR}/comms_champion\" TAG \"${OPT_CC_TAG}\")\n"
         "    include(${OPT_EXTERNALS_DIR}/comms_champion/cmake/CC_External.cmake)\n\n"
         "    set (qt_dir_opt)\n"
         "    if (NOT \"${OPT_QT_DIR}\" STREQUAL \"\")\n"
