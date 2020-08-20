@@ -598,7 +598,7 @@ bool Cmake::writePrefetch() const
     }
 
     static const std::string Contents = 
-        "set (CC_FETCH_DEFAULT_REPO \"https://github.com/arobenko/comms_champion.git\")\n"
+        "set (CC_FETCH_DEFAULT_REPO \"https://github.com/commschamp/comms_champion.git\")\n"
         "set (CC_FETCH_DEFAULT_TAG \"master\")\n\n"
         "function (cc_prefetch)\n"
         "    set (_prefix CC_FETCH)\n"

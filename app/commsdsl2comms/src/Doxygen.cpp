@@ -534,7 +534,7 @@ bool Doxygen::writeMainpage() const
         "/// @tableofcontents\n"
         "/// This generated code implements \"#^#PROJ_NAME#$#\" binary protocol using various\n"
         "/// classes from\n"
-        "/// <a href=\"https://github.com/arobenko/comms_champion#comms-library\">COMMS Library</a>.@n\n"
+        "/// <a href=\"https://github.com/commschamp/comms_champion#comms-library\">COMMS Library</a>.@n\n"
         "/// Below is a short summary of generated classes.\n"
         "/// Please refer to <b>\"How to Use Defined Custom Protocol\"</b> page of its documentation\n"
         "/// for detailed explanation on how to use them.\n"
