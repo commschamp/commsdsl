@@ -118,10 +118,10 @@ $> /path/to/commsdsl2comms.sh --customization=none schema.xml
 
 ### Tag / Branch of CommsChampion Project
 The **commsdsl2comms** utility produces CMake project, which depends on and uses 
-[comms_champioin](https://github.com/arobenko/comms_champion) one. If the latter
+[comms_champioin](https://github.com/commschamp/comms_champion) one. If the latter
 is not provided as external build, it is checked out and built automatically.
 The `--cc-tag` option can be used to specify tag / branch of 
-[comms_champion](https://github.com/arobenko/comms_champion) project that 
+[comms_champion](https://github.com/commschamp/comms_champion) project that 
 is going to be used in such build.
 ```
 $> /path/to/commsdsl2comms.sh --cc-tag=develop schema.xml
@@ -245,16 +245,16 @@ found in the following relative paths:
 - `include/<main_namespace>/frame/layer/<layer_name>.h`
 
 The example of checksum definition can be found at
-[UbloxChecksum.h](https://github.com/arobenko/cc.ublox.commsdsl/blob/master/src/include/ublox/frame/checksum/UbloxChecksum.h)
-file from [cc.ublox.commsdsl](https://github.com/arobenko/cc.ublox.commsdsl) 
+[UbloxChecksum.h](https://github.com/commschamp/cc.ublox.commsdsl/blob/master/src/include/ublox/frame/checksum/UbloxChecksum.h)
+file from [cc.ublox.commsdsl](https://github.com/commschamp/cc.ublox.commsdsl) 
 protocol definition.
 
 The example of custom layer can be found 
-at [IdAndFlags.h](https://github.com/arobenko/cc.mqtt311.commsdsl/blob/master/src/include/mqtt311/frame/layer/IdAndFlags.h)
-file from [cc.mqtt311.commsdsl](https://github.com/arobenko/cc.mqtt311.commsdsl)
+at [IdAndFlags.h](https://github.com/commschamp/cc.mqtt311.commsdsl/blob/master/src/include/mqtt311/frame/layer/IdAndFlags.h)
+file from [cc.mqtt311.commsdsl](https://github.com/commschamp/cc.mqtt311.commsdsl)
 protocol definition (defines custom ID layer that also contains extra flags) or
-at [Length.h](https://github.com/arobenko/cc.mqttsn.commsdsl/blob/master/src/include/mqttsn/frame/layer/Length.h)
-file from [cc.mqttsn.commsdsl](https://github.com/arobenko/cc.mqttsn.commsdsl)
+at [Length.h](https://github.com/commschamp/cc.mqttsn.commsdsl/blob/master/src/include/mqttsn/frame/layer/Length.h)
+file from [cc.mqttsn.commsdsl](https://github.com/commschamp/cc.mqttsn.commsdsl)
 protocol definition.
 
 Please note that custom layer that replaces `<id>` one is expected to use
@@ -296,10 +296,10 @@ injecting custom code to the fields defined inside message body is not supported
 
 For more code customization examples it is recommended to take a look at
 the following real-life protocols.
-- [cc.mqtt311.commsdsl](https://github.com/arobenko/cc.mqtt311.commsdsl/blob/master/src)
-- [cc.mqtt5.commsdsl](https://github.com/arobenko/cc.mqtt5.commsdsl/blob/master/src)
-- [cc.mqttsn.commsdsl](https://github.com/arobenko/cc.mqttsn.commsdsl/blob/master/src)
-- [cc.ublox.commsdsl](https://github.com/arobenko/cc.ublox.commsdsl/blob/master/src)
+- [cc.mqtt311.commsdsl](https://github.com/commschamp/cc.mqtt311.commsdsl/blob/master/src)
+- [cc.mqtt5.commsdsl](https://github.com/commschamp/cc.mqtt5.commsdsl/blob/master/src)
+- [cc.mqttsn.commsdsl](https://github.com/commschamp/cc.mqttsn.commsdsl/blob/master/src)
+- [cc.ublox.commsdsl](https://github.com/commschamp/cc.ublox.commsdsl/blob/master/src)
 
 The **commsdsl2comms** also allows appending any text to any generated file
 (not necessarily C++ code). It is done by creating appropriate file
