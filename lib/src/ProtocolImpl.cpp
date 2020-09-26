@@ -188,7 +188,7 @@ bool ProtocolImpl::strToEnumValue(
     auto nameSepPos = ref.find_last_of('.');
     assert(nameSepPos != std::string::npos);
     assert(0U < nameSepPos);
-    auto signedNameSepPos = static_cast<std::intmax_t>(nameSepPos);
+    auto signedNameSepPos = static_cast<std::ptrdiff_t>(nameSepPos);
     std::string elemName(ref.begin() + signedNameSepPos + 1, ref.end());
     std::string fieldRefPath(ref.begin(), ref.begin() + signedNameSepPos);
     auto* field = findField(fieldRefPath, false);
@@ -698,7 +698,7 @@ const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool ch
             break;
         }
         
-        auto signedNameSepPos = static_cast<std::intmax_t>(nameSepPos);
+        auto signedNameSepPos = static_cast<std::ptrdiff_t>(nameSepPos);
         remName.assign(ref.begin() + signedNameSepPos + 1, ref.end());
         std::size_t nsNamePos = 0;
         assert(nameSepPos != std::string::npos);
@@ -706,8 +706,8 @@ const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool ch
             auto nextDotPos = ref.find_first_of('.', nsNamePos);
             assert(nextDotPos != std::string::npos);
             std::string nsName(
-                    ref.begin() + static_cast<std::intmax_t>(nsNamePos), 
-                    ref.begin() + static_cast<std::intmax_t>(nextDotPos));
+                    ref.begin() + static_cast<std::ptrdiff_t>(nsNamePos), 
+                    ref.begin() + static_cast<std::ptrdiff_t>(nextDotPos));
             if (nsName.empty()) {
                 return nullptr;
             }
@@ -809,7 +809,7 @@ bool ProtocolImpl::strToStringValue(
     assert(0U < prefixPos);
     bool allBackSlashes =
         std::all_of(
-            str.begin(), str.begin() + static_cast<std::intmax_t>(prefixPos),
+            str.begin(), str.begin() + static_cast<std::ptrdiff_t>(prefixPos),
             [](char ch)
             {
                 return ch == '\\';
