@@ -24,6 +24,15 @@
 namespace commsdsl
 {
 
+namespace
+{
+
+#ifndef NDEBUG
+constexpr bool Unexpected_call_on_invalid_schema_object = false;
+#endif
+
+}    
+
 Schema::Schema(const SchemaImpl* impl)
   : m_pImpl(impl)
 {
@@ -37,7 +46,7 @@ bool Schema::valid() const
 const std::string& Schema::name() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         return common::emptyString();
     }
 
@@ -47,7 +56,7 @@ const std::string& Schema::name() const
 const std::string& Schema::description() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         return common::emptyString();
     }
 
@@ -57,7 +66,7 @@ const std::string& Schema::description() const
 unsigned Schema::id() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         return std::numeric_limits<unsigned>::max();
     }
 
@@ -67,7 +76,7 @@ unsigned Schema::id() const
 unsigned Schema::version() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         return std::numeric_limits<unsigned>::max();
     }
 
@@ -77,7 +86,7 @@ unsigned Schema::version() const
 unsigned Schema::dslVersion() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         return std::numeric_limits<unsigned>::max();
     }
 
@@ -87,7 +96,7 @@ unsigned Schema::dslVersion() const
 Endian Schema::endian() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         return Endian_NumOfValues;
     }
 
@@ -97,7 +106,7 @@ Endian Schema::endian() const
 bool Schema::nonUniqueMsgIdAllowed() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         return false;
     }
 
@@ -107,7 +116,7 @@ bool Schema::nonUniqueMsgIdAllowed() const
 const Schema::AttributesMap& Schema::extraAttributes() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         static const AttributesMap Map;
         return Map;
     }
@@ -118,7 +127,7 @@ const Schema::AttributesMap& Schema::extraAttributes() const
 const Schema::ElementsList& Schema::extraElements() const
 {
     if (!valid()) {
-        assert(!"Unexpected call on invalid schema object");
+        assert(Unexpected_call_on_invalid_schema_object);
         static const ElementsList List;
         return List;
     }

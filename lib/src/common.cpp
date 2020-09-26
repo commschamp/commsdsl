@@ -735,7 +735,7 @@ unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
     try {
-        result = std::stoul(str, 0, base);
+        result = static_cast<decltype(result)>(std::stoul(str, 0, base));
         if (ok != nullptr) {
             *ok = true;
         }

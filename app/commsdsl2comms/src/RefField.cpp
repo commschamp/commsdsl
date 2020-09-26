@@ -129,7 +129,9 @@ void RefField::updateIncludesCommonImpl(IncludesList& includes) const
 {
     auto fieldPtr = generator().findField(refFieldDslObj().field().externalRef());
     if (fieldPtr == nullptr) {
-        assert(!"Unexpected");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return;
     }
 
@@ -150,7 +152,9 @@ std::size_t RefField::minLengthImpl() const
     auto refObj = refFieldDslObj().field();
     auto fieldPtr = generator().findField(refObj.externalRef());
     if (fieldPtr == nullptr) {
-        assert(!"Unexpected");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return dslObj().minLength();
     }
 
@@ -162,7 +166,9 @@ std::size_t RefField::maxLengthImpl() const
     auto refObj = refFieldDslObj().field();
     auto fieldPtr = generator().findField(refObj.externalRef());
     if (fieldPtr == nullptr) {
-        assert(!"Unexpected");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return dslObj().maxLength();
     }
 
@@ -176,7 +182,9 @@ std::string RefField::getClassDefinitionImpl(
     auto refObj = refFieldDslObj().field();
     auto fieldPtr = generator().findField(refObj.externalRef());
     if (fieldPtr == nullptr) {
-        assert(!"Unexpected");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -224,13 +232,17 @@ std::string RefField::getCompareToValueImpl(
     auto obj = refFieldDslObj();
     auto field = obj.field();
     if (!field.valid()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
     auto* fieldPtr = generator().findField(field.externalRef());
     if (fieldPtr == nullptr) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -257,13 +269,17 @@ std::string RefField::getCompareToFieldImpl(
     auto obj = refFieldDslObj();
     auto dslField = obj.field();
     if (!dslField.valid()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
     auto* fieldPtr = generator().findField(dslField.externalRef());
     if (fieldPtr == nullptr) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -420,7 +436,9 @@ std::string RefField::getPropsUpdate() const
     auto refObj = refFieldDslObj().field();
     auto fieldPtr = generator().findField(refObj.externalRef());
     if (fieldPtr == nullptr) {
-        assert(!"Unexpected");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 

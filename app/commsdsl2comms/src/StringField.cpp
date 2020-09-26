@@ -325,7 +325,9 @@ std::string StringField::getPrivateRefreshBodyImpl(const FieldsList& fields) con
             });
 
     if (iter == fields.end()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -380,7 +382,9 @@ std::string StringField::getReadPreparationImpl(const FieldsList& fields) const
             });
 
     if (iter == fields.end()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 

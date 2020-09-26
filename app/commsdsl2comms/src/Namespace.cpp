@@ -259,7 +259,9 @@ const Field* Namespace::findMessageIdField() const
         }
 
         if (f->kind() != commsdsl::Field::Kind::Enum) {
-            assert(!"Unexpected field");
+            static constexpr bool Unexpected_kind = false;
+            static_cast<void>(Unexpected_kind);
+            assert(Unexpected_kind);  
             return nullptr;
         }
 
@@ -316,7 +318,7 @@ const Field* Namespace::findField(const std::string& externalRef, bool record)
         return nullptr;
     }
 
-    auto fromPos = 0U;
+    std::size_t fromPos = 0U;
     if (pos != std::string::npos) {
         fromPos = pos + 1U;
     }
@@ -361,7 +363,7 @@ const Interface* Namespace::findInterface(const std::string& externalRef) const
         return nullptr;
     }
 
-    auto fromPos = 0U;
+    std::size_t fromPos = 0U;
     if (pos != std::string::npos) {
         fromPos = pos + 1U;
     }
@@ -406,7 +408,7 @@ const Frame* Namespace::findFrame(const std::string& externalRef) const
         return nullptr;
     }
 
-    auto fromPos = 0U;
+    std::size_t fromPos = 0U;
     if (pos != std::string::npos) {
         fromPos = pos + 1U;
     }

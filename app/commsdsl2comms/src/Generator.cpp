@@ -48,7 +48,7 @@ namespace
 {
 
 const unsigned MaxDslVersion = 3U;
-const std::string MinCommsVersionStr("3, 0, 1");
+const std::string MinCommsVersionStr("3, 1, 0");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
@@ -108,7 +108,9 @@ bf::path refToPath(const std::string& ref)
 
     bf::path result;
     if (tokens.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return result;
     }
 
@@ -378,7 +380,9 @@ std::string Generator::startProtocolPluginCommonWrite(
     const std::string& extension)
 {
     if (name.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -412,7 +416,9 @@ std::string Generator::startProtocolPluginCommonWrite(
             bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
             if (ec) {
                 m_logger.warning("Failed to write " + fullPathStr);
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
             }
             return common::emptyString();
         }
@@ -911,11 +917,13 @@ const Field* Generator::findField(const std::string& externalRef, bool record)
 
     if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
         m_logger.error("Internal error: unknown external reference: " + externalRef);
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return nullptr;
     }
 
-    auto fromPos = 0U;
+    std::size_t fromPos = 0U;
     if (pos != std::string::npos) {
         fromPos = pos + 1U;
     }
@@ -923,7 +931,9 @@ const Field* Generator::findField(const std::string& externalRef, bool record)
     auto result = (*nsIter)->findField(remStr, record);
     if (result == nullptr) {
         m_logger.error("Internal error: unknown external reference: " + externalRef);
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
     }
     return result;
 }
@@ -1019,7 +1029,7 @@ bool Generator::parseCustomization()
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == (unsigned)CustomizationLevel::NumOfValues,
+    static_assert(MapSize == static_cast<unsigned>(CustomizationLevel::NumOfValues),
         "Invalid map");
 
     auto level = m_options.getCustomizationLevel();
@@ -1355,7 +1365,9 @@ Namespace& Generator::findOrCreateDefaultNamespace()
     auto nsPtr = createNamespace(*this, commsdsl::Namespace(nullptr));
     bool prepared = nsPtr->prepare();
     if (!prepared) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
     }
 
     m_namespaces.insert(m_namespaces.begin(), std::move(nsPtr));
@@ -1443,7 +1455,9 @@ const Interface* Generator::getDefaultInterface() const
     auto list = getAllInterfaces();
 
     if (list.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return nullptr;
     }
 
@@ -1925,7 +1939,9 @@ Generator::startProtocolWrite(
     const std::string& subNs)
 {
     if (externalRef.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return std::make_pair(common::emptyString(), common::emptyString());
     }
 
@@ -1988,7 +2004,9 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
     const std::string& subNs)
 {
     if (externalRef.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return std::make_pair(common::emptyString(), common::emptyString());
     }
 
@@ -2034,7 +2052,9 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
             bf::copy_file(replaceFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
             if (ec) {
                 m_logger.warning("Failed to write " + fullPathStr);
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
             }
             return std::make_pair(common::emptyString(), common::emptyString());
         }
@@ -2044,7 +2064,9 @@ std::pair<std::string, std::string> Generator::startPluginWrite(
             bf::copy_file(extendFile, bf::path(fullPathStr), bf::copy_option::overwrite_if_exists, ec);
             if (ec) {
                 m_logger.warning("Failed to write \"" + fullPathStr + "\": " + ec.message());
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
             }
             className += common::origSuffixStr();
             fileName = className + extension;
@@ -2074,7 +2096,9 @@ std::string Generator::startGenericWrite(
     const std::vector<std::string>& subFolders)
 {
     if (name.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 

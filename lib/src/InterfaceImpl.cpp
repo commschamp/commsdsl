@@ -306,7 +306,9 @@ bool InterfaceImpl::updateFields()
             std::string fKind(reinterpret_cast<const char*>(fNode->name));
             auto field = FieldImpl::create(fKind, fNode, m_protocol);
             if (!field) {
-                assert(!"Internal error");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 logError() << XmlWrap::logPrefix(getNode()) <<
                       "Internal error, failed to create objects for member fields.";
                 return false;
@@ -435,7 +437,9 @@ bool InterfaceImpl::updateAliases()
     for (auto* aNode : aliasNodes) {
         auto alias = AliasImpl::create(aNode, m_protocol);
         if (!alias) {
-            assert(!"Internal error");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             logError() << XmlWrap::logPrefix(alias->getNode()) <<
                   "Internal error, failed to create objects for member aliases.";
             return false;
