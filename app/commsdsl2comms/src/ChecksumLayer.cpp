@@ -54,7 +54,9 @@ void ChecksumLayer::updateIncludesImpl(Layer::IncludesList& includes) const
 
     auto idx = static_cast<std::size_t>(obj.alg());
     if (ChecksumMapSize <= idx) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         idx = 0U;
     }
 
@@ -129,7 +131,9 @@ bool ChecksumLayer::rearangeImpl(Layer::LayersList& layers, bool& success)
             });
 
     if (iter == layers.end()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         generator().logger().error("Internal error");
         return false;
     }
@@ -151,7 +155,9 @@ bool ChecksumLayer::rearangeImpl(Layer::LayersList& layers, bool& success)
                 });
 
         if (untilIter == layers.end()) {
-            assert(!"Should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             generator().logger().error("Internal error");
             success = false;
             return false;
@@ -170,7 +176,9 @@ bool ChecksumLayer::rearangeImpl(Layer::LayersList& layers, bool& success)
 
     auto& fromStr = obj.fromLayer();
     if (fromStr.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         generator().logger().error("Info on checksum layer is missing");
         success = false;
         return false;
@@ -185,7 +193,9 @@ bool ChecksumLayer::rearangeImpl(Layer::LayersList& layers, bool& success)
             });
 
     if (fromIter == layers.end()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         generator().logger().error("Internal error");
         success = false;
         return false;
@@ -220,7 +230,9 @@ std::string ChecksumLayer::getAlg() const
     auto idx = static_cast<std::size_t>(alg);
 
     if (ClassMapSize <= idx) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         idx = 0U;
     }
 

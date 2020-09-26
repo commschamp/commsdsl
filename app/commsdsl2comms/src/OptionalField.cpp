@@ -121,7 +121,9 @@ bool OptionalField::prepareImpl()
 
     auto ptr = create(generator(), field);
     if (!ptr) {
-        assert(!"should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return false;
     }
 
@@ -185,7 +187,9 @@ std::string OptionalField::getClassDefinitionImpl(
         // Find to mark it as used
         auto* foundField = generator().findField(optionalFieldDslObj().field().externalRef());
         if (foundField == nullptr) {
-            assert(!"Should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
         }
     }
 
@@ -479,7 +483,9 @@ void OptionalField::checkModeOpt(OptionalField::StringsList& options) const
     auto mode = obj.defaultMode();
     auto idx = static_cast<std::size_t>(mode);
     if (MapSize <= idx) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         idx = 0U;
     }
 

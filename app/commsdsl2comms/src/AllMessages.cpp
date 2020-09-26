@@ -137,7 +137,9 @@ bool AllMessages::writeProtocolDefinition() const
         for (auto& p : msgPlatforms) {
             auto iter = platformsMap.find(p);
             if (iter == platformsMap.end()) {
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 continue;
             }
 
@@ -148,7 +150,9 @@ bool AllMessages::writeProtocolDefinition() const
         for (auto& b : inBundles) {
             auto iter = platformsMap.find(b);
             if (iter == platformsMap.end()) {
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 continue;
             }
             addToPlatformInfoFunc(iter->second);
@@ -333,7 +337,9 @@ bool AllMessages::writePluginDefinition() const
         for (auto& p : msgPlatforms) {
             auto iter = platformsMap.find(p);
             if (iter == platformsMap.end()) {
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 continue;
             }
 

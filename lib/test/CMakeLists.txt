@@ -12,6 +12,12 @@ function (test_func name)
 
     target_compile_definitions (${testName} PRIVATE "-DSCHEMAS_DIR=\"${testDir}\"")
     target_link_libraries(${testName} ${COMMON_TEST_LIB_NAME} ${PROJECT_NAME})
+
+    target_compile_options(${testName} PRIVATE
+        $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast>
+        $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast>
+    )
+
 endfunction ()
 
 #################################################################

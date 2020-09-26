@@ -123,7 +123,9 @@ std::string SetField::getCompareToValueImpl(
     auto& bits = obj.bits();
     auto iter = bits.find(value);
     if (iter == bits.end()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -144,7 +146,9 @@ std::string SetField::getCompareToFieldImpl(
     const std::string& nameOverride,
     bool forcedVersionOptional) const
 {
-    assert(!"Should not be called");
+    static constexpr bool Should_not_happen = false;
+    static_cast<void>(Should_not_happen);
+    assert(Should_not_happen);
     return Base::getCompareToFieldImpl(op, field, nameOverride, forcedVersionOptional);
 }
 
@@ -258,7 +262,9 @@ std::string SetField::getBitsAccess() const
     for (auto& bitInfo : obj.revBits()) {
         auto idx = bitInfo.first;
         if (MaxBits <= idx) {
-            assert(!"Should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             continue;
         }
 
@@ -368,7 +374,9 @@ std::string SetField::getBitsAccess() const
         {
             auto iter = bits.find(n);
             if (iter == bits.end()) {
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 return common::emptyString();
             }
 
@@ -502,7 +510,9 @@ std::string SetField::getValid() const
             auto& bitName = iter->second;
             auto bitIter = bits.find(bitName);
             if (bitIter == bits.end()) {
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 continue;
             }
 
@@ -747,7 +757,9 @@ void SetField::checkDefaultValueOpt(StringsList& list) const
 
     for (auto& bitInfo : obj.bits()) {
         if (MaxBits <= bitInfo.second.m_idx) {
-            assert(!"Should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             continue;
         }
 
@@ -811,7 +823,9 @@ void SetField::checkReservedBitsOpt(SetField::StringsList& list) const
 
     for (auto& bitInfo : obj.bits()) {
         if (MaxBits <= bitInfo.second.m_idx) {
-            assert(!"Should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             continue;
         }
 

@@ -105,7 +105,9 @@ bool VariantField::prepareImpl()
     for (auto& m : members) {
         auto ptr = create(generator(), m);
         if (!ptr) {
-            assert(!"should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             return false;
         }
 
@@ -457,14 +459,18 @@ std::string VariantField::getRead() const
 
         auto propKeyName = bundle.getFirstMemberName();
         if (propKeyName.empty()) {
-            assert(!"Something is wrong");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             return common::emptyString();
         }
 
         if (bundle.startsWithValidPropKey()) {
             auto valStr = bundle.getPropKeyValueStr();
             if (valStr.empty()) {
-                assert(!"Something is wrong");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 return common::emptyString();
             }
 
@@ -590,7 +596,9 @@ std::string VariantField::getCurrFieldExec() const
         "    switch (Base::currentField()) {\n"
         "    #^#CASES#$#\n"
         "    default:\n"
-        "        COMMS_ASSERT(!\"Invalid field execution\");\n"
+        "        static constexpr bool Invalid_field_execution = false;\n"
+        "        static_cast<void>(Invalid_field_execution);\n"
+        "        COMMS_ASSERT(Invalid_field_execution);\n"
         "        break;\n"
         "    }\n"
         "}\n";

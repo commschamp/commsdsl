@@ -556,7 +556,9 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
         static const std::string Suffix("#$#");
         auto suffixPos = templ.find(Suffix, prefixPos + Prefix.size());
         if (suffixPos == std::string::npos) {
-            assert(!"Incorrect template");
+            static constexpr bool Incorrect_template = false;
+            static_cast<void>(Incorrect_template);
+            assert(Incorrect_template);            
             templPos = templ.size();
             break;
         }
@@ -570,8 +572,8 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
         }
         auto& value = *valuePtr;
 
-        auto lineStartPos = 0U;
-        auto lastNewLinePos = templ.find_last_of('\n', prefixPos);
+        std::size_t lineStartPos = 0U;
+        std::size_t lastNewLinePos = templ.find_last_of('\n', prefixPos);
         if (lastNewLinePos != std::string::npos) {
             lineStartPos = lastNewLinePos + 1U;
         }
@@ -596,7 +598,9 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
 
             auto nextNewLinePos = templ.find_first_of('\n', suffixPos + Suffix.size());
             if (nextNewLinePos == std::string::npos) {
-                assert(!"Incorrect template");
+                static constexpr bool Incorrect_template = false;
+                static_cast<void>(Incorrect_template);
+                assert(Incorrect_template);  
                 break;
             }
 
@@ -713,7 +717,9 @@ const std::string& dslEndianToOpt(commsdsl::Endian value)
         "Invalid map");
 
     if (commsdsl::Endian_NumOfValues <= value) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         value = commsdsl::Endian_Little;
     }
 
@@ -723,7 +729,9 @@ const std::string& dslEndianToOpt(commsdsl::Endian value)
 const std::string& dslUnitsToOpt(commsdsl::Units value)
 {
     if (commsdsl::Units::NumOfValues <= value) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 

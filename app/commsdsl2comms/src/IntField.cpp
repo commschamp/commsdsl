@@ -118,7 +118,9 @@ const std::string& IntField::convertType(commsdsl::IntField::Type value, std::si
 
     std::size_t idx = static_cast<std::size_t>(value);
     if (TypeMapSize <= idx) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -344,7 +346,9 @@ std::string IntField::getCompareToValueImpl(
     }
     catch (...) {
         generator().logger().error("Unexpected numeric value: " + value);
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 }
@@ -556,7 +560,9 @@ std::string IntField::getFieldChangedSignType() const
     auto str = getFieldType();
     assert(str.find("std::") == 0U);
     if (str.size() < 6) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return str;
     }
 
@@ -860,7 +866,9 @@ void IntField::checkScalingOpt(IntField::StringsList& list) const
     }
 
     if ((num == 0) || (denom == 0)) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return;
     }
 

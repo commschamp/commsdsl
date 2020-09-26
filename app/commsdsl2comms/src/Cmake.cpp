@@ -629,7 +629,7 @@ bool Cmake::writePrefetch() const
         "    )\n\n"
         "    execute_process (\n"
         "        COMMAND\n"
-        "            ${GIT_EXECUTABLE} clone -b ${CC_FETCH_TAG} --depth 1 ${CC_FETCH_REPO} ${CC_FETCH_SRC_DIR}\n"
+        "            ${GIT_EXECUTABLE} clone -b ${CC_FETCH_TAG} ${CC_FETCH_REPO} ${CC_FETCH_SRC_DIR}\n"
         "        RESULT_VARIABLE git_result\n"
         "    )\n\n"
         "    if (NOT \"${git_result}\" STREQUAL \"0\")\n"
