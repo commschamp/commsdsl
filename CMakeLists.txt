@@ -27,7 +27,7 @@ set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 
 if (COMMS_INSTALL_DIR)
     set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
-elseif ()
+else ()
     set (CC_SRC_DIR "${EXTERNALS_DIR}/comms_champion")
     include (${CMAKE_SCIPTS_DIR}/CC_Prefetch.cmake)
     cc_prefetch(SRC_DIR ${CC_SRC_DIR} TAG ${CC_TAG})
