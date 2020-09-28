@@ -12,6 +12,7 @@ option (COMMSDSL_TEST_BUILD_CC_PLUGIN "Build CommsChampion plugin in commsdsl2co
 # COMMSDSL_QT_DIR - Path to Qt5 installation directory, needed to build generated testing projects.
 # COMMS_INSTALL_DIR - Path to externally built and installed CommsChampion project
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
+# COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
 # CC_TAG - Tag/branch of CommsChampion project to use instead of default
 
 if (NOT CMAKE_CXX_STANDARD)
@@ -23,12 +24,15 @@ if ("${CC_TAG}" STREQUAL "")
 endif()
 
 set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
-set (EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
+
+if (NOT COMMSDSL_EXTERNALS_DIR)
+    set (COMMSDSL_EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
+endif ()
 
 if (COMMS_INSTALL_DIR)
     set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
 else ()
-    set (CC_SRC_DIR "${EXTERNALS_DIR}/comms_champion")
+    set (CC_SRC_DIR "${COMMSDSL_EXTERNALS_DIR}/comms_champion")
     include (${CMAKE_SCIPTS_DIR}/CC_Prefetch.cmake)
     cc_prefetch(SRC_DIR ${CC_SRC_DIR} TAG ${CC_TAG})
     set (CC_CMAKE_DIR ${CC_SRC_DIR}/cmake)
@@ -57,7 +61,7 @@ endif ()
 
 if (NOT COMMSDSL_NO_TESTS)
     include (${CC_CMAKE_DIR}/CC_CxxtestFuncs.cmake)
-    cc_get_cxxtest(INSTALL_PREFIX ${EXTERNALS_DIR})
+    cc_get_cxxtest(INSTALL_PREFIX ${COMMSDSL_EXTERNALS_DIR})
 
     if (COMMSDSL_VALGRIND_TESTS)
         find_program(VALGRIND_EXECUTABLE NAMES "valgrind")
