@@ -483,7 +483,7 @@ bool Cmake::writeTest() const
         "function (define_test name)\n"
         "    set (src ${name}.cpp)\n"
         "    add_executable(${name} ${src})\n"
-        "    target_link_libraries(${name} PRIVATE cc::comms #^#PROJ_NS#$#)\n\n"
+        "    target_link_libraries(${name} PRIVATE #^#PROJ_NS#$# cc::comms)\n\n"
         "    set (extra_defs)\n"
         "    if (NOT \"${OPT_TEST_INTERFACE}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DINTERFACE=${OPT_TEST_INTERFACE})\n"
