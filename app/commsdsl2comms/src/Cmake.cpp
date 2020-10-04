@@ -522,7 +522,7 @@ bool Cmake::writeTest() const
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/wd4996>\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-Wno-unused-function>\n"
-        "        $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-function -Wno-unneeded-internal-declaration>\n"
+        "        $<$<CXX_COMPILER_ID:Clang>:-Wno-unused-function -Wno-unneeded-internal-declaration -ftemplate-depth=1024>\n"
         "    )\n"
         "endfunction ()\n\n"
         "######################################################################\n\n"
