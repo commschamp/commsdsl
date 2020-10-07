@@ -114,7 +114,9 @@ int main(int argc, const char* argv[])
     }
     catch (const std::exception& e) {
         std::cerr << "Unhandled exception: " << e.what() << std::endl;
-        assert(!"Unhandled exception should not happen");
+        static constexpr bool Unexpected_exception = false;
+        static_cast<void>(Unexpected_exception);
+        assert(Unexpected_exception);
         // Ignore exception
     }
 

@@ -239,7 +239,10 @@ std::string DataField::getCompareToValueImpl(
     static_cast<void>(value);
     static_cast<void>(nameOverride);
     static_cast<void>(forcedVersionOptional);
-    assert(!"Data field is not expected to be comparable");
+
+    static constexpr bool Data_field_is_not_expected_to_be_comparable = false;
+    static_cast<void>(Data_field_is_not_expected_to_be_comparable);
+    assert(Data_field_is_not_expected_to_be_comparable);      
     return common::emptyString();
 }
 
@@ -253,7 +256,10 @@ std::string DataField::getCompareToFieldImpl(
     static_cast<void>(field);
     static_cast<void>(nameOverride);
     static_cast<void>(forcedVersionOptional);
-    assert(!"Data field is not expected to be comparable");
+    
+    static constexpr bool Data_field_is_not_expected_to_be_comparable = false;
+    static_cast<void>(Data_field_is_not_expected_to_be_comparable);
+    assert(Data_field_is_not_expected_to_be_comparable);
     return common::emptyString();
 }
 
@@ -274,7 +280,9 @@ std::string DataField::getPrivateRefreshBodyImpl(const FieldsList& fields) const
             });
 
     if (iter == fields.end()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -329,7 +337,9 @@ std::string DataField::getReadPreparationImpl(const FieldsList& fields) const
             });
 
     if (iter == fields.end()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 

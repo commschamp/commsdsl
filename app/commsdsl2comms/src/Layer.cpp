@@ -92,7 +92,9 @@ bool Layer::prepare()
         if (!dslField.valid()) {
             if (kind() != commsdsl::Layer::Kind::Payload) {
                 generator().logger().error("Layer field definition is missing.");
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 return false;
             }
 
@@ -136,11 +138,13 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == (unsigned)commsdsl::Layer::Kind::NumOfValues, "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::Layer::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(field.kind());
     if (MapSize <= idx) {
-        assert(!"Unexpected layer kind");
+        static constexpr bool Unexpected_kind = false;
+        static_cast<void>(Unexpected_kind);
+        assert(Unexpected_kind);  
         return Ptr();
     }
 
@@ -269,7 +273,9 @@ std::string Layer::getCommonDefinition(const std::string& scope) const
     auto fullScope = scope + common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
     auto str = m_field->getCommonDefinition(fullScope);
     if (str.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 

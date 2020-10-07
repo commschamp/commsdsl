@@ -157,8 +157,8 @@ void FloatTestSuite::test2()
         auto& r1 = validRanges[0];
         auto& r2 = validRanges[1];
         auto& r3 = validRanges[2];
-        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - std::numeric_limits<float>::lowest()), std::numeric_limits<float>::epsilon());
-        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - std::numeric_limits<float>::max()), std::numeric_limits<float>::epsilon());
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_min - double(std::numeric_limits<float>::lowest())), double(std::numeric_limits<float>::epsilon()));
+        TS_ASSERT_LESS_THAN(std::abs(r1.m_max - double(std::numeric_limits<float>::max())), double(std::numeric_limits<float>::epsilon()));
         TS_ASSERT(std::isinf(r2.m_min));
         TS_ASSERT_EQUALS(r2.m_min, r2.m_max);
         TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), r2.m_min);

@@ -91,7 +91,9 @@ const std::string Template(
 bool Frame::prepare()
 {
     if (!m_dslObj.valid()) {
-        assert(!"NYI");
+        static constexpr bool Not_yet_impelemented = false;
+        static_cast<void>(Not_yet_impelemented);
+        assert(Not_yet_impelemented);
         return true;
     }
 
@@ -859,13 +861,14 @@ unsigned Frame::calcBackPayloadOffset() const
     assert(payloadIter != layers.rend());
 
     return
-        std::accumulate(
-            layers.rbegin(), payloadIter, std::size_t(0),
-            [](std::size_t soFar, auto& l)
-            {
-                assert(l.field().valid());
-                return soFar + l.field().minLength();
-            });
+        static_cast<unsigned>(
+            std::accumulate(
+                layers.rbegin(), payloadIter, std::size_t(0),
+                [](std::size_t soFar, auto& l)
+                {
+                    assert(l.field().valid());
+                    return soFar + l.field().minLength();
+                }));
 }
 
 std::string Frame::getOptions(GetLayerOptionsFunc func, const std::string& base) const

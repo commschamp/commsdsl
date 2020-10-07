@@ -222,11 +222,13 @@ Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == (unsigned)commsdsl::Field::Kind::NumOfValues, "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::Field::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(field.kind());
     if (MapSize <= idx) {
-        assert(!"Unexpected field kind");
+        static constexpr bool Unexpected_kind = false;
+        static_cast<void>(Unexpected_kind);
+        assert(Unexpected_kind);          
         return Ptr();
     }
 
@@ -514,7 +516,9 @@ std::string Field::dslCondToString(
             std::string leftFieldName(left, 1);
             auto* leftField = findFieldFunc(leftFieldName);
             if (leftField == nullptr) {
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 return common::emptyString();
             }
 
@@ -524,7 +528,9 @@ std::string Field::dslCondToString(
 
             auto* rightField = findFieldFunc(std::string(right, 1));
             if (rightField == nullptr) {
-                assert(!"Should not happen");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 return common::emptyString();
             }
 
@@ -533,7 +539,9 @@ std::string Field::dslCondToString(
 
         // Reference to bit in "set".
         if (right[0] != '$') {
-            assert(!"Should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             return common::emptyString();
         }
 
@@ -543,7 +551,9 @@ std::string Field::dslCondToString(
         auto* rightField = findFieldFunc(fieldExternalRef);
 
         if (rightField == nullptr) {
-            assert(!"Should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             return common::emptyString();
         }
 
@@ -559,7 +569,9 @@ std::string Field::dslCondToString(
     }
 
     if ((cond.kind() != commsdsl::OptCond::Kind::List)) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 
@@ -1360,7 +1372,9 @@ std::string Field::classNameFromFullScope(const std::string& fullScope) const
 
     auto lastScopeSepPos = fullScope.rfind(ScopeSep);
     if (lastScopeSepPos == std::string::npos) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return fullScope;
     }
 
@@ -1372,7 +1386,9 @@ bool Field::writeProtocolDefinitionCommonFile() const
     auto scope = m_generator.scopeForField(m_externalRef, true, false);
     auto commonDef = getCommonDefinition(scope);
     if (commonDef.empty()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return true;
     }
 

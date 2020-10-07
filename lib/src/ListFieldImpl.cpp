@@ -637,7 +637,9 @@ bool ListFieldImpl::checkPrefixAsChild(
 
     auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
     if (!field) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return false;
     }
 

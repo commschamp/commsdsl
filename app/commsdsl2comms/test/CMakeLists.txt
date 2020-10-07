@@ -42,6 +42,11 @@ function (test_func name)
     add_dependencies(${testName} ${output_tgt})
     target_include_directories (${testName} PRIVATE "${output_dir}/include")
 
+    target_compile_options(${testName} PRIVATE
+        $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast>
+        $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast>
+    )    
+
     while (TRUE)
         if (NOT COMMSDSL_TEST_BUILD_CC_PLUGIN)
             message (STATUS "Skipping build of ${APP_NAME}.${name}_plugin_build_tgt")
@@ -58,7 +63,8 @@ function (test_func name)
                 -DPROJ_DIR=${output_dir} 
                 -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
                 -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
-                ${COMPILER_OPTIONS} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
                 -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
@@ -110,6 +116,7 @@ if ("${COMMS_INSTALL_DIR}" STREQUAL "")
         INSTALL_DIR ${COMMS_INSTALL_DIR}
         TAG ${CC_TAG} 
         ${qt_dir_opt}
+        NO_SYSTEM_HEADERS
         CMAKE_ARGS 
             -DCC_NO_UNIT_TESTS=ON
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}

@@ -94,7 +94,9 @@ bool ValueLayer::isPseudoVersionLayerImpl(const std::vector<std::string>& interf
 
     auto* field = getField();
     if (field == nullptr) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return false;
     }
 

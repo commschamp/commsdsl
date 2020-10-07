@@ -92,7 +92,9 @@ bool BitfieldField::prepareImpl()
     for (auto& m : members) {
         auto ptr = create(generator(), m);
         if (!ptr) {
-            assert(!"should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             return false;
         }
 

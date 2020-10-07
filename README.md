@@ -9,9 +9,9 @@ schema files.
 protocol definition out of [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) 
 schema files. The generated outcome is actually a CMake project that can be used to
 build and install multiple targets. For details on how to use the tool, please read the 
-[commsdsl2comms Manual](https://github.com/commschamp/commsdsl/doc/Manual_commsdsl2comms.md) 
+[commsdsl2comms Manual](doc/Manual_commsdsl2comms.md) 
 documentation page. For details on the generated CMake project please read the
-[Generated CMake Project Walkthrough](https://github.com/commschamp/commsdsl/doc/GeneratedProjectWalkthrough.md)
+[Generated CMake Project Walkthrough](doc/GeneratedProjectWalkthrough.md)
 documentation page.
 - **libcommsdsl** - A C++11 library for parsing of 
 [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) schema files.

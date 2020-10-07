@@ -86,7 +86,9 @@ std::uintmax_t maxTypeValue(commsdsl::EnumField::Type val)
             "Invalid map");
 
     if (commsdsl::EnumField::Type::NumOfValues <= val) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         val = commsdsl::EnumField::Type::Uint64;
     }
     return Map[static_cast<unsigned>(val)];
@@ -142,7 +144,9 @@ common::StringsList EnumField::getValuesList() const
     for (auto& v : sortedRevValues) {
         auto iter = values.find(*v.second);
         if (iter == values.end()) {
-            assert(!"Should not happen");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             continue;
         }
 
@@ -301,11 +305,11 @@ unsigned EnumField::hexWidth() const
 {
     auto obj = enumFieldDslObj();
 
-    unsigned hexWidth = 0U;
+    std::uintmax_t hexWidth = 0U;
     if (obj.hexAssign()) {
         hexWidth = obj.maxLength() * 2U;
     }
-    return hexWidth;
+    return static_cast<unsigned>(hexWidth);
 }
 
 void EnumField::updateIncludesImpl(IncludesList& includes) const
@@ -419,13 +423,17 @@ std::string EnumField::getCompareToValueImpl(
 
     auto lastDot = value.find_last_of(".");
     if (lastDot == std::string::npos) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return Base::getCompareToValueImpl(op, value, nameOverride, forcedVersionOptional);
     }
 
     auto* otherEnum = generator().findField(std::string(value, 0, lastDot), false);
     if ((otherEnum == nullptr) || (otherEnum->kind() != commsdsl::Field::Kind::Enum)) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return Base::getCompareToValueImpl(op, value, nameOverride, forcedVersionOptional);
     }
 
@@ -433,7 +441,9 @@ std::string EnumField::getCompareToValueImpl(
     auto& otherValues = castedOtherEnum.enumFieldDslObj().values();
     auto otherIter = otherValues.find(std::string(value, lastDot + 1));
     if (otherIter == otherValues.end()) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return Base::getCompareToValueImpl(op, value, nameOverride, forcedVersionOptional);
     }
 
@@ -1215,7 +1225,7 @@ bool EnumField::isDirectValueNameMapping() const
     auto lastIter = revValues.end();
     std::advance(lastIter, -1);
     auto lastVal = static_cast<std::uintmax_t>(lastIter->first);
-    auto maxDirectAllowed = static_cast<std::size_t>(revValues.size() * 1.1f);
+    auto maxDirectAllowed = static_cast<std::size_t>((revValues.size() * 110U) / 100);
     if ((maxDirectAllowed <= lastVal) && (10 <= lastVal)) {
         // Too sparse
         return false;

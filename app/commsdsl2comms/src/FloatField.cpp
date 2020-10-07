@@ -166,7 +166,7 @@ std::string limitToString(double val)
 double getLowest(commsdsl::FloatField::Type type)
 {
     if (type == commsdsl::FloatField::Type::Float) {
-        return std::numeric_limits<float>::lowest();
+        return double(std::numeric_limits<float>::lowest());
     }
 
     return std::numeric_limits<double>::lowest();
@@ -175,7 +175,7 @@ double getLowest(commsdsl::FloatField::Type type)
 double getMax(commsdsl::FloatField::Type type)
 {
     if (type == commsdsl::FloatField::Type::Float) {
-        return std::numeric_limits<float>::max();
+        return double(std::numeric_limits<float>::max());
     }
 
     return std::numeric_limits<double>::max();
@@ -606,7 +606,9 @@ const std::string& FloatField::getFieldType() const
 
     std::size_t idx = static_cast<std::size_t>(obj.type());
     if (TypeMapSize <= idx) {
-        assert(!"Should not happen");
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
         return common::emptyString();
     }
 

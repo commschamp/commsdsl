@@ -173,7 +173,7 @@ const std::string& FieldImpl::kindStr() const
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == (unsigned)Kind::NumOfValues, "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<unsigned>(kind());
     assert(idx < MapSize);
@@ -256,7 +256,9 @@ bool FieldImpl::isComparableToField(const FieldImpl& field) const
         auto& refField = static_cast<const RefFieldImpl&>(field);
         auto* referee = refField.fieldImpl();
         if (referee == nullptr) {
-            assert(!"BUG");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             return false;
         }
 
@@ -315,7 +317,9 @@ bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
         return false;
     }
 
-    assert(!"Unhandled semantic type, please fix");
+    static constexpr bool Unexpected_semantic_type = false;
+    static_cast<void>(Unexpected_semantic_type);
+    assert(Unexpected_semantic_type);
     return true;
 }
 
@@ -380,7 +384,9 @@ const XmlWrap::NamesList&FieldImpl::extraChildrenNamesImpl() const
 bool FieldImpl::reuseImpl(const FieldImpl& other)
 {
     static_cast<void>(other);
-    assert(!"NYI, this function should not be called");
+    static constexpr bool Should_not_happen = false;
+    static_cast<void>(Should_not_happen);
+    assert(Should_not_happen);
     return false;
 }
 

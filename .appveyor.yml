@@ -10,8 +10,8 @@ clone_folder: c:\projects\commsdsl
 shallow_clone: true             
 
 platform:
-    - x64
     - x86
+    - x64
 
 configuration:
     - Debug

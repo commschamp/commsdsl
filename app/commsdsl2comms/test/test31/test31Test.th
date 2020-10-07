@@ -43,7 +43,7 @@ void TestSuite::test1()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test31::MsgId_M1);
     auto* msg = static_cast<const Msg1*>(msgPtr.get());
-    TS_ASSERT_EQUALS((unsigned)msg->field_f1().field_m1().value(), 0x1);
+    TS_ASSERT_EQUALS(static_cast<unsigned>(msg->field_f1().field_m1().value()), 0x1);
     TS_ASSERT_EQUALS(msg->field_f1().field_m2().value(), 0x1);
 }
 

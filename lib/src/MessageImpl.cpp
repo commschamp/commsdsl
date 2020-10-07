@@ -497,7 +497,7 @@ bool MessageImpl::updateSender()
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == (unsigned)Sender::NumOfValues, "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(Sender::NumOfValues), "Invalid map");
 
     auto senderIter = std::find(std::begin(Map), std::end(Map), common::toLowerCopy(iter->second));
     if (senderIter == std::end(Map)) {
@@ -670,7 +670,9 @@ bool MessageImpl::updateFields()
             std::string fKind(reinterpret_cast<const char*>(fNode->name));
             auto field = FieldImpl::create(fKind, fNode, m_protocol);
             if (!field) {
-                assert(!"Internal error");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
                 logError() << XmlWrap::logPrefix(getNode()) <<
                       "Internal error, failed to create objects for member fields.";
                 return false;
@@ -716,7 +718,9 @@ bool MessageImpl::updateAliases()
     for (auto* aNode : aliasNodes) {
         auto alias = AliasImpl::create(aNode, m_protocol);
         if (!alias) {
-            assert(!"Internal error");
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
             logError() << XmlWrap::logPrefix(alias->getNode()) <<
                   "Internal error, failed to create objects for member aliases.";
             return false;
