@@ -6,6 +6,7 @@ option (COMMSDSL_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 option (COMMSDSL_TEST_BUILD_CC_PLUGIN "Build CommsChampion plugin in commsdsl2comms unittiesting" ON)
+option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers" ON)
 
 # Additional variables to be used if needed
 # ---------------------------
@@ -20,7 +21,7 @@ if (NOT CMAKE_CXX_STANDARD)
 endif()
 
 if ("${CC_TAG}" STREQUAL "")
-    set (CC_TAG "v3.1")
+    set (CC_TAG "develop")
 endif()
 
 set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")

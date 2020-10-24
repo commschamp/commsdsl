@@ -43,9 +43,16 @@ function (test_func name)
     target_include_directories (${testName} PRIVATE "${output_dir}/include")
 
     target_compile_options(${testName} PRIVATE
-        $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast>
-        $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast>
+        $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast ${COMMSDSL_SANITIZER_OPTS}>
+        $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast ${COMMSDSL_SANITIZER_OPTS}>
     )    
+
+    if (NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "")
+        target_link_options(${testName} PRIVATE
+            $<$<CXX_COMPILER_ID:GNU>:${COMMSDSL_SANITIZER_OPTS}>
+            $<$<CXX_COMPILER_ID:Clang>:${COMMSDSL_SANITIZER_OPTS}>
+        ) 
+    endif ()    
 
     while (TRUE)
         if (NOT COMMSDSL_TEST_BUILD_CC_PLUGIN)
@@ -132,6 +139,28 @@ endif ()
 if (NOT TARGET cc::comms)
     message (FATAL_ERROR "cc::comms target is not defined")
 endif () 
+
+set (COMMSDSL_SANITIZER_OPTS)
+if (COMMSDSL_TEST_USE_SANITIZERS AND
+    ((CMAKE_COMPILER_IS_GNUCC) OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")))
+    set (COMMSDSL_SANITIZER_OPTS 
+        -fno-omit-frame-pointer 
+        -fno-sanitize-recover=address 
+        -fsanitize=address
+        -fno-sanitize-recover=undefined
+        -fsanitize=undefined)
+endif ()
+
+
+if ((NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "") AND (${CMAKE_VERSION} VERSION_LESS "3.13"))
+    message (WARNING "The CMake version is too old, expected at least 3.13, sanitizers are disabled")
+    set (COMMSDSL_SANITIZER_OPTS)
+endif ()
+
+if ((NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "") AND (NOT "${VALGRIND_EXECUTABLE}" STREQUAL ""))
+    message (WARNING "Cannot run valgrind when tests compiled with sanitizers")
+    set (VALGRIND_EXECUTABLE) # Disable valgrind tests
+endif ()
 
 find_package (Doxygen)
 

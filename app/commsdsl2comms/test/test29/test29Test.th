@@ -140,18 +140,18 @@ void TestSuite::test3()
     TS_ASSERT_EQUALS(msgPtr->getId(), test29::MsgId_M1);
     auto* msg = static_cast<const DV_Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().value(), "hello");
-    TS_ASSERT_EQUALS(&(*msg->field_f1().value().begin()), reinterpret_cast<const char*>(&Buf1[1])); // view on orig buffer
+    TS_ASSERT_EQUALS(&(*msg->field_f1().value().begin()), static_cast<const void*>(&Buf1[1])); // view on orig buffer
     TS_ASSERT_EQUALS(msg->field_f2().value()[0], 0xb);
     TS_ASSERT_EQUALS(msg->field_f2().value()[1], 0xc);
     TS_ASSERT_EQUALS(msg->field_f2().value()[2], 0xd);
-    TS_ASSERT_EQUALS(&(*msg->field_f2().value().begin()), &Buf1[6]); // view on orig buffer
+    TS_ASSERT_EQUALS(&(*msg->field_f2().value().begin()), static_cast<const void*>(&Buf1[6])); // view on orig buffer
     TS_ASSERT_EQUALS(msg->field_f3().value()[0].value(), 0xaaaa);
     TS_ASSERT_EQUALS(msg->field_f3().value()[1].value(), 0xbbbb);    
 
     DV_Msg2 msg2;
     comms::util::assign(msg2.field_f1().value(), msg->field_f1().value().begin(), msg->field_f1().value().end());
     TS_ASSERT_EQUALS(msg2.field_f1().value(), msg->field_f1().value());
-    TS_ASSERT_EQUALS(&(*msg2.field_f1().value().begin()), reinterpret_cast<const char*>(&Buf1[1])); // view on orig buffer
+    TS_ASSERT_EQUALS(&(*msg2.field_f1().value().begin()), static_cast<const void*>(&Buf1[1])); // view on orig buffer
 
     comms::util::assign(msg2.field_f2().value(), msg->field_f2().value().begin(), msg->field_f2().value().end());
     TS_ASSERT_EQUALS(msg2.field_f2().value(), msg->field_f2().value());
