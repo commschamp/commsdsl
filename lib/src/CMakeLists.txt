@@ -128,6 +128,10 @@ target_include_directories(${PROJECT_NAME}
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE COMMSDSL_LIB_EXPORT)
 
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
+) 
+
 install(
     TARGETS ${PROJECT_NAME} EXPORT "LibCommsdslTargets"
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}

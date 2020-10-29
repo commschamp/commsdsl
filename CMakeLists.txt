@@ -53,10 +53,11 @@ endif ()
 
 include (${CC_CMAKE_DIR}/CC_Compile.cmake)
 cc_compile(${warn_opt} ${ccache_opt})
+cc_msvc_force_warn_opt("/W4")
 
-if (MSVC)
-    add_definitions("/wd4251" "/wd4503" "/wd4309" "/wd4267" "-D_SCL_SECURE_NO_WARNINGS")
-endif ()
+#if (MSVC)
+#    add_definitions("/wd4251" "/wd4503" "/wd4309" "/wd4267" "-D_SCL_SECURE_NO_WARNINGS")
+#endif ()
 
 ################################################
 
