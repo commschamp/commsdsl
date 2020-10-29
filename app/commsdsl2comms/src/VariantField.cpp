@@ -561,7 +561,6 @@ std::string VariantField::getRead() const
          "    switch (commonKeyField.value()) {\n"
          "    #^#CASES#$#\n"
          "    };\n"
-         "    return comms::ErrorStatus::InvalidMsgData;\n"
          "}\n";
 
      return common::processTemplate(Templ, repl);

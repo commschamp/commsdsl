@@ -613,9 +613,6 @@ bool ListFieldImpl::checkPrefixAsChild(
             "The \"" << type << "\" element "
             "is expected to define field as child element";
         return false;
-
-        assert(hasInProps);
-        return true;
     }
 
     if (hasInProps) {
