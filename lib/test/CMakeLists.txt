@@ -41,6 +41,10 @@ endif ()
 add_library(${COMMON_TEST_LIB_NAME} STATIC ${common_test_src})
 target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME} cxxtest::cxxtest)
 
+target_compile_options(${COMMON_TEST_LIB_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
+)
+
 test_func (int)
 test_func (float)
 test_func (enum)

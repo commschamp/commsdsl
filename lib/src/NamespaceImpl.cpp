@@ -630,8 +630,8 @@ bool NamespaceImpl::updateExtraAttrs()
 
 bool NamespaceImpl::updateExtraChildren()
 {
-    static const XmlWrap::NamesList ChildrenNames = allNames();
-    m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
+    static const XmlWrap::NamesList Names = allNames();
+    m_extraChildren = XmlWrap::getExtraChildren(m_node, Names, m_protocol);
     return true;
 }
 

@@ -198,6 +198,7 @@ bool Cmake::writeMain() const
         "    endif ()\n\n"
         "    include(${cc_compile_file})\n"
         "    cc_compile(${warn_as_err_opt} ${ccache_opt})\n"
+        "    cc_msvc_force_warn_opt(\"/W4\")\n"
         "endif ()\n\n"
         "######################################################################\n\n"
         "# Define documentation target\n"

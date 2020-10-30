@@ -130,6 +130,7 @@ bool VariantField::prepareImpl()
 void VariantField::updateIncludesImpl(IncludesList& includes) const
 {
     static const IncludesList List = {
+        "comms/CompileControl.h",
         "comms/field/Variant.h",
         "<tuple>"
     };
@@ -560,7 +561,9 @@ std::string VariantField::getRead() const
          "    len -= consumedLen;\n\n"
          "    switch (commonKeyField.value()) {\n"
          "    #^#CASES#$#\n"
-         "    };\n"
+         "    };\n\n"
+         "    COMMS_MSVC_WARNING_SUPPRESS(4702) // Suppress unreachable code warning\n"
+         "    return comms::ErrorStatus::InvalidMsgData;\n"
          "}\n";
 
      return common::processTemplate(Templ, repl);
