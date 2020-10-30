@@ -31,14 +31,30 @@ if (NOT COMMSDSL_EXTERNALS_DIR)
     set (COMMSDSL_EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 endif ()
 
-if (COMMS_INSTALL_DIR)
-    set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
-else ()
+################################################
+# Make sure that the COMMS library is available
+while (TRUE)
+    if (NOT "${COMMS_INSTALL_DIR}" STREQUAL "")
+        set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
+        break()
+    endif ()
+
+    find_package(LibComms QUIET)
+    if (TARGET cc::comms)
+        if ("${LibComms_DIR}" STREQUAL "")
+            message (FATAL_ERROR "The comms library found but the directory is not known")
+        endif ()
+
+        set (CC_CMAKE_DIR ${LibComms_DIR}/lib/LibComms/cmake)
+        break()
+    endif ()
+
     set (CC_SRC_DIR "${COMMSDSL_EXTERNALS_DIR}/comms_champion")
     include (${CMAKE_SCIPTS_DIR}/CC_Prefetch.cmake)
     cc_prefetch(SRC_DIR ${CC_SRC_DIR} TAG ${CC_TAG})
     set (CC_CMAKE_DIR ${CC_SRC_DIR}/cmake)
-endif ()
+    break()
+endwhile ()
 
 ################################################
 # Compiler options
@@ -55,10 +71,6 @@ endif ()
 include (${CC_CMAKE_DIR}/CC_Compile.cmake)
 cc_compile(${warn_opt} ${ccache_opt})
 cc_msvc_force_warn_opt("/W4")
-
-#if (MSVC)
-#    add_definitions("/wd4251" "/wd4503" "/wd4309" "/wd4267" "-D_SCL_SECURE_NO_WARNINGS")
-#endif ()
 
 ################################################
 
