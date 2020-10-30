@@ -7,6 +7,7 @@ option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 option (COMMSDSL_TEST_BUILD_CC_PLUGIN "Build CommsChampion plugin in commsdsl2comms unittiesting" ON)
 option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers" ON)
+option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
 
 # Additional variables to be used if needed
 # ---------------------------
