@@ -562,8 +562,10 @@ std::string VariantField::getRead() const
          "    switch (commonKeyField.value()) {\n"
          "    #^#CASES#$#\n"
          "    };\n\n"
-         "    COMMS_MSVC_WARNING_SUPPRESS(4702) // Suppress unreachable code warning\n"
+         "    COMMS_MSVC_WARNING_PUSH\n"
+         "    COMMS_MSVC_WARNING_DISABLE(4702) // Unreachable code warning\n"
          "    return comms::ErrorStatus::InvalidMsgData;\n"
+         "    COMMS_MSVC_WARNING_POP\n"
          "}\n";
 
      return common::processTemplate(Templ, repl);
