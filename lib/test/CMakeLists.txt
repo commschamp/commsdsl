@@ -11,11 +11,10 @@ function (test_func name)
     cc_cxxtest_add_test(NAME ${testName} SRC ${tests} ${valgrand_opt} NO_COMMS_LIB_DEP)    
 
     target_compile_definitions (${testName} PRIVATE "-DSCHEMAS_DIR=\"${testDir}\"")
-    target_link_libraries(${testName} ${COMMON_TEST_LIB_NAME} ${PROJECT_NAME})
+    target_link_libraries(${testName} PRIVATE ${COMMON_TEST_LIB_NAME} ${PROJECT_NAME})
 
     target_compile_options(${testName} PRIVATE
-        $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast>
-        $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast>
+        $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
     )
 
 endfunction ()
@@ -41,6 +40,10 @@ endif ()
 
 add_library(${COMMON_TEST_LIB_NAME} STATIC ${common_test_src})
 target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME} cxxtest::cxxtest)
+
+target_compile_options(${COMMON_TEST_LIB_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
+)
 
 test_func (int)
 test_func (float)

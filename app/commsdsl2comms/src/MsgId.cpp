@@ -103,11 +103,22 @@ bool MsgId::writeDefinition() const
         auto allMessages = m_generator.getAllMessageIds();
         common::StringsList ids;
         ids.reserve(allMessages.size());
+        bool fitsUnsigned = true;
         for (auto& m : allMessages) {
             ids.push_back(m.second + " = " + common::numToString(m.first));
+            if (std::numeric_limits<unsigned>::max() < m.first) {
+                fitsUnsigned = false;
+            }
         }
 
         idsStr = common::listToString(ids, ",\n", common::emptyString());
+
+        if (fitsUnsigned) {
+            typeStr = ": unsigned";
+        }
+        else {
+            typeStr = ": unsigned long long";
+        }
     }
     replacements.insert(std::make_pair("IDS", std::move(idsStr)));
     replacements.insert(std::make_pair("TYPE", std::move(typeStr)));

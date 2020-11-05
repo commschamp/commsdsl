@@ -1,12 +1,15 @@
 set (INTERNAL_LIBXML_TGT)
+
 while (TRUE)
-    if (UNIX)
-        # Use libxml2 from system repositories
+    if ((NOT WIN32) OR (NOT COMMSDSL_WIN_ALLOW_LIBXML_BUILD))
+        # Use libxml2 from system / external repositories
         break()
     endif ()
 
-    if ((NOT "${LIBXML2_INCLUDE_DIR}" STREQUAL "") AND (NOT "${LIBXML2_LIBRARIES}" STREQUAL ""))
-        # External build of libxml2 is provided
+    find_package(LibXml2 QUIET)
+    if (LIBXML2_FOUND)
+        # Find again just to display info
+        find_package(LibXml2 REQUIRED) 
         break()
     endif ()
 
@@ -127,6 +130,10 @@ target_include_directories(${PROJECT_NAME}
 
 target_compile_definitions(${PROJECT_NAME}
   PRIVATE COMMSDSL_LIB_EXPORT)
+
+target_compile_options(${PROJECT_NAME} PRIVATE
+    $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
+) 
 
 install(
     TARGETS ${PROJECT_NAME} EXPORT "LibCommsdslTargets"
