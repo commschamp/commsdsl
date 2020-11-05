@@ -22,7 +22,7 @@ if (NOT CMAKE_CXX_STANDARD)
 endif()
 
 if ("${CC_TAG}" STREQUAL "")
-    set (CC_TAG "develop")
+    set (CC_TAG "v3.1.2")
 endif()
 
 set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
