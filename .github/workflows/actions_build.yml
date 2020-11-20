@@ -76,11 +76,6 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: ctest 
-
-    - name: Documentation
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: make doc_comms && make doc_commschampion
       
   build_clang_ubuntu_18_04:
     runs-on: ubuntu-18.04
@@ -119,11 +114,6 @@ jobs:
       shell: bash
       run: ctest 
 
-    - name: Documentation
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: make doc_comms && make doc_commschampion      
-      
   build_clang_ubuntu_20_04:
     runs-on: ubuntu-20.04
     strategy:
