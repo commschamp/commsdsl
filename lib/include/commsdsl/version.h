@@ -26,7 +26,7 @@
 #define COMMSDSL_MINOR_VERSION 5U
 
 /// @brief Patch level of the library
-#define COMMSDSL_PATCH_VERSION 4U
+#define COMMSDSL_PATCH_VERSION 5U
 
 /// @brief Macro to create numeric version as single unsigned number
 #define COMMSDSL_MAKE_VERSION(major_, minor_, patch_) \
