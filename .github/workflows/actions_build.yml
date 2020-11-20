@@ -3,13 +3,13 @@ name: Github Actions Build
 on: [push]
 
 jobs:
-  build_gcc_ubuntu_16_04:
-    runs-on: ubuntu-16.04
+  build_gcc_ubuntu_18_04:
+    runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
       matrix:
         type: [Debug, Release, MinSizeRel]
-        cc_ver: [4.8, 5, 6]
+        cc_ver: [5, 6]
 
     steps:
     - uses: actions/checkout@v2
@@ -52,7 +52,7 @@ jobs:
     - uses: actions/checkout@v2
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 libqt5serialport5-dev libqt5network5 doxygen dia
+      run: sudo apt install libqt5gui5 libboost-all-dev libxml2-dev 
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -94,7 +94,7 @@ jobs:
     - uses: actions/checkout@v2
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 libqt5serialport5-dev libqt5network5 doxygen dia clang-${{matrix.cc_ver}}
+      run: sudo apt install libqt5gui5 libboost-all-dev libxml2-dev clang-${{matrix.cc_ver}}
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -136,7 +136,7 @@ jobs:
     - uses: actions/checkout@v2
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 libqt5serialport5-dev libqt5network5 doxygen dia clang-${{matrix.cc_ver}}
+      run: sudo apt install libqt5gui5 libboost-all-dev libxml2-dev clang-${{matrix.cc_ver}}
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
