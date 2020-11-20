@@ -160,8 +160,4 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: ctest 
-
-    - name: Documentation
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: make doc_comms && make doc_commschampion            
+          
