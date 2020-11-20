@@ -108,6 +108,10 @@ if (NOT BUILD_TESTING)
 endif () 
 
 if ("${COMMS_INSTALL_DIR}" STREQUAL "")
+    if (("${CC_CMAKE_DIR}" STREQUAL "") OR (NOT EXISTS "${CC_CMAKE_DIR}/CC_External.cmake"))
+        message (FATAL_ERROR "Missing CC_External.cmake script, should be provided by the comms_champipon project")
+    endif ()
+
     include (${CC_CMAKE_DIR}/CC_External.cmake)
 
     set (qt_dir_opt)

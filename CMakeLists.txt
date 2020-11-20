@@ -3,6 +3,7 @@ project ("commsdsl")
 
 option (COMMSDSL_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 option (COMMSDSL_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
+option (COMMSDSL_NO_COMMS_CHAMPION "Disable checkout of comms_champion to reuse its cmake scripts" OFF)
 option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
 option (COMMSDSL_TEST_BUILD_CC_PLUGIN "Build CommsChampion plugin in commsdsl2comms unittiesting" ON)
@@ -45,7 +46,12 @@ while (TRUE)
             message (FATAL_ERROR "The comms library found but the directory is not known")
         endif ()
 
-        set (CC_CMAKE_DIR ${LibComms_DIR}/lib/LibComms/cmake)
+        set (CC_CMAKE_DIR ${LibComms_DIR})
+        break()
+    endif ()
+
+    if (COMMSDSL_NO_COMMS_CHAMPION)    
+        message (STATUS "Skipping checkout of comms_champion project")
         break()
     endif ()
 
@@ -68,20 +74,32 @@ if ((UNIX) AND (NOT COMMSDSL_NO_CCACHE))
     set (ccache_opt USE_CCACHE)
 endif ()
 
-include (${CC_CMAKE_DIR}/CC_Compile.cmake)
-cc_compile(${warn_opt} ${ccache_opt})
-cc_msvc_force_warn_opt("/W4")
+if ((NOT "${CC_CMAKE_DIR}" STREQUAL "") AND (EXISTS "${CC_CMAKE_DIR}/CC_Compile.cmake"))
+    include (${CC_CMAKE_DIR}/CC_Compile.cmake)
+    cc_compile(${warn_opt} ${ccache_opt})
+    cc_msvc_force_warn_opt("/W4")
+endif ()
 
 ################################################
 
-if (NOT COMMSDSL_NO_TESTS)
+while (TRUE)
+    if (COMMSDSL_NO_TESTS)
+        break()
+    endif ()
+
+    if (("${CC_CMAKE_DIR}" STREQUAL "") OR (NOT EXISTS "${CC_CMAKE_DIR}/CC_CxxtestFuncs.cmake"))
+        message (WARNING "Missing CC_CxxtestFuncs.cmake script, should be provided by the comms_champipon project")
+        break()
+    endif ()
+
     include (${CC_CMAKE_DIR}/CC_CxxtestFuncs.cmake)
     cc_get_cxxtest(INSTALL_PREFIX ${COMMSDSL_EXTERNALS_DIR})
 
     if (COMMSDSL_VALGRIND_TESTS)
         find_program(VALGRIND_EXECUTABLE NAMES "valgrind")
     endif ()    
-endif ()
+    break ()
+endwhile ()
 
 include(GNUInstallDirs)
 
