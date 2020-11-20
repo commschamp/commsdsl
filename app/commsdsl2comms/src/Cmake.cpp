@@ -200,7 +200,7 @@ bool Cmake::writeMain() const
         "    include(${cc_compile_file})\n"
         "    cc_compile(${warn_as_err_opt} ${ccache_opt})\n"
         "    if (NOT \"${OPT_MSVC_FORCE_WARN_LEVEL}\" STREQUAL \"\")\n"
-        "        cc_msvc_force_warn_opt(\"/${OPT_MSVC_FORCE_WARN_LEVEL}\")\n"
+        "        cc_msvc_force_warn_opt(\"${OPT_MSVC_FORCE_WARN_LEVEL}\")\n"
         "    endif()\n"
         "endif ()\n\n"
         "######################################################################\n\n"
