@@ -32,6 +32,8 @@ namespace commsdsl2comms
 namespace
 {
 
+constexpr std::size_t MaxMembersSupportedByComms = 128;
+
 const std::string MembersDefTemplate =
     "/// @brief Scope for all the member fields of\n"
     "///     @ref #^#CLASS_NAME#$# bitfield.\n"
@@ -400,6 +402,15 @@ std::string VariantField::getMembersDef(const std::string& scope) const
 
 std::string VariantField::getAccess() const
 {
+    if (m_members.size() <= MaxMembersSupportedByComms) {
+        return getAccessByComms();
+    }
+
+    return getAccessGenerated();
+}
+
+std::string VariantField::getAccessByComms() const
+{
     static const std::string Templ =
         "/// @brief Allow access to internal fields.\n"
         "/// @details See definition of @b COMMS_VARIANT_MEMBERS_NAMES macro\n"
@@ -431,6 +442,62 @@ std::string VariantField::getAccess() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("ACCESS_DOC", common::listToString(accessDocList, "\n", common::emptyString())));
     replacements.insert(std::make_pair("NAMES", common::listToString(namesList, ",\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string VariantField::getAccessGenerated() const
+{
+    static const std::string Templ =
+        "/// @brief Allow access to internal fields by index.\n"
+        "enum FieldIdx : unsigned\n"
+        "{\n"
+            "#^#INDICES#$#,\n"
+            "FieldIdx_numOfValues"
+        "};\n\n"
+        "#^#ACCESS#$#\n";
+
+    StringsList indicesList;
+    StringsList accessList;
+    indicesList.reserve(m_members.size());
+    accessList.reserve(m_members.size());
+
+    auto docScope = common::nameToClassCopy(name()) + common::membersSuffixStr() + "::";
+    auto typeScope = "typename " + common::nameToClassCopy(name()) + common::membersSuffixStr() + "<TOpt>::";
+    for (auto& m : m_members) {
+        auto accName = common::nameToAccessCopy(m->name());
+        auto className = common::nameToClassCopy(m->name());
+
+        indicesList.push_back("FieldIdx_" + accName);
+
+        static const std::string AccTempl =
+            "/// @brief Member type alias to #^#DOC_SCOPE#$#.\n"
+            "using Field_#^#NAME#$# = #^#TYPE_SCOPE#$#;\n\n"
+            "/// @brief Initialize as #^#DOC_SCOPE#$#\n"
+            "Field_#^#NAME#$#& initField_#^#NAME#$#()\n"
+            "{\n"
+            "    return Base::template initField<FieldIdx_#^#NAME#$#>();\n"
+            "}\n\n"    
+            "/// @brief Access as #^#DOC_SCOPE#$#\n"
+            "Field_#^#NAME#$#& accessField_#^#NAME#$#()\n"
+            "{\n"
+            "    return Base::template accessField<FieldIdx_#^#NAME#$#>();\n"
+            "}\n\n"
+            "/// @brief Access as #^#DOC_SCOPE#$# (const version)\n"
+            "const Field_#^#NAME#$#& accessField_#^#NAME#$#() const\n"
+            "{\n"
+            "    return Base::template accessField<FieldIdx_#^#NAME#$#>();\n"
+            "}\n\n";   
+
+        common::ReplacementMap accRepl;
+        accRepl.insert(std::make_pair("DOC_SCOPE", docScope + className));
+        accRepl.insert(std::make_pair("TYPE_SCOPE", typeScope + className));
+        accRepl.insert(std::make_pair("NAME", accName));
+        accessList.push_back(common::processTemplate(AccTempl, accRepl));
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("INDICES", common::listToString(indicesList, ",\n", common::emptyString())));
+    replacements.insert(std::make_pair("ACCESS", common::listToString(accessList, "\n", common::emptyString())));
     return common::processTemplate(Templ, replacements);
 }
 

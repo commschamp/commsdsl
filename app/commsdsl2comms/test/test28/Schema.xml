@@ -6,24 +6,602 @@
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
         </enum>
         <variant name="Variant1">
             <bundle name="P1">
                 <int name="type" type="uint8" validValue="0" failOnInvalid="true"  displayReadOnly="true"/>
-                <int name="value" type="uint32" />
+                <int name="val" type="uint32" />
             </bundle>
             <bundle name="P2">
                 <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true"  displayReadOnly="true"/>
-                <int name="value" type="uint8" />
+                <int name="val" type="uint8" />
             </bundle>
         </variant>
 
         <variant name="Variant2" reuse="Variant1" defaultMember="P1" displayIdxReadOnlyHidden="true" />
+
+        <int name="VariantType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
+        <variant name="Variant3">
+            <description>
+                Tests having more members than COMMS library can handle
+            </description>
+            <members>
+                <bundle name="P0">
+                    <int name="type" reuse="VariantType" validValue="0" defaultValue="0"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P1">
+                    <int name="type" reuse="VariantType" validValue="1" defaultValue="1"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P2">
+                    <int name="type" reuse="VariantType" validValue="2" defaultValue="2"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P3">
+                    <int name="type" reuse="VariantType" validValue="3" defaultValue="3"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P4">
+                    <int name="type" reuse="VariantType" validValue="4" defaultValue="4"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P5">
+                    <int name="type" reuse="VariantType" validValue="5" defaultValue="5"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P6">
+                    <int name="type" reuse="VariantType" validValue="6" defaultValue="6"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P7">
+                    <int name="type" reuse="VariantType" validValue="7" defaultValue="7"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P8">
+                    <int name="type" reuse="VariantType" validValue="8" defaultValue="8"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P9">
+                    <int name="type" reuse="VariantType" validValue="9" defaultValue="9"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P10">
+                    <int name="type" reuse="VariantType" validValue="10" defaultValue="10"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P11">
+                    <int name="type" reuse="VariantType" validValue="11" defaultValue="11"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P12">
+                    <int name="type" reuse="VariantType" validValue="12" defaultValue="12"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P13">
+                    <int name="type" reuse="VariantType" validValue="13" defaultValue="13"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P14">
+                    <int name="type" reuse="VariantType" validValue="14" defaultValue="14"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P15">
+                    <int name="type" reuse="VariantType" validValue="15" defaultValue="15"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P16">
+                    <int name="type" reuse="VariantType" validValue="16" defaultValue="16"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P17">
+                    <int name="type" reuse="VariantType" validValue="17" defaultValue="17"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P18">
+                    <int name="type" reuse="VariantType" validValue="18" defaultValue="18"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P19">
+                    <int name="type" reuse="VariantType" validValue="19" defaultValue="19"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P20">
+                    <int name="type" reuse="VariantType" validValue="20" defaultValue="20"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P21">
+                    <int name="type" reuse="VariantType" validValue="21" defaultValue="21"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P22">
+                    <int name="type" reuse="VariantType" validValue="22" defaultValue="22"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P23">
+                    <int name="type" reuse="VariantType" validValue="23" defaultValue="23"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P24">
+                    <int name="type" reuse="VariantType" validValue="24" defaultValue="24"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P25">
+                    <int name="type" reuse="VariantType" validValue="25" defaultValue="25"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P26">
+                    <int name="type" reuse="VariantType" validValue="26" defaultValue="26"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P27">
+                    <int name="type" reuse="VariantType" validValue="27" defaultValue="27"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P28">
+                    <int name="type" reuse="VariantType" validValue="28" defaultValue="28"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P29">
+                    <int name="type" reuse="VariantType" validValue="29" defaultValue="29"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P30">
+                    <int name="type" reuse="VariantType" validValue="30" defaultValue="30"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P31">
+                    <int name="type" reuse="VariantType" validValue="31" defaultValue="31"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P32">
+                    <int name="type" reuse="VariantType" validValue="32" defaultValue="32"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P33">
+                    <int name="type" reuse="VariantType" validValue="33" defaultValue="33"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P34">
+                    <int name="type" reuse="VariantType" validValue="34" defaultValue="34"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P35">
+                    <int name="type" reuse="VariantType" validValue="35" defaultValue="35"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P36">
+                    <int name="type" reuse="VariantType" validValue="36" defaultValue="36"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P37">
+                    <int name="type" reuse="VariantType" validValue="37" defaultValue="37"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P38">
+                    <int name="type" reuse="VariantType" validValue="38" defaultValue="38"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P39">
+                    <int name="type" reuse="VariantType" validValue="39" defaultValue="39"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P40">
+                    <int name="type" reuse="VariantType" validValue="40" defaultValue="40"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P41">
+                    <int name="type" reuse="VariantType" validValue="41" defaultValue="41"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P42">
+                    <int name="type" reuse="VariantType" validValue="42" defaultValue="42"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P43">
+                    <int name="type" reuse="VariantType" validValue="43" defaultValue="43"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P44">
+                    <int name="type" reuse="VariantType" validValue="44" defaultValue="44"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P45">
+                    <int name="type" reuse="VariantType" validValue="45" defaultValue="45"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P46">
+                    <int name="type" reuse="VariantType" validValue="46" defaultValue="46"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P47">
+                    <int name="type" reuse="VariantType" validValue="47" defaultValue="47"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P48">
+                    <int name="type" reuse="VariantType" validValue="48" defaultValue="48"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P49">
+                    <int name="type" reuse="VariantType" validValue="49" defaultValue="49"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P50">
+                    <int name="type" reuse="VariantType" validValue="50" defaultValue="50"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P51">
+                    <int name="type" reuse="VariantType" validValue="51" defaultValue="51"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P52">
+                    <int name="type" reuse="VariantType" validValue="52" defaultValue="52"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P53">
+                    <int name="type" reuse="VariantType" validValue="53" defaultValue="53"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P54">
+                    <int name="type" reuse="VariantType" validValue="54" defaultValue="54"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P55">
+                    <int name="type" reuse="VariantType" validValue="55" defaultValue="55"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P56">
+                    <int name="type" reuse="VariantType" validValue="56" defaultValue="56"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P57">
+                    <int name="type" reuse="VariantType" validValue="57" defaultValue="57"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P58">
+                    <int name="type" reuse="VariantType" validValue="58" defaultValue="58"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P59">
+                    <int name="type" reuse="VariantType" validValue="59" defaultValue="59"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P60">
+                    <int name="type" reuse="VariantType" validValue="60" defaultValue="60"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P61">
+                    <int name="type" reuse="VariantType" validValue="61" defaultValue="61"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P62">
+                    <int name="type" reuse="VariantType" validValue="62" defaultValue="62"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P63">
+                    <int name="type" reuse="VariantType" validValue="63" defaultValue="63"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P64">
+                    <int name="type" reuse="VariantType" validValue="64" defaultValue="64"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P65">
+                    <int name="type" reuse="VariantType" validValue="65" defaultValue="65"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P66">
+                    <int name="type" reuse="VariantType" validValue="66" defaultValue="66"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P67">
+                    <int name="type" reuse="VariantType" validValue="67" defaultValue="67"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P68">
+                    <int name="type" reuse="VariantType" validValue="68" defaultValue="68"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P69">
+                    <int name="type" reuse="VariantType" validValue="69" defaultValue="69"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P70">
+                    <int name="type" reuse="VariantType" validValue="70" defaultValue="70"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P71">
+                    <int name="type" reuse="VariantType" validValue="71" defaultValue="71"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P72">
+                    <int name="type" reuse="VariantType" validValue="72" defaultValue="72"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P73">
+                    <int name="type" reuse="VariantType" validValue="73" defaultValue="73"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P74">
+                    <int name="type" reuse="VariantType" validValue="74" defaultValue="74"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P75">
+                    <int name="type" reuse="VariantType" validValue="75" defaultValue="75"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P76">
+                    <int name="type" reuse="VariantType" validValue="76" defaultValue="76"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P77">
+                    <int name="type" reuse="VariantType" validValue="77" defaultValue="77"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P78">
+                    <int name="type" reuse="VariantType" validValue="78" defaultValue="78"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P79">
+                    <int name="type" reuse="VariantType" validValue="79" defaultValue="79"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P80">
+                    <int name="type" reuse="VariantType" validValue="80" defaultValue="80"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P81">
+                    <int name="type" reuse="VariantType" validValue="81" defaultValue="81"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P82">
+                    <int name="type" reuse="VariantType" validValue="82" defaultValue="82"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P83">
+                    <int name="type" reuse="VariantType" validValue="83" defaultValue="83"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P84">
+                    <int name="type" reuse="VariantType" validValue="84" defaultValue="84"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P85">
+                    <int name="type" reuse="VariantType" validValue="85" defaultValue="85"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P86">
+                    <int name="type" reuse="VariantType" validValue="86" defaultValue="86"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P87">
+                    <int name="type" reuse="VariantType" validValue="87" defaultValue="87"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P88">
+                    <int name="type" reuse="VariantType" validValue="88" defaultValue="88"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P89">
+                    <int name="type" reuse="VariantType" validValue="89" defaultValue="89"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P90">
+                    <int name="type" reuse="VariantType" validValue="90" defaultValue="90"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P91">
+                    <int name="type" reuse="VariantType" validValue="91" defaultValue="91"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P92">
+                    <int name="type" reuse="VariantType" validValue="92" defaultValue="92"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P93">
+                    <int name="type" reuse="VariantType" validValue="93" defaultValue="93"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P94">
+                    <int name="type" reuse="VariantType" validValue="94" defaultValue="94"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P95">
+                    <int name="type" reuse="VariantType" validValue="95" defaultValue="95"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P96">
+                    <int name="type" reuse="VariantType" validValue="96" defaultValue="96"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P97">
+                    <int name="type" reuse="VariantType" validValue="97" defaultValue="97"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P98">
+                    <int name="type" reuse="VariantType" validValue="98" defaultValue="98"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P99">
+                    <int name="type" reuse="VariantType" validValue="99" defaultValue="99"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P100">
+                    <int name="type" reuse="VariantType" validValue="100" defaultValue="100"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P101">
+                    <int name="type" reuse="VariantType" validValue="101" defaultValue="101"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P102">
+                    <int name="type" reuse="VariantType" validValue="102" defaultValue="102"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P103">
+                    <int name="type" reuse="VariantType" validValue="103" defaultValue="103"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P104">
+                    <int name="type" reuse="VariantType" validValue="104" defaultValue="104"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P105">
+                    <int name="type" reuse="VariantType" validValue="105" defaultValue="105"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P106">
+                    <int name="type" reuse="VariantType" validValue="106" defaultValue="106"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P107">
+                    <int name="type" reuse="VariantType" validValue="107" defaultValue="107"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P108">
+                    <int name="type" reuse="VariantType" validValue="108" defaultValue="108"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P109">
+                    <int name="type" reuse="VariantType" validValue="109" defaultValue="109"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P110">
+                    <int name="type" reuse="VariantType" validValue="110" defaultValue="110"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P111">
+                    <int name="type" reuse="VariantType" validValue="111" defaultValue="111"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P112">
+                    <int name="type" reuse="VariantType" validValue="112" defaultValue="112"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P113">
+                    <int name="type" reuse="VariantType" validValue="113" defaultValue="113"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P114">
+                    <int name="type" reuse="VariantType" validValue="114" defaultValue="114"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P115">
+                    <int name="type" reuse="VariantType" validValue="115" defaultValue="115"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P116">
+                    <int name="type" reuse="VariantType" validValue="116" defaultValue="116"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P117">
+                    <int name="type" reuse="VariantType" validValue="117" defaultValue="117"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P118">
+                    <int name="type" reuse="VariantType" validValue="118" defaultValue="118"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P119">
+                    <int name="type" reuse="VariantType" validValue="119" defaultValue="119"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P120">
+                    <int name="type" reuse="VariantType" validValue="120" defaultValue="120"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P121">
+                    <int name="type" reuse="VariantType" validValue="121" defaultValue="121"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P122">
+                    <int name="type" reuse="VariantType" validValue="122" defaultValue="122"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P123">
+                    <int name="type" reuse="VariantType" validValue="123" defaultValue="123"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P124">
+                    <int name="type" reuse="VariantType" validValue="124" defaultValue="124"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P125">
+                    <int name="type" reuse="VariantType" validValue="125" defaultValue="125"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P126">
+                    <int name="type" reuse="VariantType" validValue="126" defaultValue="126"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P127">
+                    <int name="type" reuse="VariantType" validValue="127" defaultValue="127"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P128">
+                    <int name="type" reuse="VariantType" validValue="128" defaultValue="128"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P129">
+                    <int name="type" reuse="VariantType" validValue="129" defaultValue="129"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P130">
+                    <int name="type" reuse="VariantType" validValue="130" defaultValue="130"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P131">
+                    <int name="type" reuse="VariantType" validValue="131" defaultValue="131"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P132">
+                    <int name="type" reuse="VariantType" validValue="132" defaultValue="132"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P133">
+                    <int name="type" reuse="VariantType" validValue="133" defaultValue="133"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P134">
+                    <int name="type" reuse="VariantType" validValue="134" defaultValue="134"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P135">
+                    <int name="type" reuse="VariantType" validValue="135" defaultValue="135"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P136">
+                    <int name="type" reuse="VariantType" validValue="136" defaultValue="136"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P137">
+                    <int name="type" reuse="VariantType" validValue="137" defaultValue="137"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P138">
+                    <int name="type" reuse="VariantType" validValue="138" defaultValue="138"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P139">
+                    <int name="type" reuse="VariantType" validValue="139" defaultValue="139"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P140">
+                    <int name="type" reuse="VariantType" validValue="140" defaultValue="140"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+            </members>
+        </variant>
     </fields>
     
     <message name="Msg1" id="MsgId.M1">
         <ref field="Variant1" />
         <ref field="Variant2" />
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <ref field="Variant3" name="F1" />
     </message>
 
     <frame name="Frame">
