@@ -223,11 +223,15 @@ std::string IntField::getPropKeyType() const
     return common::processTemplate(Templ, replacements);
 }
 
-std::string IntField::getPropKeyValueStr() const
+std::string IntField::getPropKeyValueStr(bool asHex) const
 {
     auto val = intFieldDslObj().defaultValue();
     if (isUnsigned()) {
-        return common::numToString(static_cast<std::uintmax_t>(val));
+        unsigned hexWidth = 0U;
+        if (asHex) {
+            hexWidth = static_cast<decltype(hexWidth)>(intFieldDslObj().maxLength() * 2U);
+        }
+        return common::numToString(static_cast<std::uintmax_t>(val), hexWidth);
     }
     return common::numToString(val);
 }

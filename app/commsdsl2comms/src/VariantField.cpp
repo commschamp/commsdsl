@@ -542,8 +542,13 @@ std::string VariantField::getRead() const
                 return common::emptyString();
             }
 
+            auto valHexStr = bundle.getPropKeyValueStr(true);
+            if (!valHexStr.empty()) {
+                valHexStr = " // " + valHexStr;
+            }
+
             static const std::string Templ =
-                "case #^#VAL#$#:\n"
+                "case #^#VAL#$#:#^#VAL_HEX#$#\n"
                 "    {\n"
                 "        auto& field_#^#BUNDLE_NAME#$# = initField_#^#BUNDLE_NAME#$#();\n"
                 "        COMMS_ASSERT(field_#^#BUNDLE_NAME#$#.field_#^#KEY_NAME#$#().value() == commonKeyField.value());\n"
@@ -553,6 +558,7 @@ std::string VariantField::getRead() const
 
             common::ReplacementMap repl;
             repl.insert(std::make_pair("VAL", std::move(valStr)));
+            repl.insert(std::make_pair("VAL_HEX", std::move(valHexStr)));
             repl.insert(std::make_pair("BUNDLE_NAME", common::nameToAccessCopy(bundle.name())));
             repl.insert(std::make_pair("KEY_NAME", common::nameToAccessCopy(propKeyName)));
 

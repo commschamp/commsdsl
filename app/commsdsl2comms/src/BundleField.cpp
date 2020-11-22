@@ -131,7 +131,7 @@ std::string BundleField::getFirstMemberName() const
     return m_members.front()->name();
 }
 
-std::string BundleField::getPropKeyValueStr() const
+std::string BundleField::getPropKeyValueStr(bool asHex) const
 {
     if (m_members.empty()) {
         return common::emptyString();
@@ -143,7 +143,7 @@ std::string BundleField::getPropKeyValueStr() const
     }
 
     auto& keyField = static_cast<const IntField&>(*first);
-    return keyField.getPropKeyValueStr();
+    return keyField.getPropKeyValueStr(asHex);
 }
 
 bool BundleField::prepareImpl()
