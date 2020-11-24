@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test43" endian="big" dslVersion="3">
+    <description>
+        This is regression testing schema. The message length
+        hasn't been calculated properly which causes static assertion.
+    </description>
+    <fields>
+        <string name="Msg1Name" defaultValue="Message 1" />
+        <string name="Msg2Name" defaultValue="Message 2" />
+            
+        <enum name="MsgId" type="uint8" semanticType="messageId">
+            <validValue name="M1" val="1" displayName="^Msg1Name" />
+            <validValue name="M2" val="2" displayName="^Msg2Name" />
+        </enum>
+        
+        <enum name="PropKey" type="uint8">
+            <validValue name="K1" val="0" />
+            <validValue name="K2" val="2" />
+            <validValue name="K3" val="5" />
+            <validValue name="K4" val="10" />
+            <validValue name="K5" val="15" />
+            <validValue name="K6" val="25" />
+        </enum>
+        
+        <int name="PropKeyCommon" type="uint8" failOnInvalid="true"/>
+        
+        <variant name="KeyValueProp">
+            <bundle name="Prop1">
+                <int reuse="PropKeyCommon" name="Key" defaultValue="PropKey.K1" validValue="PropKey.K1" />
+                <int name="Val" type="uint16" />
+            </bundle>
+            
+            <bundle name="Prop2">
+                <int reuse="PropKeyCommon" name="Key" defaultValue="PropKey.K2" validValue="PropKey.K2" />
+                <float name="Val" type="float" defaultValue="nan" />
+            </bundle>            
+            
+            <bundle name="Prop3">
+                <int reuse="PropKeyCommon" name="Key" defaultValue="PropKey.K3" validValue="PropKey.K3" />
+                <string name="Val">
+                    <lengthPrefix>
+                        <int name="Length" type="uint8" />
+                    </lengthPrefix>
+                </string>
+            </bundle>    
+        </variant>
+    </fields>
+    
+    <frame name="Frame">
+        <size name="Size">
+            <int name="SizeField" type="uint16" />
+        </size>
+        <id name="ID" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+    
+    <message name="Msg1" id="MsgId.M1" displayName="^Msg1Name">
+        <list name="F1" element="KeyValueProp">
+            <countPrefix>
+                <int name="Count" type="uint8" />
+            </countPrefix>
+        </list>
+    </message>
+    
+    <message name="Msg2" id="MsgId.M2" displayName="^Msg2Name">
+        <variant reuse="KeyValueProp" />
+    </message>
+</schema>

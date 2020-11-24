@@ -17,6 +17,7 @@
 
 #include <type_traits>
 #include <numeric>
+#include <algorithm>
 
 #include <boost/algorithm/string.hpp>
 
@@ -156,6 +157,17 @@ void VariantField::updatePluginIncludesImpl(Field::IncludesList& includes) const
     for (auto& m : m_members) {
         m->updatePluginIncludes(includes);
     }
+}
+
+std::size_t VariantField::maxLengthImpl() const
+{
+    return
+        std::accumulate(
+            m_members.begin(), m_members.end(), std::size_t(0),
+            [](std::size_t soFar, auto& m)
+            {
+                return std::max(soFar, m->maxLength());
+            });
 }
 
 std::string VariantField::getClassDefinitionImpl(
