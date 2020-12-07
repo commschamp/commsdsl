@@ -1523,6 +1523,10 @@ bool Field::writeProtocolDefinitionFile() const
 
 bool Field::writePluginHeaderFile() const
 {
+    if (!m_referenced) {
+        return true;
+    }
+
     auto startInfo = m_generator.startFieldPluginHeaderWrite(m_externalRef);
     auto& filePath = startInfo.first;
     auto& className = startInfo.second;
@@ -1567,6 +1571,10 @@ bool Field::writePluginHeaderFile() const
 
 bool Field::writePluginScrFile() const
 {
+    if (!m_referenced) {
+        return true;
+    }
+
     assert(!isVersionOptional());
     auto startInfo = m_generator.startFieldPluginSrcWrite(m_externalRef);
     auto& filePath = startInfo.first;
