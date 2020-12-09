@@ -33,7 +33,7 @@ namespace commsdsl2comms
 namespace
 {
 
-constexpr std::size_t MaxMembersSupportedByComms = 128;
+constexpr std::size_t MaxMembersSupportedByComms = 120;
 
 const std::string MembersDefTemplate =
     "/// @brief Scope for all the member fields of\n"
