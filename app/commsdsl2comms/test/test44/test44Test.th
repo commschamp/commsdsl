@@ -1,0 +1,34 @@
+#include "cxxtest/TestSuite.h"
+
+#include "comms/iterator.h"
+#include "test44/Message.h"
+#include "test44/message/Msg1.h"
+#include "test44/frame/Frame.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+
+    using Interface =
+        test44::Message<
+            comms::option::app::IdInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
+            comms::option::app::NameInterface,
+            comms::option::app::RefreshInterface
+        >;
+
+    using Msg1 = test44::message::Msg1<Interface>;
+    using Frame = test44::frame::Frame<Interface>;
+};
+
+void TestSuite::test1()
+{
+    Msg1 msg;
+
+    using ValueType = Msg1::Field_f1::Field_p100::Field_val::ValueType;
+    msg.field_f1().initField_p100().field_val().value() = static_cast<ValueType>(0xff);
+}
