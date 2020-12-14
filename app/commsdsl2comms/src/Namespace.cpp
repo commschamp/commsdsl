@@ -301,6 +301,7 @@ const Field* Namespace::findField(const std::string& externalRef, bool record)
         }
 
         if (record) {
+            fieldIter->get()->setReferenced();
             recordAccessedField(fieldIter->get());
         }
         return fieldIter->get();
@@ -459,12 +460,13 @@ common::StringsList Namespace::pluginCommonSources() const
     }
 
     result.reserve(result.size() + m_accessedFields.size() + m_messages.size());
-    std::transform(
-        m_accessedFields.begin(), m_accessedFields.end(), std::back_inserter(result),
-        [&prefix](auto& f)
-        {
-            return prefix + common::fieldStr() + '/' + common::nameToClassCopy(f.first->name()) + common::srcSuffix();
-        });
+    for (auto& f : m_accessedFields) {
+        if (!f.first->isReferenced()) {
+            continue;
+        }
+
+        result.push_back(prefix + common::fieldStr() + '/' + common::nameToClassCopy(f.first->name()) + common::srcSuffix());
+    }
 
     for (auto& i : m_interfaces) {
         result.push_back(prefix + common::nameToClassCopy(i->name()) + common::srcSuffix());

@@ -34,7 +34,7 @@ public:
     bool isUnsignedType() const;
     bool isValidPropKey() const;
     std::string getPropKeyType() const;
-    std::string getPropKeyValueStr() const;
+    std::string getPropKeyValueStr(bool asHex = false) const;
 
 protected:
     virtual bool prepareImpl() override;

@@ -34,6 +34,7 @@ protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
     virtual void updateIncludesCommonImpl(IncludesList& includes) const override;
     virtual void updatePluginIncludesImpl(IncludesList& includes) const override;
+    virtual std::size_t maxLengthImpl() const override;
     virtual std::string getClassDefinitionImpl(
         const std::string& scope,
         const std::string& className) const override;
@@ -58,6 +59,8 @@ private:
     std::string getFieldOpts(const std::string& scope) const;
     std::string getMembersDef(const std::string& scope) const;
     std::string getAccess() const;
+    std::string getAccessByComms() const;
+    std::string getAccessGenerated() const;
     std::string getRead() const;
     std::string getRefresh() const;
     std::string getCurrFieldExec() const;

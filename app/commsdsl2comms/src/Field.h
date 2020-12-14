@@ -201,6 +201,16 @@ public:
 
     bool verifyAlias(const std::string& fieldName) const;
 
+    void setReferenced()
+    {
+        m_referenced = true;
+    }
+
+    bool isReferenced() const
+    {
+        return m_referenced;
+    }
+
 protected:
     Field(Generator& generator, commsdsl::Field field)
       : m_generator(generator),
@@ -312,6 +322,7 @@ private:
     bool m_forcedPseudo = false;
     bool m_forcedNoOptionsConfig = false;
     bool m_memberChild = false;
+    bool m_referenced = false;
 };
 
 using FieldPtr = Field::Ptr;

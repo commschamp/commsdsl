@@ -3,12 +3,14 @@
 #include "comms/iterator.h"
 #include "test28/Message.h"
 #include "test28/message/Msg1.h"
+#include "test28/message/Msg2.h"
 #include "test28/frame/Frame.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     using Interface =
         test28::Message<
@@ -22,6 +24,7 @@ public:
         >;
 
     using Msg1 = test28::message::Msg1<Interface>;
+    using Msg2 = test28::message::Msg2<Interface>;
     using Frame = test28::frame::Frame<Interface>;
 };
 
@@ -43,7 +46,13 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(msgPtr->getId(), test28::MsgId_M1);
     auto* msg = static_cast<const Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_variant1().currentField(), 1U);
-    TS_ASSERT_EQUALS(msg->field_variant1().accessField_p2().field_value().value(), 0xa);
+    TS_ASSERT_EQUALS(msg->field_variant1().accessField_p2().field_val().value(), 0xa);
     TS_ASSERT_EQUALS(msg->field_variant2().currentField(), 0U);
-    TS_ASSERT_EQUALS(msg->field_variant2().accessField_p1().field_value().value(), 0x0b0c0d0e);
+    TS_ASSERT_EQUALS(msg->field_variant2().accessField_p1().field_val().value(), 0x0b0c0d0e);
+}
+
+void TestSuite::test2()
+{
+    Msg2 msg;
+    msg.field_f1().initField_p120().field_val().value() = 0xff;
 }

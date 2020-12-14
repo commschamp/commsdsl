@@ -32,7 +32,7 @@ public:
     bool startsWithValidPropKey() const;
     std::string getPropKeyType() const;
     std::string getFirstMemberName() const;
-    std::string getPropKeyValueStr() const;
+    std::string getPropKeyValueStr(bool asHex = false) const;
 
 protected:
     virtual bool prepareImpl() override;

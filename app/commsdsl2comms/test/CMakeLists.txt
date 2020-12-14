@@ -43,8 +43,9 @@ function (test_func name)
     target_include_directories (${testName} PRIVATE "${output_dir}/include")
 
     target_compile_options(${testName} PRIVATE
-        $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast ${COMMSDSL_SANITIZER_OPTS}>
-        $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast ${COMMSDSL_SANITIZER_OPTS}>
+        $<$<CXX_COMPILER_ID:MSVC>:/bigobj>
+        $<$<CXX_COMPILER_ID:GNU>:-Wno-old-style-cast -ftemplate-depth=2048 ${COMMSDSL_SANITIZER_OPTS}>
+        $<$<CXX_COMPILER_ID:Clang>:-Wno-old-style-cast -ftemplate-depth=2048 ${COMMSDSL_SANITIZER_OPTS}>
     )    
 
     if (NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "")
@@ -214,5 +215,5 @@ test_func (test39)
 test_func (test40)
 test_func (test41)
 test_func (test42)
-
-
+test_func (test43)
+test_func (test44)
