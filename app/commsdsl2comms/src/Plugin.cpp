@@ -493,7 +493,7 @@ bool Plugin::writePluginSrc()
         "{\n"
         "    pluginProperties()\n"
         "        .setProtocolCreateFunc(\n"
-        "            [this]() -> cc::ProtocolPtr\n"
+        "            [this]() noexcept -> cc::ProtocolPtr\n"
         "            {\n"
         "                return m_protocol;\n"
         "            })\n"
