@@ -13,8 +13,19 @@ while (TRUE)
         break()
     endif ()
 
-    if (NOT MSVC)
-        message (FATAL_ERROR "At this moment only MSVC compiler is supported for windows builds")
+    set(LIBXML2_COMPILER)
+    set(LIBXML2_PATHS)
+    set(LIBXML2_BUILD_COMMAND)
+    if (MINGW)
+        set(LIBXML2_PATHS "bindir=install/bin" "incdir=install/include" "libdir=install/lib" "sodir=install/bin")
+        set(LIBXML2_COMPILER "compiler=mingw")
+        set(LIBXML2_BUILD_CMD make -f Makefile.mingw)
+    elseif (MSVC)
+        set(LIBXML2_PATHS "bindir=install\\bin" "incdir=install\\include" "libdir=install\\lib" "sodir=install\\bin")
+        set(LIBXML2_COMPILER "compiler=msvc")
+        set(LIBXML2_BUILD_CMD nmake /f Makefile.msvc)
+    else()
+        message (FATAL_ERROR "At this moment only MSVC and MINGW compilers are supported for windows builds")
     endif ()
 
     set (INTERNAL_LIBXML_TGT "libxml2_tgt")
@@ -36,13 +47,13 @@ while (TRUE)
         GIT_TAG "v2.9.7"
         UPDATE_DISCONNECTED 1
         CONFIGURE_COMMAND
-            cscript ${LIBXML2_BIN_DIR}/configure.js ftp=no html=no iconv=no compiler=msvc static=yes ${LIBXML2_CRUNTIME} bindir=install\\bin incdir=install\\include libdir=install\\lib sodir=install\\bin
+            cscript ${LIBXML2_BIN_DIR}/configure.js ftp=no html=no iconv=no ${LIBXML2_COMPILER} static=yes ${LIBXML2_CRUNTIME} ${LIBXML2_PATHS}
         SOURCE_DIR "${LIBXML2_SRC_DIR}"
         BINARY_DIR "${LIBXML2_BIN_DIR}"
         BUILD_COMMAND
-            nmake /f Makefile.msvc
+            ${LIBXML2_BUILD_CMD}
         INSTALL_COMMAND
-            nmake /f Makefile.msvc install
+            ${LIBXML2_BUILD_CMD} install
     )
 
     set (LIBXML2_FOUND TRUE)
