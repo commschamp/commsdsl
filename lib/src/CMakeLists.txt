@@ -54,12 +54,24 @@ while (TRUE)
             ${LIBXML2_BUILD_CMD}
         INSTALL_COMMAND
             ${LIBXML2_BUILD_CMD} install
+        # BUILD_BYPRODUCTS needed by Ninja
+        BUILD_BYPRODUCTS <INSTALL_DIR>/lib/libxml2_a.lib
     )
 
     set (LIBXML2_FOUND TRUE)
     set (LIBXML2_INCLUDE_DIR "${LIBXML2_INSTALL_DIR}/include/libxml2")
     set (LIBXML2_LIBRARIES "${LIBXML2_INSTALL_DIR}/lib/libxml2_a.lib")
     set (LIBXML2_DEFINITIONS "/DLIBXML_STATIC")
+    file(MAKE_DIRECTORY ${LIBXML2_INCLUDE_DIR})
+
+    add_library(libxml2 STATIC IMPORTED)
+    add_dependencies(libxml2 ${INTERNAL_LIBXML_TGT})
+    set_target_properties(libxml2 PROPERTIES
+        IMPORTED_LOCATION ${LIBXML2_LIBRARIES}
+        IMPORTED_IMPLIB ${LIBXML2_LIBRARIES}
+        INTERFACE_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIR}"
+    )
+    add_library(LibXml2::LibXml2 ALIAS libxml2)
 
     break()
 endwhile ()
@@ -126,7 +138,8 @@ set (
 )
 
 add_library(${PROJECT_NAME} SHARED ${src})
-target_link_libraries(${PROJECT_NAME} PRIVATE ${LIBXML2_LIBRARIES})
+add_dependencies(${PROJECT_NAME} LibXml2::LibXml2)
+target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
@@ -135,7 +148,6 @@ endif ()
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${COMMSDSL_VERSION})
 
 target_include_directories(${PROJECT_NAME}
-    PRIVATE ${LIBXML2_INCLUDE_DIR}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/include>
     INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
@@ -188,5 +200,3 @@ install (
     FILES ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
 )    
-
-
