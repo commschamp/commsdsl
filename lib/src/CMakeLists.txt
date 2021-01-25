@@ -14,14 +14,12 @@ while (TRUE)
     endif ()
 
     set(LIBXML2_COMPILER)
-    set(LIBXML2_PATHS)
+    set(LIBXML2_PATHS "prefix=install")
     set(LIBXML2_BUILD_COMMAND)
     if (MINGW)
-        set(LIBXML2_PATHS "bindir=install/bin" "incdir=install/include" "libdir=install/lib" "sodir=install/bin")
         set(LIBXML2_COMPILER "compiler=mingw")
         set(LIBXML2_BUILD_CMD make -f Makefile.mingw)
     elseif (MSVC)
-        set(LIBXML2_PATHS "bindir=install\\bin" "incdir=install\\include" "libdir=install\\lib" "sodir=install\\bin")
         set(LIBXML2_COMPILER "compiler=msvc")
         set(LIBXML2_BUILD_CMD nmake /f Makefile.msvc)
     else()
@@ -32,6 +30,7 @@ while (TRUE)
     set (LIBXML2_DIR "${CMAKE_CURRENT_BINARY_DIR}/libxml2")
     set (LIBXML2_SRC_DIR "${LIBXML2_DIR}/src")
     set (LIBXML2_BIN_DIR "${LIBXML2_SRC_DIR}/win32")
+    set (LIBXML2_INSTALL_DIR "${LIBXML2_BIN_DIR}/install")
 
     set (LIBXML2_CRUNTIME)
     if (("${CMAKE_BUILD_TYPE}" STREQUAL "") OR ("${CMAKE_BUILD_TYPE}" STREQUAL "None") OR ("${CMAKE_BUILD_TYPE}" STREQUAL "Debug"))
@@ -50,6 +49,7 @@ while (TRUE)
             cscript ${LIBXML2_BIN_DIR}/configure.js ftp=no html=no iconv=no ${LIBXML2_COMPILER} static=yes ${LIBXML2_CRUNTIME} ${LIBXML2_PATHS}
         SOURCE_DIR "${LIBXML2_SRC_DIR}"
         BINARY_DIR "${LIBXML2_BIN_DIR}"
+        INSTALL_DIR "${LIBXML2_INSTALL_DIR}"
         BUILD_COMMAND
             ${LIBXML2_BUILD_CMD}
         INSTALL_COMMAND
@@ -57,9 +57,10 @@ while (TRUE)
     )
 
     set (LIBXML2_FOUND TRUE)
-    set (LIBXML2_INCLUDE_DIR "${LIBXML2_BIN_DIR}/install/include/libxml2")
-    set (LIBXML2_LIBRARIES "${LIBXML2_BIN_DIR}/install/lib/libxml2_a.lib")
+    set (LIBXML2_INCLUDE_DIR "${LIBXML2_INSTALL_DIR}/include/libxml2")
+    set (LIBXML2_LIBRARIES "${LIBXML2_INSTALL_DIR}/lib/libxml2_a.lib")
     set (LIBXML2_DEFINITIONS "/DLIBXML_STATIC")
+
     break()
 endwhile ()
 
@@ -133,7 +134,7 @@ endif ()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${COMMSDSL_VERSION})
 
-target_include_directories(${PROJECT_NAME} 
+target_include_directories(${PROJECT_NAME}
     PRIVATE ${LIBXML2_INCLUDE_DIR}
     PUBLIC $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/lib/include>
     INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
