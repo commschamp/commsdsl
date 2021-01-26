@@ -64,7 +64,7 @@ while (TRUE)
     set (LIBXML2_DEFINITIONS "/DLIBXML_STATIC")
     file(MAKE_DIRECTORY ${LIBXML2_INCLUDE_DIR})
 
-    add_library(libxml2 STATIC IMPORTED)
+    add_library(libxml2 STATIC IMPORTED GLOBAL)
     add_dependencies(libxml2 ${INTERNAL_LIBXML_TGT})
     set_target_properties(libxml2 PROPERTIES
         IMPORTED_LOCATION ${LIBXML2_LIBRARIES}
@@ -78,6 +78,16 @@ endwhile ()
 
 if (NOT LIBXML2_FOUND)
     find_package(LibXml2 REQUIRED)
+endif ()
+
+if (LIBXML2_FOUND AND (NOT TARGET LibXml2::LibXml2))
+    # Older versions of cmake may not define LibXml2::LibXml2 target
+    add_library(LibXml2::LibXml2 UNKNOWN IMPORTED)
+    set_target_properties(LibXml2::LibXml2 PROPERTIES
+        IMPORTED_LOCATION ${LIBXML2_LIBRARIES}
+        IMPORTED_IMPLIB ${LIBXML2_LIBRARIES}
+        INTERFACE_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIRS}"
+    )
 endif ()
 
 set (
