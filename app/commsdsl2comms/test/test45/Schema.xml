@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test45" endian="big">
+    <description>
+        Testing no message ID frames.
+    </description>
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M0" val="0" />
+        </enum>
+
+        <int name="VariantType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
+
+        <variant name="Variant1">
+            <description>
+                Tests having 100 members, COMMS library is supposed to handle
+            </description>
+            <members>
+                <bundle name="P0">
+                    <int name="type" reuse="VariantType" validValue="0" defaultValue="0"/>
+                    <int name="val" type="uint8" />
+                </bundle>
+                <bundle name="P1">
+                    <int name="type" reuse="VariantType" validValue="1" defaultValue="1"/>
+                    <int name="val" type="uint16" />
+                </bundle>
+                <bundle name="P2">
+                    <int name="type" reuse="VariantType" validValue="2" defaultValue="2"/>
+                    <string name="val" length="10"/>
+                </bundle>
+            </members>
+        </variant>
+    </fields>
+    
+    <message name="Msg" id="MsgId.M0">
+        <list name="F1" element="Variant1" />
+    </message>
+
+    <frame name="Frame">
+        <sync name="Sync">
+            <int name="Prefix" type="uint16" defaultValue="0xabcd" />
+        </sync>
+        <size name="Size" >
+            <int name="Length" type="uint16" />
+        </size>
+        <id name="Id">
+            <int name="DummyId" type="uint8" defaultValue="MsgId.M0" pseudo="true" />
+        </id>
+        <payload name="Data" />
+    </frame>     
+</schema>
