@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test46" endian="big">
+    <description>
+        Testing custom checksum layer implementation with variable
+        length field.
+    </description>
+
+    <fields>
+        <string name="Msg1Name" defaultValue="Message 1" />
+        <string name="Msg2Name" defaultValue="Message 2" />
+        <string name="Msg3Name" defaultValue="Message 3" />
+            
+        <enum name="MsgId" type="uint8" semanticType="messageId">
+            <validValue name="M1" val="1" displayName="^Msg1Name" />
+            <validValue name="M2" val="2" displayName="^Msg2Name" />
+            <validValue name="M3" val="3" displayName="^Msg3Name" />
+        </enum>
+
+        <enum name="ChecksumType" type="uint8">
+            <validValue name="Sum8" val="0" />
+            <validValue name="Crc16" val="1" />
+            <validValue name="Crc32" val="2" />
+        </enum>    
+    </fields>
+    
+    <interface name="Interface" description="Common Interface for all the messages.">
+        <ref field="ChecksumType" />
+    </interface>    
+        
+    <frame name="Frame">
+        <custom name="Checksum">
+            <int name="ChecksumField" type="uint32" />
+        </custom>    
+        <sync name="Sync">
+            <int name="SyncField" type="uint16" defaultValue="0xabcd" />
+        </sync>
+        <size name="Size">
+            <int name="SizeField" type="uint16" />
+        </size>
+        <id name="Id" field="MsgId" />
+        <value name="ChekcusmType" field="ChecksumType" interfaceFieldName="ChecksumType"/>
+        <payload name="Data" />
+    </frame>
+    
+    <message name="Msg1" id="MsgId.M1" displayName="^Msg1Name">
+        <int name="F1" type="uint16" />
+    </message>
+
+    <message name="Msg2" id="MsgId.M2" displayName="^Msg2Name">
+        <int name="F1" type="uint32" />
+    </message>      
+    
+    <message name="Msg3" id="MsgId.M3" displayName="^Msg3Name">
+        <string name="F1" >
+            <lengthPrefix>
+                <int name="Length" type="uint8" />
+            </lengthPrefix>
+        </string>
+    </message>    
+    
+</schema>
