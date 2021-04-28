@@ -48,7 +48,7 @@ namespace
 {
 
 const unsigned MaxDslVersion = 3U;
-const std::string MinCommsVersionStr("3, 1, 4");
+const std::string MinCommsVersionStr("3, 2, 0");
 const std::string ScopeSep("::");
 const std::string ReplaceSuffix(".replace");
 const std::string ExtendSuffix(".extend");
