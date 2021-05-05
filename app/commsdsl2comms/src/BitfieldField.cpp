@@ -405,7 +405,7 @@ std::string BitfieldField::getAccess() const
         "///     related to @b comms::field::Bitfield class from COMMS library\n"
         "///     for details.\n"
         "///\n"
-        "///     The generated types and access functions are:\n"
+        "///     The generated values, types and access functions are:\n"
         "#^#ACCESS_DOC#$#\n"
         "COMMS_FIELD_MEMBERS_NAMES(\n"
         "    #^#NAMES#$#\n"
@@ -420,7 +420,8 @@ std::string BitfieldField::getAccess() const
     for (auto& m : m_members) {
         namesList.push_back(common::nameToAccessCopy(m->name()));
         std::string accessStr =
-            "///     @li @b Field_" + namesList.back() +
+            "///     @li @b FieldIdx_" + namesList.back() +
+            " index, @b Field_" + namesList.back() +
             " type and @b field_" + namesList.back() +
             "() access function -\n"
             "///         for " + scope +
