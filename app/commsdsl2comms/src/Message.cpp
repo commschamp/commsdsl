@@ -910,13 +910,15 @@ std::string Message::getFieldsAccess() const
         "///     related to @b comms::MessageBase class from COMMS library\n"
         "///     for details.\n"
         "///\n"
-        "///     The generated types and functions are:\n";
+        "///     The generated values, types and functions are:\n";
 
     std::string result = DocPrefix;
     for (auto& f : m_fields) {
         result += common::doxygenPrefixStr();
         result += common::indentStr();
-        result += "@li @b Field_";
+        result += "@li @b FieldIdx_";
+        result += common::nameToAccessCopy(f->name());
+        result += " index, @b Field_";
         result += common::nameToAccessCopy(f->name());
         result += " type and @b field_";
         result += common::nameToAccessCopy(f->name());
