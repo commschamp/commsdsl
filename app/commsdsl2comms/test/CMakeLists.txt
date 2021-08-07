@@ -130,10 +130,10 @@ if ("${COMMS_INSTALL_DIR}" STREQUAL "")
         ${qt_dir_opt}
         NO_SYSTEM_HEADERS
         CMAKE_ARGS 
-            -DCC_NO_UNIT_TESTS=ON
+            -DCC_BUILD_UNIT_TESTS=OFF
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-            -DCC_NO_WARN_AS_ERR=ON -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCC_LIBS_ONLY=ON
+            -DCC_WARN_AS_ERR=OFF -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCC_BUILD_TOOLS=OFF
     )
     
 else ()

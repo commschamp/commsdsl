@@ -179,7 +179,7 @@ bool Cmake::writeMain() const
         "        TGT ${CC_EXTERNAL_TGT}\n"
         "        ${qt_dir_opt} ${no_tools_opt} ${cc_update_disconnected_opt}\n"
         "        CMAKE_ARGS\n"
-        "            -DCC_NO_UNIT_TESTS=ON -DCC_NO_WARN_AS_ERR=ON\n"
+        "            -DCC_BUILD_UNIT_TESTS=OFF -DCC_WARN_AS_ERR=OFF\n"
         "    )\n"
         "    set (cc_compile_file \"${OPT_EXTERNALS_DIR}/comms_champion/cmake/CC_Compile.cmake\")\n"
         "elseif (external_cc_needed)\n"
