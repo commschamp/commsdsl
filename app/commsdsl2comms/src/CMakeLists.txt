@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED
+find_package(Boost ${COMMSDSL_BOOST_VERSION} REQUIRED
     COMPONENTS program_options filesystem)
 
 include_directories(${Boost_INCLUDE_DIRS})
