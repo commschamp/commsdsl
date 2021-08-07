@@ -62,7 +62,9 @@ if (WIN32)
     target_link_libraries(${APP_NAME} PRIVATE Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
 endif ()
 
-install(TARGETS ${APP_NAME}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+if (COMMSDSL_INSTALL_APPS)
+    install(TARGETS ${APP_NAME}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endif ()
 

@@ -22,7 +22,7 @@ library itself. For example:
 ```
 $> cd /source/of/this/project
 $> mkdir build && cd build
-$> cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/install -DCOMMSDSL_NO_TESTS=ON ..
+$> cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$PWD/install -DCOMMSDSL_BUILD_UNIT_TESTS=OFF ..
 $> make install
 ```
 ### Windows Build
@@ -31,7 +31,7 @@ $> cd C:\source\of\this\project
 $> mkdir build
 $> cd build
 $> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \ 
-    -DCMAKE_INSTALL_PREFIX=%cd%/install -DCOMMSDSL_NO_TESTS=ON \
+    -DCMAKE_INSTALL_PREFIX=%cd%/install -DCOMMSDSL_BUILD_UNIT_TESTS=OFF \
     -DBOOST_ROOT="C:\Libraries\boost_1_65_1" -DBoost_USE_STATIC_LIBS=ON ..
 $> nmake install
 ```
