@@ -13,7 +13,6 @@ option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers" ON)
 option (COMMSDSL_TEST_BUILD_CC_PLUGIN "Build CommsChampion plugin in commsdsl2comms unittiesting" ON)
 option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
 option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to reuse its cmake scripts" ON)
-# BUILD_SHARED_LIBS - cmake built-in option to control the type of the libraries
 
 # Additional variables to be used if needed
 # ---------------------------
@@ -22,7 +21,6 @@ option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to re
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
 # COMMSDSL_BOOST_VERSION - Boost version passed to relevant find_package invocation.
-# COMMSDSL_LIBRARY_FORCED_TYPE - Forced type of the commdsl library (STATIC / SHARED).
 # CC_TAG - Tag/branch of CommsChampion project to use instead of default
 # BOOST_ROOT and other built-in hint variables for the process of finding Boost package.
 

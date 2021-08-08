@@ -147,7 +147,7 @@ set (
     "AliasImpl.cpp"
 )
 
-add_library(${PROJECT_NAME} ${COMMSDSL_LIBRARY_FORCED_TYPE} ${src})
+add_library(${PROJECT_NAME} SHARED ${src})
 add_dependencies(${PROJECT_NAME} LibXml2::LibXml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 
