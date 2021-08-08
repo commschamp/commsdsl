@@ -34,21 +34,20 @@ option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to re
 ################################################
 
 # Check usage of deprecated options and ovewrite the default values of proper ones
-if (DEFINED COMMSDSL_NO_WARN_AS_ERR)
-    set (COMMSDSL_WARN_AS_ERR (NOT ${COMMSDSL_NO_WARN_AS_ERR}))
-endif ()
+macro (commsdsl_negate_option old_name new_name)
+    if (DEFINED ${old_name})
+        if (${old_name})
+            set (${new_name} OFF)
+        else ()
+            set (${new_name} ON)
+        endif ()
+    endif ()
+endmacro ()
 
-if (DEFINED COMMSDSL_NO_CCACHE)
-    set (COMMSDSL_USE_CCACHE (NOT ${COMMSDSL_NO_CCACHE}))
-endif ()
-
-if (DEFINED COMMSDSL_NO_TESTS)
-    set (COMMSDSL_BUILD_UNIT_TESTS (NOT ${COMMSDSL_NO_TESTS}))
-endif ()
-
-if (DEFINED COMMSDSL_NO_COMMS_CHAMPION)
-    set (COMMSDSL_CHECKOUT_COMMS_CHAMPION (NOT ${COMMSDSL_NO_COMMS_CHAMPION}))
-endif ()
+commsdsl_negate_option(COMMSDSL_NO_WARN_AS_ERR COMMSDSL_WARN_AS_ERR)
+commsdsl_negate_option(COMMSDSL_NO_CCACHE COMMSDSL_USE_CCACHE)
+commsdsl_negate_option(COMMSDSL_NO_TESTS COMMSDSL_BUILD_UNIT_TESTS)
+commsdsl_negate_option(COMMSDSL_NO_COMMS_CHAMPION COMMSDSL_CHECKOUT_COMMS_CHAMPION)
 
 ################################################
 
