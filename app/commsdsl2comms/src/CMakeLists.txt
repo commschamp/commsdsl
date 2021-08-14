@@ -1,4 +1,4 @@
-find_package(Boost REQUIRED
+find_package(Boost ${COMMSDSL_BOOST_VERSION} REQUIRED
     COMPONENTS program_options filesystem)
 
 include_directories(${Boost_INCLUDE_DIRS})
@@ -62,7 +62,9 @@ if (WIN32)
     target_link_libraries(${APP_NAME} PRIVATE Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
 endif ()
 
-install(TARGETS ${APP_NAME}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
+if (COMMSDSL_INSTALL_APPS)
+    install(TARGETS ${APP_NAME}
+            RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endif ()
 

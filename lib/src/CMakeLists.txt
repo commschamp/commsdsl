@@ -169,44 +169,49 @@ target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
 ) 
 
-install(
-    TARGETS ${PROJECT_NAME} EXPORT "LibCommsdslTargets"
-    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    INCLUDES DESTINATION $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
-)
+if (COMMSDSL_INSTALL_LIBRARY)
+    install(
+        TARGETS ${PROJECT_NAME} EXPORT "LibCommsdslTargets"
+        ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+        INCLUDES DESTINATION $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    )
+endif ()
 
-export(
-    TARGETS ${PROJECT_NAME}
-    FILE "${PROJECT_BINARY_DIR}/LibCommsdslTargets.cmake")
+if (COMMSDSL_INSTALL_LIBRARY_HEADERS)
+    export(
+        TARGETS ${PROJECT_NAME}
+        FILE "${PROJECT_BINARY_DIR}/LibCommsdslTargets.cmake")
 
-export(
-    PACKAGE LibCommsdsl
-)
+    export(
+        PACKAGE LibCommsdsl
+    )
 
-configure_file(LibCommsdslConfig.cmake.in
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibCommsdslConfig.cmake" @ONLY)
+    configure_file(LibCommsdslConfig.cmake.in
+        "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibCommsdslConfig.cmake" @ONLY)
 
-install(
-    FILES
-    "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibCommsdslConfig.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
-)
+    install(
+        FILES
+        "${PROJECT_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/LibCommsdslConfig.cmake"
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
+    )
 
-install(
-    EXPORT LibCommsdslTargets 
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
-    NAMESPACE commsdsl::
-)
+    install(
+        EXPORT LibCommsdslTargets 
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
+        NAMESPACE commsdsl::
+    )
 
-include(CMakePackageConfigHelpers)
-write_basic_package_version_file(
-    ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
-    VERSION ${COMMSDSL_VERSION}
-    COMPATIBILITY AnyNewerVersion)
-    
-install (
-    FILES ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
-)    
+    include(CMakePackageConfigHelpers)
+    write_basic_package_version_file(
+        ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
+        VERSION ${COMMSDSL_VERSION}
+        COMPATIBILITY AnyNewerVersion)
+        
+    install (
+        FILES ${CMAKE_BINARY_DIR}/LibCommsdslConfigVersion.cmake
+        DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
+    )     
+endif ()
+   

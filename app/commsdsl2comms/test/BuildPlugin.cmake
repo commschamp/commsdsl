@@ -41,7 +41,7 @@ if (NOT ${cmake_result} EQUAL 0)
 endif ()
 
 execute_process(
-    COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target install
+    COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target install --config ${CMAKE_BUILD_TYPE}
     WORKING_DIRECTORY ${build_dir}
     RESULT_VARIABLE cmake_result
 )
