@@ -75,7 +75,18 @@ private:
     void checkValidRangesOpt(StringsList& list) const;
 
     bool isUnsigned() const;
+    std::string getSpecialNamesMapDefs(const std::string& scope = std::string()) const;
+    static const std::string& getCommonSpecialNameInfoDef();
+    static const std::string& getCommonSpecialNamesMapDef();
+    std::string getSpecialNameInfoDef(const std::string& scope) const;
+    std::string getSpecialNamesMapDef(const std::string& scope) const;    
 
+    std::string getSpacialNamesMapFunc(const std::string& scope = std::string()) const;
+    std::string getSpacialNamesMapFuncCommonBody() const;
+    std::string getSpacialNamesMapFuncBody(const std::string& scope) const;
+    std::string getHasSpecialsFunc(const std::string& scope = std::string()) const;
+    std::string getHasSpecialsFuncCommonBody() const;
+    std::string getHasSpecialsFuncBody(const std::string& scope) const;
 
     commsdsl::IntField intFieldDslObj() const
     {
