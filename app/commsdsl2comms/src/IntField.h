@@ -67,6 +67,7 @@ private:
     std::string getFieldOpts(const std::string& scope, bool reduced = false) const;
     std::string getSpecials(const std::string& scope) const;
     std::string getValid() const;
+    std::string getDisplayDecimals() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
     void checkSerOffsetOpt(StringsList& list) const;

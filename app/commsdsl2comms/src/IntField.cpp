@@ -59,45 +59,11 @@ const std::string ClassTemplate(
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
     "    #^#SPECIAL_NAMES_MAP#$#\n"
+    "    #^#DISPLAY_DECIMALS#$#\n"
     "#^#PROTECTED#$#\n"
     "#^#PRIVATE#$#\n"
     "};\n"
 );
-
-const std::string StructTemplate(
-    "#^#PREFIX#$#"
-    "struct #^#CLASS_NAME#$# : public\n"
-    "    comms::field::IntValue<\n"
-    "        #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        #^#FIELD_TYPE#$#\n"
-    "        #^#FIELD_OPTS#$#\n"
-    "    >\n"
-    "{\n"
-    "    #^#HAS_SPECIALS#$#\n"
-    "    #^#NAME#$#\n"
-    "};\n"
-);
-
-bool shouldUseStruct(const common::ReplacementMap& replacements)
-{
-    auto hasNoValue =
-        [&replacements](const std::string& val)
-        {
-            auto iter = replacements.find(val);
-            return (iter == replacements.end()) || iter->second.empty();
-        };
-
-    return
-        hasNoValue("SPECIALS") &&
-        hasNoValue("READ") &&
-        hasNoValue("WRITE") &&
-        hasNoValue("LENGTH") &&
-        hasNoValue("VALID") &&
-        hasNoValue("REFRESH") &&
-        hasNoValue("PUBLIC") &&
-        hasNoValue("PROTECTED") &&
-        hasNoValue("PRIVATE");
-}
 
 } // namespace
 
@@ -307,6 +273,7 @@ std::string IntField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
+    replacements.insert(std::make_pair("DISPLAY_DECIMALS", getDisplayDecimals()));
 
     if (!m_specials.empty()) {
         replacements.insert(std::make_pair("SPECIAL_VALUE_NAMES_MAP_DEFS", getSpecialNamesMapDefs(adjScope)));
@@ -317,11 +284,7 @@ std::string IntField::getClassDefinitionImpl(
         replacements["FIELD_TYPE"] += ',';
     }
 
-    const std::string* templPtr = &ClassTemplate;
-    if (shouldUseStruct(replacements)) {
-        templPtr = &StructTemplate;
-    }
-    return common::processTemplate(*templPtr, replacements);
+    return common::processTemplate(ClassTemplate, replacements);
 }
 
 std::string IntField::getCompareToValueImpl(
@@ -763,6 +726,28 @@ std::string IntField::getValid() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("RANGES_CHECKS", std::move(rangesChecks)));
     return common::processTemplate(Templ, replacements);
+}
+
+std::string IntField::getDisplayDecimals() const
+{
+    auto obj = intFieldDslObj();
+    auto scaling = obj.scaling();
+    std::string result;
+    if (scaling.first == scaling.second) {
+        return result;
+    }
+
+    static const std::string Templ = 
+        "/// @brief Requested number of digits after decimal point when value\n"
+        "///     is displayed.\n"
+        "static constexpr unsigned displayDecimals()\n"
+        "{\n"
+        "    return #^#DISPLAY_DECIMALS#$#;\n"
+        "}";
+        
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("DISPLAY_DECIMALS", std::to_string(obj.displayDecimals())));
+    return common::processTemplate(Templ, repl);
 }
 
 void IntField::checkDefaultValueOpt(StringsList& list) const
