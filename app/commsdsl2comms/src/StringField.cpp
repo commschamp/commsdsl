@@ -145,6 +145,17 @@ void StringField::updateIncludesImpl(IncludesList& includes) const
         assert(!prefixRef.empty());
         common::mergeInclude(generator().headerfileForField(prefixRef, false), includes);
     }
+
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (!detachedPrefixName.empty()) {
+        static const IncludesList DetachedPrefixList = {
+            "<limits>",
+            "<algorithm>"
+        };
+
+        common::mergeIncludes(DetachedPrefixList, includes);
+    }
+
 }
 
 void StringField::updateIncludesCommonImpl(IncludesList& includes) const
@@ -336,12 +347,17 @@ std::string StringField::getPrivateRefreshBodyImpl(const FieldsList& fields) con
     static const std::string Templ = 
         "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value());\n"
         "auto realLength = field_#^#NAME#$#()#^#STR_ACC#$#.value().size();\n"
-        "if (expectedLength != realLength) {\n"
-        "    using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value())>::type;\n"
-        "    field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value() = static_cast<LenValueType>(realLength);\n"
-        "    return true;\n"
+        "if (expectedLength == realLength) {\n"
+        "    return false;\n"
         "}\n\n"
-        "return false;";
+        "using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value())>::type;\n"
+        "static const auto MaxLenValue = static_cast<std::size_t>(std::numeric_limits<LenValueType>::max());\n"
+        "auto maxAllowedLen = std::min(MaxLenValue, realLength);\n"
+        "field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value() = static_cast<LenValueType>(maxAllowedLen);\n"
+        "if (maxAllowedLen < realLength) {\n"
+        "    field_#^#NAME#$#()#^#STR_ACC#$#.value().resize(maxAllowedLen);\n"
+        "}\n"
+        "return true;";
 
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("NAME", common::nameToAccessCopy(name())));
