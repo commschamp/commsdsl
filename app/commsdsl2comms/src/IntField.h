@@ -67,6 +67,7 @@ private:
     std::string getFieldOpts(const std::string& scope, bool reduced = false) const;
     std::string getSpecials(const std::string& scope) const;
     std::string getValid() const;
+    std::string getRefresh() const;
     std::string getDisplayDecimals() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
@@ -74,6 +75,8 @@ private:
     void checkScalingOpt(StringsList& list) const;
     void checkUnitsOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
+    void checkRefreshOpt(StringsList& list) const;
+    bool requiresFailOnInvalidRefresh() const;
 
     bool isUnsigned() const;
     std::string getSpecialNamesMapDefs(const std::string& scope = std::string()) const;

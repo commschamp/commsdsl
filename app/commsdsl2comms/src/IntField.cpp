@@ -269,7 +269,7 @@ std::string IntField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getValid()));
-    replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
+    replacements.insert(std::make_pair("REFRESH", getRefresh()));
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
@@ -571,6 +571,7 @@ std::string IntField::getFieldOpts(const std::string& scope, bool reduced) const
     checkSerOffsetOpt(options);
     checkScalingOpt(options);
     checkUnitsOpt(options);
+    checkRefreshOpt(options);
 
     if (!reduced) {
         checkDefaultValueOpt(options);
@@ -726,6 +727,38 @@ std::string IntField::getValid() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("RANGES_CHECKS", std::move(rangesChecks)));
     return common::processTemplate(Templ, replacements);
+}
+
+std::string IntField::getRefresh() const
+{
+    auto custom = getCustomRefresh();
+    if (!custom.empty()) {
+        return custom;
+    }
+
+    if (!requiresFailOnInvalidRefresh()) {
+        return std::string();
+    }
+
+    auto obj = intFieldDslObj();
+    auto& validRanges = obj.validRanges();
+
+    static const std::string Templ = 
+        "/// @brief Refresh functionality.\n"
+        "/// @details Make sure the value is valid.\n"
+        "bool refresh()\n"
+        "{\n"
+        "    bool updated = Base::refresh();\n"
+        "    if (Base::valid()) {\n"
+        "        return updated;\n"
+        "    };\n"
+        "    Base::value() = static_cast<ValueType>(#^#VALID_VALUE#$#);\n"
+        "    return true;\n"
+        "}";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("VALID_VALUE", common::numToString(validRanges.front().m_min)));
+    return common::processTemplate(Templ, repl);
 }
 
 std::string IntField::getDisplayDecimals() const
@@ -1054,6 +1087,28 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
             list.push_back("comms::option::def::InvalidByDefault");
         }
     }
+}
+
+void IntField::checkRefreshOpt(StringsList& list) const
+{
+    if (requiresFailOnInvalidRefresh()) {
+        list.push_back("comms::option::def::HasCustomRefresh");
+    }
+}
+
+bool IntField::requiresFailOnInvalidRefresh() const
+{
+    if (!dslObj().isFailOnInvalid()) {
+        return false;
+    }
+
+    auto obj = intFieldDslObj();
+    auto& validRanges = obj.validRanges();
+    if (validRanges.empty()) {
+        return false;
+    }
+
+    return true;
 }
 
 bool IntField::isUnsigned() const
