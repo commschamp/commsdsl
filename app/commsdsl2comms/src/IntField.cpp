@@ -571,11 +571,11 @@ std::string IntField::getFieldOpts(const std::string& scope, bool reduced) const
     checkSerOffsetOpt(options);
     checkScalingOpt(options);
     checkUnitsOpt(options);
-    checkRefreshOpt(options);
 
     if (!reduced) {
         checkDefaultValueOpt(options);
         checkValidRangesOpt(options);
+        checkRefreshOpt(options);
     }
 
     return common::listToString(options, ",\n", common::emptyString());
