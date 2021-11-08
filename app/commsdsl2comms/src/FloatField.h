@@ -61,6 +61,7 @@ private:
     std::string getSpacialNamesMapFuncCommonBody() const;
     std::string getSpacialNamesMapFuncBody(const std::string& scope) const;
     std::string getValid() const;
+    std::string getDisplayDecimals() const;
     StringsList getVersionBasedConditions() const;
     StringsList getNormalConditions() const;
     void checkUnitsOpt(StringsList& list) const;

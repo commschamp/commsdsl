@@ -64,6 +64,7 @@ const std::string ClassTemplate(
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
     "    #^#SPECIAL_NAMES_MAP#$#\n"
+    "    #^#DISPLAY_DECIMALS#$#\n"
     "#^#PROTECTED#$#\n"
     "#^#PRIVATE#$#\n"
     "};\n"
@@ -363,6 +364,7 @@ std::string FloatField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+    replacements.insert(std::make_pair("DISPLAY_DECIMALS", getDisplayDecimals()));
 
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["FIELD_TYPE"] += ',';
@@ -884,6 +886,24 @@ std::string FloatField::getValid() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CONDITIONS", common::listToString(conditions, "\n", common::emptyString())));
     return common::processTemplate(ValidFuncTemplate, replacements);
+}
+
+std::string FloatField::getDisplayDecimals() const
+{
+    auto obj = floatFieldDslObj();
+    auto decimals = obj.displayDecimals();
+
+    static const std::string Templ = 
+        "/// @brief Requested number of digits after decimal point when value\n"
+        "///     is displayed.\n"
+        "static constexpr unsigned displayDecimals()\n"
+        "{\n"
+        "    return #^#DISPLAY_DECIMALS#$#;\n"
+        "}";
+        
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("DISPLAY_DECIMALS", common::numToString(decimals)));
+    return common::processTemplate(Templ, repl);
 }
 
 FloatField::StringsList FloatField::getVersionBasedConditions() const

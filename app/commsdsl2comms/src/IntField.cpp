@@ -779,7 +779,7 @@ std::string IntField::getDisplayDecimals() const
         "}";
         
     common::ReplacementMap repl;
-    repl.insert(std::make_pair("DISPLAY_DECIMALS", std::to_string(obj.displayDecimals())));
+    repl.insert(std::make_pair("DISPLAY_DECIMALS", common::numToString(obj.displayDecimals())));
     return common::processTemplate(Templ, repl);
 }
 
