@@ -1180,7 +1180,7 @@ std::string IntField::getSpacialNamesMapFunc(const std::string& scope) const
         "/// @brief Retrieve map of special value names\n"
         "static SpecialNamesMapInfo specialNamesMap()\n"
         "{\n"
-        "    #^#BODY#$#;\n"
+        "    #^#BODY#$#\n"
         "}\n";
 
     std::string body;

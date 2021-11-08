@@ -48,7 +48,18 @@ private:
     const std::string& getFieldType() const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getConstructor() const;
+    std::string getSpecialNamesMapDefs(const std::string& scope = std::string()) const;
+    static const std::string& getCommonSpecialNameInfoDef();
+    static const std::string& getCommonSpecialNamesMapDef();
+    std::string getSpecialNameInfoDef(const std::string& scope) const;
+    std::string getSpecialNamesMapDef(const std::string& scope) const;   
+    std::string getHasSpecialsFunc(const std::string& scope = std::string()) const; 
+    std::string getHasSpecialsFuncCommonBody() const;
+    std::string getHasSpecialsFuncBody(const std::string& scope) const;
     std::string getSpecials(const std::string& scope) const;
+    std::string getSpacialNamesMapFunc(const std::string& scope = std::string()) const;
+    std::string getSpacialNamesMapFuncCommonBody() const;
+    std::string getSpacialNamesMapFuncBody(const std::string& scope) const;
     std::string getValid() const;
     StringsList getVersionBasedConditions() const;
     StringsList getNormalConditions() const;
