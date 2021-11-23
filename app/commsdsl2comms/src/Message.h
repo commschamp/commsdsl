@@ -97,7 +97,7 @@ private:
 
     bool mustImplementReadRefresh() const;
     bool isCustomizable() const;
-    std::string getOptions(GetFieldOptionsFunc func, const std::string& base) const;
+    std::string getOptions(GetFieldOptionsFunc func, const std::string& base, bool extending = false) const;
 
     Generator& m_generator;
     commsdsl::Message m_dslObj;
