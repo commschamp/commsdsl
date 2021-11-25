@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -67,15 +67,30 @@ private:
     std::string getFieldOpts(const std::string& scope, bool reduced = false) const;
     std::string getSpecials(const std::string& scope) const;
     std::string getValid() const;
+    std::string getRefresh() const;
+    std::string getDisplayDecimals() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;
     void checkSerOffsetOpt(StringsList& list) const;
     void checkScalingOpt(StringsList& list) const;
     void checkUnitsOpt(StringsList& list) const;
     void checkValidRangesOpt(StringsList& list) const;
+    void checkRefreshOpt(StringsList& list) const;
+    bool requiresFailOnInvalidRefresh() const;
 
     bool isUnsigned() const;
+    std::string getSpecialNamesMapDefs(const std::string& scope = std::string()) const;
+    static const std::string& getCommonSpecialNameInfoDef();
+    static const std::string& getCommonSpecialNamesMapDef();
+    std::string getSpecialNameInfoDef(const std::string& scope) const;
+    std::string getSpecialNamesMapDef(const std::string& scope) const;    
 
+    std::string getSpacialNamesMapFunc(const std::string& scope = std::string()) const;
+    std::string getSpacialNamesMapFuncCommonBody() const;
+    std::string getSpacialNamesMapFuncBody(const std::string& scope) const;
+    std::string getHasSpecialsFunc(const std::string& scope = std::string()) const;
+    std::string getHasSpecialsFuncCommonBody() const;
+    std::string getHasSpecialsFuncBody(const std::string& scope) const;
 
     commsdsl::IntField intFieldDslObj() const
     {

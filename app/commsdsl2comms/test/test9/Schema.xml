@@ -9,7 +9,7 @@
             <validValue name="M2" val="2" />
         </enum>
         
-        <float name="F1" type="float" defaultValue="null">
+        <float name="F1" type="float" defaultValue="null" displayDecimals="2">
             <special name="null" val="NaN" />
             <special name="s1" val="-inf" displayName="Special 1"/>
             <special name="s2" val="inf" />
@@ -22,7 +22,7 @@
         
         <float name="F2" type="float" validFullRange="true" />
         
-        <float name="F3" type="double" validCheckVersion="true" >
+        <float name="F3" type="double" validCheckVersion="true" displayDecimals="1">
             <validValue value="nan" />
             <validRange value="[0, 1.4]" />
             <validValue value="1.8" sinceVersion="1" />

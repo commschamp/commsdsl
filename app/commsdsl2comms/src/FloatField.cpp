@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -52,8 +52,10 @@ const std::string ClassTemplate(
     "public:\n"
     "    /// @brief Re-definition of the value type.\n"
     "    using ValueType = typename Base::ValueType;\n\n"
+    "    #^#SPECIAL_VALUE_NAMES_MAP_DEFS#$#\n"
     "    #^#CONSTRUCTOR#$#\n"
     "    #^#PUBLIC#$#\n"
+    "    #^#HAS_SPECIALS#$#\n"
     "    #^#SPECIALS#$#\n"
     "    #^#NAME#$#\n"
     "    #^#READ#$#\n"
@@ -61,21 +63,10 @@ const std::string ClassTemplate(
     "    #^#LENGTH#$#\n"
     "    #^#VALID#$#\n"
     "    #^#REFRESH#$#\n"
+    "    #^#SPECIAL_NAMES_MAP#$#\n"
+    "    #^#DISPLAY_DECIMALS#$#\n"
     "#^#PROTECTED#$#\n"
     "#^#PRIVATE#$#\n"
-    "};\n"
-);
-
-const std::string StructTemplate(
-    "#^#PREFIX#$#"
-    "struct #^#CLASS_NAME#$# : public\n"
-    "    comms::field::FloatValue<\n"
-    "        #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-    "        #^#FIELD_TYPE#$#\n"
-    "        #^#FIELD_OPTS#$#\n"
-    "    >\n"
-    "{\n"
-    "    #^#NAME#$#\n"
     "};\n"
 );
 
@@ -119,28 +110,6 @@ const std::string UntilVersionConditionTemplate =
     "    #^#CONDITIONS#$#\n"
     "}\n";
 
-
-bool shouldUseStruct(const common::ReplacementMap& replacements)
-{
-    auto hasNoValue =
-        [&replacements](const std::string& val)
-        {
-            auto iter = replacements.find(val);
-            return (iter == replacements.end()) || iter->second.empty();
-        };
-
-    return
-        hasNoValue("CONSTRUCTOR") &&
-        hasNoValue("SPECIALS") &&
-        hasNoValue("READ") &&
-        hasNoValue("WRITE") &&
-        hasNoValue("LENGTH") &&
-        hasNoValue("VALID") &&
-        hasNoValue("REFRESH") &&
-        hasNoValue("PUBLIC") &&
-        hasNoValue("PROTECTED") &&
-        hasNoValue("PRIVATE");
-}
 
 bool isLimit(double val)
 {
@@ -385,6 +354,7 @@ std::string FloatField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("FIELD_OPTS", getFieldOpts(scope)));
     replacements.insert(std::make_pair("CONSTRUCTOR", getConstructor()));
     replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjScope)));
+    replacements.insert(std::make_pair("HAS_SPECIALS", getHasSpecialsFunc(adjScope)));
     replacements.insert(std::make_pair("SPECIALS", getSpecials(adjScope)));
     replacements.insert(std::make_pair("READ", getCustomRead()));
     replacements.insert(std::make_pair("WRITE", getCustomWrite()));
@@ -394,16 +364,18 @@ std::string FloatField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
+    replacements.insert(std::make_pair("DISPLAY_DECIMALS", getDisplayDecimals()));
 
     if (!replacements["FIELD_OPTS"].empty()) {
         replacements["FIELD_TYPE"] += ',';
     }
 
-    const std::string* templPtr = &ClassTemplate;
-    if (shouldUseStruct(replacements)) {
-        templPtr = &StructTemplate;
-    }
-    return common::processTemplate(*templPtr, replacements);
+    if (!m_specials.empty()) {
+        replacements.insert(std::make_pair("SPECIAL_VALUE_NAMES_MAP_DEFS", getSpecialNamesMapDefs(adjScope)));
+        replacements.insert(std::make_pair("SPECIAL_NAMES_MAP", getSpacialNamesMapFunc(adjScope)));
+    }    
+
+    return common::processTemplate(ClassTemplate, replacements);
 }
 
 std::string FloatField::getPluginPropertiesImpl(bool serHiddenParam) const
@@ -569,8 +541,11 @@ std::string FloatField::getCommonDefinitionImpl(const std::string& fullScope) co
         "    /// @brief Re-definition of the value type used by\n"
         "    ///     #^#SCOPE#$# field.\n"
         "    using ValueType = #^#VALUE_TYPE#$#;\n\n"
+        "    #^#SPECIAL_VALUE_NAMES_MAP_DEFS#$#\n"
         "    #^#NAME_FUNC#$#\n"
+        "    #^#HAS_SPECIAL_FUNC#$#\n"
         "    #^#SPECIALS#$#\n"
+        "    #^#SPECIAL_NAMES_MAP#$#\n"
         "};\n";
 
     common::ReplacementMap repl;
@@ -578,8 +553,11 @@ std::string FloatField::getCommonDefinitionImpl(const std::string& fullScope) co
     repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("VALUE_TYPE", getFieldType()));
     repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
+    repl.insert(std::make_pair("HAS_SPECIAL_FUNC", getHasSpecialsFunc()));
     if (!specialsList.empty()) {
+        repl.insert(std::make_pair("SPECIAL_VALUE_NAMES_MAP_DEFS", getSpecialNamesMapDefs()));
         repl.insert(std::make_pair("SPECIALS", common::listToString(specialsList, "\n", "\n")));
+        repl.insert(std::make_pair("SPECIAL_NAMES_MAP", getSpacialNamesMapFunc()));
     }
     return common::processTemplate(Templ, repl);
 }
@@ -648,6 +626,106 @@ std::string FloatField::getConstructor() const
     return common::processTemplate(Templ, replacements);
 }
 
+std::string FloatField::getSpecialNamesMapDefs(const std::string& scope) const
+{
+    static const std::string Templ = 
+        "/// @brief Single special value name info entry.\n"
+        "using SpecialNameInfo = #^#INFO_DEF#$#;\n\n"
+        "/// @brief Type returned from @ref specialNamesMap() member function.\n"
+        "/// @details The @b first value of the pair is pointer to the map array,\n"
+        "///     The @b second value of the pair is the size of the array.\n"
+        "using SpecialNamesMapInfo = #^#MAP_DEF#$#;\n";
+
+    common::ReplacementMap repl;
+    if (scope.empty()) {
+        repl.insert(std::make_pair("INFO_DEF", getCommonSpecialNameInfoDef()));
+        repl.insert(std::make_pair("MAP_DEF", getCommonSpecialNamesMapDef()));
+    }
+    else {
+        repl.insert(std::make_pair("INFO_DEF", getSpecialNameInfoDef(scope)));
+        repl.insert(std::make_pair("MAP_DEF", getSpecialNamesMapDef(scope)));
+    }
+    return common::processTemplate(Templ, repl);
+}
+
+const std::string& FloatField::getCommonSpecialNameInfoDef()
+{
+    static const std::string Str = "std::pair<ValueType, const char*>";
+    return Str;
+}
+
+const std::string& FloatField::getCommonSpecialNamesMapDef()
+{
+    static const std::string Str = "std::pair<const SpecialNameInfo*, std::size_t>";
+    return Str;
+}
+
+
+std::string FloatField::getSpecialNameInfoDef(const std::string& scope) const
+{
+    static const std::string Temp = 
+        "#^#SCOPE#$##^#CLASS_NAME#$#Common::SpecialNameInfo";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Temp, repl);   
+}
+
+std::string FloatField::getSpecialNamesMapDef(const std::string& scope) const
+{
+    static const std::string Temp = 
+        "#^#SCOPE#$##^#CLASS_NAME#$#Common::SpecialNamesMapInfo";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Temp, repl);    
+}
+
+std::string FloatField::getHasSpecialsFunc(const std::string& scope) const
+{
+    static const std::string Temp = 
+        "/// @brief Compile time detection of special values presence.\n"
+        "static constexpr bool hasSpecials()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    std::string body;
+    if (scope.empty()) {
+        body = getHasSpecialsFuncCommonBody();
+    }
+    else {
+        body = getHasSpecialsFuncBody(scope);
+    }
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("BODY", std::move(body)));
+    return common::processTemplate(Temp, repl);
+}
+
+std::string FloatField::getHasSpecialsFuncCommonBody() const
+{
+    static const std::string Temp = 
+        "return #^#RESULT#$#;";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("RESULT", m_specials.empty() ? "false" : "true"));
+    return common::processTemplate(Temp, repl);
+}
+
+std::string FloatField::getHasSpecialsFuncBody(const std::string& scope) const
+{
+    static const std::string Temp = 
+        "return #^#SCOPE#$##^#CLASS_NAME#$#Common::hasSpecials();";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Temp, repl);   
+}
+
 std::string FloatField::getSpecials(const std::string& scope) const
 {
     auto obj = floatFieldDslObj();
@@ -703,6 +781,65 @@ std::string FloatField::getSpecials(const std::string& scope) const
     return result;
 }
 
+std::string FloatField::getSpacialNamesMapFunc(const std::string& scope) const
+{
+    static const std::string Templ = 
+        "/// @brief Retrieve map of special value names\n"
+        "static SpecialNamesMapInfo specialNamesMap()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    std::string body;
+    if (scope.empty()) {
+        body = getSpacialNamesMapFuncCommonBody();
+    }
+    else {
+        body = getSpacialNamesMapFuncBody(scope);
+    }
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("BODY", std::move(body)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string FloatField::getSpacialNamesMapFuncCommonBody() const
+{
+    common::StringsList specialInfos;
+    for (auto& s : m_specials) {
+        static const std::string SpecTempl = 
+            "std::make_pair(value#^#SPEC_ACC#$#(), \"#^#SPEC_NAME#$#\")";
+
+        common::ReplacementMap specRepl;
+        specRepl.insert(std::make_pair("SPEC_ACC", common::nameToClassCopy(s.first)));
+        specRepl.insert(std::make_pair("SPEC_NAME", s.first));
+        specialInfos.push_back(common::processTemplate(SpecTempl, specRepl));
+    }
+
+    assert(!specialInfos.empty());
+    static const std::string Templ = 
+        "static const SpecialNameInfo Map[] = {\n"
+        "    #^#INFOS#$#\n"
+        "};\n"
+        "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
+        "return std::make_pair(&Map[0], MapSize);\n";
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("INFOS", common::listToString(specialInfos, ",\n", common::emptyString())));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string FloatField::getSpacialNamesMapFuncBody(const std::string& scope) const
+{
+    static const std::string Temp = 
+        "return #^#SCOPE#$##^#CLASS_NAME#$#Common::specialNamesMap();";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Temp, repl); 
+}
+
 std::string FloatField::getValid() const
 {
     auto custom = getCustomValid();
@@ -749,6 +886,24 @@ std::string FloatField::getValid() const
     common::ReplacementMap replacements;
     replacements.insert(std::make_pair("CONDITIONS", common::listToString(conditions, "\n", common::emptyString())));
     return common::processTemplate(ValidFuncTemplate, replacements);
+}
+
+std::string FloatField::getDisplayDecimals() const
+{
+    auto obj = floatFieldDslObj();
+    auto decimals = obj.displayDecimals();
+
+    static const std::string Templ = 
+        "/// @brief Requested number of digits after decimal point when value\n"
+        "///     is displayed.\n"
+        "static constexpr unsigned displayDecimals()\n"
+        "{\n"
+        "    return #^#DISPLAY_DECIMALS#$#;\n"
+        "}";
+        
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("DISPLAY_DECIMALS", common::numToString(decimals)));
+    return common::processTemplate(Templ, repl);
 }
 
 FloatField::StringsList FloatField::getVersionBasedConditions() const

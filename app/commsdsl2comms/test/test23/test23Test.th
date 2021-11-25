@@ -15,6 +15,8 @@ public:
     void test2();
     void test3();
     void test4();
+    void test5();
+    void test6();
 
     using Interface =
         test23::Message<
@@ -219,4 +221,58 @@ void TestSuite::test4()
         TS_ASSERT_EQUALS(msg->field_b1().field_len2().value(), 0U);
     } while (false);
     
+}
+
+void TestSuite::test5()
+{
+    Msg1 msg;
+    msg.field_str().value().assign(300, 'a');
+    bool refreshed = msg.refresh();
+    TS_ASSERT(refreshed);
+
+    Frame frame;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto readIter = comms::readIteratorFor<Interface>(&outBuf[0]);
+    es = frame.read(msgPtr, readIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M1);
+    auto* inMsg = static_cast<Msg1*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());
+}
+
+void TestSuite::test6()
+{
+    Msg4 msg;
+    auto& data1 = msg.field_b1().field_data1().value();
+    static const std::size_t Len = 300;
+    data1.reserve(Len);
+    while (data1.size() < Len) {
+        data1.push_back(static_cast<std::uint8_t>(0xaa));
+    }
+
+    bool refreshed = msg.refresh();
+    TS_ASSERT(refreshed);
+
+    Frame frame;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto readIter = comms::readIteratorFor<Interface>(&outBuf[0]);
+    es = frame.read(msgPtr, readIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M4);
+    auto* inMsg = static_cast<Msg4*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -72,6 +72,7 @@ private:
 
     std::string getEnumeration(const std::string& scope, bool checkIfMemberChild = true) const;
     std::string getCommonEnumeration(const std::string& fullScope) const;
+    std::string getCommonValueNameMapDef() const;
     std::string getFieldBaseParams() const;
     std::string getEnumType(bool isCommon = false) const;
     std::string getFieldOpts(const std::string& scope) const;
@@ -82,6 +83,11 @@ private:
     std::string getValueNameFuncBinSearchBody(bool isCommon) const;
     std::string getValueNameBinSearchPairs(bool isCommon) const;
     std::string getBigUnsignedValueNameBinSearchPairs(bool isCommon) const;
+    std::string getValueNamesMapFunc(bool isCommon = false) const;
+    std::string getValueNamesMapFuncDirectBody() const;
+    std::string getValueNamesMapFuncBinSearchBody(bool isCommon) const;
+    std::string getValueNamesMapDefs(const std::string& scope) const;
+    std::string getValueNamesMapInfoCommonWrapFunc(const std::string& scope) const;
     bool isDirectValueNameMapping() const;
     void checkDefaultValueOpt(StringsList& list) const;
     void checkLengthOpt(StringsList& list) const;

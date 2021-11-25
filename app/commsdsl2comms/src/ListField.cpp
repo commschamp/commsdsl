@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -274,6 +274,25 @@ void ListField::updateIncludesImpl(IncludesList& includes) const
         assert(!extRef.empty());
         common::mergeInclude(generator().headerfileForField(extRef, false), includes);
     } while (false);
+
+    if ((!obj.detachedCountPrefixFieldName().empty()) ||
+        (!obj.detachedLengthPrefixFieldName().empty()) ||
+        (!obj.detachedElemLengthPrefixFieldName().empty())) {
+        static const IncludesList DetachedPrefixList = {
+            "<algorithm>",
+            "<limits>"
+        };
+
+        common::mergeIncludes(DetachedPrefixList, includes);        
+    }
+
+    if (!obj.detachedElemLengthPrefixFieldName().empty()) {
+        static const IncludesList DetachedPrefixList = {
+            "comms/Assert.h"
+        };
+
+        common::mergeIncludes(DetachedPrefixList, includes);        
+    }    
 }
 
 void ListField::updateIncludesCommonImpl(IncludesList& includes) const
@@ -591,11 +610,15 @@ std::string ListField::getPrivateRefreshBodyImpl(const FieldsList& fields) const
                 "do {\n"
                 "    auto expectedValue = static_cast<std::size_t>(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value());\n"
                 "    #^#REAL_VALUE#$#\n"
-                "    if (expectedValue != realValue) {\n"
-                "        using PrefixValueType = typename std::decay<decltype(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value())>::type;\n"
-                "        field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value() = static_cast<PrefixValueType>(realValue);\n"
-                "        updated = true;\n"
-                "    }\n"
+                "    if (expectedValue == realValue) {\n"
+                "        break;\n"
+                "    }\n\n"
+                "    using PrefixValueType = typename std::decay<decltype(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value())>::type;\n"
+                "    static const auto MaxPrefixValue = static_cast<std::size_t>(std::numeric_limits<PrefixValueType>::max());\n"
+                "    auto maxAllowedValue = std::min(MaxPrefixValue, realValue);\n"
+                "    #^#ADJUST_LIST#$#\n"
+                "    field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value() = static_cast<PrefixValueType>(#^#PREFIX_VALUE#$#);\n"
+                "    updated = true;\n"
                 "} while (false);\n";
 
             auto repl = replacements;
@@ -616,27 +639,52 @@ std::string ListField::getPrivateRefreshBodyImpl(const FieldsList& fields) const
 
     auto& countPrefix = obj.detachedCountPrefixFieldName();
     if (!countPrefix.empty()) {
-        static const std::string Templ = 
+        static const std::string RealValueTempl = 
             "auto realValue = field_#^#NAME#$#()#^#LIST_ACC#$#.value().size();";
-        repl["REAL_VALUE"] = common::processTemplate(Templ, repl);
+        repl["REAL_VALUE"] = common::processTemplate(RealValueTempl, repl);
+
+        static const std::string AdjustListTempl = 
+            "if (maxAllowedValue < realValue) {\n"
+            "    field_#^#NAME#$#()#^#LIST_ACC#$#.value().resize(maxAllowedValue);\n"
+            "}";
+        repl["PREFIX_VALUE"] = "maxAllowedValue";
+        repl["ADJUST_LIST"] = common::processTemplate(AdjustListTempl, repl);
         processPrefixFunc(countPrefix, repl);
     }
 
     auto& lengthPrefix = obj.detachedLengthPrefixFieldName();
     if (!lengthPrefix.empty()) {
-        static const std::string Templ = 
+        static const std::string RealValueTempl = 
             "auto realValue = field_#^#NAME#$#()#^#LIST_ACC#$#.length();";
-        repl["REAL_VALUE"] = common::processTemplate(Templ, repl);
+        repl["REAL_VALUE"] = common::processTemplate(RealValueTempl, repl);
+
+        static const std::string AdjustListTempl = 
+            "while (maxAllowedValue < realValue) {\n"
+            "    auto elemLen = field_#^#NAME#$#()#^#LIST_ACC#$#.value().back().length();\n"
+            "    field_#^#NAME#$#()#^#LIST_ACC#$#.value().pop_back();\n"
+            "    realValue -= elemLen;"
+            "}";
+        
+        repl["PREFIX_VALUE"] = "realValue";
+        repl["ADJUST_LIST"] = common::processTemplate(AdjustListTempl, repl);
+
         processPrefixFunc(lengthPrefix, repl);
     }
 
     auto& elemLengthPrefix = obj.detachedElemLengthPrefixFieldName();
     if (!elemLengthPrefix.empty()) {
-        static const std::string Templ = 
+        static const std::string RealValueTempl = 
             "std::size_t realValue =\n"
             "    field_#^#NAME#$#()#^#LIST_ACC#$#.value().empty() ?\n"
             "        0U : field_#^#NAME#$#()#^#LIST_ACC#$#.value()[0].length();";
-        repl["REAL_VALUE"] = common::processTemplate(Templ, repl);
+        repl["REAL_VALUE"] = common::processTemplate(RealValueTempl, repl);
+
+        static const std::string AdjustListTempl = 
+            "COMMS_ASSERT(\n"
+            "    (field_#^#NAME#$#()#^#LIST_ACC#$#.value().empty()) ||\n"
+            "    (field_#^#NAME#$#()#^#LIST_ACC#$#.value()[0].length() < maxAllowedValue));";
+        repl["PREFIX_VALUE"] = "maxAllowedValue";
+        repl["ADJUST_LIST"] = common::processTemplate(AdjustListTempl, repl);
         processPrefixFunc(elemLengthPrefix, repl);
     }
 

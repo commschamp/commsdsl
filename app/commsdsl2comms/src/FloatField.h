@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,8 +48,20 @@ private:
     const std::string& getFieldType() const;
     std::string getFieldOpts(const std::string& scope) const;
     std::string getConstructor() const;
+    std::string getSpecialNamesMapDefs(const std::string& scope = std::string()) const;
+    static const std::string& getCommonSpecialNameInfoDef();
+    static const std::string& getCommonSpecialNamesMapDef();
+    std::string getSpecialNameInfoDef(const std::string& scope) const;
+    std::string getSpecialNamesMapDef(const std::string& scope) const;   
+    std::string getHasSpecialsFunc(const std::string& scope = std::string()) const; 
+    std::string getHasSpecialsFuncCommonBody() const;
+    std::string getHasSpecialsFuncBody(const std::string& scope) const;
     std::string getSpecials(const std::string& scope) const;
+    std::string getSpacialNamesMapFunc(const std::string& scope = std::string()) const;
+    std::string getSpacialNamesMapFuncCommonBody() const;
+    std::string getSpacialNamesMapFuncBody(const std::string& scope) const;
     std::string getValid() const;
+    std::string getDisplayDecimals() const;
     StringsList getVersionBasedConditions() const;
     StringsList getNormalConditions() const;
     void checkUnitsOpt(StringsList& list) const;

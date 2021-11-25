@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -51,9 +51,11 @@ const std::string ClassTemplate(
     "public:\n"
     "    /// @brief Re-definition of the value type.\n"
     "    using ValueType = typename Base::ValueType;\n\n"
+    "    #^#VALUE_NAMES_MAP_DEFS#$#\n"
     "    #^#PUBLIC#$#\n"
     "    #^#NAME#$#\n"
     "    #^#VALUE_NAME#$#\n"
+    "    #^#VALUE_NAMES_MAP#$#\n"    
     "    #^#READ#$#\n"
     "    #^#WRITE#$#\n"
     "    #^#LENGTH#$#\n"
@@ -360,7 +362,9 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
-    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));
+    replacements.insert(std::make_pair("NAME", getNameCommonWrapFunc(adjScope)));
+    replacements.insert(std::make_pair("VALUE_NAMES_MAP_DEFS", getValueNamesMapDefs(adjScope)));
+    replacements.insert(std::make_pair("VALUE_NAMES_MAP", getValueNamesMapInfoCommonWrapFunc(adjScope)));
 
     if (dslObj().semanticType() != commsdsl::Field::SemanticType::MessageId) {
         replacements.insert(std::make_pair("ENUM_SCOPE", scopeForCommon(adjScope)));
@@ -574,8 +578,10 @@ std::string EnumField::getCommonDefinitionImpl(const std::string& fullScope) con
         "struct #^#NAME#$#Common\n"
         "{\n"
         "    #^#ENUM_DEF#$#\n"
+        "    #^#VALUE_NAME_MAP_DEF#$#\n"
         "    #^#NAME_FUNC#$#\n"
         "    #^#VAL_NAME_FUNC#$#\n"
+        "    #^#VAL_VALUE_NAMES_MAP_FUNC#$#\n"
         "};\n\n"
         "/// @brief Values enumerator for\n"
         "///     @ref #^#SCOPE#$# field.\n"
@@ -587,8 +593,10 @@ std::string EnumField::getCommonDefinitionImpl(const std::string& fullScope) con
     repl.insert(std::make_pair("NAME", common::nameToClassCopy(name())));
     repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("ENUM_DEF", getCommonEnumeration(fullScope)));
+    repl.insert(std::make_pair("VALUE_NAME_MAP_DEF", getCommonValueNameMapDef()));
     repl.insert(std::make_pair("NAME_FUNC", getCommonNameFunc(fullScope)));
     repl.insert(std::make_pair("VAL_NAME_FUNC", getValueNameFunc(true)));
+    repl.insert(std::make_pair("VAL_VALUE_NAMES_MAP_FUNC", getValueNamesMapFunc(true)));
     return common::processTemplate(Templ, repl);
 }
 
@@ -659,6 +667,28 @@ std::string EnumField::getCommonEnumeration(const std::string& fullScope) const
     repl.insert(std::make_pair("SCOPE", fullScope));
     repl.insert(std::make_pair("TYPE", IntField::convertType(enumFieldDslObj().type())));
     repl.insert(std::make_pair("VALUES", getValuesDefinition()));
+    return common::processTemplate(Templ, repl);
+}
+
+std::string EnumField::getCommonValueNameMapDef() const
+{
+    static const std::string Templ = 
+        "/// @brief Single value name info entry\n"
+        "using ValueNameInfo = #^#NAME_INFO_TYPE#$#;\n\n"
+        "/// @brief Type returned from @ref valueNamesMap() member function.\n"
+        "/// @details The @b first value of the pair is pointer to the map array,\n"
+        "///     The @b second value of the pair is the size of the array.\n"
+        "using ValueNamesMapInfo = std::pair<const ValueNameInfo*, std::size_t>;\n";
+
+
+    common::ReplacementMap repl;
+    if (isDirectValueNameMapping()) {
+        repl.insert(std::make_pair("NAME_INFO_TYPE", "const char*"));
+    }
+    else {
+        repl.insert(std::make_pair("NAME_INFO_TYPE", "std::pair<ValueType, const char*>"));
+    }
+
     return common::processTemplate(Templ, repl);
 }
 
@@ -919,123 +949,36 @@ std::string EnumField::getValueNameWrapFunc(const std::string& scope) const
 
 std::string EnumField::getValueNameFuncDirectBody() const
 {
-    auto obj = enumFieldDslObj();
-    auto& revValues = obj.revValues();
-    auto& values = obj.values();
-    assert(!revValues.empty());
-
-    std::intmax_t nextValue = 0;
-    StringsList names;
-    for (auto& v : revValues) {
-        if (v.first < nextValue) {
-            continue;
-        }
-
-        while (nextValue < v.first) {
-            names.push_back("nullptr");
-            ++nextValue;
-        }
-
-        auto getDisplayNameFunc = 
-            [](auto& infoPair) -> const std::string&
-            {
-                if (infoPair.second.m_displayName.empty()) {
-                    return infoPair.first;
-                }
-
-                if (infoPair.second.m_displayName == "_") {
-                    return common::emptyString();
-                }
-
-                return infoPair.second.m_displayName;
-            };
-
-        ++nextValue;
-        auto addElementNameFunc = 
-            [&names, getDisplayNameFunc](auto& infoPair) 
-            {
-                names.push_back('\"' + getDisplayNameFunc(infoPair) + '\"');
-            };
-
-        auto valIter = values.find(v.second);
-        assert(valIter != values.end());
-        if ((!obj.isNonUniqueAllowed()) ||
-            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
-            (obj.isUnique())) {
-            addElementNameFunc(*valIter);
-            continue;
-        }
-
-        auto allRevValues = revValues.equal_range(v.first);
-        bool foundNotDeprecated = false;
-        for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
-            auto vIter = values.find(iter->second);
-            assert(vIter != values.end());
-            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
-                addElementNameFunc(*vIter);
-                foundNotDeprecated = true;
-                break;
-            }
-        }
-
-        if (foundNotDeprecated) {
-            continue;
-        }
-
-        addElementNameFunc(*valIter);
-    }
-
-    std::string namesStr = common::listToString(names, ",\n", common::emptyString());
-
     static const std::string Templ = 
-        "static const char* Map[] = {\n"
-        "    #^#NAMES#$#\n"
-        "};\n"
-        "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
-        "if (MapSize <= static_cast<std::size_t>(val)) {\n"
+        "auto namesMapInfo = valueNamesMap();\n"
+        "if (namesMapInfo.second <= static_cast<std::size_t>(val)) {\n"
         "    return nullptr;\n"
         "}\n\n"
-        "return Map[static_cast<std::size_t>(val)];";
+        "return namesMapInfo.first[static_cast<std::size_t>(val)];";
 
 
-    common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("NAMES", std::move(namesStr)));
-    return common::processTemplate(Templ, replacements);
+    return Templ;
 }
 
 std::string EnumField::getValueNameFuncBinSearchBody(bool isCommon) const
 {
-    auto obj = enumFieldDslObj();
-    auto type = obj.type();
-
-    std::string names;
-    if ((type == commsdsl::EnumField::Type::Uint64) ||
-        ((type == commsdsl::EnumField::Type::Uintvar) && (sizeof(std::uint64_t) <= obj.maxLength()))) {
-        names = getBigUnsignedValueNameBinSearchPairs(isCommon);
-    }
-    else {
-        names = getValueNameBinSearchPairs(isCommon);
-    }
-
     static const std::string Templ = 
-        "using NameInfo = std::pair<#^#ENUM_NAME#$#, const char*>;\n"
-        "static const NameInfo Map[] = {\n"
-        "    #^#NAMES#$#\n"
-        "};\n\n"
+        "auto namesMapInfo = valueNamesMap();\n"
+        "auto begIter = namesMapInfo.first;\n"
+        "auto endIter = begIter + namesMapInfo.second;\n"
         "auto iter = std::lower_bound(\n"
-        "    std::begin(Map), std::end(Map), val,\n"
-        "    [](const NameInfo& info, #^#ENUM_NAME#$# v) -> bool\n"
+        "    begIter, endIter, val,\n"
+        "    [](const ValueNameInfo& info, #^#ENUM_NAME#$# v) -> bool\n"
         "    {\n"
         "        return info.first < v;\n"
         "    });\n\n"
-        "if ((iter == std::end(Map)) || (iter->first != val)) {\n"
+        "if ((iter == endIter) || (iter->first != val)) {\n"
         "    return nullptr;\n"
         "}\n\n"
         "return iter->second;";
 
 
     common::ReplacementMap replacements;
-    replacements.insert(std::make_pair("NAMES", std::move(names)));
     replacements.insert(std::make_pair("ENUM_NAME", getEnumType(isCommon)));
     return common::processTemplate(Templ, replacements);
 }
@@ -1208,6 +1151,171 @@ std::string EnumField::getBigUnsignedValueNameBinSearchPairs(bool isCommon) cons
     }
 
     return common::listToString(names, ",\n", common::emptyString());
+}
+
+std::string EnumField::getValueNamesMapFunc(bool isCommon) const
+{
+    std::string body;
+    if (isDirectValueNameMapping()) {
+        body = getValueNamesMapFuncDirectBody();
+    }
+    else {
+        body = getValueNamesMapFuncBinSearchBody(isCommon);
+    }
+    assert(!body.empty());
+
+    static const std::string Templ = 
+        "/// @brief Retrieve map of enum value names\n"
+        "static ValueNamesMapInfo valueNamesMap()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("BODY", std::move(body)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNamesMapFuncDirectBody() const
+{
+    auto obj = enumFieldDslObj();
+    auto& revValues = obj.revValues();
+    auto& values = obj.values();
+    assert(!revValues.empty());
+
+    std::intmax_t nextValue = 0;
+    StringsList names;
+    for (auto& v : revValues) {
+        if (v.first < nextValue) {
+            continue;
+        }
+
+        while (nextValue < v.first) {
+            names.push_back("nullptr");
+            ++nextValue;
+        }
+
+        auto getDisplayNameFunc = 
+            [](auto& infoPair) -> const std::string&
+            {
+                if (infoPair.second.m_displayName.empty()) {
+                    return infoPair.first;
+                }
+
+                if (infoPair.second.m_displayName == "_") {
+                    return common::emptyString();
+                }
+
+                return infoPair.second.m_displayName;
+            };
+
+        ++nextValue;
+        auto addElementNameFunc = 
+            [&names, getDisplayNameFunc](auto& infoPair) 
+            {
+                names.push_back('\"' + getDisplayNameFunc(infoPair) + '\"');
+            };
+
+        auto valIter = values.find(v.second);
+        assert(valIter != values.end());
+        if ((!obj.isNonUniqueAllowed()) ||
+            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (obj.isUnique())) {
+            addElementNameFunc(*valIter);
+            continue;
+        }
+
+        auto allRevValues = revValues.equal_range(v.first);
+        bool foundNotDeprecated = false;
+        for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
+            auto vIter = values.find(iter->second);
+            assert(vIter != values.end());
+            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+                addElementNameFunc(*vIter);
+                foundNotDeprecated = true;
+                break;
+            }
+        }
+
+        if (foundNotDeprecated) {
+            continue;
+        }
+
+        addElementNameFunc(*valIter);
+    }
+
+    std::string namesStr = common::listToString(names, ",\n", common::emptyString());
+
+    static const std::string Templ = 
+        "static const char* Map[] = {\n"
+        "    #^#NAMES#$#\n"
+        "};\n"
+        "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
+        "return std::make_pair(&Map[0], MapSize);";
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAMES", std::move(namesStr)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNamesMapFuncBinSearchBody(bool isCommon) const
+{
+    auto obj = enumFieldDslObj();
+    auto type = obj.type();
+
+    std::string names;
+    if ((type == commsdsl::EnumField::Type::Uint64) ||
+        ((type == commsdsl::EnumField::Type::Uintvar) && (sizeof(std::uint64_t) <= obj.maxLength()))) {
+        names = getBigUnsignedValueNameBinSearchPairs(isCommon);
+    }
+    else {
+        names = getValueNameBinSearchPairs(isCommon);
+    }
+
+    static const std::string Templ = 
+        "static const ValueNameInfo Map[] = {\n"
+        "    #^#NAMES#$#\n"
+        "};\n"
+        "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
+        "return std::make_pair(&Map[0], MapSize);";
+
+
+    common::ReplacementMap replacements;
+    replacements.insert(std::make_pair("NAMES", std::move(names)));
+    replacements.insert(std::make_pair("ENUM_NAME", getEnumType(isCommon)));
+    return common::processTemplate(Templ, replacements);
+}
+
+std::string EnumField::getValueNamesMapDefs(const std::string& scope) const
+{
+    static const std::string Templ =
+        "/// @brief Single value name info entry.\n"
+        "using ValueNameInfo = #^#SCOPE#$##^#CLASS_NAME#$#Common::ValueNameInfo;\n\n"
+        "/// @brief Type returned from @ref valueNamesMap() member function.\n"
+        "using ValueNamesMapInfo = #^#SCOPE#$##^#CLASS_NAME#$#Common::ValueNamesMapInfo;\n";
+
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Templ, repl);
+}
+
+std::string EnumField::getValueNamesMapInfoCommonWrapFunc(const std::string& scope) const
+{
+    static const std::string Templ =
+        "/// @brief Retrieve map of enum value names.\n"
+        "static ValueNamesMapInfo valueNamesMap()\n"
+        "{\n"
+        "    return #^#SCOPE#$##^#CLASS_NAME#$#Common::valueNamesMap();\n"
+        "}\n";
+
+    common::ReplacementMap repl;
+    repl.insert(std::make_pair("SCOPE", scopeForCommon(scope)));
+    repl.insert(std::make_pair("CLASS_NAME", common::nameToClassCopy(name())));
+    return common::processTemplate(Templ, repl);
 }
 
 bool EnumField::isDirectValueNameMapping() const
@@ -1551,6 +1659,9 @@ void EnumField::updateIncludesForCommonInternal(IncludesList& includes) const
         common::mergeInclude(inc, includes);
     }
 
+    common::mergeInclude("<type_traits>", includes);
+    common::mergeInclude("<utility>", includes);    
+
     prepareRanges();
 
     if (MaxRangesInOpts < m_validRanges.size()) {
@@ -1558,13 +1669,9 @@ void EnumField::updateIncludesForCommonInternal(IncludesList& includes) const
         common::mergeInclude("<algorithm>", includes);
     }
 
-    if (isDirectValueNameMapping()) {
-        common::mergeInclude("<type_traits>", includes);
-    }
-    else {
+    if (!isDirectValueNameMapping()) {
         common::mergeInclude("<iterator>", includes);
         common::mergeInclude("<algorithm>", includes);
-        common::mergeInclude("<utility>", includes);
     }
 }
 

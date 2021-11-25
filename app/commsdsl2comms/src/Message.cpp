@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2020 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -490,12 +490,12 @@ std::string Message::getServerOptions(const std::string& base) const
 
 std::string Message::getBareMetalDefaultOptions(const std::string& base) const
 {
-    return getOptions(&Field::getBareMetalDefaultOptions, base);
+    return getOptions(&Field::getBareMetalDefaultOptions, base, true);
 }
 
 std::string Message::getDataViewDefaultOptions(const std::string& base) const
 {
-    return getOptions(&Field::getDataViewDefaultOptions, base);
+    return getOptions(&Field::getDataViewDefaultOptions, base, true);
 }
 
 bool Message::writeProtocolDefinitionCommonFile()
@@ -1185,7 +1185,7 @@ bool Message::isCustomizable() const
     return m_dslObj.sender() != commsdsl::Message::Sender::Both;
 }
 
-std::string Message::getOptions(GetFieldOptionsFunc func, const std::string& base) const
+std::string Message::getOptions(GetFieldOptionsFunc func, const std::string& base, bool extending) const
 {
     std::string fieldsOpts;
     auto addFieldOptsFunc =
@@ -1242,7 +1242,7 @@ std::string Message::getOptions(GetFieldOptionsFunc func, const std::string& bas
     replacements.insert(std::make_pair("MESSAGE_SCOPE", m_generator.scopeForMessage(m_externalRef, true, true)));
     replacements.insert(std::make_pair("EXT", std::move(ext)));
 
-    if (customizable) {
+    if (customizable && (!extending)) {
         static const std::string OptTempl =
             "/// @brief Extra options for\n"
             "///     @ref #^#MESSAGE_SCOPE#$# message.\n"
