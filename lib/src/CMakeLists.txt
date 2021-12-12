@@ -147,7 +147,7 @@ set (
     "AliasImpl.cpp"
 )
 
-add_library(${PROJECT_NAME} SHARED ${src})
+add_library(${PROJECT_NAME} STATIC ${src})
 add_dependencies(${PROJECT_NAME} LibXml2::LibXml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 
@@ -162,8 +162,7 @@ target_include_directories(${PROJECT_NAME}
     INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_compile_definitions(${PROJECT_NAME}
-  PRIVATE COMMSDSL_LIB_EXPORT)
+#target_compile_definitions(${PROJECT_NAME} PRIVATE COMMSDSL_LIB_EXPORT)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
