@@ -91,7 +91,7 @@ if (LIBXML2_FOUND AND (NOT TARGET LibXml2::LibXml2))
 endif ()
 
 set (
-    src
+    parse_src
     "parse/Alias.cpp"
     "parse/AliasImpl.cpp"    
     "parse/BitfieldField.cpp"
@@ -147,7 +147,14 @@ set (
     "parse/common.cpp"
 )
 
-add_library(${PROJECT_NAME} STATIC ${src})
+set (
+    gen_src
+    gen/Elem.cpp
+    gen/Generator.cpp
+    gen/Namespace.cpp
+)
+
+add_library(${PROJECT_NAME} STATIC ${parse_src} ${gen_src})
 add_dependencies(${PROJECT_NAME} LibXml2::LibXml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 
