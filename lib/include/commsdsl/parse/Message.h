@@ -19,7 +19,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "CommsdslApi.h"
+#include "commsdsl/CommsdslApi.h"
 #include "Field.h"
 #include "Schema.h"
 #include "Alias.h"

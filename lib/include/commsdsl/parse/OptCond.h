@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "CommsdslApi.h"
+#include "commsdsl/CommsdslApi.h"
 
 namespace commsdsl
 {

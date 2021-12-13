@@ -18,7 +18,7 @@
 #include <string>
 #include <vector>
 
-#include "CommsdslApi.h"
+#include "commsdsl/CommsdslApi.h"
 #include "Field.h"
 #include "Message.h"
 #include "Schema.h"

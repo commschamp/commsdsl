@@ -19,7 +19,7 @@
 #include <map>
 #include <vector>
 
-#include "CommsdslApi.h"
+#include "commsdsl/CommsdslApi.h"
 #include "Endian.h"
 
 namespace commsdsl

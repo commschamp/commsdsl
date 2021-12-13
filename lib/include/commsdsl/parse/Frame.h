@@ -19,7 +19,7 @@
 #include <vector>
 #include <cstdint>
 
-#include "CommsdslApi.h"
+#include "commsdsl/CommsdslApi.h"
 #include "Layer.h"
 
 namespace commsdsl

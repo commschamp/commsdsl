@@ -21,7 +21,7 @@
 #include <vector>
 #include <limits>
 
-#include "CommsdslApi.h"
+#include "commsdsl/CommsdslApi.h"
 #include "ErrorLevel.h"
 #include "Schema.h"
 #include "Namespace.h"

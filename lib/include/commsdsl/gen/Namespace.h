@@ -16,11 +16,12 @@
 
 #pragma once
 
-#include <memory>
-
+#include "commsdsl/CommsdslApi.h"
 #include "commsdsl/parse/Namespace.h"
-
 #include "commsdsl/gen/Elem.h"
+
+#include <memory>
+#include <vector>
 
 namespace commsdsl
 {
@@ -29,7 +30,7 @@ namespace gen
 {
 
 class NamespaceImpl;
-class Namespace : public Elem
+class COMMSDSL_API Namespace : public Elem
 {
     using Base = Elem;
 public:

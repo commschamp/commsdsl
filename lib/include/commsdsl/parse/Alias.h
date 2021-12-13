@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "CommsdslApi.h"
+#include "commsdsl/CommsdslApi.h"
 #include "Schema.h"
 
 namespace commsdsl
