@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/Layer.h"
+#include "commsdsl/parse/Layer.h"
 
 #include "Layer.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class ValueLayer final : public Layer
 {
     using Base = Layer;
 public:
-    ValueLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    ValueLayer(Generator& generator, commsdsl::parse::Layer layer) : Base(generator, layer) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -39,14 +39,14 @@ protected:
     virtual bool isPseudoVersionLayerImpl(const std::vector<std::string>& interfaceVersionFields) const override;
 
 private:
-    commsdsl::ValueLayer valueLayerDslObj() const
+    commsdsl::parse::ValueLayer valueLayerDslObj() const
     {
-        return commsdsl::ValueLayer(dslObj());
+        return commsdsl::parse::ValueLayer(dslObj());
     }
 };
 
 inline
-LayerPtr createValueLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createValueLayer(Generator& generator, commsdsl::parse::Layer layer)
 {
     return std::make_unique<ValueLayer>(generator, layer);
 }

@@ -167,7 +167,7 @@ std::string Field::getClassDefinition(
 
         std::string versionOpt = "ExistsSinceVersion<" + common::numToString(m_dslObj.sinceVersion()) + '>';
         if (m_dslObj.isDeprecatedRemoved()) {
-            assert(m_dslObj.deprecatedSince() < commsdsl::Protocol::notYetDeprecated());
+            assert(m_dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated());
             if (m_dslObj.sinceVersion() == 0U) {
                 versionOpt = "ExistsUntilVersion<" + common::numToString(m_dslObj.deprecatedSince() - 1) + '>';
             }
@@ -203,26 +203,26 @@ std::string Field::getCommonDefinition(
     return getCommonDefinitionImpl(fullScope);
 }
 
-Field::Ptr Field::create(Generator& generator, commsdsl::Field field)
+Field::Ptr Field::create(Generator& generator, commsdsl::parse::Field field)
 {
-    using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Field)>;
+    using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::parse::Field)>;
     static const CreateFunc Map[] = {
-        /* Int */ [](Generator& g, commsdsl::Field f) { return createIntField(g, f); },
-        /* Enum */ [](Generator& g, commsdsl::Field f) { return createEnumField(g, f); },
-        /* Set */ [](Generator& g, commsdsl::Field f) { return createSetField(g, f); },
-        /* Float */ [](Generator& g, commsdsl::Field f) { return createFloatField(g, f); },
-        /* Bitfield */ [](Generator& g, commsdsl::Field f) { return createBitfieldField(g, f); },
-        /* Bundle */ [](Generator& g, commsdsl::Field f) { return createBundleField(g, f); },
-        /* String */ [](Generator& g, commsdsl::Field f) { return createStringField(g, f); },
-        /* Data */ [](Generator& g, commsdsl::Field f) { return createDataField(g, f); },
-        /* List */ [](Generator& g, commsdsl::Field f) { return createListField(g, f); },
-        /* Ref */ [](Generator& g, commsdsl::Field f) { return createRefField(g, f); },
-        /* Optional */ [](Generator& g, commsdsl::Field f) { return createOptionalField(g, f); },
-        /* Variant */ [](Generator& g, commsdsl::Field f) { return createVariantField(g, f); },
+        /* Int */ [](Generator& g, commsdsl::parse::Field f) { return createIntField(g, f); },
+        /* Enum */ [](Generator& g, commsdsl::parse::Field f) { return createEnumField(g, f); },
+        /* Set */ [](Generator& g, commsdsl::parse::Field f) { return createSetField(g, f); },
+        /* Float */ [](Generator& g, commsdsl::parse::Field f) { return createFloatField(g, f); },
+        /* Bitfield */ [](Generator& g, commsdsl::parse::Field f) { return createBitfieldField(g, f); },
+        /* Bundle */ [](Generator& g, commsdsl::parse::Field f) { return createBundleField(g, f); },
+        /* String */ [](Generator& g, commsdsl::parse::Field f) { return createStringField(g, f); },
+        /* Data */ [](Generator& g, commsdsl::parse::Field f) { return createDataField(g, f); },
+        /* List */ [](Generator& g, commsdsl::parse::Field f) { return createListField(g, f); },
+        /* Ref */ [](Generator& g, commsdsl::parse::Field f) { return createRefField(g, f); },
+        /* Optional */ [](Generator& g, commsdsl::parse::Field f) { return createOptionalField(g, f); },
+        /* Variant */ [](Generator& g, commsdsl::parse::Field f) { return createVariantField(g, f); },
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(commsdsl::Field::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::Field::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(field.kind());
     if (MapSize <= idx) {
@@ -472,10 +472,10 @@ std::string Field::getClassPrefix(
 
 std::string Field::dslCondToString(
     const FieldsList& fields,
-    const commsdsl::OptCond& cond,
+    const commsdsl::parse::OptCond& cond,
     bool bracketsWrap)
 {
-    if (cond.kind() == commsdsl::OptCond::Kind::Expr) {
+    if (cond.kind() == commsdsl::parse::OptCond::Kind::Expr) {
         auto findFieldFunc =
             [&fields](const std::string& name) -> const Field*
             {
@@ -503,7 +503,7 @@ std::string Field::dslCondToString(
                 return val;
             };
 
-        commsdsl::OptCondExpr exprCond(cond);
+        commsdsl::parse::OptCondExpr exprCond(cond);
         auto& left = exprCond.left();
         auto& op = opFunc(exprCond.op());
         auto& right = exprCond.right();
@@ -558,8 +558,8 @@ std::string Field::dslCondToString(
         }
 
         assert(
-            (rightField->kind() == commsdsl::Field::Kind::Set) ||
-            (rightField->kind() == commsdsl::Field::Kind::Ref));
+            (rightField->kind() == commsdsl::parse::Field::Kind::Set) ||
+            (rightField->kind() == commsdsl::parse::Field::Kind::Ref));
         std::string valueStr;
         if (dotPos != std::string::npos) {
             valueStr.assign(fieldRef.begin() + dotPos + 1, fieldRef.end());
@@ -568,25 +568,25 @@ std::string Field::dslCondToString(
         return rightField->getCompareToValue(op, valueStr);
     }
 
-    if ((cond.kind() != commsdsl::OptCond::Kind::List)) {
+    if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
         return common::emptyString();
     }
 
-    commsdsl::OptCondList listCond(cond);
+    commsdsl::parse::OptCondList listCond(cond);
     auto type = listCond.type();
 
     static const std::string AndOp = " &&\n";
     static const std::string OrOp = " ||\n";
 
     auto* op = &AndOp;
-    if (type == commsdsl::OptCondList::Type::Or) {
+    if (type == commsdsl::parse::OptCondList::Type::Or) {
         op = &OrOp;
     }
     else {
-        assert(type == commsdsl::OptCondList::Type::And);
+        assert(type == commsdsl::parse::OptCondList::Type::And);
     }
 
     auto conditions = listCond.conditions();
@@ -632,7 +632,7 @@ bool Field::isVersionOptional() const
         return true;
     }
     
-    if ((m_dslObj.deprecatedSince() < commsdsl::Protocol::notYetDeprecated()) &&
+    if ((m_dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated()) &&
         (m_dslObj.isDeprecatedRemoved())) {
         return true;
     }
@@ -1321,14 +1321,14 @@ std::string Field::getFullPrivate() const
     return "private:\n" + str;
 }
 
-std::string Field::getCommonFieldBaseParams(commsdsl::Endian endian) const
+std::string Field::getCommonFieldBaseParams(commsdsl::parse::Endian endian) const
 {
     auto schemaEndian = generator().schemaEndian();
-    assert(endian < commsdsl::Endian_NumOfValues);
-    assert(schemaEndian < commsdsl::Endian_NumOfValues);
+    assert(endian < commsdsl::parse::Endian_NumOfValues);
+    assert(schemaEndian < commsdsl::parse::Endian_NumOfValues);
 
     if ((schemaEndian == endian) ||
-        (commsdsl::Endian_NumOfValues <= endian)) {
+        (commsdsl::parse::Endian_NumOfValues <= endian)) {
         return common::emptyString();
     }
 

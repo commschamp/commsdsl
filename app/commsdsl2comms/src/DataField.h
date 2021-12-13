@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/DataField.h"
+#include "commsdsl/parse/DataField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class DataField final : public Field
 {
     using Base = Field;
 public:
-    DataField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    DataField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -71,16 +71,16 @@ private:
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
 
 
-    commsdsl::DataField dataFieldDslObj() const
+    commsdsl::parse::DataField dataFieldDslObj() const
     {
-        return commsdsl::DataField(dslObj());
+        return commsdsl::parse::DataField(dslObj());
     }
 
     FieldPtr m_prefix;
 };
 
 inline
-FieldPtr createDataField(Generator& generator, commsdsl::Field field)
+FieldPtr createDataField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<DataField>(generator, field);
 }

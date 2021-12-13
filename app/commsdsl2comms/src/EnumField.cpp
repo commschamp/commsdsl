@@ -68,7 +68,7 @@ const std::string ClassTemplate(
 
 const std::size_t MaxRangesInOpts = 5U;
 
-std::uintmax_t maxTypeValue(commsdsl::EnumField::Type val)
+std::uintmax_t maxTypeValue(commsdsl::parse::EnumField::Type val)
 {
     static const std::uintmax_t Map[] = {
         /* Int8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int8_t>::max()),
@@ -84,14 +84,14 @@ std::uintmax_t maxTypeValue(commsdsl::EnumField::Type val)
     };
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<std::size_t>(commsdsl::EnumField::Type::NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::EnumField::Type::NumOfValues),
             "Invalid map");
 
-    if (commsdsl::EnumField::Type::NumOfValues <= val) {
+    if (commsdsl::parse::EnumField::Type::NumOfValues <= val) {
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        val = commsdsl::EnumField::Type::Uint64;
+        val = commsdsl::parse::EnumField::Type::Uint64;
     }
     return Map[static_cast<unsigned>(val)];
 }
@@ -107,8 +107,8 @@ common::StringsList EnumField::getValuesList() const
     auto obj = enumFieldDslObj();
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::EnumField::Type::Uint64) ||
-        (type == commsdsl::EnumField::Type::Uintvar);
+        (type == commsdsl::parse::EnumField::Type::Uint64) ||
+        (type == commsdsl::parse::EnumField::Type::Uintvar);
     unsigned hexW = hexWidth();
 
     using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
@@ -172,7 +172,7 @@ common::StringsList EnumField::getValuesList() const
             docStr = "///< " + iter->second.m_description;
             docStr = common::makeMultilineCopy(docStr, 40);
         }
-        else if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
+        else if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
             if (!iter->second.m_displayName.empty()) {
                 docStr = "///< message id of <b>" + iter->second.m_displayName + "</b> message.";
             }
@@ -339,7 +339,7 @@ std::string EnumField::getClassDefinitionImpl(
     
     std::string extraDoxStr;
     auto adjScope = adjustScopeWithNamespace(scope);
-    if (dslObj().semanticType() != commsdsl::Field::SemanticType::MessageId) {
+    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::MessageId) {
         auto scopeStr = adjScope + getEnumType();
         if (!extraDoxStr.empty()) {
             extraDoxStr += '\n';
@@ -366,7 +366,7 @@ std::string EnumField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("VALUE_NAMES_MAP_DEFS", getValueNamesMapDefs(adjScope)));
     replacements.insert(std::make_pair("VALUE_NAMES_MAP", getValueNamesMapInfoCommonWrapFunc(adjScope)));
 
-    if (dslObj().semanticType() != commsdsl::Field::SemanticType::MessageId) {
+    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::MessageId) {
         replacements.insert(std::make_pair("ENUM_SCOPE", scopeForCommon(adjScope)));
     }
 
@@ -434,7 +434,7 @@ std::string EnumField::getCompareToValueImpl(
     }
 
     auto* otherEnum = generator().findField(std::string(value, 0, lastDot), false);
-    if ((otherEnum == nullptr) || (otherEnum->kind() != commsdsl::Field::Kind::Enum)) {
+    if ((otherEnum == nullptr) || (otherEnum->kind() != commsdsl::parse::Field::Kind::Enum)) {
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
@@ -520,8 +520,8 @@ std::string EnumField::getPluginPropertiesImpl(bool serHiddenParam) const
     auto obj = enumFieldDslObj();
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::EnumField::Type::Uint64) ||
-        (type == commsdsl::EnumField::Type::Uintvar);
+        (type == commsdsl::parse::EnumField::Type::Uint64) ||
+        (type == commsdsl::parse::EnumField::Type::Uintvar);
 
     using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
     using SortedRevValues = std::vector<RevValueInfo>;
@@ -602,7 +602,7 @@ std::string EnumField::getCommonDefinitionImpl(const std::string& fullScope) con
 
 std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemberChild) const
 {
-    if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
         return common::emptyString();
     }
 
@@ -644,7 +644,7 @@ std::string EnumField::getEnumeration(const std::string& scope, bool checkIfMemb
 
 std::string EnumField::getCommonEnumeration(const std::string& fullScope) const
 {
-    if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
         static const std::string Templ =
             "/// @brief Values enumerator for\n"
             "///     @ref #^#SCOPE#$# field.\n"
@@ -701,7 +701,7 @@ std::string EnumField::getFieldBaseParams() const
 
 std::string EnumField::getEnumType(bool isCommon) const
 {
-    if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
         return generator().mainNamespace() + "::" + common::msgIdEnumNameStr();
     }
 
@@ -764,7 +764,7 @@ std::string EnumField::getValid() const
         common::StringsList valuesStrings;
 
         bool isMessageId =
-            obj.semanticType() == commsdsl::Field::SemanticType::MessageId;
+            obj.semanticType() == commsdsl::parse::Field::SemanticType::MessageId;
         auto& revValues = obj.revValues();
         auto prevIter = revValues.end();
         for (auto iter = revValues.begin(); iter != revValues.end(); ++iter) {
@@ -794,7 +794,7 @@ std::string EnumField::getValid() const
     std::vector<decltype(m_validRanges)> rangesToProcess;
     for (auto& r : m_validRanges) {
         if ((r.m_sinceVersion == 0U) &&
-            (r.m_deprecatedSince == commsdsl::Protocol::notYetDeprecated())) {
+            (r.m_deprecatedSince == commsdsl::parse::Protocol::notYetDeprecated())) {
             continue;
         }
 
@@ -825,8 +825,8 @@ std::string EnumField::getValid() const
 
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::EnumField::Type::Uint64) ||
-        (type == commsdsl::EnumField::Type::Uintvar);
+        (type == commsdsl::parse::EnumField::Type::Uint64) ||
+        (type == commsdsl::parse::EnumField::Type::Uintvar);
 
 
     common::StringsList conditions;
@@ -834,10 +834,10 @@ std::string EnumField::getValid() const
         assert(!l.empty());
         auto* condTempl = &VersionBothCondTempl;
         if (l.front().m_sinceVersion == 0U) {
-            assert(l.front().m_deprecatedSince != commsdsl::Protocol::notYetDeprecated());
+            assert(l.front().m_deprecatedSince != commsdsl::parse::Protocol::notYetDeprecated());
             condTempl = &VersionUntilCondTempl;
         }
-        else if (commsdsl::Protocol::notYetDeprecated() <= l.front().m_deprecatedSince) {
+        else if (commsdsl::parse::Protocol::notYetDeprecated() <= l.front().m_deprecatedSince) {
             condTempl = &VersionFromCondTempl;
         }
 
@@ -990,7 +990,7 @@ std::string EnumField::getValueNameBinSearchPairs(bool isCommon) const
     auto& values = obj.values();
     assert(!revValues.empty());
     bool isMessageId =
-        obj.semanticType() == commsdsl::Field::SemanticType::MessageId;    
+        obj.semanticType() == commsdsl::parse::Field::SemanticType::MessageId;    
 
     bool firstElem = true;
     std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
@@ -1266,8 +1266,8 @@ std::string EnumField::getValueNamesMapFuncBinSearchBody(bool isCommon) const
     auto type = obj.type();
 
     std::string names;
-    if ((type == commsdsl::EnumField::Type::Uint64) ||
-        ((type == commsdsl::EnumField::Type::Uintvar) && (sizeof(std::uint64_t) <= obj.maxLength()))) {
+    if ((type == commsdsl::parse::EnumField::Type::Uint64) ||
+        ((type == commsdsl::parse::EnumField::Type::Uintvar) && (sizeof(std::uint64_t) <= obj.maxLength()))) {
         names = getBigUnsignedValueNameBinSearchPairs(isCommon);
     }
     else {
@@ -1353,7 +1353,7 @@ void EnumField::checkDefaultValueOpt(StringsList& list) const
 
     auto type = obj.type();
     if ((defaultValue < 0) &&
-        ((type == commsdsl::EnumField::Type::Uint64) || (type == commsdsl::EnumField::Type::Uintvar))) {
+        ((type == commsdsl::parse::EnumField::Type::Uint64) || (type == commsdsl::parse::EnumField::Type::Uintvar))) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue)) +
@@ -1374,8 +1374,8 @@ void EnumField::checkLengthOpt(StringsList& list) const
     auto obj = enumFieldDslObj();
     auto type = obj.type();
 
-    if ((type == commsdsl::EnumField::Type::Intvar) ||
-        (type == commsdsl::EnumField::Type::Uintvar)) {
+    if ((type == commsdsl::parse::EnumField::Type::Intvar) ||
+        (type == commsdsl::parse::EnumField::Type::Uintvar)) {
         auto str =
             "comms::option::def::VarLength<" +
             common::numToString(obj.minLength()) +
@@ -1406,7 +1406,7 @@ void EnumField::checkLengthOpt(StringsList& list) const
     };
 
     static const std::size_t LengthMapSize = std::extent<decltype(LengthMap)>::value;
-    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::IntField::Type::NumOfValues),
+    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(type);
@@ -1430,8 +1430,8 @@ void EnumField::checkValidRangesOpt(EnumField::StringsList& list) const
 
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::EnumField::Type::Uint64) ||
-        ((type != commsdsl::EnumField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
+        (type == commsdsl::parse::EnumField::Type::Uint64) ||
+        ((type != commsdsl::parse::EnumField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
         generator().versionDependentCode() &&
@@ -1507,7 +1507,7 @@ void EnumField::checkValidRangesOpt(EnumField::StringsList& list) const
             {
                 return
                     (elem.m_sinceVersion == 0U) &&
-                    (elem.m_deprecatedSince == commsdsl::Protocol::notYetDeprecated());
+                    (elem.m_deprecatedSince == commsdsl::parse::Protocol::notYetDeprecated());
             });
 
     if (uncondStartIter == m_validRanges.end()) {
@@ -1524,7 +1524,7 @@ void EnumField::checkValidRangesOpt(EnumField::StringsList& list) const
             {
                 return
                     (elem.m_sinceVersion != 0U) ||
-                    (elem.m_deprecatedSince != commsdsl::Protocol::notYetDeprecated());
+                    (elem.m_deprecatedSince != commsdsl::parse::Protocol::notYetDeprecated());
             });
 
     auto uncondCount =
@@ -1582,8 +1582,8 @@ bool EnumField::prepareRanges() const
 
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::EnumField::Type::Uint64) ||
-        (type == commsdsl::EnumField::Type::Uintvar);
+        (type == commsdsl::parse::EnumField::Type::Uint64) ||
+        (type == commsdsl::parse::EnumField::Type::Uintvar);
 
 
     // Sort
@@ -1652,7 +1652,7 @@ bool EnumField::prepareRanges() const
 void EnumField::updateIncludesForCommonInternal(IncludesList& includes) const
 {
     common::mergeInclude("<cstdint>", includes);
-    if (dslObj().semanticType() == commsdsl::Field::SemanticType::MessageId) {
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
         auto inc =
             generator().mainNamespace() + '/' +
             common::msgIdEnumNameStr() + common::headerSuffix();

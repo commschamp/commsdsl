@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/BitfieldField.h"
+#include "commsdsl/parse/BitfieldField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class BitfieldField final : public Field
 {
     using Base = Field;
 public:
-    BitfieldField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    BitfieldField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -62,16 +62,16 @@ private:
     std::string getAccess() const;
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
 
-    commsdsl::BitfieldField bitfieldFieldDslObj() const
+    commsdsl::parse::BitfieldField bitfieldFieldDslObj() const
     {
-        return commsdsl::BitfieldField(dslObj());
+        return commsdsl::parse::BitfieldField(dslObj());
     }
 
     std::vector<FieldPtr> m_members;
 };
 
 inline
-FieldPtr createBitfieldField(Generator& generator, commsdsl::Field field)
+FieldPtr createBitfieldField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<BitfieldField>(generator, field);
 }

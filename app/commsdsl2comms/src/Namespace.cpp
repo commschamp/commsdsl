@@ -254,11 +254,11 @@ bool Namespace::hasInterfaceDefined()
 const Field* Namespace::findMessageIdField() const
 {
     for (auto& f : m_fields) {
-        if (f->semanticType() != commsdsl::Field::SemanticType::MessageId) {
+        if (f->semanticType() != commsdsl::parse::Field::SemanticType::MessageId) {
             continue;
         }
 
-        if (f->kind() != commsdsl::Field::Kind::Enum) {
+        if (f->kind() != commsdsl::parse::Field::Kind::Enum) {
             static constexpr bool Unexpected_kind = false;
             static_cast<void>(Unexpected_kind);
             assert(Unexpected_kind);  
@@ -498,7 +498,7 @@ std::string Namespace::externalRef() const
 bool Namespace::addDefaultInterface()
 {
     assert((m_interfaces.empty()) || (!m_interfaces.front()->name().empty()));
-    auto interface = createInterface(m_generator, commsdsl::Interface(nullptr));
+    auto interface = createInterface(m_generator, commsdsl::parse::Interface(nullptr));
     if (!interface->prepare()) {
         return false;
     }

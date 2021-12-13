@@ -62,7 +62,7 @@ bool Test::writeInputTest() const
     
     std::string idType;
     auto* idField = m_generator.getMessageIdField();
-    if ((idField != nullptr) && (idField->kind() == commsdsl::Field::Kind::Enum)) {
+    if ((idField != nullptr) && (idField->kind() == commsdsl::parse::Field::Kind::Enum)) {
         auto* enumMsgIdField = static_cast<const EnumField*>(idField);
         if (enumMsgIdField->isUnsignedUnderlyingType()) {
             idType = "std::uintmax_t";
@@ -77,7 +77,7 @@ bool Test::writeInputTest() const
             replacements.insert(std::make_pair("AFTER_ID", " << std::dec"));
         }
     }
-    else if ((idField != nullptr) && (idField->kind() == commsdsl::Field::Kind::Int)) {
+    else if ((idField != nullptr) && (idField->kind() == commsdsl::parse::Field::Kind::Int)) {
         auto* intMsgIdField = static_cast<const IntField*>(idField);
         if (intMsgIdField->isUnsignedType()) {
             idType = "std::uintmax_t";

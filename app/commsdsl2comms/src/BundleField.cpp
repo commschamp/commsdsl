@@ -94,7 +94,7 @@ bool BundleField::startsWithValidPropKey() const
     }
 
     auto& first = m_members.front();
-    if (first->kind() != commsdsl::Field::Kind::Int) {
+    if (first->kind() != commsdsl::parse::Field::Kind::Int) {
         return false;
     }
 
@@ -114,7 +114,7 @@ std::string BundleField::getPropKeyType() const
     }
 
     auto& first = m_members.front();
-    if (first->kind() != commsdsl::Field::Kind::Int) {
+    if (first->kind() != commsdsl::parse::Field::Kind::Int) {
         return common::emptyString();
     }
 
@@ -138,7 +138,7 @@ std::string BundleField::getPropKeyValueStr(bool asHex) const
     }
 
     auto& first = m_members.front();
-    if (first->kind() != commsdsl::Field::Kind::Int) {
+    if (first->kind() != commsdsl::parse::Field::Kind::Int) {
         return common::emptyString();
     }
 
@@ -453,7 +453,7 @@ std::string BundleField::getFieldOpts(const std::string& scope) const
             m_members.begin(), m_members.end(),
             [](auto& m) {
                 assert(m);
-                return m->semanticType() == commsdsl::Field::SemanticType::Length;
+                return m->semanticType() == commsdsl::parse::Field::SemanticType::Length;
             });   
 
     if (lengthFieldIter != m_members.end()) {

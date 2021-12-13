@@ -49,7 +49,7 @@ void ChecksumLayer::updateIncludesImpl(Layer::IncludesList& includes) const
     };
 
     const std::size_t ChecksumMapSize = std::extent<decltype(ChecksumMap)>::value;
-    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::ChecksumLayer::Alg::NumOfValues),
+    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ChecksumLayer::Alg::NumOfValues),
             "Invalid map");
 
     auto idx = static_cast<std::size_t>(obj.alg());
@@ -163,7 +163,7 @@ bool ChecksumLayer::rearangeImpl(Layer::LayersList& layers, bool& success)
             return false;
         }
 
-        if ((*untilIter)->kind() != commsdsl::Layer::Kind::Payload) {
+        if ((*untilIter)->kind() != commsdsl::parse::Layer::Kind::Payload) {
             generator().logger().error("Checksum prefix must be until payload layer");
             success = false;
             return false;
@@ -221,7 +221,7 @@ std::string ChecksumLayer::getAlg() const
     };
 
     const std::size_t ClassMapSize = std::extent<decltype(ClassMap)>::value;
-    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::ChecksumLayer::Alg::NumOfValues),
+    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ChecksumLayer::Alg::NumOfValues),
             "Invalid map");
 
 
@@ -242,7 +242,7 @@ std::string ChecksumLayer::getAlg() const
     }
 
     auto str = "comms::protocol::checksum::" + ClassMap[idx];
-    if (alg != commsdsl::ChecksumLayer::Alg::Sum) {
+    if (alg != commsdsl::parse::ChecksumLayer::Alg::Sum) {
         return str;
     }
 

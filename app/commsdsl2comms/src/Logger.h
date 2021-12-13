@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "commsdsl/ErrorLevel.h"
+#include "commsdsl/parse/ErrorLevel.h"
 
 namespace commsdsl2comms
 {
@@ -28,23 +28,23 @@ public:
     Logger() = default;
     Logger(const Logger&) = delete;
 
-    void log(commsdsl::ErrorLevel level, const std::string& msg);
+    void log(commsdsl::parse::ErrorLevel level, const std::string& msg);
     void error(const std::string& msg)
     {
-        log(commsdsl::ErrorLevel_Error, msg);
+        log(commsdsl::parse::ErrorLevel_Error, msg);
     }
 
     void warning(const std::string& msg)
     {
-        log(commsdsl::ErrorLevel_Warning, msg);
+        log(commsdsl::parse::ErrorLevel_Warning, msg);
     }
 
     void info(const std::string& msg)
     {
-        log(commsdsl::ErrorLevel_Info, msg);
+        log(commsdsl::parse::ErrorLevel_Info, msg);
     }
 
-    void setMinLevel(commsdsl::ErrorLevel level)
+    void setMinLevel(commsdsl::parse::ErrorLevel level)
     {
         m_minLevel = level;
     }
@@ -60,7 +60,7 @@ public:
     }
 
 private:
-    commsdsl::ErrorLevel m_minLevel = commsdsl::ErrorLevel_Info;
+    commsdsl::parse::ErrorLevel m_minLevel = commsdsl::parse::ErrorLevel_Info;
     bool m_warnAsErr = false;
     bool m_hadWarning = false;
 };

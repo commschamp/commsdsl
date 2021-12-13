@@ -110,8 +110,8 @@ bool Dispatch::writeProtocolDefinition() const
                 info.m_messages.push_back(m);
             };
 
-        bool serverInput = m.sender() != commsdsl::Message::Sender::Server;
-        bool clientInput = m.sender() != commsdsl::Message::Sender::Client;
+        bool serverInput = m.sender() != commsdsl::parse::Message::Sender::Server;
+        bool clientInput = m.sender() != commsdsl::parse::Message::Sender::Client;
 
         auto addToPlatformInfoFunc =
             [&addToMessageInfoFunc, serverInput, clientInput](PlatformInfo& info)
@@ -646,7 +646,7 @@ std::string Dispatch::getIdString(std::uintmax_t value) const
         return numValueFunc();
     }
 
-    if (idField->kind() != commsdsl::Field::Kind::Enum) {
+    if (idField->kind() != commsdsl::parse::Field::Kind::Enum) {
         return numValueFunc();
     }
 

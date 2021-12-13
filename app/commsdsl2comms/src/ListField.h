@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/ListField.h"
+#include "commsdsl/parse/ListField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class ListField final : public Field
 {
     using Base = Field;
 public:
-    ListField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    ListField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -82,9 +82,9 @@ private:
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
 
 
-    commsdsl::ListField listFieldDslObj() const
+    commsdsl::parse::ListField listFieldDslObj() const
     {
-        return commsdsl::ListField(dslObj());
+        return commsdsl::parse::ListField(dslObj());
     }
 
     FieldPtr m_element;
@@ -94,7 +94,7 @@ private:
 };
 
 inline
-FieldPtr createListField(Generator& generator, commsdsl::Field field)
+FieldPtr createListField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<ListField>(generator, field);
 }

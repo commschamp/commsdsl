@@ -19,7 +19,7 @@
 #include <string>
 #include <memory>
 
-#include "commsdsl/Message.h"
+#include "commsdsl/parse/Message.h"
 
 #include "Field.h"
 
@@ -30,10 +30,10 @@ class Generator;
 class Message
 {
 public:
-    using Sender = commsdsl::Message::Sender;
+    using Sender = commsdsl::parse::Message::Sender;
     
     //using FieldsMap = std::map<std::string, FieldPtr>;
-    explicit Message(Generator& gen, const commsdsl::Message& msg)
+    explicit Message(Generator& gen, const commsdsl::parse::Message& msg)
       : m_generator(gen),
         m_dslObj(msg)
     {
@@ -100,7 +100,7 @@ private:
     std::string getOptions(GetFieldOptionsFunc func, const std::string& base, bool extending = false) const;
 
     Generator& m_generator;
-    commsdsl::Message m_dslObj;
+    commsdsl::parse::Message m_dslObj;
     std::string m_externalRef;
     std::vector<FieldPtr> m_fields;
     std::string m_customRefresh;
@@ -109,7 +109,7 @@ private:
 using MessagePtr = std::unique_ptr<Message>;
 
 inline
-MessagePtr createMessage(Generator& gen, const commsdsl::Message& msg)
+MessagePtr createMessage(Generator& gen, const commsdsl::parse::Message& msg)
 {
     return MessagePtr(new Message(gen, msg));
 }

@@ -976,7 +976,7 @@ std::string ListField::getMembersDef(const std::string& scope) const
 
     StringsList defs;
     auto recordFieldFunc =
-        [this](commsdsl::Field f)
+        [this](commsdsl::parse::Field f)
         {
             assert(f.valid());
             auto extRef = f.externalRef();

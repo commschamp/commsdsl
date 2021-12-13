@@ -486,10 +486,10 @@ std::string SetField::getValid() const
 
         auto* condTempl = &VersionBothCondTempl;
         if (std::get<0>(info.first) == 0U) {
-            assert(std::get<1>(info.first) != commsdsl::Protocol::notYetDeprecated());
+            assert(std::get<1>(info.first) != commsdsl::parse::Protocol::notYetDeprecated());
             condTempl = &VersionUntilCondTempl;
         }
-        else if (commsdsl::Protocol::notYetDeprecated() <= std::get<1>(info.first)) {
+        else if (commsdsl::parse::Protocol::notYetDeprecated() <= std::get<1>(info.first)) {
             condTempl = &VersionFromCondTempl;
         }
 
@@ -789,7 +789,7 @@ void SetField::checkDefaultValueOpt(StringsList& list) const
     }
 
     auto type = obj.type();
-    if ((type == commsdsl::SetField::Type::Uint64) || (type == commsdsl::SetField::Type::Uintvar)) {
+    if ((type == commsdsl::parse::SetField::Type::Uint64) || (type == commsdsl::parse::SetField::Type::Uintvar)) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue), true) +

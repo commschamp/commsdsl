@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/OptionalField.h"
+#include "commsdsl/parse/OptionalField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,9 +27,9 @@ class OptionalField final : public Field
 {
     using Base = Field;
 public:
-    OptionalField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    OptionalField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
-    commsdsl::OptCond cond() const
+    commsdsl::parse::OptCond cond() const
     {
         return optionalFieldDslObj().cond();
     }
@@ -67,9 +67,9 @@ private:
     void checkModeOpt(StringsList& options) const;
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
 
-    commsdsl::OptionalField optionalFieldDslObj() const
+    commsdsl::parse::OptionalField optionalFieldDslObj() const
     {
-        return commsdsl::OptionalField(dslObj());
+        return commsdsl::parse::OptionalField(dslObj());
     }
 
     const Field* getField() const;
@@ -78,7 +78,7 @@ private:
 };
 
 inline
-FieldPtr createOptionalField(Generator& generator, commsdsl::Field field)
+FieldPtr createOptionalField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<OptionalField>(generator, field);
 }

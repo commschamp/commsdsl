@@ -100,7 +100,7 @@ bool ValueLayer::isPseudoVersionLayerImpl(const std::vector<std::string>& interf
         return false;
     }
 
-    if (field->semanticType() == commsdsl::Field::SemanticType::Version) {
+    if (field->semanticType() == commsdsl::parse::Field::SemanticType::Version) {
         return true;
     }
 

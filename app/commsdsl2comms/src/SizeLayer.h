@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/Layer.h"
+#include "commsdsl/parse/Layer.h"
 
 #include "Layer.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class SizeLayer final : public Layer
 {
     using Base = Layer;
 public:
-    SizeLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    SizeLayer(Generator& generator, commsdsl::parse::Layer layer) : Base(generator, layer) {}
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
@@ -37,14 +37,14 @@ protected:
         bool& hasInputMessages) const override;
 
 private:
-    commsdsl::SizeLayer sizeLayerDslObj() const
+    commsdsl::parse::SizeLayer sizeLayerDslObj() const
     {
-        return commsdsl::SizeLayer(dslObj());
+        return commsdsl::parse::SizeLayer(dslObj());
     }
 };
 
 inline
-LayerPtr createSizeLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createSizeLayer(Generator& generator, commsdsl::parse::Layer layer)
 {
     return std::make_unique<SizeLayer>(generator, layer);
 }

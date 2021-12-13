@@ -17,7 +17,7 @@
 
 #include <string>
 
-#include "commsdsl/Message.h"
+#include "commsdsl/parse/Message.h"
 
 #include "common.h"
 
@@ -31,7 +31,7 @@ public:
     static bool write(Generator& generator);
 
 private:
-    using DslMessagesList = std::vector<commsdsl::Message>;
+    using DslMessagesList = std::vector<commsdsl::parse::Message>;
 
     explicit Dispatch(Generator& generator) : m_generator(generator) {}
 

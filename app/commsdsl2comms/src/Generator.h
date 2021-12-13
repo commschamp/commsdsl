@@ -23,7 +23,7 @@
 
 #include <boost/filesystem.hpp>
 
-#include "commsdsl/Protocol.h"
+#include "commsdsl/parse/Protocol.h"
 #include "Logger.h"
 #include "ProgramOptions.h"
 #include "Namespace.h"
@@ -40,7 +40,7 @@ public:
     using MessageIdMap = std::multimap<std::uintmax_t, std::string>;
     using PluginsAccessList = std::vector<const Plugin*>;
     using NamespacesScopesList = Namespace::NamespacesScopesList;
-    using PlatformsList = commsdsl::Protocol::PlatformsList;
+    using PlatformsList = commsdsl::parse::Protocol::PlatformsList;
     using InterfacesAccessList = Namespace::InterfacesAccessList;
     using FramesAccessList = Namespace::FramesAccessList;
 
@@ -64,7 +64,7 @@ public:
     bool isElementDeprecated(unsigned deprecatedSince) const;        
 
     bool isElementOptional(unsigned sinceVersion,
-        unsigned deprecatedSince = commsdsl::Protocol::notYetDeprecated(),
+        unsigned deprecatedSince = commsdsl::parse::Protocol::notYetDeprecated(),
         bool deprecatedRemoved = true) const;
 
     const PlatformsList& platforms() const
@@ -306,7 +306,7 @@ public:
         return m_mainNamespace;
     }
 
-    commsdsl::Endian schemaEndian() const
+    commsdsl::parse::Endian schemaEndian() const
     {
         return m_schemaEndian;
     }
@@ -355,7 +355,7 @@ public:
         bool plugin = false);
 
 
-    commsdsl::Protocol::MessagesList getAllDslMessages() const
+    commsdsl::parse::Protocol::MessagesList getAllDslMessages() const
     {
         return m_protocol.allMessages();
     }
@@ -525,7 +525,7 @@ private:
 
     ProgramOptions& m_options;
     Logger& m_logger;
-    commsdsl::Protocol m_protocol;
+    commsdsl::parse::Protocol m_protocol;
     NamespacesList m_namespaces;
     PluginsList m_plugins;
     boost::filesystem::path m_pathPrefix;
@@ -533,7 +533,7 @@ private:
     std::set<boost::filesystem::path> m_createdDirs;
     std::string m_mainNamespace;
     std::string m_schemaNamespace;
-    commsdsl::Endian m_schemaEndian = commsdsl::Endian_NumOfValues;
+    commsdsl::parse::Endian m_schemaEndian = commsdsl::parse::Endian_NumOfValues;
     unsigned m_schemaVersion = 0U;
     unsigned m_minRemoteVersion = 0U;
     CustomizationLevel m_customizationLevel = CustomizationLevel::Limited;

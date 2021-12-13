@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/BundleField.h"
+#include "commsdsl/parse/BundleField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class BundleField final : public Field
 {
     using Base = Field;
 public:
-    BundleField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    BundleField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
     bool startsWithValidPropKey() const;
     std::string getPropKeyType() const;
@@ -72,16 +72,16 @@ private:
     std::string getPrivate() const;
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
 
-    commsdsl::BundleField bundleFieldDslObj() const
+    commsdsl::parse::BundleField bundleFieldDslObj() const
     {
-        return commsdsl::BundleField(dslObj());
+        return commsdsl::parse::BundleField(dslObj());
     }
 
     std::vector<FieldPtr> m_members;
 };
 
 inline
-FieldPtr createBundleField(Generator& generator, commsdsl::Field field)
+FieldPtr createBundleField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<BundleField>(generator, field);
 }

@@ -20,8 +20,8 @@
 #include <cstdint>
 #include <vector>
 
-#include "commsdsl/Endian.h"
-#include "commsdsl/Units.h"
+#include "commsdsl/parse/Endian.h"
+#include "commsdsl/parse/Units.h"
 
 namespace commsdsl2comms
 {
@@ -117,8 +117,8 @@ std::string listToString(
     const std::string& last = "\n");
 void addToList(const std::string& what, StringsList& to);
 
-const std::string& dslEndianToOpt(commsdsl::Endian value);
-const std::string& dslUnitsToOpt(commsdsl::Units value);
+const std::string& dslEndianToOpt(commsdsl::parse::Endian value);
+const std::string& dslUnitsToOpt(commsdsl::parse::Units value);
 const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName);
 
 void toLower(std::string& str);

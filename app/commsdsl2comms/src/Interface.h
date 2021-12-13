@@ -19,7 +19,7 @@
 #include <string>
 #include <memory>
 
-#include "commsdsl/Interface.h"
+#include "commsdsl/parse/Interface.h"
 
 #include "Field.h"
 
@@ -32,7 +32,7 @@ class Interface
 public:
 
     //using FieldsMap = std::map<std::string, FieldPtr>;
-    explicit Interface(Generator& gen, const commsdsl::Interface& msg)
+    explicit Interface(Generator& gen, const commsdsl::parse::Interface& msg)
       : m_generator(gen),
         m_dslObj(msg)
     {
@@ -69,7 +69,7 @@ private:
     unsigned getHexMsgIdWidth() const;
 
     Generator& m_generator;
-    commsdsl::Interface m_dslObj;
+    commsdsl::parse::Interface m_dslObj;
     std::string m_externalRef;
     std::vector<FieldPtr> m_fields;
 };
@@ -77,7 +77,7 @@ private:
 using InterfacePtr = std::unique_ptr<Interface>;
 
 inline
-InterfacePtr createInterface(Generator& gen, const commsdsl::Interface& msg)
+InterfacePtr createInterface(Generator& gen, const commsdsl::parse::Interface& msg)
 {
     return InterfacePtr(new Interface(gen, msg));
 }

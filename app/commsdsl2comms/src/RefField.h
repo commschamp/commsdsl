@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/RefField.h"
+#include "commsdsl/parse/RefField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class RefField final : public Field
 {
     using Base = Field;
 public:
-    RefField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    RefField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -65,14 +65,14 @@ private:
     std::string getOpts(const std::string& scope) const;
     std::string getPropsUpdate() const;
 
-    commsdsl::RefField refFieldDslObj() const
+    commsdsl::parse::RefField refFieldDslObj() const
     {
-        return commsdsl::RefField(dslObj());
+        return commsdsl::parse::RefField(dslObj());
     }
 };
 
 inline
-FieldPtr createRefField(Generator& generator, commsdsl::Field field)
+FieldPtr createRefField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<RefField>(generator, field);
 }

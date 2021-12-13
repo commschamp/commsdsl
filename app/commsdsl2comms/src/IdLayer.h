@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/Layer.h"
+#include "commsdsl/parse/Layer.h"
 
 #include "Layer.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class IdLayer final : public Layer
 {
     using Base = Layer;
 public:
-    IdLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    IdLayer(Generator& generator, commsdsl::parse::Layer layer) : Base(generator, layer) {}
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
@@ -39,14 +39,14 @@ protected:
     virtual bool isCustomizableImpl() const override;
 
 private:
-    commsdsl::IdLayer idLayerDslObj() const
+    commsdsl::parse::IdLayer idLayerDslObj() const
     {
-        return commsdsl::IdLayer(dslObj());
+        return commsdsl::parse::IdLayer(dslObj());
     }
 };
 
 inline
-LayerPtr createIdLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createIdLayer(Generator& generator, commsdsl::parse::Layer layer)
 {
     return std::make_unique<IdLayer>(generator, layer);
 }

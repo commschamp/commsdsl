@@ -102,8 +102,8 @@ bool AllMessages::writeProtocolDefinition() const
                 common::mergeInclude(incStr, info.m_includes);
             };
 
-        bool serverInput = m.sender() != commsdsl::Message::Sender::Server;            
-        bool clientInput = m.sender() != commsdsl::Message::Sender::Client;
+        bool serverInput = m.sender() != commsdsl::parse::Message::Sender::Server;            
+        bool clientInput = m.sender() != commsdsl::parse::Message::Sender::Client;
 
         auto addToPlatformInfoFunc =
             [&addToMessageInfoFunc, serverInput, clientInput](PlatformInfo& info)

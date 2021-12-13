@@ -187,7 +187,7 @@ bool Interface::prepare()
 
     m_externalRef = m_dslObj.externalRef();
     if (m_externalRef.empty()) {
-        m_generator.logger().log(commsdsl::ErrorLevel_Error, "Unknown external reference for message: " + m_dslObj.name());
+        m_generator.logger().log(commsdsl::parse::ErrorLevel_Error, "Unknown external reference for message: " + m_dslObj.name());
         return false;
     }
 
@@ -237,7 +237,7 @@ bool Interface::hasVersion() const
             m_fields.begin(), m_fields.end(),
             [](auto& f)
             {
-                return f->semanticType() == commsdsl::Field::SemanticType::Version;
+                return f->semanticType() == commsdsl::parse::Field::SemanticType::Version;
             });
 }
 
@@ -250,7 +250,7 @@ std::vector<std::string> Interface::getVersionFields() const
 {
     std::vector<std::string> result;
     for (auto& f : m_fields) {
-        if (f->semanticType() == commsdsl::Field::SemanticType::Version) {
+        if (f->semanticType() == commsdsl::parse::Field::SemanticType::Version) {
             result.push_back(f->name());
         }
     }
@@ -743,7 +743,7 @@ std::string Interface::getFieldsOpts() const
             m_fields.begin(), m_fields.end(),
             [](auto& f)
             {
-                return f->semanticType() == commsdsl::Field::SemanticType::Version;
+                return f->semanticType() == commsdsl::parse::Field::SemanticType::Version;
             });
 
     if (iter != m_fields.end()) {
@@ -762,7 +762,7 @@ unsigned Interface::getHexMsgIdWidth() const
         return 0U;
     }
 
-    if (msgIdField->kind() != commsdsl::Field::Kind::Enum) {
+    if (msgIdField->kind() != commsdsl::parse::Field::Kind::Enum) {
         return 0U;
     }
 

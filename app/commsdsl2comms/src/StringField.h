@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/StringField.h"
+#include "commsdsl/parse/StringField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class StringField final : public Field
 {
     using Base = Field;
 public:
-    StringField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    StringField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -72,16 +72,16 @@ private:
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
 
 
-    commsdsl::StringField stringFieldDslObj() const
+    commsdsl::parse::StringField stringFieldDslObj() const
     {
-        return commsdsl::StringField(dslObj());
+        return commsdsl::parse::StringField(dslObj());
     }
 
     FieldPtr m_prefix;
 };
 
 inline
-FieldPtr createStringField(Generator& generator, commsdsl::Field field)
+FieldPtr createStringField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<StringField>(generator, field);
 }

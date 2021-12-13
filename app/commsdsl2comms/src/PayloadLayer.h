@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/Layer.h"
+#include "commsdsl/parse/Layer.h"
 
 #include "Layer.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class PayloadLayer final : public Layer
 {
     using Base = Layer;
 public:
-    PayloadLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    PayloadLayer(Generator& generator, commsdsl::parse::Layer layer) : Base(generator, layer) {}
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
@@ -40,15 +40,15 @@ protected:
     virtual bool isCustomizableImpl() const override;
 
 private:
-    commsdsl::PayloadLayer payloadLayerDslObj() const
+    commsdsl::parse::PayloadLayer payloadLayerDslObj() const
     {
-        return commsdsl::PayloadLayer(dslObj());
+        return commsdsl::parse::PayloadLayer(dslObj());
     }
 
 };
 
 inline
-LayerPtr createPayloadLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createPayloadLayer(Generator& generator, commsdsl::parse::Layer layer)
 {
     return std::make_unique<PayloadLayer>(generator, layer);
 }

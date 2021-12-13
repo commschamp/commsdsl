@@ -15,8 +15,8 @@
 
 #pragma once
 
-#include "commsdsl/SetField.h"
-#include "commsdsl/Protocol.h"
+#include "commsdsl/parse/SetField.h"
+#include "commsdsl/parse/Protocol.h"
 
 #include "Field.h"
 #include "common.h"
@@ -28,7 +28,7 @@ class SetField final : public Field
 {
     using Base = Field;
 public:
-    SetField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    SetField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
@@ -63,15 +63,15 @@ private:
     void checkDefaultValueOpt(StringsList& list) const;
     void checkReservedBitsOpt(StringsList& list) const;
 
-    commsdsl::SetField setFieldDslObj() const
+    commsdsl::parse::SetField setFieldDslObj() const
     {
-        return commsdsl::SetField(dslObj());
+        return commsdsl::parse::SetField(dslObj());
     }
 
 };
 
 inline
-FieldPtr createSetField(Generator& generator, commsdsl::Field field)
+FieldPtr createSetField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<SetField>(generator, field);
 }

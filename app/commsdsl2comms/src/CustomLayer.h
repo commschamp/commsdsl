@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/Layer.h"
+#include "commsdsl/parse/Layer.h"
 
 #include "Layer.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class CustomLayer final : public Layer
 {
     using Base = Layer;
 public:
-    CustomLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    CustomLayer(Generator& generator, commsdsl::parse::Layer layer) : Base(generator, layer) {}
 
     bool isIdReplacement() const
     {
@@ -43,14 +43,14 @@ protected:
     virtual bool isCustomizableImpl() const override;
 
 private:
-    commsdsl::CustomLayer customLayerDslObj() const
+    commsdsl::parse::CustomLayer customLayerDslObj() const
     {
-        return commsdsl::CustomLayer(dslObj());
+        return commsdsl::parse::CustomLayer(dslObj());
     }
 };
 
 inline
-LayerPtr createCustomLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createCustomLayer(Generator& generator, commsdsl::parse::Layer layer)
 {
     return std::make_unique<CustomLayer>(generator, layer);
 }

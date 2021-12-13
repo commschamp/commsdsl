@@ -19,7 +19,7 @@
 #include <memory>
 #include <vector>
 
-#include "commsdsl/Layer.h"
+#include "commsdsl/parse/Layer.h"
 #include "Field.h"
 #include "common.h"
 
@@ -40,7 +40,7 @@ public:
         return m_dslObj.name();
     }
 
-    commsdsl::Layer::Kind kind() const
+    commsdsl::parse::Layer::Kind kind() const
     {
         return m_dslObj.kind();
     }
@@ -57,7 +57,7 @@ public:
         std::string& prevLayer,
         bool& hasInputMessages) const;
 
-    static Ptr create(Generator& generator, commsdsl::Layer dslObj);
+    static Ptr create(Generator& generator, commsdsl::parse::Layer dslObj);
 
     std::string getDefaultOptions(const std::string& base, const std::string& scope) const;
     std::string getBareMetalDefaultOptions(const std::string& base, const std::string& scope) const;
@@ -79,7 +79,7 @@ public:
         return isPseudoVersionLayerImpl(interfaceVersionFields);
     }
 protected:
-    Layer(Generator& generator, commsdsl::Layer field)
+    Layer(Generator& generator, commsdsl::parse::Layer field)
       : m_generator(generator),
         m_dslObj(field) {}
 
@@ -88,7 +88,7 @@ protected:
         return m_generator;
     }
 
-    const commsdsl::Layer& dslObj() const
+    const commsdsl::parse::Layer& dslObj() const
     {
         return m_dslObj;
     }
@@ -146,7 +146,7 @@ private:
     std::string getDataViewDefaultOptionStr(const std::string& base) const;
 
     Generator& m_generator;
-    commsdsl::Layer m_dslObj;
+    commsdsl::parse::Layer m_dslObj;
     FieldPtr m_field;
     bool m_forcedFieldFailOnInvalid = false;
     bool m_forcedFieldPseudo = false;

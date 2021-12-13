@@ -77,13 +77,13 @@ void ListTestSuite::test1()
     TS_ASSERT_EQUALS(field.name(), "List1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::size_t>::max());
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT_EQUALS(listField.hasCountPrefixField(), false);
     TS_ASSERT(!listField.countPrefixField().valid());
@@ -109,13 +109,13 @@ void ListTestSuite::test2()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 30U);
     TS_ASSERT_EQUALS(field.maxLength(), 30U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(listField.fixedCount(), 10U);
     TS_ASSERT_EQUALS(listField.hasCountPrefixField(), false);
     TS_ASSERT(!listField.countPrefixField().valid());
@@ -141,13 +141,13 @@ void ListTestSuite::test3()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 2U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::uint16_t>::max() * 2U + 2U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT_EQUALS(listField.hasCountPrefixField(), true);
     auto countPrefixField = listField.countPrefixField();
@@ -175,19 +175,19 @@ void ListTestSuite::test4()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 2U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::uint16_t>::max() + 2U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT_EQUALS(listField.hasCountPrefixField(), false);
     TS_ASSERT(!listField.countPrefixField().valid());
     TS_ASSERT_EQUALS(listField.hasLengthPrefixField(), true);
     TS_ASSERT(listField.lengthPrefixField().valid());
-    TS_ASSERT_EQUALS(commsdsl::IntField(listField.lengthPrefixField()).endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(commsdsl::parse::IntField(listField.lengthPrefixField()).endian(), commsdsl::parse::Endian_Big);
     TS_ASSERT_EQUALS(listField.hasElemLengthPrefixField(), false);
     TS_ASSERT(!listField.elemLengthPrefixField().valid());
     TS_ASSERT(!listField.elemFixedLength());
@@ -208,13 +208,13 @@ void ListTestSuite::test5()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 15U);
     TS_ASSERT_EQUALS(field.maxLength(), 15U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 5U);
     TS_ASSERT(!listField.hasCountPrefixField());
     TS_ASSERT(!listField.countPrefixField().valid());
@@ -240,13 +240,13 @@ void ListTestSuite::test6()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 11U);
     TS_ASSERT_EQUALS(field.maxLength(), 11U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 5U);
     TS_ASSERT(!listField.hasCountPrefixField());
     TS_ASSERT(!listField.countPrefixField().valid());
@@ -272,13 +272,13 @@ void ListTestSuite::test7()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::uint8_t>::max() * 3U + 1U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT(listField.hasCountPrefixField());
     TS_ASSERT(listField.countPrefixField().valid());
@@ -304,13 +304,13 @@ void ListTestSuite::test8()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::uint8_t>::max() * 2U + 2U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT(listField.hasCountPrefixField());
     TS_ASSERT(listField.countPrefixField().valid());
@@ -336,13 +336,13 @@ void ListTestSuite::test9()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::uint8_t>::max() + 1U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT(!listField.hasCountPrefixField());
     TS_ASSERT(!listField.countPrefixField().valid());
@@ -370,13 +370,13 @@ void ListTestSuite::test10()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::uint8_t>::max());
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT(!listField.hasCountPrefixField());
     TS_ASSERT(!listField.countPrefixField().valid());
@@ -403,13 +403,13 @@ void ListTestSuite::test11()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 5U);
     TS_ASSERT_EQUALS(field.maxLength(), 20U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT(!elem.externalRef().empty());
     TS_ASSERT_EQUALS(listField.fixedCount(), 5U);
     TS_ASSERT(!listField.hasCountPrefixField());
@@ -423,7 +423,7 @@ void ListTestSuite::test11()
 
 void ListTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
@@ -444,13 +444,13 @@ void ListTestSuite::test13()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), (0x3fff * 4U) + 2U);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT(!elem.externalRef().empty());
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT(listField.hasCountPrefixField());
@@ -464,7 +464,7 @@ void ListTestSuite::test13()
 
 void ListTestSuite::test14()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
@@ -472,7 +472,7 @@ void ListTestSuite::test14()
 
 void ListTestSuite::test15()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
@@ -480,7 +480,7 @@ void ListTestSuite::test15()
 
 void ListTestSuite::test16()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
@@ -488,7 +488,7 @@ void ListTestSuite::test16()
 
 void ListTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
@@ -496,7 +496,7 @@ void ListTestSuite::test17()
 
 void ListTestSuite::test18()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
@@ -504,7 +504,7 @@ void ListTestSuite::test18()
 
 void ListTestSuite::test19()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
@@ -525,10 +525,10 @@ void ListTestSuite::test20()
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(field.name(), "B1");
 
-    commsdsl::BundleField bundleField(field);
+    commsdsl::parse::BundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 6U);
 
@@ -536,13 +536,13 @@ void ListTestSuite::test20()
     auto& l2 = members[4];
     auto& l3 = members[5];
 
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Field::Kind::List);
-    TS_ASSERT_EQUALS(l2.kind(), commsdsl::Field::Kind::List);
-    TS_ASSERT_EQUALS(l3.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::Field::Kind::List);
+    TS_ASSERT_EQUALS(l2.kind(), commsdsl::parse::Field::Kind::List);
+    TS_ASSERT_EQUALS(l3.kind(), commsdsl::parse::Field::Kind::List);
 
-    commsdsl::ListField list1(l1);
-    commsdsl::ListField list2(l2);
-    commsdsl::ListField list3(l3);
+    commsdsl::parse::ListField list1(l1);
+    commsdsl::parse::ListField list2(l2);
+    commsdsl::parse::ListField list3(l3);
 
     TS_ASSERT_EQUALS(list1.detachedCountPrefixFieldName(), "P1");
     TS_ASSERT(!list1.hasCountPrefixField());
@@ -562,7 +562,7 @@ void ListTestSuite::test20()
 
 void ListTestSuite::test21()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
     TS_ASSERT(protocol);
@@ -570,7 +570,7 @@ void ListTestSuite::test21()
 
 void ListTestSuite::test22()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
     TS_ASSERT(protocol);
@@ -578,7 +578,7 @@ void ListTestSuite::test22()
 
 void ListTestSuite::test23()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
@@ -599,17 +599,17 @@ void ListTestSuite::test24()
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(field.name(), "B1");
 
-    commsdsl::BundleField bundleField(field);
+    commsdsl::parse::BundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
 
     auto& l1 = members[1];
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::Field::Kind::List);
 
-    commsdsl::ListField list1(l1);
+    commsdsl::parse::ListField list1(l1);
 
     TS_ASSERT_EQUALS(list1.detachedCountPrefixFieldName(), "P1");
     TS_ASSERT(!list1.hasCountPrefixField());
@@ -632,17 +632,17 @@ void ListTestSuite::test25()
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(field.name(), "B1");
 
-    commsdsl::BundleField bundleField(field);
+    commsdsl::parse::BundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
 
     auto& l1 = members[1];
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::Field::Kind::List);
 
-    commsdsl::ListField list1(l1);
+    commsdsl::parse::ListField list1(l1);
 
     TS_ASSERT_EQUALS(list1.detachedLengthPrefixFieldName(), "P1");
     TS_ASSERT(!list1.hasCountPrefixField());
@@ -665,17 +665,17 @@ void ListTestSuite::test26()
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(field.name(), "B1");
 
-    commsdsl::BundleField bundleField(field);
+    commsdsl::parse::BundleField bundleField(field);
     auto members = bundleField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
 
     auto& l1 = members[1];
-    TS_ASSERT_EQUALS(l1.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(l1.kind(), commsdsl::parse::Field::Kind::List);
 
-    commsdsl::ListField list1(l1);
+    commsdsl::parse::ListField list1(l1);
 
     TS_ASSERT_EQUALS(list1.detachedElemLengthPrefixFieldName(), "P1");
     TS_ASSERT(!list1.hasCountPrefixField());
@@ -685,7 +685,7 @@ void ListTestSuite::test26()
 
 void ListTestSuite::test27()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
     TS_ASSERT(protocol);
@@ -693,7 +693,7 @@ void ListTestSuite::test27()
 
 void ListTestSuite::test28()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
     TS_ASSERT(protocol);
@@ -701,7 +701,7 @@ void ListTestSuite::test28()
 
 void ListTestSuite::test29()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
     TS_ASSERT(protocol);
@@ -709,7 +709,7 @@ void ListTestSuite::test29()
 
 void ListTestSuite::test30()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
     TS_ASSERT(protocol);
@@ -732,13 +732,13 @@ void ListTestSuite::test31()
     TS_ASSERT_EQUALS(field.name(), "List1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::size_t>::max());
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
     TS_ASSERT_EQUALS(listField.hasCountPrefixField(), false);
     TS_ASSERT(!listField.countPrefixField().valid());
@@ -751,7 +751,7 @@ void ListTestSuite::test31()
 
 void ListTestSuite::test32()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
     TS_ASSERT(protocol);
@@ -759,7 +759,7 @@ void ListTestSuite::test32()
 
 void ListTestSuite::test33()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
     TS_ASSERT(protocol);
@@ -767,7 +767,7 @@ void ListTestSuite::test33()
 
 void ListTestSuite::test34()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
     TS_ASSERT(protocol);
@@ -775,7 +775,7 @@ void ListTestSuite::test34()
 
 void ListTestSuite::test35()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
     TS_ASSERT(protocol);
@@ -783,7 +783,7 @@ void ListTestSuite::test35()
 
 void ListTestSuite::test36()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema36.xml");
     TS_ASSERT(protocol);
@@ -791,7 +791,7 @@ void ListTestSuite::test36()
 
 void ListTestSuite::test37()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
     TS_ASSERT(protocol);
@@ -799,7 +799,7 @@ void ListTestSuite::test37()
 
 void ListTestSuite::test38()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema38.xml");
     TS_ASSERT(protocol);
@@ -820,11 +820,11 @@ void ListTestSuite::test39()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "List50");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::List);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::List);
 
-    commsdsl::ListField listField(field);
+    commsdsl::parse::ListField listField(field);
     auto elem = listField.elementField();
-    TS_ASSERT_EQUALS(elem.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT(!listField.elemFixedLength());
 }
 
@@ -846,11 +846,11 @@ void ListTestSuite::test40()
             fields.begin(), fields.end(),
             [](auto& f)
             {
-                return f.kind() == commsdsl::Field::Kind::List;
+                return f.kind() == commsdsl::parse::Field::Kind::List;
             });
     TS_ASSERT_DIFFERS(iter, fields.end());
 
-    commsdsl::ListField listField(*iter);
+    commsdsl::parse::ListField listField(*iter);
     TS_ASSERT_EQUALS(listField.name(), "List");
     TS_ASSERT_EQUALS(listField.maxLength(), std::numeric_limits<std::size_t>::max());
 }

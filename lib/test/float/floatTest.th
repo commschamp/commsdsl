@@ -67,13 +67,13 @@ void FloatTestSuite::test1()
         TS_ASSERT_EQUALS(field.name(), "Float1");
         TS_ASSERT_EQUALS(field.displayName(), "Float 1");
         TS_ASSERT(field.description().empty());
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(floatField.minLength(), 8U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
         TS_ASSERT_EQUALS(floatField.validCheckVersion(), false);
@@ -86,13 +86,13 @@ void FloatTestSuite::test1()
         TS_ASSERT_EQUALS(field.name(), "Float2");
         TS_ASSERT(field.displayName().empty());
         TS_ASSERT_EQUALS(field.description(), "Float 2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(floatField.minLength(), 4U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
         TS_ASSERT(validRanges.empty());
@@ -118,13 +118,13 @@ void FloatTestSuite::test2()
         TS_ASSERT_EQUALS(field.name(), "Float1");
         TS_ASSERT(field.displayName().empty());
         TS_ASSERT(field.description().empty());
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(floatField.minLength(), 8U);
         TS_ASSERT(std::isnan(floatField.defaultValue()));
         TS_ASSERT(validRanges.empty());
@@ -143,13 +143,13 @@ void FloatTestSuite::test2()
         TS_ASSERT_EQUALS(field.name(), "Float2");
         TS_ASSERT(field.displayName().empty());
         TS_ASSERT(field.description().empty());
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(floatField.minLength(), 4U);
         TS_ASSERT(std::isinf(floatField.defaultValue()));
         TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), floatField.defaultValue());
@@ -184,13 +184,13 @@ void FloatTestSuite::test3()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.name(), "Float1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(floatField.minLength(), 8U);
         TS_ASSERT(std::isnan(floatField.defaultValue()));
         TS_ASSERT_EQUALS(validRanges.size(), 2U);
@@ -212,13 +212,13 @@ void FloatTestSuite::test3()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.name(), "Float1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(floatField.minLength(), 4U);
         TS_ASSERT(std::isinf(floatField.defaultValue()));
         TS_ASSERT_LESS_THAN(std::numeric_limits<double>::max(), floatField.defaultValue());
@@ -253,13 +253,13 @@ void FloatTestSuite::test4()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.name(), "Float1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(floatField.minLength(), 8U);
         TS_ASSERT(std::isnan(floatField.defaultValue()));
         TS_ASSERT_EQUALS(validRanges.size(), 4U);
@@ -277,11 +277,11 @@ void FloatTestSuite::test4()
         TS_ASSERT(std::isinf(r3.m_min));
         TS_ASSERT(std::isinf(r3.m_max));
         TS_ASSERT_EQUALS(r3.m_sinceVersion, 1U);
-        TS_ASSERT_EQUALS(r3.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r3.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT(std::isnan(r4.m_min));
         TS_ASSERT(std::isnan(r4.m_max));
         TS_ASSERT_EQUALS(r4.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(r4.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r4.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT_EQUALS(specialValues.size(), 3U);
     } while (false);
 }
@@ -302,13 +302,13 @@ void FloatTestSuite::test5()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.name(), "Float1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(floatField.minLength(), 8U);
         TS_ASSERT(std::isnan(floatField.defaultValue()));
         TS_ASSERT_EQUALS(validRanges.size(), 3U);
@@ -318,16 +318,16 @@ void FloatTestSuite::test5()
         TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200)), Epsilon);
         TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (std::numeric_limits<double>::max())), Epsilon);
         TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT_LESS_THAN(0.0, r2.m_min);
         TS_ASSERT(std::isinf(r2.m_min));
         TS_ASSERT(std::isinf(r2.m_max));
         TS_ASSERT_EQUALS(r2.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT(std::isnan(r3.m_min));
         TS_ASSERT(std::isnan(r3.m_max));
         TS_ASSERT_EQUALS(r3.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(r3.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r3.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT_EQUALS(specialValues.size(), 3U);
     } while (false);
 }
@@ -348,13 +348,13 @@ void FloatTestSuite::test6()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.name(), "Float1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Double);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Double);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(floatField.minLength(), 8U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
         TS_ASSERT_EQUALS(floatField.validCheckVersion(), true);
@@ -368,14 +368,14 @@ void FloatTestSuite::test6()
         TS_ASSERT_LESS_THAN(std::abs(r2.m_min - (-100.123)), Epsilon);
         TS_ASSERT_LESS_THAN(std::abs(r2.m_max - (210.111)), Epsilon);
         TS_ASSERT_EQUALS(r2.m_sinceVersion, 1U);
-        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT(specialValues.empty());
     } while (false);
 }
 
 void FloatTestSuite::test7()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
@@ -383,7 +383,7 @@ void FloatTestSuite::test7()
 
 void FloatTestSuite::test8()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
@@ -405,13 +405,13 @@ void FloatTestSuite::test9()
     do {
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.name(), "Float1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(floatField.minLength(), 4U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), 0.0);
         TS_ASSERT_EQUALS(validRanges.size(), 1U);
@@ -419,7 +419,7 @@ void FloatTestSuite::test9()
         TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-100.123)), Epsilon);
         TS_ASSERT_LESS_THAN(std::abs(r1.m_max - 210.111), Epsilon);
         TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT_EQUALS(specialValues.size(), 1U);
         auto& s1 = specialValues.find("S1")->second;
         TS_ASSERT_LESS_THAN(std::abs(s1.m_value - (-100.123)), Epsilon);
@@ -428,13 +428,13 @@ void FloatTestSuite::test9()
     do {
         auto& field = fields[1];
         TS_ASSERT_EQUALS(field.name(), "Float2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(floatField.minLength(), 4U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), -100.123);
         TS_ASSERT_EQUALS(validRanges.size(), 2U);
@@ -443,7 +443,7 @@ void FloatTestSuite::test9()
         TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200.0)), Epsilon);
         TS_ASSERT_LESS_THAN(std::abs(r1.m_max - 210.111), Epsilon);
         TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT(std::isnan(r2.m_min));
         TS_ASSERT(std::isnan(r2.m_max));
         TS_ASSERT_EQUALS(specialValues.size(), 2U);
@@ -452,7 +452,7 @@ void FloatTestSuite::test9()
 
 void FloatTestSuite::test10()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
     auto namespaces = protocol->namespaces();
@@ -467,13 +467,13 @@ void FloatTestSuite::test10()
     do {
         auto& field = fields[1];
         TS_ASSERT_EQUALS(field.name(), "Float2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         auto& validRanges = floatField.validRanges();
         auto& specialValues = floatField.specialValues();
-        TS_ASSERT_EQUALS(floatField.type(), commsdsl::FloatField::Type::Float);
-        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(floatField.type(), commsdsl::parse::FloatField::Type::Float);
+        TS_ASSERT_EQUALS(floatField.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(floatField.minLength(), 4U);
         TS_ASSERT_EQUALS(floatField.defaultValue(), -100.123);
         TS_ASSERT_EQUALS(validRanges.size(), 3U);
@@ -483,25 +483,25 @@ void FloatTestSuite::test10()
         TS_ASSERT_LESS_THAN(std::abs(r1.m_min - (-200.0)), Epsilon);
         TS_ASSERT_LESS_THAN(std::abs(r1.m_max - (-100.123)), Epsilon);
         TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT_LESS_THAN(std::abs(r2.m_min - (-100.123)), Epsilon);
         TS_ASSERT_LESS_THAN(std::abs(r2.m_max - 210.111), Epsilon);
         TS_ASSERT_EQUALS(r2.m_sinceVersion, 1U);
-        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT(std::isnan(r3.m_min));
         TS_ASSERT(std::isnan(r3.m_max));
         TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT_EQUALS(specialValues.size(), 2U);
         auto& s1 = specialValues.find("S1")->second;
         auto& s2 = specialValues.find("S2")->second;
         TS_ASSERT_EQUALS(s1.m_value, -100.123);
         TS_ASSERT_EQUALS(s1.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(s1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(s1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT_EQUALS(s1.m_description, "Some description");
         TS_ASSERT_EQUALS(s2.m_value, -200);
         TS_ASSERT_EQUALS(s2.m_sinceVersion, 0U);
-        TS_ASSERT_EQUALS(s2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+        TS_ASSERT_EQUALS(s2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
         TS_ASSERT(s2.m_description.empty());
     } while (false);
 }
@@ -522,10 +522,10 @@ void FloatTestSuite::test11()
     do {
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.name(), "Float1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
-        TS_ASSERT_EQUALS(floatField.units(), commsdsl::Units::Seconds);
+        commsdsl::parse::FloatField floatField(field);
+        TS_ASSERT_EQUALS(floatField.units(), commsdsl::parse::Units::Seconds);
     } while (false);
 }
 
@@ -545,9 +545,9 @@ void FloatTestSuite::test12()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.name(), "F2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         TS_ASSERT(std::isinf(floatField.defaultValue()));
         auto& specialValues = floatField.specialValues();
         TS_ASSERT_EQUALS(specialValues.size(), 1U);
@@ -571,16 +571,16 @@ void FloatTestSuite::test13()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.name(), "F2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.defaultValue(), static_cast<double>(0xffff));
     } while (false);
 }
 
 void FloatTestSuite::test14()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
@@ -588,7 +588,7 @@ void FloatTestSuite::test14()
 
 void FloatTestSuite::test15()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
@@ -610,9 +610,9 @@ void FloatTestSuite::test16()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.name(), "F2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.defaultValue(), static_cast<double>(3));
         auto& specialValues = floatField.specialValues();
 
@@ -626,7 +626,7 @@ void FloatTestSuite::test16()
 
 void FloatTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
@@ -648,9 +648,9 @@ void FloatTestSuite::test18()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.name(), "F2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.defaultValue(), static_cast<double>(0));
         auto& specialValues = floatField.specialValues();
 
@@ -676,9 +676,9 @@ void FloatTestSuite::test19()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.name(), "F2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.defaultValue(), static_cast<double>(1));
         auto& specialValues = floatField.specialValues();
 
@@ -708,9 +708,9 @@ void FloatTestSuite::test20()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.name(), "F2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         TS_ASSERT_EQUALS(floatField.defaultValue(), static_cast<double>(1));
         auto& specialValues = floatField.specialValues();
 
@@ -740,9 +740,9 @@ void FloatTestSuite::test21()
     do {
         auto& field = fields.back();
         TS_ASSERT_EQUALS(field.name(), "F2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         TS_ASSERT(!floatField.displaySpecials());
         TS_ASSERT(std::isnan(floatField.defaultValue()));
         auto& specialValues = floatField.specialValues();
@@ -757,7 +757,7 @@ void FloatTestSuite::test21()
 
 void FloatTestSuite::test22()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
     TS_ASSERT(protocol);
@@ -765,7 +765,7 @@ void FloatTestSuite::test22()
 
 void FloatTestSuite::test23()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
@@ -787,9 +787,9 @@ void FloatTestSuite::test24()
 
         auto& field = fields[0];
         TS_ASSERT_EQUALS(field.name(), "F1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Float);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Float);
 
-        commsdsl::FloatField floatField(field);
+        commsdsl::parse::FloatField floatField(field);
         TS_ASSERT(floatField.displaySpecials());
         auto& specialValues = floatField.specialValues();
         TS_ASSERT_EQUALS(specialValues.size(), 3U);

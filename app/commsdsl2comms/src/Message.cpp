@@ -355,7 +355,7 @@ bool Message::prepare()
 {
     m_externalRef = m_dslObj.externalRef();
     if (m_externalRef.empty()) {
-        m_generator.logger().log(commsdsl::ErrorLevel_Error, "Unknown external reference for message: " + m_dslObj.name());
+        m_generator.logger().log(commsdsl::parse::ErrorLevel_Error, "Unknown external reference for message: " + m_dslObj.name());
         return false;
     }
 
@@ -1182,7 +1182,7 @@ bool Message::isCustomizable() const
         return false;
     }
 
-    return m_dslObj.sender() != commsdsl::Message::Sender::Both;
+    return m_dslObj.sender() != commsdsl::parse::Message::Sender::Both;
 }
 
 std::string Message::getOptions(GetFieldOptionsFunc func, const std::string& base, bool extending) const

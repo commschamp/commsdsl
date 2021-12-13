@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/Layer.h"
+#include "commsdsl/parse/Layer.h"
 
 #include "Layer.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class SyncLayer final : public Layer
 {
     using Base = Layer;
 public:
-    SyncLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    SyncLayer(Generator& generator, commsdsl::parse::Layer layer) : Base(generator, layer) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -38,14 +38,14 @@ protected:
         bool& hasInputMessages) const override;
 
 private:
-    commsdsl::SyncLayer sizeLayerDslObj() const
+    commsdsl::parse::SyncLayer sizeLayerDslObj() const
     {
-        return commsdsl::SyncLayer(dslObj());
+        return commsdsl::parse::SyncLayer(dslObj());
     }
 };
 
 inline
-LayerPtr createSyncLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createSyncLayer(Generator& generator, commsdsl::parse::Layer layer)
 {
     return std::make_unique<SyncLayer>(generator, layer);
 }

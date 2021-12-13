@@ -86,7 +86,7 @@ bool MsgId::writeDefinition() const
     std::string typeStr;
     auto* msgIdField = m_generator.getMessageIdField();
     if (msgIdField != nullptr) {
-        assert(msgIdField->kind() == commsdsl::Field::Kind::Enum);
+        assert(msgIdField->kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const EnumField*>(msgIdField);
         auto values = castedMsgIdField->getValuesList();
         auto& prefix = common::msgIdPrefixStr();

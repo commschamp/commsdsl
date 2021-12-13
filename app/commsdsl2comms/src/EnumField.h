@@ -15,8 +15,8 @@
 
 #pragma once
 
-#include "commsdsl/EnumField.h"
-#include "commsdsl/Protocol.h"
+#include "commsdsl/parse/EnumField.h"
+#include "commsdsl/parse/Protocol.h"
 
 #include "Field.h"
 #include "common.h"
@@ -28,7 +28,7 @@ class EnumField final : public Field
 {
     using Base = Field;
 public:
-    EnumField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    EnumField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
     common::StringsList getValuesList() const;
     std::string getValuesDefinition() const;
@@ -65,7 +65,7 @@ private:
         std::intmax_t m_min = 0;
         std::intmax_t m_max = 0;
         unsigned m_sinceVersion = 0;
-        unsigned m_deprecatedSince = commsdsl::Protocol::notYetDeprecated();
+        unsigned m_deprecatedSince = commsdsl::parse::Protocol::notYetDeprecated();
     };
 
     using ValidRangesList = std::vector<RangeInfo>;
@@ -95,16 +95,16 @@ private:
     bool prepareRanges() const;
     void updateIncludesForCommonInternal(IncludesList& includes) const;
 
-    commsdsl::EnumField enumFieldDslObj() const
+    commsdsl::parse::EnumField enumFieldDslObj() const
     {
-        return commsdsl::EnumField(dslObj());
+        return commsdsl::parse::EnumField(dslObj());
     }
 
     mutable ValidRangesList m_validRanges;
 };
 
 inline
-FieldPtr createEnumField(Generator& generator, commsdsl::Field field)
+FieldPtr createEnumField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<EnumField>(generator, field);
 }

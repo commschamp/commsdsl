@@ -100,7 +100,7 @@ bool Frame::prepare()
 
     m_externalRef = m_dslObj.externalRef();
     if (m_externalRef.empty()) {
-        m_generator.logger().log(commsdsl::ErrorLevel_Error, "Unknown external reference for frame: " + m_dslObj.name());
+        m_generator.logger().log(commsdsl::parse::ErrorLevel_Error, "Unknown external reference for frame: " + m_dslObj.name());
         return false;
     }
 
@@ -530,7 +530,7 @@ bool Frame::writePluginTransportMessageSrc()
                     layers.begin(), layers.end(),
                     [](auto& l)
                     {
-                        return l.kind() == commsdsl::Layer::Kind::Payload;
+                        return l.kind() == commsdsl::parse::Layer::Kind::Payload;
                     });
             assert(payloadIter != layers.end());
             return static_cast<unsigned>(std::distance(layers.begin(), payloadIter)) + 1U;
@@ -836,11 +836,11 @@ bool Frame::hasIdLayer() const
             m_layers.begin(), m_layers.end(),
             [](auto& l)
             {
-                if (l->kind() == commsdsl::Layer::Kind::Id) {
+                if (l->kind() == commsdsl::parse::Layer::Kind::Id) {
                     return true;
                 }
 
-                if (l->kind() != commsdsl::Layer::Kind::Custom) {
+                if (l->kind() != commsdsl::parse::Layer::Kind::Custom) {
                     return false;
                 }
 
@@ -856,7 +856,7 @@ unsigned Frame::calcBackPayloadOffset() const
             layers.rbegin(), layers.rend(),
             [](auto& l)
             {
-                return l.kind() == commsdsl::Layer::Kind::Payload;
+                return l.kind() == commsdsl::parse::Layer::Kind::Payload;
             });
     assert(payloadIter != layers.rend());
 

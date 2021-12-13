@@ -66,11 +66,11 @@ void StringTestSuite::test1()
     TS_ASSERT_EQUALS(field.name(), "String1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
     TS_ASSERT_EQUALS(field.maxLength(), std::numeric_limits<std::size_t>::max());
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT(stringField.defaultValue().empty());
     TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
@@ -81,7 +81,7 @@ void StringTestSuite::test1()
 
 void StringTestSuite::test2()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
     auto namespaces = protocol->namespaces();
@@ -97,11 +97,11 @@ void StringTestSuite::test2()
     TS_ASSERT_EQUALS(field.name(), "String1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 4U);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
     TS_ASSERT_EQUALS(stringField.fixedLength(), 4U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
@@ -125,11 +125,11 @@ void StringTestSuite::test3()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "String1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 256U);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT(stringField.defaultValue().empty());
     TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), true);
@@ -138,7 +138,7 @@ void StringTestSuite::test3()
 
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
-    TS_ASSERT_EQUALS(lenField.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(lenField.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(lenField.externalRef(), "StrLen");
 }
 
@@ -157,11 +157,11 @@ void StringTestSuite::test4()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "String1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 256U);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT(stringField.defaultValue().empty());
     TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), true);
@@ -170,13 +170,13 @@ void StringTestSuite::test4()
 
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
-    TS_ASSERT_EQUALS(lenField.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(lenField.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT(lenField.externalRef().empty());
 }
 
 void StringTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -184,7 +184,7 @@ void StringTestSuite::test5()
 
 void StringTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
@@ -192,7 +192,7 @@ void StringTestSuite::test6()
 
 void StringTestSuite::test7()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
@@ -213,11 +213,11 @@ void StringTestSuite::test8()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "String2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 10U);
     TS_ASSERT_EQUALS(field.maxLength(), 10U);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
     TS_ASSERT_EQUALS(stringField.fixedLength(), 10U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
@@ -228,7 +228,7 @@ void StringTestSuite::test8()
 
 void StringTestSuite::test9()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
     auto namespaces = protocol->namespaces();
@@ -242,11 +242,11 @@ void StringTestSuite::test9()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "String2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 4U);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
     TS_ASSERT_EQUALS(stringField.fixedLength(), 4U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), false);
@@ -257,7 +257,7 @@ void StringTestSuite::test9()
 
 void StringTestSuite::test10()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
@@ -278,11 +278,11 @@ void StringTestSuite::test11()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "String2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 1U);
     TS_ASSERT_EQUALS(field.maxLength(), 256U);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
     TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
     TS_ASSERT_EQUALS(stringField.hasLengthPrefixField(), true);
@@ -295,7 +295,7 @@ void StringTestSuite::test11()
 
 void StringTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
@@ -303,7 +303,7 @@ void StringTestSuite::test12()
 
 void StringTestSuite::test13()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
@@ -328,10 +328,10 @@ void StringTestSuite::test14()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "F3");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT(stringField.defaultValue().empty());
     TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
     TS_ASSERT(!stringField.hasLengthPrefixField());
@@ -343,7 +343,7 @@ void StringTestSuite::test14()
 
 void StringTestSuite::test15()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
@@ -368,10 +368,10 @@ void StringTestSuite::test16()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "F3");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
     TS_ASSERT_EQUALS(field.minLength(), 0U);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT(stringField.defaultValue().empty());
     TS_ASSERT_EQUALS(stringField.fixedLength(), 0U);
     TS_ASSERT(!stringField.hasLengthPrefixField());
@@ -383,7 +383,7 @@ void StringTestSuite::test16()
 
 void StringTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
@@ -391,7 +391,7 @@ void StringTestSuite::test17()
 
 void StringTestSuite::test18()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
@@ -399,7 +399,7 @@ void StringTestSuite::test18()
 
 void StringTestSuite::test19()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
@@ -419,9 +419,9 @@ void StringTestSuite::test20()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "S2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
 }
 
@@ -439,9 +439,9 @@ void StringTestSuite::test21()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "S2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "^S1");
 }
 
@@ -461,52 +461,52 @@ void StringTestSuite::test22()
     do {
         auto& field = fields[1];
         TS_ASSERT_EQUALS(field.name(), "S1");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-        commsdsl::StringField stringField(field);
+        commsdsl::parse::StringField stringField(field);
         TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
     } while (false);
 
     do {
         auto& field = fields[2];
         TS_ASSERT_EQUALS(field.name(), "S2");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-        commsdsl::StringField stringField(field);
+        commsdsl::parse::StringField stringField(field);
         TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
     } while (false);
 
     do {
         auto& field = fields[3];
         TS_ASSERT_EQUALS(field.name(), "S3");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-        commsdsl::StringField stringField(field);
+        commsdsl::parse::StringField stringField(field);
         TS_ASSERT_EQUALS(stringField.defaultValue(), "^S1");
     } while (false);
 
     do {
         auto& field = fields[4];
         TS_ASSERT_EQUALS(field.name(), "S4");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-        commsdsl::StringField stringField(field);
+        commsdsl::parse::StringField stringField(field);
         TS_ASSERT_EQUALS(stringField.defaultValue(), "\\\\\\^S1");
     } while (false);
 
     do {
         auto& field = fields[5];
         TS_ASSERT_EQUALS(field.name(), "S5");
-        TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-        commsdsl::StringField stringField(field);
+        commsdsl::parse::StringField stringField(field);
         TS_ASSERT_EQUALS(stringField.defaultValue(), "\\.\\\\\\^S1");
     } while (false);
 }
 
 void StringTestSuite::test23()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
@@ -514,8 +514,8 @@ void StringTestSuite::test23()
 
 void StringTestSuite::test24()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
@@ -535,15 +535,15 @@ void StringTestSuite::test25()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "S2");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
 }
 
 void StringTestSuite::test26()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
     TS_ASSERT(protocol);
@@ -563,15 +563,15 @@ void StringTestSuite::test27()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "F4");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello");
 }
 
 void StringTestSuite::test28()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema28.xml");
     TS_ASSERT(protocol);
@@ -591,9 +591,9 @@ void StringTestSuite::test29()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "F4");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "hello!");
 }
 
@@ -611,8 +611,8 @@ void StringTestSuite::test30()
 
     auto& field = fields.back();
     TS_ASSERT_EQUALS(field.name(), "F3");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::String);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::String);
 
-    commsdsl::StringField stringField(field);
+    commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "bla");
 }

@@ -90,7 +90,7 @@ bool Layer::prepare()
     auto dslField = m_dslObj.field();
     do {
         if (!dslField.valid()) {
-            if (kind() != commsdsl::Layer::Kind::Payload) {
+            if (kind() != commsdsl::parse::Layer::Kind::Payload) {
                 generator().logger().error("Layer field definition is missing.");
                 static constexpr bool Should_not_happen = false;
                 static_cast<void>(Should_not_happen);
@@ -124,21 +124,21 @@ std::string Layer::getClassDefinition(
     return getClassDefinitionImpl(scope, prevLayer, hasInputMessages);
 }
 
-Layer::Ptr Layer::create(Generator& generator, commsdsl::Layer field)
+Layer::Ptr Layer::create(Generator& generator, commsdsl::parse::Layer field)
 {
-    using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::Layer)>;
+    using CreateFunc = std::function<Ptr (Generator& generator, commsdsl::parse::Layer)>;
     static const CreateFunc Map[] = {
-        /* Custom */ [](Generator& g, commsdsl::Layer l) { return createCustomLayer(g, l); },
-        /* Sync */ [](Generator& g, commsdsl::Layer l) { return createSyncLayer(g, l); },
-        /* Size */ [](Generator& g, commsdsl::Layer l) { return createSizeLayer(g, l); },
-        /* Id */ [](Generator& g, commsdsl::Layer l) { return createIdLayer(g, l); },
-        /* Value */ [](Generator& g, commsdsl::Layer l) { return createValueLayer(g, l); },
-        /* Payload */ [](Generator& g, commsdsl::Layer l) { return createPayloadLayer(g, l); },
-        /* Checksum */ [](Generator& g, commsdsl::Layer l) { return createChecksumLayer(g, l); }
+        /* Custom */ [](Generator& g, commsdsl::parse::Layer l) { return createCustomLayer(g, l); },
+        /* Sync */ [](Generator& g, commsdsl::parse::Layer l) { return createSyncLayer(g, l); },
+        /* Size */ [](Generator& g, commsdsl::parse::Layer l) { return createSizeLayer(g, l); },
+        /* Id */ [](Generator& g, commsdsl::parse::Layer l) { return createIdLayer(g, l); },
+        /* Value */ [](Generator& g, commsdsl::parse::Layer l) { return createValueLayer(g, l); },
+        /* Payload */ [](Generator& g, commsdsl::parse::Layer l) { return createPayloadLayer(g, l); },
+        /* Checksum */ [](Generator& g, commsdsl::parse::Layer l) { return createChecksumLayer(g, l); }
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(commsdsl::Layer::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::Layer::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(field.kind());
     if (MapSize <= idx) {
@@ -174,7 +174,7 @@ std::string Layer::getFieldScopeForPlugin(const std::string& scope) const
             "::" + common::nameToClassCopy(m_field->name());
     }
 
-    if (kind() != commsdsl::Layer::Kind::Payload) {
+    if (kind() != commsdsl::parse::Layer::Kind::Payload) {
         auto dslField = m_dslObj.field();
         assert(dslField.valid());
         auto extRef = dslField.externalRef();

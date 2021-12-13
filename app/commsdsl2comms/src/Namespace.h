@@ -19,7 +19,7 @@
 #include <string>
 #include <memory>
 
-#include "commsdsl/Namespace.h"
+#include "commsdsl/parse/Namespace.h"
 #include "Message.h"
 #include "Interface.h"
 #include "Field.h"
@@ -44,7 +44,7 @@ public:
     using NamespacesScopesList = std::vector<std::string>;
 
     //using FieldsMap = std::map<std::string, FieldPtr>;
-    explicit Namespace(Generator& gen, const commsdsl::Namespace& dslObj)
+    explicit Namespace(Generator& gen, const commsdsl::parse::Namespace& dslObj)
       : m_generator(gen),
         m_dslObj(dslObj)
     {
@@ -112,7 +112,7 @@ private:
         const std::string& base) const;
 
     Generator& m_generator;
-    commsdsl::Namespace m_dslObj;
+    commsdsl::parse::Namespace m_dslObj;
     NamespacesList m_namespaces;
     FieldsList m_fields;
     InterfacesList m_interfaces;
@@ -124,7 +124,7 @@ private:
 using NamespacePtr = Namespace::Ptr;
 
 inline
-NamespacePtr createNamespace(Generator& gen, const commsdsl::Namespace& dslObj)
+NamespacePtr createNamespace(Generator& gen, const commsdsl::parse::Namespace& dslObj)
 {
     return NamespacePtr(new Namespace(gen, dslObj));
 }

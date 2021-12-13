@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/IntField.h"
+#include "commsdsl/parse/IntField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,10 +27,10 @@ class IntField final : public Field
 {
     using Base = Field;
 public:
-    IntField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    IntField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
-    static const std::string& convertType(commsdsl::IntField::Type value, std::size_t len = 0);
-    static bool isUnsignedType(commsdsl::IntField::Type value);
+    static const std::string& convertType(commsdsl::parse::IntField::Type value, std::size_t len = 0);
+    static bool isUnsignedType(commsdsl::parse::IntField::Type value);
     bool isUnsignedType() const;
     bool isValidPropKey() const;
     std::string getPropKeyType() const;
@@ -58,7 +58,7 @@ protected:
 
 private:
     using StringsList = common::StringsList;
-    using SpecialsListElem = std::pair<std::string, commsdsl::IntField::SpecialValueInfo>;
+    using SpecialsListElem = std::pair<std::string, commsdsl::parse::IntField::SpecialValueInfo>;
     using SpecialsList = std::vector<SpecialsListElem>;
 
     std::string getFieldBaseParams() const;
@@ -92,9 +92,9 @@ private:
     std::string getHasSpecialsFuncCommonBody() const;
     std::string getHasSpecialsFuncBody(const std::string& scope) const;
 
-    commsdsl::IntField intFieldDslObj() const
+    commsdsl::parse::IntField intFieldDslObj() const
     {
-        return commsdsl::IntField(dslObj());
+        return commsdsl::parse::IntField(dslObj());
     }
 
 private:
@@ -102,7 +102,7 @@ private:
 };
 
 inline
-FieldPtr createIntField(Generator& generator, commsdsl::Field field)
+FieldPtr createIntField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<IntField>(generator, field);
 }

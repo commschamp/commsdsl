@@ -132,18 +132,18 @@ std::string limitToString(double val)
     return Prefix + Inf;
 }
 
-double getLowest(commsdsl::FloatField::Type type)
+double getLowest(commsdsl::parse::FloatField::Type type)
 {
-    if (type == commsdsl::FloatField::Type::Float) {
+    if (type == commsdsl::parse::FloatField::Type::Float) {
         return double(std::numeric_limits<float>::lowest());
     }
 
     return std::numeric_limits<double>::lowest();
 }
 
-double getMax(commsdsl::FloatField::Type type)
+double getMax(commsdsl::parse::FloatField::Type type)
 {
-    if (type == commsdsl::FloatField::Type::Float) {
+    if (type == commsdsl::parse::FloatField::Type::Float) {
         return double(std::numeric_limits<float>::max());
     }
 
@@ -151,7 +151,7 @@ double getMax(commsdsl::FloatField::Type type)
 }
 
 
-std::string valueToString(double val, commsdsl::FloatField::Type type)
+std::string valueToString(double val, commsdsl::parse::FloatField::Type type)
 {
     if (isLimit(val)) {
         return limitToString(val);
@@ -170,7 +170,7 @@ std::string valueToString(double val, commsdsl::FloatField::Type type)
     return "static_cast<ValueType>(" + std::to_string(val) + ")";
 }
 
-std::string cmpToString(double val, commsdsl::FloatField::Type type)
+std::string cmpToString(double val, commsdsl::parse::FloatField::Type type)
 {
     if (std::isnan(val)) {
         return "std::isnan(Base::value())";
@@ -207,7 +207,7 @@ void addRangeComparison(
     common::StringsList& condList,
     double min,
     double max,
-    commsdsl::FloatField::Type type)
+    commsdsl::parse::FloatField::Type type)
 {
     auto* templ = &RangeComparisonTemplate;
     if (min == max) {
@@ -579,7 +579,7 @@ const std::string& FloatField::getFieldType() const
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::FloatField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::FloatField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(obj.type());
@@ -989,10 +989,10 @@ FloatField::StringsList FloatField::getVersionBasedConditions() const
 
         auto* templ = &VersionConditionTemplate;
         if (fromVersion == 0) {
-            assert(untilVersion < commsdsl::Protocol::notYetDeprecated());
+            assert(untilVersion < commsdsl::parse::Protocol::notYetDeprecated());
             templ = &UntilVersionConditionTemplate;
         }
-        else if (commsdsl::Protocol::notYetDeprecated() <= untilVersion) {
+        else if (commsdsl::parse::Protocol::notYetDeprecated() <= untilVersion) {
             templ = &FromVersionConditionTemplate;
         }
 

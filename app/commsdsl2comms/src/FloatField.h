@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/FloatField.h"
+#include "commsdsl/parse/FloatField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class FloatField final : public Field
 {
     using Base = Field;
 public:
-    FloatField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    FloatField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -41,7 +41,7 @@ protected:
 
 private:
     using StringsList = common::StringsList;
-    using SpecialsListElem = std::pair<std::string, commsdsl::FloatField::SpecialValueInfo>;
+    using SpecialsListElem = std::pair<std::string, commsdsl::parse::FloatField::SpecialValueInfo>;
     using SpecialsList = std::vector<SpecialsListElem>;
 
     std::string getFieldBaseParams() const;
@@ -68,9 +68,9 @@ private:
     void checkVersionOpt(StringsList& list) const;
     void checkValidityOpt(StringsList& list) const;
 
-    commsdsl::FloatField floatFieldDslObj() const
+    commsdsl::parse::FloatField floatFieldDslObj() const
     {
-        return commsdsl::FloatField(dslObj());
+        return commsdsl::parse::FloatField(dslObj());
     }
 
 private:
@@ -78,7 +78,7 @@ private:
 };
 
 inline
-FieldPtr createFloatField(Generator& generator, commsdsl::Field field)
+FieldPtr createFloatField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<FloatField>(generator, field);
 }

@@ -530,7 +530,7 @@ std::string VariantField::getRead() const
     StringsList cases;
     bool hasDefault = false;
     for (auto& m : m_members) {
-        assert(m->kind() == commsdsl::Field::Kind::Bundle);
+        assert(m->kind() == commsdsl::parse::Field::Kind::Bundle);
 
         auto& bundle = static_cast<const BundleField&>(*m);
 
@@ -760,7 +760,7 @@ bool VariantField::hasOptimizedRead() const
 
     std::string propType;
     for (auto& m : m_members) {
-        if (m->kind() != commsdsl::Field::Kind::Bundle) {
+        if (m->kind() != commsdsl::parse::Field::Kind::Bundle) {
             return false;
         }
 

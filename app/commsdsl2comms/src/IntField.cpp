@@ -67,7 +67,7 @@ const std::string ClassTemplate(
 
 } // namespace
 
-const std::string& IntField::convertType(commsdsl::IntField::Type value, std::size_t len)
+const std::string& IntField::convertType(commsdsl::parse::IntField::Type value, std::size_t len)
 {
     static const std::string TypeMap[] = {
         /* Int8 */ "std::int8_t",
@@ -83,7 +83,7 @@ const std::string& IntField::convertType(commsdsl::IntField::Type value, std::si
     };
 
     static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
-    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::IntField::Type::NumOfValues),
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(value);
@@ -100,31 +100,31 @@ const std::string& IntField::convertType(commsdsl::IntField::Type value, std::si
     }
 
     // Variable length
-    auto offset = idx - static_cast<decltype(idx)>(commsdsl::IntField::Type::Intvar);
+    auto offset = idx - static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Intvar);
     assert(offset < 2U);
 
     if (len <= 2U) {
-        auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int16);
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int16);
         return TypeMap[base + offset];
     }
 
     if (len <= 4U) {
-        auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int32);
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int32);
         return TypeMap[base + offset];
     }
 
-    auto base = static_cast<decltype(idx)>(commsdsl::IntField::Type::Int64);
+    auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int64);
     return TypeMap[base + offset];
 }
 
-bool IntField::isUnsignedType(commsdsl::IntField::Type value)
+bool IntField::isUnsignedType(commsdsl::parse::IntField::Type value)
 {
-    static const commsdsl::IntField::Type Map[] = {
-        commsdsl::IntField::Type::Uint8,
-        commsdsl::IntField::Type::Uint16,
-        commsdsl::IntField::Type::Uint32,
-        commsdsl::IntField::Type::Uint64,
-        commsdsl::IntField::Type::Uintvar,
+    static const commsdsl::parse::IntField::Type Map[] = {
+        commsdsl::parse::IntField::Type::Uint8,
+        commsdsl::parse::IntField::Type::Uint16,
+        commsdsl::parse::IntField::Type::Uint32,
+        commsdsl::parse::IntField::Type::Uint64,
+        commsdsl::parse::IntField::Type::Uintvar,
     };
 
     auto iter = std::find(std::begin(Map), std::end(Map), value);
@@ -422,8 +422,8 @@ std::string IntField::getPluginPropertiesImpl(bool serHiddenParam) const
     if (!m_specials.empty() && (obj.displaySpecials())) {
         auto type = obj.type();
         bool bigUnsigned =
-            (type == commsdsl::IntField::Type::Uint64) ||
-            (type == commsdsl::IntField::Type::Uintvar);
+            (type == commsdsl::parse::IntField::Type::Uint64) ||
+            (type == commsdsl::parse::IntField::Type::Uintvar);
 
         auto addSpecDisplayNameFunc =
             [&props, bigUnsigned](std::intmax_t val, const std::string& name, const std::string& displayName)
@@ -473,8 +473,8 @@ std::string IntField::getCommonDefinitionImpl(const std::string& fullScope) cons
 
         std::string specVal;
         auto type = obj.type();
-        if ((type == commsdsl::IntField::Type::Uint64) ||
-            (type == commsdsl::IntField::Type::Uintvar)) {
+        if ((type == commsdsl::parse::IntField::Type::Uint64) ||
+            (type == commsdsl::parse::IntField::Type::Uintvar)) {
             specVal = common::numToString(static_cast<std::uintmax_t>(s.second.m_value));
         }
         else {
@@ -676,8 +676,8 @@ std::string IntField::getValid() const
 
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::IntField::Type::Uint64) ||
-        (type == commsdsl::IntField::Type::Uintvar);
+        (type == commsdsl::parse::IntField::Type::Uint64) ||
+        (type == commsdsl::parse::IntField::Type::Uintvar);
 
     std::string rangesChecks;
     for (auto& r : validRanges) {
@@ -707,7 +707,7 @@ std::string IntField::getValid() const
             conds.push_back('(' + common::numToString(r.m_sinceVersion) + " <= Base::getVersion())");
         }
 
-        if (r.m_deprecatedSince < commsdsl::Protocol::notYetDeprecated()) {
+        if (r.m_deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated()) {
             conds.push_back("(Base::getVersion() < " + common::numToString(r.m_deprecatedSince) + ")");
         }
 
@@ -788,7 +788,7 @@ void IntField::checkDefaultValueOpt(StringsList& list) const
     auto obj = intFieldDslObj();
     auto defaultValue = obj.defaultValue();
     if ((defaultValue == 0) &&
-        (semanticType() == commsdsl::Field::SemanticType::Version)) {
+        (semanticType() == commsdsl::parse::Field::SemanticType::Version)) {
         std::string opt = "comms::option::def::DefaultNumValue<";
         opt += common::numToString(generator().schemaVersion());
         opt += '>';
@@ -802,7 +802,7 @@ void IntField::checkDefaultValueOpt(StringsList& list) const
 
     auto type = obj.type();
     if ((defaultValue < 0) &&
-        ((type == commsdsl::IntField::Type::Uint64) || (type == commsdsl::IntField::Type::Uintvar))) {
+        ((type == commsdsl::parse::IntField::Type::Uint64) || (type == commsdsl::parse::IntField::Type::Uintvar))) {
         auto str =
             "comms::option::def::DefaultBigUnsignedNumValue<" +
             common::numToString(static_cast<std::uintmax_t>(defaultValue)) +
@@ -822,8 +822,8 @@ void IntField::checkLengthOpt(StringsList& list) const
 {
     auto obj = intFieldDslObj();
     auto type = obj.type();
-    if ((type == commsdsl::IntField::Type::Intvar) ||
-        (type == commsdsl::IntField::Type::Uintvar)) {
+    if ((type == commsdsl::parse::IntField::Type::Intvar) ||
+        (type == commsdsl::parse::IntField::Type::Uintvar)) {
         auto str =
             "comms::option::def::VarLength<" +
             common::numToString(obj.minLength()) +
@@ -857,7 +857,7 @@ void IntField::checkLengthOpt(StringsList& list) const
     };
 
     static const std::size_t LengthMapSize = std::extent<decltype(LengthMap)>::value;
-    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::IntField::Type::NumOfValues),
+    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues),
             "Incorrect map");
 
     std::size_t idx = static_cast<std::size_t>(type);
@@ -941,8 +941,8 @@ void IntField::checkValidRangesOpt(IntField::StringsList& list) const
 
     auto type = obj.type();
     bool bigUnsigned =
-        (type == commsdsl::IntField::Type::Uint64) ||
-        ((type != commsdsl::IntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
+        (type == commsdsl::parse::IntField::Type::Uint64) ||
+        ((type != commsdsl::parse::IntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
         generator().versionDependentCode() &&

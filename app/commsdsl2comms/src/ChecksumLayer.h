@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/Layer.h"
+#include "commsdsl/parse/Layer.h"
 
 #include "Layer.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class ChecksumLayer final : public Layer
 {
     using Base = Layer;
 public:
-    ChecksumLayer(Generator& generator, commsdsl::Layer layer) : Base(generator, layer) {}
+    ChecksumLayer(Generator& generator, commsdsl::parse::Layer layer) : Base(generator, layer) {}
 
 protected:
     virtual void updateIncludesImpl(IncludesList& includes) const override;
@@ -38,9 +38,9 @@ protected:
     virtual bool rearangeImpl(LayersList& layers, bool& success) override;
 
 private:
-    commsdsl::ChecksumLayer checksumLayerDslObj() const
+    commsdsl::parse::ChecksumLayer checksumLayerDslObj() const
     {
-        return commsdsl::ChecksumLayer(dslObj());
+        return commsdsl::parse::ChecksumLayer(dslObj());
     }
 
     std::string getAlg() const;
@@ -49,7 +49,7 @@ private:
 };
 
 inline
-LayerPtr createChecksumLayer(Generator& generator, commsdsl::Layer layer)
+LayerPtr createChecksumLayer(Generator& generator, commsdsl::parse::Layer layer)
 {
     return std::make_unique<ChecksumLayer>(generator, layer);
 }

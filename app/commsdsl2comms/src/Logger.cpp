@@ -21,13 +21,13 @@
 namespace commsdsl2comms
 {
 
-void Logger::log(commsdsl::ErrorLevel level, const std::string& msg)
+void Logger::log(commsdsl::parse::ErrorLevel level, const std::string& msg)
 {
     if (level < m_minLevel) {
         return;
     }
 
-    if (m_warnAsErr && (level == commsdsl::ErrorLevel_Warning)) {
+    if (m_warnAsErr && (level == commsdsl::parse::ErrorLevel_Warning)) {
         m_hadWarning = true;
     }
 
@@ -40,13 +40,13 @@ void Logger::log(commsdsl::ErrorLevel level, const std::string& msg)
 
     static const std::size_t PrefixMapSize = std::extent<decltype(PrefixMap)>::value;
 
-    static_assert(PrefixMapSize == commsdsl::ErrorLevel_NumOfValues, "Wrong map");
-    if (commsdsl::ErrorLevel_NumOfValues <= level) {
-        level = commsdsl::ErrorLevel_Error;
+    static_assert(PrefixMapSize == commsdsl::parse::ErrorLevel_NumOfValues, "Wrong map");
+    if (commsdsl::parse::ErrorLevel_NumOfValues <= level) {
+        level = commsdsl::parse::ErrorLevel_Error;
     }
 
     std::ostream* stream = &std::cerr;
-    if (level < commsdsl::ErrorLevel_Warning) {
+    if (level < commsdsl::parse::ErrorLevel_Warning) {
         stream = &std::cout;
     }
 

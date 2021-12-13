@@ -22,7 +22,7 @@
 #include <boost/filesystem.hpp>
 #include <boost/algorithm/string.hpp>
 
-#include "commsdsl/Protocol.h"
+#include "commsdsl/parse/Protocol.h"
 #include "commsdsl/version.h"
 
 #include "ProgramOptions.h"
@@ -66,7 +66,6 @@ std::vector<std::string> getFilesList(
 }
 
 } // namespace commsdsl2comms
-
 int main(int argc, const char* argv[])
 {
     try {
@@ -82,14 +81,14 @@ int main(int argc, const char* argv[])
 
         if (options.versionRequested()) {
             std::cout << 
-                commsdsl::versionMajor() << '.' << 
-                commsdsl::versionMinor() << '.' <<
-                commsdsl::versionPatch() << std::endl;
+                commsdsl::parse::versionMajor() << '.' << 
+                commsdsl::parse::versionMinor() << '.' <<
+                commsdsl::parse::versionPatch() << std::endl;
             return 0;
         }        
 
         if (options.quietRequested()) {
-            logger.setMinLevel(commsdsl::ErrorLevel_Warning);
+            logger.setMinLevel(commsdsl::parse::ErrorLevel_Warning);
         }
 
         if (options.warnAsErrRequested()) {
@@ -101,7 +100,7 @@ int main(int argc, const char* argv[])
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {
-            logger.log(commsdsl::ErrorLevel_Error, "No intput files are provided");
+            logger.log(commsdsl::parse::ErrorLevel_Error, "No intput files are provided");
             return -1;
         }
 

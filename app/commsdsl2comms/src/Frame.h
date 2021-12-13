@@ -20,7 +20,7 @@
 #include <memory>
 #include <vector>
 
-#include "commsdsl/Frame.h"
+#include "commsdsl/parse/Frame.h"
 
 #include "Layer.h"
 
@@ -33,7 +33,7 @@ class Frame
 public:
 
     //using FieldsMap = std::map<std::string, FieldPtr>;
-    explicit Frame(Generator& gen, const commsdsl::Frame& obj)
+    explicit Frame(Generator& gen, const commsdsl::parse::Frame& obj)
       : m_generator(gen),
         m_dslObj(obj)
     {
@@ -83,7 +83,7 @@ private:
     bool hasCommonDefinition() const;
 
     Generator& m_generator;
-    commsdsl::Frame m_dslObj;
+    commsdsl::parse::Frame m_dslObj;
     std::string m_externalRef;
     std::vector<LayerPtr> m_layers;
 };
@@ -91,7 +91,7 @@ private:
 using FramePtr = std::unique_ptr<Frame>;
 
 inline
-FramePtr createFrame(Generator& gen, const commsdsl::Frame& msg)
+FramePtr createFrame(Generator& gen, const commsdsl::parse::Frame& msg)
 {
     return FramePtr(new Frame(gen, msg));
 }

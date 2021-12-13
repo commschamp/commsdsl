@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/VariantField.h"
+#include "commsdsl/parse/VariantField.h"
 
 #include "Field.h"
 #include "common.h"
@@ -27,7 +27,7 @@ class VariantField final : public Field
 {
     using Base = Field;
 public:
-    VariantField(Generator& generator, commsdsl::Field field) : Base(generator, field) {}
+    VariantField(Generator& generator, commsdsl::parse::Field field) : Base(generator, field) {}
 
 protected:
     virtual bool prepareImpl() override;
@@ -68,16 +68,16 @@ private:
     std::string getExtraOptions(const std::string& scope, GetExtraOptionsFunc func, const std::string& base) const;
     bool hasOptimizedRead() const;
 
-    commsdsl::VariantField variantFieldDslObj() const
+    commsdsl::parse::VariantField variantFieldDslObj() const
     {
-        return commsdsl::VariantField(dslObj());
+        return commsdsl::parse::VariantField(dslObj());
     }
 
     std::vector<FieldPtr> m_members;
 };
 
 inline
-FieldPtr createVariantField(Generator& generator, commsdsl::Field field)
+FieldPtr createVariantField(Generator& generator, commsdsl::parse::Field field)
 {
     return std::make_unique<VariantField>(generator, field);
 }

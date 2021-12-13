@@ -19,9 +19,9 @@
 #include <memory>
 #include <vector>
 
-#include "commsdsl/Field.h"
-#include "commsdsl/Endian.h"
-#include "commsdsl/OptCond.h"
+#include "commsdsl/parse/Field.h"
+#include "commsdsl/parse/Endian.h"
+#include "commsdsl/parse/OptCond.h"
 #include "common.h"
 
 namespace commsdsl2comms
@@ -44,7 +44,7 @@ public:
     const std::string& displayName() const;
 
 
-    commsdsl::Field::Kind kind() const
+    commsdsl::parse::Field::Kind kind() const
     {
         return m_dslObj.kind();
     }
@@ -76,13 +76,13 @@ public:
         return getExtraRefToCommonDefinitionImpl(fullScope);
     }
 
-    static Ptr create(Generator& generator, commsdsl::Field dslObj);
+    static Ptr create(Generator& generator, commsdsl::parse::Field dslObj);
 
     std::string getDefaultOptions(const std::string& base, const std::string& scope) const;
     std::string getBareMetalDefaultOptions(const std::string& base, const std::string& scope) const;
     std::string getDataViewDefaultOptions(const std::string& base, const std::string& scope) const;
 
-    commsdsl::Field::SemanticType semanticType() const
+    commsdsl::parse::Field::SemanticType semanticType() const
     {
         return m_dslObj.semanticType();
     }
@@ -102,7 +102,7 @@ public:
 
     static std::string dslCondToString(
         const FieldsList& fields,
-        const commsdsl::OptCond& cond,
+        const commsdsl::parse::OptCond& cond,
         bool bracketsWrap = false);
 
     std::string getCompareToValue(
@@ -194,7 +194,7 @@ public:
         return getPluginPropertiesImpl(serHiddenParam);
     }
 
-    const commsdsl::Field& dslObj() const
+    const commsdsl::parse::Field& dslObj() const
     {
         return m_dslObj;
     }
@@ -212,7 +212,7 @@ public:
     }
 
 protected:
-    Field(Generator& generator, commsdsl::Field field)
+    Field(Generator& generator, commsdsl::parse::Field field)
       : m_generator(generator),
         m_dslObj(field) {}
 
@@ -294,7 +294,7 @@ protected:
     std::string getFullProtected() const;
     std::string getExtraPrivate() const;
     std::string getFullPrivate() const;
-    std::string getCommonFieldBaseParams(commsdsl::Endian endian = commsdsl::Endian_NumOfValues) const;
+    std::string getCommonFieldBaseParams(commsdsl::parse::Endian endian = commsdsl::parse::Endian_NumOfValues) const;
 
     bool isCustomizable() const;
 
@@ -312,7 +312,7 @@ private:
     std::string getPluginIncludes() const;
 
     Generator& m_generator;
-    commsdsl::Field m_dslObj;
+    commsdsl::parse::Field m_dslObj;
     std::string m_externalRef;
     unsigned m_parentVersion = 0U;
     std::string m_customRead;

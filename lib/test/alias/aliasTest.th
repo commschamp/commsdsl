@@ -70,7 +70,7 @@ void AliasTestSuite::test1()
 
 void AliasTestSuite::test2()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
@@ -78,7 +78,7 @@ void AliasTestSuite::test2()
 
 void AliasTestSuite::test3()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
@@ -86,7 +86,7 @@ void AliasTestSuite::test3()
 
 void AliasTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
@@ -94,7 +94,7 @@ void AliasTestSuite::test4()
 
 void AliasTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -102,7 +102,7 @@ void AliasTestSuite::test5()
 
 void AliasTestSuite::test6()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
@@ -206,9 +206,9 @@ void AliasTestSuite::test10()
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
     auto& f1 = fields[0];
-    TS_ASSERT_EQUALS(f1.kind(), commsdsl::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::Field::Kind::Bundle);
 
-    commsdsl::BundleField bundle1(f1);
+    commsdsl::parse::BundleField bundle1(f1);
     auto aliases = bundle1.aliases();
     TS_ASSERT_EQUALS(aliases.size(), 3U);
 
@@ -228,7 +228,7 @@ void AliasTestSuite::test10()
 
 void AliasTestSuite::test11()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
@@ -236,7 +236,7 @@ void AliasTestSuite::test11()
 
 void AliasTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
@@ -276,7 +276,7 @@ void AliasTestSuite::test13()
 
 void AliasTestSuite::test14()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
@@ -284,7 +284,7 @@ void AliasTestSuite::test14()
 
 void AliasTestSuite::test15()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);

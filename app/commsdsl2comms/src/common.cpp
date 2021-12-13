@@ -703,7 +703,7 @@ void addToList(const std::string& what, StringsList& to)
     }
 }
 
-const std::string& dslEndianToOpt(commsdsl::Endian value)
+const std::string& dslEndianToOpt(commsdsl::parse::Endian value)
 {
     static const std::string Map[] = {
         "comms::option::def::LittleEndian",
@@ -713,22 +713,22 @@ const std::string& dslEndianToOpt(commsdsl::Endian value)
     static const std::size_t MapSize =
             std::extent<decltype(Map)>::value;
 
-    static_assert(MapSize == static_cast<std::size_t>(commsdsl::Endian_NumOfValues),
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::Endian_NumOfValues),
         "Invalid map");
 
-    if (commsdsl::Endian_NumOfValues <= value) {
+    if (commsdsl::parse::Endian_NumOfValues <= value) {
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        value = commsdsl::Endian_Little;
+        value = commsdsl::parse::Endian_Little;
     }
 
     return Map[value];
 }
 
-const std::string& dslUnitsToOpt(commsdsl::Units value)
+const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
 {
-    if (commsdsl::Units::NumOfValues <= value) {
+    if (commsdsl::parse::Units::NumOfValues <= value) {
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
@@ -782,7 +782,7 @@ const std::string& dslUnitsToOpt(commsdsl::Units value)
     };
 
     static const std::size_t UnitsMapSize = std::extent<decltype(UnitsMap)>::value;
-    static_assert(static_cast<std::size_t>(commsdsl::Units::NumOfValues) == UnitsMapSize,
+    static_assert(static_cast<std::size_t>(commsdsl::parse::Units::NumOfValues) == UnitsMapSize,
         "Invalid Map");
 
     auto idx = static_cast<unsigned>(value);
