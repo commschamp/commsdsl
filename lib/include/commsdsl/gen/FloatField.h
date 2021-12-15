@@ -17,8 +17,8 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Namespace.h"
-#include "commsdsl/gen/Elem.h"
+#include "commsdsl/parse/FloatField.h"
+#include "commsdsl/gen/Field.h"
 
 #include <memory>
 #include <vector>
@@ -29,29 +29,17 @@ namespace commsdsl
 namespace gen
 {
 
-class NamespaceImpl;
-class COMMSDSL_API Namespace : public Elem
+class COMMSDSL_API FloatField : public Field
 {
-    using Base = Elem;
+    using Base = Field;
 public:
-    using Ptr = std::unique_ptr<Namespace>;
-    using NamespacesList = std::vector<Ptr>;
 
-    explicit Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
-    virtual ~Namespace();
-
-    bool prepare();
-    bool write();
+    FloatField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    virtual ~FloatField();
 
 protected:    
-    virtual Type elemTypeImpl() const override final;
-    virtual bool writeImpl();
-
-private:
-    std::unique_ptr<NamespaceImpl> m_impl;
+    commsdsl::parse::FloatField floatDslObj() const;
 };
-
-using NamespacePtr = Namespace::Ptr;
 
 } // namespace gen
 

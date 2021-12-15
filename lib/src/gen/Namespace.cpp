@@ -15,6 +15,7 @@
 // limitations under the License.
 
 #include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
 
 #include <cassert>
@@ -30,6 +31,7 @@ class NamespaceImpl
 {
 public:
     using NamespacesList = Namespace::NamespacesList;
+    using FieldsList = Field::FieldsList;
 
     NamespaceImpl(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
         m_generator(generator),
@@ -83,7 +85,22 @@ private:
 
     bool prepareFields()
     {
-        // TODO:
+        if (!m_dslObj.valid()) {
+            return true;
+        }
+
+        auto fields = m_dslObj.fields();
+        m_fields.reserve(fields.size());
+        for (auto& dslObj : fields) {
+            auto ptr = Field::create(m_generator, dslObj, m_parent);
+            assert(ptr);
+            if (!ptr->prepare()) {
+                return false;
+            }
+
+            m_fields.push_back(std::move(ptr));
+        }
+
         return true;
     }
 
@@ -149,9 +166,10 @@ private:
     commsdsl::parse::Namespace m_dslObj;
     Elem* m_parent = nullptr;
     NamespacesList m_namespaces;
+    FieldsList m_fields;
 }; 
 
-Namespace::Namespace(Generator& generator, const commsdsl::parse::Namespace& dslObj, Elem* parent) :
+Namespace::Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
     Base(parent),
     m_impl(std::make_unique<NamespaceImpl>(generator, dslObj, this))
 {

@@ -149,9 +149,22 @@ set (
 
 set (
     gen_src
+    gen/BitfieldField.cpp
+    gen/BundleField.cpp
+    gen/DataField.cpp
     gen/Elem.cpp
+    gen/EnumField.cpp
+    gen/Field.cpp
+    gen/FloatField.cpp
     gen/Generator.cpp
+    gen/IntField.cpp
+    gen/ListField.cpp
     gen/Namespace.cpp
+    gen/OptionalField.cpp
+    gen/RefField.cpp
+    gen/SetField.cpp
+    gen/StringField.cpp
+    gen/VariantField.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${parse_src} ${gen_src})

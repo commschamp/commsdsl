@@ -19,6 +19,7 @@
 #include <functional>
 
 #include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/Field.h"
 
 namespace commsdsl
 {
@@ -30,21 +31,37 @@ class Generator
 {
 public:
 
-    // using CreateNamespaceFunc = std::function<NamespacePtr ()>;
-
-    // struct Funcs
-    // {
-
-    // };
-
     Generator();
     virtual ~Generator();
 
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
+    FieldPtr createIntField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createEnumField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createSetField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createFloatField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createBitfieldField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createBundleField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createStringField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createDataField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createListField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createRefField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createOptionalField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createVariantField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
 
 protected:
-    NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);    
-
+    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
+    virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
 private:
     
 };

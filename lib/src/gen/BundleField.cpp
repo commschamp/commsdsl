@@ -14,14 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "commsdsl/gen/BundleField.h"
+#include "commsdsl/gen/Generator.h"
 
-#include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Namespace.h"
-#include "commsdsl/gen/Elem.h"
-
-#include <memory>
-#include <vector>
+#include <cassert>
 
 namespace commsdsl
 {
@@ -29,29 +25,18 @@ namespace commsdsl
 namespace gen
 {
 
-class NamespaceImpl;
-class COMMSDSL_API Namespace : public Elem
+BundleField::BundleField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+    Base(generator, dslObj, parent)
 {
-    using Base = Elem;
-public:
-    using Ptr = std::unique_ptr<Namespace>;
-    using NamespacesList = std::vector<Ptr>;
+    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Bundle);
+}
 
-    explicit Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
-    virtual ~Namespace();
+BundleField::~BundleField() = default;
 
-    bool prepare();
-    bool write();
-
-protected:    
-    virtual Type elemTypeImpl() const override final;
-    virtual bool writeImpl();
-
-private:
-    std::unique_ptr<NamespaceImpl> m_impl;
-};
-
-using NamespacePtr = Namespace::Ptr;
+commsdsl::parse::BundleField BundleField::bundleDslObj() const
+{
+    return commsdsl::parse::BundleField(dslObj());
+}
 
 } // namespace gen
 

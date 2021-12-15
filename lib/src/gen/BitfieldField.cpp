@@ -14,14 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "commsdsl/gen/BitfieldField.h"
+#include "commsdsl/gen/Generator.h"
 
-#include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Namespace.h"
-#include "commsdsl/gen/Elem.h"
-
-#include <memory>
-#include <vector>
+#include <cassert>
 
 namespace commsdsl
 {
@@ -29,29 +25,18 @@ namespace commsdsl
 namespace gen
 {
 
-class NamespaceImpl;
-class COMMSDSL_API Namespace : public Elem
+BitfieldField::BitfieldField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
+    Base(generator, dslObj, parent)
 {
-    using Base = Elem;
-public:
-    using Ptr = std::unique_ptr<Namespace>;
-    using NamespacesList = std::vector<Ptr>;
+    assert(dslObj.kind() == commsdsl::parse::Field::Kind::Bitfield);
+}
 
-    explicit Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
-    virtual ~Namespace();
+BitfieldField::~BitfieldField() = default;
 
-    bool prepare();
-    bool write();
-
-protected:    
-    virtual Type elemTypeImpl() const override final;
-    virtual bool writeImpl();
-
-private:
-    std::unique_ptr<NamespaceImpl> m_impl;
-};
-
-using NamespacePtr = Namespace::Ptr;
+commsdsl::parse::BitfieldField BitfieldField::bitfieldDslObj() const
+{
+    return commsdsl::parse::BitfieldField(dslObj());
+}
 
 } // namespace gen
 
