@@ -20,6 +20,7 @@
 
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
 
 namespace commsdsl
@@ -37,6 +38,7 @@ public:
 
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
     InterfacePtr createInterface(commsdsl::parse::Interface dslObj, Elem* parent = nullptr);
+    MessagePtr createMessage(commsdsl::parse::Message dslObj, Elem* parent = nullptr);
 
     FieldPtr createIntField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     FieldPtr createEnumField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
@@ -54,6 +56,7 @@ public:
 protected:
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent);
+    virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent);
 
     virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
     virtual FieldPtr createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);

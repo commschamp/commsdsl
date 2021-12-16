@@ -17,11 +17,9 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Namespace.h"
+#include "commsdsl/parse/Message.h"
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Field.h"
-#include "commsdsl/gen/Interface.h"
-#include "commsdsl/gen/Message.h"
 
 #include <memory>
 #include <vector>
@@ -32,37 +30,31 @@ namespace commsdsl
 namespace gen
 {
 
-class NamespaceImpl;
-class COMMSDSL_API Namespace : public Elem
+class MessageImpl;
+class COMMSDSL_API Message : public Elem
 {
     using Base = Elem;
 public:
-    using Ptr = std::unique_ptr<Namespace>;
-    using NamespacesList = std::vector<Ptr>;
+    using Ptr = std::unique_ptr<Message>;
     using FieldsList = Field::FieldsList;
-    using InterfacesList = std::vector<InterfacePtr>;
-    using MessagesList = std::vector<MessagePtr>;
 
-    explicit Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
-    virtual ~Namespace();
+    explicit Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent = nullptr);
+    virtual ~Message();
 
     bool prepare();
     bool write();
 
-    const NamespacesList& namespaces() const;
     const FieldsList& fields() const;
-    const InterfacesList& interfaces() const;
-    const MessagesList& messages() const;
 
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool writeImpl();
 
 private:
-    std::unique_ptr<NamespaceImpl> m_impl;
+    std::unique_ptr<MessageImpl> m_impl;
 };
 
-using NamespacePtr = Namespace::Ptr;
+using MessagePtr = Message::Ptr;
 
 } // namespace gen
 

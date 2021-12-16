@@ -52,6 +52,7 @@ public:
     using NamespacesList = Namespace::NamespacesList;
     using FieldsList = Namespace::FieldsList;
     using InterfacesList = Namespace::InterfacesList;
+    using MessagesList = Namespace::MessagesList;
 
     NamespaceImpl(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
         m_generator(generator),
@@ -97,6 +98,11 @@ public:
     const InterfacesList& interfaces() const
     {
         return m_interfaces;
+    }
+
+    const MessagesList& messages() const
+    {
+        return m_messages;
     }
 
 private:
@@ -157,7 +163,18 @@ private:
 
     bool prepareMessages()
     {
-        // TODO
+        auto messages = m_dslObj.messages();
+        m_messages.reserve(messages.size());
+        for (auto& m : messages) {
+            auto ptr = m_generator.createMessage(m, m_parent);
+            assert(ptr);
+            if (!ptr->prepare()) {
+                return false;
+            }
+
+            m_messages.push_back(std::move(ptr));
+        }
+
         return true;
     }
 
@@ -184,8 +201,7 @@ private:
 
     bool writeMessages()
     {
-        // TODO
-        return true;
+        return writeElements(m_messages);
     }
 
     bool writeFrames()
@@ -201,6 +217,7 @@ private:
     NamespacesList m_namespaces;
     FieldsList m_fields;
     InterfacesList m_interfaces;
+    MessagesList m_messages;
 }; 
 
 Namespace::Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :

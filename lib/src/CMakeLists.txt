@@ -160,6 +160,7 @@ set (
     gen/IntField.cpp
     gen/Interface.cpp
     gen/ListField.cpp
+    gen/Message.cpp
     gen/Namespace.cpp
     gen/OptionalField.cpp
     gen/RefField.cpp

@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
 
@@ -27,12 +27,12 @@ namespace commsdsl
 namespace gen
 {
 
-class InterfaceImpl
+class MessageImpl
 {
 public:
-    using FieldsList = Interface::FieldsList;
+    using FieldsList = Message::FieldsList;
 
-    InterfaceImpl(Generator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
+    MessageImpl(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
@@ -80,25 +80,25 @@ public:
 
 private:
     Generator& m_generator;
-    commsdsl::parse::Interface m_dslObj;
+    commsdsl::parse::Message m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_fields;
 }; 
 
-Interface::Interface(Generator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
+Message::Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
     Base(parent),
-    m_impl(std::make_unique<InterfaceImpl>(generator, dslObj, this))
+    m_impl(std::make_unique<MessageImpl>(generator, dslObj, this))
 {
 }
 
-Interface::~Interface() = default;
+Message::~Message() = default;
 
-bool Interface::prepare()
+bool Message::prepare()
 {
     return m_impl->prepare();
 }
 
-bool Interface::write()
+bool Message::write()
 {
     if (!m_impl->write()) {
         return false;
@@ -107,17 +107,17 @@ bool Interface::write()
     return writeImpl();
 }
 
-const Interface::FieldsList& Interface::fields() const
+const Message::FieldsList& Message::fields() const
 {
     return m_impl->fields();
 }
 
-Elem::Type Interface::elemTypeImpl() const
+Elem::Type Message::elemTypeImpl() const
 {
-    return Type_Interface;
+    return Type_Message;
 }
 
-bool Interface::writeImpl()
+bool Message::writeImpl()
 {
     return true;
 }
