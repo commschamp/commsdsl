@@ -48,6 +48,11 @@ NamespacePtr Generator::createNamespace(commsdsl::parse::Namespace dslObj, Elem*
     return createNamespaceImpl(dslObj, parent);
 }
 
+InterfacePtr Generator::createInterface(commsdsl::parse::Interface dslObj, Elem* parent)
+{
+    return createInterfaceImpl(dslObj, parent);
+}
+
 FieldPtr Generator::createIntField(commsdsl::parse::Field dslObj, Elem* parent)
 {
     assert(dslObj.kind() == commsdsl::parse::Field::Kind::Int);
@@ -123,6 +128,11 @@ FieldPtr Generator::createVariantField(commsdsl::parse::Field dslObj, Elem* pare
 NamespacePtr Generator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
 {
     return std::make_unique<Namespace>(*this, dslObj, parent);
+}
+
+InterfacePtr Generator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
+{
+    return std::make_unique<Interface>(*this, dslObj, parent);
 }
 
 FieldPtr Generator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)

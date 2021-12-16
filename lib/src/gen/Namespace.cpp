@@ -15,8 +15,10 @@
 // limitations under the License.
 
 #include "commsdsl/gen/Namespace.h"
+
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/Interface.h"
 
 #include <cassert>
 #include <algorithm>
@@ -27,22 +29,43 @@ namespace commsdsl
 namespace gen
 {
 
+namespace 
+{
+
+template <typename TList>
+bool writeElements(TList& list)
+{
+    return std::all_of(
+        list.begin(), list.end(),
+        [](auto& elem)
+        {
+            return elem->write();
+        });    
+}
+
+} // namespace 
+    
+
 class NamespaceImpl
 {
 public:
     using NamespacesList = Namespace::NamespacesList;
-    using FieldsList = Field::FieldsList;
+    using FieldsList = Namespace::FieldsList;
+    using InterfacesList = Namespace::InterfacesList;
 
     NamespaceImpl(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
         m_generator(generator),
         m_dslObj(dslObj),
         m_parent(parent)
     {
-        static_cast<void>(m_parent);
     }
 
     bool prepare()
     {
+        if (!m_dslObj.valid()) {
+            return true;
+        }
+
         return
             prepareNamespaces() &&
             prepareFields() &&
@@ -61,13 +84,24 @@ public:
             writeFrames();
     }
 
+    const NamespacesList& namespaces() const
+    {
+        return m_namespaces;
+    }
+
+    const FieldsList& fields() const
+    {
+        return m_fields;
+    }
+
+    const InterfacesList& interfaces() const
+    {
+        return m_interfaces;
+    }
+
 private:
     bool prepareNamespaces()
     {
-        if (!m_dslObj.valid()) {
-            return true;
-        }
-
         auto namespaces = m_dslObj.namespaces();
         m_namespaces.reserve(namespaces.size());
         for (auto& n : namespaces) {
@@ -106,7 +140,18 @@ private:
 
     bool prepareInterfaces()
     {
-        // TODO:
+        auto interfaces = m_dslObj.interfaces();
+        m_interfaces.reserve(interfaces.size());
+        for (auto& i : interfaces) {
+            auto ptr = m_generator.createInterface(i, m_parent);
+            assert(ptr);
+            if (!ptr->prepare()) {
+                return false;
+            }
+
+            m_interfaces.push_back(std::move(ptr));
+        }
+
         return true;
     }
 
@@ -124,29 +169,17 @@ private:
 
     bool writeNamespaces()
     {
-        if (m_namespaces.empty()) {
-            return true;
-        }
-
-        return std::all_of(
-            m_namespaces.begin(), m_namespaces.end(),
-            [](auto& ns)
-            {
-                return ns->write();
-            }
-        );
+        return writeElements(m_namespaces);
     }
 
     bool writeFields()
     {
-        // TODO:
-        return true;
+         return writeElements(m_fields);
     }
 
     bool writeInterfaces()
     {
-        // TODO:
-        return true;
+         return writeElements(m_interfaces);
     }
 
     bool writeMessages()
@@ -167,6 +200,7 @@ private:
     Elem* m_parent = nullptr;
     NamespacesList m_namespaces;
     FieldsList m_fields;
+    InterfacesList m_interfaces;
 }; 
 
 Namespace::Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
@@ -184,12 +218,28 @@ bool Namespace::prepare()
 
 bool Namespace::write()
 {
-    if (m_impl->write()) {
+    if (!m_impl->write()) {
         return false;
     }
 
     return writeImpl();
 }
+
+const Namespace::NamespacesList& Namespace::namespaces() const
+{
+    return m_impl->namespaces();
+}
+
+const Namespace::FieldsList& Namespace::fields() const
+{
+    return m_impl->fields();
+}
+
+const Namespace::InterfacesList& Namespace::interfaces() const
+{
+    return m_impl->interfaces();
+}
+
 
 Elem::Type Namespace::elemTypeImpl() const
 {

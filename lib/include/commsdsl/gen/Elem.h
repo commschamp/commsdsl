@@ -32,6 +32,7 @@ public:
         Type_Namespace,
         Type_Message,
         Type_Field,
+        Type_Interface,
         Type_NumOfValues
     };
     virtual ~Elem();

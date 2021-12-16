@@ -158,6 +158,7 @@ set (
     gen/FloatField.cpp
     gen/Generator.cpp
     gen/IntField.cpp
+    gen/Interface.cpp
     gen/ListField.cpp
     gen/Namespace.cpp
     gen/OptionalField.cpp

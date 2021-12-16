@@ -15,13 +15,11 @@
 
 #pragma once
 
-#include <map>
-#include <string>
-#include <memory>
-
 #include "commsdsl/parse/Interface.h"
 
 #include "Field.h"
+
+#include <memory>
 
 namespace commsdsl2comms
 {
@@ -31,7 +29,6 @@ class Interface
 {
 public:
 
-    //using FieldsMap = std::map<std::string, FieldPtr>;
     explicit Interface(Generator& gen, const commsdsl::parse::Interface& msg)
       : m_generator(gen),
         m_dslObj(msg)
