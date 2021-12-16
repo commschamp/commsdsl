@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "commsdsl/gen/Field.h"
+#include "commsdsl/gen/Layer.h"
 #include "commsdsl/gen/Generator.h"
 
 #include <cassert>
@@ -26,35 +26,30 @@ namespace commsdsl
 namespace gen
 {
 
-Field::Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent) :
+Layer::Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent) :
     Base(parent),
     m_generator(generator),
     m_dslObj(dslObj)
 {
 }
 
-Field::~Field() = default;
+Layer::~Layer() = default;
 
-Field::Ptr Field::create(Generator& generator, commsdsl::parse::Field dslobj, Elem* parent)
+Layer::Ptr Layer::create(Generator& generator, commsdsl::parse::Layer dslobj, Elem* parent)
 {
-    using CreateFunc = FieldPtr (Generator::*)(commsdsl::parse::Field dslobj, Elem* parent);
+    using CreateFunc = LayerPtr (Generator::*)(commsdsl::parse::Layer dslobj, Elem* parent);
     static const CreateFunc Map[] = {
-        /* Int */ &Generator::createIntField,
-        /* Enum */ &Generator::createEnumField,
-        /* Set */ &Generator::createSetField,
-        /* Float */ &Generator::createFloatField,
-        /* Bitfield */ &Generator::createBitfieldField,
-        /* Bundle */ &Generator::createBundleField,
-        /* String */ &Generator::createStringField,
-        /* Data */ &Generator::createDataField,
-        /* List */ &Generator::createListField,
-        /* Ref */ &Generator::createRefField,
-        /* Optional */ &Generator::createOptionalField,
-        /* Variant */ &Generator::createVariantField,
+        /* Custom */ nullptr,
+        /* Sync */ nullptr,
+        /* Size */ nullptr,
+        /* Id */ nullptr,
+        /* Value */ nullptr,
+        /* Payload */ nullptr,
+        /* Checksum */ nullptr,
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::Field::Kind::NumOfValues), "Invalid map");
+    static_assert(MapSize == static_cast<unsigned>(commsdsl::parse::Layer::Kind::NumOfValues), "Invalid map");
 
     auto idx = static_cast<std::size_t>(dslobj.kind());
     if (MapSize <= idx) {
@@ -69,42 +64,32 @@ Field::Ptr Field::create(Generator& generator, commsdsl::parse::Field dslobj, El
     return (generator.*func)(dslobj, parent);
 }
 
-bool Field::prepare()
+bool Layer::prepare()
 {
     return prepareImpl();
 }
 
-std::string Field::genCode()
-{
-    return genCodeImpl();
-}
-
-bool Field::write()
+bool Layer::write()
 {
     return writeImpl();
 }
 
-Elem::Type Field::elemTypeImpl() const
+Elem::Type Layer::elemTypeImpl() const
 {
-    return Type_Field;
+    return Type_Layer;
 }
 
-std::string genCodeImpl()
-{
-    return std::string();
-}
-
-bool Field::writeImpl()
+bool Layer::writeImpl()
 {
     return true;
 }
 
-Generator& Field::generator()
+Generator& Layer::generator()
 {
     return m_generator;
 }
 
-const commsdsl::parse::Field& Field::dslObj() const
+const commsdsl::parse::Layer& Layer::dslObj() const
 {
     return m_dslObj;
 }

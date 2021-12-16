@@ -17,15 +17,10 @@
 #pragma once
 
 #include "commsdsl/CommsdslApi.h"
-#include "commsdsl/parse/Namespace.h"
+#include "commsdsl/parse/Layer.h"
 #include "commsdsl/gen/Elem.h"
-#include "commsdsl/gen/Field.h"
-#include "commsdsl/gen/Frame.h"
-#include "commsdsl/gen/Interface.h"
-#include "commsdsl/gen/Message.h"
 
 #include <memory>
-#include <vector>
 
 namespace commsdsl
 {
@@ -33,39 +28,35 @@ namespace commsdsl
 namespace gen
 {
 
-class NamespaceImpl;
-class COMMSDSL_API Namespace : public Elem
+class COMMSDSL_API Layer : public Elem
 {
     using Base = Elem;
 public:
-    using Ptr = std::unique_ptr<Namespace>;
-    using NamespacesList = std::vector<Ptr>;
-    using FieldsList = Field::FieldsList;
-    using InterfacesList = std::vector<InterfacePtr>;
-    using MessagesList = std::vector<MessagePtr>;
-    using FramesList = std::vector<FramePtr>;
+    using Ptr = std::unique_ptr<Layer>;
 
-    explicit Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
-    virtual ~Namespace();
+    virtual ~Layer();
+
+    static Ptr create(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);    
 
     bool prepare();
     bool write();
 
-    const NamespacesList& namespaces() const;
-    const FieldsList& fields() const;
-    const InterfacesList& interfaces() const;
-    const MessagesList& messages() const;
-    const FramesList& frames() const;
-
 protected:    
+    Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent = nullptr);
+
     virtual Type elemTypeImpl() const override final;
+    virtual bool prepareImpl();
     virtual bool writeImpl();
 
+    Generator& generator();
+    const commsdsl::parse::Layer& dslObj() const;
+
 private:
-    std::unique_ptr<NamespaceImpl> m_impl;
+    Generator& m_generator;
+    commsdsl::parse::Layer m_dslObj;
 };
 
-using NamespacePtr = Namespace::Ptr;
+using LayerPtr = Layer::Ptr;
 
 } // namespace gen
 

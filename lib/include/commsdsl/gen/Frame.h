@@ -16,43 +16,45 @@
 
 #pragma once
 
+#include "commsdsl/CommsdslApi.h"
+#include "commsdsl/parse/Frame.h"
+#include "commsdsl/gen/Elem.h"
+#include "commsdsl/gen/Layer.h"
+
+#include <memory>
+#include <vector>
+
 namespace commsdsl
 {
 
 namespace gen
 {
 
-class Generator;
-class Elem
+class FrameImpl;
+class COMMSDSL_API Frame : public Elem
 {
+    using Base = Elem;
 public:
-    enum Type
-    {
-        Type_Invalid,
-        Type_Namespace,
-        Type_Message,
-        Type_Field,
-        Type_Interface,
-        Type_Frame,
-        Type_Layer,
-        Type_NumOfValues
-    };
-    virtual ~Elem();
+    using Ptr = std::unique_ptr<Frame>;
+    using LayersList = std::vector<LayerPtr>;
 
-    void setParent(Elem* parent);
-    Elem* getParent();
-    const Elem* getParent() const;
+    explicit Frame(Generator& generator, commsdsl::parse::Frame dslObj, Elem* parent = nullptr);
+    virtual ~Frame();
 
-    Type elemType() const;
+    bool prepare();
+    bool write();
 
-protected:
-    explicit Elem(Elem* parent = nullptr);
+    const LayersList& layers() const;
 
-    virtual Type elemTypeImpl() const = 0;
+protected:    
+    virtual Type elemTypeImpl() const override final;
+    virtual bool writeImpl();
 
 private:
-    Elem* m_parent = nullptr;
+    std::unique_ptr<FrameImpl> m_impl;
 };
+
+using FramePtr = Frame::Ptr;
 
 } // namespace gen
 

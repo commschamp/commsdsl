@@ -58,6 +58,11 @@ MessagePtr Generator::createMessage(commsdsl::parse::Message dslObj, Elem* paren
     return createMessageImpl(dslObj, parent);
 }
 
+FramePtr Generator::createFrame(commsdsl::parse::Frame dslObj, Elem* parent)
+{
+    return createFrameImpl(dslObj, parent);
+}
+
 FieldPtr Generator::createIntField(commsdsl::parse::Field dslObj, Elem* parent)
 {
     assert(dslObj.kind() == commsdsl::parse::Field::Kind::Int);
@@ -143,6 +148,11 @@ InterfacePtr Generator::createInterfaceImpl(commsdsl::parse::Interface dslObj, E
 MessagePtr Generator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
 {
     return std::make_unique<Message>(*this, dslObj, parent);
+}
+
+FramePtr Generator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+{
+    return std::make_unique<Frame>(*this, dslObj, parent);
 }
 
 FieldPtr Generator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)

@@ -156,9 +156,11 @@ set (
     gen/EnumField.cpp
     gen/Field.cpp
     gen/FloatField.cpp
+    gen/Frame.cpp
     gen/Generator.cpp
     gen/IntField.cpp
     gen/Interface.cpp
+    gen/Layer.cpp
     gen/ListField.cpp
     gen/Message.cpp
     gen/Namespace.cpp

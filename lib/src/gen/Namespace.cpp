@@ -53,6 +53,7 @@ public:
     using FieldsList = Namespace::FieldsList;
     using InterfacesList = Namespace::InterfacesList;
     using MessagesList = Namespace::MessagesList;
+    using FramesList = Namespace::FramesList;
 
     NamespaceImpl(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
         m_generator(generator),
@@ -78,11 +79,11 @@ public:
     bool write()
     {
         return
-            writeNamespaces() &&
-            writeFields() &&
-            writeInterfaces() &&
-            writeMessages() &&
-            writeFrames();
+            writeElements(m_namespaces) &&
+            writeElements(m_fields) &&
+            writeElements(m_interfaces) &&
+            writeElements(m_messages) &&
+            writeElements(m_frames);
     }
 
     const NamespacesList& namespaces() const
@@ -180,36 +181,20 @@ private:
 
     bool prepareFrames()
     {
-        // TODO
+        auto frames = m_dslObj.frames();
+        m_frames.reserve(frames.size());
+        for (auto& f : frames) {
+            auto ptr = m_generator.createFrame(f, m_parent);
+            assert(ptr);
+            if (!ptr->prepare()) {
+                return false;
+            }
+
+            m_frames.push_back(std::move(ptr));
+        }
+
         return true;
     }
-
-    bool writeNamespaces()
-    {
-        return writeElements(m_namespaces);
-    }
-
-    bool writeFields()
-    {
-         return writeElements(m_fields);
-    }
-
-    bool writeInterfaces()
-    {
-         return writeElements(m_interfaces);
-    }
-
-    bool writeMessages()
-    {
-        return writeElements(m_messages);
-    }
-
-    bool writeFrames()
-    {
-        // TODO
-        return true;
-    }
-
 
     Generator& m_generator;
     commsdsl::parse::Namespace m_dslObj;
@@ -218,6 +203,7 @@ private:
     FieldsList m_fields;
     InterfacesList m_interfaces;
     MessagesList m_messages;
+    FramesList m_frames;
 }; 
 
 Namespace::Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
