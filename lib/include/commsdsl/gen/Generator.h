@@ -21,6 +21,7 @@
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/Layer.h"
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
 
@@ -38,22 +39,30 @@ public:
     virtual ~Generator();
 
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
-    InterfacePtr createInterface(commsdsl::parse::Interface dslObj, Elem* parent = nullptr);
-    MessagePtr createMessage(commsdsl::parse::Message dslObj, Elem* parent = nullptr);
-    FramePtr createFrame(commsdsl::parse::Frame dslObj, Elem* parent = nullptr);
+    InterfacePtr createInterface(commsdsl::parse::Interface dslObj, Elem* parent);
+    MessagePtr createMessage(commsdsl::parse::Message dslObj, Elem* parent);
+    FramePtr createFrame(commsdsl::parse::Frame dslObj, Elem* parent);
 
-    FieldPtr createIntField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createEnumField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createSetField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createFloatField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createBitfieldField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createBundleField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createStringField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createDataField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createListField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createRefField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createOptionalField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
-    FieldPtr createVariantField(commsdsl::parse::Field dslObj, Elem* parent = nullptr);
+    FieldPtr createIntField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createEnumField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createSetField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createFloatField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createBitfieldField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createBundleField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createStringField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createDataField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createListField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createRefField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createOptionalField(commsdsl::parse::Field dslObj, Elem* parent);
+    FieldPtr createVariantField(commsdsl::parse::Field dslObj, Elem* parent);
+
+    LayerPtr createCustomLayer(commsdsl::parse::Layer dslObj, Elem* parent);
+    LayerPtr createSyncLayer(commsdsl::parse::Layer dslObj, Elem* parent);
+    LayerPtr createSizeLayer(commsdsl::parse::Layer dslObj, Elem* parent);
+    LayerPtr createIdLayer(commsdsl::parse::Layer dslObj, Elem* parent);
+    LayerPtr createValueLayer(commsdsl::parse::Layer dslObj, Elem* parent);
+    LayerPtr createPayloadLayer(commsdsl::parse::Layer dslObj, Elem* parent);
+    LayerPtr createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* parent);
 
 protected:
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
@@ -73,8 +82,14 @@ protected:
     virtual FieldPtr createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
     virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
     virtual FieldPtr createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
-private:
-    
+
+    virtual LayerPtr createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
+    virtual LayerPtr createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
+    virtual LayerPtr createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
+    virtual LayerPtr createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
+    virtual LayerPtr createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
+    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
+    virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
 };
 
 } // namespace gen

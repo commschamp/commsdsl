@@ -18,15 +18,22 @@
 
 #include "commsdsl/gen/BitfieldField.h"
 #include "commsdsl/gen/BundleField.h"
+#include "commsdsl/gen/ChecksumLayer.h"
+#include "commsdsl/gen/CustomLayer.h"
 #include "commsdsl/gen/DataField.h"
 #include "commsdsl/gen/EnumField.h"
 #include "commsdsl/gen/FloatField.h"
+#include "commsdsl/gen/IdLayer.h"
 #include "commsdsl/gen/IntField.h"
 #include "commsdsl/gen/ListField.h"
 #include "commsdsl/gen/OptionalField.h"
+#include "commsdsl/gen/PayloadLayer.h"
 #include "commsdsl/gen/RefField.h"
 #include "commsdsl/gen/SetField.h"
+#include "commsdsl/gen/SizeLayer.h"
 #include "commsdsl/gen/StringField.h"
+#include "commsdsl/gen/SyncLayer.h"
+#include "commsdsl/gen/ValueLayer.h"
 #include "commsdsl/gen/VariantField.h"
 
 #include <cassert>
@@ -135,6 +142,48 @@ FieldPtr Generator::createVariantField(commsdsl::parse::Field dslObj, Elem* pare
     return createVariantFieldImpl(dslObj, parent);
 }
 
+LayerPtr Generator::createCustomLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Custom);
+    return createCustomLayerImpl(dslObj, parent);
+}
+
+LayerPtr Generator::createSyncLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Sync);
+    return createSyncLayerImpl(dslObj, parent);
+}
+
+LayerPtr Generator::createSizeLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Size);
+    return createSizeLayerImpl(dslObj, parent);
+}
+
+LayerPtr Generator::createIdLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Id);
+    return createIdLayerImpl(dslObj, parent);
+}
+
+LayerPtr Generator::createValueLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Value);
+    return createValueLayerImpl(dslObj, parent);
+}
+
+LayerPtr Generator::createPayloadLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Payload);
+    return createPayloadLayerImpl(dslObj, parent);
+}
+
+LayerPtr Generator::createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Checksum);
+    return createChecksumLayerImpl(dslObj, parent);
+}
+
 NamespacePtr Generator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
 {
     return std::make_unique<Namespace>(*this, dslObj, parent);
@@ -213,6 +262,41 @@ FieldPtr Generator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem*
 FieldPtr Generator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<VariantField>(*this, dslObj, parent);
+}
+
+LayerPtr Generator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<CustomLayer>(*this, dslObj, parent);
+}
+
+LayerPtr Generator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SyncLayer>(*this, dslObj, parent);
+}
+
+LayerPtr Generator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SizeLayer>(*this, dslObj, parent);
+}
+
+LayerPtr Generator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<IdLayer>(*this, dslObj, parent);
+}
+
+LayerPtr Generator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<ValueLayer>(*this, dslObj, parent);
+}
+
+LayerPtr Generator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<PayloadLayer>(*this, dslObj, parent);
+}
+
+LayerPtr Generator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<ChecksumLayer>(*this, dslObj, parent);
 }
 
 } // namespace gen

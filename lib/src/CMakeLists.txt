@@ -151,6 +151,8 @@ set (
     gen_src
     gen/BitfieldField.cpp
     gen/BundleField.cpp
+    gen/ChecksumLayer.cpp
+    gen/CustomLayer.cpp
     gen/DataField.cpp
     gen/Elem.cpp
     gen/EnumField.cpp
@@ -158,6 +160,7 @@ set (
     gen/FloatField.cpp
     gen/Frame.cpp
     gen/Generator.cpp
+    gen/IdLayer.cpp
     gen/IntField.cpp
     gen/Interface.cpp
     gen/Layer.cpp
@@ -165,9 +168,13 @@ set (
     gen/Message.cpp
     gen/Namespace.cpp
     gen/OptionalField.cpp
+    gen/PayloadLayer.cpp
     gen/RefField.cpp
     gen/SetField.cpp
+    gen/SizeLayer.cpp
     gen/StringField.cpp
+    gen/SyncLayer.cpp
+    gen/ValueLayer.cpp
     gen/VariantField.cpp
 )
 

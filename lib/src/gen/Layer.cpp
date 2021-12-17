@@ -39,13 +39,13 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::parse::Layer dslobj, El
 {
     using CreateFunc = LayerPtr (Generator::*)(commsdsl::parse::Layer dslobj, Elem* parent);
     static const CreateFunc Map[] = {
-        /* Custom */ nullptr,
-        /* Sync */ nullptr,
-        /* Size */ nullptr,
-        /* Id */ nullptr,
-        /* Value */ nullptr,
-        /* Payload */ nullptr,
-        /* Checksum */ nullptr,
+        /* Custom */ &Generator::createCustomLayer,
+        /* Sync */ &Generator::createSyncLayer,
+        /* Size */ &Generator::createSizeLayer,
+        /* Id */ &Generator::createIdLayer,
+        /* Value */ &Generator::createValueLayer,
+        /* Payload */ &Generator::createPayloadLayer,
+        /* Checksum */ &Generator::createChecksumLayer,
     };
 
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
