@@ -16,14 +16,15 @@
 
 #pragma once
 
-#include <functional>
-
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/Layer.h"
+#include "commsdsl/gen/Logger.h"
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
+
+#include <memory>
 
 namespace commsdsl
 {
@@ -31,12 +32,30 @@ namespace commsdsl
 namespace gen
 {
 
+class GeneratorImpl;
 class Generator
 {
 public:
+    using FilesList = std::vector<std::string>;
+    using LoggerPtr = std::unique_ptr<Logger>;
+    using NamespacesList = Namespace::NamespacesList;
 
     Generator();
     virtual ~Generator();
+
+    void forceSchemaVersion(unsigned value);
+    void setMinRemoteVersion(unsigned value);
+    unsigned getMinRemoteVersion() const;
+
+    unsigned parsedSchemaVersion() const;
+    unsigned schemaVersion() const;
+
+    bool prepare(const FilesList& files);
+    bool write();
+
+    Logger& logger();
+
+    NamespacesList& namespaces();
 
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
     InterfacePtr createInterface(commsdsl::parse::Interface dslObj, Elem* parent);
@@ -90,6 +109,12 @@ protected:
     virtual LayerPtr createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
     virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
     virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
+
+    virtual bool writeImpl();
+    virtual LoggerPtr createLoggerImpl();
+
+private:
+    std::unique_ptr<GeneratorImpl> m_impl;    
 };
 
 } // namespace gen

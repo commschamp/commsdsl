@@ -165,6 +165,7 @@ set (
     gen/Interface.cpp
     gen/Layer.cpp
     gen/ListField.cpp
+    gen/Logger.cpp
     gen/Message.cpp
     gen/Namespace.cpp
     gen/OptionalField.cpp
@@ -176,9 +177,12 @@ set (
     gen/SyncLayer.cpp
     gen/ValueLayer.cpp
     gen/VariantField.cpp
+    gen/util.cpp
 )
 
 add_library(${PROJECT_NAME} STATIC ${parse_src} ${gen_src})
+add_library(cc::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 add_dependencies(${PROJECT_NAME} LibXml2::LibXml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 

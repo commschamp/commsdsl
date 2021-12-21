@@ -3,3 +3,4 @@ if (NOT COMMSDSL_BUILD_APPS)
 endif ()
 
 add_subdirectory (commsdsl2comms)
+add_subdirectory (commsdsl2test)
