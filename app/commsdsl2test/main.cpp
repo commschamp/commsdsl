@@ -14,95 +14,98 @@
 // limitations under the License.
 
 #include "commsdsl/version.h"
+#include "commsdsl/gen/util.h"
+
+#include "ProgramOptions.h"
+#include "Generator.h"
 
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
+#include <fstream>
 
-// #include "ProgramOptions.h"
-// #include "Logger.h"
-#include "Generator.h"
-
-namespace commsdsl2comms
+namespace commsdsl2test
 {
 
-// std::vector<std::string> getFilesList(
-//     const std::string& fileName,
-//     const std::string& prefix)
-// {
-//     std::vector<std::string> result;
-//     do {
-//         if (fileName.empty()) {
-//             break;
-//         }
+std::vector<std::string> getFilesList(
+    const std::string& fileName,
+    const std::string& prefix)
+{
+    std::vector<std::string> result;
+    do {
+        if (fileName.empty()) {
+            break;
+        }
         
-//         std::ifstream stream(fileName);
-//         if (!stream) {
-//             break;
-//         }
+        std::ifstream stream(fileName);
+        if (!stream) {
+            break;
+        }
         
-//         std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
+        std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
 
-//         ba::split(result, contents, ba::is_any_of("\r\n"), ba::token_compress_on);
-//         if (prefix.empty()) {
-//             break;
-//         }
+        result = commsdsl::gen::util::strSplitByAnyCharCompressed(contents, "\r\n");
+        if (prefix.empty()) {
+            break;
+        }
 
-//         bf::path prefixPath(prefix);
-//         for (auto& f : result) {
-//             f = (prefixPath / f).string();
-//         }
-//     } while (false);
-//     return result;
-// }
+        for (auto& f : result) {
+            f = commsdsl::gen::util::pathAddElem(prefix, f);
+        }
+    } while (false);
+    return result;
+}
 
-} // namespace commsdsl2comms
+} // namespace commsdsl2test
 int main(int argc, const char* argv[])
 {
     static_cast<void>(argc);
     static_cast<void>(argv);
     try {
-        // commsdsl2comms::ProgramOptions options;
-        // commsdsl2comms::Logger logger;
+        commsdsl2test::ProgramOptions options;
+        options.parse(argc, argv);
+        if (options.helpRequested()) {
+            std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n";
+            options.printHelp(std::cout);
+            return 0;
+        }
 
-        // options.parse(argc, argv);
-        // if (options.helpRequested()) {
-        //     std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n";
-        //     options.printHelp(std::cout);
-        //     return 0;
-        // }
+        if (options.versionRequested()) {
+            std::cout << 
+                commsdsl::parse::versionMajor() << '.' << 
+                commsdsl::parse::versionMinor() << '.' <<
+                commsdsl::parse::versionPatch() << std::endl;
+            return 0;
+        }        
 
-        // if (options.versionRequested()) {
-        //     std::cout << 
-        //         commsdsl::parse::versionMajor() << '.' << 
-        //         commsdsl::parse::versionMinor() << '.' <<
-        //         commsdsl::parse::versionPatch() << std::endl;
-        //     return 0;
-        // }        
+        commsdsl2test::Generator generator;
+        auto& logger = generator.logger();
 
-        // if (options.quietRequested()) {
-        //     logger.setMinLevel(commsdsl::parse::ErrorLevel_Warning);
-        // }
+        if (options.quietRequested()) {
+            logger.setMinLevel(commsdsl::parse::ErrorLevel_Warning);
+        }
 
-        // if (options.warnAsErrRequested()) {
-        //     logger.setWarnAsError();
-        // }
+        if (options.warnAsErrRequested()) {
+            logger.setWarnAsError();
+        }
 
-        // auto files = commsdsl2comms::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
-        // auto otherFiles = options.getFiles();
-        // files.insert(files.end(), otherFiles.begin(), otherFiles.end());
+        auto files = commsdsl2test::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
+        auto otherFiles = options.getFiles();
+        files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
-        // if (files.empty()) {
-        //     logger.log(commsdsl::parse::ErrorLevel_Error, "No intput files are provided");
-        //     return -1;
-        // }
+        if (files.empty()) {
+            logger.error("No intput files are provided");
+            return -1;
+        }
 
-        // commsdsl2comms::Generator generator(options, logger);
-        // if (!generator.generate(files)) {
-        //     return -1;
-        // }
+        if (!generator.prepare(files)) {
+            return -1;
+        }
 
-        std::cout << "HELLO!" << std::endl;
+        if (!generator.write()) {
+            return -1;
+        }
+        
         return 0;
     }
     catch (const std::exception& e) {

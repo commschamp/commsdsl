@@ -38,6 +38,31 @@ std::string strToName(const std::string& value)
     return result;
 }
 
+std::vector<std::string> strSplitByAnyCharCompressed(
+    const std::string& str, 
+    const std::string& splitChars)
+{
+    std::vector<std::string> result;
+    std::size_t pos = 0U;
+    while (pos < str.size()) {
+        auto nextPos = str.find_first_of(splitChars, pos);
+
+        if (nextPos == pos) {
+            ++pos;
+            continue;
+        }
+
+        if (str.size() <= nextPos) {
+            nextPos = str.size();
+        }
+
+        auto count = nextPos - pos;
+        result.push_back(std::string(str, pos, count));
+        pos = nextPos + 1;
+    }
+    return result;
+}
+
 std::string numToString(std::uintmax_t value, unsigned hexWidth)
 {
     if (hexWidth == 0U) {
@@ -91,6 +116,23 @@ std::string numToString(std::intmax_t value)
 std::string numToString(unsigned value, unsigned hexWidth)
 {
     return numToString(static_cast<std::uintmax_t>(value), hexWidth);
+}
+
+std::string pathAddElem(const std::string& path, const std::string& elem)
+{
+#ifdef WIN32
+    static const char Sep = '\\';
+#else
+    static const char Sep = '/';
+#endif         
+
+    std::string result = path;
+    if (result.back() != Sep) {
+        result.push_back(Sep);
+    }
+
+    result.append(elem);
+    return result;
 }
 
 } // namespace util

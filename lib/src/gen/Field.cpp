@@ -89,7 +89,12 @@ Elem::Type Field::elemTypeImpl() const
     return Type_Field;
 }
 
-std::string genCodeImpl()
+bool Field::prepareImpl()
+{
+    return true;
+}
+
+std::string Field::genCodeImpl()
 {
     return std::string();
 }

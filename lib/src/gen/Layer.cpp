@@ -79,6 +79,11 @@ Elem::Type Layer::elemTypeImpl() const
     return Type_Layer;
 }
 
+bool Layer::prepareImpl()
+{
+    return true;
+}
+
 bool Layer::writeImpl()
 {
     return true;
