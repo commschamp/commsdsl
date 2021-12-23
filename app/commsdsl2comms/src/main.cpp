@@ -81,9 +81,9 @@ int main(int argc, const char* argv[])
 
         if (options.versionRequested()) {
             std::cout << 
-                commsdsl::parse::versionMajor() << '.' << 
-                commsdsl::parse::versionMinor() << '.' <<
-                commsdsl::parse::versionPatch() << std::endl;
+                commsdsl::versionMajor() << '.' << 
+                commsdsl::versionMinor() << '.' <<
+                commsdsl::versionPatch() << std::endl;
             return 0;
         }        
 

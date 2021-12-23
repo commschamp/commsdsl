@@ -18,6 +18,7 @@
 #include "commsdsl/gen/Generator.h"
 
 #include <cassert>
+#include <algorithm>
 
 namespace commsdsl
 {
@@ -32,6 +33,25 @@ IntField::IntField(Generator& generator, commsdsl::parse::Field dslObj, Elem* pa
 }
 
 IntField::~IntField() = default;
+
+bool IntField::isUnsignedType(commsdsl::parse::IntField::Type value)
+{
+    static const commsdsl::parse::IntField::Type Map[] = {
+        commsdsl::parse::IntField::Type::Uint8,
+        commsdsl::parse::IntField::Type::Uint16,
+        commsdsl::parse::IntField::Type::Uint32,
+        commsdsl::parse::IntField::Type::Uint64,
+        commsdsl::parse::IntField::Type::Uintvar,
+    };
+
+    auto iter = std::find(std::begin(Map), std::end(Map), value);
+    return iter != std::end(Map);
+}
+
+bool IntField::isUnsignedType() const
+{
+    return isUnsignedType(intDslObj().type());
+}
 
 commsdsl::parse::IntField IntField::intDslObj() const
 {

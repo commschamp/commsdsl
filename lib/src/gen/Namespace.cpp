@@ -243,6 +243,33 @@ const Namespace::InterfacesList& Namespace::interfaces() const
     return m_impl->interfaces();
 }
 
+const Field* Namespace::findMessageIdField() const
+{
+    for (auto& f : fields()) {
+        if (f->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::MessageId) {
+            continue;
+        }
+
+        if ((f->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) ||
+            (f->dslObj().kind() != commsdsl::parse::Field::Kind::Int)) {
+            static constexpr bool Unexpected_kind = false;
+            static_cast<void>(Unexpected_kind);
+            assert(Unexpected_kind);  
+            return nullptr;
+        }
+
+        return f.get();
+    }
+
+    for (auto& n : namespaces()) {
+        auto ptr = n->findMessageIdField();
+        if (ptr != nullptr) {
+            return ptr;
+        }
+    }
+
+    return nullptr;
+}
 
 Elem::Type Namespace::elemTypeImpl() const
 {

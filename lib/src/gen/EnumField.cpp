@@ -15,7 +15,9 @@
 // limitations under the License.
 
 #include "commsdsl/gen/EnumField.h"
+
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/IntField.h"
 
 #include <cassert>
 
@@ -32,6 +34,22 @@ EnumField::EnumField(Generator& generator, commsdsl::parse::Field dslObj, Elem* 
 }
 
 EnumField::~EnumField() = default;
+
+bool EnumField::isUnsignedUnderlyingType() const
+{
+    return IntField::isUnsignedType(enumDslObj().type());
+}
+
+unsigned EnumField::hexWidth() const
+{
+    auto obj = enumDslObj();
+
+    std::uintmax_t hexWidth = 0U;
+    if (obj.hexAssign()) {
+        hexWidth = obj.maxLength() * 2U;
+    }
+    return static_cast<unsigned>(hexWidth);
+}
 
 commsdsl::parse::EnumField EnumField::enumDslObj() const
 {

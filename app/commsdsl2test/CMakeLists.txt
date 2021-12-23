@@ -7,6 +7,7 @@ set (
     src
     Generator.cpp
     ProgramOptions.cpp
+    Test.cpp
     main.cpp
 )
 

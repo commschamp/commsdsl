@@ -46,9 +46,16 @@ public:
     void forceSchemaVersion(unsigned value);
     void setMinRemoteVersion(unsigned value);
     unsigned getMinRemoteVersion() const;
+    void setMainNamespaceOverride(const std::string& value);    
+
+    void setOutputDir(const std::string& outDir);
+    const std::string& getOutputDir() const;
 
     unsigned parsedSchemaVersion() const;
     unsigned schemaVersion() const;
+    const std::string& mainNamespace() const;
+
+    const Field* getMessageIdField() const;
 
     bool prepare(const FilesList& files);
     bool write();

@@ -93,6 +93,21 @@ public:
         return m_minRemoteVersion;
     }
 
+    void setMainNamespaceOverride(const std::string& value)
+    {
+        m_mainNamespace = value;
+    }
+
+    void setOutputDir(const std::string& outDir)
+    {
+        m_outputDir = outDir;
+    }
+
+    const std::string& getOutputDir() const
+    {
+        return m_outputDir;
+    }
+
     unsigned parsedSchemaVersion() const
     {
         return m_parsedSchemaVersion;
@@ -105,6 +120,16 @@ public:
         }
 
         return parsedSchemaVersion();
+    }
+
+    const std::string& mainNamespace() const
+    {
+        return m_mainNamespace;
+    }
+
+    const Field* getMessageIdField() const
+    {
+        return m_messageIdField;
     }
 
     bool prepare(const FilesList& files)
@@ -161,6 +186,7 @@ public:
             return false;
         }
 
+        m_messageIdField = findMessageIdField();
         return true;
     }
 
@@ -176,6 +202,17 @@ public:
     }
 
 private:
+    const Field* findMessageIdField() const
+    {
+        for (auto& n : m_namespaces) {
+            auto ptr = n->findMessageIdField();
+            if (ptr != nullptr) {
+                return ptr;
+            }
+        }
+        return nullptr;
+    }
+
     commsdsl::parse::Protocol m_protocol;
     LoggerPtr m_logger;
     NamespacesList m_namespaces;
@@ -185,6 +222,8 @@ private:
     unsigned m_parsedSchemaVersion = 0U;
     int m_forcedSchemaVersion = -1;
     unsigned m_minRemoteVersion = 0U;
+    std::string m_outputDir;
+    const Field* m_messageIdField = nullptr;
 }; 
 
 Generator::Generator() : 
@@ -209,6 +248,21 @@ unsigned Generator::getMinRemoteVersion() const
     return m_impl->getMinRemoteVersion();
 }
 
+void Generator::setMainNamespaceOverride(const std::string& value)
+{
+    m_impl->setMainNamespaceOverride(value);
+}
+
+void Generator::setOutputDir(const std::string& outDir)
+{
+    m_impl->setOutputDir(outDir);
+}
+
+const std::string& Generator::getOutputDir() const
+{
+    return m_impl->getOutputDir();
+}
+
 unsigned Generator::parsedSchemaVersion() const
 {
     return m_impl->parsedSchemaVersion();
@@ -217,6 +271,16 @@ unsigned Generator::parsedSchemaVersion() const
 unsigned Generator::schemaVersion() const
 {
     return m_impl->schemaVersion();
+}
+
+const std::string& Generator::mainNamespace() const
+{
+    return m_impl->mainNamespace();
+}
+
+const Field* Generator::getMessageIdField() const
+{
+    return m_impl->getMessageIdField();
 }
 
 bool Generator::prepare(const FilesList& files)

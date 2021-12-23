@@ -84,6 +84,11 @@ bool Field::write()
     return writeImpl();
 }
 
+const commsdsl::parse::Field& Field::dslObj() const
+{
+    return m_dslObj;
+}
+
 Elem::Type Field::elemTypeImpl() const
 {
     return Type_Field;
@@ -108,12 +113,6 @@ Generator& Field::generator()
 {
     return m_generator;
 }
-
-const commsdsl::parse::Field& Field::dslObj() const
-{
-    return m_dslObj;
-}
-
 
 } // namespace gen
 

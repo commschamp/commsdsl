@@ -59,8 +59,6 @@ std::vector<std::string> getFilesList(
 } // namespace commsdsl2test
 int main(int argc, const char* argv[])
 {
-    static_cast<void>(argc);
-    static_cast<void>(argv);
     try {
         commsdsl2test::ProgramOptions options;
         options.parse(argc, argv);
@@ -72,9 +70,9 @@ int main(int argc, const char* argv[])
 
         if (options.versionRequested()) {
             std::cout << 
-                commsdsl::parse::versionMajor() << '.' << 
-                commsdsl::parse::versionMinor() << '.' <<
-                commsdsl::parse::versionPatch() << std::endl;
+                commsdsl::versionMajor() << '.' << 
+                commsdsl::versionMinor() << '.' <<
+                commsdsl::versionPatch() << std::endl;
             return 0;
         }        
 
@@ -88,6 +86,12 @@ int main(int argc, const char* argv[])
         if (options.warnAsErrRequested()) {
             logger.setWarnAsError();
         }
+
+        if (options.hasNamespaceOverride()) {
+            generator.setMainNamespaceOverride(options.getNamespace());
+        }
+
+        generator.setOutputDir(options.getOutputDirectory());
 
         auto files = commsdsl2test::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

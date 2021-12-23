@@ -44,6 +44,8 @@ public:
     std::string genCode();
     bool write();
 
+    const commsdsl::parse::Field& dslObj() const;    
+
 protected:    
     Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent = nullptr);
 
@@ -53,7 +55,6 @@ protected:
     virtual bool writeImpl();
 
     Generator& generator();
-    const commsdsl::parse::Field& dslObj() const;
 
 private:
     Generator& m_generator;

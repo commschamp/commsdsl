@@ -37,6 +37,9 @@ public:
     EnumField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~EnumField();
 
+    bool isUnsignedUnderlyingType() const;
+    unsigned hexWidth() const;
+
 protected:    
     commsdsl::parse::EnumField enumDslObj() const;
 

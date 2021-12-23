@@ -1,8 +1,11 @@
 #include "commsdsl/gen/util.h"
 
+#include "commsdsl/gen/strings.h"
+
 #include <limits>
 #include <sstream>
 #include <iomanip>
+#include <cassert>
 
 namespace commsdsl
 {
@@ -20,6 +23,7 @@ std::string strReplace(const std::string& str, const std::string& what, const st
     while (pos < str.size()) {
         auto nextPos = str.find(what, pos);
         if (str.size() <= nextPos) {
+            result.append(str, pos);
             break;
         }
 
@@ -127,11 +131,109 @@ std::string pathAddElem(const std::string& path, const std::string& elem)
 #endif         
 
     std::string result = path;
-    if (result.back() != Sep) {
+    if ((!result.empty()) && (result.back() != Sep)) {
         result.push_back(Sep);
     }
 
     result.append(elem);
+    return result;
+}
+
+std::string processTemplate(const std::string& templ, const ReplacementMap& repl)
+{
+    std::string result;
+    result.reserve(templ.size() * 2U);
+    std::size_t templPos = 0U;
+    while (templPos < templ.size()) {
+        static const std::string Prefix("#^#");
+        auto prefixPos = templ.find(Prefix, templPos);
+        if (prefixPos == std::string::npos) {
+            break;
+        }
+
+        static const std::string Suffix("#$#");
+        auto suffixPos = templ.find(Suffix, prefixPos + Prefix.size());
+        if (suffixPos == std::string::npos) {
+            static constexpr bool Incorrect_template = false;
+            static_cast<void>(Incorrect_template);
+            assert(Incorrect_template);            
+            templPos = templ.size();
+            break;
+        }
+        auto afterSuffixPos = suffixPos + Suffix.size();
+
+        std::string key(templ.begin() + prefixPos + Prefix.size(), templ.begin() + suffixPos);
+        const std::string* valuePtr = &commsdsl::gen::strings::emptyString();
+        auto iter = repl.find(key);
+        if (iter != repl.end()) {
+            valuePtr = &(iter->second);
+        }
+        auto& value = *valuePtr;
+
+        std::size_t lineStartPos = 0U;
+        std::size_t lastNewLinePos = templ.find_last_of('\n', prefixPos);
+        if (lastNewLinePos != std::string::npos) {
+            lineStartPos = lastNewLinePos + 1U;
+        }
+
+        assert(lineStartPos <= prefixPos);
+        auto indent = prefixPos - lineStartPos;
+
+        // Check empty row
+        std::size_t posToCopyUntil = prefixPos;
+        std::size_t nextTemplPos = afterSuffixPos;
+        do {
+            if (!value.empty()) {
+                break;
+            }
+
+            static const std::string WhiteSpaces(" \t\r");
+            std::string preStr(templ.begin() + lineStartPos, templ.begin() + prefixPos);
+            if ((!preStr.empty()) &&
+                (preStr.find_first_not_of(WhiteSpaces) != std::string::npos)) {
+                break;
+            }
+
+            auto nextNewLinePos = templ.find_first_of('\n', suffixPos + Suffix.size());
+            if (nextNewLinePos == std::string::npos) {
+                static constexpr bool Incorrect_template = false;
+                static_cast<void>(Incorrect_template);
+                assert(Incorrect_template);  
+                break;
+            }
+
+            std::string postStr(templ.begin() + afterSuffixPos, templ.begin() + nextNewLinePos);
+            if ((!postStr.empty()) &&
+                (postStr.find_first_not_of(WhiteSpaces) != std::string::npos)) {
+                break;
+            }
+
+            posToCopyUntil = lineStartPos;
+            nextTemplPos = nextNewLinePos + 1;
+        } while (false);
+
+        result.insert(result.end(), templ.begin() + templPos, templ.begin() + posToCopyUntil);
+        templPos = nextTemplPos;
+
+        if (value.empty()) {
+            continue;
+        }
+
+        if (indent == 0U) {
+            result += value;
+            continue;
+        }
+
+        std::string repSep("\n");
+        repSep.reserve(repSep.size() + indent);
+        std::fill_n(std::back_inserter(repSep), indent, ' ');
+        auto updatedValue = strReplace(value, "\n", repSep);
+        result += updatedValue;
+    }
+
+    if (templPos < templ.size()) {
+        result.insert(result.end(), templ.begin() + templPos, templ.end());
+    }
     return result;
 }
 

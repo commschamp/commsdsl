@@ -37,10 +37,11 @@ public:
     IntField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~IntField();
 
+    static bool isUnsignedType(commsdsl::parse::IntField::Type value);
+    bool isUnsignedType() const;
+
 protected:    
     commsdsl::parse::IntField intDslObj() const;
-
-private:
 };
 
 } // namespace gen

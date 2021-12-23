@@ -177,6 +177,7 @@ set (
     gen/SyncLayer.cpp
     gen/ValueLayer.cpp
     gen/VariantField.cpp
+    gen/strings.cpp
     gen/util.cpp
 )
 

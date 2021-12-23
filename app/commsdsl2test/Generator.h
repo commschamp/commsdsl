@@ -5,10 +5,13 @@
 namespace commsdsl2test 
 {
 
-class Generator : public commsdsl::gen::Generator
+class Generator final : public commsdsl::gen::Generator
 {
 public:
-    
+    static const std::string& fileGeneratedComment();
+
+protected:
+    virtual bool writeImpl() override;    
 };
 
 } // namespace commsdsl2test

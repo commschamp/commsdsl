@@ -40,9 +40,6 @@
 namespace commsdsl
 {
 
-namespace parse
-{
-
 /// @brief Major verion of the library
 inline
 constexpr unsigned versionMajor()
@@ -77,7 +74,5 @@ constexpr unsigned version()
 {
     return COMMSDSL_VERSION;
 }
-
-} // namespace parse
 
 } // namespace commsdsl

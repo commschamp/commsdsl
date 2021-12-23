@@ -33,19 +33,13 @@ public:
     bool quietRequested() const;
     bool versionRequested() const;
     bool warnAsErrRequested() const;
-    bool versionIndependentCodeRequested() const;
 
     std::string getFilesListFile() const;
     std::string getFilesListPrefix() const;
     std::vector<std::string> getFiles() const;
     std::string getOutputDirectory() const;
-    std::vector<std::string> getCodeInputDirectories() const;
     bool hasNamespaceOverride() const;
     std::string getNamespace() const;
-    bool hasForcedSchemaVersion() const;
-    unsigned getForcedSchemaVersion() const;
-    unsigned getMinRemoteVersion() const;
-    std::string getProtocolVersion () const;
     
 private:
     boost::program_options::variables_map m_vm;

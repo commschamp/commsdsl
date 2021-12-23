@@ -57,6 +57,8 @@ public:
     const MessagesList& messages() const;
     const FramesList& frames() const;
 
+    const Field* findMessageIdField() const;
+
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool writeImpl();
