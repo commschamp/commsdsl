@@ -6,6 +6,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cassert>
+#include <iterator>
 
 namespace commsdsl
 {
@@ -23,7 +24,7 @@ std::string strReplace(const std::string& str, const std::string& what, const st
     while (pos < str.size()) {
         auto nextPos = str.find(what, pos);
         if (str.size() <= nextPos) {
-            result.append(str, pos);
+            result.append(str, pos, std::string::npos);
             break;
         }
 
