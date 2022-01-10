@@ -44,12 +44,16 @@ public:
     using InterfacesList = std::vector<InterfacePtr>;
     using MessagesList = std::vector<MessagePtr>;
     using FramesList = std::vector<FramePtr>;
+    using InterfacesAccessList = std::vector<const Interface*>;
+    using FramesAccessList = std::vector<const Frame*>;
 
     explicit Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
     virtual ~Namespace();
 
     bool prepare();
     bool write();
+
+    commsdsl::parse::Namespace dslObj() const;
 
     const NamespacesList& namespaces() const;
     const FieldsList& fields() const;
@@ -58,6 +62,8 @@ public:
     const FramesList& frames() const;
 
     const Field* findMessageIdField() const;
+    InterfacesAccessList getAllInterfaces() const;
+    FramesAccessList getAllFrames() const;
 
 protected:    
     virtual Type elemTypeImpl() const override final;

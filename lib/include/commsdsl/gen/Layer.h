@@ -41,6 +41,8 @@ public:
     bool prepare();
     bool write();
 
+    commsdsl::parse::Layer dslObj() const;
+
 protected:    
     Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent = nullptr);
 
@@ -49,7 +51,6 @@ protected:
     virtual bool writeImpl();
 
     Generator& generator();
-    const commsdsl::parse::Layer& dslObj() const;
 
 private:
     Generator& m_generator;

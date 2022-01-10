@@ -44,6 +44,7 @@ public:
     bool prepare();
     bool write();
 
+    commsdsl::parse::Frame dslObj() const;
     const LayersList& layers() const;
 
 protected:    

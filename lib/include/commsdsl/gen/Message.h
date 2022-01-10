@@ -44,6 +44,8 @@ public:
     bool prepare();
     bool write();
 
+    commsdsl::parse::Message dslObj() const;
+
     const FieldsList& fields() const;
 
 protected:    

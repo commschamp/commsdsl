@@ -74,6 +74,11 @@ bool Layer::write()
     return writeImpl();
 }
 
+commsdsl::parse::Layer Layer::dslObj() const
+{
+    return m_dslObj;
+}
+
 Elem::Type Layer::elemTypeImpl() const
 {
     return Type_Layer;
@@ -92,11 +97,6 @@ bool Layer::writeImpl()
 Generator& Layer::generator()
 {
     return m_generator;
-}
-
-const commsdsl::parse::Layer& Layer::dslObj() const
-{
-    return m_dslObj;
 }
 
 

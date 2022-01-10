@@ -86,6 +86,11 @@ public:
             writeElements(m_frames);
     }
 
+    commsdsl::parse::Namespace dslObj() const
+    {
+        return m_dslObj;
+    }
+
     const NamespacesList& namespaces() const
     {
         return m_namespaces;
@@ -104,6 +109,11 @@ public:
     const MessagesList& messages() const
     {
         return m_messages;
+    }
+
+    const FramesList& frames() const
+    {
+        return m_frames;
     }
 
 private:
@@ -228,6 +238,11 @@ bool Namespace::write()
     return writeImpl();
 }
 
+commsdsl::parse::Namespace Namespace::dslObj() const
+{
+    return m_impl->dslObj();
+}
+
 const Namespace::NamespacesList& Namespace::namespaces() const
 {
     return m_impl->namespaces();
@@ -269,6 +284,40 @@ const Field* Namespace::findMessageIdField() const
     }
 
     return nullptr;
+}
+
+Namespace::InterfacesAccessList Namespace::getAllInterfaces() const
+{
+    InterfacesAccessList result;
+    auto& subNs = m_impl->namespaces();
+    for (auto& n : subNs) {
+        auto list = n->getAllInterfaces();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    result.reserve(result.size() + m_impl->interfaces().size());
+    for (auto& i : m_impl->interfaces()) {
+        result.emplace_back(i.get());
+    }
+
+    return result;
+}
+
+Namespace::FramesAccessList Namespace::getAllFrames() const
+{
+    FramesAccessList result;
+    auto& subNs = m_impl->namespaces();
+    for (auto& n : subNs) {
+        auto list = n->getAllFrames();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    result.reserve(result.size() + m_impl->frames().size());
+    for (auto& f : m_impl->frames()) {
+        result.emplace_back(f.get());
+    }
+
+    return result;
 }
 
 Elem::Type Namespace::elemTypeImpl() const

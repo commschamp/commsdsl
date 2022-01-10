@@ -12,6 +12,7 @@ public:
 
 protected:
     virtual bool writeImpl() override;    
+    virtual bool createDirectoryImpl(const std::string& path) override;
 };
 
 } // namespace commsdsl2test

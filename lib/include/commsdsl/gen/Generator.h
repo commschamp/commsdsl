@@ -40,6 +40,9 @@ public:
     using LoggerPtr = std::unique_ptr<Logger>;
     using NamespacesList = Namespace::NamespacesList;
 
+    using InterfacesAccessList = Namespace::InterfacesAccessList;
+    using FramesAccessList = Namespace::FramesAccessList;
+
     Generator();
     virtual ~Generator();
 
@@ -54,8 +57,11 @@ public:
     unsigned parsedSchemaVersion() const;
     unsigned schemaVersion() const;
     const std::string& mainNamespace() const;
+    const std::string& schemaName() const;
 
     const Field* getMessageIdField() const;
+    InterfacesAccessList getAllInterfaces() const;
+    FramesAccessList getAllFrames() const;
 
     bool prepare(const FilesList& files);
     bool write();
@@ -90,6 +96,8 @@ public:
     LayerPtr createPayloadLayer(commsdsl::parse::Layer dslObj, Elem* parent);
     LayerPtr createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* parent);
 
+    bool createDirectory(const std::string& path);
+
 protected:
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent);
@@ -119,6 +127,9 @@ protected:
 
     virtual bool writeImpl();
     virtual LoggerPtr createLoggerImpl();
+
+    // TODO: remove when using C++17
+    virtual bool createDirectoryImpl(const std::string& path);
 
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    

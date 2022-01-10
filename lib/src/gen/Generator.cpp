@@ -63,6 +63,11 @@ public:
     using FilesList = Generator::FilesList;
     using NamespacesList = Generator::NamespacesList;
 
+    explicit GeneratorImpl(Generator& generator) :
+        m_generator(generator)
+    {
+    }
+
     LoggerPtr& getLogger()
     {
         return m_logger;
@@ -127,6 +132,11 @@ public:
         return m_mainNamespace;
     }
 
+    const std::string& schemaName() const
+    {
+        return m_protocol.schema().name();
+    }
+
     const Field* getMessageIdField() const
     {
         return m_messageIdField;
@@ -187,6 +197,23 @@ public:
         }
 
         m_messageIdField = findMessageIdField();
+
+        auto dslNamespaces = m_protocol.namespaces();
+        m_namespaces.reserve(dslNamespaces.size());
+        for (auto dslObj : dslNamespaces) {
+            auto ptr = m_generator.createNamespace(dslObj);
+            if (!ptr) {
+                m_logger->error("Failed to create namespace \"" + dslObj.name() + "\"");
+                return false;
+            }
+
+            m_namespaces.push_back(std::move(ptr));
+
+            if (!m_namespaces.back()->prepare()) {
+                m_logger->error("Failed to prepare namespace \"" + dslObj.name() + "\"");
+                return false;                
+            }
+        }
         return true;
     }
 
@@ -201,6 +228,24 @@ public:
                 });
     }
 
+    bool wasDirectoryCreated(const std::string& path) const
+    {
+        auto iter = 
+            std::find(m_createdDirectories.begin(), m_createdDirectories.end(), path);
+
+        return iter != m_createdDirectories.end();
+    }
+
+    void recordCreatedDirectory(const std::string& path)
+    {
+        m_createdDirectories.push_back(path);
+    }
+
+    const commsdsl::parse::Protocol& protocol() const
+    {
+        return m_protocol;
+    }
+
 private:
     const Field* findMessageIdField() const
     {
@@ -213,6 +258,7 @@ private:
         return nullptr;
     }
 
+    Generator& m_generator;
     commsdsl::parse::Protocol m_protocol;
     LoggerPtr m_logger;
     NamespacesList m_namespaces;
@@ -224,10 +270,11 @@ private:
     unsigned m_minRemoteVersion = 0U;
     std::string m_outputDir;
     const Field* m_messageIdField = nullptr;
+    std::vector<std::string> m_createdDirectories;
 }; 
 
 Generator::Generator() : 
-    m_impl(std::make_unique<GeneratorImpl>())
+    m_impl(std::make_unique<GeneratorImpl>(*this))
 {
 }
 
@@ -278,9 +325,34 @@ const std::string& Generator::mainNamespace() const
     return m_impl->mainNamespace();
 }
 
+const std::string& Generator::schemaName() const
+{
+    return m_impl->schemaName();
+}
+
 const Field* Generator::getMessageIdField() const
 {
     return m_impl->getMessageIdField();
+}
+
+Generator::InterfacesAccessList Generator::getAllInterfaces() const
+{
+    InterfacesAccessList result;
+    for (auto& n : m_impl->namespaces()) {
+        auto subResult = n->getAllInterfaces();
+        result.insert(result.end(), subResult.begin(), subResult.end());
+    }
+    return result;
+}
+
+Generator::FramesAccessList Generator::getAllFrames() const
+{
+    FramesAccessList result;
+    for (auto& n : m_impl->namespaces()) {
+        auto nList = n->getAllFrames();
+        result.insert(result.end(), nList.begin(), nList.end());
+    }
+    return result;
 }
 
 bool Generator::prepare(const FilesList& files)
@@ -294,6 +366,11 @@ bool Generator::prepare(const FilesList& files)
 
 bool Generator::write()
 {
+    auto& outDir = getOutputDir();
+    if ((!outDir.empty()) && (!createDirectory(outDir))) {
+        return false;
+    }
+
     if (!m_impl->write()) {
         return false;
     }
@@ -458,6 +535,20 @@ LayerPtr Generator::createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* par
     return createChecksumLayerImpl(dslObj, parent);
 }
 
+bool Generator::createDirectory(const std::string& path)
+{
+    if (m_impl->wasDirectoryCreated(path)) {
+        return true;
+    }
+
+    if (!createDirectoryImpl(path)) {
+        return false;
+    }
+
+    m_impl->recordCreatedDirectory(path);
+    return true;
+}
+
 NamespacePtr Generator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
 {
     return std::make_unique<Namespace>(*this, dslObj, parent);
@@ -581,6 +672,12 @@ bool Generator::writeImpl()
 Generator::LoggerPtr Generator::createLoggerImpl()
 {
     return std::make_unique<Logger>();
+}
+
+bool Generator::createDirectoryImpl(const std::string& path)
+{
+    static_cast<void>(path);
+    return false;
 }
 
 } // namespace gen

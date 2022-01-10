@@ -73,6 +73,11 @@ public:
         return result;
     }
 
+    commsdsl::parse::Message dslObj() const
+    {
+        return m_dslObj;
+    }
+
     const FieldsList& fields() const
     {
         return m_fields;
@@ -105,6 +110,11 @@ bool Message::write()
     }
 
     return writeImpl();
+}
+
+commsdsl::parse::Message Message::dslObj() const
+{
+    return m_impl->dslObj();
 }
 
 const Message::FieldsList& Message::fields() const

@@ -45,6 +45,7 @@ public:
     bool write();
 
     const FieldsList& fields() const;
+    commsdsl::parse::Interface dslObj() const;
 
 protected:    
     virtual Type elemTypeImpl() const override final;

@@ -73,6 +73,11 @@ public:
         return result;
     }
 
+    commsdsl::parse::Frame dslObj() const
+    {
+        return m_dslObj;
+    }
+
     const LayersList& layers() const
     {
         return m_layers;
@@ -110,6 +115,11 @@ bool Frame::write()
     }
 
     return writeImpl();
+}
+
+commsdsl::parse::Frame Frame::dslObj() const
+{
+    return m_impl->dslObj();
 }
 
 const Frame::LayersList& Frame::layers() const

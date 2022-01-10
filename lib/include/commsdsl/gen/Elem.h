@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace commsdsl
 {
 
@@ -44,6 +46,8 @@ public:
     const Elem* getParent() const;
 
     Type elemType() const;
+
+    const std::string& name() const;
 
 protected:
     explicit Elem(Elem* parent = nullptr);

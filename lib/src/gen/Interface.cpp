@@ -78,6 +78,11 @@ public:
         return m_fields;
     }
 
+    commsdsl::parse::Interface dslObj() const
+    {
+        return m_dslObj;
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::Interface m_dslObj;
@@ -110,6 +115,11 @@ bool Interface::write()
 const Interface::FieldsList& Interface::fields() const
 {
     return m_impl->fields();
+}
+
+commsdsl::parse::Interface Interface::dslObj() const
+{
+    return m_impl->dslObj();
 }
 
 Elem::Type Interface::elemTypeImpl() const
