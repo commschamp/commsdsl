@@ -15,7 +15,7 @@ IF "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
     set TOOLCHAIN=msvc15
     set QT_SUBDIR=msvc2017
     set QT_VER=5.11
-    set BOOST_VER=1_65_1
+    set BOOST_VER=1_69_0
     set ENV_SCRIPT_PARAM=
     IF "%PLATFORM%"=="x86" (
         echo Performing x86 build in VS2017
