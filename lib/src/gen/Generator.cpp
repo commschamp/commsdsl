@@ -41,6 +41,8 @@
 
 #include <cassert>
 #include <algorithm>
+#include <filesystem>
+#include <system_error>
 
 namespace commsdsl
 {
@@ -541,7 +543,14 @@ bool Generator::createDirectory(const std::string& path)
         return true;
     }
 
-    if (!createDirectoryImpl(path)) {
+    std::error_code ec;
+    if (std::filesystem::is_directory(path, ec)) {
+        m_impl->recordCreatedDirectory(path);
+        return true;
+    }
+
+    if (!std::filesystem::create_directories(path, ec)) {
+        logger().error("Failed to create directory \"" + path + "\" with error: " + ec.message());
         return false;
     }
 
@@ -672,12 +681,6 @@ bool Generator::writeImpl()
 Generator::LoggerPtr Generator::createLoggerImpl()
 {
     return std::make_unique<Logger>();
-}
-
-bool Generator::createDirectoryImpl(const std::string& path)
-{
-    static_cast<void>(path);
-    return false;
 }
 
 } // namespace gen

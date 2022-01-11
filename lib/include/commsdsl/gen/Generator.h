@@ -128,9 +128,6 @@ protected:
     virtual bool writeImpl();
     virtual LoggerPtr createLoggerImpl();
 
-    // TODO: remove when using C++17
-    virtual bool createDirectoryImpl(const std::string& path);
-
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    
 };
