@@ -52,7 +52,7 @@ commsdsl_negate_option(COMMSDSL_NO_COMMS_CHAMPION COMMSDSL_CHECKOUT_COMMS_CHAMPI
 ################################################
 
 if (NOT CMAKE_CXX_STANDARD)
-    set (CMAKE_CXX_STANDARD 14)
+    set (CMAKE_CXX_STANDARD 17)
 endif()
 
 if (NOT COMMSDSL_TESTS_CXX_STANDARD)
