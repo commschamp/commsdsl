@@ -19,8 +19,6 @@
 #include "ProgramOptions.h"
 #include "Generator.h"
 
-#include <boost/filesystem.hpp>
-
 #include <stdexcept>
 #include <iostream>
 #include <cassert>
