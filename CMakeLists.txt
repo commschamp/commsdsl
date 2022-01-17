@@ -22,6 +22,7 @@ option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to re
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
 # COMMSDSL_BOOST_VERSION - Boost version passed to relevant find_package invocation.
 # CC_TAG - Tag/branch of CommsChampion project to use instead of default
+# COMMS_TAG - Tag/branch of COMMS library project to use instead of default
 # BOOST_ROOT and other built-in hint variables for the process of finding Boost package.
 
 # Deprecated options for backward compatibility, use the ones above for new builds.
@@ -61,6 +62,10 @@ endif ()
 
 if ("${CC_TAG}" STREQUAL "")
     set (CC_TAG "v3.4.1")
+endif()
+
+if ("${COMMS_TAG}" STREQUAL "")
+    set (COMMS_TAG "develop")
 endif()
 
 set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")

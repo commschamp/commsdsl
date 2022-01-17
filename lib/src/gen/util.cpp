@@ -68,6 +68,16 @@ std::vector<std::string> strSplitByAnyCharCompressed(
     return result;
 }
 
+unsigned strToUnsigned(const std::string& str)
+{
+    try {
+        return static_cast<unsigned>(std::stoul(str));
+    }
+    catch (...) {
+        return 0U;
+    }
+}
+
 std::string numToString(std::uintmax_t value, unsigned hexWidth)
 {
     if (hexWidth == 0U) {

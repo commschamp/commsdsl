@@ -127,9 +127,10 @@ public:
 
                 left += "--" + optPtr->m_longOpt;
                 if (!optPtr->m_shortOpt.empty()) {
-                    left += "] ";
+                    left += "]";
                 }
 
+                left += ' ';
             }
 
             if (optPtr->m_hasParam) {

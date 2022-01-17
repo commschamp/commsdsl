@@ -18,43 +18,36 @@
 #include <vector>
 #include <string>
 #include <iosfwd>
-#include <boost/program_options.hpp>
 
-namespace commsdsl2comms
+#include "commsdsl/gen/ProgramOptions.h"
+
+namespace commsdsl2new
 {
 
-class ProgramOptions
+class ProgramOptions : public commsdsl::gen::ProgramOptions
 {
 public:
-    void parse(int argc, const char* argv[]);
-    static void printHelp(std::ostream& out);
+    ProgramOptions();
 
-    bool helpRequested() const;
     bool quietRequested() const;
     bool versionRequested() const;
     bool warnAsErrRequested() const;
-    bool versionIndependentCodeRequested() const;
-    bool pluginBuildEnabledByDefault() const;
-    bool testsBuildEnabledByDefault() const;
 
-    std::string getFilesListFile() const;
-    std::string getFilesListPrefix() const;
-    std::vector<std::string> getFiles() const;
-    std::string getOutputDirectory() const;
-    std::vector<std::string> getCodeInputDirectories() const;
+    const std::string& getFilesListFile() const;
+    const std::string& getFilesListPrefix() const;
+    const ArgsList& getFiles() const;
+    const std::string& getOutputDirectory() const;
     bool hasNamespaceOverride() const;
-    std::string getNamespace() const;
+    const std::string& getNamespace() const;
+    std::vector<std::string> getCodeInputDirectories() const;
     bool hasForcedSchemaVersion() const;
     unsigned getForcedSchemaVersion() const;
+    const std::string& getProtocolVersion() const;
     unsigned getMinRemoteVersion() const;
-    std::string getCommsChampionTag() const;
-    std::vector<std::string> getPlugins() const;
-    std::string getCustomizationLevel() const;
-    std::string getProtocolVersion () const;
-    const std::string& extraMessagesBundlesParamStr() const;
-    
-private:
-    boost::program_options::variables_map m_vm;
+    const std::string& getCustomizationLevel() const;
+    const std::string& getCommsLibTag() const;
+    bool versionIndependentCodeRequested() const;
+    std::vector<std::string> getExtraInputBundles() const;
 };
 
-} // namespace commsdsl2comms
+} // namespace commsdsl2new
