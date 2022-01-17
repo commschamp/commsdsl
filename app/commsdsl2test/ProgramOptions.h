@@ -18,31 +18,27 @@
 #include <vector>
 #include <string>
 #include <iosfwd>
-#include <boost/program_options.hpp>
+
+#include "commsdsl/gen/ProgramOptions.h"
 
 namespace commsdsl2test
 {
 
-class ProgramOptions
+class ProgramOptions : public commsdsl::gen::ProgramOptions
 {
 public:
-    void parse(int argc, const char* argv[]);
-    static void printHelp(std::ostream& out);
+    ProgramOptions();
 
-    bool helpRequested() const;
     bool quietRequested() const;
     bool versionRequested() const;
     bool warnAsErrRequested() const;
 
-    std::string getFilesListFile() const;
-    std::string getFilesListPrefix() const;
-    std::vector<std::string> getFiles() const;
-    std::string getOutputDirectory() const;
+    const std::string& getFilesListFile() const;
+    const std::string& getFilesListPrefix() const;
+    const ArgsList& getFiles() const;
+    const std::string& getOutputDirectory() const;
     bool hasNamespaceOverride() const;
-    std::string getNamespace() const;
-    
-private:
-    boost::program_options::variables_map m_vm;
+    const std::string& getNamespace() const;
 };
 
 } // namespace commsdsl2test

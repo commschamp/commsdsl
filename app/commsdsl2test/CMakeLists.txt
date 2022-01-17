@@ -1,6 +1,3 @@
-find_package(Boost ${COMMSDSL_BOOST_VERSION} REQUIRED
-    COMPONENTS program_options)
-
 set (APP_NAME "commsdsl2test")
 
 set (
@@ -13,7 +10,7 @@ set (
 )
 
 add_executable(${APP_NAME} ${src})
-target_link_libraries(${APP_NAME} PRIVATE cc::${PROJECT_NAME} Boost::program_options)
+target_link_libraries(${APP_NAME} PRIVATE cc::${PROJECT_NAME})
 #target_compile_definitions (${APP_NAME} PRIVATE -DBOOST_NO_CXX11_SCOPED_ENUMS -DCC_TAG=${CC_TAG})
 
 #target_compile_options(${APP_NAME} PRIVATE

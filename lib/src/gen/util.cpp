@@ -238,6 +238,94 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
     return result;
 }
 
+std::string strListToString(
+    const StringsList& list,
+    const std::string& join,
+    const std::string& last)
+{
+    std::string result;
+    for (auto& e : list) {
+        result += e;
+        if (&e != &list.back()) {
+            result += join;
+        }
+        else {
+            result += last;
+        }
+    }
+    return result;
+}
+
+std::string strMakeMultiline(const std::string& value, unsigned len)
+{
+    if (value.size() <= len) {
+        return value;
+    }
+
+    assert(0U < len);
+    std::string result;
+    result.reserve((value.size() * 3) / 2);
+    std::size_t pos = 0;
+    while (pos < value.size()) {
+        auto nextPos = pos + len;
+        if (value.size() <= nextPos) {
+            break;
+        }
+
+        static const std::string WhiteSpace(" \t\r");
+        auto prePos = value.find_last_of(WhiteSpace, nextPos);
+        if ((prePos == std::string::npos) || (prePos < pos)) {
+            prePos = pos;
+        }
+
+        auto postPos = value.find_first_of(WhiteSpace, nextPos + 1);
+        if (postPos == std::string::npos) {
+            postPos = value.size();
+        }
+
+        if ((prePos <= pos) && (value.size() <= postPos)) {
+            break;
+        }
+
+        auto insertFunc =
+            [&result, &pos, &value](std::size_t newPos)
+            {
+                assert(pos <= newPos);
+                assert(newPos <= value.size());
+                result.insert(result.end(), value.begin() + pos, value.begin() + newPos);
+                result.push_back('\n');
+                pos = newPos + 1;
+            };
+
+        if (prePos <= pos) {
+            insertFunc(postPos);
+            continue;
+        }
+
+        if (value.size() <= postPos) {
+            insertFunc(prePos);
+            continue;
+        }
+
+        auto preDiff = nextPos - prePos;
+        auto postDiff = postPos - nextPos;
+
+        if (preDiff <= postDiff) {
+            insertFunc(prePos);
+            continue;
+        }
+
+        insertFunc(postPos);
+    }
+
+    if (pos < value.size()) {
+        result.insert(result.end(), value.begin() + pos, value.end());
+    }
+
+    return result;
+}
+
+
 } // namespace util
 
 } // namespace gen

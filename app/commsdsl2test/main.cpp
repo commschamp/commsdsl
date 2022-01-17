@@ -63,8 +63,8 @@ int main(int argc, const char* argv[])
         commsdsl2test::ProgramOptions options;
         options.parse(argc, argv);
         if (options.helpRequested()) {
-            std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n";
-            options.printHelp(std::cout);
+            std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n\n";
+            std::cout << options.helpStr();
             return 0;
         }
 

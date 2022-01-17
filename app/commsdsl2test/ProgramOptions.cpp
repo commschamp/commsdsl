@@ -14,161 +14,89 @@
 // limitations under the License.
 
 #include "ProgramOptions.h"
+
 #include <iostream>
 #include <cassert>
 #include <vector>
 
-namespace po = boost::program_options;
 namespace commsdsl2test
 {
 
 namespace
 {
 
-const std::string HelpStr("help");
-const std::string FullHelpStr(HelpStr + ",h");
 const std::string QuietStr("quiet");
-const std::string FullQuietStr(QuietStr + ",q");
+const std::string FullQuietStr("q," + QuietStr);
 const std::string VersionStr("version");
 const std::string OutputDirStr("output-dir");
-const std::string FullOutputDirStr(OutputDirStr + ",o");
+const std::string FullOutputDirStr("o," + OutputDirStr);
 const std::string InputFilesListStr("input-files-list");
-const std::string FullInputFilesListStr(InputFilesListStr + ",i");
+const std::string FullInputFilesListStr("i," + InputFilesListStr);
 const std::string InputFilesPrefixStr("input-files-prefix");
-const std::string FullInputFilesPrefixStr(InputFilesPrefixStr + ",p");
+const std::string FullInputFilesPrefixStr("p," + InputFilesPrefixStr);
 const std::string NamespaceStr("namespace");
-const std::string FullNamespaceStr(NamespaceStr + ",n");
+const std::string FullNamespaceStr("n," + NamespaceStr);
 const std::string InputFileStr("input-file");
 const std::string WarnAsErrStr("warn-as-err");
 
-po::options_description createDescription()
-{
-    po::options_description desc("Options");
-    desc.add_options()
-        (FullHelpStr.c_str(), "This help.")
-        (VersionStr.c_str(), "Print version string and exit.")        
-        (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
-        (FullOutputDirStr.c_str(), po::value<std::string>()->default_value(std::string()),
-            "Output directory path. Empty means current.")
-        (FullInputFilesListStr.c_str(), po::value<std::string>()->default_value(std::string()),
-            "File containing list of input files.")
-        (FullInputFilesPrefixStr.c_str(), po::value<std::string>()->default_value(std::string()),
-            "Prefix for the values from the list file.")
-        (FullNamespaceStr.c_str(), po::value<std::string>()->default_value(std::string()),
-            "Force protocol namespace. Defaults to schema name.")
-        (WarnAsErrStr.c_str(), "Treat warning as error.")
-    ;
-    return desc;
-}
-
-const po::options_description& getDescription()
-{
-    static const auto Desc = createDescription();
-    return Desc;
-}
-
-po::options_description createHidden()
-{
-    po::options_description desc("Hidden");
-    desc.add_options()
-        (InputFileStr.c_str(), po::value< std::vector<std::string> >(), "input file")
-    ;
-    return desc;
-}
-
-const po::options_description& getHidden()
-{
-    static const auto Desc = createHidden();
-    return Desc;
-}
-
-po::positional_options_description createPositional()
-{
-    po::positional_options_description desc;
-    desc.add(InputFileStr.c_str(), -1);
-    return desc;
-}
-
-const po::positional_options_description& getPositional()
-{
-    static const auto Desc = createPositional();
-    return Desc;
-}
-
 } // namespace
 
-void ProgramOptions::parse(int argc, const char* argv[])
+ProgramOptions::ProgramOptions()
 {
-    po::options_description allOptions;
-    allOptions.add(getDescription()).add(getHidden());
-    auto parseResult =
-        po::command_line_parser(argc, argv)
-            .options(allOptions)
-            .positional(getPositional())
-            .run();
-    po::store(parseResult, m_vm);
-    po::notify(m_vm);
-}
-
-void ProgramOptions::printHelp(std::ostream& out)
-{
-    out << getDescription() << std::endl;
-}
-
-bool ProgramOptions::helpRequested() const
-{
-    return 0 < m_vm.count(HelpStr);
+    addHelpOption()
+    (VersionStr, "Print version string and exit.")
+    (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
+    (FullOutputDirStr.c_str(), "Output directory path. When not provided current is used.", true)        
+    (FullInputFilesListStr.c_str(), "File containing list of input files.", true)        
+    (FullInputFilesPrefixStr.c_str(), "Prefix for the values from the list file.", true)
+    (FullNamespaceStr.c_str(), "Force protocol namespace. Defaults to schema name.", true) 
+    (WarnAsErrStr.c_str(), "Treat warning as error.")
+    ;
 }
 
 bool ProgramOptions::quietRequested() const
 {
-    return 0 < m_vm.count(QuietStr);
+    return isOptUsed(QuietStr);
 }
 
 bool ProgramOptions::versionRequested() const
 {
-    return 0 < m_vm.count(VersionStr);
+    return isOptUsed(VersionStr);
 }
 
 bool ProgramOptions::warnAsErrRequested() const
 {
-    return 0 < m_vm.count(WarnAsErrStr);
+    return isOptUsed(WarnAsErrStr);
 }
 
-std::string ProgramOptions::getFilesListFile() const
+const std::string& ProgramOptions::getFilesListFile() const
 {
-    return m_vm[InputFilesListStr].as<std::string>();
+    return value(InputFilesListStr);
 }
 
-std::string ProgramOptions::getFilesListPrefix() const
+const std::string& ProgramOptions::getFilesListPrefix() const
 {
-    return m_vm[InputFilesPrefixStr].as<std::string>();
+    return value(InputFilesPrefixStr);
 }
 
-std::vector<std::string> ProgramOptions::getFiles() const
+const ProgramOptions::ArgsList& ProgramOptions::getFiles() const
 {
-    if (m_vm.count(InputFileStr) == 0U) {
-        return std::vector<std::string>();
-    }
-
-    auto inputs = m_vm[InputFileStr].as<std::vector<std::string> >();
-    assert(!inputs.empty());
-    return inputs;
+    return args();
 }
 
-std::string ProgramOptions::getOutputDirectory() const
+const std::string& ProgramOptions::getOutputDirectory() const
 {
-    return m_vm[OutputDirStr].as<std::string>();
+    return value(OutputDirStr);
 }
 
 bool ProgramOptions::hasNamespaceOverride() const
 {
-    return 0U < m_vm.count(NamespaceStr);
+    return isOptUsed(NamespaceStr);
 }
 
-std::string ProgramOptions::getNamespace() const
+const std::string& ProgramOptions::getNamespace() const
 {
-    return m_vm[NamespaceStr].as<std::string>();
+    return value(NamespaceStr);
 }
 
 } // namespace commsdsl2test

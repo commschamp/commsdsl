@@ -169,6 +169,7 @@ set (
     gen/Message.cpp
     gen/Namespace.cpp
     gen/OptionalField.cpp
+    gen/ProgramOptions.cpp
     gen/PayloadLayer.cpp
     gen/RefField.cpp
     gen/SetField.cpp

@@ -25,6 +25,14 @@ std::string pathAddElem(const std::string& path, const std::string& elem);
 using ReplacementMap = std::map<std::string, std::string>;
 std::string processTemplate(const std::string& templ, const ReplacementMap& repl);
 
+using StringsList = std::vector<std::string>;
+std::string strListToString(
+    const StringsList& list,
+    const std::string& join = ",\n",
+    const std::string& last = "\n");
+
+std::string strMakeMultiline(const std::string& value, unsigned len = 60);
+
 } // namespace util
 
 } // namespace gen
