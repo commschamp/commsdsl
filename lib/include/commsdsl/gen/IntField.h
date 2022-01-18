@@ -22,6 +22,7 @@
 
 #include <memory>
 #include <vector>
+#include <utility>
 
 namespace commsdsl
 {
@@ -29,10 +30,14 @@ namespace commsdsl
 namespace gen
 {
 
+class IntFieldImpl;
 class COMMSDSL_API IntField : public Field
 {
     using Base = Field;
 public:
+
+    using SpecialsListElem = std::pair<std::string, commsdsl::parse::IntField::SpecialValueInfo>;
+    using SpecialsList = std::vector<SpecialsListElem>;
 
     IntField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~IntField();
@@ -40,8 +45,15 @@ public:
     static bool isUnsignedType(commsdsl::parse::IntField::Type value);
     bool isUnsignedType() const;
 
+    const SpecialsList& specialsSortedByValue() const;
+
 protected:    
+    virtual bool prepareImpl() override;
+
     commsdsl::parse::IntField intDslObj() const;
+
+private:
+    std::unique_ptr<IntFieldImpl> m_impl;    
 };
 
 } // namespace gen

@@ -16,8 +16,8 @@
 #include "commsdsl/version.h"
 #include "commsdsl/gen/util.h"
 
-#include "ProgramOptions.h"
-#include "Generator.h"
+#include "CommsProgramOptions.h"
+#include "CommsGenerator.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -60,7 +60,7 @@ std::vector<std::string> getFilesList(
 int main(int argc, const char* argv[])
 {
     try {
-        commsdsl2new::ProgramOptions options;
+        commsdsl2new::CommsProgramOptions options;
         options.parse(argc, argv);
         if (options.helpRequested()) {
             std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n\n";
@@ -76,7 +76,7 @@ int main(int argc, const char* argv[])
             return 0;
         }        
 
-        commsdsl2new::Generator generator;
+        commsdsl2new::CommsGenerator generator;
         auto& logger = generator.logger();
 
         if (options.quietRequested()) {

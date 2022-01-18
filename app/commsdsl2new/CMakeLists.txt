@@ -2,9 +2,11 @@ set (APP_NAME "commsdsl2new")
 
 set (
     src
-    Cmake.cpp
-    Generator.cpp
-    ProgramOptions.cpp
+    CommsCmake.cpp
+    CommsField.cpp
+    CommsGenerator.cpp
+    CommsIntField.cpp
+    CommsProgramOptions.cpp
     main.cpp
 )
 

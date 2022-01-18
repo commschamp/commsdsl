@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "ProgramOptions.h"
+#include "CommsProgramOptions.h"
 
 #include "commsdsl/gen/util.h"
 
@@ -62,7 +62,7 @@ const std::string ExtraMessagesBundleStr("extra-messages-bundle");
 
 } // namespace
 
-ProgramOptions::ProgramOptions()
+CommsProgramOptions::CommsProgramOptions()
 {
     addHelpOption()
     (VersionStr, "Print version string and exit.")
@@ -106,72 +106,72 @@ ProgramOptions::ProgramOptions()
     ;
 }
 
-bool ProgramOptions::quietRequested() const
+bool CommsProgramOptions::quietRequested() const
 {
     return isOptUsed(QuietStr);
 }
 
-bool ProgramOptions::versionRequested() const
+bool CommsProgramOptions::versionRequested() const
 {
     return isOptUsed(VersionStr);
 }
 
-bool ProgramOptions::warnAsErrRequested() const
+bool CommsProgramOptions::warnAsErrRequested() const
 {
     return isOptUsed(WarnAsErrStr);
 }
 
-const std::string& ProgramOptions::getFilesListFile() const
+const std::string& CommsProgramOptions::getFilesListFile() const
 {
     return value(InputFilesListStr);
 }
 
-const std::string& ProgramOptions::getFilesListPrefix() const
+const std::string& CommsProgramOptions::getFilesListPrefix() const
 {
     return value(InputFilesPrefixStr);
 }
 
-const ProgramOptions::ArgsList& ProgramOptions::getFiles() const
+const CommsProgramOptions::ArgsList& CommsProgramOptions::getFiles() const
 {
     return args();
 }
 
-const std::string& ProgramOptions::getOutputDirectory() const
+const std::string& CommsProgramOptions::getOutputDirectory() const
 {
     return value(OutputDirStr);
 }
 
-bool ProgramOptions::hasNamespaceOverride() const
+bool CommsProgramOptions::hasNamespaceOverride() const
 {
     return isOptUsed(NamespaceStr);
 }
 
-const std::string& ProgramOptions::getNamespace() const
+const std::string& CommsProgramOptions::getNamespace() const
 {
     return value(NamespaceStr);
 }
 
-std::vector<std::string> ProgramOptions::getCodeInputDirectories() const
+std::vector<std::string> CommsProgramOptions::getCodeInputDirectories() const
 {
     return commsdsl::gen::util::strSplitByAnyCharCompressed(value(CodeInputDirStr), ",");
 }
 
-bool ProgramOptions::hasForcedSchemaVersion() const
+bool CommsProgramOptions::hasForcedSchemaVersion() const
 {
     return isOptUsed(ForceVerStr);
 }
 
-unsigned ProgramOptions::getForcedSchemaVersion() const
+unsigned CommsProgramOptions::getForcedSchemaVersion() const
 {
     return commsdsl::gen::util::strToUnsigned(value(ForceVerStr));
 }
 
-const std::string& ProgramOptions::getProtocolVersion() const
+const std::string& CommsProgramOptions::getProtocolVersion() const
 {
     return value(ProtocolVerStr);
 }
 
-unsigned ProgramOptions::getMinRemoteVersion() const
+unsigned CommsProgramOptions::getMinRemoteVersion() const
 {
     if (!isOptUsed(MinRemoteVerStr)) {
         return 0U;
@@ -180,22 +180,22 @@ unsigned ProgramOptions::getMinRemoteVersion() const
     return commsdsl::gen::util::strToUnsigned(value(MinRemoteVerStr));
 }
 
-const std::string& ProgramOptions::getCustomizationLevel() const
+const std::string& CommsProgramOptions::getCustomizationLevel() const
 {
     return value(CustomizationStr);
 }
 
-const std::string& ProgramOptions::getCommsLibTag() const
+const std::string& CommsProgramOptions::getCommsLibTag() const
 {
     return value(CommsTagStr);
 }
 
-bool ProgramOptions::versionIndependentCodeRequested() const
+bool CommsProgramOptions::versionIndependentCodeRequested() const
 {
     return isOptUsed(VersionIndependentCodeStr);
 }
 
-std::vector<std::string> ProgramOptions::getExtraInputBundles() const
+std::vector<std::string> CommsProgramOptions::getExtraInputBundles() const
 {
     return commsdsl::gen::util::strSplitByAnyCharCompressed(value(ExtraMessagesBundleStr), ",");    
 }

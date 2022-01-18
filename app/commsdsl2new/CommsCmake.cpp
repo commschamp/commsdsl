@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Cmake.h"
+#include "CommsCmake.h"
 
-#include "Generator.h"
+#include "CommsGenerator.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -35,13 +35,13 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 } // namespace 
     
 
-bool Cmake::write(Generator& generator)
+bool CommsCmake::write(CommsGenerator& generator)
 {
-    Cmake obj(generator);
+    CommsCmake obj(generator);
     return obj.writeInternal();
 }
 
-bool Cmake::writeInternal() const
+bool CommsCmake::writeInternal() const
 {
     static_cast<void>(m_generator);
     auto filePath = 
@@ -54,7 +54,9 @@ bool Cmake::writeInternal() const
         m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
+    
     // TODO: write
+
     stream.flush();
     if (!stream.good()) {
         m_generator.logger().error("Failed to write \"" + filePath + "\".");

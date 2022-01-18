@@ -24,10 +24,10 @@
 namespace commsdsl2new
 {
 
-class ProgramOptions : public commsdsl::gen::ProgramOptions
+class CommsProgramOptions : public commsdsl::gen::ProgramOptions
 {
 public:
-    ProgramOptions();
+    CommsProgramOptions();
 
     bool quietRequested() const;
     bool versionRequested() const;

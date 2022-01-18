@@ -29,6 +29,7 @@ namespace commsdsl
 namespace gen
 {
 
+class Generator;
 class COMMSDSL_API Field : public Elem
 {
     using Base = Elem;

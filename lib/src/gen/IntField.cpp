@@ -26,8 +26,50 @@ namespace commsdsl
 namespace gen
 {
 
+class IntFieldImpl
+{
+public:
+    using SpecialsList = IntField::SpecialsList;
+
+    bool prepare(commsdsl::parse::IntField dslObj)
+    {
+        auto& dslSpecials = dslObj.specialValues();
+        m_specialsSorted.reserve(dslSpecials.size());
+        for (auto& s : dslSpecials) {
+            m_specialsSorted.emplace_back(s.first, s.second);
+        }
+
+        bool compareUnsigned = IntField::isUnsignedType(dslObj.type());
+        std::sort(
+            m_specialsSorted.begin(), m_specialsSorted.end(),
+            [compareUnsigned](auto& elem1, auto& elem2)
+            {
+                if (elem1.second.m_value == elem2.second.m_value) {
+                    return elem1.first < elem2.first;
+                }
+
+                if (compareUnsigned) {
+                    return static_cast<std::uintmax_t>(elem1.second.m_value) < static_cast<std::uintmax_t>(elem2.second.m_value);
+                }
+
+                return elem1.second.m_value < elem2.second.m_value;
+            });   
+
+        return true;
+    }
+
+    const SpecialsList& specialsSortedByValue() const
+    {
+        return m_specialsSorted;
+    }
+
+private:
+    SpecialsList m_specialsSorted;
+};   
+
 IntField::IntField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_impl(std::make_unique<IntFieldImpl>())
 {
     assert(dslObj.kind() == commsdsl::parse::Field::Kind::Int);
 }
@@ -51,6 +93,16 @@ bool IntField::isUnsignedType(commsdsl::parse::IntField::Type value)
 bool IntField::isUnsignedType() const
 {
     return isUnsignedType(intDslObj().type());
+}
+
+const IntField::SpecialsList& IntField::specialsSortedByValue() const
+{
+    return m_impl->specialsSortedByValue();
+}
+
+bool IntField::prepareImpl()
+{
+    return m_impl->prepare(intDslObj());
 }
 
 commsdsl::parse::IntField IntField::intDslObj() const

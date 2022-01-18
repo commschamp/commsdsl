@@ -18,19 +18,19 @@
 namespace commsdsl2new
 {
 
-class Generator;
-class Cmake
+class CommsGenerator;
+class CommsCmake
 {
 public:
-    static bool write(Generator& generator);
+    static bool write(CommsGenerator& generator);
 
 private:
-    explicit Cmake(Generator& generator) : m_generator(generator) {}
+    explicit CommsCmake(CommsGenerator& generator) : m_generator(generator) {}
 
     bool writeInternal() const;
     
 private:
-    Generator& m_generator;
+    CommsGenerator& m_generator;
 };
 
 } // namespace commsdsl2new
