@@ -42,20 +42,20 @@ public:
     static Ptr create(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);    
 
     bool prepare();
-    std::string genCode();
-    bool write();
+    bool write() const;
 
     const commsdsl::parse::Field& dslObj() const;    
+
+    Generator& generator();
+    const Generator& generator() const;
 
 protected:    
     Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent = nullptr);
 
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();
-    virtual std::string genCodeImpl();
-    virtual bool writeImpl();
+    virtual bool writeImpl() const;
 
-    Generator& generator();
 
 private:
     Generator& m_generator;

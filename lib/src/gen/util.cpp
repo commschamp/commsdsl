@@ -17,6 +17,19 @@ namespace gen
 namespace util
 {
 
+namespace 
+{
+
+#ifdef WIN32
+static const char PathSep = '\\';
+#else
+static const char PathSep = '/';
+#endif       
+
+} // namespace 
+
+
+
 std::string strReplace(const std::string& str, const std::string& what, const std::string& with)
 {
     std::string result;
@@ -135,19 +148,23 @@ std::string numToString(unsigned value, unsigned hexWidth)
 
 std::string pathAddElem(const std::string& path, const std::string& elem)
 {
-#ifdef WIN32
-    static const char Sep = '\\';
-#else
-    static const char Sep = '/';
-#endif         
-
     std::string result = path;
-    if ((!result.empty()) && (result.back() != Sep)) {
-        result.push_back(Sep);
+    if ((!result.empty()) && (result.back() != PathSep)) {
+        result.push_back(PathSep);
     }
 
     result.append(elem);
     return result;
+}
+
+std::string pathUp(const std::string& path)
+{
+    auto sepPos = path.rfind(PathSep);
+    if (sepPos == std::string::npos) {
+        return strings::emptyString();
+    }
+
+    return path.substr(0, sepPos);
 }
 
 std::string processTemplate(const std::string& templ, const ReplacementMap& repl)

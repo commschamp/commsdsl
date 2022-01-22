@@ -9,18 +9,25 @@ CommsIntField::CommsIntField(
     CommsGenerator& generator, 
     commsdsl::parse::Field dslObj, 
     commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    CommsBase(static_cast<Base&>(*this))
 {
 }
 
-bool CommsIntField::writeImpl()
+bool CommsIntField::writeImpl() const
 {
-    if (!isWritable(getParent())) {
-        return true;
-    }
+    return commsWrite();
+}
 
-    // TODO: write code
-    return true;
+CommsIntField::IncludesList CommsIntField::commsCommonIncludesImpl() const
+{
+    IncludesList list = {
+        "<cstdint>",
+        "<type_traits>",
+        "<utility>"
+    };
+
+    return list;
 }
 
 } // namespace commsdsl2new

@@ -74,12 +74,7 @@ bool Field::prepare()
     return prepareImpl();
 }
 
-std::string Field::genCode()
-{
-    return genCodeImpl();
-}
-
-bool Field::write()
+bool Field::write() const
 {
     return writeImpl();
 }
@@ -87,6 +82,16 @@ bool Field::write()
 const commsdsl::parse::Field& Field::dslObj() const
 {
     return m_dslObj;
+}
+
+Generator& Field::generator()
+{
+    return m_generator;
+}
+
+const Generator& Field::generator() const
+{
+    return m_generator;
 }
 
 Elem::Type Field::elemTypeImpl() const
@@ -99,20 +104,11 @@ bool Field::prepareImpl()
     return true;
 }
 
-std::string Field::genCodeImpl()
-{
-    return std::string();
-}
-
-bool Field::writeImpl()
+bool Field::writeImpl() const
 {
     return true;
 }
 
-Generator& Field::generator()
-{
-    return m_generator;
-}
 
 } // namespace gen
 

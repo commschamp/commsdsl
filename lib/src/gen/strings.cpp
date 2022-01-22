@@ -57,6 +57,30 @@ const std::string& messageClassStr()
     return Str;    
 }
 
+const std::string& commonSuffixStr()
+{
+    static const std::string Str("Common");
+    return Str;     
+}
+
+const std::string& cppHeaderSuffixStr()
+{
+    static const std::string Str(".h");
+    return Str;     
+}
+
+const std::string& cppSourceSuffixStr()
+{
+    static const std::string Str(".cpp");
+    return Str;     
+}
+
+const std::string& fieldNamespaceStr()
+{
+    static const std::string Str("field");
+    return Str;   
+}
+
 } // namespace strings
 
 } // namespace gen

@@ -22,6 +22,7 @@ std::string numToString(std::uintmax_t value, unsigned hexWidth = 0U);
 std::string numToString(std::intmax_t value);
 std::string numToString(unsigned value, unsigned hexWidth = 0U);
 std::string pathAddElem(const std::string& path, const std::string& elem);
+std::string pathUp(const std::string& path);
 
 using ReplacementMap = std::map<std::string, std::string>;
 std::string processTemplate(const std::string& templ, const ReplacementMap& repl);
