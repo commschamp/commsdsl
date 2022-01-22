@@ -290,6 +290,54 @@ void prepareIncludeStatement(std::vector<std::string>& includes)
     }
 }
 
+const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::size_t len)
+{
+    static const std::string TypeMap[] = {
+        /* Int8 */ "std::int8_t",
+        /* Uint8 */ "std::uint8_t",
+        /* Int16 */ "std::int16_t",
+        /* Uint16 */ "std::uint16_t",
+        /* Int32 */ "std::int32_t",
+        /* Uint32 */ "std::uint32_t",
+        /* Int64 */ "std::int64_t",
+        /* Uint64 */ "std::uint64_t",
+        /* Intvar */ strings::emptyString(),
+        /* Uintvar */ strings::emptyString()
+    };
+
+    static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues),
+            "Incorrect map");
+
+    std::size_t idx = static_cast<std::size_t>(value);
+    if (TypeMapSize <= idx) {
+        assert(false); // Should not happen
+        return strings::emptyString();
+    }
+
+    auto& typeStr = TypeMap[idx];
+    if (!typeStr.empty()) {
+        return typeStr;
+    }
+
+    // Variable length
+    auto offset = idx - static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Intvar);
+    assert(offset < 2U);
+
+    if (len <= 2U) {
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int16);
+        return TypeMap[base + offset];
+    }
+
+    if (len <= 4U) {
+        auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int32);
+        return TypeMap[base + offset];
+    }
+
+    auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int64);
+    return TypeMap[base + offset];    
+}
+
 } // namespace comms
 
 } // namespace gen

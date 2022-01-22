@@ -21,6 +21,13 @@ protected:
 
     // CommsBase overrides
     virtual IncludesList commsCommonIncludesImpl() const override;
+    virtual std::string commsCommonCodeBodyImpl() const override;
+
+private:
+    std::string commsCommonHasSpecialsFuncCode() const;
+    std::string commsCommonValueNamesMapCode() const;
+    std::string commsCommonSpecialsCode() const;
+    std::string commsCommonSpecialNamesMapCode() const;
 };
 
 } // namespace commsdsl2new

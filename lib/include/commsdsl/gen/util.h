@@ -21,6 +21,7 @@ unsigned strToUnsigned(const std::string& str);
 std::string numToString(std::uintmax_t value, unsigned hexWidth = 0U);
 std::string numToString(std::intmax_t value);
 std::string numToString(unsigned value, unsigned hexWidth = 0U);
+const std::string& boolToString(bool value);
 std::string pathAddElem(const std::string& path, const std::string& elem);
 std::string pathUp(const std::string& path);
 
@@ -34,6 +35,10 @@ std::string strListToString(
     const std::string& last = "\n");
 
 std::string strMakeMultiline(const std::string& value, unsigned len = 60);
+
+std::string readFileContents(const std::string& filePath);
+
+const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName);
 
 } // namespace util
 

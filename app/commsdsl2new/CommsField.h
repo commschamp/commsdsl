@@ -21,9 +21,13 @@ public:
     bool commsWrite() const;
 
     IncludesList commsCommonIncludes() const;
+    std::string commsCommonCode() const;
 
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
+    virtual std::string commsCommonCodeBodyImpl() const;
+
+    std::string commsCommonNameFuncCode() const;
 
 private:
     bool commsWriteCommon() const;

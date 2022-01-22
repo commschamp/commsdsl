@@ -54,6 +54,9 @@ public:
     void setOutputDir(const std::string& outDir);
     const std::string& getOutputDir() const;
 
+    void setCodeDir(const std::string& dir);
+    const std::string& getCodeDir() const;    
+
     unsigned parsedSchemaVersion() const;
     unsigned schemaVersion() const;
     const std::string& mainNamespace() const;
@@ -65,6 +68,11 @@ public:
 
     bool prepare(const FilesList& files);
     bool write();
+
+    bool doesElementExist(
+        unsigned sinceVersion,
+        unsigned deprecatedSince,
+        bool deprecatedRemoved) const;
 
     Logger& logger();
 

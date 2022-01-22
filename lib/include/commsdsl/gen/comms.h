@@ -3,6 +3,8 @@
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Generator.h"
 
+#include "commsdsl/parse/IntField.h"
+
 #include <string>
 
 namespace commsdsl
@@ -53,7 +55,9 @@ std::string namespaceEndFor(
     const Elem& elem, 
     const Generator& generator);     
 
-void prepareIncludeStatement(std::vector<std::string>& includes);          
+void prepareIncludeStatement(std::vector<std::string>& includes); 
+
+const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::size_t len);
 
 } // namespace comms
 

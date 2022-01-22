@@ -115,6 +115,16 @@ public:
         return m_outputDir;
     }
 
+    void setCodeDir(const std::string& dir)
+    {
+        m_codeDir = dir;
+    }
+
+    const std::string& getCodeDir() const
+    {
+        return m_codeDir;
+    }
+
     unsigned parsedSchemaVersion() const
     {
         return m_parsedSchemaVersion;
@@ -271,6 +281,7 @@ private:
     int m_forcedSchemaVersion = -1;
     unsigned m_minRemoteVersion = 0U;
     std::string m_outputDir;
+    std::string m_codeDir;
     const Field* m_messageIdField = nullptr;
     std::vector<std::string> m_createdDirectories;
 }; 
@@ -310,6 +321,16 @@ void Generator::setOutputDir(const std::string& outDir)
 const std::string& Generator::getOutputDir() const
 {
     return m_impl->getOutputDir();
+}
+
+void Generator::setCodeDir(const std::string& dir)
+{
+    m_impl->setCodeDir(dir);
+}
+
+const std::string& Generator::getCodeDir() const
+{
+    return m_impl->getCodeDir();
 }
 
 unsigned Generator::parsedSchemaVersion() const
@@ -378,6 +399,24 @@ bool Generator::write()
     }
     
     return writeImpl();
+}
+
+bool Generator::doesElementExist(
+    unsigned sinceVersion,
+    unsigned deprecatedSince,
+    bool deprecatedRemoved) const
+{
+    unsigned sVersion = schemaVersion();
+
+    if (sVersion < sinceVersion) {
+        return false;
+    }
+
+    if (deprecatedRemoved && (deprecatedSince <= getMinRemoteVersion())) {
+        return false;
+    }
+
+    return true;
 }
 
 Logger& Generator::logger()

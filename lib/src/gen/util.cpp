@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <cassert>
 #include <iterator>
+#include <fstream>
 
 namespace commsdsl
 {
@@ -144,6 +145,17 @@ std::string numToString(std::intmax_t value)
 std::string numToString(unsigned value, unsigned hexWidth)
 {
     return numToString(static_cast<std::uintmax_t>(value), hexWidth);
+}
+
+const std::string& boolToString(bool value)
+{
+    if (value) {
+        static const std::string TrueStr("true");
+        return TrueStr;
+    }
+
+    static const std::string FalseStr("false");
+    return FalseStr;
 }
 
 std::string pathAddElem(const std::string& path, const std::string& elem)
@@ -352,6 +364,29 @@ std::string strMakeMultiline(const std::string& value, unsigned len)
     return result;
 }
 
+std::string readFileContents(const std::string& filePath)
+{
+    std::string result;
+    std::ifstream stream(filePath);
+    if (stream) {
+        result.assign(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
+    }
+    
+    return result;
+}
+
+const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName)
+{
+    if (dslDisplayName.empty()) {
+        return dslName;
+    }
+
+    if (dslDisplayName == strings::forceEmptyDisplayNameStr()) {
+        return strings::emptyString();
+    }
+
+    return dslDisplayName;
+}
 
 } // namespace util
 

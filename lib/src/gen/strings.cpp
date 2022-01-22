@@ -81,6 +81,24 @@ const std::string& fieldNamespaceStr()
     return Str;   
 }
 
+const std::string& includeDirStr()
+{
+    static const std::string Str("include");
+    return Str;   
+}
+
+const std::string& nameFileSuffixStr()
+{
+    static const std::string Str(".name");
+    return Str;     
+}
+
+const std::string& forceEmptyDisplayNameStr()
+{
+    static const std::string Str("_");
+    return Str;
+}
+
 } // namespace strings
 
 } // namespace gen
