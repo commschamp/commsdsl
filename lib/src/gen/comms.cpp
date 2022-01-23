@@ -1,6 +1,8 @@
 #include "commsdsl/gen/comms.h"
 
 #include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/Field.h"
 
 #include <algorithm>
 #include <cassert>
@@ -28,7 +30,8 @@ std::string scopeForElement(
     const Generator& generator, 
     const std::vector<std::string>& subElems,
     bool addMainNamespace, 
-    bool addElement)
+    bool addElement,
+    const std::string& sep = ScopeSep)
 {
     std::string result;
     if (addMainNamespace) {
@@ -37,7 +40,7 @@ std::string scopeForElement(
 
     for (auto& elem : subElems) {
         if (!result.empty()) {
-            result.append(ScopeSep);
+            result.append(sep);
         }
 
         result.append(elem);
@@ -45,7 +48,7 @@ std::string scopeForElement(
 
     if (addElement) {
         if (!result.empty()) {
-            result.append(ScopeSep);
+            result.append(sep);
         }        
         result.append(name);
     }
@@ -171,13 +174,28 @@ std::string scopeForInput(
     return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
 }
 
-std::string relHeaderPathFor(
-    const Elem& elem, 
-    const Generator& generator)
+std::string relHeaderPathFor(const Elem& elem, const Generator& generator)
 {
     return scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
+std::string relHeaderPathForField(const std::string& name, const Generator& generator)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::fieldNamespaceStr()
+    };
+
+    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+}
+
+std::string relHeaderForOptions(const std::string& name, const Generator& generator)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::optionsNamespaceStr()
+    };
+
+    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+}
 
 std::string namespaceBeginFor(
     const Elem& elem, 
@@ -336,6 +354,34 @@ const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::siz
 
     auto base = static_cast<decltype(idx)>(commsdsl::parse::IntField::Type::Int64);
     return TypeMap[base + offset];    
+}
+
+bool isGlobalField(const Elem& elem)
+{
+    if (elem.elemType() != Elem::Type_Field) {
+        return false;
+    }
+
+    auto* parent = elem.getParent();
+    assert(parent != nullptr);
+    return parent->elemType() == Elem::Type_Namespace;
+}
+
+unsigned sinceVersionOf(const Elem& elem)
+{
+    auto elemType = elem.elemType();
+    if (elemType == Elem::Type_Message) {
+        return static_cast<const gen::Message&>(elem).dslObj().sinceVersion();
+    }
+
+    if (elemType == Elem::Type_Field) {
+        auto* parent = elem.getParent();
+        assert(parent != nullptr);
+        auto fieldResult = static_cast<const gen::Field&>(elem).dslObj().sinceVersion();
+        return std::max(sinceVersionOf(*parent), fieldResult);
+    }
+
+    return 0U;
 }
 
 } // namespace comms

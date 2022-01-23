@@ -43,9 +43,9 @@ std::string scopeForInput(
     bool addMainNamespace = true, 
     bool addElement = true);  
 
-std::string relHeaderPathFor(
-    const Elem& elem, 
-    const Generator& generator);
+std::string relHeaderPathFor(const Elem& elem, const Generator& generator);
+std::string relHeaderPathForField(const std::string& name, const Generator& generator); 
+std::string relHeaderForOptions(const std::string& name, const Generator& generator); 
 
 std::string namespaceBeginFor(
     const Elem& elem, 
@@ -58,6 +58,10 @@ std::string namespaceEndFor(
 void prepareIncludeStatement(std::vector<std::string>& includes); 
 
 const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::size_t len);
+
+bool isGlobalField(const Elem& elem);
+
+unsigned sinceVersionOf(const Elem& elem);
 
 } // namespace comms
 

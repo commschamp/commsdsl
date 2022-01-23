@@ -23,11 +23,18 @@ public:
     IncludesList commsCommonIncludes() const;
     std::string commsCommonCode() const;
 
+    IncludesList commsDefIncludes() const;
+    std::string commsDefCode() const;
+
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
     virtual std::string commsCommonCodeBodyImpl() const;
+    virtual IncludesList commsDefIncludesImpl() const;
+    virtual std::string commsDefCodeImpl() const;
 
     std::string commsCommonNameFuncCode() const;
+    bool commsIsVersionOptional() const;
+    
 
 private:
     bool commsWriteCommon() const;

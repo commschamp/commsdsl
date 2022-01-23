@@ -81,6 +81,12 @@ const std::string& fieldNamespaceStr()
     return Str;   
 }
 
+const std::string& optionsNamespaceStr()
+{
+    static const std::string Str("options");
+    return Str;   
+}
+
 const std::string& includeDirStr()
 {
     static const std::string Str("include");
@@ -97,6 +103,18 @@ const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");
     return Str;
+}
+
+const std::string& fieldBaseClassStr()
+{
+    static const std::string Str("FieldBase");
+    return Str;    
+}
+
+const std::string& defaultOptionsClassStr()
+{
+    static const std::string Str("DefaultOptions");
+    return Str;    
 }
 
 } // namespace strings

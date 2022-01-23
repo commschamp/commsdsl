@@ -23,9 +23,12 @@ const std::string& commonSuffixStr();
 const std::string& cppHeaderSuffixStr();
 const std::string& cppSourceSuffixStr();
 const std::string& fieldNamespaceStr();
+const std::string& optionsNamespaceStr();
 const std::string& includeDirStr();
 const std::string& nameFileSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
+const std::string& fieldBaseClassStr();
+const std::string& defaultOptionsClassStr();
 
 } // namespace strings
 

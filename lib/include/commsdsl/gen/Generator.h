@@ -55,7 +55,10 @@ public:
     const std::string& getOutputDir() const;
 
     void setCodeDir(const std::string& dir);
-    const std::string& getCodeDir() const;    
+    const std::string& getCodeDir() const;   
+
+    void setVersionIndependentCodeForced(bool value = true); 
+    bool getVersionIndependentCodeForced() const;
 
     unsigned parsedSchemaVersion() const;
     unsigned schemaVersion() const;
@@ -73,6 +76,13 @@ public:
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
+
+    bool isElementOptional(
+        unsigned sinceVersion,
+        unsigned deprecatedSince,
+        bool deprecatedRemoved) const;
+
+    bool versionDependentCode() const;
 
     Logger& logger();
 

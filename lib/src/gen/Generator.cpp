@@ -125,6 +125,16 @@ public:
         return m_codeDir;
     }
 
+    void setVersionIndependentCodeForced(bool value)
+    {
+        m_versionIndependentCodeForced = value;
+    }
+
+    bool getVersionIndependentCodeForced() const
+    {
+        return m_versionIndependentCodeForced;
+    }
+
     unsigned parsedSchemaVersion() const
     {
         return m_parsedSchemaVersion;
@@ -226,6 +236,11 @@ public:
                 return false;                
             }
         }
+
+        if (!m_versionIndependentCodeForced) {
+            m_versionDependentCode = anyInterfaceHasVersion();
+        }
+
         return true;
     }
 
@@ -258,6 +273,11 @@ public:
         return m_protocol;
     }
 
+    bool versionDependentCode() const
+    {
+        return m_versionDependentCode;
+    }
+
 private:
     const Field* findMessageIdField() const
     {
@@ -268,6 +288,34 @@ private:
             }
         }
         return nullptr;
+    }
+
+    bool anyInterfaceHasVersion() const
+    {
+        return
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    auto interfaces = n->getAllInterfaces();
+
+                    return 
+                        std::any_of(
+                            interfaces.begin(), interfaces.end(),
+                            [](auto& i)
+                            {
+
+                                auto& fields = i->fields();
+                                return
+                                    std::any_of(
+                                        fields.begin(), fields.end(),
+                                        [](auto& f)
+                                        {
+                                            return f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version;
+                                        });
+
+                            });
+                });
     }
 
     Generator& m_generator;
@@ -284,6 +332,8 @@ private:
     std::string m_codeDir;
     const Field* m_messageIdField = nullptr;
     std::vector<std::string> m_createdDirectories;
+    bool m_versionIndependentCodeForced = false;
+    bool m_versionDependentCode = false;
 }; 
 
 Generator::Generator() : 
@@ -331,6 +381,16 @@ void Generator::setCodeDir(const std::string& dir)
 const std::string& Generator::getCodeDir() const
 {
     return m_impl->getCodeDir();
+}
+
+void Generator::setVersionIndependentCodeForced(bool value)
+{
+    m_impl->setVersionIndependentCodeForced(value);
+}
+
+bool Generator::getVersionIndependentCodeForced() const
+{
+    return m_impl->getVersionIndependentCodeForced();
 }
 
 unsigned Generator::parsedSchemaVersion() const
@@ -417,6 +477,28 @@ bool Generator::doesElementExist(
     }
 
     return true;
+}
+
+bool Generator::isElementOptional(
+    unsigned sinceVersion,
+    unsigned deprecatedSince,
+    bool deprecatedRemoved) const
+{
+    if (getMinRemoteVersion() < sinceVersion) {
+        return true;
+    }
+
+    if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated())) {
+        return true;
+    }
+
+    return false;
+}
+
+
+bool Generator::versionDependentCode() const
+{
+    return m_impl->versionDependentCode();
 }
 
 Logger& Generator::logger()

@@ -74,6 +74,16 @@ std::string CommsIntField::commsCommonCodeBodyImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+CommsIntField::IncludesList CommsIntField::commsDefIncludesImpl() const
+{
+    IncludesList list = {
+        "<cstdint>",
+        "comms/field/IntValue.h"
+    };
+
+    return list;
+}
+
 std::string CommsIntField::commsCommonHasSpecialsFuncCode() const
 {
     static const std::string Templ = 

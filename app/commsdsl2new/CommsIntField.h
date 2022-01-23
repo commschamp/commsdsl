@@ -22,6 +22,7 @@ protected:
     // CommsBase overrides
     virtual IncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
+    virtual IncludesList commsDefIncludesImpl() const override;
 
 private:
     std::string commsCommonHasSpecialsFuncCode() const;
