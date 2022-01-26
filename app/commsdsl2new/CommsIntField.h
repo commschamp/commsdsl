@@ -25,6 +25,7 @@ protected:
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsBaseClassDefImpl() const override;
+    virtual std::string commsDefPublicCodeImpl() const override;
 
 private:
     std::string commsCommonHasSpecialsFuncCodeInternal() const;
@@ -32,6 +33,11 @@ private:
     std::string commsCommonSpecialsCodeInternal() const;
     std::string commsCommonSpecialNamesMapCodeInternal() const;
     std::string commsFieldDefOptsInternal() const;
+    std::string commsDefValueNamesMapCodeInternal() const;
+    std::string commsDefHasSpecialsFuncCodeInternal() const;
+    std::string commsDefSpecialsCodeInternal() const;
+    std::string commsDefSpecialNamesMapCodeInternal() const;
+    std::string commsDefDisplayDecimalsCodeInternal() const;
 
     void commsAddLengthOptInternal(StringsList& opts) const;
     void commsAddSerOffsetOptInternal(StringsList& opts) const;
@@ -40,8 +46,6 @@ private:
     void commsAddDefaultValueOptInternal(StringsList& opts) const;
     void commsAddValidRangesOptInternal(StringsList& opts) const;
     void commsAddCustomRefreshOptInternal(StringsList& opts) const;
-
-
     bool commsRequiresFailOnInvalidRefreshInternal() const;
 };
 

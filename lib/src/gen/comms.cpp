@@ -106,6 +106,59 @@ std::string scopeForInternal(
     return result;
 }
 
+std::string commonScopeForInternal(
+    const Elem& elem, 
+    const Generator& generator, 
+    bool addMainNamespace, 
+    bool addElement,
+    const std::string& sep)
+{
+    std::string result;
+    auto* parent = elem.getParent();
+    if (parent != nullptr) {
+        result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep);
+    }
+    else if (addMainNamespace) {
+        result = generator.mainNamespace();
+    }
+
+    do {
+        if (!addElement) {
+            break;
+        }
+
+        auto& elemName = elem.name();
+        if (elemName.empty()) {
+            break;
+        }
+
+        if (!result.empty()) {
+            result.append(sep);
+        }
+
+        auto elemType = elem.elemType();
+        assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
+
+        if (elemType == Elem::Type_Namespace) {
+            result.append(namespaceName(elemName));
+            break;
+        }
+
+        if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
+            // Global fields reside in appropriate namespace
+            result.append(strings::fieldNamespaceStr() + sep);
+        }
+
+        result.append(className(elem.name()));
+        if ((elemType == Elem::Type_Field) || (elemType == Elem::Type_Message)) {
+            result.append(strings::commonSuffixStr());
+        }
+
+    } while (false);
+
+    return result;
+}
+
 } // namespace 
     
 
@@ -136,6 +189,15 @@ std::string scopeFor(
     bool addElement)
 {
     return scopeForInternal(elem, generator, addMainNamespace, addElement, ScopeSep);
+}
+
+std::string commonScopeFor(
+    const Elem& elem, 
+    const Generator& generator, 
+    bool addMainNamespace, 
+    bool addElement)
+{
+    return commonScopeForInternal(elem, generator, addMainNamespace, addElement, ScopeSep);
 }
 
 std::string scopeForInterface(

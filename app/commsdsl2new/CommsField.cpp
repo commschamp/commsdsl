@@ -121,6 +121,7 @@ CommsField::IncludesList CommsField::commsDefIncludes() const
 
     auto extraList = commsDefIncludesImpl();
     list.insert(list.end(), extraList.begin(), extraList.end());
+    
     return list;
 }
 
@@ -173,6 +174,46 @@ std::string CommsField::commsExtraDoxigenImpl() const
 }
 
 std::string CommsField::commsBaseClassDefImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefPublicCodeImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefProtectedCodeImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefPrivateCodeImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefReadFuncBodyImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefWriteFuncBodyImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefRefreshFuncBodyImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefLengthFuncBodyImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefValidFuncBodyImpl() const
 {
     return strings::emptyString();
 }
@@ -375,6 +416,7 @@ bool CommsField::commsWriteDefInternal() const
         "\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
+        "#^#EXTRA_INCLUDES#$#\n"
         "#^#NS_BEGIN#$#\n"
         "#^#DEF#$#\n"
         "#^#NS_END#$#"
@@ -384,6 +426,7 @@ bool CommsField::commsWriteDefInternal() const
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
         {"FIELD_NAME", util::displayName(m_field.dslObj().displayName(), m_field.dslObj().name())},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
+        {"EXTRA_INCLUDES", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::incFileSuffixStr())},
         {"NS_BEGIN", comms::namespaceBeginFor(m_field, generator)},
         {"NS_END", comms::namespaceEndFor(m_field, generator)},
         {"DEF", commsDefCode()},
@@ -422,13 +465,14 @@ std::string CommsField::commsFieldDefCodeInternal() const
         {"PARAMS", commsTemplateParamsInternal()},
         {"NAME", comms::className(m_field.name())},
         {"BASE", commsBaseClassDefImpl()},
+        {"PUBLIC", commsDefPublicCodeInternal()},
+        {"PUBLIC", commsDefProtectedCodeInternal()},
+        {"PUBLIC", commsDefPrivateCodeInternal()},
     };
 
     if (commsIsVersionOptional()) {
         repl.insert({{"SUFFIX", strings::versionOptionalFieldSuffixStr()}});
     }
-
-    // TODO: hasn't finished yet
 
     return util::processTemplate(Templ, repl);
 }
@@ -523,5 +567,300 @@ std::string CommsField::commsTemplateParamsInternal() const
     return result;    
 }
 
+std::string CommsField::commsDefPublicCodeInternal() const
+{
+    static const std::string Templ = {
+        "public:\n"
+        "    #^#FIELD_DEF#$#\n"
+        "    #^#NAME#$#\n"
+        "    #^#READ#$#\n"
+        "    #^#WRITE#$#\n"
+        "    #^#REFRESH#$#\n"
+        "    #^#LENGTH#$#\n"
+        "    #^#VALID#$#\n"
+        "    #^#EXTRA_PUBLIC#$#\n"
+    };
+
+    auto& generator = m_field.generator();
+    util::ReplacementMap repl = {
+        {"FIELD_DEF", commsDefPublicCodeImpl()},
+        {"NAME", commsDefNameFuncCodeInternal()},
+        {"READ", commsDefReadFuncCodeInternal()},
+        {"WRITE", commsDefWriteFuncCodeInternal()},
+        {"REFRESH", commsDefRefreshFuncCodeInternal()},
+        {"LENGTH", commsDefLengthFuncCodeInternal()},
+        {"VALID", commsDefValidFuncCodeInternal()},
+        {"EXTRA_PUBLIC", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::publicFileSuffixStr())},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefProtectedCodeInternal() const
+{
+    static const std::string Templ = 
+        "protected:\n"
+        "    #^#FIELD#$#\n"
+        "    #^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl;
+
+    auto field = commsDefProtectedCodeImpl();
+    auto custom = util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::protectedFileSuffixStr());
+    
+    if (!field.empty()) {
+        repl.insert({{"FIELD", std::move(field)}});
+    }
+
+    if (!custom.empty()) {
+        repl.insert({{"CUSTOM", std::move(custom)}});
+    }
+
+    if (repl.empty()) {
+        return strings::emptyString();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefPrivateCodeInternal() const
+{
+    static const std::string Templ = 
+        "private:\n"
+        "    #^#FIELD#$#\n"
+        "    #^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl;
+
+    auto field = commsDefPrivateCodeImpl();
+    auto custom = util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::privateFileSuffixStr());
+    
+    if (!field.empty()) {
+        repl.insert({{"FIELD", std::move(field)}});
+    }
+
+    if (!custom.empty()) {
+        repl.insert({{"CUSTOM", std::move(custom)}});
+    }
+
+    if (repl.empty()) {
+        return strings::emptyString();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefNameFuncCodeInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Name of the field.\n"
+        "static const char* name()\n"
+        "{\n"
+        "    return #^#SCOPE#$#Common::name();\n"
+        "}\n";
+
+    auto& generator = m_field.generator();
+    util::ReplacementMap repl = {
+        {"SCOPE", comms::scopeFor(m_field, generator)},
+    };
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefReadFuncCodeInternal() const
+{
+    static const std::string Templ = 
+        "#^#ORIG#$#\n"
+        "#^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl;
+    auto body = commsDefReadFuncBodyImpl();
+    if (!body.empty()) {
+        static const std::string OrigTempl = 
+            "/// @brief Generated read functionality.\n"
+            "template <typename TIter>\n"
+            "comms::ErrorStatus read#^#SUFFIX#$#(TIter& iter, std::size_t len)\n"
+            "{\n"
+            "    #^#BODY#$#"
+            "}\n";
+
+        util::ReplacementMap origRepl = {
+            {"BODY", std::move(body)}
+        };
+
+        if (!m_customRead.empty()) {
+            origRepl["SUFFIX"] = strings::origSuffixStr();
+        }
+
+        repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
+    }
+
+    if (!m_customRead.empty()) {
+        repl.insert({{"CUSTOM", m_customRead}});
+    }
+
+    if (repl.empty()) {
+        return strings::emptyString();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefWriteFuncCodeInternal() const
+{
+    static const std::string Templ = 
+        "#^#ORIG#$#\n"
+        "#^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl;
+    auto body = commsDefWriteFuncBodyImpl();
+    if (!body.empty()) {
+        static const std::string OrigTempl = 
+            "/// @brief Generated write functionality.\n"
+            "template <typename TIter>\n"
+            "comms::ErrorStatus write#^#SUFFIX#$#(TIter& iter, std::size_t len) const\n"
+            "{\n"
+            "    #^#BODY#$#"
+            "}\n";
+
+        util::ReplacementMap origRepl = {
+            {"BODY", std::move(body)}
+        };
+
+        if (!m_customWrite.empty()) {
+            origRepl["SUFFIX"] = strings::origSuffixStr();
+        }
+
+        repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
+    }
+
+    if (!m_customWrite.empty()) {
+        repl.insert({{"CUSTOM", m_customWrite}});
+    }
+
+    if (repl.empty()) {
+        return strings::emptyString();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefRefreshFuncCodeInternal() const
+{
+    static const std::string Templ = 
+        "#^#ORIG#$#\n"
+        "#^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl;
+    auto body = commsDefRefreshFuncBodyImpl();
+    if (!body.empty()) {
+        static const std::string OrigTempl = 
+            "/// @brief Generated refresh functionality.\n"
+            "template <typename TIter>\n"
+            "bool refresh#^#SUFFIX#$#() const\n"
+            "{\n"
+            "    #^#BODY#$#"
+            "}\n";
+
+        util::ReplacementMap origRepl = {
+            {"BODY", std::move(body)}
+        };
+
+        if (!m_customRefresh.empty()) {
+            origRepl["SUFFIX"] = strings::origSuffixStr();
+        }
+
+        repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
+    }
+
+    if (!m_customRefresh.empty()) {
+        repl.insert({{"CUSTOM", m_customRefresh}});
+    }
+
+    if (repl.empty()) {
+        return strings::emptyString();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefLengthFuncCodeInternal() const
+{
+    static const std::string Templ = 
+        "#^#ORIG#$#\n"
+        "#^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl;
+    auto body = commsDefLengthFuncBodyImpl();
+    auto custom = util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::lengthFileSuffixStr());
+    if (!body.empty()) {
+        static const std::string OrigTempl = 
+            "/// @brief Generated length functionality.\n"
+            "template <typename TIter>\n"
+            "std::size_t length#^#SUFFIX#$#() const\n"
+            "{\n"
+            "    #^#BODY#$#"
+            "}\n";
+
+        util::ReplacementMap origRepl = {
+            {"BODY", std::move(body)}
+        };
+
+        if (!custom.empty()) {
+            origRepl["SUFFIX"] = strings::origSuffixStr();
+        }
+
+        repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
+    }
+
+    if (!custom.empty()) {
+        repl.insert({{"CUSTOM", std::move(custom)}});
+    }
+
+    if (repl.empty()) {
+        return strings::emptyString();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefValidFuncCodeInternal() const
+{
+    static const std::string Templ = 
+        "#^#ORIG#$#\n"
+        "#^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl;
+    auto body = commsDefValidFuncBodyImpl();
+    auto custom = util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::validFileSuffixStr());
+    if (!body.empty()) {
+        static const std::string OrigTempl = 
+            "/// @brief Generated validity check functionality.\n"
+            "template <typename TIter>\n"
+            "bool valid#^#SUFFIX#$#() const\n"
+            "{\n"
+            "    #^#BODY#$#"
+            "}\n";
+
+        util::ReplacementMap origRepl = {
+            {"BODY", std::move(body)}
+        };
+
+        if (!custom.empty()) {
+            origRepl["SUFFIX"] = strings::origSuffixStr();
+        }
+
+        repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
+    }
+
+    if (!custom.empty()) {
+        repl.insert({{"CUSTOM", std::move(custom)}});
+    }
+
+    if (repl.empty()) {
+        return strings::emptyString();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
 
 } // namespace commsdsl2new

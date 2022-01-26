@@ -15,6 +15,38 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2new
 {
 
+namespace 
+{
+
+const std::string& specialNamesMapTempl()
+{
+    static const std::string Templ = 
+        "/// @brief Single special value name info entry.\n"
+        "using SpecialNameInfo = #^#INFO_DEF#$#;\n\n"
+        "/// @brief Type returned from @ref specialNamesMap() member function.\n"
+        "/// @details The @b first value of the pair is pointer to the map array,\n"
+        "///     The @b second value of the pair is the size of the array.\n"
+        "using SpecialNamesMapInfo = #^#MAP_DEF#$#;\n";
+
+    return Templ;
+}
+
+
+const std::string& hasSpecialsFuncTempl()
+{
+    static const std::string Templ = 
+        "/// @brief Compile time detection of special values presence.\n"
+        "static constexpr bool hasSpecials()\n"
+        "{\n"
+        "    return #^#VALUE#$#;\n"
+        "}\n";
+
+    return Templ;
+}
+
+} // namespace 
+    
+
 CommsIntField::CommsIntField(
     CommsGenerator& generator, 
     commsdsl::parse::Field dslObj, 
@@ -115,22 +147,36 @@ std::string CommsIntField::commsBaseClassDefImpl() const
     return util::processTemplate(Templ, repl);   
 }
 
-std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
+std::string CommsIntField::commsDefPublicCodeImpl() const
 {
     static const std::string Templ = 
-        "/// @brief Compile time detection of special values presence.\n"
-        "static constexpr bool hasSpecials()\n"
-        "{\n"
-        "    return #^#VALUE#$#;\n"
-        "}\n"
-    ;
+        "/// @brief Re-definition of the value type.\n"
+        "using ValueType = typename Base::ValueType;\n\n"
+        "#^#SPECIAL_VALUE_NAMES_MAP_DEFS#$#\n"
+        "#^#HAS_SPECIALS#$#\n"
+        "#^#SPECIALS#$#\n"
+        "#^#SPECIAL_NAMES_MAP#$#\n"
+        "#^#DISPLAY_DECIMALS#$#\n";
 
+    util::ReplacementMap repl = {
+        {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsDefValueNamesMapCodeInternal()},
+        {"HAS_SPECIALS", commsDefHasSpecialsFuncCodeInternal()},
+        {"SPECIALS", commsDefSpecialsCodeInternal()},
+        {"SPECIAL_NAMES_MAP", commsDefSpecialNamesMapCodeInternal()},
+        {"DISPLAY_DECIMALS", commsDefDisplayDecimalsCodeInternal()},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
+{
     auto& specials = specialsSortedByValue();    
     util::ReplacementMap repl = {
         {"VALUE", util::boolToString(!specials.empty())}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::processTemplate(hasSpecialsFuncTempl(), repl);
 }
 
 std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
@@ -140,20 +186,12 @@ std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
         return strings::emptyString();
     }
 
-    static const std::string Templ = 
-        "/// @brief Single special value name info entry.\n"
-        "using SpecialNameInfo = #^#INFO_DEF#$#;\n\n"
-        "/// @brief Type returned from @ref specialNamesMap() member function.\n"
-        "/// @details The @b first value of the pair is pointer to the map array,\n"
-        "///     The @b second value of the pair is the size of the array.\n"
-        "using SpecialNamesMapInfo = #^#MAP_DEF#$#;\n";
-
     util::ReplacementMap repl = {
         {"INFO_DEF", "std::pair<ValueType, const char*>"},
         {"MAP_DEF", "std::pair<const SpecialNameInfo*, std::size_t>"}
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::processTemplate(specialNamesMapTempl(), repl);
 }
 
 std::string CommsIntField::commsCommonSpecialsCodeInternal() const
@@ -261,6 +299,111 @@ std::string CommsIntField::commsFieldDefOptsInternal() const
     commsAddCustomRefreshOptInternal(opts);
 
     return util::strListToString(opts, ",\n", "");
+}
+
+std::string CommsIntField::commsDefValueNamesMapCodeInternal() const
+{
+    auto& specials = specialsSortedByValue();    
+    if (specials.empty()) {
+        return strings::emptyString();
+    }
+
+    auto scope = comms::commonScopeFor(*this, generator());
+
+    util::ReplacementMap repl = {
+        {"INFO_DEF", scope + "::SpecialNameInfo"},
+        {"MAP_DEF", scope + "::SpecialNamesMapInfo"}
+    };
+
+    return util::processTemplate(specialNamesMapTempl(), repl);    
+}
+
+std::string CommsIntField::commsDefHasSpecialsFuncCodeInternal() const
+{
+    util::ReplacementMap repl = {
+        {"VALUE", comms::commonScopeFor(*this, generator()) + "::hasSpecials()"}
+    };
+
+    return util::processTemplate(hasSpecialsFuncTempl(), repl);
+}
+
+std::string CommsIntField::commsDefSpecialsCodeInternal() const
+{
+    auto& specials = specialsSortedByValue();
+    if (specials.empty()) {
+        return strings::emptyString();
+    }
+
+    util::StringsList specialsList;
+    for (auto& s : specials) {
+        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        static const std::string Templ(
+            "/// @brief Special value <b>\"#^#SPEC_NAME#$#\"</b>.\n"
+            "/// @see @ref #^#COMMON#$#::value#^#SPEC_ACC#$#().\n"
+            "static constexpr ValueType value#^#SPEC_ACC#$#()\n"
+            "{\n"
+            "    return #^#COMMON#$#::value#^#SPEC_ACC#$#();\n"
+            "}\n"
+        );
+
+        util::ReplacementMap repl = {
+            {"SPEC_NAME", s.first},
+            {"SPEC_ACC", comms::className(s.first)},
+            {"COMMON", comms::commonScopeFor(*this, generator())},
+        };
+
+        specialsList.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(specialsList, "\n", "");
+}
+
+std::string CommsIntField::commsDefSpecialNamesMapCodeInternal() const
+{
+    auto& specials = specialsSortedByValue();
+    if (specials.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "/// @brief Retrieve map of special value names\n"
+        "static SpecialNamesMapInfo specialNamesMap()\n"
+        "{\n"
+        "    return #^#COMMON#$#::specialNamesMap();\n"
+        "}\n";    
+
+    util::ReplacementMap repl {
+        {"COMMON", comms::commonScopeFor(*this, generator())}
+    };
+
+    return util::processTemplate(Templ, repl);    
+}
+
+std::string CommsIntField::commsDefDisplayDecimalsCodeInternal() const
+{
+    auto obj = intDslObj();
+    auto scaling = obj.scaling();
+    std::string result;
+    if (scaling.first == scaling.second) {
+        return result;
+    }
+
+    static const std::string Templ = 
+        "/// @brief Requested number of digits after decimal point when value\n"
+        "///     is displayed.\n"
+        "static constexpr unsigned displayDecimals()\n"
+        "{\n"
+        "    return #^#DISPLAY_DECIMALS#$#;\n"
+        "}";
+        
+    util::ReplacementMap repl = {
+        {"DISPLAY_DECIMALS", util::numToString(obj.displayDecimals())}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const

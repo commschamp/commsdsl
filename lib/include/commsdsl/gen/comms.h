@@ -27,6 +27,12 @@ std::string scopeFor(
     bool addMainNamespace = true, 
     bool addElement = true);
 
+std::string commonScopeFor(
+    const Elem& elem, 
+    const Generator& generator, 
+    bool addMainNamespace = true, 
+    bool addElement = true);    
+
 std::string scopeForInterface(
     const std::string& name, 
     const Generator& generator, 

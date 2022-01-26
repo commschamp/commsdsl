@@ -53,6 +53,14 @@ protected:
     virtual std::string commsDoxigenDetailsImpl() const;
     virtual std::string commsExtraDoxigenImpl() const;
     virtual std::string commsBaseClassDefImpl() const;
+    virtual std::string commsDefPublicCodeImpl() const;
+    virtual std::string commsDefProtectedCodeImpl() const;
+    virtual std::string commsDefPrivateCodeImpl() const;
+    virtual std::string commsDefReadFuncBodyImpl() const;
+    virtual std::string commsDefWriteFuncBodyImpl() const;
+    virtual std::string commsDefRefreshFuncBodyImpl() const;
+    virtual std::string commsDefLengthFuncBodyImpl() const;
+    virtual std::string commsDefValidFuncBodyImpl() const;
     virtual bool commsIsLimitedCustomizableImpl() const;
 
     std::string commsCommonNameFuncCode() const;
@@ -71,6 +79,15 @@ private:
     std::string commsExtraDocInternal() const;
     std::string commsDeprecatedDocInternal() const;
     std::string commsTemplateParamsInternal() const;
+    std::string commsDefPublicCodeInternal() const;
+    std::string commsDefProtectedCodeInternal() const;
+    std::string commsDefPrivateCodeInternal() const;
+    std::string commsDefNameFuncCodeInternal() const;
+    std::string commsDefReadFuncCodeInternal() const;
+    std::string commsDefWriteFuncCodeInternal() const;
+    std::string commsDefRefreshFuncCodeInternal() const;
+    std::string commsDefLengthFuncCodeInternal() const;
+    std::string commsDefValidFuncCodeInternal() const;
 
     commsdsl::gen::Field& m_field;
     std::string m_customRead;

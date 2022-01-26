@@ -117,6 +117,42 @@ const std::string& writeFileSuffixStr()
     return Str;     
 }
 
+const std::string& publicFileSuffixStr()
+{
+    static const std::string Str(".public");
+    return Str;     
+}
+
+const std::string& protectedFileSuffixStr()
+{
+    static const std::string Str(".protected");
+    return Str;     
+}
+
+const std::string& privateFileSuffixStr()
+{
+    static const std::string Str(".private");
+    return Str;     
+}
+
+const std::string& incFileSuffixStr()
+{
+    static const std::string Str(".inc");
+    return Str;     
+}
+
+const std::string& lengthFileSuffixStr()
+{
+    static const std::string Str(".length");
+    return Str;     
+}
+
+const std::string& validFileSuffixStr()
+{
+    static const std::string Str(".valid");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");
@@ -150,6 +186,12 @@ const std::string& doxygenPrefixStr()
 const std::string& versionOptionalFieldSuffixStr()
 {
     static const std::string Str("Field");
+    return Str;      
+}
+
+const std::string& origSuffixStr()
+{
+    static const std::string Str("Orig");
     return Str;      
 }
 

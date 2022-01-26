@@ -29,12 +29,19 @@ const std::string& nameFileSuffixStr();
 const std::string& readFileSuffixStr();
 const std::string& refreshFileSuffixStr();
 const std::string& writeFileSuffixStr();
+const std::string& publicFileSuffixStr();
+const std::string& protectedFileSuffixStr();
+const std::string& privateFileSuffixStr();
+const std::string& incFileSuffixStr();
+const std::string& lengthFileSuffixStr();
+const std::string& validFileSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
 const std::string& fieldBaseClassStr();
 const std::string& defaultOptionsClassStr();
 const std::string& indentStr();
 const std::string& doxygenPrefixStr();
 const std::string& versionOptionalFieldSuffixStr();
+const std::string& origSuffixStr();
 
 } // namespace strings
 
