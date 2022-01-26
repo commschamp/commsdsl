@@ -466,8 +466,8 @@ std::string CommsField::commsFieldDefCodeInternal() const
         {"NAME", comms::className(m_field.name())},
         {"BASE", commsBaseClassDefImpl()},
         {"PUBLIC", commsDefPublicCodeInternal()},
-        {"PUBLIC", commsDefProtectedCodeInternal()},
-        {"PUBLIC", commsDefPrivateCodeInternal()},
+        {"PROTECTED", commsDefProtectedCodeInternal()},
+        {"PRIVATE", commsDefPrivateCodeInternal()},
     };
 
     if (commsIsVersionOptional()) {
@@ -479,8 +479,71 @@ std::string CommsField::commsFieldDefCodeInternal() const
 
 std::string CommsField::commsOptionalDefCodeInternal() const
 {
-    // TODO:
-    return strings::emptyString();
+    if (!commsIsVersionOptional()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Definition of version dependent\n"
+        "///     <b>#^#NAME#$#</b> field."
+        "#^#PARAMS#$#\n"
+        "struct #^#CLASS_NAME#$# : public\n"
+        "    comms::field::Optional<\n"
+        "        #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#,\n"
+        "        comms::option::def::#^#DEFAULT_MODE_OPT#$#,\n"
+        "        comms::option::def::#^#VERSIONS_OPT#$#\n"
+        "    >\n"
+        "{\n"
+        "    /// @brief Name of the field.\n"
+        "    static const char* name()\n"
+        "    {\n"
+        "        return #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#::name();\n"
+        "    }\n"
+        "};\n"; 
+
+
+        auto& generator = m_field.generator();
+        auto& dslObj = m_field.dslObj();
+        bool fieldExists = 
+            generator.doesElementExist(
+                dslObj.sinceVersion(),
+                dslObj.deprecatedSince(),
+                dslObj.isDeprecatedRemoved());
+
+        std::string defaultModeOpt = "ExistsByDefault";
+        if (!fieldExists) {
+            defaultModeOpt = "MissingByDefault";
+        }
+
+        std::string versionOpt = "ExistsSinceVersion<" + util::numToString(dslObj.sinceVersion()) + '>';
+        if (dslObj.isDeprecatedRemoved()) {
+            assert(dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated());
+            if (dslObj.sinceVersion() == 0U) {
+                versionOpt = "ExistsUntilVersion<" + util::numToString(dslObj.deprecatedSince() - 1) + '>';
+            }
+            else {
+                versionOpt =
+                    "ExistsBetweenVersions<" +
+                    util::numToString(dslObj.sinceVersion()) +
+                    ", " +
+                    util::numToString(dslObj.deprecatedSince() - 1) +
+                    '>';
+            }
+        }
+
+    util::ReplacementMap repl = {
+        {"NAME", util::displayName(dslObj.displayName(), dslObj.name())},
+        {"PARAMS", commsTemplateParamsInternal()},
+        {"CLASS_NAME", comms::className(dslObj.name())},
+        {"DEFAULT_MODE_OPT", std::move(defaultModeOpt)},
+        {"VERSIONS_OPT", std::move(versionOpt)},
+    };
+
+    if (comms::isGlobalField(m_field)) {
+        repl.insert({{"FIELD_PARAMS", "<TOpt, TExtraOpts...>"}});
+    }
+
+    return util::processTemplate(Templ, repl); 
 }
 
 std::string CommsField::commsFieldBriefInternal() const
@@ -858,6 +921,38 @@ std::string CommsField::commsDefValidFuncCodeInternal() const
 
     if (repl.empty()) {
         return strings::emptyString();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefMembersCodeInternal() const
+{
+    auto body = commsDefMembersCodeImpl();
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "/// @brief Scope for all the member fields of\n"
+        "///     @ref #^#CLASS_NAME#$# field.\n"
+        "#^#EXTRA_PREFIX#$#\n"
+        "struct #^#CLASS_NAME#$#Members\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n";    
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(m_field.name())},
+        {"BODY", std::move(body)}
+    };
+
+    if (comms::isGlobalField(m_field)) {
+        auto prefix = 
+            "/// @tparam TOpt Protocol options.\n"
+            "template <typename TOpt = " + comms::scopeForOptions(strings::defaultOptionsStr(), m_field.generator()) + ">";
+        
+        repl.insert({{"EXTRA_PREFIX", std::move(prefix)}});
     }
 
     return util::processTemplate(Templ, repl);

@@ -88,6 +88,7 @@ private:
     std::string commsDefRefreshFuncCodeInternal() const;
     std::string commsDefLengthFuncCodeInternal() const;
     std::string commsDefValidFuncCodeInternal() const;
+    std::string commsDefMembersCodeInternal() const;
 
     commsdsl::gen::Field& m_field;
     std::string m_customRead;
