@@ -3,7 +3,9 @@
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Generator.h"
 
+#include "commsdsl/parse/Endian.h"
 #include "commsdsl/parse/IntField.h"
+#include "commsdsl/parse/Units.h"
 
 #include <string>
 
@@ -47,6 +49,10 @@ std::string relHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string relHeaderPathForField(const std::string& name, const Generator& generator); 
 std::string relHeaderForOptions(const std::string& name, const Generator& generator); 
 
+std::string headerPathFor(const Elem& elem, const Generator& generator);
+
+std::string inputCodePathFor(const Elem& elem, const Generator& generator);
+
 std::string namespaceBeginFor(
     const Elem& elem, 
     const Generator& generator);           
@@ -62,6 +68,10 @@ const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::siz
 bool isGlobalField(const Elem& elem);
 
 unsigned sinceVersionOf(const Elem& elem);
+
+const std::string& dslEndianToOpt(commsdsl::parse::Endian value);
+
+const std::string& dslUnitsToOpt(commsdsl::parse::Units value);
 
 } // namespace comms
 

@@ -99,6 +99,24 @@ const std::string& nameFileSuffixStr()
     return Str;     
 }
 
+const std::string& readFileSuffixStr()
+{
+    static const std::string Str(".read");
+    return Str;     
+}
+
+const std::string& refreshFileSuffixStr()
+{
+    static const std::string Str(".refresh");
+    return Str;     
+}
+
+const std::string& writeFileSuffixStr()
+{
+    static const std::string Str(".write");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");
@@ -115,6 +133,24 @@ const std::string& defaultOptionsClassStr()
 {
     static const std::string Str("DefaultOptions");
     return Str;    
+}
+
+const std::string& indentStr()
+{
+    static const std::string Str("    ");
+    return Str;    
+}
+
+const std::string& doxygenPrefixStr()
+{
+    static const std::string Str("/// ");
+    return Str;      
+}
+
+const std::string& versionOptionalFieldSuffixStr()
+{
+    static const std::string Str("Field");
+    return Str;      
 }
 
 } // namespace strings

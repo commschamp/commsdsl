@@ -26,9 +26,15 @@ const std::string& fieldNamespaceStr();
 const std::string& optionsNamespaceStr();
 const std::string& includeDirStr();
 const std::string& nameFileSuffixStr();
+const std::string& readFileSuffixStr();
+const std::string& refreshFileSuffixStr();
+const std::string& writeFileSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
 const std::string& fieldBaseClassStr();
 const std::string& defaultOptionsClassStr();
+const std::string& indentStr();
+const std::string& doxygenPrefixStr();
+const std::string& versionOptionalFieldSuffixStr();
 
 } // namespace strings
 

@@ -5,6 +5,10 @@
 
 #include "commsdsl/version.h"
 
+#include <algorithm>
+#include <iterator>
+#include <type_traits>
+
 namespace commsdsl2new
 {
 
@@ -15,6 +19,34 @@ const std::string& CommsGenerator::fileGeneratedComment()
         '.' + std::to_string(commsdsl::versionMinor()) + '.' +
         std::to_string(commsdsl::versionPatch()) + '\n';
     return Str;
+}
+
+CommsGenerator::CustomizationLevel CommsGenerator::getCustomizationLevel() const
+{
+    return m_customizationLevel;
+}
+
+void CommsGenerator::setCustomizationLevel(const std::string& value)
+{
+    if (value.empty()) {
+        return;
+    }
+
+    static const std::string Map[] = {
+        /* Full */ "full",
+        /* Limited */ "limited",
+        /* None */ "none",        
+    };
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == static_cast<unsigned>(CustomizationLevel::NumOfValues));
+
+    auto iter = std::find(std::begin(Map), std::end(Map), value);
+    if (iter == std::end(Map)) {
+        logger().warning("Unknown customization level \"" + value + "\", using default.");
+        return;
+    }
+
+    m_customizationLevel = static_cast<CustomizationLevel>(std::distance(std::begin(Map), iter));
 }
 
 CommsGenerator::FieldPtr CommsGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)

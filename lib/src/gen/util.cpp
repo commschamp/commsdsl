@@ -2,12 +2,13 @@
 
 #include "commsdsl/gen/strings.h"
 
+#include <algorithm>
+#include <cassert>
+#include <fstream>
+#include <iomanip>
+#include <iterator>
 #include <limits>
 #include <sstream>
-#include <iomanip>
-#include <cassert>
-#include <iterator>
-#include <fstream>
 
 namespace commsdsl
 {
@@ -80,6 +81,11 @@ std::vector<std::string> strSplitByAnyCharCompressed(
         pos = nextPos + 1;
     }
     return result;
+}
+
+std::string strInsertIndent(const std::string& str)
+{
+    return strings::indentStr() + strReplace(str, "\n", "\n" + strings::indentStr());
 }
 
 unsigned strToUnsigned(const std::string& str)
@@ -293,6 +299,22 @@ std::string strListToString(
         }
     }
     return result;
+}
+
+void addToStrList(std::string&& value, StringsList& list)
+{
+    auto iter = std::find(list.begin(), list.end(), value);
+    if (iter == list.end()) {
+        list.push_back(std::move(value));
+    }
+}
+
+void addToStrList(const std::string& value, StringsList& list)
+{
+    auto iter = std::find(list.begin(), list.end(), value);
+    if (iter == list.end()) {
+        list.push_back(value);
+    }
 }
 
 std::string strMakeMultiline(const std::string& value, unsigned len)

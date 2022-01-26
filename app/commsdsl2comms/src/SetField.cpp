@@ -103,7 +103,7 @@ std::string SetField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
-        replacements.insert(std::make_pair("BIT_NAME", getBitNameWrap(scope)));
+    replacements.insert(std::make_pair("BIT_NAME", getBitNameWrap(scope)));
 
     return common::processTemplate(ClassTemplate, replacements);
 }

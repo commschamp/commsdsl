@@ -159,6 +159,11 @@ public:
         return m_protocol.schema().name();
     }
 
+    parse::Endian schemaEndian() const
+    {
+        return m_protocol.schema().endian();
+    }
+
     const Field* getMessageIdField() const
     {
         return m_messageIdField;
@@ -413,6 +418,11 @@ const std::string& Generator::schemaName() const
     return m_impl->schemaName();
 }
 
+parse::Endian Generator::schemaEndian() const
+{
+    return m_impl->schemaEndian();
+}
+
 const Field* Generator::getMessageIdField() const
 {
     return m_impl->getMessageIdField();
@@ -495,6 +505,10 @@ bool Generator::isElementOptional(
     return false;
 }
 
+bool Generator::isElementDeprecated(unsigned deprecatedSince) const
+{
+    return deprecatedSince < schemaVersion();
+} 
 
 bool Generator::versionDependentCode() const
 {

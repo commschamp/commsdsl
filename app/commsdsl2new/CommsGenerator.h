@@ -11,7 +11,17 @@ public:
     using Elem = commsdsl::gen::Elem;
     using FieldPtr = commsdsl::gen::FieldPtr;
 
+    enum class CustomizationLevel
+    {
+        Full,
+        Limited,
+        None,
+        NumOfValues
+    };    
+
     static const std::string& fileGeneratedComment();
+    CustomizationLevel getCustomizationLevel() const;
+    void setCustomizationLevel(const std::string& opt);
 
 protected:
     // virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
@@ -41,6 +51,10 @@ protected:
     // virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
 
     virtual bool writeImpl() override;    
+
+private:
+    static const CustomizationLevel DefaultCustomizationLevel = CustomizationLevel::Limited;
+    CustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
 };
 
 } // namespace commsdsl2new

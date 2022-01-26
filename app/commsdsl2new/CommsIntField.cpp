@@ -6,6 +6,8 @@
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/strings.h"
 
+#include <cassert>
+
 namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -20,6 +22,11 @@ CommsIntField::CommsIntField(
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
+}
+
+bool CommsIntField::prepareImpl()
+{
+    return Base::prepareImpl() && commsPrepare();
 }
 
 bool CommsIntField::writeImpl() const
@@ -65,11 +72,11 @@ std::string CommsIntField::commsCommonCodeBodyImpl() const
     util::ReplacementMap repl = {
         {"SCOPE", comms::scopeFor(*this, gen, true, true)},
         {"VALUE_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
-        {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsCommonValueNamesMapCode()},
+        {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsCommonValueNamesMapCodeInternal()},
         {"NAME_FUNC", commsCommonNameFuncCode()},
-        {"HAS_SPECIAL_FUNC", commsCommonHasSpecialsFuncCode()},
-        {"SPECIALS", commsCommonSpecialsCode()},
-        {"SPECIAL_NAMES_MAP", commsCommonSpecialNamesMapCode()},
+        {"HAS_SPECIAL_FUNC", commsCommonHasSpecialsFuncCodeInternal()},
+        {"SPECIALS", commsCommonSpecialsCodeInternal()},
+        {"SPECIAL_NAMES_MAP", commsCommonSpecialNamesMapCodeInternal()},
     };
     return util::processTemplate(Templ, repl);
 }
@@ -84,7 +91,31 @@ CommsIntField::IncludesList CommsIntField::commsDefIncludesImpl() const
     return list;
 }
 
-std::string CommsIntField::commsCommonHasSpecialsFuncCode() const
+std::string CommsIntField::commsBaseClassDefImpl() const
+{
+    static const std::string Templ = 
+        "comms::field::IntValue<\n"
+        "    #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
+        "    #^#FIELD_TYPE#$##^#COMMA#$#\n"
+        "    #^#FIELD_OPTS#$#\n"
+        ">";  
+
+    auto& gen = generator();
+    auto dslObj = intDslObj();
+    util::ReplacementMap repl = {
+        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
+        {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
+        {"FIELD_OPTS", commsFieldDefOptsInternal()}
+    };
+
+    if (!repl["FIELD_OPTS"].empty()) {
+        repl["COMMA"] = ",";
+    }
+    return util::processTemplate(Templ, repl);   
+}
+
+std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
 {
     static const std::string Templ = 
         "/// @brief Compile time detection of special values presence.\n"
@@ -102,7 +133,7 @@ std::string CommsIntField::commsCommonHasSpecialsFuncCode() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsIntField::commsCommonValueNamesMapCode() const
+std::string CommsIntField::commsCommonValueNamesMapCodeInternal() const
 {
     auto& specials = specialsSortedByValue();    
     if (specials.empty()) {
@@ -125,7 +156,7 @@ std::string CommsIntField::commsCommonValueNamesMapCode() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsIntField::commsCommonSpecialsCode() const
+std::string CommsIntField::commsCommonSpecialsCodeInternal() const
 {
     auto& specials = specialsSortedByValue();
     if (specials.empty()) {
@@ -179,7 +210,7 @@ std::string CommsIntField::commsCommonSpecialsCode() const
     return util::strListToString(specialsList, "\n", "\n");
 }
 
-std::string CommsIntField::commsCommonSpecialNamesMapCode() const
+std::string CommsIntField::commsCommonSpecialNamesMapCodeInternal() const
 {
     auto& specials = specialsSortedByValue();
     if (specials.empty()) {
@@ -215,5 +246,351 @@ std::string CommsIntField::commsCommonSpecialNamesMapCode() const
 
     return util::processTemplate(Templ, repl);
 }
+
+std::string CommsIntField::commsFieldDefOptsInternal() const
+{
+    util::StringsList opts;
+
+    commsAddFieldDefOptions(opts);
+    commsAddLengthOptInternal(opts);
+    commsAddSerOffsetOptInternal(opts);
+    commsAddScalingOptInternal(opts);
+    commsAddUnitsOptInternal(opts);
+    commsAddDefaultValueOptInternal(opts);
+    commsAddValidRangesOptInternal(opts);
+    commsAddCustomRefreshOptInternal(opts);
+
+    return util::strListToString(opts, ",\n", "");
+}
+
+void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
+{
+    auto obj = intDslObj();
+    auto type = obj.type();
+    if ((type == commsdsl::parse::IntField::Type::Intvar) ||
+        (type == commsdsl::parse::IntField::Type::Uintvar)) {
+        auto str =
+            "comms::option::def::VarLength<" +
+            util::numToString(obj.minLength()) +
+            ", " +
+            util::numToString(obj.maxLength()) +
+            '>';
+        util::addToStrList(std::move(str), opts);
+        return;
+    }
+
+    if (obj.bitLength() != 0U) {
+        auto str =
+            "comms::option::def::FixedBitLength<" +
+            util::numToString(obj.bitLength()) +
+            '>';
+        util::addToStrList(std::move(str), opts);
+        return;
+    }
+
+    static const unsigned LengthMap[] = {
+        /* Int8 */ 1,
+        /* Uint8 */ 1,
+        /* Int16 */ 2,
+        /* Uint16 */ 2,
+        /* Int32 */ 4,
+        /* Uint32 */ 4,
+        /* Int64 */ 8,
+        /* Uint64 */ 8,
+        /* Intvar */ 0,
+        /* Uintvar */ 0
+    };
+
+    static const std::size_t LengthMapSize = std::extent<decltype(LengthMap)>::value;
+    static_assert(LengthMapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues),
+            "Incorrect map");
+
+    std::size_t idx = static_cast<std::size_t>(type);
+    if (LengthMapSize <= idx) {
+        return;
+    }
+
+    assert(LengthMap[idx] != 0);
+    if (LengthMap[idx] != obj.minLength()) {
+        std::string secondParam;
+        if (!obj.signExt()) {
+            secondParam = ", false";
+        }
+        auto str =
+            "comms::option::def::FixedLength<" +
+            util::numToString(obj.minLength()) + secondParam +
+            '>';
+        util::addToStrList(std::move(str), opts);
+    }
+}
+
+void CommsIntField::commsAddSerOffsetOptInternal(StringsList& opts) const
+{
+    auto obj = intDslObj();
+    auto serOffset = obj.serOffset();
+    if (serOffset == 0) {
+        return;
+    }
+
+    auto str =
+        "comms::option::def::NumValueSerOffset<" +
+        util::numToString(serOffset) +
+        '>';
+    util::addToStrList(std::move(str), opts);
+}
+
+void CommsIntField::commsAddScalingOptInternal(StringsList& opts) const
+{
+    auto obj = intDslObj();
+    auto scaling = obj.scaling();
+    auto num = scaling.first;
+    auto denom = scaling.second;
+
+    if ((num == 1) && (denom == 1)) {
+        return;
+    }
+
+    if ((num == 0) || (denom == 0)) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return;
+    }
+
+    auto str =
+        "comms::option::def::ScalingRatio<" +
+        util::numToString(num) +
+        ", " +
+        util::numToString(denom) +
+        '>';
+    util::addToStrList(std::move(str), opts);
+}
+
+void CommsIntField::commsAddUnitsOptInternal(StringsList& opts) const
+{
+    auto obj = intDslObj();
+    auto units = obj.units();
+    auto& str = comms::dslUnitsToOpt(units);
+    if (!str.empty()) {
+        util::addToStrList(str, opts);
+    }
+}
+
+void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
+{
+    auto obj = intDslObj();
+    auto defaultValue = obj.defaultValue();
+    if ((defaultValue == 0) &&
+        (obj.semanticType() == commsdsl::parse::Field::SemanticType::Version)) {
+        std::string str = "comms::option::def::DefaultNumValue<";
+        str += util::numToString(generator().schemaVersion());
+        str += '>';
+        util::addToStrList(std::move(str), opts);
+        return;
+    }
+
+    if (defaultValue == 0) {
+        return;
+    }
+
+    auto type = obj.type();
+    if ((defaultValue < 0) &&
+        ((type == commsdsl::parse::IntField::Type::Uint64) || (type == commsdsl::parse::IntField::Type::Uintvar))) {
+        auto str =
+            "comms::option::def::DefaultBigUnsignedNumValue<" +
+            util::numToString(static_cast<std::uintmax_t>(defaultValue)) +
+            '>';
+        util::addToStrList(std::move(str), opts);
+        return;
+    }
+
+    auto str =
+        "comms::option::def::DefaultNumValue<" +
+        util::numToString(defaultValue) +
+        '>';
+    util::addToStrList(std::move(str), opts);
+}
+
+void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
+{
+    auto obj = intDslObj();
+    auto validRanges = obj.validRanges(); // copy
+    if (validRanges.empty()) {
+        return;
+    }
+
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::parse::IntField::Type::Uint64) ||
+        ((type != commsdsl::parse::IntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
+
+    bool validCheckVersion =
+        generator().versionDependentCode() &&
+        obj.validCheckVersion();
+
+    if (!validCheckVersion) {
+        // unify
+        std::size_t idx = 0U;
+        while (idx < (validRanges.size() - 1U)) {
+            auto& thisRange = validRanges[idx];
+            auto& nextRange = validRanges[idx + 1];
+
+
+            auto needToMergeCheck =
+                [](auto min1, auto max1, auto min2, auto max2) -> bool
+                {
+                    static_cast<void>(min1);
+                    static_cast<void>(max2);
+                    assert(min1 <= min2);
+                    if (min2 <= (max1 + 1)) {
+                        assert(max1 <= max2);
+                        return true;
+                    }
+
+                    return false;
+                };
+
+            bool merge = false;
+            if (bigUnsigned) {
+                merge =
+                    needToMergeCheck(
+                        static_cast<std::uintmax_t>(thisRange.m_min),
+                        static_cast<std::uintmax_t>(thisRange.m_max),
+                        static_cast<std::uintmax_t>(nextRange.m_min),
+                        static_cast<std::uintmax_t>(nextRange.m_max));
+            }
+            else {
+                merge = needToMergeCheck(thisRange.m_min, thisRange.m_max, nextRange.m_min, nextRange.m_max);
+            }
+
+            if (!merge) {
+                ++idx;
+                continue;
+            }
+
+            auto needToUpdateCheck =
+                [](auto max1, auto max2) -> bool
+                {
+                    return max1 < max2;
+                };
+
+            bool update = false;
+            if (bigUnsigned) {
+                update =
+                    needToUpdateCheck(
+                        static_cast<std::uintmax_t>(thisRange.m_max),
+                        static_cast<std::uintmax_t>(nextRange.m_max));
+            }
+            else {
+                update = needToUpdateCheck(thisRange.m_max, nextRange.m_max);
+            }
+
+            if (update) {
+                thisRange.m_max = nextRange.m_max;
+            }
+
+            validRanges.erase(validRanges.begin() + idx + 1);
+        }
+    }
+
+    bool versionStorageRequired = false;
+    bool addedRangeOpt = false;
+    for (auto& r : validRanges) {
+        if (!generator().doesElementExist(r.m_sinceVersion, r.m_deprecatedSince, !validCheckVersion)) {
+            continue;
+        }
+
+        if (validCheckVersion && (generator().isElementOptional(r.m_sinceVersion, r.m_deprecatedSince, false))) {
+            versionStorageRequired = true;
+            continue;
+        }
+
+        bool big = false;
+        std::string str = "comms::option::def::";
+        do {
+            if (!bigUnsigned) {
+                break;
+            }
+
+            bool minInRange =
+                static_cast<std::uintmax_t>(r.m_min) <= static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+
+            bool maxInRange =
+                static_cast<std::uintmax_t>(r.m_max) <= static_cast<std::uintmax_t>(std::numeric_limits<std::intmax_t>::max());
+            if (minInRange && maxInRange) {
+                break;
+            }
+
+            if (r.m_min == r.m_max) {
+                str += "ValidBigUnsignedNumValue<";
+                str += util::numToString(static_cast<std::uintmax_t>(r.m_min));
+                str += '>';
+            }
+            else {
+                str += "ValidBigUnsignedNumValueRange<";
+                str += util::numToString(static_cast<std::uintmax_t>(r.m_min));
+                str += ", ";
+                str += util::numToString(static_cast<std::uintmax_t>(r.m_max));
+                str += '>';
+            }
+
+            util::addToStrList(std::move(str), opts);
+            big = true;
+            addedRangeOpt = true;
+        } while (false);
+
+        if (big) {
+            continue;
+        }
+
+        if (r.m_min == r.m_max) {
+            str += "ValidNumValue<";
+            str += util::numToString(r.m_min);
+            str += '>';
+        }
+        else {
+            str += "ValidNumValueRange<";
+            str += util::numToString(r.m_min);
+            str += ", ";
+            str += util::numToString(r.m_max);
+            str += '>';
+        }
+
+        util::addToStrList(std::move(str), opts);
+        addedRangeOpt = true;
+    }
+
+    if (versionStorageRequired) {
+        util::addToStrList("comms::option::def::VersionStorage", opts);
+
+        if (!addedRangeOpt) {
+            util::addToStrList("comms::option::def::InvalidByDefault", opts);
+        }
+    }
+}
+
+void CommsIntField::commsAddCustomRefreshOptInternal(StringsList& opts) const
+{
+    if (commsRequiresFailOnInvalidRefreshInternal()) {
+        util::addToStrList("comms::option::def::HasCustomRefresh", opts);
+    }
+}
+
+bool CommsIntField::commsRequiresFailOnInvalidRefreshInternal() const
+{
+    if (!dslObj().isFailOnInvalid()) {
+        return false;
+    }
+
+    auto obj = intDslObj();
+    auto& validRanges = obj.validRanges();
+    if (validRanges.empty()) {
+        return false;
+    }
+
+    return true;
+}
+
+
 
 } // namespace commsdsl2new

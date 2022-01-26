@@ -197,6 +197,16 @@ std::string relHeaderForOptions(const std::string& name, const Generator& genera
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
+std::string headerPathFor(const Elem& elem, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator);
+}
+
+std::string inputCodePathFor(const Elem& elem, const Generator& generator)
+{
+    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator);
+}
+
 std::string namespaceBeginFor(
     const Elem& elem, 
     const Generator& generator)
@@ -382,6 +392,92 @@ unsigned sinceVersionOf(const Elem& elem)
     }
 
     return 0U;
+}
+
+const std::string& dslEndianToOpt(commsdsl::parse::Endian value)
+{
+    static const std::string Map[] = {
+        "comms::option::def::LittleEndian",
+        "comms::option::def::BigEndian"
+    };
+
+    static const std::size_t MapSize =
+            std::extent<decltype(Map)>::value;
+
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::Endian_NumOfValues),
+        "Invalid map");
+
+    if (commsdsl::parse::Endian_NumOfValues <= value) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        value = commsdsl::parse::Endian_Little;
+    }
+
+    return Map[value];
+}
+
+const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
+{
+    if (commsdsl::parse::Units::NumOfValues <= value) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return strings::emptyString();
+    }
+
+    static const std::string UnitsMap[] = {
+        /* Unknown */ strings::emptyString(),
+        /* Nanoseconds */ "comms::option::def::UnitsNanoseconds",
+        /* Microseconds */ "comms::option::def::UnitsMicroseconds",
+        /* Milliseconds */ "comms::option::def::UnitsMilliseconds",
+        /* Seconds */ "comms::option::def::UnitsSeconds",
+        /* Minutes */ "comms::option::def::UnitsMinutes",
+        /* Hours */ "comms::option::def::UnitsHours",
+        /* Days */ "comms::option::def::UnitsDays",
+        /* Weeks */ "comms::option::def::UnitsWeeks",
+        /* Nanometers */ "comms::option::def::UnitsNanometers",
+        /* Micrometers */ "comms::option::def::UnitsMicrometers",
+        /* Millimeters */ "comms::option::def::UnitsMillimeters",
+        /* Centimeters */ "comms::option::def::UnitsCentimeters",
+        /* Meters */ "comms::option::def::UnitsMeters",
+        /* Kilometers */ "comms::option::def::UnitsKilometers",
+        /* NanometersPerSecond */ "comms::option::def::UnitsNanometersPerSecond",
+        /* MicrometersPerSecond */ "comms::option::def::UnitsMicrometersPerSecond",
+        /* MillimetersPerSecond */ "comms::option::def::UnitsMillimetersPerSecond",
+        /* CentimetersPerSecond */ "comms::option::def::UnitsCentimetersPerSecond",
+        /* MetersPerSecond */ "comms::option::def::UnitsMetersPerSecond",
+        /* KilometersPerSecond */ "comms::option::def::UnitsKilometersPerSecond",
+        /* KilometersPerHour */ "comms::option::def::UnitsKilometersPerHour",
+        /* Hertz */ "comms::option::def::UnitsHertz",
+        /* KiloHertz */ "comms::option::def::UnitsKilohertz",
+        /* MegaHertz */ "comms::option::def::UnitsMegahertz",
+        /* GigaHertz */ "comms::option::def::UnitsGigahertz",
+        /* Degrees */ "comms::option::def::UnitsDegrees",
+        /* Radians */ "comms::option::def::UnitsRadians",
+        /* Nanoamps */ "comms::option::def::UnitsNanoamps",
+        /* Microamps */ "comms::option::def::UnitsMicroamps",
+        /* Milliamps */ "comms::option::def::UnitsMilliamps",
+        /* Amps */ "comms::option::def::UnitsAmps",
+        /* Kiloamps */ "comms::option::def::UnitsKiloamps",
+        /* Nanovolts */ "comms::option::def::UnitsNanovolts",
+        /* Microvolts */ "comms::option::def::UnitsMicrovolts",
+        /* Millivolts */ "comms::option::def::UnitsMillivolts",
+        /* Volts */ "comms::option::def::UnitsVolts",
+        /* Kilovolts */ "comms::option::def::UnitsKilovolts",
+        /* Bytes */ "comms::option::def::UnitsBytes",
+        /* Kilobytes */ "comms::option::def::UnitsKilobytes",
+        /* Megabytes */ "comms::option::def::UnitsMegabytes",
+        /* Gigabytes */ "comms::option::def::UnitsGigabytes",
+        /* Terabytes */ "comms::option::def::UnitsTerabytes",
+    };
+
+    static const std::size_t UnitsMapSize = std::extent<decltype(UnitsMap)>::value;
+    static_assert(static_cast<std::size_t>(commsdsl::parse::Units::NumOfValues) == UnitsMapSize,
+        "Invalid Map");
+
+    auto idx = static_cast<unsigned>(value);
+    return UnitsMap[idx];
 }
 
 } // namespace comms

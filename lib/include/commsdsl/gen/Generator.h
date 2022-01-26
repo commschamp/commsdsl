@@ -23,6 +23,7 @@
 #include "commsdsl/gen/Logger.h"
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
+#include "commsdsl/parse/Endian.h"
 
 #include <memory>
 
@@ -64,6 +65,7 @@ public:
     unsigned schemaVersion() const;
     const std::string& mainNamespace() const;
     const std::string& schemaName() const;
+    parse::Endian schemaEndian() const;
 
     const Field* getMessageIdField() const;
     InterfacesAccessList getAllInterfaces() const;
@@ -81,6 +83,8 @@ public:
         unsigned sinceVersion,
         unsigned deprecatedSince,
         bool deprecatedRemoved) const;
+
+    bool isElementDeprecated(unsigned deprecatedSince) const;
 
     bool versionDependentCode() const;
 

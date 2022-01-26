@@ -35,6 +35,16 @@ CommsField::CommsField(commsdsl::gen::Field& field) :
 
 CommsField::~CommsField() = default;
 
+bool CommsField::commsPrepare()
+{
+    auto& generator = m_field.generator();
+    auto codePathPrefix = comms::inputCodePathFor(m_field, generator);
+    m_customRead = util::readFileContents(codePathPrefix + strings::readFileSuffixStr());
+    m_customRefresh = util::readFileContents(codePathPrefix + strings::refreshFileSuffixStr());
+    m_customWrite = util::readFileContents(codePathPrefix + strings::writeFileSuffixStr());
+    return true;
+}
+
 bool CommsField::commsWrite() const
 {
     auto* parent = m_field.getParent();
@@ -52,13 +62,14 @@ bool CommsField::commsWrite() const
     }
 
     auto& dslObj = m_field.dslObj();
-    if (!dslObj.isForceGen()) {
-        // TODO: check field has been accessed
+    if ((!dslObj.isForceGen()) && (!m_referenced)) {
+        // Not referenced fields do not need to be written
+        return true;
     }
 
     return 
-        commsWriteCommon() &&
-        commsWriteDef();
+        commsWriteCommonInternal() &&
+        commsWriteDefInternal();
 }
 
 CommsField::IncludesList CommsField::commsCommonIncludes() const
@@ -115,7 +126,20 @@ CommsField::IncludesList CommsField::commsDefIncludes() const
 
 std::string CommsField::commsDefCode() const
 {
-    return commsDefCodeImpl();
+    static const std::string Templ = 
+        "#^#MEMBERS#$#\n"
+        "#^#FIELD#$#\n"
+        "#^#OPTIONAL#$#\n"
+    ;
+
+    //auto& generator = m_field.generator();
+    util::ReplacementMap repl = {
+        {"MEMBERS", commsDefMembersCodeImpl()},
+        {"FIELD", commsFieldDefCodeInternal()},
+        {"OPTIONAL", commsOptionalDefCodeInternal()},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
@@ -133,17 +157,35 @@ CommsField::IncludesList CommsField::commsDefIncludesImpl() const
     return IncludesList();
 }
 
-std::string CommsField::commsDefCodeImpl() const
+std::string CommsField::commsDefMembersCodeImpl() const
 {
     return strings::emptyString();
+}
+
+std::string CommsField::commsDoxigenDetailsImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsExtraDoxigenImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsBaseClassDefImpl() const
+{
+    return strings::emptyString();
+}
+
+bool CommsField::commsIsLimitedCustomizableImpl() const
+{
+    return false;
 }
 
 std::string CommsField::commsCommonNameFuncCode() const
 {
     auto& generator = m_field.generator();
-    auto customNamePath = 
-        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
-        comms::relHeaderPathFor(m_field, generator) + strings::nameFileSuffixStr();
+    auto customNamePath = comms::inputCodePathFor(m_field, generator) + strings::nameFileSuffixStr();
 
     auto customFunc = util::readFileContents(customNamePath);
     if (!customFunc.empty()) {
@@ -191,10 +233,78 @@ bool CommsField::commsIsVersionOptional() const
     return false;    
 }
 
-bool CommsField::commsWriteCommon() const
+std::string CommsField::commsFieldBaseParams(commsdsl::parse::Endian endian) const
 {
     auto& generator = m_field.generator();
-    auto filePath = generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + commsdsl::gen::comms::relHeaderPathFor(m_field, generator);
+    auto schemaEndian = generator.schemaEndian();
+    assert(endian < commsdsl::parse::Endian_NumOfValues);
+    assert(schemaEndian < commsdsl::parse::Endian_NumOfValues);
+
+    if ((schemaEndian == endian) ||
+        (commsdsl::parse::Endian_NumOfValues <= endian)) {
+        return strings::emptyString();
+    }
+
+    return comms::dslEndianToOpt(endian);
+}
+
+void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const
+{
+    if (comms::isGlobalField(m_field)) {
+        opts.push_back("TExtraOpts...");
+    }
+
+    if (commsIsFieldCustomizable()) {
+        opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), false, true));
+    }
+
+    if (m_forcedFailOnInvalid) {
+        opts.push_back("comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
+    }
+    else if (m_field.dslObj().isFailOnInvalid()) {
+        util::addToStrList("comms::option::def::FailOnInvalid<>", opts);
+    }
+
+    if (!m_customRead.empty()) {
+        util::addToStrList("comms::option::def::HasCustomRead", opts);
+    }
+
+    if (!m_customRefresh.empty()) {
+        util::addToStrList("comms::option::def::HasCustomRefresh", opts);
+    }
+
+    if (!m_customWrite.empty()) {
+        util::addToStrList("comms::option::def::HasCustomWrite", opts);
+    }    
+
+    if (m_forcedPseudo || m_field.dslObj().isPseudo()) {
+        util::addToStrList("comms::option::def::EmptySerialization", opts);
+    }
+}
+
+bool CommsField::commsIsFieldCustomizable() const
+{
+    auto& generator = static_cast<CommsGenerator&>(m_field.generator());
+    auto level = generator.getCustomizationLevel();
+    if (level == CommsGenerator::CustomizationLevel::Full) {
+        return true;
+    }
+
+    if (m_field.dslObj().isCustomizable()) {
+        return true;
+    }
+
+    if (level == CommsGenerator::CustomizationLevel::None) {
+        return false;
+    }
+
+    return commsIsLimitedCustomizableImpl();
+}
+
+bool CommsField::commsWriteCommonInternal() const
+{
+    auto& generator = m_field.generator();
+    auto filePath = commsdsl::gen::comms::headerPathFor(m_field, generator);
     convertToCommonIncludePath(filePath);
 
     auto& logger = generator.logger();
@@ -241,10 +351,10 @@ bool CommsField::commsWriteCommon() const
     return stream.good();
 }
 
-bool CommsField::commsWriteDef() const
+bool CommsField::commsWriteDefInternal() const
 {
     auto& generator = m_field.generator();
-    auto filePath = generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + commsdsl::gen::comms::relHeaderPathFor(m_field, generator);
+    auto filePath = commsdsl::gen::comms::headerPathFor(m_field, generator);
 
     auto& logger = generator.logger();
     logger.info("Generating " + filePath);
@@ -283,5 +393,135 @@ bool CommsField::commsWriteDef() const
     stream.flush();
     return stream.good();
 }
+
+std::string CommsField::commsFieldDefCodeInternal() const
+{
+    static const std::string Templ = 
+        "#^#BRIEF#$#\n"
+        "#^#DETAILS#$#\n"
+        "#^#EXTRA_DOC#$#\n"
+        "#^#DEPRECATED#$#\n"
+        "#^#PARAMS#$#\n"
+        "class #^#NAME#$##^#SUFFIX#$# : public\n"
+        "    #^#BASE#$#\n"
+        "{\n"
+        "    using Base =\n"
+        "        #^#BASE#$#;\n"
+        "#^#PUBLIC#$#\n"
+        "#^#PROTECTED#$#\n"
+        "#^#PRIVATE#$#\n"
+        "};\n"
+    ;
+
+    //auto& generator = m_field.generator();
+    util::ReplacementMap repl = {
+        {"BRIEF", commsFieldBriefInternal()},
+        {"DETAILS", commsDocDetailsInternal()},
+        {"EXTRA_DOC", commsExtraDocInternal()},
+        {"DEPRECATED", commsDeprecatedDocInternal()},
+        {"PARAMS", commsTemplateParamsInternal()},
+        {"NAME", comms::className(m_field.name())},
+        {"BASE", commsBaseClassDefImpl()},
+    };
+
+    if (commsIsVersionOptional()) {
+        repl.insert({{"SUFFIX", strings::versionOptionalFieldSuffixStr()}});
+    }
+
+    // TODO: hasn't finished yet
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsOptionalDefCodeInternal() const
+{
+    // TODO:
+    return strings::emptyString();
+}
+
+std::string CommsField::commsFieldBriefInternal() const
+{
+    if (commsIsVersionOptional()) {
+        return "/// @brief Inner field of @ref " + comms::className(m_field.name()) + " optional.";
+    }
+
+    return
+        "/// @brief Definition of <b>\"" +
+        util::displayName(m_field.dslObj().displayName(), m_field.dslObj().name()) +
+        "\"</b> field.";
+}
+
+std::string CommsField::commsDocDetailsInternal() const
+{
+    std::string result;
+    do {
+        auto& desc = m_field.dslObj().description();       
+        auto extraDetails = commsDoxigenDetailsImpl();
+        if (desc.empty() && extraDetails.empty()) {
+            break;
+        }
+
+        result += "/// @details\n";
+
+        if (!desc.empty()) {
+            auto multiDesc = util::strMakeMultiline(desc);
+            multiDesc = util::strInsertIndent(multiDesc);
+            result += strings::doxygenPrefixStr() + util::strReplace(multiDesc, "\n", "\n" + strings::doxygenPrefixStr());
+        }
+
+        if (extraDetails.empty()) {
+            break;
+        }   
+
+        result += '\n';      
+
+        if (!desc.empty()) {
+            result += strings::doxygenPrefixStr();
+            result += '\n';
+        }      
+
+        auto multiExtra = util::strMakeMultiline(extraDetails);
+        multiExtra = util::strInsertIndent(multiExtra);
+        result += strings::doxygenPrefixStr() + util::strReplace(multiExtra, "\n", "\n" + strings::doxygenPrefixStr());
+    } while (false);
+    return result;
+}
+
+std::string CommsField::commsExtraDocInternal() const
+{
+    std::string result;
+    auto doc = commsExtraDoxigenImpl();
+    if (!doc.empty()) {
+        result += strings::doxygenPrefixStr() + util::strReplace(doc, "\n", "\n" + strings::doxygenPrefixStr());
+    }
+    return result;
+}
+
+std::string CommsField::commsDeprecatedDocInternal() const
+{
+    std::string result;
+    auto deprecatedVersion = m_field.dslObj().deprecatedSince();
+    auto& generator = m_field.generator();
+    if (generator.isElementDeprecated(deprecatedVersion)) {
+        result += "/// @deprecated Since version " + std::to_string(deprecatedVersion) + '\n';
+    }
+
+    return result;
+}
+
+std::string CommsField::commsTemplateParamsInternal() const
+{
+    std::string result;
+    if (comms::isGlobalField(m_field)) {
+        result += "/// @tparam TOpt Protocol options.\n";
+        result += "/// @tparam TExtraOpts Extra options.\n";
+        result += "template <typename TOpt = ";
+        result += comms::scopeForOptions(strings::defaultOptionsStr(), m_field.generator());
+        result += ", typename... TExtraOpts>";
+    }
+
+    return result;    
+}
+
 
 } // namespace commsdsl2new

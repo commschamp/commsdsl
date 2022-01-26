@@ -1255,8 +1255,6 @@ void Field::updateExtraOptions(
     if (m_forcedPseudo || m_dslObj.isPseudo()) {
         common::addToList("comms::option::def::EmptySerialization", options);
     }
-
-
 }
 
 const std::string& Field::getCustomRead() const
