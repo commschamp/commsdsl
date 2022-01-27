@@ -15,19 +15,6 @@ namespace comms = commsdsl::gen::comms;
 namespace commsdsl2new
 {
 
-namespace 
-{
-
-void convertToCommonIncludePath(std::string& filePath)
-{
-    assert(2 <= filePath.size());
-    assert(filePath.back() == 'h');
-    filePath.insert(filePath.size() - strings::cppHeaderSuffixStr().size(), strings::commonSuffixStr());
-}
-
-} // namespace 
-    
-
 CommsField::CommsField(commsdsl::gen::Field& field) :
     m_field(field)
 {
@@ -77,7 +64,6 @@ CommsField::IncludesList CommsField::commsCommonIncludes() const
     return commsCommonIncludesImpl();
 }
 
-
 std::string CommsField::commsCommonCode() const
 {
     static const std::string Templ = 
@@ -109,8 +95,7 @@ CommsField::IncludesList CommsField::commsDefIncludes() const
     };
 
     if (comms::isGlobalField(m_field)) {
-        auto relHeader = comms::relHeaderPathFor(m_field, generator);
-        convertToCommonIncludePath(relHeader);
+        auto relHeader = comms::relCommonHeaderPathFor(m_field, generator);
         list.push_back(relHeader);
         list.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator));
     }
@@ -345,8 +330,7 @@ bool CommsField::commsIsFieldCustomizable() const
 bool CommsField::commsWriteCommonInternal() const
 {
     auto& generator = m_field.generator();
-    auto filePath = commsdsl::gen::comms::headerPathFor(m_field, generator);
-    convertToCommonIncludePath(filePath);
+    auto filePath = commsdsl::gen::comms::commonHeaderPathFor(m_field, generator);
 
     auto& logger = generator.logger();
     logger.info("Generating " + filePath);

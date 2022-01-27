@@ -83,6 +83,16 @@ public:
         return m_fields;
     }
 
+    Generator& generator()
+    {
+        return m_generator;
+    }
+
+    const Generator& generator() const
+    {
+        return m_generator;
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::Message m_dslObj;
@@ -100,7 +110,11 @@ Message::~Message() = default;
 
 bool Message::prepare()
 {
-    return m_impl->prepare();
+    if (!m_impl->prepare()) {
+        return false;
+    }
+
+    return prepareImpl();
 }
 
 bool Message::write()
@@ -122,9 +136,25 @@ const Message::FieldsList& Message::fields() const
     return m_impl->fields();
 }
 
+Generator& Message::generator()
+{
+    return m_impl->generator();
+}
+
+const Generator& Message::generator() const
+{
+    return m_impl->generator();
+}
+
+
 Elem::Type Message::elemTypeImpl() const
 {
     return Type_Message;
+}
+
+bool Message::prepareImpl()
+{
+    return true;
 }
 
 bool Message::writeImpl()

@@ -6,6 +6,7 @@ set (
     CommsField.cpp
     CommsGenerator.cpp
     CommsIntField.cpp
+    CommsMessage.cpp
     CommsProgramOptions.cpp
     main.cpp
 )

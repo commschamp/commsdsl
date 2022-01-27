@@ -2,6 +2,7 @@
 
 #include "CommsCmake.h"
 #include "CommsIntField.h"
+#include "CommsMessage.h"
 
 #include "commsdsl/version.h"
 
@@ -47,6 +48,11 @@ void CommsGenerator::setCustomizationLevel(const std::string& value)
     }
 
     m_customizationLevel = static_cast<CustomizationLevel>(std::distance(std::begin(Map), iter));
+}
+
+CommsGenerator::MessagePtr CommsGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsMessage>(*this, dslObj, parent);
 }
 
 CommsGenerator::FieldPtr CommsGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)

@@ -99,6 +99,11 @@ std::string scopeForInternal(
             result.append(strings::fieldNamespaceStr() + sep);
         }
 
+        if (elemType == Elem::Type_Message) {
+            assert(parent->elemType() == Elem::Type_Namespace);
+            result.append(strings::messageNamespaceStr() + sep);
+        }        
+
         result.append(className(elem.name()));
 
     } while (false);
@@ -148,6 +153,11 @@ std::string commonScopeForInternal(
             // Global fields reside in appropriate namespace
             result.append(strings::fieldNamespaceStr() + sep);
         }
+
+        if (elemType == Elem::Type_Message) {
+            assert(parent->elemType() == Elem::Type_Namespace);
+            result.append(strings::messageNamespaceStr() + sep);
+        }            
 
         result.append(className(elem.name()));
         if ((elemType == Elem::Type_Field) || (elemType == Elem::Type_Message)) {
@@ -241,6 +251,11 @@ std::string relHeaderPathFor(const Elem& elem, const Generator& generator)
     return scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
+std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator)
+{
+    return commonScopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
+}
+
 std::string relHeaderPathForField(const std::string& name, const Generator& generator)
 {
     static const std::vector<std::string> SubElems = {
@@ -262,6 +277,11 @@ std::string relHeaderForOptions(const std::string& name, const Generator& genera
 std::string headerPathFor(const Elem& elem, const Generator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator);
+}
+
+std::string commonHeaderPathFor(const Elem& elem, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relCommonHeaderPathFor(elem, generator);
 }
 
 std::string inputCodePathFor(const Elem& elem, const Generator& generator)
@@ -292,9 +312,22 @@ std::string namespaceBeginFor(
     auto elemType = elem.elemType();
     if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
         appendToResultFunc(strings::fieldNamespaceStr());
-    }    
+    }   
 
-    // TODO: other sub-namespaces
+    if (elemType == Elem::Type_Message) {
+        assert(parent->elemType() == Elem::Type_Namespace);
+        appendToResultFunc(strings::messageNamespaceStr());
+    }
+
+    if (elemType == Elem::Type_Frame) {
+        assert(parent->elemType() == Elem::Type_Namespace);
+        appendToResultFunc(strings::frameNamespaceStr());
+    }
+
+    if (elemType == Elem::Type_Layer) {
+        assert(parent->elemType() == Elem::Type_Frame);
+        appendToResultFunc(strings::layerNamespaceStr());
+    }        
 
     if (elem.elemType() != Elem::Type_Namespace) {
         return result;
@@ -330,9 +363,22 @@ std::string namespaceEndFor(
             appendToResultFunc(strings::fieldNamespaceStr());
         }
 
-        result += namespaceEndFor(*parent, generator);
+        if (elemType == Elem::Type_Message) {
+            assert(parent->elemType() == Elem::Type_Namespace);
+            appendToResultFunc(strings::messageNamespaceStr());
+        }
 
-        // TODO: other sub namespaces
+        if (elemType == Elem::Type_Frame) {
+            assert(parent->elemType() == Elem::Type_Namespace);
+            appendToResultFunc(strings::frameNamespaceStr());
+        }
+
+        if (elemType == Elem::Type_Layer) {
+            assert(parent->elemType() == Elem::Type_Frame);
+            appendToResultFunc(strings::layerNamespaceStr());
+        }        
+
+        result += namespaceEndFor(*parent, generator);
 
         return result;
     }

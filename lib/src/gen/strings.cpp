@@ -81,6 +81,24 @@ const std::string& fieldNamespaceStr()
     return Str;   
 }
 
+const std::string& messageNamespaceStr()
+{
+    static const std::string Str("message");
+    return Str;   
+}
+
+const std::string& frameNamespaceStr()
+{
+    static const std::string Str("frame");
+    return Str;   
+}
+
+const std::string& layerNamespaceStr()
+{
+    static const std::string Str("layer");
+    return Str;   
+}
+
 const std::string& optionsNamespaceStr()
 {
     static const std::string Str("options");
