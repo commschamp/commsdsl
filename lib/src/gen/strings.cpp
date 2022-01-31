@@ -171,6 +171,24 @@ const std::string& validFileSuffixStr()
     return Str;     
 }
 
+const std::string& replaceFileSuffixStr()
+{
+    static const std::string Str(".replace");
+    return Str;     
+}
+
+const std::string& extendFileSuffixStr()
+{
+    static const std::string Str(".extend");
+    return Str;     
+}
+
+const std::string& appendFileSuffixStr()
+{
+    static const std::string Str(".append");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");
@@ -211,6 +229,12 @@ const std::string& origSuffixStr()
 {
     static const std::string Str("Orig");
     return Str;      
+}
+
+const std::string& msgIdPrefixStr()
+{
+    static const std::string Str("MsgId_");
+    return Str;    
 }
 
 } // namespace strings

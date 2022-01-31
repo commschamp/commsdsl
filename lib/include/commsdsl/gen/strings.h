@@ -38,6 +38,9 @@ const std::string& privateFileSuffixStr();
 const std::string& incFileSuffixStr();
 const std::string& lengthFileSuffixStr();
 const std::string& validFileSuffixStr();
+const std::string& replaceFileSuffixStr();
+const std::string& extendFileSuffixStr();
+const std::string& appendFileSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
 const std::string& fieldBaseClassStr();
 const std::string& defaultOptionsClassStr();
@@ -45,6 +48,7 @@ const std::string& indentStr();
 const std::string& doxygenPrefixStr();
 const std::string& versionOptionalFieldSuffixStr();
 const std::string& origSuffixStr();
+const std::string& msgIdPrefixStr();
 
 } // namespace strings
 

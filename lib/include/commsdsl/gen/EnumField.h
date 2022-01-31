@@ -40,7 +40,6 @@ public:
     bool isUnsignedUnderlyingType() const;
     unsigned hexWidth() const;
 
-protected:    
     commsdsl::parse::EnumField enumDslObj() const;
 
 private:

@@ -41,6 +41,7 @@ void addToStrList(const std::string& value, StringsList& list);
 std::string strMakeMultiline(const std::string& value, unsigned len = 60);
 
 std::string readFileContents(const std::string& filePath);
+bool isFileReadable(const std::string& filePath);
 
 const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName);
 

@@ -39,7 +39,7 @@ protected:
     virtual bool writeImpl() override;
 
 private:
-    using CommsFieldsList = std::vector<const CommsField*>;
+    using CommsFieldsList = std::vector<CommsField*>;
 
     bool commsWriteCommonInternal();
     bool commsWriteDefInternal();  
@@ -47,8 +47,24 @@ private:
     std::string commsCommonBodyInternal() const;
     std::string commsCommonNameFuncInternal() const;
     std::string commsCommonFieldsCodeInternal() const;
+    std::string commsDefIncludesInternal() const;
+    std::string commsDefFieldsCodeInternal() const;
+    std::string commsDefFieldClassNamesListInternal() const;
+    std::string commsDefDocDetailsInternal() const;
+    std::string commsDefDeprecatedDocInternal() const;
+    std::string commsDefBaseClassInternal() const;
+    std::string commsDefCustomizationOptInternal() const;
+    std::string commsDefExtraOptionsInternal() const;
+    std::string commsDefPublicInternal() const;
+    std::string commsDefProtectedInternal() const;
+    std::string commsDefPrivateInternal() const;
+    std::string commsDefFieldsAccess() const;
+    std::string commsDefFieldsAliases() const;
+    bool commsIsCustomizableInternal() const;
+    bool commsMustGenerateReadRefresh() const;
 
     CommsFieldsList m_commsFields;  
+    std::string m_customRefresh;
 };
 
 } // namespace commsdsl2new

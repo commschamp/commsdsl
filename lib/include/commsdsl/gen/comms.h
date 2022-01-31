@@ -2,6 +2,7 @@
 
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/Message.h"
 
 #include "commsdsl/parse/Endian.h"
 #include "commsdsl/parse/IntField.h"
@@ -19,6 +20,7 @@ namespace comms
 {
 
 std::string className(const std::string& name);
+std::string accessName(const std::string& name);
 std::string namespaceName(const std::string& name);
 
 std::string scopeFor(
@@ -80,6 +82,8 @@ unsigned sinceVersionOf(const Elem& elem);
 const std::string& dslEndianToOpt(commsdsl::parse::Endian value);
 
 const std::string& dslUnitsToOpt(commsdsl::parse::Units value);
+
+std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& generator);
 
 } // namespace comms
 

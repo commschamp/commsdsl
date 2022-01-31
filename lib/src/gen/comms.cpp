@@ -1,8 +1,10 @@
 #include "commsdsl/gen/comms.h"
 
-#include "commsdsl/gen/strings.h"
-#include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/EnumField.h"
 #include "commsdsl/gen/Field.h"
+#include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <algorithm>
 #include <cassert>
@@ -177,6 +179,16 @@ std::string className(const std::string& name)
     auto result = name;
     if (!result.empty()) {
         result[0] = static_cast<char>(std::toupper(static_cast<int>(result[0])));
+    }
+
+    return result;
+}
+
+std::string accessName(const std::string& name)
+{
+    auto result = name;
+    if (!result.empty()) {
+        result[0] = static_cast<char>(std::tolower(static_cast<int>(result[0])));
     }
 
     return result;
@@ -586,6 +598,33 @@ const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
 
     auto idx = static_cast<unsigned>(value);
     return UnitsMap[idx];
+}
+
+std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& generator)
+{
+    auto msgIdField = generator.getMessageIdField();
+    if (msgIdField == nullptr) {
+        return generator.mainNamespace() + "::" + strings::msgIdPrefixStr() + util::strReplace(msg.dslObj().externalRef(), ".", "_");
+    }
+
+    assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
+    auto* castedEnumField = static_cast<const commsdsl::gen::EnumField*>(msgIdField);
+
+    std::string name;
+    auto obj = castedEnumField->enumDslObj();
+
+    auto& revValues = obj.revValues();
+    auto id = static_cast<std::intmax_t>(msg.dslObj().id());
+    auto iter = revValues.find(id);
+    if (iter != revValues.end()) {
+        name = iter->second;
+    }
+
+    if (!name.empty()) {
+        return generator.mainNamespace() + "::" + strings::msgIdPrefixStr() + name;
+    }
+
+    return util::numToString(id);    
 }
 
 } // namespace comms

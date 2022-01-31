@@ -603,7 +603,7 @@ FieldPtr Generator::createStringField(commsdsl::parse::Field dslObj, Elem* paren
 FieldPtr Generator::createDataField(commsdsl::parse::Field dslObj, Elem* parent)
 {
     assert(dslObj.kind() == commsdsl::parse::Field::Kind::Data);
-    return createStringFieldImpl(dslObj, parent);
+    return createDataFieldImpl(dslObj, parent);
 }
 
 FieldPtr Generator::createListField(commsdsl::parse::Field dslObj, Elem* parent)

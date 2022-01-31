@@ -397,6 +397,12 @@ std::string readFileContents(const std::string& filePath)
     return result;
 }
 
+bool isFileReadable(const std::string& filePath)
+{
+    std::ifstream stream(filePath);
+    return static_cast<bool>(stream);
+}
+
 const std::string& displayName(const std::string& dslDisplayName, const std::string& dslName)
 {
     if (dslDisplayName.empty()) {

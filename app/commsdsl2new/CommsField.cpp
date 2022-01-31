@@ -208,6 +208,11 @@ bool CommsField::commsIsLimitedCustomizableImpl() const
     return false;
 }
 
+bool CommsField::commsHasGeneratedReadRefreshImpl() const
+{
+    return false;
+}
+
 std::string CommsField::commsCommonNameFuncCode() const
 {
     auto& generator = m_field.generator();

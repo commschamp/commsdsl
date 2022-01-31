@@ -45,6 +45,11 @@ public:
         m_referenced = true;
     }
 
+    bool hasGeneratedReadRefresh() const
+    {
+        return commsHasGeneratedReadRefreshImpl();
+    }
+
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
     virtual std::string commsCommonCodeBodyImpl() const;
@@ -62,6 +67,7 @@ protected:
     virtual std::string commsDefLengthFuncBodyImpl() const;
     virtual std::string commsDefValidFuncBodyImpl() const;
     virtual bool commsIsLimitedCustomizableImpl() const;
+    virtual bool commsHasGeneratedReadRefreshImpl() const;
 
     std::string commsCommonNameFuncCode() const;
     bool commsIsVersionOptional() const;
