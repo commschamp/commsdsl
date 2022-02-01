@@ -11,6 +11,7 @@
 #include <cassert>
 #include <fstream>
 #include <iterator>
+#include <numeric>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -28,6 +29,10 @@ CommsMessage::~CommsMessage() = default;
 
 bool CommsMessage::prepareImpl()
 {
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
     auto& gen = generator();
     auto& genFields = fields();
     m_commsFields.reserve(genFields.size());
@@ -45,7 +50,11 @@ bool CommsMessage::prepareImpl()
         }
 
         assert(commsField != nullptr);
-        commsField->setReferenced();
+        auto refreshCode = commsField->commsDefRefreshFuncBody();
+        if (!refreshCode.empty()) {
+            m_fieldsRefresh.push_back(RefreshCodeInfo{comms::accessName(fPtr->dslObj().name()), std::move(refreshCode)});
+        }
+
         m_commsFields.push_back(commsField);
     }
 
@@ -398,7 +407,7 @@ std::string CommsMessage::commsDefCustomizationOptInternal() const
 
 std::string CommsMessage::commsDefExtraOptionsInternal() const
 {
-    if ((!m_customRefresh.empty()) || (commsMustGenerateReadRefresh())) {
+    if ((!m_customRefresh.empty()) || (!m_fieldsRefresh.empty())) {
         return "comms::option::def::HasCustomRefresh";
     }
 
@@ -421,11 +430,18 @@ std::string CommsMessage::commsDefPublicInternal() const
         "    #^#REFRESH#$#\n"
     ;
 
+    auto inputCodePrefix = comms::inputCodePathFor(*this, generator());
     util::ReplacementMap repl = {
-        {"ACCESS", commsDefFieldsAccess()},
-        {"ALIASES", commsDefFieldsAliases()},
-
-        // TODO: incomplete
+        {"ACCESS", commsDefFieldsAccessInternal()},
+        {"ALIASES", commsDefFieldsAliasesInternal()},
+        {"LENGTH_CHECK", commsDefLengthCheckInternal()},
+        {"EXTRA", util::readFileContents(inputCodePrefix + strings::publicFileSuffixStr())},
+        {"NAME", commsDefNameFuncInternal()},
+        {"READ", commsDefReadFuncInternal()},
+        {"WRITE", util::readFileContents(inputCodePrefix + strings::writeFileSuffixStr())},
+        {"LENGTH", util::readFileContents(inputCodePrefix + strings::lengthFileSuffixStr())},
+        {"VALID", util::readFileContents(inputCodePrefix + strings::validFileSuffixStr())},
+        {"REFRESH", commsDefRefreshFuncInternal()},
     };
 
     return util::processTemplate(Templ, repl);
@@ -433,8 +449,21 @@ std::string CommsMessage::commsDefPublicInternal() const
 
 std::string CommsMessage::commsDefProtectedInternal() const
 {
-    // TODO:
-    return strings::emptyString();
+    auto custom = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::protectedFileSuffixStr());
+    if (custom.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "protected:\n"
+        "    #^#CODE#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"CODE", std::move(custom)}
+    };
+    
+    return util::processTemplate(Templ, repl);
 }
 
 std::string CommsMessage::commsDefPrivateInternal() const
@@ -443,7 +472,7 @@ std::string CommsMessage::commsDefPrivateInternal() const
     return strings::emptyString();
 }
 
-std::string CommsMessage::commsDefFieldsAccess() const
+std::string CommsMessage::commsDefFieldsAccessInternal() const
 {
     if (m_commsFields.empty()) {
         return strings::emptyString();
@@ -489,7 +518,7 @@ std::string CommsMessage::commsDefFieldsAccess() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsMessage::commsDefFieldsAliases() const
+std::string CommsMessage::commsDefFieldsAliasesInternal() const
 {
     auto aliases = dslObj().aliases();
     if (aliases.empty()) {
@@ -531,6 +560,140 @@ std::string CommsMessage::commsDefFieldsAliases() const
     return util::strListToString(result, "\n", "");
 }
 
+std::string CommsMessage::commsDefLengthCheckInternal() const
+{
+    static const std::string Templ = 
+        "// Compile time check for serialisation length.\n"
+        "static const std::size_t MsgMinLen = Base::doMinLength();\n"
+        "#^#MAX_LEN#$#\n"
+        "static_assert(MsgMinLen == #^#MIN_LEN_VAL#$#, \"Unexpected min serialisation length\");\n"
+        "#^#MAX_LEN_ASSERT#$#\n"
+    ;
+
+    auto& fList = fields();
+    auto minLength =
+        std::accumulate(
+            fList.begin(), fList.end(), std::size_t(0),
+            [](std::size_t soFar, auto& f)
+            {
+                return comms::addLength(soFar, f->dslObj().minLength());
+            });
+    auto maxLength =
+        std::accumulate(
+            fList.begin(), fList.end(), std::size_t(0),
+            [](std::size_t soFar, auto& f)
+            {
+                return comms::addLength(soFar, f->dslObj().maxLength());
+            });    
+
+    util::ReplacementMap repl = {
+        {"MIN_LEN_VAL", util::numToString(minLength)},
+    };
+
+    if (maxLength != comms::maxPossibleLength()) {
+        repl.insert({
+            {"MAX_LEN", "static const std::size_t MsgMaxLen = Base::doMaxLength();"},
+            {"MAX_LEN_ASSERT", "static_assert(MsgMaxLen == " + util::numToString(maxLength) + ", \"Unexpected max serialisation length\");"}
+        });
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsDefNameFuncInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Name of the message.\n"
+        "static const char* doName#^#ORIG#$#()\n"
+        "{\n"
+        "    return #^#SCOPE#$#::name();\n"
+        "}\n"
+        "#^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl = {
+        {"SCOPE", comms::commonScopeFor(*this, generator())},
+        {"CUSTOM", util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::nameFileSuffixStr())},
+    };
+
+    if (!repl["CUSTOM"].empty()) {
+        repl.insert({
+            {"ORIG", strings::origSuffixStr()}
+        });
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsDefReadFuncInternal() const
+{
+    auto customRead = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::readFileSuffixStr());
+    
+    util::StringsList genFieldsCode;
+    for (auto* commsField : m_commsFields) {
+        assert(commsField != nullptr);
+        auto code = commsField->commsDefReadFuncBody();
+        if (code.empty()) {
+            continue;
+        }
+
+        genFieldsCode.push_back(std::move(code));
+    }
+
+    if (genFieldsCode.empty()) {
+        return customRead;
+    }
+
+    static const std::string Templ = 
+        "/// @brief Generated read functionality.\n"
+        "template <typename TIter>\n"
+        "comms::ErrorStatus doRead#^#ORIG#$#(TIter& iter, std::size_t len)\n"
+       "{\n"
+       "    #^#UPDATE_VERSION#$#\n"
+       "    #^#CODE#$#\n"
+       "}\n"
+       "#^#CUSTOM#$#\n"
+    ;
+    
+    util::ReplacementMap repl = {
+        {"CODE", util::strListToString(genFieldsCode, "\n" "")},
+        {"CUSTOM", customRead},
+        {"UPDATE_VERSION", generator().versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
+    };
+
+    if (!customRead.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsDefRefreshFuncInternal() const
+{
+    if (m_fieldsRefresh.empty()) {
+        return m_customRefresh;
+    }
+
+    static const std::string Templ = 
+        "/// @brief Generated refresh functionality.\n"
+        "bool doRefresh()\n"
+        "{\n"
+        "   bool updated = Base::doRefresh();\n"
+        "   #^#FIELDS#$#\n"
+        "   return updated;"
+        "}";
+
+    util::StringsList fields;
+    for (auto& info : m_fieldsRefresh) {
+        fields.push_back("updated = refresh_" + info.m_accName + "() || updated;");
+    }
+
+    util::ReplacementMap repl = {
+        {"FIELDS", util::strListToString(fields, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 bool CommsMessage::commsIsCustomizableInternal() const
 {
     auto& gen = static_cast<const CommsGenerator&>(generator());
@@ -550,15 +713,15 @@ bool CommsMessage::commsIsCustomizableInternal() const
     return dslObj().sender() != commsdsl::parse::Message::Sender::Both;
 }
 
-bool CommsMessage::commsMustGenerateReadRefresh() const
-{
-    return 
-        std::any_of(
-            m_commsFields.begin(), m_commsFields.end(),
-            [](auto* f)
-            {
-                return f->hasGeneratedReadRefresh();
-            });
-}
+// bool CommsMessage::commsMustGenerateReadRefresh() const
+// {
+//     return 
+//         std::any_of(
+//             m_commsFields.begin(), m_commsFields.end(),
+//             [](auto* f)
+//             {
+//                 return f->hasGeneratedReadRefresh();
+//             });
+// }
 
 } // namespace commsdsl2new

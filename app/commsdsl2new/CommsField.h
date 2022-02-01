@@ -29,6 +29,8 @@ public:
 
     IncludesList commsDefIncludes() const;
     std::string commsDefCode() const;
+    std::string commsDefReadFuncBody() const;
+    std::string commsDefRefreshFuncBody() const;
 
     void setForcedFailOnInvalid()
     {

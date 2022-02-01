@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cassert>
 #include <cctype>
+#include <limits>
 #include <vector>
 
 
@@ -26,6 +27,7 @@ namespace
 
 const std::string ScopeSep("::");
 const std::string PathSep("/");
+const std::size_t MaxPossibleLength = std::numeric_limits<std::size_t>::max();
 
 std::string scopeForElement(
     const std::string& name, 
@@ -626,6 +628,21 @@ std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& 
 
     return util::numToString(id);    
 }
+
+std::size_t maxPossibleLength()
+{
+    return MaxPossibleLength;
+}
+
+std::size_t addLength(std::size_t len1, std::size_t len2)
+{
+    if ((MaxPossibleLength - len1) <= len2) {
+        return MaxPossibleLength;
+    }
+
+    return len1 + len2;
+}
+
 
 } // namespace comms
 

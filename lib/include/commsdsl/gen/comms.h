@@ -85,6 +85,10 @@ const std::string& dslUnitsToOpt(commsdsl::parse::Units value);
 
 std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& generator);
 
+std::size_t maxPossibleLength();
+
+std::size_t addLength(std::size_t len1, std::size_t len2);
+
 } // namespace comms
 
 } // namespace gen

@@ -128,6 +128,16 @@ std::string CommsField::commsDefCode() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string CommsField::commsDefReadFuncBody() const
+{
+    return commsDefReadFuncBodyImpl();
+}
+
+std::string CommsField::commsDefRefreshFuncBody() const
+{
+    return commsDefRefreshFuncBodyImpl();
+}
+
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
 {
     return IncludesList();

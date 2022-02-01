@@ -40,6 +40,17 @@ protected:
 
 private:
     using CommsFieldsList = std::vector<CommsField*>;
+    struct RefreshCodeInfo
+    {
+        RefreshCodeInfo(std::string&& accName, std::string&& code) :
+            m_accName(std::move(accName)),
+            m_code(std::move(code))
+        {
+        }
+
+        std::string m_accName;
+        std::string m_code;
+    };
 
     bool commsWriteCommonInternal();
     bool commsWriteDefInternal();  
@@ -58,12 +69,17 @@ private:
     std::string commsDefPublicInternal() const;
     std::string commsDefProtectedInternal() const;
     std::string commsDefPrivateInternal() const;
-    std::string commsDefFieldsAccess() const;
-    std::string commsDefFieldsAliases() const;
+    std::string commsDefFieldsAccessInternal() const;
+    std::string commsDefFieldsAliasesInternal() const;
+    std::string commsDefLengthCheckInternal() const;
+    std::string commsDefNameFuncInternal() const;
+    std::string commsDefReadFuncInternal() const;
+    std::string commsDefRefreshFuncInternal() const;
     bool commsIsCustomizableInternal() const;
-    bool commsMustGenerateReadRefresh() const;
+    // bool commsMustGenerateReadRefresh() const;
 
     CommsFieldsList m_commsFields;  
+    std::vector<RefreshCodeInfo> m_fieldsRefresh;
     std::string m_customRefresh;
 };
 
