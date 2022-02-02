@@ -456,11 +456,11 @@ std::string CommsMessage::commsDefProtectedInternal() const
 
     static const std::string Templ = 
         "protected:\n"
-        "    #^#CODE#$#\n"
+        "    #^#CUSTOM#$#\n"
     ;
 
     util::ReplacementMap repl = {
-        {"CODE", std::move(custom)}
+        {"CUSTOM", std::move(custom)}
     };
     
     return util::processTemplate(Templ, repl);
@@ -468,8 +468,40 @@ std::string CommsMessage::commsDefProtectedInternal() const
 
 std::string CommsMessage::commsDefPrivateInternal() const
 {
-    // TODO:
-    return strings::emptyString();
+    auto custom = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
+    if (m_fieldsRefresh.empty()) {
+        return custom;
+    }
+
+    util::StringsList fields;
+    for (auto& info : m_fieldsRefresh) {
+        static const std::string RefreshTempl = 
+            "/// @brief Generated refresh of the member field.\n"
+            "bool refresh_#^#NAME#$#()\n"
+            "{\n"
+            "    #^#CODE#$#\n"
+            "}\n";
+
+        util::ReplacementMap refreshRepl = {
+            {"NAME", info.m_accName},
+            {"CODE", info.m_code}
+        };
+
+        fields.push_back(util::processTemplate(RefreshTempl, refreshRepl));
+    }
+
+    static const std::string Templ = 
+        "private:\n"
+        "    #^#FIELDS#$#\n"
+        "    #^#CUSTOM#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"FIELDS", util::strListToString(fields, "\n", "")},
+        {"CUSTOM", std::move(custom)}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 std::string CommsMessage::commsDefFieldsAccessInternal() const
