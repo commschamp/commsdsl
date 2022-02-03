@@ -55,6 +55,7 @@ public:
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
     virtual std::string commsCommonCodeBodyImpl() const;
+    virtual std::string commsCommonCodeExtraImpl() const;
     virtual IncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefMembersCodeImpl() const;
     virtual std::string commsDoxigenDetailsImpl() const;

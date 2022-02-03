@@ -1,0 +1,859 @@
+#include "CommsEnumField.h"
+
+#include "CommsGenerator.h"
+
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/util.h"
+#include "commsdsl/gen/strings.h"
+
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+
+namespace util = commsdsl::gen::util;
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
+
+namespace commsdsl2new
+{
+
+namespace 
+{
+
+const std::size_t MaxRangesInOpts = 5U;
+
+std::uintmax_t maxTypeValueInternal(commsdsl::parse::EnumField::Type val)
+{
+    static const std::uintmax_t Map[] = {
+        /* Int8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int8_t>::max()),
+        /* Uint8 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint8_t>::max()),
+        /* Int16 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int16_t>::max()),
+        /* Uint16 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint16_t>::max()),
+        /* Int32 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int32_t>::max()),
+        /* Uint32 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint32_t>::max()),
+        /* Int64 */ static_cast<std::uintmax_t>(std::numeric_limits<std::int64_t>::max()),
+        /* Uint64 */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint64_t>::max()),
+        /* Intvar */ static_cast<std::uintmax_t>(std::numeric_limits<std::int64_t>::max()),
+        /* Uintvar */ static_cast<std::uintmax_t>(std::numeric_limits<std::uint64_t>::max())
+    };
+    static const std::size_t MapSize =
+            std::extent<decltype(Map)>::value;
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::EnumField::Type::NumOfValues),
+            "Invalid map");
+
+    if (commsdsl::parse::EnumField::Type::NumOfValues <= val) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        val = commsdsl::parse::EnumField::Type::Uint64;
+    }
+    return Map[static_cast<unsigned>(val)];
+}
+
+} // namespace 
+    
+
+CommsEnumField::CommsEnumField(
+    CommsGenerator& generator, 
+    commsdsl::parse::Field dslObj, 
+    commsdsl::gen::Elem* parent) :
+    Base(generator, dslObj, parent),
+    CommsBase(static_cast<Base&>(*this))
+{
+}
+
+commsdsl::gen::util::StringsList CommsEnumField::commsEnumValues() const
+{
+    commsdsl::gen::util::StringsList result;
+    if (m_validRanges.empty()) {
+        return result;
+    }
+    
+    auto obj = enumDslObj();
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::parse::EnumField::Type::Uint64) ||
+        (type == commsdsl::parse::EnumField::Type::Uintvar);
+    unsigned hexW = hexWidth();
+
+    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
+    using SortedRevValues = std::vector<RevValueInfo>;
+    SortedRevValues sortedRevValues;
+    for (auto& v : obj.revValues()) {
+        sortedRevValues.push_back(std::make_pair(v.first, &v.second));
+    }
+
+    if (bigUnsigned) {
+        std::sort(
+            sortedRevValues.begin(), sortedRevValues.end(),
+            [](const auto& elem1, const auto& elem2) -> bool
+            {
+                return static_cast<std::uintmax_t>(elem1.first) < static_cast<std::uintmax_t>(elem2.first);
+            });
+    }
+
+    auto valToStrFunc =
+        [bigUnsigned, hexW](std::intmax_t val) -> std::string
+        {
+            if ((bigUnsigned) || (0U < hexW)) {
+                return util::numToString(static_cast<std::uintmax_t>(val), hexW);
+            }
+            else {
+                return util::numToString(val);
+            }
+        };
+
+    util::StringsList valuesStrings;
+    valuesStrings.reserve(sortedRevValues.size() + 3);
+    auto& values = obj.values();
+
+
+    for (auto& v : sortedRevValues) {
+        auto iter = values.find(*v.second);
+        if (iter == values.end()) {
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            continue;
+        }
+
+        bool exists =
+            generator().doesElementExist(
+                iter->second.m_sinceVersion,
+                iter->second.m_deprecatedSince,
+                false);
+
+        if (!exists) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "#^#NAME#$# = #^#VALUE#$#, ";
+
+
+        std::string valStr = valToStrFunc(v.first);
+        std::string docStr;
+        if (!iter->second.m_description.empty()) {
+            docStr = "///< " + iter->second.m_description;
+            docStr = util::strMakeMultiline(docStr, 40);
+        }
+        else if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+            if (!iter->second.m_displayName.empty()) {
+                docStr = "///< message id of <b>" + iter->second.m_displayName + "</b> message.";
+            }
+            else {
+                docStr = "///< message id of @b " + *v.second + " message.";
+            }
+        }
+        else if (!iter->second.m_displayName.empty()) {
+            docStr = "///< value <b>" + iter->second.m_displayName + "</b>.";
+        }
+        else {
+            docStr = "///< value @b " + *v.second + '.';
+        }
+
+        auto deprecatedVer = iter->second.m_deprecatedSince;
+        if (generator().isElementDeprecated(deprecatedVer)) {
+            docStr += "\nDeprecated since version " + std::to_string(deprecatedVer) + '.';
+        }
+        docStr = util::strReplace(docStr, "\n", "\n///  ");
+
+        assert(!valStr.empty());
+        util::ReplacementMap repl = {
+            {"NAME", *v.second},
+            {"VALUE", std::move(valStr)},
+        };
+        auto templ = util::processTemplate(Templ, repl);
+        assert(2U <= templ.size());
+        static const std::string DocElem("#^#DOC#$#");
+        templ.insert((templ.end() - 1U), DocElem.begin(), DocElem.end());
+
+        util::ReplacementMap docRepl = {
+            {"DOC", std::move(docStr)}
+        };
+        valuesStrings.push_back(util::processTemplate(templ, docRepl));
+    }
+
+    if (!sortedRevValues.empty()) {
+        auto addNameSuffixFunc =
+            [&values](const std::string& n) -> std::string
+            {
+                std::string suffix;
+                while (true) {
+                    auto s = n + suffix;
+                    if (values.find(s) == values.end()) {
+                        return s;
+                    }
+
+                    suffix += '_';
+                }
+            };
+
+        auto& firstElem = sortedRevValues.front();
+        assert(firstElem.second != nullptr);
+        assert(!firstElem.second->empty());
+        auto firstLetter = firstElem.second->front();
+        bool useLower = (std::tolower(firstLetter) == static_cast<int>(firstLetter));
+
+        auto adjustFirstLetterNameFunc =
+            [useLower](const std::string& s)
+            {
+                if (!useLower) {
+                    assert(!s.empty());
+                    assert(s[0] == static_cast<char>(std::toupper(s[0])));
+                    return s;
+                }
+
+                auto sCpy = s;
+                assert(!s.empty());
+                sCpy[0] = static_cast<char>(std::tolower(sCpy[0]));
+                return sCpy;
+            };
+
+        auto createValueStrFunc =
+            [&adjustFirstLetterNameFunc, &addNameSuffixFunc, &valToStrFunc](const std::string& n, std::intmax_t val, const std::string& doc) -> std::string
+            {
+                return
+                    adjustFirstLetterNameFunc(addNameSuffixFunc(n)) + " = " +
+                    valToStrFunc(val) + ", ///< " + doc;
+
+            };
+
+        valuesStrings.push_back("\n// --- Extra values generated for convenience ---");
+        valuesStrings.push_back(createValueStrFunc("FirstValue", sortedRevValues.front().first, "First defined value."));
+        valuesStrings.push_back(createValueStrFunc("LastValue", sortedRevValues.back().first, "Last defined value."));
+
+        bool putLimit =
+            (!bigUnsigned) &&
+            sortedRevValues.back().first < static_cast<std::intmax_t>(maxTypeValueInternal(obj.type()));
+
+        if (bigUnsigned) {
+            putLimit = static_cast<std::uintmax_t>(sortedRevValues.back().first) < maxTypeValueInternal(obj.type());
+        }
+
+        if (putLimit) {
+            valuesStrings.push_back(createValueStrFunc("ValuesLimit", sortedRevValues.back().first + 1, "Upper limit for defined values."));
+        }
+    }
+
+    return valuesStrings;    
+}
+
+bool CommsEnumField::prepareImpl()
+{
+    return 
+        Base::prepareImpl() && 
+        commsPrepare() &&
+        commsPrepareValidRangesInternal();
+}
+
+bool CommsEnumField::writeImpl() const
+{
+    return commsWrite();
+}
+
+CommsEnumField::IncludesList CommsEnumField::commsCommonIncludesImpl() const
+{
+    IncludesList result = {
+        "<cstdint>",
+        "<type_traits>",
+        "<utility>"
+    };
+
+    if (enumDslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+        auto inc = comms::relHeaderForRoot(strings::msgIdEnumNameStr(), generator());
+        result.push_back(std::move(inc));
+    }  
+
+    if ((MaxRangesInOpts < m_validRanges.size()) ||
+        (commsIsDirectValueNameMappingInternal())) {
+        result.insert(result.end(), {
+            "<algorithm>",
+            "<iterator>"
+        });
+    }
+
+    return result;  
+}
+
+std::string CommsEnumField::commsCommonCodeBodyImpl() const
+{
+    static const std::string Templ = 
+        "#^#ENUM_DEF#$#\n"
+        "#^#VALUE_NAME_MAP_DEF#$#\n"
+        "#^#NAME_FUNC#$#\n"
+        "#^#VAL_NAME_FUNC#$#\n"
+        "#^#VAL_VALUE_NAMES_MAP_FUNC#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"ENUM_DEF", commsCommonEnumInternal()},
+        {"VALUE_NAME_MAP_DEF", commsCommonValueNameMapInternal()},
+        {"NAME_FUNC", commsCommonNameFuncCode()},
+        {"VAL_NAME_FUNC", commsCommonValueNameFuncCodeInternal()},
+        {"VAL_VALUE_NAMES_MAP_FUNC", commsCommonValueNamesMapFuncCodeInternal()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsEnumField::commsCommonCodeExtraImpl() const
+{
+    static const std::string Templ = 
+        "\n"
+        "/// @brief Values enumerator for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "using #^#NAME#$#Val = #^#NAME#$#Common::ValueType;\n";
+
+    util::ReplacementMap repl = {
+        {"SCOPE", comms::scopeFor(*this, generator())},
+        {"NAME", comms::className(dslObj().name())}
+    };
+    return util::processTemplate(Templ, repl);
+}
+
+bool CommsEnumField::commsPrepareValidRangesInternal()
+{
+    auto obj = enumDslObj();
+
+    auto& gen = generator();
+    bool validCheckVersion =
+        gen.versionDependentCode() &&
+        obj.validCheckVersion();
+
+    auto& values = obj.values();
+    m_validRanges.reserve(values.size());
+    for (auto& v : values) {
+        bool exists =
+            gen.doesElementExist(
+                v.second.m_sinceVersion,
+                v.second.m_deprecatedSince,
+                !validCheckVersion);
+        if (!exists) {
+            continue;
+        }
+
+        m_validRanges.emplace_back();
+        auto& r = m_validRanges.back();
+        r.m_min = v.second.m_value;
+        r.m_max = r.m_min;
+        r.m_sinceVersion = v.second.m_sinceVersion;
+        r.m_deprecatedSince = v.second.m_deprecatedSince;
+    }
+
+    if (m_validRanges.empty()) {
+        gen.logger().error("Enum \"" + obj.name() + "\" doesn't define any value");
+        return false;
+    }
+
+    if (m_validRanges.size() <= 1U) {
+        return true;
+    }
+
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::parse::EnumField::Type::Uint64) ||
+        (type == commsdsl::parse::EnumField::Type::Uintvar);
+
+
+    // Sort
+    std::sort(
+        m_validRanges.begin(), m_validRanges.end(),
+        [bigUnsigned, validCheckVersion](auto& e1, auto& e2)
+        {
+            if (validCheckVersion) {
+                if (e1.m_sinceVersion != e2.m_sinceVersion) {
+                    return e1.m_sinceVersion < e2.m_sinceVersion;
+                }
+
+                if (e1.m_deprecatedSince != e2.m_deprecatedSince) {
+                    return e1.m_deprecatedSince < e2.m_deprecatedSince;
+                }
+            }
+
+            if (bigUnsigned) {
+                return static_cast<std::uintmax_t>(e1.m_min) < (static_cast<std::uintmax_t>(e2.m_min));
+            }
+
+            return e1.m_min < e2.m_min;
+        });
+
+    // Merge
+    for (auto iter = m_validRanges.begin(); iter != m_validRanges.end(); ++iter) {
+        if (iter->m_deprecatedSince == 0U) {
+            continue;
+        }
+
+        for (auto nextIter = iter + 1; nextIter != m_validRanges.end(); ++nextIter) {
+            if (nextIter->m_deprecatedSince == 0U) {
+                continue;
+            }
+
+            if (validCheckVersion) {
+                if ((iter->m_sinceVersion != nextIter->m_sinceVersion) ||
+                    (iter->m_deprecatedSince != nextIter->m_deprecatedSince)) {
+                    break;
+                }
+            }
+
+            if ((iter->m_max + 1) < nextIter->m_min) {
+                break;
+            }
+
+            assert(iter->m_min <= nextIter->m_min);
+            nextIter->m_deprecatedSince = 0U; // invalidate next range
+            iter->m_max = std::max(iter->m_max, nextIter->m_max);
+        }
+    }
+
+    // Remove invalid
+    m_validRanges.erase(
+        std::remove_if(
+            m_validRanges.begin(), m_validRanges.end(),
+            [](auto& elem)
+            {
+                return elem.m_deprecatedSince == 0U;
+            }),
+        m_validRanges.end());
+    return true;
+}
+
+bool CommsEnumField::commsIsDirectValueNameMappingInternal() const
+{
+    auto obj = enumDslObj();
+    auto& revValues = obj.revValues();
+    assert(!revValues.empty());
+    auto firstIter = revValues.begin();
+    if (firstIter->first < 0) {
+        // has negative numbers
+        return false;
+    }
+
+    auto lastIter = revValues.end();
+    std::advance(lastIter, -1);
+    auto lastVal = static_cast<std::uintmax_t>(lastIter->first);
+    auto maxDirectAllowed = static_cast<std::size_t>((revValues.size() * 110U) / 100);
+    if ((maxDirectAllowed <= lastVal) && (10 <= lastVal)) {
+        // Too sparse
+        return false;
+    }
+
+    return true;    
+}
+
+std::string CommsEnumField::commsCommonEnumInternal() const
+{
+    auto& gen = generator();
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+        static const std::string Templ =
+            "/// @brief Values enumerator for\n"
+            "///     @ref #^#SCOPE#$# field.\n"
+            "using ValueType = #^#MSG_ID#$#;\n";
+
+        util::ReplacementMap repl = {
+            {"SCOPE", comms::scopeFor(*this, gen)},
+            {"MSG_ID", comms::scopeForRoot(strings::msgIdEnumNameStr(), gen)}
+        };
+        return util::processTemplate(Templ, repl);
+    }
+
+    static const std::string Templ =
+        "/// @brief Values enumerator for\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "enum class ValueType : #^#TYPE#$#\n"
+        "{\n"
+        "    #^#VALUES#$#\n"
+        "};\n"
+    ;    
+
+    auto values = commsEnumValues();
+    util::ReplacementMap repl = {
+        {"SCOPE", comms::scopeFor(*this, gen)},
+        {"TYPE", comms::cppIntTypeFor(enumDslObj().type(), enumDslObj().maxLength())},
+        {"VALUES", util::strListToString(values, "\n", "")}
+    };
+    return util::processTemplate(Templ, repl);        
+}
+
+std::string CommsEnumField::commsCommonValueNameMapInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Single value name info entry\n"
+        "using ValueNameInfo = #^#NAME_INFO_TYPE#$#;\n\n"
+        "/// @brief Type returned from @ref valueNamesMap() member function.\n"
+        "/// @details The @b first value of the pair is pointer to the map array,\n"
+        "///     The @b second value of the pair is the size of the array.\n"
+        "using ValueNamesMapInfo = std::pair<const ValueNameInfo*, std::size_t>;\n";
+
+    util::ReplacementMap repl = {
+        {"NAME_INFO_TYPE", commsIsDirectValueNameMappingInternal() ? "const char*" : "std::pair<ValueType, const char*>"}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsEnumField::commsCommonValueNameFuncCodeInternal() const
+{
+    std::string body;
+    if (commsIsDirectValueNameMappingInternal()) {
+        body = commsCommonValueNameDirectBodyInternal();
+    }
+    else {
+        body = commsCommonValueNameBinSearchBodyInternal();
+    }
+    assert(!body.empty());
+
+    static const std::string Templ = 
+        "/// @brief Retrieve name of the enum value\n"
+        "static const char* valueName(ValueType val)\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(body)}
+    };
+    return util::processTemplate(Templ, repl);
+}
+
+const std::string& CommsEnumField::commsCommonValueNameDirectBodyInternal() const
+{
+    static const std::string Templ = 
+        "auto namesMapInfo = valueNamesMap();\n"
+        "if (namesMapInfo.second <= static_cast<std::size_t>(val)) {\n"
+        "    return nullptr;\n"
+        "}\n\n"
+        "return namesMapInfo.first[static_cast<std::size_t>(val)];";
+
+
+    return Templ;    
+}
+
+const std::string& CommsEnumField::commsCommonValueNameBinSearchBodyInternal() const
+{
+    static const std::string Templ = 
+        "auto namesMapInfo = valueNamesMap();\n"
+        "auto begIter = namesMapInfo.first;\n"
+        "auto endIter = begIter + namesMapInfo.second;\n"
+        "auto iter = std::lower_bound(\n"
+        "    begIter, endIter, val,\n"
+        "    [](const ValueNameInfo& info, ValueType v) -> bool\n"
+        "    {\n"
+        "        return info.first < v;\n"
+        "    });\n\n"
+        "if ((iter == endIter) || (iter->first != val)) {\n"
+        "    return nullptr;\n"
+        "}\n\n"
+        "return iter->second;";
+
+
+    return Templ;
+}
+
+std::string CommsEnumField::commsCommonValueNamesMapFuncCodeInternal() const
+{
+    std::string body;
+    if (commsIsDirectValueNameMappingInternal()) {
+        body = commsCommonValueNamesMapDirectBodyInternal();
+    }
+    else {
+        body = commsCommonValueNamesMapBinSearchBodyInternal();
+    }
+    assert(!body.empty());
+
+    static const std::string Templ = 
+        "/// @brief Retrieve map of enum value names\n"
+        "static ValueNamesMapInfo valueNamesMap()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(body)}
+    };
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
+{
+    auto obj = enumDslObj();
+    auto& revValues = obj.revValues();
+    auto& values = obj.values();
+    assert(!revValues.empty());
+
+    std::intmax_t nextValue = 0;
+    StringsList names;
+    for (auto& v : revValues) {
+        if (v.first < nextValue) {
+            continue;
+        }
+
+        while (nextValue < v.first) {
+            names.push_back("nullptr");
+            ++nextValue;
+        }
+
+        auto getDisplayNameFunc = 
+            [](auto& infoPair) -> const std::string&
+            {
+                if (infoPair.second.m_displayName.empty()) {
+                    return infoPair.first;
+                }
+
+                if (infoPair.second.m_displayName == "_") {
+                    return strings::emptyString();
+                }
+
+                return infoPair.second.m_displayName;
+            };
+
+        ++nextValue;
+        auto addElementNameFunc = 
+            [&names, getDisplayNameFunc](auto& infoPair) 
+            {
+                names.push_back('\"' + getDisplayNameFunc(infoPair) + '\"');
+            };
+
+        auto valIter = values.find(v.second);
+        assert(valIter != values.end());
+        if ((!obj.isNonUniqueAllowed()) ||
+            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (obj.isUnique())) {
+            addElementNameFunc(*valIter);
+            continue;
+        }
+
+        auto allRevValues = revValues.equal_range(v.first);
+        bool foundNotDeprecated = false;
+        for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
+            auto vIter = values.find(iter->second);
+            assert(vIter != values.end());
+            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+                addElementNameFunc(*vIter);
+                foundNotDeprecated = true;
+                break;
+            }
+        }
+
+        if (foundNotDeprecated) {
+            continue;
+        }
+
+        addElementNameFunc(*valIter);
+    }
+
+    static const std::string Templ = 
+        "static const char* Map[] = {\n"
+        "    #^#NAMES#$#\n"
+        "};\n"
+        "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
+        "return std::make_pair(&Map[0], MapSize);";
+
+
+    util::ReplacementMap repl = {
+        {"NAMES", util::strListToString(names, ",\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsEnumField::commsCommonValueNamesMapBinSearchBodyInternal() const
+{
+    auto obj = enumDslObj();
+    auto type = obj.type();
+
+    std::string names;
+    if ((type == commsdsl::parse::EnumField::Type::Uint64) ||
+        ((type == commsdsl::parse::EnumField::Type::Uintvar) && (sizeof(std::uint64_t) <= obj.maxLength()))) {
+        names = commsCommonBigUnsignedValueNameBinSearchPairsInternal();
+    }
+    else {
+        names = commsCommonValueNameBinSearchPairsInternal();
+    }
+
+    static const std::string Templ = 
+        "static const ValueNameInfo Map[] = {\n"
+        "    #^#NAMES#$#\n"
+        "};\n"
+        "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
+        "return std::make_pair(&Map[0], MapSize);";
+
+
+    util::ReplacementMap repl = {
+        {"NAMES", std::move(names)}
+    };
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInternal() const
+{
+    auto obj = enumDslObj();
+    auto& revValues = obj.revValues();
+    assert(!revValues.empty());
+
+    std::vector<std::uintmax_t> valuesSeq;
+    valuesSeq.reserve(revValues.size());
+    for (auto& v : revValues) {
+        valuesSeq.push_back(static_cast<std::uintmax_t>(v.first));
+    }
+    std::sort(valuesSeq.begin(), valuesSeq.end());
+
+    auto& values = obj.values();
+    bool firstElem = true;
+    std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
+    StringsList names;
+    for (auto& posV : valuesSeq) {
+        auto castedV = static_cast<std::intmax_t>(posV);
+        if ((!firstElem) && (lastValue == castedV)) {
+            continue;
+        }
+
+        auto revIter = revValues.find(castedV);
+        assert(revIter != revValues.end());
+        auto& v = *revIter;
+
+        auto getDisplayNameFunc = 
+            [](auto& infoPair) -> const std::string&
+            {
+                if (infoPair.second.m_displayName.empty()) {
+                    return infoPair.first;
+                }
+
+                if (infoPair.second.m_displayName == "_") {
+                    return strings::emptyString();
+                }
+
+                return infoPair.second.m_displayName;
+            };
+
+        auto addElementNameFunc = 
+            [&names, &v, &firstElem, &lastValue, getDisplayNameFunc](auto& infoPair)
+            {
+                auto str = 
+                    "std::make_pair(ValueType::" +
+                    v.second + ", \"" + getDisplayNameFunc(infoPair) +
+                    "\")";
+                names.push_back(std::move(str));
+                firstElem = false;
+                lastValue = v.first;
+            };
+
+        auto valIter = values.find(v.second);
+        assert(valIter != values.end());
+        if ((!obj.isNonUniqueAllowed()) ||
+            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (obj.isUnique())) {
+            addElementNameFunc(*valIter);
+            continue;
+        }
+
+        auto allRevValues = revValues.equal_range(v.first);
+        bool foundNotDeprecated = false;
+        for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
+            auto vIter = values.find(iter->second);
+            assert(vIter != values.end());
+            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+                addElementNameFunc(*vIter);
+                foundNotDeprecated = true;
+                break;
+            }
+        }
+
+        if (foundNotDeprecated) {
+            continue;
+        }
+
+        addElementNameFunc(*valIter);
+    }
+
+    return util::strListToString(names, ",\n", "");
+}
+
+std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
+{
+    auto obj = enumDslObj();
+    auto& revValues = obj.revValues();
+    auto& values = obj.values();
+    assert(!revValues.empty());
+    bool isMessageId =
+        obj.semanticType() == commsdsl::parse::Field::SemanticType::MessageId;    
+
+    bool firstElem = true;
+    std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
+    StringsList names;
+    for (auto& v : revValues) {
+        if ((!firstElem) && (lastValue == v.first)) {
+            continue;
+        }
+
+        auto getDisplayNameFunc = 
+            [](auto& infoPair) -> const std::string&
+            {
+                if (infoPair.second.m_displayName.empty()) {
+                    return infoPair.first;
+                }
+
+                if (infoPair.second.m_displayName == "_") {
+                    return strings::emptyString();
+                }
+
+                return infoPair.second.m_displayName;
+            };
+
+        auto getValueStrFunc = 
+            [this, isMessageId](const std::string& s)
+            {
+                if (isMessageId) {
+                    return generator().mainNamespace() + "::" + strings::msgIdPrefixStr() + s;
+                }
+
+                return "ValueType::" + s;
+            };
+
+        auto addElementNameFunc = 
+            [&names, &v, &firstElem, &lastValue, getDisplayNameFunc, &getValueStrFunc](auto& infoPair) 
+            {
+                auto str = 
+                    "std::make_pair(" +
+                    getValueStrFunc(v.second) +
+                    ", \"" + getDisplayNameFunc(infoPair) +
+                    "\")";
+                names.push_back(std::move(str));
+                firstElem = false;
+                lastValue = v.first;
+            };
+
+        auto valIter = values.find(v.second);
+        assert(valIter != values.end());
+        if ((!obj.isNonUniqueAllowed()) ||
+            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (obj.isUnique())) {
+            addElementNameFunc(*valIter);
+            continue;
+        }
+
+        auto allRevValues = revValues.equal_range(v.first);
+        bool foundNotDeprecated = false;
+        for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
+            auto vIter = values.find(iter->second);
+            assert(vIter != values.end());
+            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+                addElementNameFunc(*vIter);
+                foundNotDeprecated = true;
+                break;
+            }
+        }
+
+        if (foundNotDeprecated) {
+            continue;
+        }
+
+        addElementNameFunc(*valIter);
+    }
+
+    return util::strListToString(names, ",\n", "");
+}
+
+} // namespace commsdsl2new

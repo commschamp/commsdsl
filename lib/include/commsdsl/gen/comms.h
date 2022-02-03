@@ -53,10 +53,17 @@ std::string scopeForInput(
     bool addMainNamespace = true, 
     bool addElement = true);  
 
+std::string scopeForRoot(
+    const std::string& name, 
+    const Generator& generator, 
+    bool addMainNamespace = true, 
+    bool addElement = true);
+
 std::string relHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string relHeaderPathForField(const std::string& name, const Generator& generator); 
 std::string relHeaderForOptions(const std::string& name, const Generator& generator); 
+std::string relHeaderForRoot(const std::string& name, const Generator& generator); 
 
 std::string headerPathFor(const Elem& elem, const Generator& generator);
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator);

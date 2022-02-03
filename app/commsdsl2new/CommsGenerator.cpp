@@ -1,6 +1,7 @@
 #include "CommsGenerator.h"
 
 #include "CommsCmake.h"
+#include "CommsEnumField.h"
 #include "CommsIntField.h"
 #include "CommsMessage.h"
 
@@ -58,6 +59,11 @@ CommsGenerator::MessagePtr CommsGenerator::createMessageImpl(commsdsl::parse::Me
 CommsGenerator::FieldPtr CommsGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsIntField>(*this, dslObj, parent);
+}
+
+CommsGenerator::FieldPtr CommsGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsEnumField>(*this, dslObj, parent);
 }
 
 bool CommsGenerator::writeImpl()

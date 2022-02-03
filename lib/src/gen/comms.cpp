@@ -260,6 +260,16 @@ std::string scopeForInput(
     return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
 }
 
+std::string scopeForRoot(
+    const std::string& name, 
+    const Generator& generator, 
+    bool addMainNamespace, 
+    bool addElement)
+{
+    static const std::vector<std::string> SubElems;
+    return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);    
+}
+
 std::string relHeaderPathFor(const Elem& elem, const Generator& generator)
 {
     return scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
@@ -285,6 +295,12 @@ std::string relHeaderForOptions(const std::string& name, const Generator& genera
         strings::optionsNamespaceStr()
     };
 
+    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+}
+
+std::string relHeaderForRoot(const std::string& name, const Generator& generator)
+{
+    static const std::vector<std::string> SubElems;
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 

@@ -73,6 +73,7 @@ std::string CommsField::commsCommonCode() const
         "{\n"
         "    #^#BODY#$#\n"
         "};\n"
+        "#^#EXTRA#$#\n"
     ;
 
     auto& generator = m_field.generator();
@@ -80,6 +81,7 @@ std::string CommsField::commsCommonCode() const
         {"SCOPE", comms::scopeFor(m_field, generator)},
         {"NAME", comms::className(m_field.name())},
         {"BODY", commsCommonCodeBodyImpl()},
+        {"EXTRA", commsCommonCodeExtraImpl()},
     };
 
     return util::processTemplate(Templ, repl);
@@ -144,6 +146,11 @@ CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
 }
 
 std::string CommsField::commsCommonCodeBodyImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsCommonCodeExtraImpl() const
 {
     return strings::emptyString();
 }
