@@ -169,6 +169,12 @@ std::string CommsIntField::commsDefPublicCodeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string CommsIntField::commsDefValidFuncBodyImpl() const
+{
+    // TODO
+    return strings::emptyString();
+}
+
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
 {
     auto& specials = specialsSortedByValue();    

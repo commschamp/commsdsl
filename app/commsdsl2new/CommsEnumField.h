@@ -29,9 +29,10 @@ protected:
     virtual IncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonCodeExtraImpl() const override;
-    // virtual IncludesList commsDefIncludesImpl() const override;
-    // virtual std::string commsBaseClassDefImpl() const override;
-    // virtual std::string commsDefPublicCodeImpl() const override;
+    virtual IncludesList commsDefIncludesImpl() const override;
+    virtual std::string commsBaseClassDefImpl() const override;
+    virtual std::string commsDefPublicCodeImpl() const override;
+    virtual std::string commsDefValidFuncBodyImpl() const override;
 
 private:
     struct RangeInfo
@@ -56,6 +57,14 @@ private:
     std::string commsCommonValueNamesMapBinSearchBodyInternal() const;
     std::string commsCommonBigUnsignedValueNameBinSearchPairsInternal() const;
     std::string commsCommonValueNameBinSearchPairsInternal() const;
+    std::string commsFieldDefOptsInternal() const;
+    std::string commsDefValueNameMapInternal() const;
+    std::string commsDefValueNameFuncCodeInternal() const;
+    std::string commsDefValueNamesMapFuncCodeInternal() const;
+
+    void commsAddDefaultValueOptInternal(StringsList& opts) const;
+    void commsAddLengthOptInternal(StringsList& opts) const;
+    void commsAddValidRangesOptInternal(StringsList& opts) const;
 
     ValidRangesList m_validRanges;
 };
