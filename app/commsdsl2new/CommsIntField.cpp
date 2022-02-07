@@ -6,6 +6,7 @@
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/strings.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace util = commsdsl::gen::util;
@@ -171,8 +172,94 @@ std::string CommsIntField::commsDefPublicCodeImpl() const
 
 std::string CommsIntField::commsDefValidFuncBodyImpl() const
 {
-    // TODO
-    return strings::emptyString();
+    auto obj = intDslObj();
+
+    bool validCheckVersion =
+        generator().versionDependentCode() &&
+        obj.validCheckVersion();
+
+    if (!validCheckVersion) {
+        return strings::emptyString();
+    }
+
+    auto validRanges = obj.validRanges(); // copy
+    validRanges.erase(
+        std::remove_if(
+            validRanges.begin(), validRanges.end(),
+            [this](auto& r)
+            {
+                return !this->generator().isElementOptional(r.m_sinceVersion, r.m_deprecatedSince, true);
+            }),
+        validRanges.end());
+
+    if (validRanges.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ =
+        "if (Base::valid()) {\n"
+        "    return true;\n"
+        "}\n\n"
+        "#^#RANGES_CHECKS#$#\n"
+        "return false;\n"
+        ;
+
+    auto type = obj.type();
+    bool bigUnsigned =
+        (type == commsdsl::parse::IntField::Type::Uint64) ||
+        (type == commsdsl::parse::IntField::Type::Uintvar);
+
+    std::string rangesChecks;
+    for (auto& r : validRanges) {
+        if (!rangesChecks.empty()) {
+            rangesChecks += '\n';
+        }
+
+        static const std::string RangeTempl =
+            "if (#^#COND#$#) {\n"
+            "    return true;\n"
+            "}\n";
+
+        std::string minVal;
+        std::string maxVal;
+
+        if (bigUnsigned) {
+            minVal = util::numToString(static_cast<std::uintmax_t>(r.m_min));
+            maxVal = util::numToString(static_cast<std::uintmax_t>(r.m_max));
+        }
+        else {
+            minVal = util::numToString(r.m_min);
+            maxVal = util::numToString(r.m_max);
+        }
+
+        util::StringsList conds;
+        if (0U < r.m_sinceVersion) {
+            conds.push_back('(' + util::numToString(r.m_sinceVersion) + " <= Base::getVersion())");
+        }
+
+        if (r.m_deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated()) {
+            conds.push_back("(Base::getVersion() < " + util::numToString(r.m_deprecatedSince) + ")");
+        }
+
+        if (r.m_min == r.m_max) {
+            conds.push_back("(static_cast<ValueType>(" + minVal + ") == Base::value())");
+        }
+        else {
+            conds.push_back("(static_cast<ValueType>(" + minVal + ") <= Base::value())");
+            conds.push_back("(Base::value() <= static_cast<ValueType>(" + maxVal + "))");
+        }
+
+        util::ReplacementMap rangeRepl = {
+            {"COND", util::strListToString(conds, " &&\n", "")}
+        };
+        rangesChecks += util::processTemplate(RangeTempl, rangeRepl);
+    }
+
+    util::ReplacementMap repl = {
+        {"RANGES_CHECKS", std::move(rangesChecks)},
+    };
+
+    return util::processTemplate(Templ, repl);    
 }
 
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
