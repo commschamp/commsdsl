@@ -23,6 +23,8 @@ std::string className(const std::string& name);
 std::string accessName(const std::string& name);
 std::string namespaceName(const std::string& name);
 
+std::string fullNameFor(const Elem& elem);
+
 std::string scopeFor(
     const Elem& elem, 
     const Generator& generator, 
@@ -67,6 +69,7 @@ std::string relHeaderForRoot(const std::string& name, const Generator& generator
 
 std::string headerPathFor(const Elem& elem, const Generator& generator);
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator);
+std::string headerPathRoot(const std::string& name, const Generator& generator);
 
 std::string inputCodePathFor(const Elem& elem, const Generator& generator);
 

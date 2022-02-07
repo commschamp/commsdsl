@@ -4,6 +4,7 @@
 #include "CommsEnumField.h"
 #include "CommsIntField.h"
 #include "CommsMessage.h"
+#include "CommsMsgId.h"
 
 #include "commsdsl/version.h"
 
@@ -69,7 +70,8 @@ CommsGenerator::FieldPtr CommsGenerator::createEnumFieldImpl(commsdsl::parse::Fi
 bool CommsGenerator::writeImpl()
 {
     return 
-        CommsCmake::write(*this);
+        CommsCmake::write(*this) &&
+        CommsMsgId::write(*this);
 }
 
 } // namespace commsdsl2new

@@ -206,6 +206,40 @@ std::string namespaceName(const std::string& name)
     return result;    
 }
 
+std::string fullNameFor(const Elem& elem)
+{
+    std::string result;
+    auto* parent = elem.getParent();
+    if (parent != nullptr) {
+        result = fullNameFor(*parent);
+    }
+
+    if (!result.empty()) {
+        result += '_';
+    }
+
+    auto elemType = elem.elemType();
+    do {
+        if (elemType == Elem::Type_Namespace) {
+            result.append(namespaceName(static_cast<const gen::Namespace&>(elem).dslObj().name()));
+            break;
+        }
+
+        if (elemType == Elem::Type_Field) {
+            result.append(className(static_cast<const gen::Field&>(elem).dslObj().name()));
+            break;
+        }
+
+        if (elemType == Elem::Type_Message) {
+            result.append(className(static_cast<const gen::Message&>(elem).dslObj().name()));
+            break;
+        }        
+
+        assert(false); // Not implemented
+    } while (false);
+    return result;
+}
+
 std::string scopeFor(
     const Elem& elem, 
     const Generator& generator, 
@@ -312,6 +346,11 @@ std::string headerPathFor(const Elem& elem, const Generator& generator)
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relCommonHeaderPathFor(elem, generator);
+}
+
+std::string headerPathRoot(const std::string& name, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForRoot(name, generator);
 }
 
 std::string inputCodePathFor(const Elem& elem, const Generator& generator)
@@ -622,7 +661,7 @@ std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& 
 {
     auto msgIdField = generator.getMessageIdField();
     if (msgIdField == nullptr) {
-        return generator.mainNamespace() + "::" + strings::msgIdPrefixStr() + util::strReplace(msg.dslObj().externalRef(), ".", "_");
+        return generator.mainNamespace() + "::" + strings::msgIdPrefixStr() + comms::fullNameFor(msg);
     }
 
     assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);

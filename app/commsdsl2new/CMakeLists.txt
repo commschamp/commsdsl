@@ -8,6 +8,7 @@ set (
     CommsGenerator.cpp
     CommsIntField.cpp
     CommsMessage.cpp
+    CommsMsgId.cpp
     CommsProgramOptions.cpp
     main.cpp
 )

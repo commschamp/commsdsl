@@ -20,8 +20,8 @@
 #include "commsdsl/gen/Generator.h"
 #include "commsdsl/gen/Interface.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 
 namespace commsdsl
 {
@@ -114,6 +114,11 @@ public:
     const FramesList& frames() const
     {
         return m_frames;
+    }
+
+    Generator& generator()
+    {
+        return m_generator;
     }
 
 private:
@@ -265,7 +270,7 @@ const Field* Namespace::findMessageIdField() const
             continue;
         }
 
-        if ((f->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) ||
+        if ((f->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) &&
             (f->dslObj().kind() != commsdsl::parse::Field::Kind::Int)) {
             static constexpr bool Unexpected_kind = false;
             static_cast<void>(Unexpected_kind);
@@ -303,6 +308,23 @@ Namespace::InterfacesAccessList Namespace::getAllInterfaces() const
     return result;
 }
 
+Namespace::MessagesAccessList Namespace::getAllMessages() const
+{
+    MessagesAccessList result;
+    auto& subNs = m_impl->namespaces();
+    for (auto& n : subNs) {
+        auto list = n->getAllMessages();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    result.reserve(result.size() + m_impl->messages().size());
+    for (auto& i : m_impl->messages()) {
+        result.emplace_back(i.get());
+    }
+
+    return result;
+}
+
 Namespace::FramesAccessList Namespace::getAllFrames() const
 {
     FramesAccessList result;
@@ -318,6 +340,11 @@ Namespace::FramesAccessList Namespace::getAllFrames() const
     }
 
     return result;
+}
+
+Generator& Namespace::generator()
+{
+    return m_impl->generator();
 }
 
 Elem::Type Namespace::elemTypeImpl() const

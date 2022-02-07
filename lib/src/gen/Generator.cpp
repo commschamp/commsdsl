@@ -223,8 +223,6 @@ public:
             return false;
         }
 
-        m_messageIdField = findMessageIdField();
-
         auto dslNamespaces = m_protocol.namespaces();
         m_namespaces.reserve(dslNamespaces.size());
         for (auto dslObj : dslNamespaces) {
@@ -241,6 +239,8 @@ public:
                 return false;                
             }
         }
+
+        m_messageIdField = findMessageIdField();
 
         if (!m_versionIndependentCodeForced) {
             m_versionDependentCode = anyInterfaceHasVersion();
@@ -433,6 +433,16 @@ Generator::InterfacesAccessList Generator::getAllInterfaces() const
     InterfacesAccessList result;
     for (auto& n : m_impl->namespaces()) {
         auto subResult = n->getAllInterfaces();
+        result.insert(result.end(), subResult.begin(), subResult.end());
+    }
+    return result;
+}
+
+Generator::MessagesAccessList Generator::getAllMessages() const
+{
+    MessagesAccessList result;
+    for (auto& n : m_impl->namespaces()) {
+        auto subResult = n->getAllMessages();
         result.insert(result.end(), subResult.begin(), subResult.end());
     }
     return result;

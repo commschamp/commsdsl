@@ -135,22 +135,22 @@ commsdsl::gen::util::StringsList CommsEnumField::commsEnumValues() const
         std::string valStr = valToStrFunc(v.first);
         std::string docStr;
         if (!iter->second.m_description.empty()) {
-            docStr = "///< " + iter->second.m_description;
+            docStr = " ///< " + iter->second.m_description;
             docStr = util::strMakeMultiline(docStr, 40);
         }
         else if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
             if (!iter->second.m_displayName.empty()) {
-                docStr = "///< message id of <b>" + iter->second.m_displayName + "</b> message.";
+                docStr = " ///< message id of <b>" + iter->second.m_displayName + "</b> message.";
             }
             else {
-                docStr = "///< message id of @b " + *v.second + " message.";
+                docStr = " ///< message id of @b " + *v.second + " message.";
             }
         }
         else if (!iter->second.m_displayName.empty()) {
-            docStr = "///< value <b>" + iter->second.m_displayName + "</b>.";
+            docStr = " ///< value <b>" + iter->second.m_displayName + "</b>.";
         }
         else {
-            docStr = "///< value @b " + *v.second + '.';
+            docStr = " ///< value @b " + *v.second + '.';
         }
 
         auto deprecatedVer = iter->second.m_deprecatedSince;

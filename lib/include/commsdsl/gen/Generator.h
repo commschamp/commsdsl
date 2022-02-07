@@ -42,6 +42,7 @@ public:
     using NamespacesList = Namespace::NamespacesList;
 
     using InterfacesAccessList = Namespace::InterfacesAccessList;
+    using MessagesAccessList = Namespace::MessagesAccessList;
     using FramesAccessList = Namespace::FramesAccessList;
 
     Generator();
@@ -69,6 +70,7 @@ public:
 
     const Field* getMessageIdField() const;
     InterfacesAccessList getAllInterfaces() const;
+    MessagesAccessList getAllMessages() const;
     FramesAccessList getAllFrames() const;
 
     bool prepare(const FilesList& files);
