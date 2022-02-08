@@ -5,6 +5,7 @@
 #include "CommsIntField.h"
 #include "CommsMessage.h"
 #include "CommsMsgId.h"
+#include "CommsSetField.h"
 
 #include "commsdsl/version.h"
 
@@ -65,6 +66,11 @@ CommsGenerator::FieldPtr CommsGenerator::createIntFieldImpl(commsdsl::parse::Fie
 CommsGenerator::FieldPtr CommsGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsEnumField>(*this, dslObj, parent);
+}
+
+CommsGenerator::FieldPtr CommsGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsSetField>(*this, dslObj, parent);
 }
 
 bool CommsGenerator::writeImpl()

@@ -10,6 +10,7 @@ set (
     CommsMessage.cpp
     CommsMsgId.cpp
     CommsProgramOptions.cpp
+    CommsSetField.cpp
     main.cpp
 )
 

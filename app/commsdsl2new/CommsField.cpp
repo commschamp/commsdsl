@@ -725,12 +725,12 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
         "/// @brief Name of the field.\n"
         "static const char* name()\n"
         "{\n"
-        "    return #^#SCOPE#$#Common::name();\n"
+        "    return #^#SCOPE#$#::name();\n"
         "}\n";
 
     auto& generator = m_field.generator();
     util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeFor(m_field, generator)},
+        {"SCOPE", comms::commonScopeFor(m_field, generator)},
     };
     return util::processTemplate(Templ, repl);
 }

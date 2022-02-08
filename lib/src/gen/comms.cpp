@@ -65,12 +65,16 @@ std::string scopeForInternal(
     const Generator& generator, 
     bool addMainNamespace, 
     bool addElement,
-    const std::string& sep)
+    const std::string& sep,
+    bool forField = false)
 {
     std::string result;
+    auto elemType = elem.elemType();
+    auto fieldTypeScope = (forField || (elemType == Elem::Type_Field)) && (sep == ScopeSep);
+
     auto* parent = elem.getParent();
     if (parent != nullptr) {
-        result = scopeForInternal(*parent, generator, addMainNamespace, true, sep);
+        result = scopeForInternal(*parent, generator, addMainNamespace, true, sep, fieldTypeScope);
     }
     else if (addMainNamespace) {
         result = generator.mainNamespace();
@@ -90,7 +94,6 @@ std::string scopeForInternal(
             result.append(sep);
         }
 
-        auto elemType = elem.elemType();
         assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         if (elemType == Elem::Type_Namespace) {
@@ -106,9 +109,13 @@ std::string scopeForInternal(
         if (elemType == Elem::Type_Message) {
             assert(parent->elemType() == Elem::Type_Namespace);
             result.append(strings::messageNamespaceStr() + sep);
-        }        
-
+        }     
+        
         result.append(className(elem.name()));
+
+        if ((elemType == Elem::Type_Message) && (fieldTypeScope)) {
+            result.append("Fields");
+        }        
 
     } while (false);
 
@@ -120,12 +127,15 @@ std::string commonScopeForInternal(
     const Generator& generator, 
     bool addMainNamespace, 
     bool addElement,
-    const std::string& sep)
+    const std::string& sep,
+    bool forField = false)
 {
     std::string result;
+    auto elemType = elem.elemType();
+    auto fieldTypeScope = (forField || (elemType == Elem::Type_Field)) && (sep == ScopeSep);
     auto* parent = elem.getParent();
     if (parent != nullptr) {
-        result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep);
+        result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep, fieldTypeScope);
     }
     else if (addMainNamespace) {
         result = generator.mainNamespace();
@@ -145,7 +155,6 @@ std::string commonScopeForInternal(
             result.append(sep);
         }
 
-        auto elemType = elem.elemType();
         assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         if (elemType == Elem::Type_Namespace) {
@@ -164,6 +173,11 @@ std::string commonScopeForInternal(
         }            
 
         result.append(className(elem.name()));
+
+        if ((elemType == Elem::Type_Message) && (fieldTypeScope)) {
+            result.append("Fields");
+        }
+
         if ((elemType == Elem::Type_Field) || (elemType == Elem::Type_Message)) {
             result.append(strings::commonSuffixStr());
         }
