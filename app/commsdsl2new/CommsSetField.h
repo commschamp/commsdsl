@@ -5,8 +5,6 @@
 #include "commsdsl/gen/SetField.h"
 #include "commsdsl/gen/util.h"
 
-#include <vector>
-
 namespace commsdsl2new
 {
 

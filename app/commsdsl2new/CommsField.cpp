@@ -22,6 +22,29 @@ CommsField::CommsField(commsdsl::gen::Field& field) :
 
 CommsField::~CommsField() = default;
 
+CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
+{
+    CommsFieldsList result;
+    result.reserve(fields.size());
+    for (auto& fPtr : fields) {
+        assert(fPtr);
+
+        auto* commsField = 
+            const_cast<CommsField*>(
+                dynamic_cast<const CommsField*>(fPtr.get()));
+
+        // TODO: remove this condition
+        if (commsField == nullptr) {
+            continue;
+        }
+
+        assert(commsField != nullptr);
+        result.push_back(commsField);
+    }
+
+    return result;
+}
+
 bool CommsField::commsPrepare()
 {
     auto& generator = m_field.generator();
@@ -67,6 +90,7 @@ CommsField::IncludesList CommsField::commsCommonIncludes() const
 std::string CommsField::commsCommonCode() const
 {
     static const std::string Templ = 
+        "#^#MEMBERS#$#\n"
         "/// @brief Common types and functions for\n"
         "///     @ref #^#SCOPE#$# field.\n"
         "struct #^#NAME#$#Common\n"
@@ -78,6 +102,7 @@ std::string CommsField::commsCommonCode() const
 
     auto& generator = m_field.generator();
     util::ReplacementMap repl = {
+        {"MEMBERS", commsCommonMembersCodeInternal()},
         {"SCOPE", comms::scopeFor(m_field, generator)},
         {"NAME", comms::className(m_field.name())},
         {"BODY", commsCommonCodeBodyImpl()},
@@ -122,7 +147,7 @@ std::string CommsField::commsDefCode() const
 
     //auto& generator = m_field.generator();
     util::ReplacementMap repl = {
-        {"MEMBERS", commsDefMembersCodeImpl()},
+        {"MEMBERS", commsDefMembersCodeInternal()},
         {"FIELD", commsFieldDefCodeInternal()},
         {"OPTIONAL", commsOptionalDefCodeInternal()},
     };
@@ -151,6 +176,11 @@ std::string CommsField::commsCommonCodeBodyImpl() const
 }
 
 std::string CommsField::commsCommonCodeExtraImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsCommonMembersCodeImpl() const
 {
     return strings::emptyString();
 }
@@ -963,5 +993,29 @@ std::string CommsField::commsDefMembersCodeInternal() const
 
     return util::processTemplate(Templ, repl);
 }
+
+std::string CommsField::commsCommonMembersCodeInternal() const
+{
+    auto body = commsCommonMembersCodeImpl();
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "/// @brief Scope for all the common definitions of the member fields of\n"
+        "///     @ref #^#CLASS_NAME#$# field.\n"
+        "struct #^#CLASS_NAME#$#MembersCommon\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n";    
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(m_field.name())},
+        {"BODY", std::move(body)}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 
 } // namespace commsdsl2new

@@ -7,6 +7,7 @@
 #include "commsdsl/parse/Endian.h"
 
 #include <string>
+#include <vector>
 
 namespace commsdsl2new
 {
@@ -17,9 +18,12 @@ class CommsField
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
+    using CommsFieldsList = std::vector<CommsField*>;
 
     explicit CommsField(commsdsl::gen::Field& field);
     virtual ~CommsField();
+
+    static CommsFieldsList commsTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
 
     bool commsPrepare();
     bool commsWrite() const;
@@ -52,10 +56,16 @@ public:
         return commsHasGeneratedReadRefreshImpl();
     }
 
+    const commsdsl::gen::Field& field() const
+    {
+        return m_field;
+    }
+
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
     virtual std::string commsCommonCodeBodyImpl() const;
     virtual std::string commsCommonCodeExtraImpl() const;
+    virtual std::string commsCommonMembersCodeImpl() const;
     virtual IncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefMembersCodeImpl() const;
     virtual std::string commsDoxigenDetailsImpl() const;
@@ -98,6 +108,7 @@ private:
     std::string commsDefLengthFuncCodeInternal() const;
     std::string commsDefValidFuncCodeInternal() const;
     std::string commsDefMembersCodeInternal() const;
+    std::string commsCommonMembersCodeInternal() const;
 
     commsdsl::gen::Field& m_field;
     std::string m_customRead;

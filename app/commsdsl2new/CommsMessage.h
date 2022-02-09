@@ -39,7 +39,7 @@ protected:
     virtual bool writeImpl() override;
 
 private:
-    using CommsFieldsList = std::vector<CommsField*>;
+    using CommsFieldsList = CommsField::CommsFieldsList;
     struct RefreshCodeInfo
     {
         RefreshCodeInfo(std::string&& accName, std::string&& code) :

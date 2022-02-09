@@ -29,18 +29,23 @@ namespace commsdsl
 namespace gen
 {
 
+class BitfieldFieldImpl;
 class COMMSDSL_API BitfieldField : public Field
 {
     using Base = Field;
 public:
-
     BitfieldField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~BitfieldField();
 
+    const FieldsList& members() const;
+
 protected:    
+    virtual bool prepareImpl() override;
+
     commsdsl::parse::BitfieldField bitfieldDslObj() const;
 
 private:
+    std::unique_ptr<BitfieldFieldImpl> m_impl;
 };
 
 } // namespace gen

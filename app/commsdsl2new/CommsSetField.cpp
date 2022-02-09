@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 #include <limits>
 
 namespace util = commsdsl::gen::util;

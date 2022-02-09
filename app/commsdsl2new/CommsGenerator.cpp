@@ -1,5 +1,6 @@
 #include "CommsGenerator.h"
 
+#include "CommsBitfieldField.h"
 #include "CommsCmake.h"
 #include "CommsEnumField.h"
 #include "CommsIntField.h"
@@ -71,6 +72,11 @@ CommsGenerator::FieldPtr CommsGenerator::createEnumFieldImpl(commsdsl::parse::Fi
 CommsGenerator::FieldPtr CommsGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsSetField>(*this, dslObj, parent);
+}
+
+CommsGenerator::FieldPtr CommsGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsBitfieldField>(*this, dslObj, parent);
 }
 
 bool CommsGenerator::writeImpl()

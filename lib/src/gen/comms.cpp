@@ -66,15 +66,18 @@ std::string scopeForInternal(
     bool addMainNamespace, 
     bool addElement,
     const std::string& sep,
-    bool forField = false)
+    const Elem* leaf = nullptr)
 {
     std::string result;
-    auto elemType = elem.elemType();
-    auto fieldTypeScope = (forField || (elemType == Elem::Type_Field)) && (sep == ScopeSep);
+    if (leaf == nullptr) {
+        leaf = &elem;
+    }
+
+    auto fieldTypeScope = (leaf->elemType() == Elem::Type_Field) && (sep == ScopeSep);
 
     auto* parent = elem.getParent();
     if (parent != nullptr) {
-        result = scopeForInternal(*parent, generator, addMainNamespace, true, sep, fieldTypeScope);
+        result = scopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
         result = generator.mainNamespace();
@@ -94,6 +97,7 @@ std::string scopeForInternal(
             result.append(sep);
         }
 
+        auto elemType = elem.elemType();
         assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         if (elemType == Elem::Type_Namespace) {
@@ -115,7 +119,13 @@ std::string scopeForInternal(
 
         if ((elemType == Elem::Type_Message) && (fieldTypeScope)) {
             result.append("Fields");
-        }        
+            break;
+        }   
+
+        if ((elemType == Elem::Type_Field) && (fieldTypeScope) && (&elem != leaf)) {
+            result.append("Members");
+            break;
+        }              
 
     } while (false);
 
@@ -128,14 +138,19 @@ std::string commonScopeForInternal(
     bool addMainNamespace, 
     bool addElement,
     const std::string& sep,
-    bool forField = false)
+    const Elem* leaf = nullptr)
 {
     std::string result;
-    auto elemType = elem.elemType();
-    auto fieldTypeScope = (forField || (elemType == Elem::Type_Field)) && (sep == ScopeSep);
+
+    if (leaf == nullptr) {
+        leaf = &elem;
+    }
+
+    auto fieldTypeScope = (leaf->elemType() == Elem::Type_Field) && (sep == ScopeSep);
+
     auto* parent = elem.getParent();
     if (parent != nullptr) {
-        result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep, fieldTypeScope);
+        result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
         result = generator.mainNamespace();
@@ -155,6 +170,7 @@ std::string commonScopeForInternal(
             result.append(sep);
         }
 
+        auto elemType = elem.elemType();
         assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         if (elemType == Elem::Type_Namespace) {
@@ -177,6 +193,10 @@ std::string commonScopeForInternal(
         if ((elemType == Elem::Type_Message) && (fieldTypeScope)) {
             result.append("Fields");
         }
+
+        if ((elemType == Elem::Type_Field) && (fieldTypeScope) && (&elem != leaf)) {
+            result.append("Members");
+        }        
 
         if ((elemType == Elem::Type_Field) || (elemType == Elem::Type_Message)) {
             result.append(strings::commonSuffixStr());

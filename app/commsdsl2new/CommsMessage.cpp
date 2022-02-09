@@ -33,32 +33,17 @@ bool CommsMessage::prepareImpl()
         return false;
     }
 
-    auto& gen = generator();
-    auto& genFields = fields();
-    m_commsFields.reserve(genFields.size());
-    for (auto& fPtr : genFields) {
-        assert(fPtr);
-
-        auto* commsField = 
-            const_cast<CommsField*>(
-                dynamic_cast<const CommsField*>(fPtr.get()));
-
-        // TODO: remove this condition
-        if (commsField == nullptr) {
-            gen.logger().error("NYI: Class for field " + fPtr->name() + " is not implemented yet");
-            continue;
-        }
-
+    m_commsFields = CommsField::commsTransformFieldsList(fields());
+    for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
         auto refreshCode = commsField->commsDefRefreshFuncBody();
         if (!refreshCode.empty()) {
-            m_fieldsRefresh.push_back(RefreshCodeInfo{comms::accessName(fPtr->dslObj().name()), std::move(refreshCode)});
-        }
-
-        m_commsFields.push_back(commsField);
+            // TODO: adjust refresh names, may be bundles
+            m_fieldsRefresh.push_back(RefreshCodeInfo{comms::accessName(commsField->field().dslObj().name()), std::move(refreshCode)});
+        }        
     }
 
-    m_customRefresh = util::readFileContents(comms::inputCodePathFor(*this, gen) + strings::refreshFileSuffixStr());
+    m_customRefresh = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::refreshFileSuffixStr());
     return true;
 }
 
