@@ -337,7 +337,7 @@ std::string CommsEnumField::commsBaseClassDefImpl() const
         {"PROT_NAMESPACE", gen.mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"COMMON_SCOPE", comms::commonScopeFor(*this, gen)},
-        {"FIELD_OPTS", commsFieldDefOptsInternal()}
+        {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };         
 
     if (!repl["FIELD_OPTS"].empty()) {
@@ -1080,7 +1080,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
     return util::strListToString(names, ",\n", "");
 }
 
-std::string CommsEnumField::commsFieldDefOptsInternal() const
+std::string CommsEnumField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;
 

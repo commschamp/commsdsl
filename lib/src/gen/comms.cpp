@@ -577,6 +577,28 @@ const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::siz
     return TypeMap[base + offset];    
 }
 
+const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value)
+{
+    static const std::string TypeMap[] = {
+        /* Float */ "float",
+        /* Double */ "double",
+    };
+
+    static const std::size_t TypeMapSize = std::extent<decltype(TypeMap)>::value;
+    static_assert(TypeMapSize == static_cast<std::size_t>(commsdsl::parse::FloatField::Type::NumOfValues),
+            "Incorrect map");
+
+    std::size_t idx = static_cast<std::size_t>(value);
+    if (TypeMapSize <= idx) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return strings::emptyString();
+    }
+
+    return TypeMap[idx];    
+}
+
 bool isGlobalField(const Elem& elem)
 {
     if (elem.elemType() != Elem::Type_Field) {

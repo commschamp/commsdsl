@@ -133,7 +133,7 @@ std::string CommsBitfieldField::commsBaseClassDefImpl() const
         {"PROT_NAMESPACE", gen.mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"CLASS_NAME", comms::className(dslObj.name())},
-        {"FIELD_OPTS", commsFieldDefOptsInternal()},
+        {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
 
     if (!repl["FIELD_OPTS"].empty()) {
@@ -155,11 +155,10 @@ std::string CommsBitfieldField::commsDefPublicCodeImpl() const
 bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());
-    // TODO: refresh
     return true;
 }
 
-std::string CommsBitfieldField::commsFieldDefOptsInternal() const
+std::string CommsBitfieldField::commsDefFieldOptsInternal() const
 {
     commsdsl::gen::util::StringsList opts;
     commsAddFieldDefOptions(opts);

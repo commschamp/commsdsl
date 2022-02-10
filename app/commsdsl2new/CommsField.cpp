@@ -779,7 +779,7 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
             "template <typename TIter>\n"
             "comms::ErrorStatus read#^#SUFFIX#$#(TIter& iter, std::size_t len)\n"
             "{\n"
-            "    #^#BODY#$#"
+            "    #^#BODY#$#\n"
             "}\n";
 
         util::ReplacementMap origRepl = {
@@ -818,7 +818,7 @@ std::string CommsField::commsDefWriteFuncCodeInternal() const
             "template <typename TIter>\n"
             "comms::ErrorStatus write#^#SUFFIX#$#(TIter& iter, std::size_t len) const\n"
             "{\n"
-            "    #^#BODY#$#"
+            "    #^#BODY#$#\n"
             "}\n";
 
         util::ReplacementMap origRepl = {
@@ -854,10 +854,9 @@ std::string CommsField::commsDefRefreshFuncCodeInternal() const
     if (!body.empty()) {
         static const std::string OrigTempl = 
             "/// @brief Generated refresh functionality.\n"
-            "template <typename TIter>\n"
             "bool refresh#^#SUFFIX#$#() const\n"
             "{\n"
-            "    #^#BODY#$#"
+            "    #^#BODY#$#\n"
             "}\n";
 
         util::ReplacementMap origRepl = {
@@ -894,10 +893,9 @@ std::string CommsField::commsDefLengthFuncCodeInternal() const
     if (!body.empty()) {
         static const std::string OrigTempl = 
             "/// @brief Generated length functionality.\n"
-            "template <typename TIter>\n"
             "std::size_t length#^#SUFFIX#$#() const\n"
             "{\n"
-            "    #^#BODY#$#"
+            "    #^#BODY#$#\n"
             "}\n";
 
         util::ReplacementMap origRepl = {
@@ -934,10 +932,9 @@ std::string CommsField::commsDefValidFuncCodeInternal() const
     if (!body.empty()) {
         static const std::string OrigTempl = 
             "/// @brief Generated validity check functionality.\n"
-            "template <typename TIter>\n"
             "bool valid#^#SUFFIX#$#() const\n"
             "{\n"
-            "    #^#BODY#$#"
+            "    #^#BODY#$#\n"
             "}\n";
 
         util::ReplacementMap origRepl = {

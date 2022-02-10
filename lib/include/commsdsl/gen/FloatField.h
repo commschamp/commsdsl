@@ -29,16 +29,26 @@ namespace commsdsl
 namespace gen
 {
 
+class FloatFieldImpl;
 class COMMSDSL_API FloatField : public Field
 {
     using Base = Field;
 public:
+    using SpecialsListElem = std::pair<std::string, commsdsl::parse::FloatField::SpecialValueInfo>;
+    using SpecialsList = std::vector<SpecialsListElem>;
 
     FloatField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~FloatField();
 
+    const SpecialsList& specialsSortedByValue() const;
+
 protected:    
+    virtual bool prepareImpl() override;
+    
     commsdsl::parse::FloatField floatDslObj() const;
+
+private:
+    std::unique_ptr<FloatFieldImpl> m_impl;
 };
 
 } // namespace gen

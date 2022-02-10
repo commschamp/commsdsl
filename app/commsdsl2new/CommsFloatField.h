@@ -1,6 +1,6 @@
 #pragma once
 
-#include "commsdsl/gen/IntField.h"
+#include "commsdsl/gen/FloatField.h"
 
 #include "CommsField.h"
 
@@ -8,12 +8,12 @@ namespace commsdsl2new
 {
 
 class CommsGenerator;
-class CommsIntField final : public commsdsl::gen::IntField, public CommsField
+class CommsFloatField final : public commsdsl::gen::FloatField, public CommsField
 {
-    using Base = commsdsl::gen::IntField;
+    using Base = commsdsl::gen::FloatField;
     using CommsBase = CommsField;
 public:
-    CommsIntField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsFloatField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides
@@ -35,19 +35,18 @@ private:
     std::string commsCommonSpecialNamesMapCodeInternal() const;
     std::string commsDefFieldOptsInternal() const;
     std::string commsDefValueNamesMapCodeInternal() const;
+    std::string commsDefConstructorCodeInternal() const;
     std::string commsDefHasSpecialsFuncCodeInternal() const;
     std::string commsDefSpecialsCodeInternal() const;
     std::string commsDefSpecialNamesMapCodeInternal() const;
     std::string commsDefDisplayDecimalsCodeInternal() const;
 
-    void commsAddLengthOptInternal(StringsList& opts) const;
-    void commsAddSerOffsetOptInternal(StringsList& opts) const;
-    void commsAddScalingOptInternal(StringsList& opts) const;
     void commsAddUnitsOptInternal(StringsList& opts) const;
-    void commsAddDefaultValueOptInternal(StringsList& opts) const;
-    void commsAddValidRangesOptInternal(StringsList& opts) const;
-    void commsAddCustomRefreshOptInternal(StringsList& opts) const;
-    bool commsRequiresFailOnInvalidRefreshInternal() const;
+    void commsAddVersionOptInternal(StringsList& opts) const;
+    void commsAddInvalidOptInternal(StringsList& opts) const;
+
+    StringsList commsValidNormalConditionsInternal() const;
+    StringsList commsValidVersionBasedConditionsInternal() const;
 };
 
 } // namespace commsdsl2new

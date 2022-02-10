@@ -93,7 +93,7 @@ std::string CommsSetField::commsBaseClassDefImpl() const
     util::ReplacementMap repl = {
         {"PROT_NAMESPACE", gen.mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
-        {"FIELD_OPTS", commsFieldDefOptsInternal()},
+        {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
 
     return util::processTemplate(Templ, repl);
@@ -437,7 +437,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsSetField::commsFieldDefOptsInternal() const
+std::string CommsSetField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;
 

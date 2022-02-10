@@ -6,6 +6,7 @@ set (
     CommsCmake.cpp
     CommsEnumField.cpp
     CommsField.cpp
+    CommsFloatField.cpp
     CommsGenerator.cpp
     CommsIntField.cpp
     CommsMessage.cpp

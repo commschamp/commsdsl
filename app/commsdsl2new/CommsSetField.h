@@ -31,7 +31,7 @@ protected:
 
 private:
     std::string commsCommonBitNameFuncCodeInternal() const;
-    std::string commsFieldDefOptsInternal() const;
+    std::string commsDefFieldOptsInternal() const;
     std::string commsDefBitsAccessCodeInternal() const;
     std::string commsDefBitNameFuncCodeInternal() const;
 

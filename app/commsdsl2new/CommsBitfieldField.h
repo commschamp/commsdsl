@@ -29,11 +29,10 @@ protected:
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsBaseClassDefImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
-    // virtual std::string commsDefValidFuncBodyImpl() const override;
 
 private:
     bool commsPrepareInternal();
-    std::string commsFieldDefOptsInternal() const;
+    std::string commsDefFieldOptsInternal() const;
     std::string commsAccessCodeInternal() const;
 
     CommsFieldsList m_members;

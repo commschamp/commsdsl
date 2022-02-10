@@ -57,7 +57,7 @@ private:
     std::string commsCommonValueNamesMapBinSearchBodyInternal() const;
     std::string commsCommonBigUnsignedValueNameBinSearchPairsInternal() const;
     std::string commsCommonValueNameBinSearchPairsInternal() const;
-    std::string commsFieldDefOptsInternal() const;
+    std::string commsDefFieldOptsInternal() const;
     std::string commsDefValueNameMapInternal() const;
     std::string commsDefValueNameFuncCodeInternal() const;
     std::string commsDefValueNamesMapFuncCodeInternal() const;

@@ -6,6 +6,7 @@
 
 #include "commsdsl/parse/Endian.h"
 #include "commsdsl/parse/IntField.h"
+#include "commsdsl/parse/FloatField.h"
 #include "commsdsl/parse/Units.h"
 
 #include <string>
@@ -84,6 +85,7 @@ std::string namespaceEndFor(
 void prepareIncludeStatement(std::vector<std::string>& includes); 
 
 const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::size_t len);
+const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value);
 
 bool isGlobalField(const Elem& elem);
 

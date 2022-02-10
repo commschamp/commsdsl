@@ -139,7 +139,7 @@ std::string CommsIntField::commsBaseClassDefImpl() const
         {"PROT_NAMESPACE", gen.mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
-        {"FIELD_OPTS", commsFieldDefOptsInternal()}
+        {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
     if (!repl["FIELD_OPTS"].empty()) {
@@ -372,13 +372,13 @@ std::string CommsIntField::commsCommonSpecialNamesMapCodeInternal() const
     }
 
     util::ReplacementMap repl {
-        {"INFOS", util::strListToString(specialInfos, "\n", "")}
+        {"INFOS", util::strListToString(specialInfos, ",\n", "")}
     };
 
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsIntField::commsFieldDefOptsInternal() const
+std::string CommsIntField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;
 
@@ -439,7 +439,17 @@ std::string CommsIntField::commsDefSpecialsCodeInternal() const
             "static constexpr ValueType value#^#SPEC_ACC#$#()\n"
             "{\n"
             "    return #^#COMMON#$#::value#^#SPEC_ACC#$#();\n"
-            "}\n"
+            "}\n\n"
+            "/// @brief Check the value is equal to special @ref value#^#SPEC_ACC#$#().\n"
+            "bool is#^#SPEC_ACC#$#() const\n"
+            "{\n"
+            "    return Base::value() == value#^#SPEC_ACC#$#();\n"
+            "}\n\n"
+            "/// @brief Assign special value @ref value#^#SPEC_ACC#$#() to the field.\n"
+            "void set#^#SPEC_ACC#$#()\n"
+            "{\n"
+            "    Base::value() = value#^#SPEC_ACC#$#();\n"
+            "}\n"            
         );
 
         util::ReplacementMap repl = {
