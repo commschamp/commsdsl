@@ -19,6 +19,7 @@
 #include "CommsCmake.h"
 #include "CommsDataField.h"
 #include "CommsEnumField.h"
+#include "CommsFieldBase.h"
 #include "CommsFloatField.h"
 #include "CommsIntField.h"
 #include "CommsMessage.h"
@@ -116,7 +117,8 @@ bool CommsGenerator::writeImpl()
 {
     return 
         CommsCmake::write(*this) &&
-        CommsMsgId::write(*this);
+        CommsMsgId::write(*this) &&
+        CommsFieldBase::write(*this);
 }
 
 } // namespace commsdsl2new

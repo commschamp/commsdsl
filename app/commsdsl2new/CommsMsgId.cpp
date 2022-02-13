@@ -76,7 +76,6 @@ bool CommsMsgId::commsWriteInternal() const
         "};\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n\n"        
     ;
-    // TODO: write
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},

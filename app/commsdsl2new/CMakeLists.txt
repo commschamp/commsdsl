@@ -7,6 +7,7 @@ set (
     CommsDataField.cpp
     CommsEnumField.cpp
     CommsField.cpp
+    CommsFieldBase.cpp
     CommsFloatField.cpp
     CommsGenerator.cpp
     CommsIntField.cpp

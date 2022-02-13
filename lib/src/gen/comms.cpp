@@ -377,6 +377,11 @@ std::string headerPathFor(const Elem& elem, const Generator& generator)
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator);
 }
 
+std::string headerPathForField(const std::string& name, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathForField(name, generator);
+}
+
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relCommonHeaderPathFor(elem, generator);
