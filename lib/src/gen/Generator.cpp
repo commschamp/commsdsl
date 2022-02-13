@@ -272,15 +272,22 @@ public:
         m_namespaces.reserve(dslNamespaces.size());
         for (auto dslObj : dslNamespaces) {
             auto ptr = m_generator.createNamespace(dslObj);
+            if (!ptr->createAll()) {
+                m_logger->error("Failed to create elements inside namespace \"" + dslObj.name() + "\"");
+                return false;                
+            }
+
             if (!ptr) {
                 m_logger->error("Failed to create namespace \"" + dslObj.name() + "\"");
                 return false;
             }
 
             m_namespaces.push_back(std::move(ptr));
+        }
 
-            if (!m_namespaces.back()->prepare()) {
-                m_logger->error("Failed to prepare namespace \"" + dslObj.name() + "\"");
+        for (auto& nPtr : m_namespaces) {
+            if (!nPtr->prepare()) {
+                m_logger->error("Failed to prepare namespace \"" + nPtr->name() + "\"");
                 return false;                
             }
         }

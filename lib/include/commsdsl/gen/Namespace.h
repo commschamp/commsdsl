@@ -51,6 +51,7 @@ public:
     explicit Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
     virtual ~Namespace();
 
+    bool createAll();
     bool prepare();
     bool write();
 

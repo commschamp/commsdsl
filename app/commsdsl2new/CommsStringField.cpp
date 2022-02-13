@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 
 namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;

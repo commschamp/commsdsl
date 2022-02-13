@@ -62,6 +62,20 @@ public:
     {
     }
 
+    bool createAll()
+    {
+        if (!m_dslObj.valid()) {
+            return true;
+        }
+
+        return
+            createNamespaces() &&
+            createFields() &&
+            createInterfaces() &&
+            createMessages() &&
+            createFrames();
+    }    
+
     bool prepare()
     {
         if (!m_dslObj.valid()) {
@@ -122,24 +136,32 @@ public:
     }
 
 private:
-    bool prepareNamespaces()
+    bool createNamespaces()
     {
         auto namespaces = m_dslObj.namespaces();
         m_namespaces.reserve(namespaces.size());
         for (auto& n : namespaces) {
             auto ptr = m_generator.createNamespace(n, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
-                return false;
-            }
-
             m_namespaces.push_back(std::move(ptr));
         }
 
         return true;
     }
 
-    bool prepareFields()
+    bool prepareNamespaces()
+    {
+        return 
+            std::all_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    assert(n);
+                    return n->prepare();
+                });
+    }
+
+    bool createFields()
     {
         if (!m_dslObj.valid()) {
             return true;
@@ -153,64 +175,95 @@ private:
             m_fields.push_back(std::move(ptr));
         }
 
-        for (auto& f : m_fields) {
-            if (!f->prepare()) {
-                return false;
-            }            
-        }
-
         return true;
+    }    
+
+    bool prepareFields()
+    {
+        return 
+            std::all_of(
+                m_fields.begin(), m_fields.end(),
+                [](auto& f)
+                {
+                    assert(f);
+                    return f->prepare();
+                });
+
     }
 
-    bool prepareInterfaces()
+    bool createInterfaces()
     {
         auto interfaces = m_dslObj.interfaces();
         m_interfaces.reserve(interfaces.size());
         for (auto& i : interfaces) {
             auto ptr = m_generator.createInterface(i, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
-                return false;
-            }
-
             m_interfaces.push_back(std::move(ptr));
         }
 
         return true;
+    }    
+
+    bool prepareInterfaces()
+    {
+        return 
+            std::all_of(
+                m_interfaces.begin(), m_interfaces.end(),
+                [](auto& i)
+                {
+                    assert(i);
+                    return i->prepare();
+                });
     }
 
-    bool prepareMessages()
+    bool createMessages()
     {
         auto messages = m_dslObj.messages();
         m_messages.reserve(messages.size());
         for (auto& m : messages) {
             auto ptr = m_generator.createMessage(m, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
-                return false;
-            }
-
             m_messages.push_back(std::move(ptr));
         }
 
         return true;
+    }    
+
+    bool prepareMessages()
+    {
+        return 
+            std::all_of(
+                m_messages.begin(), m_messages.end(),
+                [](auto& m)
+                {
+                    assert(m);
+                    return m->prepare();
+                });
     }
 
-    bool prepareFrames()
+    bool createFrames()
     {
         auto frames = m_dslObj.frames();
         m_frames.reserve(frames.size());
         for (auto& f : frames) {
             auto ptr = m_generator.createFrame(f, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
-                return false;
-            }
-
             m_frames.push_back(std::move(ptr));
         }
 
         return true;
+    }    
+
+    bool prepareFrames()
+    {
+        return 
+            std::all_of(
+                m_frames.begin(), m_frames.end(),
+                [](auto& f)
+                {
+                    assert(f);
+                    return f->prepare();
+                });
     }
 
     Generator& m_generator;
@@ -230,6 +283,11 @@ Namespace::Namespace(Generator& generator, commsdsl::parse::Namespace dslObj, El
 }
 
 Namespace::~Namespace() = default;
+
+bool Namespace::createAll()
+{
+    return m_impl->createAll();
+}
 
 bool Namespace::prepare()
 {
