@@ -337,6 +337,15 @@ CommsEnumField::IncludesList CommsEnumField::commsDefIncludesImpl() const
     return result;
 }
 
+std::string CommsEnumField::commsExtraDoxigenImpl() const
+{
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+        return "@see @ref " + comms::scopeForRoot(strings::msgIdEnumNameStr(), generator());
+    }   
+
+    return "@see @ref " + comms::commonScopeFor(*this, generator()) + "::ValueType"; 
+}
+
 std::string CommsEnumField::commsBaseClassDefImpl() const
 {
     static const std::string Templ = 
