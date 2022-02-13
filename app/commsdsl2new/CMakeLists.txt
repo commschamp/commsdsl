@@ -4,6 +4,7 @@ set (
     src
     CommsBitfieldField.cpp
     CommsCmake.cpp
+    CommsDataField.cpp
     CommsEnumField.cpp
     CommsField.cpp
     CommsFloatField.cpp

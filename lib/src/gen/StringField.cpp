@@ -78,9 +78,6 @@ public:
         return m_memberPrefixField.get();
     }    
 
-protected:    
-    commsdsl::parse::StringField stringDslObj() const;
-
 private:
     Generator& m_generator;
     commsdsl::parse::StringField m_dslObj;
