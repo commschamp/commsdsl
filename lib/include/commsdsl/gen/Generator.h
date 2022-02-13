@@ -69,6 +69,9 @@ public:
     parse::Endian schemaEndian() const;
 
     const Field* getMessageIdField() const;
+    const Field* findField(const std::string& externalRef) const;
+    Field* findField(const std::string& externalRef);
+
     InterfacesAccessList getAllInterfaces() const;
     MessagesAccessList getAllMessages() const;
     FramesAccessList getAllFrames() const;

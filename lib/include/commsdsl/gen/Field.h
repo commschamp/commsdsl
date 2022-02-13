@@ -30,6 +30,7 @@ namespace gen
 {
 
 class Generator;
+class FieldImpl;
 class COMMSDSL_API Field : public Elem
 {
     using Base = Elem;
@@ -41,6 +42,7 @@ public:
 
     static Ptr create(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);    
 
+    bool isPrepared() const;
     bool prepare();
     bool write() const;
 
@@ -58,8 +60,7 @@ protected:
 
 
 private:
-    Generator& m_generator;
-    commsdsl::parse::Field m_dslObj;
+    std::unique_ptr<FieldImpl> m_impl;
 };
 
 using FieldPtr = Field::Ptr;

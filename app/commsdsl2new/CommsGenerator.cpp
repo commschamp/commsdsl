@@ -23,6 +23,7 @@
 #include "CommsMessage.h"
 #include "CommsMsgId.h"
 #include "CommsSetField.h"
+#include "CommsStringField.h"
 
 #include "commsdsl/version.h"
 
@@ -98,6 +99,11 @@ CommsGenerator::FieldPtr CommsGenerator::createFloatFieldImpl(commsdsl::parse::F
 CommsGenerator::FieldPtr CommsGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsBitfieldField>(*this, dslObj, parent);
+}
+
+CommsGenerator::FieldPtr CommsGenerator::createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsStringField>(*this, dslObj, parent);
 }
 
 bool CommsGenerator::writeImpl()

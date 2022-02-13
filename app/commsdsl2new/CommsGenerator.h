@@ -51,7 +51,7 @@ protected:
     virtual FieldPtr createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     virtual FieldPtr createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     // virtual FieldPtr createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
-    // virtual FieldPtr createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     // virtual FieldPtr createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
     // virtual FieldPtr createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
     // virtual FieldPtr createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);

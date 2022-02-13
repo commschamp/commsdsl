@@ -13,6 +13,7 @@ set (
     CommsMsgId.cpp
     CommsProgramOptions.cpp
     CommsSetField.cpp
+    CommsStringField.cpp
     main.cpp
 )
 

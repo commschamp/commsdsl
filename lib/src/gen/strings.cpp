@@ -63,6 +63,12 @@ const std::string& commonSuffixStr()
     return Str;     
 }
 
+const std::string& membersSuffixStr()
+{
+    static const std::string Str("Members");
+    return Str;     
+}
+
 const std::string& cppHeaderSuffixStr()
 {
     static const std::string Str(".h");

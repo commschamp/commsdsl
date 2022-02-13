@@ -169,6 +169,51 @@ public:
         return m_messageIdField;
     }
 
+    const Field* findField(const std::string& externalRef) const
+    {
+        assert(!externalRef.empty());
+        auto pos = externalRef.find_first_of('.');
+        std::string nsName;
+        if (pos != std::string::npos) {
+            nsName.assign(externalRef.begin(), externalRef.begin() + pos);
+        }
+
+        auto nsIter =
+            std::lower_bound(
+                m_namespaces.begin(), m_namespaces.end(), nsName,
+                [](auto& ns, const std::string& n)
+                {
+                    return ns->name() < n;
+                });
+
+        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
+            m_logger->error("Internal error: unknown external reference: " + externalRef);
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            return nullptr;
+        }
+
+        std::size_t fromPos = 0U;
+        if (pos != std::string::npos) {
+            fromPos = pos + 1U;
+        }
+        std::string remStr(externalRef, fromPos);
+        auto result = (*nsIter)->findField(remStr);
+        if (result == nullptr) {
+            m_logger->error("Internal error: unknown external reference: " + externalRef);
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+        }
+        return result;        
+    }
+
+    Field* findField(const std::string& externalRef)
+    {
+        return const_cast<Field*>(static_cast<const GeneratorImpl*>(this)->findField(externalRef));
+    }    
+
     bool prepare(const FilesList& files)
     {
         m_protocol.setErrorReportCallback(
@@ -426,6 +471,31 @@ parse::Endian Generator::schemaEndian() const
 const Field* Generator::getMessageIdField() const
 {
     return m_impl->getMessageIdField();
+}
+
+const Field* Generator::findField(const std::string& externalRef) const
+{
+    auto* field = m_impl->findField(externalRef);
+    assert(field->isPrepared());
+    return field;
+}
+
+Field* Generator::findField(const std::string& externalRef)
+{
+    auto* field = m_impl->findField(externalRef);
+    do {
+        if (field->isPrepared()) {
+            break;
+        }    
+
+        if (field->prepare()) {
+            break;
+        }
+         
+        logger().warning("Failed to prepare field: " + field->dslObj().externalRef());
+        field = nullptr;
+    } while (false);
+    return field;
 }
 
 Generator::InterfacesAccessList Generator::getAllInterfaces() const

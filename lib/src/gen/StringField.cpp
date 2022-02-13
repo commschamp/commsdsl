@@ -25,13 +25,104 @@ namespace commsdsl
 namespace gen
 {
 
+class StringFieldImpl
+{
+    using Base = Field;
+public:
+
+    StringFieldImpl(Generator& generator, commsdsl::parse::StringField dslObj, Elem* parent): 
+        m_generator(generator),
+        m_dslObj(dslObj),
+        m_parent(parent)
+    {
+    }
+
+    bool prepare()
+    {
+        if (!m_dslObj.hasLengthPrefixField()) {
+            return true;
+        }
+
+        auto prefix = m_dslObj.lengthPrefixField();
+        if (!prefix.externalRef().empty()) {
+            m_externalPrefixField = m_generator.findField(prefix.externalRef());
+            assert(m_externalPrefixField != nullptr);
+            return true;
+        }
+
+        m_memberPrefixField = Field::create(m_generator, prefix, m_parent);
+        if (!m_memberPrefixField->prepare()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    Field* externalPrefixField()
+    {
+        return m_externalPrefixField;
+    }
+
+    const Field* externalPrefixField() const
+    {
+        return m_externalPrefixField;
+    }
+
+    Field* memberPrefixField()
+    {
+        return m_memberPrefixField.get();
+    }
+
+    const Field* memberPrefixField() const
+    {
+        return m_memberPrefixField.get();
+    }    
+
+protected:    
+    commsdsl::parse::StringField stringDslObj() const;
+
+private:
+    Generator& m_generator;
+    commsdsl::parse::StringField m_dslObj;
+    Elem* m_parent = nullptr;
+    Field* m_externalPrefixField = nullptr;
+    FieldPtr m_memberPrefixField;
+};
+
+
 StringField::StringField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_impl(std::make_unique<StringFieldImpl>(generator, stringDslObj(), this))
 {
     assert(dslObj.kind() == commsdsl::parse::Field::Kind::String);
 }
 
 StringField::~StringField() = default;
+
+Field* StringField::externalPrefixField()
+{
+    return m_impl->externalPrefixField();
+}
+
+const Field* StringField::externalPrefixField() const
+{
+    return m_impl->externalPrefixField();
+}
+
+Field* StringField::memberPrefixField()
+{
+    return m_impl->memberPrefixField();
+}
+
+const Field* StringField::memberPrefixField() const
+{
+    return m_impl->memberPrefixField();
+}
+
+bool StringField::prepareImpl()
+{
+    return m_impl->prepare();
+}
 
 commsdsl::parse::StringField StringField::stringDslObj() const
 {

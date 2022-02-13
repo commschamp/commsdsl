@@ -26,10 +26,49 @@ namespace commsdsl
 namespace gen
 {
 
+class FieldImpl
+{
+public:
+    FieldImpl(Generator& generator, const commsdsl::parse::Field& dslObj) : 
+        m_generator(generator),
+        m_dslObj(dslObj)
+    {
+    }
+
+    bool isPrepared()
+    {
+        return m_prepared;
+    }
+
+    void setPrepared()
+    {
+        m_prepared = true;
+    }
+
+    const commsdsl::parse::Field& dslObj() const
+    {
+        return m_dslObj;
+    } 
+
+    Generator& generator()
+    {
+        return m_generator;
+    }
+
+    const Generator& generator() const
+    {
+        return m_generator;
+    }
+
+private:
+    Generator& m_generator;
+    commsdsl::parse::Field m_dslObj;
+    bool m_prepared = false;
+};    
+
 Field::Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent) :
     Base(parent),
-    m_generator(generator),
-    m_dslObj(dslObj)
+    m_impl(std::make_unique<FieldImpl>(generator, dslObj))
 {
 }
 
@@ -69,9 +108,22 @@ Field::Ptr Field::create(Generator& generator, commsdsl::parse::Field dslobj, El
     return (generator.*func)(dslobj, parent);
 }
 
+bool Field::isPrepared() const
+{
+    return m_impl->isPrepared();
+}
+
 bool Field::prepare()
 {
-    return prepareImpl();
+    if (m_impl->isPrepared()) {
+        return true;
+    }
+
+    bool result = prepareImpl();
+    if (result) {
+        m_impl->setPrepared();
+    }
+    return result;
 }
 
 bool Field::write() const
@@ -81,17 +133,17 @@ bool Field::write() const
 
 const commsdsl::parse::Field& Field::dslObj() const
 {
-    return m_dslObj;
+    return m_impl->dslObj();
 }
 
 Generator& Field::generator()
 {
-    return m_generator;
+    return m_impl->generator();
 }
 
 const Generator& Field::generator() const
 {
-    return m_generator;
+    return m_impl->generator();
 }
 
 Elem::Type Field::elemTypeImpl() const

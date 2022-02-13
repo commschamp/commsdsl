@@ -63,6 +63,8 @@ public:
     const FramesList& frames() const;
 
     const Field* findMessageIdField() const;
+    const Field* findField(const std::string& externalRef) const;
+
     InterfacesAccessList getAllInterfaces() const;
     MessagesAccessList getAllMessages() const;
     FramesAccessList getAllFrames() const;

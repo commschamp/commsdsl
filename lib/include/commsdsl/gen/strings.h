@@ -20,6 +20,7 @@ const std::string& defaultOptionsStr();
 const std::string& allMessagesStr();
 const std::string& messageClassStr();
 const std::string& commonSuffixStr();
+const std::string& membersSuffixStr();
 const std::string& cppHeaderSuffixStr();
 const std::string& cppSourceSuffixStr();
 const std::string& fieldNamespaceStr();
