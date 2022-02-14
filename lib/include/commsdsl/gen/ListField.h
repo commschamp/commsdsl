@@ -21,7 +21,6 @@
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
-#include <vector>
 
 namespace commsdsl
 {
@@ -29,6 +28,7 @@ namespace commsdsl
 namespace gen
 {
 
+class ListFieldImpl;
 class COMMSDSL_API ListField : public Field
 {
     using Base = Field;
@@ -37,10 +37,37 @@ public:
     ListField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~ListField();
 
+    Field* externalElementField();
+    const Field* externalElementField() const;
+
+    Field* memberElementField();
+    const Field* memberElementField() const;
+
+    Field* externalCountPrefixField();
+    const Field* externalCountPrefixField() const;
+
+    Field* memberCountPrefixField();
+    const Field* memberCountPrefixField() const;
+
+    Field* externalLengthPrefixField();
+    const Field* externalLengthPrefixField() const;
+
+    Field* memberLengthPrefixField();
+    const Field* memberLengthPrefixField() const;
+
+    Field* externalElemLengthPrefixField();
+    const Field* externalElemLengthPrefixField() const;
+
+    Field* memberElemLengthPrefixField();
+    const Field* memberElemLengthPrefixField() const;
+
 protected:    
+    virtual bool prepareImpl() override;
+
     commsdsl::parse::ListField listDslObj() const;
 
 private:
+    std::unique_ptr<ListFieldImpl> m_impl;
 };
 
 } // namespace gen

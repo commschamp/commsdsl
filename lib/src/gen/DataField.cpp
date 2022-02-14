@@ -25,10 +25,8 @@ namespace commsdsl
 namespace gen
 {
 
-
 class DataFieldImpl
 {
-    using Base = Field;
 public:
 
     DataFieldImpl(Generator& generator, commsdsl::parse::DataField dslObj, Elem* parent): 
