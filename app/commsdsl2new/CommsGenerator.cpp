@@ -26,6 +26,7 @@
 #include "CommsMsgId.h"
 #include "CommsSetField.h"
 #include "CommsStringField.h"
+#include "CommsVersion.h"
 
 #include "commsdsl/version.h"
 
@@ -35,6 +36,8 @@
 
 namespace commsdsl2new
 {
+
+const std::string MinCommsVersion("4.0.0");    
 
 const std::string& CommsGenerator::fileGeneratedComment()
 {
@@ -71,6 +74,21 @@ void CommsGenerator::setCustomizationLevel(const std::string& value)
     }
 
     m_customizationLevel = static_cast<CustomizationLevel>(std::distance(std::begin(Map), iter));
+}
+
+const std::string& CommsGenerator::getProtocolVersion() const
+{
+    return m_protocolVersion;
+}
+
+void CommsGenerator::setProtocolVersion(const std::string& value)
+{
+    m_protocolVersion = value;
+}
+
+const std::string& CommsGenerator::minCommsVersion()
+{
+    return MinCommsVersion;
 }
 
 CommsGenerator::MessagePtr CommsGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
@@ -118,7 +136,8 @@ bool CommsGenerator::writeImpl()
     return 
         CommsCmake::write(*this) &&
         CommsMsgId::write(*this) &&
-        CommsFieldBase::write(*this);
+        CommsFieldBase::write(*this) &&
+        CommsVersion::write(*this);
 }
 
 } // namespace commsdsl2new

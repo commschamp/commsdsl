@@ -16,6 +16,7 @@ set (
     CommsProgramOptions.cpp
     CommsSetField.cpp
     CommsStringField.cpp
+    CommsVersion.cpp
     main.cpp
 )
 

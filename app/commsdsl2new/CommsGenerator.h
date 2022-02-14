@@ -39,6 +39,11 @@ public:
     CustomizationLevel getCustomizationLevel() const;
     void setCustomizationLevel(const std::string& opt);
 
+    const std::string& getProtocolVersion() const;
+    void setProtocolVersion(const std::string& value);
+
+    static const std::string& minCommsVersion();
+
 protected:
     // virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
     // virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent);
@@ -71,6 +76,7 @@ protected:
 private:
     static const CustomizationLevel DefaultCustomizationLevel = CustomizationLevel::Limited;
     CustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
+    std::string m_protocolVersion;
 };
 
 } // namespace commsdsl2new

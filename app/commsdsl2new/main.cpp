@@ -94,6 +94,7 @@ int main(int argc, const char* argv[])
         generator.setOutputDir(options.getOutputDirectory());
         generator.setVersionIndependentCodeForced(options.versionIndependentCodeRequested());
         generator.setCustomizationLevel(options.getCustomizationLevel());
+        generator.setProtocolVersion(options.getProtocolVersion());
 
         auto files = commsdsl2new::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

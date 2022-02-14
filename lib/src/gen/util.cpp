@@ -98,6 +98,19 @@ unsigned strToUnsigned(const std::string& str)
     }
 }
 
+std::string strToUpper(const std::string& str)
+{
+    std::string result;
+    result.reserve(str.size());
+    std::transform(
+        str.begin(), str.end(), std::back_inserter(result),
+        [](char ch)
+        {
+            return static_cast<char>(std::toupper(ch));
+        });  
+    return result;
+}
+
 std::string numToString(std::uintmax_t value, unsigned hexWidth)
 {
     if (hexWidth == 0U) {

@@ -31,14 +31,6 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2new
 {
 
-namespace 
-{
-
-using ReplacementMap = commsdsl::gen::util::ReplacementMap;
-
-} // namespace 
-    
-
 bool CommsFieldBase::write(CommsGenerator& generator)
 {
     CommsFieldBase obj(generator);

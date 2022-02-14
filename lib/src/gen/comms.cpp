@@ -397,6 +397,11 @@ std::string inputCodePathFor(const Elem& elem, const Generator& generator)
     return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator);
 }
 
+std::string inputCodePathForRoot(const std::string& name, const Generator& generator)
+{
+    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForRoot(name, generator);
+}
+
 std::string namespaceBeginFor(
     const Elem& elem, 
     const Generator& generator)
