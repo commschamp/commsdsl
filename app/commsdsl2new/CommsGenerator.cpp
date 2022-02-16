@@ -25,6 +25,7 @@
 #include "CommsListField.h"
 #include "CommsMessage.h"
 #include "CommsMsgId.h"
+#include "CommsRefField.h"
 #include "CommsSetField.h"
 #include "CommsStringField.h"
 #include "CommsVersion.h"
@@ -135,6 +136,11 @@ CommsGenerator::FieldPtr CommsGenerator::createDataFieldImpl(commsdsl::parse::Fi
 CommsGenerator::FieldPtr CommsGenerator::createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsListField>(*this, dslObj, parent);
+}
+
+CommsGenerator::FieldPtr CommsGenerator::createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsRefField>(*this, dslObj, parent);
 }
 
 bool CommsGenerator::writeImpl()

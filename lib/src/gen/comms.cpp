@@ -620,6 +620,17 @@ bool isGlobalField(const Elem& elem)
     return parent->elemType() == Elem::Type_Namespace;
 }
 
+bool isInterfaceMemberField(const Elem& elem)
+{
+    if (elem.elemType() != Elem::Type_Field) {
+        return false;
+    }
+
+    auto* parent = elem.getParent();
+    assert(parent != nullptr);
+    return parent->elemType() == Elem::Type_Interface;    
+}
+
 unsigned sinceVersionOf(const Elem& elem)
 {
     auto elemType = elem.elemType();

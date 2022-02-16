@@ -45,6 +45,7 @@ public:
 
     IncludesList commsCommonIncludes() const;
     std::string commsCommonCode() const;
+    bool commsHasMembersCode() const;
 
     IncludesList commsDefIncludes() const;
     std::string commsDefCode() const;
@@ -78,8 +79,10 @@ public:
 
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
+    virtual std::string commsCommonCodeBaseClassImpl() const;
     virtual std::string commsCommonCodeBodyImpl() const;
     virtual std::string commsCommonCodeExtraImpl() const;
+    virtual std::string commsCommonMembersBaseClassImpl() const;
     virtual std::string commsCommonMembersCodeImpl() const;
     virtual IncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefMembersCodeImpl() const;
@@ -131,7 +134,7 @@ private:
     std::string m_customWrite;
     bool m_forcedFailOnInvalid = false;
     bool m_forcedPseudo = false;
-    bool m_referenced = true; // TODO: false by default
+    bool m_referenced = false;
 };
 
 } // namespace commsdsl2new

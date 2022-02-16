@@ -104,14 +104,40 @@ CommsField::IncludesList CommsField::commsCommonIncludes() const
 
 std::string CommsField::commsCommonCode() const
 {
+    auto base = commsCommonCodeBaseClassImpl();
+    auto body = commsCommonCodeBodyImpl();
+    std::string def;
+    if ((!base.empty()) && (body.empty())) {
+        static const std::string Templ = 
+            "using #^#NAME#$#Common = #^#BASE#$#;";
+
+        util::ReplacementMap repl = {
+            {"NAME", comms::className(m_field.name())},
+            {"BASE", std::move(base)},
+        };
+
+        def = util::processTemplate(Templ, repl);
+    }
+    else {
+        static const std::string Templ = 
+            "struct #^#NAME#$#Common#^#BASE#$#\n"
+            "{\n"
+            "    #^#BODY#$#\n"
+            "};";
+
+        util::ReplacementMap repl = {
+            {"NAME", comms::className(m_field.name())},
+            {"BASE", base.empty() ? strings::emptyString() : " : public " + base},
+            {"BODY", std::move(body)}
+        }; 
+        def = util::processTemplate(Templ, repl);       
+    }
+    
     static const std::string Templ = 
         "#^#MEMBERS#$#\n"
         "/// @brief Common types and functions for\n"
         "///     @ref #^#SCOPE#$# field.\n"
-        "struct #^#NAME#$#Common\n"
-        "{\n"
-        "    #^#BODY#$#\n"
-        "};\n"
+        "#^#DEF#$#\n"
         "#^#EXTRA#$#\n"
     ;
 
@@ -119,12 +145,16 @@ std::string CommsField::commsCommonCode() const
     util::ReplacementMap repl = {
         {"MEMBERS", commsCommonMembersCodeInternal()},
         {"SCOPE", comms::scopeFor(m_field, generator)},
-        {"NAME", comms::className(m_field.name())},
-        {"BODY", commsCommonCodeBodyImpl()},
+        {"DEF", std::move(def)},
         {"EXTRA", commsCommonCodeExtraImpl()},
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+bool CommsField::commsHasMembersCode() const
+{
+    return (!commsCommonMembersCodeImpl().empty()) || (!commsCommonMembersBaseClassImpl().empty());
 }
 
 CommsField::IncludesList CommsField::commsDefIncludes() const
@@ -185,6 +215,11 @@ CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
     return IncludesList();
 }
 
+std::string CommsField::commsCommonCodeBaseClassImpl() const
+{
+    return strings::emptyString();
+}
+
 std::string CommsField::commsCommonCodeBodyImpl() const
 {
     return strings::emptyString();
@@ -194,6 +229,11 @@ std::string CommsField::commsCommonCodeExtraImpl() const
 {
     return strings::emptyString();
 }
+
+std::string CommsField::commsCommonMembersBaseClassImpl() const
+{
+    return strings::emptyString();
+}   
 
 std::string CommsField::commsCommonMembersCodeImpl() const
 {
@@ -1008,22 +1048,41 @@ std::string CommsField::commsDefMembersCodeInternal() const
 
 std::string CommsField::commsCommonMembersCodeInternal() const
 {
+    auto base = commsCommonMembersBaseClassImpl();
     auto body = commsCommonMembersCodeImpl();
-    if (body.empty()) {
+    if (base.empty() && body.empty()) {
         return strings::emptyString();
+    }
+
+    if (body.empty()) {
+        assert(!base.empty());
+        static const std::string Templ = 
+            "/// @brief Common definitions of the member fields of\n"
+            "///     @ref #^#SCOPE#$# field.\n"
+            "using #^#CLASS_NAME#$#MembersCommon = #^#BASE#$#;\n";        
+
+        util::ReplacementMap repl = {
+            {"SCOPE", comms::scopeFor(m_field, m_field.generator())},
+            {"CLASS_NAME", comms::className(m_field.name())},
+            {"BASE", std::move(base)}
+        };
+
+        return util::processTemplate(Templ, repl);            
     }
 
     static const std::string Templ = 
         "/// @brief Scope for all the common definitions of the member fields of\n"
-        "///     @ref #^#CLASS_NAME#$# field.\n"
-        "struct #^#CLASS_NAME#$#MembersCommon\n"
+        "///     @ref #^#SCOPE#$# field.\n"
+        "struct #^#CLASS_NAME#$#MembersCommon#^#BASE#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n";    
 
     util::ReplacementMap repl = {
+        {"SCOPE", comms::scopeFor(m_field, m_field.generator())},
         {"CLASS_NAME", comms::className(m_field.name())},
-        {"BODY", std::move(body)}
+        {"BODY", std::move(body)},
+        {"BASE", base.empty() ? strings::emptyString() : " : public " + base}
     };
 
     return util::processTemplate(Templ, repl);

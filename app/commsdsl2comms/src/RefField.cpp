@@ -199,7 +199,6 @@ std::string RefField::getClassDefinitionImpl(
     replacements.insert(std::make_pair("LENGTH", getCustomLength()));
     replacements.insert(std::make_pair("VALID", getCustomValid()));
     replacements.insert(std::make_pair("REFRESH", getCustomRefresh()));
-    replacements.insert(std::make_pair("PUBLIC", getExtraPublic()));
     replacements.insert(std::make_pair("PROTECTED", getFullProtected()));
     replacements.insert(std::make_pair("PRIVATE", getFullPrivate()));
     replacements.insert(std::make_pair("NAME_FUNC", getNameCommonWrapFunc(adjustScopeWithNamespace(scope))));

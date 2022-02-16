@@ -25,13 +25,83 @@ namespace commsdsl
 namespace gen
 {
 
+class RefFieldImpl
+{
+public:
+
+    RefFieldImpl(Generator& generator, commsdsl::parse::RefField dslObj): 
+        m_generator(generator),
+        m_dslObj(dslObj)
+    {
+    }
+
+    bool prepare()
+    {
+        auto fieldObj = m_dslObj.field();
+        if (fieldObj.isPseudo() != m_dslObj.isPseudo()) {
+            m_generator.logger().error(
+                m_dslObj.schemaPos() +
+                "Having \"pseudo\" property value for <ref> field \"" + m_dslObj.name() +
+                "\" that differs to one of the referenced field is not supported by the code generator.");
+            return false;
+        }
+
+        if (fieldObj.isFailOnInvalid() != m_dslObj.isFailOnInvalid()) {
+            m_generator.logger().error(
+                m_dslObj.schemaPos() +
+                "Having \"failOnInvalid\" property value for <ref> field \"" + m_dslObj.name() +
+                "\" that differs to one of the referenced field is not supported by the code generator.");
+            return false;
+        }
+
+        m_referencedField = m_generator.findField(fieldObj.externalRef());
+        if (m_referencedField == nullptr) {
+            assert(false);
+            return false;
+        }
+
+        return true;
+    }
+
+    Field* referencedField()
+    {
+        return m_referencedField;
+    }
+
+    const Field* referencedField() const
+    {
+        return m_referencedField;
+    }
+
+private:
+    Generator& m_generator;
+    commsdsl::parse::RefField m_dslObj;
+    Field* m_referencedField = nullptr;
+};       
+
 RefField::RefField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_impl(std::make_unique<RefFieldImpl>(generator, refDslObj()))
 {
     assert(dslObj.kind() == commsdsl::parse::Field::Kind::Ref);
 }
 
 RefField::~RefField() = default;
+
+Field* RefField::referencedField()
+{
+    return m_impl->referencedField();
+}
+
+const Field* RefField::referencedField() const
+{
+    return m_impl->referencedField();
+}
+
+bool RefField::prepareImpl()
+{
+    return m_impl->prepare();
+}
 
 commsdsl::parse::RefField RefField::refDslObj() const
 {

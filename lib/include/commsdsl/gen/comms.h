@@ -90,6 +90,7 @@ const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::siz
 const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value);
 
 bool isGlobalField(const Elem& elem);
+bool isInterfaceMemberField(const Elem& elem);
 
 unsigned sinceVersionOf(const Elem& elem);
 
