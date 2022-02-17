@@ -219,6 +219,20 @@ std::string CommsListField::commsBaseClassDefImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+bool CommsListField::commsIsLimitedCustomizableImpl() const
+{
+    return true;
+}
+
+bool CommsListField::commsDoesRequireGeneratedReadRefreshImpl() const
+{
+    auto obj = listDslObj();
+    return 
+        (!obj.detachedCountPrefixFieldName().empty()) ||
+        (!obj.detachedLengthPrefixFieldName().empty()) ||
+        (!obj.detachedElemLengthPrefixFieldName().empty());
+}
+
 std::string CommsListField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

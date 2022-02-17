@@ -16,6 +16,7 @@
 #include "CommsGenerator.h"
 
 #include "CommsBitfieldField.h"
+#include "CommsBundleField.h"
 #include "CommsCmake.h"
 #include "CommsDataField.h"
 #include "CommsEnumField.h"
@@ -121,6 +122,11 @@ CommsGenerator::FieldPtr CommsGenerator::createFloatFieldImpl(commsdsl::parse::F
 CommsGenerator::FieldPtr CommsGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsBitfieldField>(*this, dslObj, parent);
+}
+
+CommsGenerator::FieldPtr CommsGenerator::createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsBundleField>(*this, dslObj, parent);
 }
 
 CommsGenerator::FieldPtr CommsGenerator::createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)

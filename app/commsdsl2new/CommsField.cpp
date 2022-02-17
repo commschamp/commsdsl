@@ -200,14 +200,40 @@ std::string CommsField::commsDefCode() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsField::commsDefReadFuncBody() const
+std::string CommsField::commsDefBundledReadPrepareFuncBody() const
 {
-    return commsDefReadFuncBodyImpl();
+    return commsDefBundledReadPrepareFuncBodyImpl();
 }
 
-std::string CommsField::commsDefRefreshFuncBody() const
+std::string CommsField::commsDefBundledRefreshFuncBody(const CommsFieldsList& siblings) const
 {
-    return commsDefRefreshFuncBodyImpl();
+    return commsDefBundledRefreshFuncBodyImpl(siblings);
+}
+
+bool CommsField::commsIsVersionOptional() const
+{
+    auto& generator = m_field.generator();
+    if (!generator.versionDependentCode()) {
+        return false;
+    }
+
+    auto& dslObj = m_field.dslObj();
+    if (!generator.isElementOptional(dslObj.sinceVersion(), dslObj.deprecatedSince(), dslObj.isDeprecatedRemoved())) {
+        return false;
+    }
+
+    auto* parent = m_field.getParent();
+    assert(parent != nullptr);
+    if (comms::sinceVersionOf(*parent) < dslObj.sinceVersion()) {
+        return true;
+    }
+    
+    if ((dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated()) &&
+        (dslObj.isDeprecatedRemoved())) {
+        return true;
+    }
+
+    return false;    
 }
 
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
@@ -285,6 +311,11 @@ std::string CommsField::commsDefReadFuncBodyImpl() const
     return strings::emptyString();
 }
 
+std::string CommsField::commsDefBundledReadPrepareFuncBodyImpl() const
+{
+    return strings::emptyString();
+}
+
 std::string CommsField::commsDefWriteFuncBodyImpl() const
 {
     return strings::emptyString();
@@ -292,6 +323,12 @@ std::string CommsField::commsDefWriteFuncBodyImpl() const
 
 std::string CommsField::commsDefRefreshFuncBodyImpl() const
 {
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const
+{
+    static_cast<void>(siblings);
     return strings::emptyString();
 }
 
@@ -310,7 +347,7 @@ bool CommsField::commsIsLimitedCustomizableImpl() const
     return false;
 }
 
-bool CommsField::commsHasGeneratedReadRefreshImpl() const
+bool CommsField::commsDoesRequireGeneratedReadRefreshImpl() const
 {
     return false;
 }
@@ -338,32 +375,6 @@ std::string CommsField::commsCommonNameFuncCode() const
     };
 
     return util::processTemplate(Templ, repl);
-}
-
-bool CommsField::commsIsVersionOptional() const
-{
-    auto& generator = m_field.generator();
-    if (!generator.versionDependentCode()) {
-        return false;
-    }
-
-    auto& dslObj = m_field.dslObj();
-    if (!generator.isElementOptional(dslObj.sinceVersion(), dslObj.deprecatedSince(), dslObj.isDeprecatedRemoved())) {
-        return false;
-    }
-
-    auto* parent = m_field.getParent();
-    assert(parent != nullptr);
-    if (comms::sinceVersionOf(*parent) < dslObj.sinceVersion()) {
-        return true;
-    }
-    
-    if ((dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated()) &&
-        (dslObj.isDeprecatedRemoved())) {
-        return true;
-    }
-
-    return false;    
 }
 
 std::string CommsField::commsFieldBaseParams(commsdsl::parse::Endian endian) const

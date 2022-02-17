@@ -3,6 +3,7 @@ set (APP_NAME "commsdsl2new")
 set (
     src
     CommsBitfieldField.cpp
+    CommsBundleField.cpp
     CommsCmake.cpp
     CommsDataField.cpp
     CommsEnumField.cpp

@@ -181,6 +181,16 @@ std::string CommsStringField::commsDefPublicCodeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+bool CommsStringField::commsIsLimitedCustomizableImpl() const
+{
+    return true;
+}
+
+bool CommsStringField::commsDoesRequireGeneratedReadRefreshImpl() const
+{
+    return !stringDslObj().detachedPrefixFieldName().empty();
+}
+
 std::string CommsStringField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

@@ -29,6 +29,7 @@ namespace commsdsl
 namespace gen
 {
 
+class BundleFieldImpl;
 class COMMSDSL_API BundleField : public Field
 {
     using Base = Field;
@@ -37,10 +38,14 @@ public:
     BundleField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~BundleField();
 
+    const FieldsList& members() const;
+
 protected:    
+    virtual bool prepareImpl() override;
     commsdsl::parse::BundleField bundleDslObj() const;
 
 private:
+    std::unique_ptr<BundleFieldImpl> m_impl;
 };
 
 } // namespace gen

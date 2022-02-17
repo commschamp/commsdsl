@@ -25,13 +25,69 @@ namespace commsdsl
 namespace gen
 {
 
+class BundleFieldImpl
+{
+public:
+    using FieldsList = BundleField::FieldsList;
+
+    BundleFieldImpl(Generator& generator, commsdsl::parse::BundleField dslObj, Elem* parent) :
+        m_generator(generator),
+        m_dslObj(dslObj),
+        m_parent(parent)
+    {
+    }
+
+    bool prepare()
+    {
+        if (!m_dslObj.valid()) {
+            return true;
+        }
+
+        auto fields = m_dslObj.members();
+        m_members.reserve(fields.size());
+        for (auto& dslObj : fields) {
+            auto ptr = Field::create(m_generator, dslObj, m_parent);
+            assert(ptr);
+            if (!ptr->prepare()) {
+                return false;
+            }
+
+            m_members.push_back(std::move(ptr));
+        }
+
+        return true;
+    }
+
+    const FieldsList& members() const
+    {
+        return m_members;
+    }
+
+private:
+    Generator& m_generator;
+    commsdsl::parse::BundleField m_dslObj;
+    Elem* m_parent = nullptr;
+    FieldsList m_members;
+};
+
 BundleField::BundleField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_impl(std::make_unique<BundleFieldImpl>(generator, bundleDslObj(), this))
 {
     assert(dslObj.kind() == commsdsl::parse::Field::Kind::Bundle);
 }
 
 BundleField::~BundleField() = default;
+
+const BundleField::FieldsList& BundleField::members() const
+{
+    return m_impl->members();
+}
+
+bool BundleField::prepareImpl()
+{
+    return m_impl->prepare();
+}
 
 commsdsl::parse::BundleField BundleField::bundleDslObj() const
 {

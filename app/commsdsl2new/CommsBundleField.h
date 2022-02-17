@@ -15,20 +15,21 @@
 
 #pragma once
 
-#include "commsdsl/gen/StringField.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/BundleField.h"
+#include "commsdsl/gen/util.h"
 
 namespace commsdsl2new
 {
 
 class CommsGenerator;
-class CommsStringField final : public commsdsl::gen::StringField, public CommsField
+class CommsBundleField final : public commsdsl::gen::BundleField, public CommsField
 {
-    using Base = commsdsl::gen::StringField;
+    using Base = commsdsl::gen::BundleField;
     using CommsBase = CommsField;
 public:
-    CommsStringField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsBundleField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides
@@ -43,19 +44,21 @@ protected:
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsBaseClassDefImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
-    virtual bool commsIsLimitedCustomizableImpl() const override;
-    virtual bool commsDoesRequireGeneratedReadRefreshImpl() const override;
+    virtual std::string commsDefPrivateCodeImpl() const override;
+    virtual std::string commsDefReadFuncBodyImpl() const override;
+    virtual std::string commsDefRefreshFuncBodyImpl() const override;    
 
 private:
+    bool commsPrepareInternal();
     std::string commsDefFieldOptsInternal() const;
+    std::string commsDefAccessCodeInternal() const;
+    std::string commsDefAliasesCodeInternal() const;
 
-    void commsAddFixedLengthOptInternal(StringsList& opts) const;
-    void commsAddLengthPrefixOptInternal(StringsList& opts) const;
-    void commsAddTermSuffixOptInternal(StringsList& opts) const;
-    void commsAddLengthForcingOptInternal(StringsList& opts) const;
+    void commsAddCustomReadRefreshOptInternal(StringsList& opts) const;
 
-    CommsField* m_commsExternalPrefixField = nullptr;
-    CommsField* m_commsMemberPrefixField = nullptr;
+    CommsFieldsList m_members;
+    StringsList m_bundledReadPrepareCodes;
+    StringsList m_bundledRefreshCodes;
 };
 
 } // namespace commsdsl2new

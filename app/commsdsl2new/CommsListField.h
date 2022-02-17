@@ -42,6 +42,8 @@ protected:
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsBaseClassDefImpl() const override;
+    virtual bool commsIsLimitedCustomizableImpl() const override;
+    virtual bool commsDoesRequireGeneratedReadRefreshImpl() const override;
 
 private:
     std::string commsDefFieldOptsInternal() const;

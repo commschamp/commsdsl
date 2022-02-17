@@ -51,9 +51,8 @@ bool CommsMessage::prepareImpl()
     m_commsFields = CommsField::commsTransformFieldsList(fields());
     for (auto* commsField : m_commsFields) {
         assert(commsField != nullptr);
-        auto refreshCode = commsField->commsDefRefreshFuncBody();
+        auto refreshCode = commsField->commsDefBundledRefreshFuncBody(m_commsFields);
         if (!refreshCode.empty()) {
-            // TODO: adjust refresh names, may be bundles
             m_fieldsRefresh.push_back(RefreshCodeInfo{comms::accessName(commsField->field().dslObj().name()), std::move(refreshCode)});
         }        
     }
@@ -658,49 +657,53 @@ std::string CommsMessage::commsDefNameFuncInternal() const
 
 std::string CommsMessage::commsDefReadFuncInternal() const
 {
-    auto customRead = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::readFileSuffixStr());
+    // TODO this function is incorrect, needs to implement reads from and until
+    return strings::emptyString();
+
+    // auto customRead = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::readFileSuffixStr());
     
-    util::StringsList genFieldsCode;
-    for (auto* commsField : m_commsFields) {
-        assert(commsField != nullptr);
-        auto code = commsField->commsDefReadFuncBody();
-        if (code.empty()) {
-            continue;
-        }
+    // util::StringsList genFieldsCode;
+    // for (auto* commsField : m_commsFields) {
+    //     assert(commsField != nullptr);
+    //     auto code = commsField->commsDefReadFuncBody();
+    //     if (code.empty()) {
+    //         continue;
+    //     }
 
-        genFieldsCode.push_back(std::move(code));
-    }
+    //     genFieldsCode.push_back(std::move(code));
+    // }
 
-    if (genFieldsCode.empty()) {
-        return customRead;
-    }
+    // if (genFieldsCode.empty()) {
+    //     return customRead;
+    // }
 
-    static const std::string Templ = 
-        "/// @brief Generated read functionality.\n"
-        "template <typename TIter>\n"
-        "comms::ErrorStatus doRead#^#ORIG#$#(TIter& iter, std::size_t len)\n"
-       "{\n"
-       "    #^#UPDATE_VERSION#$#\n"
-       "    #^#CODE#$#\n"
-       "}\n"
-       "#^#CUSTOM#$#\n"
-    ;
+    // static const std::string Templ = 
+    //     "/// @brief Generated read functionality.\n"
+    //     "template <typename TIter>\n"
+    //     "comms::ErrorStatus doRead#^#ORIG#$#(TIter& iter, std::size_t len)\n"
+    //    "{\n"
+    //    "    #^#UPDATE_VERSION#$#\n"
+    //    "    #^#CODE#$#\n"
+    //    "}\n"
+    //    "#^#CUSTOM#$#\n"
+    // ;
     
-    util::ReplacementMap repl = {
-        {"CODE", util::strListToString(genFieldsCode, "\n" "")},
-        {"CUSTOM", customRead},
-        {"UPDATE_VERSION", generator().versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
-    };
+    // util::ReplacementMap repl = {
+    //     {"CODE", util::strListToString(genFieldsCode, "\n" "")},
+    //     {"CUSTOM", customRead},
+    //     {"UPDATE_VERSION", generator().versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
+    // };
 
-    if (!customRead.empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
-    }
+    // if (!customRead.empty()) {
+    //     repl["ORIG"] = strings::origSuffixStr();
+    // }
 
-    return util::processTemplate(Templ, repl);
+    // return util::processTemplate(Templ, repl);
 }
 
 std::string CommsMessage::commsDefRefreshFuncInternal() const
 {
+    // TODO: take custom refresh into account
     if (m_fieldsRefresh.empty()) {
         return m_customRefresh;
     }
@@ -752,7 +755,7 @@ bool CommsMessage::commsIsCustomizableInternal() const
 //             m_commsFields.begin(), m_commsFields.end(),
 //             [](auto* f)
 //             {
-//                 return f->hasGeneratedReadRefresh();
+//                 return f->doesRequireGeneratedReadRefresh();
 //             });
 // }
 

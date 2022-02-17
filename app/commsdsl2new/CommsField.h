@@ -49,8 +49,10 @@ public:
 
     IncludesList commsDefIncludes() const;
     std::string commsDefCode() const;
-    std::string commsDefReadFuncBody() const;
-    std::string commsDefRefreshFuncBody() const;
+    std::string commsDefBundledReadPrepareFuncBody() const;
+    std::string commsDefBundledRefreshFuncBody(const CommsFieldsList& siblings) const;
+
+    bool commsIsVersionOptional() const;
 
     void setForcedFailOnInvalid()
     {
@@ -67,9 +69,9 @@ public:
         m_referenced = true;
     }
 
-    bool hasGeneratedReadRefresh() const
+    bool doesRequireGeneratedReadRefresh() const
     {
-        return commsHasGeneratedReadRefreshImpl();
+        return commsDoesRequireGeneratedReadRefreshImpl();
     }
 
     const commsdsl::gen::Field& field() const
@@ -93,15 +95,16 @@ protected:
     virtual std::string commsDefProtectedCodeImpl() const;
     virtual std::string commsDefPrivateCodeImpl() const;
     virtual std::string commsDefReadFuncBodyImpl() const;
+    virtual std::string commsDefBundledReadPrepareFuncBodyImpl() const;
     virtual std::string commsDefWriteFuncBodyImpl() const;
     virtual std::string commsDefRefreshFuncBodyImpl() const;
+    virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const;
     virtual std::string commsDefLengthFuncBodyImpl() const;
     virtual std::string commsDefValidFuncBodyImpl() const;
     virtual bool commsIsLimitedCustomizableImpl() const;
-    virtual bool commsHasGeneratedReadRefreshImpl() const;
+    virtual bool commsDoesRequireGeneratedReadRefreshImpl() const;
 
     std::string commsCommonNameFuncCode() const;
-    bool commsIsVersionOptional() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
     void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsFieldCustomizable() const;
