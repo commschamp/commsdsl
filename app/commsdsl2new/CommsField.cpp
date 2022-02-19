@@ -200,9 +200,9 @@ std::string CommsField::commsDefCode() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsField::commsDefBundledReadPrepareFuncBody() const
+std::string CommsField::commsDefBundledReadPrepareFuncBody(const CommsFieldsList& siblings) const
 {
-    return commsDefBundledReadPrepareFuncBodyImpl();
+    return commsDefBundledReadPrepareFuncBodyImpl(siblings);
 }
 
 std::string CommsField::commsDefBundledRefreshFuncBody(const CommsFieldsList& siblings) const
@@ -311,8 +311,9 @@ std::string CommsField::commsDefReadFuncBodyImpl() const
     return strings::emptyString();
 }
 
-std::string CommsField::commsDefBundledReadPrepareFuncBodyImpl() const
+std::string CommsField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
 {
+    static_cast<void>(siblings);
     return strings::emptyString();
 }
 

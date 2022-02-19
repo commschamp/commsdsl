@@ -49,7 +49,7 @@ public:
 
     IncludesList commsDefIncludes() const;
     std::string commsDefCode() const;
-    std::string commsDefBundledReadPrepareFuncBody() const;
+    std::string commsDefBundledReadPrepareFuncBody(const CommsFieldsList& siblings) const;
     std::string commsDefBundledRefreshFuncBody(const CommsFieldsList& siblings) const;
 
     bool commsIsVersionOptional() const;
@@ -95,7 +95,7 @@ protected:
     virtual std::string commsDefProtectedCodeImpl() const;
     virtual std::string commsDefPrivateCodeImpl() const;
     virtual std::string commsDefReadFuncBodyImpl() const;
-    virtual std::string commsDefBundledReadPrepareFuncBodyImpl() const;
+    virtual std::string commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const;
     virtual std::string commsDefWriteFuncBodyImpl() const;
     virtual std::string commsDefRefreshFuncBodyImpl() const;
     virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const;

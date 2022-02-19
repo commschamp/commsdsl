@@ -219,6 +219,241 @@ std::string CommsListField::commsBaseClassDefImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
+{
+    auto obj = listDslObj();
+    bool versionOptional = commsIsVersionOptional();
+    util::StringsList preps;
+    auto processPrefixFunc = 
+        [&siblings, &preps, versionOptional](const std::string& prefixName, const util::ReplacementMap& replacements)
+        {
+            if (prefixName.empty()) {
+                return;
+            }
+
+            auto iter =
+                std::find_if(
+                    siblings.begin(), siblings.end(),
+                    [&prefixName](auto& f)
+                    {
+                        return f->field().dslObj().name() == prefixName;
+                    });
+
+            if (iter == siblings.end()) {
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
+                return;
+            }
+
+            bool prefixVersionOptional = (*iter)->commsIsVersionOptional();
+
+            auto repl = replacements;
+            repl.insert({
+                {"PREFIX_NAME", comms::accessName(prefixName)}
+            });
+
+            if ((!versionOptional) && (!prefixVersionOptional)) {
+                static const std::string Templ =
+                    "field_#^#NAME#$#().#^#FUNC#$#(\n"
+                    "    static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().value()));\n";
+
+                preps.push_back(util::processTemplate(Templ, repl));
+                return;
+            }
+
+            if ((versionOptional) && (!prefixVersionOptional)) {
+                static const std::string Templ =
+                    "if (field_#^#NAME#$#().doesExist()) {\n"
+                    "    field_#^#NAME#$#().field().#^#FUNC#$#(\n"
+                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().value()));\n"
+                    "}\n";
+
+                preps.push_back(util::processTemplate(Templ, repl));
+                return;
+            }
+
+            if ((!versionOptional) && (prefixVersionOptional)) {
+                static const std::string Templ =
+                    "if (field_#^#PREFIX_NAME#$#().doesExist()) {\n"
+                    "    field_#^#NAME#$#().#^#FUNC#$#(\n"
+                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().value()));\n"
+                    "}\n";
+
+                preps.push_back(util::processTemplate(Templ, repl));
+                return;
+            }
+
+            assert(versionOptional && prefixVersionOptional);
+            static const std::string Templ =
+                "if (field_#^#NAME#$#().doesExist() && field_#^#PREFIX_NAME#$#().doesExist()) {\n"
+                "    field_#^#NAME#$#().field().#^#FUNC#$#(\n"
+                "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().value()));\n"
+                "}\n";
+
+            preps.push_back(util::processTemplate(Templ, repl));
+            return;
+        };
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::accessName(dslObj().name())}
+    };
+    
+    auto& countPrefix = obj.detachedCountPrefixFieldName();
+    if (!countPrefix.empty()) {
+        repl["FUNC"] = "forceReadElemCount";
+        processPrefixFunc(countPrefix, repl);
+    }
+
+    auto& lengthPrefix = obj.detachedLengthPrefixFieldName();
+    if (!lengthPrefix.empty()) {
+        repl["FUNC"] = "forceReadLength";
+        processPrefixFunc(lengthPrefix, repl);
+    }
+
+    auto& elemLengthPrefix = obj.detachedElemLengthPrefixFieldName();
+    if (!elemLengthPrefix.empty()) {
+        repl["FUNC"] = "forceReadElemLength";
+        processPrefixFunc(elemLengthPrefix, repl);
+    }
+
+    if (preps.empty()) {
+        return strings::emptyString();
+    }
+
+    return util::strListToString(preps, "\n", "");
+}
+
+std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const
+{
+    auto obj = listDslObj();
+
+    util::StringsList refreshes;
+    auto processPrefixFunc = 
+        [&siblings, &refreshes](const std::string& prefixName, const util::ReplacementMap& replacements)
+        {
+            if (prefixName.empty()) {
+                return;
+            }
+
+            auto iter =
+                std::find_if(
+                    siblings.begin(), siblings.end(),
+                    [&prefixName](auto& f)
+                    {
+                        return f->field().dslObj().name() == prefixName;
+                    });
+
+            if (iter == siblings.end()) {
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
+                return;
+            }
+
+            bool prefixVersionOptional = (*iter)->commsIsVersionOptional();
+
+            static const std::string Templ = 
+                "do {\n"
+                "    auto expectedValue = static_cast<std::size_t>(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value());\n"
+                "    #^#REAL_VALUE#$#\n"
+                "    if (expectedValue == realValue) {\n"
+                "        break;\n"
+                "    }\n\n"
+                "    using PrefixValueType = typename std::decay<decltype(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value())>::type;\n"
+                "    static const auto MaxPrefixValue = static_cast<std::size_t>(std::numeric_limits<PrefixValueType>::max());\n"
+                "    auto maxAllowedValue = std::min(MaxPrefixValue, realValue);\n"
+                "    #^#ADJUST_LIST#$#\n"
+                "    field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value() = static_cast<PrefixValueType>(#^#PREFIX_VALUE#$#);\n"
+                "    updated = true;\n"
+                "} while (false);\n";
+
+            auto repl = replacements;
+            repl.insert({
+                {"PREFIX_NAME", comms::accessName(prefixName)}
+            });
+
+            if (prefixVersionOptional) {
+                repl["PREFIX_ACC"] = ".field()";
+            }
+
+            refreshes.push_back(util::processTemplate(Templ, repl));
+        };
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::accessName(dslObj().name())}
+    };
+
+    if (commsIsVersionOptional()) {
+        repl["LIST_ACC"] = ".field()";
+    }
+
+    auto& countPrefix = obj.detachedCountPrefixFieldName();
+    if (!countPrefix.empty()) {
+        static const std::string RealValueTempl = 
+            "auto realValue = field_#^#NAME#$#()#^#LIST_ACC#$#.value().size();";
+        repl["REAL_VALUE"] = util::processTemplate(RealValueTempl, repl);
+
+        static const std::string AdjustListTempl = 
+            "if (maxAllowedValue < realValue) {\n"
+            "    field_#^#NAME#$#()#^#LIST_ACC#$#.value().resize(maxAllowedValue);\n"
+            "}";
+        repl["PREFIX_VALUE"] = "maxAllowedValue";
+        repl["ADJUST_LIST"] = util::processTemplate(AdjustListTempl, repl);
+        processPrefixFunc(countPrefix, repl);
+    }
+
+    auto& lengthPrefix = obj.detachedLengthPrefixFieldName();
+    if (!lengthPrefix.empty()) {
+        static const std::string RealValueTempl = 
+            "auto realValue = field_#^#NAME#$#()#^#LIST_ACC#$#.length();";
+        repl["REAL_VALUE"] = util::processTemplate(RealValueTempl, repl);
+
+        static const std::string AdjustListTempl = 
+            "while (maxAllowedValue < realValue) {\n"
+            "    auto elemLen = field_#^#NAME#$#()#^#LIST_ACC#$#.value().back().length();\n"
+            "    field_#^#NAME#$#()#^#LIST_ACC#$#.value().pop_back();\n"
+            "    realValue -= elemLen;"
+            "}";
+        
+        repl["PREFIX_VALUE"] = "realValue";
+        repl["ADJUST_LIST"] = util::processTemplate(AdjustListTempl, repl);
+
+        processPrefixFunc(lengthPrefix, repl);
+    }
+
+    auto& elemLengthPrefix = obj.detachedElemLengthPrefixFieldName();
+    if (!elemLengthPrefix.empty()) {
+        static const std::string RealValueTempl = 
+            "std::size_t realValue =\n"
+            "    field_#^#NAME#$#()#^#LIST_ACC#$#.value().empty() ?\n"
+            "        0U : field_#^#NAME#$#()#^#LIST_ACC#$#.value()[0].length();";
+        repl["REAL_VALUE"] = util::processTemplate(RealValueTempl, repl);
+
+        static const std::string AdjustListTempl = 
+            "COMMS_ASSERT(\n"
+            "    (field_#^#NAME#$#()#^#LIST_ACC#$#.value().empty()) ||\n"
+            "    (field_#^#NAME#$#()#^#LIST_ACC#$#.value()[0].length() < maxAllowedValue));";
+        repl["PREFIX_VALUE"] = "maxAllowedValue";
+        repl["ADJUST_LIST"] = util::processTemplate(AdjustListTempl, repl);
+        processPrefixFunc(elemLengthPrefix, repl);
+    }
+
+    if (refreshes.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "bool updated = false;\n"
+        "#^#UPDATES#$#\n"
+        "return updated;\n";
+
+    util::ReplacementMap finalRepl = {
+        {"UPDATES", util::strListToString(refreshes, "\n", "")}
+    };
+    return util::processTemplate(Templ, finalRepl);
+}
+
 bool CommsListField::commsIsLimitedCustomizableImpl() const
 {
     return true;

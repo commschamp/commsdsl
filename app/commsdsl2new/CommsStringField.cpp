@@ -181,6 +181,132 @@ std::string CommsStringField::commsDefPublicCodeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
+{
+    auto obj = stringDslObj();
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (detachedPrefixName.empty()) {
+        return strings::emptyString();
+    }
+
+    bool versionOptional = commsIsVersionOptional();
+
+    auto iter =
+        std::find_if(
+            siblings.begin(), siblings.end(),
+            [&detachedPrefixName](auto& f)
+            {
+                return f->field().dslObj().name() == detachedPrefixName;
+            });
+
+    if (iter == siblings.end()) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return strings::emptyString();
+    }
+
+    bool lenVersionOptional = (*iter)->commsIsVersionOptional();
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::accessName(dslObj().name())},
+        {"LEN_NAME", comms::accessName(detachedPrefixName)},
+    };
+
+    if ((!versionOptional) && (!lenVersionOptional)) {
+        static const std::string Templ =
+            "field_#^#NAME#$#().forceReadLength(\n"
+            "    static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n";
+
+        return util::processTemplate(Templ, repl);
+    }
+
+    if ((versionOptional) && (!lenVersionOptional)) {
+        static const std::string Templ =
+            "if (field_#^#NAME#$#().doesExist()) {\n"
+            "    field_#^#NAME#$#().field().forceReadLength(\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n"
+            "}\n";
+
+        return util::processTemplate(Templ, repl);
+    }
+
+    if ((!versionOptional) && (lenVersionOptional)) {
+        static const std::string Templ =
+            "if (field_#^#LEN_NAME#$#().doesExist()) {\n"
+            "    field_#^#NAME#$#().forceReadLength(\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().value()));\n"
+            "}\n";
+
+        return util::processTemplate(Templ, repl);
+    }
+
+    assert(versionOptional && lenVersionOptional);
+    static const std::string Templ =
+        "if (field_#^#NAME#$#().doesExist() && field_#^#LEN_NAME#$#().doesExist()) {\n"
+        "    field_#^#NAME#$#().field().forceReadLength(\n"
+        "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().value()));\n"
+        "}\n";
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const
+{
+    auto obj = stringDslObj();
+    auto& detachedPrefixName = obj.detachedPrefixFieldName();
+    if (detachedPrefixName.empty()) {
+        return strings::emptyString();
+    }
+
+    auto iter =
+        std::find_if(
+            siblings.begin(), siblings.end(),
+            [&detachedPrefixName](auto& f)
+            {
+                return f->field().dslObj().name() == detachedPrefixName;
+            });
+
+    if (iter == siblings.end()) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return strings::emptyString();
+    }
+
+    bool lenVersionOptional = (*iter)->commsIsVersionOptional();
+
+    static const std::string Templ = 
+        "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value());\n"
+        "auto realLength = field_#^#NAME#$#()#^#STR_ACC#$#.value().size();\n"
+        "if (expectedLength == realLength) {\n"
+        "    return false;\n"
+        "}\n\n"
+        "using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value())>::type;\n"
+        "static const auto MaxLenValue = static_cast<std::size_t>(std::numeric_limits<LenValueType>::max());\n"
+        "auto maxAllowedLen = std::min(MaxLenValue, realLength);\n"
+        "field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value() = static_cast<LenValueType>(maxAllowedLen);\n"
+        "if (maxAllowedLen < realLength) {\n"
+        "    field_#^#NAME#$#()#^#STR_ACC#$#.value().resize(maxAllowedLen);\n"
+        "}\n"
+        "return true;";
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::className(dslObj().name())},
+        {"LEN_NAME", comms::accessName(detachedPrefixName)}
+    };
+
+    if (commsIsVersionOptional()) {
+        repl["STR_ACC"] = ".field()";
+    }
+
+    if (lenVersionOptional) {
+        repl["LEN_ACC"] = ".field()";
+    }
+    
+    return util::processTemplate(Templ, repl);
+}
+
 bool CommsStringField::commsIsLimitedCustomizableImpl() const
 {
     return true;

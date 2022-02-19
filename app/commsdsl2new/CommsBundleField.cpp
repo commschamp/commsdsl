@@ -230,8 +230,71 @@ std::string CommsBundleField::commsDefPrivateCodeImpl() const
 
 std::string CommsBundleField::commsDefReadFuncBodyImpl() const
 {
-    // TODO:
-    return strings::emptyString();
+    util::StringsList reads;
+    assert(m_bundledReadPrepareCodes.size() == m_members.size());
+    int prevIdx = -1;
+
+    static const std::string EsCheckStr = 
+        "if (es != comms::ErrorStatus::Success) {\n"
+        "    break;\n"
+        "}\n";
+
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        if (m_bundledReadPrepareCodes[idx].empty()) {
+            continue;
+        }
+
+        auto accName = comms::accessName(m_members[idx]->field().dslObj().name());
+        auto prepStr = "readPrepare_" + accName + "();\n";
+        if (idx == 0U) {
+            reads.push_back(std::move(prepStr));
+            continue;
+        }
+
+        if (prevIdx < 0) {
+            auto str = 
+                "es = Base::template readUntilAndUpdateLen<FieldIdx_" + accName + ">(iter, len);\n" + 
+                EsCheckStr + '\n' +
+                prepStr;
+            reads.push_back(std::move(str));
+            prevIdx = idx;
+            continue;
+        }
+
+        auto prevAcc = comms::accessName(m_members[prevIdx]->field().dslObj().name());
+        auto str = 
+            "es = Base::template readFromUntilAndUpdateLen<FieldIdx_" + prevAcc + ", FieldIdx_" + accName + ">(iter, len);\n" + 
+            EsCheckStr + '\n' +
+            prepStr;
+        reads.push_back(std::move(str));
+        prevIdx = idx;        
+    }
+
+    if (reads.empty()) {
+        // Members dont have bundled reads
+        return strings::emptyString();    
+    }
+
+    if (prevIdx < 0) {
+        // Only the first element has readPrepare()
+        reads.push_back("es = Base::read(iter, len);\n");
+    }
+    else {
+        auto prevAcc = comms::accessName(m_members[prevIdx]->field().dslObj().name());
+        reads.push_back("es = Base::teamplate readFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
+    }
+
+    static const std::string Templ = 
+        "auto es = comms::ErrorStatus::Success;\n"
+        "do {\n"
+        "    #^#READS#$#\n"
+        "} while(false);\n"
+        "return es;";
+
+    util::ReplacementMap repl = {
+        {"READS", util::strListToString(reads, "\n", "")},
+    };
+    return util::processTemplate(Templ, repl);
 }
 
 std::string CommsBundleField::commsDefRefreshFuncBodyImpl() const
@@ -269,7 +332,7 @@ bool CommsBundleField::commsPrepareInternal()
     m_bundledReadPrepareCodes.reserve(m_members.size());
     m_bundledRefreshCodes.reserve(m_members.size());
     for (auto* m : m_members) {
-        m_bundledReadPrepareCodes.push_back(m->commsDefBundledReadPrepareFuncBody());
+        m_bundledReadPrepareCodes.push_back(m->commsDefBundledReadPrepareFuncBody(m_members));
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_members));
     }
     return true;

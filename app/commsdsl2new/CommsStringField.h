@@ -43,6 +43,8 @@ protected:
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsBaseClassDefImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
+    virtual std::string commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const override;
+    virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual bool commsIsLimitedCustomizableImpl() const override;
     virtual bool commsDoesRequireGeneratedReadRefreshImpl() const override;
 
