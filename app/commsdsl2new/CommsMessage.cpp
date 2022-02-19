@@ -49,14 +49,14 @@ bool CommsMessage::prepareImpl()
     }
 
     m_commsFields = CommsField::commsTransformFieldsList(fields());
-    for (auto* commsField : m_commsFields) {
-        assert(commsField != nullptr);
-        auto refreshCode = commsField->commsDefBundledRefreshFuncBody(m_commsFields);
-        if (!refreshCode.empty()) {
-            m_fieldsRefresh.push_back(RefreshCodeInfo{comms::accessName(commsField->field().dslObj().name()), std::move(refreshCode)});
-        }        
+    m_bundledReadPrepareCodes.reserve(m_commsFields.size());
+    m_bundledRefreshCodes.reserve(m_commsFields.size());
+    for (auto* m : m_commsFields) {
+        m_bundledReadPrepareCodes.push_back(m->commsDefBundledReadPrepareFuncBody(m_commsFields));
+        m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
     }
 
+    m_customRead = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::readFileSuffixStr());
     m_customRefresh = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::refreshFileSuffixStr());
     return true;
 }
@@ -406,7 +406,28 @@ std::string CommsMessage::commsDefCustomizationOptInternal() const
 
 std::string CommsMessage::commsDefExtraOptionsInternal() const
 {
-    if ((!m_customRefresh.empty()) || (!m_fieldsRefresh.empty())) {
+    util::StringsList opts;
+    bool hasGeneratedRead = 
+        std::any_of(
+            m_bundledReadPrepareCodes.begin(), m_bundledReadPrepareCodes.end(),
+            [](const std::string& code)
+            {
+                return !code.empty();
+            });
+
+    bool hasGeneratedRefresh = 
+        std::any_of(
+            m_bundledRefreshCodes.begin(), m_bundledRefreshCodes.end(),
+            [](const std::string& code)
+            {
+                return !code.empty();
+            });
+
+    if ((!m_customRead.empty()) || hasGeneratedRead) {
+        util::addToStrList("comms::option::def::HasCustomRead", opts);
+    }
+
+    if ((!m_customRefresh.empty()) || hasGeneratedRefresh) {
         return "comms::option::def::HasCustomRefresh";
     }
 
@@ -468,35 +489,66 @@ std::string CommsMessage::commsDefProtectedInternal() const
 std::string CommsMessage::commsDefPrivateInternal() const
 {
     auto custom = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
-    if (m_fieldsRefresh.empty()) {
-        return custom;
+
+    assert(m_bundledReadPrepareCodes.size() == m_commsFields.size());
+    assert(m_bundledRefreshCodes.size() == m_commsFields.size());
+    util::StringsList reads;
+    util::StringsList refreshes;
+    for (auto idx = 0U; idx < m_commsFields.size(); ++idx) {
+        auto& readCode = m_bundledReadPrepareCodes[idx];
+        auto& refreshCode = m_bundledRefreshCodes[idx];
+
+        if (readCode.empty() && refreshCode.empty()) {
+            continue;
+        }
+
+        auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().name());
+
+        if (!readCode.empty()) {
+            static const std::string Templ = 
+                "void readPrepare_#^#ACC_NAME#$#()\n"
+                "{\n"
+                "    #^#CODE#$#\n"
+                "}\n";
+
+            util::ReplacementMap repl = {
+                {"ACC_NAME", accName},
+                {"CODE", readCode}
+            };
+
+            reads.push_back(util::processTemplate(Templ, repl));
+        }
+
+        if (!refreshCode.empty()) {
+            static const std::string Templ = 
+                "bool refresh_#^#ACC_NAME#$#()\n"
+                "{\n"
+                "    #^#CODE#$#\n"
+                "}\n";
+
+            util::ReplacementMap repl = {
+                {"ACC_NAME", accName},
+                {"CODE", refreshCode}
+            };
+
+            refreshes.push_back(util::processTemplate(Templ, repl));
+        }
     }
 
-    util::StringsList fields;
-    for (auto& info : m_fieldsRefresh) {
-        static const std::string RefreshTempl = 
-            "/// @brief Generated refresh of the member field.\n"
-            "bool refresh_#^#NAME#$#()\n"
-            "{\n"
-            "    #^#CODE#$#\n"
-            "}\n";
-
-        util::ReplacementMap refreshRepl = {
-            {"NAME", info.m_accName},
-            {"CODE", info.m_code}
-        };
-
-        fields.push_back(util::processTemplate(RefreshTempl, refreshRepl));
+    if (reads.empty() && refreshes.empty() && custom.empty()) {
+        return strings::emptyString();
     }
 
     static const std::string Templ = 
         "private:\n"
-        "    #^#FIELDS#$#\n"
+        "    #^#READS#$#\n"
+        "    #^#REFRESHES#$#\n"
         "    #^#CUSTOM#$#\n"
     ;
 
     util::ReplacementMap repl = {
-        {"FIELDS", util::strListToString(fields, "\n", "")},
+        {"READS", util::strListToString(reads, "\n", "")},
+        {"REFRESHES", util::strListToString(refreshes, "\n", "")},
         {"CUSTOM", std::move(custom)}
     };
 
@@ -657,74 +709,124 @@ std::string CommsMessage::commsDefNameFuncInternal() const
 
 std::string CommsMessage::commsDefReadFuncInternal() const
 {
-    // TODO this function is incorrect, needs to implement reads from and until
-    return strings::emptyString();
+    util::StringsList reads;
+    assert(m_bundledReadPrepareCodes.size() == m_commsFields.size());
+    int prevIdx = -1;
 
-    // auto customRead = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::readFileSuffixStr());
+    static const std::string EsCheckStr = 
+        "if (es != comms::ErrorStatus::Success) {\n"
+        "    break;\n"
+        "}\n";
+
+    for (auto idx = 0U; idx < m_commsFields.size(); ++idx) {
+        if (m_bundledReadPrepareCodes[idx].empty()) {
+            continue;
+        }
+
+        auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().name());
+        auto prepStr = "readPrepare_" + accName + "();\n";
+        if (idx == 0U) {
+            reads.push_back(std::move(prepStr));
+            continue;
+        }
+
+        if (prevIdx < 0) {
+            auto str = 
+                "es = Base::template doReadUntilAndUpdateLen<FieldIdx_" + accName + ">(iter, len);\n" + 
+                EsCheckStr + '\n' +
+                prepStr;
+            reads.push_back(std::move(str));
+            prevIdx = idx;
+            continue;
+        }
+
+        auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
+        auto str = 
+            "es = Base::template doReadFromUntilAndUpdateLen<FieldIdx_" + prevAcc + ", FieldIdx_" + accName + ">(iter, len);\n" + 
+            EsCheckStr + '\n' +
+            prepStr;
+        reads.push_back(std::move(str));
+        prevIdx = idx;        
+    }
+
+    if (reads.empty()) {
+        // Members dont have bundled reads
+        return strings::emptyString();    
+    }
+
+    if (prevIdx < 0) {
+        // Only the first element has readPrepare()
+        reads.push_back("es = Base::doRead(iter, len);\n");
+    }
+    else {
+        auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
+        reads.push_back("es = Base::teamplate doReadFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
+    }
+
+    if (reads.empty()) {
+        return m_customRead;
+    }
+
+    static const std::string Templ = 
+        "/// @brief Generated read functionality.\n"
+        "template <typename TIter>\n"
+        "comms::ErrorStatus doRead#^#ORIG#$#(TIter& iter, std::size_t len)\n"
+       "{\n"
+       "    #^#UPDATE_VERSION#$#\n"
+       "    #^#READS#$#\n"
+       "}\n"
+       "#^#CUSTOM#$#\n"
+    ;
     
-    // util::StringsList genFieldsCode;
-    // for (auto* commsField : m_commsFields) {
-    //     assert(commsField != nullptr);
-    //     auto code = commsField->commsDefReadFuncBody();
-    //     if (code.empty()) {
-    //         continue;
-    //     }
+    util::ReplacementMap repl = {
+        {"READS", util::strListToString(reads, "\n", "")},
+        {"CUSTOM", m_customRead},
+        {"UPDATE_VERSION", generator().versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
+    };
 
-    //     genFieldsCode.push_back(std::move(code));
-    // }
+    if (!m_customRead.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
 
-    // if (genFieldsCode.empty()) {
-    //     return customRead;
-    // }
-
-    // static const std::string Templ = 
-    //     "/// @brief Generated read functionality.\n"
-    //     "template <typename TIter>\n"
-    //     "comms::ErrorStatus doRead#^#ORIG#$#(TIter& iter, std::size_t len)\n"
-    //    "{\n"
-    //    "    #^#UPDATE_VERSION#$#\n"
-    //    "    #^#CODE#$#\n"
-    //    "}\n"
-    //    "#^#CUSTOM#$#\n"
-    // ;
-    
-    // util::ReplacementMap repl = {
-    //     {"CODE", util::strListToString(genFieldsCode, "\n" "")},
-    //     {"CUSTOM", customRead},
-    //     {"UPDATE_VERSION", generator().versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
-    // };
-
-    // if (!customRead.empty()) {
-    //     repl["ORIG"] = strings::origSuffixStr();
-    // }
-
-    // return util::processTemplate(Templ, repl);
+    return util::processTemplate(Templ, repl);
 }
 
 std::string CommsMessage::commsDefRefreshFuncInternal() const
 {
-    // TODO: take custom refresh into account
-    if (m_fieldsRefresh.empty()) {
-        return m_customRefresh;
+    assert(m_commsFields.size() == m_bundledRefreshCodes.size());
+    util::StringsList fields;
+    for (auto idx = 0U; idx < m_commsFields.size(); ++idx) {
+        auto& code = m_bundledRefreshCodes[idx];
+        if (code.empty()) {
+            continue;
+        }
+
+        auto accName = comms::accessName(m_commsFields[idx]->field().dslObj().name());
+        fields.push_back("updated = refresh_" + accName + "() || updated;");
     }
 
+    if (fields.empty()) {
+        return m_customRefresh;
+    }
+    
     static const std::string Templ = 
         "/// @brief Generated refresh functionality.\n"
-        "bool doRefresh()\n"
+        "bool doRefresh#^#ORIG#$#()\n"
         "{\n"
         "   bool updated = Base::doRefresh();\n"
         "   #^#FIELDS#$#\n"
         "   return updated;"
-        "}";
-
-    util::StringsList fields;
-    for (auto& info : m_fieldsRefresh) {
-        fields.push_back("updated = refresh_" + info.m_accName + "() || updated;");
-    }
+        "}\n"
+        "#^#CUSTOM#$#\n";
 
     util::ReplacementMap repl = {
-        {"FIELDS", util::strListToString(fields, "\n", "")}
+        {"FIELDS", util::strListToString(fields, "\n", "")},
+        {"CUSTOM", m_customRefresh}
     };
+
+    if (!m_customRefresh.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
 
     return util::processTemplate(Templ, repl);
 }
