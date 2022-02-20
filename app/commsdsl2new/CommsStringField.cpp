@@ -317,6 +317,15 @@ bool CommsStringField::commsDoesRequireGeneratedReadRefreshImpl() const
     return !stringDslObj().detachedPrefixFieldName().empty();
 }
 
+std::string CommsStringField::commsCompareToValueCodeImpl(
+    const std::string& op, 
+    const std::string& value, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional) const
+{
+    return CommsBase::commsCompareToValueCodeImpl(op, '\"' + value + '\"', nameOverride, forcedVersionOptional);
+}
+
 std::string CommsStringField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

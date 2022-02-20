@@ -333,6 +333,26 @@ bool CommsDataField::commsDoesRequireGeneratedReadRefreshImpl() const
     return !dataDslObj().detachedPrefixFieldName().empty();
 }
 
+std::string CommsDataField::commsCompareToValueCodeImpl(
+    const std::string& op, 
+    const std::string& value, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional) const
+{
+    assert(false); // Should not be called
+    return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+}
+
+std::string CommsDataField::commsCompareToFieldCodeImpl(
+    const std::string& op, 
+    const CommsField& field, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional) const
+{
+    assert(false); // Should not be called
+    return CommsBase::commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);  
+}
+
 std::string CommsDataField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

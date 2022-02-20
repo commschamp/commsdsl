@@ -379,7 +379,7 @@ std::string CommsField::commsCompareToValueCodeImpl(const std::string& op, const
     }
 
     bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
-    if (versionOptional) {
+    if (!versionOptional) {
         return
             "field_" + usedName + "().value() " +
             op + ' ' + value;

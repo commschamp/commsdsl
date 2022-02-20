@@ -87,6 +87,7 @@ std::string namespaceEndFor(
 void prepareIncludeStatement(std::vector<std::string>& includes); 
 
 const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::size_t len);
+std::string cppIntChangedSignTypeFor(commsdsl::parse::IntField::Type value, std::size_t len);
 const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value);
 
 bool isGlobalField(const Elem& elem);

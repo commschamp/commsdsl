@@ -468,6 +468,26 @@ bool CommsListField::commsDoesRequireGeneratedReadRefreshImpl() const
         (!obj.detachedElemLengthPrefixFieldName().empty());
 }
 
+std::string CommsListField::commsCompareToValueCodeImpl(
+    const std::string& op, 
+    const std::string& value, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional) const
+{
+    assert(false); // Should not be called
+    return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+}
+
+std::string CommsListField::commsCompareToFieldCodeImpl(
+    const std::string& op, 
+    const CommsField& field, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional) const
+{
+    assert(false); // Should not be called
+    return CommsBase::commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);  
+}
+
 std::string CommsListField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

@@ -364,6 +364,48 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string CommsSetField::commsCompareToValueCodeImpl(
+    const std::string& op, 
+    const std::string& value, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional) const
+{
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = comms::accessName(dslObj().name());
+    }
+
+    auto obj = setDslObj();
+    auto& bits = obj.bits();
+    auto iter = bits.find(value);
+    if (iter == bits.end()) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return strings::emptyString();
+    }
+
+    assert(op.empty() || (op == "!"));
+    bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
+    if (!versionOptional) {
+        return op + "field_" + usedName + "().getBitValue_" + value + "()";
+    }
+
+    return
+        "(field_" + usedName + "().doesExist()) &&\n"
+        "(" + op + "field_" + usedName + "().field().getBitValue_" + value + "())";
+}
+
+std::string CommsSetField::commsCompareToFieldCodeImpl(
+    const std::string& op, 
+    const CommsField& field, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional) const
+{
+    assert(false); // Should not be called
+    return CommsBase::commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);  
+}
+
 std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
 {
     auto obj = setDslObj();

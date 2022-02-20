@@ -587,6 +587,27 @@ const std::string& cppIntTypeFor(commsdsl::parse::IntField::Type value, std::siz
     return TypeMap[base + offset];    
 }
 
+std::string cppIntChangedSignTypeFor(commsdsl::parse::IntField::Type value, std::size_t len)
+{
+    auto str = cppIntTypeFor(value, len);
+    assert(str.find("std::") == 0U);
+    if (str.size() < 6) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return str;
+    }
+
+    if (str[5] == 'u') {
+        str.erase(str.begin() + 5);
+    }
+    else {
+        str.insert(str.begin() + 5, 'u');
+    }
+
+    return str;    
+}
+
 const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value)
 {
     static const std::string TypeMap[] = {
