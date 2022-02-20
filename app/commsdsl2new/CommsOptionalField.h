@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/RefField.h"
+#include "commsdsl/gen/OptionalField.h"
 
 #include "CommsField.h"
 
@@ -23,12 +23,12 @@ namespace commsdsl2new
 {
 
 class CommsGenerator;
-class CommsRefField final : public commsdsl::gen::RefField, public CommsField
+class CommsOptionalField final : public commsdsl::gen::OptionalField, public CommsField
 {
-    using Base = commsdsl::gen::RefField;
+    using Base = commsdsl::gen::OptionalField;
     using CommsBase = CommsField;
 public:
-    CommsRefField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsOptionalField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides
@@ -37,19 +37,23 @@ protected:
 
     // CommsBase overrides
     virtual IncludesList commsCommonIncludesImpl() const override;
-    virtual std::string commsCommonCodeBaseClassImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
-    virtual std::string commsCommonMembersBaseClassImpl() const override;
+    virtual std::string commsCommonMembersCodeImpl() const override;
     virtual IncludesList commsDefIncludesImpl() const override;
+    virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
+    virtual std::string commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const override;
+    virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
 
 private:
+    std::string commsDefFieldRefInternal() const;
     std::string commsDefFieldOptsInternal() const;
 
-    void commsAddProtocolOptInternal(StringsList& opts) const;
-    void commsAddBitLengthOptInternal(StringsList& opts) const;
+    void commsAddModeOptInternal(StringsList& opts) const;
+    static std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::OptCond& cond, bool bracketsWrap = false);
 
-    CommsField* m_commsReferencedField = nullptr;
+    CommsField* m_commsExternalField = nullptr;
+    CommsField* m_commsMemberField = nullptr;
 };
 
 } // namespace commsdsl2new

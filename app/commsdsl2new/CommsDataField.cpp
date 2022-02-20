@@ -136,7 +136,7 @@ std::string CommsDataField::commsDefMembersCodeImpl() const
     return m_commsMemberPrefixField->commsDefCode();
 }
 
-std::string CommsDataField::commsBaseClassDefImpl() const
+std::string CommsDataField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
     "comms::field::ArrayList<\n"

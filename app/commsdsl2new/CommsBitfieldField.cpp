@@ -133,7 +133,7 @@ std::string CommsBitfieldField::commsDefMembersCodeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsBitfieldField::commsBaseClassDefImpl() const
+std::string CommsBitfieldField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
         "comms::field::Bitfield<\n"

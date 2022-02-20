@@ -51,6 +51,17 @@ public:
     std::string commsDefCode() const;
     std::string commsDefBundledReadPrepareFuncBody(const CommsFieldsList& siblings) const;
     std::string commsDefBundledRefreshFuncBody(const CommsFieldsList& siblings) const;
+    std::string commsCompareToValueCode(
+        const std::string& op,
+        const std::string& value,
+        const std::string& nameOverride = std::string(),
+        bool forcedVersionOptional = false) const;
+
+    std::string commsCompareToFieldCode(
+        const std::string& op,
+        const CommsField& field,
+        const std::string& nameOverride = std::string(),
+        bool forcedVersionOptional = false) const;                
 
     bool commsIsVersionOptional() const;
 
@@ -88,9 +99,9 @@ protected:
     virtual std::string commsCommonMembersCodeImpl() const;
     virtual IncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefMembersCodeImpl() const;
-    virtual std::string commsDoxigenDetailsImpl() const;
-    virtual std::string commsExtraDoxigenImpl() const;
-    virtual std::string commsBaseClassDefImpl() const;
+    virtual std::string commsDefDoxigenDetailsImpl() const;
+    virtual std::string commsDefExtraDoxigenImpl() const;
+    virtual std::string commsDefBaseClassImpl() const;
     virtual std::string commsDefPublicCodeImpl() const;
     virtual std::string commsDefProtectedCodeImpl() const;
     virtual std::string commsDefPrivateCodeImpl() const;
@@ -103,6 +114,8 @@ protected:
     virtual std::string commsDefValidFuncBodyImpl() const;
     virtual bool commsIsLimitedCustomizableImpl() const;
     virtual bool commsDoesRequireGeneratedReadRefreshImpl() const;
+    virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const;  
+    virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const;
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;

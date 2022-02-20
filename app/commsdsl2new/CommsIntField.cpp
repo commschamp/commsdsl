@@ -139,7 +139,7 @@ CommsIntField::IncludesList CommsIntField::commsDefIncludesImpl() const
     return list;
 }
 
-std::string CommsIntField::commsBaseClassDefImpl() const
+std::string CommsIntField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
         "comms::field::IntValue<\n"

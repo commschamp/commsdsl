@@ -21,7 +21,6 @@
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
-#include <vector>
 
 namespace commsdsl
 {
@@ -29,6 +28,7 @@ namespace commsdsl
 namespace gen
 {
 
+class OptionalFieldImpl;
 class COMMSDSL_API OptionalField : public Field
 {
     using Base = Field;
@@ -37,10 +37,19 @@ public:
     OptionalField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~OptionalField();
 
+    Field* externalField();
+    const Field* externalField() const;
+
+    Field* memberField();
+    const Field* memberField() const;
+
 protected:    
+    virtual bool prepareImpl() override;
+
     commsdsl::parse::OptionalField optionalDslObj() const;
 
 private:
+    std::unique_ptr<OptionalFieldImpl> m_impl;
 };
 
 } // namespace gen

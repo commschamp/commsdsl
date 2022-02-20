@@ -133,7 +133,7 @@ std::string CommsBundleField::commsDefMembersCodeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsBundleField::commsBaseClassDefImpl() const
+std::string CommsBundleField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
         "comms::field::Bundle<\n"

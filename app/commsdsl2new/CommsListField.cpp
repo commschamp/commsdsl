@@ -197,7 +197,7 @@ std::string CommsListField::commsDefMembersCodeImpl() const
     return util::strListToString(memberDefs, "\n", "");
 }
 
-std::string CommsListField::commsBaseClassDefImpl() const
+std::string CommsListField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
     "comms::field::ArrayList<\n"

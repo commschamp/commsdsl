@@ -25,13 +25,97 @@ namespace commsdsl
 namespace gen
 {
 
+class OptionalFieldImpl
+{
+public:
+    OptionalFieldImpl(Generator& generator, commsdsl::parse::OptionalField dslObj, Elem* parent): 
+        m_generator(generator),
+        m_dslObj(dslObj),
+        m_parent(parent)
+    {
+    }
+
+    bool prepare()
+    {
+        auto field = m_dslObj.field();
+        assert(field.valid());
+
+        if (!field.externalRef().empty()) {
+            m_externalField = m_generator.findField(field.externalRef());
+            assert(m_externalField != nullptr);
+            return true;
+        }
+
+        m_memberField = Field::create(m_generator, field, m_parent);
+        assert(m_memberField);
+        if (!m_memberField->prepare()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    Field* externalField()
+    {
+        return m_externalField;
+    }
+
+    const Field* externalField() const
+    {
+        return m_externalField;
+    }
+
+    Field* memberField()
+    {
+        return m_memberField.get();
+    }
+
+    const Field* memberField() const
+    {
+        return m_memberField.get();
+    }    
+
+private:
+    Generator& m_generator;
+    commsdsl::parse::OptionalField m_dslObj;
+    Elem* m_parent = nullptr;
+    Field* m_externalField = nullptr;
+    FieldPtr m_memberField;
+}; 
+
 OptionalField::OptionalField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_impl(std::make_unique<OptionalFieldImpl>(generator, optionalDslObj(), this))
 {
     assert(dslObj.kind() == commsdsl::parse::Field::Kind::Optional);
 }
 
 OptionalField::~OptionalField() = default;
+
+bool OptionalField::prepareImpl()
+{
+    return m_impl->prepare();
+}
+
+Field* OptionalField::externalField()
+{
+    return m_impl->externalField();
+}
+
+const Field* OptionalField::externalField() const
+{
+    return m_impl->externalField();
+}
+
+Field* OptionalField::memberField()
+{
+    return m_impl->memberField();
+}
+
+const Field* OptionalField::memberField() const
+{
+    return m_impl->memberField();
+}   
 
 commsdsl::parse::OptionalField OptionalField::optionalDslObj() const
 {

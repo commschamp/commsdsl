@@ -210,6 +210,24 @@ std::string CommsField::commsDefBundledRefreshFuncBody(const CommsFieldsList& si
     return commsDefBundledRefreshFuncBodyImpl(siblings);
 }
 
+std::string CommsField::commsCompareToValueCode(
+    const std::string& op,
+    const std::string& value,
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
+{
+    return commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+}
+
+std::string CommsField::commsCompareToFieldCode(
+    const std::string& op,
+    const CommsField& field,
+    const std::string& nameOverride,
+    bool forcedVersionOptional) const
+{
+    return commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);
+}
+
 bool CommsField::commsIsVersionOptional() const
 {
     auto& generator = m_field.generator();
@@ -276,17 +294,17 @@ std::string CommsField::commsDefMembersCodeImpl() const
     return strings::emptyString();
 }
 
-std::string CommsField::commsDoxigenDetailsImpl() const
+std::string CommsField::commsDefDoxigenDetailsImpl() const
 {
     return strings::emptyString();
 }
 
-std::string CommsField::commsExtraDoxigenImpl() const
+std::string CommsField::commsDefExtraDoxigenImpl() const
 {
     return strings::emptyString();
 }
 
-std::string CommsField::commsBaseClassDefImpl() const
+std::string CommsField::commsDefBaseClassImpl() const
 {
     return strings::emptyString();
 }
@@ -351,6 +369,69 @@ bool CommsField::commsIsLimitedCustomizableImpl() const
 bool CommsField::commsDoesRequireGeneratedReadRefreshImpl() const
 {
     return false;
+}
+
+std::string CommsField::commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const
+{
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = comms::accessName(m_field.dslObj().name());
+    }
+
+    bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
+    if (versionOptional) {
+        return
+            "field_" + usedName + "().value() " +
+            op + ' ' + value;
+    }
+
+    return
+        "field_" + usedName + "().doesExist() &&\n" +
+        "(field_" + usedName + "().field().value() " +
+        op + ' ' + value + ')';
+}
+
+std::string CommsField::commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const
+{
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = comms::accessName(m_field.dslObj().name());
+    }
+
+    auto fieldName = comms::accessName(field.m_field.dslObj().name());
+    bool thisOptional = forcedVersionOptional || commsIsVersionOptional();
+    bool otherOptional = field.commsIsVersionOptional();
+
+    std::string thisFieldValue = "field_" + usedName + "()";
+    if (thisOptional) {
+        thisFieldValue += ".field()";
+    }
+    thisFieldValue += ".value() ";
+
+    std::string otherFieldValue = " field_" + fieldName + "()";
+    if (otherOptional) {
+        otherFieldValue += ".field()";
+    }
+    otherFieldValue += ".value()";
+
+    auto compareExpr = thisFieldValue + op + otherFieldValue;
+
+    if ((!thisOptional) && (!otherOptional)) {
+        return compareExpr;
+    }
+
+    if ((!thisOptional) && (otherOptional)) {
+        return "field_" + fieldName + "().doesExist() &&\n(" + compareExpr + ')';
+    }
+
+    if ((thisOptional) && (!otherOptional)) {
+        return "field_" + usedName + "().doesExist() &&\n(" + compareExpr + ')';
+    }
+
+    return
+        "field_" + usedName + "().doesExist() &&\n"
+        "field_" + fieldName + "().doesExist() &&\n"
+                               "(" + compareExpr + ')';
 }
 
 std::string CommsField::commsCommonNameFuncCode() const
@@ -567,7 +648,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
         {"DEPRECATED", commsDeprecatedDocInternal()},
         {"PARAMS", commsTemplateParamsInternal()},
         {"NAME", comms::className(m_field.name())},
-        {"BASE", commsBaseClassDefImpl()},
+        {"BASE", commsDefBaseClassImpl()},
         {"PUBLIC", commsDefPublicCodeInternal()},
         {"PROTECTED", commsDefProtectedCodeInternal()},
         {"PRIVATE", commsDefPrivateCodeInternal()},
@@ -666,7 +747,7 @@ std::string CommsField::commsDocDetailsInternal() const
     std::string result;
     do {
         auto& desc = m_field.dslObj().description();       
-        auto extraDetails = commsDoxigenDetailsImpl();
+        auto extraDetails = commsDefDoxigenDetailsImpl();
         if (desc.empty() && extraDetails.empty()) {
             break;
         }
@@ -700,7 +781,7 @@ std::string CommsField::commsDocDetailsInternal() const
 std::string CommsField::commsExtraDocInternal() const
 {
     std::string result;
-    auto doc = commsExtraDoxigenImpl();
+    auto doc = commsDefExtraDoxigenImpl();
     if (!doc.empty()) {
         result += strings::doxygenPrefixStr() + util::strReplace(doc, "\n", "\n" + strings::doxygenPrefixStr());
     }

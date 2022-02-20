@@ -21,11 +21,7 @@
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/strings.h"
 
-#include <algorithm>
 #include <cassert>
-#include <iomanip>
-#include <iterator>
-#include <sstream>
 
 namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;
@@ -116,16 +112,21 @@ CommsRefField::IncludesList CommsRefField::commsDefIncludesImpl() const
     return result;
 }
 
-std::string CommsRefField::commsBaseClassDefImpl() const
+std::string CommsRefField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
-    "#^#REF_FIELD#$#<\n"
-    "    #^#FIELD_OPTS#$#\n"
-    ">";    
+        "#^#REF_FIELD#$#<\n"
+        "    #^#FIELD_OPTS#$#\n"
+        ">";    
 
     assert(m_commsReferencedField != nullptr);
+
+    std::string templOpt;
+    if (!comms::isInterfaceMemberField(*this)) {
+        templOpt = "TOpt";
+    }
     util::ReplacementMap repl = {
-        {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator())},
+        {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator()) + '<' + templOpt + '>'},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 

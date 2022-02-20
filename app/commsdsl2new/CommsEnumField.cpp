@@ -337,7 +337,7 @@ CommsEnumField::IncludesList CommsEnumField::commsDefIncludesImpl() const
     return result;
 }
 
-std::string CommsEnumField::commsExtraDoxigenImpl() const
+std::string CommsEnumField::commsDefExtraDoxigenImpl() const
 {
     if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
         return "@see @ref " + comms::scopeForRoot(strings::msgIdEnumNameStr(), generator());
@@ -346,7 +346,7 @@ std::string CommsEnumField::commsExtraDoxigenImpl() const
     return "@see @ref " + comms::commonScopeFor(*this, generator()) + "::ValueType"; 
 }
 
-std::string CommsEnumField::commsBaseClassDefImpl() const
+std::string CommsEnumField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
         "comms::field::EnumValue<\n"

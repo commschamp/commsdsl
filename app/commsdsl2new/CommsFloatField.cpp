@@ -296,7 +296,7 @@ CommsFloatField::IncludesList CommsFloatField::commsDefIncludesImpl() const
     return result;
 }
 
-std::string CommsFloatField::commsBaseClassDefImpl() const
+std::string CommsFloatField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
         "comms::field::FloatValue<\n"

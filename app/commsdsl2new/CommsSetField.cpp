@@ -95,7 +95,7 @@ CommsSetField::IncludesList CommsSetField::commsDefIncludesImpl() const
     return result;
 }
 
-std::string CommsSetField::commsBaseClassDefImpl() const
+std::string CommsSetField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
         "comms::field::BitmaskValue<\n"

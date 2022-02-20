@@ -60,7 +60,7 @@ protected:
     virtual FieldPtr createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     virtual FieldPtr createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     virtual FieldPtr createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    // virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
+    virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     // virtual FieldPtr createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent);
 
     // virtual LayerPtr createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);

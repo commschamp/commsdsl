@@ -133,7 +133,7 @@ std::string CommsStringField::commsDefMembersCodeImpl() const
     return m_commsMemberPrefixField->commsDefCode();
 }
 
-std::string CommsStringField::commsBaseClassDefImpl() const
+std::string CommsStringField::commsDefBaseClassImpl() const
 {
     static const std::string Templ = 
     "comms::field::String<\n"

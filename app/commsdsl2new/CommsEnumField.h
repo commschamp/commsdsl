@@ -45,8 +45,8 @@ protected:
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual std::string commsCommonCodeExtraImpl() const override;
     virtual IncludesList commsDefIncludesImpl() const override;
-    virtual std::string commsExtraDoxigenImpl() const override;
-    virtual std::string commsBaseClassDefImpl() const override;
+    virtual std::string commsDefExtraDoxigenImpl() const override;
+    virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual std::string commsDefValidFuncBodyImpl() const override;
 
