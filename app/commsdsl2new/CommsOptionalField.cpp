@@ -168,6 +168,11 @@ std::string CommsOptionalField::commsDefBundledRefreshFuncBodyImpl(const CommsFi
     return util::processTemplate(Templ, repl);    
 }
 
+bool CommsOptionalField::commsIsVersionDependentImpl() const
+{
+    return (m_commsMemberField != nullptr) && (m_commsMemberField->commsIsVersionDependent());
+}
+
 std::string CommsOptionalField::commsDefFieldRefInternal() const
 {
     if (m_commsExternalField != nullptr) {

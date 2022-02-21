@@ -48,11 +48,6 @@ CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl:
             const_cast<CommsField*>(
                 dynamic_cast<const CommsField*>(fPtr.get()));
 
-        // TODO: remove this condition
-        if (commsField == nullptr) {
-            continue;
-        }
-
         assert(commsField != nullptr);
         result.push_back(commsField);
     }
@@ -155,6 +150,20 @@ std::string CommsField::commsCommonCode() const
 bool CommsField::commsHasMembersCode() const
 {
     return (!commsCommonMembersCodeImpl().empty()) || (!commsCommonMembersBaseClassImpl().empty());
+}
+
+bool CommsField::commsHasGeneratedReadCode() const
+{
+    return !commsDefReadFuncBodyImpl().empty();
+}
+
+bool CommsField::commsIsVersionDependent() const
+{
+    if (!m_field.generator().versionDependentCode()) {
+        return false;
+    }
+
+    return (commsIsVersionOptional() || commsIsVersionDependentImpl());
 }
 
 CommsField::IncludesList CommsField::commsDefIncludes() const
@@ -367,6 +376,11 @@ bool CommsField::commsIsLimitedCustomizableImpl() const
 }
 
 bool CommsField::commsDoesRequireGeneratedReadRefreshImpl() const
+{
+    return false;
+}
+
+bool CommsField::commsIsVersionDependentImpl() const
 {
     return false;
 }

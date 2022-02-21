@@ -167,6 +167,17 @@ std::string CommsBitfieldField::commsDefPublicCodeImpl() const
     return commsAccessCodeInternal();
 }
 
+bool CommsBitfieldField::commsIsVersionDependentImpl() const
+{
+    return 
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto* m)
+            {
+                return m->commsIsVersionDependent();
+            });
+}
+
 bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());

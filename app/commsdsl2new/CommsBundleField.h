@@ -31,6 +31,11 @@ class CommsBundleField final : public commsdsl::gen::BundleField, public CommsFi
 public:
     CommsBundleField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
+    const CommsFieldsList& commsMembers() const
+    {
+        return m_members;
+    }
+
 protected:
     // Base overrides
     virtual bool prepareImpl() override;
@@ -47,6 +52,7 @@ protected:
     virtual std::string commsDefPrivateCodeImpl() const override;
     virtual std::string commsDefReadFuncBodyImpl() const override;
     virtual std::string commsDefRefreshFuncBodyImpl() const override;    
+    virtual bool commsIsVersionDependentImpl() const override;
 
 private:
     bool commsPrepareInternal();

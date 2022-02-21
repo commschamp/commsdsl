@@ -468,6 +468,27 @@ bool CommsListField::commsDoesRequireGeneratedReadRefreshImpl() const
         (!obj.detachedElemLengthPrefixFieldName().empty());
 }
 
+bool CommsListField::commsIsVersionDependentImpl() const
+{
+    if ((m_commsMemberElementField != nullptr) && (m_commsMemberElementField->commsIsVersionDependent())) {
+        return true;
+    }
+
+    if ((m_commsMemberCountPrefixField != nullptr) && (m_commsMemberCountPrefixField->commsIsVersionDependent())) {
+        return true;
+    }  
+
+    if ((m_commsMemberLengthPrefixField != nullptr) && (m_commsMemberLengthPrefixField->commsIsVersionDependent())) {
+        return true;
+    }  
+
+    if ((m_commsMemberElemLengthPrefixField != nullptr) && (m_commsMemberElemLengthPrefixField->commsIsVersionDependent())) {
+        return true;
+    }            
+
+    return false;
+}
+
 std::string CommsListField::commsCompareToValueCodeImpl(
     const std::string& op, 
     const std::string& value, 

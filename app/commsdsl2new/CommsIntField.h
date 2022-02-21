@@ -30,6 +30,9 @@ class CommsIntField final : public commsdsl::gen::IntField, public CommsField
 public:
     CommsIntField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
+    std::string commsVariantPropKeyType() const;
+    std::string commsVariantPropKeyValueStr() const;
+
 protected:
     // Base overrides
     virtual bool prepareImpl() override;
@@ -51,12 +54,13 @@ private:
     std::string commsCommonValueNamesMapCodeInternal() const;
     std::string commsCommonSpecialsCodeInternal() const;
     std::string commsCommonSpecialNamesMapCodeInternal() const;
-    std::string commsDefFieldOptsInternal() const;
+    std::string commsDefFieldOptsInternal(bool variantPropKey = false) const;
     std::string commsDefValueNamesMapCodeInternal() const;
     std::string commsDefHasSpecialsFuncCodeInternal() const;
     std::string commsDefSpecialsCodeInternal() const;
     std::string commsDefSpecialNamesMapCodeInternal() const;
     std::string commsDefDisplayDecimalsCodeInternal() const;
+    std::string commsDefBaseClassInternal(bool variantPropKey = false) const;
 
     void commsAddLengthOptInternal(StringsList& opts) const;
     void commsAddSerOffsetOptInternal(StringsList& opts) const;

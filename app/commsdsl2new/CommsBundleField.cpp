@@ -223,8 +223,14 @@ std::string CommsBundleField::commsDefPrivateCodeImpl() const
     }
 
     util::StringsList result;
-    result.push_back(util::strListToString(reads, "\n", ""));
-    result.push_back(util::strListToString(refreshes, "\n", ""));
+    if (!reads.empty()) {
+        result.push_back(util::strListToString(reads, "\n", ""));
+    }
+
+    if (!refreshes.empty()) {
+        result.push_back(util::strListToString(refreshes, "\n", ""));
+    }
+    
     return util::strListToString(result, "\n", "");
 }
 
@@ -336,6 +342,17 @@ bool CommsBundleField::commsPrepareInternal()
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_members));
     }
     return true;
+}
+
+bool CommsBundleField::commsIsVersionDependentImpl() const
+{
+    return 
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto* m)
+            {
+                return m->commsIsVersionDependent();
+            });
 }
 
 std::string CommsBundleField::commsDefFieldOptsInternal() const

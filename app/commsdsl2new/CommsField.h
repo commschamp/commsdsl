@@ -46,6 +46,8 @@ public:
     IncludesList commsCommonIncludes() const;
     std::string commsCommonCode() const;
     bool commsHasMembersCode() const;
+    bool commsHasGeneratedReadCode() const;
+    bool commsIsVersionDependent() const;
 
     IncludesList commsDefIncludes() const;
     std::string commsDefCode() const;
@@ -114,6 +116,7 @@ protected:
     virtual std::string commsDefValidFuncBodyImpl() const;
     virtual bool commsIsLimitedCustomizableImpl() const;
     virtual bool commsDoesRequireGeneratedReadRefreshImpl() const;
+    virtual bool commsIsVersionDependentImpl() const;
     virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const;  
     virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const;
 

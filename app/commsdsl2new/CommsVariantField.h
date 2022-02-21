@@ -15,20 +15,21 @@
 
 #pragma once
 
-#include "commsdsl/gen/OptionalField.h"
-
 #include "CommsField.h"
+
+#include "commsdsl/gen/VariantField.h"
+#include "commsdsl/gen/util.h"
 
 namespace commsdsl2new
 {
 
 class CommsGenerator;
-class CommsOptionalField final : public commsdsl::gen::OptionalField, public CommsField
+class CommsVariantField final : public commsdsl::gen::VariantField, public CommsField
 {
-    using Base = commsdsl::gen::OptionalField;
+    using Base = commsdsl::gen::VariantField;
     using CommsBase = CommsField;
 public:
-    CommsOptionalField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    CommsVariantField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides
@@ -42,19 +43,23 @@ protected:
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
-    virtual std::string commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const override;
-    virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
+    virtual std::string commsDefPublicCodeImpl() const override;
+    virtual std::string commsDefPrivateCodeImpl() const override;
+    virtual std::string commsDefReadFuncBodyImpl() const override;
     virtual bool commsIsVersionDependentImpl() const override;
 
 private:
-    std::string commsDefFieldRefInternal() const;
+    bool commsPrepareInternal();
     std::string commsDefFieldOptsInternal() const;
+    std::string commsDefAccessCodeInternal() const;
+    std::string commsDefFieldExecCodeInternal() const;
 
-    void commsAddModeOptInternal(StringsList& opts) const;
-    static std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::OptCond& cond, bool bracketsWrap = false);
+    void commsAddDefaultIdxOptInternal(StringsList& opts) const;
+    void commsAddCustomReadOptInternal(StringsList& opts) const;
+    std::string commsOptimizedReadKeyInternal() const;
 
-    CommsField* m_commsExternalField = nullptr;
-    CommsField* m_commsMemberField = nullptr;
+    CommsFieldsList m_members;
+    std::string m_optimizedReadKey;
 };
 
 } // namespace commsdsl2new

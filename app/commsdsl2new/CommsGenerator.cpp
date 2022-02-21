@@ -30,6 +30,7 @@
 #include "CommsRefField.h"
 #include "CommsSetField.h"
 #include "CommsStringField.h"
+#include "CommsVariantField.h"
 #include "CommsVersion.h"
 
 #include "commsdsl/version.h"
@@ -153,6 +154,11 @@ CommsGenerator::FieldPtr CommsGenerator::createRefFieldImpl(commsdsl::parse::Fie
 CommsGenerator::FieldPtr CommsGenerator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsOptionalField>(*this, dslObj, parent);
+}
+
+CommsGenerator::FieldPtr CommsGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsVariantField>(*this, dslObj, parent);
 }
 
 bool CommsGenerator::writeImpl()

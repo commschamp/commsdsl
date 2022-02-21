@@ -20,6 +20,7 @@ set (
     CommsRefField.cpp
     CommsSetField.cpp
     CommsStringField.cpp
+    CommsVariantField.cpp
     CommsVersion.cpp
     main.cpp
 )

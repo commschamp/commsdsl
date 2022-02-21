@@ -47,7 +47,6 @@ const std::string& specialNamesMapTempl()
     return Templ;
 }
 
-
 const std::string& hasSpecialsFuncTempl()
 {
     static const std::string Templ = 
@@ -70,6 +69,33 @@ CommsIntField::CommsIntField(
     Base(generator, dslObj, parent),
     CommsBase(static_cast<Base&>(*this))
 {
+}
+
+std::string CommsIntField::commsVariantPropKeyType() const
+{
+    return commsDefBaseClassInternal(true);
+}
+
+std::string CommsIntField::commsVariantPropKeyValueStr() const
+{
+    auto obj = intDslObj();
+    if (!isUnsignedType()) {
+        return util::numToString(obj.defaultValue());
+    }
+
+    unsigned hexWidth = static_cast<unsigned>(obj.maxLength() * 2U);
+    auto val = static_cast<std::uintmax_t>(obj.defaultValue());
+    auto decValue = util::numToString(val);
+    auto hexValue = util::numToString(val, hexWidth);
+
+    static const std::string Templ = 
+        "#^#DEC#$# /* #^#HEX#$# */";
+
+    util::ReplacementMap repl = {
+        {"DEC", std::move(decValue)},
+        {"HEX", std::move(hexValue)},
+    };
+    return util::processTemplate(Templ, repl);
 }
 
 bool CommsIntField::prepareImpl()
@@ -141,26 +167,7 @@ CommsIntField::IncludesList CommsIntField::commsDefIncludesImpl() const
 
 std::string CommsIntField::commsDefBaseClassImpl() const
 {
-    static const std::string Templ = 
-        "comms::field::IntValue<\n"
-        "    #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
-        "    #^#FIELD_TYPE#$##^#COMMA#$#\n"
-        "    #^#FIELD_OPTS#$#\n"
-        ">";  
-
-    auto& gen = generator();
-    auto dslObj = intDslObj();
-    util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.mainNamespace()},
-        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
-        {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
-        {"FIELD_OPTS", commsDefFieldOptsInternal()}
-    };
-
-    if (!repl["FIELD_OPTS"].empty()) {
-        repl["COMMA"] = ",";
-    }
-    return util::processTemplate(Templ, repl);   
+    return commsDefBaseClassInternal();
 }
 
 std::string CommsIntField::commsDefPublicCodeImpl() const
@@ -490,7 +497,7 @@ std::string CommsIntField::commsCommonSpecialNamesMapCodeInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsIntField::commsDefFieldOptsInternal() const
+std::string CommsIntField::commsDefFieldOptsInternal(bool variantPropKey) const
 {
     util::StringsList opts;
 
@@ -499,9 +506,11 @@ std::string CommsIntField::commsDefFieldOptsInternal() const
     commsAddSerOffsetOptInternal(opts);
     commsAddScalingOptInternal(opts);
     commsAddUnitsOptInternal(opts);
-    commsAddDefaultValueOptInternal(opts);
-    commsAddValidRangesOptInternal(opts);
-    commsAddCustomRefreshOptInternal(opts);
+    if (!variantPropKey) {
+        commsAddDefaultValueOptInternal(opts);
+        commsAddValidRangesOptInternal(opts);
+        commsAddCustomRefreshOptInternal(opts);
+    }
 
     return util::strListToString(opts, ",\n", "");
 }
@@ -619,6 +628,30 @@ std::string CommsIntField::commsDefDisplayDecimalsCodeInternal() const
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
+{
+    static const std::string Templ = 
+        "comms::field::IntValue<\n"
+        "    #^#PROT_NAMESPACE#$#::field::FieldBase<#^#FIELD_BASE_PARAMS#$#>,\n"
+        "    #^#FIELD_TYPE#$##^#COMMA#$#\n"
+        "    #^#FIELD_OPTS#$#\n"
+        ">";  
+
+    auto& gen = generator();
+    auto dslObj = intDslObj();
+    util::ReplacementMap repl = {
+        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
+        {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
+        {"FIELD_OPTS", commsDefFieldOptsInternal(variantPropKey)}
+    };
+
+    if (!repl["FIELD_OPTS"].empty()) {
+        repl["COMMA"] = ",";
+    }
+    return util::processTemplate(Templ, repl);      
 }
 
 void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const

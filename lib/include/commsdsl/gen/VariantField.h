@@ -21,7 +21,6 @@
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
-#include <vector>
 
 namespace commsdsl
 {
@@ -29,18 +28,24 @@ namespace commsdsl
 namespace gen
 {
 
+class VariantFieldImpl;
 class COMMSDSL_API VariantField : public Field
 {
     using Base = Field;
-public:
 
+public:
     VariantField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);
     virtual ~VariantField();
 
+    const FieldsList& members() const;
+
 protected:    
+    virtual bool prepareImpl() override;
+
     commsdsl::parse::VariantField variantDslObj() const;
 
 private:
+    std::unique_ptr<VariantFieldImpl> m_impl;
 };
 
 } // namespace gen
