@@ -47,8 +47,12 @@ public:
     const FieldsList& fields() const;
     commsdsl::parse::Interface dslObj() const;
 
+    Generator& generator();
+    const Generator& generator() const;
+
 protected:    
     virtual Type elemTypeImpl() const override final;
+    virtual bool prepareImpl();
     virtual bool writeImpl();
 
 private:

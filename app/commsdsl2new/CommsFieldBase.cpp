@@ -42,6 +42,13 @@ bool CommsFieldBase::writeInternal() const
     auto filePath = comms::headerPathForField(strings::fieldBaseClassStr(), m_generator);
 
     m_generator.logger().info("Generating " + filePath);
+
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!m_generator.createDirectory(dirPath)) {
+        return false;
+    }
+
     std::ofstream stream(filePath);
     if (!stream) {
         m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");

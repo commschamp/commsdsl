@@ -88,22 +88,32 @@ std::string scopeForInternal(
             break;
         }
 
+        auto elemType = elem.elemType();
         auto& elemName = elem.name();
-        if (elemName.empty()) {
+
+        assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
+
+        if (elemType == Elem::Type_Namespace) {
+            if (elemName.empty()) {
+                break;
+            }
+
+            if (!result.empty()) {
+                result.append(sep);
+            }               
+
+            result.append(namespaceName(elemName));
             break;
         }
 
         if (!result.empty()) {
             result.append(sep);
-        }
+        }            
 
-        auto elemType = elem.elemType();
-        assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
-
-        if (elemType == Elem::Type_Namespace) {
-            result.append(namespaceName(elemName));
-            break;
-        }
+        auto name = className(elemName);
+        if ((name.empty()) && (elemType == Elem::Type_Interface)) {
+            name = strings::messageClassStr();
+        }        
 
         if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
             // Global fields reside in appropriate namespace
@@ -114,13 +124,18 @@ std::string scopeForInternal(
             assert(parent->elemType() == Elem::Type_Namespace);
             result.append(strings::messageNamespaceStr() + sep);
         }     
-        
-        result.append(className(elem.name()));
+
+        result.append(name);
 
         if ((elemType == Elem::Type_Message) && (fieldTypeScope)) {
             result.append("Fields");
             break;
         }   
+
+        if ((elemType == Elem::Type_Interface) && (fieldTypeScope)) {
+            result.append("Fields");
+            break;
+        }           
 
         if ((elemType == Elem::Type_Field) && (fieldTypeScope) && (&elem != leaf)) {
             result.append("Members");
@@ -194,11 +209,15 @@ std::string commonScopeForInternal(
             result.append("Fields");
         }
 
+        if ((elemType == Elem::Type_Interface) && (fieldTypeScope)) {
+            result.append("Fields");
+        }        
+
         if ((elemType == Elem::Type_Field) && (fieldTypeScope) && (&elem != leaf)) {
             result.append("Members");
         }        
 
-        if ((elemType == Elem::Type_Field) || (elemType == Elem::Type_Message)) {
+        if ((elemType == Elem::Type_Field) || (elemType == Elem::Type_Message) || (elemType == Elem::Type_Interface)) {
             result.append(strings::commonSuffixStr());
         }
 

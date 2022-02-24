@@ -22,10 +22,12 @@ namespace commsdsl2new
 
 class CommsGenerator final : public commsdsl::gen::Generator
 {
+    using Base = commsdsl::gen::Generator;
 public:
     using Elem = commsdsl::gen::Elem;
     using FieldPtr = commsdsl::gen::FieldPtr;
     using MessagePtr = commsdsl::gen::MessagePtr;
+    using InterfacePtr = commsdsl::gen::InterfacePtr;
 
     enum class CustomizationLevel
     {
@@ -45,8 +47,10 @@ public:
     static const std::string& minCommsVersion();
 
 protected:
+    virtual bool prepareImpl() override;
+
     // virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
-    // virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent);
+    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
     // virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent);
 

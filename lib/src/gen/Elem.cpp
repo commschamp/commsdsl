@@ -40,6 +40,9 @@ namespace
 template <typename TElem>
 decltype(auto) elemName(const TElem& elem)
 {
+    if (!elem.dslObj().valid()) {
+        return strings::emptyString();
+    }
     return elem.dslObj().name();
 }  
 

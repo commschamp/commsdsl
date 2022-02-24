@@ -120,6 +120,11 @@ public:
         return m_interfaces;
     }
 
+    InterfacesList& interfaces()
+    {
+        return m_interfaces;
+    }    
+
     const MessagesList& messages() const
     {
         return m_messages;
@@ -452,6 +457,25 @@ Namespace::FramesAccessList Namespace::getAllFrames() const
 Generator& Namespace::generator()
 {
     return m_impl->generator();
+}
+
+Interface* Namespace::addDefaultInterface()
+{
+    auto& intList = m_impl->interfaces();
+    for (auto& intPtr : intList) {
+        assert(intPtr);
+        if ((!intPtr->dslObj().valid()) || intPtr->dslObj().name().empty()) {
+            return intPtr.get();
+        }
+    }
+
+    auto iter = intList.insert(intList.begin(), generator().createInterface(commsdsl::parse::Interface(nullptr), this));
+    if (!(*iter)->prepare()) {
+        intList.erase(iter);
+        return nullptr;
+    }
+    
+    return iter->get();    
 }
 
 Elem::Type Namespace::elemTypeImpl() const

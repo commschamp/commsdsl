@@ -541,7 +541,11 @@ bool Generator::prepare(const FilesList& files)
     auto& l = logger();
     static_cast<void>(l);
 
-    return m_impl->prepare(files);
+    if (!m_impl->prepare(files)) {
+        return false;
+    }
+
+    return prepareImpl();
 }
 
 bool Generator::write()
@@ -780,6 +784,11 @@ bool Generator::createDirectory(const std::string& path)
     return true;
 }
 
+bool Generator::prepareImpl()
+{
+    return true;
+}
+
 NamespacePtr Generator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
 {
     return std::make_unique<Namespace>(*this, dslObj, parent);
@@ -903,6 +912,20 @@ bool Generator::writeImpl()
 Generator::LoggerPtr Generator::createLoggerImpl()
 {
     return std::make_unique<Logger>();
+}
+
+Namespace* Generator::addDefaultNamespace()
+{
+    auto& nsList = m_impl->namespaces();
+    for (auto& nsPtr : nsList) {
+        assert(nsPtr);
+        if ((!nsPtr->dslObj().valid()) || nsPtr->dslObj().name().empty()) {
+            return nsPtr.get();
+        }
+    }
+
+    auto iter = nsList.insert(nsList.begin(), createNamespace(commsdsl::parse::Namespace(nullptr), nullptr));
+    return iter->get();
 }
 
 } // namespace gen

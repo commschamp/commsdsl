@@ -83,6 +83,16 @@ public:
         return m_dslObj;
     }
 
+    Generator& generator()
+    {
+        return m_generator;
+    }
+
+    const Generator& generator() const
+    {
+        return m_generator;
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::Interface m_dslObj;
@@ -100,7 +110,11 @@ Interface::~Interface() = default;
 
 bool Interface::prepare()
 {
-    return m_impl->prepare();
+    if (!m_impl->prepare()) {
+        return false;
+    }
+
+    return prepareImpl();
 }
 
 bool Interface::write()
@@ -122,9 +136,24 @@ commsdsl::parse::Interface Interface::dslObj() const
     return m_impl->dslObj();
 }
 
+Generator& Interface::generator()
+{
+    return m_impl->generator();
+}
+
+const Generator& Interface::generator() const
+{
+    return m_impl->generator();
+}
+
 Elem::Type Interface::elemTypeImpl() const
 {
     return Type_Interface;
+}
+
+bool Interface::prepareImpl()
+{
+    return true;
 }
 
 bool Interface::writeImpl()

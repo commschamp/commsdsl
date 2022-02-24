@@ -24,6 +24,7 @@
 #include "CommsFloatField.h"
 #include "CommsIntField.h"
 #include "CommsListField.h"
+#include "CommsInterface.h"
 #include "CommsMessage.h"
 #include "CommsMsgId.h"
 #include "CommsOptionalField.h"
@@ -36,6 +37,7 @@
 #include "commsdsl/version.h"
 
 #include <algorithm>
+#include <cassert>
 #include <iterator>
 #include <type_traits>
 
@@ -94,6 +96,32 @@ void CommsGenerator::setProtocolVersion(const std::string& value)
 const std::string& CommsGenerator::minCommsVersion()
 {
     return MinCommsVersion;
+}
+
+bool CommsGenerator::prepareImpl()
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    auto allInterfaces = getAllInterfaces();
+    if (!allInterfaces.empty()) {
+        return true;
+    }
+
+    auto* defaultNamespace = addDefaultNamespace();
+    auto* interface = defaultNamespace->addDefaultInterface();
+    if (interface == nullptr) {
+        logger().error("Failed to create default interface");
+        return false;
+    }
+
+    return true;
+}
+
+CommsGenerator::InterfacePtr CommsGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsInterface>(*this, dslObj, parent);
 }
 
 CommsGenerator::MessagePtr CommsGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)

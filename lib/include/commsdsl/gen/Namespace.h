@@ -72,6 +72,8 @@ public:
 
     Generator& generator();
 
+    Interface* addDefaultInterface();
+
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool writeImpl();

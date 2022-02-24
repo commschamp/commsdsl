@@ -50,6 +50,7 @@ const std::string& doxygenPrefixStr();
 const std::string& versionOptionalFieldSuffixStr();
 const std::string& origSuffixStr();
 const std::string& msgIdPrefixStr();
+const std::string& fieldsSuffixStr();
 
 } // namespace strings
 

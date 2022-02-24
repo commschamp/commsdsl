@@ -126,6 +126,8 @@ public:
     bool createDirectory(const std::string& path);
 
 protected:
+    virtual bool prepareImpl();
+
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent);
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent);
@@ -154,6 +156,9 @@ protected:
 
     virtual bool writeImpl();
     virtual LoggerPtr createLoggerImpl();
+
+
+    Namespace* addDefaultNamespace();
 
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    

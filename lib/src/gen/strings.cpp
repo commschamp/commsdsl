@@ -243,6 +243,12 @@ const std::string& msgIdPrefixStr()
     return Str;    
 }
 
+const std::string& fieldsSuffixStr()
+{
+    static const std::string Str("Fields");
+    return Str;    
+}
+
 } // namespace strings
 
 } // namespace gen

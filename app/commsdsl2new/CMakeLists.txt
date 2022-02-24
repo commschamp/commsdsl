@@ -12,6 +12,7 @@ set (
     CommsFloatField.cpp
     CommsGenerator.cpp
     CommsIntField.cpp
+    CommsInterface.cpp
     CommsListField.cpp
     CommsMessage.cpp
     CommsMsgId.cpp
