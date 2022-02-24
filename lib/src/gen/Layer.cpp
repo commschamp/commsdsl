@@ -69,7 +69,7 @@ bool Layer::prepare()
     return prepareImpl();
 }
 
-bool Layer::write()
+bool Layer::write() const
 {
     return writeImpl();
 }
@@ -89,7 +89,7 @@ bool Layer::prepareImpl()
     return true;
 }
 
-bool Layer::writeImpl()
+bool Layer::writeImpl() const
 {
     return true;
 }

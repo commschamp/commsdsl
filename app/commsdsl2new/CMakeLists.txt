@@ -10,13 +10,16 @@ set (
     CommsField.cpp
     CommsFieldBase.cpp
     CommsFloatField.cpp
+    CommsFrame.cpp
     CommsGenerator.cpp
     CommsIntField.cpp
     CommsInterface.cpp
+    CommsLayer.cpp
     CommsListField.cpp
     CommsMessage.cpp
     CommsMsgId.cpp
     CommsOptionalField.cpp
+    CommsPayloadLayer.cpp
     CommsProgramOptions.cpp
     CommsRefField.cpp
     CommsSetField.cpp

@@ -26,8 +26,10 @@ class CommsGenerator final : public commsdsl::gen::Generator
 public:
     using Elem = commsdsl::gen::Elem;
     using FieldPtr = commsdsl::gen::FieldPtr;
-    using MessagePtr = commsdsl::gen::MessagePtr;
+    using FramePtr = commsdsl::gen::FramePtr;
     using InterfacePtr = commsdsl::gen::InterfacePtr;
+    using LayerPtr = commsdsl::gen::LayerPtr;
+    using MessagePtr = commsdsl::gen::MessagePtr;
 
     enum class CustomizationLevel
     {
@@ -52,7 +54,7 @@ protected:
     // virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
-    // virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent);
+    virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent) override;
 
     virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     virtual FieldPtr createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
@@ -72,7 +74,7 @@ protected:
     // virtual LayerPtr createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
     // virtual LayerPtr createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
     // virtual LayerPtr createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
-    // virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
+    virtual LayerPtr createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
     // virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent);
 
     virtual bool writeImpl() override;    

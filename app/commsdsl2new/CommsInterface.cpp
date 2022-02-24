@@ -26,7 +26,6 @@
 #include <cassert>
 #include <fstream>
 #include <iterator>
-// #include <numeric>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;

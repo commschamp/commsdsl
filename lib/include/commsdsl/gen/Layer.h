@@ -39,7 +39,7 @@ public:
     static Ptr create(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);    
 
     bool prepare();
-    bool write();
+    bool write() const;
 
     commsdsl::parse::Layer dslObj() const;
 
@@ -48,7 +48,7 @@ protected:
 
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();
-    virtual bool writeImpl();
+    virtual bool writeImpl() const;
 
     Generator& generator();
 

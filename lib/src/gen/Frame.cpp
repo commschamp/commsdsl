@@ -88,6 +88,16 @@ public:
         return m_layers;
     }
 
+    const Generator& generator() const
+    {
+        return m_generator;
+    }
+
+    Generator& generator()
+    {
+        return m_generator;
+    }    
+
 private:
     Generator& m_generator;
     commsdsl::parse::Frame m_dslObj;
@@ -105,7 +115,11 @@ Frame::~Frame() = default;
 
 bool Frame::prepare()
 {
-    return m_impl->prepare();
+    if (!m_impl->prepare()) {
+        return false;
+    }
+
+    return prepareImpl();
 }
 
 bool Frame::write()
@@ -127,9 +141,24 @@ const Frame::LayersList& Frame::layers() const
     return m_impl->layers();
 }
 
+Generator& Frame::generator()
+{
+    return m_impl->generator();
+}
+
+const Generator& Frame::generator() const
+{
+    return m_impl->generator();
+}
+
 Elem::Type Frame::elemTypeImpl() const
 {
     return Type_Frame;
+}
+
+bool Frame::prepareImpl()
+{
+    return true;
 }
 
 bool Frame::writeImpl()

@@ -47,8 +47,12 @@ public:
     commsdsl::parse::Frame dslObj() const;
     const LayersList& layers() const;
 
+    Generator& generator();
+    const Generator& generator() const;
+
 protected:    
     virtual Type elemTypeImpl() const override final;
+    virtual bool prepareImpl();
     virtual bool writeImpl();
 
 private:

@@ -125,6 +125,11 @@ std::string scopeForInternal(
             result.append(strings::messageNamespaceStr() + sep);
         }     
 
+        if (elemType == Elem::Type_Frame) {
+            assert(parent->elemType() == Elem::Type_Namespace);
+            result.append(strings::frameNamespaceStr() + sep);
+        }            
+
         result.append(name);
 
         if ((elemType == Elem::Type_Message) && (fieldTypeScope)) {

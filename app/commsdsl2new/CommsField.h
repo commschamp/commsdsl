@@ -15,7 +15,6 @@
 
 #pragma once
 
-#include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/util.h"
 
@@ -27,7 +26,6 @@
 namespace commsdsl2new
 {
 
-class CommsGenerator;
 class CommsField
 {
 public:

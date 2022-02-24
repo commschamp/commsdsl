@@ -22,12 +22,14 @@
 #include "CommsEnumField.h"
 #include "CommsFieldBase.h"
 #include "CommsFloatField.h"
+#include "CommsFrame.h"
 #include "CommsIntField.h"
 #include "CommsListField.h"
 #include "CommsInterface.h"
 #include "CommsMessage.h"
 #include "CommsMsgId.h"
 #include "CommsOptionalField.h"
+#include "CommsPayloadLayer.h"
 #include "CommsRefField.h"
 #include "CommsSetField.h"
 #include "CommsStringField.h"
@@ -129,6 +131,11 @@ CommsGenerator::MessagePtr CommsGenerator::createMessageImpl(commsdsl::parse::Me
     return std::make_unique<commsdsl2new::CommsMessage>(*this, dslObj, parent);
 }
 
+CommsGenerator::FramePtr CommsGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsFrame>(*this, dslObj, parent);
+}
+
 CommsGenerator::FieldPtr CommsGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsIntField>(*this, dslObj, parent);
@@ -187,6 +194,11 @@ CommsGenerator::FieldPtr CommsGenerator::createOptionalFieldImpl(commsdsl::parse
 CommsGenerator::FieldPtr CommsGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsVariantField>(*this, dslObj, parent);
+}
+
+CommsGenerator::LayerPtr CommsGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsPayloadLayer>(*this, dslObj, parent);
 }
 
 bool CommsGenerator::writeImpl()
