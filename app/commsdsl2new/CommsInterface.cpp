@@ -128,7 +128,7 @@ bool CommsInterface::prepareImpl()
 bool CommsInterface::writeImpl()
 {
     return 
-        commsWriteCommonInternal();
+        commsWriteCommonInternal() &&
         commsWriteDefInternal();
 }
 
