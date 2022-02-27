@@ -390,6 +390,35 @@ std::string relHeaderForOptions(const std::string& name, const Generator& genera
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
+std::string relHeaderForLayer(const std::string& name, const Generator& generator)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::frameNamespaceStr(),
+        strings::layerNamespaceStr()
+    };
+
+    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+}
+
+std::string relHeaderForChecksum(const std::string& name, const Generator& generator)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::frameNamespaceStr(),
+        strings::checksumNamespaceStr()
+    };
+
+    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+}
+
+std::string relHeaderForInput(const std::string& name, const Generator& generator)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::inputNamespaceStr()
+    };
+
+    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+}
+
 std::string relHeaderForRoot(const std::string& name, const Generator& generator)
 {
     static const std::vector<std::string> SubElems;

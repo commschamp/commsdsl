@@ -105,9 +105,21 @@ const std::string& layerNamespaceStr()
     return Str;   
 }
 
+const std::string& checksumNamespaceStr()
+{
+    static const std::string Str("checksum");
+    return Str;   
+}
+
 const std::string& optionsNamespaceStr()
 {
     static const std::string Str("options");
+    return Str;   
+}
+
+const std::string& inputNamespaceStr()
+{
+    static const std::string Str("input");
     return Str;   
 }
 

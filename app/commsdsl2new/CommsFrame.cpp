@@ -51,11 +51,6 @@ bool CommsFrame::prepareImpl()
         assert(lPtr);
         auto* commsLayer = dynamic_cast<const CommsLayer*>(lPtr.get());
 
-        // TODO: remove condition
-        if (commsLayer == nullptr) {
-            continue;
-        }
-
         assert(commsLayer != nullptr);
         m_commsLayers.push_back(const_cast<CommsLayer*>(commsLayer));
     }

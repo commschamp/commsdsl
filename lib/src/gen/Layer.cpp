@@ -99,6 +99,12 @@ Generator& Layer::generator()
     return m_generator;
 }
 
+const Generator& Layer::generator() const
+{
+    return m_generator;
+}
+
+
 
 } // namespace gen
 

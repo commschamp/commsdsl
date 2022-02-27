@@ -4,7 +4,9 @@ set (
     src
     CommsBitfieldField.cpp
     CommsBundleField.cpp
+    CommsChecksumLayer.cpp
     CommsCmake.cpp
+    CommsCustomLayer.cpp
     CommsDataField.cpp
     CommsEnumField.cpp
     CommsField.cpp
@@ -12,6 +14,7 @@ set (
     CommsFloatField.cpp
     CommsFrame.cpp
     CommsGenerator.cpp
+    CommsIdLayer.cpp
     CommsIntField.cpp
     CommsInterface.cpp
     CommsLayer.cpp
@@ -23,7 +26,10 @@ set (
     CommsProgramOptions.cpp
     CommsRefField.cpp
     CommsSetField.cpp
+    CommsSizeLayer.cpp
+    CommsSyncLayer.cpp
     CommsStringField.cpp
+    CommsValueLayer.cpp
     CommsVariantField.cpp
     CommsVersion.cpp
     main.cpp

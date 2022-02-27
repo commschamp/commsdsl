@@ -13,29 +13,30 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "CommsCustomLayer.h"
 
-#include "commsdsl/gen/PayloadLayer.h"
+#include "commsdsl/gen/comms.h"
 
-#include "CommsLayer.h"
+#include "CommsGenerator.h"
+
+namespace comms = commsdsl::gen::comms;
 
 namespace commsdsl2new
 {
 
-class CommsGenerator;
-class CommsPayloadLayer final : public commsdsl::gen::PayloadLayer, public CommsLayer
+CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
+    Base(generator, dslObj, parent),
+    CommsBase(static_cast<Base&>(*this))
 {
-    using Base = commsdsl::gen::PayloadLayer;
-    using CommsBase = CommsLayer;
-public:
-    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+}
 
-protected:
-    // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+CommsCustomLayer::IncludesList CommsCustomLayer::commsDefIncludesImpl() const
+{
+    IncludesList result = {
+        comms::relHeaderForLayer(comms::className(dslObj().name()), generator())
+    };
 
-private:
-
-};
+    return result;
+}
 
 } // namespace commsdsl2new

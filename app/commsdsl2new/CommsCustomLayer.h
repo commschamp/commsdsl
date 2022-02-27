@@ -15,7 +15,7 @@
 
 #pragma once
 
-#include "commsdsl/gen/PayloadLayer.h"
+#include "commsdsl/gen/CustomLayer.h"
 
 #include "CommsLayer.h"
 
@@ -23,12 +23,12 @@ namespace commsdsl2new
 {
 
 class CommsGenerator;
-class CommsPayloadLayer final : public commsdsl::gen::PayloadLayer, public CommsLayer
+class CommsCustomLayer final : public commsdsl::gen::CustomLayer, public CommsLayer
 {
-    using Base = commsdsl::gen::PayloadLayer;
+    using Base = commsdsl::gen::CustomLayer;
     using CommsBase = CommsLayer;
 public:
-    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+    CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // CommsBase overrides

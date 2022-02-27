@@ -17,7 +17,9 @@
 
 #include "CommsBitfieldField.h"
 #include "CommsBundleField.h"
+#include "CommsChecksumLayer.h"
 #include "CommsCmake.h"
+#include "CommsCustomLayer.h"
 #include "CommsDataField.h"
 #include "CommsEnumField.h"
 #include "CommsFieldBase.h"
@@ -25,6 +27,7 @@
 #include "CommsFrame.h"
 #include "CommsIntField.h"
 #include "CommsListField.h"
+#include "CommsIdLayer.h"
 #include "CommsInterface.h"
 #include "CommsMessage.h"
 #include "CommsMsgId.h"
@@ -32,7 +35,10 @@
 #include "CommsPayloadLayer.h"
 #include "CommsRefField.h"
 #include "CommsSetField.h"
+#include "CommsSizeLayer.h"
+#include "CommsSyncLayer.h"
 #include "CommsStringField.h"
+#include "CommsValueLayer.h"
 #include "CommsVariantField.h"
 #include "CommsVersion.h"
 
@@ -196,9 +202,39 @@ CommsGenerator::FieldPtr CommsGenerator::createVariantFieldImpl(commsdsl::parse:
     return std::make_unique<commsdsl2new::CommsVariantField>(*this, dslObj, parent);
 }
 
+CommsGenerator::LayerPtr CommsGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsCustomLayer>(*this, dslObj, parent);
+}
+
+CommsGenerator::LayerPtr CommsGenerator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsSyncLayer>(*this, dslObj, parent);
+}
+
+CommsGenerator::LayerPtr CommsGenerator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsSizeLayer>(*this, dslObj, parent);
+}
+
+CommsGenerator::LayerPtr CommsGenerator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsIdLayer>(*this, dslObj, parent);
+}
+
+CommsGenerator::LayerPtr CommsGenerator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsValueLayer>(*this, dslObj, parent);
+}
+
 CommsGenerator::LayerPtr CommsGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2new::CommsPayloadLayer>(*this, dslObj, parent);
+}
+
+CommsGenerator::LayerPtr CommsGenerator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsChecksumLayer>(*this, dslObj, parent);
 }
 
 bool CommsGenerator::writeImpl()

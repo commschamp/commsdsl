@@ -51,6 +51,7 @@ protected:
     virtual bool writeImpl() const;
 
     Generator& generator();
+    const Generator& generator() const;
 
 private:
     Generator& m_generator;

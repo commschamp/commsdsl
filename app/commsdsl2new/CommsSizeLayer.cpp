@@ -13,29 +13,32 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#pragma once
+#include "CommsSizeLayer.h"
 
-#include "commsdsl/gen/PayloadLayer.h"
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
 
-#include "CommsLayer.h"
+#include "CommsGenerator.h"
+
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2new
 {
 
-class CommsGenerator;
-class CommsPayloadLayer final : public commsdsl::gen::PayloadLayer, public CommsLayer
+CommsSizeLayer::CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
+    Base(generator, dslObj, parent),
+    CommsBase(static_cast<Base&>(*this))
 {
-    using Base = commsdsl::gen::PayloadLayer;
-    using CommsBase = CommsLayer;
-public:
-    CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+}
 
-protected:
-    // CommsBase overrides
-    virtual IncludesList commsDefIncludesImpl() const override;
+CommsSizeLayer::IncludesList CommsSizeLayer::commsDefIncludesImpl() const
+{
+    IncludesList result = {
+        "comms/protocol/MsgSizeLayer.h"
+    };
 
-private:
-
-};
+    return result;
+}
 
 } // namespace commsdsl2new
