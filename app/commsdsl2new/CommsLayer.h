@@ -18,6 +18,8 @@
 #include "commsdsl/gen/Layer.h"
 #include "commsdsl/gen/util.h"
 
+#include "CommsField.h"
+
 #include <string>
 #include <vector>
 
@@ -34,16 +36,44 @@ public:
     explicit CommsLayer(commsdsl::gen::Layer& layer);
     virtual ~CommsLayer();
 
+    bool prepare();
+
+    bool commsReorder(CommsLayersList& siblings, bool& success) const;
     IncludesList commsDefIncludes() const;
+    std::string commsDefType(const CommsLayer* prevLayer, bool& hasInputMessages) const;
+    bool commsIsCustomizable() const;
 
     // bool commsPrepare();
     // bool commsWrite() const;
 
+    const commsdsl::gen::Layer& layer() const
+    {
+        return m_layer;
+    }
+
+    const CommsField* commsExternalField() const
+    {
+        return m_commsExternalField;
+    }
+
+    const CommsField* commsMemberField() const
+    {
+        return m_commsMemberField;
+    }    
+
 protected:
+    virtual bool commsReorderImpl(CommsLayersList& siblings, bool& success) const;
     virtual IncludesList commsDefIncludesImpl() const;
+    virtual std::string commsDefBaseTypeImpl(const std::string& prevName, bool hasInputMessages) const;
+    virtual bool commsDefHasInputMessagesImpl() const;
+    virtual bool commsIsCustomizableImpl() const;
 
 private:
+    std::string commsDefDocInternal() const;
+    
     commsdsl::gen::Layer& m_layer;
+    CommsField* m_commsExternalField = nullptr;
+    CommsField* m_commsMemberField = nullptr;
 };
 
 } // namespace commsdsl2new

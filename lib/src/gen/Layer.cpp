@@ -26,10 +26,102 @@ namespace commsdsl
 namespace gen
 {
 
+class LayerImpl
+{
+public:    
+    LayerImpl(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent) :
+        m_generator(generator),
+        m_dslObj(dslObj),
+        m_parent(parent)
+    {
+    }
+
+    bool prepare()
+    {
+        auto dslField = m_dslObj.field();
+        if (!dslField.valid()) {
+            if (m_dslObj.kind() != commsdsl::parse::Layer::Kind::Payload) {
+                m_generator.logger().error("Layer field definition is missing.");
+                static constexpr bool Should_not_happen = false;
+                static_cast<void>(Should_not_happen);
+                assert(Should_not_happen);
+                return false;
+            }
+
+            return true;
+        }
+
+        auto extRef = dslField.externalRef();
+        if (!extRef.empty()) {
+            m_externalField = m_generator.findField(extRef);
+            assert(m_externalField != nullptr);
+            return true;
+        }
+
+        m_memberField = Field::create(m_generator, dslField, m_parent);
+        if (!m_memberField->prepare()) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool write()
+    {
+        if (m_memberField != nullptr) {
+            return m_memberField->write();
+        }
+
+        return true;
+    }
+
+    commsdsl::parse::Layer dslObj() const
+    {
+        return m_dslObj;
+    }
+
+
+    Field* externalField()
+    {
+        return m_externalField;
+    }
+
+    const Field* externalField() const
+    {
+        return m_externalField;
+    }
+
+    Field* memberField()
+    {
+        return m_memberField.get();
+    }
+
+    const Field* memberField() const
+    {
+        return m_memberField.get();
+    }        
+
+    Generator& generator()
+    {
+        return m_generator;
+    }
+
+    const Generator& generator() const
+    {
+        return m_generator;
+    }    
+
+private:
+    Generator& m_generator;
+    commsdsl::parse::Layer m_dslObj;
+    Elem* m_parent = nullptr;
+    Field* m_externalField = nullptr;
+    FieldPtr m_memberField;    
+};
+
 Layer::Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent) :
     Base(parent),
-    m_generator(generator),
-    m_dslObj(dslObj)
+    m_impl(std::make_unique<LayerImpl>(generator, dslObj, this))
 {
 }
 
@@ -66,17 +158,50 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::parse::Layer dslobj, El
 
 bool Layer::prepare()
 {
+    if (!m_impl->prepare()) {
+        return false;
+    }
     return prepareImpl();
 }
 
 bool Layer::write() const
 {
-    return writeImpl();
+    return m_impl->write() && writeImpl();
 }
 
 commsdsl::parse::Layer Layer::dslObj() const
 {
-    return m_dslObj;
+    return m_impl->dslObj();
+}
+
+Field* Layer::externalField()
+{
+    return m_impl->externalField();
+}
+
+const Field* Layer::externalField() const
+{
+    return m_impl->externalField();
+}
+
+Field* Layer::memberField()
+{
+    return m_impl->memberField();
+}
+
+const Field* Layer::memberField() const
+{
+    return m_impl->memberField();
+}
+
+Generator& Layer::generator()
+{
+    return m_impl->generator();
+}
+
+const Generator& Layer::generator() const
+{
+    return m_impl->generator();
 }
 
 Elem::Type Layer::elemTypeImpl() const
@@ -92,16 +217,6 @@ bool Layer::prepareImpl()
 bool Layer::writeImpl() const
 {
     return true;
-}
-
-Generator& Layer::generator()
-{
-    return m_generator;
-}
-
-const Generator& Layer::generator() const
-{
-    return m_generator;
 }
 
 

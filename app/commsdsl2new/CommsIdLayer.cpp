@@ -17,11 +17,15 @@
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include "CommsGenerator.h"
 
+#include <cassert>
+
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2new
 {
@@ -32,14 +36,77 @@ CommsIdLayer::CommsIdLayer(CommsGenerator& generator, commsdsl::parse::Layer dsl
 {
 }
 
+bool CommsIdLayer::prepareImpl()
+{
+    return Base::prepareImpl() && CommsBase::prepare();
+}
+
 CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
         "comms/protocol/MsgIdLayer.h",
-        comms::relHeaderForOptions(strings::allMessagesStr(), generator())
+        comms::relHeaderForInput(strings::allMessagesStr(), generator())
     };
 
     return result;
+}
+
+std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName, bool hasInputMessages) const
+{
+    static_cast<void>(hasInputMessages);
+    assert(!hasInputMessages);
+
+    static const std::string Templ = 
+        "comms::protocol::MsgIdLayer<\n"
+        "    #^#FIELD_TYPE#$#,\n"
+        "    TMessage,\n"
+        "    TAllMessages,\n"
+        "    #^#PREV_LAYER#$##^#COMMA#$#\n"
+        "    #^#EXTRA_OPTS#$#\n"
+        ">";
+
+    util::ReplacementMap repl = {
+        {"PREV_LAYER", prevName},
+        {"FIELD_TYPE", commsDefFieldTypeInternal()},
+        {"EXTRA_OPTS", commsDefOptsInternal()},
+    };
+
+    if (!repl["EXTRA_OPT"].empty()) {
+        repl["COMMA"] = ",";
+    }
+    return util::processTemplate(Templ, repl);
+}
+
+bool CommsIdLayer::commsDefHasInputMessagesImpl() const
+{
+    return true;
+}
+
+bool CommsIdLayer::commsIsCustomizableImpl() const
+{
+    return true;
+}
+
+std::string CommsIdLayer::commsDefFieldTypeInternal() const
+{
+    if (commsExternalField() != nullptr) {
+        return comms::scopeFor(commsExternalField()->field(), generator()) + "<TOpt>";
+    }
+
+    assert(commsMemberField() != nullptr);
+    return
+        "typename " +
+        comms::className(name()) + strings::membersSuffixStr() +
+        "::" + comms::className(commsMemberField()->field().dslObj().name());    
+}
+
+std::string CommsIdLayer::commsDefOptsInternal() const
+{
+    if (!commsIsCustomizable()) {
+        return strings::emptyString();
+    }    
+
+    return "typename TOpt::" + comms::scopeFor(*this, generator(), false);
 }
 
 } // namespace commsdsl2new

@@ -140,7 +140,12 @@ std::string scopeForInternal(
         if ((elemType == Elem::Type_Interface) && (fieldTypeScope)) {
             result.append("Fields");
             break;
-        }           
+        }       
+
+        if ((elemType == Elem::Type_Frame) && (leaf->elemType() == Elem::Type_Layer)) {
+            result.append("Layers");
+            break;
+        }               
 
         if ((elemType == Elem::Type_Field) && (fieldTypeScope) && (&elem != leaf)) {
             result.append("Members");
@@ -218,9 +223,14 @@ std::string commonScopeForInternal(
             result.append("Fields");
         }        
 
+        if ((elemType == Elem::Type_Frame) && (leaf->elemType() == Elem::Type_Layer)) {
+            result.append("Layers");
+            break;
+        }         
+
         if ((elemType == Elem::Type_Field) && (fieldTypeScope) && (&elem != leaf)) {
             result.append("Members");
-        }        
+        }   
 
         if ((elemType == Elem::Type_Field) || (elemType == Elem::Type_Message) || (elemType == Elem::Type_Interface)) {
             result.append(strings::commonSuffixStr());

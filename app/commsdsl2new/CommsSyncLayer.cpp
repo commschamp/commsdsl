@@ -32,6 +32,11 @@ CommsSyncLayer::CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::Layer
 {
 }
 
+bool CommsSyncLayer::prepareImpl()
+{
+    return Base::prepareImpl() && CommsBase::prepare();
+}
+
 CommsSyncLayer::IncludesList CommsSyncLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {

@@ -31,6 +31,8 @@ class CommsFrame final: public commsdsl::gen::Frame
 {
     using Base = commsdsl::gen::Frame;
 public:
+    using CommsLayersList = CommsLayer::CommsLayersList;
+
     explicit CommsFrame(CommsGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
     virtual ~CommsFrame();
 
@@ -39,13 +41,21 @@ protected:
     virtual bool writeImpl() override;
 
 private:
-    using CommsLayersList = CommsLayer::CommsLayersList;
 
     // bool commsWriteCommonInternal();  
     bool commsWriteDefInternal();  
     std::string commsDefIncludesInternal() const;
+    std::string commsDefLayersDefInternal() const;
+    std::string commsDefFrameBaseInternal() const;
+    std::string commsDefInputMessagesDocInternal() const;
+    std::string commsDefInputMessagesParamInternal() const;
+    std::string commsDefAccessDocInternal() const;
+    std::string commsDefAccessListInternal() const;
+    std::string commsDefProtectedInternal() const;
+    std::string commsDefPrivateInternal() const;
     
     CommsLayersList m_commsLayers;  
+    bool m_hasIdLayer = false;
 };
 
 } // namespace commsdsl2new

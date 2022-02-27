@@ -261,6 +261,13 @@ const std::string& fieldsSuffixStr()
     return Str;    
 }
 
+const std::string& layersSuffixStr()
+{
+    static const std::string Str("Layers");
+    return Str;    
+}
+
+
 } // namespace strings
 
 } // namespace gen

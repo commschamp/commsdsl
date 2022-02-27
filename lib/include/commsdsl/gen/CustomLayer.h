@@ -37,8 +37,8 @@ public:
     CustomLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);
     virtual ~CustomLayer();
 
-protected:    
     commsdsl::parse::CustomLayer customDslObj() const;
+
 };
 
 } // namespace gen

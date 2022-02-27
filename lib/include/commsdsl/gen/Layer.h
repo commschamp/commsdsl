@@ -19,6 +19,7 @@
 #include "commsdsl/CommsdslApi.h"
 #include "commsdsl/parse/Layer.h"
 #include "commsdsl/gen/Elem.h"
+#include "commsdsl/gen/Field.h"
 
 #include <memory>
 
@@ -28,6 +29,7 @@ namespace commsdsl
 namespace gen
 {
 
+class LayerImpl;
 class COMMSDSL_API Layer : public Elem
 {
     using Base = Elem;
@@ -43,6 +45,14 @@ public:
 
     commsdsl::parse::Layer dslObj() const;
 
+    Field* externalField();
+    const Field* externalField() const;
+    Field* memberField();
+    const Field* memberField() const;
+
+    Generator& generator();
+    const Generator& generator() const;    
+
 protected:    
     Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent = nullptr);
 
@@ -50,12 +60,9 @@ protected:
     virtual bool prepareImpl();
     virtual bool writeImpl() const;
 
-    Generator& generator();
-    const Generator& generator() const;
 
 private:
-    Generator& m_generator;
-    commsdsl::parse::Layer m_dslObj;
+    std::unique_ptr<LayerImpl> m_impl;
 };
 
 using LayerPtr = Layer::Ptr;

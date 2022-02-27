@@ -31,6 +31,8 @@ public:
     CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
+    virtual bool prepareImpl() override;
+    
     // CommsBase overrides
     virtual IncludesList commsDefIncludesImpl() const override;
 

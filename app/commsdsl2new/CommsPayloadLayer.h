@@ -31,11 +31,14 @@ public:
     CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
+    virtual bool prepareImpl() override;
+
     // CommsBase overrides
     virtual IncludesList commsDefIncludesImpl() const override;
-
+    virtual std::string commsDefBaseTypeImpl(const std::string& prevName, bool hasInputMessages) const override;
+    virtual bool commsIsCustomizableImpl() const override;
 private:
-
+    std::string commsDefOptsInternal() const;
 };
 
 } // namespace commsdsl2new

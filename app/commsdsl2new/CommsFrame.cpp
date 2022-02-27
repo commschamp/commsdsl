@@ -15,16 +15,18 @@
 
 #include "CommsFrame.h"
 
+#include "CommsCustomLayer.h"
 #include "CommsGenerator.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-// #include <algorithm>
+
+#include <algorithm>
 #include <cassert>
 #include <fstream>
-// #include <iterator>
+#include <iterator>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -32,6 +34,30 @@ namespace util = commsdsl::gen::util;
 
 namespace commsdsl2new
 {
+
+namespace 
+{
+
+bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
+{
+    return
+        std::any_of(
+            commsLayers.begin(), commsLayers.end(),
+            [](auto* l)
+            {
+                if (l->layer().dslObj().kind() == commsdsl::parse::Layer::Kind::Id) {
+                    return true;
+                }
+
+                if (l->layer().dslObj().kind() != commsdsl::parse::Layer::Kind::Custom) {
+                    return false;
+                }
+
+                return static_cast<const CommsCustomLayer&>(l->layer()).customDslObj().isIdReplacement();
+    });
+}
+
+} // namespace 
    
 
 CommsFrame::CommsFrame(CommsGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent) :
@@ -56,7 +82,29 @@ bool CommsFrame::prepareImpl()
     }
 
     assert(!m_commsLayers.empty());
-    // TODO: re-arrange layers
+    while (true) {
+        bool rearanged = false;
+        for (auto& l : m_commsLayers) {
+            bool success = false;
+            rearanged = l->commsReorder(m_commsLayers, success);
+
+            if (!success) {
+                return false;
+            }
+
+            if (rearanged) {
+                // Order has changed restart from the beginning
+                break;
+            }
+        }
+
+        if (!rearanged) {
+            // reordering is complete
+            break;
+        }
+    }
+
+    m_hasIdLayer = hasIdLayerInternal(m_commsLayers);
     return true;
 }
 
@@ -85,6 +133,14 @@ bool CommsFrame::commsWriteDefInternal()
         gen.logger().error("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }    
+
+    auto inputCodePrefix = comms::inputCodePathFor(*this, gen);
+    auto replaceCode = util::readFileContents(inputCodePrefix + strings::replaceFileSuffixStr());
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();
+    }
 
     static const std::string Templ =
         "#^#GENERATED#$#\n"
@@ -115,7 +171,7 @@ bool CommsFrame::commsWriteDefInternal()
         "   #^#INPUT_MESSAGES#$#\n"
         "   typename TOpt = #^#OPTIONS#$#\n"
         ">\n"
-        "class #^#CLASS_NAME#$# : public\n"
+        "class #^#CLASS_NAME#$##^#ORIG#$# : public\n"
         "    #^#FRAME_DEF#$#\n"
         "{\n"
         "    using Base =\n"
@@ -130,10 +186,15 @@ bool CommsFrame::commsWriteDefInternal()
         "    COMMS_PROTOCOL_LAYERS_ACCESS(\n"
         "        #^#LAYERS_ACCESS_LIST#$#\n"
         "    );\n"
+        "    #^#PUBLIC#$#\n"
+        "#^#PROTECTED#$#\n"
+        "#^#PRIVATE#$#\n"
         "};\n\n"
+        "#^#EXTEND#$#\n"
         "#^#NS_END#$#\n"
         "#^#APPEND#$#\n";
 
+    auto extendCode = util::readFileContents(inputCodePrefix + strings::extendFileSuffixStr());
     util::ReplacementMap repl =  {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
         {"INCLUDES", commsDefIncludesInternal()},
@@ -142,11 +203,22 @@ bool CommsFrame::commsWriteDefInternal()
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsStr(), gen)},
         {"HEADERFILE", comms::relHeaderPathFor(*this, gen)},
-        // {"CODE", commsCommonLayersCodeInternal()},
+        {"LAYERS_DEF", commsDefLayersDefInternal()},
+        {"FRAME_DEF", commsDefFrameBaseInternal()},
+        {"INPUT_MESSAGES_DOC", commsDefInputMessagesDocInternal()},
+        {"INPUT_MESSAGES", commsDefInputMessagesParamInternal()},
+        {"ACCESS_FUNCS_DOC", commsDefAccessDocInternal()},
+        {"LAYERS_ACCESS_LIST", commsDefAccessListInternal()},
+        {"PUBLIC", util::readFileContents(inputCodePrefix + strings::publicFileSuffixStr())},
+        {"PROTECTED", commsDefProtectedInternal()},
+        {"PRIVATE", commsDefPrivateInternal()},
+        {"EXTEND", extendCode},
         {"APPEND", util::readFileContents(comms::inputCodePathFor(*this, gen) + strings::appendFileSuffixStr())}
-
-        // TODO:
     };
+
+    if (!extendCode.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
 
     stream << util::processTemplate(Templ, repl);
     stream.flush();
@@ -155,7 +227,9 @@ bool CommsFrame::commsWriteDefInternal()
 
 std::string CommsFrame::commsDefIncludesInternal() const
 {
-    util::StringsList includes;
+    util::StringsList includes = {
+        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator())
+    };
 
     for (auto* commsLayer : m_commsLayers) {
         assert(commsLayer != nullptr);
@@ -167,6 +241,138 @@ std::string CommsFrame::commsDefIncludesInternal() const
 
     comms::prepareIncludeStatement(includes); 
     return util::strListToString(includes, "\n", "\n");
+}
+
+std::string CommsFrame::commsDefLayersDefInternal() const
+{
+    util::StringsList defs;
+    defs.reserve(m_commsLayers.size() + 1);
+
+    CommsLayer* prevLayer = nullptr;
+    bool hasInputMessages = false;
+    for (auto iter = m_commsLayers.rbegin(); iter != m_commsLayers.rend(); ++iter) {
+        auto* layer = *iter;
+        defs.push_back(layer->commsDefType(prevLayer, hasInputMessages));
+        prevLayer = layer;
+    }
+
+    static const std::string StackDefTempl =
+        "/// @brief Final protocol stack definition.\n"
+        "#^#STACK_PARAMS#$#\n"
+        "using Stack = #^#LAST_LAYER#$##^#LAST_LAYER_PARAMS#$#;\n";
+
+    assert(prevLayer != nullptr);
+    util::ReplacementMap repl = {
+        {"LAST_LAYER", comms::className(prevLayer->layer().dslObj().name())}
+    };
+
+    if (hasInputMessages) {
+        std::string stackParams = 
+            "template<typename TMessage, typename TAllMessages>";
+        std::string lastLayerParams = "<TMessage, TAllMessages>";
+        repl.insert({
+            {"STACK_PARAMS", "template<typename TMessage, typename TAllMessages>"},
+            {"LAST_LAYER_PARAMS", "<TMessage, TAllMessages>"},
+        });
+    }
+    defs.push_back(util::processTemplate(StackDefTempl, repl));
+
+    return util::strListToString(defs, "\n", "");
+}
+
+std::string CommsFrame::commsDefFrameBaseInternal() const
+{
+    auto str = comms::className(dslObj().name()) + strings::layersSuffixStr() + "<TOpt>::";
+    if (m_hasIdLayer) {
+        str += "template Stack<TMessage, TAllMessages>";
+    }
+    else {
+        str += "Stack";
+    }
+    return str;
+}
+
+std::string CommsFrame::commsDefInputMessagesDocInternal() const
+{
+    if (!m_hasIdLayer) {
+        return strings::emptyString();
+    }
+
+    return "/// @tparam TAllMessages All supported input messages.";
+}
+
+std::string CommsFrame::commsDefInputMessagesParamInternal() const
+{
+    if (!m_hasIdLayer) {
+        return strings::emptyString();
+    }
+
+    return
+        "typename TAllMessages = " + comms::scopeForInput(strings::allMessagesStr(), generator()) + "<TMessage>,";
+}
+
+std::string CommsFrame::commsDefAccessDocInternal() const
+{
+    util::StringsList lines;
+    auto className = comms::className(dslObj().name());
+    lines.reserve(m_commsLayers.size());
+    std::transform(
+        m_commsLayers.rbegin(), m_commsLayers.rend(), std::back_inserter(lines),
+        [&className](auto& l)
+        {
+            return
+                "///     @li layer_" + comms::accessName(l->layer().dslObj().name()) +
+                "() for @ref " + className + 
+                strings::layersSuffixStr() + "::" + comms::className(l->layer().dslObj().name()) + " layer.";
+        });
+    return util::strListToString(lines, "\n", "");
+}
+
+std::string CommsFrame::commsDefAccessListInternal() const
+{
+    util::StringsList names;
+    names.reserve(m_commsLayers.size());
+    std::transform(
+        m_commsLayers.rbegin(), m_commsLayers.rend(), std::back_inserter(names),
+        [](auto& l)
+        {
+            return comms::accessName(l->layer().dslObj().name());
+        });
+    return util::strListToString(names, ",\n", "");
+}
+
+std::string CommsFrame::commsDefProtectedInternal() const
+{
+    auto code = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::protectedFileSuffixStr());
+    if (code.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+    "protected:\n"
+    "    #^#CODE#$#\n";
+
+    util::ReplacementMap repl = {
+        {"CODE", std::move(code)},
+    };
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsFrame::commsDefPrivateInternal() const
+{
+    auto code = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
+    if (code.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+    "private:\n"
+    "    #^#CODE#$#\n";
+
+    util::ReplacementMap repl = {
+        {"CODE", std::move(code)},
+    };
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2new

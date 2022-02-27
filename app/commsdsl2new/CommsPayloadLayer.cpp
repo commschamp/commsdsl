@@ -15,7 +15,17 @@
 
 #include "CommsPayloadLayer.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
 #include "CommsGenerator.h"
+
+#include <cassert>
+
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2new
 {
@@ -26,6 +36,11 @@ CommsPayloadLayer::CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse:
 {
 }
 
+bool CommsPayloadLayer::prepareImpl()
+{
+    return Base::prepareImpl() && CommsBase::prepare();
+}
+
 CommsPayloadLayer::IncludesList CommsPayloadLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
@@ -33,6 +48,38 @@ CommsPayloadLayer::IncludesList CommsPayloadLayer::commsDefIncludesImpl() const
     };
 
     return result;
+}
+
+std::string CommsPayloadLayer::commsDefBaseTypeImpl(const std::string& prevName, bool hasInputMessages) const
+{
+    static_cast<void>(prevName);
+    static_cast<void>(hasInputMessages);
+    assert(prevName.empty());
+    assert(!hasInputMessages);
+
+    static const std::string Templ =
+        "comms::protocol::MsgDataLayer<\n"
+        "    #^#EXTRA_OPT#$#\n"
+        ">";
+    
+    util::ReplacementMap repl {
+        {"EXTRA_OPT", commsDefOptsInternal()}
+    };
+    return util::processTemplate(Templ, repl);    
+}
+
+bool CommsPayloadLayer::commsIsCustomizableImpl() const
+{
+    return true;
+}
+
+std::string CommsPayloadLayer::commsDefOptsInternal() const
+{
+    if (!commsIsCustomizable()) {
+        return strings::emptyString();
+    }    
+
+    return "typename TOpt::" + comms::scopeFor(*this, generator(), false);
 }
 
 } // namespace commsdsl2new

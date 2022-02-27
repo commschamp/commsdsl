@@ -26,6 +26,11 @@ CommsValueLayer::CommsValueLayer(CommsGenerator& generator, commsdsl::parse::Lay
 {
 }
 
+bool CommsValueLayer::prepareImpl()
+{
+    return Base::prepareImpl() && CommsBase::prepare();
+}
+
 CommsValueLayer::IncludesList CommsValueLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {

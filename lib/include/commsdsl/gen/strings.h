@@ -53,6 +53,7 @@ const std::string& versionOptionalFieldSuffixStr();
 const std::string& origSuffixStr();
 const std::string& msgIdPrefixStr();
 const std::string& fieldsSuffixStr();
+const std::string& layersSuffixStr();
 
 } // namespace strings
 
