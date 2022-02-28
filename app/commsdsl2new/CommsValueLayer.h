@@ -34,9 +34,8 @@ protected:
     virtual bool prepareImpl() override;
     // CommsBase overrides
     virtual IncludesList commsDefIncludesImpl() const override;
-
-private:
-
+    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
+    virtual StringsList commsDefExtraOptsImpl() const override;
 };
 
 } // namespace commsdsl2new

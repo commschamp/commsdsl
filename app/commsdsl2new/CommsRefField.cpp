@@ -74,12 +74,7 @@ std::string CommsRefField::commsCommonCodeBaseClassImpl() const
 
 std::string CommsRefField::commsCommonCodeBodyImpl() const
 {
-    auto dslObj = refDslObj();
-    auto thisDisplayName = util::displayName(dslObj.displayName(), dslObj.name());
-    auto refDslObj = m_commsReferencedField->field().dslObj();
-    auto refDisplayName = util::displayName(refDslObj.displayName(), refDslObj.name());
-
-    if (thisDisplayName == refDisplayName) {
+    if (!commsDefHasNameFuncImpl()) {
         return strings::emptyString();
     }
 
@@ -126,7 +121,7 @@ std::string CommsRefField::commsDefBaseClassImpl() const
         templOpt = "TOpt";
     }
     util::ReplacementMap repl = {
-        {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator()) + '<' + templOpt + '>'},
+        {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
@@ -151,6 +146,16 @@ std::string CommsRefField::commsCompareToFieldCodeImpl(const std::string& op, co
     }        
     assert(m_commsReferencedField != nullptr);
     return m_commsReferencedField->commsCompareToFieldCode(op, field, usedName, forcedVersionOptional || commsIsVersionOptional());
+}
+
+bool CommsRefField::commsDefHasNameFuncImpl() const
+{
+    auto dslObj = refDslObj();
+    auto thisDisplayName = util::displayName(dslObj.displayName(), dslObj.name());
+    auto refDslObj = m_commsReferencedField->field().dslObj();
+    auto refDisplayName = util::displayName(refDslObj.displayName(), refDslObj.name());
+
+    return thisDisplayName != refDisplayName;
 }
 
 std::string CommsRefField::commsDefFieldOptsInternal() const

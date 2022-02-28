@@ -42,8 +42,10 @@ protected:
 
 private:
 
-    // bool commsWriteCommonInternal();  
+    bool commsWriteCommonInternal();  
     bool commsWriteDefInternal();  
+    std::string commsCommonIncludesInternal() const;
+    std::string commsCommonBodyInternal() const;
     std::string commsDefIncludesInternal() const;
     std::string commsDefLayersDefInternal() const;
     std::string commsDefFrameBaseInternal() const;
@@ -56,6 +58,7 @@ private:
     
     CommsLayersList m_commsLayers;  
     bool m_hasIdLayer = false;
+    bool m_hasCommonCode = false;
 };
 
 } // namespace commsdsl2new

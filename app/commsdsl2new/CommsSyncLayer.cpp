@@ -34,7 +34,7 @@ CommsSyncLayer::CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::Layer
 
 bool CommsSyncLayer::prepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::prepare();
+    return Base::prepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsSyncLayer::IncludesList CommsSyncLayer::commsDefIncludesImpl() const

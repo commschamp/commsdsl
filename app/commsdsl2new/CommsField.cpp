@@ -20,6 +20,7 @@
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 
@@ -385,6 +386,11 @@ bool CommsField::commsIsVersionDependentImpl() const
     return false;
 }
 
+bool CommsField::commsDefHasNameFuncImpl() const
+{
+    return true;
+}
+
 std::string CommsField::commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const
 {
     auto usedName = nameOverride;
@@ -655,6 +661,25 @@ std::string CommsField::commsFieldDefCodeInternal() const
     ;
 
     //auto& generator = m_field.generator();
+
+    auto pub = commsDefPublicCodeInternal();
+    auto prot = commsDefProtectedCodeInternal();
+    auto priv = commsDefPrivateCodeInternal();
+
+    auto* templ = &Templ;
+    if (pub.empty() && prot.empty() && priv.empty()) {
+        static const std::string AliasTempl = 
+            "#^#BRIEF#$#\n"
+            "#^#DETAILS#$#\n"
+            "#^#EXTRA_DOC#$#\n"
+            "#^#DEPRECATED#$#\n"
+            "#^#PARAMS#$#\n"
+            "using #^#NAME#$##^#SUFFIX#$# =\n"
+            "    #^#BASE#$#\n";
+
+        templ = &AliasTempl;
+    }
+
     util::ReplacementMap repl = {
         {"BRIEF", commsFieldBriefInternal()},
         {"DETAILS", commsDocDetailsInternal()},
@@ -663,16 +688,16 @@ std::string CommsField::commsFieldDefCodeInternal() const
         {"PARAMS", commsTemplateParamsInternal()},
         {"NAME", comms::className(m_field.name())},
         {"BASE", commsDefBaseClassImpl()},
-        {"PUBLIC", commsDefPublicCodeInternal()},
-        {"PROTECTED", commsDefProtectedCodeInternal()},
-        {"PRIVATE", commsDefPrivateCodeInternal()},
+        {"PUBLIC", std::move(pub)},
+        {"PROTECTED", std::move(prot)},
+        {"PRIVATE", std::move(priv)},
     };
 
     if (commsIsVersionOptional()) {
         repl.insert({{"SUFFIX", strings::versionOptionalFieldSuffixStr()}});
     }
 
-    return util::processTemplate(Templ, repl);
+    return util::processTemplate(*templ, repl);
 }
 
 std::string CommsField::commsOptionalDefCodeInternal() const
@@ -854,6 +879,18 @@ std::string CommsField::commsDefPublicCodeInternal() const
         {"EXTRA_PUBLIC", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::publicFileSuffixStr())},
     };
 
+    bool hasValue = 
+        std::any_of(
+            repl.begin(), repl.end(),
+            [](auto& elem)
+            {
+                return !elem.second.empty();
+            });
+
+    if (!hasValue) {
+        return strings::emptyString();
+    }
+
     return util::processTemplate(Templ, repl);
 }
 
@@ -913,6 +950,10 @@ std::string CommsField::commsDefPrivateCodeInternal() const
 
 std::string CommsField::commsDefNameFuncCodeInternal() const
 {
+    if (!commsDefHasNameFuncImpl()) {
+        return strings::emptyString();
+    }
+
     static const std::string Templ = 
         "/// @brief Name of the field.\n"
         "static const char* name()\n"

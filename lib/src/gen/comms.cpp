@@ -60,6 +60,71 @@ std::string scopeForElement(
     return result;
 }
 
+void addElemNamespaceScopeInternal(
+    Elem::Type elemType,
+    const Elem* parent,
+    const std::string& sep,
+    std::string& str)
+{
+    if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
+        // Global fields reside in appropriate namespace
+        str.append(strings::fieldNamespaceStr() + sep);
+    }
+
+    if (elemType == Elem::Type_Message) {
+        assert(parent->elemType() == Elem::Type_Namespace);
+        str.append(strings::messageNamespaceStr() + sep);
+    }     
+
+    if (elemType == Elem::Type_Frame) {
+        assert(parent->elemType() == Elem::Type_Namespace);
+        str.append(strings::frameNamespaceStr() + sep);
+    }  
+}
+
+void addFieldScopeSuffixInternal(
+    Elem::Type elemType, 
+    bool isLeaf, 
+    std::string& str)
+{
+    if ((elemType == Elem::Type_Message) ||
+        (elemType == Elem::Type_Interface)) {
+        str.append(strings::fieldsSuffixStr());
+        return;
+    }      
+
+    if (elemType == Elem::Type_Layer) {
+        str.append(strings::membersSuffixStr());
+        return;
+    }  
+
+    if (elemType == Elem::Type_Frame) {
+        str.append(strings::layersSuffixStr());
+        return;
+    }   
+
+    if ((elemType == Elem::Type_Field) && (!isLeaf)) {
+        str.append(strings::membersSuffixStr());
+        return;
+    }  
+}
+
+void addNamespaceScopeInernal(
+    const std::string& elemName,
+    const std::string& sep,
+    std::string& str)
+{
+    if (elemName.empty()) {
+        return;
+    }
+
+    if (!str.empty()) {
+        str.append(sep);
+    }               
+
+    str.append(namespaceName(elemName));
+}
+
 std::string scopeForInternal(
     const Elem& elem, 
     const Generator& generator, 
@@ -94,15 +159,7 @@ std::string scopeForInternal(
         assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         if (elemType == Elem::Type_Namespace) {
-            if (elemName.empty()) {
-                break;
-            }
-
-            if (!result.empty()) {
-                result.append(sep);
-            }               
-
-            result.append(namespaceName(elemName));
+            addNamespaceScopeInernal(elemName, sep, result);
             break;
         }
 
@@ -113,44 +170,15 @@ std::string scopeForInternal(
         auto name = className(elemName);
         if ((name.empty()) && (elemType == Elem::Type_Interface)) {
             name = strings::messageClassStr();
-        }        
+        }    
 
-        if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
-            // Global fields reside in appropriate namespace
-            result.append(strings::fieldNamespaceStr() + sep);
-        }
-
-        if (elemType == Elem::Type_Message) {
-            assert(parent->elemType() == Elem::Type_Namespace);
-            result.append(strings::messageNamespaceStr() + sep);
-        }     
-
-        if (elemType == Elem::Type_Frame) {
-            assert(parent->elemType() == Elem::Type_Namespace);
-            result.append(strings::frameNamespaceStr() + sep);
-        }            
+        addElemNamespaceScopeInternal(elemType, parent, sep, result);    
 
         result.append(name);
 
-        if ((elemType == Elem::Type_Message) && (fieldTypeScope)) {
-            result.append("Fields");
-            break;
-        }   
-
-        if ((elemType == Elem::Type_Interface) && (fieldTypeScope)) {
-            result.append("Fields");
-            break;
-        }       
-
-        if ((elemType == Elem::Type_Frame) && (leaf->elemType() == Elem::Type_Layer)) {
-            result.append("Layers");
-            break;
-        }               
-
-        if ((elemType == Elem::Type_Field) && (fieldTypeScope) && (&elem != leaf)) {
-            result.append("Members");
-            break;
-        }              
+        if (fieldTypeScope) {
+            addFieldScopeSuffixInternal(elemType, &elem == leaf, result);
+        }        
 
     } while (false);
 
@@ -186,8 +214,10 @@ std::string commonScopeForInternal(
             break;
         }
 
+        auto elemType = elem.elemType();
         auto& elemName = elem.name();
-        if (elemName.empty()) {
+        if (elemType == Elem::Type_Namespace) {
+            addNamespaceScopeInernal(elemName, sep, result);
             break;
         }
 
@@ -195,44 +225,21 @@ std::string commonScopeForInternal(
             result.append(sep);
         }
 
-        auto elemType = elem.elemType();
         assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
-        if (elemType == Elem::Type_Namespace) {
-            result.append(namespaceName(elemName));
-            break;
-        }
-
-        if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
-            // Global fields reside in appropriate namespace
-            result.append(strings::fieldNamespaceStr() + sep);
-        }
-
-        if (elemType == Elem::Type_Message) {
-            assert(parent->elemType() == Elem::Type_Namespace);
-            result.append(strings::messageNamespaceStr() + sep);
-        }            
+        addElemNamespaceScopeInternal(elemType, parent, sep, result);    
 
         result.append(className(elem.name()));
 
-        if ((elemType == Elem::Type_Message) && (fieldTypeScope)) {
-            result.append("Fields");
+        if (fieldTypeScope) {
+            addFieldScopeSuffixInternal(elemType, &elem == leaf, result);
         }
 
-        if ((elemType == Elem::Type_Interface) && (fieldTypeScope)) {
-            result.append("Fields");
-        }        
-
-        if ((elemType == Elem::Type_Frame) && (leaf->elemType() == Elem::Type_Layer)) {
-            result.append("Layers");
-            break;
-        }         
-
-        if ((elemType == Elem::Type_Field) && (fieldTypeScope) && (&elem != leaf)) {
-            result.append("Members");
-        }   
-
-        if ((elemType == Elem::Type_Field) || (elemType == Elem::Type_Message) || (elemType == Elem::Type_Interface)) {
+        if ((elemType == Elem::Type_Field) || 
+            (elemType == Elem::Type_Message) || 
+            (elemType == Elem::Type_Interface) ||
+            (elemType == Elem::Type_Layer) ||
+            (elemType == Elem::Type_Frame)) {
             result.append(strings::commonSuffixStr());
         }
 

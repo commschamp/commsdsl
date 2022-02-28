@@ -36,15 +36,16 @@ public:
     explicit CommsLayer(commsdsl::gen::Layer& layer);
     virtual ~CommsLayer();
 
-    bool prepare();
+    bool commsPrepare();
 
     bool commsReorder(CommsLayersList& siblings, bool& success) const;
+    IncludesList commsCommonIncludes() const;
+    std::string commsCommonCode() const;
     IncludesList commsDefIncludes() const;
     std::string commsDefType(const CommsLayer* prevLayer, bool& hasInputMessages) const;
     bool commsIsCustomizable() const;
-
-    // bool commsPrepare();
-    // bool commsWrite() const;
+    void commsSetForcedPseudoField();
+    void commsSetForcedFailOnInvalidField();
 
     const commsdsl::gen::Layer& layer() const
     {
@@ -59,21 +60,36 @@ public:
     const CommsField* commsMemberField() const
     {
         return m_commsMemberField;
-    }    
+    }   
+
+    CommsField* commsMemberField()
+    {
+        return m_commsMemberField;
+    }     
+
 
 protected:
     virtual bool commsReorderImpl(CommsLayersList& siblings, bool& success) const;
+    // virtual IncludesList commsCommonIncludesImpl() const;
     virtual IncludesList commsDefIncludesImpl() const;
-    virtual std::string commsDefBaseTypeImpl(const std::string& prevName, bool hasInputMessages) const;
+    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
     virtual bool commsDefHasInputMessagesImpl() const;
+    virtual StringsList commsDefExtraOptsImpl() const;
     virtual bool commsIsCustomizableImpl() const;
 
+    std::string commsDefFieldType() const;
+    std::string commsDefExtraOpts() const;
+
 private:
+    std::string commsDefMembersCodeInternal() const;
     std::string commsDefDocInternal() const;
     
     commsdsl::gen::Layer& m_layer;
     CommsField* m_commsExternalField = nullptr;
     CommsField* m_commsMemberField = nullptr;
+
+    bool m_forcedPseudoField = false;
+    bool m_forcedFailedOnInvalidField = false;
 };
 
 } // namespace commsdsl2new

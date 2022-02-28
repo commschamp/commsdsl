@@ -104,6 +104,14 @@ bool CommsFrame::prepareImpl()
         }
     }
 
+    m_hasCommonCode = 
+        std::any_of(
+            m_commsLayers.begin(), m_commsLayers.end(),
+            [](const auto* l)
+            {
+                return l->commsMemberField() != nullptr;
+            });
+
     m_hasIdLayer = hasIdLayerInternal(m_commsLayers);
     return true;
 }
@@ -111,8 +119,67 @@ bool CommsFrame::prepareImpl()
 bool CommsFrame::writeImpl()
 {
     return 
-    //     commsWriteCommonInternal() &&
+        commsWriteCommonInternal() &&
         commsWriteDefInternal();
+}
+
+bool CommsFrame::commsWriteCommonInternal()
+{
+    if (!m_hasCommonCode) {
+        return true;
+    }
+
+    auto& gen = generator();
+    auto filePath = comms::commonHeaderPathFor(*this, gen);
+
+    gen.logger().info("Generating " + filePath);
+
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!gen.createDirectory(dirPath)) {
+        return false;
+    }    
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        gen.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }     
+
+    static const std::string Templ =
+        "#^#GENERATED#$#\n"
+        "/// @file\n"
+        "/// @brief Contains common template parameters independent functionality of\n"
+        "///    fields used in definition of @ref #^#SCOPE#$# frame.\n"
+        "\n"
+        "#pragma once\n"
+        "\n"
+        "#^#INCLUDES#$#\n"
+        "#^#NS_BEGIN#$#\n"
+        "/// @brief Common types and functions of fields using in definition of\n"
+        "///     @ref #^#SCOPE#$# frame.\n"
+        "/// @see #^#SCOPE#$##^#LAYERS_SUFFIX#$#\n"
+        "struct #^#CLASS_NAME#$##^#LAYERS_SUFFIX#$##^#COMMON_SUFFIX#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n\n"
+        "#^#NS_END#$#\n";
+
+    util::ReplacementMap repl =  {
+        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"INCLUDES", commsCommonIncludesInternal()},
+        {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
+        {"NS_END", comms::namespaceEndFor(*this, gen)},
+        {"SCOPE", comms::scopeFor(*this, gen)},
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"LAYERS_SUFFIX", strings::layersSuffixStr()},
+        {"COMMON_SUFFIX", strings::commonSuffixStr()},
+        {"BODY", commsCommonBodyInternal()},
+    };      
+
+    stream << util::processTemplate(Templ, repl);
+    stream.flush();
+    return stream.good();      
 }
 
 bool CommsFrame::commsWriteDefInternal()
@@ -121,12 +188,6 @@ bool CommsFrame::commsWriteDefInternal()
     auto filePath = comms::headerPathFor(*this, gen);
 
     gen.logger().info("Generating " + filePath);
-
-    auto dirPath = util::pathUp(filePath);
-    assert(!dirPath.empty());
-    if (!gen.createDirectory(dirPath)) {
-        return false;
-    }
 
     std::ofstream stream(filePath);
     if (!stream) {
@@ -225,11 +286,45 @@ bool CommsFrame::commsWriteDefInternal()
     return stream.good();
 }
 
+std::string CommsFrame::commsCommonIncludesInternal() const
+{
+    util::StringsList includes;
+
+    for (auto* commsLayer : m_commsLayers) {
+        assert(commsLayer != nullptr);
+
+        auto fIncludes = commsLayer->commsCommonIncludes();
+        includes.reserve(includes.size() + fIncludes.size());
+        std::move(fIncludes.begin(), fIncludes.end(), std::back_inserter(includes));
+    }
+
+    comms::prepareIncludeStatement(includes); 
+    return util::strListToString(includes, "\n", "\n");
+}
+
+std::string CommsFrame::commsCommonBodyInternal() const
+{
+    util::StringsList fragments;
+    for (auto* l : m_commsLayers) {
+        auto code = l->commsCommonCode();
+        if (!code.empty()) {
+            fragments.push_back(std::move(code));
+        }
+    }
+
+    return util::strListToString(fragments, "\n", "");
+}
+
 std::string CommsFrame::commsDefIncludesInternal() const
 {
+    auto& gen = generator();
     util::StringsList includes = {
-        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator())
+        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), gen)
     };
+
+    if (m_hasCommonCode) {
+        includes.push_back(comms::relCommonHeaderPathFor(*this, gen));
+    }
 
     for (auto* commsLayer : m_commsLayers) {
         assert(commsLayer != nullptr);

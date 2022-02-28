@@ -15,13 +15,17 @@
 
 #include "CommsSizeLayer.h"
 
+#include "CommsGenerator.h"
+
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
-#include "CommsGenerator.h"
+#include <cassert>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2new
 {
@@ -34,7 +38,7 @@ CommsSizeLayer::CommsSizeLayer(CommsGenerator& generator, commsdsl::parse::Layer
 
 bool CommsSizeLayer::prepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::prepare();
+    return Base::prepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsSizeLayer::IncludesList CommsSizeLayer::commsDefIncludesImpl() const
@@ -44,6 +48,29 @@ CommsSizeLayer::IncludesList CommsSizeLayer::commsDefIncludesImpl() const
     };
 
     return result;
+}
+
+std::string CommsSizeLayer::commsDefBaseTypeImpl(const std::string& prevName) const
+{
+    assert(!prevName.empty());
+    static const std::string Templ = 
+        "comms::protocol::MsgSizeLayer<\n"
+        "    #^#FIELD_TYPE#$#,\n"
+        "    #^#PREV_LAYER#$##^#COMMA#$#\n"
+        "    #^#EXTRA_OPTS#$#\n"
+        ">";        
+
+    util::ReplacementMap repl = {
+        {"FIELD_TYPE", commsDefFieldType()},
+        {"PREV_LAYER", prevName},
+        {"EXTRA_OPTS", commsDefExtraOpts()}
+    };
+
+    if (!repl["EXTRA_OPTS"].empty()) {
+        repl["COMMA"] = ",";
+    }
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2new

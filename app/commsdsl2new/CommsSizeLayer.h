@@ -35,9 +35,7 @@ protected:
     
     // CommsBase overrides
     virtual IncludesList commsDefIncludesImpl() const override;
-
-private:
-
+    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
 };
 
 } // namespace commsdsl2new

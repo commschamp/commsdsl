@@ -38,7 +38,7 @@ CommsIdLayer::CommsIdLayer(CommsGenerator& generator, commsdsl::parse::Layer dsl
 
 bool CommsIdLayer::prepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::prepare();
+    return Base::prepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
@@ -51,11 +51,8 @@ CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
     return result;
 }
 
-std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName, bool hasInputMessages) const
+std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
-    static_cast<void>(hasInputMessages);
-    assert(!hasInputMessages);
-
     static const std::string Templ = 
         "comms::protocol::MsgIdLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
@@ -67,11 +64,11 @@ std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName, bool
 
     util::ReplacementMap repl = {
         {"PREV_LAYER", prevName},
-        {"FIELD_TYPE", commsDefFieldTypeInternal()},
-        {"EXTRA_OPTS", commsDefOptsInternal()},
+        {"FIELD_TYPE", commsDefFieldType()},
+        {"EXTRA_OPTS", commsDefExtraOpts()},
     };
 
-    if (!repl["EXTRA_OPT"].empty()) {
+    if (!repl["EXTRA_OPTS"].empty()) {
         repl["COMMA"] = ",";
     }
     return util::processTemplate(Templ, repl);
@@ -85,28 +82,6 @@ bool CommsIdLayer::commsDefHasInputMessagesImpl() const
 bool CommsIdLayer::commsIsCustomizableImpl() const
 {
     return true;
-}
-
-std::string CommsIdLayer::commsDefFieldTypeInternal() const
-{
-    if (commsExternalField() != nullptr) {
-        return comms::scopeFor(commsExternalField()->field(), generator()) + "<TOpt>";
-    }
-
-    assert(commsMemberField() != nullptr);
-    return
-        "typename " +
-        comms::className(name()) + strings::membersSuffixStr() +
-        "::" + comms::className(commsMemberField()->field().dslObj().name());    
-}
-
-std::string CommsIdLayer::commsDefOptsInternal() const
-{
-    if (!commsIsCustomizable()) {
-        return strings::emptyString();
-    }    
-
-    return "typename TOpt::" + comms::scopeFor(*this, generator(), false);
 }
 
 } // namespace commsdsl2new

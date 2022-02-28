@@ -38,7 +38,7 @@ CommsPayloadLayer::CommsPayloadLayer(CommsGenerator& generator, commsdsl::parse:
 
 bool CommsPayloadLayer::prepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::prepare();
+    return Base::prepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsPayloadLayer::IncludesList CommsPayloadLayer::commsDefIncludesImpl() const
@@ -50,12 +50,10 @@ CommsPayloadLayer::IncludesList CommsPayloadLayer::commsDefIncludesImpl() const
     return result;
 }
 
-std::string CommsPayloadLayer::commsDefBaseTypeImpl(const std::string& prevName, bool hasInputMessages) const
+std::string CommsPayloadLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
     static_cast<void>(prevName);
-    static_cast<void>(hasInputMessages);
     assert(prevName.empty());
-    assert(!hasInputMessages);
 
     static const std::string Templ =
         "comms::protocol::MsgDataLayer<\n"
@@ -63,7 +61,7 @@ std::string CommsPayloadLayer::commsDefBaseTypeImpl(const std::string& prevName,
         ">";
     
     util::ReplacementMap repl {
-        {"EXTRA_OPT", commsDefOptsInternal()}
+        {"EXTRA_OPT", commsDefExtraOpts()}
     };
     return util::processTemplate(Templ, repl);    
 }
@@ -71,15 +69,6 @@ std::string CommsPayloadLayer::commsDefBaseTypeImpl(const std::string& prevName,
 bool CommsPayloadLayer::commsIsCustomizableImpl() const
 {
     return true;
-}
-
-std::string CommsPayloadLayer::commsDefOptsInternal() const
-{
-    if (!commsIsCustomizable()) {
-        return strings::emptyString();
-    }    
-
-    return "typename TOpt::" + comms::scopeFor(*this, generator(), false);
 }
 
 } // namespace commsdsl2new

@@ -65,12 +65,12 @@ public:
 
     bool commsIsVersionOptional() const;
 
-    void setForcedFailOnInvalid()
+    void commsSetForcedFailOnInvalid()
     {
         m_forcedFailOnInvalid = true;
     }
 
-    void setForcedPseudo()
+    void commsSetForcePseudo()
     {
         m_forcedPseudo = true;
     }
@@ -115,6 +115,7 @@ protected:
     virtual bool commsIsLimitedCustomizableImpl() const;
     virtual bool commsDoesRequireGeneratedReadRefreshImpl() const;
     virtual bool commsIsVersionDependentImpl() const;
+    virtual bool commsDefHasNameFuncImpl() const;
     virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const;  
     virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const;
 

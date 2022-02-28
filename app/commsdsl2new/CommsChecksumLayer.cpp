@@ -38,7 +38,7 @@ CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::pars
 
 bool CommsChecksumLayer::prepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::prepare();
+    return Base::prepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() const

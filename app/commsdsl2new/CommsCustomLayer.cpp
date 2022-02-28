@@ -32,7 +32,7 @@ CommsCustomLayer::CommsCustomLayer(CommsGenerator& generator, commsdsl::parse::L
 
 bool CommsCustomLayer::prepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::prepare();
+    return Base::prepareImpl() && CommsBase::commsPrepare();
 }
 
 CommsCustomLayer::IncludesList CommsCustomLayer::commsDefIncludesImpl() const

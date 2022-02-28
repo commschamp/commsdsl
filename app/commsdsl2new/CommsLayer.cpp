@@ -40,7 +40,7 @@ CommsLayer::CommsLayer(commsdsl::gen::Layer& layer) :
     
 CommsLayer::~CommsLayer() = default;
 
-bool CommsLayer::prepare()
+bool CommsLayer::commsPrepare()
 {
     m_commsExternalField = dynamic_cast<CommsField*>(m_layer.externalField());
     m_commsMemberField = dynamic_cast<CommsField*>(m_layer.memberField());
@@ -52,6 +52,49 @@ bool CommsLayer::prepare()
 bool CommsLayer::commsReorder(CommsLayersList& siblings, bool& success) const
 {
     return commsReorderImpl(siblings, success);
+}
+
+CommsLayer::IncludesList CommsLayer::commsCommonIncludes() const
+{
+    IncludesList result;
+    if (m_commsMemberField != nullptr) {
+        auto fieldIncs = m_commsMemberField->commsCommonIncludes();
+        std::move(fieldIncs.begin(), fieldIncs.end(), std::back_inserter(result));
+    }    
+
+    // auto otherIncs = commsCommonIncludesImpl();
+    // std::move(otherIncs.begin(), otherIncs.end(), std::back_inserter(result));
+    return result;
+}
+
+std::string CommsLayer::commsCommonCode() const
+{
+    if (m_commsMemberField == nullptr) {
+        return strings::emptyString();
+    }
+
+    auto code = m_commsMemberField->commsCommonCode();
+    if (code.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "/// @brief Scope for all the common definitions of the fields defined in\n"
+        "///     @ref #^#SCOPE#$##^#MEMBERS_SUFFIX#$# struct.\n"
+        "struct #^#CLASS_NAME#$##^#MEMBERS_SUFFIX#$##^#COMMON_SUFFIX#$#\n"
+        "{\n"
+        "    #^#CODE#$#\n"
+        "};\n";    
+
+    util::ReplacementMap repl = {
+        {"SCOPE", comms::scopeFor(m_layer, m_layer.generator())},
+        {"MEMBERS_SUFFIX", strings::membersSuffixStr()},
+        {"COMMON_SUFFIX", strings::commonSuffixStr()},
+        {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+        {"CODE", std::move(code)},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 CommsLayer::IncludesList CommsLayer::commsDefIncludes() const
@@ -74,6 +117,7 @@ CommsLayer::IncludesList CommsLayer::commsDefIncludes() const
 std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInputMessages) const
 {
     static const std::string Templ = 
+        "#^#MEMBERS#$#\n"
         "#^#DOC#$#\n"
         "#^#TEMPL_PARAMS#$#\n"
         "using #^#CLASS_NAME#$# =\n"
@@ -84,18 +128,22 @@ std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInput
         prevName = comms::className(prevLayer->layer().dslObj().name());
     }
 
+    if (hasInputMessages) {
+        assert(prevLayer != nullptr);
+        prevName.append("<TMessage, TAllMessages>");
+    }    
+
     util::ReplacementMap repl = {
+        {"MEMBERS", commsDefMembersCodeInternal()},
         {"DOC", commsDefDocInternal()},
         {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
-        {"BASE", commsDefBaseTypeImpl(prevName, hasInputMessages)},
+        {"BASE", commsDefBaseTypeImpl(prevName)},
     };
 
     hasInputMessages = hasInputMessages || commsDefHasInputMessagesImpl();
     if (hasInputMessages) {
         repl["TEMPL_PARAMS"] = "template <typename TMessage, typename TAllMessages>";
     }
-
-    // TODO: member field code
 
     return util::processTemplate(Templ, repl);
 }
@@ -111,6 +159,22 @@ bool CommsLayer::commsIsCustomizable() const
     return commsIsCustomizableImpl();
 }
 
+void CommsLayer::commsSetForcedPseudoField()
+{
+    m_forcedPseudoField = true;
+    if (m_commsMemberField != nullptr) {
+        m_commsMemberField->commsSetForcePseudo();
+    }
+}
+
+void CommsLayer::commsSetForcedFailOnInvalidField()
+{
+    m_forcedFailedOnInvalidField = true;
+    if (m_commsMemberField != nullptr) {
+        m_commsMemberField->commsSetForcedFailOnInvalid();
+    }    
+}  
+
 bool CommsLayer::commsReorderImpl(CommsLayersList& siblings, bool& success) const
 {
     static_cast<void>(siblings);
@@ -123,10 +187,9 @@ CommsLayer::IncludesList CommsLayer::commsDefIncludesImpl() const
     return IncludesList();
 }
 
-std::string CommsLayer::commsDefBaseTypeImpl(const std::string& prevName, bool hasInputMessages) const
+std::string CommsLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
     static_cast<void>(prevName);
-    static_cast<void>(hasInputMessages);
     assert(false); // Not implemented in derived class
     return strings::emptyString();
 }
@@ -134,6 +197,84 @@ std::string CommsLayer::commsDefBaseTypeImpl(const std::string& prevName, bool h
 bool CommsLayer::commsDefHasInputMessagesImpl() const
 {
     return false;
+}
+
+CommsLayer::StringsList CommsLayer::commsDefExtraOptsImpl() const
+{
+    return StringsList();
+}
+
+bool CommsLayer::commsIsCustomizableImpl() const
+{
+    return false;
+}
+
+std::string CommsLayer::commsDefFieldType() const
+{
+    if (m_commsExternalField != nullptr) {
+        static const std::string Templ = 
+            "#^#SCOPE#$#<\n"
+                "TOpt#^#COMMA#$#\n"
+                "#^#EXTRA_OPTS#$#\n"
+            ">";
+
+        util::StringsList opts;
+        if (m_forcedPseudoField) {
+            opts.push_back("comms::option::def::EmptySerialization");
+        }
+
+        if (m_forcedFailedOnInvalidField) {
+            opts.push_back("comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
+        }
+
+        util::ReplacementMap repl = {
+            {"SCOPE", comms::scopeFor(m_commsExternalField->field(), m_layer.generator())},
+            {"EXTRA_OPTS", util::strListToString(opts, ",\n", "")}
+        };
+
+        if (!repl["EXTRA_OPTS"].empty()) {
+            repl["COMMA"] = ",";
+        }
+        return util::processTemplate(Templ, repl);
+    }
+
+    assert(m_commsMemberField != nullptr);
+    return
+        "typename " +
+        comms::className(m_layer.dslObj().name()) + strings::membersSuffixStr() +
+        "::" + comms::className(m_commsMemberField->field().dslObj().name());    
+}
+
+std::string CommsLayer::commsDefExtraOpts() const
+{
+    StringsList opts = commsDefExtraOptsImpl();
+
+    if (commsIsCustomizable()) {
+        opts.push_back("typename TOpt::" + comms::scopeFor(m_layer, m_layer.generator(), false));
+    }    
+
+    return util::strListToString(opts, ",\n", "");
+}
+
+std::string CommsLayer::commsDefMembersCodeInternal() const
+{
+    if (m_commsMemberField == nullptr) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "struct #^#CLASS_NAME#$##^#SUFFIX#$#\n"
+        "{\n"
+        "    #^#FIELD_DEF#$#\n"
+        "};\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+        {"SUFFIX", strings::membersSuffixStr()},
+        {"FIELD_DEF", m_commsMemberField->commsDefCode()},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 std::string CommsLayer::commsDefDocInternal() const
@@ -149,11 +290,6 @@ std::string CommsLayer::commsDefDocInternal() const
         str += descMultiline;
     }
     return str;
-}
-
-bool CommsLayer::commsIsCustomizableImpl() const
-{
-    return false;
 }
 
 } // namespace commsdsl2new
