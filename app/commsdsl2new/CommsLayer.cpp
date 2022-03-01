@@ -214,8 +214,8 @@ std::string CommsLayer::commsDefFieldType() const
     if (m_commsExternalField != nullptr) {
         static const std::string Templ = 
             "#^#SCOPE#$#<\n"
-                "TOpt#^#COMMA#$#\n"
-                "#^#EXTRA_OPTS#$#\n"
+            "    TOpt#^#COMMA#$#\n"
+            "    #^#EXTRA_OPTS#$#\n"
             ">";
 
         util::StringsList opts;

@@ -34,10 +34,13 @@ protected:
     virtual bool prepareImpl() override;
     
     // CommsBase overrides
+    virtual bool commsReorderImpl(CommsLayersList& siblings, bool& success) const override;
     virtual IncludesList commsDefIncludesImpl() const override;
+    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
 
 private:
-
+    std::string commsDefAlgInternal() const;
+    std::string commsDefExtraOptInternal() const;
 };
 
 } // namespace commsdsl2new

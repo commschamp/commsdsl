@@ -99,6 +99,15 @@ unsigned strToUnsigned(const std::string& str)
     }
 }
 
+bool strStartsWith(const std::string& str, const std::string& prefix)
+{
+    if (str.size() < prefix.size()) {
+        return false;
+    }
+
+    return std::equal(prefix.begin(), prefix.end(), str.begin());
+}
+
 std::string strToUpper(const std::string& str)
 {
     std::string result;
