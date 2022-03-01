@@ -17,12 +17,8 @@
 
 #include "CommsGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
-namespace comms = commsdsl::gen::comms;
-namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
 namespace commsdsl2new
@@ -72,7 +68,7 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
         {"FIELD_TYPE", commsDefFieldType()},
         {"INTERFACE_FIELD_IDX", util::numToString(valueDslObj().fieldIdx())},
         {"PREV_LAYER", prevName},
-        {"EXTRA_OPTS", commsDefExtraOpts()}
+        {"EXTRA_OPTS", commsDefExtraOptsInternal()}
     };
 
     if (!repl["EXTRA_OPTS"].empty()) {
@@ -82,14 +78,14 @@ std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) c
     return util::processTemplate(Templ, repl);
 }
 
-CommsValueLayer::StringsList CommsValueLayer::commsDefExtraOptsImpl() const
+std::string CommsValueLayer::commsDefExtraOptsInternal() const
 {
     StringsList result;
     auto obj = valueDslObj();
     if (obj.pseudo()) {
         result.push_back("comms::option::def::PseudoValue");
     }
-    return result;
+    return util::strListToString(result, ",\n", "");
 }
 
 

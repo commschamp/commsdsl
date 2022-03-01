@@ -109,6 +109,17 @@ void addFieldScopeSuffixInternal(
     }  
 }
 
+void addNonFieldElemScopeSuffixInternal(
+    Elem::Type elemType, 
+    Elem::Type leafElemType,
+    std::string& str)
+{
+    if ((elemType == Elem::Type_Frame) && (leafElemType != elemType)) {
+        str.append(strings::layersSuffixStr());
+        return;
+    }  
+}
+
 void addNamespaceScopeInernal(
     const std::string& elemName,
     const std::string& sep,
@@ -178,7 +189,10 @@ std::string scopeForInternal(
 
         if (fieldTypeScope) {
             addFieldScopeSuffixInternal(elemType, &elem == leaf, result);
-        }        
+        } 
+        else {
+            addNonFieldElemScopeSuffixInternal(elemType, leaf->elemType(), result);
+        }       
 
     } while (false);
 

@@ -189,6 +189,12 @@ bool CommsFrame::commsWriteDefInternal()
 
     gen.logger().info("Generating " + filePath);
 
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!gen.createDirectory(dirPath)) {
+        return false;
+    }    
+
     std::ofstream stream(filePath);
     if (!stream) {
         gen.logger().error("Failed to open \"" + filePath + "\" for writing.");

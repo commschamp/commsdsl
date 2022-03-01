@@ -15,13 +15,11 @@
 
 #include "CommsSyncLayer.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include "CommsGenerator.h"
 
-namespace comms = commsdsl::gen::comms;
-namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2new
 {
@@ -34,7 +32,14 @@ CommsSyncLayer::CommsSyncLayer(CommsGenerator& generator, commsdsl::parse::Layer
 
 bool CommsSyncLayer::prepareImpl()
 {
-    return Base::prepareImpl() && CommsBase::commsPrepare();
+    bool result = Base::prepareImpl() && CommsBase::commsPrepare();
+    if (!result) {
+        return false;
+    }
+
+    commsSetForcedFailOnInvalidField();
+    return true;
+
 }
 
 CommsSyncLayer::IncludesList CommsSyncLayer::commsDefIncludesImpl() const
@@ -44,6 +49,22 @@ CommsSyncLayer::IncludesList CommsSyncLayer::commsDefIncludesImpl() const
     };
 
     return result;
+}
+
+std::string CommsSyncLayer::commsDefBaseTypeImpl(const std::string& prevName) const
+{
+    static const std::string Templ = 
+        "comms::protocol::SyncPrefixLayer<\n"
+        "    #^#FIELD_TYPE#$#,\n"
+        "    #^#PREV_LAYER#$#\n"
+        ">";  
+
+    util::ReplacementMap repl = {
+        {"FIELD_TYPE", commsDefFieldType()},
+        {"PREV_LAYER", prevName}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2new
