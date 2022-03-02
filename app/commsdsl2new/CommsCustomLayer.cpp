@@ -16,10 +16,12 @@
 #include "CommsCustomLayer.h"
 
 #include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/util.h"
 
 #include "CommsGenerator.h"
 
 namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2new
 {
@@ -42,6 +44,44 @@ CommsCustomLayer::IncludesList CommsCustomLayer::commsDefIncludesImpl() const
     };
 
     return result;
+}
+
+std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) const
+{
+    static const std::string Templ = 
+        "#^#CUSTOM_LAYER_TYPE#$#<\n"
+        "    #^#FIELD_TYPE#$#,\n"
+        "    #^#ID_TEMPLATE_PARAMS#$#\n"
+        "    #^#PREV_LAYER#$##^#COMMA#$#\n"
+        "    #^#EXTRA_OPT#$#\n"
+        ">";
+
+    util::ReplacementMap repl = {
+        {"CUSTOM_LAYER_TYPE", comms::scopeForCustomLayer(*this, generator())},
+        {"FIELD_TYPE", commsDefFieldType()},
+        {"PREV_LAYER", prevName},
+        {"EXTRA_OPT", commsDefExtraOpts()},
+    };
+
+    if (customDslObj().isIdReplacement()) {
+        repl["ID_TEMPLATE_PARAMS"] = "TMessage,\nTAllMessages,";
+    }
+
+    if (!repl["EXTRA_OPT"].empty()) {
+        repl["COMMA"] = ",";
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+bool CommsCustomLayer::commsDefHasInputMessagesImpl() const
+{
+    return customDslObj().isIdReplacement();
+}
+
+bool CommsCustomLayer::commsIsCustomizableImpl() const
+{
+    return true;
 }
 
 } // namespace commsdsl2new

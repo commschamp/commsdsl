@@ -68,6 +68,12 @@ std::string scopeForChecksum(
     bool addMainNamespace = true, 
     bool addElement = true);    
 
+std::string scopeForCustomLayer(
+    const Elem& elem, 
+    const Generator& generator, 
+    bool addMainNamespace = true, 
+    bool addElement = true);      
+
 std::string relHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string relHeaderPathForField(const std::string& name, const Generator& generator); 

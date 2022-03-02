@@ -403,6 +403,20 @@ std::string scopeForChecksum(
     return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);    
 }
 
+std::string scopeForCustomLayer(
+    const Elem& elem, 
+    const Generator& generator, 
+    bool addMainNamespace, 
+    bool addElement)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::frameNamespaceStr(),
+        strings::layerNamespaceStr()
+    };
+
+    return scopeForElement(elem.name(), generator, SubElems, addMainNamespace, addElement, ScopeSep); 
+}
+
 std::string relHeaderPathFor(const Elem& elem, const Generator& generator)
 {
     return scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    

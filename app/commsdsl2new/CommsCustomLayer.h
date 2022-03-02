@@ -35,6 +35,9 @@ protected:
     
     // CommsBase overrides
     virtual IncludesList commsDefIncludesImpl() const override;
+    virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
+    virtual bool commsDefHasInputMessagesImpl() const override;
+    virtual bool commsIsCustomizableImpl() const override;
 
 private:
 
