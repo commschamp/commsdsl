@@ -64,6 +64,7 @@ public:
     using LoggerPtr = Generator::LoggerPtr;
     using FilesList = Generator::FilesList;
     using NamespacesList = Generator::NamespacesList;
+    using PlatformNamesList = Generator::PlatformNamesList;
 
     explicit GeneratorImpl(Generator& generator) :
         m_generator(generator)
@@ -162,6 +163,11 @@ public:
     parse::Endian schemaEndian() const
     {
         return m_protocol.schema().endian();
+    }
+
+    const PlatformNamesList& platformNames() const
+    {
+        return m_protocol.platforms();
     }
 
     const Field* getMessageIdField() const
@@ -473,6 +479,11 @@ const std::string& Generator::schemaName() const
 parse::Endian Generator::schemaEndian() const
 {
     return m_impl->schemaEndian();
+}
+
+const Generator::PlatformNamesList& Generator::platformNames() const
+{
+    return m_impl->platformNames();
 }
 
 const Field* Generator::getMessageIdField() const

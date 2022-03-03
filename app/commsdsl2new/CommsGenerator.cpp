@@ -25,6 +25,7 @@
 #include "CommsFieldBase.h"
 #include "CommsFloatField.h"
 #include "CommsFrame.h"
+#include "CommsInputMessages.h"
 #include "CommsIntField.h"
 #include "CommsListField.h"
 #include "CommsIdLayer.h"
@@ -243,7 +244,8 @@ bool CommsGenerator::writeImpl()
         CommsCmake::write(*this) &&
         CommsMsgId::write(*this) &&
         CommsFieldBase::write(*this) &&
-        CommsVersion::write(*this);
+        CommsVersion::write(*this) &&
+        CommsInputMessages::write(*this);
 }
 
 } // namespace commsdsl2new

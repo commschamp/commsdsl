@@ -15,6 +15,7 @@ set (
     CommsFrame.cpp
     CommsGenerator.cpp
     CommsIdLayer.cpp
+    CommsInputMessages.cpp
     CommsIntField.cpp
     CommsInterface.cpp
     CommsLayer.cpp

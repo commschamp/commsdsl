@@ -40,6 +40,7 @@ public:
     using FilesList = std::vector<std::string>;
     using LoggerPtr = std::unique_ptr<Logger>;
     using NamespacesList = Namespace::NamespacesList;
+    using PlatformNamesList = std::vector<std::string>;
 
     using InterfacesAccessList = Namespace::InterfacesAccessList;
     using MessagesAccessList = Namespace::MessagesAccessList;
@@ -67,6 +68,7 @@ public:
     const std::string& mainNamespace() const;
     const std::string& schemaName() const;
     parse::Endian schemaEndian() const;
+    const PlatformNamesList& platformNames() const;
 
     const Field* getMessageIdField() const;
     const Field* findField(const std::string& externalRef) const;
