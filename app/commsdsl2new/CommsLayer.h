@@ -47,6 +47,8 @@ public:
     void commsSetForcedPseudoField();
     void commsSetForcedFailOnInvalidField();
 
+    std::string commsDefaultOptions() const;
+
     const commsdsl::gen::Layer& layer() const
     {
         return m_layer;
@@ -81,8 +83,15 @@ protected:
     std::string commsDefExtraOpts() const;
 
 private:
+    using FieldOptsFunc = std::string (CommsField::*)() const;
+    using ExtraLayerOptsFunc = StringsList (CommsLayer::*)() const;
+
     std::string commsDefMembersCodeInternal() const;
     std::string commsDefDocInternal() const;
+    std::string commsCustomizationOptionsInternal(
+        FieldOptsFunc fieldOptsFunc, 
+        ExtraLayerOptsFunc extraLayerOptsFunc,
+        bool hasBase) const;    
     
     commsdsl::gen::Layer& m_layer;
     CommsField* m_commsExternalField = nullptr;

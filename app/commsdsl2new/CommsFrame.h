@@ -36,11 +36,14 @@ public:
     explicit CommsFrame(CommsGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
     virtual ~CommsFrame();
 
+    std::string commsDefaultOptions() const;
+
 protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() override;
 
 private:
+    using LayerOptsFunc = std::string (CommsLayer::*)() const;
 
     bool commsWriteCommonInternal();  
     bool commsWriteDefInternal();  
@@ -55,6 +58,9 @@ private:
     std::string commsDefAccessListInternal() const;
     std::string commsDefProtectedInternal() const;
     std::string commsDefPrivateInternal() const;
+    std::string commsCustomizationOptionsInternal(
+        LayerOptsFunc layerOptsFunc,
+        bool hasBase) const;    
     
     CommsLayersList m_commsLayers;  
     bool m_hasIdLayer = false;

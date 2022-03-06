@@ -175,6 +175,16 @@ void CommsLayer::commsSetForcedFailOnInvalidField()
     }    
 }  
 
+std::string CommsLayer::commsDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsField::commsDefaultOptions,
+            nullptr,
+            false
+        );
+}
+
 bool CommsLayer::commsReorderImpl(CommsLayersList& siblings, bool& success) const
 {
     static_cast<void>(siblings);
@@ -290,6 +300,105 @@ std::string CommsLayer::commsDefDocInternal() const
         str += descMultiline;
     }
     return str;
+}
+
+std::string CommsLayer::commsCustomizationOptionsInternal(
+    FieldOptsFunc fieldOptsFunc, 
+    ExtraLayerOptsFunc extraLayerOptsFunc,
+    bool hasBase) const
+{
+    util::StringsList elems;
+
+    // Field portion
+    do {
+        if (m_commsMemberField == nullptr) {
+            break;
+        }
+
+        auto fieldOpts = (m_commsMemberField->*fieldOptsFunc)();
+        if (fieldOpts.empty()) {
+            break;
+        }
+
+        static const std::string Templ =
+            "/// @brief Extra options for all the member fields of\n"
+            "///     @ref #^#SCOPE#$# layer field.\n"
+            "struct #^#CLASS_NAME#$##^#SUFFIX#$##^#EXT#$#\n"
+            "{\n"
+            "    #^#FIELD_OPT#$#\n"
+            "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
+
+        util::ReplacementMap repl = {
+            {"SCOPE", comms::scopeFor(m_layer, m_layer.generator())},
+            {"CLASS_NAME", comms::className(m_layer.dslObj().name())},
+            {"SUFFIX", strings::membersSuffixStr()},
+            {"FIELD_OPTS", std::move(fieldOpts)}
+        };
+
+        if (hasBase) {
+            repl["EXT"] = " : public TBase::" + comms::scopeFor(m_layer, m_layer.generator(), false) + strings::membersSuffixStr();
+        }
+
+        elems.push_back(util::processTemplate(Templ, repl));
+    } while (false);
+
+    // Layer itself portion
+    do {
+        if (!commsIsCustomizable()) {
+            break;
+        }
+
+        util::StringsList extraOpts;
+        if (extraLayerOptsFunc != nullptr) {
+            extraOpts = (this->*extraLayerOptsFunc)();
+        }
+
+        if (extraOpts.empty() && hasBase) {
+            break;
+        }        
+
+        if (extraOpts.empty() && (!hasBase)) {
+            extraOpts.push_back("comms::options::EmptyOption");
+        }
+
+        if ((!extraOpts.empty()) && (hasBase)) {
+            extraOpts.push_back("typename TBase::" + comms::scopeFor(m_layer, m_layer.generator(), false));
+        }
+
+        auto docStr = 
+            "/// @brief Extra options for @ref " +
+            comms::scopeFor(m_layer, m_layer.generator()) + " layer.";
+        docStr = util::strMakeMultiline(docStr, 40);
+        docStr = util::strReplace(docStr, "\n", "\n" + strings::doxygenPrefixStr() + strings::indentStr()); 
+
+        util::ReplacementMap repl = {
+            {"DOC", std::move(docStr)},
+            {"NAME", comms::className(m_layer.dslObj().name())},
+        };        
+
+        assert(!extraOpts.empty());
+        if (extraOpts.size() == 1U) {
+            static const std::string Templ = 
+                "#^#DOC#$#\n"
+                "using #^#NAME#$# = #^#OPT#$#;\n";
+        
+            repl["OPT"] = extraOpts.front();
+            elems.push_back(util::processTemplate(Templ, repl));
+            break;
+        }    
+
+        static const std::string Templ = 
+            "#^#DOC#$#\n"
+            "using #^#NAME#$# =\n"
+            "    std::tuple<\n"
+            "        #^#OPTS#$#\n"
+            "    >;\n";
+    
+        repl["OPTS"] = util::strListToString(extraOpts, ",\n", "");
+        elems.push_back(util::processTemplate(Templ, repl));          
+    } while (false);
+
+    return util::strListToString(elems, "\n", "");
 }
 
 } // namespace commsdsl2new

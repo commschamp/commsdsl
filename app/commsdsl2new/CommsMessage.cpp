@@ -42,6 +42,11 @@ CommsMessage::CommsMessage(CommsGenerator& generator, commsdsl::parse::Message d
 
 CommsMessage::~CommsMessage() = default;
 
+std::string CommsMessage::commsDefaultOptions() const
+{
+    return commsCustomizationOptionsInternal(&CommsField::commsDefaultOptions, nullptr, false);
+}
+
 bool CommsMessage::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -860,5 +865,102 @@ bool CommsMessage::commsIsCustomizableInternal() const
 //                 return f->doesRequireGeneratedReadRefresh();
 //             });
 // }
+
+std::string CommsMessage::commsCustomizationOptionsInternal(
+    FieldOptsFunc fieldOptsFunc,
+    ExtraMessageOptsFunc extraMessageOptsFunc,
+    bool hasBase) const
+{
+    util::StringsList fieldOpts;
+    if (fieldOptsFunc != nullptr) {
+        for (auto* f : m_commsFields) {
+            auto str = (f->*fieldOptsFunc)();
+            if (!str.empty()) {
+                fieldOpts.push_back(std::move(str));
+            }
+        }
+    }
+
+    util::StringsList elems;
+    if (!fieldOpts.empty()) {
+        static const std::string Templ = 
+            "/// @brief Extra options for fields of\n"
+            "///     @ref #^#SCOPE#$# message.\n"        
+            "struct #^#NAME#$##^#SUFFIX#$##^#EXT#$#\n"
+            "{\n"
+            "    #^#BODY#$#\n"
+            "};\n";
+
+        util::ReplacementMap repl = {
+            {"NAME", comms::className(dslObj().name())},
+            {"SUFFIX", strings::fieldsSuffixStr()},
+            {"SCOPE", comms::scopeFor(*this, generator())},
+            {"BODY", util::strListToString(fieldOpts, "\n", "")}
+        };
+
+        if (hasBase) {
+            repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), false) + strings::fieldsSuffixStr();
+        }
+
+        elems.push_back(util::processTemplate(Templ, repl));
+    }
+
+    do {
+        if (!commsIsCustomizableInternal()) {
+            break;
+        }
+
+        StringsList extraOpts;
+        if (extraMessageOptsFunc != nullptr) {
+            extraOpts = (this->*extraMessageOptsFunc)();
+        }
+
+        if (extraOpts.empty() && hasBase) {
+            break;
+        }        
+
+        if (extraOpts.empty() && (!hasBase)) {
+            extraOpts.push_back("comms::options::EmptyOption");
+        }
+
+        if ((!extraOpts.empty()) && (hasBase)) {
+            extraOpts.push_back("typename TBase::" + comms::scopeFor(*this, generator(), false));
+        }        
+
+        auto docStr = 
+            "/// @brief Extra options for @ref " +
+            comms::scopeFor(*this, generator()) + " message.";
+        docStr = util::strMakeMultiline(docStr, 40);
+        docStr = util::strReplace(docStr, "\n", "\n" + strings::doxygenPrefixStr() + strings::indentStr());         
+
+        util::ReplacementMap repl = {
+            {"DOC", std::move(docStr)},
+            {"NAME", comms::className(dslObj().name())},
+        };        
+
+        assert(!extraOpts.empty());
+        if (extraOpts.size() == 1U) {
+            static const std::string Templ = 
+                "#^#DOC#$#\n"
+                "using #^#NAME#$# = #^#OPT#$#;\n";
+        
+            repl["OPT"] = extraOpts.front();
+            elems.push_back(util::processTemplate(Templ, repl));
+            break;
+        }    
+
+        static const std::string Templ = 
+            "#^#DOC#$#\n"
+            "using #^#NAME#$# =\n"
+            "    std::tuple<\n"
+            "        #^#OPTS#$#\n"
+            "    >;\n";
+    
+        repl["OPTS"] = util::strListToString(extraOpts, ",\n", "");
+        elems.push_back(util::processTemplate(Templ, repl));
+
+    } while (false);
+    return util::strListToString(elems, "\n", "");
+}
 
 } // namespace commsdsl2new

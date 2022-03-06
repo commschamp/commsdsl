@@ -21,6 +21,7 @@
 #include "CommsCmake.h"
 #include "CommsCustomLayer.h"
 #include "CommsDataField.h"
+#include "CommsDefaultOptions.h"
 #include "CommsEnumField.h"
 #include "CommsFieldBase.h"
 #include "CommsFloatField.h"
@@ -32,6 +33,7 @@
 #include "CommsInterface.h"
 #include "CommsMessage.h"
 #include "CommsMsgId.h"
+#include "CommsNamespace.h"
 #include "CommsOptionalField.h"
 #include "CommsPayloadLayer.h"
 #include "CommsRefField.h"
@@ -126,6 +128,11 @@ bool CommsGenerator::prepareImpl()
     }
 
     return true;
+}
+
+CommsGenerator::NamespacePtr CommsGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2new::CommsNamespace>(*this, dslObj, parent);
 }
 
 CommsGenerator::InterfacePtr CommsGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
@@ -245,7 +252,8 @@ bool CommsGenerator::writeImpl()
         CommsMsgId::write(*this) &&
         CommsFieldBase::write(*this) &&
         CommsVersion::write(*this) &&
-        CommsInputMessages::write(*this);
+        CommsInputMessages::write(*this) &&
+        CommsDefaultOptions::write(*this);
 }
 
 } // namespace commsdsl2new

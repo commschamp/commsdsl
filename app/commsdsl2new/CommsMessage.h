@@ -17,6 +17,7 @@
 #pragma once
 
 #include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/util.h"
 
 #include "CommsField.h"
 
@@ -31,8 +32,12 @@ class CommsMessage final: public commsdsl::gen::Message
 {
     using Base = commsdsl::gen::Message;
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+
     explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent);
     virtual ~CommsMessage();
+
+    std::string commsDefaultOptions() const;
 
 protected:
     virtual bool prepareImpl() override;
@@ -40,6 +45,8 @@ protected:
 
 private:
     using CommsFieldsList = CommsField::CommsFieldsList;
+    using FieldOptsFunc = std::string (CommsField::*)() const;
+    using ExtraMessageOptsFunc = StringsList (CommsMessage::*)() const;
 
     bool commsWriteCommonInternal();
     bool commsWriteDefInternal();  
@@ -66,6 +73,10 @@ private:
     std::string commsDefRefreshFuncInternal() const;
     bool commsIsCustomizableInternal() const;
     // bool commsMustGenerateReadRefresh() const;
+    std::string commsCustomizationOptionsInternal(
+        FieldOptsFunc fieldOptsFunc,
+        ExtraMessageOptsFunc extraMessageOptsFunc,
+        bool hasBase) const;
 
     CommsFieldsList m_commsFields;  
     commsdsl::gen::util::StringsList m_bundledReadPrepareCodes;

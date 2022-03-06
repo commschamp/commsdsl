@@ -8,6 +8,7 @@ set (
     CommsCmake.cpp
     CommsCustomLayer.cpp
     CommsDataField.cpp
+    CommsDefaultOptions.cpp
     CommsEnumField.cpp
     CommsField.cpp
     CommsFieldBase.cpp
@@ -22,6 +23,7 @@ set (
     CommsListField.cpp
     CommsMessage.cpp
     CommsMsgId.cpp
+    CommsNamespace.cpp
     CommsOptionalField.cpp
     CommsPayloadLayer.cpp
     CommsProgramOptions.cpp

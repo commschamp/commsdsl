@@ -86,6 +86,7 @@ std::string relHeaderForRoot(const std::string& name, const Generator& generator
 std::string headerPathFor(const Elem& elem, const Generator& generator);
 std::string headerPathForField(const std::string& name, const Generator& generator); 
 std::string headerPathForInput(const std::string& name, const Generator& generator); 
+std::string headerPathForOptions(const std::string& name, const Generator& generator); 
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string headerPathRoot(const std::string& name, const Generator& generator);
 

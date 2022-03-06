@@ -19,14 +19,15 @@
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <algorithm>
 #include <cassert>
 #include <fstream>
 
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
-namespace comms = commsdsl::gen::comms;
 
 namespace commsdsl2new
 {
@@ -264,6 +265,16 @@ bool CommsField::commsIsVersionOptional() const
     return false;    
 }
 
+std::string CommsField::commsDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsField::commsDefaultOptions,
+            nullptr,
+            false);
+    return strings::emptyString();
+}
+
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
 {
     return IncludesList();
@@ -452,6 +463,12 @@ std::string CommsField::commsCompareToFieldCodeImpl(const std::string& op, const
         "field_" + usedName + "().doesExist() &&\n"
         "field_" + fieldName + "().doesExist() &&\n"
                                "(" + compareExpr + ')';
+}
+
+std::string CommsField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+{
+    static_cast<void>(fieldOptsFunc);
+    return strings::emptyString();
 }
 
 std::string CommsField::commsCommonNameFuncCode() const
@@ -1234,6 +1251,88 @@ std::string CommsField::commsCommonMembersCodeInternal() const
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsCustomizationOptionsInternal(
+    FieldOptsFunc fieldOptsFunc, 
+    ExtraFieldOptsFunc extraFieldOptsFunc,
+    bool hasBase) const
+{
+    util::StringsList elems;
+    auto membersBody = commsMembersCustomizationOptionsBodyImpl(fieldOptsFunc);
+    if (!membersBody.empty()) {
+        static const std::string Templ = 
+            "struct #^#NAME#$##^#SUFFIX#^##^#EXT#$#\n"
+            "{\n"
+            "    #^#BODY#$#\n"
+            "}; // struct #^#NAME#$##^#SUFFIX#^#\n";
+
+        util::ReplacementMap repl = {
+            {"NAME", comms::className(m_field.dslObj().name())},
+            {"SUFFIX", strings::membersSuffixStr()},
+            {"BODY", std::move(membersBody)},
+        };
+
+        if (hasBase) {
+            repl["EXT"] = " : public TBase::" + comms::scopeFor(m_field, m_field.generator(), false) + strings::membersSuffixStr();
+        }
+    }
+
+    do {
+        if (!commsIsFieldCustomizable()) {
+            break;
+        }
+
+        util::StringsList extraOpts;
+        if (extraFieldOptsFunc != nullptr) {
+            extraOpts = (this->*extraFieldOptsFunc)();
+        }
+
+        if (extraOpts.empty() && hasBase) {
+            break;
+        }        
+
+        if (extraOpts.empty() && (!hasBase)) {
+            extraOpts.push_back("comms::options::EmptyOption");
+        }
+
+        if ((!extraOpts.empty()) && (hasBase)) {
+            extraOpts.push_back("typename TBase::" + comms::scopeFor(m_field, m_field.generator(), false));
+        }
+
+        auto docStr = 
+            "/// @brief Extra options for @ref " +
+            comms::scopeFor(m_field, m_field.generator()) + " field.";
+        docStr = util::strMakeMultiline(docStr, 40);
+        docStr = util::strReplace(docStr, "\n", "\n" + strings::doxygenPrefixStr() + strings::indentStr()); 
+
+        util::ReplacementMap repl = {
+            {"DOC", std::move(docStr)},
+            {"NAME", comms::className(m_field.dslObj().name())},
+        };        
+
+        assert(!extraOpts.empty());
+        if (extraOpts.size() == 1U) {
+            static const std::string Templ = 
+                "#^#DOC#$#\n"
+                "using #^#NAME#$# = #^#OPT#$#;\n";
+        
+            repl["OPT"] = extraOpts.front();
+            elems.push_back(util::processTemplate(Templ, repl));
+            break;
+        }    
+
+        static const std::string Templ = 
+            "#^#DOC#$#\n"
+            "using #^#NAME#$# =\n"
+            "    std::tuple<\n"
+            "        #^#OPTS#$#\n"
+            "    >;\n";
+    
+        repl["OPTS"] = util::strListToString(extraOpts, ",\n", "");
+        elems.push_back(util::processTemplate(Templ, repl));
+    } while (false);
+    return util::strListToString(elems, "\n", "");
 }
 
 

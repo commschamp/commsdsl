@@ -76,6 +76,7 @@ public:
 
 protected:    
     virtual Type elemTypeImpl() const override final;
+    virtual bool prepareImpl();
     virtual bool writeImpl();
 
 private:

@@ -67,6 +67,14 @@ CommsFrame::CommsFrame(CommsGenerator& generator, commsdsl::parse::Frame dslObj,
 
 CommsFrame::~CommsFrame() = default;
 
+std::string CommsFrame::commsDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsLayer::commsDefaultOptions,
+            false);
+}
+
 bool CommsFrame::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -474,6 +482,45 @@ std::string CommsFrame::commsDefPrivateInternal() const
         {"CODE", std::move(code)},
     };
     return util::processTemplate(Templ, repl);
+}
+
+std::string CommsFrame::commsCustomizationOptionsInternal(
+    LayerOptsFunc layerOptsFunc,
+    bool hasBase) const
+{
+    util::StringsList elems;
+    for (auto iter = m_commsLayers.rbegin(); iter != m_commsLayers.rend(); ++iter) {
+        auto* l = *iter;
+        auto str = (l->*layerOptsFunc)();
+        if (!str.empty()) {
+            elems.push_back(std::move(str));
+        }
+    }
+
+    if (elems.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ =
+        "/// @brief Extra options for layers of\n"
+        "///     @ref #^#SCOPE#$# frame.\n"
+        "struct #^#NAME#$##^#SUFFIX#$##^#EXT#$#\n"
+        "{\n"
+        "    #^#LAYERS_OPTS#$#\n"
+        "}; // struct #^#NAME#$##^#SUFFIX#$#\n";
+
+    util::ReplacementMap repl = {
+        {"SCOPE", comms::scopeFor(*this, generator())},
+        {"NAME", comms::className(dslObj().name())},
+        {"SUFFIX", strings::layersSuffixStr()},
+        {"LAYERS_OPTS", util::strListToString(elems, "\n", "\n")}
+    };
+
+    if (hasBase) {
+        repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), false) + strings::layersSuffixStr();
+    }
+
+    return util::processTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2new

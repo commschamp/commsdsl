@@ -135,7 +135,7 @@ bool CommsInputMessages::writeInternal() const
 bool CommsInputMessages::writeAllMessagesInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg)
+        [](const commsdsl::gen::Message& msg) noexcept
         {
             static_cast<void>(msg);
             return true;

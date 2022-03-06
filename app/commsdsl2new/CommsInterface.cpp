@@ -141,6 +141,13 @@ bool CommsInterface::commsWriteCommonInternal()
     auto filePath = comms::commonHeaderPathFor(*this, gen);
 
     gen.logger().info("Generating " + filePath);
+
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!gen.createDirectory(dirPath)) {
+        return false;
+    }
+
     std::ofstream stream(filePath);
     if (!stream) {
         gen.logger().error("Failed to open \"" + filePath + "\" for writing.");
@@ -189,6 +196,12 @@ bool CommsInterface::commsWriteDefInternal()
         {
             auto& logger = gen.logger();
             logger.info("Generating " + filePath);
+
+            auto dirPath = util::pathUp(filePath);
+            assert(!dirPath.empty());
+            if (!gen.createDirectory(dirPath)) {
+                return false;
+            }
 
             std::ofstream stream(filePath);
             if (!stream) {

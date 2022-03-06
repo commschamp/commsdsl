@@ -32,6 +32,7 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
     using CommsFieldsList = std::vector<CommsField*>;
+    using FieldOptsFunc = std::string (CommsField::*)() const;
 
     explicit CommsField(commsdsl::gen::Field& field);
     virtual ~CommsField();
@@ -90,6 +91,8 @@ public:
         return m_field;
     }
 
+    std::string commsDefaultOptions() const;
+
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
     virtual std::string commsCommonCodeBaseClassImpl() const;
@@ -118,6 +121,7 @@ protected:
     virtual bool commsDefHasNameFuncImpl() const;
     virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const;  
     virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const;
+    virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const;
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
@@ -125,6 +129,8 @@ protected:
     bool commsIsFieldCustomizable() const;
 
 private:
+    using ExtraFieldOptsFunc = StringsList (CommsField::*)() const;
+
     bool commsWriteCommonInternal() const;
     bool commsWriteDefInternal() const;
     std::string commsFieldDefCodeInternal() const;
@@ -145,6 +151,10 @@ private:
     std::string commsDefValidFuncCodeInternal() const;
     std::string commsDefMembersCodeInternal() const;
     std::string commsCommonMembersCodeInternal() const;
+    std::string commsCustomizationOptionsInternal(
+        FieldOptsFunc fieldOptsFunc, 
+        ExtraFieldOptsFunc extraFieldOptsFunc,
+        bool hasBase) const;
 
     commsdsl::gen::Field& m_field;
     std::string m_customRead;

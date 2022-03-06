@@ -30,6 +30,7 @@ public:
     using InterfacePtr = commsdsl::gen::InterfacePtr;
     using LayerPtr = commsdsl::gen::LayerPtr;
     using MessagePtr = commsdsl::gen::MessagePtr;
+    using NamespacePtr = commsdsl::gen::NamespacePtr;
 
     enum class CustomizationLevel
     {
@@ -51,7 +52,7 @@ public:
 protected:
     virtual bool prepareImpl() override;
 
-    // virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
+    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
     virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent) override;

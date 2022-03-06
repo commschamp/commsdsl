@@ -495,6 +495,11 @@ std::string headerPathForInput(const std::string& name, const Generator& generat
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForInput(name, generator);
 }
 
+std::string headerPathForOptions(const std::string& name, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForOptions(name, generator);
+}
+
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relCommonHeaderPathFor(elem, generator);

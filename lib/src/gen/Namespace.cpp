@@ -296,7 +296,7 @@ bool Namespace::createAll()
 
 bool Namespace::prepare()
 {
-    return m_impl->prepare();
+    return m_impl->prepare() && prepareImpl();
 }
 
 bool Namespace::write()
@@ -326,6 +326,16 @@ const Namespace::FieldsList& Namespace::fields() const
 const Namespace::InterfacesList& Namespace::interfaces() const
 {
     return m_impl->interfaces();
+}
+
+const Namespace::MessagesList& Namespace::messages() const
+{
+    return m_impl->messages();
+}
+
+const Namespace::FramesList& Namespace::frames() const
+{
+    return m_impl->frames();
 }
 
 const Field* Namespace::findMessageIdField() const
@@ -481,6 +491,11 @@ Interface* Namespace::addDefaultInterface()
 Elem::Type Namespace::elemTypeImpl() const
 {
     return Type_Namespace;
+}
+
+bool Namespace::prepareImpl()
+{
+    return true;
 }
 
 bool Namespace::writeImpl()
