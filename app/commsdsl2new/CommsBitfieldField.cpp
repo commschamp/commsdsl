@@ -178,6 +178,19 @@ bool CommsBitfieldField::commsIsVersionDependentImpl() const
             });
 }
 
+std::string CommsBitfieldField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+{
+    assert(fieldOptsFunc != nullptr);
+    util::StringsList elems;
+    for (auto* m : m_members) {
+        auto str = (m->*fieldOptsFunc)();
+        if (!str.empty()) {
+            elems.push_back(std::move(str));
+        }
+    }
+    return util::strListToString(elems, "\n", "");
+}
+
 bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());

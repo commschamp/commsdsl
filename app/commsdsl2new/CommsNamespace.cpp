@@ -66,7 +66,8 @@ std::string CommsNamespace::commsDefaultOptions() const
             &CommsNamespace::commsDefaultOptions,
             &CommsField::commsDefaultOptions,
             &CommsMessage::commsDefaultOptions,
-            &CommsFrame::commsDefaultOptions
+            &CommsFrame::commsDefaultOptions,
+            false
         );
 
     auto name = comms::namespaceName(dslObj().name());
@@ -80,26 +81,82 @@ std::string CommsNamespace::commsDefaultOptions() const
 
 std::string CommsNamespace::commsClientDefaultOptions() const
 {
-    // TODO
-    return std::string();
+    auto body = 
+        commsOptionsInternal(
+            &CommsNamespace::commsClientDefaultOptions,
+            nullptr,
+            &CommsMessage::commsClientDefaultOptions,
+            nullptr,
+            true
+        );
+
+    auto name = comms::namespaceName(dslObj().name());
+    util::ReplacementMap repl = {
+        {"NAME", name},
+        {"BODY", std::move(body)},
+    };
+    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
+    return result;
 }
 
 std::string CommsNamespace::commsServerDefaultOptions() const
 {
-    // TODO
-    return std::string();
+    auto body = 
+        commsOptionsInternal(
+            &CommsNamespace::commsServerDefaultOptions,
+            nullptr,
+            &CommsMessage::commsServerDefaultOptions,
+            nullptr,
+            true
+        );
+
+    auto name = comms::namespaceName(dslObj().name());
+    util::ReplacementMap repl = {
+        {"NAME", name},
+        {"BODY", std::move(body)},
+    };
+    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
+    return result;
 }
 
 std::string CommsNamespace::commsDataViewDefaultOptions() const
 {
-    // TODO
-    return std::string();
+    auto body = 
+        commsOptionsInternal(
+            &CommsNamespace::commsDataViewDefaultOptions,
+            &CommsField::commsDataViewDefaultOptions,
+            &CommsMessage::commsDataViewDefaultOptions,
+            &CommsFrame::commsDataViewDefaultOptions,
+            true
+        );
+
+    auto name = comms::namespaceName(dslObj().name());
+    util::ReplacementMap repl = {
+        {"NAME", name},
+        {"BODY", std::move(body)},
+    };
+    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
+    return result;
 }
 
 std::string CommsNamespace::commsBareMetalDefaultOptions() const
 {
-    // TODO
-    return std::string();
+    auto body = 
+        commsOptionsInternal(
+            &CommsNamespace::commsBareMetalDefaultOptions,
+            &CommsField::commsBareMetalDefaultOptions,
+            &CommsMessage::commsBareMetalDefaultOptions,
+            &CommsFrame::commsBareMetalDefaultOptions,
+            true
+        );
+
+    auto name = comms::namespaceName(dslObj().name());
+    util::ReplacementMap repl = {
+        {"NAME", name},
+        {"BODY", std::move(body)},
+    };
+    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
+    return result;
 }
 
 bool CommsNamespace::prepareImpl()
@@ -116,7 +173,8 @@ std::string CommsNamespace::commsOptionsInternal(
     NamespaceOptsFunc nsOptsFunc,
     FieldOptsFunc fieldOptsFunc,
     MessageOptsFunc messageOptsFunc,
-    FrameOptsFunc frameOptsFunc) const
+    FrameOptsFunc frameOptsFunc,
+    bool hasBase) const
 {
     util::StringsList elems;
     auto addStrFunc = 
@@ -132,21 +190,90 @@ std::string CommsNamespace::commsOptionsInternal(
         addStrFunc((static_cast<const CommsNamespace*>(nsPtr.get())->*nsOptsFunc)());
     }
 
+    static const std::string Templ = 
+        "/// @brief Extra options for #^#DESC#$#.\n"
+        "struct #^#NAME#$##^#EXT#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}; // struct #^#NAME#$#\n";
+
+    auto addSubElemFunc = 
+        [](std::string&& str, util::StringsList& list)
+        {
+            if (!str.empty()) {
+                list.push_back(std::move(str));
+            }
+        };
+
+    auto thisNsScope = comms::scopeFor(*this, generator(), false);
+    if (!thisNsScope.empty()) {
+        thisNsScope.append("::");
+    }
+
     if (fieldOptsFunc != nullptr) {
+        util::StringsList fieldElems;
         for (auto* commsField : m_commsFields) {
-            addStrFunc((commsField->*fieldOptsFunc)());
+            addSubElemFunc((commsField->*fieldOptsFunc)(), fieldElems);
+        }
+
+        if (!fieldElems.empty()) {
+            util::ReplacementMap repl {
+                {"NAME", strings::fieldNamespaceStr()},
+                {"BODY", util::strListToString(fieldElems, "\n", "")},
+                {"DESC", "fields"}
+            };
+
+            if (hasBase) {
+                repl["EXT"] = " : public TBase::" + thisNsScope + strings::fieldNamespaceStr();
+            }
+
+            addStrFunc(util::processTemplate(Templ, repl));
         }
     }
 
-    for (auto& msgPtr : messages()) {
-        assert(msgPtr);
-        addStrFunc((static_cast<const CommsMessage*>(msgPtr.get())->*messageOptsFunc)());
+    if (messageOptsFunc != nullptr) {
+        util::StringsList messageElems;
+        for (auto& msgPtr : messages()) {
+            assert(msgPtr);
+            addSubElemFunc((static_cast<const CommsMessage*>(msgPtr.get())->*messageOptsFunc)(), messageElems);
+        }
+
+        if (!messageElems.empty()) {
+            util::ReplacementMap repl {
+                {"NAME", strings::messageNamespaceStr()},
+                {"BODY", util::strListToString(messageElems, "\n", "")},
+                {"DESC", "messages"}
+            };
+
+            if (hasBase) {
+                repl["EXT"] = " : public TBase::" + thisNsScope + strings::messageNamespaceStr();
+            }
+
+            addStrFunc(util::processTemplate(Templ, repl));
+        }
     }
 
-    for (auto& framePtr : frames()) {
-        assert(framePtr);
-        addStrFunc((static_cast<const CommsFrame*>(framePtr.get())->*frameOptsFunc)());
-    }    
+    if (frameOptsFunc != nullptr) {
+        util::StringsList frameElems;
+        for (auto& framePtr : frames()) {
+            assert(framePtr);
+            addSubElemFunc((static_cast<const CommsFrame*>(framePtr.get())->*frameOptsFunc)(), frameElems);
+        } 
+
+        if (!frameElems.empty()) {
+            util::ReplacementMap repl {
+                {"NAME", strings::frameNamespaceStr()},
+                {"BODY", util::strListToString(frameElems, "\n", "")},
+                {"DESC", "frames"}
+            };
+
+            if (hasBase) {
+                repl["EXT"] = " : public TBase::" + thisNsScope + strings::frameNamespaceStr();
+            }
+
+            addStrFunc(util::processTemplate(Templ, repl));
+        }
+    }
 
     return util::strListToString(elems, "\n", "");
 }

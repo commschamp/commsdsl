@@ -71,6 +71,7 @@ public:
     FramesAccessList getAllFrames() const;
 
     Generator& generator();
+    const Generator& generator() const;
 
     Interface* addDefaultInterface();
 

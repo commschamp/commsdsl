@@ -47,6 +47,26 @@ std::string CommsMessage::commsDefaultOptions() const
     return commsCustomizationOptionsInternal(&CommsField::commsDefaultOptions, nullptr, false);
 }
 
+std::string CommsMessage::commsClientDefaultOptions() const
+{
+    return commsCustomizationOptionsInternal(nullptr, &CommsMessage::commsClientExtraCustomizationOptionsInternal, true);
+}
+
+std::string CommsMessage::commsServerDefaultOptions() const
+{
+    return commsCustomizationOptionsInternal(nullptr, &CommsMessage::commsServerExtraCustomizationOptionsInternal, true);
+}
+
+std::string CommsMessage::commsDataViewDefaultOptions() const
+{
+    return commsCustomizationOptionsInternal(&CommsField::commsDataViewDefaultOptions, nullptr, true);    
+}
+
+std::string CommsMessage::commsBareMetalDefaultOptions() const
+{
+    return commsCustomizationOptionsInternal(&CommsField::commsBareMetalDefaultOptions, nullptr, true);    
+}
+
 bool CommsMessage::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -961,6 +981,48 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
 
     } while (false);
     return util::strListToString(elems, "\n", "");
+}
+
+CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInternal() const
+{
+    auto sender = dslObj().sender();
+    if (sender == commsdsl::parse::Message::Sender::Both) {
+        return StringsList();
+    }
+
+    if (sender == commsdsl::parse::Message::Sender::Client) {
+        return StringsList{
+            "comms::option::app::NoReadImpl",
+            "comms::option::app::NoDispatchImpl"
+        };
+    }
+
+    assert (sender == commsdsl::parse::Message::Sender::Server);
+    return StringsList{
+        "comms::option::app::NoWriteImpl",
+        "comms::option::app::NoRefreshImpl"
+    };
+}
+
+CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInternal() const
+{
+    auto sender = dslObj().sender();
+    if (sender == commsdsl::parse::Message::Sender::Both) {
+        return StringsList();
+    }
+
+    if (sender == commsdsl::parse::Message::Sender::Client) {
+        return StringsList{
+            "comms::option::app::NoWriteImpl",
+            "comms::option::app::NoRefreshImpl"
+        };
+    }
+
+    assert (sender == commsdsl::parse::Message::Sender::Server);
+    return StringsList{
+        "comms::option::app::NoReadImpl",
+        "comms::option::app::NoDispatchImpl"
+    };
 }
 
 } // namespace commsdsl2new

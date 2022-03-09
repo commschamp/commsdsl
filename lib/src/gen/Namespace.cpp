@@ -140,6 +140,11 @@ public:
         return m_generator;
     }
 
+    const Generator& generator() const
+    {
+        return m_generator;
+    }    
+
 private:
     bool createNamespaces()
     {
@@ -465,6 +470,11 @@ Namespace::FramesAccessList Namespace::getAllFrames() const
 }
 
 Generator& Namespace::generator()
+{
+    return m_impl->generator();
+}
+
+const Generator& Namespace::generator() const
 {
     return m_impl->generator();
 }

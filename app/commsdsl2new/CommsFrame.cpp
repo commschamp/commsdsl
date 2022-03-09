@@ -75,6 +75,22 @@ std::string CommsFrame::commsDefaultOptions() const
             false);
 }
 
+std::string CommsFrame::commsDataViewDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsLayer::commsDataViewDefaultOptions,
+            true);
+}
+
+std::string CommsFrame::commsBareMetalDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsLayer::commsBareMetalDefaultOptions,
+            true);
+}
+
 bool CommsFrame::prepareImpl()
 {
     if (!Base::prepareImpl()) {

@@ -53,6 +53,7 @@ std::string optionsBodyInternal(
 
     return util::strListToString(opts, "\n", "");
 }
+
 bool writeFileInternal(
     const std::string& name,
     CommsGenerator& generator,
@@ -78,6 +79,43 @@ bool writeFileInternal(
     return stream.good();
 }
 
+const std::string& extOptionsTempl()
+{
+    static const std::string Templ = 
+        "#^#GENERATED#$#\n"
+        "/// @file\n"
+        "/// @brief Contains definition of protocol #^#DESC#$# default options.\n\n"
+        "#pragma once\n\n"
+        "#include \"#^#PROT_NAMESPACE#$#/options/DefaultOptions.h\"\n\n"
+        "#^#EXTRA#$#\n"
+        "namespace #^#PROT_NAMESPACE#$#\n"
+        "{\n\n"
+        "namespace options\n"
+        "{\n\n"
+        "/// @brief Default #^#DESC#$# options of the protocol.\n"
+        "template <typename TBase = #^#DEFAULT_OPTS#$#>\n"
+        "struct #^#NAME#$#DefaultOptionsT : public TBase\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "};\n\n"
+        "/// @brief Alias to @ref #^#NAME#$#DefaultOptionsT with default template parameter.\n"
+        "using #^#NAME#$#DefaultOptions = #^#NAME#$#DefaultOptionsT<>;\n\n"
+        "} // namespace options\n\n"
+        "} // namespace #^#PROT_NAMESPACE#$#\n";
+
+    return Templ;
+}
+
+util::ReplacementMap extInitialRepl(CommsGenerator& generator)
+{
+    util::ReplacementMap repl = {
+        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"DEFAULT_OPTS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)}
+    };
+    return repl;
+}
+
 } // namespace 
     
 
@@ -89,9 +127,12 @@ bool CommsDefaultOptions::write(CommsGenerator& generator)
 
 bool CommsDefaultOptions::writeInternal() const
 {
-    static_cast<void>(m_generator);
     return
-        writeDefaultOptionsInternal();
+        writeDefaultOptionsInternal() &&
+        writeClientDefaultOptionsInternal() &&
+        writeServerDefaultOptionsInternal() &&
+        writeDataViewDefaultOptionsInternal() &&
+        writeBareMetalDefaultOptionsInternal();
 }
 
 bool CommsDefaultOptions::writeDefaultOptionsInternal() const
@@ -122,6 +163,66 @@ bool CommsDefaultOptions::writeDefaultOptionsInternal() const
     };
 
     writeFileInternal(strings::defaultOptionsClassStr(), m_generator, util::processTemplate(Templ, repl));
+    return true;
+}
+
+bool CommsDefaultOptions::writeClientDefaultOptionsInternal() const
+{
+    util::ReplacementMap repl = extInitialRepl(m_generator);
+    repl.insert({
+        {"DESC", "client"},
+        {"NAME", "Client"},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsClientDefaultOptions)}
+    });
+
+    writeFileInternal("Client" + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    return true;
+}
+
+bool CommsDefaultOptions::writeServerDefaultOptionsInternal() const
+{
+    util::ReplacementMap repl = extInitialRepl(m_generator);
+    repl.insert({
+        {"DESC", "server"},
+        {"NAME", "Server"},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsServerDefaultOptions)}
+    });
+
+    writeFileInternal("Server" + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    return true;
+}
+
+bool CommsDefaultOptions::writeDataViewDefaultOptionsInternal() const
+{
+    util::ReplacementMap repl = extInitialRepl(m_generator);
+    repl.insert({
+        {"DESC", "data view"},
+        {"NAME", "DataView"},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions)}
+    });
+
+    writeFileInternal("DataView" + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    return true;
+}
+
+bool CommsDefaultOptions::writeBareMetalDefaultOptionsInternal() const
+{
+    std::string extra = 
+        "#ifndef DEFAULT_SEQ_FIXED_STORAGE_SIZE\n"
+        "/// @brief Define default fixed size for various sequence fields\n"
+        "/// @details May be defined during compile time to change the default value.\n"
+        "#define DEFAULT_SEQ_FIXED_STORAGE_SIZE 32\n"
+        "#endif\n";
+
+    util::ReplacementMap repl = extInitialRepl(m_generator);
+    repl.insert({
+        {"DESC", "bare metal"},
+        {"NAME", "BareMetal"},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsBareMetalDefaultOptions)},
+        {"EXTRA", std::move(extra)},
+    });
+
+    writeFileInternal("BareMetal" + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
     return true;
 }
 

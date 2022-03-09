@@ -272,7 +272,24 @@ std::string CommsField::commsDefaultOptions() const
             &CommsField::commsDefaultOptions,
             nullptr,
             false);
-    return strings::emptyString();
+}
+
+std::string CommsField::commsDataViewDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsField::commsDataViewDefaultOptions,
+            &CommsField::commsExtraDataViewDefaultOptionsInternal,
+            true);
+}
+
+std::string CommsField::commsBareMetalDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsField::commsBareMetalDefaultOptions,
+            &CommsField::commsExtraBareMetalDefaultOptionsInternal,
+            true);
 }
 
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
@@ -469,6 +486,16 @@ std::string CommsField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc f
 {
     static_cast<void>(fieldOptsFunc);
     return strings::emptyString();
+}
+
+CommsField::StringsList CommsField::commsExtraDataViewDefaultOptionsImpl() const
+{
+    return StringsList();
+}
+
+CommsField::StringsList CommsField::commsExtraBareMetalDefaultOptionsImpl() const
+{
+    return StringsList();
 }
 
 std::string CommsField::commsCommonNameFuncCode() const
@@ -1335,5 +1362,14 @@ std::string CommsField::commsCustomizationOptionsInternal(
     return util::strListToString(elems, "\n", "");
 }
 
+CommsField::StringsList CommsField::commsExtraDataViewDefaultOptionsInternal() const
+{
+    return commsExtraDataViewDefaultOptionsImpl();
+}
+
+CommsField::StringsList CommsField::commsExtraBareMetalDefaultOptionsInternal() const
+{
+    return commsExtraBareMetalDefaultOptionsImpl();
+}
 
 } // namespace commsdsl2new

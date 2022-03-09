@@ -37,6 +37,8 @@ public:
     virtual ~CommsFrame();
 
     std::string commsDefaultOptions() const;
+    std::string commsDataViewDefaultOptions() const;
+    std::string commsBareMetalDefaultOptions() const;
 
 protected:
     virtual bool prepareImpl() override;

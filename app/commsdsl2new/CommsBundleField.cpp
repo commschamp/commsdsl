@@ -355,6 +355,19 @@ bool CommsBundleField::commsIsVersionDependentImpl() const
             });
 }
 
+std::string CommsBundleField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+{
+    assert(fieldOptsFunc != nullptr);
+    util::StringsList elems;
+    for (auto* m : m_members) {
+        auto str = (m->*fieldOptsFunc)();
+        if (!str.empty()) {
+            elems.push_back(std::move(str));
+        }
+    }
+    return util::strListToString(elems, "\n", "");
+}
+
 std::string CommsBundleField::commsDefFieldOptsInternal() const
 {
     commsdsl::gen::util::StringsList opts;

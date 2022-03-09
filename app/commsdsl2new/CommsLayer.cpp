@@ -185,6 +185,26 @@ std::string CommsLayer::commsDefaultOptions() const
         );
 }
 
+std::string CommsLayer::commsDataViewDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsField::commsDataViewDefaultOptions,
+            &CommsLayer::commsExtraDataViewDefaultOptionsInternal,
+            true
+        );
+}
+
+std::string CommsLayer::commsBareMetalDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsField::commsBareMetalDefaultOptions,
+            &CommsLayer::commsExtraBareMetalDefaultOptionsInternal,
+            true
+        );
+}
+
 bool CommsLayer::commsReorderImpl(CommsLayersList& siblings, bool& success) const
 {
     static_cast<void>(siblings);
@@ -217,6 +237,16 @@ CommsLayer::StringsList CommsLayer::commsDefExtraOptsImpl() const
 bool CommsLayer::commsIsCustomizableImpl() const
 {
     return false;
+}
+
+CommsLayer::StringsList CommsLayer::commsExtraDataViewDefaultOptionsImpl() const
+{
+    return StringsList();
+}
+
+CommsLayer::StringsList CommsLayer::commsExtraBareMetalDefaultOptionsImpl() const
+{
+    return StringsList();
 }
 
 std::string CommsLayer::commsDefFieldType() const
@@ -399,6 +429,16 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
     } while (false);
 
     return util::strListToString(elems, "\n", "");
+}
+
+CommsLayer::StringsList CommsLayer::commsExtraDataViewDefaultOptionsInternal() const
+{
+    return commsExtraDataViewDefaultOptionsImpl();
+}
+
+CommsLayer::StringsList CommsLayer::commsExtraBareMetalDefaultOptionsInternal() const
+{
+    return commsExtraBareMetalDefaultOptionsImpl();
 }
 
 } // namespace commsdsl2new

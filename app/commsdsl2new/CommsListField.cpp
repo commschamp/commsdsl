@@ -509,6 +509,55 @@ std::string CommsListField::commsCompareToFieldCodeImpl(
     return CommsBase::commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);  
 }
 
+std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+{
+    util::StringsList elems;
+
+    auto addStr = 
+        [&elems](std::string&& str)
+        {
+            if (!str.empty()) {
+                elems.push_back(std::move(str));
+            }
+        };
+
+    assert(fieldOptsFunc != nullptr);
+    if (m_commsMemberElementField != nullptr) {
+        addStr((m_commsMemberElementField->*fieldOptsFunc)());
+    }
+
+    if (m_commsMemberCountPrefixField != nullptr) {
+        addStr((m_commsMemberCountPrefixField->*fieldOptsFunc)());
+    }
+
+    if (m_commsMemberLengthPrefixField != nullptr) {
+        addStr((m_commsMemberLengthPrefixField->*fieldOptsFunc)());
+    }   
+
+    if (m_commsMemberElemLengthPrefixField != nullptr) {
+        addStr((m_commsMemberElemLengthPrefixField->*fieldOptsFunc)());
+    }      
+
+    return util::strListToString(elems, "\n", "");
+}
+
+CommsListField::StringsList CommsListField::commsExtraBareMetalDefaultOptionsImpl() const
+{
+    auto obj = listDslObj();
+    auto fixedCount = obj.fixedCount();
+    if (fixedCount != 0U) {
+        return 
+            StringsList{
+                "comms::option::app::SequenceFixedSizeUseFixedSizeStorage"
+            };         
+    }
+
+    return 
+        StringsList{
+            "comms::option::app::FixedSizeStorage<DEFAULT_SEQ_FIXED_STORAGE_SIZE>"
+        };     
+}
+
 std::string CommsListField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

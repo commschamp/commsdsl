@@ -54,7 +54,8 @@ private:
         NamespaceOptsFunc nsOptsFunc,
         FieldOptsFunc fieldOptsFunc,
         MessageOptsFunc messageOptsFunc,
-        FrameOptsFunc frameOptsFunc) const;
+        FrameOptsFunc frameOptsFunc,
+        bool hasBase) const;
 
     CommsFieldsList m_commsFields;        
 };

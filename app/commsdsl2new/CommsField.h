@@ -92,6 +92,8 @@ public:
     }
 
     std::string commsDefaultOptions() const;
+    std::string commsDataViewDefaultOptions() const;
+    std::string commsBareMetalDefaultOptions() const;
 
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
@@ -122,6 +124,8 @@ protected:
     virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const;  
     virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const;
+    virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
+    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
@@ -155,6 +159,8 @@ private:
         FieldOptsFunc fieldOptsFunc, 
         ExtraFieldOptsFunc extraFieldOptsFunc,
         bool hasBase) const;
+    StringsList commsExtraDataViewDefaultOptionsInternal() const;
+    StringsList commsExtraBareMetalDefaultOptionsInternal() const;
 
     commsdsl::gen::Field& m_field;
     std::string m_customRead;

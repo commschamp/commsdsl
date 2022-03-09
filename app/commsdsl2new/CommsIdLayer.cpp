@@ -84,4 +84,12 @@ bool CommsIdLayer::commsIsCustomizableImpl() const
     return true;
 }
 
+CommsIdLayer::StringsList CommsIdLayer::commsExtraBareMetalDefaultOptionsImpl() const
+{
+    return
+        StringsList{
+            "comms::option::app::InPlaceAllocation"
+        };    
+}
+
 } // namespace commsdsl2new

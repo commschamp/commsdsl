@@ -37,6 +37,8 @@ protected:
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual bool commsIsCustomizableImpl() const override;
+    virtual StringsList commsExtraDataViewDefaultOptionsImpl() const override;
+    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
 };
 
 } // namespace commsdsl2new

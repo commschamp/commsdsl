@@ -353,6 +353,41 @@ std::string CommsDataField::commsCompareToFieldCodeImpl(
     return CommsBase::commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);  
 }
 
+std::string CommsDataField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+{
+    if (m_commsMemberPrefixField == nullptr) {
+        return strings::emptyString();
+    }
+
+    assert(fieldOptsFunc != nullptr);
+    return (m_commsMemberPrefixField->*fieldOptsFunc)();
+}
+
+CommsDataField::StringsList CommsDataField::commsExtraDataViewDefaultOptionsImpl() const
+{
+    return 
+        StringsList{
+            "comms::option::app::OrigDataView"
+        };
+}
+
+CommsDataField::StringsList CommsDataField::commsExtraBareMetalDefaultOptionsImpl() const
+{
+    auto obj = dataDslObj();
+    auto fixedLength = obj.fixedLength();
+    if (fixedLength != 0U) {
+        return 
+            StringsList{
+                "comms::option::app::SequenceFixedSizeUseFixedSizeStorage"
+            };        
+    }
+
+    return 
+        StringsList{
+            "comms::option::app::FixedSizeStorage<DEFAULT_SEQ_FIXED_STORAGE_SIZE>"
+        };    
+}
+
 std::string CommsDataField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

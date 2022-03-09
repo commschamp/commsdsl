@@ -373,6 +373,19 @@ bool CommsVariantField::commsIsVersionDependentImpl() const
             });
 }
 
+std::string CommsVariantField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+{
+    assert(fieldOptsFunc != nullptr);
+    util::StringsList elems;
+    for (auto* m : m_members) {
+        auto str = (m->*fieldOptsFunc)();
+        if (!str.empty()) {
+            elems.push_back(std::move(str));
+        }
+    }
+    return util::strListToString(elems, "\n", "");
+}
+
 bool CommsVariantField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());

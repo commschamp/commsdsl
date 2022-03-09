@@ -71,4 +71,20 @@ bool CommsPayloadLayer::commsIsCustomizableImpl() const
     return true;
 }
 
+CommsPayloadLayer::StringsList CommsPayloadLayer::commsExtraDataViewDefaultOptionsImpl() const
+{
+    return
+        StringsList{
+            "comms::option::app::OrigDataView"
+        };    
+}
+
+CommsPayloadLayer::StringsList CommsPayloadLayer::commsExtraBareMetalDefaultOptionsImpl() const
+{
+    return
+        StringsList{
+            "comms::option::app::FixedSizeStorage<DEFAULT_SEQ_FIXED_STORAGE_SIZE * 8>"
+        };    
+}
+
 } // namespace commsdsl2new

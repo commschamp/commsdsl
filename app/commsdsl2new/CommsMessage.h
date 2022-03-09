@@ -38,6 +38,10 @@ public:
     virtual ~CommsMessage();
 
     std::string commsDefaultOptions() const;
+    std::string commsClientDefaultOptions() const;
+    std::string commsServerDefaultOptions() const;
+    std::string commsDataViewDefaultOptions() const;
+    std::string commsBareMetalDefaultOptions() const;
 
 protected:
     virtual bool prepareImpl() override;
@@ -77,6 +81,9 @@ private:
         FieldOptsFunc fieldOptsFunc,
         ExtraMessageOptsFunc extraMessageOptsFunc,
         bool hasBase) const;
+
+    StringsList commsClientExtraCustomizationOptionsInternal() const;
+    StringsList commsServerExtraCustomizationOptionsInternal() const;
 
     CommsFieldsList m_commsFields;  
     commsdsl::gen::util::StringsList m_bundledReadPrepareCodes;

@@ -173,6 +173,16 @@ bool CommsOptionalField::commsIsVersionDependentImpl() const
     return (m_commsMemberField != nullptr) && (m_commsMemberField->commsIsVersionDependent());
 }
 
+std::string CommsOptionalField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+{
+    if (m_commsMemberField == nullptr) {
+        return strings::emptyString();
+    }
+
+    assert(fieldOptsFunc != nullptr);
+    return (m_commsMemberField->*fieldOptsFunc)();
+}
+
 std::string CommsOptionalField::commsDefFieldRefInternal() const
 {
     if (m_commsExternalField != nullptr) {

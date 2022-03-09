@@ -31,6 +31,10 @@ private:
 
     bool writeInternal() const;
     bool writeDefaultOptionsInternal() const;
+    bool writeClientDefaultOptionsInternal() const;
+    bool writeServerDefaultOptionsInternal() const;
+    bool writeDataViewDefaultOptionsInternal() const;
+    bool writeBareMetalDefaultOptionsInternal() const;
 
     CommsGenerator& m_generator;
 };

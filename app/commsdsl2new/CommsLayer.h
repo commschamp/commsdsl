@@ -48,6 +48,8 @@ public:
     void commsSetForcedFailOnInvalidField();
 
     std::string commsDefaultOptions() const;
+    std::string commsDataViewDefaultOptions() const;
+    std::string commsBareMetalDefaultOptions() const;
 
     const commsdsl::gen::Layer& layer() const
     {
@@ -78,6 +80,8 @@ protected:
     virtual bool commsDefHasInputMessagesImpl() const;
     virtual StringsList commsDefExtraOptsImpl() const; // TODO: check if needed
     virtual bool commsIsCustomizableImpl() const;
+    virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
+    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;
 
     std::string commsDefFieldType() const;
     std::string commsDefExtraOpts() const;
@@ -91,7 +95,10 @@ private:
     std::string commsCustomizationOptionsInternal(
         FieldOptsFunc fieldOptsFunc, 
         ExtraLayerOptsFunc extraLayerOptsFunc,
-        bool hasBase) const;    
+        bool hasBase) const;  
+
+    StringsList commsExtraDataViewDefaultOptionsInternal() const;
+    StringsList commsExtraBareMetalDefaultOptionsInternal() const;
     
     commsdsl::gen::Layer& m_layer;
     CommsField* m_commsExternalField = nullptr;

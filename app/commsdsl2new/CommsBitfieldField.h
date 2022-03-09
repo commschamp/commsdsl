@@ -45,6 +45,7 @@ protected:
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual bool commsIsVersionDependentImpl() const override;
+    virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
 
 private:
     bool commsPrepareInternal();
