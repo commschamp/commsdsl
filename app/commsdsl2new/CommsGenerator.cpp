@@ -22,6 +22,7 @@
 #include "CommsCustomLayer.h"
 #include "CommsDataField.h"
 #include "CommsDefaultOptions.h"
+#include "CommsDispatch.h"
 #include "CommsEnumField.h"
 #include "CommsFieldBase.h"
 #include "CommsFloatField.h"
@@ -253,7 +254,8 @@ bool CommsGenerator::writeImpl()
         CommsFieldBase::write(*this) &&
         CommsVersion::write(*this) &&
         CommsInputMessages::write(*this) &&
-        CommsDefaultOptions::write(*this);
+        CommsDefaultOptions::write(*this) &&
+        CommsDispatch::write(*this);
 }
 
 } // namespace commsdsl2new

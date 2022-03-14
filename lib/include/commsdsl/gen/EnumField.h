@@ -39,6 +39,7 @@ public:
 
     bool isUnsignedUnderlyingType() const;
     unsigned hexWidth() const;
+    std::string valueName(std::intmax_t value) const;
 
     commsdsl::parse::EnumField enumDslObj() const;
 

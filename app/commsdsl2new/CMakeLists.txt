@@ -9,6 +9,7 @@ set (
     CommsCustomLayer.cpp
     CommsDataField.cpp
     CommsDefaultOptions.cpp
+    CommsDispatch.cpp
     CommsEnumField.cpp
     CommsField.cpp
     CommsFieldBase.cpp

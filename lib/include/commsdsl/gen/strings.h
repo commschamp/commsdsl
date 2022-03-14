@@ -14,8 +14,6 @@ namespace strings
 const std::string& emptyString();
 const std::string& msgIdEnumNameStr();
 const std::string& cmakeListsFileStr();
-const std::string& optionsStr();
-const std::string& inputStr();
 const std::string& defaultOptionsStr();
 const std::string& allMessagesStr();
 const std::string& messageClassStr();
@@ -29,6 +27,7 @@ const std::string& frameNamespaceStr();
 const std::string& layerNamespaceStr();
 const std::string& checksumNamespaceStr();
 const std::string& optionsNamespaceStr();
+const std::string& dispatchNamespaceStr();
 const std::string& inputNamespaceStr();
 const std::string& includeDirStr();
 const std::string& nameFileSuffixStr();

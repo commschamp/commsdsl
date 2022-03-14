@@ -18,6 +18,7 @@
 
 #include "commsdsl/gen/Generator.h"
 #include "commsdsl/gen/IntField.h"
+#include "commsdsl/gen/strings.h"
 
 #include <cassert>
 
@@ -49,6 +50,18 @@ unsigned EnumField::hexWidth() const
         hexWidth = obj.maxLength() * 2U;
     }
     return static_cast<unsigned>(hexWidth);
+}
+
+std::string EnumField::valueName(std::intmax_t value) const
+{
+    auto obj = enumDslObj();
+    auto& revValues = obj.revValues();
+    auto iter = revValues.find(value);
+    if (iter != revValues.end()) {
+        return iter->second;
+    }
+
+    return strings::emptyString();
 }
 
 commsdsl::parse::EnumField EnumField::enumDslObj() const

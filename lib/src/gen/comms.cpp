@@ -364,7 +364,7 @@ std::string scopeForOptions(
     bool addElement)
 {
     static const std::vector<std::string> SubElems = {
-        strings::optionsStr()
+        strings::optionsNamespaceStr()
     };
 
     return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
@@ -377,7 +377,7 @@ std::string scopeForInput(
     bool addElement)
 {
     static const std::vector<std::string> SubElems = {
-        strings::inputStr()
+        strings::inputNamespaceStr()
     };
 
     return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
@@ -445,6 +445,15 @@ std::string relHeaderForOptions(const std::string& name, const Generator& genera
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
+std::string relHeaderForDispatch(const std::string& name, const Generator& generator)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::dispatchNamespaceStr()
+    };
+
+    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+}
+
 std::string relHeaderForLayer(const std::string& name, const Generator& generator)
 {
     static const std::vector<std::string> SubElems = {
@@ -498,6 +507,11 @@ std::string headerPathForInput(const std::string& name, const Generator& generat
 std::string headerPathForOptions(const std::string& name, const Generator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForOptions(name, generator);
+}
+
+std::string headerPathForDispatch(const std::string& name, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForDispatch(name, generator);
 }
 
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator)

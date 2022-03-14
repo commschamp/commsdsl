@@ -27,18 +27,6 @@ const std::string& cmakeListsFileStr()
     return Str;
 }
 
-const std::string& optionsStr()
-{
-    static const std::string Str("options");
-    return Str;
-}
-
-const std::string& inputStr()
-{
-    static const std::string Str("input");
-    return Str;
-}
-
 const std::string& defaultOptionsStr()
 {
     static const std::string Str("DefaultOptions");
@@ -114,6 +102,12 @@ const std::string& checksumNamespaceStr()
 const std::string& optionsNamespaceStr()
 {
     static const std::string Str("options");
+    return Str;   
+}
+
+const std::string& dispatchNamespaceStr()
+{
+    static const std::string Str("dispatch");
     return Str;   
 }
 
