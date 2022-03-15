@@ -42,6 +42,7 @@ public:
     using NamespacesList = Namespace::NamespacesList;
     using PlatformNamesList = std::vector<std::string>;
 
+    using NamespacesAccessList = Namespace::NamespacesAccessList;
     using InterfacesAccessList = Namespace::InterfacesAccessList;
     using MessagesAccessList = Namespace::MessagesAccessList;
     using FramesAccessList = Namespace::FramesAccessList;
@@ -74,6 +75,7 @@ public:
     const Field* findField(const std::string& externalRef) const;
     Field* findField(const std::string& externalRef);
 
+    NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;
     MessagesAccessList getAllMessages() const;
     FramesAccessList getAllFrames() const;

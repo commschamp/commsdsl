@@ -55,7 +55,7 @@ bool CommsFieldBase::writeInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    const std::string Templ = 
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of base class of all the fields.\n\n"

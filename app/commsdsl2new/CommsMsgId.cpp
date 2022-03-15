@@ -60,7 +60,7 @@ bool CommsMsgId::commsWriteInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    const std::string Templ = 
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains definition of message ids enumeration.\n\n"

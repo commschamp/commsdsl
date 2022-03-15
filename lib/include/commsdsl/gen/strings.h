@@ -30,6 +30,7 @@ const std::string& optionsNamespaceStr();
 const std::string& dispatchNamespaceStr();
 const std::string& inputNamespaceStr();
 const std::string& includeDirStr();
+const std::string& docDirStr();
 const std::string& nameFileSuffixStr();
 const std::string& readFileSuffixStr();
 const std::string& refreshFileSuffixStr();
@@ -53,6 +54,8 @@ const std::string& origSuffixStr();
 const std::string& msgIdPrefixStr();
 const std::string& fieldsSuffixStr();
 const std::string& layersSuffixStr();
+const std::string& bareMetalStr();
+const std::string& dataViewStr();
 
 } // namespace strings
 

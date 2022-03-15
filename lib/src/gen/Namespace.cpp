@@ -418,6 +418,19 @@ const Field* Namespace::findField(const std::string& externalRef) const
     return (*nsIter)->findField(remStr);
 }
 
+Namespace::NamespacesAccessList Namespace::getAllNamespaces() const
+{
+    NamespacesAccessList result;
+    auto& subNs = m_impl->namespaces();
+    for (auto& n : subNs) {
+        auto list = n->getAllNamespaces();
+        result.insert(result.end(), list.begin(), list.end());
+        result.emplace_back(n.get());
+    }
+
+    return result;
+}
+
 Namespace::InterfacesAccessList Namespace::getAllInterfaces() const
 {
     InterfacesAccessList result;

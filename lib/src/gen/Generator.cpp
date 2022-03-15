@@ -516,6 +516,17 @@ Field* Generator::findField(const std::string& externalRef)
     return field;
 }
 
+Generator::NamespacesAccessList Generator::getAllNamespaces() const
+{
+    NamespacesAccessList result;
+    for (auto& n : m_impl->namespaces()) {
+        auto subResult = n->getAllNamespaces();
+        result.insert(result.end(), subResult.begin(), subResult.end());
+        result.push_back(n.get());
+    }
+    return result;
+}
+
 Generator::InterfacesAccessList Generator::getAllInterfaces() const
 {
     InterfacesAccessList result;

@@ -123,6 +123,12 @@ const std::string& includeDirStr()
     return Str;   
 }
 
+const std::string& docDirStr()
+{
+    static const std::string Str("doc");
+    return Str;   
+}
+
 const std::string& nameFileSuffixStr()
 {
     static const std::string Str(".name");
@@ -261,6 +267,17 @@ const std::string& layersSuffixStr()
     return Str;    
 }
 
+const std::string& bareMetalStr()
+{
+    static const std::string Str("BareMetal");
+    return Str;    
+}
+
+const std::string& dataViewStr()
+{
+    static const std::string Str("DataView");
+    return Str;    
+}
 
 } // namespace strings
 

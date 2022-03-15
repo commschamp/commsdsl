@@ -197,11 +197,11 @@ bool CommsDefaultOptions::writeDataViewDefaultOptionsInternal() const
     util::ReplacementMap repl = extInitialRepl(m_generator);
     repl.insert({
         {"DESC", "data view"},
-        {"NAME", "DataView"},
+        {"NAME", strings::dataViewStr()},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions)}
     });
 
-    writeFileInternal("DataView" + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(strings::dataViewStr() + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
     return true;
 }
 
@@ -217,12 +217,12 @@ bool CommsDefaultOptions::writeBareMetalDefaultOptionsInternal() const
     util::ReplacementMap repl = extInitialRepl(m_generator);
     repl.insert({
         {"DESC", "bare metal"},
-        {"NAME", "BareMetal"},
+        {"NAME", strings::bareMetalStr()},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsBareMetalDefaultOptions)},
         {"EXTRA", std::move(extra)},
     });
 
-    writeFileInternal("BareMetal" + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(strings::bareMetalStr() + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
     return true;
 }
 

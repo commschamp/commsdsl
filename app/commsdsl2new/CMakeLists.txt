@@ -10,6 +10,7 @@ set (
     CommsDataField.cpp
     CommsDefaultOptions.cpp
     CommsDispatch.cpp
+    CommsDoxygen.cpp
     CommsEnumField.cpp
     CommsField.cpp
     CommsFieldBase.cpp

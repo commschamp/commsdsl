@@ -62,7 +62,7 @@ bool CommsVersion::writeInternal() const
         return false;
     }
 
-    static const std::string Templ = 
+    const std::string Templ = 
         "#^#GENERATED#$#\n"
         "/// @file\n"
         "/// @brief Contains protocol version definition.\n\n"
@@ -120,7 +120,7 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
         tokens.push_back("0");
     }
 
-    static const std::string Templ = 
+    const std::string Templ = 
         "/// @brief Major version of the protocol library.\n"
         "#define #^#NS#$#_MAJOR_VERSION (#^#MAJOR_VERSION#$#)\n\n"
         "/// @brief Minor version of the protocol library.\n"
@@ -147,7 +147,7 @@ std::string CommsVersion::commsProtVersionFuncsInternal() const
         return strings::emptyString();
     }
 
-    static const std::string Templ = 
+    const std::string Templ = 
         "/// @brief Major version of the protocol library\n"
         "inline constexpr unsigned versionMajor()\n"
         "{\n"

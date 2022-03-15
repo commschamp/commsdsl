@@ -44,6 +44,7 @@ public:
     using InterfacesList = std::vector<InterfacePtr>;
     using MessagesList = std::vector<MessagePtr>;
     using FramesList = std::vector<FramePtr>;
+    using NamespacesAccessList = std::vector<const Namespace*>;
     using InterfacesAccessList = std::vector<const Interface*>;
     using MessagesAccessList = std::vector<const Message*>;
     using FramesAccessList = std::vector<const Frame*>;
@@ -66,6 +67,7 @@ public:
     const Field* findMessageIdField() const;
     const Field* findField(const std::string& externalRef) const;
 
+    NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;
     MessagesAccessList getAllMessages() const;
     FramesAccessList getAllFrames() const;

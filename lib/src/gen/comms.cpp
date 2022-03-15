@@ -383,6 +383,19 @@ std::string scopeForInput(
     return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
 }
 
+std::string scopeForDispatch(
+    const std::string& name, 
+    const Generator& generator, 
+    bool addMainNamespace, 
+    bool addElement)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::dispatchNamespaceStr()
+    };
+
+    return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
+}
+
 std::string scopeForRoot(
     const std::string& name, 
     const Generator& generator, 
@@ -524,6 +537,11 @@ std::string headerPathRoot(const std::string& name, const Generator& generator)
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForRoot(name, generator);
 }
 
+std::string pathForDoc(const std::string& name, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::docDirStr() + '/' + name;    
+}
+
 std::string inputCodePathFor(const Elem& elem, const Generator& generator)
 {
     return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator);
@@ -532,6 +550,11 @@ std::string inputCodePathFor(const Elem& elem, const Generator& generator)
 std::string inputCodePathForRoot(const std::string& name, const Generator& generator)
 {
     return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForRoot(name, generator);
+}
+
+std::string inputCodePathForDoc(const std::string& name, const Generator& generator)
+{
+    return generator.getCodeDir() + '/' + strings::docDirStr() + '/' + name;
 }
 
 std::string namespaceBeginFor(
