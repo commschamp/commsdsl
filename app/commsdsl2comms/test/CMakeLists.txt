@@ -2,9 +2,10 @@
 #################################################################
 
 function (test_func name)
-    set (schema_file "${CMAKE_CURRENT_SOURCE_DIR}/${name}/Schema.xml")
+    set (test_dir "${PROJECT_SOURCE_DIR}/app/commsdsl2new/test/${name}")
+    set (schema_file "${test_dir}/Schema.xml")
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
-    set (code_input_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}/src")
+    set (code_input_dir "${test_dir}/src")
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")
         set (code_input_param "-c${code_input_dir}")
@@ -28,7 +29,7 @@ function (test_func name)
             -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"
         DEPENDS ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
 
-    set (tests "${CMAKE_CURRENT_SOURCE_DIR}/${name}/${name}Test.th")
+    set (tests "${test_dir}/${name}Test.th")
 
     set (testName "${APP_NAME}.${name}Test")
 
