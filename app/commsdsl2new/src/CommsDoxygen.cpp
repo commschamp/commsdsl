@@ -479,7 +479,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
             nsList.begin(), nsList.end(),
             [](auto* ns)
             {
-                return ns->dslObj().name().empty();
+                return ns->name().empty();
             });
 
     if (!hasDefaultNamespace) {

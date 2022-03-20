@@ -17,7 +17,6 @@
 
 #include "commsdsl/gen/util.h"
 
-#include <iostream>
 #include <cassert>
 #include <vector>
 

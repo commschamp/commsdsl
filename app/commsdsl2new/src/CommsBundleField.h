@@ -54,6 +54,8 @@ protected:
     virtual std::string commsDefRefreshFuncBodyImpl() const override;    
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
+    virtual std::size_t commsMinLengthImpl() const override;
+    virtual std::size_t commsMaxLengthImpl() const override;       
 
 private:
     bool commsPrepareInternal();

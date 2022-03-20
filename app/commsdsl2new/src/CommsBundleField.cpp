@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <numeric>
 
 namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;
@@ -287,7 +288,7 @@ std::string CommsBundleField::commsDefReadFuncBodyImpl() const
     }
     else {
         auto prevAcc = comms::accessName(m_members[prevIdx]->field().dslObj().name());
-        reads.push_back("es = Base::teamplate readFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
+        reads.push_back("es = Base::template readFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
     }
 
     static const std::string Templ = 
@@ -366,6 +367,28 @@ std::string CommsBundleField::commsMembersCustomizationOptionsBodyImpl(FieldOpts
         }
     }
     return util::strListToString(elems, "\n", "");
+}
+
+std::size_t CommsBundleField::commsMinLengthImpl() const
+{
+    return
+        std::accumulate(
+            m_members.begin(), m_members.end(), std::size_t(0),
+            [](std::size_t soFar, auto* m)
+            {
+                return soFar + m->commsMinLength();
+            });
+}
+
+std::size_t CommsBundleField::commsMaxLengthImpl() const
+{
+    return
+        std::accumulate(
+            m_members.begin(), m_members.end(), std::size_t(0),
+            [](std::size_t soFar, auto* m)
+            {
+                return soFar + m->commsMaxLength();
+            });    
 }
 
 std::string CommsBundleField::commsDefFieldOptsInternal() const

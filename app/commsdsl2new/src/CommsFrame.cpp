@@ -265,7 +265,7 @@ bool CommsFrame::commsWriteDefInternal()
         "class #^#CLASS_NAME#$##^#ORIG#$# : public\n"
         "    #^#FRAME_DEF#$#\n"
         "{\n"
-        "    using Base =\n"
+        "    using Base = typename\n"
         "        #^#FRAME_DEF#$#;\n"
         "public:\n"
         "    /// @brief Allow access to frame definition layers.\n"

@@ -558,6 +558,16 @@ CommsListField::StringsList CommsListField::commsExtraBareMetalDefaultOptionsImp
         };     
 }
 
+std::size_t CommsListField::commsMaxLengthImpl() const
+{
+    auto obj = listDslObj();
+    if (obj.fixedCount() != 0U) {
+        return CommsBase::commsMaxLengthImpl();
+    }
+
+    return comms::maxPossibleLength();
+}
+
 std::string CommsListField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

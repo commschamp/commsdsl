@@ -141,7 +141,7 @@ std::string CommsMsgId::commsIdsInternal() const
             v.insert(v.begin(), prefix.begin(), prefix.end());
         }
 
-        return util::strListToString(enumValues, "\n", "");
+        return util::strListToString(enumValues, ",\n", "");
     }
 
     auto allMessages = m_generator.getAllMessages();
@@ -150,7 +150,7 @@ std::string CommsMsgId::commsIdsInternal() const
     for (auto* m : allMessages) {
         ids.push_back(prefix + comms::fullNameFor(*m) + " = " + util::numToString(m->dslObj().id()));
     }
-    return util::strListToString(ids, "\n", "");
+    return util::strListToString(ids, ",\n", "");
 }
 
 } // namespace commsdsl2new

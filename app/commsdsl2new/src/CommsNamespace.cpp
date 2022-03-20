@@ -42,15 +42,15 @@ const std::string& optsTemplInternal(bool defaultNs)
     }
 
     static const std::string Templ = 
-        "struct #^#NAME#$##^#EXT\n"
+        "struct #^#NAME#$##^#EXT#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
-        "};\n";  
+        "}; // struct #^#NAME#$#\n";  
     return Templ;
 }
 
 } // namespace 
-    
+
 
 CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
@@ -70,13 +70,12 @@ std::string CommsNamespace::commsDefaultOptions() const
             false
         );
 
-    auto name = comms::namespaceName(dslObj().name());
+    auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
-        {"NAME", name},
+        {"NAME", nsName},
         {"BODY", std::move(body)},
     };
-    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
-    return result;
+    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsClientDefaultOptions() const
@@ -90,13 +89,12 @@ std::string CommsNamespace::commsClientDefaultOptions() const
             true
         );
 
-    auto name = comms::namespaceName(dslObj().name());
+    auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
-        {"NAME", name},
+        {"NAME", nsName},
         {"BODY", std::move(body)},
     };
-    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
-    return result;
+    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsServerDefaultOptions() const
@@ -110,13 +108,12 @@ std::string CommsNamespace::commsServerDefaultOptions() const
             true
         );
 
-    auto name = comms::namespaceName(dslObj().name());
+    auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
-        {"NAME", name},
+        {"NAME", nsName},
         {"BODY", std::move(body)},
     };
-    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
-    return result;
+    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsDataViewDefaultOptions() const
@@ -130,13 +127,12 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
             true
         );
 
-    auto name = comms::namespaceName(dslObj().name());
+    auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
-        {"NAME", name},
+        {"NAME", nsName},
         {"BODY", std::move(body)},
     };
-    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
-    return result;
+    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 std::string CommsNamespace::commsBareMetalDefaultOptions() const
@@ -150,12 +146,12 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
             true
         );
 
-    auto name = comms::namespaceName(dslObj().name());
+    auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
-        {"NAME", name},
+        {"NAME", nsName},
         {"BODY", std::move(body)},
     };
-    auto result = util::processTemplate(optsTemplInternal(name.empty()), repl);
+    auto result = util::processTemplate(optsTemplInternal(nsName.empty()), repl);
     return result;
 }
 

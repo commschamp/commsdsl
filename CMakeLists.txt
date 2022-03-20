@@ -24,6 +24,7 @@ option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to re
 # CC_TAG - Tag/branch of CommsChampion project to use instead of default
 # COMMS_TAG - Tag/branch of COMMS library project to use instead of default
 # BOOST_ROOT and other built-in hint variables for the process of finding Boost package.
+# CC_COMMS_REPO - Repository of COMMS library project, if not specified default github CommsChampion Ecosystem repo is going to be used.
 
 # Deprecated options for backward compatibility, use the ones above for new builds.
 # ---------------------------
@@ -60,19 +61,20 @@ if (NOT COMMSDSL_TESTS_CXX_STANDARD)
     set (COMMSDSL_TESTS_CXX_STANDARD 11)
 endif ()
 
-if ("${CC_TAG}" STREQUAL "")
-    set (CC_TAG "v3.4.1")
-endif()
+#if ("${CC_TAG}" STREQUAL "")
+#    set (CC_TAG "v3.4.1")
+#endif()
 
 if ("${COMMS_TAG}" STREQUAL "")
     set (COMMS_TAG "develop")
 endif()
 
-set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
-
 if (NOT COMMSDSL_EXTERNALS_DIR)
     set (COMMSDSL_EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 endif ()
+
+set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
+include (${CMAKE_SCIPTS_DIR}/CommsdslFuncs.cmake)
 
 ################################################
 # Make sure that the COMMS library is available

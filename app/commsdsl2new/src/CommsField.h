@@ -47,6 +47,8 @@ public:
     bool commsHasMembersCode() const;
     bool commsHasGeneratedReadCode() const;
     bool commsIsVersionDependent() const;
+    std::size_t commsMinLength() const;
+    std::size_t commsMaxLength() const;
 
     IncludesList commsDefIncludes() const;
     std::string commsDefCode() const;
@@ -126,6 +128,8 @@ protected:
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;
+    virtual std::size_t commsMinLengthImpl() const;
+    virtual std::size_t commsMaxLengthImpl() const;    
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;

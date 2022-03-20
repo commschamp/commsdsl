@@ -678,20 +678,19 @@ std::string CommsMessage::commsDefLengthCheckInternal() const
         "#^#MAX_LEN_ASSERT#$#\n"
     ;
 
-    auto& fList = fields();
     auto minLength =
         std::accumulate(
-            fList.begin(), fList.end(), std::size_t(0),
-            [](std::size_t soFar, auto& f)
+            m_commsFields.begin(), m_commsFields.end(), std::size_t(0),
+            [](std::size_t soFar, auto* f)
             {
-                return comms::addLength(soFar, f->dslObj().minLength());
+                return comms::addLength(soFar, f->commsMinLength());
             });
     auto maxLength =
         std::accumulate(
-            fList.begin(), fList.end(), std::size_t(0),
-            [](std::size_t soFar, auto& f)
+            m_commsFields.begin(), m_commsFields.end(), std::size_t(0),
+            [](std::size_t soFar, auto* f)
             {
-                return comms::addLength(soFar, f->dslObj().maxLength());
+                return comms::addLength(soFar, f->commsMaxLength());
             });    
 
     util::ReplacementMap repl = {
@@ -785,7 +784,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
     }
     else {
         auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
-        reads.push_back("es = Base::teamplate doReadFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
+        reads.push_back("es = Base::template doReadFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
     }
 
     if (reads.empty()) {
@@ -940,7 +939,7 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
         }        
 
         if (extraOpts.empty() && (!hasBase)) {
-            extraOpts.push_back("comms::options::EmptyOption");
+            extraOpts.push_back("comms::option::EmptyOption");
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {

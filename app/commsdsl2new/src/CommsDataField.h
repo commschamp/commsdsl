@@ -52,6 +52,7 @@ protected:
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const override;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual std::size_t commsMaxLengthImpl() const override; 
 
 private:
     std::string commsDefFieldOptsInternal() const;

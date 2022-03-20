@@ -46,6 +46,7 @@ protected:
     virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
+    virtual std::size_t commsMaxLengthImpl() const override;
 
 private:
     std::string commsDefFieldRefInternal() const;

@@ -46,6 +46,10 @@ bool CommsLayer::commsPrepare()
     m_commsMemberField = dynamic_cast<CommsField*>(m_layer.memberField());
     assert((m_commsExternalField != nullptr) || (m_layer.externalField() == nullptr));
     assert((m_commsMemberField != nullptr) || (m_layer.memberField() == nullptr));
+
+    if (m_commsExternalField != nullptr) {
+        m_commsExternalField->setReferenced();
+    }
     return true;
 }
 
@@ -388,7 +392,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
         }        
 
         if (extraOpts.empty() && (!hasBase)) {
-            extraOpts.push_back("comms::options::EmptyOption");
+            extraOpts.push_back("comms::option::EmptyOption");
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {

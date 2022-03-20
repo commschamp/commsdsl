@@ -168,6 +168,20 @@ bool CommsField::commsIsVersionDependent() const
     return (commsIsVersionOptional() || commsIsVersionDependentImpl());
 }
 
+std::size_t CommsField::commsMinLength() const
+{
+    if (commsIsVersionOptional()) {
+        return 0U;
+    }
+
+    return commsMinLengthImpl();
+}
+
+std::size_t CommsField::commsMaxLength() const
+{
+    return commsMaxLengthImpl();
+}
+
 CommsField::IncludesList CommsField::commsDefIncludes() const
 {
     auto& generator = m_field.generator();
@@ -256,7 +270,7 @@ bool CommsField::commsIsVersionOptional() const
     if (comms::sinceVersionOf(*parent) < dslObj.sinceVersion()) {
         return true;
     }
-    
+
     if ((dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated()) &&
         (dslObj.isDeprecatedRemoved())) {
         return true;
@@ -498,6 +512,16 @@ CommsField::StringsList CommsField::commsExtraBareMetalDefaultOptionsImpl() cons
     return StringsList();
 }
 
+std::size_t CommsField::commsMinLengthImpl() const
+{
+    return m_field.dslObj().minLength();
+}
+
+std::size_t CommsField::commsMaxLengthImpl() const
+{
+    return m_field.dslObj().maxLength();
+}
+
 std::string CommsField::commsCommonNameFuncCode() const
 {
     auto& generator = m_field.generator();
@@ -719,7 +743,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
             "#^#DEPRECATED#$#\n"
             "#^#PARAMS#$#\n"
             "using #^#NAME#$##^#SUFFIX#$# =\n"
-            "    #^#BASE#$#\n";
+            "    #^#BASE#$#;\n";
 
         templ = &AliasTempl;
     }
@@ -1101,7 +1125,7 @@ std::string CommsField::commsDefRefreshFuncCodeInternal() const
     if (!body.empty()) {
         static const std::string OrigTempl = 
             "/// @brief Generated refresh functionality.\n"
-            "bool refresh#^#SUFFIX#$#() const\n"
+            "bool refresh#^#SUFFIX#$#()\n"
             "{\n"
             "    #^#BODY#$#\n"
             "}\n";
@@ -1320,7 +1344,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
         }        
 
         if (extraOpts.empty() && (!hasBase)) {
-            extraOpts.push_back("comms::options::EmptyOption");
+            extraOpts.push_back("comms::option::EmptyOption");
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {

@@ -310,21 +310,11 @@ std::string fullNameFor(const Elem& elem)
     auto elemType = elem.elemType();
     do {
         if (elemType == Elem::Type_Namespace) {
-            result.append(namespaceName(static_cast<const gen::Namespace&>(elem).dslObj().name()));
+            result.append(namespaceName(elem.name()));
             break;
         }
 
-        if (elemType == Elem::Type_Field) {
-            result.append(className(static_cast<const gen::Field&>(elem).dslObj().name()));
-            break;
-        }
-
-        if (elemType == Elem::Type_Message) {
-            result.append(className(static_cast<const gen::Message&>(elem).dslObj().name()));
-            break;
-        }        
-
-        assert(false); // Not implemented
+        result.append(className(elem.name()));
     } while (false);
     return result;
 }

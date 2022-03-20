@@ -158,6 +158,18 @@ bool CommsRefField::commsDefHasNameFuncImpl() const
     return thisDisplayName != refDisplayName;
 }
 
+std::size_t CommsRefField::commsMinLengthImpl() const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsMinLength();
+}
+
+std::size_t CommsRefField::commsMaxLengthImpl() const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsMaxLength();
+}
+
 std::string CommsRefField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

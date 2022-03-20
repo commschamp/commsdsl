@@ -291,6 +291,10 @@ public:
             m_namespaces.push_back(std::move(ptr));
         }
 
+        if (!m_versionIndependentCodeForced) {
+            m_versionDependentCode = anyInterfaceHasVersion();
+        }
+
         for (auto& nPtr : m_namespaces) {
             if (!nPtr->prepare()) {
                 m_logger->error("Failed to prepare namespace \"" + nPtr->name() + "\"");
@@ -299,10 +303,6 @@ public:
         }
 
         m_messageIdField = findMessageIdField();
-
-        if (!m_versionIndependentCodeForced) {
-            m_versionDependentCode = anyInterfaceHasVersion();
-        }
 
         return true;
     }

@@ -48,6 +48,10 @@ bool CommsOptionalField::prepareImpl()
         m_commsExternalField = dynamic_cast<CommsField*>(externalField());
         m_commsMemberField = dynamic_cast<CommsField*>(memberField());
     }
+
+    if (m_commsExternalField != nullptr) {
+        m_commsExternalField->setReferenced();
+    }
     return result;
 }
 
@@ -181,6 +185,16 @@ std::string CommsOptionalField::commsMembersCustomizationOptionsBodyImpl(FieldOp
 
     assert(fieldOptsFunc != nullptr);
     return (m_commsMemberField->*fieldOptsFunc)();
+}
+
+std::size_t CommsOptionalField::commsMaxLengthImpl() const
+{
+    if (m_commsExternalField != nullptr) {
+        return m_commsExternalField->commsMaxLength();
+    }
+
+    assert(m_commsMemberField != nullptr);
+    return m_commsMemberField->commsMaxLength();
 }
 
 std::string CommsOptionalField::commsDefFieldRefInternal() const

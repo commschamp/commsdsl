@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <numeric>
 
 namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;
@@ -384,6 +385,17 @@ std::string CommsVariantField::commsMembersCustomizationOptionsBodyImpl(FieldOpt
         }
     }
     return util::strListToString(elems, "\n", "");
+}
+
+std::size_t CommsVariantField::commsMaxLengthImpl() const 
+{
+    return
+        std::accumulate(
+            m_members.begin(), m_members.end(), std::size_t(0),
+            [](std::size_t soFar, auto* m)
+            {
+                return std::max(soFar, m->commsMaxLength());
+            });
 }
 
 bool CommsVariantField::commsPrepareInternal()

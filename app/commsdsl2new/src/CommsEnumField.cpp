@@ -331,7 +331,7 @@ std::string CommsEnumField::commsCommonCodeExtraImpl() const
 CommsEnumField::IncludesList CommsEnumField::commsDefIncludesImpl() const
 {
     IncludesList result = {
-        "comms/field/EnumField.h"
+        "comms/field/EnumValue.h"
     };
 
     return result;
@@ -573,10 +573,23 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
     }
 
     bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
+
     std::string optField;
     if (versionOptional) {
         optField = ".field()";
     }
+
+    try {
+        auto val = static_cast<std::intmax_t>(std::stoll(value));
+        auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
+            optField + ".value())>::type>(" + 
+            util::numToString(val) + ")";
+
+        return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
+    }
+    catch (...) {
+        // nothing to do
+    }    
         
     auto obj = enumDslObj();
     auto& values = obj.values();
@@ -584,7 +597,7 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
     if (iter != values.end()) {
         auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
             optField + ".value())>::type>(" + 
-        util::numToString(iter->second.m_value) + "))";
+        util::numToString(iter->second.m_value) + ")";
         return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
     }    
 
@@ -616,7 +629,7 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
 
     auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
         optField + ".value())>::type>(" + 
-        util::numToString(otherIter->second.m_value) + "))";
+        util::numToString(otherIter->second.m_value) + ")";
     return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
 }
 
@@ -1255,10 +1268,10 @@ std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
 {
     static const std::string Templ = 
         "/// @brief Retrieve name of the enum value.\n"
-        "/// @see @ref #^#COMMON_SCOPE#$#::valueName()."
+        "/// @see @ref #^#COMMON_SCOPE#$#::valueName().\n"
         "static const char* valueName(ValueType val)\n"
         "{\n"
-        "    return #^#COMMON_SCOPE#$#::valueName();\n"
+        "    return #^#COMMON_SCOPE#$#::valueName(val);\n"
         "}\n";
 
 

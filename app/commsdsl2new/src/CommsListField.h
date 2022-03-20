@@ -51,6 +51,7 @@ protected:
     virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual std::size_t commsMaxLengthImpl() const override;
 
 private:
     std::string commsDefFieldOptsInternal() const;

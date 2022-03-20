@@ -388,6 +388,16 @@ CommsDataField::StringsList CommsDataField::commsExtraBareMetalDefaultOptionsImp
         };    
 }
 
+std::size_t CommsDataField::commsMaxLengthImpl() const
+{
+    auto obj = dataDslObj();
+    if (obj.fixedLength() != 0U) {
+        return CommsBase::commsMaxLengthImpl();
+    }
+
+    return comms::maxPossibleLength();    
+}
+
 std::string CommsDataField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;
