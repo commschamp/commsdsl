@@ -7,7 +7,7 @@ function (test_func name)
     set (code_input_dir "${test_dir}/src")
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")
-        set (code_input_param "-c${code_input_dir}")
+        set (code_input_param -c ${code_input_dir})
     endif()
 
     set (rm_tmp_tgt ${APP_NAME}.${name}_rm_tmp_tgt)
@@ -18,7 +18,7 @@ function (test_func name)
     add_custom_command(
         OUTPUT ${output_dir}.tmp
         DEPENDS ${schema_file} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err -o ${output_dir}.tmp "${code_input_param}" ${schema_file}
+        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${schema_file}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)

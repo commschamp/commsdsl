@@ -99,7 +99,9 @@ const std::string& extOptionsTempl()
         "    #^#BODY#$#\n"
         "};\n\n"
         "/// @brief Alias to @ref #^#NAME#$#DefaultOptionsT with default template parameter.\n"
-        "using #^#NAME#$#DefaultOptions = #^#NAME#$#DefaultOptionsT<>;\n\n"
+        "using #^#NAME#$#DefaultOptions#^#ORIG#$# = #^#NAME#$#DefaultOptionsT<>;\n\n"
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
         "} // namespace options\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n";
 
@@ -148,19 +150,28 @@ bool CommsDefaultOptions::writeDefaultOptionsInternal() const
         "namespace options\n"
         "{\n\n"
         "/// @brief Default (empty) options of the protocol.\n"
-        "struct #^#CLASS_NAME#$#\n"
+        "struct #^#CLASS_NAME#$##^#ORIG#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n\n"
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
         "} // namespace options\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n";
 
+    auto& name = strings::defaultOptionsClassStr();
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.mainNamespace()},
-        {"CLASS_NAME", strings::defaultOptionsClassStr()},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions)}
+        {"CLASS_NAME", name},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions)},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     };
+
+    if (!repl["EXTEND"].empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
 
     writeFileInternal(strings::defaultOptionsClassStr(), m_generator, util::processTemplate(Templ, repl));
     return true;
@@ -169,39 +180,60 @@ bool CommsDefaultOptions::writeDefaultOptionsInternal() const
 bool CommsDefaultOptions::writeClientDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
+    auto name = "Client" + strings::defaultOptionsClassStr();
     repl.insert({
         {"DESC", "client"},
         {"NAME", "Client"},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsClientDefaultOptions)}
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsClientDefaultOptions)},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
 
-    writeFileInternal("Client" + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    if (!repl["EXTEND"].empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
     return true;
 }
 
 bool CommsDefaultOptions::writeServerDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
+    auto name = "Client" + strings::defaultOptionsClassStr();
     repl.insert({
         {"DESC", "server"},
         {"NAME", "Server"},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsServerDefaultOptions)}
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsServerDefaultOptions)},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
 
-    writeFileInternal("Server" + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    if (!repl["EXTEND"].empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
     return true;
 }
 
 bool CommsDefaultOptions::writeDataViewDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
+    auto name = strings::dataViewStr() + strings::defaultOptionsClassStr();
     repl.insert({
         {"DESC", "data view"},
         {"NAME", strings::dataViewStr()},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions)}
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions)},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
 
-    writeFileInternal(strings::dataViewStr() + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    if (!repl["EXTEND"].empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
     return true;
 }
 
@@ -215,14 +247,21 @@ bool CommsDefaultOptions::writeBareMetalDefaultOptionsInternal() const
         "#endif\n";
 
     util::ReplacementMap repl = extInitialRepl(m_generator);
+    auto name = strings::bareMetalStr() + strings::defaultOptionsClassStr();
     repl.insert({
         {"DESC", "bare metal"},
         {"NAME", strings::bareMetalStr()},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsBareMetalDefaultOptions)},
         {"EXTRA", std::move(extra)},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
 
-    writeFileInternal(strings::bareMetalStr() + strings::defaultOptionsClassStr(), m_generator, util::processTemplate(extOptionsTempl(), repl));
+    if (!repl["EXTEND"].empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
     return true;
 }
 

@@ -64,6 +64,7 @@ bool CommsField::commsPrepare()
     m_customRead = util::readFileContents(codePathPrefix + strings::readFileSuffixStr());
     m_customRefresh = util::readFileContents(codePathPrefix + strings::refreshFileSuffixStr());
     m_customWrite = util::readFileContents(codePathPrefix + strings::writeFileSuffixStr());
+    m_customExtend = util::readFileContents(codePathPrefix + strings::extendFileSuffixStr());
     return true;
 }
 
@@ -213,6 +214,8 @@ std::string CommsField::commsDefCode() const
         "#^#MEMBERS#$#\n"
         "#^#FIELD#$#\n"
         "#^#OPTIONAL#$#\n"
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
     ;
 
     //auto& generator = m_field.generator();
@@ -220,6 +223,8 @@ std::string CommsField::commsDefCode() const
         {"MEMBERS", commsDefMembersCodeInternal()},
         {"FIELD", commsFieldDefCodeInternal()},
         {"OPTIONAL", commsOptionalDefCodeInternal()},
+        {"EXTEND", commsOptionalDefCodeInternal()},
+        {"APPEND", util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::appendFileSuffixStr())}
     };
 
     return util::processTemplate(Templ, repl);
@@ -615,6 +620,11 @@ bool CommsField::commsIsFieldCustomizable() const
     return commsIsLimitedCustomizableImpl();
 }
 
+bool CommsField::commsIsExtended() const
+{
+    return !m_customExtend.empty();
+}
+
 bool CommsField::commsWriteCommonInternal() const
 {
     auto& generator = m_field.generator();
@@ -717,7 +727,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
         "#^#EXTRA_DOC#$#\n"
         "#^#DEPRECATED#$#\n"
         "#^#PARAMS#$#\n"
-        "class #^#NAME#$##^#SUFFIX#$# : public\n"
+        "class #^#NAME#$##^#SUFFIX#$##^#ORIG#$# : public\n"
         "    #^#BASE#$#\n"
         "{\n"
         "    using Base =\n"
@@ -726,6 +736,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
         "};\n"
+        "#^#EXTEND#$#\n"
     ;
 
     //auto& generator = m_field.generator();
@@ -735,7 +746,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
     auto priv = commsDefPrivateCodeInternal();
 
     auto* templ = &Templ;
-    if (pub.empty() && prot.empty() && priv.empty()) {
+    if (pub.empty() && prot.empty() && priv.empty() && m_customExtend.empty()) {
         static const std::string AliasTempl = 
             "#^#BRIEF#$#\n"
             "#^#DETAILS#$#\n"
@@ -759,10 +770,15 @@ std::string CommsField::commsFieldDefCodeInternal() const
         {"PUBLIC", std::move(pub)},
         {"PROTECTED", std::move(prot)},
         {"PRIVATE", std::move(priv)},
+        {"EXTEND", m_customExtend},
     };
 
     if (commsIsVersionOptional()) {
-        repl.insert({{"SUFFIX", strings::versionOptionalFieldSuffixStr()}});
+        repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    }
+    
+    if (!m_customExtend.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
     }
 
     return util::processTemplate(*templ, repl);
@@ -1024,15 +1040,22 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
 
     static const std::string Templ = 
         "/// @brief Name of the field.\n"
-        "static const char* name()\n"
+        "static const char* name#^#SUFFIX#$#()\n"
         "{\n"
         "    return #^#SCOPE#$#::name();\n"
-        "}\n";
+        "}\n"
+        "#^#CUSTOM#$#\n";
 
     auto& generator = m_field.generator();
     util::ReplacementMap repl = {
         {"SCOPE", comms::commonScopeFor(m_field, generator)},
+        {"CUSTOM", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::nameFileSuffixStr())},
     };
+
+    if (!repl["CUSTOM"].empty()) {
+        repl["SUFFIX"] = strings::origSuffixStr();
+    }
+    
     return util::processTemplate(Templ, repl);
 }
 
@@ -1216,7 +1239,7 @@ std::string CommsField::commsDefValidFuncCodeInternal() const
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
-        repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
+        repl["ORIG"] = util::processTemplate(OrigTempl, origRepl);
     }
 
     if (!custom.empty()) {

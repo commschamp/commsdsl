@@ -48,11 +48,20 @@
 #include "CommsVersion.h"
 
 #include "commsdsl/version.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <algorithm>
 #include <cassert>
+#include <system_error>
+#include <filesystem>
+#include <fstream>
 #include <iterator>
 #include <type_traits>
+
+namespace fs = std::filesystem;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2new
 {
@@ -257,7 +266,118 @@ bool CommsGenerator::writeImpl()
         CommsInputMessages::write(*this) &&
         CommsDefaultOptions::write(*this) &&
         CommsDispatch::write(*this) &&
-        CommsDoxygen::write(*this);
+        CommsDoxygen::write(*this) &&
+        commsWriteExtraFilesInternal();
+}
+
+bool CommsGenerator::commsWriteExtraFilesInternal()
+{
+    auto& inputDir = getCodeDir();
+    if (inputDir.empty()) {
+        return true;
+    }
+
+    auto& outputDir = getOutputDir();
+    auto pos = inputDir.size();
+    auto endIter = fs::recursive_directory_iterator();
+    for (auto iter = fs::recursive_directory_iterator(inputDir); iter != endIter; ++iter) {
+        if (!iter->is_regular_file()) {
+            continue;
+        }
+        
+
+        auto srcPath = iter->path();
+        auto ext = srcPath.extension().string();
+
+        static const std::string ReservedExt[] = {
+            strings::replaceFileSuffixStr(),
+            strings::extendFileSuffixStr(),
+            strings::publicFileSuffixStr(),
+            strings::protectedFileSuffixStr(),
+            strings::privateFileSuffixStr(),
+            strings::readFileSuffixStr(),
+            strings::writeFileSuffixStr(),
+            strings::lengthFileSuffixStr(),
+            strings::validFileSuffixStr(),
+            strings::refreshFileSuffixStr(),
+            strings::nameFileSuffixStr(),
+            strings::incFileSuffixStr(),
+            strings::appendFileSuffixStr(),
+        };        
+        auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
+        if (extIter != std::end(ReservedExt)) {
+            continue;
+        }
+
+        auto pathStr = srcPath.string();
+        auto posTmp = pos;
+        while (posTmp < pathStr.size()) {
+            if (pathStr[posTmp] == fs::path::preferred_separator) {
+                ++posTmp;
+                continue;
+            }
+            break;
+        }
+
+        if (pathStr.size() <= posTmp) {
+            continue;
+        }
+
+        std::string relPath(pathStr, posTmp);
+        auto schemaNs = util::strToName(schemaName());
+        do {
+            if (mainNamespace() == schemaNs) {
+                break;
+            }
+
+            auto srcPrefix = (fs::path(strings::includeDirStr()) / schemaNs).string();
+            if (!util::strStartsWith(relPath, srcPrefix)) {
+                break;
+            }
+
+            auto dstPrefix = (fs::path(strings::includeDirStr()) / mainNamespace()).string();
+            relPath = dstPrefix + std::string(relPath, srcPrefix.size());
+        } while (false);
+
+        auto destPath = fs::path(outputDir) / relPath;
+        logger().info("Copying " + destPath.string());
+
+        if (!createDirectory(destPath.parent_path())) {
+            return false;
+        }
+
+        std::error_code ec;
+        fs::copy_file(srcPath, destPath, fs::copy_options::overwrite_existing, ec);
+        if (ec) {
+            logger().error("Failed to copy with reason: " + ec.message());
+            return false;
+        }
+
+        if (mainNamespace() != schemaNs) {
+            // The namespace has changed
+
+            auto destStr = destPath.string();
+            std::ifstream stream(destStr);
+            if (!stream) {
+                logger().error("Failed to open " + destStr + " for modification.");
+                return false;
+            }
+
+            std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+            stream.close();
+
+            util::strReplace(content, "namespace " + schemaNs, "namespace " + mainNamespace());
+            std::ofstream outStream(destStr, std::ios_base::trunc);
+            if (!outStream) {
+                logger().error("Failed to modify " + destStr + ".");
+                return false;
+            }
+
+            outStream << content;
+            logger().info("Updated " + destStr + " to have proper main namespace.");
+        }
+    }
+    return true;
 }
 
 } // namespace commsdsl2new

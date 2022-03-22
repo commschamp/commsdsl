@@ -175,7 +175,7 @@ std::string CommsStringField::commsDefPublicCodeImpl() const
         {"STR", defaultValue}
     };
 
-    if (util::isFileReadable(comms::inputCodePathFor(*this, generator()) + strings::extendFileSuffixStr())) {
+    if (commsIsExtended()) {
         repl["SUFFIX"] = strings::origSuffixStr();
     }
     return util::processTemplate(Templ, repl);

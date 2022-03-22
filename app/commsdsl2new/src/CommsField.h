@@ -135,6 +135,7 @@ protected:
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
     void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsFieldCustomizable() const;
+    bool commsIsExtended() const;
 
 private:
     using ExtraFieldOptsFunc = StringsList (CommsField::*)() const;
@@ -170,6 +171,7 @@ private:
     std::string m_customRead;
     std::string m_customRefresh;
     std::string m_customWrite;
+    std::string m_customExtend;
     bool m_forcedFailOnInvalid = false;
     bool m_forcedPseudo = false;
     bool m_referenced = false;

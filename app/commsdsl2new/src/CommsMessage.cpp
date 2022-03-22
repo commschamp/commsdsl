@@ -81,8 +81,10 @@ bool CommsMessage::prepareImpl()
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
     }
 
-    m_customRead = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::readFileSuffixStr());
-    m_customRefresh = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::refreshFileSuffixStr());
+    auto codePathPrefix = comms::inputCodePathFor(*this, generator());
+    m_customRead = util::readFileContents(codePathPrefix + strings::readFileSuffixStr());
+    m_customRefresh = util::readFileContents(codePathPrefix + strings::refreshFileSuffixStr());
+    m_customExtend = util::readFileContents(codePathPrefix + strings::extendFileSuffixStr());
     return true;
 }
 
@@ -174,13 +176,6 @@ bool CommsMessage::commsWriteDefInternal()
         return writeFunc(genFilePath, replaceContent);
     }
 
-    bool extended = util::isFileReadable(codePathPrefix + strings::extendFileSuffixStr());
-    if (extended) {
-        assert(genFilePath.size() >= 2);
-        assert(genFilePath.back() == 'h');
-        genFilePath.insert((genFilePath.size() - 2), strings::origSuffixStr());
-    }
-    
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
@@ -224,8 +219,9 @@ bool CommsMessage::commsWriteDefInternal()
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
         "};\n\n"
-        "#^#NS_END#$#\n"
-        "#^#APPEND#$#\n";
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
+        "#^#NS_END#$#\n";
     
     auto obj = dslObj();
     util::ReplacementMap repl = {
@@ -245,10 +241,11 @@ bool CommsMessage::commsWriteDefInternal()
         {"PUBLIC", commsDefPublicInternal()},
         {"PROTECTED", commsDefProtectedInternal()},
         {"PRIVATE", commsDefPrivateInternal()},
+        {"EXTEND", m_customExtend},
         {"APPEND", util::readFileContents(codePathPrefix + strings::appendFileSuffixStr())}
     };
 
-    if (extended) {
+    if (!m_customExtend.empty()) {
         repl["SUFFIX"] = strings::origSuffixStr();
     }
 
@@ -400,7 +397,7 @@ std::string CommsMessage::commsDefBaseClassInternal() const
         "    #^#CUSTOMIZATION_OPT#$#\n"
         "    comms::option::def::StaticNumIdImpl<#^#MESSAGE_ID#$#>,\n"
         "    comms::option::def::FieldsImpl<typename #^#CLASS_NAME#$#Fields<TOpt>::All>,\n"
-        "    comms::option::def::MsgType<#^#CLASS_NAME#$#<TMsgBase, TOpt> >,\n"
+        "    comms::option::def::MsgType<#^#CLASS_NAME#$##^#ORIG#$#<TMsgBase, TOpt> >,\n"
         "    comms::option::def::HasName#^#COMMA#$#\n"
         "    #^#EXTRA_OPTIONS#$#\n"
         ">";    
@@ -415,6 +412,10 @@ std::string CommsMessage::commsDefBaseClassInternal() const
 
     if (!repl["EXTRA_OPTIONS"].empty()) {
         repl["COMMA"] = ",";
+    }
+
+    if (!m_customExtend.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
     }
 
     return util::processTemplate(Templ, repl);
@@ -797,7 +798,11 @@ std::string CommsMessage::commsDefReadFuncInternal() const
         "comms::ErrorStatus doRead#^#ORIG#$#(TIter& iter, std::size_t len)\n"
        "{\n"
        "    #^#UPDATE_VERSION#$#\n"
-       "    #^#READS#$#\n"
+       "    auto es = comms::ErrorStatus::Success;\n"
+       "    do {\n"
+       "        #^#READS#$#\n"
+       "    } while (false);\n"
+       "    return es;\n"
        "}\n"
        "#^#CUSTOM#$#\n"
     ;

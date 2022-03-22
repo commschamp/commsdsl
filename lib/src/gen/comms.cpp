@@ -402,7 +402,10 @@ std::string scopeForChecksum(
     bool addMainNamespace, 
     bool addElement)
 {
-    static const std::vector<std::string> SubElems;
+    static const std::vector<std::string> SubElems = {
+        strings::frameNamespaceStr(),
+        strings::checksumNamespaceStr()
+    };
     return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);    
 }
 
@@ -545,6 +548,16 @@ std::string inputCodePathForRoot(const std::string& name, const Generator& gener
 std::string inputCodePathForDoc(const std::string& name, const Generator& generator)
 {
     return generator.getCodeDir() + '/' + strings::docDirStr() + '/' + name;
+}
+
+std::string inputCodePathForOptions(const std::string& name, const Generator& generator)
+{
+    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForOptions(name, generator);
+}
+
+std::string inputCodePathForInput(const std::string& name, const Generator& generator)
+{
+    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForInput(name, generator);
 }
 
 std::string namespaceBeginFor(

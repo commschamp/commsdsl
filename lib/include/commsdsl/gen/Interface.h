@@ -41,6 +41,7 @@ public:
     explicit Interface(Generator& generator, commsdsl::parse::Interface dslObj, Elem* parent = nullptr);
     virtual ~Interface();
 
+    bool createAll();
     bool prepare();
     bool write();
 

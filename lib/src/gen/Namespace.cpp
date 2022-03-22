@@ -208,6 +208,10 @@ private:
         for (auto& i : interfaces) {
             auto ptr = m_generator.createInterface(i, m_parent);
             assert(ptr);
+            if (!ptr->createAll()) {
+                return false;
+            }
+            
             m_interfaces.push_back(std::move(ptr));
         }
 

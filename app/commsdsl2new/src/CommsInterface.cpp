@@ -55,8 +55,9 @@ const std::string& aliasTempl()
         "template <typename... TOpt>\n"
         "using #^#CLASS_NAME#$##^#SUFFIX#$# =\n"
         "    #^#BASE#$#;\n\n"
-        "#^#NS_END#$#\n"
-        "#^#APPEND#$#\n";  
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
+        "#^#NS_END#$#\n";
 
     return Templ;
 }
@@ -87,8 +88,9 @@ const std::string& classTempl()
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
         "};\n\n"
-        "#^#NS_END#$#\n"
-        "#^#APPEND#$#\n";
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
+        "#^#NS_END#$#\n";
 
     return Templ;
 }
@@ -221,13 +223,6 @@ bool CommsInterface::commsWriteDefInternal()
         return writeFunc(genFilePath, replaceContent);
     }
 
-    bool extended = util::isFileReadable(codePathPrefix + strings::extendFileSuffixStr());
-    if (extended) {
-        assert(genFilePath.size() >= 2);
-        assert(genFilePath.back() == 'h');
-        genFilePath.insert((genFilePath.size() - 2), strings::origSuffixStr());
-    }
-    
     auto obj = dslObj();
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
@@ -238,10 +233,11 @@ bool CommsInterface::commsWriteDefInternal()
         {"DOC_DETAILS", commsDefDocDetailsInternal()},
         {"BASE", commsDefBaseClassInternal()},
         {"HEADERFILE", comms::relHeaderPathFor(*this, gen)},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForRoot(m_name, gen) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForRoot(m_name, gen) + strings::appendFileSuffixStr())}
     };
 
-    if (extended) {
+    if (!repl["EXTEND"].empty()) {
         repl["SUFFIX"] = strings::origSuffixStr();
     }
 

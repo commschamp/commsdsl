@@ -102,6 +102,8 @@ std::string pathForDoc(const std::string& name, const Generator& generator);
 std::string inputCodePathFor(const Elem& elem, const Generator& generator);
 std::string inputCodePathForRoot(const std::string& name, const Generator& generator);
 std::string inputCodePathForDoc(const std::string& name, const Generator& generator);
+std::string inputCodePathForOptions(const std::string& name, const Generator& generator);
+std::string inputCodePathForInput(const std::string& name, const Generator& generator);
 
 std::string namespaceBeginFor(
     const Elem& elem, 

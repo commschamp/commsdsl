@@ -90,6 +90,7 @@ private:
     commsdsl::gen::util::StringsList m_bundledRefreshCodes;
     std::string m_customRead;
     std::string m_customRefresh;
+    std::string m_customExtend;
 };
 
 } // namespace commsdsl2new

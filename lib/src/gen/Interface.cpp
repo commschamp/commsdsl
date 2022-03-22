@@ -39,7 +39,7 @@ public:
     {
     }
 
-    bool prepare()
+    bool createAll()
     {
         if (!m_dslObj.valid()) {
             return true;
@@ -50,14 +50,24 @@ public:
         for (auto& dslObj : fields) {
             auto ptr = Field::create(m_generator, dslObj, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
-                return false;
-            }
-
             m_fields.push_back(std::move(ptr));
         }
 
-        return true;
+        return true;        
+    }
+
+    bool prepare()
+    {
+        if (!m_fields.empty()) {
+            return true;
+        }
+
+        return std::all_of(
+            m_fields.begin(), m_fields.end(),
+            [](auto& f)
+            {
+                return f->prepare();
+            });
     }
 
     bool write()
@@ -107,6 +117,11 @@ Interface::Interface(Generator& generator, commsdsl::parse::Interface dslObj, El
 }
 
 Interface::~Interface() = default;
+
+bool Interface::createAll()
+{
+    return m_impl->createAll();
+}
 
 bool Interface::prepare()
 {

@@ -92,10 +92,12 @@ bool writeFileInternal(
         "/// @tparam TBase Base class of all the messages.\n"
         "/// @tparam TOpt Protocol definition options.\n"
         "template <typename TBase, typename TOpt = #^#OPTIONS#$#>\n"
-        "using #^#NAME#$# =\n"
+        "using #^#NAME#$##^#ORIG#$# =\n"
         "    std::tuple<\n"
         "        #^#MESSAGES#$#\n"
         "    >;\n\n"
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
         "} // namespace input\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n";
 
@@ -107,7 +109,13 @@ bool writeFileInternal(
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"MESSAGES", util::strListToString(scopes, ",\n", "")},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForInput(name, generator) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForInput(name, generator) + strings::appendFileSuffixStr())},
     };
+
+    if (!repl["EXTEND"].empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
     
     stream << util::processTemplate(Templ, repl);
     stream.flush();

@@ -191,7 +191,7 @@ std::string CommsDataField::commsDefPublicCodeImpl() const
         {"BYTES", std::move(bytesStr)}
     };
 
-    if (util::isFileReadable(comms::inputCodePathFor(*this, generator()) + strings::extendFileSuffixStr())) {
+    if (commsIsExtended()) {
         repl["SUFFIX"] = strings::origSuffixStr();
     }
     return util::processTemplate(Templ, repl);

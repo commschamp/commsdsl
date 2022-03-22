@@ -72,7 +72,7 @@ CommsProgramOptions::CommsProgramOptions()
     (FullNamespaceStr, "Force protocol namespace. Defaults to schema name.", true) 
     (WarnAsErrStr, "Treat warning as error.")
     (FullCodeInputDirStr, 
-        "Directories (comma separated) with code updates. Later one takes priority.", true)
+        "Directory with code updates.", true)
     (ForceVerStr, 
         "Force schema version. Must not be greater than version specified in schema file.", true)
     (FullProtocolVerStr, 
@@ -150,9 +150,9 @@ const std::string& CommsProgramOptions::getNamespace() const
     return value(NamespaceStr);
 }
 
-std::vector<std::string> CommsProgramOptions::getCodeInputDirectories() const
+const std::string& CommsProgramOptions::getCodeInputDirectory() const
 {
-    return commsdsl::gen::util::strSplitByAnyCharCompressed(value(CodeInputDirStr), ",");
+    return value(CodeInputDirStr);
 }
 
 bool CommsProgramOptions::hasForcedSchemaVersion() const

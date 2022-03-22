@@ -629,7 +629,7 @@ std::string CommsFloatField::commsDefConstructorCodeInternal() const
 
     static const std::string Templ =
         "/// @brief Generated default constructor.\n"
-        "#^#CLASS_NAME#$#()\n"
+        "#^#CLASS_NAME#$##^#SUFFIX#$#()\n"
         "{\n"
         "    Base::value() = #^#VAL#$#;\n"
         "}\n";
@@ -638,6 +638,10 @@ std::string CommsFloatField::commsDefConstructorCodeInternal() const
         {"CLASS_NAME", comms::className(obj.name())},
         {"VAL", valueToString(defaultValue, obj.type())}
     };
+
+    if (commsIsExtended()) {
+        repl["SUFFIX"] = strings::origSuffixStr();
+    }
 
     return util::processTemplate(Templ, repl);
 }

@@ -81,6 +81,8 @@ protected:
     virtual bool writeImpl() override;    
 
 private:
+    bool commsWriteExtraFilesInternal();
+    
     static const CustomizationLevel DefaultCustomizationLevel = CustomizationLevel::Limited;
     CustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
     std::string m_protocolVersion;

@@ -39,7 +39,7 @@ public:
     const std::string& getOutputDirectory() const;
     bool hasNamespaceOverride() const;
     const std::string& getNamespace() const;
-    std::vector<std::string> getCodeInputDirectories() const;
+    const std::string& getCodeInputDirectory() const;
     bool hasForcedSchemaVersion() const;
     unsigned getForcedSchemaVersion() const;
     const std::string& getProtocolVersion() const;
