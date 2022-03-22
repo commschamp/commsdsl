@@ -58,7 +58,7 @@ public:
 
     bool prepare()
     {
-        if (!m_fields.empty()) {
+        if (m_fields.empty()) {
             return true;
         }
 

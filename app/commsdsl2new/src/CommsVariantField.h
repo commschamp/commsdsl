@@ -54,6 +54,8 @@ private:
     bool commsPrepareInternal();
     std::string commsDefFieldOptsInternal() const;
     std::string commsDefAccessCodeInternal() const;
+    std::string commsDefAccessCodeByCommsInternal() const;
+    std::string commsDefAccessCodeGeneratedInternal() const;
     std::string commsDefFieldExecCodeInternal() const;
 
     void commsAddDefaultIdxOptInternal(StringsList& opts) const;

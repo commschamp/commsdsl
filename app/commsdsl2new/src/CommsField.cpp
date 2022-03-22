@@ -214,7 +214,6 @@ std::string CommsField::commsDefCode() const
         "#^#MEMBERS#$#\n"
         "#^#FIELD#$#\n"
         "#^#OPTIONAL#$#\n"
-        "#^#EXTEND#$#\n"
         "#^#APPEND#$#\n"
     ;
 
@@ -223,7 +222,6 @@ std::string CommsField::commsDefCode() const
         {"MEMBERS", commsDefMembersCodeInternal()},
         {"FIELD", commsFieldDefCodeInternal()},
         {"OPTIONAL", commsOptionalDefCodeInternal()},
-        {"EXTEND", commsOptionalDefCodeInternal()},
         {"APPEND", util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::appendFileSuffixStr())}
     };
 
@@ -1336,10 +1334,10 @@ std::string CommsField::commsCustomizationOptionsInternal(
     auto membersBody = commsMembersCustomizationOptionsBodyImpl(fieldOptsFunc);
     if (!membersBody.empty()) {
         static const std::string Templ = 
-            "struct #^#NAME#$##^#SUFFIX#^##^#EXT#$#\n"
+            "struct #^#NAME#$##^#SUFFIX#$##^#EXT#$#\n"
             "{\n"
             "    #^#BODY#$#\n"
-            "}; // struct #^#NAME#$##^#SUFFIX#^#\n";
+            "}; // struct #^#NAME#$##^#SUFFIX#$#\n";
 
         util::ReplacementMap repl = {
             {"NAME", comms::className(m_field.dslObj().name())},
@@ -1350,6 +1348,8 @@ std::string CommsField::commsCustomizationOptionsInternal(
         if (hasBase) {
             repl["EXT"] = " : public TBase::" + comms::scopeFor(m_field, m_field.generator(), false) + strings::membersSuffixStr();
         }
+
+        elems.push_back(util::processTemplate(Templ, repl));
     }
 
     do {

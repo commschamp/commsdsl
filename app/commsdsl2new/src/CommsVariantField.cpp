@@ -38,6 +38,8 @@ namespace commsdsl2new
 namespace 
 {
 
+constexpr std::size_t MaxMembersSupportedByComms = 120;    
+
 bool intIsValidPropKeyInternal(const CommsIntField& intField)
 {
     auto obj = intField.field().dslObj();
@@ -272,7 +274,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         auto bundleAccName = comms::accessName(bundle.field().dslObj().name());
         auto keyAccName = comms::accessName(keyField.field().dslObj().name());
 
-        if ((&m != &m_members.back()) || (keyField.commsVariantPropKeyType() == m_optimizedReadKey)) {
+        if ((m != m_members.back()) || (keyField.commsVariantPropKeyType() == m_optimizedReadKey)) {
             auto valStr = keyField.commsVariantPropKeyValueStr();
 
             static const std::string Templ =
@@ -299,7 +301,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         }
 
         // Last "catch all" element
-        assert(&m == &m_members.back());
+        assert(m == m_members.back());
 
         static const std::string Templ =
             "default:\n"
@@ -427,6 +429,15 @@ std::string CommsVariantField::commsDefFieldOptsInternal() const
 
 std::string CommsVariantField::commsDefAccessCodeInternal() const
 {
+    if (m_members.size() <= MaxMembersSupportedByComms) {
+        return commsDefAccessCodeByCommsInternal();
+    }
+
+    return commsDefAccessCodeGeneratedInternal();
+}
+
+std::string CommsVariantField::commsDefAccessCodeByCommsInternal() const
+{
     static const std::string Templ =
         "/// @brief Allow access to internal fields.\n"
         "/// @details See definition of @b COMMS_VARIANT_MEMBERS_NAMES macro\n"
@@ -461,6 +472,65 @@ std::string CommsVariantField::commsDefAccessCodeInternal() const
         {"NAMES", util::strListToString(namesList, ",\n", "")},
     };
 
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsVariantField::commsDefAccessCodeGeneratedInternal() const
+{
+    StringsList indicesList;
+    StringsList accessList;
+    indicesList.reserve(m_members.size());
+    accessList.reserve(m_members.size());
+
+    auto membersPrefix = comms::className(dslObj().name()) + strings::membersSuffixStr();
+    auto docScope = membersPrefix + "::";
+    auto typeScope = "typename " + membersPrefix + "<TOpt>::";
+    for (auto& m : m_members) {
+        auto accName = comms::accessName(m->field().dslObj().name());
+        auto className = comms::className(m->field().dslObj().name());
+
+        indicesList.push_back("FieldIdx_" + accName);
+
+        static const std::string AccTempl =
+            "/// @brief Member type alias to #^#DOC_SCOPE#$#.\n"
+            "using Field_#^#NAME#$# = #^#TYPE_SCOPE#$#;\n\n"
+            "/// @brief Initialize as #^#DOC_SCOPE#$#\n"
+            "Field_#^#NAME#$#& initField_#^#NAME#$#()\n"
+            "{\n"
+            "    return Base::template initField<FieldIdx_#^#NAME#$#>();\n"
+            "}\n\n"    
+            "/// @brief Access as #^#DOC_SCOPE#$#\n"
+            "Field_#^#NAME#$#& accessField_#^#NAME#$#()\n"
+            "{\n"
+            "    return Base::template accessField<FieldIdx_#^#NAME#$#>();\n"
+            "}\n\n"
+            "/// @brief Access as #^#DOC_SCOPE#$# (const version)\n"
+            "const Field_#^#NAME#$#& accessField_#^#NAME#$#() const\n"
+            "{\n"
+            "    return Base::template accessField<FieldIdx_#^#NAME#$#>();\n"
+            "}\n\n";   
+
+        util::ReplacementMap accRepl = {
+            {"DOC_SCOPE", docScope + className},
+            {"TYPE_SCOPE", typeScope + className},
+            {"NAME", accName}
+        };
+        accessList.push_back(util::processTemplate(AccTempl, accRepl));
+    }
+
+    static const std::string Templ =
+        "/// @brief Allow access to internal fields by index.\n"
+        "enum FieldIdx : unsigned\n"
+        "{\n"
+        "    #^#INDICES#$#,\n"
+        "    FieldIdx_numOfValues"
+        "};\n\n"
+        "#^#ACCESS#$#\n";    
+
+    util::ReplacementMap repl = {
+        {"INDICES", util::strListToString(indicesList, ",\n", "")},
+        {"ACCESS", util::strListToString(accessList, "\n", "")},
+    };
     return util::processTemplate(Templ, repl);
 }
 

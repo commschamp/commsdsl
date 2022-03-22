@@ -200,7 +200,7 @@ bool CommsDefaultOptions::writeClientDefaultOptionsInternal() const
 bool CommsDefaultOptions::writeServerDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
-    auto name = "Client" + strings::defaultOptionsClassStr();
+    auto name = "Server" + strings::defaultOptionsClassStr();
     repl.insert({
         {"DESC", "server"},
         {"NAME", "Server"},

@@ -376,7 +376,7 @@ std::size_t CommsBundleField::commsMinLengthImpl() const
             m_members.begin(), m_members.end(), std::size_t(0),
             [](std::size_t soFar, auto* m)
             {
-                return soFar + m->commsMinLength();
+                return comms::addLength(soFar, m->commsMinLength());
             });
 }
 
@@ -387,7 +387,7 @@ std::size_t CommsBundleField::commsMaxLengthImpl() const
             m_members.begin(), m_members.end(), std::size_t(0),
             [](std::size_t soFar, auto* m)
             {
-                return soFar + m->commsMaxLength();
+                return comms::addLength(soFar, m->commsMaxLength());
             });    
 }
 

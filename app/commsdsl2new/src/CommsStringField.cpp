@@ -292,7 +292,7 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
         "return true;";
 
     util::ReplacementMap repl = {
-        {"NAME", comms::className(dslObj().name())},
+        {"NAME", comms::accessName(dslObj().name())},
         {"LEN_NAME", comms::accessName(detachedPrefixName)}
     };
 
