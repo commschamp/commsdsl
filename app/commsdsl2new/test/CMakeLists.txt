@@ -79,40 +79,13 @@ function (test_func name)
         ) 
     endif ()    
 
-#    while (TRUE)
-#        if (NOT COMMSDSL_TEST_BUILD_CC_PLUGIN)
-#            message (STATUS "Skipping build of ${APP_NAME}.${name}_plugin_build_tgt")
-#            break ()
-#        endif ()
+    if (DOXYGEN_FOUND)
+        add_custom_target(${APP_NAME}.doc_${name} ALL
+            COMMAND COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}
+            DEPENDS ${build_tgt} 
+        )
+    endif ()
         
-#        if (NOT TARGET cc::comms_champion)
-#            message (FATAL_ERROR "cc::comms_champion target is not defined")
-#        endif () 
-        
-#        set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
-#        add_custom_target(${plugin_build_tgt} ALL
-#            COMMAND ${CMAKE_COMMAND}
-#                -DPROJ_DIR=${output_dir} 
-#                -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
-#                -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
-#                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-#                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
-#                -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-#                -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
-#            DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake" ${testName}
-#        )
-
-#        if (DOXYGEN_FOUND)
-#            add_custom_target(doc_${name}
-#                COMMAND COMMAND ${CMAKE_COMMAND} --build ${output_dir}/build --target doc_${name}
-#                DEPENDS ${plugin_build_tgt} 
-#            )
-#        endif ()
-        
-#        break()
-#    endwhile()
-
 endfunction ()
 
 #################################################################

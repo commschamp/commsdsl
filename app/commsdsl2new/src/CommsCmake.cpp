@@ -75,7 +75,7 @@ bool CommsCmake::writeInternal() const
         "find_package (Doxygen)\n"
         "if (DOXYGEN_FOUND)\n"
         "    set (doc_output_dir \"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}\")\n"
-        "    set (match_str \"OUTPUT_DIRECTORY[^\n]*\")\n"
+        "    set (match_str \"OUTPUT_DIRECTORY[^\\n]*\")\n"
         "    set (replacement_str \"OUTPUT_DIRECTORY = ${doc_output_dir}\")\n"
         "    set (config_file \"${CMAKE_CURRENT_SOURCE_DIR}/doc/doxygen.conf\")\n"
         "    set (updated_config_file \"${CMAKE_CURRENT_BINARY_DIR}/doxygen.conf\")\n\n"
