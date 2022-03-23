@@ -37,7 +37,7 @@ namespace
 {
 
 const std::string ClientInputSuffixStr = "ClientInputMessages";    
-const std::string ServerInputSuffixStr = "InputInputMessages";
+const std::string ServerInputSuffixStr = "ServerInputMessages";
 
 using CheckFunction = std::function<bool (const commsdsl::gen::Message&)>;
 bool writeFileInternal(

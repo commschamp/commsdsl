@@ -396,6 +396,7 @@ std::string CommsBundleField::commsDefFieldOptsInternal() const
     commsdsl::gen::util::StringsList opts;
     commsAddFieldDefOptions(opts);
     commsAddCustomReadRefreshOptInternal(opts);
+    commsAddRemLengthMemberOptInternal(opts);
     return util::strListToString(opts, ",\n", "");
 }
 
@@ -506,6 +507,23 @@ void CommsBundleField::commsAddCustomReadRefreshOptInternal(StringsList& opts) c
 
     if (hasGeneratedRefresh) {
         util::addToStrList("comms::option::def::HasCustomRefresh", opts);
+    }
+}
+
+void CommsBundleField::commsAddRemLengthMemberOptInternal(StringsList& opts) const
+{
+    auto lengthFieldIter = 
+         std::find_if(
+            m_members.begin(), m_members.end(),
+            [](auto* m) {
+                assert(m != nullptr);
+                return m->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length;
+            });   
+
+    if (lengthFieldIter != m_members.end()) {
+        auto idx = static_cast<unsigned>(std::distance(m_members.begin(), lengthFieldIter));
+        auto optStr = "comms::option::def::RemLengthMemberField<" + util::numToString(idx) + '>';
+        util::addToStrList(std::move(optStr), opts);
     }
 }
 

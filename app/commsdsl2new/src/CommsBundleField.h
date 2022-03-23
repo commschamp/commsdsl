@@ -64,6 +64,7 @@ private:
     std::string commsDefAliasesCodeInternal() const;
 
     void commsAddCustomReadRefreshOptInternal(StringsList& opts) const;
+    void commsAddRemLengthMemberOptInternal(StringsList& opts) const;
 
     CommsFieldsList m_members;
     StringsList m_bundledReadPrepareCodes;

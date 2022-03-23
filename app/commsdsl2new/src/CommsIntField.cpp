@@ -192,6 +192,28 @@ std::string CommsIntField::commsDefPublicCodeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string CommsIntField::commsDefRefreshFuncBodyImpl() const
+{
+    if (!commsRequiresFailOnInvalidRefreshInternal()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "bool updated = Base::refresh();\n"
+        "if (Base::valid()) {\n"
+        "    return updated;\n"
+        "};\n"
+        "Base::value() = static_cast<ValueType>(#^#VALID_VALUE#$#);\n"
+        "return true;\n";
+
+    auto obj = intDslObj();
+    auto& validRanges = obj.validRanges();    
+    util::ReplacementMap repl = {
+        {"VALID_VALUE", util::numToString(validRanges.front().m_min)},
+    };
+    return util::processTemplate(Templ, repl);    
+}
+
 std::string CommsIntField::commsDefValidFuncBodyImpl() const
 {
     auto obj = intDslObj();
