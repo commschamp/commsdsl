@@ -35,8 +35,10 @@ namespace commsdsl2new
 namespace 
 {
 
-const std::string ServerInputMessagesStr = "ServerInputMessages";
-const std::string ClientInputMessagesStr = "ClientInputMessages";    
+const std::string ServerInputPrefixStr = "ServerInput";
+const std::string ClientInputPrefixStr = "ClientInput";
+const std::string ServerInputMessagesStr = ServerInputPrefixStr + "Messages";
+const std::string ClientInputMessagesStr = ClientInputPrefixStr + "Messages";    
 
 using ReplacementMap = util::ReplacementMap;
 
@@ -164,7 +166,6 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "RECURSIVE              = YES\n"
         "EXCLUDE                = \n"
         "EXCLUDE_SYMLINKS       = NO\n"
-        "EXCLUDE_PATTERNS       = */install/* */build*\n"
         "EXCLUDE_SYMBOLS        = *details\n"
         "EXAMPLE_RECURSIVE      = NO\n"
         "FILTER_SOURCE_FILES    = NO\n"
@@ -725,7 +726,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
                 "()\n/// (defined in @b " + file + " header file).";
             list.push_back(std::move(str));
             auto defaultOptStr = "/// @li @ref " + accessScope + 
-                strings::defaultOptionsStr() + "\n/// (defined in @b " + file + " header file).";
+                strings::defaultOptionsStr() + "()\n/// (defined in @b " + file + " header file).";
             list.push_back(std::move(defaultOptStr));
 
             static const std::string DispatcherSuffix("MsgDispatcher");
@@ -744,8 +745,8 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         [&addToListFunc](const std::string& platform)
         {
             addToListFunc(platform);
-            addToListFunc(platform + ServerInputMessagesStr);
-            addToListFunc(platform + ClientInputMessagesStr);
+            addToListFunc(platform + ServerInputPrefixStr);
+            addToListFunc(platform + ClientInputPrefixStr);
         };
 
     addPlatformFunc(strings::emptyString());

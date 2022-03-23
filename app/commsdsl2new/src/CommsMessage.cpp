@@ -603,6 +603,7 @@ std::string CommsMessage::commsDefFieldsAccessInternal() const
     util::StringsList docs;
     util::StringsList names;
 
+    auto msgClassName = comms::className(dslObj().name());
     for (auto& fPtr : fields()) {
         assert(fPtr);
         auto& name = fPtr->dslObj().name();
@@ -613,8 +614,8 @@ std::string CommsMessage::commsDefFieldsAccessInternal() const
         auto doc = 
             DocPrefix + "@li @b FieldIdx_" + accName + " index, @b Field_" + accName +
             " type and @b field_" + accName + "() access fuction\n" +
-            DocPrefix + strings::indentStr() + "for @ref " + comms::className(dslObj().name()) + 
-            strings::membersSuffixStr() + "::" + className + " field.";
+            DocPrefix + strings::indentStr() + "for @ref " + 
+            msgClassName + strings::fieldsSuffixStr() + "::" + className + " field.";
 
         names.push_back(accName);
         docs.push_back(std::move(doc));

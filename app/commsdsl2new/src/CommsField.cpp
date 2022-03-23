@@ -1330,6 +1330,10 @@ std::string CommsField::commsCustomizationOptionsInternal(
     ExtraFieldOptsFunc extraFieldOptsFunc,
     bool hasBase) const
 {
+    if ((!m_referenced) && (comms::isGlobalField(m_field))) {
+        return strings::emptyString();
+    }
+    
     util::StringsList elems;
     auto membersBody = commsMembersCustomizationOptionsBodyImpl(fieldOptsFunc);
     if (!membersBody.empty()) {

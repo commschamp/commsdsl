@@ -506,6 +506,7 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
     util::StringsList docs;
     util::StringsList names;
 
+    auto interfaceClassName = comms::className(dslObj().name());
     for (auto& fPtr : fields()) {
         assert(fPtr);
         auto& name = fPtr->dslObj().name();
@@ -516,7 +517,9 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
         auto doc = 
             DocPrefix + "@li @b TransportFieldIdx_" + accName + " index, @b TransportField_" + accName +
             " type\n" + DocPrefix + strings::indentStr() +
-            "and @b transportField_" + accName + "() access fuction for @ref " + className + " field.";
+            "and @b transportField_" + accName + "() access fuction for @ref " + 
+            interfaceClassName + strings::fieldsSuffixStr() + "::" +
+            className + " field.";
 
         names.push_back(accName);
         docs.push_back(std::move(doc));

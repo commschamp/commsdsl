@@ -79,7 +79,7 @@ function (test_func name)
         ) 
     endif ()    
 
-    if (DOXYGEN_FOUND)
+    if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
         add_custom_target(${APP_NAME}.doc_${name} ALL
             COMMAND COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}
             DEPENDS ${build_tgt} 

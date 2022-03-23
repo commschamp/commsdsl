@@ -307,6 +307,7 @@ std::string CommsLayer::commsDefMembersCodeInternal() const
     }
 
     static const std::string Templ = 
+        "/// @brief Scope for field(s) of @ref #^#CLASS_NAME#$# layer.\n"
         "struct #^#CLASS_NAME#$##^#SUFFIX#$#\n"
         "{\n"
         "    #^#FIELD_DEF#$#\n"
