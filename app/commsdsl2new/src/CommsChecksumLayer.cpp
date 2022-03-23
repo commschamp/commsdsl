@@ -241,7 +241,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     }
 
     static const std::string Templ = 
-        "#^#ALG#$#<typename\n"
+        "#^#ALG#$#<\n"
         "    #^#FIELD#$#::ValueType\n"
         ">";
 
@@ -249,6 +249,10 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
         {"ALG", std::move(str)},
         {"FIELD", commsDefFieldType()},
     };
+
+    if (!util::strStartsWith(repl["FIELD"], "typename")) {
+        repl["FIELD"] = "typename " + repl["FIELD"];
+    }
 
     return util::processTemplate(Templ, repl);
 }
