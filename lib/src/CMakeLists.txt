@@ -189,6 +189,12 @@ add_library(cc::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 add_dependencies(${PROJECT_NAME} LibXml2::LibXml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 
+if ((CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX) AND
+    (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0"))
+    target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
+endif ()
+
+
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
 endif ()

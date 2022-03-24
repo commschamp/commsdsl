@@ -26,9 +26,9 @@ namespace
 {
 
 #ifdef CC_TAG
-#define CC_TAG_QUITE_(x_) #x_
-#define CC_TAG_QUITE(x_) CC_TAG_QUITE_(x_)
-const std::string CommsChampionTag(CC_TAG_QUITE(CC_TAG));
+#define CC_TAG_QUOTE_(x_) #x_
+#define CC_TAG_QUOTE(x_) CC_TAG_QUOTE_(x_)
+const std::string CommsChampionTag(CC_TAG_QUOTE(CC_TAG));
 #else
 const std::string CommsChampionTag("master");
 #endif

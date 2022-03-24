@@ -51,7 +51,13 @@ set (
 
 add_executable(${APP_NAME} ${src})
 target_link_libraries(${APP_NAME} PRIVATE ${CMAKE_PROJECT_NAME} ${Boost_LIBRARIES} ${LIBCOMMSDSL_LIBRARIES})
-target_compile_definitions (${APP_NAME} PRIVATE -DBOOST_NO_CXX11_SCOPED_ENUMS -DCC_TAG=${CC_TAG})
+
+set (cc_tag_opt)
+if (NOT "${CC_TAG}" STREQUAL "")
+    set (cc_tag_opt -DCC_TAG=${CC_TAG})
+endif ()
+
+target_compile_definitions (${APP_NAME} PRIVATE -DBOOST_NO_CXX11_SCOPED_ENUMS ${cc_tag_opt})
 
 target_compile_options(${APP_NAME} PRIVATE
     $<$<CXX_COMPILER_ID:GNU>: -Wno-undef>
