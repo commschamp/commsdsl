@@ -22,9 +22,7 @@ option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to re
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
 # COMMSDSL_BOOST_VERSION - Boost version passed to relevant find_package invocation.
-# CC_TAG - Tag/branch of CommsChampion project to use instead of default
 # COMMS_TAG - Tag/branch of COMMS library project to use instead of default
-# BOOST_ROOT and other built-in hint variables for the process of finding Boost package.
 # CC_COMMS_REPO - Repository of COMMS library project, if not specified default github CommsChampion Ecosystem repo is going to be used.
 
 # Deprecated options for backward compatibility, use the ones above for new builds.
@@ -36,17 +34,12 @@ option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to re
 
 ################################################
 
-# Check usage of deprecated options and ovewrite the default values of proper ones
-macro (commsdsl_negate_option old_name new_name)
-    if (DEFINED ${old_name})
-        if (${old_name})
-            set (${new_name} OFF)
-        else ()
-            set (${new_name} ON)
-        endif ()
-    endif ()
-endmacro ()
+set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
+include (${CMAKE_SCIPTS_DIR}/CommsdslFuncs.cmake)
+include (${CMAKE_SCIPTS_DIR}/CommsdslCompile.cmake)
+################################################
 
+# Check usage of deprecated options and ovewrite the default values of proper ones
 commsdsl_negate_option(COMMSDSL_NO_WARN_AS_ERR COMMSDSL_WARN_AS_ERR)
 commsdsl_negate_option(COMMSDSL_NO_CCACHE COMMSDSL_USE_CCACHE)
 commsdsl_negate_option(COMMSDSL_NO_TESTS COMMSDSL_BUILD_UNIT_TESTS)
@@ -62,52 +55,14 @@ if (NOT COMMSDSL_TESTS_CXX_STANDARD)
     set (COMMSDSL_TESTS_CXX_STANDARD 11)
 endif ()
 
-#if ("${CC_TAG}" STREQUAL "")
-#    set (CC_TAG "v3.4.1")
-#endif()
-
 if ("${COMMS_TAG}" STREQUAL "")
-    set (COMMS_TAG "develop")
+    set (COMMS_TAG "master")
 endif()
 
 if (NOT COMMSDSL_EXTERNALS_DIR)
     set (COMMSDSL_EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
 endif ()
 
-set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
-include (${CMAKE_SCIPTS_DIR}/CommsdslFuncs.cmake)
-
-################################################
-# Make sure that the COMMS library is available
-while (TRUE)
-    if (NOT "${COMMS_INSTALL_DIR}" STREQUAL "")
-        set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
-        break()
-    endif ()
-
-    find_package(LibComms QUIET)
-    if (TARGET cc::comms)
-        if ("${LibComms_DIR}" STREQUAL "")
-            message (FATAL_ERROR "The comms library found but the directory is not known")
-        endif ()
-
-        set (CC_CMAKE_DIR ${LibComms_DIR})
-        break()
-    endif ()
-
-    if (NOT COMMSDSL_CHECKOUT_COMMS_CHAMPION)    
-        message (STATUS "Skipping checkout of comms_champion project")
-        break()
-    endif ()
-
-    set (CC_SRC_DIR "${COMMSDSL_EXTERNALS_DIR}/comms_champion")
-    include (${CMAKE_SCIPTS_DIR}/CC_Prefetch.cmake)
-    cc_prefetch(SRC_DIR ${CC_SRC_DIR} TAG ${CC_TAG})
-    set (CC_CMAKE_DIR ${CC_SRC_DIR}/cmake)
-    break()
-endwhile ()
-
-################################################
 # Compiler options
 set (warn_opt)
 if (COMMSDSL_WARN_AS_ERR)
@@ -119,23 +74,32 @@ if ((UNIX) AND (COMMSDSL_USE_CCACHE))
     set (ccache_opt USE_CCACHE)
 endif ()
 
-if ((NOT "${CC_CMAKE_DIR}" STREQUAL "") AND (EXISTS "${CC_CMAKE_DIR}/CC_Compile.cmake"))
-    include (${CC_CMAKE_DIR}/CC_Compile.cmake)
-    cc_compile(${warn_opt} ${ccache_opt})
-    cc_msvc_force_warn_opt("/W4")
-endif ()
+commsdsl_compile(${warn_opt} ${ccache_opt})
+commsdsl_msvc_force_warn_opt("/W4")
 
 ################################################
 
-while (TRUE)
-    if (NOT COMMSDSL_BUILD_UNIT_TESTS)
-        break()
-    endif ()
+if (COMMSDSL_BUILD_UNIT_TESTS)
+    while (TRUE)
+        if (NOT "${COMMS_INSTALL_DIR}" STREQUAL "")
+            set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
+            break()
+        endif ()
 
-    if (("${CC_CMAKE_DIR}" STREQUAL "") OR (NOT EXISTS "${CC_CMAKE_DIR}/CC_CxxtestFuncs.cmake"))
-        message (WARNING "Missing CC_CxxtestFuncs.cmake script, should be provided by the comms_champipon project")
-        break()
-    endif ()
+        find_package(LibComms QUIET)
+        if (TARGET cc::comms)
+            if ("${LibComms_DIR}" STREQUAL "")
+                message (FATAL_ERROR "The comms library found but the directory is not known")
+            endif ()
+
+            set (CC_CMAKE_DIR ${LibComms_DIR})
+            break()
+        endif ()
+
+        commsdsl_ensure_comms_target ()
+        set (CC_CMAKE_DIR ${LibComms_DIR})
+        break ()
+    endwhile ()
 
     include (${CC_CMAKE_DIR}/CC_CxxtestFuncs.cmake)
     cc_get_cxxtest(INSTALL_PREFIX ${COMMSDSL_EXTERNALS_DIR})
@@ -143,8 +107,9 @@ while (TRUE)
     if (COMMSDSL_VALGRIND_TESTS)
         find_program(VALGRIND_EXECUTABLE NAMES "valgrind")
     endif ()    
-    break ()
-endwhile ()
+
+    enable_testing()
+endif ()    
 
 include(GNUInstallDirs)
 

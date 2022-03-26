@@ -40,8 +40,7 @@ build_script:
     - cd %BUILD_DIR%
     - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" \
         -DBOOST_ROOT="%BOOST_DIR%" -DBoost_USE_STATIC_LIBS=ON \
-        -DCOMMSDSL_QT_DIR=%QTDIR% -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% \
-        -DCC_TAG=%CC_TAG% 
+        -DCOMMSDSL_QT_DIR=%QTDIR% -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% 
     - set PATH=%BUILD_DIR%\lib\src;%PATH%
     - echo Building in %BUILD_DIR%
     - echo PATH = %PATH%
