@@ -23,11 +23,26 @@ namespace util
 namespace 
 {
 
-#ifdef WIN32
-static const char PathSep = '\\';
-#else
 static const char PathSep = '/';
-#endif       
+
+#ifdef WIN32
+static const char WinPathSep = '\\';
+#endif 
+
+bool isPathSep(char ch)
+{
+    if (ch == PathSep) {
+        return true;
+    }
+
+#ifdef WIN32
+    if (ch == WinPathSep) {
+        return true;
+    }
+#endif    
+
+    return false;
+}
 
 } // namespace 
 
@@ -190,7 +205,7 @@ const std::string& boolToString(bool value)
 std::string pathAddElem(const std::string& path, const std::string& elem)
 {
     std::string result = path;
-    if ((!result.empty()) && (result.back() != PathSep)) {
+    if ((!result.empty()) && (!isPathSep(result.back()))) {
         result.push_back(PathSep);
     }
 
@@ -201,10 +216,20 @@ std::string pathAddElem(const std::string& path, const std::string& elem)
 std::string pathUp(const std::string& path)
 {
     auto sepPos = path.rfind(PathSep);
-    if (sepPos == std::string::npos) {
-        return strings::emptyString();
-    }
+    do {
+        if (sepPos != std::string::npos) {
+            break;
+        }
 
+#ifdef WIN32
+        sepPos = path.rfind(WinPathSep);
+        if (sepPos != std::string::npos) {
+            break;
+        }        
+#endif     
+
+        return strings::emptyString();
+    } while (false);
     return path.substr(0, sepPos);
 }
 
