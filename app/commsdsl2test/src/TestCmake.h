@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,19 +18,19 @@
 namespace commsdsl2test
 {
 
-class Generator;
-class Cmake
+class TestGenerator;
+class TestCmake
 {
 public:
-    static bool write(Generator& generator);
+    static bool write(TestGenerator& generator);
 
 private:
-    explicit Cmake(Generator& generator) : m_generator(generator) {}
+    explicit TestCmake(TestGenerator& generator) : m_generator(generator) {}
 
     bool writeInternal() const;
     
 private:
-    Generator& m_generator;
+    TestGenerator& m_generator;
 };
 
 } // namespace commsdsl2test

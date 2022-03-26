@@ -15,21 +15,18 @@
 
 #pragma once
 
-namespace commsdsl2test
+#include "commsdsl/gen/Generator.h"
+
+namespace commsdsl2test 
 {
 
-class TestGenerator;
-class Test
+class TestGenerator final : public commsdsl::gen::Generator
 {
 public:
-    static bool write(TestGenerator& generator);
+    static const std::string& fileGeneratedComment();
 
-private:
-    explicit Test(TestGenerator& generator) : m_generator(generator) {}
-
-    bool writeInputTest() const;
-private:
-    TestGenerator& m_generator;
+protected:
+    virtual bool writeImpl() override;    
 };
 
 } // namespace commsdsl2test

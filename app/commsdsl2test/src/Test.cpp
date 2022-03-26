@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 #include <fstream>
 
-#include "Generator.h"
+#include "TestGenerator.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -35,7 +35,7 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 } // namespace 
     
 
-bool Test::write(Generator& generator)
+bool Test::write(TestGenerator& generator)
 {
     Test obj(generator);
     return obj.writeInputTest();

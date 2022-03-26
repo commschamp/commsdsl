@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 #include "commsdsl/version.h"
 #include "commsdsl/gen/util.h"
 
-#include "ProgramOptions.h"
-#include "Generator.h"
+#include "TestGenerator.h"
+#include "TestProgramOptions.h"
 
 #include <stdexcept>
 #include <iostream>
@@ -60,7 +60,7 @@ std::vector<std::string> getFilesList(
 int main(int argc, const char* argv[])
 {
     try {
-        commsdsl2test::ProgramOptions options;
+        commsdsl2test::TestProgramOptions options;
         options.parse(argc, argv);
         if (options.helpRequested()) {
             std::cout << "Usage:\n\t" << argv[0] << " [OPTIONS] schema_file1 [schema_file2] [schema_file3] ...\n\n";
@@ -76,7 +76,7 @@ int main(int argc, const char* argv[])
             return 0;
         }        
 
-        commsdsl2test::Generator generator;
+        commsdsl2test::TestGenerator generator;
         auto& logger = generator.logger();
 
         if (options.quietRequested()) {

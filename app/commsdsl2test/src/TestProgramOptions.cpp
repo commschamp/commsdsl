@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "ProgramOptions.h"
+#include "TestProgramOptions.h"
 
 #include <iostream>
 #include <cassert>
@@ -41,7 +41,7 @@ const std::string WarnAsErrStr("warn-as-err");
 
 } // namespace
 
-ProgramOptions::ProgramOptions()
+TestProgramOptions::TestProgramOptions()
 {
     addHelpOption()
     (VersionStr, "Print version string and exit.")
@@ -54,47 +54,47 @@ ProgramOptions::ProgramOptions()
     ;
 }
 
-bool ProgramOptions::quietRequested() const
+bool TestProgramOptions::quietRequested() const
 {
     return isOptUsed(QuietStr);
 }
 
-bool ProgramOptions::versionRequested() const
+bool TestProgramOptions::versionRequested() const
 {
     return isOptUsed(VersionStr);
 }
 
-bool ProgramOptions::warnAsErrRequested() const
+bool TestProgramOptions::warnAsErrRequested() const
 {
     return isOptUsed(WarnAsErrStr);
 }
 
-const std::string& ProgramOptions::getFilesListFile() const
+const std::string& TestProgramOptions::getFilesListFile() const
 {
     return value(InputFilesListStr);
 }
 
-const std::string& ProgramOptions::getFilesListPrefix() const
+const std::string& TestProgramOptions::getFilesListPrefix() const
 {
     return value(InputFilesPrefixStr);
 }
 
-const ProgramOptions::ArgsList& ProgramOptions::getFiles() const
+const TestProgramOptions::ArgsList& TestProgramOptions::getFiles() const
 {
     return args();
 }
 
-const std::string& ProgramOptions::getOutputDirectory() const
+const std::string& TestProgramOptions::getOutputDirectory() const
 {
     return value(OutputDirStr);
 }
 
-bool ProgramOptions::hasNamespaceOverride() const
+bool TestProgramOptions::hasNamespaceOverride() const
 {
     return isOptUsed(NamespaceStr);
 }
 
-const std::string& ProgramOptions::getNamespace() const
+const std::string& TestProgramOptions::getNamespace() const
 {
     return value(NamespaceStr);
 }

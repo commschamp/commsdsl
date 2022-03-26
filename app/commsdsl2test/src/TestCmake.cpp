@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,9 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Cmake.h"
+#include "TestCmake.h"
 
-#include "Generator.h"
+#include "TestGenerator.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -35,13 +35,13 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 } // namespace 
     
 
-bool Cmake::write(Generator& generator)
+bool TestCmake::write(TestGenerator& generator)
 {
-    Cmake obj(generator);
+    TestCmake obj(generator);
     return obj.writeInternal();
 }
 
-bool Cmake::writeInternal() const
+bool TestCmake::writeInternal() const
 {
     static_cast<void>(m_generator);
     auto filePath = 
