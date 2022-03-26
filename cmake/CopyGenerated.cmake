@@ -1,5 +1,6 @@
 # GENERATED
 # OUTPUT
+# CLEANUP_DIRS
 
 function (copyIfDifferent generated output)
     if (("${generated}" STREQUAL "") OR ("${output}" STREQUAL "")) 
@@ -32,7 +33,6 @@ endfunction ()
 
 message (STATUS "Copying: ${GENERATED} --> ${OUTPUT}")
 copyIfDifferent ("${GENERATED}" "${OUTPUT}")
-deleteRemoved ("${GENERATED}/include" "${OUTPUT}/include")
-deleteRemoved ("${GENERATED}/cc_plugin" "${OUTPUT}/cc_plugin")
-deleteRemoved ("${GENERATED}/cmake" "${OUTPUT}/cmake")
-deleteRemoved ("${GENERATED}/test" "${OUTPUT}/test")
+foreach (d ${CLEANUP_DIRS})
+    deleteRemoved ("${GENERATED}/${d}" "${OUTPUT}/{d}")
+endforeach()

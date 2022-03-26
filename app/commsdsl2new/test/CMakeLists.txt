@@ -24,9 +24,9 @@ function (test_func name)
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND}
-            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}"
-            -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"
-        DEPENDS ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
+            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc;include" 
+            -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
+        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
 
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)

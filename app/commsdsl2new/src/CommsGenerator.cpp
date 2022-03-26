@@ -342,7 +342,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal()
         auto destPath = fs::path(outputDir) / relPath;
         logger().info("Copying " + destPath.string());
 
-        if (!createDirectory(destPath.parent_path())) {
+        if (!createDirectory(destPath.parent_path().string())) {
             return false;
         }
 
