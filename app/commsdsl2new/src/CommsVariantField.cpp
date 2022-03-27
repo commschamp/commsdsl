@@ -331,8 +331,6 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
     }
 
     static const std::string Templ =
-        "COMMS_MSVC_WARNING_PUSH\n"
-        "COMMS_MSVC_WARNING_DISABLE(4702) // Disable unreachable code warning\n"
         "#^#VERSION_DEP#$#\n"
         "using CommonKeyField=\n"
         "    #^#KEY_FIELD_TYPE#$#;\n"
@@ -348,8 +346,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         "switch (commonKeyField.value()) {\n"
         "#^#CASES#$#\n"
         "};\n\n"
-        "return comms::ErrorStatus::InvalidMsgData;\n"
-        "COMMS_MSVC_WARNING_POP\n";
+        "return comms::ErrorStatus::InvalidMsgData;\n";
 
     util::ReplacementMap repl = {
         {"KEY_FIELD_TYPE", m_optimizedReadKey},
@@ -363,6 +360,11 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
     }
 
     return util::processTemplate(Templ, repl);    
+}
+
+CommsVariantField::StringsList CommsVariantField::commsDefReadMsvcSuppressWarningsImpl() const
+{
+    return StringsList{"4702"};
 }
 
 bool CommsVariantField::commsIsVersionDependentImpl() const

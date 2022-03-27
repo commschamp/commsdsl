@@ -384,6 +384,11 @@ std::string CommsField::commsDefReadFuncBodyImpl() const
     return strings::emptyString();
 }
 
+CommsField::StringsList CommsField::commsDefReadMsvcSuppressWarningsImpl() const
+{
+    return StringsList();
+}
+
 std::string CommsField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
 {
     static_cast<void>(siblings);
@@ -1067,12 +1072,15 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
     auto body = commsDefReadFuncBodyImpl();
     if (!body.empty()) {
         static const std::string OrigTempl = 
+            "#^#MSVC_PUSH#$#\n"
+            "#^#MSVC_DISABLE#$#\n"
             "/// @brief Generated read functionality.\n"
             "template <typename TIter>\n"
             "comms::ErrorStatus read#^#SUFFIX#$#(TIter& iter, std::size_t len)\n"
             "{\n"
             "    #^#BODY#$#\n"
-            "}\n";
+            "}\n"
+            "#^#MSVC_POP#$#\n";
 
         util::ReplacementMap origRepl = {
             {"BODY", std::move(body)}
@@ -1082,7 +1090,21 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
-        repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
+        auto warnings = commsDefReadMsvcSuppressWarningsImpl();
+        if (!warnings.empty()) {
+            util::StringsList disableStrings;
+            for (auto& w : warnings) {
+                disableStrings.push_back("COMMS_MSVC_WARNING_DISABLE(" + w + ')');
+            }
+            
+            origRepl.insert({
+                {"MSVC_PUSH", "COMMS_MSVC_WARNING_PUSH"},
+                {"MSVC_POP", "COMMS_MSVC_WARNING_POP"},
+                {"MSVC_DISABLE", util::strListToString(disableStrings, "\n", "")},
+            });
+        }
+
+        repl["ORIG"] = util::processTemplate(OrigTempl, origRepl);
     }
 
     if (!m_customRead.empty()) {
