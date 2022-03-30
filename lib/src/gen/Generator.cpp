@@ -106,6 +106,16 @@ public:
         m_mainNamespace = value;
     }
 
+    void setTopNamespace(const std::string& value)
+    {
+        m_topNamespace = value;
+    }
+
+    const std::string& getTopNamespace() const
+    {
+        return m_topNamespace;
+    }
+
     void setOutputDir(const std::string& outDir)
     {
         m_outputDir = outDir;
@@ -427,6 +437,7 @@ private:
     NamespacesList m_namespaces;
     std::string m_schemaNamespace;
     std::string m_mainNamespace;
+    std::string m_topNamespace;
     commsdsl::parse::Endian m_schemaEndian = commsdsl::parse::Endian_Little;
     unsigned m_parsedSchemaVersion = 0U;
     int m_forcedSchemaVersion = -1;
@@ -464,6 +475,16 @@ unsigned Generator::getMinRemoteVersion() const
 void Generator::setMainNamespaceOverride(const std::string& value)
 {
     m_impl->setMainNamespaceOverride(value);
+}
+
+void Generator::setTopNamespace(const std::string& value)
+{
+    m_impl->setTopNamespace(value);
+}
+
+const std::string& Generator::getTopNamespace() const
+{
+    return m_impl->getTopNamespace();
 }
 
 void Generator::setOutputDir(const std::string& outDir)

@@ -423,9 +423,18 @@ std::string scopeForCustomLayer(
     return scopeForElement(elem.name(), generator, SubElems, addMainNamespace, addElement, ScopeSep); 
 }
 
-std::string relHeaderPathFor(const Elem& elem, const Generator& generator)
+std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool ignoreTopNamespace)
 {
-    return scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
+    std::string result;
+    if (!ignoreTopNamespace) {
+        result = generator.getTopNamespace();
+        if (!result.empty()) {
+            result += PathSep;
+        } 
+    }
+
+    result += scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
+    return result;
 }
 
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator)
@@ -495,9 +504,9 @@ std::string relHeaderForRoot(const std::string& name, const Generator& generator
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string headerPathFor(const Elem& elem, const Generator& generator)
+std::string headerPathFor(const Elem& elem, const Generator& generator, bool ignoreTopNamespace)
 {
-    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator);
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator, ignoreTopNamespace);
 }
 
 std::string headerPathForField(const std::string& name, const Generator& generator)
@@ -535,9 +544,9 @@ std::string pathForDoc(const std::string& name, const Generator& generator)
     return generator.getOutputDir() + '/' + strings::docDirStr() + '/' + name;    
 }
 
-std::string inputCodePathFor(const Elem& elem, const Generator& generator)
+std::string inputCodePathFor(const Elem& elem, const Generator& generator, bool ignoreTopNamespace)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator);
+    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator, ignoreTopNamespace);
 }
 
 std::string inputCodePathForRoot(const std::string& name, const Generator& generator)
@@ -573,12 +582,19 @@ std::string namespaceBeginFor(
         };
 
     auto* parent = elem.getParent();
-    if (parent != nullptr) {
-        result += namespaceBeginFor(*parent, generator);
-    }
-    else {
+    do {
+        if (parent != nullptr) {
+            result += namespaceBeginFor(*parent, generator);
+            break;
+        }
+
+        auto& topNamespace = generator.getTopNamespace();
+        if (!topNamespace.empty()) {
+            appendToResultFunc(namespaceName(topNamespace));
+        }
+
         appendToResultFunc(namespaceName(generator.mainNamespace()));
-    }
+    } while (false);
 
     auto elemType = elem.elemType();
     if ((elemType == Elem::Type_Field) && (parent->elemType() == Elem::Type_Namespace)) {
@@ -660,12 +676,19 @@ std::string namespaceEndFor(
         appendToResultFunc(namespaceName(elemName));
     }
     
-    if (parent != nullptr) {
-        result += namespaceEndFor(*parent, generator);
-    }
-    else {
+    do {
+        if (parent != nullptr) {
+            result += namespaceEndFor(*parent, generator);
+            break;
+        }
+
         appendToResultFunc(namespaceName(generator.mainNamespace()));
-    }
+
+        auto& topNamespace = generator.getTopNamespace();
+        if (!topNamespace.empty()) {
+            appendToResultFunc(namespaceName(topNamespace));
+        }
+    } while (false);
 
     return result;
 }

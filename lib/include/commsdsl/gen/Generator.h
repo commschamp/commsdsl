@@ -55,6 +55,9 @@ public:
     unsigned getMinRemoteVersion() const;
     void setMainNamespaceOverride(const std::string& value);    
 
+    void setTopNamespace(const std::string& value);
+    const std::string& getTopNamespace() const;
+
     void setOutputDir(const std::string& outDir);
     const std::string& getOutputDir() const;
 
