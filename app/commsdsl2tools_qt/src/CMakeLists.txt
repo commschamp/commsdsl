@@ -7,6 +7,7 @@ set (
     ToolsQtGenerator.cpp
     ToolsQtIntField.cpp
     ToolsQtProgramOptions.cpp
+    ToolsQtSetField.cpp
     main.cpp
 )
 

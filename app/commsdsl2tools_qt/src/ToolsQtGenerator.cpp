@@ -20,6 +20,7 @@
 #include "ToolsQtCmake.h"
 #include "ToolsQtEnumField.h"
 #include "ToolsQtIntField.h"
+#include "ToolsQtSetField.h"
 
 namespace commsdsl2tools_qt
 {
@@ -41,6 +42,11 @@ ToolsQtGenerator::FieldPtr ToolsQtGenerator::createIntFieldImpl(commsdsl::parse:
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtEnumField>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::FieldPtr ToolsQtGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtSetField>(*this, dslObj, parent);
 }
 
 bool ToolsQtGenerator::writeImpl()
