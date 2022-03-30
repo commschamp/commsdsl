@@ -258,28 +258,7 @@ std::string CommsField::commsCompareToFieldCode(
 
 bool CommsField::commsIsVersionOptional() const
 {
-    auto& generator = m_field.generator();
-    if (!generator.versionDependentCode()) {
-        return false;
-    }
-
-    auto& dslObj = m_field.dslObj();
-    if (!generator.isElementOptional(dslObj.sinceVersion(), dslObj.deprecatedSince(), dslObj.isDeprecatedRemoved())) {
-        return false;
-    }
-
-    auto* parent = m_field.getParent();
-    assert(parent != nullptr);
-    if (comms::sinceVersionOf(*parent) < dslObj.sinceVersion()) {
-        return true;
-    }
-
-    if ((dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated()) &&
-        (dslObj.isDeprecatedRemoved())) {
-        return true;
-    }
-
-    return false;    
+    return comms::isVersionOptionaField(m_field, m_field.generator());
 }
 
 std::string CommsField::commsDefaultOptions() const

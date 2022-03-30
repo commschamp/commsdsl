@@ -423,18 +423,9 @@ std::string scopeForCustomLayer(
     return scopeForElement(elem.name(), generator, SubElems, addMainNamespace, addElement, ScopeSep); 
 }
 
-std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool ignoreTopNamespace)
+std::string relHeaderPathFor(const Elem& elem, const Generator& generator)
 {
-    std::string result;
-    if (!ignoreTopNamespace) {
-        result = generator.getTopNamespace();
-        if (!result.empty()) {
-            result += PathSep;
-        } 
-    }
-
-    result += scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
-    return result;
+    return scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator)
@@ -504,9 +495,9 @@ std::string relHeaderForRoot(const std::string& name, const Generator& generator
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string headerPathFor(const Elem& elem, const Generator& generator, bool ignoreTopNamespace)
+std::string headerPathFor(const Elem& elem, const Generator& generator)
 {
-    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator, ignoreTopNamespace);
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator);
 }
 
 std::string headerPathForField(const std::string& name, const Generator& generator)
@@ -544,9 +535,9 @@ std::string pathForDoc(const std::string& name, const Generator& generator)
     return generator.getOutputDir() + '/' + strings::docDirStr() + '/' + name;    
 }
 
-std::string inputCodePathFor(const Elem& elem, const Generator& generator, bool ignoreTopNamespace)
+std::string inputCodePathFor(const Elem& elem, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator, ignoreTopNamespace);
+    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator);
 }
 
 std::string inputCodePathForRoot(const std::string& name, const Generator& generator)
@@ -831,6 +822,37 @@ bool isInterfaceMemberField(const Elem& elem)
     auto* parent = elem.getParent();
     assert(parent != nullptr);
     return parent->elemType() == Elem::Type_Interface;    
+}
+
+bool isVersionOptionaField(const Elem& elem, const Generator& generator)
+{
+    if (elem.elemType() != Elem::Type_Field) {
+        assert(false); // Should not happen
+        return false;
+    }    
+
+    if (!generator.versionDependentCode()) {
+        return false;
+    }
+
+    auto& field = static_cast<const gen::Field&>(elem);
+    auto& dslObj = field.dslObj();
+    if (!generator.isElementOptional(dslObj.sinceVersion(), dslObj.deprecatedSince(), dslObj.isDeprecatedRemoved())) {
+        return false;
+    }
+
+    auto* parent = field.getParent();
+    assert(parent != nullptr);
+    if (comms::sinceVersionOf(*parent) < dslObj.sinceVersion()) {
+        return true;
+    }
+
+    if ((dslObj.deprecatedSince() < commsdsl::parse::Protocol::notYetDeprecated()) &&
+        (dslObj.isDeprecatedRemoved())) {
+        return true;
+    }
+
+    return false;     
 }
 
 unsigned sinceVersionOf(const Elem& elem)

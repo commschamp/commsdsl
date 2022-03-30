@@ -17,22 +17,25 @@
 
 #include "ToolsQtField.h"
 
-#include "commsdsl/gen/Field.h"
+#include "commsdsl/gen/IntField.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtIntField : public commsdsl::gen::Field, public ToolsQtField
+class ToolsQtIntField final : public commsdsl::gen::IntField, public ToolsQtField
 {
-    using Base = commsdsl::gen::Field;
+    using Base = commsdsl::gen::IntField;
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtIntField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
 protected:
-        // Base overrides
+    // Base overrides
     virtual bool writeImpl() const override;    
+
+    // ToolsBase overrides
+    virtual std::string toolsExtraPropsImpl() const override;
 
 private:
 };

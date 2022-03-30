@@ -39,11 +39,24 @@ public:
     }
 
     IncludesList toolsHeaderIncludes() const;
+    IncludesList toolsSrcIncludes() const;
     std::string toolsDeclSig() const;
+    std::string toolsDefFunc() const;
+
+    std::string relDeclHeaderFile() const;
+    std::string relDefSrcFile() const;
+
+protected:
+    virtual IncludesList toolsExtraSrcIncludesImpl() const;    
+    virtual std::string toolsDefFuncBodyImpl() const;
+    virtual std::string toolsExtraPropsImpl() const;
 
 private:
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSrcInternal() const;
+    std::string toolsDeclSigInternal(bool defaultSerHidden = true) const;
+    std::string toolsRelPathInternal() const;
+    std::string toolsSerHiddenParamInternal() const;
 
     commsdsl::gen::Field& m_field;
     bool m_referenced = true; // TODO: make false as default

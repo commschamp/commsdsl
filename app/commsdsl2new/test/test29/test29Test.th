@@ -7,8 +7,6 @@
 #include "test29/frame/Frame.h"
 #include "test29/options/BareMetalDefaultOptions.h"
 #include "test29/options/DataViewDefaultOptions.h"
-#include "test29/input/Plat1Messages.h"
-#include "test29/input/Plat2Messages.h"
 
 class TestSuite : public CxxTest::TestSuite
 {

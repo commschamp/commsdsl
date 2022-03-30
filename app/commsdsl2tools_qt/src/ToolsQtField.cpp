@@ -21,6 +21,7 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 
@@ -73,22 +74,154 @@ ToolsQtField::IncludesList ToolsQtField::toolsHeaderIncludes() const
     return incs;
 }
 
+ToolsQtField::IncludesList ToolsQtField::toolsSrcIncludes() const
+{
+    IncludesList incs = {
+        "cc_tools_qt/property/field.h",
+        comms::relHeaderPathFor(m_field, m_field.generator())
+    };
+
+    auto extra = toolsExtraSrcIncludesImpl();
+    std::move(incs.end(), extra.begin(), extra.end());
+    return incs;
+}
+
 std::string ToolsQtField::toolsDeclSig() const
 {
+    return toolsDeclSigInternal();
+}
+
+std::string ToolsQtField::toolsDefFunc() const
+{
     static const std::string Templ = 
-        "QVariantMap createProps_#^#NAME#$#(const char* name, bool serHidden = false)";
+        "#^#DECL#$#\n"
+        "{\n"
+        "    #^#SER_HIDDEN_CAST#$#\n"
+        "    #^#BODY#$#\n"
+        "}";
 
     util::ReplacementMap repl = {
-        {"NAME", comms::accessName(m_field.dslObj().name())}
+        {"DECL", toolsDeclSigInternal(false)},
+        {"SER_HIDDEN_CAST", "static_cast<void>(serHidden);"},
+        {"BODY", toolsDefFuncBodyImpl()},
     };
 
     return util::processTemplate(Templ, repl);
 }
 
+std::string ToolsQtField::relDeclHeaderFile() const
+{
+    return toolsRelPathInternal() + strings::cppHeaderSuffixStr();
+}
+
+std::string ToolsQtField::relDefSrcFile() const
+{
+    return toolsRelPathInternal() + strings::cppSourceSuffixStr();
+}
+
+ToolsQtField::IncludesList ToolsQtField::toolsExtraSrcIncludesImpl() const
+{
+    return IncludesList();
+}
+
+std::string ToolsQtField::toolsDefFuncBodyImpl() const
+{
+    static const std::string FieldDefTempl =
+        "    cc_tools_qt::property::field::ForField<Field>()\n"
+        "        .name(#^#NAME_PROP#$#)\n"
+        "        #^#SER_HIDDEN#$#\n"
+        "        #^#READ_ONLY#$#\n"          
+        "        #^#HIDDEN#$#\n"
+        "        #^#PROPERTIES#$#\n"
+        "        .asMap();\n";
+
+    static const std::string Templ =
+        "using Field = #^#SCOPE#$#;\n"
+        "return\n" + 
+        FieldDefTempl;
+
+    static const std::string VerOptTempl =
+        "using Field = #^#SCOPE#$#Field;\n"
+        "using OptField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
+        "auto props =\n" + 
+        FieldDefTempl + "\n"
+        "return\n"
+        "    cc::property::field::ForField<OptField>()\n"
+        "        .name(#^#NAME_PROP#$#)\n"
+        "        .uncheckable()\n"
+        "        .field(std::move(props))\n"
+        "        .asMap();\n";
+
+    auto& generator = m_field.generator();
+    bool verOptional = comms::isVersionOptionaField(m_field, generator);
+    auto* templ = &Templ;
+    if (verOptional) {
+        templ = &VerOptTempl;
+    }
+
+    auto parent = m_field.getParent();
+    while (parent != nullptr) {
+        if ((parent->elemType() != commsdsl::gen::Elem::Type::Type_Field) && 
+            (parent->elemType() != commsdsl::gen::Elem::Type::Type_Layer)) {
+            break;
+        }
+
+        parent = parent->getParent();
+    }
+
+    assert(parent != nullptr);
+
+    auto scope = comms::scopeFor(m_field, generator);
+    bool globalField = comms::isGlobalField(m_field);
+    do {
+        if (globalField) {
+            scope += "<>";
+            break;
+        }
+
+        auto parentScope = comms::scopeFor(*parent, generator);
+
+        if ((parent->elemType() == commsdsl::gen::Elem::Type::Type_Message) ||
+            (parent->elemType() == commsdsl::gen::Elem::Type::Type_Interface)) {
+            parentScope += strings::fieldsSuffixStr();
+        }    
+        else {
+            parentScope += strings::membersSuffixStr();
+        }
+
+        scope = parentScope + "<>" + scope.substr(parentScope.size());
+
+    } while (false);
+
+    auto dslObj = m_field.dslObj();
+    
+
+    util::ReplacementMap repl = {
+        {"SCOPE", scope},
+        {"SER_HIDDEN", toolsSerHiddenParamInternal()},
+        {"READ_ONLY", dslObj.isDisplayReadOnly() ? std::string(".readOnly()") : strings::emptyString()},
+        {"HIDDEN", dslObj.isDisplayHidden() ? std::string(".hidden()") : strings::emptyString()},
+        {"PROPERTIES", toolsExtraPropsImpl()}
+    };
+
+    if (comms::isGlobalField(m_field)) {
+        repl["NAME_PROP"] = "name";
+    }
+    else {
+        repl["NAME_PROP"] = "Field::name()";
+    }
+    return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtField::toolsExtraPropsImpl() const
+{
+    return strings::emptyString();
+}
+
 bool ToolsQtField::toolsWriteHeaderInternal() const
 {
     auto& generator = m_field.generator();
-    auto filePath = comms::headerPathFor(m_field, generator);
+    auto filePath = m_field.generator().getOutputDir() + '/' + relDeclHeaderFile();
 
     auto& logger = generator.logger();
     logger.info("Generating " + filePath);
@@ -98,7 +231,6 @@ bool ToolsQtField::toolsWriteHeaderInternal() const
     if (!generator.createDirectory(dirPath)) {
         return false;
     }
-
 
     auto includes = toolsHeaderIncludes();
     comms::prepareIncludeStatement(includes);
@@ -114,16 +246,14 @@ bool ToolsQtField::toolsWriteHeaderInternal() const
         "\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "#^#EXTRA_INCLUDES#$#\n"
         "#^#NS_BEGIN#$#\n"
-        "#^#DECL#$#;\n"
+        "#^#DECL#$#;\n\n"
         "#^#NS_END#$#\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
-        {"EXTRA_INCLUDES", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::incFileSuffixStr())},
         {"NS_BEGIN", comms::namespaceBeginFor(m_field, generator)},
         {"NS_END", comms::namespaceEndFor(m_field, generator)},
         {"DECL", toolsDeclSig()},
@@ -136,9 +266,74 @@ bool ToolsQtField::toolsWriteHeaderInternal() const
 
 bool ToolsQtField::toolsWriteSrcInternal() const
 {
-    // TODO: 
-    return true;
+    auto& generator = m_field.generator();
+    auto filePath = m_field.generator().getOutputDir() + '/' + relDefSrcFile();
+
+    auto& logger = generator.logger();
+    logger.info("Generating " + filePath);
+
+    auto includes = toolsSrcIncludes();
+    comms::prepareIncludeStatement(includes);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        logger.error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ = 
+        "#^#GENERATED#$#\n"
+        "#include \"#^#NAME#$#\"\n\n"
+        "#^#INCLUDES#$#\n"
+        "#^#NS_BEGIN#$#\n"
+        "#^#DEF#$#\n\n"
+        "#^#NS_END#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"NAME", comms::className(m_field.dslObj().name())},
+        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
+        {"NS_BEGIN", comms::namespaceBeginFor(m_field, generator)},
+        {"NS_END", comms::namespaceEndFor(m_field, generator)},
+        {"DEF", toolsDefFunc()},
+    };
+
+    stream << util::processTemplate(Templ, repl);
+    stream.flush();
+    return stream.good();
 }
 
+std::string ToolsQtField::toolsDeclSigInternal(bool defaultSerHidden) const
+{
+    static const std::string Templ = 
+        "QVariantMap createProps_#^#NAME#$#(#^#NAME_PARAM#$#bool serHidden#^#DEF_VALUE#$#)";
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::accessName(m_field.dslObj().name())}
+    };
+
+    if (defaultSerHidden) {
+        repl["DEF_VALUE"] = " = false";
+    }
+
+    if (comms::isGlobalField(m_field)) {
+        repl["NAME_PARAM"] = "const char* name, ";
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtField::toolsRelPathInternal() const
+{
+    auto scope = comms::scopeFor(m_field, m_field.generator(), false);
+    return util::strReplace(scope, "::", "/");
+}
+
+std::string ToolsQtField::toolsSerHiddenParamInternal() const
+{
+    // TODO: analyse parent
+    return ".serHidden(serHidden)";
+}
 
 } // namespace commsdsl2tools_qt
