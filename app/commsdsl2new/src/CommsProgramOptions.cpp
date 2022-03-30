@@ -99,6 +99,7 @@ CommsProgramOptions::CommsProgramOptions()
         "\'Name:ListFile\'. The external \'ListFile\' needs to contain a new line separated list of message names "
         "as defined in the CommsDSL. In case the message resides in a namespace its name must be "
         "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
+        "The Name part (with separating colon) can be omitted, in such case file basename is used as bundle name. "
         "Multiple bundles are separated by comma (\'Name1:ListFile1,Name2:ListFile2\').",
         true)
  

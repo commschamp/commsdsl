@@ -45,6 +45,7 @@ private:
     bool writeClientDispatchInternal() const;
     bool writeServerDispatchInternal() const;
     bool writePlatformDispatchInternal() const;
+    bool writeExtraDispatchInternal() const;
 
     std::string commsIncludesInternal(const std::string& inputPrefix) const;
     std::string commsDispatchCodeInternal(const std::string& name, CheckMsgFunc&& func) const;

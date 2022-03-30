@@ -422,6 +422,53 @@ const Field* Namespace::findField(const std::string& externalRef) const
     return (*nsIter)->findField(remStr);
 }
 
+const Message* Namespace::findMessage(const std::string& externalRef) const
+{
+    assert(!externalRef.empty());
+    auto pos = externalRef.find_first_of('.');
+    std::string nsName;
+    if (pos != std::string::npos) {
+        nsName.assign(externalRef.begin(), externalRef.begin() + pos);
+    }
+
+    auto& mList = messages();
+    if (nsName.empty()) {
+        auto messageIter =
+            std::lower_bound(
+                mList.begin(), mList.end(), externalRef,
+                [](auto& m, auto& n)
+                {
+                    return m->name() < n;
+                });
+
+        if ((messageIter == mList.end()) || ((*messageIter)->name() != externalRef)) {
+            return nullptr;
+        }
+
+        return messageIter->get();
+    }
+
+    auto& nsList = namespaces();
+    auto nsIter =
+        std::lower_bound(
+            nsList.begin(), nsList.end(), nsName,
+            [](auto& ns, const std::string& n)
+            {
+                return ns->name() < n;
+            });
+
+    if ((nsIter == nsList.end()) || ((*nsIter)->name() != nsName)) {
+        return nullptr;
+    }
+
+    std::size_t fromPos = 0U;
+    if (pos != std::string::npos) {
+        fromPos = pos + 1U;
+    }
+    std::string remStr(externalRef, fromPos);
+    return (*nsIter)->findMessage(remStr);
+}
+
 Namespace::NamespacesAccessList Namespace::getAllNamespaces() const
 {
     NamespacesAccessList result;

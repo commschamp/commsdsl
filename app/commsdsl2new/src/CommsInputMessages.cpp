@@ -137,7 +137,8 @@ bool CommsInputMessages::writeInternal() const
         writeAllMessagesInternal() &&
         writeClientInputMessagesInternal() &&
         writeServerInputMessagesInternal() &&
-        writePlatformInputMessagesInternal() ;
+        writePlatformInputMessagesInternal() &&
+        writeExtraInputMessagesInternal();
 }
 
 bool CommsInputMessages::writeAllMessagesInternal() const
@@ -240,5 +241,55 @@ bool CommsInputMessages::writePlatformInputMessagesInternal() const
 
     return true;
 }
+
+bool CommsInputMessages::writeExtraInputMessagesInternal() const
+{
+    auto& extraBundles = m_generator.extraMessageBundles();
+    for (auto& b : extraBundles) {
+
+        auto bundleCheckFunc = 
+            [&b](const commsdsl::gen::Message& msg)
+            {
+                return std::find(b.second.begin(), b.second.end(), &msg) != b.second.end();
+            };
+
+        auto allCheckFunc = 
+            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            {
+                return bundleCheckFunc(msg);
+            };
+
+        if (!writeFileInternal(comms::className(b.first) + "Messages", m_generator, allCheckFunc)) {
+            return false;
+        }
+
+        auto clientCheckFunc = 
+            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            {
+                return 
+                    bundleCheckFunc(msg) &&
+                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+            };
+
+        if (!writeFileInternal(comms::className(b.first) + ClientInputSuffixStr, m_generator, clientCheckFunc)) {
+            return false;
+        }  
+
+        auto serverCheckFunc = 
+            [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+            {
+                return 
+                    bundleCheckFunc(msg) &&
+                    (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+            };
+
+        if (!writeFileInternal(comms::className(b.first) + ServerInputSuffixStr, m_generator, serverCheckFunc)) {
+            return false;
+        }                     
+    };        
+
+    return true;
+}
+
 
 } // namespace commsdsl2new

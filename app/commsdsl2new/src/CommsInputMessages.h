@@ -34,6 +34,7 @@ private:
     bool writeClientInputMessagesInternal() const;
     bool writeServerInputMessagesInternal() const;
     bool writePlatformInputMessagesInternal() const;
+    bool writeExtraInputMessagesInternal() const;
 
     CommsGenerator& m_generator;
 };

@@ -53,10 +53,10 @@
 
 #include <algorithm>
 #include <cassert>
-#include <system_error>
+#include <iterator>
 #include <filesystem>
 #include <fstream>
-#include <iterator>
+#include <system_error>
 #include <type_traits>
 
 namespace fs = std::filesystem;
@@ -115,6 +115,21 @@ void CommsGenerator::setProtocolVersion(const std::string& value)
     m_protocolVersion = value;
 }
 
+const std::vector<std::string>& CommsGenerator::getExtraInputBundles() const
+{
+    return m_extraInputBundles;
+}
+
+void CommsGenerator::setExtraInputBundles(const std::vector<std::string>& inputBundles)
+{
+    m_extraInputBundles = inputBundles;
+}
+
+const CommsGenerator::ExtraMessageBundlesList& CommsGenerator::extraMessageBundles() const
+{
+    return m_extraMessageBundles;
+}
+
 const std::string& CommsGenerator::minCommsVersion()
 {
     return MinCommsVersion;
@@ -126,19 +141,9 @@ bool CommsGenerator::prepareImpl()
         return false;
     }
 
-    auto allInterfaces = getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        return true;
-    }
-
-    auto* defaultNamespace = addDefaultNamespace();
-    auto* interface = defaultNamespace->addDefaultInterface();
-    if (interface == nullptr) {
-        logger().error("Failed to create default interface");
-        return false;
-    }
-
-    return true;
+    return 
+        prepareDefaultInterfaceInternal() &&
+        prepareExtraMessageBundlesInternal();
 }
 
 CommsGenerator::NamespacePtr CommsGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
@@ -269,6 +274,72 @@ bool CommsGenerator::writeImpl()
         CommsDoxygen::write(*this) &&
         commsWriteExtraFilesInternal();
 }
+
+bool CommsGenerator::prepareDefaultInterfaceInternal()
+{
+    auto allInterfaces = getAllInterfaces();
+    if (!allInterfaces.empty()) {
+        return true;
+    }
+
+    auto* defaultNamespace = addDefaultNamespace();
+    auto* interface = defaultNamespace->addDefaultInterface();
+    if (interface == nullptr) {
+        logger().error("Failed to create default interface");
+        return false;
+    }
+
+    return true;
+}
+
+bool CommsGenerator::prepareExtraMessageBundlesInternal()
+{
+    m_extraMessageBundles.reserve(m_extraInputBundles.size());
+    for (auto& b : m_extraInputBundles) {
+        std::string name;
+        std::string path = b;
+
+        auto sepPos = b.find_first_of(':');
+        if (sepPos != std::string::npos) {
+            name.assign(b, 0, sepPos);
+            path.erase(path.begin(), path.begin() + sepPos + 1);
+        }
+
+        if (name.empty()) {
+            name = fs::path(path).stem().string();
+        }
+
+        if (name.empty()) {
+            logger().error("Failed to idenity bundle name for " + b);
+            return false;
+        }
+
+        std::ifstream stream(path);
+        if (!stream) {
+            logger().error("Failed to read extra messages bundle file " + path);
+            return false;
+        }
+
+        std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
+        auto lines = util::strSplitByAnyCharCompressed(contents, "\n\r");
+        MessagesAccessList messages;
+        messages.reserve(lines.size());
+
+        for (auto& l : lines) {
+            auto* m = findMessage(l);
+            if (m == nullptr) {
+                logger().error("Failed to fined message \"" + l + "\" for bundle " + name);
+                return false;
+            }
+
+            messages.push_back(m);
+        }
+
+        m_extraMessageBundles.emplace_back(std::move(name), std::move(messages));
+    };
+    return true;
+}
+
 
 bool CommsGenerator::commsWriteExtraFilesInternal()
 {

@@ -311,7 +311,8 @@ bool CommsDispatch::writeInternal() const
         writeDispatchInternal() &&
         writeClientDispatchInternal() &&
         writeServerDispatchInternal() &&
-        writePlatformDispatchInternal();
+        writePlatformDispatchInternal() &&
+        writeExtraDispatchInternal();
 }
 
 bool CommsDispatch::writeDispatchInternal() const
@@ -454,6 +455,104 @@ bool CommsDispatch::writePlatformDispatchInternal() const
             std::string inputPrefix = comms::className(p) + "ServerInput";
             repl.insert({
                 {"DESC", p + " platform server input"},
+                {"INCLUDES", commsIncludesInternal(inputPrefix)},
+                {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(serverCheckFunc))}
+            });
+
+            bool result = 
+                writeFileInternal(
+                    getFileName(inputPrefix), 
+                    m_generator, 
+                    util::processTemplate(dispatchTempl(), repl));
+
+            if (!result) {
+                return false;
+            }
+
+        } while (false);        
+    }
+
+    return true;
+}
+
+bool CommsDispatch::writeExtraDispatchInternal() const
+{
+    auto& extraBundles = m_generator.extraMessageBundles();
+    for (auto& b : extraBundles) {
+
+        auto bundleCheckFunc = 
+            [&b](const commsdsl::gen::Message& msg)
+            {
+                return std::find(b.second.begin(), b.second.end(), &msg) != b.second.end();
+            };
+
+        do {
+            auto allCheckFunc = 
+                [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+                {
+                    return bundleCheckFunc(msg);
+                };
+
+            util::ReplacementMap repl = initialRepl(m_generator);
+            std::string inputPrefix = comms::className(b.first);
+            repl.insert({
+                {"DESC", b.first + " bundle"},
+                {"INCLUDES", commsIncludesInternal(inputPrefix)},
+                {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(allCheckFunc))}
+            });
+
+            bool result = 
+                writeFileInternal(
+                    getFileName(inputPrefix), 
+                    m_generator, 
+                    util::processTemplate(dispatchTempl(), repl));
+                    
+            if (!result) {
+                return false;
+            }
+        } while (false);
+
+        do {
+            auto clientCheckFunc = 
+                [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+                {
+                    return 
+                        bundleCheckFunc(msg) &&
+                        (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
+                };
+
+            util::ReplacementMap repl = initialRepl(m_generator);
+            std::string inputPrefix = comms::className(b.first) + "ClientInput";
+            repl.insert({
+                {"DESC", b.first + " bundle client input"},
+                {"INCLUDES", commsIncludesInternal(inputPrefix)},
+                {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(clientCheckFunc))}
+            });
+
+            bool result = 
+                writeFileInternal(
+                    getFileName(inputPrefix), 
+                    m_generator, 
+                    util::processTemplate(dispatchTempl(), repl));
+
+            if (!result) {
+                return false;
+            }
+        } while (false);
+
+        do {
+            auto serverCheckFunc = 
+                [&bundleCheckFunc](const commsdsl::gen::Message& msg)
+                {
+                    return 
+                        bundleCheckFunc(msg) &&
+                        (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
+                };
+
+            util::ReplacementMap repl = initialRepl(m_generator);
+            std::string inputPrefix = comms::className(b.first) + "ServerInput";
+            repl.insert({
+                {"DESC", b.first + " bundle server input"},
                 {"INCLUDES", commsIncludesInternal(inputPrefix)},
                 {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(serverCheckFunc))}
             });

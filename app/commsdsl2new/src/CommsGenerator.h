@@ -31,6 +31,8 @@ public:
     using LayerPtr = commsdsl::gen::LayerPtr;
     using MessagePtr = commsdsl::gen::MessagePtr;
     using NamespacePtr = commsdsl::gen::NamespacePtr;
+    using ExtraMessageBundle = std::pair<std::string, MessagesAccessList>;
+    using ExtraMessageBundlesList = std::vector<ExtraMessageBundle>;
 
     enum class CustomizationLevel
     {
@@ -47,7 +49,12 @@ public:
     const std::string& getProtocolVersion() const;
     void setProtocolVersion(const std::string& value);
 
+    const std::vector<std::string>& getExtraInputBundles() const;
+    void setExtraInputBundles(const std::vector<std::string>& inputBundles);
+    const ExtraMessageBundlesList& extraMessageBundles() const;
+
     static const std::string& minCommsVersion();
+
 
 protected:
     virtual bool prepareImpl() override;
@@ -81,11 +88,15 @@ protected:
     virtual bool writeImpl() override;    
 
 private:
+    bool prepareDefaultInterfaceInternal();
+    bool prepareExtraMessageBundlesInternal();
     bool commsWriteExtraFilesInternal();
     
     static const CustomizationLevel DefaultCustomizationLevel = CustomizationLevel::Limited;
     CustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
     std::string m_protocolVersion;
+    std::vector<std::string> m_extraInputBundles;
+    ExtraMessageBundlesList m_extraMessageBundles;
 };
 
 } // namespace commsdsl2new

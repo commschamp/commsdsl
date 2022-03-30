@@ -10,6 +10,13 @@ function (test_func name)
         set (code_input_param -c ${code_input_dir})
     endif()
 
+    set (extra_bundle_param)
+    if (EXISTS "${test_dir}/extra")
+        file(GLOB extra_bundle_files ${test_dir}/extra/*)
+        string (REPLACE ";" "," extra_bundle_param_value "${extra_bundle_files}")
+        set (extra_bundle_param --extra-messages-bundle "${extra_bundle_param_value}")
+    endif()    
+
     set (rm_tmp_tgt ${APP_NAME}.${name}_rm_tmp_tgt)
     add_custom_target(${rm_tmp_tgt}
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
@@ -18,7 +25,7 @@ function (test_func name)
     add_custom_command(
         OUTPUT ${output_dir}.tmp
         DEPENDS ${schema_file} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${schema_file}
+        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_file}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
@@ -169,3 +176,4 @@ test_func (test43)
 test_func (test44)
 test_func (test45)
 test_func (test46)
+test_func (test47)

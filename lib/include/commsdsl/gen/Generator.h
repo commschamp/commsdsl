@@ -74,6 +74,7 @@ public:
     const Field* getMessageIdField() const;
     const Field* findField(const std::string& externalRef) const;
     Field* findField(const std::string& externalRef);
+    const Message* findMessage(const std::string& externalRef) const;
 
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;

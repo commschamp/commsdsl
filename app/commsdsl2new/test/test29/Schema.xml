@@ -4,9 +4,6 @@
         endian="big"
         version="5">
 
-    <platform name="Plat1" />
-    <platform name="Plat2" />
-
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
@@ -40,9 +37,6 @@
             </element>
         </list>
     </message>
-
-    <message name="Msg3" id="MsgId.M3" platforms="+Plat1" />
-    <message name="Msg4" id="MsgId.M4" platforms="-Plat1" />
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />

@@ -16,8 +16,6 @@ public:
     void test1();
     void test2();    
     void test3();
-    void test4();
-    void test5();
 
     using Interface =
         test29::Message<
@@ -42,13 +40,6 @@ public:
     using DV_Msg2 = test29::message::Msg2<Interface, DV_Options>;    
     using DV_AllMessages = test29::input::AllMessages<Interface, DV_Options>;
     using DV_Frame = test29::frame::Frame<Interface, DV_AllMessages, DV_Options>;    
-
-    using Msg1 = test29::message::Msg1<Interface>;
-    using Msg2 = test29::message::Msg2<Interface>;    
-    using Msg3 = test29::message::Msg3<Interface>;    
-    using Msg4 = test29::message::Msg4<Interface>;    
-    using Plat1Frame = test29::frame::Frame<Interface, test29::input::Plat1Messages<Interface> >;    
-    using Plat2Frame = test29::frame::Frame<Interface, test29::input::Plat2Messages<Interface> >;    
 
 #if COMMS_HAS_CPP17_STRING_VIEW 
     static_assert(std::is_same<DV_Msg1::Field_f1::ValueType, std::string_view>::value, "Unexpected type");
@@ -167,43 +158,4 @@ void TestSuite::test3()
     comms::util::assign(msg2.field_f2().value(), msg->field_f2().value().begin(), msg->field_f2().value().end());
     TS_ASSERT_EQUALS(msg2.field_f2().value(), msg->field_f2().value());
     TS_ASSERT_EQUALS(&(*msg2.field_f2().value().begin()), &Buf1[6]); // view on orig buffer
-}
-
-void TestSuite::test4()
-{
-    static const std::uint8_t Buf1[] = 
-    {
-        3, 
-    };
-    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
-
-    
-    Plat1Frame frame;
-    Plat1Frame::MsgPtr msgPtr;
-
-    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
-    auto es = frame.read(msgPtr, readIter, Buf1Size);
-    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
-    TS_ASSERT(msgPtr);
-    TS_ASSERT_EQUALS(msgPtr->getId(), test29::MsgId_M3);
-    auto* msg = dynamic_cast<const Msg3*>(msgPtr.get());
-    TS_ASSERT(msg != nullptr);
-}
-
-void TestSuite::test5()
-{
-    static const std::uint8_t Buf1[] = 
-    {
-        3, 
-    };
-    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
-
-    
-    Plat2Frame frame;
-    Plat2Frame::MsgPtr msgPtr;
-
-    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
-    auto es = frame.read(msgPtr, readIter, Buf1Size);
-    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgId);
-    TS_ASSERT(!msgPtr);
 }
