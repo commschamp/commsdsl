@@ -18,6 +18,7 @@
 #include "commsdsl/version.h"
 
 #include "ToolsQtCmake.h"
+#include "ToolsQtEnumField.h"
 #include "ToolsQtIntField.h"
 
 namespace commsdsl2tools_qt
@@ -35,6 +36,11 @@ const std::string& ToolsQtGenerator::fileGeneratedComment()
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtIntField>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::FieldPtr ToolsQtGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtEnumField>(*this, dslObj, parent);
 }
 
 bool ToolsQtGenerator::writeImpl()

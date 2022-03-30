@@ -283,7 +283,7 @@ bool ToolsQtField::toolsWriteSrcInternal() const
 
     static const std::string Templ = 
         "#^#GENERATED#$#\n"
-        "#include \"#^#NAME#$#\"\n\n"
+        "#include \"#^#NAME#$#.h\"\n\n"
         "#^#INCLUDES#$#\n"
         "#^#NS_BEGIN#$#\n"
         "#^#DEF#$#\n\n"
@@ -333,7 +333,7 @@ std::string ToolsQtField::toolsRelPathInternal() const
 std::string ToolsQtField::toolsSerHiddenParamInternal() const
 {
     // TODO: analyse parent
-    return ".serHidden(serHidden)";
+    return ".serialisedHidden(serHidden)";
 }
 
 } // namespace commsdsl2tools_qt

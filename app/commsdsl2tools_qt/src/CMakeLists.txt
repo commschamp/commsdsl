@@ -2,6 +2,7 @@
 set (
     src
     ToolsQtCmake.cpp
+    ToolsQtEnumField.cpp
     ToolsQtField.cpp
     ToolsQtGenerator.cpp
     ToolsQtIntField.cpp
