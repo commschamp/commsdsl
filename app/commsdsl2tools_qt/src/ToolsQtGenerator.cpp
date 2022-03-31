@@ -19,6 +19,7 @@
 
 #include "ToolsQtCmake.h"
 #include "ToolsQtEnumField.h"
+#include "ToolsQtFloatField.h"
 #include "ToolsQtIntField.h"
 #include "ToolsQtSetField.h"
 
@@ -47,6 +48,11 @@ ToolsQtGenerator::FieldPtr ToolsQtGenerator::createEnumFieldImpl(commsdsl::parse
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtSetField>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::FieldPtr ToolsQtGenerator::createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtFloatField>(*this, dslObj, parent);
 }
 
 bool ToolsQtGenerator::writeImpl()

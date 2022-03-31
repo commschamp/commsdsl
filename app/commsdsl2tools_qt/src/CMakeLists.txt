@@ -4,6 +4,7 @@ set (
     ToolsQtCmake.cpp
     ToolsQtEnumField.cpp
     ToolsQtField.cpp
+    ToolsQtFloatField.cpp
     ToolsQtGenerator.cpp
     ToolsQtIntField.cpp
     ToolsQtProgramOptions.cpp

@@ -210,7 +210,7 @@ std::string ToolsQtField::toolsDefFuncBodyImpl() const
     else {
         repl["NAME_PROP"] = "Field::name()";
     }
-    return util::processTemplate(Templ, repl);
+    return util::processTemplate(*templ, repl);
 }
 
 std::string ToolsQtField::toolsExtraPropsImpl() const
