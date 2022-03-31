@@ -27,9 +27,17 @@ class ToolsQtField
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
+    using ToolsQtFieldsList = std::vector<ToolsQtField*>;
 
     explicit ToolsQtField(commsdsl::gen::Field& field);
     virtual ~ToolsQtField();
+
+    static ToolsQtFieldsList toolsTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
+
+    const commsdsl::gen::Field& field() const
+    {
+        return m_field;
+    }
 
     bool toolsWrite() const;
 
@@ -42,6 +50,7 @@ public:
     IncludesList toolsSrcIncludes() const;
     std::string toolsDeclSig() const;
     std::string toolsDefFunc() const;
+    std::string toolsDefMembers() const;
 
     std::string relDeclHeaderFile() const;
     std::string relDefSrcFile() const;
@@ -50,6 +59,7 @@ protected:
     virtual IncludesList toolsExtraSrcIncludesImpl() const;    
     virtual std::string toolsDefFuncBodyImpl() const;
     virtual std::string toolsExtraPropsImpl() const;
+    virtual std::string toolsDefMembersImpl() const;
 
 private:
     bool toolsWriteHeaderInternal() const;
@@ -57,6 +67,7 @@ private:
     std::string toolsDeclSigInternal(bool defaultSerHidden = true) const;
     std::string toolsRelPathInternal() const;
     std::string toolsSerHiddenParamInternal() const;
+    std::string toolsDefAnonimousInternal() const;
 
     commsdsl::gen::Field& m_field;
     bool m_referenced = true; // TODO: make false as default

@@ -40,6 +40,24 @@ ToolsQtField::ToolsQtField(commsdsl::gen::Field& field) :
 
 ToolsQtField::~ToolsQtField() = default;
 
+ToolsQtField::ToolsQtFieldsList ToolsQtField::toolsTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
+{
+    ToolsQtFieldsList result;
+    result.reserve(fields.size());
+    for (auto& fPtr : fields) {
+        assert(fPtr);
+
+        auto* toolsField = 
+            const_cast<ToolsQtField*>(
+                dynamic_cast<const ToolsQtField*>(fPtr.get()));
+
+        assert(toolsField != nullptr);
+        result.push_back(toolsField);
+    }
+
+    return result;
+}
+
 bool ToolsQtField::toolsWrite() const
 {
     auto* parent = m_field.getParent();
@@ -98,12 +116,34 @@ std::string ToolsQtField::toolsDefFunc() const
         "{\n"
         "    #^#SER_HIDDEN_CAST#$#\n"
         "    #^#BODY#$#\n"
-        "}";
+        "}\n";
 
     util::ReplacementMap repl = {
         {"DECL", toolsDeclSigInternal(false)},
         {"SER_HIDDEN_CAST", "static_cast<void>(serHidden);"},
         {"BODY", toolsDefFuncBodyImpl()},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtField::toolsDefMembers() const
+{
+    auto body = toolsDefMembersImpl();
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "struct #^#NAME#$##^#SUFFIX#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}; // struct #^#NAME#$##^#SUFFIX#$#\n";
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::className(m_field.dslObj().name())},
+        {"SUFFIX", strings::membersSuffixStr()},
+        {"BODY", std::move(body)},
     };
 
     return util::processTemplate(Templ, repl);
@@ -161,8 +201,15 @@ std::string ToolsQtField::toolsDefFuncBodyImpl() const
 
     auto parent = m_field.getParent();
     while (parent != nullptr) {
-        if ((parent->elemType() != commsdsl::gen::Elem::Type::Type_Field) && 
-            (parent->elemType() != commsdsl::gen::Elem::Type::Type_Layer)) {
+        if (parent->elemType() == commsdsl::gen::Elem::Type::Type_Layer) {
+            parent = parent->getParent();
+        }
+
+        if (parent->elemType() != commsdsl::gen::Elem::Type::Type_Field) {
+            break;
+        }
+
+        if (comms::isGlobalField(*parent)) {
             break;
         }
 
@@ -214,6 +261,11 @@ std::string ToolsQtField::toolsDefFuncBodyImpl() const
 }
 
 std::string ToolsQtField::toolsExtraPropsImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string ToolsQtField::toolsDefMembersImpl() const
 {
     return strings::emptyString();
 }
@@ -286,6 +338,7 @@ bool ToolsQtField::toolsWriteSrcInternal() const
         "#include \"#^#NAME#$#.h\"\n\n"
         "#^#INCLUDES#$#\n"
         "#^#NS_BEGIN#$#\n"
+        "#^#ANONIMOUS#$#\n\n"
         "#^#DEF#$#\n\n"
         "#^#NS_END#$#\n"
     ;
@@ -297,6 +350,7 @@ bool ToolsQtField::toolsWriteSrcInternal() const
         {"NS_BEGIN", comms::namespaceBeginFor(m_field, generator)},
         {"NS_END", comms::namespaceEndFor(m_field, generator)},
         {"DEF", toolsDefFunc()},
+        {"ANONIMOUS", toolsDefAnonimousInternal()}
     };
 
     stream << util::processTemplate(Templ, repl);
@@ -334,6 +388,26 @@ std::string ToolsQtField::toolsSerHiddenParamInternal() const
 {
     // TODO: analyse parent
     return ".serialisedHidden(serHidden)";
+}
+
+std::string ToolsQtField::toolsDefAnonimousInternal() const
+{
+    auto body = toolsDefMembers();
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "namespace\n"
+        "{\n\n"
+        "#^#BODY#$#\n"
+        "} // namespace";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(body)}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2tools_qt

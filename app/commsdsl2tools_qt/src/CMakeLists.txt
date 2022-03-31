@@ -1,6 +1,7 @@
 
 set (
     src
+    ToolsQtBitfieldField.cpp
     ToolsQtCmake.cpp
     ToolsQtEnumField.cpp
     ToolsQtField.cpp
