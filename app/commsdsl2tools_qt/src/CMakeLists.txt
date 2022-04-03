@@ -4,6 +4,7 @@ set (
     ToolsQtBitfieldField.cpp
     ToolsQtBundleField.cpp
     ToolsQtCmake.cpp
+    ToolsQtDataField.cpp
     ToolsQtEnumField.cpp
     ToolsQtField.cpp
     ToolsQtFloatField.cpp
