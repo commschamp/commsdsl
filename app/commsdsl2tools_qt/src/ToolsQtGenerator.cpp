@@ -18,6 +18,7 @@
 #include "commsdsl/version.h"
 
 #include "ToolsQtBitfieldField.h"
+#include "ToolsQtBundleField.h"
 #include "ToolsQtCmake.h"
 #include "ToolsQtEnumField.h"
 #include "ToolsQtFloatField.h"
@@ -59,6 +60,11 @@ ToolsQtGenerator::FieldPtr ToolsQtGenerator::createFloatFieldImpl(commsdsl::pars
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtBitfieldField>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::FieldPtr ToolsQtGenerator::createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtBundleField>(*this, dslObj, parent);
 }
 
 bool ToolsQtGenerator::writeImpl()

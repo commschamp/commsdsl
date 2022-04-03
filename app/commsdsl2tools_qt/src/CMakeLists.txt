@@ -2,6 +2,7 @@
 set (
     src
     ToolsQtBitfieldField.cpp
+    ToolsQtBundleField.cpp
     ToolsQtCmake.cpp
     ToolsQtEnumField.cpp
     ToolsQtField.cpp
