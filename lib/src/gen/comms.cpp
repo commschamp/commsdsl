@@ -160,11 +160,22 @@ std::string scopeForInternal(
     }
 
     do {
+        auto elemType = elem.elemType();
         if (!addElement) {
+            std::string subNs;
+            addElemNamespaceScopeInternal(elemType, parent, strings::emptyString(), subNs);
+            if (subNs.empty()) {
+                break;
+            }
+
+            if (!result.empty()) {
+                result.append(sep);
+            }    
+
+            result.append(subNs);
             break;
         }
-
-        auto elemType = elem.elemType();
+        
         auto& elemName = elem.name();
 
         assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent

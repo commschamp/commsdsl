@@ -10,6 +10,7 @@ set (
     ToolsQtFloatField.cpp
     ToolsQtGenerator.cpp
     ToolsQtIntField.cpp
+    ToolsQtListField.cpp
     ToolsQtProgramOptions.cpp
     ToolsQtSetField.cpp
     ToolsQtStringField.cpp
