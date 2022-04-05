@@ -25,6 +25,7 @@
 #include "ToolsQtFloatField.h"
 #include "ToolsQtIntField.h"
 #include "ToolsQtListField.h"
+#include "ToolsQtRefField.h"
 #include "ToolsQtSetField.h"
 #include "ToolsQtStringField.h"
 
@@ -83,6 +84,11 @@ ToolsQtGenerator::FieldPtr ToolsQtGenerator::createDataFieldImpl(commsdsl::parse
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtListField>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::FieldPtr ToolsQtGenerator::createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtRefField>(*this, dslObj, parent);
 }
 
 bool ToolsQtGenerator::writeImpl()

@@ -41,10 +41,17 @@ public:
 
     bool toolsWrite() const;
 
+    void commsSetForcePseudo()
+    {
+        m_forcedPseudo = true;
+    }
+
     void toolsSetReferenced()
     {
         m_referenced = true;
     }
+
+    bool toolsIsPseudo() const;
 
     IncludesList toolsHeaderIncludes() const;
     IncludesList toolsSrcIncludes() const;
@@ -70,7 +77,8 @@ private:
     std::string toolsDefAnonimousInternal() const;
 
     commsdsl::gen::Field& m_field;
-    bool m_referenced = true; // TODO: make false as default
+    bool m_forcedPseudo = false;
+    bool m_referenced = false;
 };
 
 } // namespace commsdsl2tools_qt

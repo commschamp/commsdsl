@@ -83,6 +83,30 @@ bool ToolsQtField::toolsWrite() const
     return toolsWriteHeaderInternal() && toolsWriteSrcInternal();
 }
 
+bool ToolsQtField::toolsIsPseudo() const
+{
+    if (m_forcedPseudo || m_field.dslObj().isPseudo()) {
+        return true;
+    }
+
+    auto* parent = m_field.getParent();
+    while (parent != nullptr) {
+        if (parent->elemType() != commsdsl::gen::Elem::Type_Field) {
+            break;
+        }
+
+        auto* parentField = dynamic_cast<const ToolsQtField*>(parent);
+        assert(parentField != nullptr);
+        if (parentField->toolsIsPseudo()) {
+            return true;
+        }
+
+        parent = parent->getParent();
+    }
+
+    return false;
+}
+
 ToolsQtField::IncludesList ToolsQtField::toolsHeaderIncludes() const
 {
     IncludesList incs = {
@@ -182,7 +206,7 @@ std::string ToolsQtField::toolsDefFuncBodyImpl() const
 
     static const std::string VerOptTempl =
         "using Field = #^#SCOPE#$#Field;\n"
-        "using OptField = #^#FIELD_SCOPE#$##^#CLASS_NAME#$#;\n"
+        "using OptField = #^#SCOPE#$#;\n"
         "auto props =\n" + 
         FieldDefTempl + "\n"
         "return\n"
@@ -386,7 +410,10 @@ std::string ToolsQtField::toolsRelPathInternal() const
 
 std::string ToolsQtField::toolsSerHiddenParamInternal() const
 {
-    // TODO: analyse parent
+    if (toolsIsPseudo()) {
+        return ".serialisedHidden(true)";
+    }
+
     return ".serialisedHidden(serHidden)";
 }
 

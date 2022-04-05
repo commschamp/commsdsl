@@ -12,6 +12,7 @@ set (
     ToolsQtIntField.cpp
     ToolsQtListField.cpp
     ToolsQtProgramOptions.cpp
+    ToolsQtRefField.cpp
     ToolsQtSetField.cpp
     ToolsQtStringField.cpp
     main.cpp
