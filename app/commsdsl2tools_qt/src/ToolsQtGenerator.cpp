@@ -29,6 +29,7 @@
 #include "ToolsQtRefField.h"
 #include "ToolsQtSetField.h"
 #include "ToolsQtStringField.h"
+#include "ToolsQtVariantField.h"
 
 namespace commsdsl2tools_qt
 {
@@ -95,6 +96,11 @@ ToolsQtGenerator::FieldPtr ToolsQtGenerator::createRefFieldImpl(commsdsl::parse:
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtOptionalField>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::FieldPtr ToolsQtGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtVariantField>(*this, dslObj, parent);
 }
 
 bool ToolsQtGenerator::writeImpl()

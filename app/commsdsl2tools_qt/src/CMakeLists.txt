@@ -16,6 +16,7 @@ set (
     ToolsQtRefField.cpp
     ToolsQtSetField.cpp
     ToolsQtStringField.cpp
+    ToolsQtVariantField.cpp
     main.cpp
 )
 
