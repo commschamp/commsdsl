@@ -54,17 +54,23 @@ bool ToolsQtRefField::writeImpl() const
     return toolsWrite();
 }
 
+ToolsQtRefField::IncludesList ToolsQtRefField::toolsExtraSrcIncludesImpl() const
+{
+    assert(m_toolsReferenceField != nullptr);
+    return IncludesList{
+        m_toolsReferenceField->relDeclHeaderFile()
+    };
+}
+
 std::string ToolsQtRefField::toolsDefFuncBodyImpl() const
 {
     static const std::string Templ =
-        "static_cast<void>(serHidden);\n"
         "using Field = #^#SCOPE#$#;\n"
         "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$#, #^#SER_HIDDEN#$#);\n"
         "#^#EXTRA_PROPS#$#\n"
         "return props";
 
     static const std::string VerOptTempl =
-        "static_cast<void>(serHidden);\n"
         "using Field = #^#SCOPE#$#Field;\n"
         "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$#, #^#SER_HIDDEN#$#);\n"
         "#^#EXTRA_PROPS#$#\n"
@@ -102,27 +108,7 @@ std::string ToolsQtRefField::toolsDefFuncBodyImpl() const
 
     assert(parent != nullptr);
 
-    auto scope = comms::scopeFor(*this, gen);
-    bool globalField = comms::isGlobalField(*this);
-    do {
-        if (globalField) {
-            scope += "<>";
-            break;
-        }
-
-        auto parentScope = comms::scopeFor(*parent, gen);
-
-        if ((parent->elemType() == commsdsl::gen::Elem::Type::Type_Message) ||
-            (parent->elemType() == commsdsl::gen::Elem::Type::Type_Interface)) {
-            parentScope += strings::fieldsSuffixStr();
-        }    
-        else {
-            parentScope += strings::membersSuffixStr();
-        }
-
-        scope = parentScope + "<>" + scope.substr(parentScope.size());
-    } while (false);
-
+    auto scope = toolsCommsScope();
     
     util::ReplacementMap repl = {
         {"SCOPE", scope},

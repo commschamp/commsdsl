@@ -17,31 +17,32 @@
 
 #include "ToolsQtField.h"
 
-#include "commsdsl/gen/BundleField.h"
+#include "commsdsl/gen/OptionalField.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtBundleField final : public commsdsl::gen::BundleField, public ToolsQtField
+class ToolsQtOptionalField final : public commsdsl::gen::OptionalField, public ToolsQtField
 {
-    using Base = commsdsl::gen::BundleField;
+    using Base = commsdsl::gen::OptionalField;
     using ToolsBase = ToolsQtField;
 public:
-    explicit ToolsQtBundleField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    explicit ToolsQtOptionalField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
 protected:
     // Base overrides
     virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
+    virtual bool writeImpl() const override;   
 
-    // ToolsBase overrides
+    // ToolsBase overrides 
     virtual IncludesList toolsExtraSrcIncludesImpl() const override;
     virtual std::string toolsExtraPropsImpl() const override;
     virtual std::string toolsDefMembersImpl() const override;
 
 private:
-    ToolsQtFieldsList m_members;
+    ToolsQtField* m_toolsMemberField = nullptr;
+    ToolsQtField* m_toolsExternalField = nullptr;
 };
 
 } // namespace commsdsl2tools_qt

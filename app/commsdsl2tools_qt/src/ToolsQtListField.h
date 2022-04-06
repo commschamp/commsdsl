@@ -36,6 +36,7 @@ protected:
     virtual bool writeImpl() const override;   
 
     // ToolsBase overrides 
+    virtual IncludesList toolsExtraSrcIncludesImpl() const override;
     virtual std::string toolsExtraPropsImpl() const override;
     virtual std::string toolsDefMembersImpl() const override;
 

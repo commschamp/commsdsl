@@ -52,6 +52,16 @@ bool ToolsQtListField::writeImpl() const
     return toolsWrite();
 }
 
+ToolsQtListField::IncludesList ToolsQtListField::toolsExtraSrcIncludesImpl() const
+{
+    IncludesList result;
+    if (m_toolsExternalElementField != nullptr) {
+        result.push_back(m_toolsExternalElementField->relDeclHeaderFile());
+    }
+
+    return result;
+}
+
 std::string ToolsQtListField::toolsExtraPropsImpl() const
 {
     auto obj = listDslObj();

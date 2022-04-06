@@ -11,6 +11,7 @@ set (
     ToolsQtGenerator.cpp
     ToolsQtIntField.cpp
     ToolsQtListField.cpp
+    ToolsQtOptionalField.cpp
     ToolsQtProgramOptions.cpp
     ToolsQtRefField.cpp
     ToolsQtSetField.cpp

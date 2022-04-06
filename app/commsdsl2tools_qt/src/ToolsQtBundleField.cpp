@@ -51,6 +51,19 @@ bool ToolsQtBundleField::writeImpl() const
     return toolsWrite();
 }
 
+ToolsQtBundleField::IncludesList ToolsQtBundleField::toolsExtraSrcIncludesImpl() const
+{
+    IncludesList result;
+    for (auto* m : m_members) {
+        assert(m != nullptr);
+        auto incList = m->toolsSrcIncludes();
+        result.reserve(result.size() + incList.size());
+        std::move(incList.begin(), incList.end(), std::back_inserter(result));
+    }
+
+    return result;
+}
+
 std::string ToolsQtBundleField::toolsExtraPropsImpl() const
 {
     util::StringsList props;

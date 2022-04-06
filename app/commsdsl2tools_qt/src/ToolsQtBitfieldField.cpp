@@ -22,6 +22,7 @@
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
+#include <iterator>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -49,6 +50,19 @@ bool ToolsQtBitfieldField::prepareImpl()
 bool ToolsQtBitfieldField::writeImpl() const
 {
     return toolsWrite();
+}
+
+ToolsQtBitfieldField::IncludesList ToolsQtBitfieldField::toolsExtraSrcIncludesImpl() const
+{
+    IncludesList result;
+    for (auto* m : m_members) {
+        assert(m != nullptr);
+        auto incList = m->toolsSrcIncludes();
+        result.reserve(result.size() + incList.size());
+        std::move(incList.begin(), incList.end(), std::back_inserter(result));
+    }
+
+    return result;
 }
 
 std::string ToolsQtBitfieldField::toolsExtraPropsImpl() const

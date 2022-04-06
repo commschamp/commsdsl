@@ -24,6 +24,7 @@
 #include <algorithm>
 #include <cassert>
 #include <fstream>
+#include <iterator>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -60,17 +61,7 @@ ToolsQtField::ToolsQtFieldsList ToolsQtField::toolsTransformFieldsList(const com
 
 bool ToolsQtField::toolsWrite() const
 {
-    auto* parent = m_field.getParent();
-    if (parent == nullptr) {
-        assert(false); // Should not happen
-        return false;
-    } 
-
-    auto type = parent->elemType();
-    if (type != commsdsl::gen::Elem::Type::Type_Namespace)
-    {
-        // Skip write for non-global fields,
-        // The code generation will be driven by other means
+    if (!comms::isGlobalField(m_field)) { 
         return true;
     }
 
@@ -119,12 +110,22 @@ ToolsQtField::IncludesList ToolsQtField::toolsHeaderIncludes() const
 ToolsQtField::IncludesList ToolsQtField::toolsSrcIncludes() const
 {
     IncludesList incs = {
-        "cc_tools_qt/property/field.h",
-        comms::relHeaderPathFor(m_field, m_field.generator())
+        "cc_tools_qt/property/field.h"
     };
 
+    if (comms::isGlobalField(m_field)) {
+        incs.push_back(comms::relHeaderPathFor(m_field, m_field.generator()));
+    }
+
     auto extra = toolsExtraSrcIncludesImpl();
-    std::move(incs.end(), extra.begin(), extra.end());
+    incs.reserve(incs.size() + extra.size());
+    std::move(extra.begin(), extra.end(), std::back_inserter(incs));
+
+    std::sort(incs.begin(), incs.end());
+    incs.erase(
+        std::unique(incs.begin(), incs.end()),
+        incs.end());
+
     return incs;
 }
 
@@ -171,6 +172,53 @@ std::string ToolsQtField::toolsDefMembers() const
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtField::toolsCommsScope() const
+{
+    auto parent = m_field.getParent();
+    while (parent != nullptr) {
+        if (parent->elemType() == commsdsl::gen::Elem::Type::Type_Layer) {
+            parent = parent->getParent();
+        }
+
+        if (parent->elemType() != commsdsl::gen::Elem::Type::Type_Field) {
+            break;
+        }
+
+        if (comms::isGlobalField(*parent)) {
+            break;
+        }
+
+        parent = parent->getParent();
+    }
+
+    assert(parent != nullptr);
+
+    auto& generator = m_field.generator();
+    auto scope = comms::scopeFor(m_field, generator);
+    bool globalField = comms::isGlobalField(m_field);
+    do {
+        if (globalField) {
+            scope += "<>";
+            break;
+        }
+
+        auto parentScope = comms::scopeFor(*parent, generator);
+
+        if ((parent->elemType() == commsdsl::gen::Elem::Type::Type_Message) ||
+            (parent->elemType() == commsdsl::gen::Elem::Type::Type_Interface)) {
+            parentScope += strings::fieldsSuffixStr();
+        }    
+        else {
+            parentScope += strings::membersSuffixStr();
+        }
+
+        scope = parentScope + "<>" + scope.substr(parentScope.size());
+
+    } while (false);
+
+    return scope;
 }
 
 std::string ToolsQtField::relDeclHeaderFile() const
@@ -223,49 +271,8 @@ std::string ToolsQtField::toolsDefFuncBodyImpl() const
         templ = &VerOptTempl;
     }
 
-    auto parent = m_field.getParent();
-    while (parent != nullptr) {
-        if (parent->elemType() == commsdsl::gen::Elem::Type::Type_Layer) {
-            parent = parent->getParent();
-        }
-
-        if (parent->elemType() != commsdsl::gen::Elem::Type::Type_Field) {
-            break;
-        }
-
-        if (comms::isGlobalField(*parent)) {
-            break;
-        }
-
-        parent = parent->getParent();
-    }
-
-    assert(parent != nullptr);
-
-    auto scope = comms::scopeFor(m_field, generator);
-    bool globalField = comms::isGlobalField(m_field);
-    do {
-        if (globalField) {
-            scope += "<>";
-            break;
-        }
-
-        auto parentScope = comms::scopeFor(*parent, generator);
-
-        if ((parent->elemType() == commsdsl::gen::Elem::Type::Type_Message) ||
-            (parent->elemType() == commsdsl::gen::Elem::Type::Type_Interface)) {
-            parentScope += strings::fieldsSuffixStr();
-        }    
-        else {
-            parentScope += strings::membersSuffixStr();
-        }
-
-        scope = parentScope + "<>" + scope.substr(parentScope.size());
-
-    } while (false);
-
+    auto scope = toolsCommsScope();
     auto dslObj = m_field.dslObj();
-    
 
     util::ReplacementMap repl = {
         {"SCOPE", scope},

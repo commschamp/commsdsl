@@ -58,6 +58,7 @@ public:
     std::string toolsDeclSig() const;
     std::string toolsDefFunc() const;
     std::string toolsDefMembers() const;
+    std::string toolsCommsScope() const;
 
     std::string relDeclHeaderFile() const;
     std::string relDefSrcFile() const;
