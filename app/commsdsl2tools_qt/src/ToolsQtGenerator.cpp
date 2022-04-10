@@ -23,6 +23,7 @@
 #include "ToolsQtDataField.h"
 #include "ToolsQtEnumField.h"
 #include "ToolsQtFloatField.h"
+#include "ToolsQtInputMessages.h"
 #include "ToolsQtIntField.h"
 #include "ToolsQtInterface.h"
 #include "ToolsQtListField.h"
@@ -125,7 +126,8 @@ ToolsQtGenerator::FieldPtr ToolsQtGenerator::createVariantFieldImpl(commsdsl::pa
 bool ToolsQtGenerator::writeImpl()
 {
     return 
-        ToolsQtCmake::write(*this);
+        ToolsQtCmake::write(*this) &&
+        ToolsQtInputMessages::write(*this);
 }
 
 bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
