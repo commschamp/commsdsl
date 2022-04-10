@@ -42,6 +42,12 @@ protected:
     virtual bool writeImpl() override;    
 
 private:
+    bool toolsWriteHeaderInternal();
+    bool toolsWriteSrcInternal();
+    std::string toolsHeaderCodeInternal() const;
+    std::string toolsSrcCodeInternal() const;
+    const std::string& toolsNameInternal() const;
+
     ToolsQtFieldsList m_fields;
 };
 
