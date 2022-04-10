@@ -59,7 +59,6 @@ bool ToolsQtCmake::writeInternal() const
     auto allInterfaces = m_generator.getAllInterfaces();
     if (!allInterfaces.empty()) {
         auto* firstInterface = allInterfaces.front();
-        assert(!firstInterface->name().empty());
         interfaceScope = commsdsl::gen::comms::scopeFor(*firstInterface, m_generator);
     }
     else {

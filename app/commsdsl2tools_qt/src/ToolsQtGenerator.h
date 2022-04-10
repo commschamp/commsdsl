@@ -26,6 +26,7 @@ namespace commsdsl2tools_qt
 
 class ToolsQtGenerator final : public commsdsl::gen::Generator
 {
+    using Base = commsdsl::gen::Generator;
 public:
     using Elem = commsdsl::gen::Elem;
     using FieldPtr = commsdsl::gen::FieldPtr;
@@ -38,11 +39,11 @@ public:
     static const std::string& fileGeneratedComment();
 
 protected:
-    // virtual bool prepareImpl() override;
+    virtual bool prepareImpl() override;
 
     // virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
-    // virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
-    // virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
+    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
+    virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
     // virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent) override;
 
     virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
@@ -67,6 +68,9 @@ protected:
     // virtual LayerPtr createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
 
     virtual bool writeImpl() override;   
+
+private:
+    bool toolsPrepareDefaultInterfaceInternal();
 };
 
 } // namespace commsdsl2tools_qt

@@ -24,7 +24,9 @@
 #include "ToolsQtEnumField.h"
 #include "ToolsQtFloatField.h"
 #include "ToolsQtIntField.h"
+#include "ToolsQtInterface.h"
 #include "ToolsQtListField.h"
+#include "ToolsQtMessage.h"
 #include "ToolsQtOptionalField.h"
 #include "ToolsQtRefField.h"
 #include "ToolsQtSetField.h"
@@ -41,6 +43,23 @@ const std::string& ToolsQtGenerator::fileGeneratedComment()
         '.' + std::to_string(commsdsl::versionMinor()) + '.' +
         std::to_string(commsdsl::versionPatch()) + '\n';
     return Str;
+}
+
+bool ToolsQtGenerator::prepareImpl() 
+{
+    return 
+        Base::prepareImpl() &&
+        toolsPrepareDefaultInterfaceInternal();
+}
+
+ToolsQtGenerator::InterfacePtr ToolsQtGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtInterface>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::MessagePtr ToolsQtGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtMessage>(*this, dslObj, parent);
 }
 
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
@@ -107,6 +126,23 @@ bool ToolsQtGenerator::writeImpl()
 {
     return 
         ToolsQtCmake::write(*this);
+}
+
+bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
+{
+    auto allInterfaces = getAllInterfaces();
+    if (!allInterfaces.empty()) {
+        return true;
+    }
+
+    auto* defaultNamespace = addDefaultNamespace();
+    auto* interface = defaultNamespace->addDefaultInterface();
+    if (interface == nullptr) {
+        logger().error("Failed to create default interface");
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace commsdsl2tools_qt
