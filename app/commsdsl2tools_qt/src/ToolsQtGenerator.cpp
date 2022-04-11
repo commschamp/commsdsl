@@ -19,19 +19,27 @@
 
 #include "ToolsQtBitfieldField.h"
 #include "ToolsQtBundleField.h"
+#include "ToolsQtChecksumLayer.h"
 #include "ToolsQtCmake.h"
+#include "ToolsQtCustomLayer.h"
 #include "ToolsQtDataField.h"
 #include "ToolsQtEnumField.h"
 #include "ToolsQtFloatField.h"
+#include "ToolsQtFrame.h"
+#include "ToolsQtIdLayer.h"
 #include "ToolsQtInputMessages.h"
 #include "ToolsQtIntField.h"
 #include "ToolsQtInterface.h"
 #include "ToolsQtListField.h"
 #include "ToolsQtMessage.h"
 #include "ToolsQtOptionalField.h"
+#include "ToolsQtPayloadLayer.h"
 #include "ToolsQtRefField.h"
 #include "ToolsQtSetField.h"
+#include "ToolsQtSizeLayer.h"
 #include "ToolsQtStringField.h"
+#include "ToolsQtSyncLayer.h"
+#include "ToolsQtValueLayer.h"
 #include "ToolsQtVariantField.h"
 
 namespace commsdsl2tools_qt
@@ -61,6 +69,11 @@ ToolsQtGenerator::InterfacePtr ToolsQtGenerator::createInterfaceImpl(commsdsl::p
 ToolsQtGenerator::MessagePtr ToolsQtGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtMessage>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::FramePtr ToolsQtGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtFrame>(*this, dslObj, parent);
 }
 
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
@@ -121,6 +134,41 @@ ToolsQtGenerator::FieldPtr ToolsQtGenerator::createOptionalFieldImpl(commsdsl::p
 ToolsQtGenerator::FieldPtr ToolsQtGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtVariantField>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtCustomLayer>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtSyncLayer>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtSizeLayer>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtIdLayer>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtValueLayer>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtPayloadLayer>(*this, dslObj, parent);
+}
+
+ToolsQtGenerator::LayerPtr ToolsQtGenerator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtChecksumLayer>(*this, dslObj, parent);
 }
 
 bool ToolsQtGenerator::writeImpl()

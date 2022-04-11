@@ -3,22 +3,31 @@ set (
     src
     ToolsQtBitfieldField.cpp
     ToolsQtBundleField.cpp
+    ToolsQtChecksumLayer.cpp
     ToolsQtCmake.cpp
+    ToolsQtCustomLayer.cpp
     ToolsQtDataField.cpp
     ToolsQtEnumField.cpp
     ToolsQtField.cpp
     ToolsQtFloatField.cpp
+    ToolsQtFrame.cpp
     ToolsQtGenerator.cpp
+    ToolsQtIdLayer.cpp
     ToolsQtInputMessages.cpp
     ToolsQtIntField.cpp
     ToolsQtInterface.cpp
+    ToolsQtLayer.cpp
     ToolsQtListField.cpp
     ToolsQtMessage.cpp
     ToolsQtOptionalField.cpp
+    ToolsQtPayloadLayer.cpp
     ToolsQtProgramOptions.cpp
     ToolsQtRefField.cpp
     ToolsQtSetField.cpp
+    ToolsQtSizeLayer.cpp
     ToolsQtStringField.cpp
+    ToolsQtSyncLayer.cpp
+    ToolsQtValueLayer.cpp
     ToolsQtVariantField.cpp
     main.cpp
 )
