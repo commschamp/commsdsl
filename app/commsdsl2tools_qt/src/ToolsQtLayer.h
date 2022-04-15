@@ -29,11 +29,20 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
 
-    using ToolsQtFieldsList = ToolsQtField::ToolsQtFieldsList;
-
     explicit ToolsQtLayer(commsdsl::gen::Layer& layer);
 
     bool prepare();
+
+    IncludesList toolsSrcIncludes() const;
+    std::string toolsPropsFunc() const;
+    std::string toolsCreatePropsInvocation() const;
+    std::string toolsFieldCommsScope() const;
+    unsigned toolsMinFieldLength() const;
+
+    const commsdsl::gen::Layer& layer() const
+    {
+        return m_layer;
+    }
 
 private:
     commsdsl::gen::Layer& m_layer ;

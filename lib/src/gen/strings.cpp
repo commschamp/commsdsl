@@ -279,6 +279,12 @@ const std::string& dataViewStr()
     return Str;    
 }
 
+const std::string& transportMessageSuffixStr()
+{
+    static const std::string Str("TransportMessage");
+    return Str;     
+}
+
 } // namespace strings
 
 } // namespace gen

@@ -114,7 +114,7 @@ ToolsQtField::IncludesList ToolsQtField::toolsSrcIncludes() const
     };
 
     if (comms::isGlobalField(m_field)) {
-        incs.push_back(comms::relHeaderPathFor(m_field, m_field.generator()));
+        incs.push_back(relDeclHeaderFile());
     }
 
     auto extra = toolsExtraSrcIncludesImpl();
@@ -205,16 +205,21 @@ std::string ToolsQtField::toolsCommsScope() const
         }
 
         auto parentScope = comms::scopeFor(*parent, generator);
+        std::string suffix;
 
         if ((parent->elemType() == commsdsl::gen::Elem::Type::Type_Message) ||
             (parent->elemType() == commsdsl::gen::Elem::Type::Type_Interface)) {
-            parentScope += strings::fieldsSuffixStr();
+            suffix = strings::fieldsSuffixStr();
         }    
+        if (parent->elemType() == commsdsl::gen::Elem::Type::Type_Frame) {
+            suffix = strings::layersSuffixStr();
+        }          
         else {
-            parentScope += strings::membersSuffixStr();
+            suffix = strings::membersSuffixStr();
         }
 
-        scope = parentScope + "<>" + scope.substr(parentScope.size());
+        assert(parentScope.size() <= scope.size());
+        scope = parentScope + suffix + "<>" + scope.substr(parentScope.size());
 
     } while (false);
 

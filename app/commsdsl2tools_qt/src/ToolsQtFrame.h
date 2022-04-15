@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "ToolsQtLayer.h"
+
 #include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/util.h"
 
@@ -26,6 +28,8 @@ class ToolsQtFrame final : public commsdsl::gen::Frame
 {
     using Base = commsdsl::gen::Frame;
 public:
+    using ToolsQtLayersList = std::vector<ToolsQtLayer*>;
+
     explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent);
 
 protected:
@@ -34,7 +38,14 @@ protected:
 
 private:
     bool toolsWriteHeaderInternal();
+    bool toolsWriteTransportMsgHeaderInternal();
+    bool toolsWriteTransportMsgSrcInternal();
     std::string toolsHeaderFilePathInternal() const;
+    std::string toolsTransportMessageHeaderFilePathInternal() const;
+    std::string toolsTransportMessageSrcFilePathInternal() const;
+    unsigned toolsCalcBackPayloadOffsetInternal() const;
+
+    ToolsQtLayersList m_toolsLayers;
 };
 
 } // namespace commsdsl2tools_qt

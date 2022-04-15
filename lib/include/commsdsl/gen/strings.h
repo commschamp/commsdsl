@@ -56,6 +56,7 @@ const std::string& fieldsSuffixStr();
 const std::string& layersSuffixStr();
 const std::string& bareMetalStr();
 const std::string& dataViewStr();
+const std::string& transportMessageSuffixStr();
 
 } // namespace strings
 
