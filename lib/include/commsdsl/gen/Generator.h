@@ -78,6 +78,8 @@ public:
     const Field* findField(const std::string& externalRef) const;
     Field* findField(const std::string& externalRef);
     const Message* findMessage(const std::string& externalRef) const;
+    const Frame* findFrame(const std::string& externalRef) const;
+    const Interface* findInterface(const std::string& externalRef) const;
 
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;

@@ -51,6 +51,8 @@ public:
     Generator& generator();
     const Generator& generator() const;
 
+    bool hasVersionField() const;
+
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();

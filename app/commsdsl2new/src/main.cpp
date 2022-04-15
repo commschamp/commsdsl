@@ -44,7 +44,7 @@ std::vector<std::string> getFilesList(
         
         std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
 
-        result = commsdsl::gen::util::strSplitByAnyCharCompressed(contents, "\r\n");
+        result = commsdsl::gen::util::strSplitByAnyChar(contents, "\r\n");
         if (prefix.empty()) {
             break;
         }

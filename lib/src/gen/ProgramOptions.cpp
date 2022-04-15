@@ -183,7 +183,7 @@ private:
 
     void addInternal(const std::string& optStr, const std::string& desc, bool hasParam = false, const std::string& defaultValue = std::string())
     {
-        auto tokens = util::strSplitByAnyCharCompressed(optStr, ",");
+        auto tokens = util::strSplitByAnyChar(optStr, ",");
 
         auto opt = std::make_unique<OptInfo>();
         opt->m_desc = desc;

@@ -74,16 +74,17 @@ std::string strToName(const std::string& value)
     return result;
 }
 
-std::vector<std::string> strSplitByAnyCharCompressed(
+std::vector<std::string> strSplitByAnyChar(
     const std::string& str, 
-    const std::string& splitChars)
+    const std::string& splitChars,
+    bool compressed)
 {
     std::vector<std::string> result;
     std::size_t pos = 0U;
     while (pos < str.size()) {
         auto nextPos = str.find_first_of(splitChars, pos);
 
-        if (nextPos == pos) {
+        if (compressed && (nextPos == pos)) {
             ++pos;
             continue;
         }

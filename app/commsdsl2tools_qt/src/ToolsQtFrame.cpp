@@ -67,6 +67,12 @@ ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame d
 {
 }
 
+std::string ToolsQtFrame::toolsHeaderFilePath() const
+{
+    auto scope = comms::scopeFor(*this, generator(), false);
+    return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
+}
+
 bool ToolsQtFrame::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -88,7 +94,7 @@ bool ToolsQtFrame::writeImpl()
 bool ToolsQtFrame::toolsWriteHeaderInternal()
 {
     auto& gen = generator();
-    auto filePath = gen.getOutputDir() + '/' + toolsHeaderFilePathInternal();
+    auto filePath = gen.getOutputDir() + '/' + toolsHeaderFilePath();
 
     auto& logger = gen.logger();
     logger.info("Generating " + filePath);
@@ -425,12 +431,6 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal()
     stream << util::processTemplate(Templ, repl);
     stream.flush();
     return stream.good();
-}
-
-std::string ToolsQtFrame::toolsHeaderFilePathInternal() const
-{
-    auto scope = comms::scopeFor(*this, generator(), false);
-    return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
 }
 
 std::string ToolsQtFrame::toolsTransportMessageHeaderFilePathInternal() const

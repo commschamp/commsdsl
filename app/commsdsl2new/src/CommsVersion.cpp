@@ -115,7 +115,7 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
         return strings::emptyString();
     }
 
-    auto tokens = util::strSplitByAnyCharCompressed(protVersion, ".");
+    auto tokens = util::strSplitByAnyChar(protVersion, ".");
     while (tokens.size() < VersionIdx_numOfValues) {
         tokens.push_back("0");
     }

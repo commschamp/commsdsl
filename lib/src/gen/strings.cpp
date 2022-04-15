@@ -117,6 +117,12 @@ const std::string& inputNamespaceStr()
     return Str;   
 }
 
+const std::string& pluginNamespaceStr()
+{
+    static const std::string Str("plugin");
+    return Str;   
+}
+
 const std::string& includeDirStr()
 {
     static const std::string Str("include");

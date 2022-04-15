@@ -459,7 +459,7 @@ std::string CommsBundleField::commsDefAliasesCodeInternal() const
                     
         auto& fieldName = a.fieldName();
         assert(!fieldName.empty());
-        auto fieldSubNames = util::strSplitByAnyCharCompressed(fieldName, ".");
+        auto fieldSubNames = util::strSplitByAnyChar(fieldName, ".");
         for (auto& n : fieldSubNames) {
             n = comms::accessName(n);
         }

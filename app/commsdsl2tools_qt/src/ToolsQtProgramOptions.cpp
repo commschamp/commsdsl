@@ -15,9 +15,14 @@
 
 #include "ToolsQtProgramOptions.h"
 
+#include "commsdsl/gen/util.h"
+
+#include <algorithm>
 #include <iostream>
 #include <cassert>
 #include <vector>
+
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2tools_qt
 {
@@ -40,7 +45,7 @@ const std::string InputFileStr("input-file");
 const std::string WarnAsErrStr("warn-as-err");
 const std::string CodeInputDirStr("code-input-dir");
 const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
-
+const std::string ProtocolStr("protocol");
 
 } // namespace
 
@@ -48,13 +53,19 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
 {
     addHelpOption()
     (VersionStr, "Print version string and exit.")
-    (FullQuietStr.c_str(), "Quiet, show only warnings and errors.")
-    (FullOutputDirStr.c_str(), "Output directory path. When not provided current is used.", true)        
-    (FullInputFilesListStr.c_str(), "File containing list of input files.", true)        
-    (FullInputFilesPrefixStr.c_str(), "Prefix for the values from the list file.", true)
-    (FullNamespaceStr.c_str(), "Force protocol namespace. Defaults to schema name.", true) 
-    (WarnAsErrStr.c_str(), "Treat warning as error.")
+    (FullQuietStr, "Quiet, show only warnings and errors.")
+    (FullOutputDirStr, "Output directory path. When not provided current is used.", true)        
+    (FullInputFilesListStr, "File containing list of input files.", true)        
+    (FullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
+    (FullNamespaceStr, "Force protocol namespace. Defaults to schema name.", true) 
+    (WarnAsErrStr, "Treat warning as error.")
     (FullCodeInputDirStr, "Directory with code updates.", true)
+    (ProtocolStr, 
+        "Protocol information for plugin generation. Exepected to be in the following format:\n"
+        "\"frame_id:interface_id:protocol_name:description\".\nUse comma separation for multiple plugins. If not provided, "
+        "one frame and one interface from the schema will be chosen and code for only one protocol "
+        "plugin will be generated. Can be omitted if there is only one frame and one interface types "
+        "defined in the schema.", true)    
     ;
 }
 
@@ -106,6 +117,36 @@ const std::string& ToolsQtProgramOptions::getNamespace() const
 const std::string& ToolsQtProgramOptions::getCodeInputDirectory() const
 {
     return value(CodeInputDirStr);
+}
+
+ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
+{
+    PluginInfosList result;
+    if (!isOptUsed(ProtocolStr)) {
+        return result;
+    }
+
+    auto infos = util::strSplitByAnyChar(value(ProtocolStr), ",");
+    for (auto& i : infos) {
+        enum ValueIdx : unsigned
+        {
+            ValueIdx_Frame,
+            ValueIdx_Interface,
+            ValueIdx_Name,
+            ValueIdx_Desc,
+            ValueIdx_NumOfValues
+        };
+
+        auto values = util::strSplitByAnyChar(i, ":", false);
+        values.resize(std::max(values.size(), std::size_t(ValueIdx_NumOfValues)));
+        result.resize(result.size() + 1U);
+        auto& resInfo = result.back();
+        resInfo.m_frame = values[ValueIdx_Frame];
+        resInfo.m_interface = values[ValueIdx_Interface];
+        resInfo.m_name = values[ValueIdx_Name];
+        resInfo.m_desc = values[ValueIdx_Desc];
+    }
+    return result;
 }
 
 } // namespace commsdsl2tools_qt

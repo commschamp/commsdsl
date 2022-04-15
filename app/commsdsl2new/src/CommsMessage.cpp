@@ -647,7 +647,7 @@ std::string CommsMessage::commsDefFieldsAliasesInternal() const
             "COMMS_MSG_FIELD_ALIAS(#^#ALIAS_NAME#$#, #^#ALIASED_FIELD#$#);\n";
 
         auto& fieldName = a.fieldName();
-        auto fieldSubNames = util::strSplitByAnyCharCompressed(fieldName, ".");
+        auto fieldSubNames = util::strSplitByAnyChar(fieldName, ".");
         for (auto& n : fieldSubNames) {
             n = comms::accessName(n);
         }

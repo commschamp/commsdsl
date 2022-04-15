@@ -15,8 +15,6 @@
 
 #include "ToolsQtGenerator.h"
 
-#include "commsdsl/version.h"
-
 #include "ToolsQtBitfieldField.h"
 #include "ToolsQtBundleField.h"
 #include "ToolsQtChecksumLayer.h"
@@ -34,6 +32,7 @@
 #include "ToolsQtMessage.h"
 #include "ToolsQtOptionalField.h"
 #include "ToolsQtPayloadLayer.h"
+#include "ToolsQtPlugin.h"
 #include "ToolsQtRefField.h"
 #include "ToolsQtSetField.h"
 #include "ToolsQtSizeLayer.h"
@@ -41,6 +40,11 @@
 #include "ToolsQtSyncLayer.h"
 #include "ToolsQtValueLayer.h"
 #include "ToolsQtVariantField.h"
+
+#include "commsdsl/version.h"
+
+#include <algorithm>
+#include <cassert>
 
 namespace commsdsl2tools_qt
 {
@@ -56,9 +60,40 @@ const std::string& ToolsQtGenerator::fileGeneratedComment()
 
 bool ToolsQtGenerator::prepareImpl() 
 {
-    return 
+    bool result = 
         Base::prepareImpl() &&
         toolsPrepareDefaultInterfaceInternal();
+
+    if (!result) {
+        return false;
+    }
+
+    if (m_pluginInfos.empty()) {
+        m_pluginInfos.resize(1U);
+        auto& pInfo = m_pluginInfos.back();
+
+        auto allInterfaces = getAllInterfaces();
+        assert(!allInterfaces.empty());
+        auto allFrames = getAllFrames();
+        assert(!allFrames.empty());
+
+        pInfo.m_frame = allFrames.front()->dslObj().name();
+        pInfo.m_interface = allInterfaces.front()->name();
+        pInfo.m_name = schemaName();
+        pInfo.m_desc = "Protocol " + schemaName();
+    }
+
+    for (auto& info : m_pluginInfos) {
+        m_plugins.push_back(std::make_unique<ToolsQtPlugin>(*this, info.m_frame, info.m_interface, info.m_name, info.m_desc));
+    }
+
+    return 
+        std::all_of(
+            m_plugins.begin(), m_plugins.end(),
+            [](auto& pPtr)
+            {
+                return pPtr->prepare();
+            });
 }
 
 ToolsQtGenerator::InterfacePtr ToolsQtGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
@@ -173,9 +208,21 @@ ToolsQtGenerator::LayerPtr ToolsQtGenerator::createChecksumLayerImpl(commsdsl::p
 
 bool ToolsQtGenerator::writeImpl()
 {
-    return 
+    bool result =  
         ToolsQtCmake::write(*this) &&
         ToolsQtInputMessages::write(*this);
+
+    if (!result) {
+        return false;
+    }
+
+    return 
+        std::all_of(
+            m_plugins.begin(), m_plugins.end(),
+            [](auto& pluginPtr)
+            {
+                return pluginPtr->write();
+            });
 }
 
 bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()

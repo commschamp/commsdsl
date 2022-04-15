@@ -32,6 +32,8 @@ public:
 
     explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent);
 
+    std::string toolsHeaderFilePath() const;
+
 protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() override;    
@@ -40,7 +42,6 @@ private:
     bool toolsWriteHeaderInternal();
     bool toolsWriteTransportMsgHeaderInternal();
     bool toolsWriteTransportMsgSrcInternal();
-    std::string toolsHeaderFilePathInternal() const;
     std::string toolsTransportMessageHeaderFilePathInternal() const;
     std::string toolsTransportMessageSrcFilePathInternal() const;
     unsigned toolsCalcBackPayloadOffsetInternal() const;

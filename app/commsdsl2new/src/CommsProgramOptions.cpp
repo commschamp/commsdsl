@@ -197,7 +197,7 @@ bool CommsProgramOptions::versionIndependentCodeRequested() const
 
 std::vector<std::string> CommsProgramOptions::getExtraInputBundles() const
 {
-    return commsdsl::gen::util::strSplitByAnyCharCompressed(value(ExtraMessagesBundleStr), ",");    
+    return commsdsl::gen::util::strSplitByAnyChar(value(ExtraMessagesBundleStr), ",");    
 }
 
 } // namespace commsdsl2new

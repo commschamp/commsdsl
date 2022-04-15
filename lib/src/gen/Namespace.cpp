@@ -469,6 +469,99 @@ const Message* Namespace::findMessage(const std::string& externalRef) const
     return (*nsIter)->findMessage(remStr);
 }
 
+const Frame* Namespace::findFrame(const std::string& externalRef) const
+{
+    assert(!externalRef.empty());
+    auto pos = externalRef.find_first_of('.');
+    std::string nsName;
+    if (pos != std::string::npos) {
+        nsName.assign(externalRef.begin(), externalRef.begin() + pos);
+    }
+
+    auto& framesList = frames();
+    if (nsName.empty()) {
+        auto frameIter =
+            std::lower_bound(
+                framesList.begin(), framesList.end(), externalRef,
+                [](auto& f, auto& n)
+                {
+                    return f->name() < n;
+                });
+
+        if ((frameIter == framesList.end()) || ((*frameIter)->name() != externalRef)) {
+            return nullptr;
+        }
+
+        return frameIter->get();
+    }
+
+    auto& nsList = namespaces();
+    auto nsIter =
+        std::lower_bound(
+            nsList.begin(), nsList.end(), nsName,
+            [](auto& ns, const std::string& n)
+            {
+                return ns->name() < n;
+            });
+
+    if ((nsIter == nsList.end()) || ((*nsIter)->name() != nsName)) {
+        return nullptr;
+    }
+
+    std::size_t fromPos = 0U;
+    if (pos != std::string::npos) {
+        fromPos = pos + 1U;
+    }
+    std::string remStr(externalRef, fromPos);
+    return (*nsIter)->findFrame(remStr);
+}
+
+const Interface* Namespace::findInterface(const std::string& externalRef) const
+{
+    auto pos = externalRef.find_first_of('.');
+    std::string nsName;
+    if (pos != std::string::npos) {
+        nsName.assign(externalRef.begin(), externalRef.begin() + pos);
+    }
+
+    auto& ifList = interfaces();
+    if (nsName.empty()) {
+        auto ifIter =
+            std::lower_bound(
+                ifList.begin(), ifList.end(), externalRef,
+                [](auto& f, auto& n)
+                {
+                    return f->name() < n;
+                });
+
+        if ((ifIter == ifList.end()) || ((*ifIter)->name() != externalRef)) {
+            return nullptr;
+        }
+
+        return ifIter->get();
+    }
+
+    auto& nsList = namespaces();
+    auto nsIter =
+        std::lower_bound(
+            nsList.begin(), nsList.end(), nsName,
+            [](auto& ns, const std::string& n)
+            {
+                return ns->name() < n;
+            });
+
+    if ((nsIter == nsList.end()) || ((*nsIter)->name() != nsName)) {
+        return nullptr;
+    }
+
+    std::size_t fromPos = 0U;
+    if (pos != std::string::npos) {
+        fromPos = pos + 1U;
+    }
+    std::string remStr(externalRef, fromPos);
+    return (*nsIter)->findInterface(remStr);
+}
+
 Namespace::NamespacesAccessList Namespace::getAllNamespaces() const
 {
     NamespacesAccessList result;

@@ -15,6 +15,9 @@
 
 #pragma once
 
+#include "ToolsQtPlugin.h"
+#include "ToolsQtProgramOptions.h"
+
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/Generator.h"
@@ -35,8 +38,14 @@ public:
     using LayerPtr = commsdsl::gen::LayerPtr;
     using MessagePtr = commsdsl::gen::MessagePtr;
     using NamespacePtr = commsdsl::gen::NamespacePtr;
+    using PluginInfo = ToolsQtProgramOptions::PluginInfo;
+    using PluginInfosList = ToolsQtProgramOptions::PluginInfosList;
 
     static const std::string& fileGeneratedComment();
+    void setPluginInfosList(PluginInfosList&& value)
+    {
+        m_pluginInfos = std::move(value);
+    }
 
 protected:
     virtual bool prepareImpl() override;
@@ -71,6 +80,9 @@ protected:
 
 private:
     bool toolsPrepareDefaultInterfaceInternal();
+
+    PluginInfosList m_pluginInfos;
+    std::vector<ToolsQtPluginPtr> m_plugins;
 };
 
 } // namespace commsdsl2tools_qt

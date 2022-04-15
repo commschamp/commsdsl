@@ -161,6 +161,18 @@ const Generator& Interface::generator() const
     return m_impl->generator();
 }
 
+bool Interface::hasVersionField() const
+{
+    auto& fList = fields();
+    return
+        std::any_of(
+            fList.begin(), fList.end(),
+            [](auto& f)
+            {
+                return f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version;
+            });    
+}
+
 Elem::Type Interface::elemTypeImpl() const
 {
     return Type_Interface;

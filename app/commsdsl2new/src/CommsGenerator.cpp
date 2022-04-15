@@ -321,7 +321,7 @@ bool CommsGenerator::prepareExtraMessageBundlesInternal()
         }
 
         std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
-        auto lines = util::strSplitByAnyCharCompressed(contents, "\n\r");
+        auto lines = util::strSplitByAnyChar(contents, "\n\r");
         MessagesAccessList messages;
         messages.reserve(lines.size());
 

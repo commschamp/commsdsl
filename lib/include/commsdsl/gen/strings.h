@@ -29,6 +29,7 @@ const std::string& checksumNamespaceStr();
 const std::string& optionsNamespaceStr();
 const std::string& dispatchNamespaceStr();
 const std::string& inputNamespaceStr();
+const std::string& pluginNamespaceStr();
 const std::string& includeDirStr();
 const std::string& docDirStr();
 const std::string& nameFileSuffixStr();

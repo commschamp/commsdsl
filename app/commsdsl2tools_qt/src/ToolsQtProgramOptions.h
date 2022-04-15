@@ -27,6 +27,15 @@ namespace commsdsl2tools_qt
 class ToolsQtProgramOptions : public commsdsl::gen::ProgramOptions
 {
 public:
+    struct PluginInfo
+    {
+        std::string m_frame;
+        std::string m_interface;
+        std::string m_name;
+        std::string m_desc;
+    };
+    using PluginInfosList = std::vector<PluginInfo>;
+    
     ToolsQtProgramOptions();
 
     bool quietRequested() const;
@@ -40,6 +49,7 @@ public:
     bool hasNamespaceOverride() const;
     const std::string& getNamespace() const;
     const std::string& getCodeInputDirectory() const;
+    PluginInfosList getPlugins() const;
 };
 
 } // namespace commsdsl2tools_qt

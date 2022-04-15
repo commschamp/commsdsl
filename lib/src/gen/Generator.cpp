@@ -268,7 +268,86 @@ public:
             assert(Should_not_happen);
         }
         return result;        
-    }        
+    }  
+
+    const Frame* findFrame(const std::string& externalRef) const
+    {
+        assert(!externalRef.empty());
+        auto pos = externalRef.find_first_of('.');
+        std::string nsName;
+        if (pos != std::string::npos) {
+            nsName.assign(externalRef.begin(), externalRef.begin() + pos);
+        }
+
+        auto nsIter =
+            std::lower_bound(
+                m_namespaces.begin(), m_namespaces.end(), nsName,
+                [](auto& ns, const std::string& n)
+                {
+                    return ns->name() < n;
+                });
+
+        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
+            m_logger->error("Internal error: unknown external reference: " + externalRef);
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            return nullptr;
+        }
+
+        std::size_t fromPos = 0U;
+        if (pos != std::string::npos) {
+            fromPos = pos + 1U;
+        }
+        std::string remStr(externalRef, fromPos);
+        auto result = (*nsIter)->findFrame(remStr);
+        if (result == nullptr) {
+            m_logger->error("Internal error: unknown external reference: " + externalRef);
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+        }
+        return result;        
+    }
+
+    const Interface* findInterface(const std::string& externalRef) const
+    {
+        auto pos = externalRef.find_first_of('.');
+        std::string nsName;
+        if (pos != std::string::npos) {
+            nsName.assign(externalRef.begin(), externalRef.begin() + pos);
+        }
+
+        auto nsIter =
+            std::lower_bound(
+                m_namespaces.begin(), m_namespaces.end(), nsName,
+                [](auto& ns, const std::string& n)
+                {
+                    return ns->name() < n;
+                });
+
+        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
+            m_logger->error("Internal error: unknown external reference: " + externalRef);
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            return nullptr;
+        }
+
+        std::size_t fromPos = 0U;
+        if (pos != std::string::npos) {
+            fromPos = pos + 1U;
+        }
+        std::string remStr(externalRef, fromPos);
+        auto result = (*nsIter)->findInterface(remStr);
+        if (result == nullptr) {
+            m_logger->error("Internal error: unknown external reference: " + externalRef);
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+        }
+        return result;        
+    }                
 
     bool prepare(const FilesList& files)
     {
@@ -580,6 +659,16 @@ Field* Generator::findField(const std::string& externalRef)
 const Message* Generator::findMessage(const std::string& externalRef) const
 {
     return m_impl->findMessage(externalRef);
+}
+
+const Frame* Generator::findFrame(const std::string& externalRef) const
+{
+    return m_impl->findFrame(externalRef);
+}
+
+const Interface* Generator::findInterface(const std::string& externalRef) const
+{
+    return m_impl->findInterface(externalRef);
 }
 
 Generator::NamespacesAccessList Generator::getAllNamespaces() const

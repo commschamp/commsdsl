@@ -16,7 +16,7 @@ namespace util
 
 std::string strReplace(const std::string& str, const std::string& what, const std::string& with);
 std::string strToName(const std::string& value);
-std::vector<std::string> strSplitByAnyCharCompressed(const std::string& str, const std::string& splitChars);
+std::vector<std::string> strSplitByAnyChar(const std::string& str, const std::string& splitChars, bool compressed = true);
 std::string strInsertIndent(const std::string& str);
 unsigned strToUnsigned(const std::string& str);
 bool strStartsWith(const std::string& str, const std::string& prefix);

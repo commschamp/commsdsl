@@ -22,6 +22,7 @@ set (
     ToolsQtOptionalField.cpp
     ToolsQtPayloadLayer.cpp
     ToolsQtProgramOptions.cpp
+    ToolsQtPlugin.cpp
     ToolsQtRefField.cpp
     ToolsQtSetField.cpp
     ToolsQtSizeLayer.cpp
