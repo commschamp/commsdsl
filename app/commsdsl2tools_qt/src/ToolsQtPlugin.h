@@ -53,13 +53,13 @@ private:
     bool toolsWriteProtocolSrcInternal();
     bool toolsWritePluginHeaderInternal();
     bool toolsWritePluginSrcInternal();
+    bool toolsWriteJsonInternal();
     
     const std::string& toolsAdjustedNameInternal() const;
     std::string toolsProtClassNameInternal() const;
     std::string toolsPluginClassNameInternal() const;
     std::string toolsConfigWidgetClassNameInternal() const;
     bool toolsHasConfigWidgetInternal() const;
-    std::string toolsPluginIdInternal();
 
     ToolsQtGenerator& m_generator;
     std::string m_frame;

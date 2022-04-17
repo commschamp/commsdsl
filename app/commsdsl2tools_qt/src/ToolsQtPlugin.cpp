@@ -63,7 +63,8 @@ bool ToolsQtPlugin::write()
         toolsWriteProtocolHeaderInternal() &&
         toolsWriteProtocolSrcInternal() &&
         toolsWritePluginHeaderInternal() &&
-        toolsWritePluginSrcInternal();
+        toolsWritePluginSrcInternal() &&
+        toolsWriteJsonInternal();
 }
 
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
@@ -461,7 +462,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
-        {"ID", toolsPluginIdInternal()},
+        {"ID", toolsAdjustedNameInternal()},
     };        
 
     if (toolsHasConfigWidgetInternal()) {
@@ -567,6 +568,53 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
     return true;    
 }
 
+bool ToolsQtPlugin::toolsWriteJsonInternal()
+{
+    static_cast<void>(m_generator);
+    auto filePath = 
+        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
+        toolsPluginClassNameInternal() + ".json";
+
+    m_generator.logger().info("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ =
+        "{\n"
+        "    \"name\" : \"#^#NAME#$#\",\n"
+        "    \"desc\" : [\n"
+        "        #^#DESC#$#\n"
+        "    ],\n"
+        "    \"type\" : \"protocol\"\n"
+        "}\n";
+
+    auto name = toolsAdjustedNameInternal() + " Protocol";
+    auto desc = util::strMakeMultiline(m_description);
+    if (!desc.empty()) {
+        desc = '\"' + desc + '\"';
+        util::strReplace(desc, "\n", "\",\n\"");
+    }        
+
+    util::ReplacementMap repl = {
+        {"NAME", std::move(name)},
+        {"DESC", std::move(desc)},
+    };        
+
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    stream << str;
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+    
+    return true;   
+}
+
 const std::string& ToolsQtPlugin::toolsAdjustedNameInternal() const
 {
     auto* nameToUse = &m_name;
@@ -595,16 +643,6 @@ bool ToolsQtPlugin::toolsHasConfigWidgetInternal() const
 {
     assert(m_interfacePtr != nullptr);
     return (m_interfacePtr->hasVersionField());
-}
-
-std::string ToolsQtPlugin::toolsPluginIdInternal()
-{
-    auto id = m_generator.schemaName();
-    if (!m_name.empty()) {
-        id += '.' + m_name;
-    }
-
-    return id;
 }
 
 } // namespace commsdsl2tools_qt
