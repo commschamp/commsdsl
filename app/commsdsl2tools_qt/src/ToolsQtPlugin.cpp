@@ -61,7 +61,9 @@ bool ToolsQtPlugin::write()
 {
     return 
         toolsWriteProtocolHeaderInternal() &&
-        toolsWriteProtocolSrcInternal();
+        toolsWriteProtocolSrcInternal() &&
+        toolsWritePluginHeaderInternal() &&
+        toolsWritePluginSrcInternal();
 }
 
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
@@ -69,7 +71,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
     static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsProtClassName() + strings::cppHeaderSuffixStr();
+        toolsProtClassNameInternal() + strings::cppHeaderSuffixStr();
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -94,6 +96,8 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "{\n\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"        
+        "namespace plugin\n"
+        "{\n\n"
         "class #^#CLASS_NAME#$#Impl;\n"
         "class #^#CLASS_NAME#$# : public cc_tools_qt::Protocol\n"
         "{\n"
@@ -115,16 +119,16 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "private:\n"
         "    std::unique_ptr<#^#CLASS_NAME#$#Impl> m_pImpl;\n"
         "};\n\n"
-        "} // namespace #^#MAIN_NS#$#\n"
-        "} // namespace #^#TOP_NS#$#\n"
-        "#^#APPEND#$#\n"
+        "} // namespace plugin\n\n"
+        "} // namespace #^#MAIN_NS#$#\n\n"
+        "} // namespace #^#TOP_NS#$#\n\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.mainNamespace()},
-        {"CLASS_NAME", toolsProtClassName()},
+        {"CLASS_NAME", toolsProtClassNameInternal()},
     };        
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl);
@@ -143,7 +147,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsProtClassName() + strings::cppSourceSuffixStr();
+        toolsProtClassNameInternal() + strings::cppSourceSuffixStr();
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -164,6 +168,9 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "namespace #^#TOP_NS#$#\n"
         "{\n\n"
         "namespace #^#MAIN_NS#$#\n"
+        "{\n\n"
+        "namespace plugin\n"
+        "{\n\n"
         "class #^#CLASS_NAME#$#Impl : public\n"
         "    cc_tools_qt::ProtocolBase<\n"
         "        #^#TOP_NS#$#::#^#FRAME#$##^#INTERFACE_TEMPL_PARAM#$#,\n"
@@ -238,10 +245,9 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "{\n"
         "    return m_pImpl->createExtraInfoMessageImpl();\n"
         "}\n\n"        
-        "{\n\n"        
-        "} // namespace #^#MAIN_NS#$#\n"
-        "} // namespace #^#TOP_NS#$#\n"
-        "#^#APPEND#$#\n"
+        "} // namespace plugin\n\n"       
+        "} // namespace #^#MAIN_NS#$#\n\n"
+        "} // namespace #^#TOP_NS#$#\n\n"
     ;
 
     auto frameHeader = m_framePtr->toolsHeaderFilePath();
@@ -254,11 +260,11 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.mainNamespace()},
-        {"CLASS_NAME", toolsProtClassName()},
+        {"CLASS_NAME", toolsProtClassNameInternal()},
         {"FRAME_HEADER", frameHeader},
         {"TRANSPORT_MESSAGE_HEADER", transportMsgHeader},
         {"FRAME", comms::scopeFor(*m_framePtr, m_generator)},
-        {"PROT_NAME", toolsAdjustedName()},
+        {"PROT_NAME", toolsAdjustedNameInternal()},
     };        
 
     auto allInterfaces = m_generator.getAllInterfaces();
@@ -268,7 +274,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         repl["INTERFACE_INC"] = "#include \"" + m_interfacePtr->toolsHeaderFilePath() + "\"";
     }    
 
-    if (toolsHasConfigWidget()) {
+    if (toolsHasConfigWidgetInternal()) {
         const std::string VerImplPubTempl =
             "int getVersion() const\n"
             "{\n"
@@ -405,7 +411,163 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     return true;    
 }
 
-const std::string& ToolsQtPlugin::toolsAdjustedName() const
+bool ToolsQtPlugin::toolsWritePluginHeaderInternal() 
+{
+    static_cast<void>(m_generator);
+    auto filePath = 
+        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
+        toolsPluginClassNameInternal() + strings::cppHeaderSuffixStr();
+
+    m_generator.logger().info("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ =
+        "#^#GENERATED#$#\n"
+        "#pragma once\n\n"
+        "#include <QtCore/QObject>\n"
+        "#include <QtCore/QtPlugin>\n"
+        "#include \"cc_tools_qt/Plugin.h\"\n"
+        "#include \"cc_tools_qt/Protocol.h\"\n\n"
+        "namespace #^#TOP_NS#$#\n"
+        "{\n\n"
+        "namespace #^#MAIN_NS#$#\n"
+        "{\n\n"    
+        "namespace plugin\n"
+        "{\n\n"    
+        "class #^#CLASS_NAME#$# : public cc_tools_qt::Plugin\n"
+        "{\n"
+        "    Q_OBJECT\n"
+        "    Q_PLUGIN_METADATA(IID \"#^#ID#$#\" FILE \"#^#CLASS_NAME#$#.json\")\n"
+        "    Q_INTERFACES(cc_tools_qt::Plugin)\n\n"
+        "public:\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    virtual ~#^#CLASS_NAME#$#();\n"
+        "private:\n"
+        "    cc_tools_qt::ProtocolPtr m_protocol;\n"
+        "    #^#VERSION_STORAGE#$#\n"
+        "};\n\n"
+        "} // namespace plugin\n\n"
+        "} // namespace #^#MAIN_NS#$#\n\n"
+        "} // namespace #^#TOP_NS#$#\n\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"TOP_NS", m_generator.getTopNamespace()},
+        {"MAIN_NS", m_generator.mainNamespace()},
+        {"CLASS_NAME", toolsPluginClassNameInternal()},
+        {"ID", toolsPluginIdInternal()},
+    };        
+
+    if (toolsHasConfigWidgetInternal()) {
+        auto verStr = "int m_version = " + util::numToString(m_generator.schemaVersion()) + ";";
+        repl["VERSION_STORAGE"] = std::move(verStr);
+    }
+
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    stream << str;
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+    
+    return true;    
+}
+
+bool ToolsQtPlugin::toolsWritePluginSrcInternal() 
+{
+    static_cast<void>(m_generator);
+    auto filePath = 
+        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
+        toolsPluginClassNameInternal() + strings::cppSourceSuffixStr();
+
+    m_generator.logger().info("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ =
+        "#^#GENERATED#$#\n"
+        "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+        "#include \"#^#PROTOCOL_CLASS_NAME#$#.h\"\n\n"
+        "#^#WIDGET_INCLUDE#$#\n"
+        "namespace #^#TOP_NS#$#\n"
+        "{\n\n"
+        "namespace #^#MAIN_NS#$#\n"
+        "{\n\n"    
+        "namespace plugin\n"
+        "{\n\n"    
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() :\n"
+        "    m_protocol(new #^#PROTOCOL_CLASS_NAME#$#())\n"
+        "{\n"
+        "    pluginProperties()\n"
+        "        .setProtocolCreateFunc(\n"
+        "            [this]() noexcept -> cc::ProtocolPtr\n"
+        "            {\n"
+        "                return m_protocol;\n"
+        "            })\n"
+        "        #^#CONFIG_WIDGET_FUNC#$#"
+        "    ;\n"
+        "}\n\n"
+        "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
+        "} // namespace plugin\n\n"
+        "} // namespace #^#MAIN_NS#$#\n\n"
+        "} // namespace #^#TOP_NS#$#\n\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"TOP_NS", m_generator.getTopNamespace()},
+        {"MAIN_NS", m_generator.mainNamespace()},
+        {"CLASS_NAME", toolsPluginClassNameInternal()},
+        {"PROTOCOL_CLASS_NAME", toolsProtClassNameInternal()},
+    };        
+
+    if (toolsHasConfigWidgetInternal()) {
+        static const std::string WidgetTempl =
+            ".setConfigWidgetCreateFunc(\n"
+            "    [this]() -> QWidget*\n"
+            "    {\n"
+            "        auto* w =\n"
+            "            new #^#WIDGET_CLASS#$#(\n"
+            "                static_cast<#^#PROT_CLASS#$#*>(m_protocol.get())->getVersion());\n"
+            "        w->setVersionUpdateCb(\n"
+            "            [this](int value) {\n"
+            "                static_cast<#^#PROT_CLASS#$#*>(m_protocol.get())->setVersion(value);\n"
+            "            });\n"
+            "        return w;\n"
+            "    })\n";
+
+        util::ReplacementMap widgetRepl = {
+            {"WIDGET_CLASS", toolsConfigWidgetClassNameInternal()},
+            {"PROT_CLASS", toolsProtClassNameInternal()}
+        };
+
+        repl["WIDGET_INCLUDE"] = "#include \"" + toolsConfigWidgetClassNameInternal() + ".h\"";
+        repl["CONFIG_WIDGET_FUNC"] = util::processTemplate(WidgetTempl, widgetRepl);
+    }
+
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    stream << str;
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+    
+    return true;    
+}
+
+const std::string& ToolsQtPlugin::toolsAdjustedNameInternal() const
 {
     auto* nameToUse = &m_name;
     if (nameToUse->empty()) {
@@ -414,25 +576,35 @@ const std::string& ToolsQtPlugin::toolsAdjustedName() const
     return *nameToUse;
 }
 
-std::string ToolsQtPlugin::toolsProtClassName() const
+std::string ToolsQtPlugin::toolsProtClassNameInternal() const
 {
-    return comms::className(util::strToName(toolsAdjustedName())) + ProtSuffix;
+    return comms::className(util::strToName(toolsAdjustedNameInternal())) + ProtSuffix;
 }
 
-std::string ToolsQtPlugin::toolsPluginClassName() const
+std::string ToolsQtPlugin::toolsPluginClassNameInternal() const
 {
-    return comms::className(util::strToName(toolsAdjustedName())) + PluginSuffix;
+    return comms::className(util::strToName(toolsAdjustedNameInternal())) + PluginSuffix;
 }
 
-std::string ToolsQtPlugin::toolsConfigWidgetClassName() const
+std::string ToolsQtPlugin::toolsConfigWidgetClassNameInternal() const
 {
-    return comms::className(util::strToName(toolsAdjustedName())) + WidgetSuffix;
+    return comms::className(util::strToName(toolsAdjustedNameInternal())) + WidgetSuffix;
 }
 
-bool ToolsQtPlugin::toolsHasConfigWidget() const
+bool ToolsQtPlugin::toolsHasConfigWidgetInternal() const
 {
     assert(m_interfacePtr != nullptr);
     return (m_interfacePtr->hasVersionField());
+}
+
+std::string ToolsQtPlugin::toolsPluginIdInternal()
+{
+    auto id = m_generator.schemaName();
+    if (!m_name.empty()) {
+        id += '.' + m_name;
+    }
+
+    return id;
 }
 
 } // namespace commsdsl2tools_qt

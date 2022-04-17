@@ -49,14 +49,17 @@ public:
 
 private:
 
-    bool toolsWriteProtocolHeaderInternal() ;
-    bool toolsWriteProtocolSrcInternal() ;
+    bool toolsWriteProtocolHeaderInternal();
+    bool toolsWriteProtocolSrcInternal();
+    bool toolsWritePluginHeaderInternal();
+    bool toolsWritePluginSrcInternal();
     
-    const std::string& toolsAdjustedName() const;
-    std::string toolsProtClassName() const;
-    std::string toolsPluginClassName() const;
-    std::string toolsConfigWidgetClassName() const;
-    bool toolsHasConfigWidget() const;
+    const std::string& toolsAdjustedNameInternal() const;
+    std::string toolsProtClassNameInternal() const;
+    std::string toolsPluginClassNameInternal() const;
+    std::string toolsConfigWidgetClassNameInternal() const;
+    bool toolsHasConfigWidgetInternal() const;
+    std::string toolsPluginIdInternal();
 
     ToolsQtGenerator& m_generator;
     std::string m_frame;

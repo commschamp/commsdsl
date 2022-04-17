@@ -76,9 +76,17 @@ bool ToolsQtGenerator::prepareImpl()
         assert(!allInterfaces.empty());
         auto allFrames = getAllFrames();
         assert(!allFrames.empty());
+        auto* interfacePtr = allInterfaces.front();
+        assert(interfacePtr != nullptr);
 
-        pInfo.m_frame = allFrames.front()->dslObj().name();
-        pInfo.m_interface = allInterfaces.front()->name();
+        pInfo.m_frame = allFrames.front()->dslObj().externalRef();
+        
+        if (interfacePtr->dslObj().valid()) {
+            pInfo.m_interface = interfacePtr->dslObj().externalRef();    
+        }
+        else {
+            pInfo.m_interface = interfacePtr->name();
+        }
         pInfo.m_name = schemaName();
         pInfo.m_desc = "Protocol " + schemaName();
     }
