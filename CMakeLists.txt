@@ -18,7 +18,7 @@ option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to re
 # Additional variables to be used if needed
 # ---------------------------
 # COMMSDSL_QT_DIR - Path to Qt5 installation directory, needed to build generated testing projects.
-# COMMS_INSTALL_DIR - Path to externally built and installed CommsChampion project
+# COMMS_INSTALL_DIR - Path to externally built and installed COMMS library project
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
 # COMMSDSL_BOOST_VERSION - Boost version passed to relevant find_package invocation.

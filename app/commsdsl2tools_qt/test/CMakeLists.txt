@@ -7,6 +7,84 @@ set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2new/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 commsdsl_ensure_comms_target ()
+if ("${LibComms_DIR}" STREQUAL "")
+    message (FATAL_ERROR "The comms library found but the directory is not known")
+endif ()
+
+while (TRUE)
+    if (TARGET cc::cc_tools_qt)
+        break ()
+    endif()
+
+    find_package(cc_tools_qt QUIET)
+    if (TARGET cc::cc_tools_qt)
+        break ()
+    endif()    
+
+    set (cc_tools_qt_src_dir ${COMMSDSL_EXTERNALS_DIR}/cc_tools_qt)
+    set (cc_tools_qt_build_dir ${CMAKE_CURRENT_BINARY_DIR}/cc_tools_qt/build)
+    set (cc_tools_qt_install_dir ${CMAKE_CURRENT_BINARY_DIR}/cc_tools_qt/install)
+
+    list (APPEND CMAKE_PREFIX_PATH ${LibComms_DIR})    
+
+    include(ExternalProject)
+    ExternalProject_Add(
+        "cc_tools_qt_tgt"
+        PREFIX "${cc_tools_qt_build_dir}"
+        GIT_REPOSITORY https://github.com/commschamp/cc_tools_qt.git
+        SOURCE_DIR "${cc_tools_qt_src_dir}"
+        BINARY_DIR "${cc_tools_qt_build_dir}"
+        INSTALL_DIR "${cc_tools_qt_install_dir}"
+        CMAKE_ARGS 
+            -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
+            -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+            -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+            -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
+            -DCMAKE_INSTALL_PREFIX=${cc_tools_qt_install_dir}
+            -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
+            -DCC_TOOLS_QT_EXTERNAL_COMMS=ON
+    ) 
+
+    set (cc_platform_specific)
+    set (cc_tools_qt_lib "cc_tools_qt")
+
+    if (WIN32)
+        set (cc_lib_name ${cc_tools_qt_lib}.lib)
+        list (APPEND cc_platform_specific Setupapi.lib Ws2_32.lib opengl32.lib imm32.lib winmm.lib)
+    else ()
+        set (cc_lib_name lib${cc_tools_qt_lib}.so)
+    endif ()
+
+    add_library(cc::cc_tools_qt UNKNOWN IMPORTED GLOBAL)
+    file (MAKE_DIRECTORY ${cc_tools_qt_install_dir}/include)
+    set (interface_link_libs cc::comms)        
+
+    find_package(Qt5Core)
+    find_package(Qt5Widgets)
+
+    if (Qt5Widgets_FOUND)
+        list (APPEND interface_link_libs Qt5::Widgets)
+    endif ()
+
+    if (Qt5Core_FOUND)
+        list (APPEND interface_link_libs Qt5::Core)
+    endif ()
+
+    if (cc_platform_specific)
+        list (APPEND interface_link_libs ${cc_platform_specific})
+    endif ()
+    
+    set_target_properties(cc::cc_tools_qt PROPERTIES
+        INTERFACE_INCLUDE_DIRECTORIES ${cc_tools_qt_install_dir}/include
+        IMPORTED_LOCATION ${cc_tools_qt_install_dir}/${cc_lib_name}
+        INTERFACE_LINK_LIBRARIES "${interface_link_libs}"
+    )
+
+    add_dependencies(cc::cc_tools_qt ${cc_tools_qt_build_dir})
+    break() 
+endwhile ()
 
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
