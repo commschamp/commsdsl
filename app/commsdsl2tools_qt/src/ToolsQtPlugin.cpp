@@ -64,7 +64,8 @@ bool ToolsQtPlugin::write()
         toolsWriteProtocolSrcInternal() &&
         toolsWritePluginHeaderInternal() &&
         toolsWritePluginSrcInternal() &&
-        toolsWriteJsonInternal();
+        toolsWritePluginJsonInternal() &&
+        toolsWritePluginConfigInternal();
 }
 
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
@@ -568,7 +569,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
     return true;    
 }
 
-bool ToolsQtPlugin::toolsWriteJsonInternal()
+bool ToolsQtPlugin::toolsWritePluginJsonInternal()
 {
     static_cast<void>(m_generator);
     auto filePath = 
@@ -602,6 +603,44 @@ bool ToolsQtPlugin::toolsWriteJsonInternal()
     util::ReplacementMap repl = {
         {"NAME", std::move(name)},
         {"DESC", std::move(desc)},
+    };        
+
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    stream << str;
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+    
+    return true;   
+}
+
+bool ToolsQtPlugin::toolsWritePluginConfigInternal()
+{
+    static_cast<void>(m_generator);
+    auto filePath = 
+        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
+        comms::className(util::strToName(toolsAdjustedNameInternal())) + ".cfg";
+
+    m_generator.logger().info("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ =
+        "{\n"
+        "    \"cc_plugins_list\": [\n"
+        "        \"cc.EchoSocketPlugin\",\n"
+        "        \"#^#ID#$#\"\n"
+        "    ]\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"ID", toolsAdjustedNameInternal()},
     };        
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl);
