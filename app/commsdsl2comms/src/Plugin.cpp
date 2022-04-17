@@ -667,7 +667,7 @@ bool Plugin::writeVersionConfigWidgetHeader()
         "    }\n\n"
         "private slots:\n"
         "    void versionChanged(int value);\n\n"
-        "private:"
+        "private:\n"
         "    VersionUpdateCb m_versionUpdateCb;"
         "};\n\n"
         "#^#END_NAMESPACE#$#\n"

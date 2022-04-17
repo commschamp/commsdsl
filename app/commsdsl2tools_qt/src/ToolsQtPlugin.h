@@ -55,6 +55,8 @@ private:
     bool toolsWritePluginSrcInternal();
     bool toolsWritePluginJsonInternal();
     bool toolsWritePluginConfigInternal();
+    bool toolsWriteConfigWidgetHeaderInternal();
+    bool toolsWriteConfigWidgetSrcInternal();
     
     const std::string& toolsAdjustedNameInternal() const;
     std::string toolsProtClassNameInternal() const;

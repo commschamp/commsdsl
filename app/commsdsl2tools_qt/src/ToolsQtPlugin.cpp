@@ -65,7 +65,9 @@ bool ToolsQtPlugin::write()
         toolsWritePluginHeaderInternal() &&
         toolsWritePluginSrcInternal() &&
         toolsWritePluginJsonInternal() &&
-        toolsWritePluginConfigInternal();
+        toolsWritePluginConfigInternal() &&
+        toolsWriteConfigWidgetHeaderInternal() &&
+        toolsWriteConfigWidgetSrcInternal();
 }
 
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
@@ -652,6 +654,157 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
     }
     
     return true;   
+}
+
+bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal() 
+{
+    if (!toolsHasConfigWidgetInternal()) {
+        return false;
+    }
+
+    static_cast<void>(m_generator);
+    auto filePath = 
+        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
+        toolsConfigWidgetClassNameInternal() + strings::cppHeaderSuffixStr();
+
+    m_generator.logger().info("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ =
+        "#^#GENERATED#$#\n"
+        "#pragma once\n\n"
+        "#include <functional>\n"
+        "#include <QtWidgets/QWidget>\n\n"
+        "namespace #^#TOP_NS#$#\n"
+        "{\n\n"
+        "namespace #^#MAIN_NS#$#\n"
+        "{\n\n"    
+        "namespace plugin\n"
+        "{\n\n"    
+        "class #^#CLASS_NAME#$# : public QWidget\n"
+        "{\n"
+        "    Q_OBJECT\n"
+        "public:\n"
+        "    using VersionUpdateCb = std::function<void (int)>;\n\n"
+        "    explicit #^#CLASS_NAME#$#(int version);\n\n"
+        "    template <typename TFunc>\n"
+        "    void setVersionUpdateCb(TFunc&& func)\n"
+        "    {\n"
+        "        m_versionUpdateCb = std::forward<TFunc>(func);\n"
+        "    }\n\n"
+        "private slots:\n"
+        "    void versionChanged(int value);\n\n"
+        "private:\n"
+        "    VersionUpdateCb m_versionUpdateCb;"
+        "};\n\n"
+        "} // namespace plugin\n\n"
+        "} // namespace #^#MAIN_NS#$#\n\n"
+        "} // namespace #^#TOP_NS#$#\n\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"TOP_NS", m_generator.getTopNamespace()},
+        {"MAIN_NS", m_generator.mainNamespace()},
+        {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
+    };        
+
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    stream << str;
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+    
+    return true;    
+}
+
+bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal() 
+{
+    if (!toolsHasConfigWidgetInternal()) {
+        return false;
+    }
+
+    static_cast<void>(m_generator);
+    auto filePath = 
+        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
+        toolsConfigWidgetClassNameInternal() + strings::cppSourceSuffixStr();
+
+    m_generator.logger().info("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ =
+        "#^#GENERATED#$#\n"
+        "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+        "#include <QtWidgets/QHBoxLayout>\n"
+        "#include <QtWidgets/QLabel>\n"
+        "#include <QtWidgets/QSpacerItem>\n"
+        "#include <QtWidgets/QSpinBox>\n"
+        "#include <QtWidgets/QVBoxLayout>\n\n"
+        "namespace #^#TOP_NS#$#\n"
+        "{\n\n"
+        "namespace #^#MAIN_NS#$#\n"
+        "{\n\n"    
+        "namespace plugin\n"
+        "{\n\n"    
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(int version)"
+        "{\n"
+        "    auto* versionLabel = new QLabel(\"Default Version:\");\n"
+        "    auto* versionSpinBox = new QSpinBox;\n"
+        "    versionSpinBox->setMaximum(99999999);\n"
+        "    versionSpinBox->setValue(version);\n"
+        "    auto* versionSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);\n"
+        "    auto* versionLayoutLayout = new QHBoxLayout();\n"
+        "    versionLayoutLayout->addWidget(versionLabel);\n"
+        "    versionLayoutLayout->addWidget(versionSpinBox);\n"
+        "    versionLayoutLayout->addItem(versionSpacer);\n\n"
+        "    auto* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);\n\n"
+        "    auto* verticalLayout = new QVBoxLayout(this);\n"
+        "    verticalLayout->addLayout(versionLayoutLayout);\n"
+        "    verticalLayout->addItem(verticalSpacer);\n\n"
+        "    setLayout(verticalLayout);\n\n"
+        "    connect(\n"
+        "        versionSpinBox, SIGNAL(valueChanged(int)),\n"
+        "        this, SLOT(versionChanged(int)));\n"
+        "}\n\n"
+        "void #^#CLASS_NAME#$#::versionChanged(int value)\n"
+        "{\n"
+        "    if (m_versionUpdateCb) {\n"
+        "        m_versionUpdateCb(value);\n"
+        "    }\n"
+        "}\n\n"
+        "} // namespace plugin\n\n"
+        "} // namespace #^#MAIN_NS#$#\n\n"
+        "} // namespace #^#TOP_NS#$#\n\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"TOP_NS", m_generator.getTopNamespace()},
+        {"MAIN_NS", m_generator.mainNamespace()},
+        {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
+    };        
+
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    stream << str;
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+    
+    return true;    
 }
 
 const std::string& ToolsQtPlugin::toolsAdjustedNameInternal() const
