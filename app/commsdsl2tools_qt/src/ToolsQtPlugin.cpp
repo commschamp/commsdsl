@@ -659,7 +659,7 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
 bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal() 
 {
     if (!toolsHasConfigWidgetInternal()) {
-        return false;
+        return true;
     }
 
     static_cast<void>(m_generator);
@@ -728,7 +728,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
 bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal() 
 {
     if (!toolsHasConfigWidgetInternal()) {
-        return false;
+        return true;
     }
 
     static_cast<void>(m_generator);
