@@ -19,7 +19,7 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 libboost-all-dev libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} gcc-8 g++-8 doxygen
+      run: sudo apt install libqt5gui5 qtbase5-dev qtbase5-dev libboost-all-dev libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} gcc-8 g++-8 doxygen
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -65,7 +65,7 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 libboost-all-dev libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} doxygen
+      run: sudo apt install libqt5gui5 qtbase5-dev libboost-all-dev libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} doxygen
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -106,7 +106,7 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 libboost-all-dev libxml2-dev clang-${{matrix.cc_ver}} clang-6.0 doxygen
+      run: sudo apt install libqt5gui5 qtbase5-dev libboost-all-dev libxml2-dev clang-${{matrix.cc_ver}} clang-6.0 doxygen
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
@@ -152,7 +152,7 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 libboost-all-dev libxml2-dev clang-${{matrix.cc_ver}} doxygen
+      run: sudo apt install libqt5gui5 qtbase5-dev libboost-all-dev libxml2-dev clang-${{matrix.cc_ver}} doxygen
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build
