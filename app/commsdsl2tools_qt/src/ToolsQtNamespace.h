@@ -15,41 +15,21 @@
 
 #pragma once
 
-#include "ToolsQtField.h"
-
-#include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtInterface final : public commsdsl::gen::Interface
+class ToolsQtNamespace final : public commsdsl::gen::Namespace
 {
-    using Base = commsdsl::gen::Interface;
+    using Base = commsdsl::gen::Namespace;
 public:
     using StringsList = commsdsl::gen::util::StringsList;
-    using IncludesList = StringsList;
+    explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent);
 
-    using ToolsQtFieldsList = ToolsQtField::ToolsQtFieldsList;
-
-    explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::Interface dslObj, commsdsl::gen::Elem* parent);
-
-    std::string toolsHeaderFilePath() const;
     StringsList toolsSourceFiles() const;
-
-protected:
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() override;    
-
-private:
-    bool toolsWriteHeaderInternal();
-    bool toolsWriteSrcInternal();
-    std::string toolsHeaderCodeInternal() const;
-    std::string toolsSrcCodeInternal() const;
-    const std::string& toolsNameInternal() const;
-
-    ToolsQtFieldsList m_fields;
 };
 
 } // namespace commsdsl2tools_qt

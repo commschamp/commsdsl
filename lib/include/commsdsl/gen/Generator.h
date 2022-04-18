@@ -106,6 +106,7 @@ public:
     Logger& logger();
 
     NamespacesList& namespaces();
+    const NamespacesList& namespaces() const;
 
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
     InterfacePtr createInterface(commsdsl::parse::Interface dslObj, Elem* parent);

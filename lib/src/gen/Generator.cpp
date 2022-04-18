@@ -86,6 +86,11 @@ public:
         return m_namespaces;
     }
 
+    const NamespacesList& namespaces() const
+    {
+        return m_namespaces;
+    }    
+
     void forceSchemaVersion(unsigned value)
     {
         m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
@@ -802,6 +807,11 @@ Logger& Generator::logger()
 }
 
 Generator::NamespacesList& Generator::namespaces()
+{
+    return m_impl->namespaces();
+}
+
+const Generator::NamespacesList& Generator::namespaces() const
 {
     return m_impl->namespaces();
 }

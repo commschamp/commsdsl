@@ -55,7 +55,7 @@ const std::string& toolsAliasTemplateInternal()
     static const std::string Templ = 
         "using #^#CLASS_NAME#$# =\n"
         "    cc_tools_qt::MessageBase<\n"
-        "        #^#INTERFACE#$#\n"
+        "        ::#^#INTERFACE#$#\n"
         "    >;\n";
     return Templ;
 }
@@ -65,7 +65,7 @@ const std::string& toolsClassTemplateInternal()
     static const std::string Templ = 
         "class #^#CLASS_NAME#$# : public\n"
         "    cc_tools_qt::MessageBase<\n"
-        "        #^#INTERFACE#$#\n"
+        "        ::#^#INTERFACE#$#\n"
         "    >\n"
         "{\n"
         "protected:\n"
@@ -87,6 +87,11 @@ std::string ToolsQtInterface::toolsHeaderFilePath() const
 {
     auto scope = comms::scopeFor(*this, generator(), false);
     return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
+}
+
+ToolsQtInterface::StringsList ToolsQtInterface::toolsSourceFiles() const
+{
+    return StringsList{comms::className(toolsNameInternal()) + strings::cppSourceSuffixStr()};
 }
 
 bool ToolsQtInterface::prepareImpl()

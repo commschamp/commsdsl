@@ -41,6 +41,10 @@ bool ToolsQtLayer::prepare()
 {
     m_toolsExternalField = dynamic_cast<ToolsQtField*>(m_layer.externalField());
     m_toolsMemberField = dynamic_cast<ToolsQtField*>(m_layer.memberField());
+
+    if (m_toolsExternalField != nullptr) {
+        m_toolsExternalField->toolsSetReferenced();
+    }
     return true;
 }
 
@@ -55,6 +59,9 @@ ToolsQtLayer::IncludesList ToolsQtLayer::toolsSrcIncludes() const
                 return;
             }
 
+            if (comms::isGlobalField(f->field())) {
+                result.push_back(f->relDeclHeaderFile());
+            }
             auto incs = f->toolsSrcIncludes();
             result.reserve(result.size() + incs.size());
             std::move(incs.begin(), incs.end(), std::back_inserter(result));
@@ -100,7 +107,7 @@ std::string ToolsQtLayer::toolsPropsFunc() const
         static const std::string FieldTempl =
             "static QVariantMap createProps_#^#NAME#$#(bool serHidden)\n"
             "{\n"
-            "    return cc::property::field::ArrayList().name(\"#^#DISP_NAME#$#\").serialisedHidden(serHidden).asMap();\n"
+            "    return cc_tools_qt::property::field::ArrayList().name(\"#^#DISP_NAME#$#\").serialisedHidden(serHidden).asMap();\n"
             "}\n";    
 
         util::ReplacementMap fieldRepl = {

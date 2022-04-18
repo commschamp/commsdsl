@@ -41,10 +41,10 @@ public:
 
     bool toolsWrite() const;
 
-    void commsSetForcePseudo()
-    {
-        m_forcedPseudo = true;
-    }
+    // void commsSetForcePseudo()
+    // {
+    //     m_forcedPseudo = true;
+    // }
 
     void toolsSetReferenced()
     {
@@ -62,6 +62,8 @@ public:
 
     std::string relDeclHeaderFile() const;
     std::string relDefSrcFile() const;
+
+    StringsList toolsSourceFiles() const;    
 
 protected:
     virtual IncludesList toolsExtraSrcIncludesImpl() const;    

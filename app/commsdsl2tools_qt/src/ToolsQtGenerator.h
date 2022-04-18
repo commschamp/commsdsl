@@ -23,6 +23,7 @@
 #include "commsdsl/gen/Generator.h"
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/util.h"
 
 namespace commsdsl2tools_qt 
 {
@@ -40,6 +41,8 @@ public:
     using NamespacePtr = commsdsl::gen::NamespacePtr;
     using PluginInfo = ToolsQtProgramOptions::PluginInfo;
     using PluginInfosList = ToolsQtProgramOptions::PluginInfosList;
+    using StringsList = commsdsl::gen::util::StringsList;
+    using PluginsList = std::vector<ToolsQtPluginPtr>;
 
     static const std::string& fileGeneratedComment();
     void setPluginInfosList(PluginInfosList&& value)
@@ -47,10 +50,17 @@ public:
         m_pluginInfos = std::move(value);
     }
 
+    StringsList toolsSourceFiles() const;
+
+    const PluginsList& toolsPlugins() const
+    {
+        return m_plugins;
+    }
+
 protected:
     virtual bool prepareImpl() override;
 
-    // virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
+    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
     virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent) override;
@@ -82,7 +92,7 @@ private:
     bool toolsPrepareDefaultInterfaceInternal();
 
     PluginInfosList m_pluginInfos;
-    std::vector<ToolsQtPluginPtr> m_plugins;
+    PluginsList m_plugins;
 };
 
 } // namespace commsdsl2tools_qt

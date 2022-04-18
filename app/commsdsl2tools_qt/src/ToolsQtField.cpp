@@ -61,7 +61,7 @@ ToolsQtField::ToolsQtFieldsList ToolsQtField::toolsTransformFieldsList(const com
 
 bool ToolsQtField::toolsWrite() const
 {
-    if (!comms::isGlobalField(m_field)) { 
+    if ((!comms::isGlobalField(m_field)) || (!m_referenced)) { 
         return true;
     }
 
@@ -114,7 +114,7 @@ ToolsQtField::IncludesList ToolsQtField::toolsSrcIncludes() const
     };
 
     if (comms::isGlobalField(m_field)) {
-        incs.push_back(relDeclHeaderFile());
+        incs.push_back(comms::relHeaderPathFor(m_field, m_field.generator()));
     }
 
     auto extra = toolsExtraSrcIncludesImpl();
@@ -137,7 +137,7 @@ std::string ToolsQtField::toolsDeclSig() const
 std::string ToolsQtField::toolsDefFunc() const
 {
     static const std::string Templ = 
-        "#^#DECL#$#\n"
+        "#^#STATIC#$##^#DECL#$#\n"
         "{\n"
         "    #^#SER_HIDDEN_CAST#$#\n"
         "    #^#BODY#$#\n"
@@ -148,6 +148,10 @@ std::string ToolsQtField::toolsDefFunc() const
         {"SER_HIDDEN_CAST", "static_cast<void>(serHidden);"},
         {"BODY", toolsDefFuncBodyImpl()},
     };
+
+    if (!comms::isGlobalField(m_field)) {
+        repl["STATIC"] = "static ";
+    }
 
     return util::processTemplate(Templ, repl);
 }
@@ -196,7 +200,7 @@ std::string ToolsQtField::toolsCommsScope() const
     assert(parent != nullptr);
 
     auto& generator = m_field.generator();
-    auto scope = comms::scopeFor(m_field, generator);
+    std::string scope = comms::scopeFor(m_field, generator);
     bool globalField = comms::isGlobalField(m_field);
     do {
         if (globalField) {
@@ -205,22 +209,25 @@ std::string ToolsQtField::toolsCommsScope() const
         }
 
         auto parentScope = comms::scopeFor(*parent, generator);
-        std::string suffix;
 
         if ((parent->elemType() == commsdsl::gen::Elem::Type::Type_Message) ||
             (parent->elemType() == commsdsl::gen::Elem::Type::Type_Interface)) {
-            suffix = strings::fieldsSuffixStr();
+            parentScope += strings::fieldsSuffixStr();
         }    
-        if (parent->elemType() == commsdsl::gen::Elem::Type::Type_Frame) {
-            suffix = strings::layersSuffixStr();
+        else if (parent->elemType() == commsdsl::gen::Elem::Type::Type_Frame) {
+            parentScope += strings::layersSuffixStr();
         }          
         else {
-            suffix = strings::membersSuffixStr();
+            parentScope += strings::membersSuffixStr();
         }
 
         assert(parentScope.size() <= scope.size());
-        scope = parentScope + suffix + "<>" + scope.substr(parentScope.size());
+        auto suffix = scope.substr(parentScope.size());
+        if (parent->elemType() != commsdsl::gen::Elem::Type::Type_Interface) {
+            parentScope += "<>";
+        }
 
+        scope = parentScope + suffix;
     } while (false);
 
     return scope;
@@ -234,6 +241,15 @@ std::string ToolsQtField::relDeclHeaderFile() const
 std::string ToolsQtField::relDefSrcFile() const
 {
     return toolsRelPathInternal() + strings::cppSourceSuffixStr();
+}
+
+ToolsQtField::StringsList ToolsQtField::toolsSourceFiles() const
+{
+    if ((!comms::isGlobalField(m_field)) || (!m_referenced)) { 
+        return StringsList{};
+    }
+    
+    return StringsList{relDefSrcFile()};
 }
 
 ToolsQtField::IncludesList ToolsQtField::toolsExtraSrcIncludesImpl() const
@@ -253,17 +269,17 @@ std::string ToolsQtField::toolsDefFuncBodyImpl() const
         "        .asMap();\n";
 
     static const std::string Templ =
-        "using Field = #^#SCOPE#$#;\n"
+        "using Field = ::#^#SCOPE#$#;\n"
         "return\n" + 
         FieldDefTempl;
 
     static const std::string VerOptTempl =
-        "using Field = #^#SCOPE#$#Field;\n"
-        "using OptField = #^#SCOPE#$#;\n"
+        "using Field = ::#^#SCOPE#$#Field;\n"
+        "using OptField = ::#^#SCOPE#$#;\n"
         "auto props =\n" + 
         FieldDefTempl + "\n"
         "return\n"
-        "    cc::property::field::ForField<OptField>()\n"
+        "    cc_tools_qt::property::field::ForField<OptField>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
         "        .uncheckable()\n"
         "        .field(std::move(props))\n"

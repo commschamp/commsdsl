@@ -65,18 +65,18 @@ ToolsQtRefField::IncludesList ToolsQtRefField::toolsExtraSrcIncludesImpl() const
 std::string ToolsQtRefField::toolsDefFuncBodyImpl() const
 {
     static const std::string Templ =
-        "using Field = #^#SCOPE#$#;\n"
+        "using Field = ::#^#SCOPE#$#;\n"
         "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$#, #^#SER_HIDDEN#$#);\n"
         "#^#EXTRA_PROPS#$#\n"
-        "return props";
+        "return props;";
 
     static const std::string VerOptTempl =
-        "using Field = #^#SCOPE#$#Field;\n"
+        "using Field = ::#^#SCOPE#$#Field;\n"
         "auto props = #^#PLUGIN_SCOPE#$#createProps_#^#REF_NAME#$#(#^#NAME_PROP#$#, #^#SER_HIDDEN#$#);\n"
         "#^#EXTRA_PROPS#$#\n"
-        "using OptField = #^#SCOPE#$#;\n"
+        "using OptField = ::#^#SCOPE#$#;\n"
         "return\n"
-        "    cc::property::field::ForField<OptField>()\n"
+        "    cc_tools_qt::property::field::ForField<OptField>()\n"
         "        .name(#^#NAME_PROP#$#)\n"
         "        .uncheckable()\n"
         "        .field(std::move(props))\n"
@@ -143,7 +143,7 @@ std::string ToolsQtRefField::toolsExtraPropsInternal() const
 
     static const std::string Templ =
         "auto extraProps =\n"
-        "    cc::property::field::Common()\n"
+        "    cc_tools_qt::property::field::Common()\n"
         "        #^#UPDATES#$#;\n"
         "extraProps.setTo(props);";
 

@@ -11,6 +11,7 @@ if ("${LibComms_DIR}" STREQUAL "")
     message (FATAL_ERROR "The comms library found but the directory is not known")
 endif ()
 
+set (CC_TOOLS_QT_CMAKE_DIR)
 while (TRUE)
     if (TARGET cc::cc_tools_qt)
         break ()
@@ -18,12 +19,14 @@ while (TRUE)
 
     find_package(cc_tools_qt QUIET)
     if (TARGET cc::cc_tools_qt)
+        set (CC_TOOLS_QT_CMAKE_DIR "${cc_tools_qt_DIR}")
         break ()
     endif()    
 
     set (cc_tools_qt_src_dir ${COMMSDSL_EXTERNALS_DIR}/cc_tools_qt)
     set (cc_tools_qt_build_dir ${CMAKE_CURRENT_BINARY_DIR}/cc_tools_qt/build)
     set (cc_tools_qt_install_dir ${CMAKE_CURRENT_BINARY_DIR}/cc_tools_qt/install)
+    set (CC_TOOLS_QT_CMAKE_DIR "${cc_tools_qt_install_dir}")
 
     list (APPEND CMAKE_PREFIX_PATH ${LibComms_DIR})    
 
@@ -110,27 +113,32 @@ foreach (name ${tests})
         DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
 
 
-#    set (build_tgt ${APP_NAME}.${name}_build_tgt)
-#    set (build_dir ${output_dir}/build)
-#    set (install_dir ${build_dir}/install)
+    set (build_tgt ${APP_NAME}.${name}_build_tgt)
+    set (build_dir ${output_dir}/build)
+    set (install_dir ${build_dir}/install)
 
-#    execute_process (
-#        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 
-#    set (dep_install_dir ${dep_prefix_path}/${name}/build/install)
-#    add_custom_target(${build_tgt} ALL
-#        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}"
-#        COMMAND 
-#            ${CMAKE_COMMAND} 
-#                ${output_dir}
-#                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-#                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-#                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
-#                -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-#                -DCMAKE_INSTALL_PREFIX=${install_dir}
-#                -DCMAKE_PREFIX_PATH="${LibComms_DIR}\;${dep_install_dir}"
-#        COMMAND
-#            ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
-#        WORKING_DIRECTORY ${build_dir}
-#        DEPENDS ${output_tgt} commsdsl2new.${name}_build_tgt)
+    set (prot_tgt "commsdsl2new.${name}_build_tgt")
+    set (prot_install_dir "${PROJECT_BINARY_DIR}/app/commsdsl2new/test/${name}/build/install")
+    add_custom_target(${build_tgt} ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}"
+        COMMAND 
+            ${CMAKE_COMMAND} 
+                ${output_dir}
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
+                -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
+                -DCMAKE_INSTALL_PREFIX=${install_dir}
+                -DCMAKE_PREFIX_PATH="${LibComms_DIR}\;${prot_install_dir}\;${CC_TOOLS_QT_CMAKE_DIR}"
+        COMMAND
+            ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
+        WORKING_DIRECTORY ${build_dir}
+        DEPENDS ${output_tgt} commsdsl2new.${name}_build_tgt)
+
+    if (TARGET "cc_tools_qt_tgt")        
+        add_dependencies(${build_tgt} "cc_tools_qt_tgt")
+    endif ()
 endforeach ()

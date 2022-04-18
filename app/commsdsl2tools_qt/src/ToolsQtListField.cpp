@@ -44,6 +44,10 @@ bool ToolsQtListField::prepareImpl()
 
     m_toolsMemberElementField = dynamic_cast<ToolsQtField*>(memberElementField());
     m_toolsExternalElementField = dynamic_cast<ToolsQtField*>(externalElementField());
+
+    if (m_toolsExternalElementField != nullptr) {
+        m_toolsExternalElementField->toolsSetReferenced();
+    }    
     return true;
 }
 
@@ -55,6 +59,21 @@ bool ToolsQtListField::writeImpl() const
 ToolsQtListField::IncludesList ToolsQtListField::toolsExtraSrcIncludesImpl() const
 {
     IncludesList result;
+    auto addIncludes = 
+        [&result](ToolsQtField* f)
+        {
+            if (f == nullptr) {
+                return;
+            }
+
+            auto incs = f->toolsSrcIncludes();
+            result.reserve(result.size() + incs.size());
+            std::move(incs.begin(), incs.end(), std::back_inserter(result));
+        };
+
+    addIncludes(m_toolsMemberElementField);
+    addIncludes(m_toolsExternalElementField);
+
     if (m_toolsExternalElementField != nullptr) {
         result.push_back(m_toolsExternalElementField->relDeclHeaderFile());
     }

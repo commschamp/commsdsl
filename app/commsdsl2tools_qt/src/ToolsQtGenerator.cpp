@@ -30,6 +30,7 @@
 #include "ToolsQtInterface.h"
 #include "ToolsQtListField.h"
 #include "ToolsQtMessage.h"
+#include "ToolsQtNamespace.h"
 #include "ToolsQtOptionalField.h"
 #include "ToolsQtPayloadLayer.h"
 #include "ToolsQtPlugin.h"
@@ -45,6 +46,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 
 namespace commsdsl2tools_qt
 {
@@ -56,6 +58,21 @@ const std::string& ToolsQtGenerator::fileGeneratedComment()
         '.' + std::to_string(commsdsl::versionMinor()) + '.' +
         std::to_string(commsdsl::versionPatch()) + '\n';
     return Str;
+}
+
+ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
+{
+    StringsList result;
+    auto& nsList = namespaces();
+    for (auto& nsPtr : nsList) {
+        assert(nsPtr);
+
+        auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles();
+        result.reserve(result.size() + nsResult.size());
+        std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
+    }
+
+    return result;
 }
 
 bool ToolsQtGenerator::prepareImpl() 
@@ -102,6 +119,11 @@ bool ToolsQtGenerator::prepareImpl()
             {
                 return pPtr->prepare();
             });
+}
+
+ToolsQtGenerator::NamespacePtr ToolsQtGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2tools_qt::ToolsQtNamespace>(*this, dslObj, parent);
 }
 
 ToolsQtGenerator::InterfacePtr ToolsQtGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)

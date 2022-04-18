@@ -70,6 +70,11 @@ bool ToolsQtPlugin::write()
         toolsWriteConfigWidgetSrcInternal();
 }
 
+std::string ToolsQtPlugin::toolsClassName() const
+{
+    return comms::className(toolsAdjustedNameInternal());
+}
+
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
 {
     static_cast<void>(m_generator);
@@ -133,7 +138,15 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
-    };        
+    };   
+
+
+    if (toolsHasConfigWidgetInternal()) {
+        std::string verApi =
+            "int getVersion() const;\n"
+            "void setVersion(int value);\n";
+        repl["VERSION_API"] = std::move(verApi);
+    }         
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl);
     stream << str;
@@ -187,7 +200,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "            #^#TOP_NS#$#::#^#FRAME#$#TransportMessage#^#INTERFACE_TEMPL_PARAM#$#\n"
         "        >;\n"
         "public:\n"
-        "    friend class #^#TOP_NS#$#::plugin::#^#CLASS_NAME#$#;\n\n"
+        "    friend class #^#TOP_NS#$#::#^#MAIN_NS#$#::plugin::#^#CLASS_NAME#$#;\n\n"
         "    #^#CLASS_NAME#$#Impl() = default;\n"
         "    virtual ~#^#CLASS_NAME#$#Impl() = default;\n\n"
         "    #^#VERSION_IMPL_PUBLIC#$#\n"
@@ -515,7 +528,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         "{\n"
         "    pluginProperties()\n"
         "        .setProtocolCreateFunc(\n"
-        "            [this]() noexcept -> cc::ProtocolPtr\n"
+        "            [this]() noexcept -> cc_tools_qt::ProtocolPtr\n"
         "            {\n"
         "                return m_protocol;\n"
         "            })\n"

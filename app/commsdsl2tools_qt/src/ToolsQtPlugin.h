@@ -47,6 +47,13 @@ public:
     bool prepare();
     bool write();
 
+    std::string toolsClassName() const;
+
+    bool toolsHasConfigWidget() const
+    {
+        return toolsHasConfigWidgetInternal();
+    }
+
 private:
 
     bool toolsWriteProtocolHeaderInternal();

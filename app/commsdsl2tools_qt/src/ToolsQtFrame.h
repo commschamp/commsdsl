@@ -28,11 +28,13 @@ class ToolsQtFrame final : public commsdsl::gen::Frame
 {
     using Base = commsdsl::gen::Frame;
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
     using ToolsQtLayersList = std::vector<ToolsQtLayer*>;
 
     explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent);
 
     std::string toolsHeaderFilePath() const;
+    StringsList toolsSourceFiles() const;
 
 protected:
     virtual bool prepareImpl() override;

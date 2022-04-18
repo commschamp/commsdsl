@@ -86,7 +86,7 @@ bool writeFileInternal(
         "/// @brief Contains definition of the #^#NAME#$# messages bundle.\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "namespace #^#PLUGIN_NAMESPACE#$#\n"
+        "namespace #^#TOP_NS#$#\n"
         "{\n\n"        
         "namespace #^#PROT_NAMESPACE#$#\n"
         "{\n\n"
@@ -99,7 +99,7 @@ bool writeFileInternal(
         "    >;\n\n"
         "} // namespace input\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n\n"
-        "} // namespace #^#PLUGIN_NAMESPACE#$#\n";
+        "} // namespace #^#TOP_NS#$#\n";
 
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
@@ -108,6 +108,7 @@ bool writeFileInternal(
         {"NAME", name},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"MESSAGES", util::strListToString(scopes, ",\n", "")},
+        {"TOP_NS", generator.getTopNamespace()}
     };
 
     if (!interfaceTempl.empty()) {

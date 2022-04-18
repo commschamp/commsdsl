@@ -73,6 +73,11 @@ std::string ToolsQtFrame::toolsHeaderFilePath() const
     return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
 }
 
+ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles() const
+{
+    return StringsList{toolsTransportMessageSrcFilePathInternal()};
+}
+
 bool ToolsQtFrame::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -122,7 +127,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal()
         "#^#NS_BEGIN#$#\n"
         "#^#INTERFACE_TEMPL_PARAM#$#\n"
         "using #^#CLASS_NAME#$# =\n"
-        "    #^#FRAME_SCOPE#$#<\n"
+        "    ::#^#FRAME_SCOPE#$#<\n"
         "        #^#INTERFACE#$#,\n"
         "        #^#TOP_NS#$#::#^#ALL_MESSAGES#$##^#INTERFACE_TEMPL#$#\n"
         "    >;\n\n"
@@ -145,7 +150,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal()
     if (1U < allInterfaces.size()) {
         repl["INTERFACE_TEMPL_PARAM"] = "template <typename TInterface>";
         repl["INTERFACE"] = "TInterface";
-        repl["INTERFACE_TEMPL"] = "<TIterface>";
+        repl["INTERFACE_TEMPL"] = "<TInterface>";
     }
     else {
         auto* defaultInterface = static_cast<const ToolsQtInterface*>(allInterfaces.front());
@@ -210,7 +215,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal()
 
     util::StringsList fields;
     for (auto* l : m_toolsLayers) {
-        fields.push_back(l->toolsFieldCommsScope());
+        fields.push_back("::" + l->toolsFieldCommsScope());
     }
 
     util::ReplacementMap repl = {
@@ -243,7 +248,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal()
         repl.insert({
             {"INTERFACE_TEMPL_PARAM", "template <typename TInterface>"},
             {"INTERFACE", "TInterface"},
-            {"INTERFACE_TEMPL", "<TIterface>"},
+            {"INTERFACE_TEMPL", "<TInterface>"},
             {"BASE_DEF", std::move(baseDef)},
             {"PROPS_BODY", std::move(propsBody)}
         });
@@ -301,6 +306,8 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal()
         "\n"
         "#^#NS_BEGIN#$#\n"
         "#^#FIELDS_PROPS#$#\n"
+        "namespace\n"
+        "{\n\n"
         "QVariantList createProps()\n"
         "{\n"
         "     QVariantList props;\n"
@@ -308,7 +315,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal()
         "     return props;\n"
         "}\n\n"
         "} // namespace\n\n"
-        "const QVariantList& #^#CLASS_NAME#$##^#SUFFIX#$#::props()\n"
+        "const QVariantList& #^#CLASS_NAME#$##^#SUFFIX#$#Fields::props()\n"
         "{\n"
         "    static const QVariantList Props = createProps();\n"
         "    return Props;\n"

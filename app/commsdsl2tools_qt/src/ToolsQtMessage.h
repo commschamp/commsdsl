@@ -36,6 +36,8 @@ public:
 
     explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Message dslObj, commsdsl::gen::Elem* parent);
 
+    StringsList toolsSourceFiles() const;
+
 protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() override;    

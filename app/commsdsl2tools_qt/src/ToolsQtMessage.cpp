@@ -44,11 +44,11 @@ const std::string& toolsHeaderCodeMultipleInterfacesTemplInternal()
         "{\n"
         "    static const QVariantList& props();\n"
         "};\n\n"
-        "template <typename TIterface>\n"
+        "template <typename TInterface>\n"
         "class #^#CLASS_NAME#$# : public\n"
         "    comms_champion::ProtocolMessageBase<\n"
-        "        #^#PROT_MESSAGE#$#<TIterface>,\n"
-        "        #^#CLASS_NAME#$#<TIterface>\n"
+        "        ::#^#PROT_MESSAGE#$#<TInterface>,\n"
+        "        #^#CLASS_NAME#$#<TInterface>\n"
         "    >\n"
         "{\n"
         "protected:\n"
@@ -97,7 +97,7 @@ const std::string& toolsHeaderCodeSingleInterfaceWithFieldsTemplInternal()
     static const std::string Templ = 
         "class #^#CLASS_NAME#$# : public\n"
         "    cc_tools_qt::ProtocolMessageBase<\n"
-        "        #^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#>,\n"
+        "        ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#>,\n"
         "        #^#CLASS_NAME#$#\n"
         "    >\n"    
         "{\n"
@@ -151,7 +151,7 @@ const std::string& toolsSrcCodeSinglePimplInterfaceTemplInternal()
         "} // namespace\n\n"
         "class #^#CLASS_NAME#$#Impl : public\n"
         "    cc_tools_qt::ProtocolMessageBase<\n"
-        "        #^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#>,\n"
+        "        ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#>,\n"
         "        #^#CLASS_NAME#$#Impl\n"
         "    >\n"
         "{\n"
@@ -183,21 +183,21 @@ const std::string& toolsSrcCodeSinglePimplInterfaceTemplInternal()
         "}\n\n"
         "const char* #^#CLASS_NAME#$#::nameImpl() const\n"
         "{\n"
-        "    return static_cast<const cc::Message*>(m_pImpl.get())->name();\n"
+        "    return static_cast<const cc_tools_qt::Message*>(m_pImpl.get())->name();\n"
         "}\n\n"
         "const QVariantList& #^#CLASS_NAME#$#::fieldsPropertiesImpl() const\n"
         "{\n"
         "    return m_pImpl->fieldsProperties();\n"
         "}\n\n"
-        "void #^#CLASS_NAME#$#::dispatchImpl(cc::MessageHandler& handler)\n"
+        "void #^#CLASS_NAME#$#::dispatchImpl(cc_tools_qt::MessageHandler& handler)\n"
         "{\n"
-        "    static_cast<cc::Message*>(m_pImpl.get())->dispatch(handler);\n"
+        "    static_cast<cc_tools_qt::Message*>(m_pImpl.get())->dispatch(handler);\n"
         "}\n\n"
         "void #^#CLASS_NAME#$#::resetImpl()\n"
         "{\n"
         "    m_pImpl->reset();\n"
         "}\n\n"
-        "bool #^#CLASS_NAME#$#::assignImpl(const cc::Message& other)\n"
+        "bool #^#CLASS_NAME#$#::assignImpl(const cc_tools_qt::Message& other)\n"
         "{\n"
         "    auto* castedOther = dynamic_cast<const #^#CLASS_NAME#$#*>(&other);\n"
         "    if (castedOther == nullptr) {\n"
@@ -264,6 +264,11 @@ const std::string& toolsSrcCodeSingleInterfaceWithFieldsInternal()
 ToolsQtMessage::ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Message dslObj, commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent)
 {
+}
+
+ToolsQtMessage::StringsList ToolsQtMessage::toolsSourceFiles() const
+{
+    return StringsList{toolsRelPathInternal() + strings::cppSourceSuffixStr()};
 }
 
 bool ToolsQtMessage::prepareImpl()
@@ -429,10 +434,16 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesSinglePimplInter
 
 ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesSingleInterfaceWithFieldsInternal() const
 {
+    auto interfaces = generator().getAllInterfaces();
+    assert(!interfaces.empty());
+    auto* defaultInterface = static_cast<const ToolsQtInterface*>(interfaces.front());
+    assert(defaultInterface != nullptr);
+
     return IncludesList {
         "<QtCore/QVariantList>",
         "cc_tools_qt/ProtocolMessageBase.h",
-        comms::relHeaderPathFor(*this, generator())
+        comms::relHeaderPathFor(*this, generator()),
+        defaultInterface->toolsHeaderFilePath()
     };
 }
 

@@ -19,10 +19,12 @@
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
-#include "commsdsl/gen/comms.h"
 
-#include <fstream>
 #include <cassert>
+#include <fstream>
+
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2tools_qt
 {
@@ -45,8 +47,8 @@ bool ToolsQtCmake::writeInternal() const
 {
     static_cast<void>(m_generator);
     auto filePath = 
-        commsdsl::gen::util::pathAddElem(
-            m_generator.getOutputDir(), commsdsl::gen::strings::cmakeListsFileStr());    
+        util::pathAddElem(
+            m_generator.getOutputDir(), strings::cmakeListsFileStr());    
 
     m_generator.logger().info("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -55,35 +57,98 @@ bool ToolsQtCmake::writeInternal() const
         return false;
     }
 
-    std::string interfaceScope;
-    auto allInterfaces = m_generator.getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        auto* firstInterface = allInterfaces.front();
-        interfaceScope = commsdsl::gen::comms::scopeFor(*firstInterface, m_generator);
-    }
-    else {
-        interfaceScope = commsdsl::gen::comms::scopeForInterface(commsdsl::gen::strings::messageClassStr(), m_generator);
-    }
-
-    auto allFrames = m_generator.getAllFrames();
-    assert(!allFrames.empty());
-    auto* firstFrame = allFrames.front();
-    assert(!firstFrame->name().empty());
-
-
-    ReplacementMap repl = {
-        std::make_pair("PROJ_NAME", m_generator.schemaName()),
-        std::make_pair("PROJ_NS", m_generator.mainNamespace()),
-        std::make_pair("INTERFACE_SCOPE", std::move(interfaceScope)),
-        std::make_pair("FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)),
-        std::make_pair("OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)),
-        std::make_pair("INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator)),
-    };
-
     static const std::string Template =
         "cmake_minimum_required (VERSION 3.1)\n"
-        "project (\"#^#PROJ_NAME#$#_toolsqt\")\n\n"
-        "TODO";
+        "project (\"#^#PROT#$#_cc_tools_qt_plugin\")\n\n"
+        "find_package(LibComms REQUIRED)\n"
+        "find_package(#^#PROT#$# REQUIRED)\n"
+        "find_package(cc_tools_qt REQUIRED)\n"
+        "find_package(Qt5Widgets REQUIRED)\n"
+        "find_package(Qt5Core REQUIRED)\n\n"
+        "include(GNUInstallDirs)\n\n"
+        "set (CORE_LIB_NAME \"#^#PROT#$#_cc_tools_qt_plugin_core\")\n\n"
+        "######################################################################\n\n"
+        "function (cc_plugin_core)\n"
+        "    set (name ${CORE_LIB_NAME})\n"
+        "    set (src\n"
+        "        #^#CORE_FILES#$#\n"
+        "    )\n\n"
+        "    add_library (${name} STATIC ${src})\n"
+        "    target_link_libraries (${name} PUBLIC cc::#^#PROT#$# cc::comms cc::cc_tools_qt Qt5::Widgets Qt5::Core)\n"
+        "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR})\n"
+        "    target_compile_options(${name} PRIVATE\n"
+        "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
+        "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048>\n"
+        "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048>\n"
+        "    )\n\n"
+        "endfunction()\n\n"
+        "######################################################################\n\n"
+        "function (cc_plugin protocol has_config_widget)\n"
+        "    set (name \"cc_plugin_${protocol}\")\n\n"
+        "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/plugin/${protocol}.json\")\n"
+        "    set (stamp_file \"${CMAKE_CURRENT_BINARY_DIR}/${protocol}_refresh_stamp.txt\")\n\n"
+        "    if ((NOT EXISTS ${stamp_file}) OR (${meta_file} IS_NEWER_THAN ${stamp_file}))\n"
+        "        execute_process(\n"
+        "            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/plugin/${protocol}Plugin.h)\n\n"
+        "        execute_process(\n"
+        "            COMMAND ${CMAKE_COMMAND} -E touch ${stamp_file})\n"
+        "    endif ()\n\n"
+        "    set (src\n"
+        "        plugin/${protocol}Protocol.cpp\n"
+        "        plugin/${protocol}Plugin.cpp\n"
+        "    )\n\n"
+        "    set (hdr\n"
+        "        plugin/${protocol}Plugin.h\n"
+        "    )\n\n"
+        "    if (has_config_widget)\n"
+        "        list (APPEND src plugin/${protocol}ConfigWidget.cpp)\n"
+        "        list (APPEND hdr plugin/${protocol}ConfigWidget.h)\n"
+        "    endif ()\n\n"
+        "    qt5_wrap_cpp(moc ${hdr})\n\n"
+        "    set(extra_link_opts)\n"
+        "    if (CMAKE_COMPILER_IS_GNUCC)\n"
+        "        set(extra_link_opts \"-Wl,--no-undefined\")\n"
+        "    endif ()\n\n"
+        "    add_library (${name} MODULE ${src} ${moc})\n"
+        "    target_link_libraries (${name} ${CORE_LIB_NAME} cc::cc_tools_qt Qt5::Widgets Qt5::Core ${extra_link_opts})\n"
+        "    target_compile_options(${name} PRIVATE\n"
+        "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
+        "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048>\n"
+        "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048>\n"
+        "    )\n\n"
+        "    install (\n"
+        "        TARGETS ${name}\n"
+        "        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cc_tools_qt/plugin)\n\n"
+        "    install (\n"
+        "        FILES plugin/${protocol}.cfg\n"
+        "        DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/cc_tools_qt)\n\n"
+        "endfunction()\n\n"
+        "######################################################################\n\n"
+        "if (TARGET cc::cc_tools_qt)\n"
+        "    get_target_property(cc_inc cc::cc_tools_qt INTERFACE_INCLUDE_DIRECTORIES)\n\n"
+        "    if (NOT cc_inc)\n"
+        "        message (FATAL_ERROR \"No include directories are specified for cc::cc_tools_qt\")\n"
+        "    endif ()\n\n"
+        "    # Global include is required for \"moc\"\n"
+        "    include_directories (${cc_inc})\n"
+        "endif ()\n\n"
+        "cc_plugin_core()\n\n"
+        "#^#PLUGINS_LIST#$#\n"
+    ;
+
+    auto& plugins = m_generator.toolsPlugins();
+    util::StringsList pluginInvokes;
+    for (auto& p : plugins) {
+        assert(p);
+        pluginInvokes.push_back("cc_plugin (\"" + p->toolsClassName() + "\" " + (p->toolsHasConfigWidget() ? "TRUE" : "FALSE") + ")");
+    }
+
+
+    util::ReplacementMap repl = {
+        {"PROT", util::strToName(m_generator.schemaName())},
+        {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
+        {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")}
+    };
 
     auto str = commsdsl::gen::util::processTemplate(Template, repl);
     stream << str;
