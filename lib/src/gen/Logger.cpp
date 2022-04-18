@@ -124,6 +124,11 @@ void Logger::info(const std::string& msg)
     log(commsdsl::parse::ErrorLevel_Info, msg);
 }
 
+void Logger::debug(const std::string& msg)
+{
+    log(commsdsl::parse::ErrorLevel_Debug, msg);
+}
+
 void Logger::setMinLevel(ErrorLevel level)
 {
     m_impl->setMinLevel(level);

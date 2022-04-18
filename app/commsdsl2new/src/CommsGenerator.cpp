@@ -307,6 +307,7 @@ bool CommsGenerator::prepareExtraMessageBundlesInternal()
 
         if (name.empty()) {
             name = fs::path(path).stem().string();
+            logger().debug("Bundle name from path: " + path + " --> " + name);
         }
 
         if (name.empty()) {
@@ -335,6 +336,7 @@ bool CommsGenerator::prepareExtraMessageBundlesInternal()
             messages.push_back(m);
         }
 
+        logger().debug("Extra message bundle: " + name);
         m_extraMessageBundles.emplace_back(std::move(name), std::move(messages));
     };
     return true;

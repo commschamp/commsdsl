@@ -25,7 +25,7 @@ function (test_func name)
     add_custom_command(
         OUTPUT ${output_dir}.tmp
         DEPENDS ${schema_file} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_file}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_file}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)

@@ -30,6 +30,7 @@ public:
     CommsProgramOptions();
 
     bool quietRequested() const;
+    bool debugRequested() const;
     bool versionRequested() const;
     bool warnAsErrRequested() const;
 

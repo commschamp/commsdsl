@@ -40,6 +40,7 @@ public:
     void error(const std::string& msg);
     void warning(const std::string& msg);
     void info(const std::string& msg);
+    void debug(const std::string& msg);
     void setMinLevel(ErrorLevel level);
     void setWarnAsError();
     bool hadWarning() const;

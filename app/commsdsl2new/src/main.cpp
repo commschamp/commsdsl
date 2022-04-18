@@ -83,6 +83,10 @@ int main(int argc, const char* argv[])
             logger.setMinLevel(commsdsl::parse::ErrorLevel_Warning);
         }
 
+        if (options.debugRequested()) {
+            logger.setMinLevel(commsdsl::parse::ErrorLevel_Debug);
+        }        
+
         if (options.warnAsErrRequested()) {
             logger.setWarnAsError();
         }

@@ -36,6 +36,8 @@ const std::string DefaultCommsTag("master");
 
 const std::string QuietStr("quiet");
 const std::string FullQuietStr("q," + QuietStr);
+const std::string DebugStr("debug");
+const std::string FullDebugStr("d," + DebugStr);
 const std::string VersionStr("version");
 const std::string OutputDirStr("output-dir");
 const std::string FullOutputDirStr("o," + OutputDirStr);
@@ -66,6 +68,7 @@ CommsProgramOptions::CommsProgramOptions()
     addHelpOption()
     (VersionStr, "Print version string and exit.")
     (FullQuietStr, "Quiet, show only warnings and errors.")
+    (FullDebugStr, "Show debug logging.")
     (FullOutputDirStr, "Output directory path. When not provided current is used.", true)        
     (FullInputFilesListStr, "File containing list of input files.", true)        
     (FullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
@@ -109,6 +112,11 @@ CommsProgramOptions::CommsProgramOptions()
 bool CommsProgramOptions::quietRequested() const
 {
     return isOptUsed(QuietStr);
+}
+
+bool CommsProgramOptions::debugRequested() const
+{
+    return isOptUsed(DebugStr);
 }
 
 bool CommsProgramOptions::versionRequested() const
