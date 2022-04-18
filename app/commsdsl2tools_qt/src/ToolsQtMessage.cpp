@@ -287,7 +287,7 @@ bool ToolsQtMessage::prepareImpl()
         return true;
     }
 
-    m_fields = ToolsQtField::toolsTransformFieldsList(fields());
+    m_toolsFields = ToolsQtField::toolsTransformFieldsList(fields());
     return true;
 }
 
@@ -490,7 +490,7 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesInternal() const
     assert(codeType <= MapSize);
     auto func = Map[codeType];
     auto result = (this->*func)();
-    for (auto* f : m_fields) {
+    for (auto* f : m_toolsFields) {
         auto incs = f->toolsSrcIncludes();
         result.reserve(result.size() + incs.size());
         std::move(incs.begin(), incs.end(), std::back_inserter(result));
@@ -543,9 +543,9 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
 
     util::StringsList fieldsProps;
     util::StringsList appends;
-    fieldsProps.reserve(m_fields.size());
-    appends.reserve(m_fields.size());
-    for (auto* f : m_fields) {
+    fieldsProps.reserve(m_toolsFields.size());
+    appends.reserve(m_toolsFields.size());
+    for (auto* f : m_toolsFields) {
         auto membersStr = f->toolsDefMembers();
         if (!membersStr.empty()) {
             fieldsProps.push_back(std::move(membersStr));

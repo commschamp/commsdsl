@@ -349,7 +349,8 @@ std::string CommsFrame::commsDefIncludesInternal() const
 {
     auto& gen = generator();
     util::StringsList includes = {
-        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), gen)
+        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), gen),
+        comms::relHeaderForInput(strings::allMessagesStr(), gen)
     };
 
     if (m_hasCommonCode) {

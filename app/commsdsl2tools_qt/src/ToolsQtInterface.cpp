@@ -100,7 +100,7 @@ bool ToolsQtInterface::prepareImpl()
         return false;
     }
 
-    m_fields = ToolsQtField::toolsTransformFieldsList(fields());
+    m_toolsFields = ToolsQtField::toolsTransformFieldsList(fields());
     return true;
 }
 
@@ -177,11 +177,19 @@ bool ToolsQtInterface::toolsWriteSrcInternal()
         "#^#GENERATED#$#\n"
         "\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
-        "#include \"cc_tools_qt/property/field.h\"\n\n"
+        "#^#INCLUDES#$#\n"
         "#^#NS_BEGIN#$#\n"
         "#^#DEF#$#\n\n"
         "#^#NS_END#$#\n"
     ;
+
+    util::StringsList includes;
+    for (auto* f : m_toolsFields) {
+        auto incs = f->toolsSrcIncludes();
+        includes.reserve(includes.size() + incs.size());
+        std::move(incs.begin(), incs.end(), std::back_inserter(includes));
+    }
+    comms::prepareIncludeStatement(includes);
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
@@ -189,6 +197,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal()
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"DEF", toolsSrcCodeInternal()},
+        {"INCLUDES", util::strListToString(includes, "\n", "\n")}
     };
     
     stream << util::processTemplate(Templ, repl);
@@ -200,7 +209,7 @@ std::string ToolsQtInterface::toolsHeaderCodeInternal() const
 {
     auto hexWidth = getHexMsgIdWidthInternal(generator());
     auto* templ = &toolsAliasTemplateInternal();
-    if ((!m_fields.empty()) || (0U < hexWidth)) {
+    if ((!m_toolsFields.empty()) || (0U < hexWidth)) {
         templ = &toolsClassTemplateInternal();
     }
 
@@ -219,7 +228,7 @@ std::string ToolsQtInterface::toolsHeaderCodeInternal() const
 std::string ToolsQtInterface::toolsSrcCodeInternal() const
 {
     auto hexWidth = getHexMsgIdWidthInternal(generator());
-    if ((m_fields.empty()) && (hexWidth == 0U)) {
+    if ((m_toolsFields.empty()) && (hexWidth == 0U)) {
         return strings::emptyString();
     }    
 
@@ -243,9 +252,9 @@ std::string ToolsQtInterface::toolsSrcCodeInternal() const
 
     util::StringsList fieldsProps;
     util::StringsList appends;
-    fieldsProps.reserve(m_fields.size());
-    appends.reserve(m_fields.size());
-    for (auto* f : m_fields) {
+    fieldsProps.reserve(m_toolsFields.size());
+    appends.reserve(m_toolsFields.size());
+    for (auto* f : m_toolsFields) {
         auto membersStr = f->toolsDefMembers();
         if (!membersStr.empty()) {
             fieldsProps.push_back(std::move(membersStr));

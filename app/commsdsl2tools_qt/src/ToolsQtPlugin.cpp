@@ -373,7 +373,8 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
                         return;
                     }
 
-                    if (f->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Version) {
+                    if ((f->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Version) ||
+                        (!f->dslObj().isPseudo())) {
                         return;
                     }
 

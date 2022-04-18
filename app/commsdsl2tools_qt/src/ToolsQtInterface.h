@@ -49,7 +49,7 @@ private:
     std::string toolsSrcCodeInternal() const;
     const std::string& toolsNameInternal() const;
 
-    ToolsQtFieldsList m_fields;
+    ToolsQtFieldsList m_toolsFields;
 };
 
 } // namespace commsdsl2tools_qt

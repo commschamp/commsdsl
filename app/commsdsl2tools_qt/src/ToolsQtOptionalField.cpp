@@ -115,7 +115,14 @@ std::string ToolsQtOptionalField::toolsExtraPropsImpl() const
 std::string ToolsQtOptionalField::toolsDefMembersImpl() const
 {
     if (m_toolsMemberField != nullptr) {
-        return m_toolsMemberField->toolsDefFunc();
+        util::StringsList elems;
+        auto members = m_toolsMemberField->toolsDefMembers();
+        if (!members.empty()) {
+            elems.push_back(std::move(members));
+        } 
+
+        elems.push_back(m_toolsMemberField->toolsDefFunc());
+        return util::strListToString(elems, "\n", "");
     }
 
     return strings::emptyString();

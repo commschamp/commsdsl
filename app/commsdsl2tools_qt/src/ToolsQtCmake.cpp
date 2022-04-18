@@ -75,7 +75,7 @@ bool ToolsQtCmake::writeInternal() const
         "    )\n\n"
         "    add_library (${name} STATIC ${src})\n"
         "    target_link_libraries (${name} PUBLIC cc::#^#PROT#$# cc::comms cc::cc_tools_qt Qt5::Widgets Qt5::Core)\n"
-        "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR})\n"
+        "    target_include_directories (${name} SYSTEM PUBLIC ${PROJECT_SOURCE_DIR})\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048>\n"

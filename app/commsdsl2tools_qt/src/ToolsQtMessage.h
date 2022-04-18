@@ -66,7 +66,7 @@ private:
     std::string toolsSrcCodeInternal() const;
 
     CodeType toolCodeType() const;
-    ToolsQtFieldsList m_fields;
+    ToolsQtFieldsList m_toolsFields;
     bool m_exists = true;
 };
 
