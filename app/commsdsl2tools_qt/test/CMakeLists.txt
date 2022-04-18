@@ -34,11 +34,6 @@ while (TRUE)
         list (APPEND CMAKE_PREFIX_PATH ${COMMSDSL_QT_DIR})    
     endif ()
 
-    # TODO remove
-    # Temporary check that Qt is install
-    find_package(Qt5Core REQUIRED)
-    find_package(Qt5Widgets REQUIRED)
-
     include(ExternalProject)
     ExternalProject_Add(
         "cc_tools_qt_tgt"
