@@ -30,6 +30,15 @@ while (TRUE)
 
     list (APPEND CMAKE_PREFIX_PATH ${LibComms_DIR})    
 
+    if (NOT "${COMMSDSL_QT_DIR}" STREQUAL "")
+        list (APPEND CMAKE_PREFIX_PATH ${COMMSDSL_QT_DIR})    
+    endif ()
+
+    # TODO remove
+    # Temporary check that Qt is install
+    find_package(Qt5Core REQUIRED)
+    find_package(Qt5Widgets REQUIRED)
+
     include(ExternalProject)
     ExternalProject_Add(
         "cc_tools_qt_tgt"
@@ -46,7 +55,7 @@ while (TRUE)
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${cc_tools_qt_install_dir}
-            -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
+            -DCMAKE_PREFIX_PATH="${CMAKE_PREFIX_PATH}"
             -DCC_TOOLS_QT_EXTERNAL_COMMS=ON
     ) 
 
