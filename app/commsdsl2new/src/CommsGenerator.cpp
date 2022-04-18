@@ -299,7 +299,7 @@ bool CommsGenerator::prepareExtraMessageBundlesInternal()
         std::string name;
         std::string path = b;
 
-        auto sepPos = b.find_first_of(':');
+        auto sepPos = b.find_last_of(':');
         if (sepPos != std::string::npos) {
             name.assign(b, 0, sepPos);
             path.erase(path.begin(), path.begin() + sepPos + 1);
