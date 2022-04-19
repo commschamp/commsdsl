@@ -261,7 +261,7 @@ std::string ToolsQtInterface::toolsSrcCodeInternal() const
         }
 
         fieldsProps.push_back(f->toolsDefFunc());
-        appends.push_back("props.append(createProps_" + comms::accessName(f->field().dslObj().name()) + "(false));");
+        appends.push_back("props.append(createProps_" + comms::accessName(f->field().dslObj().name()) + "(true));");
     }   
 
     util::ReplacementMap repl = {
