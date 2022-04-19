@@ -148,7 +148,7 @@ bool ToolsQtInputMessages::writeAllMessagesInternal() const
 
     return 
         writeFileInternal(
-            "AllPluginMessages",
+            strings::allMessagesStr(),
             m_generator,
             checkFunc);
 }
