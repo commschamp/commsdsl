@@ -28,10 +28,13 @@ while (TRUE)
     set (cc_tools_qt_install_dir ${CMAKE_CURRENT_BINARY_DIR}/cc_tools_qt/install)
     set (CC_TOOLS_QT_CMAKE_DIR "${cc_tools_qt_install_dir}")
 
-    list (APPEND CMAKE_PREFIX_PATH ${LibComms_DIR})    
+    list (APPEND CMAKE_PREFIX_PATH ${LibComms_DIR})   
+    string(REPLACE ";" "|" CMAKE_PREFIX_PATH_ALT_SEP "${CMAKE_PREFIX_PATH}") 
 
+    set (qt_dir_param)
     if (NOT "${COMMSDSL_QT_DIR}" STREQUAL "")
         list (APPEND CMAKE_PREFIX_PATH ${COMMSDSL_QT_DIR})    
+        set (qt_dir_param -DCC_TOOLS_QT_DIR=${COMMSDSL_QT_DIR})
     endif ()
 
     include(ExternalProject)
@@ -42,6 +45,7 @@ while (TRUE)
         SOURCE_DIR "${cc_tools_qt_src_dir}"
         BINARY_DIR "${cc_tools_qt_build_dir}"
         INSTALL_DIR "${cc_tools_qt_install_dir}"
+        LIST_SEPARATOR |
         CMAKE_ARGS 
             -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} 
             -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
@@ -50,8 +54,9 @@ while (TRUE)
             -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${cc_tools_qt_install_dir}
-            -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}
             -DCC_TOOLS_QT_EXTERNAL_COMMS=ON
+            -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH_ALT_SEP}
+            ${qt_dir_param}
     ) 
 
     set (cc_platform_specific)
