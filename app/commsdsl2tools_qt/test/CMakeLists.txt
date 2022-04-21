@@ -2,13 +2,13 @@ if (NOT BUILD_TESTING)
     return ()
 endif () 
 
-set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2new/test)
-set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2new/test)
-file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
-
 commsdsl_ensure_comms_target ()
 if ("${LibComms_DIR}" STREQUAL "")
     message (FATAL_ERROR "The comms library found but the directory is not known")
+endif ()
+
+if (NOT "${COMMSDSL_QT_DIR}" STREQUAL "")
+    list (APPEND CMAKE_PREFIX_PATH ${COMMSDSL_QT_DIR})    
 endif ()
 
 set (CC_TOOLS_QT_CMAKE_DIR)
@@ -29,13 +29,8 @@ while (TRUE)
     set (CC_TOOLS_QT_CMAKE_DIR "${cc_tools_qt_install_dir}")
 
     list (APPEND CMAKE_PREFIX_PATH ${LibComms_DIR})   
-    string(REPLACE ";" "|" CMAKE_PREFIX_PATH_ALT_SEP "${CMAKE_PREFIX_PATH}") 
 
-    set (qt_dir_param)
-    if (NOT "${COMMSDSL_QT_DIR}" STREQUAL "")
-        list (APPEND CMAKE_PREFIX_PATH ${COMMSDSL_QT_DIR})    
-        set (qt_dir_param -DCC_TOOLS_QT_DIR=${COMMSDSL_QT_DIR})
-    endif ()
+    string(REPLACE ";" "|" CMAKE_PREFIX_PATH_ALT_SEP "${CMAKE_PREFIX_PATH}") 
 
     include(ExternalProject)
     ExternalProject_Add(
@@ -56,7 +51,6 @@ while (TRUE)
             -DCMAKE_INSTALL_PREFIX=${cc_tools_qt_install_dir}
             -DCC_TOOLS_QT_EXTERNAL_COMMS=ON
             -DCMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH_ALT_SEP}
-            ${qt_dir_param}
     ) 
 
     set (cc_platform_specific)
@@ -71,18 +65,9 @@ while (TRUE)
 
     add_library(cc::cc_tools_qt UNKNOWN IMPORTED GLOBAL)
     file (MAKE_DIRECTORY ${cc_tools_qt_install_dir}/include)
-    set (interface_link_libs cc::comms)        
-
-    find_package(Qt5Core)
-    find_package(Qt5Widgets)
-
-    if (Qt5Widgets_FOUND)
-        list (APPEND interface_link_libs Qt5::Widgets)
-    endif ()
-
-    if (Qt5Core_FOUND)
-        list (APPEND interface_link_libs Qt5::Core)
-    endif ()
+    find_package(Qt5Core REQUIRED)
+    find_package(Qt5Widgets REQUIRED)     
+    set (interface_link_libs cc::comms Qt5::Widgets Qt5::Core)       
 
     if (cc_platform_specific)
         list (APPEND interface_link_libs ${cc_platform_specific})
@@ -97,6 +82,10 @@ while (TRUE)
     add_dependencies(cc::cc_tools_qt ${cc_tools_qt_build_dir})
     break() 
 endwhile ()
+
+set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2new/test)
+set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2new/test)
+file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
@@ -131,6 +120,11 @@ foreach (name ${tests})
 
     set (prot_tgt "commsdsl2new.${name}_build_tgt")
     set (prot_install_dir "${PROJECT_BINARY_DIR}/app/commsdsl2new/test/${name}/build/install")
+    set (qt_path_param)
+    if (NOT "${COMMSDSL_QT_DIR}" STREQUAL "")
+        set (qt_path_param "\;${COMMSDSL_QT_DIR}")
+    endif ()    
+
     add_custom_target(${build_tgt} ALL
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}"
         COMMAND 
@@ -141,7 +135,7 @@ foreach (name ${tests})
                 -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
                 -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
                 -DCMAKE_INSTALL_PREFIX=${install_dir}
-                -DCMAKE_PREFIX_PATH="${LibComms_DIR}\;${prot_install_dir}\;${CC_TOOLS_QT_CMAKE_DIR}"
+                -DCMAKE_PREFIX_PATH="${LibComms_DIR}\;${prot_install_dir}\;${CC_TOOLS_QT_CMAKE_DIR}${qt_path_param}"
         COMMAND
             ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
         WORKING_DIRECTORY ${build_dir}
