@@ -60,7 +60,7 @@ public:
         return true;
     }
 
-    bool write()
+    bool write() const
     {
         bool result = 
             std::all_of(
@@ -122,7 +122,7 @@ bool Frame::prepare()
     return prepareImpl();
 }
 
-bool Frame::write()
+bool Frame::write() const
 {
     if (!m_impl->write()) {
         return false;
@@ -161,7 +161,7 @@ bool Frame::prepareImpl()
     return true;
 }
 
-bool Frame::writeImpl()
+bool Frame::writeImpl() const
 {
     return true;
 }

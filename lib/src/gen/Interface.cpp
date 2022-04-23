@@ -70,7 +70,7 @@ public:
             });
     }
 
-    bool write()
+    bool write() const
     {
         bool result = 
             std::all_of(
@@ -132,7 +132,7 @@ bool Interface::prepare()
     return prepareImpl();
 }
 
-bool Interface::write()
+bool Interface::write() const
 {
     if (!m_impl->write()) {
         return false;
@@ -183,7 +183,7 @@ bool Interface::prepareImpl()
     return true;
 }
 
-bool Interface::writeImpl()
+bool Interface::writeImpl() const
 {
     return true;
 }

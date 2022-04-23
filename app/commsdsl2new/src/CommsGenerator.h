@@ -90,7 +90,7 @@ protected:
 private:
     bool prepareDefaultInterfaceInternal();
     bool prepareExtraMessageBundlesInternal();
-    bool commsWriteExtraFilesInternal();
+    bool commsWriteExtraFilesInternal() const;
     
     static const CustomizationLevel DefaultCustomizationLevel = CustomizationLevel::Limited;
     CustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    

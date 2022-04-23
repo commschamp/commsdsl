@@ -291,7 +291,7 @@ bool ToolsQtMessage::prepareImpl()
     return true;
 }
 
-bool ToolsQtMessage::writeImpl()
+bool ToolsQtMessage::writeImpl() const
 {
     if (!m_exists) {
         return true;
@@ -300,7 +300,7 @@ bool ToolsQtMessage::writeImpl()
     return toolsWriteHeaderInternal() && toolsWriteSrcInternal();
 }
 
-bool ToolsQtMessage::toolsWriteHeaderInternal()
+bool ToolsQtMessage::toolsWriteHeaderInternal() const
 {
     auto& gen = generator();
     auto filePath = gen.getOutputDir() + '/' + toolsRelPathInternal() + strings::cppHeaderSuffixStr();
@@ -346,7 +346,7 @@ bool ToolsQtMessage::toolsWriteHeaderInternal()
     return stream.good();
 }
 
-bool ToolsQtMessage::toolsWriteSrcInternal()
+bool ToolsQtMessage::toolsWriteSrcInternal() const
 {
     auto& gen = generator();
     auto filePath = gen.getOutputDir() + '/' + toolsRelPathInternal() + strings::cppSourceSuffixStr();

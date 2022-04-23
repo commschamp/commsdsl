@@ -140,14 +140,14 @@ bool CommsFrame::prepareImpl()
     return true;
 }
 
-bool CommsFrame::writeImpl()
+bool CommsFrame::writeImpl() const
 {
     return 
         commsWriteCommonInternal() &&
         commsWriteDefInternal();
 }
 
-bool CommsFrame::commsWriteCommonInternal()
+bool CommsFrame::commsWriteCommonInternal() const
 {
     if (!m_hasCommonCode) {
         return true;
@@ -206,7 +206,7 @@ bool CommsFrame::commsWriteCommonInternal()
     return stream.good();      
 }
 
-bool CommsFrame::commsWriteDefInternal()
+bool CommsFrame::commsWriteDefInternal() const
 {
     auto& gen = generator();
     auto filePath = comms::headerPathFor(*this, gen);

@@ -40,11 +40,11 @@ public:
 
 protected:
     virtual bool prepareImpl() override;
-    virtual bool writeImpl() override;    
+    virtual bool writeImpl() const override;    
 
 private:
-    bool toolsWriteHeaderInternal();
-    bool toolsWriteSrcInternal();
+    bool toolsWriteHeaderInternal() const;
+    bool toolsWriteSrcInternal() const;
     std::string toolsHeaderCodeInternal() const;
     std::string toolsSrcCodeInternal() const;
     const std::string& toolsNameInternal() const;

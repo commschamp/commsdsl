@@ -42,13 +42,13 @@ public:
 
 protected:
     virtual bool prepareImpl() override;
-    virtual bool writeImpl() override;
+    virtual bool writeImpl() const override;
 
 private:
     using LayerOptsFunc = std::string (CommsLayer::*)() const;
 
-    bool commsWriteCommonInternal();  
-    bool commsWriteDefInternal();  
+    bool commsWriteCommonInternal() const;  
+    bool commsWriteDefInternal() const;  
     std::string commsCommonIncludesInternal() const;
     std::string commsCommonBodyInternal() const;
     std::string commsDefIncludesInternal() const;

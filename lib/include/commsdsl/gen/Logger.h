@@ -35,21 +35,21 @@ public:
     Logger(const Logger&) = delete;
     virtual ~Logger();
 
-    void log(ErrorLevel level, const std::string& msg);
+    void log(ErrorLevel level, const std::string& msg) const;
 
-    void error(const std::string& msg);
-    void warning(const std::string& msg);
-    void info(const std::string& msg);
-    void debug(const std::string& msg);
+    void error(const std::string& msg) const;
+    void warning(const std::string& msg) const;
+    void info(const std::string& msg) const;
+    void debug(const std::string& msg) const;
     void setMinLevel(ErrorLevel level);
     void setWarnAsError();
     bool hadWarning() const;
 
 protected:
-    virtual void logImpl(ErrorLevel level, const std::string& msg);    
+    virtual void logImpl(ErrorLevel level, const std::string& msg) const;    
 
 private:
-    std::unique_ptr<LoggerImpl> m_impl;
+    mutable std::unique_ptr<LoggerImpl> m_impl;
 };
 
 } // namespace gen

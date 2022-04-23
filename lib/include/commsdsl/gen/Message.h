@@ -42,7 +42,7 @@ public:
     virtual ~Message();
 
     bool prepare();
-    bool write();
+    bool write() const;
 
     commsdsl::parse::Message dslObj() const;
 
@@ -54,7 +54,7 @@ public:
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();
-    virtual bool writeImpl();
+    virtual bool writeImpl() const;
 
 private:
     std::unique_ptr<MessageImpl> m_impl;

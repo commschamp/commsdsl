@@ -104,6 +104,7 @@ public:
     bool versionDependentCode() const;
 
     Logger& logger();
+    const Logger& logger() const;
 
     NamespacesList& namespaces();
     const NamespacesList& namespaces() const;
@@ -134,7 +135,7 @@ public:
     LayerPtr createPayloadLayer(commsdsl::parse::Layer dslObj, Elem* parent);
     LayerPtr createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* parent);
 
-    bool createDirectory(const std::string& path);
+    bool createDirectory(const std::string& path) const;
 
 protected:
     virtual bool prepareImpl();

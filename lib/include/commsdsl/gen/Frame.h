@@ -42,7 +42,7 @@ public:
     virtual ~Frame();
 
     bool prepare();
-    bool write();
+    bool write() const;
 
     commsdsl::parse::Frame dslObj() const;
     const LayersList& layers() const;
@@ -53,7 +53,7 @@ public:
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();
-    virtual bool writeImpl();
+    virtual bool writeImpl() const;
 
 private:
     std::unique_ptr<FrameImpl> m_impl;

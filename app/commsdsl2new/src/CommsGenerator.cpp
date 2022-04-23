@@ -261,7 +261,7 @@ CommsGenerator::LayerPtr CommsGenerator::createChecksumLayerImpl(commsdsl::parse
     return std::make_unique<commsdsl2new::CommsChecksumLayer>(*this, dslObj, parent);
 }
 
-bool CommsGenerator::writeImpl()
+bool CommsGenerator::writeImpl() 
 {
     return 
         CommsCmake::write(*this) &&
@@ -343,7 +343,7 @@ bool CommsGenerator::prepareExtraMessageBundlesInternal()
 }
 
 
-bool CommsGenerator::commsWriteExtraFilesInternal()
+bool CommsGenerator::commsWriteExtraFilesInternal() const
 {
     auto& inputDir = getCodeDir();
     if (inputDir.empty()) {

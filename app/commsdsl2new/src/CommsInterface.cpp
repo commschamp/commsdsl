@@ -126,14 +126,14 @@ bool CommsInterface::prepareImpl()
     return true;
 }
 
-bool CommsInterface::writeImpl()
+bool CommsInterface::writeImpl() const
 {
     return 
         commsWriteCommonInternal() &&
         commsWriteDefInternal();
 }
 
-bool CommsInterface::commsWriteCommonInternal()
+bool CommsInterface::commsWriteCommonInternal() const
 {
     if (m_commsFields.empty()) {
         return true;
@@ -190,7 +190,7 @@ bool CommsInterface::commsWriteCommonInternal()
     return stream.good();
 }
 
-bool CommsInterface::commsWriteDefInternal()
+bool CommsInterface::commsWriteDefInternal() const
 {
     auto& gen = generator();
     auto writeFunc = 

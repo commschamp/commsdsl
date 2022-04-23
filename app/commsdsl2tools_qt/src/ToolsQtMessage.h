@@ -40,7 +40,7 @@ public:
 
 protected:
     virtual bool prepareImpl() override;
-    virtual bool writeImpl() override;    
+    virtual bool writeImpl() const override;    
 
 private:
     enum CodeType : unsigned
@@ -51,8 +51,8 @@ private:
         CodeType_NumOfValues
     };
 
-    bool toolsWriteHeaderInternal();
-    bool toolsWriteSrcInternal();
+    bool toolsWriteHeaderInternal() const;
+    bool toolsWriteSrcInternal() const;
     std::string toolsRelPathInternal() const;
     IncludesList toolsHeaderIncludesInternal() const;
     IncludesList toolsHeaderIncludesMultipleInterfacesInternal() const;

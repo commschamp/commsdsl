@@ -88,14 +88,14 @@ bool CommsMessage::prepareImpl()
     return true;
 }
 
-bool CommsMessage::writeImpl()
+bool CommsMessage::writeImpl() const
 {
     return 
         commsWriteCommonInternal() &&
         commsWriteDefInternal();
 }
 
-bool CommsMessage::commsWriteCommonInternal() 
+bool CommsMessage::commsWriteCommonInternal() const
 {
     auto& gen = generator();
     auto filePath = comms::commonHeaderPathFor(*this, gen);
@@ -149,7 +149,7 @@ bool CommsMessage::commsWriteCommonInternal()
     return stream.good();
 }
 
-bool CommsMessage::commsWriteDefInternal()
+bool CommsMessage::commsWriteDefInternal() const
 {
     auto& gen = generator();
     auto writeFunc = 

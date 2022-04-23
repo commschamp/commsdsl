@@ -90,7 +90,7 @@ public:
             prepareFrames();
     }
 
-    bool write()
+    bool write() const
     {
         return
             writeElements(m_namespaces) &&
@@ -308,7 +308,7 @@ bool Namespace::prepare()
     return m_impl->prepare() && prepareImpl();
 }
 
-bool Namespace::write()
+bool Namespace::write() const
 {
     if (!m_impl->write()) {
         return false;
@@ -665,7 +665,7 @@ bool Namespace::prepareImpl()
     return true;
 }
 
-bool Namespace::writeImpl()
+bool Namespace::writeImpl() const
 {
     return true;
 }

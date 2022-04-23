@@ -88,7 +88,7 @@ bool ToolsQtFrame::prepareImpl()
     return true;
 }
 
-bool ToolsQtFrame::writeImpl()
+bool ToolsQtFrame::writeImpl() const
 {
     return 
         toolsWriteHeaderInternal() &&
@@ -96,7 +96,7 @@ bool ToolsQtFrame::writeImpl()
         toolsWriteTransportMsgSrcInternal();
 }
 
-bool ToolsQtFrame::toolsWriteHeaderInternal()
+bool ToolsQtFrame::toolsWriteHeaderInternal() const
 {
     auto& gen = generator();
     auto filePath = gen.getOutputDir() + '/' + toolsHeaderFilePath();
@@ -164,7 +164,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal()
     return stream.good();
 }
 
-bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal()
+bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
 {
     auto& gen = generator();
     auto filePath = gen.getOutputDir() + '/' + toolsTransportMessageHeaderFilePathInternal();
@@ -284,7 +284,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal()
     return stream.good();
 }
 
-bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal()
+bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
 {
     auto& gen = generator();
     auto filePath = gen.getOutputDir() + '/' + toolsTransportMessageSrcFilePathInternal();

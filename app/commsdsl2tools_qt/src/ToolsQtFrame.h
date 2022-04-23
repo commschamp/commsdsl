@@ -38,12 +38,12 @@ public:
 
 protected:
     virtual bool prepareImpl() override;
-    virtual bool writeImpl() override;    
+    virtual bool writeImpl() const override;    
 
 private:
-    bool toolsWriteHeaderInternal();
-    bool toolsWriteTransportMsgHeaderInternal();
-    bool toolsWriteTransportMsgSrcInternal();
+    bool toolsWriteHeaderInternal() const;
+    bool toolsWriteTransportMsgHeaderInternal() const;
+    bool toolsWriteTransportMsgSrcInternal() const;
     std::string toolsTransportMessageHeaderFilePathInternal() const;
     std::string toolsTransportMessageSrcFilePathInternal() const;
     unsigned toolsCalcBackPayloadOffsetInternal() const;

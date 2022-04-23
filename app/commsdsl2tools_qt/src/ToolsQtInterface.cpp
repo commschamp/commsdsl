@@ -106,12 +106,12 @@ bool ToolsQtInterface::prepareImpl()
     return true;
 }
 
-bool ToolsQtInterface::writeImpl()
+bool ToolsQtInterface::writeImpl() const
 {
     return toolsWriteHeaderInternal() && toolsWriteSrcInternal();
 }
 
-bool ToolsQtInterface::toolsWriteHeaderInternal()
+bool ToolsQtInterface::toolsWriteHeaderInternal() const
 {
     auto& gen = generator();
     auto filePath = gen.getOutputDir() + '/' + comms::className(toolsNameInternal()) + strings::cppHeaderSuffixStr();
@@ -155,7 +155,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal()
     return stream.good();
 }
 
-bool ToolsQtInterface::toolsWriteSrcInternal()
+bool ToolsQtInterface::toolsWriteSrcInternal() const
 {
     auto& gen = generator();
     auto filePath = gen.getOutputDir() + '/' + comms::className(toolsNameInternal()) + strings::cppSourceSuffixStr();

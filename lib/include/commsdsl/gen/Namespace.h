@@ -54,7 +54,7 @@ public:
 
     bool createAll();
     bool prepare();
-    bool write();
+    bool write() const;
 
     commsdsl::parse::Namespace dslObj() const;
 
@@ -83,7 +83,7 @@ public:
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();
-    virtual bool writeImpl();
+    virtual bool writeImpl() const;
 
 private:
     std::unique_ptr<NamespaceImpl> m_impl;

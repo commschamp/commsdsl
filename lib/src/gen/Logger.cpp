@@ -96,7 +96,7 @@ Logger::Logger() :
 
 Logger::~Logger() = default;
 
-void Logger::log(commsdsl::parse::ErrorLevel level, const std::string& msg)
+void Logger::log(commsdsl::parse::ErrorLevel level, const std::string& msg) const
 {
     if (level < m_impl->getMinLevel()) {
         return;
@@ -109,22 +109,22 @@ void Logger::log(commsdsl::parse::ErrorLevel level, const std::string& msg)
     logImpl(level, msg);
 }
 
-void Logger::error(const std::string& msg)
+void Logger::error(const std::string& msg) const
 {
     log(commsdsl::parse::ErrorLevel_Error, msg);
 }
 
-void Logger::warning(const std::string& msg)
+void Logger::warning(const std::string& msg) const
 {
     log(commsdsl::parse::ErrorLevel_Warning, msg);
 }
 
-void Logger::info(const std::string& msg)
+void Logger::info(const std::string& msg) const
 {
     log(commsdsl::parse::ErrorLevel_Info, msg);
 }
 
-void Logger::debug(const std::string& msg)
+void Logger::debug(const std::string& msg) const
 {
     log(commsdsl::parse::ErrorLevel_Debug, msg);
 }
@@ -144,7 +144,7 @@ bool Logger::hadWarning() const
     return m_impl->getHadWarning();
 }
 
-void Logger::logImpl(commsdsl::parse::ErrorLevel level, const std::string& msg)
+void Logger::logImpl(commsdsl::parse::ErrorLevel level, const std::string& msg) const
 {
     m_impl->log(level, msg);
 }

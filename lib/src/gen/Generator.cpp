@@ -76,6 +76,11 @@ public:
         return m_logger;
     }
 
+    const LoggerPtr& getLogger() const
+    {
+        return m_logger;
+    }    
+
     void setLogger(LoggerPtr logger)
     {
         m_logger = std::move(logger);
@@ -460,7 +465,7 @@ public:
         return iter != m_createdDirectories.end();
     }
 
-    void recordCreatedDirectory(const std::string& path)
+    void recordCreatedDirectory(const std::string& path) const
     {
         m_createdDirectories.push_back(path);
     }
@@ -529,7 +534,7 @@ private:
     std::string m_outputDir;
     std::string m_codeDir;
     const Field* m_messageIdField = nullptr;
-    std::vector<std::string> m_createdDirectories;
+    mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
     bool m_versionDependentCode = false;
 }; 
@@ -806,6 +811,13 @@ Logger& Generator::logger()
     return logger;    
 }
 
+const Logger& Generator::logger() const
+{
+    auto& loggerPtr = m_impl->getLogger();
+    assert(loggerPtr);
+    return *loggerPtr;
+}
+
 Generator::NamespacesList& Generator::namespaces()
 {
     return m_impl->namespaces();
@@ -950,7 +962,7 @@ LayerPtr Generator::createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* par
     return createChecksumLayerImpl(dslObj, parent);
 }
 
-bool Generator::createDirectory(const std::string& path)
+bool Generator::createDirectory(const std::string& path) const
 {
     if (m_impl->wasDirectoryCreated(path)) {
         return true;
