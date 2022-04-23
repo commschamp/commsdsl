@@ -34,10 +34,10 @@ namespace commsdsl2new
 bool CommsFieldBase::write(CommsGenerator& generator)
 {
     CommsFieldBase obj(generator);
-    return obj.writeInternal();
+    return obj.commsWriteInternal();
 }
 
-bool CommsFieldBase::writeInternal() const
+bool CommsFieldBase::commsWriteInternal() const
 {
     auto filePath = comms::headerPathForField(strings::fieldBaseClassStr(), m_generator);
 

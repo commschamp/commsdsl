@@ -39,13 +39,13 @@ private:
 
     explicit CommsDispatch(CommsGenerator& generator) : m_generator(generator) {}
 
-    bool writeInternal() const;
+    bool commsWriteInternal() const;
 
-    bool writeDispatchInternal() const;
-    bool writeClientDispatchInternal() const;
-    bool writeServerDispatchInternal() const;
-    bool writePlatformDispatchInternal() const;
-    bool writeExtraDispatchInternal() const;
+    bool commsWriteDispatchInternal() const;
+    bool commsWriteClientDispatchInternal() const;
+    bool commsWriteServerDispatchInternal() const;
+    bool commsWritePlatformDispatchInternal() const;
+    bool commsWriteExtraDispatchInternal() const;
 
     std::string commsIncludesInternal(const std::string& inputPrefix) const;
     std::string commsDispatchCodeInternal(const std::string& name, CheckMsgFunc&& func) const;

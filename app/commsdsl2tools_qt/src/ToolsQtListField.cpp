@@ -77,7 +77,7 @@ ToolsQtListField::IncludesList ToolsQtListField::toolsExtraSrcIncludesImpl() con
     addIncludes(m_toolsExternalElementField);
 
     if (m_toolsExternalElementField != nullptr) {
-        result.push_back(m_toolsExternalElementField->relDeclHeaderFile());
+        result.push_back(m_toolsExternalElementField->toolsRelDeclHeaderFile());
     }
 
     return result;

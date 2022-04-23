@@ -51,7 +51,7 @@ bool CommsDataField::prepareImpl()
         m_commsExternalPrefixField = dynamic_cast<CommsField*>(externalPrefix);
         assert((m_commsExternalPrefixField != nullptr) || (externalPrefix == nullptr)); // Make sure dynamic cast is successful
         if (m_commsExternalPrefixField != nullptr) {
-            m_commsExternalPrefixField->setReferenced();
+            m_commsExternalPrefixField->commsSetReferenced();
         }
 
         auto* memberPrefix = memberPrefixField();
@@ -326,11 +326,6 @@ std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
 bool CommsDataField::commsIsLimitedCustomizableImpl() const
 {
     return true;
-}
-
-bool CommsDataField::commsDoesRequireGeneratedReadRefreshImpl() const
-{
-    return !dataDslObj().detachedPrefixFieldName().empty();
 }
 
 std::string CommsDataField::commsCompareToValueCodeImpl(

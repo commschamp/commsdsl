@@ -27,7 +27,7 @@ public:
 private:
     explicit ToolsQtCmake(ToolsQtGenerator& generator) : m_generator(generator) {}
 
-    bool writeInternal() const;
+    bool testWriteInternal() const;
     
 private:
     ToolsQtGenerator& m_generator;

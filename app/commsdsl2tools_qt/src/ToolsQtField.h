@@ -60,8 +60,8 @@ public:
     std::string toolsDefMembers() const;
     std::string toolsCommsScope() const;
 
-    std::string relDeclHeaderFile() const;
-    std::string relDefSrcFile() const;
+    std::string toolsRelDeclHeaderFile() const;
+    std::string toolsRelDefSrcFile() const;
 
     StringsList toolsSourceFiles() const;    
 

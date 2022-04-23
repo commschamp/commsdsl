@@ -29,10 +29,10 @@ public:
 private:
     explicit ToolsQtInputMessages(ToolsQtGenerator& generator) : m_generator(generator) {}
 
-    bool writeInternal() const;
-    bool writeAllMessagesInternal() const;
-    bool writePlatformInputMessagesInternal() const;
-    // bool writeExtraInputMessagesInternal() const;
+    bool testWriteInternal() const;
+    bool toolsWriteAllMessagesInternal() const;
+    bool toolsWritePlatformInputMessagesInternal() const;
+    // bool toolsWriteExtraInputMessagesInternal() const;
 
     ToolsQtGenerator& m_generator;
 };

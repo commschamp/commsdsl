@@ -50,7 +50,7 @@ bool CommsOptionalField::prepareImpl()
     }
 
     if (m_commsExternalField != nullptr) {
-        m_commsExternalField->setReferenced();
+        m_commsExternalField->commsSetReferenced();
     }
     return result;
 }

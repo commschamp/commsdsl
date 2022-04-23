@@ -48,7 +48,7 @@ bool CommsLayer::commsPrepare()
     assert((m_commsMemberField != nullptr) || (m_layer.memberField() == nullptr));
 
     if (m_commsExternalField != nullptr) {
-        m_commsExternalField->setReferenced();
+        m_commsExternalField->commsSetReferenced();
     }
     return true;
 }

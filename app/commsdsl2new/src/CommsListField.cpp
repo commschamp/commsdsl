@@ -54,7 +54,7 @@ bool CommsListField::prepareImpl()
 
                 auto commsField = dynamic_cast<CommsField*>(field);
                 assert(commsField != nullptr);
-                commsField->setReferenced();
+                commsField->commsSetReferenced();
                 return commsField;
             };
 
@@ -457,15 +457,6 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
 bool CommsListField::commsIsLimitedCustomizableImpl() const
 {
     return true;
-}
-
-bool CommsListField::commsDoesRequireGeneratedReadRefreshImpl() const
-{
-    auto obj = listDslObj();
-    return 
-        (!obj.detachedCountPrefixFieldName().empty()) ||
-        (!obj.detachedLengthPrefixFieldName().empty()) ||
-        (!obj.detachedElemLengthPrefixFieldName().empty());
 }
 
 bool CommsListField::commsIsVersionDependentImpl() const

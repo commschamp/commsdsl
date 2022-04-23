@@ -40,10 +40,10 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 bool ToolsQtCmake::write(ToolsQtGenerator& generator)
 {
     ToolsQtCmake obj(generator);
-    return obj.writeInternal();
+    return obj.testWriteInternal();
 }
 
-bool ToolsQtCmake::writeInternal() const
+bool ToolsQtCmake::testWriteInternal() const
 {
     static_cast<void>(m_generator);
     auto filePath = 

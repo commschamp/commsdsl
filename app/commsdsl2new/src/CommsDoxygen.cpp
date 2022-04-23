@@ -75,10 +75,10 @@ bool writeFileInternal(const std::string& name, const std::string& str, CommsGen
 bool CommsDoxygen::write(CommsGenerator& generator)
 {
     CommsDoxygen obj(generator);
-    return obj.writeInternal();
+    return obj.commsWriteInternal();
 }
 
-bool CommsDoxygen::writeInternal() const
+bool CommsDoxygen::commsWriteInternal() const
 {
     return 
         commsWriteConfInternal() &&

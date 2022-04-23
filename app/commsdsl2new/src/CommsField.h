@@ -78,14 +78,9 @@ public:
         m_forcedPseudo = true;
     }
 
-    void setReferenced()
+    void commsSetReferenced()
     {
         m_referenced = true;
-    }
-
-    bool doesRequireGeneratedReadRefresh() const
-    {
-        return commsDoesRequireGeneratedReadRefreshImpl();
     }
 
     const commsdsl::gen::Field& field() const
@@ -121,7 +116,6 @@ protected:
     virtual std::string commsDefLengthFuncBodyImpl() const;
     virtual std::string commsDefValidFuncBodyImpl() const;
     virtual bool commsIsLimitedCustomizableImpl() const;
-    virtual bool commsDoesRequireGeneratedReadRefreshImpl() const;
     virtual bool commsIsVersionDependentImpl() const;
     virtual bool commsDefHasNameFuncImpl() const;
     virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const;  

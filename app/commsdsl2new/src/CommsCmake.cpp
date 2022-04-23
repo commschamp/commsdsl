@@ -40,10 +40,10 @@ using ReplacementMap = util::ReplacementMap;
 bool CommsCmake::write(CommsGenerator& generator)
 {
     CommsCmake obj(generator);
-    return obj.writeInternal();
+    return obj.commsWriteInternal();
 }
 
-bool CommsCmake::writeInternal() const
+bool CommsCmake::commsWriteInternal() const
 {
     static_cast<void>(m_generator);
     auto filePath = 

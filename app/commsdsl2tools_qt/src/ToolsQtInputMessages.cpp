@@ -126,18 +126,18 @@ bool writeFileInternal(
 bool ToolsQtInputMessages::write(ToolsQtGenerator& generator)
 {
     ToolsQtInputMessages obj(generator);
-    return obj.writeInternal();
+    return obj.testWriteInternal();
 }
 
-bool ToolsQtInputMessages::writeInternal() const
+bool ToolsQtInputMessages::testWriteInternal() const
 {
     return
-        writeAllMessagesInternal() &&
-        writePlatformInputMessagesInternal() /* &&
-        writeExtraInputMessagesInternal() */;
+        toolsWriteAllMessagesInternal() &&
+        toolsWritePlatformInputMessagesInternal() /* &&
+        toolsWriteExtraInputMessagesInternal() */;
 }
 
-bool ToolsQtInputMessages::writeAllMessagesInternal() const
+bool ToolsQtInputMessages::toolsWriteAllMessagesInternal() const
 {
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg) noexcept
@@ -153,7 +153,7 @@ bool ToolsQtInputMessages::writeAllMessagesInternal() const
             checkFunc);
 }
 
-bool ToolsQtInputMessages::writePlatformInputMessagesInternal() const
+bool ToolsQtInputMessages::toolsWritePlatformInputMessagesInternal() const
 {
     auto& platforms = m_generator.platformNames();
     for (auto& p : platforms) {
@@ -182,7 +182,7 @@ bool ToolsQtInputMessages::writePlatformInputMessagesInternal() const
     return true;
 }
 
-// bool ToolsQtInputMessages::writeExtraInputMessagesInternal() const
+// bool ToolsQtInputMessages::toolsWriteExtraInputMessagesInternal() const
 // {
 //     auto& extraBundles = m_generator.extraMessageBundles();
 //     for (auto& b : extraBundles) {

@@ -58,7 +58,7 @@ ToolsQtRefField::IncludesList ToolsQtRefField::toolsExtraSrcIncludesImpl() const
 {
     assert(m_toolsReferenceField != nullptr);
     return IncludesList{
-        m_toolsReferenceField->relDeclHeaderFile()
+        m_toolsReferenceField->toolsRelDeclHeaderFile()
     };
 }
 

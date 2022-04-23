@@ -405,11 +405,6 @@ bool CommsField::commsIsLimitedCustomizableImpl() const
     return false;
 }
 
-bool CommsField::commsDoesRequireGeneratedReadRefreshImpl() const
-{
-    return false;
-}
-
 bool CommsField::commsIsVersionDependentImpl() const
 {
     return false;

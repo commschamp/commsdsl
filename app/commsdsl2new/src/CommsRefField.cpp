@@ -46,7 +46,7 @@ bool CommsRefField::prepareImpl()
         auto* refField = referencedField();
         m_commsReferencedField = dynamic_cast<CommsField*>(refField);
         assert(m_commsReferencedField != nullptr);
-        m_commsReferencedField->setReferenced();
+        m_commsReferencedField->commsSetReferenced();
     }
     return result;
 }

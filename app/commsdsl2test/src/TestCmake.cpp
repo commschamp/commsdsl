@@ -38,10 +38,10 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 bool TestCmake::write(TestGenerator& generator)
 {
     TestCmake obj(generator);
-    return obj.writeInternal();
+    return obj.testWriteInternal();
 }
 
-bool TestCmake::writeInternal() const
+bool TestCmake::testWriteInternal() const
 {
     static_cast<void>(m_generator);
     auto filePath = 

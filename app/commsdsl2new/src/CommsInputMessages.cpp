@@ -128,20 +128,20 @@ bool writeFileInternal(
 bool CommsInputMessages::write(CommsGenerator& generator)
 {
     CommsInputMessages obj(generator);
-    return obj.writeInternal();
+    return obj.commsWriteInternal();
 }
 
-bool CommsInputMessages::writeInternal() const
+bool CommsInputMessages::commsWriteInternal() const
 {
     return
-        writeAllMessagesInternal() &&
-        writeClientInputMessagesInternal() &&
-        writeServerInputMessagesInternal() &&
-        writePlatformInputMessagesInternal() &&
-        writeExtraInputMessagesInternal();
+        commsWriteAllMessagesInternal() &&
+        commsWriteClientInputMessagesInternal() &&
+        commsWriteServerInputMessagesInternal() &&
+        commsWritePlatformInputMessagesInternal() &&
+        commsWriteExtraInputMessagesInternal();
 }
 
-bool CommsInputMessages::writeAllMessagesInternal() const
+bool CommsInputMessages::commsWriteAllMessagesInternal() const
 {
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg) noexcept
@@ -158,7 +158,7 @@ bool CommsInputMessages::writeAllMessagesInternal() const
 }
 
 
-bool CommsInputMessages::writeClientInputMessagesInternal() const
+bool CommsInputMessages::commsWriteClientInputMessagesInternal() const
 {
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg)
@@ -173,7 +173,7 @@ bool CommsInputMessages::writeClientInputMessagesInternal() const
             checkFunc);
 }
 
-bool CommsInputMessages::writeServerInputMessagesInternal() const
+bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
 {
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg)
@@ -188,7 +188,7 @@ bool CommsInputMessages::writeServerInputMessagesInternal() const
             checkFunc);
 }
 
-bool CommsInputMessages::writePlatformInputMessagesInternal() const
+bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
 {
     auto& platforms = m_generator.platformNames();
     for (auto& p : platforms) {
@@ -242,7 +242,7 @@ bool CommsInputMessages::writePlatformInputMessagesInternal() const
     return true;
 }
 
-bool CommsInputMessages::writeExtraInputMessagesInternal() const
+bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
 {
     auto& extraBundles = m_generator.extraMessageBundles();
     for (auto& b : extraBundles) {

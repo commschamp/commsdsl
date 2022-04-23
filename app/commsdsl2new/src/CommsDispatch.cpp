@@ -302,20 +302,20 @@ const std::string& multipleMessagesPerIdTempl()
 bool CommsDispatch::write(CommsGenerator& generator)
 {
     CommsDispatch obj(generator);
-    return obj.writeInternal();
+    return obj.commsWriteInternal();
 }
 
-bool CommsDispatch::writeInternal() const
+bool CommsDispatch::commsWriteInternal() const
 {
     return
-        writeDispatchInternal() &&
-        writeClientDispatchInternal() &&
-        writeServerDispatchInternal() &&
-        writePlatformDispatchInternal() &&
-        writeExtraDispatchInternal();
+        commsWriteDispatchInternal() &&
+        commsWriteClientDispatchInternal() &&
+        commsWriteServerDispatchInternal() &&
+        commsWritePlatformDispatchInternal() &&
+        commsWriteExtraDispatchInternal();
 }
 
-bool CommsDispatch::writeDispatchInternal() const
+bool CommsDispatch::commsWriteDispatchInternal() const
 {
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg) noexcept
@@ -334,7 +334,7 @@ bool CommsDispatch::writeDispatchInternal() const
     return writeFileInternal(getFileName(), m_generator, util::processTemplate(dispatchTempl(), repl));
 }
 
-bool CommsDispatch::writeClientDispatchInternal() const
+bool CommsDispatch::commsWriteClientDispatchInternal() const
 {
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg) noexcept
@@ -353,7 +353,7 @@ bool CommsDispatch::writeClientDispatchInternal() const
     return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl));
 }
 
-bool CommsDispatch::writeServerDispatchInternal() const
+bool CommsDispatch::commsWriteServerDispatchInternal() const
 {
     auto checkFunc = 
         [](const commsdsl::gen::Message& msg) noexcept
@@ -372,7 +372,7 @@ bool CommsDispatch::writeServerDispatchInternal() const
     return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl));
 }
 
-bool CommsDispatch::writePlatformDispatchInternal() const
+bool CommsDispatch::commsWritePlatformDispatchInternal() const
 {
     auto& platforms = m_generator.platformNames();
     for (auto& p : platforms) {
@@ -475,7 +475,7 @@ bool CommsDispatch::writePlatformDispatchInternal() const
     return true;
 }
 
-bool CommsDispatch::writeExtraDispatchInternal() const
+bool CommsDispatch::commsWriteExtraDispatchInternal() const
 {
     auto& extraBundles = m_generator.extraMessageBundles();
     for (auto& b : extraBundles) {

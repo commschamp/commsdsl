@@ -233,12 +233,12 @@ std::string ToolsQtField::toolsCommsScope() const
     return scope;
 }
 
-std::string ToolsQtField::relDeclHeaderFile() const
+std::string ToolsQtField::toolsRelDeclHeaderFile() const
 {
     return toolsRelPathInternal() + strings::cppHeaderSuffixStr();
 }
 
-std::string ToolsQtField::relDefSrcFile() const
+std::string ToolsQtField::toolsRelDefSrcFile() const
 {
     return toolsRelPathInternal() + strings::cppSourceSuffixStr();
 }
@@ -249,7 +249,7 @@ ToolsQtField::StringsList ToolsQtField::toolsSourceFiles() const
         return StringsList{};
     }
     
-    return StringsList{relDefSrcFile()};
+    return StringsList{toolsRelDefSrcFile()};
 }
 
 ToolsQtField::IncludesList ToolsQtField::toolsExtraSrcIncludesImpl() const
@@ -325,7 +325,7 @@ std::string ToolsQtField::toolsDefMembersImpl() const
 bool ToolsQtField::toolsWriteHeaderInternal() const
 {
     auto& generator = m_field.generator();
-    auto filePath = m_field.generator().getOutputDir() + '/' + relDeclHeaderFile();
+    auto filePath = m_field.generator().getOutputDir() + '/' + toolsRelDeclHeaderFile();
 
     auto& logger = generator.logger();
     logger.info("Generating " + filePath);
@@ -371,7 +371,7 @@ bool ToolsQtField::toolsWriteHeaderInternal() const
 bool ToolsQtField::toolsWriteSrcInternal() const
 {
     auto& generator = m_field.generator();
-    auto filePath = m_field.generator().getOutputDir() + '/' + relDefSrcFile();
+    auto filePath = m_field.generator().getOutputDir() + '/' + toolsRelDefSrcFile();
 
     auto& logger = generator.logger();
     logger.info("Generating " + filePath);

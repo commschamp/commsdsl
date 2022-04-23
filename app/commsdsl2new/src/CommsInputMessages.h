@@ -29,12 +29,12 @@ public:
 private:
     explicit CommsInputMessages(CommsGenerator& generator) : m_generator(generator) {}
 
-    bool writeInternal() const;
-    bool writeAllMessagesInternal() const;
-    bool writeClientInputMessagesInternal() const;
-    bool writeServerInputMessagesInternal() const;
-    bool writePlatformInputMessagesInternal() const;
-    bool writeExtraInputMessagesInternal() const;
+    bool commsWriteInternal() const;
+    bool commsWriteAllMessagesInternal() const;
+    bool commsWriteClientInputMessagesInternal() const;
+    bool commsWriteServerInputMessagesInternal() const;
+    bool commsWritePlatformInputMessagesInternal() const;
+    bool commsWriteExtraInputMessagesInternal() const;
 
     CommsGenerator& m_generator;
 };

@@ -29,12 +29,12 @@ public:
 private:
     explicit CommsDefaultOptions(CommsGenerator& generator) : m_generator(generator) {}
 
-    bool writeInternal() const;
-    bool writeDefaultOptionsInternal() const;
-    bool writeClientDefaultOptionsInternal() const;
-    bool writeServerDefaultOptionsInternal() const;
-    bool writeDataViewDefaultOptionsInternal() const;
-    bool writeBareMetalDefaultOptionsInternal() const;
+    bool commsWriteInternal() const;
+    bool commsWriteDefaultOptionsInternal() const;
+    bool commsWriteClientDefaultOptionsInternal() const;
+    bool commsWriteServerDefaultOptionsInternal() const;
+    bool commsWriteDataViewDefaultOptionsInternal() const;
+    bool commsWriteBareMetalDefaultOptionsInternal() const;
 
     CommsGenerator& m_generator;
 };

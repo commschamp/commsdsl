@@ -69,7 +69,7 @@ ToolsQtOptionalField::IncludesList ToolsQtOptionalField::toolsExtraSrcIncludesIm
             }
 
             if (comms::isGlobalField(f->field())) {
-                result.push_back(f->relDeclHeaderFile());
+                result.push_back(f->toolsRelDeclHeaderFile());
             }
 
             auto incs = f->toolsSrcIncludes();

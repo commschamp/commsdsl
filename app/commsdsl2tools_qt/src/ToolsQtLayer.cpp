@@ -60,7 +60,7 @@ ToolsQtLayer::IncludesList ToolsQtLayer::toolsSrcIncludes() const
             }
 
             if (comms::isGlobalField(f->field())) {
-                result.push_back(f->relDeclHeaderFile());
+                result.push_back(f->toolsRelDeclHeaderFile());
             }
             auto incs = f->toolsSrcIncludes();
             result.reserve(result.size() + incs.size());

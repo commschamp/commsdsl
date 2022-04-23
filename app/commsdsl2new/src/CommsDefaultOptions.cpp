@@ -124,20 +124,20 @@ util::ReplacementMap extInitialRepl(CommsGenerator& generator)
 bool CommsDefaultOptions::write(CommsGenerator& generator)
 {
     CommsDefaultOptions obj(generator);
-    return obj.writeInternal();
+    return obj.commsWriteInternal();
 }
 
-bool CommsDefaultOptions::writeInternal() const
+bool CommsDefaultOptions::commsWriteInternal() const
 {
     return
-        writeDefaultOptionsInternal() &&
-        writeClientDefaultOptionsInternal() &&
-        writeServerDefaultOptionsInternal() &&
-        writeDataViewDefaultOptionsInternal() &&
-        writeBareMetalDefaultOptionsInternal();
+        commsWriteDefaultOptionsInternal() &&
+        commsWriteClientDefaultOptionsInternal() &&
+        commsWriteServerDefaultOptionsInternal() &&
+        commsWriteDataViewDefaultOptionsInternal() &&
+        commsWriteBareMetalDefaultOptionsInternal();
 }
 
-bool CommsDefaultOptions::writeDefaultOptionsInternal() const
+bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
 {
     static const std::string Templ = 
         "#^#GENERATED#$#\n"
@@ -177,7 +177,7 @@ bool CommsDefaultOptions::writeDefaultOptionsInternal() const
     return true;
 }
 
-bool CommsDefaultOptions::writeClientDefaultOptionsInternal() const
+bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
     auto name = "Client" + strings::defaultOptionsClassStr();
@@ -197,7 +197,7 @@ bool CommsDefaultOptions::writeClientDefaultOptionsInternal() const
     return true;
 }
 
-bool CommsDefaultOptions::writeServerDefaultOptionsInternal() const
+bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
     auto name = "Server" + strings::defaultOptionsClassStr();
@@ -217,7 +217,7 @@ bool CommsDefaultOptions::writeServerDefaultOptionsInternal() const
     return true;
 }
 
-bool CommsDefaultOptions::writeDataViewDefaultOptionsInternal() const
+bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
 {
     util::ReplacementMap repl = extInitialRepl(m_generator);
     auto name = strings::dataViewStr() + strings::defaultOptionsClassStr();
@@ -237,7 +237,7 @@ bool CommsDefaultOptions::writeDataViewDefaultOptionsInternal() const
     return true;
 }
 
-bool CommsDefaultOptions::writeBareMetalDefaultOptionsInternal() const
+bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
 {
     std::string extra = 
         "#ifndef DEFAULT_SEQ_FIXED_STORAGE_SIZE\n"

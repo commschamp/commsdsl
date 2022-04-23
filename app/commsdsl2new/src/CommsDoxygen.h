@@ -29,7 +29,7 @@ public:
 private:
     explicit CommsDoxygen(CommsGenerator& generator) : m_generator(generator) {}
 
-    bool writeInternal() const;
+    bool commsWriteInternal() const;
 
     bool commsWriteConfInternal() const;
     bool commsWriteLayoutInternal() const;
