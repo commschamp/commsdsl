@@ -95,11 +95,7 @@ $> make doc_demo1
 When built and installed the project exports and installs the cmake target definition of the protocol library in `<install_dir>/lib/<protocol_name>/<protocol_name>Config.cmake` file, that can be imported in some other project that uses CMake as its build system.
 ```
 list (APPEND CMAKE_PREFIX_PATH "/path/to/protocol/install/dir")
-find_package (demo1 NO_MODULE)
-if (NOT TARGET cc::demo1)
-    message (FATAL_ERROR "demo1 protocol definition hasn't been found)
-endif ()
-...
+find_package (demo1 REQUIRED NO_MODULE)
 target_link_libraries (my_proj cc::demo1)
 ```
 Note, that **cc::** is a default namespace for exported project. It is possible to change it using **OPT_CMAKE_EXPORT_NAMESPACE** cmake variable described earlier. 
