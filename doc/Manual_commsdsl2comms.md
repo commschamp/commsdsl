@@ -1,10 +1,10 @@
-# Manual of **commsdsl2new**
+# Manual of **commsdsl2comms**
 
 ## How to Run
-The **commsdsl2new** utility uses **libcommsdsl** shared library to parse the
+The **commsdsl2comms** utility uses **libcommsdsl** shared library to parse the
 XML schema files. On Windows system the shared library is installed in the same
-directory with **commsdsl2new.exe** binary. As the result when executing## Overview
-The **commsdsl2new** utility generates a full CMake project. Since **v1.4**
+directory with **commsdsl2comms.exe** binary. As the result when executing## Overview
+The **commsdsl2comms** utility generates a full CMake project. Since **v1.4**
 it also generates test application which can be used to test the
 generated protocol code. Fuzz testing with [AFL](http://lcamtuf.coredump.cx/afl/) is 
 also supported. 
@@ -19,10 +19,10 @@ to understand how to fuzz test the generated protocol definition code.
 The **commsds2comms** utility has multiple command line arguments, please
 use `-h` option for the full list as well as default option values. 
 Note, that all the examples below will 
-be for Linux systems (using **commsdsl2new.sh** script). On Windows system
-just use **commsdsl2new.exe** binary directly.
+be for Linux systems (using **commsdsl2comms.sh** script). On Windows system
+just use **commsdsl2comms.exe** binary directly.
 ```
-$> /path/to/commsdsl2new.sh -h
+$> /path/to/commsdsl2comms.sh -h
 ```
 Below is a summary of most important ones.
 
@@ -30,7 +30,7 @@ Below is a summary of most important ones.
 In case there are only few schema files, it is possible to pass them 
 at the end of the arguments list.
 ```
-$> /path/to/commsdsl2new.sh schema1.xml schema2.xml schema3.xml ...
+$> /path/to/commsdsl2comms.sh schema1.xml schema2.xml schema3.xml ...
 ```
 The schema files will be processed **in order** of their listing.
 
@@ -38,29 +38,29 @@ In case there are lots of schema files (for example every message
 is defined in separate schema file), it is recommended to create a separate
 text file with list of all schema files and use `-i` option.
 ```
-$> /path/to/commsdsl2new.sh -i schemas_list.txt
+$> /path/to/commsdsl2comms.sh -i schemas_list.txt
 ```
 The schemas in the list file may use use *absolute* or *relative* path. In case
 of the latter please also provide absolute path prefix using `-p` option. The
 prefix will be prepended to every relative path inside the list file to locate
 the schema file.
 ```
-$> /path/to/commsdsl2new.sh -i schemas_list.txt -p /path/to/schemas/dir
+$> /path/to/commsdsl2comms.sh -i schemas_list.txt -p /path/to/schemas/dir
 ```
 
 ### Output Directory
 By default the output CMake project is written to the current directory. It
 is possible to change that using `-o` option.
 ```
-$> /path/to/commsdsl2new.sh -o /some/output/dir schema.xml
+$> /path/to/commsdsl2comms.sh -o /some/output/dir schema.xml
 ```
 
 ### Injecting Custom Code
-The **commsdsl2new** utility allows injection of custom C++ code into the
+The **commsdsl2comms** utility allows injection of custom C++ code into the
 generated one in case the default code is incorrect and/or incomplete. For this
 purpose `-c` option with path to directory containing custom code snippets is used.
 ```
-$> /path/to/commsdsl2new.sh -c /path/to/custom/code/snippets schema.xml
+$> /path/to/commsdsl2comms.sh -c /path/to/custom/code/snippets schema.xml
 ```
 Please read [Custom Code](#custom-code) section below for more details on
 how to format and where to place the custom code.
@@ -70,18 +70,18 @@ By default the protocol name defined in the schema file(s) is used as the
 main namespace for the generated code. It is possible to change it using
 `-n` option.
 ```
-$> /path/to/commsdsl2new.sh -n other_ns_name schema.xml
+$> /path/to/commsdsl2comms.sh -n other_ns_name schema.xml
 ```
 
 ### Selecting Protocol Version
 The schema file(s) is expected to specify protocol numeric version. By default
 the generated code will be for the latest version including all the fields that
 were introduced at some stage and omitting all the deprecated and removed 
-ones. However, the **commsdsl2new**
+ones. However, the **commsdsl2comms**
 utility allows generation of the code for any version of the protocol by using
 `--force-schema-version` option. 
 ```
-$> /path/to/commsdsl2new.sh --force-schema-version 2 schema.xml
+$> /path/to/commsdsl2comms.sh --force-schema-version 2 schema.xml
 ```
 
 ### Selecting Minimal Remote Version
@@ -92,13 +92,13 @@ introduced at later stage will be *optional* ones that can exist or be missing.
 If it is known for sure that the other side of communication won't use some early 
 versions, it is possible to generate more efficient code by passing `-m` option.
 ```
-$> /path/to/commsdsl2new.sh -m 5 schema.xml
+$> /path/to/commsdsl2comms.sh -m 5 schema.xml
 ```
 In the example above, all the fields that were introduced before or in version **5**,
 will be *regular* ones (instead of *optional*).
 
 ### Customization Level
-The code generated by the **commsdsl2new** utility can allow extra
+The code generated by the **commsdsl2comms** utility can allow extra
 compile time customizations (such as choosing custom storage type and/or
 having extra functionality). There are 3 levels of available customizations:
 - **full** - All fields and messages are going to be customizable.
@@ -113,22 +113,22 @@ order to reduce (re)compilation times of the target project.
 
 The customization level can be selected using `--customization` option.
 ```
-$> /path/to/commsdsl2new.sh --customization=none schema.xml
+$> /path/to/commsdsl2comms.sh --customization=none schema.xml
 ```
 
 ### Tag / Branch of CommsChampion Project
-The **commsdsl2new** utility produces CMake project, which depends on and uses 
+The **commsdsl2comms** utility produces CMake project, which depends on and uses 
 [comms_champioin](https://github.com/commschamp/comms_champion) one. If the latter
 is not provided as external build, it is checked out and built automatically.
 The `--cc-tag` option can be used to specify tag / branch of 
 [comms_champion](https://github.com/commschamp/comms_champion) project that 
 is going to be used in such build.
 ```
-$> /path/to/commsdsl2new.sh --cc-tag=develop schema.xml
+$> /path/to/commsdsl2comms.sh --cc-tag=develop schema.xml
 ```
 
 ### Custom Bundling of Messages
-The **commsdsl2new** utility creates multiple bundles of messages based
+The **commsdsl2comms** utility creates multiple bundles of messages based
 on their direction (server vs client) as well as relevant code for dispatching
 messages from such bundles to appropriate handlers. It is possible to provide
 extra independent list of message types for extra bundles and extra relevant
@@ -138,7 +138,7 @@ to be used (can be used multiple times). The format of the option value is
 `Name:File`, where `Name` is the name of the bundle, while `File` is a path
 to file containing message names (as defined in CommsDSL schema).
 ```
-$> /path/to/commsdsl2new.sh \
+$> /path/to/commsdsl2comms.sh \
     --extra-messages-bundle=Set1:extra-set1.txt \
     --extra-messages-bundle=Set2:extra-set2.txt \
     schema.xml
@@ -227,17 +227,17 @@ file will be added after all the default includes.
 It may happen that provided above customization options are not sufficient, and
 need to be completely rewritten. In this case it is possible to create appropriate file
 with **.replace** suffix, contents of which will completely replace the file
-generated by **commsdsl2new**.
+generated by **commsdsl2comms**.
 - `include/demo/message/Msg1.h.replace`
 
-The **commsdsl2new** also allows to reuse the class it generates by default
+The **commsdsl2comms** also allows to reuse the class it generates by default
 and extend the existing functionality with the new one. It can be achieved by
 defining a file with **.extend** suffix. Similar to **.replace**, it must define
 the full class, but it is expected to extend and reuse default definition which
 will reside in another file with **Orig** suffix added to its name 
 (`include/demo/message/Msg1Orig.h`).
 
-There are cases when **commsdsl2new** cannot generate some pieces of code and
+There are cases when **commsdsl2comms** cannot generate some pieces of code and
 they must be provided externally. For example, custom checksum algorithm and/or
 custom framing layer. The custom definition files are expected to be
 found in the following relative paths:
@@ -301,13 +301,13 @@ the following real-life protocols.
 - [cc.mqttsn.commsdsl](https://github.com/commschamp/cc.mqttsn.commsdsl/blob/master/src)
 - [cc.ublox.commsdsl](https://github.com/commschamp/cc.ublox.commsdsl/blob/master/src)
 
-The **commsdsl2new** also allows appending any text to any generated file
+The **commsdsl2comms** also allows appending any text to any generated file
 (not necessarily C++ code). It is done by creating appropriate file
 with **.append** suffix. For example, adding extra logic to the generated CMake
 file(s) are possible by creating `CMakeLists.txt.append` file with custom 
 content.
 
-The **commsdsl2new** utility will also copy all the files, residing in the
+The **commsdsl2comms** utility will also copy all the files, residing in the
 source directory and not having any of the special suffixes (**.read**, **.write**,
 **.length**, etc...), as-is without modification into the output directory 
 preserving their relative path. It is recommended to read through the 

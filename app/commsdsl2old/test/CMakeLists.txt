@@ -2,7 +2,7 @@
 #################################################################
 
 function (test_func name)
-    set (test_dir "${PROJECT_SOURCE_DIR}/app/commsdsl2new/test/${name}")
+    set (test_dir "${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test/${name}")
     set (schema_file "${test_dir}/Schema.xml")
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
     set (code_input_dir "${test_dir}/src")

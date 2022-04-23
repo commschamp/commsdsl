@@ -2,8 +2,8 @@ if (NOT BUILD_TESTING)
     return ()
 endif () 
 
-set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2new/test)
-set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2new/test)
+set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
+set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 commsdsl_ensure_comms_target ()
@@ -54,5 +54,5 @@ foreach (name ${tests})
         COMMAND
             ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
         WORKING_DIRECTORY ${build_dir}
-        DEPENDS ${output_tgt} commsdsl2new.${name}_build_tgt)
+        DEPENDS ${output_tgt} commsdsl2comms.${name}_build_tgt)
 endforeach ()

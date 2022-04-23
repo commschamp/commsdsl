@@ -83,8 +83,8 @@ while (TRUE)
     break() 
 endwhile ()
 
-set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2new/test)
-set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2new/test)
+set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
+set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 foreach (name ${tests})
@@ -118,8 +118,8 @@ foreach (name ${tests})
     execute_process (
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 
-    set (prot_tgt "commsdsl2new.${name}_build_tgt")
-    set (prot_install_dir "${PROJECT_BINARY_DIR}/app/commsdsl2new/test/${name}/build/install")
+    set (prot_tgt "commsdsl2comms.${name}_build_tgt")
+    set (prot_install_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}/build/install")
     set (qt_path_param)
     if (NOT "${COMMSDSL_QT_DIR}" STREQUAL "")
         set (qt_path_param "\;${COMMSDSL_QT_DIR}")
@@ -139,7 +139,7 @@ foreach (name ${tests})
         COMMAND
             ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
         WORKING_DIRECTORY ${build_dir}
-        DEPENDS ${output_tgt} commsdsl2new.${name}_build_tgt)
+        DEPENDS ${output_tgt} commsdsl2comms.${name}_build_tgt)
 
     if (TARGET "cc_tools_qt_tgt")        
         add_dependencies(${build_tgt} "cc_tools_qt_tgt")
