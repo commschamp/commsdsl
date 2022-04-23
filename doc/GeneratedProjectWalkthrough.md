@@ -43,205 +43,53 @@ The configuration of the doxygen documentation resides in the
 [doc](https://github.com/commschamp/cc.demo1.generated/tree/master/doc)
 folder.
 
-### CommsChampion Tools Plugin
-The [CommsChampion Tools](https://github.com/commschamp/comms_champion#commschampion-tools)
-are there to allow debugging and visual analysis of the defined protocol. The
-[cc_plugin](https://github.com/commschamp/cc.demo1.generated/tree/master/cc_plugin) folder
-contains source files for the protocol definition plugin. The plugin as well as the
-tools themselves require Qt5 libraries and intend to be used on the development
-PC.
-
-### Test Applications
-The [test](https://github.com/commschamp/cc.demo1.generated/tree/master/test)
-folder contains test application(s), which can be used as code reference and
-to test the generated protocol definition. Please refer to 
-[TestingGeneratedProtocolCode.md](TestingGeneratedProtocolCode.md)
-documentation page for more details on how to use them.
-
 ## CMake Configuration.
 Please open the main 
 [CMakeLists.txt](https://github.com/commschamp/cc.demo1.generated/blob/master/CMakeLists.txt)
 file. It should list all the available options and configuration variables,
 something like this:
 ```
-option (OPT_BUILD_TEST "Build and install test applications." OFF)
-option (OPT_BUILD_PLUGIN "Build and install CommsChampion plugin." OFF)
-option (OPT_NO_COMMS "Forcefully exclude checkout and install of COMMS library. \
-    Works only if OPT_BUILD_TEST and OPT_BUILD_PLUGIN options weren't used" OFF)
-option (OPT_WARN_AS_ERR "Treat warning as error" ON)    
-option (OPT_USE_CCACHE "Use of ccache on UNIX system" ON)
-option (OPT_EXTERNALS_UPDATE_DISCONNECTED "Allow skip of external projects update." OFF)
+option (OPT_REQUIRE_COMMS_LIB "Require COMMS library, find it and set as dependency to the protocol library" ON)
 
 # Other parameters:
 # OPT_CMAKE_EXPORT_NAMESPACE - Set namespace for a protocol library
 #     exported via generated *Config.cmake file. Defaults to "cc".
-# OPT_CC_TAG - Override default tag of comms_champion project.
-# OPT_QT_DIR - Path to custom Qt5 install directory.
-# OPT_CC_MAIN_INSTALL_DIR - Path to CommsChampion external install directory
-#       (if such already built).
-# OPT_TEST_OPTIONS - Class name of the options for test applications,
-#       defaults to demo1::options::DefaultOptions.
-# OPT_TEST_INTERFACE - Class name of the interface for test applications,
-#       defaults to demo1::Message.
-# OPT_TEST_FRAME - Class name of the frame for test applications,
-#       defaults to demo1::frame::Frame.
-# OPT_TEST_INPUT_MESSAGES - All input messages bundle for test applications,
-#       defaults to demo1::input::AllMessages.
-# OPT_EXTERNALS_DIR - Directory where externals (comms_champion) are checked out,
-#       defaults to ${PROJECT_BINARY_DIR}/externals.
+# OPT_CMAKE_EXPORT_CONFIG_NAME - Override default name "test1" of the cmake generated config file export
+#     (test1Config) with provided new name.
 ```
 
-Option **OPT_BUILD_TEST** enables build of the [Test Applications](#test-applications).
-
-Option **OPT_BUILD_PLUGIN** enables build of the 
-[CommsChampion Tools Plugin](#commschampion-tools-plugin). 
-
-Option **OPT_NO_COMMS** excludes installation of the 
-[COMMS library](https://github.com/commschamp/comms_champion#comms-library) headers
-alongside the defined protocol ones. 
-
-Option **OPT_WARN_AS_ERR** option allows control of whether compilation warning 
-causes an error.
-
-Option **OPT_USE_CCACHE** controls usage of **ccache** utility on UNIX system to speed
-the repeating builds.
-
-The **OPT_CMAKE_EXPORT_NAMESPACE** variable allows choosing custom namespace in the cmake 
-import/export of the protocol library definition.
-
-The **OPT_CC_TAG** variable allows overriding default tag of the
-[comms_champion](https://github.com/commschamp/comms_champion) project used
-by the **commsdsl2old** utility.
-
-The **OPT_QT_DIR** variable allows finding and using Qt5 libraries required by the
-[CommsChampion Tools](https://github.com/commschamp/comms_champion#commschampion-tools)
-and the [plugin](#commschampion-tools-plugin). It is especially useful on 
-Windows systems.
-
-As it was already mentioned the protocol definition uses 
-[COMMS library](https://github.com/commschamp/comms_champion#comms-library) and
-the [CommsChampion Tools Plugin](#commschampion-tools-plugin) requires
-[CommsChampion Tools](https://github.com/commschamp/comms_champion#commschampion-tools) from
-the [comms_champion](https://github.com/commschamp/comms_champion) project.
-The **OPT_CC_MAIN_INSTALL_DIR** allows having external build of the latter. If
-such is not provided, everything is built and installed internally.
-
-The **OPT_TEST_OPTIONS**, **OPT_TEST_INTERFACE**, **OPT_TEST_FRAME**, and
-**OPT_TEST_INPUT_MESSAGES** variables allow customization and configuration
-of the test application(s), please refer to the 
-[TestingGeneratedProtocolCode.md](TestingGeneratedProtocolCode.md)
-documentation page for more details.
-
-## Build Examples
-
-### Protocol Only Build
-The following commands will install both 
-[COMMS library](https://github.com/commschamp/comms_champion#comms-library)
-and the protocol definition headers in the **install** subdirectory.
-
-**Linux Environment**
+The generated protocol code requires [COMMS Library](https://github.com/commschamp/comms). By 
+default the cmake configuration process will try to locate it using 
 ```
-$> cd /generated/project/dir
-$> mkdir build && cd build
-$> cmake -DCMAKE_INSTALL_PREFIX=${PWD}/install ..
-$> make install
+find_package(LibComms REQUIRED)
 ```
 
-**Windows Environment**
-```
-$> cd C:\generated\project\dir
-$> mkdir build && cd build
-$> cmake -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX=%cd%/install ..
-$> nmake install
-```
-The installation command above just copies headers of the 
-[COMMS library](https://github.com/commschamp/comms_champion#comms-library) as
-well as protocol definition into the installation location, there is no actual
-build process. Hence, the usage
-of **CMAKE_BUILD_TYPE** variable to specify type of the build does not make
-any difference.
+The build process (which is just copying relevant files to the install directory) does not 
+really require presence of the [COMMS Library](https://github.com/commschamp/comms). If the 
+client code is going to provide relevant include directories by other means, then it is
+possible to suppress the requirement for the presence of the 
+[COMMS Library](https://github.com/commschamp/comms) during cmake execution.
 
-In case the **OPT_CC_MAIN_INSTALL_DIR** variable is used to provide external
-installation directory of the [COMMS library](https://github.com/commschamp/comms_champion#comms-library),
-the latter is **NOT** installed alongside the protocol definition library.
+```
+cmake -DOPT_REQUIRE_COMMS_LIB=OFF ...
+```
 
+Also note that if search for the [COMMS Library](https://github.com/commschamp/comms) is **NOT**
+excluded than it's directory should be listed in **CMAKE_PREFIX_PATH** variable
+
+```
+cmake -DCMAKE_PREFIX_PATH=/path/to/comms/install/dir ...
+```
+
+## Building Documentation
 In addition to protocols headers installation, the CMake project also contains
 target **doc_<proj_name>** to build doxygen documentation of the protocol.
 For example for [cc.demo1.generated](https://github.com/commschamp/cc.demo1.generated)
-it is:
+it is **doc_demo1**:
 
-**Linux Environment**
 ```
 $> make doc_demo1
 ```
-
-**Windows Environment**
-```
-$> nmake doc_demo1
-```
-
-### CommsChampion and Protocol Plugin Build
-In case the plugin build is enabled using **OPT_BUILD_PLUGIN** option, the
-[CommsChampion Tools](https://github.com/commschamp/comms_champion#commschampion-tools)
-are built and installed as well. It is recommended to build **Release** version.
-
-**Linux Environment**
-```
-$> cd /generated/project/dir
-$> mkdir build.tools && cd build.tools
-$> cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${PWD}/install \
-    -DOPT_BUILD_PLUGIN=ON ..
-$> make install
-```
-
-**Windows Environment**
-```
-$> cd C:\generated\project\dir
-$> mkdir build.tools && cd build.tools
-$> cmake -G "NMake Makefiles" -DCMAKE_BUILD_TYPE=Release \
-     -DCMAKE_INSTALL_PREFIX=%cd%/install -DOPT_BUILD_PLUGIN=ON \
-     -DOPT_QT_DIR=C:\Qt\5.6.3\msvc2015 ..
-$> nmake install
-```
-NOTE usage of **OPT_QT_DIR** variable to specify path to Qt5 libraries on Windows
-system.
-
-In case the [CommsChampion Tools](https://github.com/commschamp/comms_champion#commschampion-tools)
-are built externally and path to its installation is provided using 
-**OPT_CC_MAIN_INSTALL_DIR** variable, only the plugin without tools themselves
-is being built and installed.
-
-In Windows environment the CMake project also defines **deploy_qt5** target
-to deploy all the used Qt5 libraries to the installation directory. It
-invokes **windeployqt.exe** utility from used Qt5 installation.
-```
-$> nmake deploy_qt5
-```
-
-### Test Applications Build
-The build of test applications is enabled using **OPT_BUILD_TEST**. It is
-recommended to use non-release build configuration to have all the **assert()**
-checks being active.
-
-**Linux Environment**
-```
-$> cd /generated/project/dir
-$> mkdir build.test && cd build.test
-$> cmake -DCMAKE_INSTALL_PREFIX=${PWD}/install -DOPT_BUILD_TEST=ON ..
-$> make install
-```
-
-**Windows Environment**
-```
-$> cd C:\generated\project\dir
-$> mkdir build.test && cd build.test
-$> cmake -G "NMake Makefiles" \
-     -DCMAKE_INSTALL_PREFIX=%cd%/install -DOPT_BUILD_TEST=ON ..
-$> nmake install
-```
-For more details on testing the protocol definition please refer to
-[TestingGeneratedProtocolCode.md](TestingGeneratedProtocolCode.md)
-documenation page.
 
 ## CMake Import 
 When built and installed the project exports and installs the cmake target definition of the protocol library in `<install_dir>/lib/<protocol_name>/<protocol_name>Config.cmake` file, that can be imported in some other project that uses CMake as its build system.
@@ -254,18 +102,15 @@ endif ()
 ...
 target_link_libraries (my_proj cc::demo1)
 ```
-Note, that **cc::** is a default namespace for exported project (stands for CommsChampion). It is possible to change it using **OPT_CMAKE_EXPORT_NAMESPACE** cmake variable described earlier. 
+Note, that **cc::** is a default namespace for exported project. It is possible to change it using **OPT_CMAKE_EXPORT_NAMESPACE** cmake variable described earlier. 
 
-Also note that protocol definition requires [COMMS library](https://github.com/commschamp/comms_champion#comms-library), which also needs to be found and imported into the project being built.
+Also note that in case of excluding [COMMS Library](https://github.com/commschamp/comms) lookup during the protocol build process 
+it needs to be found separately and used inside `target_link_libraries()` invocation.
 ```
 list (APPEND CMAKE_PREFIX_PATH "/path/to/comms_champion/install/dir")
-find_package (LibComms NO_MODULE)
-if (NOT TARGET cc::comms)
-    message (FATAL_ERROR "COMMS library hasn't been found)
-endif ()
-...
+find_package (LibComms REQUIRED NO_MODULE)
 target_link_libraries (my_proj cc::demo1 cc::comms)
 ```
-Please also read [doc/CMake.md](https://github.com/commschamp/comms_champion/blob/master/doc/CMake.md) documentation page
-of the [comms_champion](https://github.com/commschamp/comms_champion) project for the overview on how to import the latter
-in CMake projects. 
+Please also read [doc/CMake.md](https://github.com/commschamp/comms/blob/master/doc/CMake.md) documentation page
+of the [COMMS Library](https://github.com/commschamp/comms) project for the overview on how to import the latter
+in other CMake projects. 

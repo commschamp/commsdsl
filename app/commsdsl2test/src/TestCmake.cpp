@@ -73,12 +73,12 @@ bool TestCmake::testWriteInternal() const
 
 
     ReplacementMap repl = {
-        std::make_pair("PROJ_NAME", m_generator.schemaName()),
-        std::make_pair("PROJ_NS", m_generator.mainNamespace()),
-        std::make_pair("INTERFACE_SCOPE", std::move(interfaceScope)),
-        std::make_pair("FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)),
-        std::make_pair("OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)),
-        std::make_pair("INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator)),
+        {"PROJ_NAME", m_generator.schemaName()},
+        {"PROJ_NS", m_generator.mainNamespace()},
+        {"INTERFACE_SCOPE", std::move(interfaceScope)},
+        {"FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)},
+        {"OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)},
+        {"INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator)},
     };
 
     static const std::string Template =
@@ -88,13 +88,13 @@ bool TestCmake::testWriteInternal() const
         "option (OPT_USE_CCACHE \"Use of ccache on UNIX system\" ON)\n"
         "# Other parameters:\n"
         "# OPT_TEST_OPTIONS - Class name of the options for test applications,\n"
-        "#       defaults to #^#DEFAULT_OPTIONS#$#.\n"        
+        "#       defaults to #^#OPTIONS_SCOPE#$#.\n"        
         "# OPT_TEST_INTERFACE - Class name of the interface for test applications,\n"
-        "#       defaults to #^#DEFAULT_INTERFACE#$#.\n"
+        "#       defaults to #^#INTERFACE_SCOPE#$#.\n"
         "# OPT_TEST_FRAME - Class name of the frame for test applications,\n"
-        "#       defaults to #^#DEFAULT_FRAME#$#.\n"
+        "#       defaults to #^#FRAME_SCOPE#$#.\n"
         "# OPT_TEST_INPUT_MESSAGES - All input messages bundle for test applications,\n"
-        "#       defaults to #^#DEFAULT_INPUT#$#.\n"
+        "#       defaults to #^#INPUT_SCOPE#$#.\n"
         "# OPT_MSVC_FORCE_WARN_LEVEL - Force msvc warning level\n\n"
         "if (CMAKE_TOOLCHAIN_FILE AND EXISTS ${CMAKE_TOOLCHAIN_FILE})\n"
         "    message(STATUS \"Loading toolchain from ${CMAKE_TOOLCHAIN_FILE}\")\n"
