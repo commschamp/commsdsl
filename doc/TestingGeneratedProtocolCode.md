@@ -1,7 +1,7 @@
 # Testing Generated Protocol Code
 
 ## Overview
-The **commsdsl2comms** utility generates a full CMake project. Since **v1.4**
+The **commsdsl2old** utility generates a full CMake project. Since **v1.4**
 it also generates test application which can be used to test the
 generated protocol code. Fuzz testing with [AFL](http://lcamtuf.coredump.cx/afl/) is 
 also supported. 

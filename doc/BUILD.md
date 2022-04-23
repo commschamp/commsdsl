@@ -5,7 +5,7 @@ mentioned available parameters, which can be used in addition to standard
 ones provided by CMake itself, to modify the default build. 
 
 **NOTE**, that **libcommsdsl** uses [libxml2](http://xmlsoft.org)
-to parse XML schema files, and **commsdsl2comms** uses [Boost](https://www.boost.org)
+to parse XML schema files, and **commsdsl2old** uses [Boost](https://www.boost.org)
 to parse its command line parameters (_boost::program_options_),
 perform filesystem operations (_boost::filesystem_), and various string manipulation
 algorithms. In case Boost libraries are not installed in expected default location
