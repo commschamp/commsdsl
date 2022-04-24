@@ -125,6 +125,7 @@ public:
         Crc_CCITT,
         Crc_16,
         Crc_32,
+        Xor,
         NumOfValues
     };
 

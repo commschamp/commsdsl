@@ -151,7 +151,8 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
         /* Sum */ "BasicSum",
         /* Crc_CCITT */ "Crc",
         /* Crc_16 */ "Crc",
-        /* Crc_32 */ "Crc"
+        /* Crc_32 */ "Crc",
+        /* Xor */ "BasicXor",
     };
 
     const std::size_t ChecksumMapSize = std::extent<decltype(ChecksumMap)>::value;
@@ -211,7 +212,8 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
         /* Sum */ "BasicSum",
         /* Crc_CCITT */ "Crc_CCITT",
         /* Crc_16 */ "Crc_16",
-        /* Crc_32 */ "Crc_32"
+        /* Crc_32 */ "Crc_32",
+        /* Xor */ "BasicXor",
     };
 
     const std::size_t ClassMapSize = std::extent<decltype(ClassMap)>::value;
@@ -236,7 +238,8 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     }
 
     auto str = "comms::protocol::checksum::" + ClassMap[idx];
-    if (alg != commsdsl::parse::ChecksumLayer::Alg::Sum) {
+    if ((alg != commsdsl::parse::ChecksumLayer::Alg::Sum) &&
+        (alg != commsdsl::parse::ChecksumLayer::Alg::Xor)) {
         return str;
     }
 

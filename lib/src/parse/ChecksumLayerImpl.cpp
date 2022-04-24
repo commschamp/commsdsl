@@ -125,6 +125,7 @@ bool ChecksumLayerImpl::updateAlg()
         std::make_pair("crc_16", Alg::Crc_16),
         std::make_pair("crc-32", Alg::Crc_32),
         std::make_pair("crc_32", Alg::Crc_32),
+        std::make_pair("xor", Alg::Xor),
     };
 
     auto algIter = Map.find(algStr);
