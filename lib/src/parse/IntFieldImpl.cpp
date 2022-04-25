@@ -345,6 +345,7 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::displayOffsetStr(),
         common::signExtStr(),
         common::displaySpecialsStr(),
+        common::defaultValidValueStr()
     };
 
     return List;
@@ -380,6 +381,7 @@ bool IntFieldImpl::parseImpl()
         updateNonUniqueSpecialsAllowed() &&
         updateSpecials() &&
         updateDefaultValue() &&
+        updateDefaultValidValue() &&
         updateValidCheckVersion() &&
         updateValidRanges() &&
         updateUnits() &&
@@ -740,68 +742,49 @@ bool IntFieldImpl::updateMinMaxValues()
 
 bool IntFieldImpl::updateDefaultValue()
 {
-    if (!validateSinglePropInstance(common::defaultValueStr())) {
+    auto& prop = common::defaultValueStr();
+    if (!validateSinglePropInstance(prop)) {
         return false;
     }
 
-    auto& valueStr = common::getStringProp(props(), common::defaultValueStr());
+    auto& valueStr = common::getStringProp(props(), prop);
     if (valueStr.empty()) {
         return true;
     }
 
-    auto reportErrorFunc =
-        [this, &valueStr]()
-        {
-            logError() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
-                          "\" is not within type boundaries (" << valueStr << ").";
-        };
+    return updateDefaultValueInternal(valueStr);
+}
 
-    auto reportWarningFunc =
-        [this, &valueStr]()
-        {
-            logWarning() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
-                          "\" is too small or big and will not be serialised correctly (" << valueStr << ").";
-        };
-
-    auto checkValueFunc =
-        [this, &reportErrorFunc, &reportWarningFunc](auto v) -> bool
-        {
-            auto castedTypeAllowedMinValue = static_cast<decltype(v)>(m_state.m_typeAllowedMinValue);
-            auto castedTypeAllowedMaxValue = static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue);
-
-            if (v < castedTypeAllowedMinValue) {
-                reportErrorFunc();
-                return false;
-            }
-
-            if (castedTypeAllowedMaxValue < v) {
-                reportErrorFunc();
-                return false;
-            }
-
-            auto castedMinValue = static_cast<decltype(v)>(m_state.m_minValue);
-            auto castedMaxValue = static_cast<decltype(v)>(m_state.m_maxValue);
-            if ((v < castedMinValue) ||
-                (castedMaxValue < v)) {
-                reportWarningFunc();
-            }
-
-            m_state.m_defaultValue = static_cast<decltype(m_state.m_defaultValue)>(v);
-            return true;
-        };
-
-    std::intmax_t val = 0;
-    if (!strToValue(valueStr, val)) {
-        logError() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
-                      "\" cannot be recongized (" << valueStr << ").";
+bool IntFieldImpl::updateDefaultValidValue()
+{
+    auto& prop = common::defaultValidValueStr();
+    if (!validateSinglePropInstance(prop)) {
         return false;
     }
 
-    if (isBigUnsigned(m_state.m_type)) {
-        return checkValueFunc(static_cast<std::uint64_t>(val));
+    auto iter = props().find(prop);
+    if (iter == props().end()) {
+        return true;
     }
 
-    return checkValueFunc(val);
+    if (!protocol().isDefaultValidValueSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << 
+            "Property \"" << prop << "\" is not supported for DSL version " << protocol().schema().dslVersion() << ", ignoring...";        
+        return true;
+    }
+
+    auto& valueStr = common::getStringProp(props(), prop);
+    if (!updateDefaultValueInternal(valueStr)) {
+        return false;
+    }
+
+    ValidRangeInfo info;
+    info.m_min = m_state.m_defaultValue;
+    info.m_max = m_state.m_defaultValue;
+    info.m_sinceVersion = getSinceVersion();
+    info.m_deprecatedSince = getDeprecated();    
+    m_state.m_validRanges.push_back(info);
+    return true;
 }
 
 bool IntFieldImpl::updateScaling()
@@ -1629,6 +1612,63 @@ bool IntFieldImpl::strToValue(
         val = common::strToIntMax(str, &ok);
     }
     return ok;
+}
+
+bool IntFieldImpl::updateDefaultValueInternal(const std::string& valueStr)
+{
+    auto reportErrorFunc =
+        [this, &valueStr]()
+        {
+            logError() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
+                          "\" is not within type boundaries (" << valueStr << ").";
+        };
+
+    auto reportWarningFunc =
+        [this, &valueStr]()
+        {
+            logWarning() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
+                          "\" is too small or big and will not be serialised correctly (" << valueStr << ").";
+        };
+
+    auto checkValueFunc =
+        [this, &reportErrorFunc, &reportWarningFunc](auto v) -> bool
+        {
+            auto castedTypeAllowedMinValue = static_cast<decltype(v)>(m_state.m_typeAllowedMinValue);
+            auto castedTypeAllowedMaxValue = static_cast<decltype(v)>(m_state.m_typeAllowedMaxValue);
+
+            if (v < castedTypeAllowedMinValue) {
+                reportErrorFunc();
+                return false;
+            }
+
+            if (castedTypeAllowedMaxValue < v) {
+                reportErrorFunc();
+                return false;
+            }
+
+            auto castedMinValue = static_cast<decltype(v)>(m_state.m_minValue);
+            auto castedMaxValue = static_cast<decltype(v)>(m_state.m_maxValue);
+            if ((v < castedMinValue) ||
+                (castedMaxValue < v)) {
+                reportWarningFunc();
+            }
+
+            m_state.m_defaultValue = static_cast<decltype(m_state.m_defaultValue)>(v);
+            return true;
+        };
+
+    std::intmax_t val = 0;
+    if (!strToValue(valueStr, val)) {
+        logError() << XmlWrap::logPrefix(getNode()) << "The default value of the \"" << name() <<
+                      "\" cannot be recongized (" << valueStr << ").";
+        return false;
+    }
+
+    if (isBigUnsigned(m_state.m_type)) {
+        return checkValueFunc(static_cast<std::uint64_t>(val));
+    }
+
+    return checkValueFunc(val);
 }
 
 

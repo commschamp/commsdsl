@@ -159,6 +159,7 @@ private:
     bool updateSerOffset();
     bool updateMinMaxValues();
     bool updateDefaultValue();
+    bool updateDefaultValidValue();
     bool updateScaling();
     bool updateValidCheckVersion();
     bool updateValidRanges();
@@ -184,6 +185,8 @@ private:
     bool validateValidRangeStr(const std::string& str, std::intmax_t& minVal, std::intmax_t& maxVal);
     bool validateValidValueStr(const std::string& str, const std::string& type, std::intmax_t& val);
     bool strToValue(const std::string& str, std::intmax_t& val) const;
+    bool updateDefaultValueInternal(const std::string& valueStr);
+    bool checkValidValueInternal(const std::string& prop);
 
     struct State
     {

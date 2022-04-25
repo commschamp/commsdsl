@@ -113,6 +113,8 @@ public:
     bool isNonUniqueSpecialsAllowedSupported() const;
     bool isFieldAliasSupported() const;
     bool isValidateMinLengthSupported() const;
+    bool isDefaultValidValueSupported() const;
+    bool isCopyFieldsFromBundleSupported() const;
 
 private:
     struct XmlDocFree
