@@ -83,6 +83,7 @@ private:
     void commsAddDefaultValueOptInternal(StringsList& opts) const;
     void commsAddLengthOptInternal(StringsList& opts) const;
     void commsAddValidRangesOptInternal(StringsList& opts) const;
+    void commsAddAvailableLengthLimitOptInternal(StringsList& opts) const;
 
     ValidRangesList m_validRanges;
 };

@@ -90,7 +90,8 @@ const XmlWrap::NamesList& EnumFieldImpl::extraPropsNamesImpl() const
         common::bitLengthStr(),
         common::nonUniqueAllowedStr(),
         common::validCheckVersionStr(),
-        common::hexAssignStr()
+        common::hexAssignStr(),
+        common::availableLengthLimitStr()
     };
 
     return List;
@@ -125,7 +126,8 @@ bool EnumFieldImpl::parseImpl()
         updateMinMaxValues() &&
         updateValues() &&
         updateDefaultValue() &&
-        updateHexAssign();
+        updateHexAssign() &&
+        updateAvailableLengthLimit();
 }
 
 std::size_t EnumFieldImpl::minLengthImpl() const
@@ -619,6 +621,26 @@ bool EnumFieldImpl::updateHexAssign()
         logError() << XmlWrap::logPrefix(getNode()) <<
             "Cannot set \"" << common::hexAssignStr() << "\" property with signed types.";
         return false;
+    }
+
+    return true;
+}
+
+bool EnumFieldImpl::updateAvailableLengthLimit()
+{
+    if (!validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit)) {
+        return false;
+    }
+
+    auto iter = props().find(common::availableLengthLimitStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isAvailableLengthLimitSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().schema().dslVersion();        
+        m_state.m_availableLengthLimit = false;
     }
 
     return true;

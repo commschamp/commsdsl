@@ -1244,6 +1244,7 @@ std::string CommsEnumField::commsDefFieldOptsInternal() const
     commsAddDefaultValueOptInternal(opts);
     commsAddLengthOptInternal(opts);
     commsAddValidRangesOptInternal(opts);
+    commsAddAvailableLengthLimitOptInternal(opts);
 
     return util::strListToString(opts, ",\n", "");
 }
@@ -1492,6 +1493,13 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
 
     for (auto iter = uncondStartIter; iter != uncondEndIter; ++iter) {
         addOptFunc(*iter);
+    }
+}
+
+void CommsEnumField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
+{
+    if (enumDslObj().availableLengthLimit()) {
+        util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
     }
 }
 

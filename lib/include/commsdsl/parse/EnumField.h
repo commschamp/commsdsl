@@ -55,6 +55,7 @@ public:
     bool isUnique() const;
     bool validCheckVersion() const;
     bool hexAssign() const;
+    bool availableLengthLimit() const;
 };
 
 inline

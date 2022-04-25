@@ -70,6 +70,7 @@ private:
     void commsAddDefaultValueOptInternal(StringsList& opts) const;
     void commsAddValidRangesOptInternal(StringsList& opts) const;
     void commsAddCustomRefreshOptInternal(StringsList& opts) const;
+    void commsAddAvailableLengthLimitOptInternal(StringsList& opts) const;
     bool commsRequiresFailOnInvalidRefreshInternal() const;
 };
 

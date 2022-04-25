@@ -93,6 +93,7 @@ public:
     std::intmax_t displayOffset() const;
     bool signExt() const;
     bool displaySpecials() const;
+    bool availableLengthLimit() const;
 };
 
 inline

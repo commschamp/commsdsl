@@ -532,6 +532,7 @@ std::string CommsIntField::commsDefFieldOptsInternal(bool variantPropKey) const
         commsAddDefaultValueOptInternal(opts);
         commsAddValidRangesOptInternal(opts);
         commsAddCustomRefreshOptInternal(opts);
+        commsAddAvailableLengthLimitOptInternal(opts);
     }
 
     return util::strListToString(opts, ",\n", "");
@@ -986,6 +987,13 @@ void CommsIntField::commsAddCustomRefreshOptInternal(StringsList& opts) const
 {
     if (commsRequiresFailOnInvalidRefreshInternal()) {
         util::addToStrList("comms::option::def::HasCustomRefresh", opts);
+    }
+}
+
+void CommsIntField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
+{
+    if (intDslObj().availableLengthLimit()) {
+        util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
     }
 }
 

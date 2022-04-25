@@ -92,6 +92,11 @@ bool EnumField::hexAssign() const
     return cast(m_pImpl)->hexAssign();
 }
 
+bool EnumField::availableLengthLimit() const
+{
+    return cast(m_pImpl)->availableLengthLimit();
+}
+
 } // namespace parse
 
 } // namespace commsdsl

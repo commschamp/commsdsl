@@ -367,6 +367,11 @@ bool ProtocolImpl::isCopyFieldsFromBundleSupported() const
     return isFeatureSupported(4U);
 }
 
+bool ProtocolImpl::isAvailableLengthLimitSupported() const
+{
+    return isFeatureSupported(4U);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);

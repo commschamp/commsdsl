@@ -53,7 +53,6 @@ XmlWrap::NamesList getExtraNames()
 BundleFieldImpl::BundleFieldImpl(xmlNodePtr node, ProtocolImpl& protocol)
   : Base(node, protocol)
 {
-    logInfo() << "!!! Creating bundle";
 }
 
 BundleFieldImpl::BundleFieldImpl(const BundleFieldImpl& other)

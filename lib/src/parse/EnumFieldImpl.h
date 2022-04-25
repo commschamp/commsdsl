@@ -84,6 +84,11 @@ public:
         return m_state.m_hexAssign;
     }
 
+    bool availableLengthLimit() const
+    {
+        return m_state.m_availableLengthLimit;
+    }    
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -111,6 +116,7 @@ private:
     bool updateValues();
     bool updateDefaultValue();
     bool updateHexAssign();
+    bool updateAvailableLengthLimit();
     bool strToValue(const std::string& str, std::intmax_t& val) const;
 
     struct State
@@ -129,6 +135,7 @@ private:
         bool m_nonUniqueAllowed = false;
         bool m_validCheckVersion = false;
         bool m_hexAssign = false;
+        bool m_availableLengthLimit = false;
     };
 
     State m_state;

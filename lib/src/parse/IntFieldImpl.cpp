@@ -345,7 +345,8 @@ const XmlWrap::NamesList& IntFieldImpl::extraPropsNamesImpl() const
         common::displayOffsetStr(),
         common::signExtStr(),
         common::displaySpecialsStr(),
-        common::defaultValidValueStr()
+        common::defaultValidValueStr(),
+        common::availableLengthLimitStr()
     };
 
     return List;
@@ -388,7 +389,8 @@ bool IntFieldImpl::parseImpl()
         updateDisplayDecimals() &&
         updateDisplayOffset() &&
         updateSignExt() &&
-        updateDisplaySpecials();
+        updateDisplaySpecials() &&
+        updateAvailableLengthLimit();
 }
 
 std::size_t IntFieldImpl::minLengthImpl() const
@@ -1221,6 +1223,25 @@ bool IntFieldImpl::updateDisplaySpecials()
     return validateAndUpdateBoolPropValue(common::displaySpecialsStr(), m_state.m_displaySpecials);
 }
 
+bool IntFieldImpl::updateAvailableLengthLimit()
+{
+    if (!validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit)) {
+        return false;
+    }
+
+    auto iter = props().find(common::availableLengthLimitStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isAvailableLengthLimitSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().schema().dslVersion();        
+        m_state.m_availableLengthLimit = false;
+    }
+
+    return true;
+}
 
 bool IntFieldImpl::checkValidRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)
 {

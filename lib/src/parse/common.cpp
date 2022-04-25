@@ -746,6 +746,12 @@ const std::string& defaultValidValueStr()
     return Str;      
 }
 
+const std::string& availableLengthLimitStr()
+{
+    static const std::string Str("availableLengthLimit");
+    return Str; 
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

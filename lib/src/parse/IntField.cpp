@@ -122,6 +122,11 @@ bool IntField::displaySpecials() const
     return cast(m_pImpl)->displaySpecials();
 }
 
+bool IntField::availableLengthLimit() const
+{
+    return cast(m_pImpl)->availableLengthLimit();
+}
+
 } // namespace parse
 
 } // namespace commsdsl

@@ -120,6 +120,11 @@ public:
         return m_state.m_displaySpecials;
     }
 
+    bool availableLengthLimit() const
+    {
+        return m_state.m_availableLengthLimit;
+    }
+
     static Type parseTypeValue(const std::string& value);
 
     static std::size_t maxTypeLength(Type t);
@@ -170,6 +175,7 @@ private:
     bool updateDisplayOffset();
     bool updateSignExt();
     bool updateDisplaySpecials();
+    bool updateAvailableLengthLimit();
     bool checkValidRangeAsAttr(const PropsMap& xmlAttrs);
     bool checkValidRangeAsChild(::xmlNodePtr child);
     bool checkValidRangeProps(const PropsMap& xmlAttrs);
@@ -210,6 +216,7 @@ private:
         bool m_signExt = true;
         bool m_nonUniqueSpecialsAllowed = false;
         bool m_displaySpecials = true;
+        bool m_availableLengthLimit = false;
     };
 
     State m_state;
