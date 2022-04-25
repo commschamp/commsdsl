@@ -43,6 +43,11 @@ public:
     Members membersList() const;
     AliasesList aliasesList() const;
 
+    const std::vector<AliasImplPtr>& aliases() const
+    {
+        return m_aliases;
+    }
+
 protected:
 
     virtual Kind kindImpl() const override;

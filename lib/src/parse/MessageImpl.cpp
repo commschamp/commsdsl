@@ -552,14 +552,29 @@ bool MessageImpl::copyFields()
         return true;
     }
 
-    m_copyFieldsFromMsg = m_protocol.findMessage(iter->second);
-    if (m_copyFieldsFromMsg == nullptr) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-            "Invalid reference to other message \"" << iter->second << "\".";
-        return false;
-    }
+    do {
+        m_copyFieldsFromMsg = m_protocol.findMessage(iter->second);
+        if (m_copyFieldsFromMsg != nullptr) {
+            cloneFieldsFrom(*m_copyFieldsFromMsg);
+            break;
+        }
 
-    cloneFieldsFrom(*m_copyFieldsFromMsg);
+        if (!m_protocol.isCopyFieldsFromBundleSupported()) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Invalid reference to other message \"" << iter->second << "\".";
+            return false;            
+        }
+
+        auto* copyFromField = m_protocol.findField(iter->second);
+        if ((copyFromField == nullptr) || (copyFromField->kind() != Field::Kind::Bundle)) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Invalid reference to other message or bundle \"" << iter->second << "\".";
+            return false;
+        }
+
+        m_copyFieldsFromBundle = static_cast<const BundleFieldImpl*>(copyFromField);
+        cloneFieldsFrom(*m_copyFieldsFromBundle);
+    } while (false);
 
     if (!m_fields.empty()) {
         m_fields.erase(
@@ -612,17 +627,18 @@ bool MessageImpl::copyAliases()
         return true;
     }
 
-    if ((iter != props().end()) && (m_copyFieldsFromMsg == nullptr)) {
+    if ((iter != props().end()) && (m_copyFieldsFromMsg == nullptr) && (m_copyFieldsFromBundle == nullptr)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
             "Property \"" << propStr << "\" is inapplicable without \"" << common::copyFieldsFromStr() << "\".";
         return true;
     }
 
-    if (m_copyFieldsFromMsg == nullptr) {
-        return true;
+    if (m_copyFieldsFromMsg != nullptr) {
+        cloneAliasesFrom(*m_copyFieldsFromMsg);
     }
-
-    cloneAliasesFrom(*m_copyFieldsFromMsg);
+    else if (m_copyFieldsFromBundle != nullptr) {
+        cloneAliasesFrom(*m_copyFieldsFromBundle);
+    }
 
     if (!m_aliases.empty()) {
         m_aliases.erase(
@@ -790,10 +806,26 @@ void MessageImpl::cloneFieldsFrom(const MessageImpl& other)
     }
 }
 
+void MessageImpl::cloneFieldsFrom(const BundleFieldImpl& other)
+{
+    m_fields.reserve(other.members().size());
+    for (auto& f : other.members()) {
+        m_fields.push_back(f->clone());
+    }
+}
+
 void MessageImpl::cloneAliasesFrom(const MessageImpl& other)
 {
     m_aliases.reserve(other.m_aliases.size());
     for (auto& a : other.m_aliases) {
+        m_aliases.push_back(a->clone());
+    }
+}
+
+void MessageImpl::cloneAliasesFrom(const BundleFieldImpl& other)
+{
+    m_aliases.reserve(other.aliases().size());
+    for (auto& a : other.aliases()) {
         m_aliases.push_back(a->clone());
     }
 }

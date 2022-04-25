@@ -150,18 +150,39 @@ void AliasTestSuite::test8()
     TS_ASSERT(ns.name().empty());
 
     auto messages = ns.messages();
-    TS_ASSERT_EQUALS(messages.size(), 2U);
+    TS_ASSERT_EQUALS(messages.size(), 3U);
 
-    auto& msg2 = messages.back();
-    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+    do {
+        auto& msg2 = messages[1];
+        TS_ASSERT_EQUALS(msg2.name(), "Msg2");
 
-    auto aliases = msg2.aliases();
-    TS_ASSERT_EQUALS(aliases.size(), 1U);
+        auto aliases = msg2.aliases();
+        TS_ASSERT_EQUALS(aliases.size(), 1U);
 
-    auto& a0 = aliases[0];
+        auto& a0 = aliases[0];
 
-    TS_ASSERT_EQUALS(a0.name(), "A2");
-    TS_ASSERT_EQUALS(a0.fieldName(), "F2");
+        TS_ASSERT_EQUALS(a0.name(), "A2");
+        TS_ASSERT_EQUALS(a0.fieldName(), "F2");
+    } while (false);
+
+    do {
+        auto& msg3 = messages[2];
+        TS_ASSERT_EQUALS(msg3.name(), "Msg3");
+
+        auto fields = msg3.fields();
+        TS_ASSERT_EQUALS(fields.size(), 2U);
+
+        auto aliases = msg3.aliases();
+        TS_ASSERT_EQUALS(aliases.size(), 2U);
+
+        auto& a0 = aliases[0];
+        auto& a1 = aliases[1];
+
+        TS_ASSERT_EQUALS(a0.name(), "A1");
+        TS_ASSERT_EQUALS(a0.fieldName(), "F1");
+        TS_ASSERT_EQUALS(a1.name(), "A2");
+        TS_ASSERT_EQUALS(a1.fieldName(), "F2");
+    } while (false);    
 }
 
 void AliasTestSuite::test9()

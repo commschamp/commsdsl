@@ -243,14 +243,30 @@ bool InterfaceImpl::copyFields()
         return true;
     }
 
-    m_copyFieldsFromInterface = m_protocol.findInterface(iter->second);
-    if (m_copyFieldsFromInterface == nullptr) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-            "Invalid reference to other interface \"" << iter->second << "\".";
-        return false;
-    }
+    do {
+        m_copyFieldsFromInterface = m_protocol.findInterface(iter->second);
+        if (m_copyFieldsFromInterface != nullptr) {
+            cloneFieldsFrom(*m_copyFieldsFromInterface);
+            break;
+        }
 
-    cloneFieldsFrom(*m_copyFieldsFromInterface);
+        if (!m_protocol.isCopyFieldsFromBundleSupported()) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Invalid reference to other interface \"" << iter->second << "\".";
+            return false;            
+        }
+
+        auto* copyFromField = m_protocol.findField(iter->second);
+        if ((copyFromField == nullptr) || (copyFromField->kind() != Field::Kind::Bundle)) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Invalid reference to other interface or bundle \"" << iter->second << "\".";
+            return false;
+        }        
+
+        m_copyFieldsFromBundle = static_cast<const BundleFieldImpl*>(copyFromField);
+        cloneFieldsFrom(*m_copyFieldsFromBundle);
+    } while (false);
+
     return true;
 }
 
@@ -370,17 +386,21 @@ bool InterfaceImpl::copyAliases()
         return true;
     }
 
-    if ((iter != props().end()) && (m_copyFieldsFromInterface == nullptr)) {
+    if ((iter != props().end()) && (m_copyFieldsFromInterface == nullptr) && (m_copyFieldsFromBundle == nullptr)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
             "Property \"" << propStr << "\" is inapplicable without \"" << common::copyFieldsFromStr() << "\".";
         return true;
     }
 
-    if (m_copyFieldsFromInterface == nullptr) {
+    if (m_copyFieldsFromInterface != nullptr) {
+        cloneAliasesFrom(*m_copyFieldsFromInterface);
+    }
+    else if (m_copyFieldsFromBundle != nullptr) {
+        cloneAliasesFrom(*m_copyFieldsFromBundle);
+    }    
+    else {
         return true;
     }
-
-    cloneAliasesFrom(*m_copyFieldsFromInterface);
 
     if (!m_aliases.empty()) {
         m_aliases.erase(
@@ -413,10 +433,26 @@ void InterfaceImpl::cloneFieldsFrom(const InterfaceImpl& other)
     }
 }
 
+void InterfaceImpl::cloneFieldsFrom(const BundleFieldImpl& other)
+{
+    m_fields.reserve(other.members().size());
+    for (auto& f : other.members()) {
+        m_fields.push_back(f->clone());
+    }
+}
+
 void InterfaceImpl::cloneAliasesFrom(const InterfaceImpl& other)
 {
     m_aliases.reserve(other.m_aliases.size());
     for (auto& a : other.m_aliases) {
+        m_aliases.push_back(a->clone());
+    }
+}
+
+void InterfaceImpl::cloneAliasesFrom(const BundleFieldImpl& other)
+{
+    m_aliases.reserve(other.aliases().size());
+    for (auto& a : other.aliases()) {
         m_aliases.push_back(a->clone());
     }
 }

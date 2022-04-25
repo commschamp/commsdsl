@@ -27,6 +27,7 @@
 #include "commsdsl/parse/Protocol.h"
 #include "FieldImpl.h"
 #include "AliasImpl.h"
+#include "BundleFieldImpl.h"
 
 namespace commsdsl
 {
@@ -142,7 +143,9 @@ private:
     bool updateFields();
     bool updateAliases();
     void cloneFieldsFrom(const MessageImpl& other);
+    void cloneFieldsFrom(const BundleFieldImpl& other);
     void cloneAliasesFrom(const MessageImpl& other);
+    void cloneAliasesFrom(const BundleFieldImpl& other);
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -163,6 +166,7 @@ private:
     PlatformsList m_platforms;
     Sender m_sender = Sender::Both;
     const MessageImpl* m_copyFieldsFromMsg = nullptr;
+    const BundleFieldImpl* m_copyFieldsFromBundle = nullptr;
     bool m_customizable = false;
 };
 

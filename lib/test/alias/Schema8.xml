@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema name="Schema8" endian="big">
+
+    <fields>
+        <bundle name="B1">
+            <members>
+                <int name="F1" type="uint32" />
+                <int name="F2" type="uint16" />
+            </members>
+            <alias name="A1" field="$F1" />
+        </bundle>
+    </fields>
+
     <message name="Msg1" id="1">
         <fields>
             <int name="F1" type="uint8" />
@@ -11,5 +22,9 @@
     <message name="Msg2" id="2" copyFieldsFrom="Msg1" copyFieldsAliases="false">
         <alias name="A2" field="$F2" />
     </message>
+
+    <message name="Msg3" id="3" copyFieldsFrom="B1" validateMinLength="6">
+        <alias name="A2" field="$F2" />
+    </message>    
     
 </schema>
