@@ -152,7 +152,7 @@ void TestSuite::test5()
     TS_ASSERT_EQUALS(msg->field_f1().accessField_p1().field_value().value(), 0xff);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 
-    msg->field_f1().accessField_p1().field_value().setForcedLength(msg->field_f1().accessField_p1().field_length().value());
+    // msg->field_f1().accessField_p1().field_value().setForcedLength(msg->field_f1().accessField_p1().field_length().value());
     std::vector<std::uint8_t> outBuf;
     outBuf.resize(frame.length(*msgPtr));
     TS_ASSERT_EQUALS(Buf1Size, outBuf.size());
@@ -184,7 +184,7 @@ void TestSuite::test6()
     TS_ASSERT_EQUALS(msg->field_f1().accessField_p3().field_value().value(), Msg1::Field_f1::Field_p3::Field_value::ValueType::V2);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 
-    msg->field_f1().accessField_p3().field_value().setForcedLength(msg->field_f1().accessField_p3().field_length().value());
+    // msg->field_f1().accessField_p3().field_value().setForcedLength(msg->field_f1().accessField_p3().field_length().value());
     std::vector<std::uint8_t> outBuf;
     outBuf.resize(frame.length(*msgPtr));
     TS_ASSERT_EQUALS(Buf1Size, outBuf.size());
