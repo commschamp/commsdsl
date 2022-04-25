@@ -69,6 +69,7 @@ bool MessageImpl::parse()
         updatePlatforms() &&
         updateCustomizable() &&
         updateSender() &&
+        updateValidateMinLength() &&
         copyFields() &&
         updateFields() &&
         copyAliases() &&
@@ -230,7 +231,8 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::orderStr(),
         common::platformsStr(),
         common::customizableStr(),
-        common::senderStr()
+        common::senderStr(),
+        common::validateMinLengthStr(),
     };
 
     return CommonNames;
@@ -512,6 +514,33 @@ bool MessageImpl::updateSender()
     return true;
 }
 
+bool MessageImpl::updateValidateMinLength()
+{
+    auto& propStr = common::validateMinLengthStr();
+    if (!validateSinglePropInstance(propStr)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propStr);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.isValidateMinLengthSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.schema().dslVersion() << ", ignoring...";
+        return true;
+    }
+
+    bool ok = false;
+    m_validateMinLength = static_cast<decltype(m_validateMinLength)>(common::strToUnsigned(iter->second, &ok));
+    if (!ok) {
+        reportUnexpectedPropertyValue(propStr, iter->second);
+        return false;
+    }    
+    return true;
+}
+
 bool MessageImpl::copyFields()
 {
     if (!validateSinglePropInstance(common::copyFieldsFromStr())) {
@@ -695,6 +724,16 @@ bool MessageImpl::updateFields()
 
         if (!FieldImpl::validateMembersNames(m_fields, m_protocol.logger())) {
             return false;
+        }
+
+        if (0 <= m_validateMinLength) {
+            auto len = minLength();
+            if (static_cast<unsigned>(m_validateMinLength) != len) {
+                logError() << XmlWrap::logPrefix(getNode()) <<
+                    "The calculated minimal length of the message is " << len <<
+                    " while expected is " << m_validateMinLength << " (specified with \"" << common::validateMinLengthStr() << "\" property).";                
+                return false;
+            }
         }
 
     } while (false);

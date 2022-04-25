@@ -112,6 +112,7 @@ public:
     bool isSemanticTypeRefInheritanceSupported() const;
     bool isNonUniqueSpecialsAllowedSupported() const;
     bool isFieldAliasSupported() const;
+    bool isValidateMinLengthSupported() const;
 
 private:
     struct XmlDocFree

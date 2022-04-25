@@ -150,6 +150,7 @@ const std::string& displaySpecialsStr();
 const std::string& aliasStr();
 const std::string& reuseAliasesStr();
 const std::string& forceGenStr();
+const std::string& validateMinLengthStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

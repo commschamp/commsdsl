@@ -136,6 +136,7 @@ private:
     bool updatePlatforms();
     bool updateCustomizable();
     bool updateSender();
+    bool updateValidateMinLength();
     bool copyFields();
     bool copyAliases();
     bool updateFields();
@@ -156,6 +157,7 @@ private:
     std::string m_description;
     std::uintmax_t m_id = 0;
     unsigned m_order = 0;
+    int m_validateMinLength = -1;
     std::vector<FieldImplPtr> m_fields;
     std::vector<AliasImplPtr> m_aliases;
     PlatformsList m_platforms;

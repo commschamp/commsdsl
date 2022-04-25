@@ -352,6 +352,11 @@ bool ProtocolImpl::isFieldAliasSupported() const
     return isFeatureSupported(3U);
 }
 
+bool ProtocolImpl::isValidateMinLengthSupported() const
+{
+    return isFeatureSupported(4U);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);
