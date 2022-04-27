@@ -135,6 +135,12 @@ protected:
 private:
     using ExtraFieldOptsFunc = StringsList (CommsField::*)() const;
 
+    bool commsPrepareOverrideInternal(
+        commsdsl::parse::OverrideType type, 
+        std::string& codePathPrefix, 
+        const std::string& suffix,
+        std::string& customCode,
+        const std::string& name);
     bool commsWriteCommonInternal() const;
     bool commsWriteDefInternal() const;
     std::string commsFieldDefCodeInternal() const;
@@ -164,8 +170,11 @@ private:
 
     commsdsl::gen::Field& m_field;
     std::string m_customRead;
-    std::string m_customRefresh;
     std::string m_customWrite;
+    std::string m_customRefresh;
+    std::string m_customLength;
+    std::string m_customValid;
+    std::string m_customName;
     std::string m_customExtend;
     bool m_forcedFailOnInvalid = false;
     bool m_forcedPseudo = false;

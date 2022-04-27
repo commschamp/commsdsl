@@ -152,6 +152,42 @@ std::string Field::schemaPos() const
     return m_pImpl->schemaPos();
 }
 
+OverrideType Field::readOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->readOverride();
+}
+
+OverrideType Field::writeOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->writeOverride();
+}
+
+OverrideType Field::refreshOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->refreshOverride();
+}
+
+OverrideType Field::lengthOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->lengthOverride();
+}
+
+OverrideType Field::validOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->validOverride();
+}
+
+OverrideType Field::nameOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->nameOverride();
+}
+
 const Field::AttributesMap& Field::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

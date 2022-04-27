@@ -19,6 +19,7 @@
 
 #include "commsdsl/CommsdslApi.h"
 #include "Schema.h"
+#include "OverrideType.h"
 
 namespace commsdsl
 {
@@ -84,6 +85,12 @@ public:
     bool isFailOnInvalid() const;
     bool isForceGen() const;
     std::string schemaPos() const;
+    OverrideType readOverride() const;
+    OverrideType writeOverride() const;
+    OverrideType refreshOverride() const;
+    OverrideType lengthOverride() const;
+    OverrideType validOverride() const;
+    OverrideType nameOverride() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

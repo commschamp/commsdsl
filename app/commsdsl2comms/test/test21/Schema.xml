@@ -22,7 +22,7 @@
             <bit name="b1" idx="1" />
         </set>
         <float name="F1" type="float" />
-        <bitfield name="B1">
+        <bitfield name="B1" readOverride="replace" writeOverride="extend" refreshOverride="any" validOverride="">
             <int name="mem0" type="uint8" bitLength="3" />
             <int name="mem1" type="uint8" bitLength="5" />
         </bitfield>

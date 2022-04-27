@@ -15,11 +15,12 @@
 
 #include "FieldImpl.h"
 
-#include <cassert>
-#include <limits>
 #include <algorithm>
-#include <set>
+#include <cassert>
 #include <iterator>
+#include <limits>
+#include <map>
+#include <set>
 
 #include "ProtocolImpl.h"
 #include "IntFieldImpl.h"
@@ -108,7 +109,13 @@ bool FieldImpl::parse()
         updateDisplayHidden() &&
         updateCustomizable() &&
         updateFailOnInvalid() &&
-        updateForceGen();
+        updateForceGen() &&
+        updateReadOverride() &&
+        updateWriteOverride() &&
+        updateRefreshOverride() &&
+        updateLengthOverride() &&
+        updateValidOverride() &&
+        updateNameOverride();
 
     if (!result) {
         return false;
@@ -593,6 +600,36 @@ bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool
     return true;
 }
 
+bool FieldImpl::validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value)
+{
+    if (!validateSinglePropInstance(propName, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        value = OverrideType_Any;
+        return true;
+    }    
+
+    static const std::map<std::string, OverrideType> Map = {
+        {std::string(), OverrideType_Any},
+        {"any", OverrideType_Any},
+        {"replace", OverrideType_Replace},
+        {"extend", OverrideType_Extend},
+        {"none", OverrideType_None},
+    };
+
+    auto valIter = Map.find(common::toLowerCopy(iter->second));
+    if (valIter == Map.end()) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;        
+    }
+
+    value = valIter->second;
+    return true;
+}
+
 const XmlWrap::NamesList& FieldImpl::commonProps()
 {
     static const XmlWrap::NamesList CommonNames = {
@@ -610,6 +647,12 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::customizableStr(),
         common::failOnInvalidStr(),
         common::forceGenStr(),
+        common::readOverrideStr(),
+        common::writeOverrideStr(),
+        common::refreshOverrideStr(),
+        common::lengthOverrideStr(),
+        common::validOverrideStr(),
+        common::nameOverrideStr(),
     };
 
     return CommonNames;
@@ -1012,6 +1055,36 @@ bool FieldImpl::updateFailOnInvalid()
 bool FieldImpl::updateForceGen()
 {
     return validateAndUpdateBoolPropValue(common::forceGenStr(), m_state.m_forceGen);
+}
+
+bool FieldImpl::updateReadOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::readOverrideStr(), m_state.m_readOverride);
+}
+
+bool FieldImpl::updateWriteOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::writeOverrideStr(), m_state.m_writeOverride);
+}
+
+bool FieldImpl::updateRefreshOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::refreshOverrideStr(), m_state.m_refreshOverride);
+}
+
+bool FieldImpl::updateLengthOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::lengthOverrideStr(), m_state.m_lengthOverride);
+}
+
+bool FieldImpl::updateValidOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::validOverrideStr(), m_state.m_validOverride);
+}
+
+bool FieldImpl::updateNameOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_state.m_nameOverride);
 }
 
 bool FieldImpl::updateExtraAttrs(const XmlWrap::NamesList& names)

@@ -113,6 +113,36 @@ public:
         return m_state.m_forceGen;
     }
 
+    OverrideType readOverride() const
+    {
+        return m_state.m_readOverride;
+    }
+
+    OverrideType writeOverride() const
+    {
+        return m_state.m_writeOverride;
+    }    
+
+    OverrideType refreshOverride() const
+    {
+        return m_state.m_refreshOverride;
+    }
+
+    OverrideType lengthOverride() const
+    {
+        return m_state.m_lengthOverride;
+    }
+
+    OverrideType validOverride() const
+    {
+        return m_state.m_validOverride;
+    }
+
+    OverrideType nameOverride() const
+    {
+        return m_state.m_nameOverride;
+    }    
+
     std::size_t minLength() const
     {
         return minLengthImpl();
@@ -296,6 +326,7 @@ protected:
             bool allowDeref = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
+    bool validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value);
 
     static const XmlWrap::NamesList& commonProps();
     static const XmlWrap::NamesList& commonChildren();
@@ -347,6 +378,12 @@ private:
         PropsMap m_extraAttrs;
         ContentsList m_extraChildren;
         SemanticType m_semanticType = SemanticType::None;
+        OverrideType m_readOverride = OverrideType_Any;
+        OverrideType m_writeOverride = OverrideType_Any;
+        OverrideType m_refreshOverride = OverrideType_Any;
+        OverrideType m_lengthOverride = OverrideType_Any;
+        OverrideType m_validOverride = OverrideType_Any;
+        OverrideType m_nameOverride = OverrideType_Any;
         bool m_pseudo = false;
         bool m_displayReadOnly = false;
         bool m_displayHidden = false;
@@ -367,6 +404,12 @@ private:
     bool updateCustomizable();
     bool updateFailOnInvalid();
     bool updateForceGen();
+    bool updateReadOverride();
+    bool updateWriteOverride();
+    bool updateRefreshOverride();
+    bool updateLengthOverride();
+    bool updateValidOverride();
+    bool updateNameOverride();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

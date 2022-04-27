@@ -153,6 +153,12 @@ const std::string& forceGenStr();
 const std::string& validateMinLengthStr();
 const std::string& defaultValidValueStr();
 const std::string& availableLengthLimitStr();
+const std::string& readOverrideStr();
+const std::string& writeOverrideStr();
+const std::string& refreshOverrideStr();
+const std::string& lengthOverrideStr();
+const std::string& validOverrideStr();
+const std::string& nameOverrideStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

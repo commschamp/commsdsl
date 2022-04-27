@@ -752,6 +752,42 @@ const std::string& availableLengthLimitStr()
     return Str; 
 }
 
+const std::string& readOverrideStr()
+{
+    static const std::string Str("readOverride");
+    return Str; 
+}
+
+const std::string& writeOverrideStr()
+{
+    static const std::string Str("writeOverride");
+    return Str; 
+}
+
+const std::string& refreshOverrideStr()
+{
+    static const std::string Str("refreshOverride");
+    return Str; 
+}
+
+const std::string& lengthOverrideStr()
+{
+    static const std::string Str("lengthOverride");
+    return Str; 
+}
+
+const std::string& validOverrideStr()
+{
+    static const std::string Str("validOverride");
+    return Str; 
+}
+
+const std::string& nameOverrideStr()
+{
+    static const std::string Str("nameOverride");
+    return Str; 
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
