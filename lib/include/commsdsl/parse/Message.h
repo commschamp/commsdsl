@@ -23,6 +23,7 @@
 #include "Field.h"
 #include "Schema.h"
 #include "Alias.h"
+#include "OverrideType.h"
 
 namespace commsdsl
 {
@@ -68,6 +69,12 @@ public:
     std::string externalRef() const;
     bool isCustomizable() const;
     Sender sender() const;
+    OverrideType readOverride() const;
+    OverrideType writeOverride() const;
+    OverrideType refreshOverride() const;
+    OverrideType lengthOverride() const;
+    OverrideType validOverride() const;
+    OverrideType nameOverride() const;    
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

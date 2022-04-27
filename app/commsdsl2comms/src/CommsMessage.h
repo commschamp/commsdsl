@@ -52,6 +52,12 @@ private:
     using FieldOptsFunc = std::string (CommsField::*)() const;
     using ExtraMessageOptsFunc = StringsList (CommsMessage::*)() const;
 
+    bool commsPrepareOverrideInternal(
+        commsdsl::parse::OverrideType type, 
+        std::string& codePathPrefix, 
+        const std::string& suffix,
+        std::string& customCode,
+        const std::string& name);
     bool commsWriteCommonInternal() const;
     bool commsWriteDefInternal() const;  
     std::string commsCommonIncludesInternal() const;
@@ -89,7 +95,11 @@ private:
     commsdsl::gen::util::StringsList m_bundledReadPrepareCodes;
     commsdsl::gen::util::StringsList m_bundledRefreshCodes;
     std::string m_customRead;
+    std::string m_customWrite;
     std::string m_customRefresh;
+    std::string m_customLength;
+    std::string m_customValid;
+    std::string m_customName;
     std::string m_customExtend;
 };
 

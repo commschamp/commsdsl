@@ -643,6 +643,13 @@ bool CommsField::commsPrepareOverrideInternal(
     std::string& customCode,
     const std::string& name)
 {
+    if (isOverrideCodeRequired(type) && (!comms::isGlobalField(m_field))) {
+        m_field.generator().logger().error(
+            "Overriding \"" + name + "\" operation is not supported for non global fields, detected on \"" +
+            comms::scopeFor(m_field, m_field.generator()) + "\".");
+        return false;
+    }
+
     if (isOverrideCodeAllowed(type)) {
         customCode = util::readFileContents(codePathPrefix + suffix);
     }    
@@ -650,7 +657,7 @@ bool CommsField::commsPrepareOverrideInternal(
     if (customCode.empty() && isOverrideCodeRequired(type)) {
         m_field.generator().logger().error(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
-            m_field.dslObj().externalRef() + "\"");
+            m_field.dslObj().externalRef() + "\".");
         return false;
     }
 

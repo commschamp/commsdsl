@@ -59,7 +59,7 @@
         </optional>       
     </fields>
     
-    <message name="Msg1" id="MsgId.M1">
+    <message name="Msg1" id="MsgId.M1" readOverride="extend" writeOverride="replace" lengthOverride="any" validOverride="replace">
         <ref name="f1" field="R1" />
         <ref name="f2" field="I2" />
         <ref name="f3" field="E1" />
@@ -75,7 +75,7 @@
     </message>
     
     
-    <message name="Msg2" id="MsgId.M2" sender="client">
+    <message name="Msg2" id="MsgId.M2" sender="client" lengthOverride="none" nameOverride="extend">
         <enum name="F1" type="uint64">
             <validValue name="V1" val="0" />
             <validValue name="V2" val="0x7fffffff" />

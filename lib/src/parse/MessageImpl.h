@@ -113,8 +113,37 @@ public:
         return m_sender;
     }
 
-protected:
+    OverrideType readOverride() const
+    {
+        return m_readOverride;
+    }
 
+    OverrideType writeOverride() const
+    {
+        return m_writeOverride;
+    }    
+
+    OverrideType refreshOverride() const
+    {
+        return m_refreshOverride;
+    }
+
+    OverrideType lengthOverride() const
+    {
+        return m_lengthOverride;
+    }
+
+    OverrideType validOverride() const
+    {
+        return m_validOverride;
+    }
+
+    OverrideType nameOverride() const
+    {
+        return m_nameOverride;
+    }        
+
+protected:
     virtual ObjKind objKindImpl() const override;
 
 private:
@@ -127,6 +156,7 @@ private:
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false, bool allowDeref = false);
+    bool validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool updateName();
     bool updateDescription();
@@ -146,6 +176,12 @@ private:
     void cloneFieldsFrom(const BundleFieldImpl& other);
     void cloneAliasesFrom(const MessageImpl& other);
     void cloneAliasesFrom(const BundleFieldImpl& other);
+    bool updateReadOverride();
+    bool updateWriteOverride();
+    bool updateRefreshOverride();
+    bool updateLengthOverride();
+    bool updateValidOverride();
+    bool updateNameOverride();    
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -167,6 +203,12 @@ private:
     Sender m_sender = Sender::Both;
     const MessageImpl* m_copyFieldsFromMsg = nullptr;
     const BundleFieldImpl* m_copyFieldsFromBundle = nullptr;
+    OverrideType m_readOverride = OverrideType_Any;
+    OverrideType m_writeOverride = OverrideType_Any;
+    OverrideType m_refreshOverride = OverrideType_Any;
+    OverrideType m_lengthOverride = OverrideType_Any;
+    OverrideType m_validOverride = OverrideType_Any;
+    OverrideType m_nameOverride = OverrideType_Any;    
     bool m_customizable = false;
 };
 

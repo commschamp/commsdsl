@@ -128,6 +128,42 @@ Message::Sender Message::sender() const
     return m_pImpl->sender();
 }
 
+OverrideType Message::readOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->readOverride();
+}
+
+OverrideType Message::writeOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->writeOverride();
+}
+
+OverrideType Message::refreshOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->refreshOverride();
+}
+
+OverrideType Message::lengthOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->lengthOverride();
+}
+
+OverrideType Message::validOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->validOverride();
+}
+
+OverrideType Message::nameOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->nameOverride();
+}
+
 const Message::AttributesMap& Message::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

@@ -74,6 +74,12 @@ bool MessageImpl::parse()
         updateFields() &&
         copyAliases() &&
         updateAliases() &&
+        updateReadOverride() &&
+        updateWriteOverride() &&
+        updateRefreshOverride() &&
+        updateLengthOverride() &&
+        updateValidOverride() &&
+        updateNameOverride() &&        
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -211,6 +217,36 @@ bool MessageImpl::validateAndUpdateStringPropValue(
     return true;
 }
 
+bool MessageImpl::validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value)
+{
+    if (!validateSinglePropInstance(propName, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        value = OverrideType_Any;
+        return true;
+    }    
+
+    static const std::map<std::string, OverrideType> Map = {
+        {std::string(), OverrideType_Any},
+        {"any", OverrideType_Any},
+        {"replace", OverrideType_Replace},
+        {"extend", OverrideType_Extend},
+        {"none", OverrideType_None},
+    };
+
+    auto valIter = Map.find(common::toLowerCopy(iter->second));
+    if (valIter == Map.end()) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;        
+    }
+
+    value = valIter->second;
+    return true;
+}
+
 void MessageImpl::reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
     XmlWrap::reportUnexpectedPropertyValue(m_node, common::messageStr(), propName, propValue, m_protocol.logger());
@@ -233,6 +269,12 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::customizableStr(),
         common::senderStr(),
         common::validateMinLengthStr(),
+        common::readOverrideStr(),
+        common::writeOverrideStr(),
+        common::refreshOverrideStr(),
+        common::lengthOverrideStr(),
+        common::validOverrideStr(),
+        common::nameOverrideStr(),
     };
 
     return CommonNames;
@@ -828,6 +870,36 @@ void MessageImpl::cloneAliasesFrom(const BundleFieldImpl& other)
     for (auto& a : other.aliases()) {
         m_aliases.push_back(a->clone());
     }
+}
+
+bool MessageImpl::updateReadOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::readOverrideStr(), m_readOverride);
+}
+
+bool MessageImpl::updateWriteOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::writeOverrideStr(), m_writeOverride);
+}
+
+bool MessageImpl::updateRefreshOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::refreshOverrideStr(), m_refreshOverride);
+}
+
+bool MessageImpl::updateLengthOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::lengthOverrideStr(), m_lengthOverride);
+}
+
+bool MessageImpl::updateValidOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::validOverrideStr(), m_validOverride);
+}
+
+bool MessageImpl::updateNameOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_nameOverride);
 }
 
 bool MessageImpl::updateExtraAttrs()
