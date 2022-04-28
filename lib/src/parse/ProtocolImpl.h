@@ -116,6 +116,7 @@ public:
     bool isDefaultValidValueSupported() const;
     bool isCopyFieldsFromBundleSupported() const;
     bool isAvailableLengthLimitSupported() const;
+    bool isOverrideTypeSupported() const;
 
 private:
     struct XmlDocFree

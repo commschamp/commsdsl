@@ -612,6 +612,13 @@ bool FieldImpl::validateAndUpdateOverrideTypePropValue(const std::string& propNa
         return true;
     }    
 
+    if (!m_protocol.isOverrideTypeSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "The property \"" << propName << "\" is not supported for dslVersion=" << 
+                m_protocol.schema().dslVersion() << ".";        
+        return true;
+    }
+
     static const std::map<std::string, OverrideType> Map = {
         {std::string(), OverrideType_Any},
         {"any", OverrideType_Any},
