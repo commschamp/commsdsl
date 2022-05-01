@@ -19,7 +19,6 @@ option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Wind
 # COMMS_INSTALL_DIR - Path to externally built and installed COMMS library project
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
-# COMMSDSL_BOOST_VERSION - Boost version passed to relevant find_package invocation.
 # COMMS_TAG - Tag/branch of COMMS library project to use instead of default
 # CC_COMMS_REPO - Repository of COMMS library project, if not specified default github CommsChampion Ecosystem repo is going to be used.
 
