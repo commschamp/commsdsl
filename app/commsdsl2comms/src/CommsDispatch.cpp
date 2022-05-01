@@ -588,7 +588,7 @@ std::string CommsDispatch::commsIncludesInternal(const std::string& inputPrefix)
 std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, CheckMsgFunc&& func) const
 {
     MessagesMap map;
-    auto allMessages = m_generator.getAllMessages();
+    auto allMessages = m_generator.getAllMessagesIdSorted();
     bool hasMultipleMessagesWithSameId = false;
     const commsdsl::gen::Message* firstMsg = nullptr;
     const commsdsl::gen::Message* secondMsg = nullptr;

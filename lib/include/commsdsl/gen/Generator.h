@@ -84,6 +84,7 @@ public:
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;
     MessagesAccessList getAllMessages() const;
+    MessagesAccessList getAllMessagesIdSorted() const;
     FramesAccessList getAllFrames() const;
 
     bool prepare(const FilesList& files);

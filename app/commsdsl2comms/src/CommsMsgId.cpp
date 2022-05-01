@@ -144,7 +144,7 @@ std::string CommsMsgId::commsIdsInternal() const
         return util::strListToString(enumValues, ",\n", "");
     }
 
-    auto allMessages = m_generator.getAllMessages();
+    auto allMessages = m_generator.getAllMessagesIdSorted();
     util::StringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {

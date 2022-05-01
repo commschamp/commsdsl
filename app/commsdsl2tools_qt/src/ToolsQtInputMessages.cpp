@@ -57,7 +57,7 @@ bool writeFileInternal(
         return false;
     }    
 
-    auto allMessages = generator.getAllMessages();
+    auto allMessages = generator.getAllMessagesIdSorted();
     util::StringsList includes = {
         "<tuple>",
     };
