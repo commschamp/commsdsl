@@ -1273,8 +1273,12 @@ std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
         "static const char* valueName(ValueType val)\n"
         "{\n"
         "    return #^#COMMON_SCOPE#$#::valueName(val);\n"
-        "}\n";
-
+        "}\n\n"
+        "/// @brief Retrieve name of the @b current value\n"
+        "const char* valueName()\n"
+        "{\n"
+        "    return valueName(Base::value());\n"
+        "}\n";        
 
     util::ReplacementMap repl = {
         {"COMMON_SCOPE", comms::commonScopeFor(*this, generator())}
