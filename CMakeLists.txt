@@ -7,13 +7,11 @@ option (COMMSDSL_INSTALL_LIBRARY "Install commdsl library" ON )
 option (COMMSDSL_INSTALL_LIBRARY_HEADERS "Install commdsl library headers" ${COMMSDSL_INSTALL_LIBRARY})
 option (COMMSDSL_BUILD_APPS "Build applications" ON)
 option (COMMSDSL_INSTALL_APPS "Build applications" ${COMMSDSL_BUILD_APPS})
-option (COMMSDSL_BUILD_UNIT_TESTS "Build unittests." ON)
-option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind" OFF)
-option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers" ON)
-option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects" OFF)
-option (COMMSDSL_TEST_BUILD_CC_PLUGIN "Build CommsChampion plugin in unittiesting" ON)
+option (COMMSDSL_BUILD_UNIT_TESTS "Build unittests." OFF)
+option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
+option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ON)
+option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
 option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
-option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to reuse its cmake scripts" ON)
 
 # Additional variables to be used if needed
 # ---------------------------
@@ -30,7 +28,6 @@ option (COMMSDSL_CHECKOUT_COMMS_CHAMPION "Checkout external comms_champion to re
 # option (COMMSDSL_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 # option (COMMSDSL_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 # option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
-# option (COMMSDSL_NO_COMMS_CHAMPION "Disable checkout of comms_champion to reuse its cmake scripts" OFF)
 
 ################################################
 
@@ -43,7 +40,6 @@ include (${CMAKE_SCIPTS_DIR}/CommsdslCompile.cmake)
 commsdsl_negate_option(COMMSDSL_NO_WARN_AS_ERR COMMSDSL_WARN_AS_ERR)
 commsdsl_negate_option(COMMSDSL_NO_CCACHE COMMSDSL_USE_CCACHE)
 commsdsl_negate_option(COMMSDSL_NO_TESTS COMMSDSL_BUILD_UNIT_TESTS)
-commsdsl_negate_option(COMMSDSL_NO_COMMS_CHAMPION COMMSDSL_CHECKOUT_COMMS_CHAMPION)
 
 ################################################
 

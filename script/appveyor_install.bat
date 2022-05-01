@@ -2,7 +2,6 @@ IF "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
     set TOOLCHAIN=msvc14
     set QT_SUBDIR=msvc2015
     set QT_VER=5.6
-    set BOOST_VER=1_65_1
     set ENV_SCRIPT="C:\Program Files (x86)\Microsoft Visual Studio 14.0\VC\vcvarsall.bat"
     IF "%PLATFORM%"=="x86" (
         echo Performing x86 build in VS2015
@@ -15,7 +14,6 @@ IF "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
     set TOOLCHAIN=msvc15
     set QT_SUBDIR=msvc2017
     set QT_VER=5.11
-    set BOOST_VER=1_69_0
     set ENV_SCRIPT_PARAM=
     IF "%PLATFORM%"=="x86" (
         echo Performing x86 build in VS2017
@@ -28,7 +26,6 @@ IF "%APPVEYOR_BUILD_WORKER_IMAGE%"=="Visual Studio 2015" (
     set TOOLCHAIN=msvc16
     set QT_SUBDIR=msvc2019
     set QT_VER=5.15.2
-    set BOOST_VER=1_73_0
     set ENV_SCRIPT_PARAM=
     IF "%PLATFORM%"=="x86" (
         echo Performing x86 build in VS2019
@@ -59,4 +56,4 @@ IF NOT EXIST %QTDIR% (
 
 echo Using Qt5 from %QTDIR%
 
-set BOOST_DIR=C:\Libraries\boost_%BOOST_VER%
+
