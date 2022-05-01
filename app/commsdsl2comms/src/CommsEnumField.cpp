@@ -1275,7 +1275,7 @@ std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
         "    return #^#COMMON_SCOPE#$#::valueName(val);\n"
         "}\n\n"
         "/// @brief Retrieve name of the @b current value\n"
-        "const char* valueName()\n"
+        "const char* valueName() const\n"
         "{\n"
         "    return valueName(Base::value());\n"
         "}\n";        
