@@ -32,6 +32,7 @@ public:
 
     std::string commsVariantPropKeyType() const;
     std::string commsVariantPropKeyValueStr() const;
+    bool commsVariantIsValidPropKey() const;
 
 protected:
     // Base overrides

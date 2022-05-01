@@ -98,6 +98,34 @@ std::string CommsIntField::commsVariantPropKeyValueStr() const
     return util::processTemplate(Templ, repl);
 }
 
+bool CommsIntField::commsVariantIsValidPropKey() const
+{
+    auto obj = intDslObj();
+    if (!obj.isFailOnInvalid()) {
+        return false;
+    }
+
+    if (obj.isPseudo()) {
+        return false;
+    }
+
+    auto& validRanges = obj.validRanges();
+    if (validRanges.size() != 1U) {
+        return false;
+    }
+
+    auto& r = validRanges.front();
+    if (r.m_min != r.m_max) {
+        return false;
+    }
+
+    if (r.m_min != obj.defaultValue()) {
+        return false;
+    }
+
+    return true;
+}
+
 bool CommsIntField::prepareImpl()
 {
     return Base::prepareImpl() && commsPrepare();

@@ -274,7 +274,9 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         auto bundleAccName = comms::accessName(bundle.field().dslObj().name());
         auto keyAccName = comms::accessName(keyField.field().dslObj().name());
 
-        if ((m != m_members.back()) || (keyField.commsVariantPropKeyType() == m_optimizedReadKey)) {
+        if ((m != m_members.back()) && 
+            (keyField.commsVariantIsValidPropKey()) && 
+            (keyField.commsVariantPropKeyType() == m_optimizedReadKey)) {
             auto valStr = keyField.commsVariantPropKeyValueStr();
 
             static const std::string Templ =
