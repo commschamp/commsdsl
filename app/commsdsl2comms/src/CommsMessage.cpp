@@ -238,6 +238,7 @@ bool CommsMessage::commsWriteDefInternal() const
         "#pragma once\n"
         "\n"
         "#^#INCLUDES#$#\n"
+        "#^#CUSTOM_INCLUDES#$#\n\n"
         "#^#NS_BEGIN#$#\n"
         "/// @brief Fields of @ref #^#CLASS_NAME#$#.\n"
         "/// @tparam TOpt Extra options\n"
@@ -282,6 +283,7 @@ bool CommsMessage::commsWriteDefInternal() const
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
         {"MESSAGE_NAME", util::displayName(obj.displayName(), obj.name())},
         {"INCLUDES", commsDefIncludesInternal()},
+        {"CUSTOM_INCLUDES", util::readFileContents(codePathPrefix + strings::incFileSuffixStr())},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"CLASS_NAME", comms::className(obj.name())},
