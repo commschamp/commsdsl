@@ -100,7 +100,7 @@ int main(int argc, const char* argv[])
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {
-            logger.log(commsdsl::parse::ErrorLevel_Error, "No intput files are provided");
+            logger.log(commsdsl::parse::ErrorLevel_Error, "No input files are provided");
             return -1;
         }
 

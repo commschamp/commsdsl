@@ -107,7 +107,7 @@ int main(int argc, const char* argv[])
         files.insert(files.end(), otherFiles.begin(), otherFiles.end());
 
         if (files.empty()) {
-            logger.error("No intput files are provided");
+            logger.error("No input files are provided");
             return -1;
         }
 
