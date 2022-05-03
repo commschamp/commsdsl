@@ -117,9 +117,10 @@ std::string CommsRefField::commsDefBaseClassImpl() const
     assert(m_commsReferencedField != nullptr);
 
     std::string templOpt;
-    if (!comms::isInterfaceMemberField(*this)) {
+    if (!comms::isInterfaceDeepMemberField(*this)) {
         templOpt = "TOpt";
     }
+    
     util::ReplacementMap repl = {
         {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
@@ -183,7 +184,7 @@ std::string CommsRefField::commsDefFieldOptsInternal() const
 
 void CommsRefField::commsAddProtocolOptInternal(StringsList& opts) const
 {
-    if (comms::isInterfaceMemberField(*this)) {
+    if (comms::isInterfaceDeepMemberField(*this)) {
         opts.push_back(comms::scopeForOptions(strings::defaultOptionsClassStr(), generator()));
     }
     else {

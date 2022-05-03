@@ -824,15 +824,21 @@ bool isGlobalField(const Elem& elem)
     return parent->elemType() == Elem::Type_Namespace;
 }
 
-bool isInterfaceMemberField(const Elem& elem)
+bool isInterfaceDeepMemberField(const Elem& elem)
 {
     if (elem.elemType() != Elem::Type_Field) {
         return false;
     }
 
     auto* parent = elem.getParent();
-    assert(parent != nullptr);
-    return parent->elemType() == Elem::Type_Interface;    
+    while (parent != nullptr) {
+        if (parent->elemType() == Elem::Type_Interface) {
+            return true;
+        }
+
+        parent = parent->getParent();
+    }
+    return false;
 }
 
 bool isVersionOptionaField(const Elem& elem, const Generator& generator)

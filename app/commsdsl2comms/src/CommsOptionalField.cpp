@@ -201,7 +201,7 @@ std::string CommsOptionalField::commsDefFieldRefInternal() const
 {
     if (m_commsExternalField != nullptr) {
             std::string templOpt;
-        if (!comms::isInterfaceMemberField(*this)) {
+        if (!comms::isInterfaceDeepMemberField(*this)) {
             templOpt = "TOpt";
         }
 
