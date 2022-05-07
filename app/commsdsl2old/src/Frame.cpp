@@ -318,7 +318,7 @@ bool Frame::writePluginTransportMessageHeader()
         "#pragma once\n\n"
         "#include <tuple>\n"
         "#include <QtCore/QVariantList>\n"
-        "#include \"comms_champion/TransportMessageBase.h\"\n"
+        "#include \"cc_tools_qt/TransportMessageBase.h\"\n"
         "#include #^#FRAME_INCLUDE#$#\n"
         "#^#INTERFACE_INCLUDE#$#\n"
         "\n"
@@ -334,7 +334,7 @@ bool Frame::writePluginTransportMessageHeader()
         "};\n\n"
         "#^#INTERFACE_TEMPL_PARAM#$#\n"
         "class #^#CLASS_NAME#$# : public\n"
-        "    comms_champion::TransportMessageBase<\n"
+        "    cc_tools_qt::TransportMessageBase<\n"
         "        #^#INTERFACE#$#,\n"
         "        #^#ORIG_CLASS_NAME#$#Fields::All\n"
         "    >\n"
@@ -398,7 +398,7 @@ bool Frame::writePluginTransportMessageHeader()
 
         std::string baseDef = 
             "using Base =\n"
-            "    comms_champion::TransportMessageBase<\n"
+            "    cc_tools_qt::TransportMessageBase<\n"
             "        " + interfaceStr + ",\n"
             "        " + common::nameToClassCopy(name()) + common::transportMessageSuffixStr() + common::fieldsSuffixStr() + "::All\n"
             "    >;";
@@ -453,9 +453,9 @@ bool Frame::writePluginTransportMessageSrc()
     static const std::string Templ = 
         "#^#GEN_COMMENT#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
-        "#include \"comms_champion/property/field.h\"\n"
+        "#include \"cc_tools_qt/property/field.h\"\n"
         "#^#INCLUDES#$#\n"
-        "namespace cc = comms_champion;\n\n"
+        "namespace cc = cc_tools_qt;\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "namespace\n"
         "{\n\n"

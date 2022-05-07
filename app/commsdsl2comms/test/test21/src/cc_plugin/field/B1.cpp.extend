@@ -2,7 +2,7 @@
 
 #include "B1Orig.cpp"
 
-namespace cc = comms_champion;
+namespace cc = cc_tools_qt;
 
 namespace test21
 {

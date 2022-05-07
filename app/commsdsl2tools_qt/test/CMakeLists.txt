@@ -37,6 +37,7 @@ while (TRUE)
         "cc_tools_qt_tgt"
         PREFIX "${cc_tools_qt_build_dir}"
         GIT_REPOSITORY https://github.com/commschamp/cc_tools_qt.git
+        GIT_TAG "${CC_TOOLS_QT_TAG}"
         SOURCE_DIR "${cc_tools_qt_src_dir}"
         BINARY_DIR "${cc_tools_qt_build_dir}"
         INSTALL_DIR "${cc_tools_qt_install_dir}"

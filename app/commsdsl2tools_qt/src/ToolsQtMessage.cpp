@@ -46,7 +46,7 @@ const std::string& toolsHeaderCodeMultipleInterfacesTemplInternal()
         "};\n\n"
         "template <typename TInterface>\n"
         "class #^#CLASS_NAME#$# : public\n"
-        "    comms_champion::ProtocolMessageBase<\n"
+        "    cc_tools_qt::ProtocolMessageBase<\n"
         "        ::#^#PROT_MESSAGE#$#<TInterface>,\n"
         "        #^#CLASS_NAME#$#<TInterface>\n"
         "    >\n"

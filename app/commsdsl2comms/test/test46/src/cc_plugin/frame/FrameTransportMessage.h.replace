@@ -2,7 +2,7 @@
 
 #include <tuple>
 #include <QtCore/QVariantList>
-#include "comms_champion/TransportMessageBase.h"
+#include "cc_tools_qt/TransportMessageBase.h"
 #include "test46/frame/Frame.h"
 #include "cc_plugin/Interface.h"
 
@@ -29,7 +29,7 @@ struct FrameTransportMessageFields
 };
 
 class FrameTransportMessage : public
-    comms_champion::TransportMessageBase<
+    cc_tools_qt::TransportMessageBase<
         test46::cc_plugin::Interface,
         FrameTransportMessageFields::All
     >

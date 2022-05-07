@@ -21,6 +21,7 @@ option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Wind
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
 # COMMS_TAG - Tag/branch of COMMS library project to use instead of default
 # CC_COMMS_REPO - Repository of COMMS library project, if not specified default github CommsChampion Ecosystem repo is going to be used.
+# CC_TOOLS_QT_TAG = Tag/branch of the cc_tools_qt project to use instead of default.
 
 # Deprecated options for backward compatibility, use the ones above for new builds.
 # ---------------------------
@@ -52,6 +53,10 @@ endif ()
 
 if ("${COMMS_TAG}" STREQUAL "")
     set (COMMS_TAG "master")
+endif()
+
+if ("${CC_TOOLS_QT_TAG}" STREQUAL "")
+    set (CC_TOOLS_QT_TAG "master")
 endif()
 
 if (NOT COMMSDSL_EXTERNALS_DIR)

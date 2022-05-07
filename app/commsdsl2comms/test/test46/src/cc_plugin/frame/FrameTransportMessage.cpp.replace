@@ -1,10 +1,10 @@
 #include "FrameTransportMessage.h"
 
-#include "comms_champion/property/field.h"
+#include "cc_tools_qt/property/field.h"
 #include "cc_plugin/field/ChecksumType.h"
 #include "cc_plugin/field/MsgId.h"
 
-namespace cc = comms_champion;
+namespace cc = cc_tools_qt;
 
 namespace test46
 {

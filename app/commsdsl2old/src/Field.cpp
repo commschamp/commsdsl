@@ -1587,7 +1587,7 @@ bool Field::writePluginScrFile() const
         "#include \"#^#CLASS_NAME#$#.h\"\n"
         "\n"
         "#^#INCLUDES#$#\n\n"
-        "namespace cc = comms_champion;\n\n"
+        "namespace cc = cc_tools_qt;\n\n"
         "#^#BEGIN_NAMESPACE#$#\n"
         "#^#ANON_NAMESPACE#$#\n"
         "QVariantMap createProps_#^#NAME#$#(const char* name, bool serHidden)\n"
@@ -1629,7 +1629,7 @@ bool Field::writePluginScrFile() const
 std::string Field::getPluginIncludes() const
 {
     IncludesList includes;
-    common::mergeInclude("comms_champion/property/field.h", includes);
+    common::mergeInclude("cc_tools_qt/property/field.h", includes);
     common::mergeInclude(m_generator.headerfileForField(m_externalRef, false), includes);
     updatePluginIncludesImpl(includes);
     return common::includesToStatements(includes);

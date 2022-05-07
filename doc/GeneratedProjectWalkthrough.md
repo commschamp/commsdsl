@@ -103,7 +103,7 @@ Note, that **cc::** is a default namespace for exported project. It is possible 
 Also note that in case of excluding [COMMS Library](https://github.com/commschamp/comms) lookup during the protocol build process 
 it needs to be found separately and used inside `target_link_libraries()` invocation.
 ```
-list (APPEND CMAKE_PREFIX_PATH "/path/to/comms_champion/install/dir")
+list (APPEND CMAKE_PREFIX_PATH "/path/to/cc_tools_qt/install/dir")
 find_package (LibComms REQUIRED NO_MODULE)
 target_link_libraries (my_proj cc::demo1 cc::comms)
 ```
