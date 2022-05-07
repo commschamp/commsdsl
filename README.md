@@ -1,8 +1,9 @@
 # Overview
 This project is a member of [CommsChampion Ecosystem](https://commschamp.github.io).
-It provides a code generator that produces C++11 code of a binary communication protocol,
+It provides several code generators that produce C++11 code of a binary communication protocol,
 defined using [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) 
-schema files. 
+schema files as well as satellite codes that could be used for testing and 
+protocol visualization. 
 
 # What's Inside
 - **commsdsl2comms** - A code generator, that produces C++11 code for binary
@@ -13,7 +14,11 @@ build and install multiple targets. For details on how to use the tool, please r
 documentation page. For details on the generated CMake project please read the
 [Generated CMake Project Walkthrough](doc/GeneratedProjectWalkthrough.md)
 documentation page.
-- **libcommsdsl** - A C++11 library for parsing of 
+- **commsdsl2test** - A code generator, that produces C++11 code for fuzz
+testing of the protocol definition produced by the **commsdsl2comms**.
+- **commsdsl2tools_qt** - A code generator, that produces the protocol
+definition plugin code for [CommmsChampion Tools](https://github.com/commschamp/cc_tools_qt).
+- **libcommsdsl** - A C++ library for parsing of 
 [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) schema files.
 It can be used to implement independent code generators, which can produce
 protocol definition code in other programming languages, bindings to the C++
