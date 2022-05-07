@@ -25,7 +25,7 @@ when it's going to be ready.
 # License
 The generated code has no license, the vendor is free to
 pick any as long as it's compatibile with the license(s) of the
-relevant **CommsChampion Ecosystem**) project:
+relevant **CommsChampion Ecosystem** project:
 
 - The protocol definition uses the 
   [COMMS Library](https://github.com/commschamp/comms),
