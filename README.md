@@ -104,13 +104,13 @@ in the code of this repository, and **PATCH** number will indicate various bug f
 
 # Supported Compilers
 This project (the code generator and [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) 
-parsing library) is implemented using C++14 programming language. As the result,
+parsing library) is implemented using C++17 programming language. As the result,
 the supported compilers are:
-- **GCC**: >=5
-- **Clang**: >=3.9
-- **MSVC**: >= 2015
+- **GCC**: >=8
+- **Clang**: >=7
+- **MSVC**: >= 2017
 
-The **generated** project however contains C++11 valid code and supports a bit earlier
+The **generated** projects however contain C++11 valid code and supports a bit earlier
 versions of the compilers:
 - **GCC**: >=4.8
 - **Clang**: >=3.8
