@@ -52,11 +52,11 @@ if (NOT COMMSDSL_TESTS_CXX_STANDARD)
 endif ()
 
 if ("${COMMS_TAG}" STREQUAL "")
-    set (COMMS_TAG "master")
+    set (COMMS_TAG "v4.0")
 endif()
 
 if ("${CC_TOOLS_QT_TAG}" STREQUAL "")
-    set (CC_TOOLS_QT_TAG "master")
+    set (CC_TOOLS_QT_TAG "v4.0")
 endif()
 
 if (NOT COMMSDSL_EXTERNALS_DIR)
