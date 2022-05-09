@@ -11,7 +11,7 @@
                 <validValue name="Msg2" val="1" />
             </enum>
         </fields>
-        <message name="Msg1_1" id="ns1.MsgId.Msg1">
+        <message name="Msg1_1" id="ns1.MsgId.Msg1" validateMinLength="8">
             <int name="field1" type="uint32" />
             <int name="field2" type="uint32" />
         </message>
@@ -21,6 +21,7 @@
                 <int name="field2" type="uint16" />
             </fields>
             <order>1</order>
+            <validateMinLength>6</validateMinLength>
         </message>
     </ns>
 </schema>

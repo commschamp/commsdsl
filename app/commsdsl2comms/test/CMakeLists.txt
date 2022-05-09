@@ -1,14 +1,21 @@
-
 #################################################################
 
 function (test_func name)
-    set (schema_file "${CMAKE_CURRENT_SOURCE_DIR}/${name}/Schema.xml")
+    set (test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
+    set (schema_file "${test_dir}/Schema.xml")
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
-    set (code_input_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}/src")
+    set (code_input_dir "${test_dir}/src")
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")
-        set (code_input_param "-c${code_input_dir}")
+        set (code_input_param -c ${code_input_dir})
     endif()
+
+    set (extra_bundle_param)
+    if (EXISTS "${test_dir}/extra")
+        file(GLOB extra_bundle_files ${test_dir}/extra/*)
+        string (REPLACE ";" "," extra_bundle_param_value "${extra_bundle_files}")
+        set (extra_bundle_param --extra-messages-bundle "${extra_bundle_param_value}")
+    endif()    
 
     set (rm_tmp_tgt ${APP_NAME}.${name}_rm_tmp_tgt)
     add_custom_target(${rm_tmp_tgt}
@@ -18,17 +25,41 @@ function (test_func name)
     add_custom_command(
         OUTPUT ${output_dir}.tmp
         DEPENDS ${schema_file} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err -o ${output_dir}.tmp "${code_input_param}" ${schema_file}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_file}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND}
-            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}"
-            -P "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake"
-        DEPENDS ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
+            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc;include" 
+            -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
+        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
 
-    set (tests "${CMAKE_CURRENT_SOURCE_DIR}/${name}/${name}Test.th")
+
+    set (build_tgt ${APP_NAME}.${name}_build_tgt)
+    set (build_dir ${output_dir}/build)
+    set (install_dir ${build_dir}/install)
+
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
+
+    add_custom_target(${build_tgt} ALL
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}"
+        COMMAND 
+            ${CMAKE_COMMAND} 
+                ${output_dir}
+                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
+                -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
+                -DCMAKE_INSTALL_PREFIX=${install_dir}
+                -DOPT_REQUIRE_COMMS_LIB=OFF
+        COMMAND
+            ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
+        WORKING_DIRECTORY ${build_dir}
+        DEPENDS ${output_tgt})    
+
+    set (tests "${test_dir}/${name}Test.th")
 
     set (testName "${APP_NAME}.${name}Test")
 
@@ -39,8 +70,8 @@ function (test_func name)
 
     cc_cxxtest_add_test(NAME ${testName} SRC ${tests} ${valgrand_opt})
 
-    add_dependencies(${testName} ${output_tgt})
-    target_include_directories (${testName} PRIVATE "${output_dir}/include")
+    add_dependencies(${testName} ${build_tgt})
+    target_include_directories (${testName} PRIVATE "${install_dir}/include")
 
     target_compile_options(${testName} PRIVATE
         $<$<CXX_COMPILER_ID:MSVC>:/bigobj>
@@ -55,51 +86,13 @@ function (test_func name)
         ) 
     endif ()    
 
-    while (TRUE)
-        if (NOT COMMSDSL_TEST_BUILD_CC_PLUGIN)
-            message (STATUS "Skipping build of ${APP_NAME}.${name}_plugin_build_tgt")
-            break ()
-        endif ()
-        
-        if (NOT TARGET cc::comms_champion)
-            message (FATAL_ERROR "cc::comms_champion target is not defined")
-        endif () 
-        
-        set (plugin_build_tgt ${APP_NAME}.${name}_plugin_build_tgt)
-        add_custom_target(${plugin_build_tgt} ALL
-            COMMAND ${CMAKE_COMMAND}
-                -DPROJ_DIR=${output_dir} 
-                -DCOMMS_INSTALL_DIR="${COMMS_INSTALL_DIR}"
-                -DOPT_QT_DIR=${COMMSDSL_QT_DIR}
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
-                -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-                -P "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake"
-            DEPENDS ${output_tgt} ${output_dir}.tmp "${CMAKE_CURRENT_LIST_DIR}/BuildPlugin.cmake" ${testName}
+    if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
+        add_custom_target(${APP_NAME}.doc_${name} ALL
+            COMMAND COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}
+            DEPENDS ${build_tgt} 
         )
-
-        if (DOXYGEN_FOUND)
-            add_custom_target(doc_${name}
-                COMMAND COMMAND ${CMAKE_COMMAND} --build ${output_dir}/build --target doc_${name}
-                DEPENDS ${plugin_build_tgt} 
-            )
-        endif ()
-        
-        break()
-    endwhile()
-
-endfunction ()
-
-#################################################################
-
-function (add_clang_options name)
-    set (testName "${name}Test")
-
-    if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-        target_compile_options (${testName} PRIVATE ${ARGV})
     endif ()
-
+        
 endfunction ()
 
 #################################################################
@@ -108,42 +101,7 @@ if (NOT BUILD_TESTING)
     return ()
 endif () 
 
-if ("${COMMS_INSTALL_DIR}" STREQUAL "")
-    if (("${CC_CMAKE_DIR}" STREQUAL "") OR (NOT EXISTS "${CC_CMAKE_DIR}/CC_External.cmake"))
-        message (FATAL_ERROR "Missing CC_External.cmake script, should be provided by the comms_champipon project")
-    endif ()
-
-    include (${CC_CMAKE_DIR}/CC_External.cmake)
-
-    set (qt_dir_opt)
-    if (NOT "${COMMSDSL_QT_DIR}" STREQUAL "")
-        set (qt_dir_opt QT_DIR ${COMMSDSL_QT_DIR})
-    endif ()    
-
-    set (COMMS_BUILD_DIR "${CMAKE_BINARY_DIR}/comms_champion")
-    set (COMMS_INSTALL_DIR "${COMMS_BUILD_DIR}/install")
-    cc_build_as_external_project(
-        SRC_DIR ${CC_SRC_DIR} 
-        BUILD_DIR ${COMMS_BUILD_DIR}/comms_champion
-        INSTALL_DIR ${COMMS_INSTALL_DIR}
-        TAG ${CC_TAG} 
-        ${qt_dir_opt}
-        NO_SYSTEM_HEADERS
-        CMAKE_ARGS 
-            -DCC_BUILD_UNIT_TESTS=OFF
-            -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-            -DCC_WARN_AS_ERR=OFF -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
-            -DCC_BUILD_TOOLS=OFF
-    )
-    
-else ()
-    list (APPEND CMAKE_PREFIX_PATH "${COMMS_INSTALL_DIR}")
-    find_package(CommsChampion NO_MODULE)
-endif ()
-
-if (NOT TARGET cc::comms)
-    message (FATAL_ERROR "cc::comms target is not defined")
-endif () 
+commsdsl_ensure_comms_target ()
 
 set (COMMSDSL_SANITIZER_OPTS)
 if (COMMSDSL_TEST_USE_SANITIZERS AND
@@ -155,7 +113,6 @@ if (COMMSDSL_TEST_USE_SANITIZERS AND
         -fno-sanitize-recover=undefined
         -fsanitize=undefined)
 endif ()
-
 
 if ((NOT "${COMMSDSL_SANITIZER_OPTS}" STREQUAL "") AND (${CMAKE_VERSION} VERSION_LESS "3.13"))
     message (WARNING "The CMake version is too old, expected at least 3.13, sanitizers are disabled")
@@ -219,3 +176,4 @@ test_func (test43)
 test_func (test44)
 test_func (test45)
 test_func (test46)
+test_func (test47)

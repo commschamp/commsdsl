@@ -1,0 +1,142 @@
+#include "cxxtest/TestSuite.h"
+
+#include "comms/iterator.h"
+#include "comms/util/assign.h"
+#include "test47/Message.h"
+#include "test47/frame/Frame.h"
+#include "test47/input/Plat1Messages.h"
+#include "test47/input/Plat2Messages.h"
+#include "test47/input/Bundle1Messages.h"
+#include "test47/input/Bundle2Messages.h"
+#include "test47/dispatch/DispatchPlat1Message.h"
+#include "test47/dispatch/DispatchPlat2Message.h"
+#include "test47/dispatch/DispatchBundle1Message.h"
+#include "test47/dispatch/DispatchBundle2Message.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+    void test3();
+
+    struct Handler;
+    using Interface =
+        test47::Message<
+            comms::option::app::IdInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
+            comms::option::app::NameInterface,
+            comms::option::app::RefreshInterface
+        >;
+
+    using Msg1 = test47::message::Msg1<Interface>;
+    using Msg2 = test47::message::Msg2<Interface>;    
+    using Msg3 = test47::message::Msg3<Interface>;    
+    using Msg4 = test47::message::Msg4<Interface>;    
+
+    struct Handler
+    {
+        void handle(Msg1&)
+        {
+            ++m_msg1;
+        }
+
+        void handle(Msg2&)
+        {
+            ++m_msg2;
+        }
+
+        void handle(Msg3&)
+        {
+            ++m_msg3;
+        }
+
+        void handle(Msg4&)
+        {
+            ++m_msg4;
+        }
+
+        void handle(Interface&)
+        {
+            TS_ASSERT(false); // Shouldn't be called
+        }        
+
+        unsigned m_msg1 = 0U;
+        unsigned m_msg2 = 0U;
+        unsigned m_msg3 = 0U;
+        unsigned m_msg4 = 0U;
+    };
+
+
+    using Plat1Frame = test47::frame::Frame<Interface, test47::input::Plat1Messages<Interface> >;    
+    using Plat2Frame = test47::frame::Frame<Interface, test47::input::Plat2Messages<Interface> >;    
+    using Bundle1Frame = test47::frame::Frame<Interface, test47::input::Bundle1Messages<Interface> >;    
+    using Bundle2Frame = test47::frame::Frame<Interface, test47::input::Bundle2Messages<Interface> >;    
+};
+
+void TestSuite::test1()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        3, 
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    
+    Plat1Frame frame;
+    Plat1Frame::MsgPtr msgPtr;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test47::MsgId_M3);
+
+    Handler handler;
+    test47::dispatch::dispatchPlat1MessageDefaultOptions(msgPtr->getId(), *msgPtr, handler);
+    TS_ASSERT_EQUALS(handler.m_msg3, 1U);
+}
+
+void TestSuite::test2()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        3, 
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    
+    Plat2Frame frame;
+    Plat2Frame::MsgPtr msgPtr;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgId);
+    TS_ASSERT(!msgPtr);
+}
+
+void TestSuite::test3()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        1, 
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    
+    Bundle1Frame frame;
+    Bundle1Frame::MsgPtr msgPtr;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test47::MsgId_M1);
+
+    Handler handler;
+    test47::dispatch::dispatchBundle1MessageDefaultOptions(msgPtr->getId(), *msgPtr, handler);
+    TS_ASSERT_EQUALS(handler.m_msg1, 1U);    
+}

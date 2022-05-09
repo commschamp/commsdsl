@@ -82,7 +82,7 @@ void MessageTestSuite::test2()
     auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
     auto& f1 = fields[0];
-    TS_ASSERT_EQUALS(f1.semanticType(), commsdsl::Field::SemanticType::MessageId);
+    TS_ASSERT_EQUALS(f1.semanticType(), commsdsl::parse::Field::SemanticType::MessageId);
 
     auto messages = ns.messages();
     TS_ASSERT_EQUALS(messages.size(), 2U);
@@ -106,7 +106,7 @@ void MessageTestSuite::test2()
 
 void MessageTestSuite::test3()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
@@ -147,7 +147,7 @@ void MessageTestSuite::test4()
 
 void MessageTestSuite::test5()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
@@ -180,7 +180,7 @@ void MessageTestSuite::test6()
 
 void MessageTestSuite::test7()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
@@ -188,7 +188,7 @@ void MessageTestSuite::test7()
 
 void MessageTestSuite::test8()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
@@ -196,7 +196,7 @@ void MessageTestSuite::test8()
 
 void MessageTestSuite::test9()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
@@ -237,7 +237,7 @@ void MessageTestSuite::test10()
 
 void MessageTestSuite::test11()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
@@ -245,8 +245,8 @@ void MessageTestSuite::test11()
 
 void MessageTestSuite::test12()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
 
@@ -280,7 +280,7 @@ void MessageTestSuite::test12()
 void MessageTestSuite::test13()
 {
     m_status.m_preValidateFunc =
-        [](commsdsl::Protocol& p)
+        [](commsdsl::parse::Protocol& p)
         {
             p.addExpectedExtraPrefix("prefix.");
         };
@@ -371,7 +371,7 @@ void MessageTestSuite::test15()
 
 void MessageTestSuite::test16()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
@@ -379,7 +379,7 @@ void MessageTestSuite::test16()
 
 void MessageTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
@@ -408,16 +408,16 @@ void MessageTestSuite::test18()
     TS_ASSERT_EQUALS(msg3.name(), "Msg3");
     TS_ASSERT_EQUALS(msg4.name(), "Msg4");
 
-    TS_ASSERT_EQUALS(msg1.sender(), commsdsl::Message::Sender::Both);
+    TS_ASSERT_EQUALS(msg1.sender(), commsdsl::parse::Message::Sender::Both);
     TS_ASSERT(!msg1.isCustomizable());
 
-    TS_ASSERT_EQUALS(msg2.sender(), commsdsl::Message::Sender::Both);
+    TS_ASSERT_EQUALS(msg2.sender(), commsdsl::parse::Message::Sender::Both);
     TS_ASSERT(!msg2.isCustomizable());
 
-    TS_ASSERT_EQUALS(msg3.sender(), commsdsl::Message::Sender::Client);
+    TS_ASSERT_EQUALS(msg3.sender(), commsdsl::parse::Message::Sender::Client);
     TS_ASSERT(msg3.isCustomizable());
 
-    TS_ASSERT_EQUALS(msg4.sender(), commsdsl::Message::Sender::Server);
+    TS_ASSERT_EQUALS(msg4.sender(), commsdsl::parse::Message::Sender::Server);
     TS_ASSERT(!msg1.isCustomizable());
 }
 

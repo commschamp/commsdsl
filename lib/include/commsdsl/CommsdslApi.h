@@ -17,11 +17,16 @@
 
 #ifdef WIN32
 
+#ifdef COMMSDSL_USE_DLL
 #ifdef COMMSDSL_LIB_EXPORT
 #define COMMSDSL_API __declspec(dllexport)
 #else // #ifdef COMMSDSL_LIB_EXPORT
 #define COMMSDSL_API __declspec(dllimport)
 #endif // #ifdef COMMSDSL_LIB_EXPORT
+
+#else // #ifdef COMMSDSL_USE_DLL
+#define COMMSDSL_API
+#endif
 
 #else // #ifdef WIN32
 #define COMMSDSL_API

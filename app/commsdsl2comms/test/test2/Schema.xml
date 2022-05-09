@@ -3,6 +3,12 @@
         id="1"
         endian="big"
         version="5">
+    <fields>
+        <bundle name="B1">
+            <int name="F1" type="uint32" />
+            <int name="F2" type="uint16" />
+        </bundle>    
+    </fields>
     <interface name="Interface">
         <description>
             This is very very very very very very very very very very very very very very
@@ -23,6 +29,11 @@
             <int name="f2" type="uint32" />
         </fields>
     </message>
+    <message name="Msg3" id="3" copyFieldsFrom="B1" validateMinLength="0xA">
+        <fields>
+            <int name="F3" type="uint32" />
+        </fields>
+    </message>    
     <frame name="Frame">
         <id name="ID">
             <field>

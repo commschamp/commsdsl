@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema11"
+        id="1"
+        endian="big">
+    <description>
+        Testing availableLengthLimit="true" for integer types
+    </description>
+    <fields>
+        <bundle name="B1">
+            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <int name="Length" type="uint8" semanticType="length" />
+            <int name="Value" type="uint32" availableLengthLimit="true" />
+        </bundle>  
+
+        <bundle name="B2">
+            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <int name="Length" type="uint8" semanticType="length" />
+            <enum name="Value" type="uint32" availableLengthLimit="true">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="0xffff" />
+                <validValue name="V3" val="0xffffff" />
+            </enum>
+        </bundle>                 
+    </fields>
+</schema>

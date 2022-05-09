@@ -1,4 +1,4 @@
-# This file contains contains a function that prefetches comms_champion project. 
+# This file contains contains a function that prefetches COMMS library or any other CommsChampion Ecosystem project. 
 
 # ******************************************************
 #     cc_prefetch(
@@ -7,12 +7,12 @@
 #         [REPO <repo>]
 #     )
 #
-# - SRC_DIR - A directory where comms_champion sources will end up.
+# - SRC_DIR - A directory where sources will end up.
 # - TAG - Override the default tag to checkout.
-# - REPO - Override the default repository of the comms_champion.
+# - REPO - Override the default repository of the COMMS library.
 #
 
-set (CC_FETCH_DEFAULT_REPO "https://github.com/commschamp/comms_champion.git")
+set (CC_FETCH_DEFAULT_REPO "https://github.com/commschamp/comms.git")
 set (CC_FETCH_DEFAULT_TAG "master")
 
 function (cc_prefetch)

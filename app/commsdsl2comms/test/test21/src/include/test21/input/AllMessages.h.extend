@@ -1,15 +1,3 @@
-/// @file
-/// @brief Contains definition of @ref test21::input::AllMessages definition.
-
-#pragma once
-
-#include "AllMessagesOrig.h"
-
-namespace test21
-{
-
-namespace input
-{
 
 /// @brief All messages of the protocol in ascending order.
 /// @tparam TBase Base class of all the messages.
@@ -17,8 +5,5 @@ namespace input
 template <typename TBase, typename TOpt = test21::options::DefaultOptions>
 using AllMessages = AllMessagesOrig<TBase, TOpt>;
 
-} // namespace input
-
-} // namespace test21
 
 

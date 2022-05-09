@@ -1,0 +1,272 @@
+//
+// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "CommsChecksumLayer.h"
+
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include "CommsGenerator.h"
+
+#include <algorithm>
+#include <cassert>
+#include <iterator>
+
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
+namespace commsdsl2comms
+{
+
+CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) :
+    Base(generator, dslObj, parent),
+    CommsBase(static_cast<Base&>(*this))
+{
+}
+
+bool CommsChecksumLayer::prepareImpl()
+{
+    return Base::prepareImpl() && CommsBase::commsPrepare();
+}
+
+bool CommsChecksumLayer::commsReorderImpl(CommsLayersList& siblings, bool& success) const 
+{
+    auto iter =
+        std::find_if(
+            siblings.begin(), siblings.end(),
+            [this](const CommsLayer* l)
+            {
+                return l == this;
+            });
+
+    if (iter == siblings.end()) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return false;
+    }
+
+    auto obj = checksumDslObj();
+    auto& gen = const_cast<CommsChecksumLayer*>(this)->generator();
+    auto& untilStr = obj.untilLayer();
+    if (!untilStr.empty()) {
+        assert(obj.fromLayer().empty());
+        auto untilIter =
+            std::find_if(
+                siblings.begin(), siblings.end(),
+                [&untilStr](const CommsLayer* l)
+                {
+                    return l->layer().dslObj().name() == untilStr;
+                });
+
+        if (untilIter == siblings.end()) {
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            success = false;
+            return false;
+        }
+
+        if ((*untilIter)->layer().dslObj().kind() != commsdsl::parse::Layer::Kind::Payload) {
+            gen.logger().error("Checksum prefix must be until payload layer");
+            success = false;
+            return false;
+        }
+
+        success = true;
+        return false;
+    }
+
+    auto& fromStr = obj.fromLayer();
+    if (fromStr.empty()) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        gen.logger().error("Info on checksum layer is missing");
+        success = false;
+        return false;
+    }
+
+    auto fromIter =
+        std::find_if(
+            siblings.begin(), siblings.end(),
+            [&fromStr](const CommsLayer* l)
+            {
+                return l->layer().dslObj().name() == fromStr;
+            });
+
+
+    if (fromIter == siblings.end()) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        success = false;
+        return false;
+    }            
+
+    auto iterTmp = iter;
+    std::advance(iterTmp, 1U);
+    if (iterTmp == fromIter) {
+        // Already in place
+        success = true;
+        return false;
+    }
+
+    auto thisPtr = std::move(*iter);
+    siblings.erase(iter);
+    siblings.insert(fromIter, std::move(thisPtr));
+    success = true;
+    return true;      
+}
+
+CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() const
+{
+    IncludesList result;
+    auto obj = checksumDslObj();
+    if (!obj.fromLayer().empty()) {
+        assert(obj.untilLayer().empty());
+        result.push_back("comms/protocol/ChecksumLayer.h");
+    }
+    else {
+        assert(!obj.untilLayer().empty());
+        result.push_back("comms/protocol/ChecksumPrefixLayer.h");
+    }
+
+    const std::string ChecksumMap[] = {
+        /* Custom */ strings::emptyString(),
+        /* Sum */ "BasicSum",
+        /* Crc_CCITT */ "Crc",
+        /* Crc_16 */ "Crc",
+        /* Crc_32 */ "Crc",
+        /* Xor */ "BasicXor",
+    };
+
+    const std::size_t ChecksumMapSize = std::extent<decltype(ChecksumMap)>::value;
+    static_assert(ChecksumMapSize == static_cast<std::size_t>(commsdsl::parse::ChecksumLayer::Alg::NumOfValues),
+            "Invalid map");
+
+    auto idx = static_cast<std::size_t>(obj.alg());
+    if (ChecksumMapSize <= idx) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        idx = 0U;
+    }
+
+    if (!ChecksumMap[idx].empty()) {
+        result.push_back("comms/protocol/checksum/" + ChecksumMap[idx] + strings::cppHeaderSuffixStr());
+    }
+    else {
+        assert(!obj.customAlgName().empty());
+        result.push_back(comms::relHeaderForChecksum(comms::className(obj.customAlgName()), generator()));
+    }
+    return result;
+}
+
+std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName) const
+{
+    static const std::string Templ = 
+        "comms::protocol::Checksum#^#PREFIX_VAR#$#Layer<\n"
+        "    #^#FIELD_TYPE#$#,\n"
+        "    #^#ALG#$#,\n"
+        "    #^#PREV_LAYER#$##^#COMMA#$#\n"
+        "    #^#EXTRA_OPT#$#\n"
+        ">";    
+
+    util::ReplacementMap repl = {
+        {"FIELD_TYPE", commsDefFieldType()},
+        {"ALG", commsDefAlgInternal()},
+        {"PREV_LAYER", prevName},
+        {"EXTRA_OPT", commsDefExtraOptInternal()}
+    };
+
+    if (!repl["EXTRA_OPT"].empty()) {
+        repl["COMMA"] = ",";
+    }
+
+    if (!checksumDslObj().untilLayer().empty()) {
+        repl["PREFIX_VAR"] = "Prefix";
+    }    
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsChecksumLayer::commsDefAlgInternal() const
+{
+    const std::string ClassMap[] = {
+        /* Custom */ strings::emptyString(),
+        /* Sum */ "BasicSum",
+        /* Crc_CCITT */ "Crc_CCITT",
+        /* Crc_16 */ "Crc_16",
+        /* Crc_32 */ "Crc_32",
+        /* Xor */ "BasicXor",
+    };
+
+    const std::size_t ClassMapSize = std::extent<decltype(ClassMap)>::value;
+    static_assert(ClassMapSize == static_cast<std::size_t>(commsdsl::parse::ChecksumLayer::Alg::NumOfValues),
+            "Invalid map");
+
+
+    auto obj = checksumDslObj();
+    auto alg = obj.alg();
+    auto idx = static_cast<std::size_t>(alg);
+
+    if (ClassMapSize <= idx) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        idx = 0U;
+    }
+
+    if (ClassMap[idx].empty()) {
+        assert(!obj.customAlgName().empty());
+        return comms::scopeForChecksum(obj.customAlgName(), generator());
+    }
+
+    auto str = "comms::protocol::checksum::" + ClassMap[idx];
+    if ((alg != commsdsl::parse::ChecksumLayer::Alg::Sum) &&
+        (alg != commsdsl::parse::ChecksumLayer::Alg::Xor)) {
+        return str;
+    }
+
+    static const std::string Templ = 
+        "#^#ALG#$#<\n"
+        "    #^#FIELD#$#::ValueType\n"
+        ">";
+
+    util::ReplacementMap repl = {
+        {"ALG", std::move(str)},
+        {"FIELD", commsDefFieldType()},
+    };
+
+    if (!util::strStartsWith(repl["FIELD"], "typename")) {
+        repl["FIELD"] = "typename " + repl["FIELD"];
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsChecksumLayer::commsDefExtraOptInternal() const
+{
+    std::string result;
+    if (checksumDslObj().verifyBeforeRead()) {
+        result = "comms::option::def::ChecksumLayerVerifyBeforeRead";
+    }
+    return result;
+}
+
+} // namespace commsdsl2comms

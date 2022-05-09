@@ -1,16 +1,6 @@
-#include "F1Orig.h"
-
-namespace test21
-{
-
-namespace field
-{
 
 /// @brief New definition of F1.
 template <typename TOpt = test21::options::DefaultOptions, typename... TExtraOpts>
 using F1 = F1Orig<TOpt, TExtraOpts...>;
 
-} // namespace field
-
-} // namespace test21
 

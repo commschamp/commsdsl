@@ -12,6 +12,8 @@ public:
     void test2();
     void test3();
     void test4();
+    void test5();
+    void test6();
 
     using Interface =
         test32::Message<
@@ -108,7 +110,7 @@ void TestSuite::test3()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
     auto* msg = static_cast<const Msg1*>(msgPtr.get());
-    TS_ASSERT_EQUALS(msg->field_f1().currentField(), 2U);
+    TS_ASSERT_EQUALS(msg->field_f1().currentField(), 3U);
     msg->field_f1().currFieldExec(TypeVerifier(5));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_any().field_type().value(), 0x05);
     TS_ASSERT_EQUALS(msg->field_f1().accessField_any().field_length().value(), 0x04);
@@ -126,4 +128,68 @@ void TestSuite::test4()
     f.field_type().value() = static_cast<PropKeyType>(1);
     TS_ASSERT(msg1.doRefresh());
     TS_ASSERT_EQUALS(f.field_type().value(), static_cast<PropKeyType>(0));
+}
+
+void TestSuite::test5()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        1, 0, 0x1, 0xff, 0xab, 0xcd
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
+    auto* msg = static_cast<Msg1*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg->field_f1().currentField(), 0U);
+    msg->field_f1().currFieldExec(TypeVerifier(0));
+    TS_ASSERT_EQUALS(msg->field_f1().accessField_p1().field_value().value(), 0xff);
+    TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
+
+    // msg->field_f1().accessField_p1().field_value().setForcedLength(msg->field_f1().accessField_p1().field_length().value());
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(*msgPtr));
+    TS_ASSERT_EQUALS(Buf1Size, outBuf.size());
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    es = frame.write(*msgPtr, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(std::equal(outBuf.begin(), outBuf.end(), std::begin(Buf1)));
+}
+
+void TestSuite::test6()
+{
+    static const std::uint8_t Buf1[] = 
+    {
+        1, 2, 0x2, 0xff, 0xff, 0xab, 0xcd
+    };
+    static const std::size_t Buf1Size = std::extent<decltype(Buf1)>::value;
+
+    Frame::MsgPtr msgPtr;
+    Frame frame;
+
+    auto readIter = comms::readIteratorFor<Interface>(&Buf1[0]);
+    auto es = frame.read(msgPtr, readIter, Buf1Size);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
+    auto* msg = static_cast<Msg1*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg->field_f1().currentField(), 2U);
+    msg->field_f1().currFieldExec(TypeVerifier(2));
+    TS_ASSERT_EQUALS(msg->field_f1().accessField_p3().field_value().value(), Msg1::Field_f1::Field_p3::Field_value::ValueType::V2);
+    TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
+
+    // msg->field_f1().accessField_p3().field_value().setForcedLength(msg->field_f1().accessField_p3().field_length().value());
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(*msgPtr));
+    TS_ASSERT_EQUALS(Buf1Size, outBuf.size());
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    es = frame.write(*msgPtr, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(std::equal(outBuf.begin(), outBuf.end(), std::begin(Buf1)));
 }

@@ -1,7 +1,7 @@
 image:
-    - Visual Studio 2015
-    - Visual Studio 2017
+    - Visual Studio 2022
     - Visual Studio 2019    
+    - Visual Studio 2017
 
 init:
     - git config --global core.autocrlf input
@@ -27,10 +27,6 @@ environment:
 matrix:
     fast_finish: false
     exclude:
-        - image: Visual Studio 2015
-          CPP_STD: 17 
-        - image: Visual Studio 2015
-          CPP_STD: 20    
         - image: Visual Studio 2017
           CPP_STD: 20                           
         
@@ -43,10 +39,9 @@ build_script:
     - if exist %BUILD_DIR% rmdir /S /Q %BUILD_DIR%
     - mkdir %BUILD_DIR%
     - cd %BUILD_DIR%
-    - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" \
-        -DBOOST_ROOT="%BOOST_DIR%" -DBoost_USE_STATIC_LIBS=ON \
-        -DCOMMSDSL_QT_DIR=%QTDIR% -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% \
-        -DCC_TAG=%CC_TAG% 
+    - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" 
+        -DCOMMSDSL_QT_DIR=%QTDIR% -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% 
+        -DCOMMSDSL_BUILD_UNIT_TESTS=ON        
     - set PATH=%BUILD_DIR%\lib\src;%PATH%
     - echo Building in %BUILD_DIR%
     - echo PATH = %PATH%

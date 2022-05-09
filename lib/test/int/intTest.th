@@ -78,15 +78,15 @@ void IntTestSuite::test1()
     TS_ASSERT_EQUALS(field.name(), "Int1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT(!field.isPseudo());
 
-    commsdsl::IntField intField(field);
+    commsdsl::parse::IntField intField(field);
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint8);
-    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Uint8);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::parse::Endian_Big);
     TS_ASSERT_EQUALS(intField.minLength(), 1U);
     TS_ASSERT_EQUALS(intField.bitLength(), 0U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
@@ -124,16 +124,16 @@ void IntTestSuite::test2()
     TS_ASSERT_EQUALS(field1.displayName(), "Int 1");
     TS_ASSERT_EQUALS(field2.displayName(), "Int 2");
     TS_ASSERT_EQUALS(field3.displayName(), "Int 3");
-    TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(field1.kind(), field2.kind());
     TS_ASSERT_EQUALS(field1.kind(), field3.kind());
     TS_ASSERT(field1.isPseudo());
     TS_ASSERT_EQUALS(field1.isPseudo(), field2.isPseudo());
     TS_ASSERT_EQUALS(field1.isPseudo(), field3.isPseudo());
 
-    commsdsl::IntField intField1(field1);
-    commsdsl::IntField intField2(field2);
-    commsdsl::IntField intField3(field3);
+    commsdsl::parse::IntField intField1(field1);
+    commsdsl::parse::IntField intField2(field2);
+    commsdsl::parse::IntField intField3(field3);
     auto scaling1 = intField1.scaling();
     auto scaling2 = intField2.scaling();
     auto scaling3 = intField3.scaling();
@@ -144,10 +144,10 @@ void IntTestSuite::test2()
     auto& specialValues2 = intField2.specialValues();
     auto& specialValues3 = intField3.specialValues();
 
-    TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int16);
+    TS_ASSERT_EQUALS(intField1.type(), commsdsl::parse::IntField::Type::Int16);
     TS_ASSERT_EQUALS(intField1.type(), intField2.type());
     TS_ASSERT_EQUALS(intField1.type(), intField3.type());
-    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::parse::Endian_Little);
     TS_ASSERT_EQUALS(intField1.endian(), intField2.endian());
     TS_ASSERT_EQUALS(intField1.endian(), intField3.endian());
     TS_ASSERT_EQUALS(intField1.minLength(), 2U);
@@ -212,13 +212,13 @@ void IntTestSuite::test3()
     TS_ASSERT(field1.displayName().empty());
     TS_ASSERT(field2.displayName().empty());
     TS_ASSERT(field3.displayName().empty());
-    TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(field1.kind(), field2.kind());
     TS_ASSERT_EQUALS(field1.kind(), field3.kind());
 
-    commsdsl::IntField intField1(field1);
-    commsdsl::IntField intField2(field2);
-    commsdsl::IntField intField3(field3);
+    commsdsl::parse::IntField intField1(field1);
+    commsdsl::parse::IntField intField2(field2);
+    commsdsl::parse::IntField intField3(field3);
     auto scaling1 = intField1.scaling();
     auto scaling2 = intField2.scaling();
     auto scaling3 = intField3.scaling();
@@ -229,10 +229,10 @@ void IntTestSuite::test3()
     auto& specialValues2 = intField2.specialValues();
     auto& specialValues3 = intField3.specialValues();
 
-    TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int16);
+    TS_ASSERT_EQUALS(intField1.type(), commsdsl::parse::IntField::Type::Int16);
     TS_ASSERT_EQUALS(intField1.type(), intField2.type());
     TS_ASSERT_EQUALS(intField1.type(), intField3.type());
-    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::parse::Endian_Big);
     TS_ASSERT_EQUALS(intField1.endian(), intField2.endian());
     TS_ASSERT_EQUALS(intField1.endian(), intField3.endian());
     TS_ASSERT_EQUALS(intField1.minLength(), 1U);
@@ -250,7 +250,7 @@ void IntTestSuite::test3()
     TS_ASSERT_EQUALS(intField1.defaultValue(), 2000);
     TS_ASSERT_EQUALS(intField1.defaultValue(), intField2.defaultValue());
     TS_ASSERT_EQUALS(intField1.defaultValue(), intField3.defaultValue());
-    TS_ASSERT_EQUALS(intField1.units(), commsdsl::Units::Unknown);
+    TS_ASSERT_EQUALS(intField1.units(), commsdsl::parse::Units::Unknown);
     TS_ASSERT_EQUALS(intField1.units(), intField2.units());
     TS_ASSERT_EQUALS(intField1.units(), intField3.units());
     TS_ASSERT_EQUALS(scaling1.first, 1);
@@ -269,12 +269,12 @@ void IntTestSuite::test3()
 
 void IntTestSuite::test4()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
     auto namespaces = protocol->namespaces();
@@ -293,13 +293,13 @@ void IntTestSuite::test4()
     TS_ASSERT_EQUALS(field1.name(), "Int1");
     TS_ASSERT_EQUALS(field2.name(), "Int2");
     TS_ASSERT_EQUALS(field3.name(), "Int3");
-    TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::Field::Kind::Int);
     TS_ASSERT_EQUALS(field1.kind(), field2.kind());
     TS_ASSERT_EQUALS(field1.kind(), field3.kind());
 
-    commsdsl::IntField intField1(field1);
-    commsdsl::IntField intField2(field2);
-    commsdsl::IntField intField3(field3);
+    commsdsl::parse::IntField intField1(field1);
+    commsdsl::parse::IntField intField2(field2);
+    commsdsl::parse::IntField intField3(field3);
     auto scaling1 = intField1.scaling();
     auto scaling2 = intField2.scaling();
     auto scaling3 = intField3.scaling();
@@ -310,10 +310,10 @@ void IntTestSuite::test4()
     auto& specialValues2 = intField2.specialValues();
     auto& specialValues3 = intField3.specialValues();
 
-    TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int8);
+    TS_ASSERT_EQUALS(intField1.type(), commsdsl::parse::IntField::Type::Int8);
     TS_ASSERT_EQUALS(intField1.type(), intField2.type());
     TS_ASSERT_EQUALS(intField1.type(), intField3.type());
-    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField1.endian(), commsdsl::parse::Endian_Little);
     TS_ASSERT_EQUALS(intField1.endian(), intField2.endian());
     TS_ASSERT_EQUALS(intField1.endian(), intField3.endian());
     TS_ASSERT_EQUALS(intField1.minLength(), 1U);
@@ -342,7 +342,7 @@ void IntTestSuite::test4()
     TS_ASSERT_EQUALS(range1.m_min, 10);
     TS_ASSERT_EQUALS(range1.m_max, 10);
     TS_ASSERT_EQUALS(range1.m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(range1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(range1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(range2.m_min, 100);
     TS_ASSERT_EQUALS(range2.m_max, 120);
     TS_ASSERT_EQUALS(range3.m_min, 130);
@@ -378,14 +378,14 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(field1.name(), "Int1");
         TS_ASSERT(field1.displayName().empty());
         TS_ASSERT(field1.description().empty());
-        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField1(field1);
+        commsdsl::parse::IntField intField1(field1);
         auto scaling1 = intField1.scaling();
         auto& validRanges1 = intField1.validRanges();
         auto& specialValues1 = intField1.specialValues();
-        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int8);
-        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::parse::IntField::Type::Int8);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField1.minLength(), 1U);
         TS_ASSERT_EQUALS(intField1.serOffset(), 0);
         TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min());
@@ -404,14 +404,14 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(field2.name(), "Int2");
         TS_ASSERT(field2.displayName().empty());
         TS_ASSERT(field2.description().empty());
-        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField2(field2);
+        commsdsl::parse::IntField intField2(field2);
         auto scaling2 = intField2.scaling();
         auto& validRanges2 = intField2.validRanges();
         auto& specialValues2 = intField2.specialValues();
-        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Uint8);
-        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::parse::IntField::Type::Uint8);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField2.minLength(), 1U);
         TS_ASSERT_EQUALS(intField2.serOffset(), 0);
         TS_ASSERT_EQUALS(intField2.minValue(), 0);
@@ -430,14 +430,14 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(field3.name(), "Int3");
         TS_ASSERT(field3.displayName().empty());
         TS_ASSERT(field3.description().empty());
-        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField3(field3);
+        commsdsl::parse::IntField intField3(field3);
         auto scaling3 = intField3.scaling();
         auto& validRanges3 = intField3.validRanges();
         auto& specialValues3 = intField3.specialValues();
-        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Int16);
-        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::parse::IntField::Type::Int16);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField3.minLength(), 2U);
         TS_ASSERT_EQUALS(intField3.serOffset(), 0);
         TS_ASSERT_EQUALS(intField3.minValue(), std::numeric_limits<std::int16_t>::min());
@@ -456,14 +456,14 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(field4.name(), "Int4");
         TS_ASSERT(field4.displayName().empty());
         TS_ASSERT(field4.description().empty());
-        TS_ASSERT_EQUALS(field4.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field4.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField4(field4);
+        commsdsl::parse::IntField intField4(field4);
         auto scaling4 = intField4.scaling();
         auto& validRanges4 = intField4.validRanges();
         auto& specialValues4 = intField4.specialValues();
-        TS_ASSERT_EQUALS(intField4.type(), commsdsl::IntField::Type::Uint16);
-        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField4.type(), commsdsl::parse::IntField::Type::Uint16);
+        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField4.minLength(), 2U);
         TS_ASSERT_EQUALS(intField4.serOffset(), 0);
         TS_ASSERT_EQUALS(intField4.minValue(), 0);
@@ -482,14 +482,14 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(field5.name(), "Int5");
         TS_ASSERT(field5.displayName().empty());
         TS_ASSERT(field5.description().empty());
-        TS_ASSERT_EQUALS(field5.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field5.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField5(field5);
+        commsdsl::parse::IntField intField5(field5);
         auto scaling5 = intField5.scaling();
         auto& validRanges5 = intField5.validRanges();
         auto& specialValues5 = intField5.specialValues();
-        TS_ASSERT_EQUALS(intField5.type(), commsdsl::IntField::Type::Int32);
-        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField5.type(), commsdsl::parse::IntField::Type::Int32);
+        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField5.minLength(), 4U);
         TS_ASSERT_EQUALS(intField5.serOffset(), 0);
         TS_ASSERT_EQUALS(intField5.minValue(), std::numeric_limits<std::int32_t>::min());
@@ -508,14 +508,14 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(field6.name(), "Int6");
         TS_ASSERT(field6.displayName().empty());
         TS_ASSERT(field6.description().empty());
-        TS_ASSERT_EQUALS(field6.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field6.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField6(field6);
+        commsdsl::parse::IntField intField6(field6);
         auto scaling6 = intField6.scaling();
         auto& validRanges6 = intField6.validRanges();
         auto& specialValues6 = intField6.specialValues();
-        TS_ASSERT_EQUALS(intField6.type(), commsdsl::IntField::Type::Uint32);
-        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField6.type(), commsdsl::parse::IntField::Type::Uint32);
+        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField6.minLength(), 4U);
         TS_ASSERT_EQUALS(intField6.serOffset(), 0);
         TS_ASSERT_EQUALS(intField6.minValue(), 0);
@@ -534,14 +534,14 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(field7.name(), "Int7");
         TS_ASSERT(field7.displayName().empty());
         TS_ASSERT(field7.description().empty());
-        TS_ASSERT_EQUALS(field7.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field7.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField7(field7);
+        commsdsl::parse::IntField intField7(field7);
         auto scaling7 = intField7.scaling();
         auto& validRanges7 = intField7.validRanges();
         auto& specialValues7 = intField7.specialValues();
-        TS_ASSERT_EQUALS(intField7.type(), commsdsl::IntField::Type::Int64);
-        TS_ASSERT_EQUALS(intField7.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField7.type(), commsdsl::parse::IntField::Type::Int64);
+        TS_ASSERT_EQUALS(intField7.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField7.minLength(), 8U);
         TS_ASSERT_EQUALS(intField7.serOffset(), 0);
         TS_ASSERT_EQUALS(intField7.minValue(), std::numeric_limits<std::int64_t>::min());
@@ -560,14 +560,14 @@ void IntTestSuite::test5()
         TS_ASSERT_EQUALS(field8.name(), "Int8");
         TS_ASSERT(field8.displayName().empty());
         TS_ASSERT(field8.description().empty());
-        TS_ASSERT_EQUALS(field8.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field8.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField8(field8);
+        commsdsl::parse::IntField intField8(field8);
         auto scaling8 = intField8.scaling();
         auto& validRanges8 = intField8.validRanges();
         auto& specialValues8 = intField8.specialValues();
-        TS_ASSERT_EQUALS(intField8.type(), commsdsl::IntField::Type::Uint64);
-        TS_ASSERT_EQUALS(intField8.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(intField8.type(), commsdsl::parse::IntField::Type::Uint64);
+        TS_ASSERT_EQUALS(intField8.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField8.minLength(), 8U);
         TS_ASSERT_EQUALS(intField8.serOffset(), 0);
         TS_ASSERT_EQUALS(intField8.minValue(), 0);
@@ -599,14 +599,14 @@ void IntTestSuite::test6()
     TS_ASSERT_EQUALS(field.name(), "Int1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(field);
+    commsdsl::parse::IntField intField(field);
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint64);
-    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Uint64);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::parse::Endian_Little);
     TS_ASSERT_EQUALS(intField.minLength(), 8U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), 0);
@@ -639,14 +639,14 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(field1.name(), "Int1");
         TS_ASSERT(field1.displayName().empty());
         TS_ASSERT(field1.description().empty());
-        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField1(field1);
+        commsdsl::parse::IntField intField1(field1);
         auto scaling1 = intField1.scaling();
         auto& validRanges1 = intField1.validRanges();
         auto& specialValues1 = intField1.specialValues();
-        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int16);
-        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::parse::IntField::Type::Int16);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField1.minLength(), 1U);
         TS_ASSERT_EQUALS(intField1.serOffset(), 100);
         TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min() - intField1.serOffset());
@@ -663,14 +663,14 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(field2.name(), "Int2");
         TS_ASSERT(field2.displayName().empty());
         TS_ASSERT(field2.description().empty());
-        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField2(field2);
+        commsdsl::parse::IntField intField2(field2);
         auto scaling2 = intField2.scaling();
         auto& validRanges2 = intField2.validRanges();
         auto& specialValues2 = intField2.specialValues();
-        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Uint16);
-        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::parse::IntField::Type::Uint16);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField2.minLength(), 1U);
         TS_ASSERT_EQUALS(intField2.serOffset(), 100);
         TS_ASSERT_EQUALS(intField2.minValue(), 0);
@@ -687,14 +687,14 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(field3.name(), "Int3");
         TS_ASSERT(field3.displayName().empty());
         TS_ASSERT(field3.description().empty());
-        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField3(field3);
+        commsdsl::parse::IntField intField3(field3);
         auto scaling3 = intField3.scaling();
         auto& validRanges3 = intField3.validRanges();
         auto& specialValues3 = intField3.specialValues();
-        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Int32);
-        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::parse::IntField::Type::Int32);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField3.minLength(), 3U);
         TS_ASSERT_EQUALS(intField3.serOffset(), 100);
         TS_ASSERT_EQUALS(intField3.minValue(), -8388608LL - intField3.serOffset());
@@ -711,14 +711,14 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(field4.name(), "Int4");
         TS_ASSERT(field4.displayName().empty());
         TS_ASSERT(field4.description().empty());
-        TS_ASSERT_EQUALS(field4.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field4.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField4(field4);
+        commsdsl::parse::IntField intField4(field4);
         auto scaling4 = intField4.scaling();
         auto& validRanges4 = intField4.validRanges();
         auto& specialValues4 = intField4.specialValues();
-        TS_ASSERT_EQUALS(intField4.type(), commsdsl::IntField::Type::Uint32);
-        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField4.type(), commsdsl::parse::IntField::Type::Uint32);
+        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField4.minLength(), 3U);
         TS_ASSERT_EQUALS(intField4.serOffset(), 100);
         TS_ASSERT_EQUALS(intField4.minValue(), 0);
@@ -735,14 +735,14 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(field5.name(), "Int5");
         TS_ASSERT(field5.displayName().empty());
         TS_ASSERT(field5.description().empty());
-        TS_ASSERT_EQUALS(field5.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field5.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField5(field5);
+        commsdsl::parse::IntField intField5(field5);
         auto scaling5 = intField5.scaling();
         auto& validRanges5 = intField5.validRanges();
         auto& specialValues5 = intField5.specialValues();
-        TS_ASSERT_EQUALS(intField5.type(), commsdsl::IntField::Type::Int64);
-        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField5.type(), commsdsl::parse::IntField::Type::Int64);
+        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField5.minLength(), 5U);
         TS_ASSERT_EQUALS(intField5.serOffset(), 100);
         TS_ASSERT_EQUALS(intField5.minValue(), -549755813888LL - intField5.serOffset());
@@ -759,14 +759,14 @@ void IntTestSuite::test7()
         TS_ASSERT_EQUALS(field6.name(), "Int6");
         TS_ASSERT(field6.displayName().empty());
         TS_ASSERT(field6.description().empty());
-        TS_ASSERT_EQUALS(field6.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(field6.kind(), commsdsl::parse::Field::Kind::Int);
 
-        commsdsl::IntField intField6(field6);
+        commsdsl::parse::IntField intField6(field6);
         auto scaling6 = intField6.scaling();
         auto& validRanges6 = intField6.validRanges();
         auto& specialValues6 = intField6.specialValues();
-        TS_ASSERT_EQUALS(intField6.type(), commsdsl::IntField::Type::Uint64);
-        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(intField6.type(), commsdsl::parse::IntField::Type::Uint64);
+        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField6.minLength(), 5U);
         TS_ASSERT_EQUALS(intField6.serOffset(), 100);
         TS_ASSERT_EQUALS(intField6.minValue(), 0);
@@ -795,10 +795,10 @@ void IntTestSuite::test8()
     do {
         auto& field1 = fields[0];
         TS_ASSERT_EQUALS(field1.name(), "Int1");
-        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField1(field1);
-        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Int16);
-        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField1(field1);
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::parse::IntField::Type::Int16);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField1.minLength(), 1U);
         TS_ASSERT_EQUALS(intField1.serOffset(), -100);
         TS_ASSERT_EQUALS(intField1.minValue(), std::numeric_limits<std::int8_t>::min() - intField1.serOffset());
@@ -811,10 +811,10 @@ void IntTestSuite::test8()
         TS_ASSERT_EQUALS(field2.name(), "Int2");
         TS_ASSERT(field2.displayName().empty());
         TS_ASSERT(field2.description().empty());
-        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField2(field2);
-        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Uint16);
-        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField2(field2);
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::parse::IntField::Type::Uint16);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField2.minLength(), 1U);
         TS_ASSERT_EQUALS(intField2.serOffset(), -100);
         TS_ASSERT_EQUALS(intField2.minValue(), -intField2.serOffset());
@@ -827,10 +827,10 @@ void IntTestSuite::test8()
         TS_ASSERT_EQUALS(field3.name(), "Int3");
         TS_ASSERT(field3.displayName().empty());
         TS_ASSERT(field3.description().empty());
-        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField3(field3);
-        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Int32);
-        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField3(field3);
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::parse::IntField::Type::Int32);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField3.minLength(), 3U);
         TS_ASSERT_EQUALS(intField3.serOffset(), -100);
         TS_ASSERT_EQUALS(intField3.minValue(), -8388608LL - intField3.serOffset());
@@ -841,10 +841,10 @@ void IntTestSuite::test8()
     do {
         auto& field4 = fields[3];
         TS_ASSERT_EQUALS(field4.name(), "Int4");
-        TS_ASSERT_EQUALS(field4.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField4(field4);
-        TS_ASSERT_EQUALS(intField4.type(), commsdsl::IntField::Type::Uint32);
-        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field4.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField4(field4);
+        TS_ASSERT_EQUALS(intField4.type(), commsdsl::parse::IntField::Type::Uint32);
+        TS_ASSERT_EQUALS(intField4.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField4.minLength(), 3U);
         TS_ASSERT_EQUALS(intField4.serOffset(), -100);
         TS_ASSERT_EQUALS(intField4.minValue(), -intField4.serOffset());
@@ -855,10 +855,10 @@ void IntTestSuite::test8()
     do {
         auto& field5 = fields[4];
         TS_ASSERT_EQUALS(field5.name(), "Int5");
-        TS_ASSERT_EQUALS(field5.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField5(field5);
-        TS_ASSERT_EQUALS(intField5.type(), commsdsl::IntField::Type::Int64);
-        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field5.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField5(field5);
+        TS_ASSERT_EQUALS(intField5.type(), commsdsl::parse::IntField::Type::Int64);
+        TS_ASSERT_EQUALS(intField5.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField5.minLength(), 5U);
         TS_ASSERT_EQUALS(intField5.serOffset(), -100);
         TS_ASSERT_EQUALS(intField5.minValue(), -549755813888LL - intField5.serOffset());
@@ -869,10 +869,10 @@ void IntTestSuite::test8()
     do {
         auto& field6 = fields[5];
         TS_ASSERT_EQUALS(field6.name(), "Int6");
-        TS_ASSERT_EQUALS(field6.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField6(field6);
-        TS_ASSERT_EQUALS(intField6.type(), commsdsl::IntField::Type::Uint64);
-        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field6.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField6(field6);
+        TS_ASSERT_EQUALS(intField6.type(), commsdsl::parse::IntField::Type::Uint64);
+        TS_ASSERT_EQUALS(intField6.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField6.minLength(), 5U);
         TS_ASSERT_EQUALS(intField6.serOffset(), -100);
         TS_ASSERT_EQUALS(intField6.minValue(), -intField6.serOffset());
@@ -897,10 +897,10 @@ void IntTestSuite::test9()
     do {
         auto& field1 = fields[0];
         TS_ASSERT_EQUALS(field1.name(), "Int1");
-        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField1(field1);
-        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Intvar);
-        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField1(field1);
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::parse::IntField::Type::Intvar);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField1.minLength(), 1U);
         TS_ASSERT_EQUALS(intField1.maxLength(), 10U);
         TS_ASSERT_EQUALS(intField1.serOffset(), -100);
@@ -912,10 +912,10 @@ void IntTestSuite::test9()
     do {
         auto& field2 = fields[1];
         TS_ASSERT_EQUALS(field2.name(), "Int2");
-        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField2(field2);
-        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Intvar);
-        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField2(field2);
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::parse::IntField::Type::Intvar);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField2.minLength(), 1U);
         TS_ASSERT_EQUALS(intField2.maxLength(), 8U);
         TS_ASSERT_EQUALS(intField2.serOffset(), -100);
@@ -929,10 +929,10 @@ void IntTestSuite::test9()
         TS_ASSERT_EQUALS(field3.name(), "Int3");
         TS_ASSERT(field3.displayName().empty());
         TS_ASSERT(field3.description().empty());
-        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField3(field3);
-        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Intvar);
-        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Big);
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField3(field3);
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::parse::IntField::Type::Intvar);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::parse::Endian_Big);
         TS_ASSERT_EQUALS(intField3.minLength(), 1U);
         TS_ASSERT_EQUALS(intField3.maxLength(), 3U);
         TS_ASSERT_EQUALS(intField3.serOffset(), -100);
@@ -959,10 +959,10 @@ void IntTestSuite::test10()
     do {
         auto& field1 = fields[0];
         TS_ASSERT_EQUALS(field1.name(), "Int1");
-        TS_ASSERT_EQUALS(field1.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField1(field1);
-        TS_ASSERT_EQUALS(intField1.type(), commsdsl::IntField::Type::Uintvar);
-        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(field1.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField1(field1);
+        TS_ASSERT_EQUALS(intField1.type(), commsdsl::parse::IntField::Type::Uintvar);
+        TS_ASSERT_EQUALS(intField1.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField1.minLength(), 1U);
         TS_ASSERT_EQUALS(intField1.maxLength(), 10U);
         TS_ASSERT_EQUALS(intField1.serOffset(), -100);
@@ -974,10 +974,10 @@ void IntTestSuite::test10()
     do {
         auto& field2 = fields[1];
         TS_ASSERT_EQUALS(field2.name(), "Int2");
-        TS_ASSERT_EQUALS(field2.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField2(field2);
-        TS_ASSERT_EQUALS(intField2.type(), commsdsl::IntField::Type::Uintvar);
-        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(field2.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField2(field2);
+        TS_ASSERT_EQUALS(intField2.type(), commsdsl::parse::IntField::Type::Uintvar);
+        TS_ASSERT_EQUALS(intField2.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField2.minLength(), 1U);
         TS_ASSERT_EQUALS(intField2.maxLength(), 8U);
         TS_ASSERT_EQUALS(intField2.serOffset(), -100);
@@ -991,10 +991,10 @@ void IntTestSuite::test10()
         TS_ASSERT_EQUALS(field3.name(), "Int3");
         TS_ASSERT(field3.displayName().empty());
         TS_ASSERT(field3.description().empty());
-        TS_ASSERT_EQUALS(field3.kind(), commsdsl::Field::Kind::Int);
-        commsdsl::IntField intField3(field3);
-        TS_ASSERT_EQUALS(intField3.type(), commsdsl::IntField::Type::Uintvar);
-        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::Endian_Little);
+        TS_ASSERT_EQUALS(field3.kind(), commsdsl::parse::Field::Kind::Int);
+        commsdsl::parse::IntField intField3(field3);
+        TS_ASSERT_EQUALS(intField3.type(), commsdsl::parse::IntField::Type::Uintvar);
+        TS_ASSERT_EQUALS(intField3.endian(), commsdsl::parse::Endian_Little);
         TS_ASSERT_EQUALS(intField3.minLength(), 1U);
         TS_ASSERT_EQUALS(intField3.maxLength(), 3U);
         TS_ASSERT_EQUALS(intField3.serOffset(), -100);
@@ -1021,15 +1021,15 @@ void IntTestSuite::test11()
     TS_ASSERT_EQUALS(field.name(), "Int1");
     TS_ASSERT(field.displayName().empty());
     TS_ASSERT(field.description().empty());
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(field);
+    commsdsl::parse::IntField intField(field);
     TS_ASSERT(!intField.displaySpecials());
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Int8);
-    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Int8);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::parse::Endian_Little);
     TS_ASSERT_EQUALS(intField.minLength(), 1U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int8_t>::min());
@@ -1070,14 +1070,14 @@ void IntTestSuite::test12()
 
     auto& field = fields[1];
     TS_ASSERT_EQUALS(field.name(), "Int1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(field);
+    commsdsl::parse::IntField intField(field);
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Int8);
-    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Int8);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::parse::Endian_Little);
     TS_ASSERT_EQUALS(intField.minLength(), 1U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int8_t>::min());
@@ -1118,14 +1118,14 @@ void IntTestSuite::test13()
 
     TS_ASSERT_EQUALS(field.name(), "Int1");
     TS_ASSERT_EQUALS(field.displayName(), "Int 1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(field);
+    commsdsl::parse::IntField intField(field);
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Int16);
-    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Int16);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::parse::Endian_Little);
     TS_ASSERT_EQUALS(intField.minLength(), 2U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::int16_t>::min());
@@ -1141,7 +1141,7 @@ void IntTestSuite::test13()
 
 void IntTestSuite::test14()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
@@ -1163,14 +1163,14 @@ void IntTestSuite::test15()
     auto& field = fields[0];
 
     TS_ASSERT_EQUALS(field.name(), "Int1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(field);
+    commsdsl::parse::IntField intField(field);
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint16);
-    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::parse::Endian_Big);
     TS_ASSERT_EQUALS(intField.minLength(), 2U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::uint16_t>::min());
@@ -1192,7 +1192,7 @@ void IntTestSuite::test15()
 
 void IntTestSuite::test16()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
@@ -1200,7 +1200,7 @@ void IntTestSuite::test16()
 
 void IntTestSuite::test17()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
@@ -1208,7 +1208,7 @@ void IntTestSuite::test17()
 
 void IntTestSuite::test18()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
@@ -1230,14 +1230,14 @@ void IntTestSuite::test19()
     auto& field = fields[0];
 
     TS_ASSERT_EQUALS(field.name(), "Int1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(field);
+    commsdsl::parse::IntField intField(field);
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint16);
-    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Little);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::parse::Endian_Little);
     TS_ASSERT_EQUALS(intField.minLength(), 2U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), std::numeric_limits<std::uint16_t>::min());
@@ -1268,14 +1268,14 @@ void IntTestSuite::test20()
 
     auto& field = fields.front();
     TS_ASSERT_EQUALS(field.name(), "Int1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(field);
+    commsdsl::parse::IntField intField(field);
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint16);
-    TS_ASSERT_EQUALS(intField.endian(), commsdsl::Endian_Big);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Uint16);
+    TS_ASSERT_EQUALS(intField.endian(), commsdsl::parse::Endian_Big);
     TS_ASSERT_EQUALS(intField.minLength(), 2U);
     TS_ASSERT_EQUALS(intField.serOffset(), 0);
     TS_ASSERT_EQUALS(intField.minValue(), 0);
@@ -1284,7 +1284,7 @@ void IntTestSuite::test20()
     TS_ASSERT_EQUALS(intField.validCheckVersion(), true);
     TS_ASSERT(intField.extraAttributes().empty());
     TS_ASSERT(intField.extraElements().empty());
-    TS_ASSERT_EQUALS(intField.units(), commsdsl::Units::Unknown);
+    TS_ASSERT_EQUALS(intField.units(), commsdsl::parse::Units::Unknown);
     TS_ASSERT_EQUALS(scaling.first, 1);
     TS_ASSERT_EQUALS(scaling.second, 1);
     TS_ASSERT_EQUALS(validRanges.size(), 2U);
@@ -1293,21 +1293,21 @@ void IntTestSuite::test20()
     TS_ASSERT_EQUALS(r1.m_min, 0);
     TS_ASSERT_EQUALS(r1.m_max, 1000);
     TS_ASSERT_EQUALS(r1.m_sinceVersion, 0U);
-    TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(r1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(r2.m_min, 1000);
     TS_ASSERT_EQUALS(r2.m_max, 2000);
     TS_ASSERT_EQUALS(r2.m_sinceVersion, 2U);
-    TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(r2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(specialValues.size(), 2U);
     auto& s1 = specialValues.find("S1")->second;
     auto& s2 = specialValues.find("S2")->second;
     TS_ASSERT_EQUALS(s1.m_value, 1000);
     TS_ASSERT_EQUALS(s1.m_sinceVersion, 0U);
-    TS_ASSERT_EQUALS(s1.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(s1.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
     TS_ASSERT_EQUALS(s1.m_description, "Some description");
     TS_ASSERT_EQUALS(s2.m_value, 2000);
     TS_ASSERT_EQUALS(s2.m_sinceVersion, 2U);
-    TS_ASSERT_EQUALS(s2.m_deprecatedSince, commsdsl::Protocol::notYetDeprecated());
+    TS_ASSERT_EQUALS(s2.m_deprecatedSince, commsdsl::parse::Protocol::notYetDeprecated());
     TS_ASSERT(s2.m_description.empty());
 }
 
@@ -1325,17 +1325,17 @@ void IntTestSuite::test21()
     TS_ASSERT_EQUALS(fields.size(), 3U);
 
     for (auto& f : fields) {
-        TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+        TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
     }
 
 
-    commsdsl::IntField intField1(fields[0]);
-    commsdsl::IntField intField2(fields[1]);
-    commsdsl::IntField intField3(fields[2]);
+    commsdsl::parse::IntField intField1(fields[0]);
+    commsdsl::parse::IntField intField2(fields[1]);
+    commsdsl::parse::IntField intField3(fields[2]);
 
-    TS_ASSERT_EQUALS(intField1.units(), commsdsl::Units::MetersPerSecond);
-    TS_ASSERT_EQUALS(intField2.units(), commsdsl::Units::MetersPerSecond);
-    TS_ASSERT_EQUALS(intField3.units(), commsdsl::Units::Millimeters);
+    TS_ASSERT_EQUALS(intField1.units(), commsdsl::parse::Units::MetersPerSecond);
+    TS_ASSERT_EQUALS(intField2.units(), commsdsl::parse::Units::MetersPerSecond);
+    TS_ASSERT_EQUALS(intField3.units(), commsdsl::parse::Units::Millimeters);
 }
 
 void IntTestSuite::test22()
@@ -1351,184 +1351,184 @@ void IntTestSuite::test22()
     auto fields = ns.fields();
 
     auto verifyUnitsFunc =
-        [&fields](unsigned from, unsigned count, commsdsl::Units units)
+        [&fields](unsigned from, unsigned count, commsdsl::parse::Units units)
         {
             TS_ASSERT_LESS_THAN_EQUALS(from + count, fields.size());
             for (auto idx = from; idx < (from + count); ++idx) {
                 auto& f = fields[idx];
-                TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
-                commsdsl::IntField intField(f);
+                TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
+                commsdsl::parse::IntField intField(f);
                 TS_ASSERT_EQUALS(intField.units(), units);
             }
         };
 
     auto nsOffset = 0;
     auto nsCount = 5;
-    verifyUnitsFunc(nsOffset, nsCount, commsdsl::Units::Nanoseconds);
+    verifyUnitsFunc(nsOffset, nsCount, commsdsl::parse::Units::Nanoseconds);
 
     auto usOffset = nsOffset + nsCount;
     auto usCount = 5;
-    verifyUnitsFunc(usOffset, usCount, commsdsl::Units::Microseconds);
+    verifyUnitsFunc(usOffset, usCount, commsdsl::parse::Units::Microseconds);
 
     auto msOffset = usOffset + usCount;
     auto msCount = 5;
-    verifyUnitsFunc(msOffset, msCount, commsdsl::Units::Milliseconds);
+    verifyUnitsFunc(msOffset, msCount, commsdsl::parse::Units::Milliseconds);
 
     auto sOffset = msOffset + msCount;
     auto sCount = 5;
-    verifyUnitsFunc(sOffset, sCount, commsdsl::Units::Seconds);
+    verifyUnitsFunc(sOffset, sCount, commsdsl::parse::Units::Seconds);
 
     auto minOffset = sOffset + sCount;
     auto minCount = 4;
-    verifyUnitsFunc(minOffset, minCount, commsdsl::Units::Minutes);
+    verifyUnitsFunc(minOffset, minCount, commsdsl::parse::Units::Minutes);
 
     auto hOffset = minOffset + minCount;
     auto hCount = 3;
-    verifyUnitsFunc(hOffset, hCount, commsdsl::Units::Hours);
+    verifyUnitsFunc(hOffset, hCount, commsdsl::parse::Units::Hours);
 
     auto dOffset = hOffset + hCount;
     auto dCount = 3;
-    verifyUnitsFunc(dOffset, dCount, commsdsl::Units::Days);
+    verifyUnitsFunc(dOffset, dCount, commsdsl::parse::Units::Days);
 
     auto wOffset = dOffset + dCount;
     auto wCount = 3;
-    verifyUnitsFunc(wOffset, wCount, commsdsl::Units::Weeks);
+    verifyUnitsFunc(wOffset, wCount, commsdsl::parse::Units::Weeks);
 
     auto nmOffset = wOffset + wCount;
     auto nmCount = 5;
-    verifyUnitsFunc(nmOffset, nmCount, commsdsl::Units::Nanometers);
+    verifyUnitsFunc(nmOffset, nmCount, commsdsl::parse::Units::Nanometers);
 
     auto umOffset = nmOffset + nmCount;
     auto umCount = 5;
-    verifyUnitsFunc(umOffset, umCount, commsdsl::Units::Micrometers);
+    verifyUnitsFunc(umOffset, umCount, commsdsl::parse::Units::Micrometers);
 
     auto mmOffset = umOffset + umCount;
     auto mmCount = 5;
-    verifyUnitsFunc(mmOffset, mmCount, commsdsl::Units::Millimeters);
+    verifyUnitsFunc(mmOffset, mmCount, commsdsl::parse::Units::Millimeters);
 
     auto cmOffset = mmOffset + mmCount;
     auto cmCount = 5;
-    verifyUnitsFunc(cmOffset, cmCount, commsdsl::Units::Centimeters);
+    verifyUnitsFunc(cmOffset, cmCount, commsdsl::parse::Units::Centimeters);
 
     auto mOffset = cmOffset + cmCount;
     auto mCount = 5;
-    verifyUnitsFunc(mOffset, mCount, commsdsl::Units::Meters);
+    verifyUnitsFunc(mOffset, mCount, commsdsl::parse::Units::Meters);
 
     auto kmOffset = mOffset + mCount;
     auto kmCount = 5;
-    verifyUnitsFunc(kmOffset, kmCount, commsdsl::Units::Kilometers);
+    verifyUnitsFunc(kmOffset, kmCount, commsdsl::parse::Units::Kilometers);
 
     auto nmpsOffset = kmOffset + kmCount;
     auto nmpsCount = 6;
-    verifyUnitsFunc(nmpsOffset, nmpsCount, commsdsl::Units::NanometersPerSecond);
+    verifyUnitsFunc(nmpsOffset, nmpsCount, commsdsl::parse::Units::NanometersPerSecond);
 
     auto umpsOffset = nmpsOffset + nmpsCount;
     auto umpsCount = 6;
-    verifyUnitsFunc(umpsOffset, umpsCount, commsdsl::Units::MicrometersPerSecond);
+    verifyUnitsFunc(umpsOffset, umpsCount, commsdsl::parse::Units::MicrometersPerSecond);
 
     auto mmpsOffset = umpsOffset + umpsCount;
     auto mmpsCount = 6;
-    verifyUnitsFunc(mmpsOffset, mmpsCount, commsdsl::Units::MillimetersPerSecond);
+    verifyUnitsFunc(mmpsOffset, mmpsCount, commsdsl::parse::Units::MillimetersPerSecond);
 
     auto cmpsOffset = mmpsOffset + mmpsCount;
     auto cmpsCount = 6;
-    verifyUnitsFunc(cmpsOffset, cmpsCount, commsdsl::Units::CentimetersPerSecond);
+    verifyUnitsFunc(cmpsOffset, cmpsCount, commsdsl::parse::Units::CentimetersPerSecond);
 
     auto mpsOffset = cmpsOffset + cmpsCount;
     auto mpsCount = 6;
-    verifyUnitsFunc(mpsOffset, mpsCount, commsdsl::Units::MetersPerSecond);
+    verifyUnitsFunc(mpsOffset, mpsCount, commsdsl::parse::Units::MetersPerSecond);
 
     auto kmpsOffset = mpsOffset + mpsCount;
     auto kmpsCount = 7;
-    verifyUnitsFunc(kmpsOffset, kmpsCount, commsdsl::Units::KilometersPerSecond);
+    verifyUnitsFunc(kmpsOffset, kmpsCount, commsdsl::parse::Units::KilometersPerSecond);
 
     auto kmphOffset = kmpsOffset + kmpsCount;
     auto kmphCount = 7;
-    verifyUnitsFunc(kmphOffset, kmphCount, commsdsl::Units::KilometersPerHour);
+    verifyUnitsFunc(kmphOffset, kmphCount, commsdsl::parse::Units::KilometersPerHour);
 
     auto hzOffset = kmphOffset + kmphCount;
     auto hzCount = 2;
-    verifyUnitsFunc(hzOffset, hzCount, commsdsl::Units::Hertz);
+    verifyUnitsFunc(hzOffset, hzCount, commsdsl::parse::Units::Hertz);
 
     auto khzOffset = hzOffset + hzCount;
     auto khzCount = 2;
-    verifyUnitsFunc(khzOffset, khzCount, commsdsl::Units::KiloHertz);
+    verifyUnitsFunc(khzOffset, khzCount, commsdsl::parse::Units::KiloHertz);
 
     auto mhzOffset = khzOffset + khzCount;
     auto mhzCount = 2;
-    verifyUnitsFunc(mhzOffset, mhzCount, commsdsl::Units::MegaHertz);
+    verifyUnitsFunc(mhzOffset, mhzCount, commsdsl::parse::Units::MegaHertz);
 
     auto ghzOffset = mhzOffset + mhzCount;
     auto ghzCount = 2;
-    verifyUnitsFunc(ghzOffset, ghzCount, commsdsl::Units::GigaHertz);
+    verifyUnitsFunc(ghzOffset, ghzCount, commsdsl::parse::Units::GigaHertz);
 
     auto degOffset = ghzOffset + ghzCount;
     auto degCount = 3;
-    verifyUnitsFunc(degOffset, degCount, commsdsl::Units::Degrees);
+    verifyUnitsFunc(degOffset, degCount, commsdsl::parse::Units::Degrees);
 
     auto radOffset = degOffset + degCount;
     auto radCount = 3;
-    verifyUnitsFunc(radOffset, radCount, commsdsl::Units::Radians);
+    verifyUnitsFunc(radOffset, radCount, commsdsl::parse::Units::Radians);
 
     auto naOffset = radOffset + radCount;
     auto naCount = 5;
-    verifyUnitsFunc(naOffset, naCount, commsdsl::Units::Nanoamps);
+    verifyUnitsFunc(naOffset, naCount, commsdsl::parse::Units::Nanoamps);
 
     auto uaOffset = naOffset + naCount;
     auto uaCount = 5;
-    verifyUnitsFunc(uaOffset, uaCount, commsdsl::Units::Microamps);
+    verifyUnitsFunc(uaOffset, uaCount, commsdsl::parse::Units::Microamps);
 
     auto maOffset = uaOffset + uaCount;
     auto maCount = 5;
-    verifyUnitsFunc(maOffset, maCount, commsdsl::Units::Milliamps);
+    verifyUnitsFunc(maOffset, maCount, commsdsl::parse::Units::Milliamps);
 
     auto aOffset = maOffset + maCount;
     auto aCount = 5;
-    verifyUnitsFunc(aOffset, aCount, commsdsl::Units::Amps);
+    verifyUnitsFunc(aOffset, aCount, commsdsl::parse::Units::Amps);
 
     auto kaOffset = aOffset + aCount;
     auto kaCount = 5;
-    verifyUnitsFunc(kaOffset, kaCount, commsdsl::Units::Kiloamps);
+    verifyUnitsFunc(kaOffset, kaCount, commsdsl::parse::Units::Kiloamps);
 
     auto nvOffset = kaOffset + kaCount;
     auto nvCount = 3;
-    verifyUnitsFunc(nvOffset, nvCount, commsdsl::Units::Nanovolts);
+    verifyUnitsFunc(nvOffset, nvCount, commsdsl::parse::Units::Nanovolts);
 
     auto uvOffset = nvOffset + nvCount;
     auto uvCount = 3;
-    verifyUnitsFunc(uvOffset, uvCount, commsdsl::Units::Microvolts);
+    verifyUnitsFunc(uvOffset, uvCount, commsdsl::parse::Units::Microvolts);
 
     auto mvOffset = uvOffset + uvCount;
     auto mvCount = 3;
-    verifyUnitsFunc(mvOffset, mvCount, commsdsl::Units::Millivolts);
+    verifyUnitsFunc(mvOffset, mvCount, commsdsl::parse::Units::Millivolts);
 
     auto vOffset = mvOffset + mvCount;
     auto vCount = 3;
-    verifyUnitsFunc(vOffset, vCount, commsdsl::Units::Volts);
+    verifyUnitsFunc(vOffset, vCount, commsdsl::parse::Units::Volts);
 
     auto kvOffset = vOffset + vCount;
     auto kvCount = 3;
-    verifyUnitsFunc(kvOffset, kvCount, commsdsl::Units::Kilovolts);
+    verifyUnitsFunc(kvOffset, kvCount, commsdsl::parse::Units::Kilovolts);
 
     auto bOffset = kvOffset + kvCount;
     auto bCount = 3;
-    verifyUnitsFunc(bOffset, bCount, commsdsl::Units::Bytes);    
+    verifyUnitsFunc(bOffset, bCount, commsdsl::parse::Units::Bytes);    
 
     auto kbOffset = bOffset + bCount;
     auto kbCount = 3;
-    verifyUnitsFunc(kbOffset, kbCount, commsdsl::Units::Kilobytes);      
+    verifyUnitsFunc(kbOffset, kbCount, commsdsl::parse::Units::Kilobytes);      
 
     auto mbOffset = kbOffset + kbCount;
     auto mbCount = 3;
-    verifyUnitsFunc(mbOffset, mbCount, commsdsl::Units::Megabytes);  
+    verifyUnitsFunc(mbOffset, mbCount, commsdsl::parse::Units::Megabytes);  
 
     auto gbOffset = mbOffset + mbCount;
     auto gbCount = 3;
-    verifyUnitsFunc(gbOffset, gbCount, commsdsl::Units::Gigabytes);  
+    verifyUnitsFunc(gbOffset, gbCount, commsdsl::parse::Units::Gigabytes);  
 
     auto tbOffset = gbOffset + gbCount;
     auto tbCount = 3;
-    verifyUnitsFunc(tbOffset, tbCount, commsdsl::Units::Terabytes);               
+    verifyUnitsFunc(tbOffset, tbCount, commsdsl::parse::Units::Terabytes);               
 }
 
 void IntTestSuite::test23()
@@ -1544,14 +1544,14 @@ void IntTestSuite::test23()
     auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
-    commsdsl::IntField intField(fields[0]);
+    commsdsl::parse::IntField intField(fields[0]);
     TS_ASSERT(!intField.signExt());
 }
 
 void IntTestSuite::test24()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
@@ -1559,7 +1559,7 @@ void IntTestSuite::test24()
 
 void IntTestSuite::test25()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
@@ -1580,8 +1580,8 @@ void IntTestSuite::test26()
     auto fields = ns.fields();
     TS_ASSERT_EQUALS(fields.size(), 1U);
 
-    commsdsl::IntField intField(fields[0]);
-    TS_ASSERT_EQUALS(intField.semanticType(), commsdsl::Field::SemanticType::Length);
+    commsdsl::parse::IntField intField(fields[0]);
+    TS_ASSERT_EQUALS(intField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
 }
 
 void IntTestSuite::test27()
@@ -1599,9 +1599,9 @@ void IntTestSuite::test27()
     
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "Int4");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
+    commsdsl::parse::IntField intField(f);
     TS_ASSERT_EQUALS(intField.defaultValue(), 5);
 }
 
@@ -1620,17 +1620,17 @@ void IntTestSuite::test28()
     
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "Int2");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint64);
+    commsdsl::parse::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Uint64);
     TS_ASSERT_EQUALS(static_cast<std::uintmax_t>(intField.defaultValue()), 0xffffffffffffffff);
 }
 
 void IntTestSuite::test29()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);    
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);    
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
@@ -1639,8 +1639,8 @@ void IntTestSuite::test29()
 
 void IntTestSuite::test30()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);    
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);    
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
@@ -1649,7 +1649,7 @@ void IntTestSuite::test30()
 
 void IntTestSuite::test31()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
@@ -1671,10 +1671,10 @@ void IntTestSuite::test32()
 
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "F2");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
-    TS_ASSERT_EQUALS(intField.type(), commsdsl::IntField::Type::Uint8);
+    commsdsl::parse::IntField intField(f);
+    TS_ASSERT_EQUALS(intField.type(), commsdsl::parse::IntField::Type::Uint8);
     TS_ASSERT_EQUALS(intField.defaultValue(), 0U);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 1);
@@ -1695,9 +1695,9 @@ void IntTestSuite::test33()
 
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "F2");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
+    commsdsl::parse::IntField intField(f);
     TS_ASSERT_EQUALS(intField.defaultValue(), 10);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 5);
@@ -1705,8 +1705,8 @@ void IntTestSuite::test33()
 
 void IntTestSuite::test34()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
@@ -1728,9 +1728,9 @@ void IntTestSuite::test35()
 
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "F2");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
+    commsdsl::parse::IntField intField(f);
     TS_ASSERT_EQUALS(intField.defaultValue(), 10);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 5);
@@ -1738,8 +1738,8 @@ void IntTestSuite::test35()
 
 void IntTestSuite::test36()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Warning);
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema36.xml");
@@ -1761,9 +1761,9 @@ void IntTestSuite::test37()
 
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "F3");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
+    commsdsl::parse::IntField intField(f);
     TS_ASSERT_EQUALS(intField.defaultValue(), 10);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 20);
@@ -1784,9 +1784,9 @@ void IntTestSuite::test38()
 
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "F2");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
+    commsdsl::parse::IntField intField(f);
     TS_ASSERT_EQUALS(intField.defaultValue(), 10);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 20);
@@ -1807,9 +1807,9 @@ void IntTestSuite::test39()
 
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "F2");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
+    commsdsl::parse::IntField intField(f);
     TS_ASSERT_EQUALS(intField.defaultValue(), 1);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 0);
@@ -1835,9 +1835,9 @@ void IntTestSuite::test40()
 
     auto& f = fields.back();
     TS_ASSERT_EQUALS(f.name(), "F1");
-    TS_ASSERT_EQUALS(f.kind(), commsdsl::Field::Kind::Int);
+    TS_ASSERT_EQUALS(f.kind(), commsdsl::parse::Field::Kind::Int);
 
-    commsdsl::IntField intField(f);
+    commsdsl::parse::IntField intField(f);
     TS_ASSERT_EQUALS(intField.defaultValue(), 1);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 10);
@@ -1846,7 +1846,7 @@ void IntTestSuite::test40()
 
 void IntTestSuite::test41()
 {
-    m_status.m_expErrors.push_back(commsdsl::ErrorLevel_Error);
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
 
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema41.xml");

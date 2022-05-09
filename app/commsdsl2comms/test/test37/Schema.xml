@@ -19,7 +19,7 @@
         </size>
         <id name="Id" field="MsgId" />
         <payload name="Data" />
-		<checksum name="Checksum" alg="sum " from="Size">
+		<checksum name="Checksum" alg="xor " from="Size">
             <int name="Checksum" type="uint16" />
         </checksum>
     </frame>      

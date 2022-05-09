@@ -1,12 +1,3 @@
-#pragma once
-
-#include "FrameOrig.h"
-
-namespace test21
-{
-
-namespace frame
-{
 
 /// @brief Definition of <b>"Frame"</b> frame class.
 /// @tparam TOpt Frame definition options
@@ -18,8 +9,5 @@ template <
 >
 using Frame = FrameOrig<TMessage, TAllMessages, TOpt>;
 
-} // namespace frame
-
-} // namespace test21
 
 

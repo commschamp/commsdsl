@@ -156,8 +156,4 @@ void TestSuite::test3()
     comms::util::assign(msg2.field_f2().value(), msg->field_f2().value().begin(), msg->field_f2().value().end());
     TS_ASSERT_EQUALS(msg2.field_f2().value(), msg->field_f2().value());
     TS_ASSERT_EQUALS(&(*msg2.field_f2().value().begin()), &Buf1[6]); // view on orig buffer
-
-    
-    // auto msg2 = frame.createMsg(test29::MsgId_M2);
-    // TS_ASSERT(msg2 == nullptr);
 }

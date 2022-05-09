@@ -91,65 +91,109 @@ if (LIBXML2_FOUND AND (NOT TARGET LibXml2::LibXml2))
 endif ()
 
 set (
-    src
-    "Protocol.cpp"
-    "Field.cpp"
-    "Namespace.cpp"
-    "IntField.cpp"
-    "FloatField.cpp"
-    "EnumField.cpp"
-    "SetField.cpp"
-    "BitfieldField.cpp"
-    "BundleField.cpp"
-    "StringField.cpp"
-    "DataField.cpp"
-    "ListField.cpp"
-    "RefField.cpp"
-    "OptionalField.cpp"
-    "VariantField.cpp"
-    "OptCond.cpp"
-    "Message.cpp"
-    "Interface.cpp"
-    "Frame.cpp"
-    "Layer.cpp"
-    "ProtocolImpl.cpp"
-    "NamespaceImpl.cpp"
-    "XmlWrap.cpp"
-    "SchemaImpl.cpp"
-    "Schema.cpp"
-    "common.cpp"
-    "FieldImpl.cpp"
-    "IntFieldImpl.cpp"
-    "FloatFieldImpl.cpp"
-    "EnumFieldImpl.cpp"
-    "SetFieldImpl.cpp"
-    "BitfieldFieldImpl.cpp"
-    "BundleFieldImpl.cpp"
-    "StringFieldImpl.cpp"
-    "DataFieldImpl.cpp"
-    "ListFieldImpl.cpp"
-    "RefFieldImpl.cpp"
-    "OptionalFieldImpl.cpp"
-    "VariantFieldImpl.cpp"
-    "OptCondImpl.cpp"
-    "MessageImpl.cpp"
-    "InterfaceImpl.cpp"
-    "FrameImpl.cpp"
-    "LayerImpl.cpp"
-    "PayloadLayerImpl.cpp"
-    "IdLayerImpl.cpp"
-    "SizeLayerImpl.cpp"
-    "SyncLayerImpl.cpp"
-    "ChecksumLayerImpl.cpp"
-    "ValueLayerImpl.cpp"
-    "CustomLayerImpl.cpp"
-    "Alias.cpp"
-    "AliasImpl.cpp"
+    parse_src
+    "parse/Alias.cpp"
+    "parse/AliasImpl.cpp"    
+    "parse/BitfieldField.cpp"
+    "parse/BitfieldFieldImpl.cpp"
+    "parse/BundleField.cpp"
+    "parse/BundleFieldImpl.cpp"
+    "parse/ChecksumLayerImpl.cpp"
+    "parse/CustomLayerImpl.cpp"
+    "parse/DataField.cpp"
+    "parse/DataFieldImpl.cpp"
+    "parse/EnumField.cpp"
+    "parse/EnumFieldImpl.cpp"
+    "parse/Field.cpp"
+    "parse/FieldImpl.cpp"
+    "parse/FloatField.cpp"
+    "parse/FloatFieldImpl.cpp"
+    "parse/Frame.cpp"
+    "parse/FrameImpl.cpp"
+    "parse/IdLayerImpl.cpp"
+    "parse/IntField.cpp"
+    "parse/IntFieldImpl.cpp"
+    "parse/Interface.cpp"
+    "parse/InterfaceImpl.cpp"
+    "parse/Layer.cpp"
+    "parse/LayerImpl.cpp"
+    "parse/ListField.cpp"
+    "parse/ListFieldImpl.cpp"
+    "parse/Message.cpp"
+    "parse/MessageImpl.cpp"
+    "parse/Namespace.cpp"
+    "parse/NamespaceImpl.cpp"
+    "parse/OptCond.cpp"
+    "parse/OptCondImpl.cpp"
+    "parse/OptionalField.cpp"
+    "parse/OptionalFieldImpl.cpp"
+    "parse/PayloadLayerImpl.cpp"
+    "parse/Protocol.cpp"
+    "parse/ProtocolImpl.cpp"
+    "parse/RefField.cpp"
+    "parse/RefFieldImpl.cpp"
+    "parse/Schema.cpp"
+    "parse/SchemaImpl.cpp"
+    "parse/SetField.cpp"
+    "parse/SetFieldImpl.cpp"
+    "parse/SizeLayerImpl.cpp"
+    "parse/SyncLayerImpl.cpp"
+    "parse/StringField.cpp"
+    "parse/StringFieldImpl.cpp"
+    "parse/ValueLayerImpl.cpp"
+    "parse/VariantField.cpp"
+    "parse/VariantFieldImpl.cpp"
+    "parse/XmlWrap.cpp"
+    "parse/common.cpp"
 )
 
-add_library(${PROJECT_NAME} SHARED ${src})
+set (
+    gen_src
+    gen/BitfieldField.cpp
+    gen/BundleField.cpp
+    gen/ChecksumLayer.cpp
+    gen/CustomLayer.cpp
+    gen/DataField.cpp
+    gen/Elem.cpp
+    gen/EnumField.cpp
+    gen/Field.cpp
+    gen/FloatField.cpp
+    gen/Frame.cpp
+    gen/Generator.cpp
+    gen/IdLayer.cpp
+    gen/IntField.cpp
+    gen/Interface.cpp
+    gen/Layer.cpp
+    gen/ListField.cpp
+    gen/Logger.cpp
+    gen/Message.cpp
+    gen/Namespace.cpp
+    gen/OptionalField.cpp
+    gen/ProgramOptions.cpp
+    gen/PayloadLayer.cpp
+    gen/RefField.cpp
+    gen/SetField.cpp
+    gen/SizeLayer.cpp
+    gen/StringField.cpp
+    gen/SyncLayer.cpp
+    gen/ValueLayer.cpp
+    gen/VariantField.cpp
+    gen/comms.cpp
+    gen/strings.cpp
+    gen/util.cpp
+)
+
+add_library(${PROJECT_NAME} STATIC ${parse_src} ${gen_src})
+add_library(cc::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 add_dependencies(${PROJECT_NAME} LibXml2::LibXml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
+
+if ((CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX) AND
+    (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0"))
+    target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
+endif ()
+
 
 if (WIN32)
     target_link_libraries(${PROJECT_NAME} PUBLIC Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
@@ -162,8 +206,7 @@ target_include_directories(${PROJECT_NAME}
     INTERFACE $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-target_compile_definitions(${PROJECT_NAME}
-  PRIVATE COMMSDSL_LIB_EXPORT)
+#target_compile_definitions(${PROJECT_NAME} PRIVATE COMMSDSL_LIB_EXPORT)
 
 target_compile_options(${PROJECT_NAME} PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
