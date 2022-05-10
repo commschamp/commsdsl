@@ -5,6 +5,7 @@
 #include "test21/message/Msg2.h"
 #include "test21/frame/Frame.h"
 #include "test21/dispatch/DispatchMessage.h"
+#include "test21/input/ServerInputMessages.h"
 #include "comms/process.h"
 
 class TestSuite : public CxxTest::TestSuite
@@ -28,6 +29,7 @@ public:
     using Msg1 = test21::message::Msg1<Interface>;
     using Msg2 = test21::message::Msg2<Interface>;    
     using Frame = test21::frame::Frame<Interface>;
+    using ServerFrame = test21::frame::Frame<Interface, test21::input::ServerInputMessages<Interface> >;
 
     class Handler
     {
@@ -97,7 +99,7 @@ void TestSuite::test2()
 void TestSuite::test3()
 {
     std::vector<std::uint8_t> outBuf;
-    Frame frame;
+    ServerFrame frame;
     Msg2 msg;
     msg.field_f1().value() = Msg2::Field_f1::ValueType::V3;
 
@@ -110,5 +112,5 @@ void TestSuite::test3()
     using Dispatcher = test21::dispatch::MsgDispatcherDefaultOptions;
     auto comsumed = comms::processAllWithDispatchViaDispatcher<Dispatcher>(&outBuf[0], outBuf.size(), frame, handler);
     TS_ASSERT_EQUALS(comsumed, outBuf.size());
-    TS_ASSERT(handler.getMsg2Received()); // Make sure that Msg1 is received
+    TS_ASSERT(handler.getMsg2Received()); // Make sure that Msg2 is received
 }
