@@ -431,6 +431,15 @@ std::string CommsIntField::commsCompareToFieldCodeImpl(
     return strGenFunc(comms::cppIntChangedSignTypeFor(otherField.intDslObj().type(), otherField.intDslObj().maxLength()));    
 }
 
+std::size_t CommsIntField::commsMinLengthImpl() const
+{
+    if (intDslObj().availableLengthLimit()) {
+        return 1U;
+    }
+
+    return CommsBase::commsMinLengthImpl();
+}
+
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
 {
     auto& specials = specialsSortedByValue();    

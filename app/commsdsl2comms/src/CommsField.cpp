@@ -214,6 +214,10 @@ std::size_t CommsField::commsMinLength() const
 
 std::size_t CommsField::commsMaxLength() const
 {
+    if (m_field.dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) {
+        return comms::maxPossibleLength();
+    }
+    
     return commsMaxLengthImpl();
 }
 

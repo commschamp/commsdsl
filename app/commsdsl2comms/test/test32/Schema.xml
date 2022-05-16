@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema name="test32"
-        id="1"
         endian="big"
         version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
         </enum>
         <enum name="Prop" type="uint8">
             <validValue name="P1" val="0" />
@@ -56,6 +56,29 @@
         <ref name="F1" field="Variant1" />
         <int name="F2" type="uint16" />
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <bundle name="F1">
+            <int name="Length" type="uint8" semanticType="length" />
+            <int name="Value" type="uint32" availableLengthLimit="true"/>
+        </bundle>
+
+        <bundle name="F2">
+            <int name="Length" type="uint8" semanticType="length" />
+            <enum name="Value" type="uint32" availableLengthLimit="true">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="0xffff" />
+            </enum>
+        </bundle>
+
+        <bundle name="F3">
+            <int name="Length" type="uint8" semanticType="length" />
+            <set name="Value" type="uint32" availableLengthLimit="true">
+                <bit name="B0" idx="0" />
+                <bit name="B16" idx="16" />
+            </set>
+        </bundle>
+    </message>    
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />

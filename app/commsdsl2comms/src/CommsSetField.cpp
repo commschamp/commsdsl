@@ -406,6 +406,15 @@ std::string CommsSetField::commsCompareToFieldCodeImpl(
     return CommsBase::commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);  
 }
 
+std::size_t CommsSetField::commsMinLengthImpl() const
+{
+    if (setDslObj().availableLengthLimit()) {
+        return 1U;
+    }
+
+    return CommsBase::commsMinLengthImpl();
+}
+
 std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
 {
     auto obj = setDslObj();

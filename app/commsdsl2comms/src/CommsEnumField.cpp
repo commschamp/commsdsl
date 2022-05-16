@@ -692,6 +692,15 @@ std::string CommsEnumField::commsCompareToFieldCodeImpl(
             compExpr + ')'; 
 }
 
+std::size_t CommsEnumField::commsMinLengthImpl() const
+{
+    if (enumDslObj().availableLengthLimit()) {
+        return 1U;
+    }
+
+    return CommsBase::commsMinLengthImpl();
+}
+
 bool CommsEnumField::commsPrepareValidRangesInternal()
 {
     auto obj = enumDslObj();

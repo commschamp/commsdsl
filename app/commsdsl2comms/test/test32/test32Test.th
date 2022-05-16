@@ -28,6 +28,7 @@ public:
         >;
 
     using Msg1 = test32::message::Msg1<Interface>;
+    using Msg2 = test32::message::Msg2<Interface>;
     using Frame = test32::frame::Frame<Interface>;
 
     class TypeVerifier
