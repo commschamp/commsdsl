@@ -92,6 +92,11 @@ bool SetField::validCheckVersion() const
     return cast(m_pImpl)->validCheckVersion();
 }
 
+bool SetField::availableLengthLimit() const
+{
+    return cast(m_pImpl)->availableLengthLimit();
+}
+
 } // namespace parse
 
 } // namespace commsdsl

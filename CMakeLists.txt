@@ -52,7 +52,7 @@ if (NOT COMMSDSL_TESTS_CXX_STANDARD)
 endif ()
 
 if ("${COMMS_TAG}" STREQUAL "")
-    set (COMMS_TAG "v4.0")
+    set (COMMS_TAG "develop")
 endif()
 
 if ("${CC_TOOLS_QT_TAG}" STREQUAL "")

@@ -502,6 +502,7 @@ std::string CommsSetField::commsDefFieldOptsInternal() const
     commsAddLengthOptInternal(opts);
     commsAddDefaultValueOptInternal(opts);
     commsAddReservedBitsOptInternal(opts);
+    commsAddAvailableLengthLimitOptInternal(opts);
 
     return util::strListToString(opts, ",\n", "");
 }
@@ -819,6 +820,13 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::Strings
         util::numToString(reservedValue, true) +
         '>';
     opts.push_back(std::move(str));
+}
+
+void CommsSetField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
+{
+    if (setDslObj().availableLengthLimit()) {
+        util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
+    }
 }
 
 } // namespace commsdsl2comms

@@ -57,6 +57,7 @@ public:
     bool isNonUniqueAllowed() const;
     bool isUnique() const;
     bool validCheckVersion() const;
+    bool availableLengthLimit() const;
 };
 
 inline

@@ -21,5 +21,18 @@
                 <validValue name="V3" val="0xffffff" />
             </enum>
         </bundle>                 
+
+        <bundle name="B3">
+            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <int name="Length" type="uint8" semanticType="length" />
+            <set name="Value" type="uint32" availableLengthLimit="true">
+                <bit name="B0" idx="0" />
+                <bit name="B8" idx="8" />
+                <bit name="B16" idx="16" />
+                <bit name="B24" idx="24" />
+                <bit name="B31" idx="31" />
+            </set>
+        </bundle>                 
+
     </fields>
 </schema>

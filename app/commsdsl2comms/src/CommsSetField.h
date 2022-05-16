@@ -56,6 +56,7 @@ private:
     void commsAddLengthOptInternal(commsdsl::gen::util::StringsList& opts) const;
     void commsAddDefaultValueOptInternal(commsdsl::gen::util::StringsList& opts) const;
     void commsAddReservedBitsOptInternal(commsdsl::gen::util::StringsList& opts) const;
+    void commsAddAvailableLengthLimitOptInternal(StringsList& opts) const;
 };
 
 } // namespace commsdsl2comms

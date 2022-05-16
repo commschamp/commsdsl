@@ -89,7 +89,8 @@ const XmlWrap::NamesList& SetFieldImpl::extraPropsNamesImpl() const
         common::reservedValueStr(),
         common::validCheckVersionStr(),
         common::typeStr(),
-        common::nonUniqueAllowedStr()
+        common::nonUniqueAllowedStr(),
+        common::availableLengthLimitStr(),
     };
 
     return List;
@@ -122,6 +123,7 @@ bool SetFieldImpl::parseImpl()
         updateValidCheckVersion() &&
         updateDefaultValue() &&
         updateReservedValue() &&
+        updateAvailableLengthLimit() &&
         updateBits();
 }
 
@@ -420,6 +422,26 @@ bool SetFieldImpl::updateReservedValue()
     if (!strToValue(iter->second, m_state.m_reservedBitValue)) {
         reportUnexpectedPropertyValue(propName, iter->second);
         return false;
+    }
+
+    return true;
+}
+
+bool SetFieldImpl::updateAvailableLengthLimit()
+{
+    if (!validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit)) {
+        return false;
+    }
+
+    auto iter = props().find(common::availableLengthLimitStr());
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isAvailableLengthLimitSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().schema().dslVersion();        
+        m_state.m_availableLengthLimit = false;
     }
 
     return true;

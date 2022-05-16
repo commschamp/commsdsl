@@ -83,6 +83,11 @@ public:
         return m_state.m_validCheckVersion;
     }
 
+    bool availableLengthLimit() const
+    {
+        return m_state.m_availableLengthLimit;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -105,6 +110,7 @@ private:
     bool updateValidCheckVersion();
     bool updateDefaultValue();
     bool updateReservedValue();
+    bool updateAvailableLengthLimit();
     bool updateBits();
     bool strToValue(const std::string& str, bool& val) const;
 
@@ -120,6 +126,7 @@ private:
         bool m_defaultBitValue = false;
         bool m_reservedBitValue = false;
         bool m_validCheckVersion = false;
+        bool m_availableLengthLimit = false;
     };
     State m_state;
 };

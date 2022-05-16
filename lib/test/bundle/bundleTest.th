@@ -296,5 +296,28 @@ void BundleTestSuite::test11()
         commsdsl::parse::EnumField valueField(mem3);
         TS_ASSERT(valueField.availableLengthLimit());
     } while (false);    
+
+    do {
+        TS_ASSERT(3U <= fields.size());
+        auto& field = fields[2];
+        TS_ASSERT_EQUALS(field.name(), "B3");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto members = bundleField.members();
+        TS_ASSERT_EQUALS(members.size(), 3U);
+        auto& mem1 = members[0];
+        auto& mem2 = members[1];
+        auto& mem3 = members[2];
+        TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Set);
+    
+        commsdsl::parse::IntField lengthField(mem2);
+        TS_ASSERT_EQUALS(lengthField.semanticType(), commsdsl::parse::Field::SemanticType::Length);    
+
+        commsdsl::parse::SetField valueField(mem3);
+        TS_ASSERT(valueField.availableLengthLimit());
+    } while (false);        
 }
 
