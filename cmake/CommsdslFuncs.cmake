@@ -32,7 +32,7 @@ function (commsdsl_ensure_comms_target)
         set (externals_dir "${CMAKE_CURRENT_BINARY_DIR}/externals")
     endif ()
 
-    set (src_dir "${externals_dir}/comms/src")
+    set (src_dir "${externals_dir}/comms")
     cc_prefetch(SRC_DIR ${src_dir} TAG ${tag} REPO ${repo})
 
     set (build_file_include ${src_dir}/cmake/CC_CommsExternal.cmake)

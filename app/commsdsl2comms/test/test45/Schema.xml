@@ -11,23 +11,18 @@
         <int name="VariantType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
 
         <variant name="Variant1">
-            <description>
-                Tests having 100 members, COMMS library is supposed to handle
-            </description>
-            <members>
-                <bundle name="P0">
-                    <int name="type" reuse="VariantType" validValue="0" defaultValue="0"/>
-                    <int name="val" type="uint8" />
-                </bundle>
-                <bundle name="P1">
-                    <int name="type" reuse="VariantType" validValue="1" defaultValue="1"/>
-                    <int name="val" type="uint16" />
-                </bundle>
-                <bundle name="P2">
-                    <int name="type" reuse="VariantType" validValue="2" defaultValue="2"/>
-                    <string name="val" length="10"/>
-                </bundle>
-            </members>
+            <bundle name="P0">
+                <int name="type" reuse="VariantType" validValue="0" defaultValue="0"/>
+                <int name="val" type="uint8" />
+            </bundle>
+            <bundle name="P1">
+                <int name="type" reuse="VariantType" validValue="1" defaultValue="1"/>
+                <int name="val" type="uint16" />
+            </bundle>
+            <bundle name="P2">
+                <int name="type" reuse="VariantType" validValue="2" defaultValue="2"/>
+                <string name="val" length="10"/>
+            </bundle>
         </variant>
     </fields>
     

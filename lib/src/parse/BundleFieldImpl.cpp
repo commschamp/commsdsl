@@ -213,6 +213,18 @@ bool BundleFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uin
     return strToDataOnFields(ref, m_members, val);
 }
 
+bool BundleFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    if ((type == SemanticType::Length) &&
+        (protocol().isSemanticTypeLengthSupported()) && 
+        (protocol().isNonIntSemanticTypeLengthSupported())) {
+        return true;
+    }
+
+    return false;
+}
+
 bool BundleFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
 {
     auto dotPos = fieldName.find('.');

@@ -342,6 +342,11 @@ bool ProtocolImpl::isSemanticTypeRefInheritanceSupported() const
     return isFeatureSupported(2U);
 }
 
+bool ProtocolImpl::isNonIntSemanticTypeLengthSupported() const
+{
+    return isFeatureSupported(4U);
+}
+
 bool ProtocolImpl::isNonUniqueSpecialsAllowedSupported() const
 {
     return isFeatureSupported(2U);

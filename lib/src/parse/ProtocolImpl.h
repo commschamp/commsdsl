@@ -110,6 +110,7 @@ public:
     bool isFieldValueReferenceSupported() const;
     bool isSemanticTypeLengthSupported() const;
     bool isSemanticTypeRefInheritanceSupported() const;
+    bool isNonIntSemanticTypeLengthSupported() const;
     bool isNonUniqueSpecialsAllowedSupported() const;
     bool isFieldAliasSupported() const;
     bool isValidateMinLengthSupported() const;

@@ -343,10 +343,10 @@ std::string CommsIntField::commsCompareToValueCodeImpl(
     try {
         std::string newValStr;
         if (isUnsignedType()) {
-            newValStr = util::numToString(static_cast<std::uintmax_t>(std::stoull(value)));
+            newValStr = util::numToString(static_cast<std::uintmax_t>(std::stoull(value, nullptr, 0)));
         }
         else {
-            newValStr = util::numToString(static_cast<std::intmax_t>(std::stoll(value)));
+            newValStr = util::numToString(static_cast<std::intmax_t>(std::stoll(value, nullptr, 0)));
         }
 
         return CommsBase::commsCompareToValueCodeImpl(op, newValStr, nameOverride, forcedVersionOptional);

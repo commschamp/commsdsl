@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema12"
+        id="1"
+        endian="big">
+    <fields>
+        <bitfield name="F1" semanticType="length">
+            <int name="M1" type="uint16" bitLength="14" />
+            <set name="M2" bitLength="2">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </bitfield>
+    </fields>
+</schema>

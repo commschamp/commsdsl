@@ -308,10 +308,11 @@ bool DataFieldImpl::checkPrefixFromRef()
         return false;
     }
 
-    if (field->kind() != Kind::Int) {
+    if ((field->kind() != Kind::Int) && (field->semanticType() != SemanticType::Length)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "The field referenced by \"" << common::lengthPrefixStr() <<
-            "\" property (" << iter->second << ") must be of type \"" << common::intStr() << "\".";
+            "\" property (" << iter->second << ") must be of type \"" << common::intStr() << 
+            "\" or have semanticType=\"length\" property set.";
         return false;
     }
 

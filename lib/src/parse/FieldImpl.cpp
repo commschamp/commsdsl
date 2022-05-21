@@ -321,9 +321,7 @@ bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
         }
 
         logError() << XmlWrap::logPrefix(node) <<
-            "Semantic type \"" << common::lengthStr() << "\" is applicable only to \"" <<
-            common::intStr() << "\" fields, and should be used only with members of \"" <<
-            common::bundleStr() << "\" fields.";
+            "Semantic type \"" << common::lengthStr() << "\" is not applicable to this field type.";
         return false;
     }
 

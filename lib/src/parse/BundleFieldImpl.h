@@ -63,6 +63,7 @@ protected:
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
+    virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
     virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const override;
 
 private:

@@ -56,7 +56,7 @@ if ("${COMMS_TAG}" STREQUAL "")
 endif()
 
 if ("${CC_TOOLS_QT_TAG}" STREQUAL "")
-    set (CC_TOOLS_QT_TAG "v4.0")
+    set (CC_TOOLS_QT_TAG "develop")
 endif()
 
 if (NOT COMMSDSL_EXTERNALS_DIR)

@@ -203,24 +203,47 @@ void BundleTestSuite::test8()
     TS_ASSERT(ns.name().empty());
 
     auto fields = ns.fields();
-    TS_ASSERT_EQUALS(fields.size(), 1U);
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
-    auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Bundle1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
 
-    commsdsl::parse::BundleField bundleField(field);
-    auto members = bundleField.members();
-    TS_ASSERT_EQUALS(members.size(), 3U);
-    auto& mem1 = members[0];
-    auto& mem2 = members[1];
-    auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Set);
-    
-    commsdsl::parse::IntField intField(mem2);
-    TS_ASSERT_EQUALS(intField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
+        commsdsl::parse::BundleField bundleField(field);
+        auto members = bundleField.members();
+        TS_ASSERT_EQUALS(members.size(), 3U);
+        auto& mem1 = members[0];
+        auto& mem2 = members[1];
+        auto& mem3 = members[2];
+        TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
+        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Set);
+        
+        commsdsl::parse::IntField intField(mem2);
+        TS_ASSERT_EQUALS(intField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
+    } while (false);
+
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
+
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Bundle2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto members = bundleField.members();
+        TS_ASSERT_EQUALS(members.size(), 3U);
+        auto& mem1 = members[0];
+        auto& mem2 = members[1];
+        auto& mem3 = members[2];
+        TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Bundle);
+        TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::String);
+        
+        commsdsl::parse::BundleField lengthField(mem2);
+        TS_ASSERT_EQUALS(lengthField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
+    } while (false);    
 }
 
 void BundleTestSuite::test9()

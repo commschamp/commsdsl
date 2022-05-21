@@ -580,7 +580,7 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
     }
 
     try {
-        auto val = static_cast<std::intmax_t>(std::stoll(value));
+        auto val = static_cast<std::intmax_t>(std::stoll(value, nullptr, 0));
         auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
             optField + ".value())>::type>(" + 
             util::numToString(val) + ")";
