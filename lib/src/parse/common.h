@@ -153,6 +153,7 @@ const std::string& forceGenStr();
 const std::string& validateMinLengthStr();
 const std::string& defaultValidValueStr();
 const std::string& availableLengthLimitStr();
+const std::string& valueOverrideStr();
 const std::string& readOverrideStr();
 const std::string& writeOverrideStr();
 const std::string& refreshOverrideStr();

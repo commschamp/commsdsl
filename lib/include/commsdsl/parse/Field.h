@@ -85,6 +85,7 @@ public:
     bool isFailOnInvalid() const;
     bool isForceGen() const;
     std::string schemaPos() const;
+    OverrideType valueOverride() const;
     OverrideType readOverride() const;
     OverrideType writeOverride() const;
     OverrideType refreshOverride() const;

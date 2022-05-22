@@ -113,6 +113,11 @@ public:
         return m_state.m_forceGen;
     }
 
+    OverrideType valueOverride() const
+    {
+        return m_state.m_valueOverride;
+    }    
+
     OverrideType readOverride() const
     {
         return m_state.m_readOverride;
@@ -378,6 +383,7 @@ private:
         PropsMap m_extraAttrs;
         ContentsList m_extraChildren;
         SemanticType m_semanticType = SemanticType::None;
+        OverrideType m_valueOverride = OverrideType_Any;
         OverrideType m_readOverride = OverrideType_Any;
         OverrideType m_writeOverride = OverrideType_Any;
         OverrideType m_refreshOverride = OverrideType_Any;
@@ -404,6 +410,7 @@ private:
     bool updateCustomizable();
     bool updateFailOnInvalid();
     bool updateForceGen();
+    bool updateValueOverride();
     bool updateReadOverride();
     bool updateWriteOverride();
     bool updateRefreshOverride();

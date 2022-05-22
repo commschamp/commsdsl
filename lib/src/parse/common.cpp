@@ -752,6 +752,12 @@ const std::string& availableLengthLimitStr()
     return Str; 
 }
 
+const std::string& valueOverrideStr()
+{
+    static const std::string Str("valueOverride");
+    return Str; 
+}
+
 const std::string& readOverrideStr()
 {
     static const std::string Str("readOverride");

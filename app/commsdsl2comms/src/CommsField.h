@@ -131,6 +131,7 @@ protected:
     void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsFieldCustomizable() const;
     bool commsIsExtended() const;
+    bool commsHasCustomValue() const;
 
 private:
     using ExtraFieldOptsFunc = StringsList (CommsField::*)() const;
@@ -154,6 +155,7 @@ private:
     std::string commsDefProtectedCodeInternal() const;
     std::string commsDefPrivateCodeInternal() const;
     std::string commsDefNameFuncCodeInternal() const;
+    const std::string& commsDefValueCodeInternal() const;
     std::string commsDefReadFuncCodeInternal() const;
     std::string commsDefWriteFuncCodeInternal() const;
     std::string commsDefRefreshFuncCodeInternal() const;
@@ -169,6 +171,7 @@ private:
     StringsList commsExtraBareMetalDefaultOptionsInternal() const;
 
     commsdsl::gen::Field& m_field;
+    std::string m_customValue;
     std::string m_customRead;
     std::string m_customWrite;
     std::string m_customRefresh;

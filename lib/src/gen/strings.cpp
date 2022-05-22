@@ -141,6 +141,12 @@ const std::string& nameFileSuffixStr()
     return Str;     
 }
 
+const std::string& valueFileSuffixStr()
+{
+    static const std::string Str(".value");
+    return Str;     
+}
+
 const std::string& readFileSuffixStr()
 {
     static const std::string Str(".read");

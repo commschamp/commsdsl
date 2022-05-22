@@ -110,6 +110,7 @@ bool FieldImpl::parse()
         updateCustomizable() &&
         updateFailOnInvalid() &&
         updateForceGen() &&
+        updateValueOverride() &&
         updateReadOverride() &&
         updateWriteOverride() &&
         updateRefreshOverride() &&
@@ -652,6 +653,7 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::customizableStr(),
         common::failOnInvalidStr(),
         common::forceGenStr(),
+        common::valueOverrideStr(),
         common::readOverrideStr(),
         common::writeOverrideStr(),
         common::refreshOverrideStr(),
@@ -1060,6 +1062,11 @@ bool FieldImpl::updateFailOnInvalid()
 bool FieldImpl::updateForceGen()
 {
     return validateAndUpdateBoolPropValue(common::forceGenStr(), m_state.m_forceGen);
+}
+
+bool FieldImpl::updateValueOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::valueOverrideStr(), m_state.m_valueOverride);
 }
 
 bool FieldImpl::updateReadOverride()

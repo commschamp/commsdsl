@@ -152,6 +152,12 @@ std::string Field::schemaPos() const
     return m_pImpl->schemaPos();
 }
 
+OverrideType Field::valueOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->valueOverride();
+}
+
 OverrideType Field::readOverride() const
 {
     assert(m_pImpl != nullptr);

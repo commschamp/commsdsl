@@ -87,6 +87,7 @@ bool CommsField::commsPrepare()
 
     auto& obj = m_field.dslObj();
     bool overrides = 
+        commsPrepareOverrideInternal(obj.valueOverride(), codePathPrefix, strings::valueFileSuffixStr(), m_customValue, "value") &&
         commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customRead, "read") &&
         commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customWrite, "write") &&
         commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customRefresh, "refresh") &&
@@ -640,6 +641,11 @@ bool CommsField::commsIsExtended() const
     return !m_customExtend.empty();
 }
 
+bool CommsField::commsHasCustomValue() const
+{
+    return !m_customValue.empty();
+}
+
 bool CommsField::commsPrepareOverrideInternal(
     commsdsl::parse::OverrideType type, 
     std::string& codePathPrefix, 
@@ -986,6 +992,7 @@ std::string CommsField::commsDefPublicCodeInternal() const
         "public:\n"
         "    #^#FIELD_DEF#$#\n"
         "    #^#NAME#$#\n"
+        "    #^#VALUE#$#\n"
         "    #^#READ#$#\n"
         "    #^#WRITE#$#\n"
         "    #^#REFRESH#$#\n"
@@ -998,6 +1005,7 @@ std::string CommsField::commsDefPublicCodeInternal() const
     util::ReplacementMap repl = {
         {"FIELD_DEF", commsDefPublicCodeImpl()},
         {"NAME", commsDefNameFuncCodeInternal()},
+        {"VALUE", commsDefValueCodeInternal()},
         {"READ", commsDefReadFuncCodeInternal()},
         {"WRITE", commsDefWriteFuncCodeInternal()},
         {"REFRESH", commsDefRefreshFuncCodeInternal()},
@@ -1107,6 +1115,11 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
     }
     
     return util::processTemplate(Templ, repl);
+}
+
+const std::string& CommsField::commsDefValueCodeInternal() const
+{
+    return m_customValue;
 }
 
 std::string CommsField::commsDefReadFuncCodeInternal() const

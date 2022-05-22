@@ -66,7 +66,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string MinCommsVersion("4.0.0");    
+const std::string MinCommsVersion("4.1.0");    
 
 const std::string& CommsGenerator::fileGeneratedComment()
 {
@@ -368,6 +368,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             strings::publicFileSuffixStr(),
             strings::protectedFileSuffixStr(),
             strings::privateFileSuffixStr(),
+            strings::valueFileSuffixStr(),
             strings::readFileSuffixStr(),
             strings::writeFileSuffixStr(),
             strings::lengthFileSuffixStr(),

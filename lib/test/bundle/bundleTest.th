@@ -243,6 +243,7 @@ void BundleTestSuite::test8()
         
         commsdsl::parse::BundleField lengthField(mem2);
         TS_ASSERT_EQUALS(lengthField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
+        TS_ASSERT_EQUALS(lengthField.valueOverride(), commsdsl::parse::OverrideType_Replace);
     } while (false);    
 }
 

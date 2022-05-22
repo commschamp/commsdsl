@@ -33,6 +33,7 @@ const std::string& pluginNamespaceStr();
 const std::string& includeDirStr();
 const std::string& docDirStr();
 const std::string& nameFileSuffixStr();
+const std::string& valueFileSuffixStr();
 const std::string& readFileSuffixStr();
 const std::string& refreshFileSuffixStr();
 const std::string& writeFileSuffixStr();

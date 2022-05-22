@@ -12,7 +12,7 @@
             <validValue name="M5" val="5" />
         </enum>
 
-        <bundle name="Length" semanticType="length">
+        <bundle name="Length" semanticType="length" valueOverride="replace">
             <int name="Short" type="uint8">
                 <special name="HasLong" val="0xff" />
             </int>
