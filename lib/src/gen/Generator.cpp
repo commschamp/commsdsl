@@ -67,7 +67,8 @@ public:
     using PlatformNamesList = Generator::PlatformNamesList;
 
     explicit GeneratorImpl(Generator& generator) :
-        m_generator(generator)
+        m_generator(generator),
+        m_outputDir(std::filesystem::current_path().string())
     {
     }
 
@@ -128,7 +129,9 @@ public:
 
     void setOutputDir(const std::string& outDir)
     {
-        m_outputDir = outDir;
+        if (!outDir.empty()) {
+            m_outputDir = outDir;
+        }
     }
 
     const std::string& getOutputDir() const
