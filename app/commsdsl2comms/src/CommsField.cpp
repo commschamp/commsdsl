@@ -327,6 +327,11 @@ std::string CommsField::commsBareMetalDefaultOptions() const
             true);
 }
 
+bool CommsField::commsHasCustomValue() const
+{
+    return !m_customValue.empty();
+}
+
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
 {
     return IncludesList();
@@ -639,11 +644,6 @@ bool CommsField::commsIsFieldCustomizable() const
 bool CommsField::commsIsExtended() const
 {
     return !m_customExtend.empty();
-}
-
-bool CommsField::commsHasCustomValue() const
-{
-    return !m_customValue.empty();
 }
 
 bool CommsField::commsPrepareOverrideInternal(

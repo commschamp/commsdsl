@@ -1,0 +1,18 @@
+/// @brief Overriding value retrieval functionality
+std::size_t getValue()
+{
+    return static_cast<std::size_t>(field_len().value());
+}
+
+/// @brief Overriding value update functionality
+template <typename U>
+void setValue(U&& val)
+{
+    comms::cast_assign(field_len().value()) = std::forward<U>(val);
+}
+
+// @brief Overriding max available value
+static constexpr std::size_t maxValue()
+{
+    return Field_len::maxValue();
+}

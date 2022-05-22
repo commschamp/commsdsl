@@ -42,13 +42,28 @@ CommsRefField::CommsRefField(
 bool CommsRefField::prepareImpl()
 {
     bool result = Base::prepareImpl() && commsPrepare();
-    if (result) {
-        auto* refField = referencedField();
-        m_commsReferencedField = dynamic_cast<CommsField*>(refField);
-        assert(m_commsReferencedField != nullptr);
-        m_commsReferencedField->commsSetReferenced();
+    if (!result) {
+        return false;
     }
-    return result;
+
+    auto* refField = referencedField();
+    m_commsReferencedField = dynamic_cast<CommsField*>(refField);
+    assert(m_commsReferencedField != nullptr);
+    m_commsReferencedField->commsSetReferenced();
+
+    if ((refDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
+        (refField->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) &&
+        (!commsHasCustomValue()) && 
+        (!m_commsReferencedField->commsHasCustomValue())) {
+        generator().logger().warning(
+            "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
+            "retrieval functionality is not provided. Please create relevant code injection functionality with \"" + 
+            strings::valueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
+            "expected to be defined: getValue(), setValue(), and maxValue()."
+        );
+    }     
+
+    return true;
 }
 
 bool CommsRefField::writeImpl() const

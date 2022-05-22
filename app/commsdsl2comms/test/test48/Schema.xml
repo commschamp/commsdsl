@@ -10,6 +10,7 @@
             <validValue name="M3" val="3" />
             <validValue name="M4" val="4" />
             <validValue name="M5" val="5" />
+            <validValue name="M6" val="6" />
         </enum>
 
         <bundle name="Length" semanticType="length" valueOverride="replace">
@@ -20,6 +21,22 @@
                 <int name="ActLong" type="uint16" />
             </optional>
         </bundle>
+
+        <bitfield name="Length2" semanticType="length" valueOverride="replace">
+            <int name="Len" type="uint16" bitLength="14" />
+            <set name="Flags" bitLength="2">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </bitfield>      
+
+        <bitfield name="Length3" valueOverride="replace">
+            <int name="Len" type="uint16" bitLength="12" />
+            <enum name="SomeVal" type="uint8" bitLength="4">
+                <validValue name="V0" val="0" />
+                <validValue name="V1" val="0xf" />
+            </enum>
+        </bitfield>          
 
         <int name="VariantType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
 
@@ -61,10 +78,18 @@
     </message>     
 
     <message name="Msg5" id="MsgId.M5">
-        <list name="F1" lengthPrefix="Length" elemLengthPrefix="Length">
+        <list name="F1" lengthPrefix="Length2" elemLengthPrefix="Length">
             <string name="Elem" />
         </list>
-    </message>        
+    </message>    
+
+    <message name="Msg6" id="MsgId.M6">
+        <string name="F1">
+            <lengthPrefix>
+                <ref field="Length3" semanticType="length" />
+            </lengthPrefix>
+        </string>
+    </message>         
 
     <frame name="Frame">
         <sync name="Sync">

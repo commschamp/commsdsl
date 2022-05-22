@@ -92,6 +92,8 @@ public:
     std::string commsDataViewDefaultOptions() const;
     std::string commsBareMetalDefaultOptions() const;
 
+    bool commsHasCustomValue() const;
+
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
     virtual std::string commsCommonCodeBaseClassImpl() const;
@@ -131,7 +133,6 @@ protected:
     void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsFieldCustomizable() const;
     bool commsIsExtended() const;
-    bool commsHasCustomValue() const;
 
 private:
     using ExtraFieldOptsFunc = StringsList (CommsField::*)() const;

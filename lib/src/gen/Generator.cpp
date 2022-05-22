@@ -443,6 +443,11 @@ public:
 
         m_messageIdField = findMessageIdField();
 
+        if (m_logger->hadWarning()) {
+            m_logger->error("Warning treated as error");
+            return false;
+        }        
+
         return true;
     }
 

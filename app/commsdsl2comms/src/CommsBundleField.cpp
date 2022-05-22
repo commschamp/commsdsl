@@ -342,6 +342,16 @@ bool CommsBundleField::commsPrepareInternal()
         m_bundledReadPrepareCodes.push_back(m->commsDefBundledReadPrepareFuncBody(m_members));
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_members));
     }
+
+    if ((bundleDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
+        (!commsHasCustomValue())) {
+        generator().logger().warning(
+            "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
+            "retrieval functionality is not provided. Please create relevant code injection functionality with \"" + 
+            strings::valueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
+            "expected to be defined: getValue(), setValue(), and maxValue()."
+        );
+    }
     return true;
 }
 

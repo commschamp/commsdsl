@@ -12,6 +12,7 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
 
     using Interface = test48::Message<>;
     using Msg1 = test48::message::Msg1<Interface>;
@@ -19,6 +20,7 @@ public:
     using Msg3 = test48::message::Msg3<Interface>;
     using Msg4 = test48::message::Msg4<Interface>;
     using Msg5 = test48::message::Msg5<Interface>;
+    using Msg6 = test48::message::Msg6<Interface>;
     using Frame = test48::frame::Frame<Interface>;
 };
 
@@ -191,4 +193,38 @@ void TestSuite::test5()
 
     auto* inMsg5= static_cast<Msg5*>(inMsg.get());
     TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg5->field_f1());
+}
+
+void TestSuite::test6()
+{
+    Msg6 outMsg;
+    outMsg.field_f1().value() = "hello";
+
+    std::vector<std::uint8_t> buf;
+    Frame frame;
+    auto writeIter = std::back_inserter(buf);
+
+    auto es = frame.write(outMsg, writeIter, buf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(!buf.empty());
+
+    auto readIter = &buf[0];
+    Frame::MsgPtr inMsg;
+    auto id = test48::MsgId_ValuesLimit;
+    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(outMsg.doGetId(), id);
+
+    auto* inMsg6 = static_cast<Msg6*>(inMsg.get());
+    TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg6->field_f1());
+
+    static const std::uint8_t Buf[] = {
+        0xab, 0xcd, // sync
+        0x00, 0x08, // size
+        0x06, // msg id
+        0x0, 0x05, 'h', 'e', 'l', 'l', 'o'
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    TS_ASSERT_EQUALS(frame.length(outMsg), BufSize);
+    TS_ASSERT(std::equal(std::begin(Buf), std::end(Buf), buf.begin()));
 }
