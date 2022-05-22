@@ -31,15 +31,21 @@ class CommsInterface final: public commsdsl::gen::Interface
 {
     using Base = commsdsl::gen::Interface;
 public:
+    using CommsFieldsList = CommsField::CommsFieldsList;
+
     explicit CommsInterface(CommsGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
     virtual ~CommsInterface();
+
+    const CommsFieldsList& commsFields() const
+    {
+        return m_commsFields;
+    }    
 
 protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;
 
 private:
-    using CommsFieldsList = CommsField::CommsFieldsList;
 
     bool commsWriteCommonInternal() const;  
     bool commsWriteDefInternal() const;  

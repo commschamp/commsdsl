@@ -345,9 +345,6 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
             return strings::emptyString();
         }
 
-        assert(
-            (rightField->field().dslObj().kind() == commsdsl::parse::Field::Kind::Set) ||
-            (rightField->field().dslObj().kind() == commsdsl::parse::Field::Kind::Ref));
         std::string valueStr;
         if (dotPos != std::string::npos) {
             valueStr.assign(fieldRef.begin() + dotPos + 1, fieldRef.end());

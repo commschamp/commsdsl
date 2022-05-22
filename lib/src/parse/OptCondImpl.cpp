@@ -227,13 +227,14 @@ FieldImpl* OptCondExprImpl::findField(
             return findField(members, name, remPos);
         };
 
+    assert(*iter != nullptr);
     auto fieldKind = (*iter)->kind();
     if (fieldKind == FieldImpl::Kind::Bundle) {
         return redirectFunc(static_cast<const BundleFieldImpl&>(**iter));
     }
 
     if (fieldKind == FieldImpl::Kind::Bitfield) {
-        return redirectFunc(static_cast<const BundleFieldImpl&>(**iter));
+        return redirectFunc(static_cast<const BitfieldFieldImpl&>(**iter));
     }
 
     return iter->get();

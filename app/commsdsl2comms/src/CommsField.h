@@ -58,7 +58,8 @@ public:
         const std::string& op,
         const std::string& value,
         const std::string& nameOverride = std::string(),
-        bool forcedVersionOptional = false) const;
+        bool forcedVersionOptional = false,
+        const std::string& prefix = std::string()) const;
 
     std::string commsCompareToFieldCode(
         const std::string& op,
@@ -93,6 +94,7 @@ public:
     std::string commsBareMetalDefaultOptions() const;
 
     bool commsHasCustomValue() const;
+    const CommsField* commsFindSibling(const std::string& name) const;
 
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
@@ -120,7 +122,12 @@ protected:
     virtual bool commsIsLimitedCustomizableImpl() const;
     virtual bool commsIsVersionDependentImpl() const;
     virtual bool commsDefHasNameFuncImpl() const;
-    virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const;  
+    virtual std::string commsCompareToValueCodeImpl(
+        const std::string& op, 
+        const std::string& value, 
+        const std::string& nameOverride, 
+        bool forcedVersionOptional,
+        const std::string& prefix) const;  
     virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;

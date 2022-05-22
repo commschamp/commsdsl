@@ -565,7 +565,8 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
     const std::string& op, 
     const std::string& value, 
     const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+    bool forcedVersionOptional,
+    const std::string& prefix) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
@@ -581,11 +582,11 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
 
     try {
         auto val = static_cast<std::intmax_t>(std::stoll(value, nullptr, 0));
-        auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
+        auto newValueStr = "static_cast<typename std::decay<decltype(" + prefix + "field_" + usedName + "()" + 
             optField + ".value())>::type>(" + 
             util::numToString(val) + ")";
 
-        return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional, prefix);
     }
     catch (...) {
         // nothing to do
@@ -595,10 +596,10 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
     auto& values = obj.values();
     auto iter = values.find(value);
     if (iter != values.end()) {
-        auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
+        auto newValueStr = "static_cast<typename std::decay<decltype(" + prefix + "field_" + usedName + "()" + 
             optField + ".value())>::type>(" + 
         util::numToString(iter->second.m_value) + ")";
-        return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional, prefix);
     }    
 
     auto lastDot = value.find_last_of(".");
@@ -606,7 +607,7 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
     }
 
     auto* otherEnum = generator().findField(std::string(value, 0, lastDot));
@@ -614,7 +615,7 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
     }
 
     auto& castedOtherEnum = static_cast<const CommsEnumField&>(*otherEnum);
@@ -624,13 +625,13 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
     }    
 
-    auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
+    auto newValueStr = "static_cast<typename std::decay<decltype(" + prefix + "field_" + usedName + "()" + 
         optField + ".value())>::type>(" + 
         util::numToString(otherIter->second.m_value) + ")";
-    return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
+    return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional, prefix);
 }
 
 std::string CommsEnumField::commsCompareToFieldCodeImpl(

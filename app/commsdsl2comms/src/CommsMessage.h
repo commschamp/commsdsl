@@ -32,10 +32,16 @@ class CommsMessage final: public commsdsl::gen::Message
 {
     using Base = commsdsl::gen::Message;
 public:
+    using CommsFieldsList = CommsField::CommsFieldsList;
     using StringsList = commsdsl::gen::util::StringsList;
 
     explicit CommsMessage(CommsGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent);
     virtual ~CommsMessage();
+
+    const CommsFieldsList& commsFields() const
+    {
+        return m_commsFields;
+    }
 
     std::string commsDefaultOptions() const;
     std::string commsClientDefaultOptions() const;
@@ -48,7 +54,6 @@ protected:
     virtual bool writeImpl() const override;
 
 private:
-    using CommsFieldsList = CommsField::CommsFieldsList;
     using FieldOptsFunc = std::string (CommsField::*)() const;
     using ExtraMessageOptsFunc = StringsList (CommsMessage::*)() const;
 

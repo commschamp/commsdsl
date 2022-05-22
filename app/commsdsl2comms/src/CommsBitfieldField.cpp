@@ -167,6 +167,56 @@ std::string CommsBitfieldField::commsDefPublicCodeImpl() const
     return commsAccessCodeInternal();
 }
 
+std::string CommsBitfieldField::commsCompareToValueCodeImpl(
+    const std::string& op, 
+    const std::string& value, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional,
+    const std::string& prefix) const
+{
+    auto dotPos = value.find(".");
+    if (value.size() <= dotPos) {
+        // Unexpected comparing to the value
+        static const bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return strings::emptyString();
+    }
+
+    auto memberName = value.substr(0, dotPos);
+    auto iter = 
+        std::find_if(
+            m_members.begin(), m_members.end(),
+            [&memberName](auto* mem)
+            {
+                return mem->field().dslObj().name() == memberName;
+            });
+
+    if (iter == m_members.end()) {
+        static const bool Should_not_happen = false;
+        assert(Should_not_happen);
+        return strings::emptyString();
+    }
+
+    auto usedName = nameOverride;
+    if (usedName.empty()) {
+        usedName = comms::accessName(dslObj().name());
+    }    
+
+    auto newPrefix = prefix + "field_" + usedName + "().";
+    assert(*iter != nullptr);
+
+    bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
+    if (!versionOptional) {
+        return (*iter)->commsCompareToValueCode(op, value.substr(dotPos + 1U), std::string(), false, newPrefix);       
+    }
+
+    newPrefix += ".field()";
+
+    return
+        prefix + "field_" + usedName + "().doesExist() &&\n" +
+        (*iter)->commsCompareToValueCode(op, value.substr(dotPos + 1U), std::string(), false, newPrefix);     
+}
+
 bool CommsBitfieldField::commsIsVersionDependentImpl() const
 {
     return 

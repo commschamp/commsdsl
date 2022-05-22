@@ -368,7 +368,8 @@ std::string CommsSetField::commsCompareToValueCodeImpl(
     const std::string& op, 
     const std::string& value, 
     const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+    bool forcedVersionOptional,
+    const std::string& prefix) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
@@ -388,12 +389,12 @@ std::string CommsSetField::commsCompareToValueCodeImpl(
     assert(op.empty() || (op == "!"));
     bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
     if (!versionOptional) {
-        return op + "field_" + usedName + "().getBitValue_" + value + "()";
+        return op + prefix + "field_" + usedName + "().getBitValue_" + value + "()";
     }
 
     return
-        "(field_" + usedName + "().doesExist()) &&\n"
-        "(" + op + "field_" + usedName + "().field().getBitValue_" + value + "())";
+        "(" + prefix + "field_" + usedName + "().doesExist()) &&\n"
+        "(" + op + prefix + "field_" + usedName + "().field().getBitValue_" + value + "())";
 }
 
 std::string CommsSetField::commsCompareToFieldCodeImpl(

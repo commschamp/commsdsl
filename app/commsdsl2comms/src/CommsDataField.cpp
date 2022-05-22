@@ -332,10 +332,11 @@ std::string CommsDataField::commsCompareToValueCodeImpl(
     const std::string& op, 
     const std::string& value, 
     const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+    bool forcedVersionOptional,
+    const std::string& prefix) const
 {
     assert(false); // Should not be called
-    return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+    return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
 }
 
 std::string CommsDataField::commsCompareToFieldCodeImpl(

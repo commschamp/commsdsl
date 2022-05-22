@@ -338,7 +338,8 @@ std::string CommsIntField::commsCompareToValueCodeImpl(
     const std::string& op, 
     const std::string& value, 
     const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+    bool forcedVersionOptional,
+    const std::string& prefix) const
 {
     try {
         std::string newValStr;
@@ -349,7 +350,7 @@ std::string CommsIntField::commsCompareToValueCodeImpl(
             newValStr = util::numToString(static_cast<std::intmax_t>(std::stoll(value, nullptr, 0)));
         }
 
-        return CommsBase::commsCompareToValueCodeImpl(op, newValStr, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompareToValueCodeImpl(op, newValStr, nameOverride, forcedVersionOptional, prefix);
     }
     catch (...) {
         static constexpr bool Should_not_happen = false;

@@ -31,6 +31,11 @@ class CommsBitfieldField final : public commsdsl::gen::BitfieldField, public Com
 public:
     CommsBitfieldField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
+    const CommsFieldsList& commsMembers() const
+    {
+        return m_members;
+    }
+
 protected:
     // Base overrides
     virtual bool prepareImpl() override;
@@ -44,6 +49,13 @@ protected:
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
+    virtual std::string commsCompareToValueCodeImpl(
+        const std::string& op, 
+        const std::string& value, 
+        const std::string& nameOverride, 
+        bool forcedVersionOptional,
+        const std::string& prefix) const override;  
+    // virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const override;
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
 

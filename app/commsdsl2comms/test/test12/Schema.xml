@@ -56,6 +56,25 @@
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="B1" />
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <bitfield name="Flags">
+            <int name="SomeValue1" type="uint8" bitLength="3" />
+            <int name="SomeValue2" type="uint8" bitLength="3" />
+            <set name="Bits" bitLength="2">
+                <bit name="Opt1Exists" idx="0" />
+                <bit name="Opt2Missing" idx="1" defaultValue="true"/>
+            </set>
+        </bitfield>        
+        <optional name="Opt1" defaultMode="missing" cond="$Flags.Bits.Opt1Exists">
+            <int name="O1" type="uint32" />
+        </optional>
+        <optional name="Opt2" defaultMode="missing" cond="!$Flags.Bits.Opt2Missing">
+            <int name="O2" type="uint32" />
+        </optional>        
+    </message>    
+
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />

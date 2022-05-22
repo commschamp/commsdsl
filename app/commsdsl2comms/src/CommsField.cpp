@@ -15,7 +15,11 @@
 
 #include "CommsField.h"
 
+#include "CommsBitfieldField.h"
+#include "CommsBundleField.h"
 #include "CommsGenerator.h"
+#include "CommsInterface.h"
+#include "CommsMessage.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -281,9 +285,10 @@ std::string CommsField::commsCompareToValueCode(
     const std::string& op,
     const std::string& value,
     const std::string& nameOverride,
-    bool forcedVersionOptional) const
+    bool forcedVersionOptional,
+    const std::string& prefix) const
 {
-    return commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+    return commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
 }
 
 std::string CommsField::commsCompareToFieldCode(
@@ -330,6 +335,61 @@ std::string CommsField::commsBareMetalDefaultOptions() const
 bool CommsField::commsHasCustomValue() const
 {
     return !m_customValue.empty();
+}
+
+const CommsField* CommsField::commsFindSibling(const std::string& name) const
+{
+    auto* parent = m_field.getParent();
+    if (parent == nullptr) {
+        return nullptr;
+    }
+
+    auto findFieldFunc = 
+        [&name](const CommsFieldsList& fields) -> const CommsField*
+        {
+            auto iter = 
+                std::find_if(
+                    fields.begin(), fields.end(),
+                    [&name](auto* commsField)
+                    {
+                        return commsField->field().dslObj().name() == name;
+                    });
+
+            if (iter == fields.end()) {
+                return nullptr;
+            }
+
+            return (*iter);
+        };
+
+    auto elemType = parent->elemType();
+    if (elemType == commsdsl::gen::Elem::Type_Message) {
+        auto* msg = static_cast<const CommsMessage*>(parent);
+        return findFieldFunc(msg->commsFields());
+    }
+
+    if (elemType == commsdsl::gen::Elem::Type_Interface) {
+        auto* iFace = static_cast<const CommsInterface*>(parent);
+        return findFieldFunc(iFace->commsFields());
+    }    
+
+    if (elemType != commsdsl::gen::Elem::Type_Field) {
+        return nullptr;
+    }    
+
+    auto* parentField = static_cast<const commsdsl::gen::Field*>(parent);
+    auto fieldKind = parentField->dslObj().kind();
+    if (fieldKind == commsdsl::parse::Field::Kind::Bitfield) {
+        auto* bitfield = static_cast<const CommsBitfieldField*>(parentField);
+        return findFieldFunc(bitfield->commsMembers());
+    }
+
+    if (fieldKind == commsdsl::parse::Field::Kind::Bundle) {
+        auto* bundle = static_cast<const CommsBundleField*>(parentField);
+        return findFieldFunc(bundle->commsMembers());
+    }    
+
+    return nullptr;
 }
 
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
@@ -459,7 +519,12 @@ bool CommsField::commsDefHasNameFuncImpl() const
     return true;
 }
 
-std::string CommsField::commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const
+std::string CommsField::commsCompareToValueCodeImpl(
+    const std::string& op, 
+    const std::string& value, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional,
+    const std::string& prefix) const
 {
     auto usedName = nameOverride;
     if (usedName.empty()) {
@@ -469,13 +534,13 @@ std::string CommsField::commsCompareToValueCodeImpl(const std::string& op, const
     bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
     if (!versionOptional) {
         return
-            "field_" + usedName + "().value() " +
+            prefix + "field_" + usedName + "().value() " +
             op + ' ' + value;
     }
 
     return
-        "field_" + usedName + "().doesExist() &&\n" +
-        "(field_" + usedName + "().field().value() " +
+        prefix + "field_" + usedName + "().doesExist() &&\n" +
+        "(" + prefix + "field_" + usedName + "().field().value() " +
         op + ' ' + value + ')';
 }
 
