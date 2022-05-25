@@ -312,16 +312,6 @@ bool CommsStringField::commsIsLimitedCustomizableImpl() const
     return true;
 }
 
-std::string CommsStringField::commsCompareToValueCodeImpl(
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional,
-    const std::string& prefix) const
-{
-    return CommsBase::commsCompareToValueCodeImpl(op, '\"' + value + '\"', nameOverride, forcedVersionOptional, prefix);
-}
-
 std::string CommsStringField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
 {
     if (m_commsMemberPrefixField == nullptr) {

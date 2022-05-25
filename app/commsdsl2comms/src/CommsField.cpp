@@ -281,37 +281,6 @@ std::string CommsField::commsDefBundledRefreshFuncBody(const CommsFieldsList& si
     return commsDefBundledRefreshFuncBodyImpl(siblings);
 }
 
-std::string CommsField::commsDeepCompareToValueCode(
-    const std::string& left,
-    const std::string& op,
-    const std::string& value,
-    const std::string& nameOverride,
-    bool forcedVersionOptional,
-    const std::string& prefix) const
-{
-    return commsDeepCompareToValueCodeImpl(left, op, value, nameOverride, forcedVersionOptional, prefix);
-}
-
-std::string CommsField::commsCompareToValueCode(
-    const std::string& op,
-    const std::string& value,
-    const std::string& nameOverride,
-    bool forcedVersionOptional,
-    const std::string& prefix) const
-{
-    return commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
-}
-
-
-std::string CommsField::commsCompareToFieldCode(
-    const std::string& op,
-    const CommsField& field,
-    const std::string& nameOverride,
-    bool forcedVersionOptional) const
-{
-    return commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);
-}
-
 std::string CommsField::commsValueAccessStr(const std::string& accStr, const std::string& prefix) const
 {
     std::string optPrefix;
@@ -571,87 +540,6 @@ bool CommsField::commsIsVersionDependentImpl() const
 bool CommsField::commsDefHasNameFuncImpl() const
 {
     return true;
-}
-
-std::string CommsField::commsDeepCompareToValueCodeImpl(
-    const std::string& left,
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional,
-    const std::string& prefix) const
-{
-    static_cast<void>(left);
-    assert(left.empty()); // Not overriden
-    return commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
-}
-
-std::string CommsField::commsCompareToValueCodeImpl(
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional,
-    const std::string& prefix) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(m_field.dslObj().name());
-    }
-
-    bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
-    if (!versionOptional) {
-        return
-            prefix + "field_" + usedName + "().value() " +
-            op + ' ' + value;
-    }
-
-    return
-        prefix + "field_" + usedName + "().doesExist() &&\n" +
-        "(" + prefix + "field_" + usedName + "().field().value() " +
-        op + ' ' + value + ')';
-}
-
-std::string CommsField::commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(m_field.dslObj().name());
-    }
-
-    auto fieldName = comms::accessName(field.m_field.dslObj().name());
-    bool thisOptional = forcedVersionOptional || commsIsVersionOptional();
-    bool otherOptional = field.commsIsVersionOptional();
-
-    std::string thisFieldValue = "field_" + usedName + "()";
-    if (thisOptional) {
-        thisFieldValue += ".field()";
-    }
-    thisFieldValue += ".value() ";
-
-    std::string otherFieldValue = " field_" + fieldName + "()";
-    if (otherOptional) {
-        otherFieldValue += ".field()";
-    }
-    otherFieldValue += ".value()";
-
-    auto compareExpr = thisFieldValue + op + otherFieldValue;
-
-    if ((!thisOptional) && (!otherOptional)) {
-        return compareExpr;
-    }
-
-    if ((!thisOptional) && (otherOptional)) {
-        return "field_" + fieldName + "().doesExist() &&\n(" + compareExpr + ')';
-    }
-
-    if ((thisOptional) && (!otherOptional)) {
-        return "field_" + usedName + "().doesExist() &&\n(" + compareExpr + ')';
-    }
-
-    return
-        "field_" + usedName + "().doesExist() &&\n"
-        "field_" + fieldName + "().doesExist() &&\n"
-                               "(" + compareExpr + ')';
 }
 
 std::string CommsField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const

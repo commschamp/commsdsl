@@ -47,13 +47,6 @@ protected:
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual std::string commsDefRefreshFuncBodyImpl() const override;
     virtual std::string commsDefValidFuncBodyImpl() const override;
-    virtual std::string commsCompareToValueCodeImpl(
-        const std::string& op, 
-        const std::string& value, 
-        const std::string& nameOverride, 
-        bool forcedVersionOptional,
-        const std::string& prefix) const override;  
-    virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const override;
     virtual std::size_t commsMinLengthImpl() const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
 

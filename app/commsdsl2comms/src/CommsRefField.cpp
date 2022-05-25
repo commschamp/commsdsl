@@ -144,31 +144,6 @@ std::string CommsRefField::commsDefBaseClassImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsRefField::commsCompareToValueCodeImpl(
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional,
-    const std::string& prefix) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(dslObj().name());
-    }    
-    assert(m_commsReferencedField != nullptr);
-    return m_commsReferencedField->commsCompareToValueCode(op, value, usedName, forcedVersionOptional || commsIsVersionOptional(), prefix);
-}
-
-std::string CommsRefField::commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(dslObj().name());
-    }        
-    assert(m_commsReferencedField != nullptr);
-    return m_commsReferencedField->commsCompareToFieldCode(op, field, usedName, forcedVersionOptional || commsIsVersionOptional());
-}
-
 bool CommsRefField::commsDefHasNameFuncImpl() const
 {
     auto dslObj = refDslObj();

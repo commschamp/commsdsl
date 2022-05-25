@@ -54,29 +54,8 @@ public:
     std::string commsDefCode() const;
     std::string commsDefBundledReadPrepareFuncBody(const CommsFieldsList& siblings) const;
     std::string commsDefBundledRefreshFuncBody(const CommsFieldsList& siblings) const;
-    std::string commsDeepCompareToValueCode(
-        const std::string& left,
-        const std::string& op,
-        const std::string& value,
-        const std::string& nameOverride = std::string(),
-        bool forcedVersionOptional = false,
-        const std::string& prefix = std::string()) const;
-
-    std::string commsCompareToValueCode(
-        const std::string& op,
-        const std::string& value,
-        const std::string& nameOverride = std::string(),
-        bool forcedVersionOptional = false,
-        const std::string& prefix = std::string()) const;
-
-    std::string commsCompareToFieldCode(
-        const std::string& op,
-        const CommsField& field,
-        const std::string& nameOverride = std::string(),
-        bool forcedVersionOptional = false) const;    
 
     std::string commsValueAccessStr(const std::string& accStr, const std::string& prefix = std::string()) const;
-
     StringsList commsCompOptChecks(const std::string& accStr, const std::string& prefix = std::string()) const;
     void commsCompOptChecks(const std::string& accStr, StringsList& checks, const std::string& prefix = std::string()) const;
     std::string commsCompValueCastType(const std::string& accStr, const std::string& prefix = std::string()) const;
@@ -137,20 +116,6 @@ protected:
     virtual bool commsIsLimitedCustomizableImpl() const;
     virtual bool commsIsVersionDependentImpl() const;
     virtual bool commsDefHasNameFuncImpl() const;
-    virtual std::string commsDeepCompareToValueCodeImpl(
-        const std::string& left,
-        const std::string& op, 
-        const std::string& value, 
-        const std::string& nameOverride, 
-        bool forcedVersionOptional,
-        const std::string& prefix) const;      
-    virtual std::string commsCompareToValueCodeImpl(
-        const std::string& op, 
-        const std::string& value, 
-        const std::string& nameOverride, 
-        bool forcedVersionOptional,
-        const std::string& prefix) const;  
-    virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;

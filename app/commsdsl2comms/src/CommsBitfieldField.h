@@ -51,20 +51,6 @@ protected:
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
-    virtual std::string commsDeepCompareToValueCodeImpl(
-        const std::string& left, 
-        const std::string& op, 
-        const std::string& value, 
-        const std::string& nameOverride, 
-        bool forcedVersionOptional,
-        const std::string& prefix) const override;      
-    virtual std::string commsCompareToValueCodeImpl(
-        const std::string& op, 
-        const std::string& value, 
-        const std::string& nameOverride, 
-        bool forcedVersionOptional,
-        const std::string& prefix) const override;  
-    // virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const override;
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
