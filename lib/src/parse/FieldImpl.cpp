@@ -99,6 +99,7 @@ bool FieldImpl::parse()
 
     bool result =
         checkReuse() &&
+        checkReplace() &&
         updateName() &&
         updateDisplayName() &&
         updateDescription() &&
@@ -404,6 +405,15 @@ bool FieldImpl::parseImpl()
     return true;
 }
 
+bool FieldImpl::replaceMembersImpl(FieldsList& members)
+{
+    static_cast<void>(members);
+    static constexpr bool Should_not_happen = false;
+    static_cast<void>(Should_not_happen);
+    assert(Should_not_happen);
+    return false;
+}
+
 bool FieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const
 {
     static_cast<void>(fields);
@@ -532,6 +542,12 @@ bool FieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
 {
     static_cast<void>(fieldName);
     return false;
+}
+
+const XmlWrap::NamesList& FieldImpl::supportedMemberTypesImpl() const
+{
+    static const XmlWrap::NamesList List;
+    return List;
 }
 
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
@@ -668,7 +684,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
 const XmlWrap::NamesList& FieldImpl::commonChildren()
 {
     static const XmlWrap::NamesList CommonChildren = {
-        common::metaStr()
+        common::metaStr(),
+        common::replaceStr()
     };
 
     return CommonChildren;
@@ -896,6 +913,61 @@ bool FieldImpl::checkReuse()
     assert(getDeprecated() == Protocol::notYetDeprecated());
     assert(!isDeprecatedRemoved());
     return reuseImpl(*field);
+}
+
+bool FieldImpl::checkReplace()
+{
+    auto replaceNodes = XmlWrap::getChildren(getNode(), common::replaceStr());
+    if (1U < replaceNodes.size()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Only single \"" << common::replaceStr() << "\" child element is "
+            "supported for a field.";
+        return false;
+    }
+
+    if (replaceNodes.empty()) {
+        return true;
+    }
+
+    if (!m_protocol.isMemberReplaceSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Replacing members with \"" << common::replaceStr() << "\" child element is "
+            "for selected DSL version, ignoring";        
+        return true;
+    }
+
+    auto memberFieldsTypes = XmlWrap::getChildren(replaceNodes.front());
+    auto cleanMemberFieldsTypes = XmlWrap::getChildren(replaceNodes.front(), supportedMemberTypesImpl());
+    if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
+        logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
+            "The \"" << common::replaceStr() << "\" child node element must contain only supported member fields.";
+        return false;
+    }
+
+    FieldsList replMembers;
+    replMembers.reserve(memberFieldsTypes.size());
+    for (auto* memNode : memberFieldsTypes) {
+        std::string memKind(reinterpret_cast<const char*>(memNode->name));
+        auto mem = FieldImpl::create(memKind, memNode, protocol());
+        if (!mem) {
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
+                "Internal error, failed to create objects for member fields to replace.";
+            return false;
+        }
+
+        mem->setParent(this);
+        if (!mem->parse()) {
+            return false;
+        }
+
+        replMembers.push_back(std::move(mem));
+    }  
+
+    assert(!replMembers.empty());
+    return replaceMembersImpl(replMembers);
 }
 
 bool FieldImpl::updateName()

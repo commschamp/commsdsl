@@ -118,6 +118,7 @@ public:
     bool isCopyFieldsFromBundleSupported() const;
     bool isAvailableLengthLimitSupported() const;
     bool isOverrideTypeSupported() const;
+    bool isMemberReplaceSupported() const;
 
 private:
     struct XmlDocFree

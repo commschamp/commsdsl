@@ -55,12 +55,14 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl &other) override;
     virtual bool parseImpl() override;
+    virtual bool replaceMembersImpl(FieldsList& members) override;
     virtual std::size_t minLengthImpl() const override;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
     virtual bool strToFpImpl(const std::string& ref, double& val) const override;
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
     virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const override;
+    virtual const XmlWrap::NamesList& supportedMemberTypesImpl() const override;
 
 private:
     bool updateEndian();

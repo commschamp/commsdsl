@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema12"
+        id="1"
+        endian="big">
+    <description>
+        Testing availableLengthLimit="true" for integer types
+    </description>
+    <fields>
+        <bundle name="B1">
+            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <int name="Length" type="uint8" semanticType="length" />
+            <int name="Value" type="uint32" availableLengthLimit="true" />
+        </bundle>  
+
+        <bundle name="B2" reuse="B1">
+            <replace>
+                <int name="Type" type="uint8" defaultValidValue="2" failOnInvalid="true" />
+                <string name="Value" />
+            </replace>
+        </bundle>                
+    </fields>
+</schema>

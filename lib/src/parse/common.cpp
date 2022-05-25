@@ -794,6 +794,13 @@ const std::string& nameOverrideStr()
     return Str; 
 }
 
+const std::string& replaceStr()
+{
+    static const std::string Str("replace");
+    return Str; 
+}
+
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

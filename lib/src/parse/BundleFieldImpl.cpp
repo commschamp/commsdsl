@@ -163,6 +163,31 @@ bool BundleFieldImpl::parseImpl()
         updateAliases();
 }
 
+bool BundleFieldImpl::replaceMembersImpl(FieldsList& members)
+{
+    for (auto& mem : members) {
+        assert(mem);
+        auto iter = 
+            std::find_if(
+                m_members.begin(), m_members.end(),
+                [&mem](auto& currMem)
+                {
+                    assert(currMem);
+                    return mem->name() == currMem->name();
+                });
+
+        if (iter == m_members.end()) {
+            logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                "Cannot find reused member with name \"" << mem->name() << "\" to replace.";
+            return false;
+        }
+
+        (*iter) = std::move(mem);
+    }
+
+    return true;
+}
+
 std::size_t BundleFieldImpl::minLengthImpl() const
 {
     return
@@ -247,6 +272,11 @@ bool BundleFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) cons
 
     std::string restFieldName(fieldName, dotPos + 1);
     return (*iter)->verifyAliasedMember(restFieldName);
+}
+
+const XmlWrap::NamesList& BundleFieldImpl::supportedMemberTypesImpl() const
+{
+    return bundleSupportedTypes();
 }
 
 bool BundleFieldImpl::updateMembers()

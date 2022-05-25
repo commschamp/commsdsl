@@ -18,6 +18,7 @@ public:
     void test9();
     void test10();
     void test11();
+    void test12();
 };
 
 void BundleTestSuite::setUp()
@@ -345,3 +346,39 @@ void BundleTestSuite::test11()
     } while (false);        
 }
 
+
+void BundleTestSuite::test12()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    do {
+        TS_ASSERT(2U <= fields.size());
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "B2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto members = bundleField.members();
+        TS_ASSERT_EQUALS(members.size(), 3U);
+        auto& mem1 = members[0];
+        auto& mem2 = members[1];
+        auto& mem3 = members[2];
+        TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::String);
+
+        commsdsl::parse::IntField typeField(mem1);
+        TS_ASSERT_EQUALS(typeField.defaultValue(), 2);    
+    
+        commsdsl::parse::IntField lengthField(mem2);
+        TS_ASSERT_EQUALS(lengthField.semanticType(), commsdsl::parse::Field::SemanticType::Length);    
+    } while (false);    
+}

@@ -306,6 +306,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool reuseImpl(const FieldImpl& other);
     virtual bool parseImpl();
+    virtual bool replaceMembersImpl(FieldsList& members);
     virtual bool verifySiblingsImpl(const FieldsList& fields) const;
     virtual std::size_t minLengthImpl() const = 0;
     virtual std::size_t maxLengthImpl() const;
@@ -321,6 +322,7 @@ protected:
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const;
     virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const;
+    virtual const XmlWrap::NamesList& supportedMemberTypesImpl() const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);
@@ -399,6 +401,7 @@ private:
     };
 
     bool checkReuse();
+    bool checkReplace();
     bool updateName();
     bool updateDescription();
     bool updateDisplayName();

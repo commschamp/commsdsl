@@ -131,6 +131,39 @@ bool BitfieldFieldImpl::parseImpl()
         updateMembers();
 }
 
+bool BitfieldFieldImpl::replaceMembersImpl(FieldsList& members)
+{
+    for (auto& mem : members) {
+        assert(mem);
+        auto iter = 
+            std::find_if(
+                m_members.begin(), m_members.end(),
+                [&mem](auto& currMem)
+                {
+                    assert(currMem);
+                    return mem->name() == currMem->name();
+                });
+
+        if (iter == m_members.end()) {
+            logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                "Cannot find reused member with name \"" << mem->name() << "\" to replace.";
+            return false;
+        }
+
+        if ((mem->getSinceVersion() != getSinceVersion()) ||
+            (mem->getDeprecated() != getDeprecated())) {
+            logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                "Bitfield replacing members are not allowed to update \"" << common::sinceVersionStr() << "\" and "
+                "\"" << common::deprecatedStr() << "\" properties.";
+            return false;
+        }
+
+        (*iter) = std::move(mem);
+    }
+
+    return true;
+}
+
 std::size_t BitfieldFieldImpl::minLengthImpl() const
 {
     return
@@ -191,6 +224,11 @@ bool BitfieldFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) co
 
     std::string restFieldName(fieldName, dotPos + 1);
     return (*iter)->verifyAliasedMember(restFieldName);
+}
+
+const XmlWrap::NamesList& BitfieldFieldImpl::supportedMemberTypesImpl() const
+{
+    return BitfieldFieldImpl::supportedTypes();
 }
 
 bool BitfieldFieldImpl::updateEndian()
