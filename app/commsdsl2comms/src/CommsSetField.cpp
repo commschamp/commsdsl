@@ -416,6 +416,23 @@ std::size_t CommsSetField::commsMinLengthImpl() const
     return CommsBase::commsMinLengthImpl();
 }
 
+std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsValueAccessStrImpl(accStr, prefix);
+    }
+
+    auto& bits = setDslObj().bits();
+    auto iter = bits.find(accStr);
+    if (iter == bits.end()) {
+        generator().logger().error("Failed to find bit reference " + accStr + " for field " + comms::scopeFor(*this, generator()));
+        assert(false);
+        return "???";
+    }
+
+    return prefix + "getBitValue_" + accStr + "()";
+}
+
 std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
 {
     auto obj = setDslObj();

@@ -281,6 +281,17 @@ std::string CommsField::commsDefBundledRefreshFuncBody(const CommsFieldsList& si
     return commsDefBundledRefreshFuncBodyImpl(siblings);
 }
 
+std::string CommsField::commsDeepCompareToValueCode(
+    const std::string& left,
+    const std::string& op,
+    const std::string& value,
+    const std::string& nameOverride,
+    bool forcedVersionOptional,
+    const std::string& prefix) const
+{
+    return commsDeepCompareToValueCodeImpl(left, op, value, nameOverride, forcedVersionOptional, prefix);
+}
+
 std::string CommsField::commsCompareToValueCode(
     const std::string& op,
     const std::string& value,
@@ -291,6 +302,7 @@ std::string CommsField::commsCompareToValueCode(
     return commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
 }
 
+
 std::string CommsField::commsCompareToFieldCode(
     const std::string& op,
     const CommsField& field,
@@ -298,6 +310,48 @@ std::string CommsField::commsCompareToFieldCode(
     bool forcedVersionOptional) const
 {
     return commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);
+}
+
+std::string CommsField::commsValueAccessStr(const std::string& accStr, const std::string& prefix) const
+{
+    std::string optPrefix;
+    if (commsIsVersionOptional()) {
+        optPrefix = "field().";
+    }
+    return commsValueAccessStrImpl(accStr, prefix + optPrefix);
+}
+
+CommsField::StringsList CommsField::commsCompOptChecks(const std::string& accStr, const std::string& prefix) const
+{
+    StringsList checks;
+    commsCompOptChecks(accStr, checks, prefix);
+    return checks;
+}
+
+void CommsField::commsCompOptChecks(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    std::string prefixExtra;
+    if (commsIsVersionOptional()) {
+        checks.push_back(prefix + "doesExist()");
+        prefixExtra = "field().";
+    }
+
+    return commsCompOptChecksImpl(accStr, checks, prefix + prefixExtra);
+}
+
+std::string CommsField::commsCompValueCastType(const std::string& accStr, const std::string& prefix) const
+{
+    std::string prefixExtra;
+    if (commsIsVersionOptional()) {
+        prefixExtra = "Field::";
+    }
+
+    return commsCompValueCastTypeImpl(accStr, prefix + prefixExtra);
+}
+
+std::string CommsField::commsCompPrepValueStr(const std::string& accStr, const std::string& value) const
+{
+    return commsCompPrepValueStrImpl(accStr, value);
 }
 
 bool CommsField::commsIsVersionOptional() const
@@ -519,6 +573,19 @@ bool CommsField::commsDefHasNameFuncImpl() const
     return true;
 }
 
+std::string CommsField::commsDeepCompareToValueCodeImpl(
+    const std::string& left,
+    const std::string& op, 
+    const std::string& value, 
+    const std::string& nameOverride, 
+    bool forcedVersionOptional,
+    const std::string& prefix) const
+{
+    static_cast<void>(left);
+    assert(left.empty()); // Not overriden
+    return commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional, prefix);
+}
+
 std::string CommsField::commsCompareToValueCodeImpl(
     const std::string& op, 
     const std::string& value, 
@@ -611,6 +678,36 @@ std::size_t CommsField::commsMinLengthImpl() const
 std::size_t CommsField::commsMaxLengthImpl() const
 {
     return m_field.dslObj().maxLength();
+}
+
+std::string CommsField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+    return prefix + "value()";
+}
+
+void CommsField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    static_cast<void>(accStr);
+    static_cast<void>(checks);
+    static_cast<void>(prefix);
+    assert(accStr.empty());
+}
+
+std::string CommsField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    static_cast<void>(accStr);
+    static_cast<void>(prefix);
+    assert(accStr.empty());
+    return prefix + "ValueType";
+}
+
+std::string CommsField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+    return value;
 }
 
 std::string CommsField::commsCommonNameFuncCode() const

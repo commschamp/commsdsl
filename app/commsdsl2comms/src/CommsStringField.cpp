@@ -367,6 +367,11 @@ std::size_t CommsStringField::commsMaxLengthImpl() const
     return comms::maxPossibleLength();
 }
 
+std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    return CommsBase::commsCompPrepValueStrImpl(accStr, '\"' + value + '\"');
+}
+
 std::string CommsStringField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

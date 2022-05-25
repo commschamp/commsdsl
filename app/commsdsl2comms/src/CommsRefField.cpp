@@ -191,6 +191,30 @@ std::size_t CommsRefField::commsMaxLengthImpl() const
     return m_commsReferencedField->commsMaxLength();
 }
 
+std::string CommsRefField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsValueAccessStr(accStr, prefix);
+}
+
+void CommsRefField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsCompOptChecks(accStr, checks, prefix);
+}
+
+std::string CommsRefField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsCompValueCastType(accStr, prefix);
+}
+
+std::string CommsRefField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsCompPrepValueStr(accStr, value);
+}
+
 std::string CommsRefField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

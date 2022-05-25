@@ -38,9 +38,15 @@ void TestSuite::test2()
     TS_ASSERT(msg.valid());
     TS_ASSERT(msg.field_opt1().isMissing());
     TS_ASSERT(msg.field_opt2().isMissing());
+    TS_ASSERT(msg.field_opt3().isMissing());
+    TS_ASSERT(msg.field_opt4().isMissing());
     msg.field_flags().field_bits().setBitValue_Opt1Exists(true);
     msg.field_flags().field_bits().setBitValue_Opt2Missing(false);
+    msg.field_flags().field_someValue1().value() = 1U;
+    msg.field_flags().field_someValue2().value() = 2U;
     TS_ASSERT(msg.doRefresh());
     TS_ASSERT(msg.field_opt1().doesExist());
     TS_ASSERT(msg.field_opt2().doesExist());
+    TS_ASSERT(msg.field_opt3().doesExist());
+    TS_ASSERT(msg.field_opt4().doesExist());
 }

@@ -197,6 +197,18 @@ std::size_t CommsOptionalField::commsMaxLengthImpl() const
     return m_commsMemberField->commsMaxLength();
 }
 
+void CommsOptionalField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    checks.push_back(prefix + ".doesExist()");
+
+    if (m_commsExternalField != nullptr) {
+        m_commsExternalField->commsCompOptChecks(accStr, checks, prefix + ".field()");
+    }
+
+    assert(m_commsMemberField != nullptr);
+    m_commsMemberField->commsCompOptChecks(accStr, checks, prefix + ".field()");   
+}
+
 std::string CommsOptionalField::commsDefFieldRefInternal() const
 {
     if (m_commsExternalField != nullptr) {
@@ -301,7 +313,8 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
             assert(!right.empty());
             assert(left[0] == '$');
 
-            std::string leftFieldName(left, 1);
+            auto leftSepPos = left.find(".", 1);
+            std::string leftFieldName(left, 1, leftSepPos - 1);
             auto* leftField = findFieldFunc(leftFieldName);
             if (leftField == nullptr) {
                 static constexpr bool Should_not_happen = false;
@@ -310,11 +323,19 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
                 return strings::emptyString();
             }
 
-            if (right[0] != '$') {
-                return leftField->commsCompareToValueCode(op, right);
+            std::string remLeft;
+            if (leftSepPos < left.size()) {
+                remLeft = left.substr(leftSepPos + 1);
             }
 
-            auto* rightField = findFieldFunc(std::string(right, 1));
+            if (right[0] != '$') {
+                return commsDslCondToStringFieldValueCompInternal(leftField, remLeft, op, right);
+            }
+
+            auto rigthSepPos = right.find(".", 1);
+            std::string rightFieldName(right, 1, rigthSepPos - 1);
+
+            auto* rightField = findFieldFunc(rightFieldName);
             if (rightField == nullptr) {
                 static constexpr bool Should_not_happen = false;
                 static_cast<void>(Should_not_happen);
@@ -322,7 +343,12 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
                 return strings::emptyString();
             }
 
-            return leftField->commsCompareToFieldCode(op, *rightField);
+            std::string remRight;
+            if (rigthSepPos < right.size()) {
+                remRight = right.substr(rigthSepPos + 1);
+            }            
+
+            return commsDslCondToStringFieldFieldCompInternal(leftField, remLeft, op, rightField, remRight);
         }
 
         // Reference to bit in "set".
@@ -345,12 +371,13 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
             return strings::emptyString();
         }
 
-        std::string valueStr;
+        std::string accStr;
         if (dotPos != std::string::npos) {
-            valueStr.assign(fieldRef.begin() + dotPos + 1, fieldRef.end());
+            accStr.assign(fieldRef.begin() + dotPos + 1, fieldRef.end());
         }
 
-        return rightField->commsCompareToValueCode(op, valueStr);
+        auto rightAccName = comms::accessName(rightField->field().dslObj().name());
+        return op + "field_" + rightAccName + "()." + rightField->commsValueAccessStr(accStr);
     }
 
     if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
@@ -401,6 +428,78 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
     }
 
     return util::processTemplate(condTempl, repl);
+}
+
+std::string CommsOptionalField::commsDslCondToStringFieldValueCompInternal(
+    const CommsField* field, 
+    const std::string& accStr,
+    const std::string& op, 
+    const std::string& value)
+{
+    auto accName = comms::accessName(field->field().dslObj().name());
+    auto prefix = "field_" + accName + "().";
+    auto optConds = field->commsCompOptChecks(accStr, prefix);
+    auto valueStr = field->commsCompPrepValueStr(accStr, value);
+    auto typeCast = field->commsCompValueCastType(accStr);
+    if (!typeCast.empty()) {
+        valueStr = "static_cast<typename Field_" + accName + "::" + typeCast + ">(" + valueStr + ")";
+    }
+
+    auto expr = prefix + field->commsValueAccessStr(accStr) + ' ' + op + ' ' + valueStr;
+
+    if (optConds.empty()) {
+        return expr;
+    }
+
+    static const std::string Templ = 
+        "#^#COND#$# &&\n"
+        "(#^#EXPR#$#)";
+    
+    util::ReplacementMap repl = {
+        {"COND", util::strListToString(optConds, " &&\n", "")},
+        {"EXPR", std::move(expr)},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsOptionalField::commsDslCondToStringFieldFieldCompInternal(
+    const CommsField* leftField, 
+    const std::string& leftAccStr,
+    const std::string& op, 
+    const CommsField* rightField, 
+    const std::string& rightAccStr)
+{
+    auto leftAccName = comms::accessName(leftField->field().dslObj().name());
+    auto leftPrefix = "field_" + leftAccName + "().";
+    auto rightAccName = comms::accessName(rightField->field().dslObj().name());
+    auto rightPrefix = "field_" + rightAccName + "().";
+
+    auto optConds = leftField->commsCompOptChecks(leftAccStr, leftPrefix);
+    rightField->commsCompOptChecks(rightAccStr, optConds, rightPrefix);
+    auto valueStr = rightPrefix + rightField->commsValueAccessStr(rightAccStr);
+    auto typeCast = leftField->commsCompValueCastType(leftAccStr);
+    if (!typeCast.empty()) {
+        auto accName = comms::accessName(leftField->field().dslObj().name());
+        valueStr = "static_cast<typename Field_" + accName + "::" + typeCast + ">(" + valueStr + ")";
+    }
+
+    auto expr = leftPrefix + leftField->commsValueAccessStr(leftAccStr) + ' ' + op + ' ' + valueStr;
+
+    if (optConds.empty()) {
+        return expr;
+    }
+
+    static const std::string Templ = 
+        "#^#COND#$# &&\n"
+        "(#^#EXPR#$#)";
+    
+    util::ReplacementMap repl = {
+        {"COND", util::strListToString(optConds, " &&\n", "")},
+        {"EXPR", std::move(expr)},
+    };
+
+    return util::processTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2comms

@@ -401,6 +401,82 @@ std::size_t CommsBundleField::commsMaxLengthImpl() const
             });    
 }
 
+
+std::string CommsBundleField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsValueAccessStrImpl(accStr, prefix);
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return "???";
+    }
+
+    return memInfo.first->commsValueAccessStr(memInfo.second, prefix + "field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "().");
+}
+
+void CommsBundleField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        CommsBase::commsCompOptChecksImpl(accStr, checks, prefix);
+        return;
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return;
+    }
+
+    return memInfo.first->commsCompOptChecks(memInfo.second, checks, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()));
+}
+
+std::string CommsBundleField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsCompValueCastTypeImpl(accStr, prefix);
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return "???";
+    }
+
+    auto accName = comms::accessName(memInfo.first->field().dslObj().name());
+    return memInfo.first->commsCompValueCastType(memInfo.second, prefix + "Field_" + accName + "::");
+}
+
+std::string CommsBundleField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return value;
+    }
+
+    auto accName = comms::accessName(memInfo.first->field().dslObj().name());
+    return memInfo.first->commsCompPrepValueStr(memInfo.second, value);
+}
+
 std::string CommsBundleField::commsDefFieldOptsInternal() const
 {
     commsdsl::gen::util::StringsList opts;
@@ -535,6 +611,31 @@ void CommsBundleField::commsAddRemLengthMemberOptInternal(StringsList& opts) con
         auto optStr = "comms::option::def::RemLengthMemberField<" + util::numToString(idx) + '>';
         util::addToStrList(std::move(optStr), opts);
     }
+}
+
+std::pair<const CommsField*, std::string> CommsBundleField::parseMemRefInternal(const std::string accStr) const
+{
+    auto sepPos = accStr.find(".");
+    auto memberName = accStr.substr(0, sepPos);
+
+    auto iter = 
+        std::find_if(
+            m_members.begin(), m_members.end(),
+            [&memberName](auto* mem)
+            {
+                return mem->field().dslObj().name() == memberName;
+            });
+
+    if (iter == m_members.end()) {
+        return std::make_pair(nullptr, accStr);
+    }
+
+    std::string remAccStr;
+    if (sepPos < accStr.size()) {
+        remAccStr = accStr.substr(sepPos + 1);
+    }
+
+    return std::make_pair(*iter, std::move(remAccStr));
 }
 
 } // namespace commsdsl2comms

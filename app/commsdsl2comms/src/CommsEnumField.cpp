@@ -702,6 +702,55 @@ std::size_t CommsEnumField::commsMinLengthImpl() const
     return CommsBase::commsMinLengthImpl();
 }
 
+std::string CommsEnumField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+
+    try {
+        auto val = static_cast<std::intmax_t>(std::stoll(value, nullptr, 0));
+        return util::numToString(val);
+    }
+    catch (...) {
+        // nothing to do
+    }    
+
+    auto obj = enumDslObj();
+    auto& values = obj.values();
+    auto iter = values.find(value);
+    if (iter != values.end()) {
+        return util::numToString(iter->second.m_value);
+    }    
+
+    auto lastDot = value.find_last_of(".");
+    if (lastDot == std::string::npos) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
+    }
+
+    auto* otherEnum = generator().findField(std::string(value, 0, lastDot));
+    if ((otherEnum == nullptr) || (otherEnum->dslObj().kind() != commsdsl::parse::Field::Kind::Enum)) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
+    }
+
+    auto& castedOtherEnum = static_cast<const CommsEnumField&>(*otherEnum);
+    auto& otherValues = castedOtherEnum.enumDslObj().values();
+    auto otherIter = otherValues.find(std::string(value, lastDot + 1));
+    if (otherIter == otherValues.end()) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
+    }    
+
+    return util::numToString(otherIter->second.m_value);
+}
+
 bool CommsEnumField::commsPrepareValidRangesInternal()
 {
     auto obj = enumDslObj();

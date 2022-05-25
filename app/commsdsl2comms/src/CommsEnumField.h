@@ -57,6 +57,7 @@ protected:
         const std::string& prefix) const override;  
     virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const override;
     virtual std::size_t commsMinLengthImpl() const override;
+    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
 
 private:
     struct RangeInfo

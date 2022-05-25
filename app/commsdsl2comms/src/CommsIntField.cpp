@@ -441,6 +441,27 @@ std::size_t CommsIntField::commsMinLengthImpl() const
     return CommsBase::commsMinLengthImpl();
 }
 
+std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+    try {
+        if (isUnsignedType()) {
+            return util::numToString(static_cast<std::uintmax_t>(std::stoull(value, nullptr, 0)));
+        }
+
+        return util::numToString(static_cast<std::intmax_t>(std::stoll(value, nullptr, 0)));
+    }
+    catch (...) {
+        // nothing to do
+    }
+
+    static constexpr bool Not_yet_implemented = false;
+    static_cast<void>(Not_yet_implemented);
+    assert(Not_yet_implemented);
+    return "???";
+}
+
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
 {
     auto& specials = specialsSortedByValue();    
