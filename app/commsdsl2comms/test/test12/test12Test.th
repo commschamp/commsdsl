@@ -8,6 +8,7 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
 
     using Interface =
         test12::Message<
@@ -22,6 +23,7 @@ public:
 
     using Msg1 = test12::message::Msg1<Interface>;
     using Msg2 = test12::message::Msg2<Interface>;
+    using Msg3 = test12::message::Msg3<Interface>;
 };
 
 void TestSuite::test1()
@@ -35,6 +37,25 @@ void TestSuite::test1()
 void TestSuite::test2()
 {
     Msg2 msg;
+    TS_ASSERT(msg.valid());
+    TS_ASSERT(msg.field_opt1().isMissing());
+    TS_ASSERT(msg.field_opt2().isMissing());
+    TS_ASSERT(msg.field_opt3().isMissing());
+    TS_ASSERT(msg.field_opt4().isMissing());
+    msg.field_flags().field_bits().setBitValue_Opt1Exists(true);
+    msg.field_flags().field_bits().setBitValue_Opt2Missing(false);
+    msg.field_flags().field_someValue1().value() = 1U;
+    msg.field_flags().field_someValue2().value() = 2U;
+    TS_ASSERT(msg.doRefresh());
+    TS_ASSERT(msg.field_opt1().doesExist());
+    TS_ASSERT(msg.field_opt2().doesExist());
+    TS_ASSERT(msg.field_opt3().doesExist());
+    TS_ASSERT(msg.field_opt4().doesExist());
+}
+
+void TestSuite::test3()
+{
+    Msg3 msg;
     TS_ASSERT(msg.valid());
     TS_ASSERT(msg.field_opt1().isMissing());
     TS_ASSERT(msg.field_opt2().isMissing());
