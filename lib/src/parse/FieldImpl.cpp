@@ -931,8 +931,8 @@ bool FieldImpl::checkReplace()
 
     if (!m_protocol.isMemberReplaceSupported()) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Replacing members with \"" << common::replaceStr() << "\" child element is "
-            "for selected DSL version, ignoring";        
+            "Replacing members with \"" << common::replaceStr() << "\" child element is unavaliable "
+            "for selected DSL version, ignoring...";        
         return true;
     }
 
@@ -946,10 +946,10 @@ bool FieldImpl::checkReplace()
 
     FieldsList replMembers;
     replMembers.reserve(memberFieldsTypes.size());
-    for (auto* memNode : memberFieldsTypes) {
-        std::string memKind(reinterpret_cast<const char*>(memNode->name));
-        auto mem = FieldImpl::create(memKind, memNode, protocol());
-        if (!mem) {
+    for (auto* fieldNode : memberFieldsTypes) {
+        std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
+        auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
+        if (!field) {
             static constexpr bool Should_not_happen = false;
             static_cast<void>(Should_not_happen);
             assert(Should_not_happen);
@@ -958,12 +958,12 @@ bool FieldImpl::checkReplace()
             return false;
         }
 
-        mem->setParent(this);
-        if (!mem->parse()) {
+        field->setParent(this);
+        if (!field->parse()) {
             return false;
         }
 
-        replMembers.push_back(std::move(mem));
+        replMembers.push_back(std::move(field));
     }  
 
     assert(!replMembers.empty());

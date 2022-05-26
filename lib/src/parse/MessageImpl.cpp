@@ -71,6 +71,7 @@ bool MessageImpl::parse()
         updateSender() &&
         updateValidateMinLength() &&
         copyFields() &&
+        replaceFields() &&
         updateFields() &&
         copyAliases() &&
         updateAliases() &&
@@ -294,6 +295,7 @@ XmlWrap::NamesList MessageImpl::allNames()
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
     names.push_back(common::fieldsStr());
     names.push_back(common::aliasStr());
+    names.push_back(common::replaceStr());
     return names;
 }
 
@@ -642,6 +644,84 @@ bool MessageImpl::copyFields()
         }
     }
     return true;
+}
+
+bool MessageImpl::replaceFields()
+{
+    auto replaceNodes = XmlWrap::getChildren(getNode(), common::replaceStr());
+    if (1U < replaceNodes.size()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Only single \"" << common::replaceStr() << "\" child element is "
+            "supported for \"" << common::messageStr() << "\".";
+        return false;
+    }
+
+    if (replaceNodes.empty()) {
+        return true;
+    }
+
+    if (!m_protocol.isMemberReplaceSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Replacing fields with \"" << common::replaceStr() << "\" child element is unavaliable "
+            "for selected DSL version, ignoring...";        
+        return true;
+    }    
+
+    auto fieldsTypes = XmlWrap::getChildren(replaceNodes.front(), messageSupportedTypes());
+    if (fieldsTypes.size() != replaceNodes.size()) {
+        logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
+            "The \"" << common::replaceStr() << "\" child node of \"" <<
+            common::messageStr() << "\" element must contain only supported field types.";
+        return false;
+    }    
+
+    FieldImpl::FieldsList replMembers;
+    replMembers.reserve(fieldsTypes.size());
+    for (auto* fieldNode : fieldsTypes) {
+        std::string memKind(reinterpret_cast<const char*>(fieldNode->name));
+        auto field = FieldImpl::create(memKind, fieldNode, m_protocol);
+        if (!field) {
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
+                "Internal error, failed to create objects for fields to replace.";
+            return false;
+        }
+
+        field->setParent(this);
+        if (!field->parse()) {
+            return false;
+        }
+
+        if (!field->verifySiblings(m_fields)) {
+            return false;
+        }        
+
+        replMembers.push_back(std::move(field));
+    }   
+
+    for (auto& field : replMembers) {
+        assert(field);
+        auto iter = 
+            std::find_if(
+                m_fields.begin(), m_fields.end(),
+                [&field](auto& currField)
+                {
+                    assert(currField);
+                    return field->name() == currField->name();
+                });
+
+        if (iter == m_fields.end()) {
+            logError() << XmlWrap::logPrefix(field->getNode()) <<
+                "Cannot find reused field with name \"" << field->name() << "\" to replace.";
+            return false;
+        }
+
+        (*iter) = std::move(field);
+    }
+
+    return true;       
 }
 
 bool MessageImpl::copyAliases()

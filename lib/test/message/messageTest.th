@@ -124,10 +124,11 @@ void MessageTestSuite::test4()
     TS_ASSERT(ns.name().empty());
 
     auto messages = ns.messages();
-    TS_ASSERT_EQUALS(messages.size(), 2U);
+    TS_ASSERT_EQUALS(messages.size(), 3U);
 
     auto& msg1 = messages[0];
     auto& msg2 = messages[1];
+    auto& msg3 = messages[2];
     TS_ASSERT_EQUALS(msg1.name(), "Msg1");
     TS_ASSERT_EQUALS(msg1.id(), 0);
     TS_ASSERT_EQUALS(msg1.minLength(), 4U);
@@ -143,6 +144,13 @@ void MessageTestSuite::test4()
     TS_ASSERT_EQUALS(msg2.sinceVersion(), 2U);
     auto fields2 = msg2.fields();
     TS_ASSERT_EQUALS(fields2.size(), 2U);
+
+    TS_ASSERT_EQUALS(msg3.name(), "Msg3");
+    TS_ASSERT_EQUALS(msg3.id(), 2);
+    auto fields3 = msg3.fields();
+    TS_ASSERT_EQUALS(fields3.size(), 3U);   
+
+    TS_ASSERT_EQUALS(fields3[1].kind(), commsdsl::parse::Field::Kind::Enum); 
 }
 
 void MessageTestSuite::test5()

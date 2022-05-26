@@ -170,6 +170,7 @@ private:
     bool updateValidateMinLength();
     bool copyFields();
     bool copyAliases();
+    bool replaceFields();
     bool updateFields();
     bool updateAliases();
     void cloneFieldsFrom(const MessageImpl& other);
