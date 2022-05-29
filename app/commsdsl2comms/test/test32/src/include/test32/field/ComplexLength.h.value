@@ -1,0 +1,31 @@
+/// @brief Get value 
+std::size_t getValue() const
+{
+    if (!field_short().isLongPresent()) {
+        return static_cast<std::size_t>(field_short().value());
+    }
+
+    return static_cast<std::size_t>(field_long().field().value());
+}
+
+/// @brief Set value 
+template <typename U>
+void setValue(U&& val)
+{
+    if (val < Field_short::valueLongPresent()) {
+        comms::cast_assign(field_short().value()) = val;
+        field_long().setMissing();
+        return;
+    }
+
+    field_short().setLongPresent();
+    comms::cast_assign(field_long().field().value()) = val;
+    field_long().setExists();
+}
+
+/// @brief Max value
+static constexpr std::size_t maxValue()
+{
+    return static_cast<std::size_t>(std::numeric_limits<std::uint16_t>::max());
+}
+

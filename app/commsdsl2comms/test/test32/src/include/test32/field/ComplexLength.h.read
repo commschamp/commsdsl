@@ -1,0 +1,12 @@
+/// @brief Custom read
+template <typename TIter>
+comms::ErrorStatus read(TIter& iter, std::size_t len) 
+{
+    auto es = Base::template readUntilAndUpdateLen<FieldIdx_long>(iter, len);
+    if (es != comms::ErrorStatus::Success) {
+        return es;
+    }
+
+    refresh();
+    return Base::template readFrom<FieldIdx_long>(iter, len);
+}

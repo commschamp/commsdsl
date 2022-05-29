@@ -1,0 +1,15 @@
+/// @brief Custom refresh
+bool refresh()
+{
+    auto mode = comms::field::OptionalMode::Missing;
+    if (field_short().isLongPresent()) {
+        mode = comms::field::OptionalMode::Exists;
+    }
+
+    if (field_long().getMode() == mode) {
+        return false;
+    }
+
+    field_long().setMode(mode);
+    return true;
+}
