@@ -68,7 +68,7 @@ void TestSuite::test1()
     };
     static const std::size_t BufPrefixSize = std::extent<decltype(BufPrefix)>::value;
     TS_ASSERT(std::equal(std::begin(BufPrefix), std::end(BufPrefix), buf.begin()))
-    TS_ASSERT(std::equal(propsList[2].initField_p2().field_val().value().begin(), propsList[2].initField_p2().field_val().value().end(), buf.begin() + BufPrefixSize));
+    TS_ASSERT(std::equal(propsList[2].accessField_p2().field_val().value().begin(), propsList[2].accessField_p2().field_val().value().end(), buf.begin() + BufPrefixSize));
 }
 
 void TestSuite::test2()
@@ -197,34 +197,34 @@ void TestSuite::test5()
 
 void TestSuite::test6()
 {
-    // Msg6 outMsg;
-    // outMsg.field_f1().value() = "hello";
+    Msg6 outMsg;
+    outMsg.field_f1().value() = "hello";
 
-    // std::vector<std::uint8_t> buf;
-    // Frame frame;
-    // auto writeIter = std::back_inserter(buf);
+    std::vector<std::uint8_t> buf;
+    Frame frame;
+    auto writeIter = std::back_inserter(buf);
 
-    // auto es = frame.write(outMsg, writeIter, buf.max_size());
-    // TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
-    // TS_ASSERT(!buf.empty());
+    auto es = frame.write(outMsg, writeIter, buf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(!buf.empty());
 
-    // auto readIter = &buf[0];
-    // Frame::MsgPtr inMsg;
-    // auto id = test48::MsgId_ValuesLimit;
-    // es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
-    // TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
-    // TS_ASSERT_EQUALS(outMsg.doGetId(), id);
+    auto readIter = &buf[0];
+    Frame::MsgPtr inMsg;
+    auto id = test48::MsgId_ValuesLimit;
+    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(outMsg.doGetId(), id);
 
-    // auto* inMsg6 = static_cast<Msg6*>(inMsg.get());
-    // TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg6->field_f1());
+    auto* inMsg6 = static_cast<Msg6*>(inMsg.get());
+    TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg6->field_f1());
 
-    // static const std::uint8_t Buf[] = {
-    //     0xab, 0xcd, // sync
-    //     0x00, 0x08, // size
-    //     0x06, // msg id
-    //     0x0, 0x05, 'h', 'e', 'l', 'l', 'o'
-    // };
-    // static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
-    // TS_ASSERT_EQUALS(frame.length(outMsg), BufSize);
-    // TS_ASSERT(std::equal(std::begin(Buf), std::end(Buf), buf.begin()));
+    static const std::uint8_t Buf[] = {
+        0xab, 0xcd, // sync
+        0x00, 0x08, // size
+        0x06, // msg id
+        0x0, 0x05, 'h', 'e', 'l', 'l', 'o'
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    TS_ASSERT_EQUALS(frame.length(outMsg), BufSize);
+    TS_ASSERT(std::equal(std::begin(Buf), std::end(Buf), buf.begin()));
 }
