@@ -55,7 +55,7 @@ void TestSuite::test1()
 
     static const std::uint8_t BufPrefix[] = {
         0xab, 0xcd, // sync
-        0x01, 0x38, // size
+        0xff, 0x01, 0x38, // size
         0x01, // msg id
         0x0, // P0 type
         0x01, // P0 length
@@ -96,7 +96,7 @@ void TestSuite::test2()
 
     static const std::uint8_t Buf[] = {
         0xab, 0xcd, // sync
-        0x00, 0x07, // size
+        0x07, // size
         0x02, // msg id
         0x05, 'h', 'e', 'l', 'l', 'o'
     };
@@ -129,7 +129,7 @@ void TestSuite::test3()
 
     static const std::uint8_t Buf[] = {
         0xab, 0xcd, // sync
-        0x00, 0x07, // size
+        0x07, // size
         0x03, // msg id
         0x05, 0x01, 0x02, 0x03, 0x04, 0x05
     };
@@ -220,7 +220,7 @@ void TestSuite::test6()
 
     static const std::uint8_t Buf[] = {
         0xab, 0xcd, // sync
-        0x00, 0x08, // size
+        0x08, // size
         0x06, // msg id
         0x0, 0x05, 'h', 'e', 'l', 'l', 'o'
     };

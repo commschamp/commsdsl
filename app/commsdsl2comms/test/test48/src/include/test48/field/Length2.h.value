@@ -1,5 +1,5 @@
 /// @brief Overriding value retrieval functionality
-std::size_t getValue()
+std::size_t getValue() const
 {
     return static_cast<std::size_t>(field_len().value());
 }

@@ -95,9 +95,7 @@
         <sync name="Sync">
             <int name="Prefix" type="uint16" defaultValue="0xabcd" />
         </sync>
-        <size name="Size" >
-            <int name="Length" type="uint16" />
-        </size>
+        <size name="Size" field="Length" />
         <id name="Id" field="MsgId" />
         <payload name="Data" />
     </frame>     

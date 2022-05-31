@@ -1,5 +1,5 @@
 /// @brief Overriding value retrieval functionality
-std::size_t getValue()
+std::size_t getValue() const
 {
     if (field_long().doesExist()) {
         return static_cast<std::size_t>(field_long().field().value());
