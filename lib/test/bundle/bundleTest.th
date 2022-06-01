@@ -19,6 +19,8 @@ public:
     void test10();
     void test11();
     void test12();
+    void test13();
+    void test14();
 };
 
 void BundleTestSuite::setUp()
@@ -143,6 +145,7 @@ void BundleTestSuite::test6()
     TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 10U);
+    TS_ASSERT_EQUALS(field.copyOverrideCodeFrom(), std::string("Bundle1"));
 
     commsdsl::parse::BundleField bundleField(field);
     auto members = bundleField.members();
@@ -382,3 +385,31 @@ void BundleTestSuite::test12()
         TS_ASSERT_EQUALS(lengthField.semanticType(), commsdsl::parse::Field::SemanticType::Length);    
     } while (false);    
 }
+
+void BundleTestSuite::test13()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+}
+
+void BundleTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields[1];
+    TS_ASSERT_EQUALS(field.name(), "Bundle2");
+    TS_ASSERT(field.copyOverrideCodeFrom().empty());
+}
+

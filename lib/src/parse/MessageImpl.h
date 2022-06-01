@@ -143,6 +143,11 @@ public:
         return m_nameOverride;
     }        
 
+    const std::string& copyOverrideCodeFrom() const
+    {
+        return m_copyOverrideCodeFrom;
+    }
+
 protected:
     virtual ObjKind objKindImpl() const override;
 
@@ -183,6 +188,7 @@ private:
     bool updateLengthOverride();
     bool updateValidOverride();
     bool updateNameOverride();    
+    bool updateCopyOverrideCodeFrom();    
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -210,6 +216,7 @@ private:
     OverrideType m_lengthOverride = OverrideType_Any;
     OverrideType m_validOverride = OverrideType_Any;
     OverrideType m_nameOverride = OverrideType_Any;    
+    std::string m_copyOverrideCodeFrom;
     bool m_customizable = false;
 };
 

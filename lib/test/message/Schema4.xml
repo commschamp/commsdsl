@@ -22,7 +22,7 @@
             </fields>
         </message>  
 
-        <message name="Msg3" id="MsgId.Msg3" sinceVersion="2" copyFieldsFrom="Msg2">
+        <message name="Msg3" id="MsgId.Msg3" sinceVersion="2" copyFieldsFrom="Msg2" copyOverrideCodeFrom="Msg2">
             <replace>
                 <enum name="field3" type="uint8">
                     <validValue name="V0" val="0" />

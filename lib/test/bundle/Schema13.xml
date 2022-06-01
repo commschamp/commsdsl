@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema6"
+<schema name="Schema13"
         id="1"
         endian="big">
+    <description>
+        Testing error report on invalid "copyOverrideCodeFrom" property
+    </description>
     <fields>
         <bundle name="Bundle1">
             <enum name="Enum1" type="uint8">
@@ -14,7 +17,7 @@
             </set>
             <int name="Int1" type="uintvar" length="4" />
         </bundle>
-        <bundle name="Bundle2" reuse="Bundle1" copyOverrideCodeFrom="Bundle1">
+        <bundle name="Bundle2" reuse="Bundle1" copyOverrideCodeFrom="BundleX">
             <members>
                 <int name="Int2" type="intvar" length="4" />
             </members>

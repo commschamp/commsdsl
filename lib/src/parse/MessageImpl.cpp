@@ -80,7 +80,8 @@ bool MessageImpl::parse()
         updateRefreshOverride() &&
         updateLengthOverride() &&
         updateValidOverride() &&
-        updateNameOverride() &&        
+        updateNameOverride() &&   
+        updateCopyOverrideCodeFrom() &&     
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -283,6 +284,7 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::lengthOverrideStr(),
         common::validOverrideStr(),
         common::nameOverrideStr(),
+        common::copyOverrideCodeFromStr(),
     };
 
     return CommonNames;
@@ -987,6 +989,36 @@ bool MessageImpl::updateValidOverride()
 bool MessageImpl::updateNameOverride()
 {
     return validateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_nameOverride);
+}
+
+bool MessageImpl::updateCopyOverrideCodeFrom()
+{
+    auto& prop = common::copyOverrideCodeFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isCopyOverrideCodeFromSupported()) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.schema().dslVersion() << ".";        
+        return true;
+    }    
+
+    auto* field = m_protocol.findMessage(iter->second);
+    if (field == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+        return false;        
+    }
+
+    m_copyOverrideCodeFrom = iter->second;
+    return true;
 }
 
 bool MessageImpl::updateExtraAttrs()

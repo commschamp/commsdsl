@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema6"
-        id="1"
-        endian="big">
+<schema name="Schema14" endian="big" dslVersion="3">
+    <description>
+        Testing warning report on "copyOverrideCodeFrom" property with early dslVersion
+    </description>
     <fields>
         <bundle name="Bundle1">
             <enum name="Enum1" type="uint8">

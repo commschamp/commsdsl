@@ -135,6 +135,7 @@ protected:
 private:
     using ExtraFieldOptsFunc = StringsList (CommsField::*)() const;
 
+    bool copyOverrideCodeInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::OverrideType type, 
         std::string& codePathPrefix, 

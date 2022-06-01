@@ -119,6 +119,7 @@ public:
     bool isAvailableLengthLimitSupported() const;
     bool isOverrideTypeSupported() const;
     bool isMemberReplaceSupported() const;
+    bool isCopyOverrideCodeFromSupported() const;
 
 private:
     struct XmlDocFree

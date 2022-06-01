@@ -148,6 +148,11 @@ public:
         return m_state.m_nameOverride;
     }    
 
+    const std::string& copyOverrideCodeFrom() const
+    {
+        return m_state.m_copyOverrideCodeFrom;
+    }
+
     std::size_t minLength() const
     {
         return minLengthImpl();
@@ -392,6 +397,7 @@ private:
         OverrideType m_lengthOverride = OverrideType_Any;
         OverrideType m_validOverride = OverrideType_Any;
         OverrideType m_nameOverride = OverrideType_Any;
+        std::string m_copyOverrideCodeFrom;
         bool m_pseudo = false;
         bool m_displayReadOnly = false;
         bool m_displayHidden = false;
@@ -420,6 +426,7 @@ private:
     bool updateLengthOverride();
     bool updateValidOverride();
     bool updateNameOverride();
+    bool updateCopyOverrideCodeFrom();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

@@ -800,6 +800,12 @@ const std::string& replaceStr()
     return Str; 
 }
 
+const std::string& copyOverrideCodeFromStr()
+{
+    static const std::string Str("copyOverrideCodeFrom");
+    return Str; 
+}
+
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {

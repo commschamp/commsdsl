@@ -283,6 +283,11 @@ public:
         return result;        
     }  
 
+    Message* findMessage(const std::string& externalRef)
+    {
+        return const_cast<Message*>(static_cast<const GeneratorImpl*>(this)->findMessage(externalRef));
+    }
+
     const Frame* findFrame(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
@@ -677,6 +682,24 @@ Field* Generator::findField(const std::string& externalRef)
 const Message* Generator::findMessage(const std::string& externalRef) const
 {
     return m_impl->findMessage(externalRef);
+}
+
+Message* Generator::findMessage(const std::string& externalRef) 
+{
+    auto* msg = m_impl->findMessage(externalRef);
+    do {
+        if (msg->isPrepared()) {
+            break;
+        }
+
+        if (msg->prepare()) {
+            break;
+        }
+
+        logger().warning("Failed to prepare message: " + msg->dslObj().externalRef());
+        msg = nullptr;
+    } while (false);
+    return msg;
 }
 
 const Frame* Generator::findFrame(const std::string& externalRef) const

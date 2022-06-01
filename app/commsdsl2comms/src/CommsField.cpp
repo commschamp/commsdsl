@@ -86,9 +86,12 @@ CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl:
 
 bool CommsField::commsPrepare()
 {
-    auto& generator = m_field.generator();
-    auto codePathPrefix = comms::inputCodePathFor(m_field, generator);
 
+    if (!copyOverrideCodeInternal()) {
+        return false;
+    }
+
+    auto codePathPrefix = comms::inputCodePathFor(m_field, m_field.generator());
     auto& obj = m_field.dslObj();
     bool overrides = 
         commsPrepareOverrideInternal(obj.valueOverride(), codePathPrefix, strings::valueFileSuffixStr(), m_customValue, "value") &&
@@ -696,6 +699,35 @@ bool CommsField::commsIsExtended() const
     return !m_customExtend.empty();
 }
 
+bool CommsField::copyOverrideCodeInternal()
+{
+    auto obj = m_field.dslObj();
+    auto& copyFrom = obj.copyOverrideCodeFrom();
+    if (copyFrom.empty()) {
+        return true;
+    }
+
+    auto& gen = m_field.generator();
+    auto* origField = gen.findField(copyFrom);
+    if (origField == nullptr) {
+        gen.logger().error(
+            "Failed to find referenced field \"" + copyFrom + "\" for copying overriding code.");
+        assert(false); // Should not happen
+        return false;
+    }
+
+    auto* commsField = dynamic_cast<CommsField*>(origField);
+    assert(commsField != nullptr);
+    m_customValue = commsField->m_customValue;
+    m_customRead = commsField->m_customRead;
+    m_customWrite = commsField->m_customWrite;
+    m_customRefresh = commsField->m_customRefresh;
+    m_customLength = commsField->m_customLength;
+    m_customValid = commsField->m_customValid;
+    m_customName = commsField->m_customName;
+    return true;
+}
+
 bool CommsField::commsPrepareOverrideInternal(
     commsdsl::parse::OverrideType type, 
     std::string& codePathPrefix, 
@@ -710,9 +742,19 @@ bool CommsField::commsPrepareOverrideInternal(
         return false;
     }
 
-    if (isOverrideCodeAllowed(type)) {
-        customCode = util::readFileContents(codePathPrefix + suffix);
-    }    
+    do {
+        if (!isOverrideCodeAllowed(type)) {
+            customCode.clear();
+            break;
+        }
+
+        auto contents = util::readFileContents(codePathPrefix + suffix);
+        if (contents.empty()) {
+            break;
+        }
+
+        customCode = std::move(contents);
+    } while (false);
 
     if (customCode.empty() && isOverrideCodeRequired(type)) {
         m_field.generator().logger().error(

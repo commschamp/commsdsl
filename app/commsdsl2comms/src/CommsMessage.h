@@ -57,6 +57,7 @@ private:
     using FieldOptsFunc = std::string (CommsField::*)() const;
     using ExtraMessageOptsFunc = StringsList (CommsMessage::*)() const;
 
+    bool copyOverrideCodeInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::OverrideType type, 
         std::string& codePathPrefix, 

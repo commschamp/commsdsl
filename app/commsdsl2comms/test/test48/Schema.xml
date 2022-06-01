@@ -30,7 +30,7 @@
             </set>
         </bitfield>      
 
-        <bitfield name="Length3" valueOverride="replace">
+        <bitfield name="Length3" valueOverride="replace" copyOverrideCodeFrom="Length2">
             <int name="Len" type="uint16" bitLength="12" />
             <enum name="SomeVal" type="uint8" bitLength="4">
                 <validValue name="V0" val="0" />

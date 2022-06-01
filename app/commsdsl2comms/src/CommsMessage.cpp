@@ -96,12 +96,8 @@ bool CommsMessage::prepareImpl()
         return false;
     }
 
-    m_commsFields = CommsField::commsTransformFieldsList(fields());
-    m_bundledReadPrepareCodes.reserve(m_commsFields.size());
-    m_bundledRefreshCodes.reserve(m_commsFields.size());
-    for (auto* m : m_commsFields) {
-        m_bundledReadPrepareCodes.push_back(m->commsDefBundledReadPrepareFuncBody(m_commsFields));
-        m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
+    if (!copyOverrideCodeInternal()) {
+        return false;
     }
 
     auto codePathPrefix = comms::inputCodePathFor(*this, generator());
@@ -118,6 +114,14 @@ bool CommsMessage::prepareImpl()
         return false;
     }
 
+    m_commsFields = CommsField::commsTransformFieldsList(fields());
+    m_bundledReadPrepareCodes.reserve(m_commsFields.size());
+    m_bundledRefreshCodes.reserve(m_commsFields.size());
+    for (auto* m : m_commsFields) {
+        m_bundledReadPrepareCodes.push_back(m->commsDefBundledReadPrepareFuncBody(m_commsFields));
+        m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
+    }    
+
     return true;
 }
 
@@ -128,6 +132,34 @@ bool CommsMessage::writeImpl() const
         commsWriteDefInternal();
 }
 
+bool CommsMessage::copyOverrideCodeInternal()
+{
+    auto obj = dslObj();
+    auto& copyFrom = obj.copyOverrideCodeFrom();
+    if (copyFrom.empty()) {
+        return true;
+    }
+
+    auto* origMsg = generator().findMessage(copyFrom);
+    if (origMsg == nullptr) {
+        generator().logger().error(
+            "Failed to find referenced field \"" + copyFrom + "\" for copying overriding code.");
+        assert(false); // Should not happen
+        return false;
+    }
+
+    auto* commsMsg = dynamic_cast<CommsMessage*>(origMsg);
+    assert(commsMsg != nullptr);
+    m_customRead = commsMsg->m_customRead;
+    m_customWrite = commsMsg->m_customWrite;
+    m_customRefresh = commsMsg->m_customRefresh;
+    m_customLength = commsMsg->m_customLength;
+    m_customValid = commsMsg->m_customValid;
+    m_customName = commsMsg->m_customName;
+    return true;
+}
+
+
 bool CommsMessage::commsPrepareOverrideInternal(
     commsdsl::parse::OverrideType type, 
     std::string& codePathPrefix, 
@@ -135,10 +167,20 @@ bool CommsMessage::commsPrepareOverrideInternal(
     std::string& customCode,
     const std::string& name)
 {
-    if (isOverrideCodeAllowed(type)) {
-        customCode = util::readFileContents(codePathPrefix + suffix);
-    }    
+    do {
+        if (!isOverrideCodeAllowed(type)) {
+            customCode.clear();
+            break;
+        }
 
+        auto contents = util::readFileContents(codePathPrefix + suffix);
+        if (contents.empty()) {
+            break;
+        }
+
+        customCode = std::move(contents);
+    } while (false);
+    
     if (customCode.empty() && isOverrideCodeRequired(type)) {
         generator().logger().error(
             "Overriding \"" + name + "\" operation is not provided in injected code for message \"" +
