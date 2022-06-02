@@ -133,9 +133,9 @@
     </frame>  
     
     <frame name="TestFrame12" >
-        <custom name="Size" field="Size" />
+        <custom name="Size" field="Size" semanticLayerType="size" />
         <custom name="Id" field="MsgId">
-            <idReplacement value="true" />
+            <semanticLayerType value="id" />
         </custom>   
         <payload name="Data" />
     </frame>           

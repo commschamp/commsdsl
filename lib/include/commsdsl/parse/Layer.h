@@ -74,7 +74,7 @@ public:
     explicit CustomLayer(const CustomLayerImpl* impl);
     explicit CustomLayer(Layer layer);
 
-    bool isIdReplacement() const;
+    Kind semanticLayerType() const;
 };
 
 class PayloadLayerImpl;

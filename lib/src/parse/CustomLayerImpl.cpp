@@ -18,6 +18,8 @@
 #include "ProtocolImpl.h"
 #include "common.h"
 
+#include <map>
+
 namespace commsdsl
 {
 
@@ -36,31 +38,89 @@ LayerImpl::Kind CustomLayerImpl::kindImpl() const
 
 bool CustomLayerImpl::parseImpl()
 {
-    if (!validateSinglePropInstance(common::idReplacementStr())) {
-        return false;
-    }
-
-    auto iter = props().find(common::idReplacementStr());
-    if (iter == props().end()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_idReplacement = common::strToBool(iter->second, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(common::idReplacementStr(), iter->second);
-        return false;
-    }
-    return true;
+    return 
+        Base::parseImpl() &&
+        updateIdReplacement() &&
+        updateSemanticLayerType();
 }
 
 const XmlWrap::NamesList& CustomLayerImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
-        common::idReplacementStr()
+        common::idReplacementStr(),
+        common::semanticLayerTypeStr(),
     };
 
     return List;
+}
+
+bool CustomLayerImpl::updateIdReplacement()
+{
+    auto& prop = common::idReplacementStr();
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto iter = props().find(prop);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    bool ok = false;
+    bool idReplacement = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(prop, iter->second);
+        return false;
+    }
+
+    if (idReplacement) {
+        m_sematicLayerType = Kind::Id;
+    }
+
+    return true;
+}
+
+bool CustomLayerImpl::updateSemanticLayerType()
+{
+    auto& prop = common::semanticLayerTypeStr();
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto iter = props().find(prop);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (iter->second.empty()) {
+        return true;
+    }
+
+    if (m_sematicLayerType != Kind::Custom) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot use \"" + prop + "\" property when semantic type was specified by other (deprecated) properties";        
+
+        return false;
+    }
+
+    static const std::map<std::string, Kind> Map = {
+        {common::payloadStr(), Kind::Payload},
+        {common::idStr(), Kind::Id},
+        {common::sizeStr(), Kind::Size},
+        {common::syncStr(), Kind::Sync},
+        {common::checksumStr(), Kind::Checksum},
+        {common::valueStr(), Kind::Value},
+        {common::customStr(), Kind::Custom},
+    };
+
+    auto kindIter = Map.find(iter->second);
+    if (kindIter == Map.end()) {
+        reportUnexpectedPropertyValue(prop, iter->second);
+        return false;
+    }
+
+    m_sematicLayerType = kindIter->second;
+    return true;
 }
 
 } // namespace parse

@@ -121,10 +121,10 @@ CustomLayer::CustomLayer(Layer layer)
     assert(kind() == Kind::Custom);
 }
 
-bool CustomLayer::isIdReplacement() const
+Layer::Kind CustomLayer::semanticLayerType() const
 {
     assert(valid());
-    return asCustom(m_pImpl)->isIdReplacement();
+    return asCustom(m_pImpl)->semanticLayerType();
 }
 
 PayloadLayer::PayloadLayer(const PayloadLayerImpl* impl)

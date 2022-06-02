@@ -53,7 +53,8 @@ bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
                     return false;
                 }
 
-                return static_cast<const CommsCustomLayer&>(l->layer()).customDslObj().isIdReplacement();
+                using LayerKind = commsdsl::parse::Layer::Kind;
+                return (static_cast<const CommsCustomLayer&>(l->layer()).customDslObj().semanticLayerType() == LayerKind::Id);
     });
 }
 

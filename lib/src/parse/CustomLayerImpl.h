@@ -27,11 +27,13 @@ class CustomLayerImpl final : public LayerImpl
 {
     using Base = LayerImpl;
 public:
+    using Kind = Layer::Kind;
+
     CustomLayerImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
-    bool isIdReplacement() const
+    Kind semanticLayerType() const
     {
-        return m_idReplacement;
+        return m_sematicLayerType;
     }
 
 protected:
@@ -40,7 +42,10 @@ protected:
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
 
 private:
-    bool m_idReplacement = false;
+    bool updateIdReplacement();
+    bool updateSemanticLayerType();
+
+    Kind m_sematicLayerType = Kind::Custom;
 };
 
 } // namespace parse

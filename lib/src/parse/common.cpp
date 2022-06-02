@@ -806,6 +806,11 @@ const std::string& copyOverrideCodeFromStr()
     return Str; 
 }
 
+const std::string& semanticLayerTypeStr()
+{
+    static const std::string Str("semanticLayerType");
+    return Str; 
+}
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
