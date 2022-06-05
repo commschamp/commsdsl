@@ -54,8 +54,8 @@ const CustomLayerImpl* asCustom(const LayerImpl* layer)
 
 } // namespace
 
-Layer::Layer(const LayerImpl* impl)
-  : m_pImpl(impl)
+Layer::Layer(const LayerImpl* impl) :
+    m_pImpl(impl)
 {
 }
 
@@ -110,13 +110,13 @@ const Layer::ElementsList& Layer::extraElements() const
     return m_pImpl->extraChildren();
 }
 
-CustomLayer::CustomLayer(const CustomLayerImpl* impl)
-  : Base(impl)
+CustomLayer::CustomLayer(const CustomLayerImpl* impl) :
+    Base(impl)
 {
 }
 
-CustomLayer::CustomLayer(Layer layer)
-  : Base(layer)
+CustomLayer::CustomLayer(Layer layer) :
+    Base(layer)
 {
     assert(kind() == Kind::Custom);
 }
@@ -127,57 +127,69 @@ Layer::Kind CustomLayer::semanticLayerType() const
     return asCustom(m_pImpl)->semanticLayerType();
 }
 
-PayloadLayer::PayloadLayer(const PayloadLayerImpl* impl)
-  : Base(impl)
+const std::string& CustomLayer::checksumFromLayer() const
+{
+    assert(valid());
+    return asCustom(m_pImpl)->checksumFromLayer();
+}
+
+const std::string& CustomLayer::checksumUntilLayer() const
+{
+    assert(valid());
+    return asCustom(m_pImpl)->checksumUntilLayer();
+}
+
+PayloadLayer::PayloadLayer(const PayloadLayerImpl* impl) :
+    Base(impl)
 {
 }
 
-PayloadLayer::PayloadLayer(Layer layer)
-  : Base(layer)
+PayloadLayer::PayloadLayer(Layer layer) :
+    Base(layer)
 {
     assert(kind() == Kind::Payload);
 }
 
-IdLayer::IdLayer(const IdLayerImpl* impl)
-  : Base(impl)
+IdLayer::IdLayer(const IdLayerImpl* impl) :
+    Base(impl)
 {
 }
 
-IdLayer::IdLayer(Layer layer)
-  : Base(layer)
+IdLayer::IdLayer(Layer layer) :
+    Base(layer)
 {
     assert(kind() == Kind::Id);
 }
 
-SizeLayer::SizeLayer(const SizeLayerImpl* impl)
-  : Base(impl)
+SizeLayer::SizeLayer(const SizeLayerImpl* impl) :
+    Base(impl)
 {
 }
 
-SizeLayer::SizeLayer(Layer layer)
-  : Base(layer)
+SizeLayer::SizeLayer(Layer layer) :
+    Base(layer)
 {
     assert(kind() == Kind::Size);
 }
 
-SyncLayer::SyncLayer(const SyncLayerImpl* impl)
-  : Base(impl)
+SyncLayer::SyncLayer(const SyncLayerImpl* impl) :
+    Base(impl)
 {
 }
 
-SyncLayer::SyncLayer(Layer layer)
-  : Base(layer)
+SyncLayer::SyncLayer(Layer layer) :
+    Base(layer)
 {
     assert(kind() == Kind::Sync);
 }
 
-ChecksumLayer::ChecksumLayer(const ChecksumLayerImpl* impl)
-  : Base(impl)
+ChecksumLayer::ChecksumLayer(const ChecksumLayerImpl* impl) :
+    Base(impl)
 {
 }
 
-ChecksumLayer::ChecksumLayer(Layer layer)
-  : Base(layer)
+ChecksumLayer::ChecksumLayer(Layer layer) :
+    Base(layer)
 {
     assert(kind() == Kind::Checksum);
 }
@@ -212,13 +224,13 @@ bool ChecksumLayer::verifyBeforeRead() const
     return asChecksum(m_pImpl)->verifyBeforeRead();
 }
 
-ValueLayer::ValueLayer(const ValueLayerImpl* impl)
-  : Base(impl)
+ValueLayer::ValueLayer(const ValueLayerImpl* impl) :
+    Base(impl)
 {
 }
 
-ValueLayer::ValueLayer(Layer layer)
-  : Base(layer)
+ValueLayer::ValueLayer(Layer layer) :
+    Base(layer)
 {
     assert(kind() == Kind::Value);
 }

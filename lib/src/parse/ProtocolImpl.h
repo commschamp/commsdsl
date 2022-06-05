@@ -120,6 +120,8 @@ public:
     bool isOverrideTypeSupported() const;
     bool isMemberReplaceSupported() const;
     bool isCopyOverrideCodeFromSupported() const;
+    bool isSemanticLayerTypeSupported() const;
+    bool isCustomLayerChecksumFromUntilSupported() const;
 
 private:
     struct XmlDocFree

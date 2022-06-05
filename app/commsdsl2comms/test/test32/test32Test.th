@@ -262,7 +262,7 @@ void TestSuite::test9()
         3, 5, 0xff, 0x1, 0xff
     };
 
-    std::fill_n(std::back_inserter(buf), 0x1ff, 0x1);
+    std::fill_n(std::back_inserter(buf), 0x1ff, std::uint8_t(0x1));
     buf.insert(buf.end(), {0xab, 0xcd});
 
     Frame::MsgPtr msgPtr;

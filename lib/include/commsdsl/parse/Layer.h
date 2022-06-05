@@ -75,6 +75,8 @@ public:
     explicit CustomLayer(Layer layer);
 
     Kind semanticLayerType() const;
+    const std::string& checksumFromLayer() const;
+    const std::string& checksumUntilLayer() const;
 };
 
 class PayloadLayerImpl;

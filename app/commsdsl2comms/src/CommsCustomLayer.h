@@ -34,6 +34,7 @@ protected:
     virtual bool prepareImpl() override;
     
     // CommsBase overrides
+    virtual bool commsReorderImpl(CommsLayersList& siblings, bool& success) const override;
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual bool commsDefHasInputMessagesImpl() const override;

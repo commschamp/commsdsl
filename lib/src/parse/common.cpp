@@ -812,6 +812,18 @@ const std::string& semanticLayerTypeStr()
     return Str; 
 }
 
+const std::string& checksumFromStr()
+{
+    static const std::string Str("checksumFrom");
+    return Str; 
+}
+
+const std::string& checksumUntilStr()
+{
+    static const std::string Str("checksumUntil");
+    return Str; 
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

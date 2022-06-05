@@ -36,16 +36,32 @@ public:
         return m_sematicLayerType;
     }
 
+    const std::string& checksumFromLayer() const
+    {
+        return m_checksumFromLayer;
+    }
+
+    const std::string& checksumUntilLayer() const
+    {
+        return m_checksumUntilLayer;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual bool parseImpl() override;
+    virtual bool verifyImpl(const LayersList& layers) override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
 
 private:
     bool updateIdReplacement();
     bool updateSemanticLayerType();
+    bool updateChecksumFrom();
+    bool updateChecksumUntil();
+    bool verifyChecksumInternal(const LayersList& layers);
 
     Kind m_sematicLayerType = Kind::Custom;
+    std::string m_checksumFromLayer;
+    std::string m_checksumUntilLayer;
 };
 
 } // namespace parse

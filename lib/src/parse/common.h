@@ -163,6 +163,8 @@ const std::string& nameOverrideStr();
 const std::string& replaceStr();
 const std::string& copyOverrideCodeFromStr();
 const std::string& semanticLayerTypeStr();
+const std::string& checksumFromStr();
+const std::string& checksumUntilStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

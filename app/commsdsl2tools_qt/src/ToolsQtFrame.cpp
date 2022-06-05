@@ -375,65 +375,94 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
             return static_cast<unsigned>(std::distance(m_toolsLayers.begin(), payloadIter)) + 1U;
         };        
 
-    if (1U < allInterfaces.size()) {
-        if (payloadOffset != 0U) {
-            auto readUntilIdx = readIdxCalcFunc();
-            std::string readFunc = 
-                "comms::ErrorStatus " + comms::className(dslObj().name()) + strings::transportMessageSuffixStr() + "Fields::read(All& fields, const std::uint8_t*& iter, std::size_t len)\n"
-                "{\n"
-                "    len -= " + util::numToString(payloadOffset) + ";\n"
-                "    auto es = comms::ErrorStatus::NumOfErrorStatuses;\n";
-            auto addToReadFunc = 
-                [&readFunc](unsigned idx)
-                {
-                    auto idxStr = std::to_string(idx);
-                    readFunc += 
-                        "    auto& field" + idxStr + " = std::get<" + idxStr + ">(fields);\n"
-                        "    es = field" + idxStr + ".read(iter, len);\n"
-                        "    if (es != comms::ErrorStatus::Success) {\n"
-                        "        return es;\n"
-                        "    }\n"
-                        "    len -= field" + idxStr + ".length();\n\n";
+    auto readOverrideFile = gen.getCodeDir() + '/' + toolsTransportMessageSrcFilePathInternal() + strings::readFileSuffixStr();
+    auto readCode = util::readFileContents(readOverrideFile);
 
-                };
-            for (auto idx = 0U; idx < readUntilIdx; ++idx) {
-                addToReadFunc(idx);
-            }
-            readFunc += "    len += " + util::numToString(payloadOffset) + ";\n";
-            for (auto idx = readUntilIdx; idx < m_toolsLayers.size(); ++idx) {
-                addToReadFunc(idx);
-            }
-
-            readFunc += "    return comms::ErrorStatus::Success;\n}\n";
-            repl["READ_FUNC"] = std::move(readFunc);  
+    do {
+        // Handle multiple interfaces;
+        if (allInterfaces.size() <= 1U) {
+            break;
         }
-    }
-    else {
+
+        if (!readCode.empty()) {
+            repl["READ_FUNC"] = std::move(readCode);  
+            break;
+        }
+
+        if (payloadOffset == 0U) {
+            // Nothing to do
+            break;
+        }
+
+        auto readUntilIdx = readIdxCalcFunc();
+        std::string readFunc = 
+            "comms::ErrorStatus " + comms::className(dslObj().name()) + strings::transportMessageSuffixStr() + "Fields::read(All& fields, const std::uint8_t*& iter, std::size_t len)\n"
+            "{\n"
+            "    len -= " + util::numToString(payloadOffset) + ";\n"
+            "    auto es = comms::ErrorStatus::NumOfErrorStatuses;\n";
+        auto addToReadFunc = 
+            [&readFunc](unsigned idx)
+            {
+                auto idxStr = std::to_string(idx);
+                readFunc += 
+                    "    auto& field" + idxStr + " = std::get<" + idxStr + ">(fields);\n"
+                    "    es = field" + idxStr + ".read(iter, len);\n"
+                    "    if (es != comms::ErrorStatus::Success) {\n"
+                    "        return es;\n"
+                    "    }\n"
+                    "    len -= field" + idxStr + ".length();\n\n";
+
+            };
+        for (auto idx = 0U; idx < readUntilIdx; ++idx) {
+            addToReadFunc(idx);
+        }
+        readFunc += "    len += " + util::numToString(payloadOffset) + ";\n";
+        for (auto idx = readUntilIdx; idx < m_toolsLayers.size(); ++idx) {
+            addToReadFunc(idx);
+        }
+
+        readFunc += "    return comms::ErrorStatus::Success;\n}\n";
+        repl["READ_FUNC"] = std::move(readFunc);          
+    } while (false);
+
+    do {
+        // Handle single interface
+        if (1U < allInterfaces.size()) {
+            break;
+        }
+
         const std::string PropsImplFuncTempl = 
             "const QVariantList& #^#CLASS_NAME#$##^#SUFFIX#$#::fieldsPropertiesImpl() const\n"
             "{\n"
             "    return #^#CLASS_NAME#$##^#SUFFIX#$#Fields::props();\n"
             "}\n";  
 
-        repl["PROPS_IMPL_FUNC"] = util::processTemplate(PropsImplFuncTempl, repl);     
+        repl["PROPS_IMPL_FUNC"] = util::processTemplate(PropsImplFuncTempl, repl);             
 
-        if (payloadOffset != 0U) {
-            auto readUntilIdx = readIdxCalcFunc();
+        if (!readCode.empty()) {
+            repl["READ_IMPL_FUNC"] = std::move(readCode);  
+            break;
+        }
 
-            std::string readFunc = 
-                "comms::ErrorStatus " + comms::className(dslObj().name()) + strings::transportMessageSuffixStr() + "::readImpl(ReadIterator& iter, std::size_t len)\n"
-                "{\n"
-                "    len -= " + util::numToString(payloadOffset) + ";\n"
-                "    auto es = doReadUntilAndUpdateLen<" + util::numToString(readUntilIdx) + ">(iter, len);\n"
-                "    if (es == comms::ErrorStatus::Success) {\n"
-                "        len += " + util::numToString(payloadOffset) + ";\n"
-                "        es = doReadFrom<" + util::numToString(readUntilIdx) + ">(iter, len);\n"
-                "    }\n\n"
-                "    return es;\n"
-                "}\n";
-            repl["READ_IMPL_FUNC"] = std::move(readFunc);
-        }  
-    }
+        if (payloadOffset == 0U) {        
+            break;
+        }
+
+        auto readUntilIdx = readIdxCalcFunc();
+
+        std::string readFunc = 
+            "comms::ErrorStatus " + comms::className(dslObj().name()) + strings::transportMessageSuffixStr() + "::readImpl(ReadIterator& iter, std::size_t len)\n"
+            "{\n"
+            "    len -= " + util::numToString(payloadOffset) + ";\n"
+            "    auto es = doReadUntilAndUpdateLen<" + util::numToString(readUntilIdx) + ">(iter, len);\n"
+            "    if (es == comms::ErrorStatus::Success) {\n"
+            "        len += " + util::numToString(payloadOffset) + ";\n"
+            "        es = doReadFrom<" + util::numToString(readUntilIdx) + ">(iter, len);\n"
+            "    }\n\n"
+            "    return es;\n"
+            "}\n";
+        repl["READ_IMPL_FUNC"] = std::move(readFunc);        
+    } while (false);
 
     stream << util::processTemplate(Templ, repl);
     stream.flush();

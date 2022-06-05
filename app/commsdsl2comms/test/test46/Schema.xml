@@ -2,7 +2,7 @@
 <schema name="test46" endian="big">
     <description>
         Testing custom checksum layer implementation with variable
-        length field.
+        length field as well as location of the relevant custom layer.
     </description>
 
     <fields>
@@ -28,9 +28,6 @@
     </interface>    
         
     <frame name="Frame">
-        <custom name="Checksum">
-            <int name="ChecksumField" type="uint32" />
-        </custom>    
         <sync name="Sync">
             <int name="SyncField" type="uint16" defaultValue="0xabcd" />
         </sync>
@@ -40,6 +37,9 @@
         <id name="Id" field="MsgId" />
         <value name="ChekcusmType" field="ChecksumType" interfaceFieldName="ChecksumType"/>
         <payload name="Data" />
+        <custom name="Checksum" semanticLayerType="checksum" checksumFrom="Sync">
+            <int name="ChecksumField" type="uint32"/>
+        </custom>         
     </frame>
     
     <message name="Msg1" id="MsgId.M1" displayName="^Msg1Name">

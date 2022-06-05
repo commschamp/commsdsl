@@ -18,6 +18,7 @@
 #include "ProtocolImpl.h"
 #include "common.h"
 
+#include <cassert>
 #include <map>
 
 namespace commsdsl
@@ -41,7 +42,14 @@ bool CustomLayerImpl::parseImpl()
     return 
         Base::parseImpl() &&
         updateIdReplacement() &&
-        updateSemanticLayerType();
+        updateSemanticLayerType() &&
+        updateChecksumFrom() &&
+        updateChecksumUntil();
+}
+
+bool CustomLayerImpl::verifyImpl(const LayersList& layers)
+{
+    return verifyChecksumInternal(layers);
 }
 
 const XmlWrap::NamesList& CustomLayerImpl::extraPropsNamesImpl() const
@@ -49,6 +57,8 @@ const XmlWrap::NamesList& CustomLayerImpl::extraPropsNamesImpl() const
     static const XmlWrap::NamesList List = {
         common::idReplacementStr(),
         common::semanticLayerTypeStr(),
+        common::checksumFromStr(),
+        common::checksumUntilStr()
     };
 
     return List;
@@ -92,6 +102,12 @@ bool CustomLayerImpl::updateSemanticLayerType()
         return true;
     }
 
+    if (!protocol().isSemanticLayerTypeSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
+        return true;
+    }
+
     if (iter->second.empty()) {
         return true;
     }
@@ -120,6 +136,110 @@ bool CustomLayerImpl::updateSemanticLayerType()
     }
 
     m_sematicLayerType = kindIter->second;
+    return true;
+}
+
+bool CustomLayerImpl::updateChecksumFrom()
+{
+    auto& prop = common::checksumFromStr();
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto iter = props().find(prop);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isCustomLayerChecksumFromUntilSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
+        return true;
+    }
+
+    if (m_sematicLayerType != Kind::Checksum) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << prop << "\" is not applicable to selected \"" << common::semanticLayerTypeStr() << "\", ignoring...";
+        return true;        
+    }    
+
+    m_checksumFromLayer = iter->second;
+    return true;
+}
+
+bool CustomLayerImpl::updateChecksumUntil()
+{
+    auto& prop = common::checksumUntilStr();
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto iter = props().find(prop);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isCustomLayerChecksumFromUntilSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
+        return true;
+    }
+
+    if (m_sematicLayerType != Kind::Checksum) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << prop << "\" is not applicable to selected \"" << common::semanticLayerTypeStr() << "\", ignoring...";
+        return true;        
+    }
+
+    m_checksumUntilLayer = iter->second;
+    return true;
+}
+
+bool CustomLayerImpl::verifyChecksumInternal(const LayersList& layers) 
+{
+    if (m_sematicLayerType != Kind::Checksum) {
+        return true;
+    }
+
+    auto thisIdx = findThisLayerIndex(layers);
+    assert(thisIdx < layers.size());
+
+    if (m_checksumFromLayer.empty() && m_checksumUntilLayer.empty()) {
+        logError() << XmlWrap::logPrefix(getNode()) << 
+            "Custom layer with " + common::semanticLayerTypeStr() << "=\"" << common::checksumStr() << "\" must set \"" << 
+            common::checksumFromStr() << "\" or \"" << 
+            common::checksumUntilStr() << "\" property to indicate on what values checksum is calculated.";
+        return false;
+    }
+
+    if (!m_checksumFromLayer.empty()) {
+        auto fromIdx = findLayerIndex(layers, m_checksumFromLayer);
+        if (layers.size() <= fromIdx) {
+            reportUnexpectedPropertyValue(common::checksumFromStr(), m_checksumFromLayer);
+            return false;
+        }
+
+        if (thisIdx <= fromIdx) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Layer \"" << m_checksumFromLayer << "\" must appear before the \"" << name() << "\".";
+            return false;
+        }
+    }
+
+    if (!m_checksumUntilLayer.empty()) {
+        auto untilIdx = findLayerIndex(layers, m_checksumUntilLayer);
+        if (layers.size() <= untilIdx) {
+            reportUnexpectedPropertyValue(common::checksumUntilStr(), m_checksumUntilLayer);
+            return false;
+        }
+
+        if (untilIdx <= thisIdx) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Layer \"" << m_checksumUntilLayer << "\" must appear after the \"" << name() << "\".";
+            return false;
+        }
+    }
+
     return true;
 }
 
