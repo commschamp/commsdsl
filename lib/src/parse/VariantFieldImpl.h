@@ -59,6 +59,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl &other) override;
     virtual bool parseImpl() override;
+    virtual bool replaceMembersImpl(FieldsList& members) override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;

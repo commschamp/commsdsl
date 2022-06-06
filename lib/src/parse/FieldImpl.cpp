@@ -409,9 +409,8 @@ bool FieldImpl::parseImpl()
 bool FieldImpl::replaceMembersImpl(FieldsList& members)
 {
     static_cast<void>(members);
-    static constexpr bool Should_not_happen = false;
-    static_cast<void>(Should_not_happen);
-    assert(Should_not_happen);
+    logError() << XmlWrap::logPrefix(m_node) <<
+        "The field of kind \"" << kindStr() << "\" does not support replacing its members.";
     return false;
 }
 

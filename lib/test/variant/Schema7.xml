@@ -20,10 +20,18 @@
         </variant>
         
         <variant reuse="Variant1" name="Variant2" defaultMember="E1.p3">
-            <bundle name="P3">
-                <int name="type" type="uint8" defaultValidValue="3" failOnInvalid="true" />
-                <int name="value" type="uint8" />
-            </bundle>            
+            <replace>
+                <bundle name="P2">
+                    <int name="type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+                    <int name="value" type="uint16" />
+                </bundle>            
+            </replace>
+            <members>
+                <bundle name="P3">
+                    <int name="type" type="uint8" defaultValidValue="3" failOnInvalid="true" />
+                    <int name="value" type="uint8" />
+                </bundle>            
+            </members>
         </variant>
     </fields>
 </schema>
