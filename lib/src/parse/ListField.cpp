@@ -107,6 +107,21 @@ bool ListField::elemFixedLength() const
     return cast(m_pImpl)->elemFixedLength();
 }
 
+bool ListField::hasTermSuffixField() const
+{
+    return cast(m_pImpl)->hasTermSuffixField();
+}
+
+Field ListField::termSuffixField() const
+{
+    return cast(m_pImpl)->termSuffixField();
+}
+
+const std::string& ListField::detachedTermSuffixFieldName() const
+{
+    return cast(m_pImpl)->detachedTermSuffixFieldName();
+}
+
 } // namespace parse
 
 } // namespace commsdsl

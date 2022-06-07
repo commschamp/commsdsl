@@ -824,6 +824,12 @@ const std::string& checksumUntilStr()
     return Str; 
 }
 
+const std::string& termSuffixStr()
+{
+    static const std::string Str("termSuffix");
+    return Str;     
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

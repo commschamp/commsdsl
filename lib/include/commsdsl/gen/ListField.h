@@ -61,6 +61,13 @@ public:
     Field* memberElemLengthPrefixField();
     const Field* memberElemLengthPrefixField() const;
 
+    Field* externalTermSuffixField();
+    const Field* externalTermSuffixField() const;
+
+    Field* memberTermSuffixField();
+    const Field* memberTermSuffixField() const;
+
+
 protected:    
     virtual bool prepareImpl() override;
 

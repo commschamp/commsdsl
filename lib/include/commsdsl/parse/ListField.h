@@ -44,6 +44,9 @@ public:
     Field elemLengthPrefixField() const;
     const std::string& detachedElemLengthPrefixFieldName() const;
     bool elemFixedLength() const;
+    bool hasTermSuffixField() const;
+    Field termSuffixField() const;
+    const std::string& detachedTermSuffixFieldName() const;
 };
 
 } // namespace parse

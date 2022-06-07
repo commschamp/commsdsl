@@ -47,6 +47,7 @@ XmlWrap::NamesList getExtraNames()
     names.push_back(common::countPrefixStr());
     names.push_back(common::lengthPrefixStr());
     names.push_back(common::elemLengthPrefixStr());
+    names.push_back(common::termSuffixStr());
     return names;
 }
 
@@ -92,6 +93,7 @@ const XmlWrap::NamesList& ListFieldImpl::extraPossiblePropsNamesImpl() const
         common::countPrefixStr(),
         common::lengthPrefixStr(),
         common::elemLengthPrefixStr(),
+        common::termSuffixStr(),
     };
     return List;
 }
@@ -127,7 +129,8 @@ bool ListFieldImpl::parseImpl()
         updateCountPrefix() &&
         updateLengthPrefix() &&
         updateElemFixedLength() &&
-        updateElemLengthPrefix();
+        updateElemLengthPrefix() &&
+        updateTermSuffix();
         
 }
 
@@ -156,6 +159,10 @@ std::size_t ListFieldImpl::minLengthImpl() const
     if (hasLengthPrefixField()) {
         return lengthPrefixField().minLength();
     }
+
+    if (hasTermSuffixField()) {
+        return termSuffixField().minLength();
+    }    
 
     return 0U;
 }
@@ -289,13 +296,13 @@ bool ListFieldImpl::updateCountPrefix()
 
     if (m_state.m_count != 0U) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Element count prefix is not applicable to fixed length data sequences.";
+            common::countStr() << " and " << common::countPrefixStr() << " cannot be used together.";
         return false;
     }
 
     if (hasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Element count and serialisation length prefixes cannot be used together.";
+        common::countPrefixStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }
 
@@ -315,13 +322,13 @@ bool ListFieldImpl::updateLengthPrefix()
 
     if (m_state.m_count != 0U) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Serialisation length prefix is not applicable to fixed length data sequences.";
+            common::countStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }
 
     if (hasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Element count and serialisation length prefixes cannot be used together.";
+            common::countPrefixStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }
 
@@ -378,6 +385,38 @@ bool ListFieldImpl::updateElemFixedLength()
             "true when list element has variable length.";
         return false;
     }
+    return true;
+}
+
+bool ListFieldImpl::updateTermSuffix()
+{
+    if ((!checkPrefixFromRef(common::termSuffixStr(), m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField)) ||
+        (!checkPrefixAsChild(common::termSuffixStr(), m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField))) {
+        return false;
+    }
+
+    if ((!hasTermSuffixField()) && (m_state.m_detachedTermSuffixField.empty())) {
+        return true;
+    }
+
+    if (m_state.m_count != 0U) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            common::countStr() << " and " << common::termSuffixStr() << " cannot be used together.";
+        return false;
+    }
+
+    if (hasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            common::countPrefixStr() << " and " << common::termSuffixStr() << " cannot be used together.";
+        return false;
+    }
+
+    if (hasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            common::lengthPrefixStr() << " and " << common::termSuffixStr() << " cannot be used together.";
+        return false;
+    }    
+
     return true;
 }
 
