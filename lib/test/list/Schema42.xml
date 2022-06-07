@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema42"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <list name="L1">
+                <element>
+                    <int name="Elem" type="uint32" />
+                </element>
+                <termSuffix>
+                    <int name="TermSuffix" type="uint8" defaultValue="0" />
+                </termSuffix>
+            </list>
+
+            <list name="L2" reuse="ns1.L1">
+                <countPrefix>
+                    <int name="Prefix" type="uint8" />
+                </countPrefix>
+            </list>
+
+        </fields>
+    </ns>
+</schema>
