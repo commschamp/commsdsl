@@ -421,6 +421,15 @@ bool ListFieldImpl::updateTermSuffix()
         return true;
     }
 
+    if (!protocol().isListTermSuffixSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Usage of the " << common::termSuffixStr() << " property is not supported for the used dslVersion, ignoring...";
+        m_state.m_extTermSuffixField = nullptr;
+        m_state.m_detachedTermSuffixField.clear();
+        m_termSuffixField.reset();
+        return true;
+    }
+
     if (m_state.m_count != 0U) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             common::termSuffixStr() << " and " << common::countStr() << " cannot be used together.";

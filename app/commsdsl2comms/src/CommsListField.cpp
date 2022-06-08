@@ -66,7 +66,17 @@ bool CommsListField::prepareImpl()
         m_commsMemberLengthPrefixField = castField(memberLengthPrefixField());
         m_commsExternalElemLengthPrefixField = castField(externalElemLengthPrefixField());
         m_commsMemberElemLengthPrefixField = castField(memberElemLengthPrefixField());
+        m_commsExternalTermSuffixField = castField(externalTermSuffixField());
+        m_commsMemberTermSuffixField = castField(memberTermSuffixField());
     }
+
+    if (!listDslObj().detachedTermSuffixFieldName().empty()) {
+        generator().logger().error(
+            "Detached termination suffix is currently not supported, "
+            "please contact the developer and request this feature");
+        return false;
+    }
+    
     return result;
 }
 
@@ -94,6 +104,7 @@ CommsListField::IncludesList CommsListField::commsCommonIncludesImpl() const
     addIncludesFrom(m_commsMemberCountPrefixField);
     addIncludesFrom(m_commsMemberLengthPrefixField);
     addIncludesFrom(m_commsMemberElemLengthPrefixField);
+    addIncludesFrom(m_commsMemberTermSuffixField);
     return result;
 }
 
@@ -119,6 +130,7 @@ std::string CommsListField::commsCommonMembersCodeImpl() const
     addMemberCode(m_commsMemberCountPrefixField);
     addMemberCode(m_commsMemberLengthPrefixField);
     addMemberCode(m_commsMemberElemLengthPrefixField);
+    addMemberCode(m_commsMemberTermSuffixField);
     return util::strListToString(memberDefs, "\n", "");
 }
 
@@ -143,6 +155,7 @@ CommsListField::IncludesList CommsListField::commsDefIncludesImpl() const
     addExternalFieldInclude(m_commsExternalCountPrefixField);
     addExternalFieldInclude(m_commsExternalLengthPrefixField);
     addExternalFieldInclude(m_commsExternalElemLengthPrefixField);
+    addExternalFieldInclude(m_commsExternalTermSuffixField);
 
     auto addIncludesFrom = 
         [&result](const CommsField* commsField)
@@ -160,6 +173,7 @@ CommsListField::IncludesList CommsListField::commsDefIncludesImpl() const
     addIncludesFrom(m_commsMemberCountPrefixField);
     addIncludesFrom(m_commsMemberLengthPrefixField);
     addIncludesFrom(m_commsMemberElemLengthPrefixField);
+    addIncludesFrom(m_commsMemberTermSuffixField);
 
     auto obj = listDslObj();
     if ((!obj.detachedCountPrefixFieldName().empty()) ||
@@ -194,6 +208,7 @@ std::string CommsListField::commsDefMembersCodeImpl() const
     addMemberCode(m_commsMemberCountPrefixField);
     addMemberCode(m_commsMemberLengthPrefixField);
     addMemberCode(m_commsMemberElemLengthPrefixField);
+    addMemberCode(m_commsMemberTermSuffixField);
     return util::strListToString(memberDefs, "\n", "");
 }
 
@@ -475,7 +490,11 @@ bool CommsListField::commsIsVersionDependentImpl() const
 
     if ((m_commsMemberElemLengthPrefixField != nullptr) && (m_commsMemberElemLengthPrefixField->commsIsVersionDependent())) {
         return true;
-    }            
+    }    
+
+    if ((m_commsMemberTermSuffixField != nullptr) && (m_commsMemberTermSuffixField->commsIsVersionDependent())) {
+        return true;
+    }              
 
     return false;
 }
@@ -507,7 +526,11 @@ std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFu
 
     if (m_commsMemberElemLengthPrefixField != nullptr) {
         addStr((m_commsMemberElemLengthPrefixField->*fieldOptsFunc)());
-    }      
+    }   
+
+    if (m_commsMemberTermSuffixField != nullptr) {
+        addStr((m_commsMemberTermSuffixField->*fieldOptsFunc)());
+    }           
 
     return util::strListToString(elems, "\n", "");
 }
@@ -548,6 +571,7 @@ std::string CommsListField::commsDefFieldOptsInternal() const
     commsAddCountPrefixOptInternal(opts);
     commsAddLengthPrefixOptInternal(opts);
     commsAddElemLengthPrefixOptInternal(opts);
+    commsAddTermSuffixOptInternal(opts);
     commsAddLengthForcingOptInternal(opts);
 
     return util::strListToString(opts, ",\n", "");
@@ -661,6 +685,30 @@ void CommsListField::commsAddElemLengthPrefixOptInternal(StringsList& opts) cons
     }
 
     opts.push_back("comms::option::def::" + opt + "<" + prefixName + '>');    
+}
+
+void CommsListField::commsAddTermSuffixOptInternal(StringsList& opts) const
+{
+    if ((m_commsExternalTermSuffixField == nullptr) && (m_commsMemberTermSuffixField == nullptr)) {
+        return;
+    }
+
+    std::string suffixName;
+    if (m_commsMemberTermSuffixField != nullptr) {
+        suffixName = "typename " + comms::className(name()) + strings::membersSuffixStr();
+        if (comms::isGlobalField(*this)) {
+            suffixName += "<TOpt>";
+        }
+
+        suffixName += "::" + comms::className(m_commsMemberTermSuffixField->field().name());
+    }
+    else {
+        assert(m_commsExternalTermSuffixField != nullptr);
+        suffixName = comms::scopeFor(m_commsExternalTermSuffixField->field(), generator(), true, true);
+        suffixName += "<TOpt> ";
+    }
+
+    opts.push_back("comms::option::def::SequenceTerminationFieldSuffix<" + suffixName + '>');
 }
 
 void CommsListField::commsAddLengthForcingOptInternal(StringsList& opts) const

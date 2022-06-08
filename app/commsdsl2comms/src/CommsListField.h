@@ -58,6 +58,7 @@ private:
     void commsAddCountPrefixOptInternal(StringsList& opts) const;
     void commsAddLengthPrefixOptInternal(StringsList& opts) const;
     void commsAddElemLengthPrefixOptInternal(StringsList& opts) const;
+    void commsAddTermSuffixOptInternal(StringsList& opts) const;
     void commsAddLengthForcingOptInternal(StringsList& opts) const;
 
     CommsField* m_commsExternalElementField = nullptr;
@@ -68,6 +69,9 @@ private:
     CommsField* m_commsMemberLengthPrefixField = nullptr;
     CommsField* m_commsExternalElemLengthPrefixField = nullptr;
     CommsField* m_commsMemberElemLengthPrefixField = nullptr;
+    CommsField* m_commsExternalTermSuffixField = nullptr;
+    CommsField* m_commsMemberTermSuffixField = nullptr;
+
 };
 
 } // namespace commsdsl2comms

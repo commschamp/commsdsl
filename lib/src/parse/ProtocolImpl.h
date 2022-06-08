@@ -122,6 +122,7 @@ public:
     bool isCopyOverrideCodeFromSupported() const;
     bool isSemanticLayerTypeSupported() const;
     bool isCustomLayerChecksumFromUntilSupported() const;
+    bool isListTermSuffixSupported() const;
 
 private:
     struct XmlDocFree
