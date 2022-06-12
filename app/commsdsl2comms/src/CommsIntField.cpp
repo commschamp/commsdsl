@@ -231,7 +231,7 @@ std::string CommsIntField::commsDefRefreshFuncBodyImpl() const
         "if (Base::valid()) {\n"
         "    return updated;\n"
         "};\n"
-        "Base::value() = static_cast<ValueType>(#^#VALID_VALUE#$#);\n"
+        "Base::setValue(#^#VALID_VALUE#$#);\n"
         "return true;\n";
 
     auto obj = intDslObj();
@@ -314,11 +314,11 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
         }
 
         if (r.m_min == r.m_max) {
-            conds.push_back("(static_cast<ValueType>(" + minVal + ") == Base::value())");
+            conds.push_back("(static_cast<ValueType>(" + minVal + ") == Base::getValue())");
         }
         else {
-            conds.push_back("(static_cast<ValueType>(" + minVal + ") <= Base::value())");
-            conds.push_back("(Base::value() <= static_cast<ValueType>(" + maxVal + "))");
+            conds.push_back("(static_cast<ValueType>(" + minVal + ") <= Base::getValue())");
+            conds.push_back("(Base::getValue() <= static_cast<ValueType>(" + maxVal + "))");
         }
 
         util::ReplacementMap rangeRepl = {
@@ -548,12 +548,12 @@ std::string CommsIntField::commsDefSpecialsCodeInternal() const
             "/// @brief Check the value is equal to special @ref value#^#SPEC_ACC#$#().\n"
             "bool is#^#SPEC_ACC#$#() const\n"
             "{\n"
-            "    return Base::value() == value#^#SPEC_ACC#$#();\n"
+            "    return Base::getValue() == value#^#SPEC_ACC#$#();\n"
             "}\n\n"
             "/// @brief Assign special value @ref value#^#SPEC_ACC#$#() to the field.\n"
             "void set#^#SPEC_ACC#$#()\n"
             "{\n"
-            "    Base::value() = value#^#SPEC_ACC#$#();\n"
+            "    Base::setValue(value#^#SPEC_ACC#$#());\n"
             "}\n"            
         );
 

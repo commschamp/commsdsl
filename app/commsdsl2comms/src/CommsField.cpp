@@ -575,7 +575,7 @@ std::string CommsField::commsValueAccessStrImpl(const std::string& accStr, const
 {
     static_cast<void>(accStr);
     assert(accStr.empty());
-    return prefix + "value()";
+    return prefix + "getValue()";
 }
 
 void CommsField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const

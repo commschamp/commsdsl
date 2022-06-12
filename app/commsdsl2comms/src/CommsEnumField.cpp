@@ -411,8 +411,8 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
             "    #^#VALUES#$#\n"
             "};\n\n"
             "auto iter =\n"
-            "    std::lower_bound(std::begin(Values), std::end(Values), Base::value());\n\n"
-            "if ((iter == std::end(Values)) || (*iter != Base::value())) {\n"
+            "    std::lower_bound(std::begin(Values), std::end(Values), Base::getValue());\n\n"
+            "if ((iter == std::end(Values)) || (*iter != Base::getValue())) {\n"
             "    return false;\n"
             "}\n\n"
             "return true;\n"
@@ -503,13 +503,13 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
         util::StringsList comparisons;
         for (auto& r : l) {
             static const std::string ValueBothCompTempl =
-                "if ((static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#) <= Base::value()) &&\n"
-                "    (Base::value() <= static_cast<typename Base::ValueType>(#^#MAX_VALUE#$#))) {\n"
+                "if ((static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#) <= Base::getValue()) &&\n"
+                "    (Base::getValue() <= static_cast<typename Base::ValueType>(#^#MAX_VALUE#$#))) {\n"
                 "    return true;\n"
                 "}";
 
             static const std::string ValueSingleCompTempl =
-                "if (Base::value() == static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#)) {\n"
+                "if (Base::getValue() == static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#)) {\n"
                 "    return true;\n"
                 "}";
 
@@ -1203,7 +1203,7 @@ std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
         "/// @brief Retrieve name of the @b current value\n"
         "const char* valueName() const\n"
         "{\n"
-        "    return valueName(Base::value());\n"
+        "    return valueName(Base::getValue());\n"
         "}\n";        
 
     util::ReplacementMap repl = {

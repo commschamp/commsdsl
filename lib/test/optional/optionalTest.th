@@ -36,6 +36,7 @@ public:
     void test27();
     void test28();
     void test29();    
+    void test30(); 
 };
 
 void OptionalTestSuite::setUp()
@@ -900,3 +901,41 @@ void OptionalTestSuite::test29()
     auto optField = opt.field();
     TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::Field::Kind::Int);
 }
+
+void OptionalTestSuite::test30()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg = messages.front();
+    TS_ASSERT_EQUALS(msg.name(), "M1");
+
+    // auto fields = msg.fields();
+    // TS_ASSERT_EQUALS(fields.size(), 2U);
+    // auto& f1 = fields[0];
+    // auto& f2 = fields[1];
+
+    // TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::Field::Kind::Ref);
+    // TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);
+
+    // commsdsl::parse::OptionalField opt(f2);
+    // auto cond = opt.cond();
+    // TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    // commsdsl::parse::OptCondExpr exprCond(cond);
+    // TS_ASSERT(exprCond.left().empty());
+    // TS_ASSERT(exprCond.op().empty());
+    // TS_ASSERT_EQUALS(exprCond.right(), "$S1.B0");
+
+    // auto optField = opt.field();
+    // TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::Field::Kind::Int);
+}
+

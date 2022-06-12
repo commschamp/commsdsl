@@ -202,11 +202,7 @@ public:
         return isBitCheckableImpl(val);
     }
 
-    bool isComparableToValue(const std::string& val) const
-    {
-        return isComparableToValueImpl(val);
-    }
-
+    bool isComparableToValue(const std::string& val) const;
     bool isComparableToField(const FieldImpl& field) const;
 
     const PropsMap& extraAttributes() const

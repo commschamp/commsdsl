@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test49" endian="big">
+    <description>
+        Testing conditions on complex fields
+    </description>
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+        </enum>
+
+        <bundle name="B1" semanticType="length" valueOverride="replace">
+            <int name="Short" type="uint8">
+                <special name="HasLong" val="0xff" />
+            </int>
+            <optional name="Long" defaultMode="missing" cond="$Short = 0xff">
+                <int name="ActLong" type="uint16" /> 
+            </optional>
+        </bundle>        
+
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref field="B1" name="F1" />
+        <optional name="F2" cond="$F1 != 0">
+            <string name="ActF2" />
+        </optional>
+    </message>
+
+    <frame name="Frame">
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>     
+</schema>

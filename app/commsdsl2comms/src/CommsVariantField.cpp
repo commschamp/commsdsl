@@ -283,7 +283,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
                 "case #^#VAL#$#:\n"
                 "    {\n"
                 "        auto& field_#^#BUNDLE_NAME#$# = initField_#^#BUNDLE_NAME#$#();\n"
-                "        COMMS_ASSERT(field_#^#BUNDLE_NAME#$#.field_#^#KEY_NAME#$#().value() == commonKeyField.value());\n"
+                "        COMMS_ASSERT(field_#^#BUNDLE_NAME#$#.field_#^#KEY_NAME#$#().getValue() == commonKeyField.getValue());\n"
                 "        #^#VERSION_ASSIGN#$#\n"
                 "        return field_#^#BUNDLE_NAME#$#.template readFrom<1>(iter, len);\n"
                 "    }";
@@ -307,7 +307,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
 
         static const std::string Templ =
             "default:\n"
-            "    initField_#^#BUNDLE_NAME#$#().field_#^#KEY_NAME#$#().value() = commonKeyField.value();\n"
+            "    initField_#^#BUNDLE_NAME#$#().field_#^#KEY_NAME#$#().setValue(commonKeyField.getValue());\n"
             "    #^#VERSION_ASSIGN#$#\n"
             "    return accessField_#^#BUNDLE_NAME#$#().template readFrom<1>(iter, len);";
 
@@ -345,7 +345,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         "auto consumedLen = static_cast<std::size_t>(std::distance(origIter, iter));\n"
         "COMMS_ASSERT(consumedLen <= len);\n"
         "len -= consumedLen;\n\n"
-        "switch (commonKeyField.value()) {\n"
+        "switch (commonKeyField.getValue()) {\n"
         "#^#CASES#$#\n"
         "};\n\n"
         "return comms::ErrorStatus::InvalidMsgData;\n";

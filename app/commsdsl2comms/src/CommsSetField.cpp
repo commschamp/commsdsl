@@ -201,19 +201,19 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
 
             static const std::string VersionBothCondTempl =
                 "if (((Base::getVersion() < #^#FROM_VERSION#$#) || (#^#UNTIL_VERSION#$# <= Base::getVersion())) && \n"
-                "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+                "    ((Base::getValue() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
                 "    return false;\n"
                 "}\n";
 
             static const std::string VersionFromCondTempl =
                 "if ((Base::getVersion() < #^#FROM_VERSION#$#) &&\n"
-                "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+                "    ((Base::getValue() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
                 "    return false;\n"
                 "}\n";
 
             static const std::string VersionUntilCondTempl =
                 "if ((#^#UNTIL_VERSION#$# <= Base::getVersion()) &&\n"
-                "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+                "    ((Base::getValue() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
                 "    return false;\n"
                 "}\n";
 
@@ -321,7 +321,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
         }
 
         static const std::string Templ =
-            "if ((Base::value() & #^#RESERVED_MASK#$#) != #^#RESERVED_VALUE#$#) {\n"
+            "if ((Base::getValue() & #^#RESERVED_MASK#$#) != #^#RESERVED_VALUE#$#) {\n"
             "    #^#CONDITIONS#$#\n"
             "}\n";
 

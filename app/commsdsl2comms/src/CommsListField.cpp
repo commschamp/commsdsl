@@ -271,7 +271,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
             if ((!versionOptional) && (!prefixVersionOptional)) {
                 static const std::string Templ =
                     "field_#^#NAME#$#().#^#FUNC#$#(\n"
-                    "    static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().value()));\n";
+                    "    static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().getValue()));\n";
 
                 preps.push_back(util::processTemplate(Templ, repl));
                 return;
@@ -281,7 +281,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
                 static const std::string Templ =
                     "if (field_#^#NAME#$#().doesExist()) {\n"
                     "    field_#^#NAME#$#().field().#^#FUNC#$#(\n"
-                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().value()));\n"
+                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().getValue()));\n"
                     "}\n";
 
                 preps.push_back(util::processTemplate(Templ, repl));
@@ -292,7 +292,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
                 static const std::string Templ =
                     "if (field_#^#PREFIX_NAME#$#().doesExist()) {\n"
                     "    field_#^#NAME#$#().#^#FUNC#$#(\n"
-                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().value()));\n"
+                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().getValue()));\n"
                     "}\n";
 
                 preps.push_back(util::processTemplate(Templ, repl));
@@ -303,7 +303,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
             static const std::string Templ =
                 "if (field_#^#NAME#$#().doesExist() && field_#^#PREFIX_NAME#$#().doesExist()) {\n"
                 "    field_#^#NAME#$#().field().#^#FUNC#$#(\n"
-                "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().value()));\n"
+                "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().getValue()));\n"
                 "}\n";
 
             preps.push_back(util::processTemplate(Templ, repl));
@@ -370,16 +370,16 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
 
             static const std::string Templ = 
                 "do {\n"
-                "    auto expectedValue = static_cast<std::size_t>(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value());\n"
+                "    auto expectedValue = static_cast<std::size_t>(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.getValue());\n"
                 "    #^#REAL_VALUE#$#\n"
                 "    if (expectedValue == realValue) {\n"
                 "        break;\n"
                 "    }\n\n"
-                "    using PrefixValueType = typename std::decay<decltype(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value())>::type;\n"
+                "    using PrefixValueType = typename std::decay<decltype(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.getValue())>::type;\n"
                 "    static const auto MaxPrefixValue = static_cast<std::size_t>(std::numeric_limits<PrefixValueType>::max());\n"
                 "    auto maxAllowedValue = std::min(MaxPrefixValue, realValue);\n"
                 "    #^#ADJUST_LIST#$#\n"
-                "    field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value() = static_cast<PrefixValueType>(#^#PREFIX_VALUE#$#);\n"
+                "    field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.setValue(#^#PREFIX_VALUE#$#);\n"
                 "    updated = true;\n"
                 "} while (false);\n";
 

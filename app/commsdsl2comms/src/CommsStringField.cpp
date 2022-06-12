@@ -167,7 +167,7 @@ std::string CommsStringField::commsDefPublicCodeImpl() const
         "{\n"
         "    static const char Str[] = \"#^#STR#$#\";\n"
         "    static const std::size_t StrSize = std::extent<decltype(Str)>::value;\n"
-        "    Base::value() = typename Base::ValueType(&Str[0], StrSize - 1);\n"
+        "    Base::setValue(typename Base::ValueType(&Str[0], StrSize - 1));\n"
         "}\n";
 
     util::ReplacementMap repl = {
@@ -216,7 +216,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
     if ((!versionOptional) && (!lenVersionOptional)) {
         static const std::string Templ =
             "field_#^#NAME#$#().forceReadLength(\n"
-            "    static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n";
+            "    static_cast<std::size_t>(field_#^#LEN_NAME#$#().getValue()));\n";
 
         return util::processTemplate(Templ, repl);
     }
@@ -225,7 +225,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
         static const std::string Templ =
             "if (field_#^#NAME#$#().doesExist()) {\n"
             "    field_#^#NAME#$#().field().forceReadLength(\n"
-            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().getValue()));\n"
             "}\n";
 
         return util::processTemplate(Templ, repl);
@@ -235,7 +235,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
         static const std::string Templ =
             "if (field_#^#LEN_NAME#$#().doesExist()) {\n"
             "    field_#^#NAME#$#().forceReadLength(\n"
-            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().value()));\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().getValue()));\n"
             "}\n";
 
         return util::processTemplate(Templ, repl);
@@ -245,7 +245,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
     static const std::string Templ =
         "if (field_#^#NAME#$#().doesExist() && field_#^#LEN_NAME#$#().doesExist()) {\n"
         "    field_#^#NAME#$#().field().forceReadLength(\n"
-        "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().value()));\n"
+        "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().getValue()));\n"
         "}\n";
 
     return util::processTemplate(Templ, repl);
@@ -277,15 +277,15 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
     bool lenVersionOptional = (*iter)->commsIsVersionOptional();
 
     static const std::string Templ = 
-        "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value());\n"
+        "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.getValue());\n"
         "auto realLength = field_#^#NAME#$#()#^#STR_ACC#$#.value().size();\n"
         "if (expectedLength == realLength) {\n"
         "    return false;\n"
         "}\n\n"
-        "using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value())>::type;\n"
+        "using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.getValue())>::type;\n"
         "static const auto MaxLenValue = static_cast<std::size_t>(std::numeric_limits<LenValueType>::max());\n"
         "auto maxAllowedLen = std::min(MaxLenValue, realLength);\n"
-        "field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value() = static_cast<LenValueType>(maxAllowedLen);\n"
+        "field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.setValue(maxAllowedLen);\n"
         "if (maxAllowedLen < realLength) {\n"
         "    field_#^#NAME#$#()#^#STR_ACC#$#.value().resize(maxAllowedLen);\n"
         "}\n"

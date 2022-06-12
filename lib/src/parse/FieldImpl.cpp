@@ -263,6 +263,25 @@ std::string FieldImpl::externalRef() const
     return nsRef + '.' + name();
 }
 
+bool FieldImpl::isComparableToValue(const std::string& val) const
+{
+    static const SemanticType NumericSemanticTypes[] = {
+        SemanticType::Version,
+        SemanticType::Length,
+    };
+
+    auto iter = std::find(std::begin(NumericSemanticTypes), std::end(NumericSemanticTypes), semanticType());
+
+    if (iter != std::end(NumericSemanticTypes)) {
+        bool ok = false;
+        auto value = common::strToIntMax(val, &ok);
+        static_cast<void>(value);
+        return ok;        
+    }
+
+    return isComparableToValueImpl(val);
+}
+
 bool FieldImpl::isComparableToField(const FieldImpl& field) const
 {
     if (field.kind() == Kind::Ref) {
