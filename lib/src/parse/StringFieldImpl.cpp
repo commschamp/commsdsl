@@ -176,6 +176,33 @@ std::size_t StringFieldImpl::maxLengthImpl() const
     return common::maxPossibleLength();
 }
 
+bool StringFieldImpl::isComparableToValueImpl(const std::string& val) const
+{
+    if (val.empty()) {
+        return true;        
+    }
+
+    static const char Prefix = '^';
+    if (val[0] != Prefix) {
+        return true;
+    }
+
+    auto* refField = protocol().findField(std::string(val, 1));
+    if (refField == nullptr) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Referenced field (" + val + ") is not defined.";
+        return false;
+    }
+
+    if (refField->kind() != Kind::String) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Referenced field (" + val + ") is not <string>.";        
+        return false;
+    }
+
+    return true;
+}
+
 bool StringFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
 {
     if (!protocol().isFieldValueReferenceSupported()) {

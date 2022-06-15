@@ -357,9 +357,62 @@ std::size_t CommsStringField::commsMaxLengthImpl() const
     return comms::maxPossibleLength();
 }
 
+std::string CommsStringField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    assert(accStr.empty());
+    static_cast<void>(accStr);
+    static_cast<void>(prefix);
+    return strings::emptyString();
+}
+
 std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
 {
-    return CommsBase::commsCompPrepValueStrImpl(accStr, '\"' + value + '\"');
+    std::string valueTmp = value;
+    do {
+        if (value.empty()) {
+            break;
+        }
+
+        static const char Prefix = '^';
+        if (value[0] == Prefix) {
+            auto* refField = generator().findField(std::string(value, 1));
+            if (refField == nullptr) {
+                generator().logger().warning("Failed to find referenced field: " + value);
+                break;
+            }
+
+            if (refField->dslObj().kind() != commsdsl::parse::Field::Kind::String) {
+                generator().logger().warning("Not referencing <string> field: " + value);
+                break;                
+            }
+
+            auto* refStringField = static_cast<const CommsStringField*>(refField);
+            valueTmp = refStringField->stringDslObj().defaultValue();
+            break;
+        }
+
+        auto prefixPos = value.find_first_of(Prefix);
+        if (prefixPos == std::string::npos) {
+            break;
+        }
+
+        assert(0U < prefixPos);
+        bool allBackSlashes =
+            std::all_of(
+                value.begin(), value.begin() + static_cast<std::ptrdiff_t>(prefixPos),
+                [](char ch)
+                {
+                    return ch == '\\';
+                });
+
+        if (!allBackSlashes) {
+            break;
+        }
+
+        valueTmp.assign(value, 1, std::string::npos);
+    } while (false);
+
+    return CommsBase::commsCompPrepValueStrImpl(accStr, '\"' + valueTmp + '\"');
 }
 
 std::string CommsStringField::commsDefFieldOptsInternal() const

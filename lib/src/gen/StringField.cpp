@@ -116,14 +116,14 @@ const Field* StringField::memberPrefixField() const
     return m_impl->memberPrefixField();
 }
 
-bool StringField::prepareImpl()
-{
-    return m_impl->prepare();
-}
-
 commsdsl::parse::StringField StringField::stringDslObj() const
 {
     return commsdsl::parse::StringField(dslObj());
+}
+
+bool StringField::prepareImpl()
+{
+    return m_impl->prepare();
 }
 
 } // namespace gen
