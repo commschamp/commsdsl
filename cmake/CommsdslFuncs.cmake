@@ -1,4 +1,8 @@
 function (commsdsl_ensure_comms_target)
+    if (TARGET cc::comms)
+        return ()
+    endif ()
+    
     if (COMMSDSL_EXTERNAL_COMMS)
         find_package(LibComms REQUIRED)
         return()

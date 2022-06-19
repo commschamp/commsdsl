@@ -47,6 +47,11 @@ function (cc_prefetch)
         execute_process (
             COMMAND ${GIT_EXECUTABLE} checkout ${CC_FETCH_TAG}
             WORKING_DIRECTORY ${CC_FETCH_SRC_DIR}
+        )  
+
+        execute_process (
+            COMMAND ${GIT_EXECUTABLE} pull
+            WORKING_DIRECTORY ${CC_FETCH_SRC_DIR}
         )        
 
         return ()

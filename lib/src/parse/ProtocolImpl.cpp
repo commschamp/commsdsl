@@ -384,27 +384,27 @@ bool ProtocolImpl::isOverrideTypeSupported() const
 
 bool ProtocolImpl::isMemberReplaceSupported() const
 {
-    return isFeatureSupported(4U);
+    return isFeatureSupported(5U);
 }
 
 bool ProtocolImpl::isCopyOverrideCodeFromSupported() const
 {
-    return isFeatureSupported(4U);
+    return isFeatureSupported(5U);
 }
 
 bool ProtocolImpl::isSemanticLayerTypeSupported() const
 {
-    return isFeatureSupported(4U);
+    return isFeatureSupported(5U);
 }
 
 bool ProtocolImpl::isCustomLayerChecksumFromUntilSupported() const
 {
-    return isFeatureSupported(4U);
+    return isFeatureSupported(5U);
 }
 
 bool ProtocolImpl::isListTermSuffixSupported() const
 {
-    return isFeatureSupported(4U);
+    return isFeatureSupported(5U);
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
