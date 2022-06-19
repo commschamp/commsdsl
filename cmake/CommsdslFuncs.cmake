@@ -1,16 +1,7 @@
 function (commsdsl_ensure_comms_target)
-    if (TARGET cc::comms)
-        return()
-    endif ()
-
-    if (NOT TARGET cc::comms)
-        find_package(LibComms QUIET)
-    endif ()
-    
-    if (TARGET cc::comms)
-        # Just to make find visible
+    if (COMMSDSL_EXTERNAL_COMMS)
         find_package(LibComms REQUIRED)
-        return ()
+        return()
     endif ()
 
     set (repo "${CC_COMMS_REPO}")
