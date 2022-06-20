@@ -297,6 +297,12 @@ const std::string& transportMessageSuffixStr()
     return Str;     
 }
 
+const std::string& unexpectedValueStr()
+{
+    static const std::string Str("???");
+    return Str;     
+}
+
 } // namespace strings
 
 } // namespace gen

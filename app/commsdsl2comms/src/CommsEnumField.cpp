@@ -574,6 +574,10 @@ std::string CommsEnumField::commsCompPrepValueStrImpl(const std::string& accStr,
     static_cast<void>(accStr);
     assert(accStr.empty());
 
+    if (value.empty()) {
+        return util::numToString(enumDslObj().defaultValue());
+    }
+
     try {
         auto val = static_cast<std::intmax_t>(std::stoll(value, nullptr, 0));
         return util::numToString(val);

@@ -358,10 +358,38 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
         // nothing to do
     }
 
+    // TODO: search among specials
+
+    auto& gen = generator();
+    do {
+        auto pos = value.find_first_of(".");
+        auto fieldRef = value; // copy
+        std::string valueSubstr;
+        if (pos < value.size()) {
+            fieldRef = value.substr(0, pos);
+            valueSubstr = value.substr(pos + 1);
+        }
+
+        auto field = gen.findField(fieldRef);
+        if (field == nullptr) {
+            break;        
+        }
+
+        auto* commsField = dynamic_cast<const CommsField*>(field);
+        assert(commsField != nullptr);
+        auto newValue = commsField->commsCompPrepValueStr(std::string(), valueSubstr);
+        if (newValue.empty() || (newValue == strings::unexpectedValueStr())) {
+            break;
+        }
+
+        return commsCompPrepValueStrImpl(std::string(), newValue);
+    } while (false);
+
+    gen.logger().error("Unknown value comparison string \"" + value + "\" for field " + comms::scopeFor(*this, gen));
     static constexpr bool Not_yet_implemented = false;
     static_cast<void>(Not_yet_implemented);
     assert(Not_yet_implemented);
-    return "???";
+    return strings::unexpectedValueStr();
 }
 
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const

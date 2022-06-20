@@ -7,6 +7,7 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
 
         <int name="I1" type="uint8" />        
@@ -16,7 +17,12 @@
         </optional>
         <optional name="O3">
             <ref name="O3" field="I1" />
-        </optional>        
+        </optional>  
+
+        <enum name="E1" type="uint8">
+            <validValue name="V0" val="0" />
+            <validValue name="V1" val="1" />
+        </enum>      
     </fields>
     
     <interface name="Message">
@@ -32,16 +38,33 @@
         </optional>
         <optional name="f5" defaultMode="exists" sinceVersion="2" >
             <int name="f5" type="uint16" />
-        </optional>        
+        </optional>     
     </message>
 
     <message name="Msg2" id="MsgId.M2">
-        <int name="F1" type="uint16" />
-        <optional name="F2" defaultMode="tentative" missingOnReadFail="true">
-            <int name="ActF2" type="uint8" validRange="[0, 10]" failOnInvalid="true" />
-        </optional>
-        <int name="F3" type="uint16" />
+        <description>
+            Testing missingOnReadFail property
+        </description>
+        <fields>
+            <int name="F1" type="uint16" />
+            <optional name="F2" defaultMode="tentative" missingOnReadFail="true">
+                <int name="ActF2" type="uint8" validRange="[0, 10]" failOnInvalid="true" />
+            </optional>
+            <int name="F3" type="uint16" />
+        </fields>
     </message>    
+
+    <message name="Msg3" id="MsgId.M3">
+        <description>
+            Testing conditions referencing external fields
+        </description>
+        <fields>
+            <int name="F1" type="uint16" />
+            <optional name="O1" defaultMode="exists" cond="$F1 = E1.V0">
+                <int name="ActO1" type="uint8" />
+            </optional>
+        </fields>
+    </message>      
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />

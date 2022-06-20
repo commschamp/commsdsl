@@ -10,6 +10,7 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
 
     using Interface =
         test11::Message<
@@ -24,6 +25,7 @@ public:
 
     using Msg1 = test11::message::Msg1<Interface>;
     using Msg2 = test11::message::Msg2<Interface>;
+    using Msg3 = test11::message::Msg3<Interface>;
     using Frame = test11::frame::Frame<Interface>;
 };
 
@@ -81,3 +83,27 @@ void TestSuite::test2()
         TS_ASSERT_EQUALS(msg->field_f3().value(), 0xbeef);
     } while (false);    
 }
+
+void TestSuite::test3()
+{
+    Frame frame;
+    do {
+        static const std::uint8_t Buf[] = {
+            0x03, // MsgId.M3
+            0x01, 0x02, // F1
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        auto* msg = dynamic_cast<Msg3*>(msgPtr.get());
+        TS_ASSERT(msg != nullptr);
+        TS_ASSERT_EQUALS(msg->field_f1().value(), 0x0102);
+        TS_ASSERT(msg->field_o1().isMissing());
+    } while (false);
+ 
+}
+
