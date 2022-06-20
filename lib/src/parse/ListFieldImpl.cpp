@@ -412,8 +412,9 @@ bool ListFieldImpl::updateElemFixedLength()
 
 bool ListFieldImpl::updateTermSuffix()
 {
-    if ((!checkPrefixFromRef(common::termSuffixStr(), m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField)) ||
-        (!checkPrefixAsChild(common::termSuffixStr(), m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField))) {
+    auto& prop = common::termSuffixStr();
+    if ((!checkPrefixFromRef(prop, m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField)) ||
+        (!checkPrefixAsChild(prop, m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField))) {
         return false;
     }
 
@@ -421,9 +422,9 @@ bool ListFieldImpl::updateTermSuffix()
         return true;
     }
 
-    if (!protocol().isListTermSuffixSupported()) {
+    if (!protocol().isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Usage of the " << common::termSuffixStr() << " property is not supported for the used dslVersion, ignoring...";
+            "Usage of the " << prop << " property is not supported for the used dslVersion, ignoring...";
         m_state.m_extTermSuffixField = nullptr;
         m_state.m_detachedTermSuffixField.clear();
         m_termSuffixField.reset();

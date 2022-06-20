@@ -579,7 +579,7 @@ bool MessageImpl::updateValidateMinLength()
         return true;
     }
 
-    if (!m_protocol.isValidateMinLengthSupported()) {
+    if (!m_protocol.isPropertySupported(propStr)) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.schema().dslVersion() << ", ignoring...";
         return true;
@@ -1003,7 +1003,7 @@ bool MessageImpl::updateCopyOverrideCodeFrom()
         return true;
     }  
 
-    if (!m_protocol.isCopyOverrideCodeFromSupported()) {
+    if (!m_protocol.isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
                 m_protocol.schema().dslVersion() << ".";        

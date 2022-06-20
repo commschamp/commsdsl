@@ -54,6 +54,7 @@ private:
     std::string commsDefFieldOptsInternal() const;
 
     void commsAddModeOptInternal(StringsList& opts) const;
+    void commsAddMissingOnReadFailOptInternal(StringsList& opts) const;
     static std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::OptCond& cond, bool bracketsWrap = false);
     static std::string commsDslCondToStringFieldValueCompInternal(
         const CommsField* field, 

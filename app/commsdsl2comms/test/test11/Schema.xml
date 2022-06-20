@@ -34,6 +34,15 @@
             <int name="f5" type="uint16" />
         </optional>        
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <int name="F1" type="uint16" />
+        <optional name="F2" defaultMode="tentative" missingOnReadFail="true">
+            <int name="ActF2" type="uint8" validRange="[0, 10]" failOnInvalid="true" />
+        </optional>
+        <int name="F3" type="uint16" />
+    </message>    
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />

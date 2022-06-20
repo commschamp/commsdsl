@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema8"
-        id="1"
-        endian="big"
-        dslVersion="4">
+<schema name="Schema8" endian="big" dslVersion="5">
     <fields>
         <bundle name="Bundle1">
             <enum name="Enum1" type="uint8">

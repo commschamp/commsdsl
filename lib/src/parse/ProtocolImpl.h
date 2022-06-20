@@ -107,22 +107,16 @@ public:
     }
 
     bool isFeatureSupported(unsigned minDslVersion) const;
+    bool isPropertySupported(const std::string& name) const;    
     bool isFieldValueReferenceSupported() const;
     bool isSemanticTypeLengthSupported() const;
     bool isSemanticTypeRefInheritanceSupported() const;
     bool isNonIntSemanticTypeLengthSupported() const;
     bool isNonUniqueSpecialsAllowedSupported() const;
     bool isFieldAliasSupported() const;
-    bool isValidateMinLengthSupported() const;
-    bool isDefaultValidValueSupported() const;
     bool isCopyFieldsFromBundleSupported() const;
-    bool isAvailableLengthLimitSupported() const;
     bool isOverrideTypeSupported() const;
     bool isMemberReplaceSupported() const;
-    bool isCopyOverrideCodeFromSupported() const;
-    bool isSemanticLayerTypeSupported() const;
-    bool isCustomLayerChecksumFromUntilSupported() const;
-    bool isListTermSuffixSupported() const;
 
 private:
     struct XmlDocFree

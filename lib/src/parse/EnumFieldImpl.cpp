@@ -628,22 +628,7 @@ bool EnumFieldImpl::updateHexAssign()
 
 bool EnumFieldImpl::updateAvailableLengthLimit()
 {
-    if (!validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit)) {
-        return false;
-    }
-
-    auto iter = props().find(common::availableLengthLimitStr());
-    if (iter == props().end()) {
-        return true;
-    }
-
-    if (!protocol().isAvailableLengthLimitSupported()) {
-        logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().schema().dslVersion();        
-        m_state.m_availableLengthLimit = false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit);
 }
 
 bool EnumFieldImpl::strToValue(

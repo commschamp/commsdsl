@@ -624,6 +624,12 @@ bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool
         return true;
     }
 
+    if (!m_protocol.isPropertySupported(propName)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().schema().dslVersion();                
+        return true;
+    }
+
     bool ok = false;
     value = common::strToBool(iter->second, &ok);
     if (!ok) {
@@ -1203,7 +1209,7 @@ bool FieldImpl::updateCopyOverrideCodeFrom()
         return true;
     }  
 
-    if (!m_protocol.isCopyOverrideCodeFromSupported()) {
+    if (!m_protocol.isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
                 m_protocol.schema().dslVersion() << ".";        

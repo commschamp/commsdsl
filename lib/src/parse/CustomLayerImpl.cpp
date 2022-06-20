@@ -102,7 +102,7 @@ bool CustomLayerImpl::updateSemanticLayerType()
         return true;
     }
 
-    if (!protocol().isSemanticLayerTypeSupported()) {
+    if (!protocol().isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
         return true;
@@ -151,7 +151,7 @@ bool CustomLayerImpl::updateChecksumFrom()
         return true;
     }
 
-    if (!protocol().isCustomLayerChecksumFromUntilSupported()) {
+    if (!protocol().isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
         return true;
@@ -179,7 +179,7 @@ bool CustomLayerImpl::updateChecksumUntil()
         return true;
     }
 
-    if (!protocol().isCustomLayerChecksumFromUntilSupported()) {
+    if (!protocol().isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "Property \"" << prop << "\" is not supported for selected dslVersion, ignoring...";
         return true;

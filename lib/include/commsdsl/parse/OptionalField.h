@@ -47,6 +47,7 @@ public:
     Field field() const;
     OptCond cond() const;
     bool externalModeCtrl() const;
+    bool missingOnReadFail() const;
 };
 
 } // namespace parse

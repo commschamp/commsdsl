@@ -830,6 +830,12 @@ const std::string& termSuffixStr()
     return Str;     
 }
 
+const std::string& missingOnReadFailStr()
+{
+    static const std::string Str("missingOnReadFail");
+    return Str; 
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

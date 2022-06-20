@@ -67,6 +67,10 @@ bool OptionalField::externalModeCtrl() const
     return cast(m_pImpl)->externalModeCtrl();
 }
 
+bool OptionalField::missingOnReadFail() const
+{
+    return cast(m_pImpl)->missingOnReadFail();
+}
 
 } // namespace parse
 

@@ -166,6 +166,7 @@ const std::string& semanticLayerTypeStr();
 const std::string& checksumFromStr();
 const std::string& checksumUntilStr();
 const std::string& termSuffixStr();
+const std::string& missingOnReadFailStr();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

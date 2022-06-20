@@ -327,6 +327,28 @@ bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
     return minDslVersion <= currDslVersion;
 }
 
+bool ProtocolImpl::isPropertySupported(const std::string& name) const
+{
+    static const std::map<std::string, unsigned> Map = {
+        {common::validateMinLengthStr(), 4U},
+        {common::defaultValidValueStr(), 4U},
+        {common::availableLengthLimitStr(), 4U},
+        {common::copyOverrideCodeFromStr(), 5U},
+        {common::semanticLayerTypeStr(), 5U},
+        {common::checksumFromStr(), 5U},
+        {common::checksumUntilStr(), 5U},
+        {common::termSuffixStr(), 5U},
+        {common::missingOnReadFailStr(), 5U},
+    };
+
+    auto iter = Map.find(name);
+    if (iter == Map.end()) {
+        return true;
+    }
+
+    return isFeatureSupported(iter->second);
+}
+
 bool ProtocolImpl::isFieldValueReferenceSupported() const
 {
     return isFeatureSupported(2U);
@@ -342,11 +364,6 @@ bool ProtocolImpl::isSemanticTypeRefInheritanceSupported() const
     return isFeatureSupported(2U);
 }
 
-bool ProtocolImpl::isNonIntSemanticTypeLengthSupported() const
-{
-    return isFeatureSupported(4U);
-}
-
 bool ProtocolImpl::isNonUniqueSpecialsAllowedSupported() const
 {
     return isFeatureSupported(2U);
@@ -357,22 +374,7 @@ bool ProtocolImpl::isFieldAliasSupported() const
     return isFeatureSupported(3U);
 }
 
-bool ProtocolImpl::isValidateMinLengthSupported() const
-{
-    return isFeatureSupported(4U);
-}
-
-bool ProtocolImpl::isDefaultValidValueSupported() const
-{
-    return isFeatureSupported(4U);
-}
-
 bool ProtocolImpl::isCopyFieldsFromBundleSupported() const
-{
-    return isFeatureSupported(4U);
-}
-
-bool ProtocolImpl::isAvailableLengthLimitSupported() const
 {
     return isFeatureSupported(4U);
 }
@@ -382,27 +384,12 @@ bool ProtocolImpl::isOverrideTypeSupported() const
     return isFeatureSupported(4U);
 }
 
+bool ProtocolImpl::isNonIntSemanticTypeLengthSupported() const
+{
+    return isFeatureSupported(5U);
+}
+
 bool ProtocolImpl::isMemberReplaceSupported() const
-{
-    return isFeatureSupported(5U);
-}
-
-bool ProtocolImpl::isCopyOverrideCodeFromSupported() const
-{
-    return isFeatureSupported(5U);
-}
-
-bool ProtocolImpl::isSemanticLayerTypeSupported() const
-{
-    return isFeatureSupported(5U);
-}
-
-bool ProtocolImpl::isCustomLayerChecksumFromUntilSupported() const
-{
-    return isFeatureSupported(5U);
-}
-
-bool ProtocolImpl::isListTermSuffixSupported() const
 {
     return isFeatureSupported(5U);
 }

@@ -769,7 +769,7 @@ bool IntFieldImpl::updateDefaultValidValue()
         return true;
     }
 
-    if (!protocol().isDefaultValidValueSupported()) {
+    if (!protocol().isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(getNode()) << 
             "Property \"" << prop << "\" is not supported for DSL version " << protocol().schema().dslVersion() << ", ignoring...";        
         return true;
@@ -1225,22 +1225,7 @@ bool IntFieldImpl::updateDisplaySpecials()
 
 bool IntFieldImpl::updateAvailableLengthLimit()
 {
-    if (!validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit)) {
-        return false;
-    }
-
-    auto iter = props().find(common::availableLengthLimitStr());
-    if (iter == props().end()) {
-        return true;
-    }
-
-    if (!protocol().isAvailableLengthLimitSupported()) {
-        logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().schema().dslVersion();        
-        m_state.m_availableLengthLimit = false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit);
 }
 
 bool IntFieldImpl::checkValidRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)

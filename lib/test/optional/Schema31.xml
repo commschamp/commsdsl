@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema31" endian="big">
+    <fields>
+        <optional name="O1" missingOnReadFail="true">
+            <int name="ActO1" type="uint8" validRange="[0, 10]" failOnInvalid="true" />
+        </optional>
+    </fields>
+</schema>

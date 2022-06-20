@@ -49,6 +49,11 @@ public:
         return m_state.m_externalModeCtrl;
     }
 
+    bool missingOnReadFail() const
+    {
+        return m_state.m_missingOnReadFail;
+    }    
+
     bool hasField() const
     {
         return (m_state.m_extField != nullptr) || static_cast<bool>(m_field);
@@ -100,6 +105,7 @@ private:
 
     bool updateMode();
     bool updateExternalModeCtrl();
+    bool updateMissingOnReadFail();
     bool updateField();
     bool updateSingleCondition();
     bool updateMultiCondition();
@@ -117,6 +123,7 @@ private:
         Mode m_mode = Mode::Tentative;
         const FieldImpl* m_extField = nullptr;
         bool m_externalModeCtrl = false;
+        bool m_missingOnReadFail = false;
     };
 
     State m_state;

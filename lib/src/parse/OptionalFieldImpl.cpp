@@ -86,7 +86,8 @@ const XmlWrap::NamesList& OptionalFieldImpl::extraPropsNamesImpl() const
     static const XmlWrap::NamesList List = {
         common::defaultModeStr(),
         common::condStr(),
-        common::displayExtModeCtrlStr()
+        common::displayExtModeCtrlStr(),
+        common::missingOnReadFailStr()
     };
 
     return List;
@@ -127,6 +128,7 @@ bool OptionalFieldImpl::parseImpl()
     return
         updateMode() &&
         updateExternalModeCtrl() &&
+        updateMissingOnReadFail() &&
         updateField() &&
         updateSingleCondition() &&
         updateMultiCondition();
@@ -265,6 +267,11 @@ bool OptionalFieldImpl::updateMode()
 bool OptionalFieldImpl::updateExternalModeCtrl()
 {
     return validateAndUpdateBoolPropValue(common::displayExtModeCtrlStr(), m_state.m_externalModeCtrl);
+}
+
+bool OptionalFieldImpl::updateMissingOnReadFail()
+{
+    return validateAndUpdateBoolPropValue(common::missingOnReadFailStr(), m_state.m_missingOnReadFail);
 }
 
 bool OptionalFieldImpl::updateField()
