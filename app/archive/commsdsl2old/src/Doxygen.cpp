@@ -161,7 +161,6 @@ bool Doxygen::writeConf() const
         "CLANG_ASSISTED_PARSING = NO\n"
         "CLANG_OPTIONS          =\n"
         "ALPHABETICAL_INDEX     = YES\n"
-        "COLS_IN_ALPHA_INDEX    = 5\n"
         "GENERATE_HTML          = YES\n"
         "HTML_OUTPUT            = html\n"
         "HTML_FILE_EXTENSION    = .html\n"
