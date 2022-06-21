@@ -347,6 +347,8 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
 {
     static_cast<void>(accStr);
     assert(accStr.empty());
+    // TODO: empty value
+    
     try {
         if (isUnsignedType()) {
             return util::numToString(static_cast<std::uintmax_t>(std::stoull(value, nullptr, 0)));

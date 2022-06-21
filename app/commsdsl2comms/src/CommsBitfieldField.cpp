@@ -203,7 +203,7 @@ std::string CommsBitfieldField::commsValueAccessStrImpl(const std::string& accSt
         static const bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return "???";
+        return strings::unexpectedValueStr();
     }
 
     return memInfo.first->commsValueAccessStr(memInfo.second, prefix + "field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "().");
@@ -240,7 +240,7 @@ std::string CommsBitfieldField::commsCompValueCastTypeImpl(const std::string& ac
         static const bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return "???";
+        return strings::unexpectedValueStr();
     }
 
     auto accName = comms::accessName(memInfo.first->field().dslObj().name());

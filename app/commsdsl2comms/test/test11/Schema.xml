@@ -60,9 +60,16 @@
         </description>
         <fields>
             <int name="F1" type="uint16" />
+            <!--enum name="F2" type="uint8">
+                <validValue name="V0" val="0" />
+                <validValue name="V1" val="1" />
+            </enum-->
             <optional name="O1" defaultMode="exists" cond="$F1 = E1.V0">
                 <int name="ActO1" type="uint8" />
             </optional>
+            <!--optional name="O2" defaultMode="missing" cond="$F2 = $F2.V">
+                <int name="ActO2" type="uint8" />
+            </optional-->
         </fields>
     </message>      
 

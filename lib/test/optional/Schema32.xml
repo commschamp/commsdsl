@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema32" endian="big">
+    <message name="Msg1" id="1">
+        <enum name="F1" type="uint8">
+            <validValue name="V0" val="0" />
+            <validValue name="V1" val="1" />
+        </enum>
+
+        <optional name="O1" cond="$F1 = $F1.V0">
+            <description>
+                Parsing is supposed to fail because referencing sibling values is not supported
+            </description>
+            <field>
+                <int name="ActO1" type="uint8" />
+            </field>
+        </optional>
+    </message>
+</schema>

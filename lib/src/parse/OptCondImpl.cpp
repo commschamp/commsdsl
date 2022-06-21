@@ -145,6 +145,7 @@ bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string
             "comparison operator must dereference other field.";
         return false;
     }
+    
 
     return true;
 }
@@ -281,6 +282,12 @@ bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::
         return false;
     }
 
+    if (remPos < m_left.size()) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The \"" << m_left << "\" is not valid field dereference expression.";        
+        return false;
+    }
+
     if (m_right[0] == Deref) {
         std::size_t rightRemPos = 1U;
         auto rightField = findField(fields, m_right, rightRemPos);
@@ -290,6 +297,12 @@ bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::
                 common::bundleStr() << "\" or \"" << common::messageStr() << "\"";
             return false;
         }
+
+        if (rightRemPos < m_right.size()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The \"" << m_right << "\" is not valid field dereference expression.";        
+            return false;
+        }        
 
         if (!field->isComparableToField(*rightField)) {
             logError(logger) << XmlWrap::logPrefix(node) <<

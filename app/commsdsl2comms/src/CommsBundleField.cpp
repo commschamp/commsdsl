@@ -414,7 +414,7 @@ std::string CommsBundleField::commsValueAccessStrImpl(const std::string& accStr,
         static const bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return "???";
+        return strings::unexpectedValueStr();
     }
 
     return memInfo.first->commsValueAccessStr(memInfo.second, prefix + "field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "().");
@@ -451,7 +451,7 @@ std::string CommsBundleField::commsCompValueCastTypeImpl(const std::string& accS
         static const bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return "???";
+        return strings::unexpectedValueStr();
     }
 
     auto accName = comms::accessName(memInfo.first->field().dslObj().name());

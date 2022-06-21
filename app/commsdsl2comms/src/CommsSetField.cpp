@@ -384,7 +384,7 @@ std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, co
     if (iter == bits.end()) {
         generator().logger().error("Failed to find bit reference " + accStr + " for field " + comms::scopeFor(*this, generator()));
         assert(false);
-        return "???";
+        return strings::unexpectedValueStr();
     }
 
     return prefix + "getBitValue_" + accStr + "()";
