@@ -309,7 +309,7 @@ std::string CommsBundleField::commsDefRefreshFuncBodyImpl() const
     static const std::string Templ =
         "bool updated = Base::refresh();\n"
         "#^#FIELDS#$#\n"
-        "return updated;";    
+        "return updated;\n";    
 
     assert(m_members.size() == m_bundledRefreshCodes.size());
     util::StringsList fields;

@@ -347,7 +347,20 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
 {
     static_cast<void>(accStr);
     assert(accStr.empty());
-    // TODO: empty value
+
+    auto valToString = 
+        [this](std::intmax_t val)
+        {
+            if (isUnsignedType()) {
+                return util::numToString(static_cast<std::uintmax_t>(val));
+            }
+
+            return util::numToString(val);      
+        };
+
+    if (value.empty()) {
+        return valToString(intDslObj().defaultValue());
+    }
     
     try {
         if (isUnsignedType()) {
@@ -360,7 +373,11 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
         // nothing to do
     }
 
-    // TODO: search among specials
+    auto& specials = intDslObj().specialValues();
+    auto iter = specials.find(value);
+    if (iter != specials.end()) {
+        return valToString(iter->second.m_value);
+    }
 
     auto& gen = generator();
     do {

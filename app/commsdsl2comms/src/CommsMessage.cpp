@@ -982,7 +982,7 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
             "{\n"
             "   bool updated = Base::doRefresh();\n"
             "   #^#FIELDS#$#\n"
-            "   return updated;"
+            "   return updated;\n"
             "}\n";
 
         util::ReplacementMap repl = {

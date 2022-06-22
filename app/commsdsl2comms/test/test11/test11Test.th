@@ -91,6 +91,8 @@ void TestSuite::test3()
         static const std::uint8_t Buf[] = {
             0x03, // MsgId.M3
             0x01, 0x02, // F1
+            0x01, // F2
+            0x01, // F3
         };
         
         static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
@@ -102,7 +104,11 @@ void TestSuite::test3()
         auto* msg = dynamic_cast<Msg3*>(msgPtr.get());
         TS_ASSERT(msg != nullptr);
         TS_ASSERT_EQUALS(msg->field_f1().value(), 0x0102);
+        TS_ASSERT_EQUALS(msg->field_f2().value(), Msg3::Field_f2::ValueType::V1);
+        TS_ASSERT_EQUALS(msg->field_f3().value(), 1U);
         TS_ASSERT(msg->field_o1().isMissing());
+        TS_ASSERT(msg->field_o2().isMissing());
+        TS_ASSERT(msg->field_o3().isMissing());
     } while (false);
  
 }

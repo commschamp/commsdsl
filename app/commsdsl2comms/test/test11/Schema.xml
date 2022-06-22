@@ -22,7 +22,12 @@
         <enum name="E1" type="uint8">
             <validValue name="V0" val="0" />
             <validValue name="V1" val="1" />
-        </enum>      
+        </enum>    
+
+        <int name="I2" type="uint8">
+            <special name="S1" val="0" />
+            <special name="S2" val="1" />
+        </int>            
     </fields>
     
     <interface name="Message">
@@ -60,16 +65,17 @@
         </description>
         <fields>
             <int name="F1" type="uint16" />
-            <!--enum name="F2" type="uint8">
-                <validValue name="V0" val="0" />
-                <validValue name="V1" val="1" />
-            </enum-->
+            <ref name="F2" field="E1" />
+            <int name="F3" type="uint8" />
             <optional name="O1" defaultMode="exists" cond="$F1 = E1.V0">
                 <int name="ActO1" type="uint8" />
             </optional>
-            <!--optional name="O2" defaultMode="missing" cond="$F2 = $F2.V">
+            <optional name="O2" defaultMode="exists" cond="$F2 = E1.V0">
                 <int name="ActO2" type="uint8" />
-            </optional-->
+            </optional>
+            <optional name="O3" defaultMode="exists" cond="$F3 = I2.S1">
+                <int name="ActO3" type="uint8" />
+            </optional>
         </fields>
     </message>      
 
