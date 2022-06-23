@@ -1,0 +1,5 @@
+/// @brief Custom valid operation
+bool valid() const
+{
+    return (field_m1().value() != 0U) || (field_m2().value() == 0U);
+}

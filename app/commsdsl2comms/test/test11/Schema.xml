@@ -8,6 +8,7 @@
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
             <validValue name="M3" val="3" />
+            <validValue name="M4" val="4" />
         </enum>
 
         <int name="I1" type="uint8" />        
@@ -27,7 +28,17 @@
         <int name="I2" type="uint8">
             <special name="S1" val="0" />
             <special name="S2" val="1" />
-        </int>            
+        </int>  
+
+        <bundle name="B1" failOnInvalid="true" validOverride="replace" refreshOverride="replace">
+            <description>
+                Testing failOnInvalid with custom valid
+            </description>
+            <members>
+                <int name="M1" type="uint8" />
+                <int name="M2" type="uint8" />
+            </members>        
+        </bundle>          
     </fields>
     
     <interface name="Message">
@@ -76,6 +87,15 @@
             <optional name="O3" defaultMode="exists" cond="$F3 = I2.S1">
                 <int name="ActO3" type="uint8" />
             </optional>
+        </fields>
+    </message>      
+
+    <message name="Msg4" id="MsgId.M4">
+        <description>
+            Testing failOnInvalid with custom valid
+        </description>
+        <fields>
+            <ref field="B1" name="F1" failOnInvalid="true" />
         </fields>
     </message>      
 

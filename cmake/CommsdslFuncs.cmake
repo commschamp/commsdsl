@@ -1,10 +1,11 @@
 function (commsdsl_ensure_comms_target)
-    if (TARGET cc::comms)
+    if (COMMSDSL_FOUND_COMMS_INTERNAL)
         return ()
     endif ()
-    
+
     if (COMMSDSL_EXTERNAL_COMMS)
         find_package(LibComms REQUIRED)
+        commsdsl_mark_comms_found()
         return()
     endif ()
 
@@ -36,7 +37,7 @@ function (commsdsl_ensure_comms_target)
     endif ()    
 
     include (${build_file_include})
-    set (build_dir "${CMAKE_CURRENT_BINARY_DIR}/externals/comms/build")
+    set (build_dir "${PROJECT_BINARY_DIR}/externals/comms/build")
     set (install_dir "${build_dir}/install")
     cc_comms_build_during_config(
         SRC_DIR ${src_dir}
@@ -49,6 +50,7 @@ function (commsdsl_ensure_comms_target)
 
     list (APPEND CMAKE_PREFIX_PATH ${install_dir})
     find_package(LibComms REQUIRED)
+    commsdsl_mark_comms_found()
 endfunction()
 
 macro (commsdsl_negate_option old_name new_name)

@@ -651,12 +651,47 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
         opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), false, true));
     }
 
-    if (m_forcedFailOnInvalid) {
-        opts.push_back("comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
-    }
-    else if (m_field.dslObj().isFailOnInvalid()) {
+    do {
+        auto checkFieldTypeFunc = 
+            [this, &opts]()
+            {
+                if ((!m_customValid.empty()) || (!commsDefValidFuncCodeInternal().empty())) {
+                    static const std::string Templ = 
+                        "comms::option::def::FieldType<#^#NAME#$##^#SUFFIX#$##^#ORIG#$##^#PARAMS#$#>";
+
+                    util::ReplacementMap repl = {
+                        {"NAME", comms::className(m_field.name())}
+                    };
+
+                    if (commsIsVersionOptional()) {
+                        repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+                    }
+                    
+                    if (!m_customExtend.empty()) {
+                        repl["ORIG"] = strings::origSuffixStr();
+                    }    
+
+                    if (comms::isGlobalField(m_field)) {
+                        repl["PARAMS"] = "<TOpt, TExtraOpts...>";
+                    }   
+
+                    util::addToStrList(util::processTemplate(Templ, repl), opts);                                 
+                }
+            };
+
+        if (m_forcedFailOnInvalid) {
+            opts.push_back("comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
+            checkFieldTypeFunc();
+            break;
+        }         
+
+        if (!m_field.dslObj().isFailOnInvalid()) {
+            break;
+        }      
+
         util::addToStrList("comms::option::def::FailOnInvalid<>", opts);
-    }
+        checkFieldTypeFunc();
+    } while (false);
 
     if (!m_customRead.empty()) {
         util::addToStrList("comms::option::def::HasCustomRead", opts);

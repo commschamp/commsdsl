@@ -77,6 +77,10 @@ endif ()
 
 commsdsl_compile(${warn_opt} ${ccache_opt})
 commsdsl_msvc_force_warn_opt("/W4")
+set (COMMSDSL_FOUND_COMMS_INTERNAL OFF CACHE INTERNAL "Mark COMMS library found" FORCE)
+function (commsdsl_mark_comms_found)
+    set (COMMSDSL_FOUND_COMMS_INTERNAL ON CACHE INTERNAL "Mark COMMS library found" FORCE)
+endfunction ()
 
 ################################################
 
@@ -87,17 +91,10 @@ if (COMMSDSL_BUILD_UNIT_TESTS)
             break()
         endif ()
 
-        find_package(LibComms QUIET)
-        if (TARGET cc::comms)
-            if ("${LibComms_DIR}" STREQUAL "")
-                message (FATAL_ERROR "The comms library found but the directory is not known")
-            endif ()
-
-            set (CC_CMAKE_DIR ${LibComms_DIR})
-            break()
-        endif ()
-
         commsdsl_ensure_comms_target ()
+        if ("${LibComms_DIR}" STREQUAL "")
+            message (FATAL_ERROR "The comms library found but the directory is not known")
+        endif ()        
         set (CC_CMAKE_DIR ${LibComms_DIR})
         break ()
     endwhile ()
