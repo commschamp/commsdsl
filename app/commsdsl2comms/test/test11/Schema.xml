@@ -9,6 +9,8 @@
             <validValue name="M2" val="2" />
             <validValue name="M3" val="3" />
             <validValue name="M4" val="4" />
+            <validValue name="M5" val="5" />
+            <validValue name="M6" val="6" />
         </enum>
 
         <int name="I1" type="uint8" />        
@@ -38,7 +40,17 @@
                 <int name="M1" type="uint8" />
                 <int name="M2" type="uint8" />
             </members>        
-        </bundle>          
+        </bundle>     
+
+        <optional name="O5" validOverride="replace" missingOnInvalid="true">
+            <bundle name="B2">
+                <members>
+                    <int name="M1" type="uint8" />
+                    <int name="M2" type="uint8" />
+                </members>        
+            </bundle> 
+        </optional>  
+
     </fields>
     
     <interface name="Message">
@@ -97,7 +109,29 @@
         <fields>
             <ref field="B1" name="F1" failOnInvalid="true" />
         </fields>
-    </message>      
+    </message>   
+
+    <message name="Msg5" id="MsgId.M5">
+        <description>
+            Testing missingOnInvalid property
+        </description>
+        <fields>
+            <int name="F1" type="uint16" />
+            <optional name="F2" defaultMode="tentative" missingOnInvalid="true">
+                <int name="ActF2" type="uint8" validRange="[0, 10]" />
+            </optional>
+            <int name="F3" type="uint16" />
+        </fields>
+    </message>  
+
+    <message name="Msg6" id="MsgId.M6">
+        <description>
+            Testing missingOnInvalid with custom valid
+        </description>
+        <fields>
+            <ref field="O5" name="F1" />
+        </fields>
+    </message>             
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />

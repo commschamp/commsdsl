@@ -72,6 +72,11 @@ bool OptionalField::missingOnReadFail() const
     return cast(m_pImpl)->missingOnReadFail();
 }
 
+bool OptionalField::missingOnInvalid() const
+{
+    return cast(m_pImpl)->missingOnInvalid();
+}
+
 } // namespace parse
 
 } // namespace commsdsl

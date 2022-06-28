@@ -237,6 +237,7 @@ std::string CommsOptionalField::commsDefFieldOptsInternal() const
     commsAddFieldDefOptions(opts);
     commsAddModeOptInternal(opts);
     commsAddMissingOnReadFailOptInternal(opts);
+    commsAddMissingOnInvalidOptInternal(opts);
 
     return util::strListToString(opts, ",\n", "");
 }
@@ -279,6 +280,19 @@ void CommsOptionalField::commsAddMissingOnReadFailOptInternal(StringsList& opts)
     }
 
     opts.push_back("comms::option::def::MissingOnReadFail");
+}
+
+void CommsOptionalField::commsAddMissingOnInvalidOptInternal(StringsList& opts) const
+{
+    auto obj = optionalDslObj();
+    if (!obj.missingOnInvalid()) {
+        return;
+    }
+
+    opts.push_back("comms::option::def::MissingOnInvalid");
+    if (commsHasCustomValid()) {
+        commsAddFieldTypeOption(opts);
+    }
 }
 
 std::string CommsOptionalField::commsDslCondToStringInternal(

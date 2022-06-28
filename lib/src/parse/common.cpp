@@ -836,6 +836,12 @@ const std::string& missingOnReadFailStr()
     return Str; 
 }
 
+const std::string& missingOnInvalidStr()
+{
+    static const std::string Str("missingOnInvalid");
+    return Str; 
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

@@ -956,13 +956,28 @@ void OptionalTestSuite::test31()
     TS_ASSERT(ns.name().empty());
 
     auto fields = ns.fields();
-    TS_ASSERT_EQUALS(fields.size(), 1U);
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
-    auto& o1 = fields[0];
-    TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::Field::Kind::Optional);
+        auto& o1 = fields[0];
+        TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::Field::Kind::Optional);
 
-    commsdsl::parse::OptionalField opt(o1);
-    TS_ASSERT(opt.missingOnReadFail());
+        commsdsl::parse::OptionalField opt(o1);
+        TS_ASSERT(opt.missingOnReadFail());
+        TS_ASSERT(!opt.missingOnInvalid());
+    } while (false);
+
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
+
+        auto& o2 = fields[1];
+        TS_ASSERT_EQUALS(o2.kind(), commsdsl::parse::Field::Kind::Optional);
+
+        commsdsl::parse::OptionalField opt(o2);
+        TS_ASSERT(!opt.missingOnReadFail());
+        TS_ASSERT(opt.missingOnInvalid());
+    } while (false);
+
 }
 
 void OptionalTestSuite::test32()

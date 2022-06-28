@@ -48,6 +48,7 @@ public:
     OptCond cond() const;
     bool externalModeCtrl() const;
     bool missingOnReadFail() const;
+    bool missingOnInvalid() const;
 };
 
 } // namespace parse

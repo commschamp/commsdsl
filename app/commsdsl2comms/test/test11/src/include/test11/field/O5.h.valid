@@ -1,0 +1,5 @@
+/// @brief Custom valid operation
+bool valid() const
+{
+    return Base::isMissing() || (Base::field().field_m1().value() != 0U) || (Base::field().field_m2().value() == 0U);
+}

@@ -4,5 +4,9 @@
         <optional name="O1" missingOnReadFail="true">
             <int name="ActO1" type="uint8" validRange="[0, 10]" failOnInvalid="true" />
         </optional>
+
+        <optional name="O2" missingOnInvalid="true">
+            <int name="ActO2" type="uint8" validRange="[0, 10]" />
+        </optional>        
     </fields>
 </schema>

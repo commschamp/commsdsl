@@ -52,7 +52,12 @@ public:
     bool missingOnReadFail() const
     {
         return m_state.m_missingOnReadFail;
-    }    
+    }  
+
+    bool missingOnInvalid() const
+    {
+        return m_state.m_missingOnInvalid;
+    }      
 
     bool hasField() const
     {
@@ -106,6 +111,7 @@ private:
     bool updateMode();
     bool updateExternalModeCtrl();
     bool updateMissingOnReadFail();
+    bool updateMissingOnInvalid();
     bool updateField();
     bool updateSingleCondition();
     bool updateMultiCondition();
@@ -124,6 +130,7 @@ private:
         const FieldImpl* m_extField = nullptr;
         bool m_externalModeCtrl = false;
         bool m_missingOnReadFail = false;
+        bool m_missingOnInvalid = false;
     };
 
     State m_state;

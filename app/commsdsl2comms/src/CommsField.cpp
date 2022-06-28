@@ -363,6 +363,12 @@ bool CommsField::commsHasCustomValue() const
     return !m_customValue.empty();
 }
 
+bool CommsField::commsHasCustomValid() const
+{
+    return (!m_customValid.empty()) || (!commsDefValidFuncBodyImpl().empty());
+}
+
+
 const CommsField* CommsField::commsFindSibling(const std::string& name) const
 {
     auto* parent = m_field.getParent();
@@ -655,27 +661,8 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
         auto checkFieldTypeFunc = 
             [this, &opts]()
             {
-                if ((!m_customValid.empty()) || (!commsDefValidFuncCodeInternal().empty())) {
-                    static const std::string Templ = 
-                        "comms::option::def::FieldType<#^#NAME#$##^#SUFFIX#$##^#ORIG#$##^#PARAMS#$#>";
-
-                    util::ReplacementMap repl = {
-                        {"NAME", comms::className(m_field.name())}
-                    };
-
-                    if (commsIsVersionOptional()) {
-                        repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
-                    }
-                    
-                    if (!m_customExtend.empty()) {
-                        repl["ORIG"] = strings::origSuffixStr();
-                    }    
-
-                    if (comms::isGlobalField(m_field)) {
-                        repl["PARAMS"] = "<TOpt, TExtraOpts...>";
-                    }   
-
-                    util::addToStrList(util::processTemplate(Templ, repl), opts);                                 
+                if (commsHasCustomValid()) {
+                    commsAddFieldTypeOption(opts);
                 }
             };
 
@@ -708,6 +695,30 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
     if (m_forcedPseudo || m_field.dslObj().isPseudo()) {
         util::addToStrList("comms::option::def::EmptySerialization", opts);
     }
+}
+
+void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const
+{
+    static const std::string Templ = 
+        "comms::option::def::FieldType<#^#NAME#$##^#SUFFIX#$##^#ORIG#$##^#PARAMS#$#>";
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::className(m_field.name())}
+    };
+
+    if (commsIsVersionOptional()) {
+        repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    }
+    
+    if (!m_customExtend.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }    
+
+    if (comms::isGlobalField(m_field)) {
+        repl["PARAMS"] = "<TOpt, TExtraOpts...>";
+    }   
+
+    util::addToStrList(util::processTemplate(Templ, repl), opts);                                 
 }
 
 bool CommsField::commsIsFieldCustomizable() const

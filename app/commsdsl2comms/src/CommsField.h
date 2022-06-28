@@ -88,6 +88,7 @@ public:
     std::string commsBareMetalDefaultOptions() const;
 
     bool commsHasCustomValue() const;
+    bool commsHasCustomValid() const;
     const CommsField* commsFindSibling(const std::string& name) const;
 
 protected:
@@ -129,6 +130,7 @@ protected:
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
     void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
+    void commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsFieldCustomizable() const;
     bool commsIsExtended() const;
 
