@@ -473,7 +473,7 @@ bool MessageImpl::updatePlatforms()
         return false;
     }
 
-    auto& allPlatforms = m_protocol.platforms();
+    auto& allPlatforms = m_protocol.schema().platforms();
     for (auto& p : platList) {
         common::removeHeadingTrailingWhitespaces(p);
         if (p.empty()) {

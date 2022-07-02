@@ -106,7 +106,7 @@ void SchemaTestSuite::test4()
     TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
     TS_ASSERT(schema.extraAttributes().empty());
     TS_ASSERT(schema.extraElements().empty());
-    auto& platforms = protocol->platforms();
+    auto& platforms = protocol->schema().platforms();
     TS_ASSERT_EQUALS(platforms.size(), 3U);
     TS_ASSERT_EQUALS(platforms[0], "plat1");
     TS_ASSERT_EQUALS(platforms[1], "plat2");
@@ -127,7 +127,7 @@ void SchemaTestSuite::test5()
     TS_ASSERT(!schema.nonUniqueMsgIdAllowed());
     TS_ASSERT(schema.extraAttributes().empty());
     TS_ASSERT(schema.extraElements().empty());
-    auto& platforms = protocol->platforms();
+    auto& platforms = protocol->schema().platforms();
     TS_ASSERT_EQUALS(platforms.size(), 2U);
     TS_ASSERT_EQUALS(platforms[0], "plat1");
     TS_ASSERT_EQUALS(platforms[1], "plat2");

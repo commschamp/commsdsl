@@ -191,11 +191,6 @@ public:
         return m_protocol.schema().endian();
     }
 
-    const PlatformNamesList& platformNames() const
-    {
-        return m_protocol.platforms();
-    }
-
     const Field* getMessageIdField() const
     {
         return m_messageIdField;
@@ -468,11 +463,6 @@ const std::string& Generator::schemaName() const
 parse::Endian Generator::schemaEndian() const
 {
     return m_impl->schemaEndian();
-}
-
-const Generator::PlatformNamesList& Generator::platformNames() const
-{
-    return m_impl->platformNames();
 }
 
 const Field* Generator::getMessageIdField() const

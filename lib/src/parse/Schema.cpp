@@ -150,6 +150,12 @@ Schema::NamespacesList Schema::namespaces() const
     return m_pImpl->namespacesList();
 }
 
+const Schema::PlatformsList& Schema::platforms() const
+{
+    return m_pImpl->platforms();
+}
+
+
 } // namespace parse
 
 } // namespace commsdsl

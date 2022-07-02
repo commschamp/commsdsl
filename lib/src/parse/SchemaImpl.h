@@ -34,6 +34,7 @@ public:
     using ContentsList = XmlWrap::ContentsList;
     using NamespacesList = NamespaceImpl::NamespacesList;
     using NamespacesMap = NamespaceImpl::NamespacesMap;
+    using PlatformsList = Schema::PlatformsList;
 
     SchemaImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -109,12 +110,6 @@ public:
         return m_namespaces;
     }
 
-    // TODO: remove
-    NamespacesMap& namespaces()
-    {
-        return m_namespaces;
-    }    
-
     NamespacesList namespacesList() const;    
 
     const FieldImpl* findField(const std::string& ref, bool checkRef = true) const;
@@ -122,6 +117,15 @@ public:
     const MessageImpl* findMessage(const std::string& ref, bool checkRef = true) const;
 
     const InterfaceImpl* findInterface(const std::string& ref, bool checkRef = true) const;    
+
+    const PlatformsList& platforms() const
+    {
+        return m_platforms;
+    }
+
+    bool addPlatform(const std::string& name);
+    void addNamespace(NamespaceImplPtr ns);
+    NamespaceImpl& defaultNamespace();
 
 private:
 
@@ -142,6 +146,7 @@ private:
     std::string m_name;
     std::string m_description;
     NamespacesMap m_namespaces;
+    PlatformsList m_platforms;
     unsigned m_id = 0U;
     unsigned m_version = 0;
     unsigned m_dslVersion = 0;

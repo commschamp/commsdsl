@@ -24,7 +24,6 @@
 #include "Logger.h"
 #include "Object.h"
 #include "commsdsl/parse/Message.h"
-#include "commsdsl/parse/Protocol.h"
 #include "FieldImpl.h"
 #include "AliasImpl.h"
 #include "BundleFieldImpl.h"
@@ -45,7 +44,7 @@ public:
     using FieldsList = Message::FieldsList;
     using AliasesList = Message::AliasesList;
     using ContentsList = XmlWrap::ContentsList;
-    using PlatformsList = Protocol::PlatformsList;
+    using PlatformsList = Message::PlatformsList;
     using Sender = Message::Sender;
 
     MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol);

@@ -35,7 +35,7 @@ class SchemaImpl
 {
 public:
     using NamespacesList = Schema::NamespacesList;
-    //using PlatformNamesList = Schema::PlatformNamesList;
+    using PlatformNamesList = Schema::PlatformNamesList;
 
     explicit SchemaImpl(Generator& generator, commsdsl::parse::Schema dslObj, Elem* parent) :
         m_generator(generator),
@@ -69,10 +69,10 @@ public:
         return m_dslObj.endian();
     }
 
-    // const PlatformNamesList& platformNames() const
-    // {
-    //     return m_protocol.platforms();
-    // }
+    const PlatformNamesList& platformNames() const
+    {
+        return m_dslObj.platforms();
+    }
 
     const Field* findField(const std::string& externalRef) const
     {
@@ -328,9 +328,6 @@ public:
 
 private:
 
-
-   
-
     Generator& m_generator;
     commsdsl::parse::Schema m_dslObj;
     Elem* m_parent = nullptr;
@@ -531,6 +528,11 @@ Schema::NamespacesList& Schema::namespaces()
 const Schema::NamespacesList& Schema::namespaces() const
 {
     return m_impl->namespaces();
+}
+
+const Schema::PlatformNamesList& Schema::platformNames() const
+{
+    return m_impl->platformNames();
 }
 
 Namespace* Schema::addDefaultNamespace()

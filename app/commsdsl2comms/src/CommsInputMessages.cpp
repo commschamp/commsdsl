@@ -190,7 +190,7 @@ bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
 
 bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
 {
-    auto& platforms = m_generator.platformNames();
+    auto& platforms = m_generator.schema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 

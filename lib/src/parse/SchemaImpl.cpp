@@ -131,6 +131,33 @@ const InterfaceImpl* SchemaImpl::findInterface(const std::string& ref, bool chec
     return ns->findInterface(name);
 }
 
+bool SchemaImpl::addPlatform(const std::string& name)
+{
+    auto platIter = std::lower_bound(m_platforms.begin(), m_platforms.end(), name);
+    if ((platIter != m_platforms.end()) && (*platIter == name)) {
+        return false;
+    }
+
+    m_platforms.insert(platIter, name);
+    return true;
+}
+
+void SchemaImpl::addNamespace(NamespaceImplPtr ns)
+{
+    auto& nsName = ns->name();
+    m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
+}
+
+NamespaceImpl& SchemaImpl::defaultNamespace()
+{
+    auto& globalNsPtr = m_namespaces[common::emptyString()]; // create if needed
+    if (!globalNsPtr) {
+        globalNsPtr.reset(new NamespaceImpl(nullptr, m_protocol));
+    }
+        
+    return *globalNsPtr;
+}
+
 bool SchemaImpl::updateStringProperty(const PropsMap& map, const std::string& name, std::string& prop)
 {
     auto iter = map.find(name);

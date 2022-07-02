@@ -42,7 +42,6 @@ public:
     using ErrorReportFunction = Protocol::ErrorReportFunction;
     using MessagesList = Protocol::MessagesList;
     using ExtraPrefixes = std::vector<std::string>;
-    using PlatformsList = Protocol::PlatformsList;
 
     ProtocolImpl();
     bool parse(const std::string& input);
@@ -92,11 +91,6 @@ public:
         return m_extraPrefixes;
     }
 
-    const PlatformsList& platforms() const
-    {
-        return m_platforms;
-    }
-
     bool isFeatureSupported(unsigned minDslVersion) const;
     bool isPropertySupported(const std::string& name) const;    
     bool isFieldValueReferenceSupported() const;
@@ -144,7 +138,6 @@ private:
     mutable Logger m_logger;
     SchemaImplPtr m_schema;
     ExtraPrefixes m_extraPrefixes;
-    PlatformsList m_platforms;
 };
 
 } // namespace parse

@@ -40,7 +40,7 @@ class Schema : public Elem
 public:
     using Ptr = std::unique_ptr<Schema>;
     using NamespacesList = Namespace::NamespacesList;
-    // using PlatformNamesList = std::vector<std::string>;
+    using PlatformNamesList = std::vector<std::string>;
 
     using NamespacesAccessList = Namespace::NamespacesAccessList;
     using InterfacesAccessList = Namespace::InterfacesAccessList;
@@ -78,6 +78,7 @@ public:
 
     NamespacesList& namespaces();
     const NamespacesList& namespaces() const;
+    const PlatformNamesList& platformNames() const;
 
     Namespace* addDefaultNamespace();
 

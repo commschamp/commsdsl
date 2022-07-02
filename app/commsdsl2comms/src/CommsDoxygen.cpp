@@ -667,7 +667,7 @@ std::string CommsDoxygen::commsFrameDocInternal() const
     addToMessagesListFunc(ServerInputMessagesStr);
     addToMessagesListFunc(ClientInputMessagesStr);
 
-    auto& platforms = m_generator.platformNames();
+    auto& platforms = m_generator.schema().platformNames();
     for (auto& p : platforms) {
         addToMessagesListFunc(p + "Messages");
         addToMessagesListFunc(p + ServerInputMessagesStr);
@@ -749,7 +749,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         };
 
     addPlatformFunc(strings::emptyString());
-    for (auto& p : m_generator.platformNames()) {
+    for (auto& p : m_generator.schema().platformNames()) {
         addPlatformFunc(comms::className(p));
     }
 
@@ -923,7 +923,7 @@ std::string CommsDoxygen::commsVersionDocInternal() const
 
 std::string CommsDoxygen::commsPlatformsDocInternal() const
 {
-    auto platforms = m_generator.platformNames();
+    auto platforms = m_generator.schema().platformNames();
     if (platforms.empty()) {
         return strings::emptyString();
     }

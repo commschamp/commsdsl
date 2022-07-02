@@ -36,6 +36,7 @@ public:
     using AttributesMap = std::multimap<std::string, std::string>;
     using ElementsList = std::vector<std::string>;
     using NamespacesList = std::vector<Namespace>;
+    using PlatformsList = Message::PlatformsList;
 
     explicit Schema(const SchemaImpl* impl);
 
@@ -60,6 +61,8 @@ public:
     const ElementsList& extraElements() const;
 
     NamespacesList namespaces() const;
+
+    const PlatformsList& platforms() const;
 
 private:
     const SchemaImpl* m_pImpl;

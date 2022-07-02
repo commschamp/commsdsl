@@ -155,7 +155,7 @@ bool ToolsQtInputMessages::toolsWriteAllMessagesInternal() const
 
 bool ToolsQtInputMessages::toolsWritePlatformInputMessagesInternal() const
 {
-    auto& platforms = m_generator.platformNames();
+    auto& platforms = m_generator.schema().platformNames();
     for (auto& p : platforms) {
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::Message& msg)

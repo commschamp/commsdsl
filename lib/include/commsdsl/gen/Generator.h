@@ -73,7 +73,6 @@ public:
     const std::string& mainNamespace() const;
     const std::string& schemaName() const;
     parse::Endian schemaEndian() const;
-    const PlatformNamesList& platformNames() const;
 
     const Field* getMessageIdField() const;
     const Field* findField(const std::string& externalRef) const;

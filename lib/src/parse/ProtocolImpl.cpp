@@ -543,13 +543,6 @@ bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
     }
 
     auto& name = iter->second;
-    auto platIter = std::lower_bound(m_platforms.begin(), m_platforms.end(), name);
-    if ((platIter != m_platforms.end()) && (*platIter == name)) {
-        logWarning() << XmlWrap::logPrefix(node) <<
-            "Platform \"" << name << "\" defined more than once.";
-        return true;
-    }
-
     static const std::string InvalidChars("+-,");
     auto pos = name.find_first_of(InvalidChars);
     if (pos != std::string::npos) {
@@ -558,7 +551,13 @@ bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
         return false;
     }
 
-    m_platforms.insert(platIter, name);
+    assert(m_schema);
+    if (!m_schema->addPlatform(name)) {
+        logWarning() << XmlWrap::logPrefix(node) <<
+            "Platform \"" << name << "\" defined more than once.";
+        return true;
+    }
+
     return true;
 }
 
@@ -588,7 +587,7 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
             NamespaceImpl* realNs = nullptr;
             do {
                 if (iter == namespaces.end()) {
-                    namespaces.insert(std::make_pair(nsName, std::move(ns)));
+                    m_schema->addNamespace(std::move(ns));
                     iter = namespaces.find(nsName);
                     assert(iter != namespaces.end());
                     nsToProcess = iter->second.get();
@@ -635,12 +634,9 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
             continue;
         }
 
-        auto& globalNsPtr = namespaces[common::emptyString()]; // create if needed
-        if (!globalNsPtr) {
-            globalNsPtr.reset(new NamespaceImpl(nullptr, *this));
-        }
+        auto& globalNs = m_schema->defaultNamespace();
 
-        if (!globalNsPtr->processChild(c)) {
+        if (!globalNs.processChild(c)) {
             return false;
         }
     }

@@ -38,7 +38,6 @@ class COMMSDSL_API Protocol
 public:
     using ErrorReportFunction = std::function<void (ErrorLevel, const std::string&)>;
     using MessagesList = Namespace::MessagesList;
-    using PlatformsList = Message::PlatformsList;
 
     Protocol();
     ~Protocol();
@@ -60,8 +59,6 @@ public:
     MessagesList allMessages() const;
 
     void addExpectedExtraPrefix(const std::string& value);
-
-    const PlatformsList& platforms() const;
 
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;
