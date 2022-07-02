@@ -81,6 +81,7 @@ public:
     Message* findMessage(const std::string& externalRef);
     const Frame* findFrame(const std::string& externalRef) const;
     const Interface* findInterface(const std::string& externalRef) const;
+    const Schema* schemaOf(Elem& elem) const;
 
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;

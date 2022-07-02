@@ -528,6 +528,17 @@ const Interface* Generator::findInterface(const std::string& externalRef) const
     return m_impl->findInterface(externalRef);
 }
 
+const Schema* Generator::schemaOf(Elem& elem) const
+{
+    auto* parent = elem.getParent();
+    assert(parent != nullptr);
+    if (parent->elemType() == Elem::Type_Schema) {
+        return static_cast<const Schema*>(parent);
+    }
+
+    return schemaOf(*parent);
+}
+
 Generator::NamespacesAccessList Generator::getAllNamespaces() const
 {
     return schema().getAllNamespaces();
