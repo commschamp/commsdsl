@@ -49,7 +49,7 @@ public:
 
     SchemasList schemas() const;
 
-    Schema schema() const; // TODO: remove
+    Schema lastParsedSchema() const;
 
     static constexpr unsigned notYetDeprecated() noexcept
     {

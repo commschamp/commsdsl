@@ -30,7 +30,7 @@ void RefTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->schema().namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -59,7 +59,7 @@ void RefTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->schema().namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -88,7 +88,7 @@ void RefTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->schema().namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -136,7 +136,7 @@ void RefTestSuite::test6()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->schema().namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 4U);
 
     auto checkField =

@@ -77,6 +77,6 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
     TS_ASSERT_LESS_THAN(slashPos, dotPos);
     ++slashPos;
     auto expSchemaName = schema.substr(slashPos, dotPos - slashPos);
-    TS_ASSERT_EQUALS(protocol->schema().name(), expSchemaName);
+    TS_ASSERT_EQUALS(protocol->lastParsedSchema().name(), expSchemaName);
     return protocol;
 }

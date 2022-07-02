@@ -52,11 +52,9 @@ Protocol::SchemasList Protocol::schemas() const
     return m_pImpl->schemas();
 }
 
-Schema Protocol::schema() const
+Schema Protocol::lastParsedSchema() const
 {
-    auto schemasList = schemas();
-    assert(!schemasList.empty());
-    return schemasList.back();
+    return Schema(&m_pImpl->currSchema());
 }
 
 Field Protocol::findField(const std::string& externalRef) const

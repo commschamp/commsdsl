@@ -183,12 +183,12 @@ public:
 
     const std::string& schemaName() const
     {
-        return m_protocol.schema().name();
+        return m_protocol.lastParsedSchema().name();
     }
 
     parse::Endian schemaEndian() const
     {
-        return m_protocol.schema().endian();
+        return m_protocol.lastParsedSchema().endian();
     }
 
     const Field* getMessageIdField() const
@@ -263,7 +263,7 @@ public:
             return false;
         }
 
-        auto schemaDsl = m_protocol.schema();
+        auto schemaDsl = m_protocol.lastParsedSchema();
         m_schema = m_generator.createSchema(schemaDsl);
         m_schemaNamespace = util::strToName(schemaDsl.name());
         if (m_mainNamespace.empty()) {
