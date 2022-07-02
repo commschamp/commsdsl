@@ -242,7 +242,7 @@ bool BitfieldFieldImpl::updateEndian()
         return true;
     }
 
-    m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
     if (m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;

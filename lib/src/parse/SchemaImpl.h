@@ -35,6 +35,7 @@ public:
     using NamespacesList = NamespaceImpl::NamespacesList;
     using NamespacesMap = NamespaceImpl::NamespacesMap;
     using PlatformsList = Schema::PlatformsList;
+    using MessagesList = Schema::MessagesList;
 
     SchemaImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -123,9 +124,14 @@ public:
         return m_platforms;
     }
 
+    MessagesList allMessages() const;
+
     bool addPlatform(const std::string& name);
     void addNamespace(NamespaceImplPtr ns);
     NamespaceImpl& defaultNamespace();
+
+    bool validateAllMessages();
+    unsigned countMessageIds() const;
 
 private:
 
@@ -153,6 +159,8 @@ private:
     Endian m_endian = Endian_NumOfValues;
     bool m_nonUniqueMsgIdAllowed = false;
 };
+
+using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
 
 } // namespace parse
 

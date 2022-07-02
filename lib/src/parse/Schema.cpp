@@ -155,6 +155,11 @@ const Schema::PlatformsList& Schema::platforms() const
     return m_pImpl->platforms();
 }
 
+Schema::MessagesList Schema::allMessages() const
+{
+    return m_pImpl->allMessages();
+}
+
 
 } // namespace parse
 

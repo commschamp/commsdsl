@@ -302,7 +302,7 @@ bool FloatFieldImpl::updateEndian()
     }
 
     auto& endianStr = common::getStringProp(props(), common::endianStr());
-    m_state.m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    m_state.m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
     if (m_state.m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;

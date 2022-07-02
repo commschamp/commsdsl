@@ -626,7 +626,7 @@ bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool
 
     if (!m_protocol.isPropertySupported(propName)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
-            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().schema().dslVersion();                
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().currSchema().dslVersion();                
         return true;
     }
 
@@ -655,7 +655,7 @@ bool FieldImpl::validateAndUpdateOverrideTypePropValue(const std::string& propNa
     if (!m_protocol.isOverrideTypeSupported()) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "The property \"" << propName << "\" is not supported for dslVersion=" << 
-                m_protocol.schema().dslVersion() << ".";        
+                m_protocol.currSchema().dslVersion() << ".";        
         return true;
     }
 
@@ -1212,7 +1212,7 @@ bool FieldImpl::updateCopyOverrideCodeFrom()
     if (!m_protocol.isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.schema().dslVersion() << ".";        
+                m_protocol.currSchema().dslVersion() << ".";        
         return true;
     }    
 

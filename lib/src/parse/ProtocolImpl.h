@@ -40,18 +40,28 @@ class ProtocolImpl
 {
 public:
     using ErrorReportFunction = Protocol::ErrorReportFunction;
-    using MessagesList = Protocol::MessagesList;
     using ExtraPrefixes = std::vector<std::string>;
+    using SchemasList = std::vector<SchemaImplPtr>;
+    using SchemasAccessList = Protocol::SchemasList;
 
     ProtocolImpl();
     bool parse(const std::string& input);
     bool validate();
 
-    Schema schema() const;
+    SchemasAccessList schemas() const;
 
-    SchemaImpl& schemaImpl();
-    const SchemaImpl& schemaImpl() const;
+    SchemasList& schemaImpls()
+    {
+        return m_schemas;
+    }
 
+    const SchemasList& schemaImpls() const
+    {
+        return m_schemas;
+    }
+
+    SchemaImpl& currSchema();
+    const SchemaImpl& currSchema() const;
 
     void setErrorReportCallback(ErrorReportFunction&& cb)
     {
@@ -78,8 +88,6 @@ public:
     bool strToData(const std::string& ref, bool checkRef, std::vector<std::uint8_t>& val) const;
 
     bool strToStringValue(const std::string& str, std::string& val) const;
-
-    MessagesList allMessages() const;
 
     void addExpectedExtraPrefix(const std::string& value)
     {
@@ -114,7 +122,6 @@ private:
 
     using XmlDocPtr = std::unique_ptr<::xmlDoc, XmlDocFree>;
     using DocsList = std::vector<XmlDocPtr>;
-    using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
     using StrToValueConvertFunc = std::function<bool (const NamespaceImpl& ns, const std::string& ref)>;
 
     static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
@@ -125,7 +132,8 @@ private:
     bool validateSinglePlatform(::xmlNodePtr node);
     bool validateNamespaces(::xmlNodePtr root);
     bool validateAllMessages();
-    unsigned countMessageIds() const;
+    bool validateMessageIds();
+    // unsigned countMessageIds() const;
     bool strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
 
     LogWrapper logError() const;
@@ -136,7 +144,8 @@ private:
     bool m_validated = false;
     ErrorLevel m_minLevel = ErrorLevel_Info;
     mutable Logger m_logger;
-    SchemaImplPtr m_schema;
+    SchemasList m_schemas;
+    SchemaImpl* m_currSchema = nullptr;
     ExtraPrefixes m_extraPrefixes;
 };
 

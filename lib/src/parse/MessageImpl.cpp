@@ -234,7 +234,7 @@ bool MessageImpl::validateAndUpdateOverrideTypePropValue(const std::string& prop
     if (!m_protocol.isOverrideTypeSupported()) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "The property \"" << propName << "\" is not supported for dslVersion=" << 
-                m_protocol.schema().dslVersion() << ".";        
+                m_protocol.currSchema().dslVersion() << ".";        
         return true;
     }    
 
@@ -473,7 +473,7 @@ bool MessageImpl::updatePlatforms()
         return false;
     }
 
-    auto& allPlatforms = m_protocol.schema().platforms();
+    auto& allPlatforms = m_protocol.currSchema().platforms();
     for (auto& p : platList) {
         common::removeHeadingTrailingWhitespaces(p);
         if (p.empty()) {
@@ -581,7 +581,7 @@ bool MessageImpl::updateValidateMinLength()
 
     if (!m_protocol.isPropertySupported(propStr)) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.schema().dslVersion() << ", ignoring...";
+            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
         return true;
     }
 
@@ -1006,7 +1006,7 @@ bool MessageImpl::updateCopyOverrideCodeFrom()
     if (!m_protocol.isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
             "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.schema().dslVersion() << ".";        
+                m_protocol.currSchema().dslVersion() << ".";        
         return true;
     }    
 

@@ -539,7 +539,7 @@ bool IntFieldImpl::updateEndian()
         return true;
     }
 
-    m_state.m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    m_state.m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
     if (m_state.m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
@@ -771,7 +771,7 @@ bool IntFieldImpl::updateDefaultValidValue()
 
     if (!protocol().isPropertySupported(prop)) {
         logWarning() << XmlWrap::logPrefix(getNode()) << 
-            "Property \"" << prop << "\" is not supported for DSL version " << protocol().schema().dslVersion() << ", ignoring...";        
+            "Property \"" << prop << "\" is not supported for DSL version " << protocol().currSchema().dslVersion() << ", ignoring...";        
         return true;
     }
 

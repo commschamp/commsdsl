@@ -37,7 +37,7 @@ class COMMSDSL_API Protocol
 {
 public:
     using ErrorReportFunction = std::function<void (ErrorLevel, const std::string&)>;
-    using MessagesList = Namespace::MessagesList;
+    using SchemasList = std::vector<Schema>;
 
     Protocol();
     ~Protocol();
@@ -47,7 +47,9 @@ public:
     bool parse(const std::string& input);
     bool validate();
 
-    Schema schema() const;
+    SchemasList schemas() const;
+
+    Schema schema() const; // TODO: remove
 
     static constexpr unsigned notYetDeprecated() noexcept
     {
@@ -55,8 +57,6 @@ public:
     }
 
     Field findField(const std::string& externalRef) const;
-
-    MessagesList allMessages() const;
 
     void addExpectedExtraPrefix(const std::string& value);
 

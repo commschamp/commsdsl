@@ -18,6 +18,7 @@
 #include <algorithm>
 #include <cassert>
 #include <iterator>
+#include <numeric>
 #include <type_traits>
 
 #include "common.h"
@@ -131,6 +132,41 @@ const InterfaceImpl* SchemaImpl::findInterface(const std::string& ref, bool chec
     return ns->findInterface(name);
 }
 
+SchemaImpl::MessagesList SchemaImpl::allMessages() const
+{
+    auto total =
+        std::accumulate(
+            m_namespaces.begin(), m_namespaces.end(), static_cast<std::size_t>(0U),
+            [](std::size_t soFar, auto& ns) -> std::size_t
+            {
+                return soFar + ns.second->messages().size();
+            });
+
+    NamespaceImpl::MessagesList messages;
+    messages.reserve(total);
+    for (auto& ns : m_namespaces) {
+        auto nsMsgs = ns.second->messagesList();
+        messages.insert(messages.end(), nsMsgs.begin(), nsMsgs.end());
+    }
+
+    std::sort(
+        messages.begin(), messages.end(),
+        [](const auto& msg1, const auto& msg2)
+        {
+            assert(msg1.valid());
+            assert(msg2.valid());
+            auto id1 = msg1.id();
+            auto id2 = msg2.id();
+            if (id1 != id2) {
+                return id1 < id2;
+            }
+
+            return msg1.order() < msg2.order();
+        });
+
+    return messages;
+}
+
 bool SchemaImpl::addPlatform(const std::string& name)
 {
     auto platIter = std::lower_bound(m_platforms.begin(), m_platforms.end(), name);
@@ -156,6 +192,54 @@ NamespaceImpl& SchemaImpl::defaultNamespace()
     }
         
     return *globalNsPtr;
+}
+
+bool SchemaImpl::validateAllMessages()
+{
+    bool allowNonUniquIds = nonUniqueMsgIdAllowed();
+    auto allMsgs = allMessages();
+    if (allMsgs.empty()) {
+        return true;
+    }
+
+    for (auto iter = allMsgs.begin(); iter != (allMsgs.end() - 1); ++iter) {
+        auto nextIter = iter + 1;
+        assert(nextIter != allMsgs.end());
+
+        assert(iter->valid());
+        assert(nextIter->valid());
+        if (iter->id() != nextIter->id()) {
+            continue;
+        }
+
+        if (!allowNonUniquIds) {
+            logError(m_protocol.logger()) << "Messages \"" << iter->externalRef() << "\" and \"" <<
+                          nextIter->externalRef() << "\" have the same id.";
+            return false;
+        }
+
+        if (iter->order() == nextIter->order()) {
+            logError(m_protocol.logger()) << "Messages \"" << iter->externalRef() << "\" and \"" <<
+                          nextIter->externalRef() << "\" have the same \"" <<
+                          common::idStr() << "\" and \"" << common::orderStr() << "\" values.";
+            return false;
+        }
+
+        assert(iter->order() < nextIter->order());
+    }
+
+    return true;
+}
+
+unsigned SchemaImpl::countMessageIds() const
+{
+    return
+        std::accumulate(
+            m_namespaces.begin(), m_namespaces.end(), unsigned(0U),
+            [](unsigned soFar, auto& n)
+            {
+                return soFar + n.second->countMessageIds();
+            });
 }
 
 bool SchemaImpl::updateStringProperty(const PropsMap& map, const std::string& name, std::string& prop)

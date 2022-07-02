@@ -17,6 +17,8 @@
 
 #include "ProtocolImpl.h"
 
+#include <cassert>
+
 namespace commsdsl
 {
 
@@ -45,19 +47,21 @@ bool Protocol::validate()
     return m_pImpl->validate();
 }
 
+Protocol::SchemasList Protocol::schemas() const
+{
+    return m_pImpl->schemas();
+}
+
 Schema Protocol::schema() const
 {
-    return m_pImpl->schema();
+    auto schemasList = schemas();
+    assert(!schemasList.empty());
+    return schemasList.back();
 }
 
 Field Protocol::findField(const std::string& externalRef) const
 {
     return Field(m_pImpl->findField(externalRef));
-}
-
-Protocol::MessagesList Protocol::allMessages() const
-{
-    return m_pImpl->allMessages();
 }
 
 void Protocol::addExpectedExtraPrefix(const std::string& value)

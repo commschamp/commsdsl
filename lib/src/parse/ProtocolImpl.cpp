@@ -92,13 +92,8 @@ bool ProtocolImpl::validate()
         }
     }
 
-    if (!validateAllMessages()) {
-        return false;
-    }
-
-    auto messageIdsCount = countMessageIds();
-    if (1U < messageIdsCount) {
-        logError() << "Only single field with \"" << common::messageIdStr() << "\" as semantic type is allowed.";
+    if ((!validateAllMessages()) ||
+        (!validateMessageIds())) {
         return false;
     }
 
@@ -106,44 +101,41 @@ bool ProtocolImpl::validate()
     return true;
 }
 
-Schema ProtocolImpl::schema() const
+ProtocolImpl::SchemasAccessList ProtocolImpl::schemas() const
 {
-    if ((!m_validated) && (!m_schema)) {
-        logError() << "Invalid access to schema object.";
-        return Schema(nullptr);
+    SchemasAccessList list;
+    for (auto& s : m_schemas) {
+        list.push_back(Schema(s.get()));
     }
 
-    return Schema(m_schema.get());
+    return list;
 }
 
-SchemaImpl& ProtocolImpl::schemaImpl()
+SchemaImpl& ProtocolImpl::currSchema()
 {
-    assert(m_schema);
-    return *m_schema;
+    assert(m_currSchema != nullptr);
+    return *m_currSchema;
 }
 
-const SchemaImpl& ProtocolImpl::schemaImpl() const
+const SchemaImpl& ProtocolImpl::currSchema() const
 {
-    assert(m_schema);
-    return *m_schema;
+    assert(m_currSchema != nullptr);
+    return *m_currSchema;
 }
 
 const FieldImpl* ProtocolImpl::findField(const std::string& ref, bool checkRef) const
 {
-    assert(m_schema);
-    return m_schema->findField(ref, checkRef);
+    return currSchema().findField(ref, checkRef);
 }
 
 const MessageImpl* ProtocolImpl::findMessage(const std::string& ref, bool checkRef) const
 {
-    assert(m_schema);
-    return m_schema->findMessage(ref, checkRef);
+    return currSchema().findMessage(ref, checkRef);
 }
 
 const InterfaceImpl* ProtocolImpl::findInterface(const std::string& ref, bool checkRef) const
 {
-    assert(m_schema);
-    return m_schema->findInterface(ref, checkRef);
+    return currSchema().findInterface(ref, checkRef);
 }
 
 bool ProtocolImpl::strToEnumValue(
@@ -258,47 +250,9 @@ bool ProtocolImpl::strToData(
             });
 }
 
-ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
-{
-    assert(m_schema);
-    auto& namespaces = m_schema->namespaces();
-    auto total =
-        std::accumulate(
-            namespaces.begin(), namespaces.end(), static_cast<std::size_t>(0U),
-            [](std::size_t soFar, auto& ns) -> std::size_t
-            {
-                return soFar + ns.second->messages().size();
-            });
-
-    NamespaceImpl::MessagesList messages;
-    messages.reserve(total);
-    for (auto& ns : namespaces) {
-        auto nsMsgs = ns.second->messagesList();
-        messages.insert(messages.end(), nsMsgs.begin(), nsMsgs.end());
-    }
-
-    std::sort(
-        messages.begin(), messages.end(),
-        [](const auto& msg1, const auto& msg2)
-        {
-            assert(msg1.valid());
-            assert(msg2.valid());
-            auto id1 = msg1.id();
-            auto id2 = msg2.id();
-            if (id1 != id2) {
-                return id1 < id2;
-            }
-
-            return msg1.order() < msg2.order();
-        });
-
-    return messages;
-}
-
 bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
 {
-    assert(m_schema);
-    auto currDslVersion = m_schema->dslVersion();
+    auto currDslVersion = currSchema().dslVersion();
     if (currDslVersion == 0U) {
         return true;
     }
@@ -443,19 +397,31 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
         return false;
     }
 
-    if (!m_schema) {
-        m_schema = std::move(schema);
+    auto& schemaName = schema->name();
+    if (schemaName.empty()) {
+        logError() << XmlWrap::logPrefix(schema->getNode()) <<
+            "First schema definition must define \"" << common::nameStr << "\" property.";
+        return false;
+    }    
 
-        if (m_schema->name().empty()) {
-            logError() << XmlWrap::logPrefix(m_schema->getNode()) <<
-                "First schema definition must define \"" << common::nameStr << "\" property.";
-            return false;
-        }
+    auto schemaIter = 
+        std::find_if(
+            m_schemas.begin(), m_schemas.end(), 
+            [&schemaName](auto& s)
+            {
+                return schemaName == s->name();
+            });
+
+    if (schemaIter == m_schemas.end()) {
+        m_schemas.push_back(std::move(schema));
+        m_currSchema = m_schemas.back().get();
         return true;
     }
 
+    m_currSchema = schemaIter->get();
+
     auto& props = schema->props();
-    auto& origProps = m_schema->props();
+    auto& origProps = m_currSchema->props();
     for (auto& p : props) {
         auto iter = origProps.find(p.first);
         if ((iter == origProps.end()) ||
@@ -469,7 +435,7 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
     }
 
     auto& attrs = schema->extraAttributes();
-    auto& origAttrs = m_schema->extraAttributes();
+    auto& origAttrs = m_currSchema->extraAttributes();
     for (auto& a : attrs) {
         auto iter = origAttrs.find(a.first);
         if (iter == origAttrs.end()) {
@@ -487,7 +453,7 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
     }
 
     auto& children = schema->extraChildrenElements();
-    auto& origChildren = m_schema->extraChildrenElements();
+    auto& origChildren = m_currSchema->extraChildrenElements();
     for (auto& c : children) {
         origChildren.push_back(c);
     }
@@ -551,8 +517,7 @@ bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
         return false;
     }
 
-    assert(m_schema);
-    if (!m_schema->addPlatform(name)) {
+    if (!currSchema().addPlatform(name)) {
         logWarning() << XmlWrap::logPrefix(node) <<
             "Platform \"" << name << "\" defined more than once.";
         return true;
@@ -563,8 +528,7 @@ bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
 
 bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
 {
-    assert(m_schema);
-    auto& namespaces = m_schema->namespaces();
+    auto& namespaces = currSchema().namespaces();
     auto& childrenNames = NamespaceImpl::supportedChildren();
     auto children = XmlWrap::getChildren(root, childrenNames);
     for (auto& c : children) {
@@ -587,7 +551,7 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
             NamespaceImpl* realNs = nullptr;
             do {
                 if (iter == namespaces.end()) {
-                    m_schema->addNamespace(std::move(ns));
+                    currSchema().addNamespace(std::move(ns));
                     iter = namespaces.find(nsName);
                     assert(iter != namespaces.end());
                     nsToProcess = iter->second.get();
@@ -634,7 +598,7 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
             continue;
         }
 
-        auto& globalNs = m_schema->defaultNamespace();
+        auto& globalNs = currSchema().defaultNamespace();
 
         if (!globalNs.processChild(c)) {
             return false;
@@ -646,55 +610,32 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
 
 bool ProtocolImpl::validateAllMessages()
 {
-    assert(m_schema);
-    bool allowNonUniquIds = m_schema->nonUniqueMsgIdAllowed();
-    auto allMsgs = allMessages();
-    if (allMsgs.empty()) {
-        return true;
-    }
-
-    for (auto iter = allMsgs.begin(); iter != (allMsgs.end() - 1); ++iter) {
-        auto nextIter = iter + 1;
-        assert(nextIter != allMsgs.end());
-
-        assert(iter->valid());
-        assert(nextIter->valid());
-        if (iter->id() != nextIter->id()) {
-            continue;
-        }
-
-        if (!allowNonUniquIds) {
-            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same id.";
-            return false;
-        }
-
-        if (iter->order() == nextIter->order()) {
-            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same \"" <<
-                          common::idStr() << "\" and \"" << common::orderStr() << "\" values.";
-            return false;
-        }
-
-        assert(iter->order() < nextIter->order());
-    }
-
-    return true;
-}
-
-unsigned ProtocolImpl::countMessageIds() const
-{
-    assert(m_schema);
-    auto& namespaces = m_schema->namespaces();
-    return
-        std::accumulate(
-            namespaces.begin(), namespaces.end(), unsigned(0U),
-            [](unsigned soFar, auto& n)
+    return 
+        std::all_of(
+            m_schemas.begin(), m_schemas.end(),
+            [](auto& s)
             {
-                return soFar + n.second->countMessageIds();
+                return s->validateAllMessages();
             });
 }
 
+bool ProtocolImpl::validateMessageIds()
+{
+    return 
+        std::all_of(
+            m_schemas.begin(), m_schemas.end(),
+            [this](auto& s)
+            {
+                auto messageIdsCount = s->countMessageIds();
+                if (1U < messageIdsCount) {
+                    logError() << "Only single field with \"" << common::messageIdStr() << "\" as semantic type is allowed in schema " << s->name();
+                    return false;
+                }
+                return true;
+            });
+
+
+}
 
 bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const
 {
@@ -711,8 +652,7 @@ bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueC
 
     } while (false);
 
-    assert(m_schema);
-    auto& namespaces = m_schema->namespaces();    
+    auto& namespaces = currSchema().namespaces();    
 
     auto redirectToGlobalNs =
         [&func, &ref, &namespaces]() -> bool
