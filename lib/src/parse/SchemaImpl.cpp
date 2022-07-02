@@ -15,9 +15,10 @@
 
 #include "SchemaImpl.h"
 
-#include <type_traits>
 #include <algorithm>
+#include <cassert>
 #include <iterator>
+#include <type_traits>
 
 #include "common.h"
 #include "ProtocolImpl.h"
@@ -87,6 +88,47 @@ bool SchemaImpl::processNode()
     }
 
     return true;
+}
+
+SchemaImpl::NamespacesList SchemaImpl::namespacesList() const
+{
+    NamespacesList result;
+    result.reserve(m_namespaces.size());
+    for (auto& n : m_namespaces) {
+        result.emplace_back(n.second.get());
+    }
+    return result;
+}
+
+const FieldImpl* SchemaImpl::findField(const std::string& ref, bool checkRef) const
+{
+    std::string fieldName;
+    auto ns = getNsFromPath(ref, checkRef, fieldName);
+    if (ns == nullptr) {
+        return nullptr;
+    }
+    return ns->findField(fieldName);
+}
+
+const MessageImpl* SchemaImpl::findMessage(const std::string& ref, bool checkRef) const
+{
+    std::string msgName;
+    auto ns = getNsFromPath(ref, checkRef, msgName);
+    if (ns == nullptr) {
+        return nullptr;
+    }
+    return ns->findMessage(msgName);
+}
+
+const InterfaceImpl* SchemaImpl::findInterface(const std::string& ref, bool checkRef) const
+{
+    std::string name;
+    auto ns = getNsFromPath(ref, checkRef, name);
+    if (ns == nullptr) {
+        return nullptr;
+    }
+
+    return ns->findInterface(name);
 }
 
 bool SchemaImpl::updateStringProperty(const PropsMap& map, const std::string& name, std::string& prop)
@@ -165,6 +207,69 @@ bool SchemaImpl::updateExtraChildren()
     static const XmlWrap::NamesList ChildrenNames = getChildrenList();
     m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
     return true;
+}
+
+const NamespaceImpl* SchemaImpl::getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const
+{
+    if (checkRef) {
+        if (!common::isValidRefName(ref)) {
+            logInfo(m_protocol.logger()) << "Invalid ref name: " << ref;
+            return nullptr;
+        }
+    }
+    else {
+        assert(common::isValidRefName(ref));
+    }
+
+
+    auto nameSepPos = ref.find_last_of('.');
+    const NamespaceImpl* ns = nullptr;
+    do {
+        if (nameSepPos == std::string::npos) {
+            auto iter = m_namespaces.find(common::emptyString());
+            if (iter == m_namespaces.end()) {
+                return nullptr;
+            }
+
+            remName = ref;
+            ns = iter->second.get();
+            assert(ns != nullptr);
+            break;
+        }
+        
+        auto signedNameSepPos = static_cast<std::ptrdiff_t>(nameSepPos);
+        remName.assign(ref.begin() + signedNameSepPos + 1, ref.end());
+        std::size_t nsNamePos = 0;
+        assert(nameSepPos != std::string::npos);
+        while (nsNamePos < nameSepPos) {
+            auto nextDotPos = ref.find_first_of('.', nsNamePos);
+            assert(nextDotPos != std::string::npos);
+            std::string nsName(
+                    ref.begin() + static_cast<std::ptrdiff_t>(nsNamePos), 
+                    ref.begin() + static_cast<std::ptrdiff_t>(nextDotPos));
+            if (nsName.empty()) {
+                return nullptr;
+            }
+
+            auto* nsMap = &m_namespaces;
+            if (ns != nullptr) {
+                nsMap = &(ns->namespacesMap());
+            }
+
+            auto iter = nsMap->find(nsName);
+            if (iter == nsMap->end()) {
+                return nullptr;
+            }
+
+            assert(iter->second);
+            ns = iter->second.get();
+            nsNamePos = nextDotPos + 1;
+        }
+
+    } while (false);
+
+    assert(ns != nullptr);
+    return ns;
 }
 
 } // namespace parse

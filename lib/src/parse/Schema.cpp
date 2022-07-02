@@ -139,6 +139,17 @@ const Schema::ElementsList& Schema::extraElements() const
 
 }
 
+Schema::NamespacesList Schema::namespaces() const
+{
+    if (!valid()) {
+        assert(Unexpected_call_on_invalid_schema_object);
+        static const NamespacesList List;
+        return List;
+    }
+
+    return m_pImpl->namespacesList();
+}
+
 } // namespace parse
 
 } // namespace commsdsl

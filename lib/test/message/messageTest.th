@@ -44,7 +44,7 @@ void MessageTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -73,7 +73,7 @@ void MessageTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -117,7 +117,7 @@ void MessageTestSuite::test4()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -168,7 +168,7 @@ void MessageTestSuite::test6()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -217,7 +217,7 @@ void MessageTestSuite::test10()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -260,7 +260,7 @@ void MessageTestSuite::test12()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -298,7 +298,7 @@ void MessageTestSuite::test13()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -330,7 +330,7 @@ void MessageTestSuite::test14()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -354,7 +354,7 @@ void MessageTestSuite::test15()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -400,7 +400,7 @@ void MessageTestSuite::test18()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -436,7 +436,7 @@ void MessageTestSuite::test19()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -456,7 +456,7 @@ void MessageTestSuite::test20()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();

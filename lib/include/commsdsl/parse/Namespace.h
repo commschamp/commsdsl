@@ -21,7 +21,6 @@
 #include "commsdsl/CommsdslApi.h"
 #include "Field.h"
 #include "Message.h"
-#include "Schema.h"
 #include "Interface.h"
 #include "Frame.h"
 
@@ -40,8 +39,8 @@ public:
     using MessagesList = std::vector<Message>;
     using InterfacesList = std::vector<Interface>;
     using FramesList = std::vector<Frame>;
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = Field::AttributesMap;
+    using ElementsList = Field::ElementsList;
 
     explicit Namespace(const NamespaceImpl* impl);
     Namespace(const Namespace& other);

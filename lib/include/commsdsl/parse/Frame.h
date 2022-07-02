@@ -33,8 +33,8 @@ class COMMSDSL_API Frame
 {
 public:
     using LayersList = std::vector<Layer>;
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = Layer::AttributesMap;
+    using ElementsList = Layer::ElementsList;
 
     explicit Frame(const FrameImpl* impl);
     Frame(const Frame& other);

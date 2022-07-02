@@ -18,6 +18,7 @@
 #include "commsdsl/parse/Endian.h"
 
 #include "XmlWrap.h"
+#include "NamespaceImpl.h"
 
 namespace commsdsl
 {
@@ -31,6 +32,8 @@ class SchemaImpl
 public:
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
+    using NamespacesList = NamespaceImpl::NamespacesList;
+    using NamespacesMap = NamespaceImpl::NamespacesMap;
 
     SchemaImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -101,6 +104,25 @@ public:
         return m_extraChildren;
     }
 
+    const NamespacesMap& namespaces() const
+    {
+        return m_namespaces;
+    }
+
+    // TODO: remove
+    NamespacesMap& namespaces()
+    {
+        return m_namespaces;
+    }    
+
+    NamespacesList namespacesList() const;    
+
+    const FieldImpl* findField(const std::string& ref, bool checkRef = true) const;
+
+    const MessageImpl* findMessage(const std::string& ref, bool checkRef = true) const;
+
+    const InterfaceImpl* findInterface(const std::string& ref, bool checkRef = true) const;    
+
 private:
 
     bool updateStringProperty(const PropsMap& map, const std::string& name, std::string& prop);
@@ -109,6 +131,7 @@ private:
     bool updateBooleanProperty(const PropsMap& map, const std::string& name, bool& prop);
     bool updateExtraAttrs();
     bool updateExtraChildren();
+    const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
@@ -118,6 +141,7 @@ private:
     ContentsList m_extraChildren;
     std::string m_name;
     std::string m_description;
+    NamespacesMap m_namespaces;
     unsigned m_id = 0U;
     unsigned m_version = 0;
     unsigned m_dslVersion = 0;

@@ -24,7 +24,6 @@
 #include "commsdsl/CommsdslApi.h"
 #include "ErrorLevel.h"
 #include "Schema.h"
-#include "Namespace.h"
 #include "Field.h"
 
 namespace commsdsl
@@ -38,7 +37,6 @@ class COMMSDSL_API Protocol
 {
 public:
     using ErrorReportFunction = std::function<void (ErrorLevel, const std::string&)>;
-    using NamespacesList = std::vector<Namespace>;
     using MessagesList = Namespace::MessagesList;
     using PlatformsList = Message::PlatformsList;
 
@@ -51,7 +49,6 @@ public:
     bool validate();
 
     Schema schema() const;
-    NamespacesList namespaces() const;
 
     static constexpr unsigned notYetDeprecated() noexcept
     {

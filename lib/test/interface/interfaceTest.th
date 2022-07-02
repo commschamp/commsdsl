@@ -30,7 +30,7 @@ void InterfaceTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -49,7 +49,7 @@ void InterfaceTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -71,7 +71,7 @@ void InterfaceTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 2U);
 
     auto& ns1 = namespaces.front();

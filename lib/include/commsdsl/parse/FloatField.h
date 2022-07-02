@@ -19,10 +19,10 @@
 #include <map>
 #include <string>
 
-#include "Field.h"
-#include "Endian.h"
-#include "Units.h"
-#include "Protocol.h"
+#include "commsdsl/parse/Endian.h"
+#include "commsdsl/parse/Field.h"
+#include "commsdsl/parse/Units.h"
+#include "commsdsl/parse/Protocol.h"
 
 namespace commsdsl
 {

@@ -20,7 +20,8 @@
 #include <vector>
 
 #include "commsdsl/CommsdslApi.h"
-#include "Endian.h"
+#include "commsdsl/parse/Endian.h"
+#include "commsdsl/parse/Namespace.h"
 
 namespace commsdsl
 {
@@ -34,6 +35,7 @@ class COMMSDSL_API Schema
 public:
     using AttributesMap = std::multimap<std::string, std::string>;
     using ElementsList = std::vector<std::string>;
+    using NamespacesList = std::vector<Namespace>;
 
     explicit Schema(const SchemaImpl* impl);
 
@@ -56,6 +58,8 @@ public:
     const AttributesMap& extraAttributes() const;
 
     const ElementsList& extraElements() const;
+
+    NamespacesList namespaces() const;
 
 private:
     const SchemaImpl* m_pImpl;

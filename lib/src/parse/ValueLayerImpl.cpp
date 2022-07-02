@@ -91,7 +91,7 @@ bool ValueLayerImpl::updateInterfaces()
     do {
         auto iter = props().find(common::interfacesStr());
         if (iter == props().end()) {
-            auto& namespaces = protocol().namespaces();
+            auto& namespaces = protocol().schemaImpl().namespaces();
             for (auto& n : namespaces) {
                 auto& interfaces = n.second->interfaces();
                 for (auto& i : interfaces) {

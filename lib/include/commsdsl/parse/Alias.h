@@ -15,10 +15,11 @@
 
 #pragma once
 
+#include <map>
 #include <string>
+#include <vector>
 
 #include "commsdsl/CommsdslApi.h"
-#include "Schema.h"
 
 namespace commsdsl
 {
@@ -30,9 +31,8 @@ class AliasImpl;
 class COMMSDSL_API Alias
 {
 public:
-
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = std::multimap<std::string, std::string>;
+    using ElementsList = std::vector<std::string>;
 
     explicit Alias(const AliasImpl* impl);
     Alias(const Alias& other);

@@ -15,7 +15,8 @@
 
 #pragma once
 
-#include "IntField.h"
+#include "commsdsl/parse/Endian.h"
+#include "commsdsl/parse/IntField.h"
 
 namespace commsdsl
 {

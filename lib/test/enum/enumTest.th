@@ -55,7 +55,7 @@ void EnumTestSuite::test1()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -110,7 +110,7 @@ void EnumTestSuite::test3()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -155,7 +155,7 @@ void EnumTestSuite::test4()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -193,7 +193,7 @@ void EnumTestSuite::test5()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema5.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -232,7 +232,7 @@ void EnumTestSuite::test6()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -274,7 +274,7 @@ void EnumTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -314,7 +314,7 @@ void EnumTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -375,7 +375,7 @@ void EnumTestSuite::test9()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 2U);
 
     auto& ns = namespaces.front();
@@ -479,7 +479,7 @@ void EnumTestSuite::test16()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -539,7 +539,7 @@ void EnumTestSuite::test19()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -589,7 +589,7 @@ void EnumTestSuite::test23()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -614,7 +614,7 @@ void EnumTestSuite::test24()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -643,7 +643,7 @@ void EnumTestSuite::test25()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -672,7 +672,7 @@ void EnumTestSuite::test26()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -699,7 +699,7 @@ void EnumTestSuite::test27()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema27.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -734,7 +734,7 @@ void EnumTestSuite::test29()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -761,7 +761,7 @@ void EnumTestSuite::test30()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -791,7 +791,7 @@ void EnumTestSuite::test31()
 {
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
     TS_ASSERT(protocol);
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->schema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();

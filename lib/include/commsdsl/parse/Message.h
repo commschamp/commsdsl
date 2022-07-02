@@ -21,7 +21,6 @@
 
 #include "commsdsl/CommsdslApi.h"
 #include "Field.h"
-#include "Schema.h"
 #include "Alias.h"
 #include "OverrideType.h"
 
@@ -44,8 +43,8 @@ public:
     };
 
     using FieldsList = std::vector<Field>;
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = Field::AttributesMap;
+    using ElementsList = Field::ElementsList;
     using PlatformsList = std::vector<std::string>;
     using AliasesList = std::vector<Alias>;
 

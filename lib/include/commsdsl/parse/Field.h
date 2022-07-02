@@ -15,10 +15,11 @@
 
 #pragma once
 
+#include <map>
 #include <string>
+#include <vector>
 
 #include "commsdsl/CommsdslApi.h"
-#include "Schema.h"
 #include "OverrideType.h"
 
 namespace commsdsl
@@ -26,14 +27,14 @@ namespace commsdsl
 
 namespace parse
 {
-
+    
 class FieldImpl;
 class COMMSDSL_API Field
 {
 public:
 
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = std::multimap<std::string, std::string>;
+    using ElementsList = std::vector<std::string>;
 
     enum class Kind
     {

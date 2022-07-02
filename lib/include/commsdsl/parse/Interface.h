@@ -34,8 +34,8 @@ class COMMSDSL_API Interface
 {
 public:
     using FieldsList = std::vector<Field>;
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = Field::AttributesMap;
+    using ElementsList = Field::ElementsList;
     using AliasesList = std::vector<Alias>;
 
     explicit Interface(const InterfaceImpl* impl);

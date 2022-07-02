@@ -18,7 +18,6 @@
 #include <string>
 
 #include "commsdsl/CommsdslApi.h"
-#include "Schema.h"
 #include "Field.h"
 #include "Interface.h"
 
@@ -33,8 +32,8 @@ class COMMSDSL_API Layer
 {
 public:
 
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = Field::AttributesMap;
+    using ElementsList = Field::ElementsList;
 
     enum class Kind
     {

@@ -421,7 +421,7 @@ public:
             return false;
         }
 
-        auto dslNamespaces = m_protocol.namespaces();
+        auto dslNamespaces = m_protocol.schema().namespaces();
         m_namespaces.reserve(dslNamespaces.size());
         for (auto dslObj : dslNamespaces) {
             auto ptr = m_generator.createNamespace(dslObj);

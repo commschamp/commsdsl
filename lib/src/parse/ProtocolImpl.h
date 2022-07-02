@@ -23,12 +23,12 @@
 #include <libxml/parser.h>
 #include <libxml/xmlerror.h>
 
-#include "commsdsl/parse/Protocol.h"
 #include "commsdsl/parse/ErrorLevel.h"
+#include "commsdsl/parse/Protocol.h"
 #include "commsdsl/parse/Schema.h"
 #include "Logger.h"
-#include "SchemaImpl.h"
 #include "NamespaceImpl.h"
+#include "SchemaImpl.h"
 
 namespace commsdsl
 {
@@ -40,11 +40,9 @@ class ProtocolImpl
 {
 public:
     using ErrorReportFunction = Protocol::ErrorReportFunction;
-    using NamespacesList = Protocol::NamespacesList;
     using MessagesList = Protocol::MessagesList;
     using ExtraPrefixes = std::vector<std::string>;
     using PlatformsList = Protocol::PlatformsList;
-    using NamespacesMap = NamespaceImpl::NamespacesMap;
 
     ProtocolImpl();
     bool parse(const std::string& input);
@@ -65,13 +63,6 @@ public:
     {
         return m_logger;
     }
-
-    const NamespacesMap& namespaces() const
-    {
-        return m_namespaces;
-    }
-
-    NamespacesList namespacesList() const;
 
     const FieldImpl* findField(const std::string& ref, bool checkRef = true) const;
 
@@ -141,7 +132,6 @@ private:
     bool validateNamespaces(::xmlNodePtr root);
     bool validateAllMessages();
     unsigned countMessageIds() const;
-    const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
     bool strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
 
     LogWrapper logError() const;
@@ -153,7 +143,6 @@ private:
     ErrorLevel m_minLevel = ErrorLevel_Info;
     mutable Logger m_logger;
     SchemaImplPtr m_schema;
-    NamespacesMap m_namespaces;
     ExtraPrefixes m_extraPrefixes;
     PlatformsList m_platforms;
 };
