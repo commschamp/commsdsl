@@ -23,6 +23,7 @@
 #include "commsdsl/gen/Logger.h"
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/Schema.h"
 #include "commsdsl/parse/Endian.h"
 
 #include <memory>
@@ -108,9 +109,10 @@ public:
     Logger& logger();
     const Logger& logger() const;
 
-    NamespacesList& namespaces();
-    const NamespacesList& namespaces() const;
+    Schema& schema();
+    const Schema& schema() const;
 
+    SchemaPtr createSchema(commsdsl::parse::Schema dslObj, Elem* parent = nullptr);
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
     InterfacePtr createInterface(commsdsl::parse::Interface dslObj, Elem* parent);
     MessagePtr createMessage(commsdsl::parse::Message dslObj, Elem* parent);
@@ -142,6 +144,7 @@ public:
 protected:
     virtual bool prepareImpl();
 
+    virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent);
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent);
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent);

@@ -152,7 +152,8 @@ std::string scopeForInternal(
     auto fieldTypeScope = (leaf->elemType() == Elem::Type_Field) && (sep == ScopeSep);
 
     auto* parent = elem.getParent();
-    if (parent != nullptr) {
+    assert(parent != nullptr);
+    if (parent->elemType() != Elem::Type_Schema) {
         result = scopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
@@ -177,8 +178,6 @@ std::string scopeForInternal(
         }
         
         auto& elemName = elem.name();
-
-        assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         if (elemType == Elem::Type_Namespace) {
             addNamespaceScopeInernal(elemName, sep, result);
@@ -227,7 +226,8 @@ std::string commonScopeForInternal(
     auto fieldTypeScope = (leaf->elemType() == Elem::Type_Field) && (sep == ScopeSep);
 
     auto* parent = elem.getParent();
-    if (parent != nullptr) {
+    assert(parent != nullptr);
+    if (parent->elemType() != Elem::Type_Schema) {
         result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
@@ -249,8 +249,6 @@ std::string commonScopeForInternal(
         if (!result.empty()) {
             result.append(sep);
         }
-
-        assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         addElemNamespaceScopeInternal(elemType, parent, sep, result);    
 
@@ -310,7 +308,8 @@ std::string fullNameFor(const Elem& elem)
 {
     std::string result;
     auto* parent = elem.getParent();
-    if (parent != nullptr) {
+    assert(parent != nullptr);
+    if (parent->elemType() != Elem::Type_Schema) {
         result = fullNameFor(*parent);
     }
 
@@ -584,8 +583,9 @@ std::string namespaceBeginFor(
         };
 
     auto* parent = elem.getParent();
+    assert(parent != nullptr);
     do {
-        if (parent != nullptr) {
+        if (parent->elemType() != Elem::Type_Schema) {
             result += namespaceBeginFor(*parent, generator);
             break;
         }
@@ -644,6 +644,7 @@ std::string namespaceEndFor(
         };
 
     auto* parent = elem.getParent();
+    assert(parent != nullptr);
 
     auto elemType = elem.elemType();
     if (elemType != Elem::Type_Namespace) {
@@ -679,7 +680,7 @@ std::string namespaceEndFor(
     }
     
     do {
-        if (parent != nullptr) {
+        if (parent->elemType() != Elem::Type_Schema) {
             result += namespaceEndFor(*parent, generator);
             break;
         }

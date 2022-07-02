@@ -42,7 +42,7 @@ std::string optionsBodyInternal(
     CommsGenerator& generator,
     NamespaceOptionsFunc nsFunc)
 {
-    auto& allNs = generator.namespaces();
+    auto& allNs = generator.schema().namespaces();
     util::StringsList opts;
     for (auto& nsPtr : allNs) {
         auto elem = (static_cast<const CommsNamespace*>(nsPtr.get())->*nsFunc)();

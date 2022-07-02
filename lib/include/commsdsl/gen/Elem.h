@@ -37,6 +37,7 @@ public:
         Type_Interface,
         Type_Frame,
         Type_Layer,
+        Type_Schema,
         Type_NumOfValues
     };
     virtual ~Elem();

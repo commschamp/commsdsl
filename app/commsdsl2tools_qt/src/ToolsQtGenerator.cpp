@@ -63,7 +63,7 @@ const std::string& ToolsQtGenerator::fileGeneratedComment()
 ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
 {
     StringsList result;
-    auto& nsList = namespaces();
+    auto& nsList = schema().namespaces();
     for (auto& nsPtr : nsList) {
         assert(nsPtr);
 
