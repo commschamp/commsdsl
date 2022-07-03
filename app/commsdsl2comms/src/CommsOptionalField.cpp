@@ -336,7 +336,7 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
         if (!left.empty()) {
             assert(!op.empty());
             assert(!right.empty());
-            assert(left[0] == '$');
+            assert(left[0] == strings::siblingRefPrefix());
 
             auto leftSepPos = left.find(".", 1);
             std::string leftFieldName(left, 1, leftSepPos - 1);
@@ -353,7 +353,7 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
                 remLeft = left.substr(leftSepPos + 1);
             }
 
-            if (right[0] != '$') {
+            if (right[0] != strings::siblingRefPrefix()) {
                 return commsDslCondToStringFieldValueCompInternal(leftField, remLeft, op, right);
             }
 
@@ -377,7 +377,7 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
         }
 
         // Reference to bit in "set".
-        if (right[0] != '$') {
+        if (right[0] != strings::siblingRefPrefix()) {
             static constexpr bool Should_not_happen = false;
             static_cast<void>(Should_not_happen);
             assert(Should_not_happen);

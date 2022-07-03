@@ -65,7 +65,7 @@ public:
     bool isDeprecatedRemoved() const;
     FieldsList fields() const;
     AliasesList aliases() const;
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef = false) const;
     bool isCustomizable() const;
     Sender sender() const;
     OverrideType readOverride() const;

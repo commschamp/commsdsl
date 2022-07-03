@@ -110,10 +110,10 @@ Message::AliasesList Message::aliases() const
     return m_pImpl->aliasesList();
 }
 
-std::string Message::externalRef() const
+std::string Message::externalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef();
+    return m_pImpl->externalRef(schemaRef);
 }
 
 bool Message::isCustomizable() const

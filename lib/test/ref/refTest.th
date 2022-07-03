@@ -13,6 +13,7 @@ public:
     void test4();
     void test5();
     void test6();
+    void test7();
 };
 
 void RefTestSuite::setUp()
@@ -159,4 +160,36 @@ void RefTestSuite::test6()
     checkField(2);
     checkField(3);
 }
+
+void RefTestSuite::test7()
+{
+    std::vector<std::string> schemas = {
+        SCHEMAS_DIR "/Schema7_1.xml",
+        SCHEMAS_DIR "/Schema7_2.xml",
+    };
+
+    auto protocol = prepareProtocol(schemas);
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, namespaces.size());    
+        auto& ns = namespaces[0];
+        TS_ASSERT_EQUALS(ns.name(), "ns1");
+
+        auto fields = ns.fields();
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());    
+
+        auto& f1 = fields[0];
+        TS_ASSERT_EQUALS(f1.name(), "F1");
+        TS_ASSERT_EQUALS(f1.externalRef(true), "@Schema7_2.ns1.F1");
+        TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::Field::Kind::Ref);
+
+        commsdsl::parse::RefField refF1(f1);
+        auto refField = refF1.field();
+        TS_ASSERT_EQUALS(refField.externalRef(true), "@Schema7_1.ns1.F1");
+    } while (false);
+}
+
+
 

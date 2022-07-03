@@ -294,15 +294,27 @@ const FrameImpl* NamespaceImpl::findFrame(const std::string& intName) const
     return iter->second.get();
 }
 
-std::string NamespaceImpl::externalRef() const
+std::string NamespaceImpl::externalRef(bool schemaRef) const
 {
-    assert((getParent() == nullptr) || (getParent()->objKind() == ObjKind::Namespace));
-    if ((getParent() == nullptr) || (getParent()->objKind() != ObjKind::Namespace)) {
-        return name();
+    assert(getParent() != nullptr);
+    assert((getParent()->objKind() == ObjKind::Schema) || (getParent()->objKind() == ObjKind::Namespace));
+    if (getParent()->objKind() != ObjKind::Namespace) {
+        if (!schemaRef) {
+            return name();
+        }
+
+        auto& parentSchema  = static_cast<const SchemaImpl&>(*getParent());
+        auto result = parentSchema.externalRef();
+        auto& nsName = name();
+        if (!nsName.empty()) {
+            result += '.';
+            result += nsName;
+        }
+        return result;
     }
 
     auto& parentNs = static_cast<const NamespaceImpl&>(*getParent());
-    auto parentRef = parentNs.externalRef();
+    auto parentRef = parentNs.externalRef(schemaRef);
     assert(!parentRef.empty());
     return parentRef + '.' + name();
 }

@@ -81,10 +81,10 @@ Namespace::FramesList Namespace::frames() const
     return m_pImpl->framesList();
 }
 
-std::string Namespace::externalRef() const
+std::string Namespace::externalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef();
+    return m_pImpl->externalRef(schemaRef);
 }
 
 const Namespace::AttributesMap& Namespace::extraAttributes() const

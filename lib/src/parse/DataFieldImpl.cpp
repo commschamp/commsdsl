@@ -283,7 +283,7 @@ bool DataFieldImpl::checkPrefixFromRef()
         return false;
     }
 
-    if (str[0] == '$') {
+    if (str[0] == common::siblingRefPrefix()) {
         if (!checkDetachedPrefixAllowed()) {
             return false;
         }
@@ -409,7 +409,7 @@ const FieldImpl* DataFieldImpl::getPrefixField() const
 
 bool DataFieldImpl::strToValue(const std::string& str, ValueType& val) const
 {
-    if ((!str.empty()) && (str[0] == '^') && protocol().isFieldValueReferenceSupported()) {
+    if ((!str.empty()) && (str[0] == common::stringRefPrefix()) && protocol().isFieldValueReferenceSupported()) {
         return protocol().strToData(std::string(str, 1), false, val);
     }
 

@@ -26,6 +26,7 @@ protected:
 
 
     ProtocolPtr prepareProtocol(const std::string& schema);
+    ProtocolPtr prepareProtocol(const std::vector<std::string>& schemas);
 
     struct TestStatus
     {

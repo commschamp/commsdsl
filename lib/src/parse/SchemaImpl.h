@@ -27,8 +27,9 @@ namespace parse
 {
 
 class ProtocolImpl;
-class SchemaImpl
+class SchemaImpl final : public Object
 {
+    using Base = Object;
 public:
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
@@ -132,6 +133,11 @@ public:
 
     bool validateAllMessages();
     unsigned countMessageIds() const;
+
+    std::string externalRef() const;
+
+protected:
+    virtual ObjKind objKindImpl() const override;    
 
 private:
 

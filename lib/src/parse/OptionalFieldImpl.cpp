@@ -497,7 +497,7 @@ bool OptionalFieldImpl::checkFieldAsChild()
 
     m_state.m_extField = nullptr;
     m_field = std::move(field);
-    assert(m_field->externalRef().empty());
+    assert(m_field->externalRef(false).empty());
     return true;
 }
 

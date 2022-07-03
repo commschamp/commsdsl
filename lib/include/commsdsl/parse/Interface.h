@@ -47,7 +47,7 @@ public:
     const std::string& description() const;
     FieldsList fields() const;
     AliasesList aliases() const;
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef = false) const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

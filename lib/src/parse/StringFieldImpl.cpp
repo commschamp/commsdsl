@@ -182,7 +182,7 @@ bool StringFieldImpl::isComparableToValueImpl(const std::string& val) const
         return true;        
     }
 
-    static const char Prefix = '^';
+    static const char Prefix = common::stringRefPrefix();
     if (val[0] != Prefix) {
         return true;
     }
@@ -383,7 +383,7 @@ bool StringFieldImpl::checkPrefixFromRef()
         return false;
     }
 
-    if (str[0] == '$') {
+    if (str[0] == common::siblingRefPrefix()) {
         if (!checkDetachedPrefixAllowed()) {
             return false;
         }

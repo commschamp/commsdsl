@@ -248,14 +248,14 @@ bool FieldImpl::isMessageMember() const
            (getParent()->objKind() == ObjKind::Message);
 }
 
-std::string FieldImpl::externalRef() const
+std::string FieldImpl::externalRef(bool schemaRef) const
 {
     if ((getParent() == nullptr) || (getParent()->objKind() != ObjKind::Namespace)) {
         return common::emptyString();
     }
 
     auto& ns = static_cast<const NamespaceImpl&>(*getParent());
-    auto nsRef = ns.externalRef();
+    auto nsRef = ns.externalRef(schemaRef);
     if (nsRef.empty()) {
         return name();
     }

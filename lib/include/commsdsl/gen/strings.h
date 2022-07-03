@@ -61,6 +61,10 @@ const std::string& dataViewStr();
 const std::string& transportMessageSuffixStr();
 const std::string& unexpectedValueStr();
 
+char siblingRefPrefix();
+char stringRefPrefix();
+char schemaRefPrefix();
+
 } // namespace strings
 
 } // namespace gen

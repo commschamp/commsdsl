@@ -13,7 +13,15 @@ void CommonTestSuite::commonTearDown()
 
 CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string& schema)
 {
-    static_cast<void>(schema);
+    std::vector<std::string> schemas = {
+        schema
+    };
+
+    return prepareProtocol(schemas);
+}
+
+CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<std::string>& schemas)
+{
     ProtocolPtr protocol(new commsdsl::parse::Protocol);
     protocol->setErrorReportCallback(
         [this](commsdsl::parse::ErrorLevel level, const std::string& msg)
@@ -50,7 +58,32 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
             m_status.m_expErrors.erase(m_status.m_expErrors.begin());
         });
 
-    bool parseResult = protocol->parse(schema);
+    bool parseResult = 
+        std::all_of(
+            schemas.begin(), schemas.end(),
+            [&protocol](auto& s)
+            {
+                return protocol->parse(s);
+                auto dotPos = s.find_last_of('.');
+                auto slashPos = s.find_last_of('/');
+                auto backSlashPos = s.find_last_of('\\');
+
+                if (backSlashPos == std::string::npos) {
+                    backSlashPos = slashPos;
+                }
+
+                if (slashPos == std::string::npos) {
+                    slashPos = backSlashPos;
+                }
+
+                slashPos = std::max(slashPos, backSlashPos);
+                TS_ASSERT_DIFFERS(slashPos, std::string::npos);
+                TS_ASSERT_LESS_THAN(slashPos, dotPos);
+                ++slashPos;
+                auto expSchemaName = s.substr(slashPos, dotPos - slashPos);
+                TS_ASSERT_EQUALS(protocol->lastParsedSchema().name(), expSchemaName);                
+            });
+
     TS_ASSERT_EQUALS(parseResult, m_status.m_expParseResult);
 
     if (m_status.m_preValidateFunc) {
@@ -59,24 +92,5 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string&
 
     bool validateResult = protocol->validate();
     TS_ASSERT_EQUALS(validateResult, m_status.m_expValidateResult);
-
-    auto dotPos = schema.find_last_of('.');
-    auto slashPos = schema.find_last_of('/');
-    auto backSlashPos = schema.find_last_of('\\');
-
-    if (backSlashPos == std::string::npos) {
-        backSlashPos = slashPos;
-    }
-
-    if (slashPos == std::string::npos) {
-        slashPos = backSlashPos;
-    }
-
-    slashPos = std::max(slashPos, backSlashPos);
-    TS_ASSERT_DIFFERS(slashPos, std::string::npos);
-    TS_ASSERT_LESS_THAN(slashPos, dotPos);
-    ++slashPos;
-    auto expSchemaName = schema.substr(slashPos, dotPos - slashPos);
-    TS_ASSERT_EQUALS(protocol->lastParsedSchema().name(), expSchemaName);
     return protocol;
 }

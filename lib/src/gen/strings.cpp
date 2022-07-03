@@ -303,6 +303,22 @@ const std::string& unexpectedValueStr()
     return Str;     
 }
 
+char siblingRefPrefix()
+{
+    return '$';
+}
+
+char stringRefPrefix()
+{
+    return '^';
+}
+
+char schemaRefPrefix()
+{
+    return '@';
+}
+
+
 } // namespace strings
 
 } // namespace gen

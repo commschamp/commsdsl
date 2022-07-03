@@ -151,13 +151,13 @@ MessageImpl::AliasesList MessageImpl::aliasesList() const
     return result;
 }
 
-std::string MessageImpl::externalRef() const
+std::string MessageImpl::externalRef(bool schemaRef) const
 {
     assert(getParent() != nullptr);
     assert(getParent()->objKind() == ObjKind::Namespace);
 
     auto& ns = static_cast<const NamespaceImpl&>(*getParent());
-    auto nsRef = ns.externalRef();
+    auto nsRef = ns.externalRef(schemaRef);
     if (nsRef.empty()) {
         return name();
     }

@@ -180,6 +180,7 @@ bool SchemaImpl::addPlatform(const std::string& name)
 
 void SchemaImpl::addNamespace(NamespaceImplPtr ns)
 {
+    assert(ns->getParent() == this);
     auto& nsName = ns->name();
     m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
 }
@@ -189,6 +190,7 @@ NamespaceImpl& SchemaImpl::defaultNamespace()
     auto& globalNsPtr = m_namespaces[common::emptyString()]; // create if needed
     if (!globalNsPtr) {
         globalNsPtr.reset(new NamespaceImpl(nullptr, m_protocol));
+        globalNsPtr->setParent(this);
     }
         
     return *globalNsPtr;
@@ -240,6 +242,16 @@ unsigned SchemaImpl::countMessageIds() const
             {
                 return soFar + n.second->countMessageIds();
             });
+}
+
+std::string SchemaImpl::externalRef() const
+{
+    return common::schemaRefPrefix() + name();
+}
+
+SchemaImpl::ObjKind SchemaImpl::objKindImpl() const
+{
+    return ObjKind::Schema;
 }
 
 bool SchemaImpl::updateStringProperty(const PropsMap& map, const std::string& name, std::string& prop)

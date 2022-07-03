@@ -842,6 +842,21 @@ const std::string& missingOnInvalidStr()
     return Str; 
 }
 
+char siblingRefPrefix()
+{
+    return '$';
+}
+
+char stringRefPrefix()
+{
+    return '^';
+}
+
+char schemaRefPrefix()
+{
+    return '@';
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;
@@ -1422,7 +1437,7 @@ bool isValidExternalRefName(const std::string& value)
         return false;
     }
 
-    if (value[0] != '^') {
+    if (value[0] != stringRefPrefix()) {
         return false;
     }
 

@@ -160,6 +160,10 @@ Schema::MessagesList Schema::allMessages() const
     return m_pImpl->allMessages();
 }
 
+std::string Schema::externalRef() const
+{
+    return m_pImpl->externalRef();
+}
 
 } // namespace parse
 

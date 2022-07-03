@@ -65,7 +65,7 @@ public:
 
     LayersList layersList() const;
 
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef) const;
 
     const PropsMap& extraAttributes() const
     {

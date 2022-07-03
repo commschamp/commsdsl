@@ -67,6 +67,8 @@ public:
 
     MessagesList allMessages() const;
 
+    std::string externalRef() const;
+
 private:
     const SchemaImpl* m_pImpl;
 };

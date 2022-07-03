@@ -162,7 +162,7 @@ public:
     const InterfaceImpl* findInterface(const std::string& intName) const;
     const FrameImpl* findFrame(const std::string& intName) const;
 
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef) const;
 
     unsigned countMessageIds() const;
 

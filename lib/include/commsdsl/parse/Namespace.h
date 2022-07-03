@@ -54,7 +54,7 @@ public:
     MessagesList messages() const;
     InterfacesList interfaces() const;
     FramesList frames() const;
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef = false) const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

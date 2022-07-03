@@ -18,6 +18,7 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <utility>
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
@@ -135,6 +136,7 @@ private:
     bool validateMessageIds();
     // unsigned countMessageIds() const;
     bool strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
+    std::pair<const SchemaImpl*, std::string> parseExternalRef(const std::string& externalRef) const;
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;

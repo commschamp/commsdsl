@@ -104,10 +104,10 @@ bool Field::isDeprecatedRemoved() const
     return m_pImpl->isDeprecatedRemoved();
 }
 
-std::string Field::externalRef() const
+std::string Field::externalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef();
+    return m_pImpl->externalRef(schemaRef);
 }
 
 bool Field::isPseudo() const

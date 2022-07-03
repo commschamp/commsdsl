@@ -85,7 +85,7 @@ public:
     FieldsList fieldsList() const;
     AliasesList aliasesList() const;
 
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef) const;
 
     const PropsMap& extraAttributes() const
     {

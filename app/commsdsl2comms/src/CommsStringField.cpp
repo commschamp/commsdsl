@@ -373,7 +373,7 @@ std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accSt
             break;
         }
 
-        static const char Prefix = '^';
+        static const char Prefix = strings::stringRefPrefix();
         if (value[0] == Prefix) {
             auto* refField = generator().findField(std::string(value, 1));
             if (refField == nullptr) {

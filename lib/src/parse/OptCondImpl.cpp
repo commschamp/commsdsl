@@ -22,6 +22,7 @@
 #include "BundleFieldImpl.h"
 #include "BitfieldFieldImpl.h"
 #include "SetFieldImpl.h"
+#include "common.h"
 #include "util.h"
 
 //#include <iostream>
@@ -36,7 +37,7 @@ namespace
 {
 
 const char Esc = '\\';
-const char Deref = '$';
+const char Deref = common::siblingRefPrefix();
 
 } // namespace
 

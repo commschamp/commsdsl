@@ -110,13 +110,13 @@ InterfaceImpl::AliasesList InterfaceImpl::aliasesList() const
     return result;
 }
 
-std::string InterfaceImpl::externalRef() const
+std::string InterfaceImpl::externalRef(bool schemaRef) const
 {
     assert(getParent() != nullptr);
     assert(getParent()->objKind() == ObjKind::Namespace);
 
     auto& ns = static_cast<const NamespaceImpl&>(*getParent());
-    auto nsRef = ns.externalRef();
+    auto nsRef = ns.externalRef(schemaRef);
     if (nsRef.empty()) {
         return name();
     }

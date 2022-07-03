@@ -195,7 +195,7 @@ public:
     bool isBundleMember() const;
     bool isMessageMember() const;
 
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef) const;
 
     bool isBitCheckable(const std::string& val) const
     {

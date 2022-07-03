@@ -36,6 +36,7 @@ public:
         Interface,
         Frame,
         Layer,
+        Schema,
         NumOfValues
     };
 

@@ -125,17 +125,35 @@ const SchemaImpl& ProtocolImpl::currSchema() const
 
 const FieldImpl* ProtocolImpl::findField(const std::string& ref, bool checkRef) const
 {
-    return currSchema().findField(ref, checkRef);
+    assert(!ref.empty());
+    auto parsedRef = parseExternalRef(ref);
+    if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+        return nullptr;
+    }
+
+    return parsedRef.first->findField(parsedRef.second, checkRef);
 }
 
 const MessageImpl* ProtocolImpl::findMessage(const std::string& ref, bool checkRef) const
 {
-    return currSchema().findMessage(ref, checkRef);
+    assert(!ref.empty());
+    auto parsedRef = parseExternalRef(ref);
+    if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+        return nullptr;
+    }
+
+    return parsedRef.first->findMessage(parsedRef.second, checkRef);
 }
 
 const InterfaceImpl* ProtocolImpl::findInterface(const std::string& ref, bool checkRef) const
 {
-    return currSchema().findInterface(ref, checkRef);
+    assert(!ref.empty());
+    auto parsedRef = parseExternalRef(ref);
+    if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+        return nullptr;
+    }
+
+    return parsedRef.first->findInterface(parsedRef.second, checkRef);
 }
 
 bool ProtocolImpl::strToEnumValue(
@@ -541,6 +559,7 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
 
         if (cName == common::nsStr()) {
             NamespaceImplPtr ns(new NamespaceImpl(c, *this));
+            ns->setParent(&currSchema());
             if (!ns->parseProps()) {
                 return false;
             }
@@ -682,6 +701,35 @@ bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueC
     return func(*nsIter->second, subRef);
 }
 
+std::pair<const SchemaImpl*, std::string> ProtocolImpl::parseExternalRef(const std::string& externalRef) const
+{
+    assert(!externalRef.empty());
+    if (externalRef[0] != common::schemaRefPrefix()) {
+        return std::make_pair(&currSchema(), externalRef);
+    }
+
+    auto dotPos = externalRef.find('.');
+    if (externalRef.size() <= dotPos) {
+        return std::make_pair(nullptr, externalRef);
+    }
+
+    std::string schemaName = externalRef.substr(1, dotPos - 1);
+    auto restRef = externalRef.substr(dotPos + 1);
+    auto iter = 
+        std::find_if(
+            m_schemas.begin(), m_schemas.end(),
+            [&schemaName](auto& s)
+            {
+                return schemaName == s->name();
+            });
+
+    if (iter == m_schemas.end()) {
+        return std::make_pair(nullptr, std::move(restRef));
+    }
+
+    return std::make_pair(iter->get(), std::move(restRef));
+}
+
 LogWrapper ProtocolImpl::logError() const
 {
     return commsdsl::parse::logError(m_logger);
@@ -701,7 +749,7 @@ bool ProtocolImpl::strToStringValue(
         return true;
     }
 
-    static const char Prefix = '^';
+    static const char Prefix = common::stringRefPrefix();
     if (str[0] == Prefix) {
         return strToString(std::string(str, 1), true, val);
     }

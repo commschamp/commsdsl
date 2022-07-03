@@ -56,10 +56,10 @@ Frame::LayersList Frame::layers() const
     return m_pImpl->layersList();
 }
 
-std::string Frame::externalRef() const
+std::string Frame::externalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef();
+    return m_pImpl->externalRef(schemaRef);
 }
 
 const Frame::AttributesMap& Frame::extraAttributes() const

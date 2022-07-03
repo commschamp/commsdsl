@@ -587,7 +587,7 @@ bool ListFieldImpl::checkElementAsChild()
 
     m_state.m_extElementField = nullptr;
     m_elementField = std::move(field);
-    assert(m_elementField->externalRef().empty());
+    assert(m_elementField->externalRef(false).empty());
     return true;
 }
 
@@ -612,7 +612,7 @@ bool ListFieldImpl::checkPrefixFromRef(
         return false;
     }
 
-    if (str[0] == '$') {
+    if (str[0] == common::siblingRefPrefix()) {
         if (!checkDetachedPrefixAllowed()) {
             return false;
         }
