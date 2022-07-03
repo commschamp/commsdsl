@@ -39,7 +39,7 @@ std::string scopeForElement(
 {
     std::string result;
     if (addMainNamespace) {
-        result = generator.mainNamespace();
+        result = generator.currentSchema().mainNamespace();
     }
 
     for (auto& elem : subElems) {
@@ -157,7 +157,7 @@ std::string scopeForInternal(
         result = scopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
-        result = generator.mainNamespace();
+        result = generator.currentSchema().mainNamespace();
     }
 
     do {
@@ -231,7 +231,7 @@ std::string commonScopeForInternal(
         result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
-        result = generator.mainNamespace();
+        result = generator.currentSchema().mainNamespace();
     }
 
     do {
@@ -595,7 +595,7 @@ std::string namespaceBeginFor(
             appendToResultFunc(namespaceName(topNamespace));
         }
 
-        appendToResultFunc(namespaceName(generator.mainNamespace()));
+        appendToResultFunc(namespaceName(generator.currentSchema().mainNamespace()));
     } while (false);
 
     auto elemType = elem.elemType();
@@ -685,7 +685,7 @@ std::string namespaceEndFor(
             break;
         }
 
-        appendToResultFunc(namespaceName(generator.mainNamespace()));
+        appendToResultFunc(namespaceName(generator.currentSchema().mainNamespace()));
 
         auto& topNamespace = generator.getTopNamespace();
         if (!topNamespace.empty()) {
@@ -849,7 +849,7 @@ bool isVersionOptionaField(const Elem& elem, const Generator& generator)
         return false;
     }    
 
-    if (!generator.versionDependentCode()) {
+    if (!generator.currentSchema().versionDependentCode()) {
         return false;
     }
 
@@ -978,9 +978,9 @@ const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
 
 std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& generator)
 {
-    auto msgIdField = generator.getMessageIdField();
+    auto msgIdField = generator.currentSchema().getMessageIdField();
     if (msgIdField == nullptr) {
-        return generator.mainNamespace() + "::" + strings::msgIdPrefixStr() + comms::fullNameFor(msg);
+        return generator.currentSchema().mainNamespace() + "::" + strings::msgIdPrefixStr() + comms::fullNameFor(msg);
     }
 
     assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
@@ -997,7 +997,7 @@ std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& 
     }
 
     if (!name.empty()) {
-        return generator.mainNamespace() + "::" + strings::msgIdPrefixStr() + name;
+        return generator.currentSchema().mainNamespace() + "::" + strings::msgIdPrefixStr() + name;
     }
 
     return util::numToString(id);    

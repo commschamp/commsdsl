@@ -222,7 +222,7 @@ std::string CommsListField::commsDefBaseClassImpl() const
     ">";    
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", generator().mainNamespace()},
+        {"PROT_NAMESPACE", generator().currentSchema().mainNamespace()},
         {"ELEMENT", commsDefElementInternal()},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };

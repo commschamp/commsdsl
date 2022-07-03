@@ -44,7 +44,7 @@ bool Test::write(TestGenerator& generator)
 bool Test::writeInputTest() const
 {
     auto testName = 
-        m_generator.mainNamespace() + '_' + "input_test.cpp";
+        m_generator.currentSchema().mainNamespace() + '_' + "input_test.cpp";
 
     auto filePath = commsdsl::gen::util::pathAddElem(m_generator.getOutputDir(), testName);
 
@@ -60,7 +60,7 @@ bool Test::writeInputTest() const
     };
     
     std::string idType;
-    auto* idField = m_generator.getMessageIdField();
+    auto* idField = m_generator.currentSchema().getMessageIdField();
     if ((idField != nullptr) && (idField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum)) {
         auto* enumMsgIdField = static_cast<const commsdsl::gen::EnumField*>(idField);
         if (enumMsgIdField->isUnsignedUnderlyingType()) {
@@ -86,7 +86,7 @@ bool Test::writeInputTest() const
         }
     }
     else {
-        idType = m_generator.mainNamespace() + "::" + commsdsl::gen::strings::msgIdEnumNameStr();
+        idType = m_generator.currentSchema().mainNamespace() + "::" + commsdsl::gen::strings::msgIdEnumNameStr();
     }
 
     repl.insert(std::make_pair("ID_TYPE", idType));

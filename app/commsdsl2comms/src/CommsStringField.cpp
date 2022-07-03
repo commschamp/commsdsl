@@ -142,7 +142,7 @@ std::string CommsStringField::commsDefBaseClassImpl() const
     ">";    
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", generator().mainNamespace()},
+        {"PROT_NAMESPACE", generator().currentSchema().mainNamespace()},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
@@ -484,7 +484,7 @@ void CommsStringField::commsAddTermSuffixOptInternal(StringsList& opts) const
         ">";
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", generator().mainNamespace()},
+        {"PROT_NAMESPACE", generator().currentSchema().mainNamespace()},
     };
 
     opts.push_back(util::processTemplate(Templ, repl));

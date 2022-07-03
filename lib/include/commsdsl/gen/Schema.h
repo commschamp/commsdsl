@@ -54,9 +54,9 @@ public:
 
     const std::string& schemaName() const;
     parse::Endian schemaEndian() const;
-    //const PlatformNamesList& platformNames() const;
+    unsigned schemaVersion() const;
 
-    // const Field* getMessageIdField() const;
+    const Field* getMessageIdField() const;
     const Field* findField(const std::string& externalRef) const;
     Field* findField(const std::string& externalRef);
     const Message* findMessage(const std::string& externalRef) const;
@@ -80,7 +80,27 @@ public:
     const NamespacesList& namespaces() const;
     const PlatformNamesList& platformNames() const;
 
+    bool versionDependentCode() const;
+    const std::string& mainNamespace() const;
+
     Namespace* addDefaultNamespace();
+    void forceSchemaVersion(unsigned value);
+    void setVersionIndependentCodeForced(bool value);
+    void setMainNamespaceOverride(const std::string& value);
+
+    void setMinRemoteVersion(unsigned value);
+
+    bool doesElementExist(
+        unsigned sinceVersion,
+        unsigned deprecatedSince,
+        bool deprecatedRemoved) const;
+
+    bool isElementOptional(
+        unsigned sinceVersion,
+        unsigned deprecatedSince,
+        bool deprecatedRemoved) const;  
+
+    bool isElementDeprecated(unsigned deprecatedSince) const;
 
 protected:
     virtual Type elemTypeImpl() const override final;

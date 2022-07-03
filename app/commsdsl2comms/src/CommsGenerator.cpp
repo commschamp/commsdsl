@@ -398,9 +398,9 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
         }
 
         std::string relPath(pathStr, posTmp);
-        auto schemaNs = util::strToName(schemaName());
+        auto schemaNs = util::strToName(currentSchema().schemaName());
         do {
-            if (mainNamespace() == schemaNs) {
+            if (currentSchema().mainNamespace() == schemaNs) {
                 break;
             }
 
@@ -409,7 +409,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
                 break;
             }
 
-            auto dstPrefix = (fs::path(strings::includeDirStr()) / mainNamespace()).string();
+            auto dstPrefix = (fs::path(strings::includeDirStr()) / currentSchema().mainNamespace()).string();
             relPath = dstPrefix + std::string(relPath, srcPrefix.size());
         } while (false);
 
@@ -427,7 +427,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             return false;
         }
 
-        if (mainNamespace() != schemaNs) {
+        if (currentSchema().mainNamespace() != schemaNs) {
             // The namespace has changed
 
             auto destStr = destPath.string();
@@ -440,7 +440,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
             stream.close();
 
-            util::strReplace(content, "namespace " + schemaNs, "namespace " + mainNamespace());
+            util::strReplace(content, "namespace " + schemaNs, "namespace " + currentSchema().mainNamespace());
             std::ofstream outStream(destStr, std::ios_base::trunc);
             if (!outStream) {
                 logger().error("Failed to modify " + destStr + ".");

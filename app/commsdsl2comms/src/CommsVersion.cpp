@@ -88,9 +88,9 @@ bool CommsVersion::writeInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
-        {"VERSION", util::numToString(m_generator.schemaVersion())},
-        {"NS", util::strToUpper(m_generator.mainNamespace())},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
+        {"VERSION", util::numToString(m_generator.currentSchema().schemaVersion())},
+        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())},
         {"COMMS_MIN", util::strReplace(CommsGenerator::minCommsVersion(), ".", ", ")},
         {"PROT_VER_DEFINE", commsProtVersionDefineInternal()},
         {"PROT_VER_FUNC", commsProtVersionFuncsInternal()},
@@ -131,7 +131,7 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
         "#define #^#NS#$#_VERSION (COMMS_MAKE_VERSION(#^#NS#$#_MAJOR_VERSION, #^#NS#$#_MINOR_VERSION, #^#NS#$#_PATCH_VERSION))\n";
 
     util::ReplacementMap repl = {
-        {"NS", util::strToUpper(m_generator.mainNamespace())},
+        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())},
         {"MAJOR_VERSION", tokens[VersionIdx_major]},
         {"MINOR_VERSION", tokens[VersionIdx_minor]},
         {"PATCH_VERSION", tokens[VersionIdx_patch]},
@@ -170,7 +170,7 @@ std::string CommsVersion::commsProtVersionFuncsInternal() const
         "}\n";
 
     util::ReplacementMap repl = {
-        {"NS", util::strToUpper(m_generator.mainNamespace())},
+        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())},
     };
 
     return util::processTemplate(Templ, repl);

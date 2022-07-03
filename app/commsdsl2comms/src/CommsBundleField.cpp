@@ -146,7 +146,7 @@ std::string CommsBundleField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = bundleDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"PROT_NAMESPACE", gen.currentSchema().mainNamespace()},
         {"CLASS_NAME", comms::className(dslObj.name())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };

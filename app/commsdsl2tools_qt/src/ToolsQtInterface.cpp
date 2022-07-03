@@ -39,7 +39,7 @@ namespace
 
 unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Generator& generator)
 {
-    auto* msgIdField = generator.getMessageIdField();
+    auto* msgIdField = generator.currentSchema().getMessageIdField();
     if (msgIdField == nullptr) {
         return 0U;
     }

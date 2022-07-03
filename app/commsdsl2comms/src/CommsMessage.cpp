@@ -428,7 +428,7 @@ std::string CommsMessage::commsDefIncludesInternal() const
     util::StringsList includes = {
         "<tuple>",
         "comms/MessageBase.h",
-        gen.mainNamespace() + '/' + strings::msgIdEnumNameStr() + strings::cppHeaderSuffixStr(),
+        gen.currentSchema().mainNamespace() + '/' + strings::msgIdEnumNameStr() + strings::cppHeaderSuffixStr(),
         comms::relHeaderForOptions(strings::defaultOptionsStr(), gen),
         comms::relCommonHeaderPathFor(*this, gen),
     };
@@ -925,7 +925,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
 
         util::ReplacementMap repl = {
             {"READS", util::strListToString(reads, "\n", "")},
-            {"UPDATE_VERSION", generator().versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
+            {"UPDATE_VERSION", generator().currentSchema().versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
         };
 
         if (!m_customRead.empty()) {

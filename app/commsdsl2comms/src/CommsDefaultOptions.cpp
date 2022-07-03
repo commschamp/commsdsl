@@ -42,7 +42,7 @@ std::string optionsBodyInternal(
     CommsGenerator& generator,
     NamespaceOptionsFunc nsFunc)
 {
-    auto& allNs = generator.schema().namespaces();
+    auto& allNs = generator.currentSchema().namespaces();
     util::StringsList opts;
     for (auto& nsPtr : allNs) {
         auto elem = (static_cast<const CommsNamespace*>(nsPtr.get())->*nsFunc)();
@@ -112,7 +112,7 @@ util::ReplacementMap extInitialRepl(CommsGenerator& generator)
 {
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
         {"DEFAULT_OPTS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)}
     };
     return repl;
@@ -162,7 +162,7 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
     auto& name = strings::defaultOptionsClassStr();
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", name},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},

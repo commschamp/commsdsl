@@ -136,7 +136,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
     };   
 
@@ -276,7 +276,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
         {"FRAME_HEADER", frameHeader},
         {"TRANSPORT_MESSAGE_HEADER", transportMsgHeader},
@@ -350,7 +350,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         util::ReplacementMap replVerImplPub;
 
         util::ReplacementMap replVerImplPrivate = {
-            {"DEFAULT_VERSION", util::numToString(m_generator.schemaVersion())},
+            {"DEFAULT_VERSION", util::numToString(m_generator.currentSchema().schemaVersion())},
             {"INTERFACE_TYPE", m_generator.getTopNamespace() + "::" + comms::scopeFor(*m_interfacePtr, m_generator)}
         };
 
@@ -477,13 +477,13 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"ID", toolsAdjustedNameInternal()},
     };        
 
     if (toolsHasConfigWidgetInternal()) {
-        auto verStr = "int m_version = " + util::numToString(m_generator.schemaVersion()) + ";";
+        auto verStr = "int m_version = " + util::numToString(m_generator.currentSchema().schemaVersion()) + ";";
         repl["VERSION_STORAGE"] = std::move(verStr);
     }
 
@@ -545,7 +545,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"PROTOCOL_CLASS_NAME", toolsProtClassNameInternal()},
     };        
@@ -724,7 +724,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
     };        
 
@@ -806,7 +806,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
     };        
 
@@ -825,7 +825,7 @@ const std::string& ToolsQtPlugin::toolsAdjustedNameInternal() const
 {
     auto* nameToUse = &m_name;
     if (nameToUse->empty()) {
-        nameToUse = &m_generator.schemaName();
+        nameToUse = &m_generator.currentSchema().schemaName();
     }
     return *nameToUse;
 }

@@ -104,7 +104,7 @@ bool writeFileInternal(
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
         {"NAME", name},
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
@@ -190,7 +190,7 @@ bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
 
 bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
 {
-    auto& platforms = m_generator.schema().platformNames();
+    auto& platforms = m_generator.currentSchema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 

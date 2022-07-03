@@ -17,6 +17,7 @@
 #include "commsdsl/gen/Schema.h"
 
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/util.h"
 
 #include "commsdsl/parse/Protocol.h"
 
@@ -30,6 +31,13 @@ namespace commsdsl
 
 namespace gen
 {
+    
+namespace 
+{
+
+const unsigned MaxDslVersion = 5U;
+
+} // namespace 
 
 class SchemaImpl
 {
@@ -69,9 +77,13 @@ public:
         return m_dslObj.endian();
     }
 
-    const PlatformNamesList& platformNames() const
+    unsigned schemaVersion() const
     {
-        return m_dslObj.platforms();
+        if (0 <= m_forcedSchemaVersion) {
+            return static_cast<unsigned>(m_forcedSchemaVersion);
+        }
+
+        return m_dslObj.version();
     }
 
     const Field* findField(const std::string& externalRef) const
@@ -261,7 +273,31 @@ public:
 
     bool prepare()
     {
-        return 
+        auto dslVersion = m_dslObj.dslVersion();
+        if (MaxDslVersion < dslVersion) {
+            m_generator.logger().error(
+                "Required DSL version is too big (" + std::to_string(dslVersion) +
+                "), upgrade your code generator.");
+            return false;
+        }
+
+        auto parsedSchemaVersion = m_dslObj.version();
+        if ((0 <= m_forcedSchemaVersion) && 
+            (parsedSchemaVersion < static_cast<decltype(parsedSchemaVersion)>(m_forcedSchemaVersion))) {
+            m_generator.logger().error("Cannot force version to be greater than " + util::numToString(parsedSchemaVersion));
+            return false;
+        }   
+
+        if (!m_versionIndependentCodeForced) {
+            m_versionDependentCode = anyInterfaceHasVersion();
+        }       
+
+        if (m_mainNamespace.empty()) {
+            assert(!m_dslObj.name().empty());
+            m_mainNamespace = util::strToName(m_dslObj.name());
+        }              
+
+        bool namespacesResult = 
             std::all_of(
                 m_namespaces.begin(), m_namespaces.end(),
                 [](auto& n)
@@ -269,6 +305,13 @@ public:
                     assert(n);
                     return n->prepare();
                 });
+
+        if (!namespacesResult) {
+            return false;
+        }
+
+        m_messageIdField = findMessageIdField();
+        return true;
     }
 
     bool write()
@@ -326,12 +369,89 @@ public:
                 });
     }      
 
-private:
+    void forceSchemaVersion(unsigned value)
+    {
+        m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
+    }    
 
+    const PlatformNamesList& platformNames()
+    {
+        return m_dslObj.platforms();
+    }
+
+    void setVersionIndependentCodeForced(bool value)
+    {
+        m_versionIndependentCodeForced = value;
+    }    
+
+    bool versionDependentCode() const
+    {
+        return m_versionDependentCode;
+    }    
+
+    const std::string& mainNamespace() const
+    {
+        return m_mainNamespace;
+    }
+
+    const Field* getMessageIdField() const
+    {
+        return m_messageIdField;
+    }    
+
+    void setMainNamespaceOverride(const std::string& value)
+    {
+        m_mainNamespace = value;
+    }
+    
+    bool doesElementExist(
+        unsigned sinceVersion,
+        unsigned deprecatedSince,
+        bool deprecatedRemoved) const
+    {
+        if (schemaVersion() < sinceVersion) {
+            return false;
+        }
+
+        if (deprecatedRemoved && (deprecatedSince <= m_minRemoteVersion)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    bool isElementOptional(
+        unsigned sinceVersion,
+        unsigned deprecatedSince,
+        bool deprecatedRemoved) const
+    {
+        if (m_minRemoteVersion < sinceVersion) {
+            return true;
+        }
+
+        if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated())) {
+            return true;
+        }
+
+        return false;
+    }
+
+    void setMinRemoteVersion(unsigned value)
+    {
+        m_minRemoteVersion = value;
+    }
+
+private:
     Generator& m_generator;
     commsdsl::parse::Schema m_dslObj;
     Elem* m_parent = nullptr;
     NamespacesList m_namespaces;
+    int m_forcedSchemaVersion = -1;
+    const Field* m_messageIdField = nullptr;
+    std::string m_mainNamespace;
+    unsigned m_minRemoteVersion = 0U;
+    bool m_versionIndependentCodeForced = false;
+    bool m_versionDependentCode = false;
 }; 
 
 Schema::Schema(Generator& generator, commsdsl::parse::Schema dslObj, Elem* parent) : 
@@ -357,15 +477,15 @@ parse::Endian Schema::schemaEndian() const
     return m_impl->schemaEndian();
 }
 
-// const Schema::PlatformNamesList& Schema::platformNames() const
-// {
-//     return m_impl->platformNames();
-// }
+unsigned Schema::schemaVersion() const 
+{
+    return m_impl->schemaVersion();
+}
 
-// const Field* Schema::getMessageIdField() const
-// {
-//     return m_impl->getMessageIdField();
-// }
+const Field* Schema::getMessageIdField() const
+{
+    return m_impl->getMessageIdField();
+}
 
 const Field* Schema::findField(const std::string& externalRef) const
 {
@@ -535,6 +655,16 @@ const Schema::PlatformNamesList& Schema::platformNames() const
     return m_impl->platformNames();
 }
 
+bool Schema::versionDependentCode() const
+{
+    return m_impl->versionDependentCode();
+}
+
+const std::string& Schema::mainNamespace() const
+{
+    return m_impl->mainNamespace();
+}
+
 Namespace* Schema::addDefaultNamespace()
 {
     auto& nsList = m_impl->namespaces();
@@ -547,6 +677,47 @@ Namespace* Schema::addDefaultNamespace()
 
     auto iter = nsList.insert(nsList.begin(), m_impl->generator().createNamespace(commsdsl::parse::Namespace(nullptr), this));
     return iter->get();
+}
+
+void Schema::forceSchemaVersion(unsigned value)
+{
+    m_impl->forceSchemaVersion(value);
+}
+
+void Schema::setVersionIndependentCodeForced(bool value)
+{
+    m_impl->setVersionIndependentCodeForced(value);
+}
+
+void Schema::setMainNamespaceOverride(const std::string& value)
+{
+    m_impl->setMainNamespaceOverride(value);
+}
+
+void Schema::setMinRemoteVersion(unsigned value)
+{
+    m_impl->setMinRemoteVersion(value);
+}
+
+bool Schema::doesElementExist(
+    unsigned sinceVersion,
+    unsigned deprecatedSince,
+    bool deprecatedRemoved) const
+{
+    return m_impl->doesElementExist(sinceVersion, deprecatedSince, deprecatedRemoved);
+}
+
+bool Schema::isElementOptional(
+    unsigned sinceVersion,
+    unsigned deprecatedSince,
+    bool deprecatedRemoved) const
+{
+    return m_impl->isElementOptional(sinceVersion, deprecatedSince, deprecatedRemoved);
+}
+
+bool Schema::isElementDeprecated(unsigned deprecatedSince) const
+{
+    return deprecatedSince < schemaVersion();
 }
 
 Elem::Type Schema::elemTypeImpl() const

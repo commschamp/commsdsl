@@ -73,8 +73,8 @@ bool TestCmake::testWriteInternal() const
 
 
     ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.schemaName()},
-        {"PROJ_NS", m_generator.mainNamespace()},
+        {"PROJ_NAME", m_generator.currentSchema().schemaName()},
+        {"PROJ_NS", m_generator.currentSchema().mainNamespace()},
         {"INTERFACE_SCOPE", std::move(interfaceScope)},
         {"FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)},
         {"OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)},

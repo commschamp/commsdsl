@@ -385,8 +385,11 @@ std::string CommsInterface::commsDefBaseClassInternal() const
         ">";
 
     auto& gen = generator();
+    auto* schema = gen.schemaOf(*this);
+    assert(schema != nullptr);
+
     util::ReplacementMap repl = {
-        {"ENDIAN", comms::dslEndianToOpt(gen.schemaEndian())},
+        {"ENDIAN", comms::dslEndianToOpt(schema->schemaEndian())},
         {"MSG_ID_TYPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), gen)},
         {"EXTRA_OPTS", commsDefExtraOptionsInternal()}
     };

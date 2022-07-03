@@ -79,7 +79,7 @@ bool CommsMsgId::commsWriteInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"TYPE", commsTypeInternal()},
         {"IDS", commsIdsInternal()}
     };
@@ -96,7 +96,7 @@ bool CommsMsgId::commsWriteInternal() const
 
 std::string CommsMsgId::commsTypeInternal() const
 {
-    auto* msgIdField = m_generator.getMessageIdField();
+    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
     if (msgIdField != nullptr) {
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
@@ -125,7 +125,7 @@ std::string CommsMsgId::commsTypeInternal() const
 
 std::string CommsMsgId::commsIdsInternal() const
 {
-    auto* msgIdField = m_generator.getMessageIdField();
+    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
     auto& prefix = strings::msgIdPrefixStr();
     if (msgIdField != nullptr) {
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);

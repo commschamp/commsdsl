@@ -91,7 +91,7 @@ util::ReplacementMap initialRepl(CommsGenerator& generator)
 {
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
     };
     return repl;
 }
@@ -374,7 +374,7 @@ bool CommsDispatch::commsWriteServerDispatchInternal() const
 
 bool CommsDispatch::commsWritePlatformDispatchInternal() const
 {
-    auto& platforms = m_generator.schema().platformNames();
+    auto& platforms = m_generator.currentSchema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 
@@ -702,7 +702,7 @@ std::string CommsDispatch::commsMsgIdStringInternal(std::uintmax_t value) const
                 ")";
         };
 
-    auto* idField = m_generator.getMessageIdField();
+    auto* idField = m_generator.currentSchema().getMessageIdField();
     if (idField == nullptr) {
         return numValueFunc();
     }
@@ -787,7 +787,7 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
 
     util::ReplacementMap repl = {
         {"NAME", inputPrefix},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"DEFAULT_OPTIONS", comms::scopeForOptions(strings::defaultOptionsStr(), m_generator)},
         {"HEADERFILE", comms::relHeaderForDispatch(getFileName(inputPrefix), m_generator)},
     };

@@ -358,7 +358,7 @@ std::string CommsEnumField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = enumDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"PROT_NAMESPACE", gen.currentSchema().mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"COMMON_SCOPE", comms::commonScopeFor(*this, gen)},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
@@ -394,7 +394,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
 {
     auto obj = enumDslObj();
     bool validCheckVersion =
-        generator().versionDependentCode() &&
+        generator().currentSchema().versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {
@@ -432,7 +432,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
 
             std::string prefix;
             if (isMessageId) {
-                 prefix = generator().mainNamespace() + "::" + strings::msgIdPrefixStr();
+                 prefix = generator().currentSchema().mainNamespace() + "::" + strings::msgIdPrefixStr();
             }
             else {
                 prefix = "ValueType::";
@@ -628,7 +628,7 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
 
     auto& gen = generator();
     bool validCheckVersion =
-        gen.versionDependentCode() &&
+        gen.currentSchema().versionDependentCode() &&
         obj.validCheckVersion();
 
     auto& values = obj.values();
@@ -929,7 +929,7 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
         if ((!obj.isNonUniqueAllowed()) ||
-            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (generator().currentSchema().schemaVersion() < valIter->second.m_deprecatedSince) ||
             (obj.isUnique())) {
             addElementNameFunc(*valIter);
             continue;
@@ -940,7 +940,7 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
         for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
             auto vIter = values.find(iter->second);
             assert(vIter != values.end());
-            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+            if (generator().currentSchema().schemaVersion() < vIter->second.m_deprecatedSince) {
                 addElementNameFunc(*vIter);
                 foundNotDeprecated = true;
                 break;
@@ -1053,7 +1053,7 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
         if ((!obj.isNonUniqueAllowed()) ||
-            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (generator().currentSchema().schemaVersion() < valIter->second.m_deprecatedSince) ||
             (obj.isUnique())) {
             addElementNameFunc(*valIter);
             continue;
@@ -1064,7 +1064,7 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
         for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
             auto vIter = values.find(iter->second);
             assert(vIter != values.end());
-            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+            if (generator().currentSchema().schemaVersion() < vIter->second.m_deprecatedSince) {
                 addElementNameFunc(*vIter);
                 foundNotDeprecated = true;
                 break;
@@ -1116,7 +1116,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
             [this, isMessageId](const std::string& s)
             {
                 if (isMessageId) {
-                    return generator().mainNamespace() + "::" + strings::msgIdPrefixStr() + s;
+                    return generator().currentSchema().mainNamespace() + "::" + strings::msgIdPrefixStr() + s;
                 }
 
                 return "ValueType::" + s;
@@ -1138,7 +1138,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
         if ((!obj.isNonUniqueAllowed()) ||
-            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (generator().currentSchema().schemaVersion() < valIter->second.m_deprecatedSince) ||
             (obj.isUnique())) {
             addElementNameFunc(*valIter);
             continue;
@@ -1149,7 +1149,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
         for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
             auto vIter = values.find(iter->second);
             assert(vIter != values.end());
-            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+            if (generator().currentSchema().schemaVersion() < vIter->second.m_deprecatedSince) {
                 addElementNameFunc(*vIter);
                 foundNotDeprecated = true;
                 break;
@@ -1325,7 +1325,7 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
         ((type != commsdsl::parse::EnumField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
-        generator().versionDependentCode() &&
+        generator().currentSchema().versionDependentCode() &&
         obj.validCheckVersion();
 
     auto addOptFunc =

@@ -104,7 +104,7 @@ bool writeFileInternal(
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
         {"NAME", name},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"MESSAGES", util::strListToString(scopes, ",\n", "")},
@@ -155,7 +155,7 @@ bool ToolsQtInputMessages::toolsWriteAllMessagesInternal() const
 
 bool ToolsQtInputMessages::toolsWritePlatformInputMessagesInternal() const
 {
-    auto& platforms = m_generator.schema().platformNames();
+    auto& platforms = m_generator.currentSchema().platformNames();
     for (auto& p : platforms) {
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::Message& msg)

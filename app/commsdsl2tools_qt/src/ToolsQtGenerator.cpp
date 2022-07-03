@@ -63,7 +63,7 @@ const std::string& ToolsQtGenerator::fileGeneratedComment()
 ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
 {
     StringsList result;
-    auto& nsList = schema().namespaces();
+    auto& nsList = currentSchema().namespaces();
     for (auto& nsPtr : nsList) {
         assert(nsPtr);
 
@@ -104,8 +104,8 @@ bool ToolsQtGenerator::prepareImpl()
         else {
             pInfo.m_interface = interfacePtr->name();
         }
-        pInfo.m_name = schemaName();
-        pInfo.m_desc = "Protocol " + schemaName();
+        pInfo.m_name = currentSchema().schemaName();
+        pInfo.m_desc = "Protocol " + currentSchema().schemaName();
     }
 
     for (auto& info : m_pluginInfos) {

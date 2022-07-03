@@ -68,20 +68,13 @@ public:
     void setVersionIndependentCodeForced(bool value = true); 
     bool getVersionIndependentCodeForced() const;
 
-    unsigned parsedSchemaVersion() const;
-    unsigned schemaVersion() const;
-    const std::string& mainNamespace() const;
-    const std::string& schemaName() const;
-    parse::Endian schemaEndian() const;
-
-    const Field* getMessageIdField() const;
     const Field* findField(const std::string& externalRef) const;
     Field* findField(const std::string& externalRef);
     const Message* findMessage(const std::string& externalRef) const;
     Message* findMessage(const std::string& externalRef);
     const Frame* findFrame(const std::string& externalRef) const;
     const Interface* findInterface(const std::string& externalRef) const;
-    const Schema* schemaOf(Elem& elem) const;
+    static const Schema* schemaOf(const Elem& elem);
 
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;
@@ -104,13 +97,11 @@ public:
 
     bool isElementDeprecated(unsigned deprecatedSince) const;
 
-    bool versionDependentCode() const;
-
     Logger& logger();
     const Logger& logger() const;
 
-    Schema& schema();
-    const Schema& schema() const;
+    Schema& currentSchema();
+    const Schema& currentSchema() const;
 
     SchemaPtr createSchema(commsdsl::parse::Schema dslObj, Elem* parent = nullptr);
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);

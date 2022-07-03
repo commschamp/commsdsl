@@ -51,13 +51,6 @@ namespace commsdsl
 namespace gen
 {
 
-namespace 
-{
-
-const unsigned MaxDslVersion = 5U;
-
-} // namespace 
-
 
 class GeneratorImpl
 {
@@ -88,13 +81,13 @@ public:
         m_logger = std::move(logger);
     }
 
-    Schema& schema()
+    Schema& currentSchema()
     {
         assert(m_schema);
         return *m_schema;
     }
 
-    const Schema& schema() const
+    const Schema& currentSchema() const
     {
         assert(m_schema);
         return *m_schema;
@@ -117,7 +110,7 @@ public:
 
     void setMainNamespaceOverride(const std::string& value)
     {
-        m_mainNamespace = value;
+        m_mainNamespaceOverride = value;
     }
 
     void setTopNamespace(const std::string& value)
@@ -160,40 +153,6 @@ public:
     bool getVersionIndependentCodeForced() const
     {
         return m_versionIndependentCodeForced;
-    }
-
-    unsigned parsedSchemaVersion() const
-    {
-        return m_parsedSchemaVersion;
-    }
-
-    unsigned schemaVersion() const
-    {
-        if (0 <= m_forcedSchemaVersion) {
-            return static_cast<unsigned>(m_forcedSchemaVersion);
-        }
-
-        return parsedSchemaVersion();
-    }
-
-    const std::string& mainNamespace() const
-    {
-        return m_mainNamespace;
-    }
-
-    const std::string& schemaName() const
-    {
-        return m_protocol.lastParsedSchema().name();
-    }
-
-    parse::Endian schemaEndian() const
-    {
-        return m_protocol.lastParsedSchema().endian();
-    }
-
-    const Field* getMessageIdField() const
-    {
-        return m_messageIdField;
     }
 
     const Field* findField(const std::string& externalRef) const
@@ -265,26 +224,16 @@ public:
 
         auto schemaDsl = m_protocol.lastParsedSchema();
         m_schema = m_generator.createSchema(schemaDsl);
-        m_schemaNamespace = util::strToName(schemaDsl.name());
-        if (m_mainNamespace.empty()) {
-            assert(!schemaDsl.name().empty());
-            m_mainNamespace = m_schemaNamespace;
+        m_schema->setVersionIndependentCodeForced(m_versionIndependentCodeForced);
+
+        // Last schema
+        m_schema->setMinRemoteVersion(m_minRemoteVersion);
+        if (0 <= m_forcedSchemaVersion) {
+            m_schema->forceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
         }
 
-        m_schemaEndian = schemaDsl.endian();
-        m_parsedSchemaVersion = schemaDsl.version();
-        if ((0 <= m_forcedSchemaVersion) && 
-            (m_parsedSchemaVersion < static_cast<decltype(m_parsedSchemaVersion)>(m_forcedSchemaVersion))) {
-            m_logger->error("Cannot force version to be greater than " + util::numToString(m_parsedSchemaVersion));
-            return false;
-        }
-
-        auto dslVersion = schemaDsl.dslVersion();
-        if (MaxDslVersion < dslVersion) {
-            m_logger->error(
-                "Required DSL version is too big (" + std::to_string(dslVersion) +
-                "), upgrade your code generator.");
-            return false;
+        if (!m_mainNamespaceOverride.empty()) {
+            m_schema->setMainNamespaceOverride(m_mainNamespaceOverride);
         }
 
         if (!m_schema->createAll()) {
@@ -292,17 +241,10 @@ public:
             return false;
         }
 
-
-        if (!m_versionIndependentCodeForced) {
-            m_versionDependentCode = anyInterfaceHasVersion();
-        }
-
         if (!m_schema->prepare()) {
             m_logger->error("Failed to prepare elements inside schema \"" + schemaDsl.name() + "\"");
             return false;
         }
-
-        m_messageIdField = findMessageIdField();
 
         if (m_logger->hadWarning()) {
             m_logger->error("Warning treated as error");
@@ -336,41 +278,20 @@ public:
         return m_protocol;
     }
 
-    bool versionDependentCode() const
-    {
-        return m_versionDependentCode;
-    }
-
 private:
-    const Field* findMessageIdField() const
-    {
-        assert(m_schema);
-        return m_schema->findMessageIdField();
-    }
-
-    bool anyInterfaceHasVersion() const
-    {
-        assert(m_schema);
-        return m_schema->anyInterfaceHasVersion();
-    }
 
     Generator& m_generator;
     commsdsl::parse::Protocol m_protocol;
     LoggerPtr m_logger;
     SchemaPtr m_schema;
-    std::string m_schemaNamespace;
-    std::string m_mainNamespace;
+    std::string m_mainNamespaceOverride;
     std::string m_topNamespace;
-    commsdsl::parse::Endian m_schemaEndian = commsdsl::parse::Endian_Little;
-    unsigned m_parsedSchemaVersion = 0U;
     int m_forcedSchemaVersion = -1;
     unsigned m_minRemoteVersion = 0U;
     std::string m_outputDir;
     std::string m_codeDir;
-    const Field* m_messageIdField = nullptr;
     mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
-    bool m_versionDependentCode = false;
 }; 
 
 Generator::Generator() : 
@@ -440,36 +361,6 @@ bool Generator::getVersionIndependentCodeForced() const
     return m_impl->getVersionIndependentCodeForced();
 }
 
-unsigned Generator::parsedSchemaVersion() const
-{
-    return m_impl->parsedSchemaVersion();
-}
-
-unsigned Generator::schemaVersion() const
-{
-    return m_impl->schemaVersion();
-}
-
-const std::string& Generator::mainNamespace() const
-{
-    return m_impl->mainNamespace();
-}
-
-const std::string& Generator::schemaName() const
-{
-    return m_impl->schemaName();
-}
-
-parse::Endian Generator::schemaEndian() const
-{
-    return m_impl->schemaEndian();
-}
-
-const Field* Generator::getMessageIdField() const
-{
-    return m_impl->getMessageIdField();
-}
-
 const Field* Generator::findField(const std::string& externalRef) const
 {
     auto* field = m_impl->findField(externalRef);
@@ -528,7 +419,7 @@ const Interface* Generator::findInterface(const std::string& externalRef) const
     return m_impl->findInterface(externalRef);
 }
 
-const Schema* Generator::schemaOf(Elem& elem) const
+const Schema* Generator::schemaOf(const Elem& elem)
 {
     auto* parent = elem.getParent();
     assert(parent != nullptr);
@@ -541,17 +432,17 @@ const Schema* Generator::schemaOf(Elem& elem) const
 
 Generator::NamespacesAccessList Generator::getAllNamespaces() const
 {
-    return schema().getAllNamespaces();
+    return currentSchema().getAllNamespaces();
 }
 
 Generator::InterfacesAccessList Generator::getAllInterfaces() const
 {
-    return schema().getAllInterfaces();
+    return currentSchema().getAllInterfaces();
 }
 
 Generator::MessagesAccessList Generator::getAllMessages() const
 {
-    return schema().getAllMessages();
+    return currentSchema().getAllMessages();
 }
 
 Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
@@ -575,7 +466,7 @@ Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
 
 Generator::FramesAccessList Generator::getAllFrames() const
 {
-    return schema().getAllFrames();
+    return currentSchema().getAllFrames();
 }
 
 bool Generator::prepare(const FilesList& files)
@@ -610,17 +501,7 @@ bool Generator::doesElementExist(
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    unsigned sVersion = schemaVersion();
-
-    if (sVersion < sinceVersion) {
-        return false;
-    }
-
-    if (deprecatedRemoved && (deprecatedSince <= getMinRemoteVersion())) {
-        return false;
-    }
-
-    return true;
+    return currentSchema().doesElementExist(sinceVersion, deprecatedSince, deprecatedRemoved);
 }
 
 bool Generator::isElementOptional(
@@ -628,26 +509,13 @@ bool Generator::isElementOptional(
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    if (getMinRemoteVersion() < sinceVersion) {
-        return true;
-    }
-
-    if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated())) {
-        return true;
-    }
-
-    return false;
+    return currentSchema().isElementOptional(sinceVersion, deprecatedSince, deprecatedRemoved);
 }
 
 bool Generator::isElementDeprecated(unsigned deprecatedSince) const
 {
-    return deprecatedSince < schemaVersion();
+    return currentSchema().isElementDeprecated(deprecatedSince);
 } 
-
-bool Generator::versionDependentCode() const
-{
-    return m_impl->versionDependentCode();
-}
 
 Logger& Generator::logger()
 {
@@ -674,14 +542,14 @@ const Logger& Generator::logger() const
     return *loggerPtr;
 }
 
-Schema& Generator::schema()
+Schema& Generator::currentSchema()
 {
-    return m_impl->schema();
+    return m_impl->currentSchema();
 }
 
-const Schema& Generator::schema() const
+const Schema& Generator::currentSchema() const
 {
-    return m_impl->schema();
+    return m_impl->currentSchema();
 }
 
 SchemaPtr Generator::createSchema(commsdsl::parse::Schema dslObj, Elem* parent)
@@ -981,7 +849,7 @@ Generator::LoggerPtr Generator::createLoggerImpl()
 
 Namespace* Generator::addDefaultNamespace()
 {
-    return schema().addDefaultNamespace();
+    return currentSchema().addDefaultNamespace();
 }
 
 } // namespace gen

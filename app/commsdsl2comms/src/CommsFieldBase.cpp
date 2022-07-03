@@ -79,12 +79,12 @@ bool CommsFieldBase::commsWriteInternal() const
         "} // namespace #^#PROT_NAMESPACE#$#\n\n";    
 
     util::StringsList options;
-    options.push_back(comms::dslEndianToOpt(m_generator.schemaEndian()));
+    options.push_back(comms::dslEndianToOpt(m_generator.currentSchema().schemaEndian()));
     // TODO: version type
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"OPTIONS", util::strListToString(options, ",\n", "")},
     };        
     

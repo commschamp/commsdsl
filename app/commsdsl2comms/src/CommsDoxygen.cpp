@@ -229,7 +229,7 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "\n";
 
     util::ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.schemaName()},
+        {"PROJ_NAME", m_generator.currentSchema().schemaName()},
         {"APPEND", util::readFileContents(comms::inputCodePathForDoc(FileName, m_generator) + strings::appendFileSuffixStr())}
     };
 
@@ -470,7 +470,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 
     util::ReplacementMap repl = {
         {"NS_LIST", util::strListToString(nsElems, "", "")},
-        {"NS", m_generator.mainNamespace()},
+        {"NS", m_generator.currentSchema().mainNamespace()},
         {"APPEND", util::readFileContents(comms::inputCodePathForDoc(FileName, m_generator) + strings::appendFileSuffixStr())}
     };
 
@@ -484,7 +484,7 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 
     if (!hasDefaultNamespace) {
         repl["MAIN"] = 
-            "/// @namespace " + m_generator.mainNamespace() + "\n"
+            "/// @namespace " + m_generator.currentSchema().mainNamespace() + "\n"
             "/// @brief Main namespace for all classes / functions of this protocol library.\n";
     }
 
@@ -521,7 +521,7 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         "\n";
 
     util::ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.schemaName()},
+        {"PROJ_NAME", m_generator.currentSchema().schemaName()},
         {"MESSAGES_DOC", commsMessagesDocInternal()},
         {"FIELDS_DOC", commsFieldsDocInternal()},
         {"INTERFACE_DOC", commsInterfaceDocInternal()},
@@ -667,7 +667,7 @@ std::string CommsDoxygen::commsFrameDocInternal() const
     addToMessagesListFunc(ServerInputMessagesStr);
     addToMessagesListFunc(ClientInputMessagesStr);
 
-    auto& platforms = m_generator.schema().platformNames();
+    auto& platforms = m_generator.currentSchema().platformNames();
     for (auto& p : platforms) {
         addToMessagesListFunc(p + "Messages");
         addToMessagesListFunc(p + ServerInputMessagesStr);
@@ -677,7 +677,7 @@ std::string CommsDoxygen::commsFrameDocInternal() const
     util::ReplacementMap repl = {
         {"LIST", util::strListToString(list, "\n", "")},
         {"MESSAGES_LIST", util::strListToString(messagesList, "\n", "")},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"PLATFORMS", commsPlatformsDocInternal()},
         {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), m_generator)},
         {"ALL_MESSAGES_HEADER", comms::relHeaderForInput(strings::allMessagesStr(), m_generator)},
@@ -749,7 +749,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         };
 
     addPlatformFunc(strings::emptyString());
-    for (auto& p : m_generator.schema().platformNames()) {
+    for (auto& p : m_generator.currentSchema().platformNames()) {
         addPlatformFunc(comms::className(p));
     }
 
@@ -863,7 +863,7 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
 
     util::ReplacementMap repl = {
         {"INTERFACE", comms::scopeFor(*allInterfaces.front(), m_generator)},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsStr(), m_generator)},
         {"CLIENT_OPTIONS", comms::scopeForOptions("Client" + strings::defaultOptionsStr(), m_generator)},
         {"SERVER_OPTIONS", comms::scopeForOptions("Server" + strings::defaultOptionsStr(), m_generator)},
@@ -881,7 +881,7 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
 
 std::string CommsDoxygen::commsVersionDocInternal() const
 {
-    if (!m_generator.versionDependentCode()) {
+    if (!m_generator.currentSchema().versionDependentCode()) {
         return strings::emptyString();
     }
 
@@ -916,14 +916,14 @@ std::string CommsDoxygen::commsVersionDocInternal() const
         "/// @endcode";
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
     };
     return util::processTemplate(Templ, repl);
 }
 
 std::string CommsDoxygen::commsPlatformsDocInternal() const
 {
-    auto platforms = m_generator.schema().platformNames();
+    auto platforms = m_generator.currentSchema().platformNames();
     if (platforms.empty()) {
         return strings::emptyString();
     }
