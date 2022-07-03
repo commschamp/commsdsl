@@ -263,14 +263,24 @@ CommsGenerator::LayerPtr CommsGenerator::createChecksumLayerImpl(commsdsl::parse
 
 bool CommsGenerator::writeImpl() 
 {
+    for (auto idx = 0U; idx < schemas().size(); ++idx) {
+        chooseCurrentSchema(idx);
+        bool result = 
+            CommsMsgId::write(*this) &&
+            CommsFieldBase::write(*this) &&
+            CommsVersion::write(*this) &&
+            CommsInputMessages::write(*this) &&
+            CommsDefaultOptions::write(*this) &&
+            CommsDispatch::write(*this);
+
+        if (!result) {
+            return false;
+        }
+    }
+
+    assert(&currentSchema() == &protocolSchema());
     return 
         CommsCmake::write(*this) &&
-        CommsMsgId::write(*this) &&
-        CommsFieldBase::write(*this) &&
-        CommsVersion::write(*this) &&
-        CommsInputMessages::write(*this) &&
-        CommsDefaultOptions::write(*this) &&
-        CommsDispatch::write(*this) &&
         CommsDoxygen::write(*this) &&
         commsWriteExtraFilesInternal();
 }
@@ -342,7 +352,6 @@ bool CommsGenerator::prepareExtraMessageBundlesInternal()
     return true;
 }
 
-
 bool CommsGenerator::commsWriteExtraFilesInternal() const
 {
     auto& inputDir = getCodeDir();
@@ -398,9 +407,10 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
         }
 
         std::string relPath(pathStr, posTmp);
-        auto schemaNs = util::strToName(currentSchema().schemaName());
+        auto& protSchema = protocolSchema();
+        auto schemaNs = util::strToName(protSchema.schemaName());
         do {
-            if (currentSchema().mainNamespace() == schemaNs) {
+            if (protSchema.mainNamespace() == schemaNs) {
                 break;
             }
 
@@ -409,7 +419,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
                 break;
             }
 
-            auto dstPrefix = (fs::path(strings::includeDirStr()) / currentSchema().mainNamespace()).string();
+            auto dstPrefix = (fs::path(strings::includeDirStr()) / protSchema.mainNamespace()).string();
             relPath = dstPrefix + std::string(relPath, srcPrefix.size());
         } while (false);
 
@@ -427,7 +437,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             return false;
         }
 
-        if (currentSchema().mainNamespace() != schemaNs) {
+        if (protSchema.mainNamespace() != schemaNs) {
             // The namespace has changed
 
             auto destStr = destPath.string();
@@ -440,7 +450,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
             stream.close();
 
-            util::strReplace(content, "namespace " + schemaNs, "namespace " + currentSchema().mainNamespace());
+            util::strReplace(content, "namespace " + schemaNs, "namespace " + protSchema.mainNamespace());
             std::ofstream outStream(destStr, std::ios_base::trunc);
             if (!outStream) {
                 logger().error("Failed to modify " + destStr + ".");

@@ -42,6 +42,7 @@ public:
     using LoggerPtr = std::unique_ptr<Logger>;
     using NamespacesList = Namespace::NamespacesList;
     using PlatformNamesList = std::vector<std::string>;
+    using SchemasList = std::vector<SchemaPtr>;
 
     using NamespacesAccessList = Namespace::NamespacesAccessList;
     using InterfacesAccessList = Namespace::InterfacesAccessList;
@@ -74,7 +75,7 @@ public:
     Message* findMessage(const std::string& externalRef);
     const Frame* findFrame(const std::string& externalRef) const;
     const Interface* findInterface(const std::string& externalRef) const;
-    static const Schema* schemaOf(const Elem& elem);
+    static const Schema& schemaOf(const Elem& elem);
 
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;
@@ -100,8 +101,12 @@ public:
     Logger& logger();
     const Logger& logger() const;
 
+    const SchemasList& schemas() const;
+
     Schema& currentSchema();
     const Schema& currentSchema() const;
+    Schema& protocolSchema();
+    const Schema& protocolSchema() const;    
 
     SchemaPtr createSchema(commsdsl::parse::Schema dslObj, Elem* parent = nullptr);
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
@@ -167,6 +172,8 @@ protected:
 
 
     Namespace* addDefaultNamespace();
+    void chooseCurrentSchema(unsigned idx);
+    void chooseProtocolSchema();
 
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    

@@ -59,6 +59,7 @@ public:
     using FilesList = Generator::FilesList;
     using NamespacesList = Generator::NamespacesList;
     using PlatformNamesList = Generator::PlatformNamesList;
+    using SchemasList = Generator::SchemasList;
 
     explicit GeneratorImpl(Generator& generator) :
         m_generator(generator),
@@ -81,16 +82,39 @@ public:
         m_logger = std::move(logger);
     }
 
+    const SchemasList& schemas() const
+    {
+        return m_schemas;
+    }
+
     Schema& currentSchema()
     {
-        assert(m_schema);
-        return *m_schema;
+        assert(m_currentSchema != nullptr);
+        return *m_currentSchema;
     }
 
     const Schema& currentSchema() const
     {
-        assert(m_schema);
-        return *m_schema;
+        assert(m_currentSchema != nullptr);
+        return *m_currentSchema;
+    }
+
+    Schema& protocolSchema()
+    {
+        assert(!m_schemas.empty());
+        return *m_schemas.back();
+    }
+
+    const Schema& protocolSchema() const
+    {
+        assert(!m_schemas.empty());
+        return *m_schemas.back();
+    }
+
+    void chooseCurrentSchema(unsigned idx)
+    {
+        assert(idx < m_schemas.size());
+        m_currentSchema = m_schemas[idx].get();
     }
 
     void forceSchemaVersion(unsigned value)
@@ -157,38 +181,38 @@ public:
 
     const Field* findField(const std::string& externalRef) const
     {
-        assert(m_schema);
-        return m_schema->findField(externalRef);
+        assert(m_currentSchema != nullptr);
+        return m_currentSchema->findField(externalRef);
     }
 
     Field* findField(const std::string& externalRef)
     {
-        assert(m_schema);
-        return m_schema->findField(externalRef);        
+        assert(m_currentSchema != nullptr);
+        return m_currentSchema->findField(externalRef);        
     }
 
     const Message* findMessage(const std::string& externalRef) const
     {
-        assert(m_schema);
-        return m_schema->findMessage(externalRef);
+        assert(m_currentSchema != nullptr);
+        return m_currentSchema->findMessage(externalRef);
     }  
 
     Message* findMessage(const std::string& externalRef)
     {
-        assert(m_schema);
-        return m_schema->findMessage(externalRef);
+        assert(m_currentSchema != nullptr);
+        return m_currentSchema->findMessage(externalRef);
     }
 
     const Frame* findFrame(const std::string& externalRef) const
     {
-        assert(m_schema);
-        return m_schema->findFrame(externalRef);
+        assert(m_currentSchema != nullptr);
+        return m_currentSchema->findFrame(externalRef);
     }
 
     const Interface* findInterface(const std::string& externalRef) const
     {
-        assert(m_schema);
-        return m_schema->findInterface(externalRef);
+        assert(m_currentSchema != nullptr);
+        return m_currentSchema->findInterface(externalRef);
     }                
 
     bool prepare(const FilesList& files)
@@ -222,29 +246,46 @@ public:
             return false;
         }
 
-        auto schemaDsl = m_protocol.lastParsedSchema();
-        m_schema = m_generator.createSchema(schemaDsl);
-        m_schema->setVersionIndependentCodeForced(m_versionIndependentCodeForced);
+        auto allSchemas = m_protocol.schemas();
+        if (allSchemas.empty()) {
+            m_logger->error("No schemas available");
+            return false;
+        }
 
-        // Last schema
-        m_schema->setMinRemoteVersion(m_minRemoteVersion);
+        for (auto& s : allSchemas) {
+            auto schema = m_generator.createSchema(s);
+            schema->setVersionIndependentCodeForced(m_versionIndependentCodeForced);
+            m_schemas.push_back(std::move(schema));
+        }
+
+        assert(!m_schemas.empty());
+        auto& protocolSchemaPtr = m_schemas.back();
+        
+        protocolSchemaPtr->setMinRemoteVersion(m_minRemoteVersion);
         if (0 <= m_forcedSchemaVersion) {
-            m_schema->forceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
+            protocolSchemaPtr->forceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
         }
 
         if (!m_mainNamespaceOverride.empty()) {
-            m_schema->setMainNamespaceOverride(m_mainNamespaceOverride);
+            protocolSchemaPtr->setMainNamespaceOverride(m_mainNamespaceOverride);
         }
 
-        if (!m_schema->createAll()) {
-            m_logger->error("Failed to create elements inside schema \"" + schemaDsl.name() + "\"");
-            return false;
-        }
+        for (auto& s : m_schemas) {
+            m_currentSchema = s.get();
+            if (!s->createAll()) {
+                m_logger->error("Failed to create elements inside schema \"" + s->dslObj().name() + "\"");
+                return false;
+            }            
+        }   
 
-        if (!m_schema->prepare()) {
-            m_logger->error("Failed to prepare elements inside schema \"" + schemaDsl.name() + "\"");
-            return false;
-        }
+        for (auto& s : m_schemas) {
+            m_currentSchema = s.get();
+            if (!s->prepare()) {
+                m_logger->error("Failed to prepare elements inside schema \"" + s->dslObj().name() + "\"");
+                return false;
+            }            
+        }               
+
 
         if (m_logger->hadWarning()) {
             m_logger->error("Warning treated as error");
@@ -256,8 +297,13 @@ public:
 
     bool write()
     {
-        assert(m_schema);
-        return m_schema->write();
+        return std::all_of(
+            m_schemas.begin(), m_schemas.end(),
+            [this](auto& s)
+            {
+                m_currentSchema = s.get();
+                return s->write();
+            });
     }
 
     bool wasDirectoryCreated(const std::string& path) const
@@ -283,7 +329,8 @@ private:
     Generator& m_generator;
     commsdsl::parse::Protocol m_protocol;
     LoggerPtr m_logger;
-    SchemaPtr m_schema;
+    SchemasList m_schemas;
+    Schema* m_currentSchema = nullptr;
     std::string m_mainNamespaceOverride;
     std::string m_topNamespace;
     int m_forcedSchemaVersion = -1;
@@ -419,12 +466,12 @@ const Interface* Generator::findInterface(const std::string& externalRef) const
     return m_impl->findInterface(externalRef);
 }
 
-const Schema* Generator::schemaOf(const Elem& elem)
+const Schema& Generator::schemaOf(const Elem& elem)
 {
     auto* parent = elem.getParent();
     assert(parent != nullptr);
     if (parent->elemType() == Elem::Type_Schema) {
-        return static_cast<const Schema*>(parent);
+        return static_cast<const Schema&>(*parent);
     }
 
     return schemaOf(*parent);
@@ -542,6 +589,11 @@ const Logger& Generator::logger() const
     return *loggerPtr;
 }
 
+const Generator::SchemasList& Generator::schemas() const
+{
+    return m_impl->schemas();
+}
+
 Schema& Generator::currentSchema()
 {
     return m_impl->currentSchema();
@@ -550,6 +602,16 @@ Schema& Generator::currentSchema()
 const Schema& Generator::currentSchema() const
 {
     return m_impl->currentSchema();
+}
+
+Schema& Generator::protocolSchema()
+{
+    return m_impl->protocolSchema();
+}
+
+const Schema& Generator::protocolSchema() const
+{
+    return m_impl->protocolSchema();
 }
 
 SchemaPtr Generator::createSchema(commsdsl::parse::Schema dslObj, Elem* parent)
@@ -850,6 +912,17 @@ Generator::LoggerPtr Generator::createLoggerImpl()
 Namespace* Generator::addDefaultNamespace()
 {
     return currentSchema().addDefaultNamespace();
+}
+
+void Generator::chooseCurrentSchema(unsigned idx)
+{
+    m_impl->chooseCurrentSchema(idx);
+}
+
+void Generator::chooseProtocolSchema()
+{
+    assert(!schemas().empty());
+    chooseCurrentSchema(static_cast<unsigned>(schemas().size() - 1U));
 }
 
 } // namespace gen

@@ -218,7 +218,7 @@ std::string CommsVariantField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = variantDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.currentSchema().mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"CLASS_NAME", comms::className(dslObj.name())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
@@ -407,7 +407,7 @@ std::size_t CommsVariantField::commsMaxLengthImpl() const
 bool CommsVariantField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());
-    if (generator().currentSchema().versionDependentCode()) {
+    if (generator().schemaOf(*this).versionDependentCode()) {
         auto sinceVersion = dslObj().sinceVersion();
         for (auto* m : m_members) {
             assert(m != nullptr);

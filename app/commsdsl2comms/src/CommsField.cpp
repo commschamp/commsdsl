@@ -204,7 +204,7 @@ bool CommsField::commsHasGeneratedReadCode() const
 
 bool CommsField::commsIsVersionDependent() const
 {
-    if (!m_field.generator().currentSchema().versionDependentCode()) {
+    if (!m_field.generator().schemaOf(m_field).versionDependentCode()) {
         return false;
     }
 
@@ -634,9 +634,8 @@ std::string CommsField::commsCommonNameFuncCode() const
 
 std::string CommsField::commsFieldBaseParams(commsdsl::parse::Endian endian) const
 {
-    auto* schema = commsdsl::gen::Generator::schemaOf(m_field);
-    assert(schema != nullptr);
-    auto schemaEndian = schema->schemaEndian();
+    auto& schema = commsdsl::gen::Generator::schemaOf(m_field);
+    auto schemaEndian = schema.schemaEndian();
     assert(endian < commsdsl::parse::Endian_NumOfValues);
     assert(schemaEndian < commsdsl::parse::Endian_NumOfValues);
 

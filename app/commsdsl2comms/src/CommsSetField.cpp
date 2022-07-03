@@ -106,7 +106,7 @@ std::string CommsSetField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = setDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.currentSchema().mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
@@ -134,7 +134,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
     auto& gen = generator();
 
     bool validCheckVersion =
-        gen.currentSchema().versionDependentCode() &&
+        gen.schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {
@@ -431,7 +431,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         auto bitIter = bits.find(b.second);
         assert(bitIter != bits.end());
         if ((!obj.isNonUniqueAllowed()) || 
-            (generator().currentSchema().schemaVersion() < bitIter->second.m_deprecatedSince) ||
+            (generator().schemaOf(*this).schemaVersion() < bitIter->second.m_deprecatedSince) ||
             (obj.isUnique())) {
             addElementNameFunc(*bitIter);
             continue;
@@ -442,7 +442,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         for (auto iter = allRevBits.first; iter != allRevBits.second; ++iter) {
             auto bIter = bits.find(iter->second);
             assert(bIter != bits.end());
-            if (generator().currentSchema().schemaVersion() < bIter->second.m_deprecatedSince) {
+            if (generator().schemaOf(*this).schemaVersion() < bIter->second.m_deprecatedSince) {
                 addElementNameFunc(*bIter);
                 foundNotDeprecated = true;
                 break;
@@ -726,7 +726,7 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::Strings
     auto& gen = generator();
 
     bool validCheckVersion =
-        gen.currentSchema().versionDependentCode() &&
+        gen.schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     std::uintmax_t reservedMask = ~static_cast<std::uintmax_t>(0U);

@@ -157,7 +157,7 @@ std::string scopeForInternal(
         result = scopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
-        result = generator.currentSchema().mainNamespace();
+        result = generator.schemaOf(elem).mainNamespace();
     }
 
     do {
@@ -231,7 +231,7 @@ std::string commonScopeForInternal(
         result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
-        result = generator.currentSchema().mainNamespace();
+        result = generator.schemaOf(elem).mainNamespace();
     }
 
     do {
@@ -595,7 +595,7 @@ std::string namespaceBeginFor(
             appendToResultFunc(namespaceName(topNamespace));
         }
 
-        appendToResultFunc(namespaceName(generator.currentSchema().mainNamespace()));
+        appendToResultFunc(namespaceName(generator.schemaOf(elem).mainNamespace()));
     } while (false);
 
     auto elemType = elem.elemType();
@@ -685,7 +685,7 @@ std::string namespaceEndFor(
             break;
         }
 
-        appendToResultFunc(namespaceName(generator.currentSchema().mainNamespace()));
+        appendToResultFunc(namespaceName(generator.schemaOf(elem).mainNamespace()));
 
         auto& topNamespace = generator.getTopNamespace();
         if (!topNamespace.empty()) {
@@ -849,7 +849,7 @@ bool isVersionOptionaField(const Elem& elem, const Generator& generator)
         return false;
     }    
 
-    if (!generator.currentSchema().versionDependentCode()) {
+    if (!generator.schemaOf(elem).versionDependentCode()) {
         return false;
     }
 

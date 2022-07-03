@@ -145,7 +145,7 @@ std::string CommsBitfieldField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = bitfieldDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.currentSchema().mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"CLASS_NAME", comms::className(dslObj.name())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},

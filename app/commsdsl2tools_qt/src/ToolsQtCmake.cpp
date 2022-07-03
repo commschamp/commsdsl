@@ -148,7 +148,7 @@ bool ToolsQtCmake::testWriteInternal() const
 
 
     util::ReplacementMap repl = {
-        {"PROT", util::strToName(m_generator.currentSchema().schemaName())},
+        {"PROT", util::strToName(m_generator.protocolSchema().schemaName())},
         {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
         {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")}
     };

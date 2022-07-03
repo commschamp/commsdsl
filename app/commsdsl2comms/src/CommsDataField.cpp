@@ -146,7 +146,7 @@ std::string CommsDataField::commsDefBaseClassImpl() const
     ">";    
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", generator().currentSchema().mainNamespace()},
+        {"PROT_NAMESPACE", generator().schemaOf(*this).mainNamespace()},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 

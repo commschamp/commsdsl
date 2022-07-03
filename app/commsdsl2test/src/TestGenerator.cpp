@@ -15,10 +15,12 @@
 
 #include "TestGenerator.h"
 
-#include "commsdsl/version.h"
-
 #include "Test.h"
 #include "TestCmake.h"
+
+#include "commsdsl/version.h"
+
+#include <cassert>
 
 namespace commsdsl2test
 {
@@ -34,6 +36,7 @@ const std::string& TestGenerator::fileGeneratedComment()
 
 bool TestGenerator::writeImpl()
 {
+    assert(&currentSchema() == &protocolSchema());
     return 
         Test::write(*this) &&
         TestCmake::write(*this);

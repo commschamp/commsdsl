@@ -63,13 +63,15 @@ const std::string& ToolsQtGenerator::fileGeneratedComment()
 ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
 {
     StringsList result;
-    auto& nsList = currentSchema().namespaces();
-    for (auto& nsPtr : nsList) {
-        assert(nsPtr);
+    for (auto& s : schemas()) {
+        auto& nsList = s->namespaces();
+        for (auto& nsPtr : nsList) {
+            assert(nsPtr);
 
-        auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles();
-        result.reserve(result.size() + nsResult.size());
-        std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
+            auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles();
+            result.reserve(result.size() + nsResult.size());
+            std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
+        }
     }
 
     return result;
@@ -77,6 +79,7 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
 
 bool ToolsQtGenerator::prepareImpl() 
 {
+    chooseProtocolSchema();
     bool result = 
         Base::prepareImpl() &&
         toolsPrepareDefaultInterfaceInternal();
@@ -85,11 +88,12 @@ bool ToolsQtGenerator::prepareImpl()
         return false;
     }
 
+    auto& schema = protocolSchema();
     if (m_pluginInfos.empty()) {
         m_pluginInfos.resize(1U);
         auto& pInfo = m_pluginInfos.back();
 
-        auto allInterfaces = getAllInterfaces();
+        auto allInterfaces = schema.getAllInterfaces();
         assert(!allInterfaces.empty());
         auto allFrames = getAllFrames();
         assert(!allFrames.empty());
@@ -104,8 +108,8 @@ bool ToolsQtGenerator::prepareImpl()
         else {
             pInfo.m_interface = interfacePtr->name();
         }
-        pInfo.m_name = currentSchema().schemaName();
-        pInfo.m_desc = "Protocol " + currentSchema().schemaName();
+        pInfo.m_name = schema.schemaName();
+        pInfo.m_desc = "Protocol " + schema.schemaName();
     }
 
     for (auto& info : m_pluginInfos) {
@@ -238,6 +242,7 @@ ToolsQtGenerator::LayerPtr ToolsQtGenerator::createChecksumLayerImpl(commsdsl::p
 
 bool ToolsQtGenerator::writeImpl()
 {
+    chooseProtocolSchema();
     bool result =  
         ToolsQtCmake::write(*this) &&
         ToolsQtInputMessages::write(*this);
@@ -257,12 +262,13 @@ bool ToolsQtGenerator::writeImpl()
 
 bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
 {
-    auto allInterfaces = getAllInterfaces();
+    auto& schema = protocolSchema();
+    auto allInterfaces = schema.getAllInterfaces();
     if (!allInterfaces.empty()) {
         return true;
     }
 
-    auto* defaultNamespace = addDefaultNamespace();
+    auto* defaultNamespace = schema.addDefaultNamespace();
     auto* interface = defaultNamespace->addDefaultInterface();
     if (interface == nullptr) {
         logger().error("Failed to create default interface");

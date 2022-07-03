@@ -308,7 +308,7 @@ std::string CommsFloatField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = floatDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.currentSchema().mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"FIELD_TYPE", comms::cppFloatTypeFor(dslObj.type())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
@@ -356,7 +356,7 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
     }
 
     bool validCheckVersion =
-        generator().currentSchema().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     StringsList conditions;
@@ -669,7 +669,7 @@ void CommsFloatField::commsAddVersionOptInternal(StringsList& opts) const
 {
     auto obj = floatDslObj();
     bool validCheckVersion =
-        generator().currentSchema().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {

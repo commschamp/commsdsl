@@ -247,7 +247,7 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
     auto obj = intDslObj();
 
     bool validCheckVersion =
-        generator().currentSchema().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {
@@ -673,7 +673,7 @@ std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
     auto& gen = generator();
     auto dslObj = intDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.currentSchema().mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
         {"FIELD_OPTS", commsDefFieldOptsInternal(variantPropKey)}
@@ -805,7 +805,7 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
     if ((defaultValue == 0) &&
         (obj.semanticType() == commsdsl::parse::Field::SemanticType::Version)) {
         std::string str = "comms::option::def::DefaultNumValue<";
-        str += util::numToString(generator().currentSchema().schemaVersion());
+        str += util::numToString(generator().schemaOf(*this).schemaVersion());
         str += '>';
         util::addToStrList(std::move(str), opts);
         return;
@@ -847,7 +847,7 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
         ((type != commsdsl::parse::IntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
-        generator().currentSchema().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {
