@@ -50,6 +50,7 @@ public:
     void test40();
     void test41();
     void test42();
+    void test43();
 };
 
 void ListTestSuite::setUp()
@@ -1016,4 +1017,52 @@ void ListTestSuite::test42()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema42.xml");
     TS_ASSERT(protocol);
+}
+
+void ListTestSuite::test43()
+{
+    std::vector<std::string> schemas = {
+        SCHEMAS_DIR "/Schema43_1.xml",
+        SCHEMAS_DIR "/Schema43_2.xml",
+    };
+    auto protocol = prepareProtocol(schemas);
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    auto findField = 
+        [&fields](const std::string& name) -> const commsdsl::parse::Field*
+        {
+            auto iter = 
+                std::find_if(
+                    fields.begin(), fields.end(),
+                    [&name](auto& f)
+                    {
+                        return f.name() == name;
+                    });
+
+            if (iter == fields.end()) {
+                return nullptr;
+            }
+
+            return &(*iter);
+        };
+
+    do {
+        auto* field = findField("L1");
+        TS_ASSERT(field != nullptr);
+        TS_ASSERT_EQUALS(field->kind(), commsdsl::parse::Field::Kind::List);
+        TS_ASSERT_EQUALS(field->minLength(), 1U);
+
+        commsdsl::parse::ListField listField(*field);
+        auto elem = listField.elementField();
+        TS_ASSERT_EQUALS(elem.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT(elem.externalRef().empty());
+        TS_ASSERT_EQUALS(listField.fixedCount(), 0U);
+        TS_ASSERT(listField.hasCountPrefixField());
+    } while (false);
 }

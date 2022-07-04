@@ -1388,9 +1388,15 @@ bool isValidName(const std::string& value)
 
 bool isValidRefName(const char* buf, std::size_t len)
 {
+    if ((0U < len) && (buf[0] == schemaRefPrefix())) {
+        // Allow first character to be interschema ref
+        ++buf;
+        --len;
+    } 
+
     if (len == 0U) {
         return false;
-    }
+    }       
 
     if ((std::isalpha(buf[0]) == 0) && (buf[0] != '_')) {
         return false;

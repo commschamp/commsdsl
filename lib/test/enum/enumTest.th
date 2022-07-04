@@ -39,6 +39,7 @@ public:
     void test30();
     void test31();
     void test32();
+    void test33();
 };
 
 void EnumTestSuite::setUp()
@@ -823,4 +824,39 @@ void EnumTestSuite::test32()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
     TS_ASSERT(protocol);
+}
+
+void EnumTestSuite::test33()
+{
+    std::vector<std::string> schemas = {
+        SCHEMAS_DIR "/Schema33_1.xml",
+        SCHEMAS_DIR "/Schema33_2.xml"
+    };
+
+    auto protocol = prepareProtocol(schemas);
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 5U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "F5");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Enum);
+
+    commsdsl::parse::EnumField enumField(field);
+    auto& values = enumField.values();
+    TS_ASSERT_EQUALS(enumField.defaultValue(), 1);
+    TS_ASSERT_EQUALS(enumField.displayName(), "Desc1");
+    TS_ASSERT_EQUALS(values.size(), 2);
+    auto& v1 = values.find("V1")->second;
+    auto& v2 = values.find("V2")->second;
+    TS_ASSERT_EQUALS(v1.m_value, 1);
+    TS_ASSERT_EQUALS(v1.m_displayName, "Desc2");
+    TS_ASSERT_EQUALS(v2.m_value, 2);
+    TS_ASSERT_EQUALS(v2.m_displayName, "Desc3");
 }

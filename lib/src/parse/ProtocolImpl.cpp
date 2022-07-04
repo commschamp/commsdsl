@@ -671,25 +671,30 @@ bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueC
 
     } while (false);
 
-    auto& namespaces = currSchema().namespaces();    
+    auto parsedRef = parseExternalRef(ref);
+    if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+        return false;
+    }
+
+    auto& namespaces = parsedRef.first->namespaces();    
 
     auto redirectToGlobalNs =
-        [&func, &ref, &namespaces]() -> bool
+        [&func, &parsedRef, &namespaces]() -> bool
         {
             auto iter = namespaces.find(common::emptyString());
             if (iter == namespaces.end()) {
                 return false;
             }
             assert(iter->second);
-            return func(*iter->second, ref);
+            return func(*iter->second, parsedRef.second);
         };
 
-    auto firstDotPos = ref.find_first_of('.');
+    auto firstDotPos = parsedRef.second.find_first_of('.');
     if (firstDotPos == std::string::npos) {
         return redirectToGlobalNs();
     }
 
-    std::string ns(ref, 0, firstDotPos);
+    std::string ns(parsedRef.second, 0, firstDotPos);
     assert(!ns.empty());
     auto nsIter = namespaces.find(ns);
     if (nsIter == namespaces.end()) {
@@ -697,7 +702,7 @@ bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueC
     }
 
     assert(nsIter->second);
-    std::string subRef(ref, firstDotPos + 1);
+    std::string subRef(parsedRef.second, firstDotPos + 1);
     return func(*nsIter->second, subRef);
 }
 

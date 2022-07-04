@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema43_2" endian="big">
+    <fields>
+        <list name="L1" countPrefix="@Schema43_1.I1">
+            <int name="Element" type="uint32" />
+        </list>
+    </fields>
+</schema>

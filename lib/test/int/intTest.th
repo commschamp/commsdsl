@@ -49,6 +49,7 @@ public:
     void test40();
     void test41();
     void test42();
+    void test43();
 };
 
 void IntTestSuite::setUp()
@@ -1875,4 +1876,49 @@ void IntTestSuite::test42()
     TS_ASSERT(f1.isForceGen());
     TS_ASSERT(!f2.isForceGen());
     TS_ASSERT(!f3.isForceGen());
+}
+
+void IntTestSuite::test43()
+{
+    std::vector<std::string> schemas = {
+        SCHEMAS_DIR "/Schema43_1.xml",
+        SCHEMAS_DIR "/Schema43_2.xml"
+    };
+
+    auto protocol = prepareProtocol(schemas);
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());    
+
+    auto fields = ns.fields();
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());    
+
+        auto& f1 = fields[0];
+        TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::Field::Kind::Int);
+
+        commsdsl::parse::IntField intF1(f1);
+        TS_ASSERT_EQUALS(intF1.defaultValue(), 1);
+        auto& specials = intF1.specialValues();
+        auto sp1Iter = specials.find("S1");
+        TS_ASSERT(sp1Iter != specials.end());
+        TS_ASSERT_EQUALS(sp1Iter->second.m_value, 1U);
+    } while (false);
+
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());    
+
+        auto& f2 = fields[1];
+        TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Int);
+
+        commsdsl::parse::IntField intF2(f2);
+        auto& specials = intF2.specialValues();
+        auto sp1Iter = specials.find("S1");
+        TS_ASSERT(sp1Iter != specials.end());
+        TS_ASSERT_EQUALS(sp1Iter->second.m_value, 1U);
+    } while (false);    
 }

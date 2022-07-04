@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema33_2" endian="big" version="2">
+    <fields>
+        <ref name="F1" field="@Schema33_1.F1" />
+        <ref name="F2" field="@Schema33_1.F2" />
+        <ref name="F3" field="@Schema33_1.F3" />
+        <ref name="F4" field="@Schema33_1.F4" />
+        <enum name="F5" type="uint8" defaultValue="V1" displayName="^@Schema33_1.F1">
+            <validValue name="V1" val="@Schema33_1.F4.V1" displayName="^@Schema33_1.F2" />
+            <validValue name="V2" val="@Schema33_1.F4.V2" displayName="^@Schema33_1.F3" />
+        </enum>
+    </fields>
+</schema>

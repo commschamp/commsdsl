@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema33_1" endian="big" version="2">
+    <fields>
+        <string name="F1" defaultValue="Desc1" />
+        <string name="F2" defaultValue="Desc2" />
+        <string name="F3" defaultValue="Desc3" />
+        <enum name="F4" type="uint8" defaultValue="V1" displayName="^F1">
+            <validValue name="V1" val="1" displayName="^F2" />
+            <validValue name="V2" val="2" displayName="^F3" />
+        </enum>
+    </fields>
+</schema>

@@ -669,6 +669,7 @@ bool EnumFieldImpl::strToValue(
         return true;
     }
 
+
     bool ok = false;
     if (IntFieldImpl::isBigUnsigned(m_state.m_type)) {
         val = static_cast<std::intmax_t>(common::strToUintMax(str, &ok));

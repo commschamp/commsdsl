@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema43_2" endian="big">
+    <fields>
+        <int name="F1" type="uint8" defaultValue="@Schema43_1.F1.S1">
+            <special name="S1" val="@Schema43_1.F1.S1" />
+            <special name="S2" val="@Schema43_1.F1.S2" />
+        </int>
+
+        <int name="F2" reuse="@Schema43_1.F1" />
+    </fields>
+</schema>
