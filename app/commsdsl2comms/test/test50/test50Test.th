@@ -1,0 +1,42 @@
+#include "cxxtest/TestSuite.h"
+
+#include "comms/iterator.h"
+#include "test50/Message.h"
+#include "test50/frame/Frame.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+
+    using Interface = test50::Message<>;
+    using Frame = test50::frame::Frame<Interface>;
+
+    using Msg1 = test50::message::Msg1<Interface>;
+};
+
+void TestSuite::test1()
+{
+    static const std::uint8_t Buf[] = {
+        0x1, // MsgId.M1
+        0xaa, // Msg1.F1
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Frame frame;
+    Frame::MsgPtr msgPtr;
+
+    auto readIter = &Buf[0];
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(static_cast<bool>(msgPtr));
+    auto* msg1 = static_cast<Msg1*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg1->field_f1().value(), 0xaa);
+
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(BufSize);
+    auto writeIter = &outBuf[0];
+    es = frame.write(*msg1, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(std::equal(std::begin(Buf), std::end(Buf), outBuf.begin()));
+}

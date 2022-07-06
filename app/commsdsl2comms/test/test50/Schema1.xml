@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="ext1" endian="big">
+    <description>
+        Testing multiple schemas
+    </description>
+    <fields>
+        <int name="I1" type="uint8" />        
+
+        <string name="S1" lengthPrefix="I1">
+        </string>
+    </fields>
+</schema>

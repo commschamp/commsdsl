@@ -105,7 +105,6 @@ std::string CommsMsgId::commsTypeInternal() const
     }
 
     auto allMessages = m_generator.getAllMessages();
-    assert(!allMessages.empty());
     auto iter = 
         std::max_element(
             allMessages.begin(), allMessages.end(),
@@ -114,13 +113,22 @@ std::string CommsMsgId::commsTypeInternal() const
                 return first->dslObj().id() < second->dslObj().id();
             });
 
-    auto maxId = (*iter)->dslObj().id();
-    bool fitsUnsigned = maxId <= std::numeric_limits<unsigned>::max();
-    if (fitsUnsigned) {
-        return "unsigned";
-    }
+    std::string result = "unsigned";
+    do {
+        if (iter == allMessages.end()) {
+            break;
+        }
 
-    return "unsigned long long";
+        auto maxId = (*iter)->dslObj().id();
+        bool fitsUnsigned = maxId <= std::numeric_limits<unsigned>::max();
+        if (fitsUnsigned) {
+            break;
+        }
+
+        result = "unsigned long long";
+    } while (false);
+
+    return result;
 }
 
 std::string CommsMsgId::commsIdsInternal() const

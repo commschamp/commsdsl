@@ -431,62 +431,75 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 {
     const std::string FileName = "namespaces.dox";
 
-    auto nsList = m_generator.getAllNamespaces();
+    util::StringsList elems;
+    for (auto& s : m_generator.schemas()) {
+        auto nsList = s->getAllNamespaces();
 
-    util::StringsList nsElems;
-    for (auto* ns : nsList) {
-        static const std::string Templ =
-            "/// @namespace #^#NS#$#\n"
-            "/// @brief Protocol specific namespace.\n\n"
-            "/// @namespace #^#NS#$#::message\n"
-            "/// @brief Namespace for all the messages in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::field\n"
-            "/// @brief Namespace for all the stand alone fields defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame\n"
-            "/// @brief Namespace for all the frames defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame::layer\n"
-            "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame::checksum\n"
-            "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n";
+        util::StringsList nsElems;
+        for (auto* ns : nsList) {
+            static const std::string Templ =
+                "/// @namespace #^#NS#$#\n"
+                "/// @brief Protocol specific namespace.\n\n"
+                "/// @namespace #^#NS#$#::message\n"
+                "/// @brief Namespace for all the messages in @ref #^#NS#$# namespace.\n\n"
+                "/// @namespace #^#NS#$#::field\n"
+                "/// @brief Namespace for all the stand alone fields defined in @ref #^#NS#$# namespace.\n\n"
+                "/// @namespace #^#NS#$#::frame\n"
+                "/// @brief Namespace for all the frames defined in @ref #^#NS#$# namespace.\n\n"
+                "/// @namespace #^#NS#$#::frame::layer\n"
+                "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
+                "/// @namespace #^#NS#$#::frame::checksum\n"
+                "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n";
+
+            util::ReplacementMap repl = {
+                {"NS", comms::scopeFor(*ns, m_generator)},
+            };
+
+            nsElems.push_back(util::processTemplate(Templ, repl));
+        }
+
+        static const std::string Templ = 
+            "#^#MAIN#$#\n"
+            "#^#NS_LIST#$#\n"
+            "/// @namespace #^#NS#$#::options\n"
+            "/// @brief Main namespace for the various protocol options.\n\n"
+            "/// @namespace #^#NS#$#::input\n"
+            "/// @brief Main namespace for hold input messages bundles.\n\n"
+            "/// @namespace #^#NS#$#::dispatch\n"
+            "/// @brief Main namespace for the various message dispatch functions.\n\n"        
+        ;
 
         util::ReplacementMap repl = {
-            {"NS", comms::scopeFor(*ns, m_generator)},
+            {"NS_LIST", util::strListToString(nsElems, "", "")},
+            {"NS", s->mainNamespace()},
         };
 
-        nsElems.push_back(util::processTemplate(Templ, repl));
+        bool hasDefaultNamespace = 
+            std::any_of(
+                nsList.begin(), nsList.end(),
+                [](auto* ns)
+                {
+                    return ns->name().empty();
+                });
+
+        if (!hasDefaultNamespace) {
+            repl["MAIN"] = 
+                "/// @namespace " + s->mainNamespace() + "\n"
+                "/// @brief Main namespace for all classes / functions of this protocol library.\n";
+        }
+
+        elems.push_back(util::processTemplate(Templ, repl));
     }
 
-    const std::string Templ = 
-        "#^#MAIN#$#\n"
-        "#^#NS_LIST#$#\n"
-        "/// @namespace #^#NS#$#::options\n"
-        "/// @brief Main namespace for the various protocol options.\n\n"
-        "/// @namespace #^#NS#$#::input\n"
-        "/// @brief Main namespace for hold input messages bundles.\n\n"
-        "/// @namespace #^#NS#$#::dispatch\n"
-        "/// @brief Main namespace for the various message dispatch functions.\n\n"        
+    const std::string Templ = {
+        "#^#SCHEMAS#$#\n"
         "#^#APPEND#$#\n"
-    ;
-
-    util::ReplacementMap repl = {
-        {"NS_LIST", util::strListToString(nsElems, "", "")},
-        {"NS", m_generator.currentSchema().mainNamespace()},
-        {"APPEND", util::readFileContents(comms::inputCodePathForDoc(FileName, m_generator) + strings::appendFileSuffixStr())}
     };
 
-    bool hasDefaultNamespace = 
-        std::any_of(
-            nsList.begin(), nsList.end(),
-            [](auto* ns)
-            {
-                return ns->name().empty();
-            });
-
-    if (!hasDefaultNamespace) {
-        repl["MAIN"] = 
-            "/// @namespace " + m_generator.currentSchema().mainNamespace() + "\n"
-            "/// @brief Main namespace for all classes / functions of this protocol library.\n";
-    }
+    util::ReplacementMap repl = {
+        {"SCHEMAS", util::strListToString(elems, "", "")},
+        {"APPEND", util::readFileContents(comms::inputCodePathForDoc(FileName, m_generator) + strings::appendFileSuffixStr())}
+    };
 
     return writeFileInternal(FileName, util::processTemplate(Templ, repl), m_generator);
 }

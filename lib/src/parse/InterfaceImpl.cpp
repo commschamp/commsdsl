@@ -117,6 +117,7 @@ std::string InterfaceImpl::externalRef(bool schemaRef) const
 
     auto& ns = static_cast<const NamespaceImpl&>(*getParent());
     auto nsRef = ns.externalRef(schemaRef);
+    
     if (nsRef.empty()) {
         return name();
     }

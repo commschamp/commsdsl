@@ -44,7 +44,7 @@ public:
     const std::string& name() const;
     const std::string& description() const;
     LayersList layers() const;
-    std::string externalRef(bool schemaRef = false) const;
+    std::string externalRef(bool schemaRef = true) const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

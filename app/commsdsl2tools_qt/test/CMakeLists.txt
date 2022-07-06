@@ -90,7 +90,7 @@ file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
-    set (schema_file "${test_dir}/Schema.xml")
+    file (GLOB schema_files ${test_dir}/Schema*.xml)
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
 
     set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
@@ -107,8 +107,8 @@ foreach (name ${tests})
 
     add_custom_command(
         OUTPUT ${output_dir}.tmp
-        DEPENDS ${schema_file} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_file}
+        DEPENDS ${schema_files} ${APP_NAME} ${rm_tmp_tgt}
+        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
@@ -116,7 +116,7 @@ foreach (name ${tests})
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}"
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
-        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
+        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
 
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)

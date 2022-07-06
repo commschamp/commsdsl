@@ -131,7 +131,7 @@ void DataTestSuite::test4()
     auto lenPrefix = dataField.lengthPrefixField();
     TS_ASSERT(lenPrefix.valid());
     TS_ASSERT_EQUALS(lenPrefix.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(lenPrefix.externalRef(), "DataLen");
+    TS_ASSERT_EQUALS(lenPrefix.externalRef(), "@Schema4.DataLen");
 }
 
 void DataTestSuite::test5()

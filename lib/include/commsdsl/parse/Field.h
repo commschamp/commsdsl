@@ -78,7 +78,7 @@ public:
     unsigned sinceVersion() const;
     unsigned deprecatedSince() const;
     bool isDeprecatedRemoved() const;
-    std::string externalRef(bool schemaRef = false) const;
+    std::string externalRef(bool schemaRef = true) const;
     bool isPseudo() const;
     bool isDisplayReadOnly() const;
     bool isDisplayHidden() const;

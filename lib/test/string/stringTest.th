@@ -139,7 +139,7 @@ void StringTestSuite::test3()
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
     TS_ASSERT_EQUALS(lenField.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(lenField.externalRef(), "StrLen");
+    TS_ASSERT_EQUALS(lenField.externalRef(), "@Schema3.StrLen");
 }
 
 void StringTestSuite::test4()
@@ -289,7 +289,7 @@ void StringTestSuite::test11()
     auto lenField = stringField.lengthPrefixField();
     TS_ASSERT(lenField.valid());
     TS_ASSERT(!stringField.hasZeroTermSuffix());
-    TS_ASSERT_EQUALS(lenField.externalRef(), "ns1.Prefix");
+    TS_ASSERT_EQUALS(lenField.externalRef(), "@Schema11.ns1.Prefix");
     TS_ASSERT(stringField.detachedPrefixFieldName().empty());
 }
 

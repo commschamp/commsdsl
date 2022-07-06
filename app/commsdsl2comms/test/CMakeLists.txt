@@ -2,7 +2,7 @@
 
 function (test_func name)
     set (test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
-    set (schema_file "${test_dir}/Schema.xml")
+    file (GLOB schema_files ${test_dir}/Schema*.xml)
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
     set (code_input_dir "${test_dir}/src")
     set (code_input_param)
@@ -24,8 +24,8 @@ function (test_func name)
 
     add_custom_command(
         OUTPUT ${output_dir}.tmp
-        DEPENDS ${schema_file} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> -d --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_file}
+        DEPENDS ${schema_files} ${APP_NAME} ${rm_tmp_tgt}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_files}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
@@ -33,7 +33,7 @@ function (test_func name)
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc;include" 
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
-        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
+        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
 
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
@@ -179,3 +179,4 @@ test_func (test46)
 test_func (test47)
 test_func (test48)
 test_func (test49)
+test_func (test50)

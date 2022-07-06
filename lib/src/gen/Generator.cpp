@@ -36,6 +36,7 @@
 #include "commsdsl/gen/SyncLayer.h"
 #include "commsdsl/gen/ValueLayer.h"
 #include "commsdsl/gen/VariantField.h"
+#include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include "commsdsl/parse/Protocol.h"
@@ -181,38 +182,72 @@ public:
 
     const Field* findField(const std::string& externalRef) const
     {
-        assert(m_currentSchema != nullptr);
-        return m_currentSchema->findField(externalRef);
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+            return nullptr;
+        }
+
+        return parsedRef.first->findField(parsedRef.second);
     }
 
     Field* findField(const std::string& externalRef)
     {
-        assert(m_currentSchema != nullptr);
-        return m_currentSchema->findField(externalRef);        
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+            return nullptr;
+        }
+
+        return const_cast<Schema*>(parsedRef.first)->findField(parsedRef.second);
     }
 
     const Message* findMessage(const std::string& externalRef) const
     {
-        assert(m_currentSchema != nullptr);
-        return m_currentSchema->findMessage(externalRef);
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+            return nullptr;
+        }
+
+        return parsedRef.first->findMessage(parsedRef.second);
     }  
 
     Message* findMessage(const std::string& externalRef)
     {
-        assert(m_currentSchema != nullptr);
-        return m_currentSchema->findMessage(externalRef);
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+            return nullptr;
+        }
+
+        return const_cast<Schema*>(parsedRef.first)->findMessage(parsedRef.second);
     }
 
     const Frame* findFrame(const std::string& externalRef) const
     {
-        assert(m_currentSchema != nullptr);
-        return m_currentSchema->findFrame(externalRef);
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+            return nullptr;
+        }
+
+        return parsedRef.first->findFrame(parsedRef.second);
     }
 
     const Interface* findInterface(const std::string& externalRef) const
     {
-        assert(m_currentSchema != nullptr);
-        return m_currentSchema->findInterface(externalRef);
+        if (externalRef.empty()) {
+            return currentSchema().findInterface(externalRef);
+        }
+        
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+            return nullptr;
+        }
+
+        return parsedRef.first->findInterface(parsedRef.second);
     }                
 
     bool prepare(const FilesList& files)
@@ -325,6 +360,39 @@ public:
     }
 
 private:
+    std::pair<const Schema*, std::string> parseExternalRef(const std::string& externalRef) const
+    {
+        assert(!externalRef.empty());
+        if (externalRef[0] != strings::schemaRefPrefix()) {
+            return std::make_pair(m_currentSchema, externalRef);
+        }
+
+        std::string schemaName;
+        std::string restRef;
+
+        auto dotPos = externalRef.find('.');
+        if (externalRef.size() <= dotPos) {
+            schemaName = externalRef.substr(1);
+        }
+        else {
+            schemaName = externalRef.substr(1, dotPos - 1);
+            restRef = externalRef.substr(dotPos + 1);
+        }
+
+        auto iter = 
+            std::find_if(
+                m_schemas.begin(), m_schemas.end(),
+                [&schemaName](auto& s)
+                {
+                    return schemaName == s->name();
+                });
+
+        if (iter == m_schemas.end()) {
+            return std::make_pair(nullptr, std::move(restRef));
+        }
+
+        return std::make_pair(iter->get(), std::move(restRef));
+    }
 
     Generator& m_generator;
     commsdsl::parse::Protocol m_protocol;

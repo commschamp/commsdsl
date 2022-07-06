@@ -613,13 +613,13 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
     }
 
     auto allInterfaces = m_generator.getAllInterfaces();
-    assert(!allInterfaces.empty());
+    // assert(!allInterfaces.empty());
 
     util::ReplacementMap repl = {
         {"NAME", name},
         {"DEFAULT_OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), m_generator)},
         {"HEADERFILE", comms::relHeaderForDispatch(getFileName(name), m_generator)},
-        {"INTERFACE", comms::scopeFor(*allInterfaces.front(), m_generator)},
+        {"INTERFACE", (!allInterfaces.empty()) ? comms::scopeFor(*allInterfaces.front(), m_generator) : std::string("SomeInterface")},
         {"MSG1", firstMsg != nullptr ? comms::scopeFor(*firstMsg, m_generator) : std::string("SomeMessage")},
         {"MSG2", secondMsg != nullptr ? comms::scopeFor(*secondMsg, m_generator) : std::string("SomeOtherMessage")},
         {"MSG1_NAME", firstMsg != nullptr ? comms::className(firstMsg->dslObj().name()) : std::string("SomeMessage")},
@@ -779,7 +779,7 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
         "};\n\n"
         "/// @brief Message dispatcher class to be used with\n"
         "///     @b comms::processAllWithDispatchViaDispatcher() function (or similar).\n"
-        "/// @details Same as @ref #^#NAME#$#MsgDispatcher, but passing\n"
+        "/// @details Same as #^#NAME#$#MsgDispatcher, but passing\n"
         "///     @ref #^#DEFAULT_OPTIONS#$# as template parameter.\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
         "using #^#NAME#$#MsgDispatcherDefaultOptions =\n"

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test50" endian="big">
+    <description>
+        Testing multiple schemas
+    </description>
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+
+        <!--ref field="@ext1.S1" /-->
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref field="@ext1.I1" name="F1" />
+        <!--ref field="S1" /-->
+    </message>
+
+    <frame name="Frame">
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>     
+</schema>

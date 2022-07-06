@@ -118,7 +118,7 @@ public:
         std::string remStr(externalRef, fromPos);
         auto result = (*nsIter)->findField(remStr);
         if (result == nullptr) {
-            m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
+            m_generator.logger().error("Internal error: unknown external reference \"" + externalRef + "\" in schema " + m_dslObj.name());
             static constexpr bool Should_not_happen = false;
             static_cast<void>(Should_not_happen);
             assert(Should_not_happen);
