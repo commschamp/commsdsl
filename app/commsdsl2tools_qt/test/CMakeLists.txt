@@ -108,7 +108,7 @@ foreach (name ${tests})
     add_custom_command(
         OUTPUT ${output_dir}.tmp
         DEPENDS ${schema_files} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)

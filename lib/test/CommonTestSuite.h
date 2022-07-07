@@ -25,8 +25,8 @@ protected:
     using PreValidateFunc = std::function<void (commsdsl::parse::Protocol& protocol)>;
 
 
-    ProtocolPtr prepareProtocol(const std::string& schema);
-    ProtocolPtr prepareProtocol(const std::vector<std::string>& schemas);
+    ProtocolPtr prepareProtocol(const std::string& schema, bool enableMultipleSchemas = false);
+    ProtocolPtr prepareProtocol(const std::vector<std::string>& schemas, bool enableMultipleSchemas = false);
 
     struct TestStatus
     {

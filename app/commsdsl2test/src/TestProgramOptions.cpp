@@ -38,6 +38,8 @@ const std::string NamespaceStr("namespace");
 const std::string FullNamespaceStr("n," + NamespaceStr);
 const std::string InputFileStr("input-file");
 const std::string WarnAsErrStr("warn-as-err");
+const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
+const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
 
 } // namespace
 
@@ -51,6 +53,7 @@ TestProgramOptions::TestProgramOptions()
     (FullInputFilesPrefixStr.c_str(), "Prefix for the values from the list file.", true)
     (FullNamespaceStr.c_str(), "Force protocol namespace. Defaults to schema name.", true) 
     (WarnAsErrStr.c_str(), "Treat warning as error.")
+    (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    
     ;
 }
 
@@ -97,6 +100,11 @@ bool TestProgramOptions::hasNamespaceOverride() const
 const std::string& TestProgramOptions::getNamespace() const
 {
     return value(NamespaceStr);
+}
+
+bool TestProgramOptions::multipleSchemasEnabled() const
+{
+    return isOptUsed(MultipleSchemasEnabledStr);
 }
 
 } // namespace commsdsl2test

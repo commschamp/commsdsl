@@ -92,6 +92,7 @@ int main(int argc, const char* argv[])
         }
 
         generator.setOutputDir(options.getOutputDirectory());
+        generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
 
         auto files = commsdsl2test::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

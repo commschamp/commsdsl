@@ -60,6 +60,9 @@ public:
 
     void addExpectedExtraPrefix(const std::string& value);
 
+    void setMultipleSchemasEnabled(bool value);
+    bool getMultipleSchemasEnabled() const;
+
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;
 };

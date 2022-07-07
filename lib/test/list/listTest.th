@@ -1025,7 +1025,7 @@ void ListTestSuite::test43()
         SCHEMAS_DIR "/Schema43_1.xml",
         SCHEMAS_DIR "/Schema43_2.xml",
     };
-    auto protocol = prepareProtocol(schemas);
+    auto protocol = prepareProtocol(schemas, true);
     TS_ASSERT(protocol);
     auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);

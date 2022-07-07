@@ -39,6 +39,7 @@ public:
     const std::string& getOutputDirectory() const;
     bool hasNamespaceOverride() const;
     const std::string& getNamespace() const;
+    bool multipleSchemasEnabled() const;
 };
 
 } // namespace commsdsl2test

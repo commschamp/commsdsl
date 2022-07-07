@@ -346,6 +346,11 @@ bool ProtocolImpl::isMemberReplaceSupported() const
     return isFeatureSupported(5U);
 }
 
+bool ProtocolImpl::isMultiSchemaSupported() const
+{
+    return isFeatureSupported(5U);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);
@@ -431,10 +436,22 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
             });
 
     if (schemaIter == m_schemas.end()) {
+        if ((!m_schemas.empty()) && (!isMultiSchemaSupported())) {
+            logError() << XmlWrap::logPrefix(schema->getNode()) <<
+                "Multiple schemas is not supported in the selected " << common::dslVersionStr();
+            return false;
+        }
+
+        if ((!m_schemas.empty()) && (!m_multipleSchemasEnabled)) {
+            logError() << XmlWrap::logPrefix(schema->getNode()) <<
+                "Multiple schemas support must be explicitly enabled by the code generator.";
+            return false;
+        }
+
         m_schemas.push_back(std::move(schema));
         m_currSchema = m_schemas.back().get();
-        return true;
-    }
+        return true;        
+    } 
 
     m_currSchema = schemaIter->get();
 

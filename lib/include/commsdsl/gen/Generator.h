@@ -66,6 +66,9 @@ public:
     void setCodeDir(const std::string& dir);
     const std::string& getCodeDir() const;   
 
+    void setMultipleSchemasEnabled(bool enabled);
+    bool getMultipleSchemasEnabled() const;
+
     void setVersionIndependentCodeForced(bool value = true); 
     bool getVersionIndependentCodeForced() const;
 

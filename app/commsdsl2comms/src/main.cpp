@@ -101,6 +101,7 @@ int main(int argc, const char* argv[])
         generator.setProtocolVersion(options.getProtocolVersion());
         generator.setCodeDir(options.getCodeInputDirectory());
         generator.setExtraInputBundles(options.getExtraInputBundles());
+        generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
 
         auto files = commsdsl2comms::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

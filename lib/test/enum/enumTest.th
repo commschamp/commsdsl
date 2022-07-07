@@ -833,7 +833,7 @@ void EnumTestSuite::test33()
         SCHEMAS_DIR "/Schema33_2.xml"
     };
 
-    auto protocol = prepareProtocol(schemas);
+    auto protocol = prepareProtocol(schemas, true);
     TS_ASSERT(protocol);
     auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);

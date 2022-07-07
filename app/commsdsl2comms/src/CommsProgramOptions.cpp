@@ -60,6 +60,9 @@ const std::string CustomizationStr("customization");
 const std::string CommsTagStr("comms-tag");
 const std::string VersionIndependentCodeStr("version-independent-code");
 const std::string ExtraMessagesBundleStr("extra-messages-bundle");
+const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
+const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
+
 
 } // namespace
 
@@ -105,7 +108,8 @@ CommsProgramOptions::CommsProgramOptions()
         "The Name part (with separating @) can be omitted, in such case file basename is used as bundle name. "
         "Multiple bundles are separated by comma (\'Name1@ListFile1,Name2@ListFile2\').",
         true)
- 
+    (FullMultipleSchemasEnabledStr, 
+        "Allow having multiple schemas with different names.")
     ;
 }
 
@@ -206,6 +210,11 @@ bool CommsProgramOptions::versionIndependentCodeRequested() const
 std::vector<std::string> CommsProgramOptions::getExtraInputBundles() const
 {
     return commsdsl::gen::util::strSplitByAnyChar(value(ExtraMessagesBundleStr), ",");    
+}
+
+bool CommsProgramOptions::multipleSchemasEnabled() const
+{
+    return isOptUsed(MultipleSchemasEnabledStr);
 }
 
 } // namespace commsdsl2comms

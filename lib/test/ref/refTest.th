@@ -168,7 +168,7 @@ void RefTestSuite::test7()
         SCHEMAS_DIR "/Schema7_2.xml",
     };
 
-    auto protocol = prepareProtocol(schemas);
+    auto protocol = prepareProtocol(schemas, true);
     TS_ASSERT(protocol);
 
     auto namespaces = protocol->lastParsedSchema().namespaces();

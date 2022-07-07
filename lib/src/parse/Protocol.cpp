@@ -67,6 +67,16 @@ void Protocol::addExpectedExtraPrefix(const std::string& value)
     return m_pImpl->addExpectedExtraPrefix(value);
 }
 
+void Protocol::setMultipleSchemasEnabled(bool value)
+{
+    m_pImpl->setMultipleSchemasEnabled(value);
+}
+
+bool Protocol::getMultipleSchemasEnabled() const
+{
+    return m_pImpl->getMultipleSchemasEnabled();
+}
+
 } // namespace parse
 
 } // namespace commsdsl

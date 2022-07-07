@@ -170,6 +170,16 @@ public:
         return m_codeDir;
     }
 
+    void setMultipleSchemasEnabled(bool enabled)
+    {
+        m_protocol.setMultipleSchemasEnabled(enabled);
+    }
+
+    bool getMultipleSchemasEnabled() const
+    {
+        return m_protocol.getMultipleSchemasEnabled();
+    }
+
     void setVersionIndependentCodeForced(bool value)
     {
         m_versionIndependentCodeForced = value;
@@ -464,6 +474,16 @@ void Generator::setCodeDir(const std::string& dir)
 const std::string& Generator::getCodeDir() const
 {
     return m_impl->getCodeDir();
+}
+
+void Generator::setMultipleSchemasEnabled(bool enabled)
+{
+    m_impl->setMultipleSchemasEnabled(enabled);
+}
+
+bool Generator::getMultipleSchemasEnabled() const
+{
+    return m_impl->getMultipleSchemasEnabled();
 }
 
 void Generator::setVersionIndependentCodeForced(bool value)

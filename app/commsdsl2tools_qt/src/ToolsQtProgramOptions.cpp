@@ -46,6 +46,9 @@ const std::string WarnAsErrStr("warn-as-err");
 const std::string CodeInputDirStr("code-input-dir");
 const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string ProtocolStr("protocol");
+const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
+const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
+
 
 } // namespace
 
@@ -66,6 +69,7 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
         "one frame and one interface from the schema will be chosen and code for only one protocol "
         "plugin will be generated. Can be omitted if there is only one frame and one interface types "
         "defined in the schema.", true)    
+    (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")            
     ;
 }
 
@@ -147,6 +151,11 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
         resInfo.m_desc = values[ValueIdx_Desc];
     }
     return result;
+}
+
+bool ToolsQtProgramOptions::multipleSchemasEnabled() const
+{
+    return isOptUsed(MultipleSchemasEnabledStr);
 }
 
 } // namespace commsdsl2tools_qt

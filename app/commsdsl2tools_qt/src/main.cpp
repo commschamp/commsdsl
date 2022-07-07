@@ -94,6 +94,7 @@ int main(int argc, const char* argv[])
         generator.setOutputDir(options.getOutputDirectory());
         generator.setCodeDir(options.getCodeInputDirectory());
         generator.setTopNamespace("cc_tools_qt_plugin");
+        generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
 
         auto files = commsdsl2tools_qt::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

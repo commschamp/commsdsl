@@ -11,16 +11,16 @@ void CommonTestSuite::commonTearDown()
     TS_ASSERT(m_status.m_expErrors.empty());
 }
 
-CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string& schema)
+CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::string& schema, bool enableMultipleSchemas)
 {
     std::vector<std::string> schemas = {
         schema
     };
 
-    return prepareProtocol(schemas);
+    return prepareProtocol(schemas, enableMultipleSchemas);
 }
 
-CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<std::string>& schemas)
+CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<std::string>& schemas, bool enableMultipleSchemas)
 {
     ProtocolPtr protocol(new commsdsl::parse::Protocol);
     protocol->setErrorReportCallback(
@@ -57,6 +57,8 @@ CommonTestSuite::ProtocolPtr CommonTestSuite::prepareProtocol(const std::vector<
             TS_ASSERT_EQUALS(level, m_status.m_expErrors.front());
             m_status.m_expErrors.erase(m_status.m_expErrors.begin());
         });
+
+    protocol->setMultipleSchemasEnabled(enableMultipleSchemas);
 
     bool parseResult = 
         std::all_of(

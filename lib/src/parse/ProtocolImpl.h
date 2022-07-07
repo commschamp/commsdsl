@@ -111,6 +111,17 @@ public:
     bool isCopyFieldsFromBundleSupported() const;
     bool isOverrideTypeSupported() const;
     bool isMemberReplaceSupported() const;
+    bool isMultiSchemaSupported() const;
+
+    void setMultipleSchemasEnabled(bool value)
+    {
+        m_multipleSchemasEnabled = value;
+    }
+
+    bool getMultipleSchemasEnabled() const
+    {
+        return m_multipleSchemasEnabled;
+    }
 
 private:
     struct XmlDocFree
@@ -143,12 +154,13 @@ private:
 
     ErrorReportFunction m_errorReportCb;
     DocsList m_docs;
-    bool m_validated = false;
     ErrorLevel m_minLevel = ErrorLevel_Info;
     mutable Logger m_logger;
     SchemasList m_schemas;
     SchemaImpl* m_currSchema = nullptr;
     ExtraPrefixes m_extraPrefixes;
+    bool m_validated = false;
+    bool m_multipleSchemasEnabled = false;
 };
 
 } // namespace parse

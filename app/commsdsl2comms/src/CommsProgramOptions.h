@@ -49,6 +49,7 @@ public:
     const std::string& getCommsLibTag() const;
     bool versionIndependentCodeRequested() const;
     std::vector<std::string> getExtraInputBundles() const;
+    bool multipleSchemasEnabled() const;
 };
 
 } // namespace commsdsl2comms
