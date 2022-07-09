@@ -21,6 +21,7 @@
 #include "ToolsQtCmake.h"
 #include "ToolsQtCustomLayer.h"
 #include "ToolsQtDataField.h"
+#include "ToolsQtDefaultOptions.h"
 #include "ToolsQtEnumField.h"
 #include "ToolsQtFloatField.h"
 #include "ToolsQtFrame.h"
@@ -245,7 +246,8 @@ bool ToolsQtGenerator::writeImpl()
     chooseProtocolSchema();
     bool result =  
         ToolsQtCmake::write(*this) &&
-        ToolsQtInputMessages::write(*this);
+        ToolsQtInputMessages::write(*this) &&
+        ToolsQtDefaultOptions::write(*this);
 
     if (!result) {
         return false;

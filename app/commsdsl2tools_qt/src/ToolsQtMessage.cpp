@@ -15,6 +15,7 @@
 
 #include "ToolsQtMessage.h"
 
+#include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -47,7 +48,7 @@ const std::string& toolsHeaderCodeMultipleInterfacesTemplInternal()
         "template <typename TInterface>\n"
         "class #^#CLASS_NAME#$# : public\n"
         "    cc_tools_qt::ProtocolMessageBase<\n"
-        "        ::#^#PROT_MESSAGE#$#<TInterface>,\n"
+        "        ::#^#PROT_MESSAGE#$#<TInterface, #^#DEF_OPTIONS#$#>,\n"
         "        #^#CLASS_NAME#$#<TInterface>\n"
         "    >\n"
         "{\n"
@@ -151,7 +152,7 @@ const std::string& toolsSrcCodeSinglePimplInterfaceTemplInternal()
         "} // namespace\n\n"
         "class #^#CLASS_NAME#$#Impl : public\n"
         "    cc_tools_qt::ProtocolMessageBase<\n"
-        "        ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#>,\n"
+        "        ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#, #^#DEF_OPTIONS#$#>,\n"
         "        #^#CLASS_NAME#$#Impl\n"
         "    >\n"
         "{\n"
@@ -415,7 +416,8 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesMultipleInterfac
     return IncludesList {
         "<QtCore/QVariantList>",
         "cc_tools_qt/ProtocolMessageBase.h",
-        comms::relHeaderPathFor(*this, generator())
+        comms::relHeaderPathFor(*this, generator()),
+        ToolsQtDefaultOptions::toolsRelHeaderPath(static_cast<const ToolsQtGenerator&>(generator())),
     };
 }
 
@@ -443,7 +445,8 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesSingleInterfaceW
         "<QtCore/QVariantList>",
         "cc_tools_qt/ProtocolMessageBase.h",
         comms::relHeaderPathFor(*this, generator()),
-        defaultInterface->toolsHeaderFilePath()
+        defaultInterface->toolsHeaderFilePath(),
+        ToolsQtDefaultOptions::toolsRelHeaderPath(static_cast<const ToolsQtGenerator&>(generator())),
     };
 }
 
@@ -462,7 +465,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
     assert(codeType <= MapSize);
     auto func = Map[codeType];
 
-    auto& gen = generator();
+    auto& gen = static_cast<const ToolsQtGenerator&>(generator());
     auto interfaces = gen.getAllInterfaces();
     assert(!interfaces.empty());
     util::ReplacementMap repl = {
@@ -470,6 +473,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
         {"TOP_NS", generator().getTopNamespace()},
         {"INTERFACE", comms::scopeFor(*interfaces.front(), gen)},
         {"PROT_MESSAGE", comms::scopeFor(*this, gen)},
+        {"DEF_OPTIONS", ToolsQtDefaultOptions::toolsScope(gen)},
     };
 
     return util::processTemplate(func(), repl);
@@ -511,7 +515,8 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesSinglePimplInterfac
     return IncludesList {
         "cc_tools_qt/property/field.h",
         "cc_tools_qt/ProtocolMessageBase.h",
-        comms::relHeaderPathFor(*this, generator())
+        comms::relHeaderPathFor(*this, generator()),
+        ToolsQtDefaultOptions::toolsRelHeaderPath(static_cast<const ToolsQtGenerator&>(generator())),
     };
 }
 
@@ -537,7 +542,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
     assert(codeType <= MapSize);
     auto func = Map[codeType];
 
-    auto& gen = generator();
+    auto& gen = static_cast<const ToolsQtGenerator&>(generator());
     auto interfaces = generator().getAllInterfaces();
     assert(!interfaces.empty());
 
@@ -558,6 +563,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"PROT_MESSAGE", comms::scopeFor(*this, gen)},
+        {"DEF_OPTIONS", ToolsQtDefaultOptions::toolsScope(gen)},
         {"TOP_NS", generator().getTopNamespace()},
         {"INTERFACE", comms::scopeFor(*interfaces.front(), generator())},
         {"FIELDS_PROPS", util::strListToString(fieldsProps, "\n", "")},

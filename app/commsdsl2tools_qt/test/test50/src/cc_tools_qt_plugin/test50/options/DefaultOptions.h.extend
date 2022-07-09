@@ -1,0 +1,1 @@
+using DefaultOptions = ::test50::options::DefaultOptionsT<::ext1::options::DefaultOptions>;

@@ -15,6 +15,7 @@
 
 #include "ToolsQtFrame.h"
 
+#include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
 #include "ToolsQtInterface.h"
 
@@ -166,7 +167,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
 
 bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
 {
-    auto& gen = generator();
+    auto& gen = static_cast<const ToolsQtGenerator&>(generator());
     auto filePath = gen.getOutputDir() + '/' + toolsTransportMessageHeaderFilePathInternal();
 
     auto& logger = gen.logger();
@@ -184,6 +185,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
         "#include <tuple>\n"
         "#include <QtCore/QVariantList>\n"
         "#include \"cc_tools_qt/TransportMessageBase.h\"\n"
+        "#include \"#^#DEF_OPETIONS_INC#$#\"\n"
         "#include \"#^#FRAME_INCLUDE#$#\"\n"
         "#^#INTERFACE_INCLUDE#$#\n"
         "\n"
@@ -225,7 +227,8 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
         {"FRAME_INCLUDE", comms::relHeaderPathFor(*this, gen)},
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"SUFFIX", strings::transportMessageSuffixStr()},
-        {"FIELDS", util::strListToString(fields, ",\n", "")}
+        {"FIELDS", util::strListToString(fields, ",\n", "")},
+        {"DEF_OPETIONS_INC", ToolsQtDefaultOptions::toolsRelHeaderPath(gen)},
     };
 
     auto allInterfaces = gen.getAllInterfaces();

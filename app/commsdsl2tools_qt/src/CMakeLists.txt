@@ -7,6 +7,7 @@ set (
     ToolsQtCmake.cpp
     ToolsQtCustomLayer.cpp
     ToolsQtDataField.cpp
+    ToolsQtDefaultOptions.cpp
     ToolsQtEnumField.cpp
     ToolsQtField.cpp
     ToolsQtFloatField.cpp

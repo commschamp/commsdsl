@@ -15,6 +15,7 @@
 
 #include "ToolsQtField.h"
 
+#include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -109,8 +110,11 @@ ToolsQtField::IncludesList ToolsQtField::toolsHeaderIncludes() const
 
 ToolsQtField::IncludesList ToolsQtField::toolsSrcIncludes() const
 {
+    auto& gen = static_cast<const ToolsQtGenerator&>(m_field.generator());
+
     IncludesList incs = {
-        "cc_tools_qt/property/field.h"
+        "cc_tools_qt/property/field.h",
+        ToolsQtDefaultOptions::toolsRelHeaderPath(gen),
     };
 
     if (comms::isGlobalField(m_field)) {
@@ -199,12 +203,12 @@ std::string ToolsQtField::toolsCommsScope() const
 
     assert(parent != nullptr);
 
-    auto& generator = m_field.generator();
+    auto& generator = static_cast<const ToolsQtGenerator&>(m_field.generator());
     std::string scope = comms::scopeFor(m_field, generator);
     bool globalField = comms::isGlobalField(m_field);
     do {
         if (globalField) {
-            scope += "<>";
+            scope += ToolsQtDefaultOptions::toolsTemplParam(generator);
             break;
         }
 
@@ -224,7 +228,7 @@ std::string ToolsQtField::toolsCommsScope() const
         assert(parentScope.size() <= scope.size());
         auto suffix = scope.substr(parentScope.size());
         if (parent->elemType() != commsdsl::gen::Elem::Type::Type_Interface) {
-            parentScope += "<>";
+            parentScope += ToolsQtDefaultOptions::toolsTemplParam(generator);
         }
 
         scope = parentScope + suffix;
