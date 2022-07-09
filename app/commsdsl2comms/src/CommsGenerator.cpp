@@ -115,6 +115,21 @@ void CommsGenerator::setProtocolVersion(const std::string& value)
     m_protocolVersion = value;
 }
 
+bool CommsGenerator::getMainNamespaceInOptionsForced() const
+{
+    return m_mainNamespaceInOptionsForced;
+}
+
+void CommsGenerator::setMainNamespaceInOptionsForced(bool value)
+{
+    m_mainNamespaceInOptionsForced = value;
+}
+
+bool CommsGenerator::hasMainNamespaceInOptions() const
+{
+    return m_mainNamespaceInOptionsForced || (schemas().size() > 1U);
+}
+
 const std::vector<std::string>& CommsGenerator::getExtraInputBundles() const
 {
     return m_extraInputBundles;

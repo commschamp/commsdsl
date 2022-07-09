@@ -654,7 +654,8 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
     }
 
     if (commsIsFieldCustomizable()) {
-        opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), false, true));
+        auto& gen = static_cast<const CommsGenerator&>(m_field.generator());
+        opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), gen.hasMainNamespaceInOptions(), true));
     }
 
     do {

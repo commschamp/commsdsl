@@ -50,6 +50,7 @@ public:
     bool versionIndependentCodeRequested() const;
     std::vector<std::string> getExtraInputBundles() const;
     bool multipleSchemasEnabled() const;
+    bool isMainNamespaceInOptionsForced() const;
 };
 
 } // namespace commsdsl2comms

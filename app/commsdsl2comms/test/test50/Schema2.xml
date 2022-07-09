@@ -9,12 +9,12 @@
             <validValue name="M2" val="2" />
         </enum>
 
-        <!--ref field="@ext1.S1" /-->
+        <ref field="@ext1.S1" />
     </fields>
     
     <message name="Msg1" id="MsgId.M1">
         <ref field="@ext1.I1" name="F1" />
-        <!--ref field="S1" /-->
+        <ref field="S1" name="F2"/>
     </message>
 
     <frame name="Frame">

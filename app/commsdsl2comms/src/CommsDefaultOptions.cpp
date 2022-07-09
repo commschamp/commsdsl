@@ -51,7 +51,26 @@ std::string optionsBodyInternal(
         }
     }
 
-    return util::strListToString(opts, "\n", "");
+    if (opts.empty()) {
+        return strings::emptyString();
+    }
+
+    if (!generator.hasMainNamespaceInOptions()) {
+        return util::strListToString(opts, "\n", "");
+    }
+
+    static const std::string Templ = 
+        "struct #^#NS#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}; // struct #^#NS#$#\n";
+
+    util::ReplacementMap repl = {
+        {"NS", generator.currentSchema().mainNamespace()},
+        {"BODY", util::strListToString(opts, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 bool writeFileInternal(

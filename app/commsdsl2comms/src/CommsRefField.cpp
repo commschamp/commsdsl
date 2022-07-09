@@ -131,10 +131,10 @@ std::string CommsRefField::commsDefBaseClassImpl() const
 
     assert(m_commsReferencedField != nullptr);
 
-    std::string templOpt;
-    if (!comms::isInterfaceDeepMemberField(*this)) {
-        templOpt = "TOpt";
-    }
+    // std::string templOpt;
+    // if (!comms::isInterfaceDeepMemberField(*this)) {
+    //     templOpt = "TOpt";
+    // }
     
     util::ReplacementMap repl = {
         {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator())},

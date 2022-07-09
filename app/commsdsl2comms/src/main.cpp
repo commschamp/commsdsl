@@ -102,6 +102,7 @@ int main(int argc, const char* argv[])
         generator.setCodeDir(options.getCodeInputDirectory());
         generator.setExtraInputBundles(options.getExtraInputBundles());
         generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
+        generator.setMainNamespaceInOptionsForced(options.isMainNamespaceInOptionsForced());
 
         auto files = commsdsl2comms::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

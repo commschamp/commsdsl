@@ -49,12 +49,15 @@ public:
     const std::string& getProtocolVersion() const;
     void setProtocolVersion(const std::string& value);
 
+    bool getMainNamespaceInOptionsForced() const;
+    void setMainNamespaceInOptionsForced(bool value);
+    bool hasMainNamespaceInOptions() const;
+
     const std::vector<std::string>& getExtraInputBundles() const;
     void setExtraInputBundles(const std::vector<std::string>& inputBundles);
     const ExtraMessageBundlesList& extraMessageBundles() const;
 
     static const std::string& minCommsVersion();
-
 
 protected:
     virtual bool prepareImpl() override;
@@ -97,6 +100,7 @@ private:
     std::string m_protocolVersion;
     std::vector<std::string> m_extraInputBundles;
     ExtraMessageBundlesList m_extraMessageBundles;
+    bool m_mainNamespaceInOptionsForced = false;
 };
 
 } // namespace commsdsl2comms

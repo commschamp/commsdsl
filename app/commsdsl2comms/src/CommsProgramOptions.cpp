@@ -62,6 +62,7 @@ const std::string VersionIndependentCodeStr("version-independent-code");
 const std::string ExtraMessagesBundleStr("extra-messages-bundle");
 const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
 const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
+const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 
 } // namespace
@@ -110,6 +111,7 @@ CommsProgramOptions::CommsProgramOptions()
         true)
     (FullMultipleSchemasEnabledStr, 
         "Allow having multiple schemas with different names.")
+    (ForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
     ;
 }
 
@@ -215,6 +217,11 @@ std::vector<std::string> CommsProgramOptions::getExtraInputBundles() const
 bool CommsProgramOptions::multipleSchemasEnabled() const
 {
     return isOptUsed(MultipleSchemasEnabledStr);
+}
+
+bool CommsProgramOptions::isMainNamespaceInOptionsForced() const
+{
+    return isOptUsed(ForceMainNamespaceInOptionsStr);
 }
 
 } // namespace commsdsl2comms

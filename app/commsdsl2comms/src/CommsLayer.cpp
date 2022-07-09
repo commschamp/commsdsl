@@ -294,7 +294,8 @@ std::string CommsLayer::commsDefExtraOpts() const
     StringsList opts = commsDefExtraOptsImpl();
 
     if (commsIsCustomizable()) {
-        opts.push_back("typename TOpt::" + comms::scopeFor(m_layer, m_layer.generator(), false));
+        auto& gen = static_cast<const CommsGenerator&>(m_layer.generator());
+        opts.push_back("typename TOpt::" + comms::scopeFor(m_layer, m_layer.generator(), gen.hasMainNamespaceInOptions()));
     }    
 
     return util::strListToString(opts, ",\n", "");

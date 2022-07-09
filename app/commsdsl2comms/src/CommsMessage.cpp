@@ -523,7 +523,8 @@ std::string CommsMessage::commsDefCustomizationOptInternal() const
 {
     std::string result;
     if (commsIsCustomizableInternal()) {
-        result = "typename TOpt::" + comms::scopeFor(*this, generator(), false, true) + ",";
+        auto& gen = static_cast<const CommsGenerator&>(generator());
+        result = "typename TOpt::" + comms::scopeFor(*this, generator(), gen.hasMainNamespaceInOptions(), true) + ",";
     }
     return result;
 }
