@@ -47,6 +47,7 @@ private:
     std::string toolsTransportMessageHeaderFilePathInternal() const;
     std::string toolsTransportMessageSrcFilePathInternal() const;
     unsigned toolsCalcBackPayloadOffsetInternal() const;
+    std::string toolsRelFilePath() const;
 
     ToolsQtLayersList m_toolsLayers;
 };

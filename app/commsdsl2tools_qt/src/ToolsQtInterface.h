@@ -48,6 +48,7 @@ private:
     std::string toolsHeaderCodeInternal() const;
     std::string toolsSrcCodeInternal() const;
     const std::string& toolsNameInternal() const;
+    std::string toolsRelFilePath() const;
 
     ToolsQtFieldsList m_toolsFields;
 };

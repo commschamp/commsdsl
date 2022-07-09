@@ -325,7 +325,7 @@ std::string ToolsQtField::toolsDefMembersImpl() const
 bool ToolsQtField::toolsWriteHeaderInternal() const
 {
     auto& generator = m_field.generator();
-    auto filePath = m_field.generator().getOutputDir() + '/' + toolsRelDeclHeaderFile();
+    auto filePath = generator.getOutputDir() + '/' + toolsRelDeclHeaderFile();
 
     auto& logger = generator.logger();
     logger.info("Generating " + filePath);
@@ -432,8 +432,8 @@ std::string ToolsQtField::toolsDeclSigInternal(bool defaultSerHidden) const
 
 std::string ToolsQtField::toolsRelPathInternal() const
 {
-    auto scope = comms::scopeFor(m_field, m_field.generator(), false);
-    return util::strReplace(scope, "::", "/");
+    auto scope = comms::scopeFor(m_field, m_field.generator());
+    return m_field.generator().getTopNamespace() + '/' + util::strReplace(scope, "::", "/");
 }
 
 std::string ToolsQtField::toolsSerHiddenParamInternal() const

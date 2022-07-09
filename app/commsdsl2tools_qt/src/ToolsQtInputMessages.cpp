@@ -42,7 +42,11 @@ bool writeFileInternal(
     ToolsQtGenerator& generator,
     CheckFunction&& func)
 {
-    auto filePath = generator.getOutputDir() + '/' + util::strReplace(comms::scopeForInput(name, generator, false), "::", "/") + strings::cppHeaderSuffixStr();
+    auto filePath = 
+        generator.getOutputDir() + '/' + 
+        generator.getTopNamespace() + '/' + 
+        util::strReplace(comms::scopeForInput(name, generator), "::", "/") + 
+        strings::cppHeaderSuffixStr();
     generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -76,8 +80,9 @@ bool writeFileInternal(
             continue;
         }
 
-        includes.push_back(util::strReplace(comms::scopeFor(*m, generator, false), "::", "/") + strings::cppHeaderSuffixStr());
-        scopes.push_back(generator.getTopNamespace() + "::" + comms::scopeFor(*m, generator) + interfaceTempl);
+        auto scope = generator.getTopNamespace() + "::" + comms::scopeFor(*m, generator);
+        includes.push_back(util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr());
+        scopes.push_back(scope + interfaceTempl);
     }
 
     static const std::string Templ =

@@ -69,8 +69,7 @@ ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame d
 
 std::string ToolsQtFrame::toolsHeaderFilePath() const
 {
-    auto scope = comms::scopeFor(*this, generator(), false);
-    return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
+    return toolsRelFilePath() + strings::cppHeaderSuffixStr();
 }
 
 ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles() const
@@ -121,7 +120,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
         "\n"
         "#pragma once\n\n"
         "#include \"#^#FRAME_INCLUDE#$#\"\n"
-        "#include \"input/AllMessages.h\"\n"
+        "#include \"#^#TOP_NS#$#/#^#MAIN_NS#$#/input/AllMessages.h\"\n"
         "#^#INTERFACE_INCLUDE#$#\n"
         "\n"
         "#^#NS_BEGIN#$#\n"
@@ -142,6 +141,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"FRAME_SCOPE", comms::scopeFor(*this, gen)},
         {"TOP_NS", gen.getTopNamespace()},
+        {"MAIN_NS", gen.protocolSchema().mainNamespace()},
         {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), gen)},
     };
 
@@ -471,14 +471,12 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
 
 std::string ToolsQtFrame::toolsTransportMessageHeaderFilePathInternal() const
 {
-    auto scope = comms::scopeFor(*this, generator(), false);
-    return util::strReplace(scope, "::", "/") + strings::transportMessageSuffixStr() + strings::cppHeaderSuffixStr();
+    return toolsRelFilePath() + strings::transportMessageSuffixStr() + strings::cppHeaderSuffixStr();
 }
 
 std::string ToolsQtFrame::toolsTransportMessageSrcFilePathInternal() const
 {
-    auto scope = comms::scopeFor(*this, generator(), false);
-    return util::strReplace(scope, "::", "/") + strings::transportMessageSuffixStr() + strings::cppSourceSuffixStr();
+    return toolsRelFilePath() + strings::transportMessageSuffixStr() + strings::cppSourceSuffixStr();
 }
 
 unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
@@ -500,6 +498,12 @@ unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
                 {
                     return soFar + l->toolsMinFieldLength();
                 }));
+}
+
+std::string ToolsQtFrame::toolsRelFilePath() const
+{
+    auto scope = comms::scopeFor(*this, generator());
+    return generator().getTopNamespace() + '/' + util::strReplace(scope, "::", "/");
 }
 
 

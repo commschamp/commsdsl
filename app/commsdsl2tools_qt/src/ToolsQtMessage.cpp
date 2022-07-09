@@ -389,8 +389,8 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
 
 std::string ToolsQtMessage::toolsRelPathInternal() const
 {
-    auto scope = comms::scopeFor(*this, generator(), false);
-    return util::strReplace(scope, "::", "/");
+    auto scope = comms::scopeFor(*this, generator());
+    return generator().getTopNamespace() + '/' + util::strReplace(scope, "::", "/");
 }
 
 ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesInternal() const

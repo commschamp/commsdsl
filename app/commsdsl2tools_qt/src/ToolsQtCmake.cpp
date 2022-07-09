@@ -97,15 +97,15 @@ bool ToolsQtCmake::testWriteInternal() const
         "            COMMAND ${CMAKE_COMMAND} -E touch ${stamp_file})\n"
         "    endif ()\n\n"
         "    set (src\n"
-        "        plugin/${protocol}Protocol.cpp\n"
-        "        plugin/${protocol}Plugin.cpp\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Protocol.cpp\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.cpp\n"
         "    )\n\n"
         "    set (hdr\n"
-        "        plugin/${protocol}Plugin.h\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.h\n"
         "    )\n\n"
         "    if (has_config_widget)\n"
-        "        list (APPEND src plugin/${protocol}ConfigWidget.cpp)\n"
-        "        list (APPEND hdr plugin/${protocol}ConfigWidget.h)\n"
+        "        list (APPEND src #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}ConfigWidget.cpp)\n"
+        "        list (APPEND hdr #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}ConfigWidget.h)\n"
         "    endif ()\n\n"
         "    qt5_wrap_cpp(moc ${hdr})\n\n"
         "    set(extra_link_opts)\n"
@@ -123,7 +123,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "        TARGETS ${name}\n"
         "        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cc_tools_qt/plugin)\n\n"
         "    install (\n"
-        "        FILES plugin/${protocol}.cfg\n"
+        "        FILES #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}.cfg\n"
         "        DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/cc_tools_qt)\n\n"
         "endfunction()\n\n"
         "######################################################################\n\n"
@@ -150,7 +150,9 @@ bool ToolsQtCmake::testWriteInternal() const
     util::ReplacementMap repl = {
         {"PROT", util::strToName(m_generator.protocolSchema().schemaName())},
         {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
-        {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")}
+        {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
+        {"TOP_NS", m_generator.getTopNamespace()},
+        {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Template, repl);
