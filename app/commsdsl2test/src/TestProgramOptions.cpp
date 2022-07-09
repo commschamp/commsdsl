@@ -38,6 +38,8 @@ const std::string NamespaceStr("namespace");
 const std::string FullNamespaceStr("n," + NamespaceStr);
 const std::string InputFileStr("input-file");
 const std::string WarnAsErrStr("warn-as-err");
+const std::string CodeInputDirStr("code-input-dir");
+const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
 const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
 
@@ -53,6 +55,7 @@ TestProgramOptions::TestProgramOptions()
     (FullInputFilesPrefixStr.c_str(), "Prefix for the values from the list file.", true)
     (FullNamespaceStr.c_str(), "Force protocol namespace. Defaults to schema name.", true) 
     (WarnAsErrStr.c_str(), "Treat warning as error.")
+    (FullCodeInputDirStr, "Directory with code updates.", true)
     (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    
     ;
 }
@@ -90,6 +93,11 @@ const TestProgramOptions::ArgsList& TestProgramOptions::getFiles() const
 const std::string& TestProgramOptions::getOutputDirectory() const
 {
     return value(OutputDirStr);
+}
+
+const std::string& TestProgramOptions::getCodeInputDirectory() const
+{
+    return value(CodeInputDirStr);
 }
 
 bool TestProgramOptions::hasNamespaceOverride() const

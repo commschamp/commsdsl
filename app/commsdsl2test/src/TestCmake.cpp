@@ -107,7 +107,7 @@ bool TestCmake::testWriteInternal() const
         "function (define_test name)\n"
         "    set (src ${name}.cpp)\n"
         "    add_executable(${name} ${src})\n"
-        "    target_link_libraries(${name} PRIVATE cc::#^#PROJ_NS#$# cc::comms)\n\n"
+        "    target_link_libraries(${name} PRIVATE cc::#^#PROJ_NS#$# cc::comms)\n"
         "    set (extra_defs)\n"
         "    if (NOT \"${OPT_TEST_INTERFACE}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DINTERFACE=${OPT_TEST_INTERFACE})\n"

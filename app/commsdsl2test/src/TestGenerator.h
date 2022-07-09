@@ -27,6 +27,9 @@ public:
 
 protected:
     virtual bool writeImpl() override;    
+
+private:
+    bool testWriteExtraFilesInternal() const;
 };
 
 } // namespace commsdsl2test
