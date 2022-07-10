@@ -21,7 +21,10 @@ void TestSuite::test1()
     static const std::uint8_t Buf[] = {
         0x1, // MsgId.M1
         0xaa, // Msg1.F1,
-        5, 'h', 'e', 'l', 'l', 'o', // Msg2.F2
+        5, 'h', 'e', 'l', 'l', 'o', // Msg1.F2
+        2, 0xde, 0xad, // Msg1.F3
+        0x1a, // Msg1.F4,
+        0xa, // Msg1.F5
     };
     static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
 
@@ -35,6 +38,11 @@ void TestSuite::test1()
     auto* msg1 = static_cast<Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg1->field_f1().value(), 0xaa);
     TS_ASSERT_EQUALS(msg1->field_f2().value(), std::string("hello"));
+    TS_ASSERT_EQUALS(msg1->field_f3().value().size(), 2);
+    TS_ASSERT_EQUALS(msg1->field_f4().field_mem2().value(), Msg1::Field_f4::Field_mem2::ValueType::V1);
+    TS_ASSERT(msg1->field_f5().doesExist());
+    TS_ASSERT_EQUALS(msg1->field_f5().field().value(), 0xa);
+
 
     std::vector<std::uint8_t> outBuf;
     outBuf.resize(BufSize);

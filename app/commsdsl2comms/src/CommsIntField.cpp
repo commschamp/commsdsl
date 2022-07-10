@@ -384,6 +384,11 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
         auto pos = value.find_first_of(".");
         auto fieldRef = value; // copy
         std::string valueSubstr;
+
+        if (pos < value.size() && (value[0] == strings::schemaRefPrefix())) {
+            pos = value.find_first_of(".", pos + 1); // find second
+        }
+
         if (pos < value.size()) {
             fieldRef = value.substr(0, pos);
             valueSubstr = value.substr(pos + 1);

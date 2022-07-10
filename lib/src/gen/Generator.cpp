@@ -499,7 +499,7 @@ bool Generator::getVersionIndependentCodeForced() const
 const Field* Generator::findField(const std::string& externalRef) const
 {
     auto* field = m_impl->findField(externalRef);
-    assert(field->isPrepared());
+    assert((field == nullptr) || (field->isPrepared()));
     return field;
 }
 
