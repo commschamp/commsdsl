@@ -12,7 +12,7 @@ option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when C
 option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ON)
 option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
 option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
-option (COMMSDSL_EXTERNAL_COMMS "COMMS library is external, don't pull it it when needed" OFF)
+option (COMMSDSL_EXTERNAL_COMMS "COMMS library is external, don't pull it when needed" OFF)
 
 # Additional variables to be used if needed
 # ---------------------------
@@ -35,6 +35,7 @@ option (COMMSDSL_EXTERNAL_COMMS "COMMS library is external, don't pull it it whe
 set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
 include (${CMAKE_SCIPTS_DIR}/CommsdslFuncs.cmake)
 include (${CMAKE_SCIPTS_DIR}/CommsdslCompile.cmake)
+
 ################################################
 
 # Check usage of deprecated options and ovewrite the default values of proper ones

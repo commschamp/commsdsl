@@ -50,10 +50,16 @@ bool CommsMsgId::write(CommsGenerator& generator)
 
 bool CommsMsgId::commsWriteInternal() const
 {
-    static_cast<void>(m_generator);
     auto filePath = comms::headerPathRoot(strings::msgIdEnumNameStr(), m_generator);
 
     m_generator.logger().info("Generating " + filePath);
+
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!m_generator.createDirectory(dirPath)) {
+        return false;
+    }
+
     std::ofstream stream(filePath);
     if (!stream) {
         m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
