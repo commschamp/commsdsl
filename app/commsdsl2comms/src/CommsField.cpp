@@ -56,6 +56,15 @@ bool isOverrideCodeRequired(commsdsl::parse::OverrideType value)
         (value == commsdsl::parse::OverrideType_Extend);
 }
 
+void readCustomCodeInternal(const std::string& codePath, std::string& code)
+{
+    if (!util::isFileReadable(codePath)) {
+        return;
+    }
+
+    code = util::readFileContents(codePath);
+}
+
 } // namespace 
     
 
@@ -87,26 +96,31 @@ CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl:
 bool CommsField::commsPrepare()
 {
 
-    if (!copyOverrideCodeInternal()) {
+    if (!copyCodeFromInternal()) {
         return false;
     }
 
     auto codePathPrefix = comms::inputCodePathFor(m_field, m_field.generator());
     auto& obj = m_field.dslObj();
     bool overrides = 
-        commsPrepareOverrideInternal(obj.valueOverride(), codePathPrefix, strings::valueFileSuffixStr(), m_customValue, "value") &&
-        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customRead, "read") &&
-        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customWrite, "write") &&
-        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customRefresh, "refresh") &&
-        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customLength, "length") &&
-        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customValid, "valid") &&
-        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customName, "name");
+        commsPrepareOverrideInternal(obj.valueOverride(), codePathPrefix, strings::valueFileSuffixStr(), m_customCode.m_value, "value") &&
+        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read") &&
+        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write") &&
+        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh") &&
+        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length") &&
+        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid") &&
+        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name");
 
     if (!overrides) {
         return false;
     }
 
-    m_customExtend = util::readFileContents(codePathPrefix + strings::extendFileSuffixStr());
+    readCustomCodeInternal(codePathPrefix + strings::incFileSuffixStr(), m_customCode.m_inc);
+    readCustomCodeInternal(codePathPrefix + strings::publicFileSuffixStr(), m_customCode.m_public);
+    readCustomCodeInternal(codePathPrefix + strings::protectedFileSuffixStr(), m_customCode.m_protected);
+    readCustomCodeInternal(codePathPrefix + strings::privateFileSuffixStr(), m_customCode.m_private);
+    readCustomCodeInternal(codePathPrefix + strings::extendFileSuffixStr(), m_customCode.m_extend);
+    readCustomCodeInternal(codePathPrefix + strings::appendFileSuffixStr(), m_customCode.m_append);
     return true;
 }
 
@@ -268,7 +282,7 @@ std::string CommsField::commsDefCode() const
         {"MEMBERS", commsDefMembersCodeInternal()},
         {"FIELD", commsFieldDefCodeInternal()},
         {"OPTIONAL", commsOptionalDefCodeInternal()},
-        {"APPEND", util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::appendFileSuffixStr())}
+        {"APPEND", m_customCode.m_append}
     };
 
     return util::processTemplate(Templ, repl);
@@ -360,14 +374,18 @@ std::string CommsField::commsBareMetalDefaultOptions() const
 
 bool CommsField::commsHasCustomValue() const
 {
-    return !m_customValue.empty();
+    return !m_customCode.m_value.empty();
 }
 
 bool CommsField::commsHasCustomValid() const
 {
-    return (!m_customValid.empty()) || (!commsDefValidFuncBodyImpl().empty());
+    return (!m_customCode.m_valid.empty()) || (!commsDefValidFuncBodyImpl().empty());
 }
 
+bool CommsField::commsHasCustomLength() const
+{
+    return (!m_customCode.m_length.empty()) || (!commsDefLengthFuncBodyImpl().empty());
+}
 
 const CommsField* CommsField::commsFindSibling(const std::string& name) const
 {
@@ -612,9 +630,8 @@ std::string CommsField::commsCommonNameFuncCode() const
     auto& generator = m_field.generator();
     auto customNamePath = comms::inputCodePathFor(m_field, generator) + strings::nameFileSuffixStr();
 
-    auto customFunc = util::readFileContents(customNamePath);
-    if (!customFunc.empty()) {
-        return customFunc;
+    if (!m_customCode.m_name.empty()) {
+        return m_customCode.m_name;
     }
 
     static const std::string Templ = 
@@ -681,15 +698,15 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
         checkFieldTypeFunc();
     } while (false);
 
-    if (!m_customRead.empty()) {
+    if (!m_customCode.m_read.empty()) {
         util::addToStrList("comms::option::def::HasCustomRead", opts);
     }
 
-    if (!m_customRefresh.empty()) {
+    if (!m_customCode.m_refresh.empty()) {
         util::addToStrList("comms::option::def::HasCustomRefresh", opts);
     }
 
-    if (!m_customWrite.empty()) {
+    if (!m_customCode.m_write.empty()) {
         util::addToStrList("comms::option::def::HasCustomWrite", opts);
     }    
 
@@ -711,7 +728,7 @@ void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts)
         repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
     }
     
-    if (!m_customExtend.empty()) {
+    if (!m_customCode.m_extend.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
     }    
 
@@ -743,13 +760,13 @@ bool CommsField::commsIsFieldCustomizable() const
 
 bool CommsField::commsIsExtended() const
 {
-    return !m_customExtend.empty();
+    return !m_customCode.m_extend.empty();
 }
 
-bool CommsField::copyOverrideCodeInternal()
+bool CommsField::copyCodeFromInternal()
 {
     auto obj = m_field.dslObj();
-    auto& copyFrom = obj.copyOverrideCodeFrom();
+    auto& copyFrom = obj.copyCodeFromFrom();
     if (copyFrom.empty()) {
         return true;
     }
@@ -765,13 +782,7 @@ bool CommsField::copyOverrideCodeInternal()
 
     auto* commsField = dynamic_cast<CommsField*>(origField);
     assert(commsField != nullptr);
-    m_customValue = commsField->m_customValue;
-    m_customRead = commsField->m_customRead;
-    m_customWrite = commsField->m_customWrite;
-    m_customRefresh = commsField->m_customRefresh;
-    m_customLength = commsField->m_customLength;
-    m_customValid = commsField->m_customValid;
-    m_customName = commsField->m_customName;
+    m_customCode = commsField->m_customCode;
     return true;
 }
 
@@ -896,7 +907,7 @@ bool CommsField::commsWriteDefInternal() const
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
         {"FIELD_NAME", util::displayName(m_field.dslObj().displayName(), m_field.dslObj().name())},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
-        {"EXTRA_INCLUDES", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::incFileSuffixStr())},
+        {"EXTRA_INCLUDES", m_customCode.m_inc},
         {"NS_BEGIN", comms::namespaceBeginFor(m_field, generator)},
         {"NS_END", comms::namespaceEndFor(m_field, generator)},
         {"DEF", commsDefCode()},
@@ -934,7 +945,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
     auto priv = commsDefPrivateCodeInternal();
 
     auto* templ = &Templ;
-    if (pub.empty() && prot.empty() && priv.empty() && m_customExtend.empty()) {
+    if (pub.empty() && prot.empty() && priv.empty() && m_customCode.m_extend.empty()) {
         static const std::string AliasTempl = 
             "#^#BRIEF#$#\n"
             "#^#DETAILS#$#\n"
@@ -958,14 +969,14 @@ std::string CommsField::commsFieldDefCodeInternal() const
         {"PUBLIC", std::move(pub)},
         {"PROTECTED", std::move(prot)},
         {"PRIVATE", std::move(priv)},
-        {"EXTEND", m_customExtend},
+        {"EXTEND", m_customCode.m_extend},
     };
 
     if (commsIsVersionOptional()) {
         repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
     }
     
-    if (!m_customExtend.empty()) {
+    if (!m_customCode.m_extend.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
     }
 
@@ -1140,7 +1151,6 @@ std::string CommsField::commsDefPublicCodeInternal() const
         "    #^#EXTRA_PUBLIC#$#\n"
     };
 
-    auto& generator = m_field.generator();
     util::ReplacementMap repl = {
         {"FIELD_DEF", commsDefPublicCodeImpl()},
         {"NAME", commsDefNameFuncCodeInternal()},
@@ -1150,7 +1160,7 @@ std::string CommsField::commsDefPublicCodeInternal() const
         {"REFRESH", commsDefRefreshFuncCodeInternal()},
         {"LENGTH", commsDefLengthFuncCodeInternal()},
         {"VALID", commsDefValidFuncCodeInternal()},
-        {"EXTRA_PUBLIC", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::publicFileSuffixStr())},
+        {"EXTRA_PUBLIC", m_customCode.m_public},
     };
 
     bool hasValue = 
@@ -1178,14 +1188,13 @@ std::string CommsField::commsDefProtectedCodeInternal() const
     util::ReplacementMap repl;
 
     auto field = commsDefProtectedCodeImpl();
-    auto custom = util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::protectedFileSuffixStr());
     
     if (!field.empty()) {
         repl.insert({{"FIELD", std::move(field)}});
     }
 
-    if (!custom.empty()) {
-        repl.insert({{"CUSTOM", std::move(custom)}});
+    if (!m_customCode.m_protected.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_protected}});
     }
 
     if (repl.empty()) {
@@ -1205,14 +1214,13 @@ std::string CommsField::commsDefPrivateCodeInternal() const
     util::ReplacementMap repl;
 
     auto field = commsDefPrivateCodeImpl();
-    auto custom = util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::privateFileSuffixStr());
     
     if (!field.empty()) {
         repl.insert({{"FIELD", std::move(field)}});
     }
 
-    if (!custom.empty()) {
-        repl.insert({{"CUSTOM", std::move(custom)}});
+    if (!m_customCode.m_private.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_private}});
     }
 
     if (repl.empty()) {
@@ -1228,12 +1236,12 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
 
     std::string custom;
     auto overrideType = m_field.dslObj().nameOverride();
-    if (m_customName.empty() && (!commsDefHasNameFuncImpl())) {
+    if (m_customCode.m_name.empty() && (!commsDefHasNameFuncImpl())) {
         return strings::emptyString();
     }
 
     if (!hasOrigCode(overrideType)) {
-        return m_customName;
+        return m_customCode.m_name;
     }
 
     static const std::string Templ = 
@@ -1246,7 +1254,7 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
 
     util::ReplacementMap repl = {
         {"SCOPE", comms::commonScopeFor(m_field, generator)},
-        {"CUSTOM", m_customName},
+        {"CUSTOM", m_customCode.m_name},
     };
 
     if (!repl["CUSTOM"].empty()) {
@@ -1258,7 +1266,7 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
 
 const std::string& CommsField::commsDefValueCodeInternal() const
 {
-    return m_customValue;
+    return m_customCode.m_value;
 }
 
 std::string CommsField::commsDefReadFuncCodeInternal() const
@@ -1289,7 +1297,7 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customRead.empty()) {
+        if (!m_customCode.m_read.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
@@ -1310,8 +1318,8 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
         repl["ORIG"] = util::processTemplate(OrigTempl, origRepl);
     }
 
-    if (!m_customRead.empty()) {
-        repl.insert({{"CUSTOM", m_customRead}});
+    if (!m_customCode.m_read.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_read}});
     }
 
     if (repl.empty()) {
@@ -1347,15 +1355,15 @@ std::string CommsField::commsDefWriteFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customWrite.empty()) {
+        if (!m_customCode.m_write.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
         repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
     }
 
-    if (!m_customWrite.empty()) {
-        repl.insert({{"CUSTOM", m_customWrite}});
+    if (!m_customCode.m_write.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_write}});
     }
 
     if (repl.empty()) {
@@ -1389,15 +1397,15 @@ std::string CommsField::commsDefRefreshFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customRefresh.empty()) {
+        if (!m_customCode.m_refresh.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
         repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
     }
 
-    if (!m_customRefresh.empty()) {
-        repl.insert({{"CUSTOM", m_customRefresh}});
+    if (!m_customCode.m_refresh.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_refresh}});
     }
 
     if (repl.empty()) {
@@ -1432,15 +1440,15 @@ std::string CommsField::commsDefLengthFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customLength.empty()) {
+        if (!m_customCode.m_length.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
         repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
     }
 
-    if (!m_customLength.empty()) {
-        repl["CUSTOM"] = m_customLength;
+    if (!m_customCode.m_length.empty()) {
+        repl["CUSTOM"] = m_customCode.m_length;
     }
 
     if (repl.empty()) {
@@ -1474,15 +1482,15 @@ std::string CommsField::commsDefValidFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customValid.empty()) {
+        if (!m_customCode.m_valid.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
         repl["ORIG"] = util::processTemplate(OrigTempl, origRepl);
     }
 
-    if (!m_customValid.empty()) {
-        repl["CUSTOM"] = m_customValid;
+    if (!m_customCode.m_valid.empty()) {
+        repl["CUSTOM"] = m_customCode.m_valid;
     }
 
     if (repl.empty()) {

@@ -164,10 +164,10 @@ OverrideType Message::nameOverride() const
     return m_pImpl->nameOverride();
 }
 
-const std::string& Message::copyOverrideCodeFrom() const
+const std::string& Message::copyCodeFromFrom() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->copyOverrideCodeFrom();
+    return m_pImpl->copyCodeFromFrom();
 }
 
 const Message::AttributesMap& Message::extraAttributes() const

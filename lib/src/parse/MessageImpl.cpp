@@ -284,7 +284,7 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::lengthOverrideStr(),
         common::validOverrideStr(),
         common::nameOverrideStr(),
-        common::copyOverrideCodeFromStr(),
+        common::copyCodeFromFromStr(),
     };
 
     return CommonNames;
@@ -993,7 +993,7 @@ bool MessageImpl::updateNameOverride()
 
 bool MessageImpl::updateCopyOverrideCodeFrom()
 {
-    auto& prop = common::copyOverrideCodeFromStr();
+    auto& prop = common::copyCodeFromFromStr();
     if (!validateSinglePropInstance(prop, false)) {
         return false;
     }
@@ -1017,7 +1017,7 @@ bool MessageImpl::updateCopyOverrideCodeFrom()
         return false;        
     }
 
-    m_copyOverrideCodeFrom = iter->second;
+    m_copyCodeFromFrom = iter->second;
     return true;
 }
 

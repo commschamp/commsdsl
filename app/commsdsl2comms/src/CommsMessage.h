@@ -57,7 +57,23 @@ private:
     using FieldOptsFunc = std::string (CommsField::*)() const;
     using ExtraMessageOptsFunc = StringsList (CommsMessage::*)() const;
 
-    bool copyOverrideCodeInternal();
+    struct CustomCode
+    {
+        std::string m_read;
+        std::string m_write;
+        std::string m_refresh;
+        std::string m_length;
+        std::string m_valid;
+        std::string m_name;
+        std::string m_inc;
+        std::string m_public;
+        std::string m_protected;
+        std::string m_private;
+        std::string m_extend;
+        std::string m_append;
+    };
+
+    bool copyCodeFromInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::OverrideType type, 
         std::string& codePathPrefix, 
@@ -100,13 +116,7 @@ private:
     CommsFieldsList m_commsFields;  
     commsdsl::gen::util::StringsList m_bundledReadPrepareCodes;
     commsdsl::gen::util::StringsList m_bundledRefreshCodes;
-    std::string m_customRead;
-    std::string m_customWrite;
-    std::string m_customRefresh;
-    std::string m_customLength;
-    std::string m_customValid;
-    std::string m_customName;
-    std::string m_customExtend;
+    CustomCode m_customCode;
 };
 
 } // namespace commsdsl2comms

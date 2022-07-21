@@ -142,13 +142,13 @@ void MessageTestSuite::test4()
     TS_ASSERT_EQUALS(msg2.minLength(), 6U);
     TS_ASSERT_EQUALS(msg2.maxLength(), 6U);
     TS_ASSERT_EQUALS(msg2.sinceVersion(), 2U);
-    TS_ASSERT(msg2.copyOverrideCodeFrom().empty());
+    TS_ASSERT(msg2.copyCodeFromFrom().empty());
     auto fields2 = msg2.fields();
     TS_ASSERT_EQUALS(fields2.size(), 2U);
 
     TS_ASSERT_EQUALS(msg3.name(), "Msg3");
     TS_ASSERT_EQUALS(msg3.id(), 2);
-    TS_ASSERT_EQUALS(msg3.copyOverrideCodeFrom(), "Msg2");
+    TS_ASSERT_EQUALS(msg3.copyCodeFromFrom(), "Msg2");
     auto fields3 = msg3.fields();
     TS_ASSERT_EQUALS(fields3.size(), 3U);   
 

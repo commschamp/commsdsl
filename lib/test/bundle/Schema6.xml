@@ -14,7 +14,7 @@
             </set>
             <int name="Int1" type="uintvar" length="4" />
         </bundle>
-        <bundle name="Bundle2" reuse="Bundle1" copyOverrideCodeFrom="Bundle1">
+        <bundle name="Bundle2" reuse="Bundle1" copyCodeFromFrom="Bundle1">
             <members>
                 <int name="Int2" type="intvar" length="4" />
             </members>

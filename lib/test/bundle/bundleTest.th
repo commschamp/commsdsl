@@ -145,7 +145,7 @@ void BundleTestSuite::test6()
     TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 10U);
-    TS_ASSERT_EQUALS(field.copyOverrideCodeFrom(), std::string("Bundle1"));
+    TS_ASSERT_EQUALS(field.copyCodeFromFrom(), std::string("Bundle1"));
 
     commsdsl::parse::BundleField bundleField(field);
     auto members = bundleField.members();
@@ -410,6 +410,6 @@ void BundleTestSuite::test14()
 
     auto& field = fields[1];
     TS_ASSERT_EQUALS(field.name(), "Bundle2");
-    TS_ASSERT(field.copyOverrideCodeFrom().empty());
+    TS_ASSERT(field.copyCodeFromFrom().empty());
 }
 

@@ -55,6 +55,15 @@ bool isOverrideCodeRequired(commsdsl::parse::OverrideType value)
         (value == commsdsl::parse::OverrideType_Extend);
 }
 
+void readCustomCodeInternal(const std::string& codePath, std::string& code)
+{
+    if (!util::isFileReadable(codePath)) {
+        return;
+    }
+
+    code = util::readFileContents(codePath);
+}
+
 } // namespace 
     
 
@@ -96,23 +105,30 @@ bool CommsMessage::prepareImpl()
         return false;
     }
 
-    if (!copyOverrideCodeInternal()) {
+    if (!copyCodeFromInternal()) {
         return false;
     }
 
     auto codePathPrefix = comms::inputCodePathFor(*this, generator());
     auto obj = dslObj();
     bool overrides = 
-        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customRead, "read") &&
-        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customWrite, "write") &&
-        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customRefresh, "refresh") &&
-        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customLength, "length") &&
-        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customValid, "valid") &&
-        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customName, "name");
+        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read") &&
+        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write") &&
+        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh") &&
+        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length") &&
+        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid") &&
+        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name");
 
     if (!overrides) {
         return false;
     }
+
+    readCustomCodeInternal(codePathPrefix + strings::incFileSuffixStr(), m_customCode.m_inc);
+    readCustomCodeInternal(codePathPrefix + strings::publicFileSuffixStr(), m_customCode.m_public);
+    readCustomCodeInternal(codePathPrefix + strings::protectedFileSuffixStr(), m_customCode.m_protected);
+    readCustomCodeInternal(codePathPrefix + strings::privateFileSuffixStr(), m_customCode.m_private);
+    readCustomCodeInternal(codePathPrefix + strings::extendFileSuffixStr(), m_customCode.m_extend);
+    readCustomCodeInternal(codePathPrefix + strings::appendFileSuffixStr(), m_customCode.m_append);
 
     m_commsFields = CommsField::commsTransformFieldsList(fields());
     m_bundledReadPrepareCodes.reserve(m_commsFields.size());
@@ -132,10 +148,10 @@ bool CommsMessage::writeImpl() const
         commsWriteDefInternal();
 }
 
-bool CommsMessage::copyOverrideCodeInternal()
+bool CommsMessage::copyCodeFromInternal()
 {
     auto obj = dslObj();
-    auto& copyFrom = obj.copyOverrideCodeFrom();
+    auto& copyFrom = obj.copyCodeFromFrom();
     if (copyFrom.empty()) {
         return true;
     }
@@ -150,12 +166,7 @@ bool CommsMessage::copyOverrideCodeInternal()
 
     auto* commsMsg = dynamic_cast<CommsMessage*>(origMsg);
     assert(commsMsg != nullptr);
-    m_customRead = commsMsg->m_customRead;
-    m_customWrite = commsMsg->m_customWrite;
-    m_customRefresh = commsMsg->m_customRefresh;
-    m_customLength = commsMsg->m_customLength;
-    m_customValid = commsMsg->m_customValid;
-    m_customName = commsMsg->m_customName;
+    m_customCode = commsMsg->m_customCode;
     return true;
 }
 
@@ -325,7 +336,7 @@ bool CommsMessage::commsWriteDefInternal() const
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
         {"MESSAGE_NAME", util::displayName(obj.displayName(), obj.name())},
         {"INCLUDES", commsDefIncludesInternal()},
-        {"CUSTOM_INCLUDES", util::readFileContents(codePathPrefix + strings::incFileSuffixStr())},
+        {"CUSTOM_INCLUDES", m_customCode.m_inc},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"CLASS_NAME", comms::className(obj.name())},
@@ -339,11 +350,11 @@ bool CommsMessage::commsWriteDefInternal() const
         {"PUBLIC", commsDefPublicInternal()},
         {"PROTECTED", commsDefProtectedInternal()},
         {"PRIVATE", commsDefPrivateInternal()},
-        {"EXTEND", m_customExtend},
-        {"APPEND", util::readFileContents(codePathPrefix + strings::appendFileSuffixStr())}
+        {"EXTEND", m_customCode.m_extend},
+        {"APPEND", m_customCode.m_append}
     };
 
-    if (!m_customExtend.empty()) {
+    if (!m_customCode.m_extend.empty()) {
         repl["SUFFIX"] = strings::origSuffixStr();
     }
 
@@ -512,7 +523,7 @@ std::string CommsMessage::commsDefBaseClassInternal() const
         repl["COMMA"] = ",";
     }
 
-    if (!m_customExtend.empty()) {
+    if (!m_customCode.m_extend.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
     }
 
@@ -548,11 +559,11 @@ std::string CommsMessage::commsDefExtraOptionsInternal() const
                 return !code.empty();
             });
 
-    if ((!m_customRead.empty()) || hasGeneratedRead) {
+    if ((!m_customCode.m_read.empty()) || hasGeneratedRead) {
         util::addToStrList("comms::option::def::HasCustomRead", opts);
     }
 
-    if ((!m_customRefresh.empty()) || hasGeneratedRefresh) {
+    if ((!m_customCode.m_refresh.empty()) || hasGeneratedRefresh) {
         return "comms::option::def::HasCustomRefresh";
     }
 
@@ -580,12 +591,12 @@ std::string CommsMessage::commsDefPublicInternal() const
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
         {"LENGTH_CHECK", commsDefLengthCheckInternal()},
-        {"EXTRA", util::readFileContents(inputCodePrefix + strings::publicFileSuffixStr())},
+        {"EXTRA", m_customCode.m_public},
         {"NAME", commsDefNameFuncInternal()},
         {"READ", commsDefReadFuncInternal()},
-        {"WRITE", m_customWrite},
-        {"LENGTH", m_customLength},
-        {"VALID", m_customValid},
+        {"WRITE", m_customCode.m_write},
+        {"LENGTH", m_customCode.m_length},
+        {"VALID", m_customCode.m_valid},
         {"REFRESH", commsDefRefreshFuncInternal()},
     };
 
@@ -594,8 +605,7 @@ std::string CommsMessage::commsDefPublicInternal() const
 
 std::string CommsMessage::commsDefProtectedInternal() const
 {
-    auto custom = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::protectedFileSuffixStr());
-    if (custom.empty()) {
+    if (m_customCode.m_protected.empty()) {
         return strings::emptyString();
     }
 
@@ -605,7 +615,7 @@ std::string CommsMessage::commsDefProtectedInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"CUSTOM", std::move(custom)}
+        {"CUSTOM", m_customCode.m_protected}
     };
     
     return util::processTemplate(Templ, repl);
@@ -613,8 +623,6 @@ std::string CommsMessage::commsDefProtectedInternal() const
 
 std::string CommsMessage::commsDefPrivateInternal() const
 {
-    auto custom = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
-
     assert(m_bundledReadPrepareCodes.size() == m_commsFields.size());
     assert(m_bundledRefreshCodes.size() == m_commsFields.size());
     util::StringsList reads;
@@ -660,7 +668,7 @@ std::string CommsMessage::commsDefPrivateInternal() const
         }
     }
 
-    if (reads.empty() && refreshes.empty() && custom.empty()) {
+    if (reads.empty() && refreshes.empty() && m_customCode.m_private.empty()) {
         return strings::emptyString();
     }
 
@@ -674,7 +682,7 @@ std::string CommsMessage::commsDefPrivateInternal() const
     util::ReplacementMap repl = {
         {"READS", util::strListToString(reads, "\n", "")},
         {"REFRESHES", util::strListToString(refreshes, "\n", "")},
-        {"CUSTOM", std::move(custom)}
+        {"CUSTOM", m_customCode.m_private}
     };
 
     return util::processTemplate(Templ, repl);
@@ -772,6 +780,18 @@ std::string CommsMessage::commsDefFieldsAliasesInternal() const
 
 std::string CommsMessage::commsDefLengthCheckInternal() const
 {
+    bool hasCustomLength = 
+        std::any_of(
+            m_commsFields.begin(), m_commsFields.end(),
+            [](auto* f)
+            {
+                return f->commsHasCustomLength();
+            });
+
+    if (hasCustomLength) {
+        return strings::emptyString();
+    }
+
     static const std::string Templ = 
         "// Compile time check for serialisation length.\n"
         "static const std::size_t MsgMinLen = Base::doMinLength();\n"
@@ -824,14 +844,14 @@ std::string CommsMessage::commsDefNameFuncInternal() const
             {"SCOPE", comms::commonScopeFor(*this, generator())},
         };
 
-        if (!m_customName.empty()) {
+        if (!m_customCode.m_name.empty()) {
             repl["ORIG"] = strings::origSuffixStr();
         }
 
         origCode = util::processTemplate(Templ, repl);
     }
 
-    if (m_customName.empty()) {
+    if (m_customCode.m_name.empty()) {
         return origCode;
     }
 
@@ -842,7 +862,7 @@ std::string CommsMessage::commsDefNameFuncInternal() const
     
     util::ReplacementMap repl = {
         {"ORIG", std::move(origCode)},
-        {"CUSTOM", m_customName},
+        {"CUSTOM", m_customCode.m_name},
     };    
 
     return util::processTemplate(Templ, repl);
@@ -929,14 +949,14 @@ std::string CommsMessage::commsDefReadFuncInternal() const
             {"UPDATE_VERSION", generator().schemaOf(*this).versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
         };
 
-        if (!m_customRead.empty()) {
+        if (!m_customCode.m_read.empty()) {
             repl["ORIG"] = strings::origSuffixStr();
         }        
         
         origCode = util::processTemplate(Templ, repl);            
     } while (false);
 
-    if (m_customRead.empty()) {
+    if (m_customCode.m_read.empty()) {
         return origCode;
     }
 
@@ -947,7 +967,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
     
     util::ReplacementMap repl = {
         {"ORIG", std::move(origCode)},
-        {"CUSTOM", m_customRead},
+        {"CUSTOM", m_customCode.m_read},
     };
 
     return util::processTemplate(Templ, repl);
@@ -990,14 +1010,14 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
             {"FIELDS", util::strListToString(fields, "\n", "")},
         };
 
-        if (!m_customRefresh.empty()) {
+        if (!m_customCode.m_refresh.empty()) {
             repl["ORIG"] = strings::origSuffixStr();
         }
 
         origCode = util::processTemplate(Templ, repl);
     } while (false);
 
-    if (m_customRefresh.empty()) {
+    if (m_customCode.m_refresh.empty()) {
         return origCode;
     }    
 
@@ -1008,7 +1028,7 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
     
     util::ReplacementMap repl = {
         {"ORIG", std::move(origCode)},
-        {"CUSTOM", m_customRefresh},
+        {"CUSTOM", m_customCode.m_refresh},
     };
 
     return util::processTemplate(Templ, repl);    

@@ -142,9 +142,9 @@ public:
         return m_nameOverride;
     }        
 
-    const std::string& copyOverrideCodeFrom() const
+    const std::string& copyCodeFromFrom() const
     {
-        return m_copyOverrideCodeFrom;
+        return m_copyCodeFromFrom;
     }
 
 protected:
@@ -215,7 +215,7 @@ private:
     OverrideType m_lengthOverride = OverrideType_Any;
     OverrideType m_validOverride = OverrideType_Any;
     OverrideType m_nameOverride = OverrideType_Any;    
-    std::string m_copyOverrideCodeFrom;
+    std::string m_copyCodeFromFrom;
     bool m_customizable = false;
 };
 

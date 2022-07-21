@@ -800,9 +800,9 @@ const std::string& replaceStr()
     return Str; 
 }
 
-const std::string& copyOverrideCodeFromStr()
+const std::string& copyCodeFromFromStr()
 {
-    static const std::string Str("copyOverrideCodeFrom");
+    static const std::string Str("copyCodeFromFrom");
     return Str; 
 }
 

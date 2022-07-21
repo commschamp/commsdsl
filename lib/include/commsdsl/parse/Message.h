@@ -74,7 +74,7 @@ public:
     OverrideType lengthOverride() const;
     OverrideType validOverride() const;
     OverrideType nameOverride() const;    
-    const std::string& copyOverrideCodeFrom() const;
+    const std::string& copyCodeFromFrom() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;
