@@ -161,7 +161,7 @@ const std::string& lengthOverrideStr();
 const std::string& validOverrideStr();
 const std::string& nameOverrideStr();
 const std::string& replaceStr();
-const std::string& copyCodeFromFromStr();
+const std::string& copyCodeFromStr();
 const std::string& semanticLayerTypeStr();
 const std::string& checksumFromStr();
 const std::string& checksumUntilStr();

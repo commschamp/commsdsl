@@ -151,7 +151,7 @@ bool CommsMessage::writeImpl() const
 bool CommsMessage::copyCodeFromInternal()
 {
     auto obj = dslObj();
-    auto& copyFrom = obj.copyCodeFromFrom();
+    auto& copyFrom = obj.copyCodeFrom();
     if (copyFrom.empty()) {
         return true;
     }

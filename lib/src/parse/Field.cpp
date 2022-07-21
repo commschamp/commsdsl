@@ -194,10 +194,10 @@ OverrideType Field::nameOverride() const
     return m_pImpl->nameOverride();
 }
 
-const std::string& Field::copyCodeFromFrom() const
+const std::string& Field::copyCodeFrom() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->copyCodeFromFrom();
+    return m_pImpl->copyCodeFrom();
 }
 
 const Field::AttributesMap& Field::extraAttributes() const

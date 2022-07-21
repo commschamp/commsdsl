@@ -3,7 +3,7 @@
         id="1"
         endian="big">
     <description>
-        Testing error report on invalid "copyCodeFromFrom" property
+        Testing error report on invalid "copyCodeFrom" property
     </description>
     <fields>
         <bundle name="Bundle1">
@@ -17,7 +17,7 @@
             </set>
             <int name="Int1" type="uintvar" length="4" />
         </bundle>
-        <bundle name="Bundle2" reuse="Bundle1" copyCodeFromFrom="BundleX">
+        <bundle name="Bundle2" reuse="Bundle1" copyCodeFrom="BundleX">
             <members>
                 <int name="Int2" type="intvar" length="4" />
             </members>

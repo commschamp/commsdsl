@@ -766,7 +766,7 @@ bool CommsField::commsIsExtended() const
 bool CommsField::copyCodeFromInternal()
 {
     auto obj = m_field.dslObj();
-    auto& copyFrom = obj.copyCodeFromFrom();
+    auto& copyFrom = obj.copyCodeFrom();
     if (copyFrom.empty()) {
         return true;
     }

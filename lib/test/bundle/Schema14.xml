@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema name="Schema14" endian="big" dslVersion="3">
     <description>
-        Testing warning report on "copyCodeFromFrom" property with early dslVersion
+        Testing warning report on "copyCodeFrom" property with early dslVersion
     </description>
     <fields>
         <bundle name="Bundle1">
@@ -15,7 +15,7 @@
             </set>
             <int name="Int1" type="uintvar" length="4" />
         </bundle>
-        <bundle name="Bundle2" reuse="Bundle1" copyCodeFromFrom="Bundle1">
+        <bundle name="Bundle2" reuse="Bundle1" copyCodeFrom="Bundle1">
             <members>
                 <int name="Int2" type="intvar" length="4" />
             </members>

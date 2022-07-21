@@ -284,7 +284,7 @@ bool ProtocolImpl::isPropertySupported(const std::string& name) const
         {common::validateMinLengthStr(), 4U},
         {common::defaultValidValueStr(), 4U},
         {common::availableLengthLimitStr(), 4U},
-        {common::copyCodeFromFromStr(), 5U},
+        {common::copyCodeFromStr(), 5U},
         {common::semanticLayerTypeStr(), 5U},
         {common::checksumFromStr(), 5U},
         {common::checksumUntilStr(), 5U},

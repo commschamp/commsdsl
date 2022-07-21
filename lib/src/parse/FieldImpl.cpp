@@ -701,7 +701,7 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::lengthOverrideStr(),
         common::validOverrideStr(),
         common::nameOverrideStr(),
-        common::copyCodeFromFromStr(),
+        common::copyCodeFromStr(),
     };
 
     return CommonNames;
@@ -1199,7 +1199,7 @@ bool FieldImpl::updateNameOverride()
 
 bool FieldImpl::updateCopyOverrideCodeFrom()
 {
-    auto& prop = common::copyCodeFromFromStr();
+    auto& prop = common::copyCodeFromStr();
     if (!validateSinglePropInstance(prop, false)) {
         return false;
     }
@@ -1223,7 +1223,7 @@ bool FieldImpl::updateCopyOverrideCodeFrom()
         return false;        
     }
 
-    m_state.m_copyCodeFromFrom = iter->second;
+    m_state.m_copyCodeFrom = iter->second;
     return true;
 }
 

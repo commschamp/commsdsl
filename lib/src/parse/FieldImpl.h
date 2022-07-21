@@ -148,9 +148,9 @@ public:
         return m_state.m_nameOverride;
     }    
 
-    const std::string& copyCodeFromFrom() const
+    const std::string& copyCodeFrom() const
     {
-        return m_state.m_copyCodeFromFrom;
+        return m_state.m_copyCodeFrom;
     }
 
     std::size_t minLength() const
@@ -393,7 +393,7 @@ private:
         OverrideType m_lengthOverride = OverrideType_Any;
         OverrideType m_validOverride = OverrideType_Any;
         OverrideType m_nameOverride = OverrideType_Any;
-        std::string m_copyCodeFromFrom;
+        std::string m_copyCodeFrom;
         bool m_pseudo = false;
         bool m_displayReadOnly = false;
         bool m_displayHidden = false;
