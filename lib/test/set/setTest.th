@@ -810,7 +810,7 @@ void SetTestSuite::test30()
     TS_ASSERT_EQUALS(fields.size(), 2U);
 
     auto& field = fields.back();
-    TS_ASSERT_EQUALS(field.name(), "S1");
+    TS_ASSERT_EQUALS(field.name(), "S2");
     TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
 
     commsdsl::parse::SetField setField(field);

@@ -456,23 +456,42 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         addElementNameFunc(*bitIter);
     }
 
+    std::string body;
+    do {
+        if (names.empty()) {
+            body = 
+                "static_cast<void>(idx);\n"
+                "return nullptr;";
+            break;
+        }
+
+        static const std::string BodyTempl =
+            "static const char* Map[] = {\n"
+            "    #^#NAMES#$#\n"
+            "};\n\n"
+            "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n"
+            "if (MapSize <= idx) {\n"
+            "    return nullptr;\n"
+            "}\n\n"
+            "return Map[idx];";
+
+        util::ReplacementMap bodyRepl = {
+            {"NAMES", util::strListToString(names, ",\n", "")},
+        };
+
+        body = util::processTemplate(BodyTempl, bodyRepl);
+    } while (false);
+
     static const std::string Templ =
         "/// @brief Retrieve name of the bit of\n"
         "///     @ref #^#SCOPE#$# field.\n"
         "static const char* bitName(std::size_t idx)\n"
         "{\n"
-        "    static const char* Map[] = {\n"
-        "        #^#NAMES#$#\n"
-        "    };\n\n"
-        "    static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n"
-        "    if (MapSize <= idx) {\n"
-        "        return nullptr;\n"
-        "    }\n\n"
-        "    return Map[idx];\n"
+        "    #^#BODY#$#\n"
         "}\n";
 
     util::ReplacementMap repl = {
-        {"NAMES", util::strListToString(names, ",\n", "")},
+        {"BODY", std::move(body)},
         {"SCOPE", comms::scopeFor(*this, generator())}
     };
     return util::processTemplate(Templ, repl);
@@ -494,11 +513,12 @@ std::string CommsSetField::commsDefFieldOptsInternal() const
 std::string CommsSetField::commsDefBitsAccessCodeInternal() const
 {
     auto obj = setDslObj();
+    auto& bits = obj.bits();
+
     std::uintmax_t usedBits = 0U;
     util::StringsList names;
 
     std::map<std::string, unsigned> deprecatedBits;
-    auto bits = obj.bits();
     for (auto& bitInfo : obj.revBits()) {
         auto idx = bitInfo.first;
         if (MaxBits <= idx) {
