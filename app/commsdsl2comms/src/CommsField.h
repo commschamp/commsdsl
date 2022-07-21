@@ -89,7 +89,7 @@ public:
 
     bool commsHasCustomValue() const;
     bool commsHasCustomValid() const;
-    bool commsHasCustomLength() const;
+    bool commsHasCustomLength(bool deepCheck = true) const;
     const CommsField* commsFindSibling(const std::string& name) const;
 
 protected:
@@ -127,6 +127,7 @@ protected:
     virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const;
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const;
+    virtual bool commsHasCustomLengthDeepImpl() const;
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;

@@ -404,6 +404,17 @@ std::size_t CommsVariantField::commsMaxLengthImpl() const
             });
 }
 
+bool CommsVariantField::commsHasCustomLengthDeepImpl() const
+{
+    return 
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto* m)
+            {
+                return m->commsHasCustomLength(true);
+            });
+}
+
 bool CommsVariantField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());

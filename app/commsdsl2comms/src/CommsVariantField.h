@@ -50,6 +50,7 @@ protected:
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual std::size_t commsMaxLengthImpl() const override;
+    virtual bool commsHasCustomLengthDeepImpl() const override;
 
 private:
     bool commsPrepareInternal();

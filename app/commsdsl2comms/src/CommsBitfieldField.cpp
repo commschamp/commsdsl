@@ -266,6 +266,17 @@ std::string CommsBitfieldField::commsCompPrepValueStrImpl(const std::string& acc
     return memInfo.first->commsCompPrepValueStr(memInfo.second, value);
 }
 
+bool CommsBitfieldField::commsHasCustomLengthDeepImpl() const
+{
+    return 
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto* m)
+            {
+                return m->commsHasCustomLength(true);
+            });
+}
+
 bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());

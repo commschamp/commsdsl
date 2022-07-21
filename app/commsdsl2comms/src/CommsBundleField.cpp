@@ -477,6 +477,17 @@ std::string CommsBundleField::commsCompPrepValueStrImpl(const std::string& accSt
     return memInfo.first->commsCompPrepValueStr(memInfo.second, value);
 }
 
+bool CommsBundleField::commsHasCustomLengthDeepImpl() const
+{
+    return 
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto* m)
+            {
+                return m->commsHasCustomLength(true);
+            });
+}
+
 std::string CommsBundleField::commsDefFieldOptsInternal() const
 {
     commsdsl::gen::util::StringsList opts;

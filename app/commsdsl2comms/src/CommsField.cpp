@@ -382,9 +382,17 @@ bool CommsField::commsHasCustomValid() const
     return (!m_customCode.m_valid.empty()) || (!commsDefValidFuncBodyImpl().empty());
 }
 
-bool CommsField::commsHasCustomLength() const
+bool CommsField::commsHasCustomLength(bool deepCheck) const
 {
-    return (!m_customCode.m_length.empty()) || (!commsDefLengthFuncBodyImpl().empty());
+    if ((!m_customCode.m_length.empty()) || (!commsDefLengthFuncBodyImpl().empty())) {
+        return true;
+    }
+
+    if (!deepCheck) {
+        return false;
+    }
+     
+    return commsHasCustomLengthDeepImpl();
 }
 
 const CommsField* CommsField::commsFindSibling(const std::string& name) const
@@ -623,6 +631,11 @@ std::string CommsField::commsCompPrepValueStrImpl(const std::string& accStr, con
     static_cast<void>(accStr);
     assert(accStr.empty());
     return value;
+}
+
+bool CommsField::commsHasCustomLengthDeepImpl() const
+{
+    return false;
 }
 
 std::string CommsField::commsCommonNameFuncCode() const
