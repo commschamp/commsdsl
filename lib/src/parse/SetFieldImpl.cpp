@@ -435,16 +435,6 @@ bool SetFieldImpl::updateAvailableLengthLimit()
 bool SetFieldImpl::updateBits()
 {
     auto bits = XmlWrap::getChildren(getNode(), common::bitStr());
-    if (bits.empty()) {
-        if (!m_state.m_bits.empty()) {
-            assert(!m_state.m_revBits.empty());
-            return true; // already has values
-        }
-
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "The set \"" << name() << "\" doesn't list any bits.";
-        return false;
-    }
 
     for (auto* b : bits) {
         static const XmlWrap::NamesList PropNames = {

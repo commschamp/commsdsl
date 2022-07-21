@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test13"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test13" endian="big" version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
 
         <int name="I1" type="uint8" />  
@@ -78,7 +76,15 @@
         <optional name="Opt4" defaultMode="missing" cond="$Flags.SomeValue1 &lt; $Flags.SomeValue2" sinceVersion="4">
             <int name="O4" type="uint8" />
         </optional>        
-    </message>     
+    </message>   
+
+    <message name="Msg3" id="MsgId.M3">
+        <set name="F1" length="1">
+            <description>
+                Testing code generation of set without any bits>
+            </description>
+        </set>
+    </message>  
     
     <frame name="Frame">
         <id name="ID" field="MsgId" />

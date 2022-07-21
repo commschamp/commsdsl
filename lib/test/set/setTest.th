@@ -36,6 +36,7 @@ public:
     void test27();
     void test28();
     void test29();
+    void test30();
 };
 
 void SetTestSuite::setUp()
@@ -793,4 +794,27 @@ void SetTestSuite::test29()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
     TS_ASSERT(protocol);
+}
+
+void SetTestSuite::test30()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields.back();
+    TS_ASSERT_EQUALS(field.name(), "S1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Set);
+
+    commsdsl::parse::SetField setField(field);
+    auto& bits = setField.bits();
+    TS_ASSERT_EQUALS(setField.displayName(), "Hello");
+    TS_ASSERT_EQUALS(bits.size(), 2);
 }
