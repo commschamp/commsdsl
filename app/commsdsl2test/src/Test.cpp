@@ -213,7 +213,7 @@ bool Test::writeInputTest() const
         "    void printFieldValue(const TField& field, BitmaskFieldTag) const\n"
         "    {\n"
         "        using FieldType = typename std::decay<decltype(field)>::type;\n"
-        "        std::cout << std::hex << \"0x\" << static_cast<std::uintmax_t>(field.value());\n"
+        "        std::cout << std::hex << \"0x\" << static_cast<std::uintmax_t>(field.value()) << std::dec;\n"
         "        for (auto idx = 0U; idx < FieldType::BitIdx_numOfValues; ++idx) {\n"
         "            auto bitIdx = static_cast<typename FieldType::BitIdx>(idx);\n"
         "            auto* name = field.bitName(bitIdx);\n"
