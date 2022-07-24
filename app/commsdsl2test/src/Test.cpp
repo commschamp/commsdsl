@@ -314,7 +314,7 @@ bool Test::writeInputTest() const
         "    {\n"
         "        for (auto v : data) {\n"
         "            std::cout << std::setfill(\'0\') << std::setw(2) << std::hex << \n"
-        "                static_cast<unsigned>(v) << \" \";\n"
+        "                static_cast<unsigned>(v) << std::dec << \" \";\n"
         "        }\n"
         "    }\n\n"
         "    template <typename TVec>\n"

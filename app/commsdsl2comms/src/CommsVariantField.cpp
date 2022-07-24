@@ -18,6 +18,7 @@
 #include "CommsBundleField.h"
 #include "CommsGenerator.h"
 #include "CommsIntField.h"
+#include "CommsRefField.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/util.h"
@@ -27,6 +28,7 @@
 #include <cassert>
 #include <iterator>
 #include <numeric>
+#include <set>
 
 namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;
@@ -69,37 +71,64 @@ bool intIsValidPropKeyInternal(const CommsIntField& intField)
     return true; 
 }    
 
-bool bundleStartsWithValidPropKeyInternal(const CommsBundleField& bundle)
+const CommsField* bundleGetValidPropKeyInternal(const CommsBundleField& bundle)
 {
     auto& members = bundle.commsMembers();
     if (members.empty()) {
-        return false;
+        return nullptr;
     }
 
     auto& first = members.front();
     if (first->field().dslObj().kind() != commsdsl::parse::Field::Kind::Int) {
-        return false;
+        return nullptr;
     }
 
     auto& keyField = static_cast<const CommsIntField&>(*first);
     if (!intIsValidPropKeyInternal(keyField)) {
-        return false;
+        return nullptr;
     }
 
     // Valid only if there is no non-default read
-    return !keyField.commsHasGeneratedReadCode();
+    if (keyField.commsHasGeneratedReadCode()) {
+        return nullptr;
+    }
+
+    return first;
 }
 
-std::string bundlePropKeyTypeInternal(const CommsBundleField& bundle)
+std::string propKeyTypeInternal(const CommsField& field)
 {
-    auto& members = bundle.commsMembers();
-    assert(!members.empty());
+    assert(field.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
 
-    auto& first = members.front();
-    assert(first->field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
-
-    auto& keyField = static_cast<const CommsIntField&>(*first);
+    auto& keyField = static_cast<const CommsIntField&>(field);
     return keyField.commsVariantPropKeyType();
+}
+
+std::string propKeyValueStrInternal(const CommsField& field)
+{
+    assert(field.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+
+    auto& keyField = static_cast<const CommsIntField&>(field);
+    return keyField.commsVariantPropKeyValueStr();
+}
+
+bool propKeysEquivalent(const CommsField& first, const CommsField& second)
+{
+    assert(first.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+    assert(second.field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
+
+    return static_cast<const CommsIntField&>(first).commsVariantIsPropKeyEquivalent(static_cast<const CommsIntField&>(second));
+}
+
+const CommsField* getReferenceFieldInternal(const CommsField* field)
+{
+    while (field->field().dslObj().kind() == commsdsl::parse::Field::Kind::Ref) {
+        auto& refField = static_cast<const CommsRefField&>(*field);
+        field = dynamic_cast<decltype(field)>(refField.referencedField());
+        assert(field != nullptr);
+    }
+
+    return field;
 }
 
 } // namespace 
@@ -160,6 +189,7 @@ std::string CommsVariantField::commsCommonMembersCodeImpl() const
 CommsVariantField::IncludesList CommsVariantField::commsDefIncludesImpl() const
 {
     IncludesList result = {
+        "comms/Assert.h",
         "comms/CompileControl.h",
         "comms/field/Variant.h",
         "<tuple>"        
@@ -263,7 +293,8 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
     std::string keyFieldType;
     StringsList cases;
     bool hasDefault = false;
-    for (auto* m : m_members) {
+    for (auto* memPtr : m_members) {
+        auto* m = getReferenceFieldInternal(memPtr);
         assert(m->field().dslObj().kind() == commsdsl::parse::Field::Kind::Bundle);
         auto& bundle = static_cast<const CommsBundleField&>(*m);
         auto& bundleMembers = bundle.commsMembers();
@@ -274,9 +305,8 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         auto bundleAccName = comms::accessName(bundle.field().dslObj().name());
         auto keyAccName = comms::accessName(keyField.field().dslObj().name());
 
-        if ((m != m_members.back()) && 
-            (keyField.commsVariantIsValidPropKey()) && 
-            (keyField.commsVariantPropKeyType() == m_optimizedReadKey)) {
+        if ((memPtr != m_members.back()) && 
+            (keyField.commsVariantIsValidPropKey())) {
             auto valStr = keyField.commsVariantPropKeyValueStr();
 
             static const std::string Templ =
@@ -303,7 +333,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         }
 
         // Last "catch all" element
-        assert(m == m_members.back());
+        assert(memPtr == m_members.back());
 
         static const std::string Templ =
             "default:\n"
@@ -620,15 +650,19 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
         return result;
     }
 
-    std::string propType;
-    for (auto& m : m_members) {
-        if (m->field().dslObj().kind() != commsdsl::parse::Field::Kind::Bundle) {
+    const CommsField* propKey = nullptr;
+    std::set<std::string> keyValues;
+
+    for (auto* m : m_members) {
+        const auto* memPtr = getReferenceFieldInternal(m);
+        if (memPtr->field().dslObj().kind() != commsdsl::parse::Field::Kind::Bundle) {
             return result;
         }
 
-        auto& bundle = static_cast<const CommsBundleField&>(*m);
-        bool validPropKey = bundleStartsWithValidPropKeyInternal(bundle);
-        if ((!validPropKey) && (&m != &m_members.back())) {
+        auto& bundle = static_cast<const CommsBundleField&>(*memPtr);
+        auto* propKeyTmp = bundleGetValidPropKeyInternal(bundle);
+        bool validPropKey = (propKeyTmp != nullptr);
+        if ((!validPropKey) && (m != m_members.back())) {
             return result;
         }
 
@@ -637,23 +671,24 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
             continue;
         }
 
-        std::string propTypeTmp = bundlePropKeyTypeInternal(bundle);
-        if (propTypeTmp.empty()) {
+        assert(propKeyTmp != nullptr);
+        auto insertResult = keyValues.insert(propKeyValueStrInternal(*propKeyTmp));
+        if (!insertResult.second) {
+            // The same key value has been inserted
             return result;
         }
 
-        if (propType.empty()) {
-            propType = std::move(propTypeTmp);
+        if (propKey == nullptr) {
+            propKey = propKeyTmp;
             continue;
         }
 
-        if (propTypeTmp != propType) {
-            // Type is not the same between elements
+        if (!propKeysEquivalent(*propKey, *propKeyTmp)) {
             return result;
         }
     }
 
-    result = propType;
+    result = propKeyTypeInternal(*propKey);
     return result;
 }
 

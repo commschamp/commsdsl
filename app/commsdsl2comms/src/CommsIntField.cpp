@@ -126,6 +126,26 @@ bool CommsIntField::commsVariantIsValidPropKey() const
     return true;
 }
 
+bool CommsIntField::commsVariantIsPropKeyEquivalent(const CommsIntField& other) const
+{
+    auto thisDslObj = intDslObj();
+    auto otherDslObj = other.intDslObj();
+
+    auto thisType = comms::cppIntTypeFor(thisDslObj.type(), thisDslObj.maxLength());
+    auto otherType = comms::cppIntTypeFor(otherDslObj.type(), otherDslObj.maxLength());
+    if (thisType != otherType) {
+        return false;
+    }
+
+    auto thisOpts = commsDefFieldOptsInternal(true);
+    auto otherOpts = other.commsDefFieldOptsInternal(true);
+    if (thisOpts != otherOpts) {
+        return false;
+    }
+
+    return thisDslObj.endian() == otherDslObj.endian();
+}
+
 bool CommsIntField::prepareImpl()
 {
     return Base::prepareImpl() && commsPrepare();
