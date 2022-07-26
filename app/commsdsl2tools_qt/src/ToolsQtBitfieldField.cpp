@@ -53,6 +53,13 @@ bool ToolsQtBitfieldField::writeImpl() const
     return toolsWrite();
 }
 
+void ToolsQtBitfieldField::toolsSetReferencedImpl()
+{
+    for (auto* m : m_members) {
+        m->toolsSetReferenced();
+    }
+}
+
 ToolsQtBitfieldField::IncludesList ToolsQtBitfieldField::toolsExtraSrcIncludesImpl() const
 {
     IncludesList result;

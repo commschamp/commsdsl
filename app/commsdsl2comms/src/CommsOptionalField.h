@@ -48,6 +48,7 @@ protected:
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual std::size_t commsMaxLengthImpl() const override;
     virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
+    virtual void commsSetReferencedImpl() override;
 
 private:
     std::string commsDefFieldRefInternal() const;

@@ -54,7 +54,6 @@ bool CommsListField::prepareImpl()
 
                 auto commsField = dynamic_cast<CommsField*>(field);
                 assert(commsField != nullptr);
-                commsField->commsSetReferenced();
                 return commsField;
             };
 
@@ -560,6 +559,20 @@ std::size_t CommsListField::commsMaxLengthImpl() const
     }
 
     return comms::maxPossibleLength();
+}
+
+void CommsListField::commsSetReferencedImpl()
+{
+    commsUpdateFieldReferencedIfExists(m_commsExternalElementField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberElementField);
+    commsUpdateFieldReferencedIfExists(m_commsExternalCountPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberCountPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsExternalLengthPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberLengthPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsExternalElemLengthPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberElemLengthPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsExternalTermSuffixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberTermSuffixField);
 }
 
 std::string CommsListField::commsDefFieldOptsInternal() const

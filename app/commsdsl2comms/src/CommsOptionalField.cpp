@@ -49,9 +49,6 @@ bool CommsOptionalField::prepareImpl()
         m_commsMemberField = dynamic_cast<CommsField*>(memberField());
     }
 
-    if (m_commsExternalField != nullptr) {
-        m_commsExternalField->commsSetReferenced();
-    }
     return result;
 }
 
@@ -207,6 +204,12 @@ void CommsOptionalField::commsCompOptChecksImpl(const std::string& accStr, Strin
 
     assert(m_commsMemberField != nullptr);
     m_commsMemberField->commsCompOptChecks(accStr, checks, prefix + ".field()");   
+}
+
+void CommsOptionalField::commsSetReferencedImpl()
+{
+    commsUpdateFieldReferencedIfExists(m_commsExternalField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberField);
 }
 
 std::string CommsOptionalField::commsDefFieldRefInternal() const

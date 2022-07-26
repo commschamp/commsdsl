@@ -123,6 +123,10 @@ bool CommsInterface::prepareImpl()
     m_protectedCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::protectedFileSuffixStr());
     m_privateCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
     m_commsFields = CommsField::commsTransformFieldsList(fields());
+
+    for (auto* f : m_commsFields) {
+        f->commsSetReferenced();
+    }     
     return true;
 }
 

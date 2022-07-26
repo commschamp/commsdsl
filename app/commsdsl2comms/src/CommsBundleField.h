@@ -63,6 +63,7 @@ protected:
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
     virtual bool commsHasCustomLengthDeepImpl() const override;
+    virtual void commsSetReferencedImpl() override;
 
 private:
     bool commsPrepareInternal();

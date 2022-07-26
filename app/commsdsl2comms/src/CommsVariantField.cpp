@@ -445,6 +445,13 @@ bool CommsVariantField::commsHasCustomLengthDeepImpl() const
             });
 }
 
+void CommsVariantField::commsSetReferencedImpl()
+{
+    for (auto* m : m_members) {
+        m->commsSetReferenced();
+    }
+}
+
 bool CommsVariantField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());

@@ -488,6 +488,13 @@ bool CommsBundleField::commsHasCustomLengthDeepImpl() const
             });
 }
 
+void CommsBundleField::commsSetReferencedImpl()
+{
+    for (auto* m : m_members) {
+        m->commsSetReferenced();
+    }
+}
+
 std::string CommsBundleField::commsDefFieldOptsInternal() const
 {
     commsdsl::gen::util::StringsList opts;

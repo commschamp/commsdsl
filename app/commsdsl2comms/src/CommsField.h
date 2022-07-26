@@ -73,15 +73,12 @@ public:
         m_forcedPseudo = true;
     }
 
-    void commsSetReferenced()
-    {
-        m_referenced = true;
-    }
-
     const commsdsl::gen::Field& field() const
     {
         return m_field;
     }
+
+    void commsSetReferenced();
 
     std::string commsDefaultOptions() const;
     std::string commsDataViewDefaultOptions() const;
@@ -128,6 +125,7 @@ protected:
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const;
     virtual bool commsHasCustomLengthDeepImpl() const;
+    virtual void commsSetReferencedImpl();
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
@@ -135,6 +133,8 @@ protected:
     void commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsFieldCustomizable() const;
     bool commsIsExtended() const;
+
+    static void commsUpdateFieldReferencedIfExists(CommsField* field);
 
 private:
     using ExtraFieldOptsFunc = StringsList (CommsField::*)() const;

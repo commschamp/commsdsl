@@ -45,13 +45,18 @@ bool ToolsQtRefField::prepareImpl()
     assert(referencedField() != nullptr);
     m_toolsReferenceField = dynamic_cast<ToolsQtField*>(referencedField());
     assert(m_toolsReferenceField != nullptr);
-    m_toolsReferenceField->toolsSetReferenced();
     return true;
 }
 
 bool ToolsQtRefField::writeImpl() const
 {
     return toolsWrite();
+}
+
+void ToolsQtRefField::toolsSetReferencedImpl()
+{
+    assert(referencedField() != nullptr);
+    m_toolsReferenceField->toolsSetReferenced();
 }
 
 ToolsQtRefField::IncludesList ToolsQtRefField::toolsExtraSrcIncludesImpl() const

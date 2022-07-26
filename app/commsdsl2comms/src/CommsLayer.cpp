@@ -50,6 +50,10 @@ bool CommsLayer::commsPrepare()
     if (m_commsExternalField != nullptr) {
         m_commsExternalField->commsSetReferenced();
     }
+
+    if (m_commsMemberField != nullptr) {
+        m_commsMemberField->commsSetReferenced();
+    }
     return true;
 }
 

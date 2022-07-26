@@ -75,6 +75,12 @@ bool ToolsQtField::toolsWrite() const
     return toolsWriteHeaderInternal() && toolsWriteSrcInternal();
 }
 
+void ToolsQtField::toolsSetReferenced()
+{
+    m_referenced = true;
+    toolsSetReferencedImpl();
+}
+
 bool ToolsQtField::toolsIsPseudo() const
 {
     if (m_forcedPseudo || m_field.dslObj().isPseudo()) {
@@ -324,6 +330,17 @@ std::string ToolsQtField::toolsExtraPropsImpl() const
 std::string ToolsQtField::toolsDefMembersImpl() const
 {
     return strings::emptyString();
+}
+
+void ToolsQtField::toolsSetReferencedImpl()
+{
+}
+
+void ToolsQtField::toolsUpdateFieldReferencedIfExists(ToolsQtField* field)
+{
+    if (field != nullptr) {
+        field->toolsSetReferenced();
+    }
 }
 
 bool ToolsQtField::toolsWriteHeaderInternal() const

@@ -50,9 +50,6 @@ bool CommsDataField::prepareImpl()
         auto* externalPrefix = externalPrefixField();
         m_commsExternalPrefixField = dynamic_cast<CommsField*>(externalPrefix);
         assert((m_commsExternalPrefixField != nullptr) || (externalPrefix == nullptr)); // Make sure dynamic cast is successful
-        if (m_commsExternalPrefixField != nullptr) {
-            m_commsExternalPrefixField->commsSetReferenced();
-        }
 
         auto* memberPrefix = memberPrefixField();
         m_commsMemberPrefixField = dynamic_cast<CommsField*>(memberPrefix);
@@ -371,6 +368,12 @@ std::size_t CommsDataField::commsMaxLengthImpl() const
     }
 
     return comms::maxPossibleLength();    
+}
+
+void CommsDataField::commsSetReferencedImpl()
+{
+    commsUpdateFieldReferencedIfExists(m_commsExternalPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberPrefixField);
 }
 
 std::string CommsDataField::commsDefFieldOptsInternal() const

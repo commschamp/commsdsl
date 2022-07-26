@@ -33,7 +33,6 @@ public:
 protected:
     // Base overrides
     virtual bool writeImpl() const override;    
-
 };
 
 } // namespace commsdsl2tools_qt

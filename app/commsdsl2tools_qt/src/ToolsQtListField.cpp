@@ -46,10 +46,6 @@ bool ToolsQtListField::prepareImpl()
 
     m_toolsMemberElementField = dynamic_cast<ToolsQtField*>(memberElementField());
     m_toolsExternalElementField = dynamic_cast<ToolsQtField*>(externalElementField());
-
-    if (m_toolsExternalElementField != nullptr) {
-        m_toolsExternalElementField->toolsSetReferenced();
-    }    
     return true;
 }
 

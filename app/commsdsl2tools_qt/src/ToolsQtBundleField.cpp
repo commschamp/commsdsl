@@ -53,6 +53,13 @@ bool ToolsQtBundleField::writeImpl() const
     return toolsWrite();
 }
 
+void ToolsQtBundleField::toolsSetReferencedImpl()
+{
+    for (auto* m : m_members) {
+        m->toolsSetReferenced();
+    }
+}
+
 ToolsQtBundleField::IncludesList ToolsQtBundleField::toolsExtraSrcIncludesImpl() const
 {
     IncludesList result;

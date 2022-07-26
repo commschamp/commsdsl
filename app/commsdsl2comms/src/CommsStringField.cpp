@@ -48,9 +48,6 @@ bool CommsStringField::prepareImpl()
         auto* externalPrefix = externalPrefixField();
         m_commsExternalPrefixField = dynamic_cast<CommsField*>(externalPrefix);
         assert((m_commsExternalPrefixField != nullptr) || (externalPrefix == nullptr)); // Make sure dynamic cast is successful
-        if (m_commsExternalPrefixField != nullptr) {
-            m_commsExternalPrefixField->commsSetReferenced();
-        }
 
         auto* memberPrefix = memberPrefixField();
         m_commsMemberPrefixField = dynamic_cast<CommsField*>(memberPrefix);
@@ -413,6 +410,12 @@ std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accSt
     } while (false);
 
     return CommsBase::commsCompPrepValueStrImpl(accStr, '\"' + valueTmp + '\"');
+}
+
+void CommsStringField::commsSetReferencedImpl()
+{
+    commsUpdateFieldReferencedIfExists(m_commsExternalPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberPrefixField);
 }
 
 std::string CommsStringField::commsDefFieldOptsInternal() const

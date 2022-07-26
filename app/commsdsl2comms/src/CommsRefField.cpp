@@ -49,7 +49,6 @@ bool CommsRefField::prepareImpl()
     auto* refField = referencedField();
     m_commsReferencedField = dynamic_cast<CommsField*>(refField);
     assert(m_commsReferencedField != nullptr);
-    m_commsReferencedField->commsSetReferenced();
 
     if ((refDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
         (refField->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) &&
@@ -188,6 +187,12 @@ std::string CommsRefField::commsCompPrepValueStrImpl(const std::string& accStr, 
 {
     assert(m_commsReferencedField != nullptr);
     return m_commsReferencedField->commsCompPrepValueStr(accStr, value);
+}
+
+void CommsRefField::commsSetReferencedImpl()
+{
+    assert(m_commsReferencedField != nullptr);
+    m_commsReferencedField->commsSetReferenced();
 }
 
 std::string CommsRefField::commsDefFieldOptsInternal() const

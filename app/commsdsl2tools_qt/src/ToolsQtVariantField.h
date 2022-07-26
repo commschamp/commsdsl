@@ -39,6 +39,7 @@ protected:
     virtual IncludesList toolsExtraSrcIncludesImpl() const override;
     virtual std::string toolsExtraPropsImpl() const override;
     virtual std::string toolsDefMembersImpl() const override;
+    virtual void toolsSetReferencedImpl() override;
 
 private:
     ToolsQtFieldsList m_members;

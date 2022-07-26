@@ -136,7 +136,11 @@ bool CommsMessage::prepareImpl()
     for (auto* m : m_commsFields) {
         m_bundledReadPrepareCodes.push_back(m->commsDefBundledReadPrepareFuncBody(m_commsFields));
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
-    }    
+    }  
+
+    for (auto* f : m_commsFields) {
+        f->commsSetReferenced();
+    }  
 
     return true;
 }
