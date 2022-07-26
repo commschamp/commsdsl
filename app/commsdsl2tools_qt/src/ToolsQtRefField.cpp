@@ -53,12 +53,6 @@ bool ToolsQtRefField::writeImpl() const
     return toolsWrite();
 }
 
-void ToolsQtRefField::toolsSetReferencedImpl()
-{
-    assert(referencedField() != nullptr);
-    m_toolsReferenceField->toolsSetReferenced();
-}
-
 ToolsQtRefField::IncludesList ToolsQtRefField::toolsExtraSrcIncludesImpl() const
 {
     assert(m_toolsReferenceField != nullptr);
@@ -125,6 +119,12 @@ std::string ToolsQtRefField::toolsDefFuncBodyImpl() const
     };
 
     return util::processTemplate(*templ, repl);
+}
+
+void ToolsQtRefField::toolsSetReferencedImpl()
+{
+    assert(referencedField() != nullptr);
+    m_toolsReferenceField->toolsSetReferenced();
 }
 
 std::string ToolsQtRefField::toolsExtraPropsInternal() const

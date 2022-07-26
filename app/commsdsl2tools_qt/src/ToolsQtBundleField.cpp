@@ -53,13 +53,6 @@ bool ToolsQtBundleField::writeImpl() const
     return toolsWrite();
 }
 
-void ToolsQtBundleField::toolsSetReferencedImpl()
-{
-    for (auto* m : m_members) {
-        m->toolsSetReferenced();
-    }
-}
-
 ToolsQtBundleField::IncludesList ToolsQtBundleField::toolsExtraSrcIncludesImpl() const
 {
     IncludesList result;
@@ -105,5 +98,11 @@ std::string ToolsQtBundleField::toolsDefMembersImpl() const
     return util::strListToString(elems, "\n", "");
 }
 
+void ToolsQtBundleField::toolsSetReferencedImpl()
+{
+    for (auto* m : m_members) {
+        m->toolsSetReferenced();
+    }
+}
 
 } // namespace commsdsl2tools_qt

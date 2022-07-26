@@ -53,13 +53,6 @@ bool ToolsQtBitfieldField::writeImpl() const
     return toolsWrite();
 }
 
-void ToolsQtBitfieldField::toolsSetReferencedImpl()
-{
-    for (auto* m : m_members) {
-        m->toolsSetReferenced();
-    }
-}
-
 ToolsQtBitfieldField::IncludesList ToolsQtBitfieldField::toolsExtraSrcIncludesImpl() const
 {
     IncludesList result;
@@ -103,6 +96,14 @@ std::string ToolsQtBitfieldField::toolsDefMembersImpl() const
 
     return util::strListToString(elems, "\n", "");
 }
+
+void ToolsQtBitfieldField::toolsSetReferencedImpl()
+{
+    for (auto* m : m_members) {
+        m->toolsSetReferenced();
+    }
+}
+
 
 
 } // namespace commsdsl2tools_qt

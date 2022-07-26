@@ -142,6 +142,12 @@ std::string ToolsQtListField::toolsDefMembersImpl() const
     return util::strListToString(elems, "\n", "");
 }
 
+void ToolsQtListField::toolsSetReferencedImpl()
+{
+    toolsUpdateFieldReferencedIfExists(m_toolsMemberElementField);
+    toolsUpdateFieldReferencedIfExists(m_toolsExternalElementField);
+}
+
 std::string ToolsQtListField::toolsPrefixNameInternal() const
 {
     std::string result;

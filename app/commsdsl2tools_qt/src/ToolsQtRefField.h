@@ -34,11 +34,11 @@ protected:
     // Base overrides
     virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
-    virtual void toolsSetReferencedImpl() override;
 
     // ToolsBase overrides
     virtual IncludesList toolsExtraSrcIncludesImpl() const override;
     virtual std::string toolsDefFuncBodyImpl() const override;
+    virtual void toolsSetReferencedImpl() override;
 
 private:
     std::string toolsExtraPropsInternal() const;
