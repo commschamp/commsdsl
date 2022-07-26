@@ -433,9 +433,9 @@ std::string scopeForCustomLayer(
     return scopeForElement(elem.name(), generator, SubElems, addMainNamespace, addElement, ScopeSep); 
 }
 
-std::string relHeaderPathFor(const Elem& elem, const Generator& generator)
+std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool addMainNamespace)
 {
-    return scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
+    return scopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator)
@@ -452,13 +452,13 @@ std::string relHeaderPathForField(const std::string& name, const Generator& gene
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForOptions(const std::string& name, const Generator& generator)
+std::string relHeaderForOptions(const std::string& name, const Generator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems = {
         strings::optionsNamespaceStr()
     };
 
-    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+    return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
 std::string relHeaderForDispatch(const std::string& name, const Generator& generator)
@@ -490,19 +490,19 @@ std::string relHeaderForChecksum(const std::string& name, const Generator& gener
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForInput(const std::string& name, const Generator& generator)
+std::string relHeaderForInput(const std::string& name, const Generator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems = {
         strings::inputNamespaceStr()
     };
 
-    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+    return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForRoot(const std::string& name, const Generator& generator)
+std::string relHeaderForRoot(const std::string& name, const Generator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems;
-    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+    return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
 std::string headerPathFor(const Elem& elem, const Generator& generator)
@@ -547,12 +547,18 @@ std::string pathForDoc(const std::string& name, const Generator& generator)
 
 std::string inputCodePathFor(const Elem& elem, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator);
+    return 
+        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
+        generator.schemaOf(elem).origNamespace() + '/' +
+        comms::relHeaderPathFor(elem, generator, false);
 }
 
 std::string inputCodePathForRoot(const std::string& name, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForRoot(name, generator);
+    return 
+        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
+        generator.currentSchema().origNamespace() + '/' +
+        comms::relHeaderForRoot(name, generator, false);
 }
 
 std::string inputCodePathForDoc(const std::string& name, const Generator& generator)
@@ -562,12 +568,18 @@ std::string inputCodePathForDoc(const std::string& name, const Generator& genera
 
 std::string inputCodePathForOptions(const std::string& name, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForOptions(name, generator);
+    return 
+        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
+        generator.currentSchema().origNamespace() + '/' +
+        comms::relHeaderForOptions(name, generator, false);
 }
 
 std::string inputCodePathForInput(const std::string& name, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForInput(name, generator);
+    return 
+        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
+        generator.currentSchema().origNamespace() + '/' +
+        comms::relHeaderForInput(name, generator, false);
 }
 
 std::string namespaceBeginFor(

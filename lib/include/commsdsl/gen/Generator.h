@@ -55,7 +55,7 @@ public:
     void forceSchemaVersion(unsigned value);
     void setMinRemoteVersion(unsigned value);
     unsigned getMinRemoteVersion() const;
-    void setMainNamespaceOverride(const std::string& value);    
+    void setNamespaceOverride(const std::string& value);    
 
     void setTopNamespace(const std::string& value);
     const std::string& getTopNamespace() const;

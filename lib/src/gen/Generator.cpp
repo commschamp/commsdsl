@@ -44,6 +44,7 @@
 #include <cassert>
 #include <algorithm>
 #include <filesystem>
+#include <map>
 #include <system_error>
 
 namespace commsdsl
@@ -133,9 +134,33 @@ public:
         return m_minRemoteVersion;
     }
 
-    void setMainNamespaceOverride(const std::string& value)
+    void setNamespaceOverride(const std::string& value)
     {
-        m_mainNamespaceOverride = value;
+        m_namespaceOverrides.clear();
+        if (value.empty()) {
+            return;
+        }
+
+        auto elems = util::strSplitByAnyChar(value, ",");
+        for (auto& e : elems) {
+            if (e.empty()) {
+                continue;
+            }
+
+            auto pos = e.find_first_of(":");
+            std::string first;
+            std::string second = e;
+            do {
+                if ((e.size() - 1U) <= pos) {
+                    break;
+                }
+
+                first = e.substr(0, pos);
+                second = e.substr(pos + 1);
+            } while (false);
+
+            m_namespaceOverrides[first] = second;
+        }
     }
 
     void setTopNamespace(const std::string& value)
@@ -300,6 +325,11 @@ public:
         for (auto& s : allSchemas) {
             auto schema = m_generator.createSchema(s);
             schema->setVersionIndependentCodeForced(m_versionIndependentCodeForced);
+
+            auto renameIter = m_namespaceOverrides.find(util::strToName(s.name()));
+            if (renameIter != m_namespaceOverrides.end()) {
+                schema->setMainNamespaceOverride(renameIter->second);
+            }
             m_schemas.push_back(std::move(schema));
         }
 
@@ -311,8 +341,9 @@ public:
             protocolSchemaPtr->forceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
         }
 
-        if (!m_mainNamespaceOverride.empty()) {
-            protocolSchemaPtr->setMainNamespaceOverride(m_mainNamespaceOverride);
+        auto renameIter = m_namespaceOverrides.find(strings::emptyString());
+        if (renameIter != m_namespaceOverrides.end()) {
+            protocolSchemaPtr->setMainNamespaceOverride(renameIter->second);
         }
 
         for (auto& s : m_schemas) {
@@ -409,7 +440,7 @@ private:
     LoggerPtr m_logger;
     SchemasList m_schemas;
     Schema* m_currentSchema = nullptr;
-    std::string m_mainNamespaceOverride;
+    std::map<std::string, std::string> m_namespaceOverrides;
     std::string m_topNamespace;
     int m_forcedSchemaVersion = -1;
     unsigned m_minRemoteVersion = 0U;
@@ -441,9 +472,9 @@ unsigned Generator::getMinRemoteVersion() const
     return m_impl->getMinRemoteVersion();
 }
 
-void Generator::setMainNamespaceOverride(const std::string& value)
+void Generator::setNamespaceOverride(const std::string& value)
 {
-    m_impl->setMainNamespaceOverride(value);
+    m_impl->setNamespaceOverride(value);
 }
 
 void Generator::setTopNamespace(const std::string& value)

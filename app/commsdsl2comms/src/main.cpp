@@ -92,7 +92,7 @@ int main(int argc, const char* argv[])
         }
 
         if (options.hasNamespaceOverride()) {
-            generator.setMainNamespaceOverride(options.getNamespace());
+            generator.setNamespaceOverride(options.getNamespace());
         }
 
         generator.setOutputDir(options.getOutputDirectory());

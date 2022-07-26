@@ -80,15 +80,15 @@ std::string scopeForCustomLayer(
     bool addMainNamespace = true, 
     bool addElement = true);      
 
-std::string relHeaderPathFor(const Elem& elem, const Generator& generator);
+std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool addMainNamespace = true);
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string relHeaderPathForField(const std::string& name, const Generator& generator); 
-std::string relHeaderForOptions(const std::string& name, const Generator& generator); 
+std::string relHeaderForOptions(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
 std::string relHeaderForDispatch(const std::string& name, const Generator& generator); 
 std::string relHeaderForLayer(const std::string& name, const Generator& generator); 
 std::string relHeaderForChecksum(const std::string& name, const Generator& generator); 
-std::string relHeaderForInput(const std::string& name, const Generator& generator); 
-std::string relHeaderForRoot(const std::string& name, const Generator& generator); 
+std::string relHeaderForInput(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
+std::string relHeaderForRoot(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
 
 std::string headerPathFor(const Elem& elem, const Generator& generator);
 std::string headerPathForField(const std::string& name, const Generator& generator); 

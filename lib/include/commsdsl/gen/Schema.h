@@ -82,6 +82,7 @@ public:
 
     bool versionDependentCode() const;
     const std::string& mainNamespace() const;
+    const std::string& origNamespace() const;
 
     Namespace* addDefaultNamespace();
     void forceSchemaVersion(unsigned value);

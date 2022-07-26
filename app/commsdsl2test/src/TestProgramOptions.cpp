@@ -53,7 +53,11 @@ TestProgramOptions::TestProgramOptions()
     (FullOutputDirStr.c_str(), "Output directory path. When not provided current is used.", true)        
     (FullInputFilesListStr.c_str(), "File containing list of input files.", true)        
     (FullInputFilesPrefixStr.c_str(), "Prefix for the values from the list file.", true)
-    (FullNamespaceStr.c_str(), "Force protocol namespace. Defaults to schema name.", true) 
+    (FullNamespaceStr, 
+        "Force main namespace change. Defaults to schema name. "
+        "In case of having multiple schemas the renaming happends to the last protocol one. "
+        "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
+        true) 
     (WarnAsErrStr.c_str(), "Treat warning as error.")
     (FullCodeInputDirStr, "Directory with code updates.", true)
     (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    

@@ -292,9 +292,10 @@ public:
             m_versionDependentCode = anyInterfaceHasVersion();
         }       
 
+        assert(!m_dslObj.name().empty());
+        m_origNamespace = util::strToName(m_dslObj.name());
         if (m_mainNamespace.empty()) {
-            assert(!m_dslObj.name().empty());
-            m_mainNamespace = util::strToName(m_dslObj.name());
+            m_mainNamespace = m_origNamespace;
         }              
 
         bool namespacesResult = 
@@ -394,6 +395,11 @@ public:
         return m_mainNamespace;
     }
 
+    const std::string& origNamespace() const
+    {
+        return m_origNamespace;
+    }    
+
     const Field* getMessageIdField() const
     {
         return m_messageIdField;
@@ -449,6 +455,7 @@ private:
     int m_forcedSchemaVersion = -1;
     const Field* m_messageIdField = nullptr;
     std::string m_mainNamespace;
+    std::string m_origNamespace;
     unsigned m_minRemoteVersion = 0U;
     bool m_versionIndependentCodeForced = false;
     bool m_versionDependentCode = false;
@@ -663,6 +670,11 @@ bool Schema::versionDependentCode() const
 const std::string& Schema::mainNamespace() const
 {
     return m_impl->mainNamespace();
+}
+
+const std::string& Schema::origNamespace() const
+{
+    return m_impl->origNamespace();
 }
 
 Namespace* Schema::addDefaultNamespace()
