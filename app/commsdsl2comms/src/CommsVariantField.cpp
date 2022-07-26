@@ -302,10 +302,10 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         auto* first = bundleMembers.front();
         assert(first->field().dslObj().kind() == commsdsl::parse::Field::Kind::Int);
         auto& keyField = static_cast<const CommsIntField&>(*first);
-        auto bundleAccName = comms::accessName(bundle.field().dslObj().name());
+        auto bundleAccName = comms::accessName(memPtr->field().dslObj().name());
         auto keyAccName = comms::accessName(keyField.field().dslObj().name());
 
-        if ((memPtr != m_members.back()) && 
+        if ((memPtr != m_members.back()) ||
             (keyField.commsVariantIsValidPropKey())) {
             auto valStr = keyField.commsVariantPropKeyValueStr();
 
