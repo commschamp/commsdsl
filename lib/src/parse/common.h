@@ -168,6 +168,7 @@ const std::string& checksumUntilStr();
 const std::string& termSuffixStr();
 const std::string& missingOnReadFailStr();
 const std::string& missingOnInvalidStr();
+const std::string& reuseCodeStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

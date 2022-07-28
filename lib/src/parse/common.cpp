@@ -842,6 +842,12 @@ const std::string& missingOnInvalidStr()
     return Str; 
 }
 
+const std::string& reuseCodeStr()
+{
+    static const std::string Str("reuseCode");
+    return Str;    
+}
+
 char siblingRefPrefix()
 {
     return '$';

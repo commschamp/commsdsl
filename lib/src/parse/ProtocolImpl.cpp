@@ -291,6 +291,7 @@ bool ProtocolImpl::isPropertySupported(const std::string& name) const
         {common::termSuffixStr(), 5U},
         {common::missingOnReadFailStr(), 5U},
         {common::missingOnInvalidStr(), 5U},
+        {common::reuseCodeStr(), 5U},
     };
 
     auto iter = Map.find(name);

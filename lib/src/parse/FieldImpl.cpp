@@ -702,6 +702,7 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::validOverrideStr(),
         common::nameOverrideStr(),
         common::copyCodeFromStr(),
+        common::reuseCodeStr(),
     };
 
     return CommonNames;
@@ -938,6 +939,29 @@ bool FieldImpl::checkReuse()
     assert(getSinceVersion() == 0U);
     assert(getDeprecated() == Protocol::notYetDeprecated());
     assert(!isDeprecatedRemoved());
+
+    do {
+        auto& codeProp = common::reuseCodeStr();
+        if (!validateSinglePropInstance(codeProp, false)) {
+            return false;
+        }
+
+        auto codeIter = m_props.find(codeProp);
+        if (codeIter == m_props.end()) {
+            break;
+        }  
+
+        bool copyCode = false;
+        if (!validateAndUpdateBoolPropValue(codeProp, copyCode)) {
+            return false;
+        }
+
+        if (!copyCode) {
+            break;
+        }
+
+        m_state.m_copyCodeFrom = valueStr; 
+    } while (false);
     return reuseImpl(*field);
 }
 
