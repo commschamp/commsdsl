@@ -16,6 +16,7 @@
 #include "CommsFieldBase.h"
 
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -33,6 +34,11 @@ namespace commsdsl2comms
 
 bool CommsFieldBase::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyField())) {
+        return true;
+    }
+
     CommsFieldBase obj(generator);
     return obj.commsWriteInternal();
 }

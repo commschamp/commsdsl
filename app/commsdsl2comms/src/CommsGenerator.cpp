@@ -39,6 +39,7 @@
 #include "CommsOptionalField.h"
 #include "CommsPayloadLayer.h"
 #include "CommsRefField.h"
+#include "CommsSchema.h"
 #include "CommsSetField.h"
 #include "CommsSizeLayer.h"
 #include "CommsSyncLayer.h"
@@ -159,6 +160,11 @@ bool CommsGenerator::prepareImpl()
     return 
         prepareDefaultInterfaceInternal() &&
         prepareExtraMessageBundlesInternal();
+}
+
+CommsGenerator::SchemaPtr CommsGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2comms::CommsSchema>(*this, dslObj, parent);
 }
 
 CommsGenerator::NamespacePtr CommsGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)

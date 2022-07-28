@@ -16,6 +16,7 @@
 #include "CommsDispatch.h"
 
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/EnumField.h"
 #include "commsdsl/gen/strings.h"
@@ -301,6 +302,11 @@ const std::string& multipleMessagesPerIdTempl()
 
 bool CommsDispatch::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage())) {
+        return true;
+    }
+
     CommsDispatch obj(generator);
     return obj.commsWriteInternal();
 }

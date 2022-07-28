@@ -28,6 +28,7 @@ set (
     CommsPayloadLayer.cpp
     CommsProgramOptions.cpp
     CommsRefField.cpp
+    CommsSchema.cpp
     CommsSetField.cpp
     CommsSizeLayer.cpp
     CommsSyncLayer.cpp

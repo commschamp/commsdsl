@@ -30,6 +30,7 @@ public:
     using InterfacePtr = commsdsl::gen::InterfacePtr;
     using LayerPtr = commsdsl::gen::LayerPtr;
     using MessagePtr = commsdsl::gen::MessagePtr;
+    using SchemaPtr = commsdsl::gen::SchemaPtr;
     using NamespacePtr = commsdsl::gen::NamespacePtr;
     using ExtraMessageBundle = std::pair<std::string, MessagesAccessList>;
     using ExtraMessageBundlesList = std::vector<ExtraMessageBundle>;
@@ -62,6 +63,7 @@ public:
 protected:
     virtual bool prepareImpl() override;
 
+    virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent) override;
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;

@@ -110,6 +110,7 @@ public:
     const Schema& currentSchema() const;
     Schema& protocolSchema();
     const Schema& protocolSchema() const;    
+    bool isCurrentProtocolSchema() const;
 
     SchemaPtr createSchema(commsdsl::parse::Schema dslObj, Elem* parent = nullptr);
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);

@@ -17,6 +17,7 @@
 
 #include "CommsGenerator.h"
 #include "CommsNamespace.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -142,6 +143,11 @@ util::ReplacementMap extInitialRepl(CommsGenerator& generator)
 
 bool CommsDefaultOptions::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyGeneratedCode())) {
+        return true;
+    }
+
     CommsDefaultOptions obj(generator);
     return obj.commsWriteInternal();
 }

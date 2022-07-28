@@ -79,6 +79,10 @@ public:
     }
 
     void commsSetReferenced();
+    bool commsIsReferenced() const
+    {
+        return m_referenced;
+    }
 
     std::string commsDefaultOptions() const;
     std::string commsDataViewDefaultOptions() const;

@@ -40,6 +40,10 @@ public:
     std::string commsDataViewDefaultOptions() const;
     std::string commsBareMetalDefaultOptions() const;
 
+    bool commsHasReferencedMsgId() const;
+    bool commsHasAnyGeneratedCode() const;
+    bool commsHasAnyField() const;
+
 protected:
     virtual bool prepareImpl() override;    
 

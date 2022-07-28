@@ -16,11 +16,13 @@
 #include "CommsNamespace.h"
 
 #include "CommsGenerator.h"
+#include "CommsInterface.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace comms = commsdsl::gen::comms;
@@ -153,6 +155,107 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
     };
     auto result = util::processTemplate(optsTemplInternal(nsName.empty()), repl);
     return result;
+}
+
+bool CommsNamespace::commsHasReferencedMsgId() const
+{
+    return 
+        std::any_of(
+            m_commsFields.begin(), m_commsFields.end(),
+            [](auto* f)
+            {
+                return 
+                    (f->commsIsReferenced()) && 
+                    (f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
+            });
+}
+
+bool CommsNamespace::commsHasAnyGeneratedCode() const
+{
+    if ((!frames().empty()) ||
+        (!messages().empty()) || 
+        (!interfaces().empty())) {
+        return true;
+    }
+
+    bool hasReferencedFields = 
+        std::any_of(
+            m_commsFields.begin(), m_commsFields.end(),
+            [](auto* f)
+            {
+                return f->commsIsReferenced();
+            });
+
+
+    if (hasReferencedFields) {
+        return true;
+    }
+
+    auto& allNs = namespaces();
+    return 
+        std::any_of(
+            allNs.begin(), allNs.end(),
+            [](auto& nsPtr)
+            {
+                return static_cast<const CommsNamespace*>(nsPtr.get())->commsHasAnyGeneratedCode();
+            });
+
+}
+
+bool CommsNamespace::commsHasAnyField() const
+{
+    if (!frames().empty()) {
+        return true;
+    }
+
+    auto& allMsgs = messages();
+    bool hasFieldInMessage = 
+        std::any_of(
+            allMsgs.begin(), allMsgs.end(),
+            [](auto& msgPtr)
+            {
+                auto& msgFields = static_cast<const CommsMessage*>(msgPtr.get())->commsFields();
+                return !msgFields.empty();
+            });
+
+    if (hasFieldInMessage) {
+        return true;
+    }
+
+    auto& allInterfaces = interfaces();
+    bool hasFieldInInterface = 
+        std::any_of(
+            allInterfaces.begin(), allInterfaces.end(),
+            [](auto& interfacePtr)
+            {
+                auto& interfaceFields = static_cast<const CommsInterface*>(interfacePtr.get())->commsFields();
+                return !interfaceFields.empty();
+            });
+
+    if (hasFieldInInterface) {
+        return true;
+    }    
+
+    bool hasReferencedFields = 
+        std::any_of(
+            m_commsFields.begin(), m_commsFields.end(),
+            [](auto* f)
+            {
+                return f->commsIsReferenced();
+            });
+
+    if (hasReferencedFields) {
+        return true;
+    }
+
+    auto& allNs = namespaces();
+    return 
+        std::any_of(
+            allNs.begin(), allNs.end(),
+            [](auto& nsPtr)
+            {
+                return static_cast<const CommsNamespace*>(nsPtr.get())->commsHasAnyField();
+            });    
 }
 
 bool CommsNamespace::prepareImpl()

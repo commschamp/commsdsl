@@ -16,6 +16,7 @@
 #include "CommsInputMessages.h"
 
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -127,6 +128,11 @@ bool writeFileInternal(
 
 bool CommsInputMessages::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage())) {
+        return true;
+    }
+
     CommsInputMessages obj(generator);
     return obj.commsWriteInternal();
 }

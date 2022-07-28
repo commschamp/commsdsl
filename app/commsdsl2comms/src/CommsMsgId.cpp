@@ -17,6 +17,7 @@
 
 #include "CommsGenerator.h"
 #include "CommsEnumField.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -44,6 +45,11 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 
 bool CommsMsgId::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage()) && (!thisSchema.commsHasReferencedMsgId())) {
+        return true;
+    }
+
     CommsMsgId obj(generator);
     return obj.commsWriteInternal();
 }

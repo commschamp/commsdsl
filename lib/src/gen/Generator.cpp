@@ -733,6 +733,11 @@ const Schema& Generator::protocolSchema() const
     return m_impl->protocolSchema();
 }
 
+bool Generator::isCurrentProtocolSchema() const
+{
+    return &currentSchema() == &protocolSchema();
+}
+
 SchemaPtr Generator::createSchema(commsdsl::parse::Schema dslObj, Elem* parent)
 {
     return createSchemaImpl(dslObj, parent);
