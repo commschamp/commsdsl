@@ -16,6 +16,7 @@
 #include "CommsDoxygen.h"
 
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -433,6 +434,11 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 
     util::StringsList elems;
     for (auto& s : m_generator.schemas()) {
+        auto* commsSchema = static_cast<const CommsSchema*>(s.get());
+        if ((s.get() != &m_generator.protocolSchema()) && (!commsSchema->commsHasAnyGeneratedCode())) {
+            continue;
+        }
+
         auto nsList = s->getAllNamespaces();
 
         util::StringsList nsElems;
