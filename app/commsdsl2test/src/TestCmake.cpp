@@ -138,7 +138,7 @@ bool TestCmake::testWriteInternal() const
         "        target_compile_definitions(${name} PRIVATE ${extra_defs})\n"
         "    endif ()\n\n"
         "    set (rename_param)\n"
-        "    if (\"${OPT_TEST_RENAME}\" STREQUAL \"\")\n"
+        "    if (NOT \"${OPT_TEST_RENAME}\" STREQUAL \"\")\n"
         "        set (rename_param RENAME ${OPT_TEST_RENAME})\n"
         "    endif()\n\n"
         "    install (\n"

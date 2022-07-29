@@ -421,10 +421,14 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
         return false;
     }
 
-    auto& schemaName = schema->name();
+    auto schemaName = schema->name();
+    if (schemaName.empty() && (m_currSchema != nullptr)) {
+        schemaName = m_currSchema->name();
+    }
+
     if (schemaName.empty()) {
         logError() << XmlWrap::logPrefix(schema->getNode()) <<
-            "First schema definition must define \"" << common::nameStr << "\" property.";
+            "First schema definition must define \"" << common::nameStr() << "\" property.";
         return false;
     }    
 
@@ -437,6 +441,7 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
             });
 
     if (schemaIter == m_schemas.end()) {
+        assert(!schema->name().empty());
         if ((!m_schemas.empty()) && (!isMultiSchemaSupported())) {
             logError() << XmlWrap::logPrefix(schema->getNode()) <<
                 "Multiple schemas is not supported in the selected " << common::dslVersionStr();
