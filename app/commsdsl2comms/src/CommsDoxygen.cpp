@@ -447,15 +447,15 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
                 "/// @namespace #^#NS#$#\n"
                 "/// @brief Protocol specific namespace.\n\n"
                 "/// @namespace #^#NS#$#::message\n"
-                "/// @brief Namespace for all the messages in @ref #^#NS#$# namespace.\n\n"
+                "/// @brief Namespace for all the messages in #^#NS#$# namespace.\n\n"
                 "/// @namespace #^#NS#$#::field\n"
-                "/// @brief Namespace for all the stand alone fields defined in @ref #^#NS#$# namespace.\n\n"
+                "/// @brief Namespace for all the stand alone fields defined in #^#NS#$# namespace.\n\n"
                 "/// @namespace #^#NS#$#::frame\n"
-                "/// @brief Namespace for all the frames defined in @ref #^#NS#$# namespace.\n\n"
+                "/// @brief Namespace for all the frames defined in #^#NS#$# namespace.\n\n"
                 "/// @namespace #^#NS#$#::frame::layer\n"
-                "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
+                "/// @brief Namespace for the custom frame layers defined in #^#NS#$# namespace.\n\n"
                 "/// @namespace #^#NS#$#::frame::checksum\n"
-                "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n";
+                "/// @brief Namespace for the custom frame layers defined in #^#NS#$# namespace.\n\n";
 
             util::ReplacementMap repl = {
                 {"NS", comms::scopeFor(*ns, m_generator)},
