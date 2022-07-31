@@ -1629,7 +1629,9 @@ std::string CommsField::commsCustomizationOptionsInternal(
         };
 
         if (hasBase) {
-            repl["EXT"] = " : public TBase::" + comms::scopeFor(m_field, m_field.generator(), false) + strings::membersSuffixStr();
+            auto& commsGen = static_cast<const CommsGenerator&>(m_field.generator());
+            bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+            repl["EXT"] = " : public TBase::" + comms::scopeFor(m_field, m_field.generator(), hasMainNs) + strings::membersSuffixStr();
         }
 
         elems.push_back(util::processTemplate(Templ, repl));

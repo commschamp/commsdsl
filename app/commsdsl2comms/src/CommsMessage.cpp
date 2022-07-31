@@ -1101,7 +1101,9 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
         };
 
         if (hasBase) {
-            repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), false) + strings::fieldsSuffixStr();
+            auto& commsGen = static_cast<const CommsGenerator&>(generator());
+            bool hasMainNs = commsGen.hasMainNamespaceInOptions();                        
+            repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), hasMainNs) + strings::fieldsSuffixStr();
         }
 
         elems.push_back(util::processTemplate(Templ, repl));
@@ -1126,7 +1128,9 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {
-            extraOpts.push_back("typename TBase::" + comms::scopeFor(*this, generator(), false));
+            auto& commsGen = static_cast<const CommsGenerator&>(generator());
+            bool hasMainNs = commsGen.hasMainNamespaceInOptions();             
+            extraOpts.push_back("typename TBase::" + comms::scopeFor(*this, generator(), hasMainNs));
         }        
 
         auto docStr = 

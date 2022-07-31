@@ -535,7 +535,9 @@ std::string CommsFrame::commsCustomizationOptionsInternal(
     };
 
     if (hasBase) {
-        repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), false) + strings::layersSuffixStr();
+        auto& commsGen = static_cast<const CommsGenerator&>(generator());
+        bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+        repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), hasMainNs) + strings::layersSuffixStr();
     }
 
     return util::processTemplate(Templ, repl);    

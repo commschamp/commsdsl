@@ -304,7 +304,9 @@ std::string CommsNamespace::commsOptionsInternal(
             }
         };
 
-    auto thisNsScope = comms::scopeFor(*this, generator(), false);
+    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
     if (!thisNsScope.empty()) {
         thisNsScope.append("::");
     }
