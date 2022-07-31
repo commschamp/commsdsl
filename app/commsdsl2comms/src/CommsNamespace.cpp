@@ -44,6 +44,7 @@ const std::string& optsTemplInternal(bool defaultNs)
     }
 
     static const std::string Templ = 
+        "/// @brief Extra options for namespace.\n"
         "struct #^#NAME#$##^#EXT#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
@@ -91,6 +92,10 @@ std::string CommsNamespace::commsClientDefaultOptions() const
             true
         );
 
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
     auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
         {"NAME", nsName},
@@ -110,11 +115,24 @@ std::string CommsNamespace::commsServerDefaultOptions() const
             true
         );
 
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
     auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
         {"NAME", nsName},
-        {"BODY", std::move(body)},
+        {"BODY", std::move(body)}
     };
+
+    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+
+    if (!thisNsScope.empty()) {
+        repl["EXT"] = "public TBase::" + thisNsScope;
+    }
+
     return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
@@ -129,11 +147,24 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
             true
         );
 
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
     auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
+
+    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+
+    if (!thisNsScope.empty()) {
+        repl["EXT"] = "public TBase::" + thisNsScope;
+    }
+
     return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
@@ -148,13 +179,25 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
             true
         );
 
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
     auto nsName = comms::namespaceName(name());
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
-    auto result = util::processTemplate(optsTemplInternal(nsName.empty()), repl);
-    return result;
+
+    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+
+    if (!thisNsScope.empty()) {
+        repl["EXT"] = "public TBase::" + thisNsScope;
+    }
+
+    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
 bool CommsNamespace::commsHasReferencedMsgId() const
