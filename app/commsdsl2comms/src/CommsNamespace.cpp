@@ -101,6 +101,15 @@ std::string CommsNamespace::commsClientDefaultOptions() const
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
+
+    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+
+    if (!thisNsScope.empty()) {
+        repl["EXT"] = ": public TBase::" + thisNsScope;
+    }
+        
     return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
@@ -130,7 +139,7 @@ std::string CommsNamespace::commsServerDefaultOptions() const
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
-        repl["EXT"] = "public TBase::" + thisNsScope;
+        repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
     return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
@@ -162,7 +171,7 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
-        repl["EXT"] = "public TBase::" + thisNsScope;
+        repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
     return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
@@ -194,7 +203,7 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
-        repl["EXT"] = "public TBase::" + thisNsScope;
+        repl["EXT"] = ": public TBase::" + thisNsScope;
     }
 
     return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
