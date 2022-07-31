@@ -1656,7 +1656,9 @@ std::string CommsField::commsCustomizationOptionsInternal(
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {
-            extraOpts.push_back("typename TBase::" + comms::scopeFor(m_field, m_field.generator(), false));
+            auto& commsGen = static_cast<const CommsGenerator&>(m_field.generator());
+            bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+            extraOpts.push_back("typename TBase::" + comms::scopeFor(m_field, m_field.generator(), hasMainNs));
         }
 
         auto docStr = 
