@@ -19,8 +19,9 @@
 #include <algorithm>
 #include <iterator>
 
-#include "BundleFieldImpl.h"
 #include "BitfieldFieldImpl.h"
+#include "BundleFieldImpl.h"
+#include "RefFieldImpl.h"
 #include "SetFieldImpl.h"
 #include "common.h"
 #include "util.h"
@@ -230,13 +231,21 @@ FieldImpl* OptCondExprImpl::findField(
         };
 
     assert(*iter != nullptr);
-    auto fieldKind = (*iter)->kind();
+
+    const auto* derefField = (*iter).get();
+    while (derefField->kind() == FieldImpl::Kind::Ref) {
+        auto& refField = static_cast<const RefFieldImpl&>(*derefField);
+        derefField = refField.fieldImpl();
+        assert(derefField != nullptr);
+    }
+
+    auto fieldKind = derefField->kind();
     if (fieldKind == FieldImpl::Kind::Bundle) {
-        return redirectFunc(static_cast<const BundleFieldImpl&>(**iter));
+        return redirectFunc(static_cast<const BundleFieldImpl&>(*derefField));
     }
 
     if (fieldKind == FieldImpl::Kind::Bitfield) {
-        return redirectFunc(static_cast<const BitfieldFieldImpl&>(**iter));
+        return redirectFunc(static_cast<const BitfieldFieldImpl&>(*derefField));
     }
 
     return iter->get();
