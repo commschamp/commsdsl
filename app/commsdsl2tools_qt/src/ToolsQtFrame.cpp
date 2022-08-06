@@ -160,7 +160,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
         repl["INTERFACE"] = gen.getTopNamespace() + "::" + comms::scopeFor(*defaultInterface, gen);
     }
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -282,7 +282,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
         repl["SEMICOLON"] = ";";
     }
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -467,7 +467,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
         repl["READ_IMPL_FUNC"] = std::move(readFunc);        
     } while (false);
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }

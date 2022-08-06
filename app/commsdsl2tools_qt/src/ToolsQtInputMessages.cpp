@@ -120,7 +120,7 @@ bool writeFileInternal(
         repl["TEMPLATE_PARAM"] = "template <typename TInterface>";
     }
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }

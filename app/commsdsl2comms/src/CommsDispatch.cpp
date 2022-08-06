@@ -337,7 +337,7 @@ bool CommsDispatch::commsWriteDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(std::string(), std::move(checkFunc))}
     });
     
-    return writeFileInternal(getFileName(), m_generator, util::processTemplate(dispatchTempl(), repl));
+    return writeFileInternal(getFileName(), m_generator, util::processTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWriteClientDispatchInternal() const
@@ -356,7 +356,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(checkFunc))}
     });
 
-    return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl));
+    return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWriteServerDispatchInternal() const
@@ -375,7 +375,7 @@ bool CommsDispatch::commsWriteServerDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(checkFunc))}
     });
 
-    return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl));
+    return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWritePlatformDispatchInternal() const
@@ -413,7 +413,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
                     
             if (!result) {
                 return false;
@@ -441,7 +441,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -469,7 +469,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -511,7 +511,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
                     
             if (!result) {
                 return false;
@@ -539,7 +539,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -567,7 +567,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;

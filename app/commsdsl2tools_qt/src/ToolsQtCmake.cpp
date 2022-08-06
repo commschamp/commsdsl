@@ -155,7 +155,7 @@ bool ToolsQtCmake::testWriteInternal() const
         {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
     };
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl);
+    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {

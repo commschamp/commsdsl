@@ -426,7 +426,7 @@ bool Test::writeInputTest() const
         "    return 0;\n"
         "}\n\n";
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl);
+    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
     stream << str;
 
     stream.flush();

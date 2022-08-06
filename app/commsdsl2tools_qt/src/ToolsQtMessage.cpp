@@ -346,7 +346,7 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
         {"DEF", toolsHeaderCodeInternal()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -387,7 +387,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
         {"DEF", toolsSrcCodeInternal()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }

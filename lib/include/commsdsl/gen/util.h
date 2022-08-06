@@ -29,7 +29,7 @@ std::string pathAddElem(const std::string& path, const std::string& elem);
 std::string pathUp(const std::string& path);
 
 using ReplacementMap = std::map<std::string, std::string>;
-std::string processTemplate(const std::string& templ, const ReplacementMap& repl);
+std::string processTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode = false);
 
 using StringsList = std::vector<std::string>;
 std::string strListToString(

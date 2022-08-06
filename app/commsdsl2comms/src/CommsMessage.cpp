@@ -255,7 +255,7 @@ bool CommsMessage::commsWriteCommonInternal() const
         {"BODY", commsCommonBodyInternal()},
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -362,7 +362,7 @@ bool CommsMessage::commsWriteDefInternal() const
         repl["SUFFIX"] = strings::origSuffixStr();
     }
 
-    return writeFunc(genFilePath, util::processTemplate(Templ, repl));
+    return writeFunc(genFilePath, util::processTemplate(Templ, repl, true));
 }
 
 std::string CommsMessage::commsCommonIncludesInternal() const

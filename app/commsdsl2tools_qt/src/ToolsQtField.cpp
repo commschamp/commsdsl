@@ -384,7 +384,7 @@ bool ToolsQtField::toolsWriteHeaderInternal() const
         {"DECL", toolsDeclSig()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -426,7 +426,7 @@ bool ToolsQtField::toolsWriteSrcInternal() const
         {"ANONIMOUS", toolsDefAnonimousInternal()}
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }

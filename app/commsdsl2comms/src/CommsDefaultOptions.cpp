@@ -203,7 +203,7 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(strings::defaultOptionsClassStr(), m_generator, util::processTemplate(Templ, repl));
+    writeFileInternal(strings::defaultOptionsClassStr(), m_generator, util::processTemplate(Templ, repl, true));
     return true;
 }
 
@@ -223,7 +223,7 @@ bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
@@ -243,7 +243,7 @@ bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
@@ -263,7 +263,7 @@ bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
@@ -291,7 +291,7 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 

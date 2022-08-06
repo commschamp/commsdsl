@@ -189,7 +189,7 @@ bool CommsInterface::commsWriteCommonInternal() const
         {"CODE", commsCommonFieldsCodeInternal()}
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -262,7 +262,7 @@ bool CommsInterface::commsWriteDefInternal() const
         templ = &(classTempl());
     }
 
-    return writeFunc(genFilePath, util::processTemplate(*templ, repl));
+    return writeFunc(genFilePath, util::processTemplate(*templ, repl, true));
 }
 
 std::string CommsInterface::commsCommonIncludesInternal() const

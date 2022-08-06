@@ -96,7 +96,7 @@ bool CommsMsgId::commsWriteInternal() const
         {"IDS", commsIdsInternal()}
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
         m_generator.logger().error("Failed to write \"" + filePath + "\".");

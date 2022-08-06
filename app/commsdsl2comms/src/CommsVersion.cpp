@@ -103,7 +103,7 @@ bool CommsVersion::writeInternal() const
         {"APPEND", util::readFileContents(comms::inputCodePathForRoot("Version", m_generator))},
     };        
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
 
     if (!stream.good()) {

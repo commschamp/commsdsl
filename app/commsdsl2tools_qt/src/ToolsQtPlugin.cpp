@@ -147,7 +147,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         repl["VERSION_API"] = std::move(verApi);
     }         
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -416,7 +416,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         repl["VERSION_API"] = util::processTemplate(VerApiTempl, repl);
     }
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -484,7 +484,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         repl["VERSION_STORAGE"] = std::move(verStr);
     }
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -570,7 +570,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         repl["CONFIG_WIDGET_FUNC"] = util::processTemplate(WidgetTempl, widgetRepl);
     }
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -616,7 +616,7 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         {"DESC", std::move(desc)},
     };        
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -654,7 +654,7 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
         {"ID", toolsAdjustedNameInternal()},
     };        
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -722,7 +722,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
     };        
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -803,7 +803,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
     };        
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {

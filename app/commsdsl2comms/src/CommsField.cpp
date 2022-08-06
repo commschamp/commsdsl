@@ -898,7 +898,7 @@ bool CommsField::commsWriteCommonInternal() const
         {"DEF", commsCommonCode()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -943,7 +943,7 @@ bool CommsField::commsWriteDefInternal() const
         {"DEF", commsDefCode()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }

@@ -94,7 +94,7 @@ bool CommsFieldBase::commsWriteInternal() const
         {"OPTIONS", util::strListToString(options, ",\n", "")},
     };        
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
 
     if (!stream.good()) {

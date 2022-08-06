@@ -152,7 +152,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         {"DEF", toolsHeaderCodeInternal()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -204,7 +204,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
         {"INCLUDES", util::strListToString(includes, "\n", "\n")}
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }

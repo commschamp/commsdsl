@@ -118,7 +118,7 @@ bool writeFileInternal(
         repl["ORIG"] = strings::origSuffixStr();
     }
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }

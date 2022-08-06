@@ -179,7 +179,7 @@ bool TestCmake::testWriteInternal() const
         "string (REPLACE \"::\" \"/\" OPT_TEST_INPUT_MESSAGES_HEADER \"${OPT_TEST_INPUT_MESSAGES}.h\")\n\n"
         "define_test(#^#PROJ_NS#$#_input_test)\n";
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl);
+    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
