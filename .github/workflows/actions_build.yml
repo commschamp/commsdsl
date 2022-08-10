@@ -3,8 +3,8 @@ name: Github Actions Build
 on: [push]
 
 env:
-  COMMS_BRANCH: develop
-  CC_TOOLS_QT_BRANCH: develop
+  COMMS_BRANCH: master
+  CC_TOOLS_QT_BRANCH: master
 
 jobs:
   build_gcc_limited_ubuntu_18_04:
