@@ -43,21 +43,29 @@ function (test_func name)
     execute_process (
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 
-    add_custom_target(${build_tgt} ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}"
-        COMMAND 
-            ${CMAKE_COMMAND} 
-                ${output_dir}
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
-                -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-                -DCMAKE_INSTALL_PREFIX=${install_dir}
-                -DOPT_REQUIRE_COMMS_LIB=OFF
-        COMMAND
-            ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
-        WORKING_DIRECTORY ${build_dir}
-        DEPENDS ${output_tgt})    
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")        
+
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")               
+
+    ExternalProject_Add(
+        ${build_tgt}
+        BUILD_ALWAYS TRUE
+        DEPENDS ${output_tgt}
+        SOURCE_DIR ${output_dir}
+        BINARY_DIR ${build_dir}
+        INSTALL_DIR ${install_dir}
+        CMAKE_GENERATOR ${CMAKE_GENERATOR}
+        LIST_SEPARATOR |
+        CMAKE_ARGS 
+            -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
+            -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
+            -DCMAKE_INSTALL_PREFIX=${install_dir}
+            -DOPT_REQUIRE_COMMS_LIB=OFF
+    )          
 
     set (tests "${test_dir}/${name}Test.th")
 
@@ -101,7 +109,7 @@ if (NOT BUILD_TESTING)
     return ()
 endif () 
 
-commsdsl_ensure_comms_target ()
+find_package(LibComms REQUIRED)
 
 set (COMMSDSL_SANITIZER_OPTS)
 if (COMMSDSL_TEST_USE_SANITIZERS AND
@@ -129,6 +137,8 @@ find_package (Doxygen)
 if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9"))
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 endif ()
+
+include(ExternalProject)
 
 test_func (test1)
 test_func (test2)

@@ -46,7 +46,6 @@ public:
     const std::string& getProtocolVersion() const;
     unsigned getMinRemoteVersion() const;
     const std::string& getCustomizationLevel() const;
-    const std::string& getCommsLibTag() const;
     bool versionIndependentCodeRequested() const;
     std::vector<std::string> getExtraInputBundles() const;
     bool multipleSchemasEnabled() const;

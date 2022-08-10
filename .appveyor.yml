@@ -18,6 +18,8 @@ configuration:
     - Release
 
 environment:
+    COMMS_BRANCH: develop
+    CC_TOOLS_QT_BRANCH: develop
     matrix:
         - CPP_STD: 11
         - CPP_STD: 14
@@ -33,22 +35,22 @@ matrix:
 install:
     - call script\appveyor_install.bat
     - set PATH=%PATH%;%QTDIR%\bin
-
-build_script:
     - set BUILD_DIR=%APPVEYOR_BUILD_FOLDER%\build.%PLATFORM%.%CONFIGURATION%.%TOOLCHAIN%
     - if exist %BUILD_DIR% rmdir /S /Q %BUILD_DIR%
-    - mkdir %BUILD_DIR%
-    - cd %BUILD_DIR%
-    - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" 
-        -DCOMMSDSL_QT_DIR=%QTDIR% -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% 
-        -DCOMMSDSL_BUILD_UNIT_TESTS=ON        
-    - set PATH=%BUILD_DIR%\lib\src;%PATH%
-    - echo Building in %BUILD_DIR%
-    - echo PATH = %PATH%
-    - nmake
+    - set COMMS_TAG=%COMMS_BRANCH%
+    - set CC_TOOLS_QT_TAG=%CC_TOOLS_QT_BRANCH%
+    - set COMMON_INSTALL_DIR=%BUILD_DIR%\install
+    - set COMMON_BUILD_TYPE=%CONFIGURATION%
+    - set COMMON_CXX_STANDARD=%CPP_STD%
+    - call script\prepare_externals.bat
 
-test_script:
-    - ctest 
+build_script:
+    - echo ------------------------- Building Project -------------------------
+    - cd %BUILD_DIR%
+    - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" -DBOOST_ROOT="%BOOST_DIR%" -DBoost_USE_STATIC_LIBS=ON -DCMAKE_INSTALL_PREFIX="%COMMON_INSTALL_DIR%" -DCMAKE_PREFIX_PATH="%COMMON_INSTALL_DIR%" -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% -DCOMMSDSL_BUILD_UNIT_TESTS=ON
+    - cmake --build . --config %CONFIGURATION% --target install
+    - echo ------------------------- Testing -------------------------
+    - ctest
 
 
 

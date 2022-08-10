@@ -6,7 +6,9 @@ set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
-commsdsl_ensure_comms_target ()
+find_package(LibComms REQUIRED)
+
+include(ExternalProject)
 
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
@@ -40,11 +42,17 @@ foreach (name ${tests})
 
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
-    set (build_dir ${output_dir}/build)
+    set (build_dir ${output_dir}_build)
     set (install_dir ${build_dir}/install)
 
     execute_process (
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
+
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")        
+
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")           
 
     set (options_param)
     if (EXISTS "${code_input_dir}/TestDefaultOptions.h")
@@ -52,20 +60,26 @@ foreach (name ${tests})
     endif()            
 
     set (dep_install_dir ${dep_prefix_path}/${name}/build/install)
-    add_custom_target(${build_tgt} ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}"
-        COMMAND 
-            ${CMAKE_COMMAND} 
-                ${output_dir}
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
-                -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-                -DCMAKE_INSTALL_PREFIX=${install_dir}
-                -DCMAKE_PREFIX_PATH="${LibComms_DIR}\;${dep_install_dir}"
-                ${options_param}
-        COMMAND
-            ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
-        WORKING_DIRECTORY ${build_dir}
-        DEPENDS ${output_tgt} commsdsl2comms.${name}_build_tgt)
+    set (build_prefix_path ${CMAKE_PREFIX_PATH} ${dep_install_dir})
+    string (REPLACE ";" "|" build_prefix_path_str "${build_prefix_path}")    
+
+    ExternalProject_Add(
+        ${build_tgt}
+        BUILD_ALWAYS TRUE
+        DEPENDS ${output_tgt} commsdsl2comms.${name}_build_tgt
+        SOURCE_DIR ${output_dir}
+        BINARY_DIR ${build_dir}
+        INSTALL_DIR ${install_dir}
+        CMAKE_GENERATOR ${CMAKE_GENERATOR}
+        LIST_SEPARATOR |
+        CMAKE_ARGS 
+            -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
+            -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
+            -DCMAKE_INSTALL_PREFIX=${install_dir}
+            -DCMAKE_PREFIX_PATH=${build_prefix_path_str}
+            ${options_param}
+    )  
+
 endforeach ()

@@ -12,17 +12,13 @@ option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when C
 option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ON)
 option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
 option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
-option (COMMSDSL_EXTERNAL_COMMS "COMMS library is external, don't pull it when needed" OFF)
 
 # Additional variables to be used if needed
 # ---------------------------
-# COMMSDSL_QT_DIR - Path to Qt5 installation directory, needed to build generated testing projects.
-# COMMS_INSTALL_DIR - Path to externally built and installed COMMS library project
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
+# COMMSDSL_TESTS_C_COMPILER - C compiler to build unittests
+# COMMSDSL_TESTS_CXX_COMPILER - C++ compiler to build unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
-# COMMS_TAG - Tag/branch of COMMS library project to use instead of default
-# CC_COMMS_REPO - Repository of COMMS library project, if not specified default github CommsChampion Ecosystem repo is going to be used.
-# CC_TOOLS_QT_TAG = Tag/branch of the cc_tools_qt project to use instead of default.
 
 # Deprecated options for backward compatibility, use the ones above for new builds.
 # ---------------------------
@@ -53,13 +49,13 @@ if (NOT COMMSDSL_TESTS_CXX_STANDARD)
     set (COMMSDSL_TESTS_CXX_STANDARD 11)
 endif ()
 
-if ("${COMMS_TAG}" STREQUAL "")
-    set (COMMS_TAG "develop")
-endif()
+if (NOT COMMSDSL_TESTS_C_COMPILER)
+    set (COMMSDSL_TESTS_C_COMPILER ${CMAKE_C_COMPILER})
+endif ()
 
-if ("${CC_TOOLS_QT_TAG}" STREQUAL "")
-    set (CC_TOOLS_QT_TAG "develop")
-endif()
+if (NOT COMMSDSL_TESTS_CXX_COMPILER)
+    set (COMMSDSL_TESTS_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+endif ()
 
 if (NOT COMMSDSL_EXTERNALS_DIR)
     set (COMMSDSL_EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
@@ -86,21 +82,8 @@ endfunction ()
 ################################################
 
 if (COMMSDSL_BUILD_UNIT_TESTS)
-    while (TRUE)
-        if (NOT "${COMMS_INSTALL_DIR}" STREQUAL "")
-            set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
-            break()
-        endif ()
-
-        commsdsl_ensure_comms_target ()
-        if ("${LibComms_DIR}" STREQUAL "")
-            message (FATAL_ERROR "The comms library found but the directory is not known")
-        endif ()        
-        set (CC_CMAKE_DIR ${LibComms_DIR})
-        break ()
-    endwhile ()
-
-    include (${CC_CMAKE_DIR}/CC_CxxtestFuncs.cmake)
+    find_package(LibComms REQUIRED)
+    include (${LibComms_DIR}/CC_CxxtestFuncs.cmake)
     cc_get_cxxtest(INSTALL_PREFIX ${COMMSDSL_EXTERNALS_DIR})
 
     if (COMMSDSL_VALGRIND_TESTS)
