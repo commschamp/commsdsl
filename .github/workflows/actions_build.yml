@@ -196,7 +196,7 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} clang-6.0
+      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} clang-6.0 g++-8
 
 
     - name: Create Build Environment
