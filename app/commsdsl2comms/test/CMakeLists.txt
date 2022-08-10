@@ -67,6 +67,16 @@ function (test_func name)
             -DOPT_REQUIRE_COMMS_LIB=OFF
     )          
 
+    if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
+        ExternalProject_Add_Step(
+            ${build_tgt}
+            "doc"
+            COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}
+            DEPENDEES "build"
+            DEPENDERS "install"
+        )
+    endif ()    
+
     set (tests "${test_dir}/${name}Test.th")
 
     set (testName "${APP_NAME}.${name}Test")
@@ -94,13 +104,6 @@ function (test_func name)
         ) 
     endif ()    
 
-    if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
-        add_custom_target(${APP_NAME}.doc_${name} ALL
-            COMMAND COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}
-            DEPENDS ${build_tgt} 
-        )
-    endif ()
-        
 endfunction ()
 
 #################################################################
