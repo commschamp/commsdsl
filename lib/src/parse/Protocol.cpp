@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
 #include "commsdsl/parse/Protocol.h"
 
 #include "ProtocolImpl.h"
+
+#include <cassert>
 
 namespace commsdsl
 {
@@ -45,14 +47,14 @@ bool Protocol::validate()
     return m_pImpl->validate();
 }
 
-Schema Protocol::schema() const
+Protocol::SchemasList Protocol::schemas() const
 {
-    return m_pImpl->schema();
+    return m_pImpl->schemas();
 }
 
-Protocol::NamespacesList Protocol::namespaces() const
+Schema Protocol::lastParsedSchema() const
 {
-    return m_pImpl->namespacesList();
+    return Schema(&m_pImpl->currSchema());
 }
 
 Field Protocol::findField(const std::string& externalRef) const
@@ -60,19 +62,19 @@ Field Protocol::findField(const std::string& externalRef) const
     return Field(m_pImpl->findField(externalRef));
 }
 
-Protocol::MessagesList Protocol::allMessages() const
-{
-    return m_pImpl->allMessages();
-}
-
 void Protocol::addExpectedExtraPrefix(const std::string& value)
 {
     return m_pImpl->addExpectedExtraPrefix(value);
 }
 
-const Protocol::PlatformsList&Protocol::platforms() const
+void Protocol::setMultipleSchemasEnabled(bool value)
 {
-    return m_pImpl->platforms();
+    m_pImpl->setMultipleSchemasEnabled(value);
+}
+
+bool Protocol::getMultipleSchemasEnabled() const
+{
+    return m_pImpl->getMultipleSchemasEnabled();
 }
 
 } // namespace parse

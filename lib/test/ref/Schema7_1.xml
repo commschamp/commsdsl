@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema7_1" endian="big">
+    <ns name="ns1">
+        <fields>
+            <int name="F1" type="uint8"/>
+        </fields>
+    </ns>
+</schema>

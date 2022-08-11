@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -89,7 +89,8 @@ const XmlWrap::NamesList& SetFieldImpl::extraPropsNamesImpl() const
         common::reservedValueStr(),
         common::validCheckVersionStr(),
         common::typeStr(),
-        common::nonUniqueAllowedStr()
+        common::nonUniqueAllowedStr(),
+        common::availableLengthLimitStr(),
     };
 
     return List;
@@ -122,6 +123,7 @@ bool SetFieldImpl::parseImpl()
         updateValidCheckVersion() &&
         updateDefaultValue() &&
         updateReservedValue() &&
+        updateAvailableLengthLimit() &&
         updateBits();
 }
 
@@ -211,7 +213,7 @@ bool SetFieldImpl::updateEndian()
         return true;
     }
 
-    m_state.m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    m_state.m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
     if (m_state.m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
@@ -425,19 +427,14 @@ bool SetFieldImpl::updateReservedValue()
     return true;
 }
 
+bool SetFieldImpl::updateAvailableLengthLimit()
+{
+    return validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit);
+}
+
 bool SetFieldImpl::updateBits()
 {
     auto bits = XmlWrap::getChildren(getNode(), common::bitStr());
-    if (bits.empty()) {
-        if (!m_state.m_bits.empty()) {
-            assert(!m_state.m_revBits.empty());
-            return true; // already has values
-        }
-
-        logError() << XmlWrap::logPrefix(getNode()) <<
-                      "The set \"" << name() << "\" doesn't list any bits.";
-        return false;
-    }
 
     for (auto* b : bits) {
         static const XmlWrap::NamesList PropNames = {

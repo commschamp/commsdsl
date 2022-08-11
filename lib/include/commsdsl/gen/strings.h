@@ -33,6 +33,7 @@ const std::string& pluginNamespaceStr();
 const std::string& includeDirStr();
 const std::string& docDirStr();
 const std::string& nameFileSuffixStr();
+const std::string& valueFileSuffixStr();
 const std::string& readFileSuffixStr();
 const std::string& refreshFileSuffixStr();
 const std::string& writeFileSuffixStr();
@@ -58,6 +59,11 @@ const std::string& layersSuffixStr();
 const std::string& bareMetalStr();
 const std::string& dataViewStr();
 const std::string& transportMessageSuffixStr();
+const std::string& unexpectedValueStr();
+
+char siblingRefPrefix();
+char stringRefPrefix();
+char schemaRefPrefix();
 
 } // namespace strings
 

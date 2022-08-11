@@ -96,20 +96,20 @@ std::string valueToString(double val, commsdsl::parse::FloatField::Type type)
 std::string cmpToString(double val, commsdsl::parse::FloatField::Type type)
 {
     if (std::isnan(val)) {
-        return "std::isnan(Base::value())";
+        return "std::isnan(Base::getValue())";
     }
 
     if (std::isinf(val)) {
         static const std::string Templ(
             "(#^#COMP#$#) &&\n"
-            "(std::isinf(Base::value()))");
+            "(std::isinf(Base::getValue()))");
 
         std::string comp;
         if (val < 0) {
-            comp = "Base::value() < 0";
+            comp = "Base::getValue() < 0";
         }
         else {
-            comp = "0 < Base::value()";
+            comp = "0 < Base::getValue()";
         }
         util::ReplacementMap repl = {
             {"COMP", std::move(comp)}
@@ -117,7 +117,7 @@ std::string cmpToString(double val, commsdsl::parse::FloatField::Type type)
         return util::processTemplate(Templ, repl);
     }
 
-    return "std::abs(Base::value() - " + valueToString(val, type) + ") < std::numeric_limits<ValueType>::epsilon()";
+    return "std::abs(Base::getValue() - " + valueToString(val, type) + ") < std::numeric_limits<ValueType>::epsilon()";
 }
 
 const std::string& specialNamesMapTempl()
@@ -166,11 +166,11 @@ void addRangeComparison(
     commsdsl::parse::FloatField::Type type)
 {
     static const std::string RangeComparisonTemplate =
-        "(#^#MIN#$# <= Base::value()) &&\n"
-        "(Base::value() <= #^#MAX#$#)";
+        "(#^#MIN#$# <= Base::getValue()) &&\n"
+        "(Base::getValue() <= #^#MAX#$#)";
 
     static const std::string ValueComparisonTemplate =
-        "Base::value() == #^#MIN#$#";
+        "Base::getValue() == #^#MIN#$#";
             
     auto* templ = &RangeComparisonTemplate;
     if (min == max) {
@@ -308,7 +308,7 @@ std::string CommsFloatField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = floatDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"FIELD_TYPE", comms::cppFloatTypeFor(dslObj.type())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
@@ -356,7 +356,7 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
     }
 
     bool validCheckVersion =
-        generator().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     StringsList conditions;
@@ -535,7 +535,7 @@ std::string CommsFloatField::commsDefSpecialsCodeInternal() const
             "/// @brief Assign special value @ref value#^#SPEC_ACC#$#() to the field.\n"
             "void set#^#SPEC_ACC#$#()\n"
             "{\n"
-            "    Base::value() = value#^#SPEC_ACC#$#();\n"
+            "    Base::setValue(value#^#SPEC_ACC#$#());\n"
             "}\n"            
         );
 
@@ -631,7 +631,7 @@ std::string CommsFloatField::commsDefConstructorCodeInternal() const
         "/// @brief Generated default constructor.\n"
         "#^#CLASS_NAME#$##^#SUFFIX#$#()\n"
         "{\n"
-        "    Base::value() = #^#VAL#$#;\n"
+        "    Base::setValue(#^#VAL#$#);\n"
         "}\n";
 
     util::ReplacementMap repl = {
@@ -669,7 +669,7 @@ void CommsFloatField::commsAddVersionOptInternal(StringsList& opts) const
 {
     auto obj = floatDslObj();
     bool validCheckVersion =
-        generator().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {

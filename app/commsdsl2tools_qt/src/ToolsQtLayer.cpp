@@ -15,6 +15,7 @@
 
 #include "ToolsQtLayer.h"
 
+#include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -44,6 +45,10 @@ bool ToolsQtLayer::prepare()
 
     if (m_toolsExternalField != nullptr) {
         m_toolsExternalField->toolsSetReferenced();
+    }
+
+    if (m_toolsMemberField != nullptr) {
+        m_toolsMemberField->toolsSetReferenced();
     }
     return true;
 }
@@ -172,9 +177,10 @@ std::string ToolsQtLayer::toolsFieldCommsScope() const
 
     auto* frameElem = m_layer.getParent();
     assert(frameElem != nullptr);
+    auto& gen = static_cast<const ToolsQtGenerator&>(m_layer.generator());
     return 
-        comms::scopeFor(*frameElem, m_layer.generator()) + 
-        strings::layersSuffixStr() + "<>::" +
+        comms::scopeFor(*frameElem, gen) + 
+        strings::layersSuffixStr() + ToolsQtDefaultOptions::toolsTemplParam(gen) + "::" +
         comms::className(m_layer.dslObj().name()) + "::Field";
 }
 

@@ -42,11 +42,14 @@ protected:
     virtual std::string commsCommonMembersBaseClassImpl() const override;
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
-    virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const override;  
-    virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const override;
     virtual bool commsDefHasNameFuncImpl() const override;
     virtual std::size_t commsMinLengthImpl() const override;
-    virtual std::size_t commsMaxLengthImpl() const override; 
+    virtual std::size_t commsMaxLengthImpl() const override;
+    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override; 
+    virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
+    virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
+    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    virtual void commsSetReferencedImpl() override;
 
 private:
     std::string commsDefFieldOptsInternal() const;

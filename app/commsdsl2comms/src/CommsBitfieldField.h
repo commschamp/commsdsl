@@ -20,6 +20,8 @@
 #include "commsdsl/gen/BitfieldField.h"
 #include "commsdsl/gen/util.h"
 
+#include <utility>
+
 namespace commsdsl2comms
 {
 
@@ -30,6 +32,11 @@ class CommsBitfieldField final : public commsdsl::gen::BitfieldField, public Com
     using CommsBase = CommsField;
 public:
     CommsBitfieldField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+
+    const CommsFieldsList& commsMembers() const
+    {
+        return m_members;
+    }
 
 protected:
     // Base overrides
@@ -46,11 +53,18 @@ protected:
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
+    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
+    virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
+    virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
+    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    virtual bool commsHasCustomLengthDeepImpl() const override;
+    virtual void commsSetReferencedImpl() override;
 
 private:
     bool commsPrepareInternal();
     std::string commsDefFieldOptsInternal() const;
     std::string commsAccessCodeInternal() const;
+    std::pair<const CommsField*, std::string> parseMemRefInternal(const std::string accStr) const;
 
     CommsFieldsList m_members;
 };

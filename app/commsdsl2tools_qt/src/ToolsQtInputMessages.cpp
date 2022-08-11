@@ -42,7 +42,11 @@ bool writeFileInternal(
     ToolsQtGenerator& generator,
     CheckFunction&& func)
 {
-    auto filePath = generator.getOutputDir() + '/' + util::strReplace(comms::scopeForInput(name, generator, false), "::", "/") + strings::cppHeaderSuffixStr();
+    auto filePath = 
+        generator.getOutputDir() + '/' + 
+        generator.getTopNamespace() + '/' + 
+        util::strReplace(comms::scopeForInput(name, generator), "::", "/") + 
+        strings::cppHeaderSuffixStr();
     generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -76,8 +80,9 @@ bool writeFileInternal(
             continue;
         }
 
-        includes.push_back(util::strReplace(comms::scopeFor(*m, generator, false), "::", "/") + strings::cppHeaderSuffixStr());
-        scopes.push_back(generator.getTopNamespace() + "::" + comms::scopeFor(*m, generator) + interfaceTempl);
+        auto scope = generator.getTopNamespace() + "::" + comms::scopeFor(*m, generator);
+        includes.push_back(util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr());
+        scopes.push_back(scope + interfaceTempl);
     }
 
     static const std::string Templ =
@@ -104,7 +109,7 @@ bool writeFileInternal(
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"PROT_NAMESPACE", generator.protocolSchema().mainNamespace()},
         {"NAME", name},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"MESSAGES", util::strListToString(scopes, ",\n", "")},
@@ -115,7 +120,7 @@ bool writeFileInternal(
         repl["TEMPLATE_PARAM"] = "template <typename TInterface>";
     }
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -155,7 +160,7 @@ bool ToolsQtInputMessages::toolsWriteAllMessagesInternal() const
 
 bool ToolsQtInputMessages::toolsWritePlatformInputMessagesInternal() const
 {
-    auto& platforms = m_generator.platformNames();
+    auto& platforms = m_generator.protocolSchema().platformNames();
     for (auto& p : platforms) {
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::Message& msg)

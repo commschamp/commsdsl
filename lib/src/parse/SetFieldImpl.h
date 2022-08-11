@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -83,6 +83,11 @@ public:
         return m_state.m_validCheckVersion;
     }
 
+    bool availableLengthLimit() const
+    {
+        return m_state.m_availableLengthLimit;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -105,6 +110,7 @@ private:
     bool updateValidCheckVersion();
     bool updateDefaultValue();
     bool updateReservedValue();
+    bool updateAvailableLengthLimit();
     bool updateBits();
     bool strToValue(const std::string& str, bool& val) const;
 
@@ -120,6 +126,7 @@ private:
         bool m_defaultBitValue = false;
         bool m_reservedBitValue = false;
         bool m_validCheckVersion = false;
+        bool m_availableLengthLimit = false;
     };
     State m_state;
 };

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -104,10 +104,10 @@ bool Field::isDeprecatedRemoved() const
     return m_pImpl->isDeprecatedRemoved();
 }
 
-std::string Field::externalRef() const
+std::string Field::externalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef();
+    return m_pImpl->externalRef(schemaRef);
 }
 
 bool Field::isPseudo() const
@@ -152,6 +152,12 @@ std::string Field::schemaPos() const
     return m_pImpl->schemaPos();
 }
 
+OverrideType Field::valueOverride() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->valueOverride();
+}
+
 OverrideType Field::readOverride() const
 {
     assert(m_pImpl != nullptr);
@@ -186,6 +192,12 @@ OverrideType Field::nameOverride() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->nameOverride();
+}
+
+const std::string& Field::copyCodeFrom() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->copyCodeFrom();
 }
 
 const Field::AttributesMap& Field::extraAttributes() const

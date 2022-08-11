@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,7 +86,9 @@ const XmlWrap::NamesList& OptionalFieldImpl::extraPropsNamesImpl() const
     static const XmlWrap::NamesList List = {
         common::defaultModeStr(),
         common::condStr(),
-        common::displayExtModeCtrlStr()
+        common::displayExtModeCtrlStr(),
+        common::missingOnReadFailStr(),
+        common::missingOnInvalidStr(),
     };
 
     return List;
@@ -127,6 +129,8 @@ bool OptionalFieldImpl::parseImpl()
     return
         updateMode() &&
         updateExternalModeCtrl() &&
+        updateMissingOnReadFail() &&
+        updateMissingOnInvalid() &&
         updateField() &&
         updateSingleCondition() &&
         updateMultiCondition();
@@ -265,6 +269,16 @@ bool OptionalFieldImpl::updateMode()
 bool OptionalFieldImpl::updateExternalModeCtrl()
 {
     return validateAndUpdateBoolPropValue(common::displayExtModeCtrlStr(), m_state.m_externalModeCtrl);
+}
+
+bool OptionalFieldImpl::updateMissingOnReadFail()
+{
+    return validateAndUpdateBoolPropValue(common::missingOnReadFailStr(), m_state.m_missingOnReadFail);
+}
+
+bool OptionalFieldImpl::updateMissingOnInvalid()
+{
+    return validateAndUpdateBoolPropValue(common::missingOnInvalidStr(), m_state.m_missingOnInvalid);
 }
 
 bool OptionalFieldImpl::updateField()
@@ -483,7 +497,7 @@ bool OptionalFieldImpl::checkFieldAsChild()
 
     m_state.m_extField = nullptr;
     m_field = std::move(field);
-    assert(m_field->externalRef().empty());
+    assert(m_field->externalRef(false).empty());
     return true;
 }
 

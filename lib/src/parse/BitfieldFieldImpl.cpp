@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -131,6 +131,39 @@ bool BitfieldFieldImpl::parseImpl()
         updateMembers();
 }
 
+bool BitfieldFieldImpl::replaceMembersImpl(FieldsList& members)
+{
+    for (auto& mem : members) {
+        assert(mem);
+        auto iter = 
+            std::find_if(
+                m_members.begin(), m_members.end(),
+                [&mem](auto& currMem)
+                {
+                    assert(currMem);
+                    return mem->name() == currMem->name();
+                });
+
+        if (iter == m_members.end()) {
+            logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                "Cannot find reused member with name \"" << mem->name() << "\" to replace.";
+            return false;
+        }
+
+        if ((mem->getSinceVersion() != getSinceVersion()) ||
+            (mem->getDeprecated() != getDeprecated())) {
+            logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                "Bitfield replacing members are not allowed to update \"" << common::sinceVersionStr() << "\" and "
+                "\"" << common::deprecatedStr() << "\" properties.";
+            return false;
+        }
+
+        (*iter) = std::move(mem);
+    }
+
+    return true;
+}
+
 std::size_t BitfieldFieldImpl::minLengthImpl() const
 {
     return
@@ -157,6 +190,18 @@ bool BitfieldFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
     return strToBoolOnFields(ref, m_members, val);
 }
 
+bool BitfieldFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    if ((type == SemanticType::Length) &&
+        (protocol().isSemanticTypeLengthSupported()) && 
+        (protocol().isNonIntSemanticTypeLengthSupported())) {
+        return true;
+    }
+
+    return false;
+}
+
 bool BitfieldFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
 {
     auto dotPos = fieldName.find('.');
@@ -181,6 +226,11 @@ bool BitfieldFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) co
     return (*iter)->verifyAliasedMember(restFieldName);
 }
 
+const XmlWrap::NamesList& BitfieldFieldImpl::supportedMemberTypesImpl() const
+{
+    return BitfieldFieldImpl::supportedTypes();
+}
+
 bool BitfieldFieldImpl::updateEndian()
 {
     if (!validateSinglePropInstance(common::endianStr())) {
@@ -192,7 +242,7 @@ bool BitfieldFieldImpl::updateEndian()
         return true;
     }
 
-    m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
     if (m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;

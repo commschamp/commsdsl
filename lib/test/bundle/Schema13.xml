@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema13"
+        id="1"
+        endian="big">
+    <description>
+        Testing error report on invalid "copyCodeFrom" property
+    </description>
+    <fields>
+        <bundle name="Bundle1">
+            <enum name="Enum1" type="uint8">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="2" />
+            </enum>
+            <set name="Set1" type="uint8">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+            <int name="Int1" type="uintvar" length="4" />
+        </bundle>
+        <bundle name="Bundle2" reuse="Bundle1" copyCodeFrom="BundleX">
+            <members>
+                <int name="Int2" type="intvar" length="4" />
+            </members>
+        </bundle>
+    </fields>
+</schema>

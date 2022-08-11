@@ -16,6 +16,7 @@
 #include "CommsDoxygen.h"
 
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -95,6 +96,10 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "PROJECT_NAME           = \"#^#PROJ_NAME#$#\"\n"
         "PROJECT_BRIEF          = \"Documentation for generated code of \\\"#^#PROJ_NAME#$#\\\" protocol.\"\n"
         "OUTPUT_DIRECTORY       = \n"
+        "CREATE_SUBDIRS         = NO\n"
+        "ALLOW_UNICODE_NAMES    = NO\n"
+        "OUTPUT_LANGUAGE        = English\n"
+        "OUTPUT_TEXT_DIRECTION  = None\n"
         "BRIEF_MEMBER_DESC      = YES\n"
         "REPEAT_BRIEF           = YES\n"
         "ALWAYS_DETAILED_SEC    = NO\n"
@@ -121,13 +126,16 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "INLINE_SIMPLE_STRUCTS  = NO\n"
         "TYPEDEF_HIDES_STRUCT   = NO\n"
         "LOOKUP_CACHE_SIZE      = 0\n"
+        "NUM_PROC_THREADS       = 0\n"
         "EXTRACT_ALL            = NO\n"
         "EXTRACT_PRIVATE        = NO\n"
+        "EXTRACT_PRIV_VIRTUAL   = NO\n"
         "EXTRACT_PACKAGE        = NO\n"
         "EXTRACT_STATIC         = NO\n"
         "EXTRACT_LOCAL_CLASSES  = YES\n"
         "EXTRACT_LOCAL_METHODS  = NO\n"
         "EXTRACT_ANON_NSPACES   = NO\n"
+        "RESOLVE_UNNAMED_PARAMS = YES\n"
         "HIDE_UNDOC_MEMBERS     = YES\n"
         "HIDE_UNDOC_CLASSES     = YES\n"
         "HIDE_FRIEND_COMPOUNDS  = NO\n"
@@ -179,9 +187,9 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "USE_HTAGS              = NO\n"
         "VERBATIM_HEADERS       = YES\n"
         "CLANG_ASSISTED_PARSING = NO\n"
+        "CLANG_ADD_INC_PATHS    = YES\n"
         "CLANG_OPTIONS          =\n"
         "ALPHABETICAL_INDEX     = YES\n"
-        "COLS_IN_ALPHA_INDEX    = 5\n"
         "GENERATE_HTML          = YES\n"
         "HTML_OUTPUT            = html\n"
         "HTML_FILE_EXTENSION    = .html\n"
@@ -230,7 +238,7 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "\n";
 
     util::ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.schemaName()},
+        {"PROJ_NAME", m_generator.currentSchema().schemaName()},
         {"APPEND", util::readFileContents(comms::inputCodePathForDoc(FileName, m_generator) + strings::appendFileSuffixStr())}
     };
 
@@ -432,62 +440,80 @@ bool CommsDoxygen::commsWriteNamespacesInternal() const
 {
     const std::string FileName = "namespaces.dox";
 
-    auto nsList = m_generator.getAllNamespaces();
+    util::StringsList elems;
+    for (auto& s : m_generator.schemas()) {
+        auto* commsSchema = static_cast<const CommsSchema*>(s.get());
+        if ((s.get() != &m_generator.protocolSchema()) && (!commsSchema->commsHasAnyGeneratedCode())) {
+            continue;
+        }
 
-    util::StringsList nsElems;
-    for (auto* ns : nsList) {
-        static const std::string Templ =
-            "/// @namespace #^#NS#$#\n"
-            "/// @brief Protocol specific namespace.\n\n"
-            "/// @namespace #^#NS#$#::message\n"
-            "/// @brief Namespace for all the messages in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::field\n"
-            "/// @brief Namespace for all the stand alone fields defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame\n"
-            "/// @brief Namespace for all the frames defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame::layer\n"
-            "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n"
-            "/// @namespace #^#NS#$#::frame::checksum\n"
-            "/// @brief Namespace for the custom frame layers defined in @ref #^#NS#$# namespace.\n\n";
+        auto nsList = s->getAllNamespaces();
+
+        util::StringsList nsElems;
+        for (auto* ns : nsList) {
+            static const std::string Templ =
+                "/// @namespace #^#NS#$#\n"
+                "/// @brief Protocol specific namespace.\n\n"
+                "/// @namespace #^#NS#$#::message\n"
+                "/// @brief Namespace for all the messages in #^#NS#$# namespace.\n\n"
+                "/// @namespace #^#NS#$#::field\n"
+                "/// @brief Namespace for all the stand alone fields defined in #^#NS#$# namespace.\n\n"
+                "/// @namespace #^#NS#$#::frame\n"
+                "/// @brief Namespace for all the frames defined in #^#NS#$# namespace.\n\n"
+                "/// @namespace #^#NS#$#::frame::layer\n"
+                "/// @brief Namespace for the custom frame layers defined in #^#NS#$# namespace.\n\n"
+                "/// @namespace #^#NS#$#::frame::checksum\n"
+                "/// @brief Namespace for the custom frame layers defined in #^#NS#$# namespace.\n\n";
+
+            util::ReplacementMap repl = {
+                {"NS", comms::scopeFor(*ns, m_generator)},
+            };
+
+            nsElems.push_back(util::processTemplate(Templ, repl));
+        }
+
+        static const std::string Templ = 
+            "#^#MAIN#$#\n"
+            "#^#NS_LIST#$#\n"
+            "/// @namespace #^#NS#$#::options\n"
+            "/// @brief Main namespace for the various protocol options.\n\n"
+            "/// @namespace #^#NS#$#::input\n"
+            "/// @brief Main namespace for hold input messages bundles.\n\n"
+            "/// @namespace #^#NS#$#::dispatch\n"
+            "/// @brief Main namespace for the various message dispatch functions.\n\n"        
+        ;
 
         util::ReplacementMap repl = {
-            {"NS", comms::scopeFor(*ns, m_generator)},
+            {"NS_LIST", util::strListToString(nsElems, "", "")},
+            {"NS", s->mainNamespace()},
         };
 
-        nsElems.push_back(util::processTemplate(Templ, repl));
+        bool hasDefaultNamespace = 
+            std::any_of(
+                nsList.begin(), nsList.end(),
+                [](auto* ns)
+                {
+                    return ns->name().empty();
+                });
+
+        if (!hasDefaultNamespace) {
+            repl["MAIN"] = 
+                "/// @namespace " + s->mainNamespace() + "\n"
+                "/// @brief Main namespace for all classes / functions of this protocol library.\n";
+        }
+
+        elems.push_back(util::processTemplate(Templ, repl));
     }
 
-    const std::string Templ = 
-        "#^#MAIN#$#\n"
-        "#^#NS_LIST#$#\n"
-        "/// @namespace #^#NS#$#::options\n"
-        "/// @brief Main namespace for the various protocol options.\n\n"
-        "/// @namespace #^#NS#$#::input\n"
-        "/// @brief Main namespace for hold input messages bundles.\n\n"
-        "/// @namespace #^#NS#$#::dispatch\n"
-        "/// @brief Main namespace for the various message dispatch functions.\n\n"        
+    const std::string Templ = {
+        "#^#SCHEMAS#$#\n"
         "#^#APPEND#$#\n"
-    ;
-
-    util::ReplacementMap repl = {
-        {"NS_LIST", util::strListToString(nsElems, "", "")},
-        {"NS", m_generator.mainNamespace()},
-        {"APPEND", util::readFileContents(comms::inputCodePathForDoc(FileName, m_generator) + strings::appendFileSuffixStr())}
     };
 
-    bool hasDefaultNamespace = 
-        std::any_of(
-            nsList.begin(), nsList.end(),
-            [](auto* ns)
-            {
-                return ns->name().empty();
-            });
-
-    if (!hasDefaultNamespace) {
-        repl["MAIN"] = 
-            "/// @namespace " + m_generator.mainNamespace() + "\n"
-            "/// @brief Main namespace for all classes / functions of this protocol library.\n";
-    }
+    util::ReplacementMap repl = {
+        {"SCHEMAS", util::strListToString(elems, "", "")},
+        {"APPEND", util::readFileContents(comms::inputCodePathForDoc(FileName, m_generator) + strings::appendFileSuffixStr())}
+    };
 
     return writeFileInternal(FileName, util::processTemplate(Templ, repl), m_generator);
 }
@@ -522,7 +548,7 @@ bool CommsDoxygen::commsWriteMainpageInternal() const
         "\n";
 
     util::ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.schemaName()},
+        {"PROJ_NAME", m_generator.currentSchema().schemaName()},
         {"MESSAGES_DOC", commsMessagesDocInternal()},
         {"FIELDS_DOC", commsFieldsDocInternal()},
         {"INTERFACE_DOC", commsInterfaceDocInternal()},
@@ -668,7 +694,7 @@ std::string CommsDoxygen::commsFrameDocInternal() const
     addToMessagesListFunc(ServerInputMessagesStr);
     addToMessagesListFunc(ClientInputMessagesStr);
 
-    auto& platforms = m_generator.platformNames();
+    auto& platforms = m_generator.currentSchema().platformNames();
     for (auto& p : platforms) {
         addToMessagesListFunc(p + "Messages");
         addToMessagesListFunc(p + ServerInputMessagesStr);
@@ -678,7 +704,7 @@ std::string CommsDoxygen::commsFrameDocInternal() const
     util::ReplacementMap repl = {
         {"LIST", util::strListToString(list, "\n", "")},
         {"MESSAGES_LIST", util::strListToString(messagesList, "\n", "")},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"PLATFORMS", commsPlatformsDocInternal()},
         {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), m_generator)},
         {"ALL_MESSAGES_HEADER", comms::relHeaderForInput(strings::allMessagesStr(), m_generator)},
@@ -750,7 +776,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         };
 
     addPlatformFunc(strings::emptyString());
-    for (auto& p : m_generator.platformNames()) {
+    for (auto& p : m_generator.currentSchema().platformNames()) {
         addPlatformFunc(comms::className(p));
     }
 
@@ -864,7 +890,7 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
 
     util::ReplacementMap repl = {
         {"INTERFACE", comms::scopeFor(*allInterfaces.front(), m_generator)},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsStr(), m_generator)},
         {"CLIENT_OPTIONS", comms::scopeForOptions("Client" + strings::defaultOptionsStr(), m_generator)},
         {"SERVER_OPTIONS", comms::scopeForOptions("Server" + strings::defaultOptionsStr(), m_generator)},
@@ -882,7 +908,7 @@ std::string CommsDoxygen::commsCustomizeDocInternal() const
 
 std::string CommsDoxygen::commsVersionDocInternal() const
 {
-    if (!m_generator.versionDependentCode()) {
+    if (!m_generator.currentSchema().versionDependentCode()) {
         return strings::emptyString();
     }
 
@@ -917,14 +943,14 @@ std::string CommsDoxygen::commsVersionDocInternal() const
         "/// @endcode";
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
     };
     return util::processTemplate(Templ, repl);
 }
 
 std::string CommsDoxygen::commsPlatformsDocInternal() const
 {
-    auto platforms = m_generator.platformNames();
+    auto platforms = m_generator.currentSchema().platformNames();
     if (platforms.empty()) {
         return strings::emptyString();
     }

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test50" endian="big">
+    <description>
+        Testing multiple schemas
+    </description>
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+        </enum>
+
+        <ref field="@ext1.S1" />
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <ref field="@ext1.I1" name="F1" />
+        <ref field="S1" name="F2"/>
+        <data name="F3" lengthPrefix="@ext1.I1" />
+        <bitfield name="F4" reuse="@ext1.B1">
+            <replace>
+                <enum name="Mem2" type="uint8" bitLength="4">
+                    <validValue name="V0" val="0" />
+                    <validValue name="V1" val="1" />
+                </enum>
+            </replace>
+        </bitfield>
+        <optional name="F5" defaultMode="missing" cond="$F1 = @ext1.I1.S1">
+            <int name="ActF5" type="uint8" />
+        </optional>
+    </message>
+
+    <frame name="Frame">
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>     
+</schema>

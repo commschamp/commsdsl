@@ -16,6 +16,7 @@
 #include "CommsDispatch.h"
 
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/EnumField.h"
 #include "commsdsl/gen/strings.h"
@@ -91,7 +92,7 @@ util::ReplacementMap initialRepl(CommsGenerator& generator)
 {
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
     };
     return repl;
 }
@@ -301,6 +302,11 @@ const std::string& multipleMessagesPerIdTempl()
 
 bool CommsDispatch::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage())) {
+        return true;
+    }
+
     CommsDispatch obj(generator);
     return obj.commsWriteInternal();
 }
@@ -331,7 +337,7 @@ bool CommsDispatch::commsWriteDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(std::string(), std::move(checkFunc))}
     });
     
-    return writeFileInternal(getFileName(), m_generator, util::processTemplate(dispatchTempl(), repl));
+    return writeFileInternal(getFileName(), m_generator, util::processTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWriteClientDispatchInternal() const
@@ -350,7 +356,7 @@ bool CommsDispatch::commsWriteClientDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(checkFunc))}
     });
 
-    return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl));
+    return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWriteServerDispatchInternal() const
@@ -369,12 +375,12 @@ bool CommsDispatch::commsWriteServerDispatchInternal() const
         {"CODE", commsDispatchCodeInternal(inputPrefix, std::move(checkFunc))}
     });
 
-    return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl));
+    return writeFileInternal(getFileName(inputPrefix), m_generator, util::processTemplate(dispatchTempl(), repl, true));
 }
 
 bool CommsDispatch::commsWritePlatformDispatchInternal() const
 {
-    auto& platforms = m_generator.platformNames();
+    auto& platforms = m_generator.currentSchema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 
@@ -407,7 +413,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
                     
             if (!result) {
                 return false;
@@ -435,7 +441,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -463,7 +469,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -505,7 +511,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
                     
             if (!result) {
                 return false;
@@ -533,7 +539,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -561,7 +567,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
                 writeFileInternal(
                     getFileName(inputPrefix), 
                     m_generator, 
-                    util::processTemplate(dispatchTempl(), repl));
+                    util::processTemplate(dispatchTempl(), repl, true));
 
             if (!result) {
                 return false;
@@ -613,13 +619,13 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
     }
 
     auto allInterfaces = m_generator.getAllInterfaces();
-    assert(!allInterfaces.empty());
+    // assert(!allInterfaces.empty());
 
     util::ReplacementMap repl = {
         {"NAME", name},
         {"DEFAULT_OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), m_generator)},
         {"HEADERFILE", comms::relHeaderForDispatch(getFileName(name), m_generator)},
-        {"INTERFACE", comms::scopeFor(*allInterfaces.front(), m_generator)},
+        {"INTERFACE", (!allInterfaces.empty()) ? comms::scopeFor(*allInterfaces.front(), m_generator) : std::string("SomeInterface")},
         {"MSG1", firstMsg != nullptr ? comms::scopeFor(*firstMsg, m_generator) : std::string("SomeMessage")},
         {"MSG2", secondMsg != nullptr ? comms::scopeFor(*secondMsg, m_generator) : std::string("SomeOtherMessage")},
         {"MSG1_NAME", firstMsg != nullptr ? comms::className(firstMsg->dslObj().name()) : std::string("SomeMessage")},
@@ -702,7 +708,7 @@ std::string CommsDispatch::commsMsgIdStringInternal(std::uintmax_t value) const
                 ")";
         };
 
-    auto* idField = m_generator.getMessageIdField();
+    auto* idField = m_generator.currentSchema().getMessageIdField();
     if (idField == nullptr) {
         return numValueFunc();
     }
@@ -779,7 +785,7 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
         "};\n\n"
         "/// @brief Message dispatcher class to be used with\n"
         "///     @b comms::processAllWithDispatchViaDispatcher() function (or similar).\n"
-        "/// @details Same as @ref #^#NAME#$#MsgDispatcher, but passing\n"
+        "/// @details Same as #^#NAME#$#MsgDispatcher, but passing\n"
         "///     @ref #^#DEFAULT_OPTIONS#$# as template parameter.\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
         "using #^#NAME#$#MsgDispatcherDefaultOptions =\n"
@@ -787,7 +793,7 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
 
     util::ReplacementMap repl = {
         {"NAME", inputPrefix},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"DEFAULT_OPTIONS", comms::scopeForOptions(strings::defaultOptionsStr(), m_generator)},
         {"HEADERFILE", comms::relHeaderForDispatch(getFileName(inputPrefix), m_generator)},
     };

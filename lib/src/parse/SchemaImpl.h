@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,6 +18,7 @@
 #include "commsdsl/parse/Endian.h"
 
 #include "XmlWrap.h"
+#include "NamespaceImpl.h"
 
 namespace commsdsl
 {
@@ -26,11 +27,16 @@ namespace parse
 {
 
 class ProtocolImpl;
-class SchemaImpl
+class SchemaImpl final : public Object
 {
+    using Base = Object;
 public:
     using PropsMap = XmlWrap::PropsMap;
     using ContentsList = XmlWrap::ContentsList;
+    using NamespacesList = NamespaceImpl::NamespacesList;
+    using NamespacesMap = NamespaceImpl::NamespacesMap;
+    using PlatformsList = Schema::PlatformsList;
+    using MessagesList = Schema::MessagesList;
 
     SchemaImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -101,6 +107,38 @@ public:
         return m_extraChildren;
     }
 
+    const NamespacesMap& namespaces() const
+    {
+        return m_namespaces;
+    }
+
+    NamespacesList namespacesList() const;    
+
+    const FieldImpl* findField(const std::string& ref, bool checkRef = true) const;
+
+    const MessageImpl* findMessage(const std::string& ref, bool checkRef = true) const;
+
+    const InterfaceImpl* findInterface(const std::string& ref, bool checkRef = true) const;    
+
+    const PlatformsList& platforms() const
+    {
+        return m_platforms;
+    }
+
+    MessagesList allMessages() const;
+
+    bool addPlatform(const std::string& name);
+    void addNamespace(NamespaceImplPtr ns);
+    NamespaceImpl& defaultNamespace();
+
+    bool validateAllMessages();
+    unsigned countMessageIds() const;
+
+    std::string externalRef() const;
+
+protected:
+    virtual ObjKind objKindImpl() const override;    
+
 private:
 
     bool updateStringProperty(const PropsMap& map, const std::string& name, std::string& prop);
@@ -109,6 +147,7 @@ private:
     bool updateBooleanProperty(const PropsMap& map, const std::string& name, bool& prop);
     bool updateExtraAttrs();
     bool updateExtraChildren();
+    const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
@@ -118,12 +157,16 @@ private:
     ContentsList m_extraChildren;
     std::string m_name;
     std::string m_description;
+    NamespacesMap m_namespaces;
+    PlatformsList m_platforms;
     unsigned m_id = 0U;
     unsigned m_version = 0;
     unsigned m_dslVersion = 0;
     Endian m_endian = Endian_NumOfValues;
     bool m_nonUniqueMsgIdAllowed = false;
 };
+
+using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
 
 } // namespace parse
 

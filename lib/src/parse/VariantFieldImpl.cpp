@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -117,6 +117,31 @@ bool VariantFieldImpl::reuseImpl(const FieldImpl& other)
             return elem->clone();
         });
     assert(m_members.size() == castedOther.m_members.size());
+    return true;
+}
+
+bool VariantFieldImpl::replaceMembersImpl(FieldsList& members)
+{
+    for (auto& mem : members) {
+        assert(mem);
+        auto iter = 
+            std::find_if(
+                m_members.begin(), m_members.end(),
+                [&mem](auto& currMem)
+                {
+                    assert(currMem);
+                    return mem->name() == currMem->name();
+                });
+
+        if (iter == m_members.end()) {
+            logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                "Cannot find reused member with name \"" << mem->name() << "\" to replace.";
+            return false;
+        }
+
+        (*iter) = std::move(mem);
+    }
+
     return true;
 }
 

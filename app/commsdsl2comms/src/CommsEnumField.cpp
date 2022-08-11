@@ -358,7 +358,7 @@ std::string CommsEnumField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = enumDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"COMMON_SCOPE", comms::commonScopeFor(*this, gen)},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
@@ -394,7 +394,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
 {
     auto obj = enumDslObj();
     bool validCheckVersion =
-        generator().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {
@@ -411,8 +411,8 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
             "    #^#VALUES#$#\n"
             "};\n\n"
             "auto iter =\n"
-            "    std::lower_bound(std::begin(Values), std::end(Values), Base::value());\n\n"
-            "if ((iter == std::end(Values)) || (*iter != Base::value())) {\n"
+            "    std::lower_bound(std::begin(Values), std::end(Values), Base::getValue());\n\n"
+            "if ((iter == std::end(Values)) || (*iter != Base::getValue())) {\n"
             "    return false;\n"
             "}\n\n"
             "return true;\n"
@@ -432,7 +432,7 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
 
             std::string prefix;
             if (isMessageId) {
-                 prefix = generator().mainNamespace() + "::" + strings::msgIdPrefixStr();
+                 prefix = generator().schemaOf(*this).mainNamespace() + "::" + strings::msgIdPrefixStr();
             }
             else {
                 prefix = "ValueType::";
@@ -503,13 +503,13 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
         util::StringsList comparisons;
         for (auto& r : l) {
             static const std::string ValueBothCompTempl =
-                "if ((static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#) <= Base::value()) &&\n"
-                "    (Base::value() <= static_cast<typename Base::ValueType>(#^#MAX_VALUE#$#))) {\n"
+                "if ((static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#) <= Base::getValue()) &&\n"
+                "    (Base::getValue() <= static_cast<typename Base::ValueType>(#^#MAX_VALUE#$#))) {\n"
                 "    return true;\n"
                 "}";
 
             static const std::string ValueSingleCompTempl =
-                "if (Base::value() == static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#)) {\n"
+                "if (Base::getValue() == static_cast<typename Base::ValueType>(#^#MIN_VALUE#$#)) {\n"
                 "    return true;\n"
                 "}";
 
@@ -560,45 +560,37 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-
-std::string CommsEnumField::commsCompareToValueCodeImpl(
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+std::size_t CommsEnumField::commsMinLengthImpl() const
 {
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(dslObj().name());
+    if (enumDslObj().availableLengthLimit()) {
+        return 1U;
     }
 
-    bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
+    return CommsBase::commsMinLengthImpl();
+}
 
-    std::string optField;
-    if (versionOptional) {
-        optField = ".field()";
+std::string CommsEnumField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+
+    if (value.empty()) {
+        return util::numToString(enumDslObj().defaultValue());
     }
 
     try {
-        auto val = static_cast<std::intmax_t>(std::stoll(value));
-        auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
-            optField + ".value())>::type>(" + 
-            util::numToString(val) + ")";
-
-        return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
+        auto val = static_cast<std::intmax_t>(std::stoll(value, nullptr, 0));
+        return util::numToString(val);
     }
     catch (...) {
         // nothing to do
     }    
-        
+
     auto obj = enumDslObj();
     auto& values = obj.values();
     auto iter = values.find(value);
     if (iter != values.end()) {
-        auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
-            optField + ".value())>::type>(" + 
-        util::numToString(iter->second.m_value) + ")";
-        return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
+        return util::numToString(iter->second.m_value);
     }    
 
     auto lastDot = value.find_last_of(".");
@@ -606,7 +598,7 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
     }
 
     auto* otherEnum = generator().findField(std::string(value, 0, lastDot));
@@ -614,7 +606,7 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
     }
 
     auto& castedOtherEnum = static_cast<const CommsEnumField&>(*otherEnum);
@@ -624,72 +616,10 @@ std::string CommsEnumField::commsCompareToValueCodeImpl(
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
         assert(Should_not_happen);
-        return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
     }    
 
-    auto newValueStr = "static_cast<typename std::decay<decltype(field_" + usedName + "()" + 
-        optField + ".value())>::type>(" + 
-        util::numToString(otherIter->second.m_value) + ")";
-    return CommsBase::commsCompareToValueCodeImpl(op, newValueStr, nameOverride, forcedVersionOptional);
-}
-
-std::string CommsEnumField::commsCompareToFieldCodeImpl(
-    const std::string& op, 
-    const CommsField& field, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(dslObj().name());
-    }
-
-    bool thisOptional = forcedVersionOptional || commsIsVersionOptional();
-    bool otherOptional = field.commsIsVersionOptional();
-
-    auto fieldName = comms::accessName(field.field().dslObj().name());
-
-    std::string thisFieldValue;
-    if (thisOptional) {
-        thisFieldValue = "field_" + usedName + "().field().value()";
-    }
-    else {
-        thisFieldValue = "field_" + usedName + "().value()";
-    }
-
-    std::string otherFieldValue;
-    if (otherOptional) {
-        otherFieldValue = "field_" + fieldName + "().field().value()";
-    }
-    else {
-        otherFieldValue = "field_" + fieldName + "().value()";
-    }
-
-    std::string compExpr =
-        thisFieldValue + ' ' + op +
-        " static_cast<typename std::decay<decltype(" + thisFieldValue + ")>::type>(" + otherFieldValue + ')';
-
-    if ((!thisOptional) && (!otherOptional)) {
-        return compExpr;
-    }
-
-    if ((!thisOptional) && (otherOptional)) {
-        return
-            "field_" + fieldName + "().doesExist() &&\n(" +
-            compExpr + ')';
-    }
-
-    if ((thisOptional) && (!otherOptional)) {
-        return
-            "field_" + usedName + "().doesExist() &&\n(" +
-            compExpr + ')';
-    }
-
-
-    return
-        "field_" + usedName + "().doesExist() &&\n" +
-        "field_" + fieldName + "().doesExist() &&\n(" +
-            compExpr + ')'; 
+    return util::numToString(otherIter->second.m_value);
 }
 
 bool CommsEnumField::commsPrepareValidRangesInternal()
@@ -698,7 +628,7 @@ bool CommsEnumField::commsPrepareValidRangesInternal()
 
     auto& gen = generator();
     bool validCheckVersion =
-        gen.versionDependentCode() &&
+        gen.schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     auto& values = obj.values();
@@ -962,6 +892,7 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
     auto& revValues = obj.revValues();
     auto& values = obj.values();
     assert(!revValues.empty());
+    auto& thisSchema = generator().schemaOf(*this);
 
     std::intmax_t nextValue = 0;
     StringsList names;
@@ -999,7 +930,7 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
         if ((!obj.isNonUniqueAllowed()) ||
-            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (thisSchema.schemaVersion() < valIter->second.m_deprecatedSince) ||
             (obj.isUnique())) {
             addElementNameFunc(*valIter);
             continue;
@@ -1010,7 +941,7 @@ std::string CommsEnumField::commsCommonValueNamesMapDirectBodyInternal() const
         for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
             auto vIter = values.find(iter->second);
             assert(vIter != values.end());
-            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+            if (thisSchema.schemaVersion() < vIter->second.m_deprecatedSince) {
                 addElementNameFunc(*vIter);
                 foundNotDeprecated = true;
                 break;
@@ -1080,6 +1011,7 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
     }
     std::sort(valuesSeq.begin(), valuesSeq.end());
 
+    auto& currSchema = generator().schemaOf(*this);
     auto& values = obj.values();
     bool firstElem = true;
     std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
@@ -1123,7 +1055,7 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
         if ((!obj.isNonUniqueAllowed()) ||
-            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (currSchema.schemaVersion() < valIter->second.m_deprecatedSince) ||
             (obj.isUnique())) {
             addElementNameFunc(*valIter);
             continue;
@@ -1134,7 +1066,7 @@ std::string CommsEnumField::commsCommonBigUnsignedValueNameBinSearchPairsInterna
         for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
             auto vIter = values.find(iter->second);
             assert(vIter != values.end());
-            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+            if (currSchema.schemaVersion() < vIter->second.m_deprecatedSince) {
                 addElementNameFunc(*vIter);
                 foundNotDeprecated = true;
                 break;
@@ -1163,6 +1095,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
     bool firstElem = true;
     std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
     StringsList names;
+    auto& currSchema = generator().schemaOf(*this);
     for (auto& v : revValues) {
         if ((!firstElem) && (lastValue == v.first)) {
             continue;
@@ -1183,10 +1116,10 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
             };
 
         auto getValueStrFunc = 
-            [this, isMessageId](const std::string& s)
+            [isMessageId, &currSchema](const std::string& s)
             {
                 if (isMessageId) {
-                    return generator().mainNamespace() + "::" + strings::msgIdPrefixStr() + s;
+                    return currSchema.mainNamespace() + "::" + strings::msgIdPrefixStr() + s;
                 }
 
                 return "ValueType::" + s;
@@ -1208,7 +1141,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
         auto valIter = values.find(v.second);
         assert(valIter != values.end());
         if ((!obj.isNonUniqueAllowed()) ||
-            (generator().schemaVersion() < valIter->second.m_deprecatedSince) ||
+            (currSchema.schemaVersion() < valIter->second.m_deprecatedSince) ||
             (obj.isUnique())) {
             addElementNameFunc(*valIter);
             continue;
@@ -1219,7 +1152,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
         for (auto iter = allRevValues.first; iter != allRevValues.second; ++iter) {
             auto vIter = values.find(iter->second);
             assert(vIter != values.end());
-            if (generator().schemaVersion() < vIter->second.m_deprecatedSince) {
+            if (currSchema.schemaVersion() < vIter->second.m_deprecatedSince) {
                 addElementNameFunc(*vIter);
                 foundNotDeprecated = true;
                 break;
@@ -1277,7 +1210,7 @@ std::string CommsEnumField::commsDefValueNameFuncCodeInternal() const
         "/// @brief Retrieve name of the @b current value\n"
         "const char* valueName() const\n"
         "{\n"
-        "    return valueName(Base::value());\n"
+        "    return valueName(Base::getValue());\n"
         "}\n";        
 
     util::ReplacementMap repl = {
@@ -1395,7 +1328,7 @@ void CommsEnumField::commsAddValidRangesOptInternal(StringsList& opts) const
         ((type != commsdsl::parse::EnumField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
-        generator().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     auto addOptFunc =

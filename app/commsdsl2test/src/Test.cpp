@@ -44,7 +44,7 @@ bool Test::write(TestGenerator& generator)
 bool Test::writeInputTest() const
 {
     auto testName = 
-        m_generator.mainNamespace() + '_' + "input_test.cpp";
+        m_generator.currentSchema().mainNamespace() + '_' + "input_test.cpp";
 
     auto filePath = commsdsl::gen::util::pathAddElem(m_generator.getOutputDir(), testName);
 
@@ -60,7 +60,7 @@ bool Test::writeInputTest() const
     };
     
     std::string idType;
-    auto* idField = m_generator.getMessageIdField();
+    auto* idField = m_generator.currentSchema().getMessageIdField();
     if ((idField != nullptr) && (idField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum)) {
         auto* enumMsgIdField = static_cast<const commsdsl::gen::EnumField*>(idField);
         if (enumMsgIdField->isUnsignedUnderlyingType()) {
@@ -86,7 +86,7 @@ bool Test::writeInputTest() const
         }
     }
     else {
-        idType = m_generator.mainNamespace() + "::" + commsdsl::gen::strings::msgIdEnumNameStr();
+        idType = m_generator.currentSchema().mainNamespace() + "::" + commsdsl::gen::strings::msgIdEnumNameStr();
     }
 
     repl.insert(std::make_pair("ID_TYPE", idType));
@@ -213,7 +213,7 @@ bool Test::writeInputTest() const
         "    void printFieldValue(const TField& field, BitmaskFieldTag) const\n"
         "    {\n"
         "        using FieldType = typename std::decay<decltype(field)>::type;\n"
-        "        std::cout << std::hex << \"0x\" << static_cast<std::uintmax_t>(field.value());\n"
+        "        std::cout << std::hex << \"0x\" << static_cast<std::uintmax_t>(field.value()) << std::dec;\n"
         "        for (auto idx = 0U; idx < FieldType::BitIdx_numOfValues; ++idx) {\n"
         "            auto bitIdx = static_cast<typename FieldType::BitIdx>(idx);\n"
         "            auto* name = field.bitName(bitIdx);\n"
@@ -302,19 +302,19 @@ bool Test::writeInputTest() const
         "    {\n"
         "        using CastType = \n"
         "            typename comms::util::SizeToType<sizeof(int), std::is_signed<T>::value>::Type;\n"
-        "        std::cout << static_cast<CastType>(value);\n"
+        "        std::cout << static_cast<CastType>(value) << \" | 0x\" << std::hex << static_cast<CastType>(value) << std::dec;\n"
         "    }\n\n"
         "    template <typename T>\n"
         "    static void printIntValue(T value, AsIsTag)\n"
         "    {\n"
-        "        std::cout << value;\n"
+        "        std::cout << value << \" | 0x\" << std::hex << value << std::dec;\n"
         "    }\n\n"
         "    template <typename TVec>\n"
         "    static void printArrayData(const TVec& data, IntElementTag)\n"
         "    {\n"
         "        for (auto v : data) {\n"
         "            std::cout << std::setfill(\'0\') << std::setw(2) << std::hex << \n"
-        "                static_cast<unsigned>(v) << \" \";\n"
+        "                static_cast<unsigned>(v) << std::dec << \" \";\n"
         "        }\n"
         "    }\n\n"
         "    template <typename TVec>\n"
@@ -426,7 +426,7 @@ bool Test::writeInputTest() const
         "    return 0;\n"
         "}\n\n";
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl);
+    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
     stream << str;
 
     stream.flush();

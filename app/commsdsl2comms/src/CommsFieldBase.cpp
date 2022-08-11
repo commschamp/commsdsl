@@ -16,6 +16,7 @@
 #include "CommsFieldBase.h"
 
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -33,6 +34,11 @@ namespace commsdsl2comms
 
 bool CommsFieldBase::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyField())) {
+        return true;
+    }
+
     CommsFieldBase obj(generator);
     return obj.commsWriteInternal();
 }
@@ -79,16 +85,16 @@ bool CommsFieldBase::commsWriteInternal() const
         "} // namespace #^#PROT_NAMESPACE#$#\n\n";    
 
     util::StringsList options;
-    options.push_back(comms::dslEndianToOpt(m_generator.schemaEndian()));
+    options.push_back(comms::dslEndianToOpt(m_generator.currentSchema().schemaEndian()));
     // TODO: version type
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"OPTIONS", util::strListToString(options, ",\n", "")},
     };        
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
 
     if (!stream.good()) {

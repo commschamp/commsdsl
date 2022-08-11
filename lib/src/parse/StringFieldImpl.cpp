@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -131,9 +131,10 @@ bool StringFieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) co
     }
 
     auto fieldKind = getNonRefFieldKind(*sibling);
-    if (fieldKind != Kind::Int) {
+    if ((fieldKind != Kind::Int) && (sibling->semanticType() != SemanticType::Length)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Detached length prefix is expected to be of \"" << common::intStr() << "\" type.";
+            "Detached length prefix is expected to be of \"" << common::intStr() << "\" type "
+            "or have semanticType=\"length\" property set.";
         return false;
     }
 
@@ -173,6 +174,33 @@ std::size_t StringFieldImpl::maxLengthImpl() const
     }
 
     return common::maxPossibleLength();
+}
+
+bool StringFieldImpl::isComparableToValueImpl(const std::string& val) const
+{
+    if (val.empty()) {
+        return true;        
+    }
+
+    static const char Prefix = common::stringRefPrefix();
+    if (val[0] != Prefix) {
+        return true;
+    }
+
+    auto* refField = protocol().findField(std::string(val, 1));
+    if (refField == nullptr) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Referenced field (" + val + ") is not defined.";
+        return false;
+    }
+
+    if (refField->kind() != Kind::String) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Referenced field (" + val + ") is not <string>.";        
+        return false;
+    }
+
+    return true;
 }
 
 bool StringFieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
@@ -355,7 +383,7 @@ bool StringFieldImpl::checkPrefixFromRef()
         return false;
     }
 
-    if (str[0] == '$') {
+    if (str[0] == common::siblingRefPrefix()) {
         if (!checkDetachedPrefixAllowed()) {
             return false;
         }
@@ -381,10 +409,11 @@ bool StringFieldImpl::checkPrefixFromRef()
         return false;
     }
 
-    if (field->kind() != Kind::Int) {
+    if ((field->kind() != Kind::Int) && (field->semanticType() != SemanticType::Length)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "The field referenced by \"" << common::lengthPrefixStr() <<
-            "\" property (" << iter->second << ") must be of type \"" << common::intStr() << "\".";
+            "\" property (" << iter->second << ") must be of type \"" << common::intStr() << 
+            "\" or have semanticType=\"length\" property set.";
         return false;
     }
 
@@ -439,12 +468,6 @@ bool StringFieldImpl::checkPrefixAsChild()
     auto fieldNode = prefixFields.front();
     assert(fieldNode->name != nullptr);
     std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
-    if (fieldKind != common::intStr()) {
-        logError() << XmlWrap::logPrefix(fieldNode) <<
-            "The field defined by \"" << common::lengthPrefixStr() <<
-            "\" element must be of type \"" << common::intStr() << "\".";
-        return false;
-    }
 
     auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
     if (!field) {
@@ -458,6 +481,13 @@ bool StringFieldImpl::checkPrefixAsChild()
     if (!field->parse()) {
         return false;
     }
+
+    if ((field->kind() != Kind::Int) && (field->semanticType() != SemanticType::Length)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The \"" << common::lengthPrefixStr() << "\" element must be of type \"" << common::intStr() << 
+            "\" or have semanticType=\"length\" property set.";
+        return false;
+    }    
 
     m_state.m_extPrefixField = nullptr;
     m_state.m_detachedPrefixField.clear();

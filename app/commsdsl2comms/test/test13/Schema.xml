@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test13"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test13" endian="big" version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
 
         <int name="I1" type="uint8" />  
@@ -56,6 +54,37 @@
     <message name="Msg1" id="MsgId.M1">
         <ref name="f1" field="B1" />
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <bundle name="Flags">
+            <int name="SomeValue1" type="uint8" />
+            <int name="SomeValue2" type="uint8" />
+            <set name="Bits" length="1">
+                <bit name="Opt1Exists" idx="0" />
+                <bit name="Opt2Missing" idx="1" defaultValue="true"/>
+            </set>
+        </bundle>        
+        <optional name="Opt1" defaultMode="missing" cond="$Flags.Bits.Opt1Exists" sinceVersion="1">
+            <int name="O1" type="uint8" />
+        </optional>
+        <optional name="Opt2" defaultMode="missing" cond="!$Flags.Bits.Opt2Missing" sinceVersion="2">
+            <int name="O2" type="uint8" />
+        </optional>  
+        <optional name="Opt3" defaultMode="missing" cond="$Flags.SomeValue1 != 0" sinceVersion="3">
+            <int name="O3" type="uint8" />
+        </optional>
+        <optional name="Opt4" defaultMode="missing" cond="$Flags.SomeValue1 &lt; $Flags.SomeValue2" sinceVersion="4">
+            <int name="O4" type="uint8" />
+        </optional>        
+    </message>   
+
+    <message name="Msg3" id="MsgId.M3">
+        <set name="F1" length="1">
+            <description>
+                Testing code generation of set without any bits>
+            </description>
+        </set>
+    </message>  
     
     <frame name="Frame">
         <id name="ID" field="MsgId" />

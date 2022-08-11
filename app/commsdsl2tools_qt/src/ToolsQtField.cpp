@@ -15,6 +15,7 @@
 
 #include "ToolsQtField.h"
 
+#include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -74,6 +75,12 @@ bool ToolsQtField::toolsWrite() const
     return toolsWriteHeaderInternal() && toolsWriteSrcInternal();
 }
 
+void ToolsQtField::toolsSetReferenced()
+{
+    m_referenced = true;
+    toolsSetReferencedImpl();
+}
+
 bool ToolsQtField::toolsIsPseudo() const
 {
     if (m_forcedPseudo || m_field.dslObj().isPseudo()) {
@@ -109,8 +116,11 @@ ToolsQtField::IncludesList ToolsQtField::toolsHeaderIncludes() const
 
 ToolsQtField::IncludesList ToolsQtField::toolsSrcIncludes() const
 {
+    auto& gen = static_cast<const ToolsQtGenerator&>(m_field.generator());
+
     IncludesList incs = {
-        "cc_tools_qt/property/field.h"
+        "cc_tools_qt/property/field.h",
+        ToolsQtDefaultOptions::toolsRelHeaderPath(gen),
     };
 
     if (comms::isGlobalField(m_field)) {
@@ -199,12 +209,12 @@ std::string ToolsQtField::toolsCommsScope() const
 
     assert(parent != nullptr);
 
-    auto& generator = m_field.generator();
+    auto& generator = static_cast<const ToolsQtGenerator&>(m_field.generator());
     std::string scope = comms::scopeFor(m_field, generator);
     bool globalField = comms::isGlobalField(m_field);
     do {
         if (globalField) {
-            scope += "<>";
+            scope += ToolsQtDefaultOptions::toolsTemplParam(generator);
             break;
         }
 
@@ -224,7 +234,7 @@ std::string ToolsQtField::toolsCommsScope() const
         assert(parentScope.size() <= scope.size());
         auto suffix = scope.substr(parentScope.size());
         if (parent->elemType() != commsdsl::gen::Elem::Type::Type_Interface) {
-            parentScope += "<>";
+            parentScope += ToolsQtDefaultOptions::toolsTemplParam(generator);
         }
 
         scope = parentScope + suffix;
@@ -322,10 +332,21 @@ std::string ToolsQtField::toolsDefMembersImpl() const
     return strings::emptyString();
 }
 
+void ToolsQtField::toolsSetReferencedImpl()
+{
+}
+
+void ToolsQtField::toolsUpdateFieldReferencedIfExists(ToolsQtField* field)
+{
+    if (field != nullptr) {
+        field->toolsSetReferenced();
+    }
+}
+
 bool ToolsQtField::toolsWriteHeaderInternal() const
 {
     auto& generator = m_field.generator();
-    auto filePath = m_field.generator().getOutputDir() + '/' + toolsRelDeclHeaderFile();
+    auto filePath = generator.getOutputDir() + '/' + toolsRelDeclHeaderFile();
 
     auto& logger = generator.logger();
     logger.info("Generating " + filePath);
@@ -363,7 +384,7 @@ bool ToolsQtField::toolsWriteHeaderInternal() const
         {"DECL", toolsDeclSig()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -405,7 +426,7 @@ bool ToolsQtField::toolsWriteSrcInternal() const
         {"ANONIMOUS", toolsDefAnonimousInternal()}
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -432,8 +453,8 @@ std::string ToolsQtField::toolsDeclSigInternal(bool defaultSerHidden) const
 
 std::string ToolsQtField::toolsRelPathInternal() const
 {
-    auto scope = comms::scopeFor(m_field, m_field.generator(), false);
-    return util::strReplace(scope, "::", "/");
+    auto scope = comms::scopeFor(m_field, m_field.generator());
+    return m_field.generator().getTopNamespace() + '/' + util::strReplace(scope, "::", "/");
 }
 
 std::string ToolsQtField::toolsSerHiddenParamInternal() const

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -99,6 +99,7 @@ bool FieldImpl::parse()
 
     bool result =
         checkReuse() &&
+        checkReplace() &&
         updateName() &&
         updateDisplayName() &&
         updateDescription() &&
@@ -110,12 +111,14 @@ bool FieldImpl::parse()
         updateCustomizable() &&
         updateFailOnInvalid() &&
         updateForceGen() &&
+        updateValueOverride() &&
         updateReadOverride() &&
         updateWriteOverride() &&
         updateRefreshOverride() &&
         updateLengthOverride() &&
         updateValidOverride() &&
-        updateNameOverride();
+        updateNameOverride() &&
+        updateCopyOverrideCodeFrom();
 
     if (!result) {
         return false;
@@ -245,19 +248,38 @@ bool FieldImpl::isMessageMember() const
            (getParent()->objKind() == ObjKind::Message);
 }
 
-std::string FieldImpl::externalRef() const
+std::string FieldImpl::externalRef(bool schemaRef) const
 {
     if ((getParent() == nullptr) || (getParent()->objKind() != ObjKind::Namespace)) {
         return common::emptyString();
     }
 
     auto& ns = static_cast<const NamespaceImpl&>(*getParent());
-    auto nsRef = ns.externalRef();
+    auto nsRef = ns.externalRef(schemaRef);
     if (nsRef.empty()) {
         return name();
     }
 
     return nsRef + '.' + name();
+}
+
+bool FieldImpl::isComparableToValue(const std::string& val) const
+{
+    static const SemanticType NumericSemanticTypes[] = {
+        SemanticType::Version,
+        SemanticType::Length,
+    };
+
+    auto iter = std::find(std::begin(NumericSemanticTypes), std::end(NumericSemanticTypes), semanticType());
+
+    if (iter != std::end(NumericSemanticTypes)) {
+        bool ok = false;
+        auto value = common::strToIntMax(val, &ok);
+        static_cast<void>(value);
+        return ok;        
+    }
+
+    return isComparableToValueImpl(val);
 }
 
 bool FieldImpl::isComparableToField(const FieldImpl& field) const
@@ -321,9 +343,7 @@ bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
         }
 
         logError() << XmlWrap::logPrefix(node) <<
-            "Semantic type \"" << common::lengthStr() << "\" is applicable only to \"" <<
-            common::intStr() << "\" fields, and should be used only with members of \"" <<
-            common::bundleStr() << "\" fields.";
+            "Semantic type \"" << common::lengthStr() << "\" is not applicable to this field type.";
         return false;
     }
 
@@ -403,6 +423,14 @@ bool FieldImpl::reuseImpl(const FieldImpl& other)
 bool FieldImpl::parseImpl()
 {
     return true;
+}
+
+bool FieldImpl::replaceMembersImpl(FieldsList& members)
+{
+    static_cast<void>(members);
+    logError() << XmlWrap::logPrefix(m_node) <<
+        "The field of kind \"" << kindStr() << "\" does not support replacing its members.";
+    return false;
 }
 
 bool FieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const
@@ -535,6 +563,12 @@ bool FieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
     return false;
 }
 
+const XmlWrap::NamesList& FieldImpl::supportedMemberTypesImpl() const
+{
+    static const XmlWrap::NamesList List;
+    return List;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);
@@ -590,6 +624,12 @@ bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool
         return true;
     }
 
+    if (!m_protocol.isPropertySupported(propName)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().currSchema().dslVersion();                
+        return true;
+    }
+
     bool ok = false;
     value = common::strToBool(iter->second, &ok);
     if (!ok) {
@@ -615,7 +655,7 @@ bool FieldImpl::validateAndUpdateOverrideTypePropValue(const std::string& propNa
     if (!m_protocol.isOverrideTypeSupported()) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "The property \"" << propName << "\" is not supported for dslVersion=" << 
-                m_protocol.schema().dslVersion() << ".";        
+                m_protocol.currSchema().dslVersion() << ".";        
         return true;
     }
 
@@ -654,12 +694,15 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::customizableStr(),
         common::failOnInvalidStr(),
         common::forceGenStr(),
+        common::valueOverrideStr(),
         common::readOverrideStr(),
         common::writeOverrideStr(),
         common::refreshOverrideStr(),
         common::lengthOverrideStr(),
         common::validOverrideStr(),
         common::nameOverrideStr(),
+        common::copyCodeFromStr(),
+        common::reuseCodeStr(),
     };
 
     return CommonNames;
@@ -668,7 +711,8 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
 const XmlWrap::NamesList& FieldImpl::commonChildren()
 {
     static const XmlWrap::NamesList CommonChildren = {
-        common::metaStr()
+        common::metaStr(),
+        common::replaceStr()
     };
 
     return CommonChildren;
@@ -895,7 +939,85 @@ bool FieldImpl::checkReuse()
     assert(getSinceVersion() == 0U);
     assert(getDeprecated() == Protocol::notYetDeprecated());
     assert(!isDeprecatedRemoved());
+
+    do {
+        auto& codeProp = common::reuseCodeStr();
+        if (!validateSinglePropInstance(codeProp, false)) {
+            return false;
+        }
+
+        auto codeIter = m_props.find(codeProp);
+        if (codeIter == m_props.end()) {
+            break;
+        }  
+
+        bool copyCode = false;
+        if (!validateAndUpdateBoolPropValue(codeProp, copyCode)) {
+            return false;
+        }
+
+        if (!copyCode) {
+            break;
+        }
+
+        m_state.m_copyCodeFrom = valueStr; 
+    } while (false);
     return reuseImpl(*field);
+}
+
+bool FieldImpl::checkReplace()
+{
+    auto replaceNodes = XmlWrap::getChildren(getNode(), common::replaceStr());
+    if (1U < replaceNodes.size()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Only single \"" << common::replaceStr() << "\" child element is "
+            "supported for a field.";
+        return false;
+    }
+
+    if (replaceNodes.empty()) {
+        return true;
+    }
+
+    if (!m_protocol.isMemberReplaceSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Replacing members with \"" << common::replaceStr() << "\" child element is unavaliable "
+            "for selected DSL version, ignoring...";        
+        return true;
+    }
+
+    auto memberFieldsTypes = XmlWrap::getChildren(replaceNodes.front());
+    auto cleanMemberFieldsTypes = XmlWrap::getChildren(replaceNodes.front(), supportedMemberTypesImpl());
+    if (cleanMemberFieldsTypes.size() != memberFieldsTypes.size()) {
+        logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
+            "The \"" << common::replaceStr() << "\" child node element must contain only supported member fields.";
+        return false;
+    }
+
+    FieldsList replMembers;
+    replMembers.reserve(memberFieldsTypes.size());
+    for (auto* fieldNode : memberFieldsTypes) {
+        std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
+        auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
+        if (!field) {
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
+                "Internal error, failed to create objects for member fields to replace.";
+            return false;
+        }
+
+        field->setParent(this);
+        if (!field->parse()) {
+            return false;
+        }
+
+        replMembers.push_back(std::move(field));
+    }  
+
+    assert(!replMembers.empty());
+    return replaceMembersImpl(replMembers);
 }
 
 bool FieldImpl::updateName()
@@ -1064,6 +1186,11 @@ bool FieldImpl::updateForceGen()
     return validateAndUpdateBoolPropValue(common::forceGenStr(), m_state.m_forceGen);
 }
 
+bool FieldImpl::updateValueOverride()
+{
+    return validateAndUpdateOverrideTypePropValue(common::valueOverrideStr(), m_state.m_valueOverride);
+}
+
 bool FieldImpl::updateReadOverride()
 {
     return validateAndUpdateOverrideTypePropValue(common::readOverrideStr(), m_state.m_readOverride);
@@ -1092,6 +1219,36 @@ bool FieldImpl::updateValidOverride()
 bool FieldImpl::updateNameOverride()
 {
     return validateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_state.m_nameOverride);
+}
+
+bool FieldImpl::updateCopyOverrideCodeFrom()
+{
+    auto& prop = common::copyCodeFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.currSchema().dslVersion() << ".";        
+        return true;
+    }    
+
+    auto* field = m_protocol.findField(iter->second);
+    if (field == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Field referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+        return false;        
+    }
+
+    m_state.m_copyCodeFrom = iter->second;
+    return true;
 }
 
 bool FieldImpl::updateExtraAttrs(const XmlWrap::NamesList& names)

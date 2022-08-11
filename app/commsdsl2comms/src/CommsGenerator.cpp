@@ -39,6 +39,7 @@
 #include "CommsOptionalField.h"
 #include "CommsPayloadLayer.h"
 #include "CommsRefField.h"
+#include "CommsSchema.h"
 #include "CommsSetField.h"
 #include "CommsSizeLayer.h"
 #include "CommsSyncLayer.h"
@@ -66,7 +67,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string MinCommsVersion("4.0.0");    
+const std::string MinCommsVersion("5.0.0");    
 
 const std::string& CommsGenerator::fileGeneratedComment()
 {
@@ -115,6 +116,21 @@ void CommsGenerator::setProtocolVersion(const std::string& value)
     m_protocolVersion = value;
 }
 
+bool CommsGenerator::getMainNamespaceInOptionsForced() const
+{
+    return m_mainNamespaceInOptionsForced;
+}
+
+void CommsGenerator::setMainNamespaceInOptionsForced(bool value)
+{
+    m_mainNamespaceInOptionsForced = value;
+}
+
+bool CommsGenerator::hasMainNamespaceInOptions() const
+{
+    return m_mainNamespaceInOptionsForced || (schemas().size() > 1U);
+}
+
 const std::vector<std::string>& CommsGenerator::getExtraInputBundles() const
 {
     return m_extraInputBundles;
@@ -144,6 +160,11 @@ bool CommsGenerator::prepareImpl()
     return 
         prepareDefaultInterfaceInternal() &&
         prepareExtraMessageBundlesInternal();
+}
+
+CommsGenerator::SchemaPtr CommsGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+{
+    return std::make_unique<commsdsl2comms::CommsSchema>(*this, dslObj, parent);
 }
 
 CommsGenerator::NamespacePtr CommsGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
@@ -263,14 +284,24 @@ CommsGenerator::LayerPtr CommsGenerator::createChecksumLayerImpl(commsdsl::parse
 
 bool CommsGenerator::writeImpl() 
 {
+    for (auto idx = 0U; idx < schemas().size(); ++idx) {
+        chooseCurrentSchema(idx);
+        bool result = 
+            CommsMsgId::write(*this) &&
+            CommsFieldBase::write(*this) &&
+            CommsVersion::write(*this) &&
+            CommsInputMessages::write(*this) &&
+            CommsDefaultOptions::write(*this) &&
+            CommsDispatch::write(*this);
+
+        if (!result) {
+            return false;
+        }
+    }
+
+    assert(&currentSchema() == &protocolSchema());
     return 
         CommsCmake::write(*this) &&
-        CommsMsgId::write(*this) &&
-        CommsFieldBase::write(*this) &&
-        CommsVersion::write(*this) &&
-        CommsInputMessages::write(*this) &&
-        CommsDefaultOptions::write(*this) &&
-        CommsDispatch::write(*this) &&
         CommsDoxygen::write(*this) &&
         commsWriteExtraFilesInternal();
 }
@@ -342,7 +373,6 @@ bool CommsGenerator::prepareExtraMessageBundlesInternal()
     return true;
 }
 
-
 bool CommsGenerator::commsWriteExtraFilesInternal() const
 {
     auto& inputDir = getCodeDir();
@@ -368,6 +398,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             strings::publicFileSuffixStr(),
             strings::protectedFileSuffixStr(),
             strings::privateFileSuffixStr(),
+            strings::valueFileSuffixStr(),
             strings::readFileSuffixStr(),
             strings::writeFileSuffixStr(),
             strings::lengthFileSuffixStr(),
@@ -397,9 +428,10 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
         }
 
         std::string relPath(pathStr, posTmp);
-        auto schemaNs = util::strToName(schemaName());
+        auto& protSchema = protocolSchema();
+        auto schemaNs = util::strToName(protSchema.schemaName());
         do {
-            if (mainNamespace() == schemaNs) {
+            if (protSchema.mainNamespace() == schemaNs) {
                 break;
             }
 
@@ -408,7 +440,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
                 break;
             }
 
-            auto dstPrefix = (fs::path(strings::includeDirStr()) / mainNamespace()).string();
+            auto dstPrefix = (fs::path(strings::includeDirStr()) / protSchema.mainNamespace()).string();
             relPath = dstPrefix + std::string(relPath, srcPrefix.size());
         } while (false);
 
@@ -426,7 +458,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             return false;
         }
 
-        if (mainNamespace() != schemaNs) {
+        if (protSchema.mainNamespace() != schemaNs) {
             // The namespace has changed
 
             auto destStr = destPath.string();
@@ -439,7 +471,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
             stream.close();
 
-            util::strReplace(content, "namespace " + schemaNs, "namespace " + mainNamespace());
+            util::strReplace(content, "namespace " + schemaNs, "namespace " + protSchema.mainNamespace());
             std::ofstream outStream(destStr, std::ios_base::trunc);
             if (!outStream) {
                 logger().error("Failed to modify " + destStr + ".");

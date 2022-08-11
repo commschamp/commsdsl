@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -86,6 +86,7 @@ protected:
     virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
+    virtual bool isComparableToValueImpl(const std::string& val) const override;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override;
 
 private:

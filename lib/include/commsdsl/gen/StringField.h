@@ -43,10 +43,10 @@ public:
     Field* memberPrefixField();
     const Field* memberPrefixField() const;
 
+    commsdsl::parse::StringField stringDslObj() const;
+
 protected:    
     virtual bool prepareImpl() override;
-
-    commsdsl::parse::StringField stringDslObj() const;
 
 private:
     std::unique_ptr<StringFieldImpl> m_impl;

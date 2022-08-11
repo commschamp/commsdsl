@@ -28,6 +28,15 @@
                 <int name="ElemLength" type="uint8"/>
             </elemLengthPrefix>
         </list>
+
+        <list name="L4">
+            <element>
+                <string name="Element" zeroTermSuffix="true" />
+            </element>
+            <termSuffix>
+                <int name="TermSuffix" type="uint8" />
+            </termSuffix>
+        </list>
     </fields>
     
     <interface name="Message">
@@ -40,6 +49,10 @@
         <ref name="f3" field="L3" />
         <list name="f4" reuse="L3" elemLengthPrefix="DataCount" elemFixedLength="true" sinceVersion="2" />
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <ref name="f1" field="L4" />
+    </message>    
     
     <frame name="Frame">
         <id name="ID" field="MsgId" />

@@ -1,12 +1,15 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test16/Message.h"
-#include "test16/message/Msg1.h"
+#include "test16/frame/Frame.h"
+
+#include "comms/iterator.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     using Interface =
         test16::Message<
@@ -20,9 +23,45 @@ public:
         >;
 
     using Msg1 = test16::message::Msg1<Interface>;
+    using Msg2 = test16::message::Msg2<Interface>;
+
+    using Frame = test16::frame::Frame<Interface>;
 };
 
 void TestSuite::test1()
 {
     Msg1 msg;
+}
+
+void TestSuite::test2()
+{
+    static const std::uint8_t Buf[] = {
+        2, // id
+        'h', 'e', 'l', 'l', 'o', '\0',
+        'b', 'l', 'a', '\0',
+        '\0' // end of list
+    };
+
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Frame frame;
+    Frame::MsgPtr msgPtr;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    auto es = frame.read(msgPtr, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test16::MsgId_M2);
+    auto* msg2 = dynamic_cast<Msg2*>(msgPtr.get());
+    TS_ASSERT(msg2 != nullptr);
+    auto& f1 = msg2->field_f1();
+    TS_ASSERT_EQUALS(f1.value().size(), 2U);
+    TS_ASSERT_EQUALS(f1.value()[0].value(), std::string("hello"));
+    TS_ASSERT_EQUALS(f1.value()[1].value(), std::string("bla"));
+
+
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(BufSize);
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    es = frame.write(*msgPtr, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(std::equal(outBuf.begin(), outBuf.end(), std::begin(Buf)));
 }

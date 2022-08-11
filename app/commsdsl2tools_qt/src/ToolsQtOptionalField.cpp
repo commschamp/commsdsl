@@ -46,15 +46,18 @@ bool ToolsQtOptionalField::prepareImpl()
 
     m_toolsMemberField = dynamic_cast<ToolsQtField*>(memberField());
     m_toolsExternalField = dynamic_cast<ToolsQtField*>(externalField());
-    if (m_toolsExternalField != nullptr) {
-        m_toolsExternalField->toolsSetReferenced();
-    }
     return true;
 }
 
 bool ToolsQtOptionalField::writeImpl() const
 {
     return toolsWrite();
+}
+
+void ToolsQtOptionalField::toolsSetReferencedImpl()
+{
+    toolsUpdateFieldReferencedIfExists(m_toolsMemberField);
+    toolsUpdateFieldReferencedIfExists(m_toolsExternalField);
 }
 
 ToolsQtOptionalField::IncludesList ToolsQtOptionalField::toolsExtraSrcIncludesImpl() const

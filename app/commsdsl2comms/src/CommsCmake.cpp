@@ -115,7 +115,7 @@ bool CommsCmake::commsWriteInternal() const
         "    NAMESPACE ${OPT_CMAKE_EXPORT_NAMESPACE}::\n"
         ")\n\n"
         "install (\n"
-        "    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/#^#NAME#$#\n"
+        "    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/\n"
         "    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}\n"
         ")\n\n"
         "file (READ \"${PROJECT_SOURCE_DIR}/include/#^#NAME#$#/Version.h\" version_file)\n"
@@ -142,8 +142,8 @@ bool CommsCmake::commsWriteInternal() const
     ;
     
     util::ReplacementMap repl = {
-        {"NAME", m_generator.mainNamespace()},
-        {"CAP_NAME", util::strToUpper(m_generator.mainNamespace())},
+        {"NAME", m_generator.currentSchema().mainNamespace()},
+        {"CAP_NAME", util::strToUpper(m_generator.currentSchema().mainNamespace())},
     };
 
     stream << util::processTemplate(Templ, repl);

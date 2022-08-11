@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -163,6 +163,31 @@ bool BundleFieldImpl::parseImpl()
         updateAliases();
 }
 
+bool BundleFieldImpl::replaceMembersImpl(FieldsList& members)
+{
+    for (auto& mem : members) {
+        assert(mem);
+        auto iter = 
+            std::find_if(
+                m_members.begin(), m_members.end(),
+                [&mem](auto& currMem)
+                {
+                    assert(currMem);
+                    return mem->name() == currMem->name();
+                });
+
+        if (iter == m_members.end()) {
+            logError() << XmlWrap::logPrefix(mem->getNode()) <<
+                "Cannot find reused member with name \"" << mem->name() << "\" to replace.";
+            return false;
+        }
+
+        (*iter) = std::move(mem);
+    }
+
+    return true;
+}
+
 std::size_t BundleFieldImpl::minLengthImpl() const
 {
     return
@@ -213,6 +238,18 @@ bool BundleFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uin
     return strToDataOnFields(ref, m_members, val);
 }
 
+bool BundleFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+{
+    static_cast<void>(node);
+    if ((type == SemanticType::Length) &&
+        (protocol().isSemanticTypeLengthSupported()) && 
+        (protocol().isNonIntSemanticTypeLengthSupported())) {
+        return true;
+    }
+
+    return false;
+}
+
 bool BundleFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
 {
     auto dotPos = fieldName.find('.');
@@ -235,6 +272,11 @@ bool BundleFieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) cons
 
     std::string restFieldName(fieldName, dotPos + 1);
     return (*iter)->verifyAliasedMember(restFieldName);
+}
+
+const XmlWrap::NamesList& BundleFieldImpl::supportedMemberTypesImpl() const
+{
+    return bundleSupportedTypes();
 }
 
 bool BundleFieldImpl::updateMembers()

@@ -7,6 +7,7 @@
         <enum name="MsgId" type="uint8">
             <validValue name="Msg1" val="0" />
             <validValue name="Msg2" val="1" />
+            <validValue name="Msg3" val="2" />
         </enum>
     </fields>
     <messages>
@@ -14,10 +15,26 @@
             <int name="field1" type="uint32" />
             <int name="field2" type="uint32" sinceVersion="1" deprecated="2" removed="true" />
         </message>
+
         <message name="Msg2" id="MsgId.Msg2" sinceVersion="2" copyFieldsFrom="Msg1">
             <fields>
                 <int name="field3" type="uint16" />
             </fields>
-        </message>    
+        </message>  
+
+        <message name="Msg3" id="MsgId.Msg3" sinceVersion="2" copyFieldsFrom="Msg2" copyCodeFrom="Msg2">
+            <replace>
+                <enum name="field3" type="uint8">
+                    <validValue name="V0" val="0" />
+                    <validValue name="V1" val="1" />
+                </enum>
+            </replace>
+            <fields>
+                <set name="field4" type="uint8">
+                    <bit name="B0" idx="0" />
+                </set>
+            </fields>
+        </message>              
+
     </messages>
 </schema>

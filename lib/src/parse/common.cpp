@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -752,6 +752,12 @@ const std::string& availableLengthLimitStr()
     return Str; 
 }
 
+const std::string& valueOverrideStr()
+{
+    static const std::string Str("valueOverride");
+    return Str; 
+}
+
 const std::string& readOverrideStr()
 {
     static const std::string Str("readOverride");
@@ -786,6 +792,75 @@ const std::string& nameOverrideStr()
 {
     static const std::string Str("nameOverride");
     return Str; 
+}
+
+const std::string& replaceStr()
+{
+    static const std::string Str("replace");
+    return Str; 
+}
+
+const std::string& copyCodeFromStr()
+{
+    static const std::string Str("copyCodeFrom");
+    return Str; 
+}
+
+const std::string& semanticLayerTypeStr()
+{
+    static const std::string Str("semanticLayerType");
+    return Str; 
+}
+
+const std::string& checksumFromStr()
+{
+    static const std::string Str("checksumFrom");
+    return Str; 
+}
+
+const std::string& checksumUntilStr()
+{
+    static const std::string Str("checksumUntil");
+    return Str; 
+}
+
+const std::string& termSuffixStr()
+{
+    static const std::string Str("termSuffix");
+    return Str;     
+}
+
+const std::string& missingOnReadFailStr()
+{
+    static const std::string Str("missingOnReadFail");
+    return Str; 
+}
+
+const std::string& missingOnInvalidStr()
+{
+    static const std::string Str("missingOnInvalid");
+    return Str; 
+}
+
+const std::string& reuseCodeStr()
+{
+    static const std::string Str("reuseCode");
+    return Str;    
+}
+
+char siblingRefPrefix()
+{
+    return '$';
+}
+
+char stringRefPrefix()
+{
+    return '^';
+}
+
+char schemaRefPrefix()
+{
+    return '@';
 }
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
@@ -1319,9 +1394,15 @@ bool isValidName(const std::string& value)
 
 bool isValidRefName(const char* buf, std::size_t len)
 {
+    if ((0U < len) && (buf[0] == schemaRefPrefix())) {
+        // Allow first character to be interschema ref
+        ++buf;
+        --len;
+    } 
+
     if (len == 0U) {
         return false;
-    }
+    }       
 
     if ((std::isalpha(buf[0]) == 0) && (buf[0] != '_')) {
         return false;
@@ -1368,7 +1449,7 @@ bool isValidExternalRefName(const std::string& value)
         return false;
     }
 
-    if (value[0] != '^') {
+    if (value[0] != stringRefPrefix()) {
         return false;
     }
 

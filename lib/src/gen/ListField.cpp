@@ -140,7 +140,35 @@ public:
                 return false;
             }                                
 
-        } while (false);                   
+        } while (false);   
+
+        do {
+            if (!m_dslObj.hasTermSuffixField()) {
+                break;
+            }
+
+            assert(!m_memberCountPrefixField);
+            assert(!m_memberLengthPrefixField);
+            assert(!m_dslObj.hasCountPrefixField());
+            assert(!m_dslObj.hasLengthPrefixField());
+            auto suffix = m_dslObj.termSuffixField();
+            if (!suffix.externalRef().empty()) {
+                m_externalTermSuffixField = m_generator.findField(suffix.externalRef());
+                assert(m_externalTermSuffixField != nullptr);
+                break;
+            }
+
+            m_memberTermSuffixField = Field::create(m_generator, suffix, m_parent);
+            if (!m_memberTermSuffixField->prepare()) {
+                return false;
+            }
+
+            if ((m_memberElementField) &&
+                (comms::className(m_memberElementField->name()) == comms::className(m_memberTermSuffixField->name()))) {
+                m_generator.logger().error("Termination suffix and element fields of \"" + m_dslObj.name() + "\" list must have different names.");
+                return false;
+            }            
+        } while (false);                          
 
         return true;
     }
@@ -223,7 +251,27 @@ public:
     const Field* memberElemLengthPrefixField() const
     {
         return m_memberElemLengthPrefixField.get();
+    }     
+
+    Field* externalTermSuffixField()
+    {
+        return m_externalTermSuffixField;
+    }
+
+    const Field* externalTermSuffixField() const
+    {
+        return m_externalTermSuffixField;
     }             
+
+    Field* memberTermSuffixField()
+    {
+        return m_memberTermSuffixField.get();
+    }
+
+    const Field* memberTermSuffixField() const
+    {
+        return m_memberTermSuffixField.get();
+    }   
 
 private:
     Generator& m_generator;
@@ -237,6 +285,8 @@ private:
     FieldPtr m_memberLengthPrefixField;   
     Field* m_externalElemLengthPrefixField = nullptr;
     FieldPtr m_memberElemLengthPrefixField;        
+    Field* m_externalTermSuffixField = nullptr;
+    FieldPtr m_memberTermSuffixField = nullptr;
 };    
 
 ListField::ListField(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent) :
@@ -326,6 +376,26 @@ Field* ListField::memberElemLengthPrefixField()
 const Field* ListField::memberElemLengthPrefixField() const
 {
     return m_impl->memberElemLengthPrefixField();
+}
+
+Field* ListField::externalTermSuffixField()
+{
+    return m_impl->externalTermSuffixField();
+}
+
+const Field* ListField::externalTermSuffixField() const
+{
+    return m_impl->externalTermSuffixField();
+}
+
+Field* ListField::memberTermSuffixField()
+{
+    return m_impl->memberTermSuffixField();
+}
+
+const Field* ListField::memberTermSuffixField() const
+{
+    return m_impl->memberTermSuffixField();
 }
 
 bool ListField::prepareImpl()

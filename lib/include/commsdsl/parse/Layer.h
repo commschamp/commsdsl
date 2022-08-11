@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@
 #include <string>
 
 #include "commsdsl/CommsdslApi.h"
-#include "Schema.h"
 #include "Field.h"
 #include "Interface.h"
 
@@ -33,8 +32,8 @@ class COMMSDSL_API Layer
 {
 public:
 
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = Field::AttributesMap;
+    using ElementsList = Field::ElementsList;
 
     enum class Kind
     {
@@ -74,7 +73,9 @@ public:
     explicit CustomLayer(const CustomLayerImpl* impl);
     explicit CustomLayer(Layer layer);
 
-    bool isIdReplacement() const;
+    Kind semanticLayerType() const;
+    const std::string& checksumFromLayer() const;
+    const std::string& checksumUntilLayer() const;
 };
 
 class PayloadLayerImpl;

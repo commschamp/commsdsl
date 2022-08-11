@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test22"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test22" endian="big" version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
+
+        <string name="Str" defaultValue="hello" />
     </fields>
     
     <message name="Msg1" id="MsgId.M1">
@@ -25,6 +25,13 @@
             <int name="longField" type="uint16" />
         </optional>
     </message>    
+
+    <message name="Msg3" id="MsgId.M3">
+        <string name="F1" length="8" />
+        <optional name="F2" defaultMode="missing" cond="$F1 = ^Str">
+            <int name="ActF2" type="uint16" />
+        </optional>
+    </message>     
     
     <frame name="Frame">
         <id name="ID" field="MsgId" />

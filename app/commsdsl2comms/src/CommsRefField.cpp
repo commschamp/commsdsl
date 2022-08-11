@@ -42,13 +42,27 @@ CommsRefField::CommsRefField(
 bool CommsRefField::prepareImpl()
 {
     bool result = Base::prepareImpl() && commsPrepare();
-    if (result) {
-        auto* refField = referencedField();
-        m_commsReferencedField = dynamic_cast<CommsField*>(refField);
-        assert(m_commsReferencedField != nullptr);
-        m_commsReferencedField->commsSetReferenced();
+    if (!result) {
+        return false;
     }
-    return result;
+
+    auto* refField = referencedField();
+    m_commsReferencedField = dynamic_cast<CommsField*>(refField);
+    assert(m_commsReferencedField != nullptr);
+
+    if ((refDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
+        (refField->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) &&
+        (!commsHasCustomValue()) && 
+        (!m_commsReferencedField->commsHasCustomValue())) {
+        generator().logger().warning(
+            "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
+            "retrieval functionality is not provided. Please create relevant code injection functionality with \"" + 
+            strings::valueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
+            "expected to be defined: getValue(), setValue(), and maxValue()."
+        );
+    }     
+
+    return true;
 }
 
 bool CommsRefField::writeImpl() const
@@ -116,10 +130,10 @@ std::string CommsRefField::commsDefBaseClassImpl() const
 
     assert(m_commsReferencedField != nullptr);
 
-    std::string templOpt;
-    if (!comms::isInterfaceDeepMemberField(*this)) {
-        templOpt = "TOpt";
-    }
+    // std::string templOpt;
+    // if (!comms::isInterfaceDeepMemberField(*this)) {
+    //     templOpt = "TOpt";
+    // }
     
     util::ReplacementMap repl = {
         {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator())},
@@ -127,26 +141,6 @@ std::string CommsRefField::commsDefBaseClassImpl() const
     };
 
     return util::processTemplate(Templ, repl);
-}
-
-std::string CommsRefField::commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(dslObj().name());
-    }    
-    assert(m_commsReferencedField != nullptr);
-    return m_commsReferencedField->commsCompareToValueCode(op, value, usedName, forcedVersionOptional || commsIsVersionOptional());
-}
-
-std::string CommsRefField::commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(dslObj().name());
-    }        
-    assert(m_commsReferencedField != nullptr);
-    return m_commsReferencedField->commsCompareToFieldCode(op, field, usedName, forcedVersionOptional || commsIsVersionOptional());
 }
 
 bool CommsRefField::commsDefHasNameFuncImpl() const
@@ -169,6 +163,36 @@ std::size_t CommsRefField::commsMaxLengthImpl() const
 {
     assert(m_commsReferencedField != nullptr);
     return m_commsReferencedField->commsMaxLength();
+}
+
+std::string CommsRefField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsValueAccessStr(accStr, prefix);
+}
+
+void CommsRefField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsCompOptChecks(accStr, checks, prefix);
+}
+
+std::string CommsRefField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsCompValueCastType(accStr, prefix);
+}
+
+std::string CommsRefField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsCompPrepValueStr(accStr, value);
+}
+
+void CommsRefField::commsSetReferencedImpl()
+{
+    assert(m_commsReferencedField != nullptr);
+    m_commsReferencedField->commsSetReferenced();
 }
 
 std::string CommsRefField::commsDefFieldOptsInternal() const

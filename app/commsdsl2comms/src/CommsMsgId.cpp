@@ -17,6 +17,7 @@
 
 #include "CommsGenerator.h"
 #include "CommsEnumField.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -44,16 +45,27 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 
 bool CommsMsgId::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage()) && (!thisSchema.commsHasReferencedMsgId())) {
+        return true;
+    }
+
     CommsMsgId obj(generator);
     return obj.commsWriteInternal();
 }
 
 bool CommsMsgId::commsWriteInternal() const
 {
-    static_cast<void>(m_generator);
     auto filePath = comms::headerPathRoot(strings::msgIdEnumNameStr(), m_generator);
 
     m_generator.logger().info("Generating " + filePath);
+
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!m_generator.createDirectory(dirPath)) {
+        return false;
+    }
+
     std::ofstream stream(filePath);
     if (!stream) {
         m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
@@ -79,12 +91,12 @@ bool CommsMsgId::commsWriteInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"TYPE", commsTypeInternal()},
         {"IDS", commsIdsInternal()}
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     if (!stream.good()) {
         m_generator.logger().error("Failed to write \"" + filePath + "\".");
@@ -96,7 +108,7 @@ bool CommsMsgId::commsWriteInternal() const
 
 std::string CommsMsgId::commsTypeInternal() const
 {
-    auto* msgIdField = m_generator.getMessageIdField();
+    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
     if (msgIdField != nullptr) {
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
@@ -105,7 +117,6 @@ std::string CommsMsgId::commsTypeInternal() const
     }
 
     auto allMessages = m_generator.getAllMessages();
-    assert(!allMessages.empty());
     auto iter = 
         std::max_element(
             allMessages.begin(), allMessages.end(),
@@ -114,18 +125,27 @@ std::string CommsMsgId::commsTypeInternal() const
                 return first->dslObj().id() < second->dslObj().id();
             });
 
-    auto maxId = (*iter)->dslObj().id();
-    bool fitsUnsigned = maxId <= std::numeric_limits<unsigned>::max();
-    if (fitsUnsigned) {
-        return "unsigned";
-    }
+    std::string result = "unsigned";
+    do {
+        if (iter == allMessages.end()) {
+            break;
+        }
 
-    return "unsigned long long";
+        auto maxId = (*iter)->dslObj().id();
+        bool fitsUnsigned = maxId <= std::numeric_limits<unsigned>::max();
+        if (fitsUnsigned) {
+            break;
+        }
+
+        result = "unsigned long long";
+    } while (false);
+
+    return result;
 }
 
 std::string CommsMsgId::commsIdsInternal() const
 {
-    auto* msgIdField = m_generator.getMessageIdField();
+    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
     auto& prefix = strings::msgIdPrefixStr();
     if (msgIdField != nullptr) {
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);

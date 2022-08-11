@@ -79,8 +79,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
 {
     static_cast<void>(m_generator);
     auto filePath = 
-        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsProtClassNameInternal() + strings::cppHeaderSuffixStr();
+        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsProtClassNameInternal()) + strings::cppHeaderSuffixStr();
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -136,7 +135,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
     };   
 
@@ -148,7 +147,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         repl["VERSION_API"] = std::move(verApi);
     }         
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -163,8 +162,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
 {
     static_cast<void>(m_generator);
     auto filePath = 
-        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsProtClassNameInternal() + strings::cppSourceSuffixStr();
+        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsProtClassNameInternal()) + strings::cppSourceSuffixStr();
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -276,7 +274,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
         {"FRAME_HEADER", frameHeader},
         {"TRANSPORT_MESSAGE_HEADER", transportMsgHeader},
@@ -350,7 +348,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         util::ReplacementMap replVerImplPub;
 
         util::ReplacementMap replVerImplPrivate = {
-            {"DEFAULT_VERSION", util::numToString(m_generator.schemaVersion())},
+            {"DEFAULT_VERSION", util::numToString(m_generator.currentSchema().schemaVersion())},
             {"INTERFACE_TYPE", m_generator.getTopNamespace() + "::" + comms::scopeFor(*m_interfacePtr, m_generator)}
         };
 
@@ -418,7 +416,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         repl["VERSION_API"] = util::processTemplate(VerApiTempl, repl);
     }
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -433,8 +431,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
 {
     static_cast<void>(m_generator);
     auto filePath = 
-        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsPluginClassNameInternal() + strings::cppHeaderSuffixStr();
+        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + strings::cppHeaderSuffixStr();
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -477,17 +474,17 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"ID", toolsAdjustedNameInternal()},
     };        
 
     if (toolsHasConfigWidgetInternal()) {
-        auto verStr = "int m_version = " + util::numToString(m_generator.schemaVersion()) + ";";
+        auto verStr = "int m_version = " + util::numToString(m_generator.currentSchema().schemaVersion()) + ";";
         repl["VERSION_STORAGE"] = std::move(verStr);
     }
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -502,8 +499,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
 {
     static_cast<void>(m_generator);
     auto filePath = 
-        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsPluginClassNameInternal() + strings::cppSourceSuffixStr();
+        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + strings::cppSourceSuffixStr();
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -545,7 +541,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"PROTOCOL_CLASS_NAME", toolsProtClassNameInternal()},
     };        
@@ -574,7 +570,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         repl["CONFIG_WIDGET_FUNC"] = util::processTemplate(WidgetTempl, widgetRepl);
     }
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -589,8 +585,7 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
 {
     static_cast<void>(m_generator);
     auto filePath = 
-        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsPluginClassNameInternal() + ".json";
+        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + ".json";
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -621,7 +616,7 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         {"DESC", std::move(desc)},
     };        
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -636,8 +631,8 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
 {
     static_cast<void>(m_generator);
     auto filePath = 
-        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        comms::className(util::strToName(toolsAdjustedNameInternal())) + ".cfg";
+        m_generator.getOutputDir() + '/' + 
+        toolsRelFilePath(comms::className(util::strToName(toolsAdjustedNameInternal()))) + ".cfg";
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -659,7 +654,7 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
         {"ID", toolsAdjustedNameInternal()},
     };        
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -678,8 +673,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
 
     static_cast<void>(m_generator);
     auto filePath = 
-        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsConfigWidgetClassNameInternal() + strings::cppHeaderSuffixStr();
+        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppHeaderSuffixStr();
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -724,11 +718,11 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
     };        
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -747,8 +741,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
 
     static_cast<void>(m_generator);
     auto filePath = 
-        m_generator.getOutputDir() + '/' + strings::pluginNamespaceStr() + '/' + 
-        toolsConfigWidgetClassNameInternal() + strings::cppSourceSuffixStr();
+        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppSourceSuffixStr();
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -806,11 +799,11 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.mainNamespace()},
+        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
     };        
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl);
+    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {
@@ -825,7 +818,7 @@ const std::string& ToolsQtPlugin::toolsAdjustedNameInternal() const
 {
     auto* nameToUse = &m_name;
     if (nameToUse->empty()) {
-        nameToUse = &m_generator.schemaName();
+        nameToUse = &m_generator.currentSchema().schemaName();
     }
     return *nameToUse;
 }
@@ -849,6 +842,13 @@ bool ToolsQtPlugin::toolsHasConfigWidgetInternal() const
 {
     assert(m_interfacePtr != nullptr);
     return (m_interfacePtr->hasVersionField());
+}
+
+std::string ToolsQtPlugin::toolsRelFilePath(const std::string& name) const
+{
+    return 
+        m_generator.getTopNamespace() + '/' + m_generator.protocolSchema().mainNamespace() + '/' + 
+        strings::pluginNamespaceStr() + '/' + name;
 }
 
 } // namespace commsdsl2tools_qt

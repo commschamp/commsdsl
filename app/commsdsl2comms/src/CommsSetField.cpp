@@ -106,7 +106,7 @@ std::string CommsSetField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = setDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
     };
@@ -134,7 +134,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
     auto& gen = generator();
 
     bool validCheckVersion =
-        gen.versionDependentCode() &&
+        gen.schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {
@@ -201,19 +201,19 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
 
             static const std::string VersionBothCondTempl =
                 "if (((Base::getVersion() < #^#FROM_VERSION#$#) || (#^#UNTIL_VERSION#$# <= Base::getVersion())) && \n"
-                "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+                "    ((Base::getValue() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
                 "    return false;\n"
                 "}\n";
 
             static const std::string VersionFromCondTempl =
                 "if ((Base::getVersion() < #^#FROM_VERSION#$#) &&\n"
-                "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+                "    ((Base::getValue() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
                 "    return false;\n"
                 "}\n";
 
             static const std::string VersionUntilCondTempl =
                 "if ((#^#UNTIL_VERSION#$# <= Base::getVersion()) &&\n"
-                "    ((Base::value() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
+                "    ((Base::getValue() & #^#BITS_MASK#$#) != #^#VALUE_MASK#$#)) {\n"
                 "    return false;\n"
                 "}\n";
 
@@ -321,7 +321,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
         }
 
         static const std::string Templ =
-            "if ((Base::value() & #^#RESERVED_MASK#$#) != #^#RESERVED_VALUE#$#) {\n"
+            "if ((Base::getValue() & #^#RESERVED_MASK#$#) != #^#RESERVED_VALUE#$#) {\n"
             "    #^#CONDITIONS#$#\n"
             "}\n";
 
@@ -364,46 +364,30 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsSetField::commsCompareToValueCodeImpl(
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+std::size_t CommsSetField::commsMinLengthImpl() const
 {
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(dslObj().name());
+    if (setDslObj().availableLengthLimit()) {
+        return 1U;
     }
 
-    auto obj = setDslObj();
-    auto& bits = obj.bits();
-    auto iter = bits.find(value);
-    if (iter == bits.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
-        assert(Should_not_happen);
-        return strings::emptyString();
-    }
-
-    assert(op.empty() || (op == "!"));
-    bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
-    if (!versionOptional) {
-        return op + "field_" + usedName + "().getBitValue_" + value + "()";
-    }
-
-    return
-        "(field_" + usedName + "().doesExist()) &&\n"
-        "(" + op + "field_" + usedName + "().field().getBitValue_" + value + "())";
+    return CommsBase::commsMinLengthImpl();
 }
 
-std::string CommsSetField::commsCompareToFieldCodeImpl(
-    const std::string& op, 
-    const CommsField& field, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
 {
-    assert(false); // Should not be called
-    return CommsBase::commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);  
+    if (accStr.empty()) {
+        return CommsBase::commsValueAccessStrImpl(accStr, prefix);
+    }
+
+    auto& bits = setDslObj().bits();
+    auto iter = bits.find(accStr);
+    if (iter == bits.end()) {
+        generator().logger().error("Failed to find bit reference " + accStr + " for field " + comms::scopeFor(*this, generator()));
+        assert(false);
+        return strings::unexpectedValueStr();
+    }
+
+    return prefix + "getBitValue_" + accStr + "()";
 }
 
 std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
@@ -447,7 +431,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         auto bitIter = bits.find(b.second);
         assert(bitIter != bits.end());
         if ((!obj.isNonUniqueAllowed()) || 
-            (generator().schemaVersion() < bitIter->second.m_deprecatedSince) ||
+            (generator().schemaOf(*this).schemaVersion() < bitIter->second.m_deprecatedSince) ||
             (obj.isUnique())) {
             addElementNameFunc(*bitIter);
             continue;
@@ -458,7 +442,7 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         for (auto iter = allRevBits.first; iter != allRevBits.second; ++iter) {
             auto bIter = bits.find(iter->second);
             assert(bIter != bits.end());
-            if (generator().schemaVersion() < bIter->second.m_deprecatedSince) {
+            if (generator().schemaOf(*this).schemaVersion() < bIter->second.m_deprecatedSince) {
                 addElementNameFunc(*bIter);
                 foundNotDeprecated = true;
                 break;
@@ -472,23 +456,42 @@ std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
         addElementNameFunc(*bitIter);
     }
 
+    std::string body;
+    do {
+        if (names.empty()) {
+            body = 
+                "static_cast<void>(idx);\n"
+                "return nullptr;";
+            break;
+        }
+
+        static const std::string BodyTempl =
+            "static const char* Map[] = {\n"
+            "    #^#NAMES#$#\n"
+            "};\n\n"
+            "static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n"
+            "if (MapSize <= idx) {\n"
+            "    return nullptr;\n"
+            "}\n\n"
+            "return Map[idx];";
+
+        util::ReplacementMap bodyRepl = {
+            {"NAMES", util::strListToString(names, ",\n", "")},
+        };
+
+        body = util::processTemplate(BodyTempl, bodyRepl);
+    } while (false);
+
     static const std::string Templ =
         "/// @brief Retrieve name of the bit of\n"
         "///     @ref #^#SCOPE#$# field.\n"
         "static const char* bitName(std::size_t idx)\n"
         "{\n"
-        "    static const char* Map[] = {\n"
-        "        #^#NAMES#$#\n"
-        "    };\n\n"
-        "    static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n"
-        "    if (MapSize <= idx) {\n"
-        "        return nullptr;\n"
-        "    }\n\n"
-        "    return Map[idx];\n"
+        "    #^#BODY#$#\n"
         "}\n";
 
     util::ReplacementMap repl = {
-        {"NAMES", util::strListToString(names, ",\n", "")},
+        {"BODY", std::move(body)},
         {"SCOPE", comms::scopeFor(*this, generator())}
     };
     return util::processTemplate(Templ, repl);
@@ -502,6 +505,7 @@ std::string CommsSetField::commsDefFieldOptsInternal() const
     commsAddLengthOptInternal(opts);
     commsAddDefaultValueOptInternal(opts);
     commsAddReservedBitsOptInternal(opts);
+    commsAddAvailableLengthLimitOptInternal(opts);
 
     return util::strListToString(opts, ",\n", "");
 }
@@ -509,11 +513,12 @@ std::string CommsSetField::commsDefFieldOptsInternal() const
 std::string CommsSetField::commsDefBitsAccessCodeInternal() const
 {
     auto obj = setDslObj();
+    auto& bits = obj.bits();
+
     std::uintmax_t usedBits = 0U;
     util::StringsList names;
 
     std::map<std::string, unsigned> deprecatedBits;
-    auto bits = obj.bits();
     for (auto& bitInfo : obj.revBits()) {
         auto idx = bitInfo.first;
         if (MaxBits <= idx) {
@@ -741,7 +746,7 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::Strings
     auto& gen = generator();
 
     bool validCheckVersion =
-        gen.versionDependentCode() &&
+        gen.schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     std::uintmax_t reservedMask = ~static_cast<std::uintmax_t>(0U);
@@ -819,6 +824,13 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::Strings
         util::numToString(reservedValue, true) +
         '>';
     opts.push_back(std::move(str));
+}
+
+void CommsSetField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) const
+{
+    if (setDslObj().availableLengthLimit()) {
+        util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
+    }
 }
 
 } // namespace commsdsl2comms

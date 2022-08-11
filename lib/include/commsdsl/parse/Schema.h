@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -20,7 +20,8 @@
 #include <vector>
 
 #include "commsdsl/CommsdslApi.h"
-#include "Endian.h"
+#include "commsdsl/parse/Endian.h"
+#include "commsdsl/parse/Namespace.h"
 
 namespace commsdsl
 {
@@ -34,6 +35,9 @@ class COMMSDSL_API Schema
 public:
     using AttributesMap = std::multimap<std::string, std::string>;
     using ElementsList = std::vector<std::string>;
+    using NamespacesList = std::vector<Namespace>;
+    using MessagesList = Namespace::MessagesList;
+    using PlatformsList = Message::PlatformsList;
 
     explicit Schema(const SchemaImpl* impl);
 
@@ -56,6 +60,14 @@ public:
     const AttributesMap& extraAttributes() const;
 
     const ElementsList& extraElements() const;
+
+    NamespacesList namespaces() const;
+
+    const PlatformsList& platforms() const;
+
+    MessagesList allMessages() const;
+
+    std::string externalRef() const;
 
 private:
     const SchemaImpl* m_pImpl;

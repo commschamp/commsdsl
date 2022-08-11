@@ -15,13 +15,10 @@ option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Wind
 
 # Additional variables to be used if needed
 # ---------------------------
-# COMMSDSL_QT_DIR - Path to Qt5 installation directory, needed to build generated testing projects.
-# COMMS_INSTALL_DIR - Path to externally built and installed COMMS library project
 # COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
+# COMMSDSL_TESTS_C_COMPILER - C compiler to build unittests
+# COMMSDSL_TESTS_CXX_COMPILER - C++ compiler to build unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
-# COMMS_TAG - Tag/branch of COMMS library project to use instead of default
-# CC_COMMS_REPO - Repository of COMMS library project, if not specified default github CommsChampion Ecosystem repo is going to be used.
-# CC_TOOLS_QT_TAG = Tag/branch of the cc_tools_qt project to use instead of default.
 
 # Deprecated options for backward compatibility, use the ones above for new builds.
 # ---------------------------
@@ -34,6 +31,7 @@ option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Wind
 set (CMAKE_SCIPTS_DIR "${PROJECT_SOURCE_DIR}/cmake")
 include (${CMAKE_SCIPTS_DIR}/CommsdslFuncs.cmake)
 include (${CMAKE_SCIPTS_DIR}/CommsdslCompile.cmake)
+
 ################################################
 
 # Check usage of deprecated options and ovewrite the default values of proper ones
@@ -51,13 +49,13 @@ if (NOT COMMSDSL_TESTS_CXX_STANDARD)
     set (COMMSDSL_TESTS_CXX_STANDARD 11)
 endif ()
 
-if ("${COMMS_TAG}" STREQUAL "")
-    set (COMMS_TAG "v4.0")
-endif()
+if (NOT COMMSDSL_TESTS_C_COMPILER)
+    set (COMMSDSL_TESTS_C_COMPILER ${CMAKE_C_COMPILER})
+endif ()
 
-if ("${CC_TOOLS_QT_TAG}" STREQUAL "")
-    set (CC_TOOLS_QT_TAG "v4.0")
-endif()
+if (NOT COMMSDSL_TESTS_CXX_COMPILER)
+    set (COMMSDSL_TESTS_CXX_COMPILER ${CMAKE_CXX_COMPILER})
+endif ()
 
 if (NOT COMMSDSL_EXTERNALS_DIR)
     set (COMMSDSL_EXTERNALS_DIR "${PROJECT_SOURCE_DIR}/externals")
@@ -76,32 +74,16 @@ endif ()
 
 commsdsl_compile(${warn_opt} ${ccache_opt})
 commsdsl_msvc_force_warn_opt("/W4")
+set (COMMSDSL_FOUND_COMMS_INTERNAL OFF CACHE INTERNAL "Mark COMMS library found" FORCE)
+function (commsdsl_mark_comms_found)
+    set (COMMSDSL_FOUND_COMMS_INTERNAL ON CACHE INTERNAL "Mark COMMS library found" FORCE)
+endfunction ()
 
 ################################################
 
 if (COMMSDSL_BUILD_UNIT_TESTS)
-    while (TRUE)
-        if (NOT "${COMMS_INSTALL_DIR}" STREQUAL "")
-            set (CC_CMAKE_DIR ${COMMS_INSTALL_DIR}/lib/LibComms/cmake)
-            break()
-        endif ()
-
-        find_package(LibComms QUIET)
-        if (TARGET cc::comms)
-            if ("${LibComms_DIR}" STREQUAL "")
-                message (FATAL_ERROR "The comms library found but the directory is not known")
-            endif ()
-
-            set (CC_CMAKE_DIR ${LibComms_DIR})
-            break()
-        endif ()
-
-        commsdsl_ensure_comms_target ()
-        set (CC_CMAKE_DIR ${LibComms_DIR})
-        break ()
-    endwhile ()
-
-    include (${CC_CMAKE_DIR}/CC_CxxtestFuncs.cmake)
+    find_package(LibComms REQUIRED)
+    include (${LibComms_DIR}/CC_CxxtestFuncs.cmake)
     cc_get_cxxtest(INSTALL_PREFIX ${COMMSDSL_EXTERNALS_DIR})
 
     if (COMMSDSL_VALGRIND_TESTS)

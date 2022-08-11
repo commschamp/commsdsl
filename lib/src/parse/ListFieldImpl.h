@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -117,6 +117,26 @@ public:
         return m_state.m_detachedElemLengthPrefixField;
     }
 
+    bool hasTermSuffixField() const
+    {
+        return (m_state.m_extTermSuffixField != nullptr) ||
+               static_cast<bool>(m_termSuffixField);
+    }
+
+    Field termSuffixField() const
+    {
+        if (m_state.m_extTermSuffixField != nullptr) {
+            return Field(m_state.m_extTermSuffixField);
+        }
+
+        return Field(m_termSuffixField.get());
+    }
+
+    const std::string& detachedTermSuffixFieldName() const
+    {
+        return m_state.m_detachedTermSuffixField;
+    }    
+
     bool elemFixedLength() const
     {
         return m_state.m_elemFixedLength;
@@ -143,6 +163,7 @@ private:
     bool updateLengthPrefix();
     bool updateElemLengthPrefix();
     bool updateElemFixedLength();
+    bool updateTermSuffix();
     bool checkElementFromRef();
     bool checkElementAsChild();
     bool checkPrefixFromRef(
@@ -166,9 +187,11 @@ private:
         const FieldImpl* m_extCountPrefixField = nullptr;
         const FieldImpl* m_extLengthPrefixField = nullptr;
         const FieldImpl* m_extElemLengthPrefixField = nullptr;
+        const FieldImpl* m_extTermSuffixField = nullptr;
         std::string m_detachedCountPrefixField;
         std::string m_detachedLengthPrefixField;
         std::string m_detachedElemLengthPrefixField;
+        std::string m_detachedTermSuffixField;
         bool m_elemFixedLength = false;
     };
 
@@ -177,6 +200,7 @@ private:
     FieldImplPtr m_countPrefixField;
     FieldImplPtr m_lengthPrefixField;
     FieldImplPtr m_elemLengthPrefixField;
+    FieldImplPtr m_termSuffixField;
 };
 
 } // namespace parse

@@ -22,6 +22,7 @@
 #include "commsdsl/gen/Layer.h"
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/Schema.h"
 
 #include "commsdsl/gen/strings.h"
 
@@ -76,6 +77,11 @@ const std::string& nameOfLayer(const Elem& elem)
     return elemName(static_cast<const Layer&>(elem));
 }
 
+const std::string& nameOfSchema(const Elem& elem)
+{
+    return elemName(static_cast<const Schema&>(elem));
+}
+
 } // namespace 
     
 
@@ -111,7 +117,8 @@ const std::string& Elem::name() const
         /* Type_Field */ &nameOfField,
         /* Type_Interface */ &nameOfInterface,
         /* Type_Frame */ &nameOfFrame,
-        /* Type_Layer */ &nameOfLayer,        
+        /* Type_Layer */ &nameOfLayer,    
+        /* Type_Schema */ &nameOfSchema,    
     };
     static const std::size_t MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == Type_NumOfValues, "Invalid map");

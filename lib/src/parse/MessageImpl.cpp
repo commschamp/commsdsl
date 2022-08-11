@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -71,6 +71,7 @@ bool MessageImpl::parse()
         updateSender() &&
         updateValidateMinLength() &&
         copyFields() &&
+        replaceFields() &&
         updateFields() &&
         copyAliases() &&
         updateAliases() &&
@@ -79,7 +80,8 @@ bool MessageImpl::parse()
         updateRefreshOverride() &&
         updateLengthOverride() &&
         updateValidOverride() &&
-        updateNameOverride() &&        
+        updateNameOverride() &&   
+        updateCopyOverrideCodeFrom() &&     
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -149,13 +151,13 @@ MessageImpl::AliasesList MessageImpl::aliasesList() const
     return result;
 }
 
-std::string MessageImpl::externalRef() const
+std::string MessageImpl::externalRef(bool schemaRef) const
 {
     assert(getParent() != nullptr);
     assert(getParent()->objKind() == ObjKind::Namespace);
 
     auto& ns = static_cast<const NamespaceImpl&>(*getParent());
-    auto nsRef = ns.externalRef();
+    auto nsRef = ns.externalRef(schemaRef);
     if (nsRef.empty()) {
         return name();
     }
@@ -232,7 +234,7 @@ bool MessageImpl::validateAndUpdateOverrideTypePropValue(const std::string& prop
     if (!m_protocol.isOverrideTypeSupported()) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "The property \"" << propName << "\" is not supported for dslVersion=" << 
-                m_protocol.schema().dslVersion() << ".";        
+                m_protocol.currSchema().dslVersion() << ".";        
         return true;
     }    
 
@@ -282,6 +284,7 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::lengthOverrideStr(),
         common::validOverrideStr(),
         common::nameOverrideStr(),
+        common::copyCodeFromStr(),
     };
 
     return CommonNames;
@@ -294,6 +297,7 @@ XmlWrap::NamesList MessageImpl::allNames()
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
     names.push_back(common::fieldsStr());
     names.push_back(common::aliasStr());
+    names.push_back(common::replaceStr());
     return names;
 }
 
@@ -469,7 +473,7 @@ bool MessageImpl::updatePlatforms()
         return false;
     }
 
-    auto& allPlatforms = m_protocol.platforms();
+    auto& allPlatforms = m_protocol.currSchema().platforms();
     for (auto& p : platList) {
         common::removeHeadingTrailingWhitespaces(p);
         if (p.empty()) {
@@ -575,9 +579,9 @@ bool MessageImpl::updateValidateMinLength()
         return true;
     }
 
-    if (!m_protocol.isValidateMinLengthSupported()) {
+    if (!m_protocol.isPropertySupported(propStr)) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.schema().dslVersion() << ", ignoring...";
+            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
         return true;
     }
 
@@ -642,6 +646,84 @@ bool MessageImpl::copyFields()
         }
     }
     return true;
+}
+
+bool MessageImpl::replaceFields()
+{
+    auto replaceNodes = XmlWrap::getChildren(getNode(), common::replaceStr());
+    if (1U < replaceNodes.size()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Only single \"" << common::replaceStr() << "\" child element is "
+            "supported for \"" << common::messageStr() << "\".";
+        return false;
+    }
+
+    if (replaceNodes.empty()) {
+        return true;
+    }
+
+    if (!m_protocol.isMemberReplaceSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Replacing fields with \"" << common::replaceStr() << "\" child element is unavaliable "
+            "for selected DSL version, ignoring...";        
+        return true;
+    }    
+
+    auto fieldsTypes = XmlWrap::getChildren(replaceNodes.front(), messageSupportedTypes());
+    if (fieldsTypes.size() != replaceNodes.size()) {
+        logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
+            "The \"" << common::replaceStr() << "\" child node of \"" <<
+            common::messageStr() << "\" element must contain only supported field types.";
+        return false;
+    }    
+
+    FieldImpl::FieldsList replMembers;
+    replMembers.reserve(fieldsTypes.size());
+    for (auto* fieldNode : fieldsTypes) {
+        std::string memKind(reinterpret_cast<const char*>(fieldNode->name));
+        auto field = FieldImpl::create(memKind, fieldNode, m_protocol);
+        if (!field) {
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
+                "Internal error, failed to create objects for fields to replace.";
+            return false;
+        }
+
+        field->setParent(this);
+        if (!field->parse()) {
+            return false;
+        }
+
+        if (!field->verifySiblings(m_fields)) {
+            return false;
+        }        
+
+        replMembers.push_back(std::move(field));
+    }   
+
+    for (auto& field : replMembers) {
+        assert(field);
+        auto iter = 
+            std::find_if(
+                m_fields.begin(), m_fields.end(),
+                [&field](auto& currField)
+                {
+                    assert(currField);
+                    return field->name() == currField->name();
+                });
+
+        if (iter == m_fields.end()) {
+            logError() << XmlWrap::logPrefix(field->getNode()) <<
+                "Cannot find reused field with name \"" << field->name() << "\" to replace.";
+            return false;
+        }
+
+        (*iter) = std::move(field);
+    }
+
+    return true;       
 }
 
 bool MessageImpl::copyAliases()
@@ -907,6 +989,36 @@ bool MessageImpl::updateValidOverride()
 bool MessageImpl::updateNameOverride()
 {
     return validateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_nameOverride);
+}
+
+bool MessageImpl::updateCopyOverrideCodeFrom()
+{
+    auto& prop = common::copyCodeFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.currSchema().dslVersion() << ".";        
+        return true;
+    }    
+
+    auto* field = m_protocol.findMessage(iter->second);
+    if (field == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+        return false;        
+    }
+
+    m_copyCodeFrom = iter->second;
+    return true;
 }
 
 bool MessageImpl::updateExtraAttrs()

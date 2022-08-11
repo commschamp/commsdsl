@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,7 +20,7 @@
 #pragma once
 
 /// @brief Major verion of the library
-#define COMMSDSL_MAJOR_VERSION 4U
+#define COMMSDSL_MAJOR_VERSION 5U
 
 /// @brief Minor verion of the library
 #define COMMSDSL_MINOR_VERSION 0U

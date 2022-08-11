@@ -153,6 +153,9 @@ private:
         for (auto& n : namespaces) {
             auto ptr = m_generator.createNamespace(n, m_parent);
             assert(ptr);
+            if (!ptr->createAll()) {
+                return false;
+            }
             m_namespaces.push_back(std::move(ptr));
         }
 

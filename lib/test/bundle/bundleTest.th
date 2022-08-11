@@ -18,6 +18,9 @@ public:
     void test9();
     void test10();
     void test11();
+    void test12();
+    void test13();
+    void test14();
 };
 
 void BundleTestSuite::setUp()
@@ -35,7 +38,7 @@ void BundleTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -66,7 +69,7 @@ void BundleTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -128,7 +131,7 @@ void BundleTestSuite::test6()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -142,6 +145,7 @@ void BundleTestSuite::test6()
     TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(field.minLength(), 4U);
     TS_ASSERT_EQUALS(field.maxLength(), 10U);
+    TS_ASSERT_EQUALS(field.copyCodeFrom(), std::string("Bundle1"));
 
     commsdsl::parse::BundleField bundleField(field);
     auto members = bundleField.members();
@@ -161,7 +165,7 @@ void BundleTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -196,31 +200,55 @@ void BundleTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
     TS_ASSERT(ns.name().empty());
 
     auto fields = ns.fields();
-    TS_ASSERT_EQUALS(fields.size(), 1U);
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
-    auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Bundle1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Bundle1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
 
-    commsdsl::parse::BundleField bundleField(field);
-    auto members = bundleField.members();
-    TS_ASSERT_EQUALS(members.size(), 3U);
-    auto& mem1 = members[0];
-    auto& mem2 = members[1];
-    auto& mem3 = members[2];
-    TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
-    TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
-    TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Set);
-    
-    commsdsl::parse::IntField intField(mem2);
-    TS_ASSERT_EQUALS(intField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
+        commsdsl::parse::BundleField bundleField(field);
+        auto members = bundleField.members();
+        TS_ASSERT_EQUALS(members.size(), 3U);
+        auto& mem1 = members[0];
+        auto& mem2 = members[1];
+        auto& mem3 = members[2];
+        TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Enum);
+        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Set);
+        
+        commsdsl::parse::IntField intField(mem2);
+        TS_ASSERT_EQUALS(intField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
+    } while (false);
+
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
+
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Bundle2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto members = bundleField.members();
+        TS_ASSERT_EQUALS(members.size(), 3U);
+        auto& mem1 = members[0];
+        auto& mem2 = members[1];
+        auto& mem3 = members[2];
+        TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Bundle);
+        TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::String);
+        
+        commsdsl::parse::BundleField lengthField(mem2);
+        TS_ASSERT_EQUALS(lengthField.semanticType(), commsdsl::parse::Field::SemanticType::Length);
+        TS_ASSERT_EQUALS(lengthField.valueOverride(), commsdsl::parse::OverrideType_Replace);
+    } while (false);    
 }
 
 void BundleTestSuite::test9()
@@ -244,7 +272,7 @@ void BundleTestSuite::test11()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -296,5 +324,92 @@ void BundleTestSuite::test11()
         commsdsl::parse::EnumField valueField(mem3);
         TS_ASSERT(valueField.availableLengthLimit());
     } while (false);    
+
+    do {
+        TS_ASSERT(3U <= fields.size());
+        auto& field = fields[2];
+        TS_ASSERT_EQUALS(field.name(), "B3");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto members = bundleField.members();
+        TS_ASSERT_EQUALS(members.size(), 3U);
+        auto& mem1 = members[0];
+        auto& mem2 = members[1];
+        auto& mem3 = members[2];
+        TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::Set);
+    
+        commsdsl::parse::IntField lengthField(mem2);
+        TS_ASSERT_EQUALS(lengthField.semanticType(), commsdsl::parse::Field::SemanticType::Length);    
+
+        commsdsl::parse::SetField valueField(mem3);
+        TS_ASSERT(valueField.availableLengthLimit());
+    } while (false);        
+}
+
+
+void BundleTestSuite::test12()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    do {
+        TS_ASSERT(2U <= fields.size());
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "B2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto members = bundleField.members();
+        TS_ASSERT_EQUALS(members.size(), 3U);
+        auto& mem1 = members[0];
+        auto& mem2 = members[1];
+        auto& mem3 = members[2];
+        TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Int);
+        TS_ASSERT_EQUALS(mem3.kind(), commsdsl::parse::Field::Kind::String);
+
+        commsdsl::parse::IntField typeField(mem1);
+        TS_ASSERT_EQUALS(typeField.defaultValue(), 2);    
+    
+        commsdsl::parse::IntField lengthField(mem2);
+        TS_ASSERT_EQUALS(lengthField.semanticType(), commsdsl::parse::Field::SemanticType::Length);    
+    } while (false);    
+}
+
+void BundleTestSuite::test13()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema13.xml");
+    TS_ASSERT(protocol);
+}
+
+void BundleTestSuite::test14()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Warning);
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+
+    auto& field = fields[1];
+    TS_ASSERT_EQUALS(field.name(), "Bundle2");
+    TS_ASSERT(field.copyCodeFrom().empty());
 }
 

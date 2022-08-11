@@ -73,8 +73,8 @@ bool TestCmake::testWriteInternal() const
 
 
     ReplacementMap repl = {
-        {"PROJ_NAME", m_generator.schemaName()},
-        {"PROJ_NS", m_generator.mainNamespace()},
+        {"PROJ_NAME", m_generator.currentSchema().schemaName()},
+        {"PROJ_NS", m_generator.currentSchema().mainNamespace()},
         {"INTERFACE_SCOPE", std::move(interfaceScope)},
         {"FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)},
         {"OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)},
@@ -87,6 +87,7 @@ bool TestCmake::testWriteInternal() const
         "option (OPT_WARN_AS_ERR \"Treat warning as error\" ON)\n"
         "option (OPT_USE_CCACHE \"Use of ccache on UNIX system\" ON)\n"
         "# Other parameters:\n"
+        "# OPT_TEST_RENAME - Rename the final test application.\n"
         "# OPT_TEST_OPTIONS - Class name of the options for test applications,\n"
         "#       defaults to #^#OPTIONS_SCOPE#$#.\n"        
         "# OPT_TEST_INTERFACE - Class name of the interface for test applications,\n"
@@ -107,7 +108,7 @@ bool TestCmake::testWriteInternal() const
         "function (define_test name)\n"
         "    set (src ${name}.cpp)\n"
         "    add_executable(${name} ${src})\n"
-        "    target_link_libraries(${name} PRIVATE cc::#^#PROJ_NS#$# cc::comms)\n\n"
+        "    target_link_libraries(${name} PRIVATE cc::#^#PROJ_NS#$# cc::comms)\n"
         "    set (extra_defs)\n"
         "    if (NOT \"${OPT_TEST_INTERFACE}\" STREQUAL \"\")\n"
         "        list (APPEND extra_defs -DINTERFACE=${OPT_TEST_INTERFACE})\n"
@@ -136,9 +137,14 @@ bool TestCmake::testWriteInternal() const
         "    if (extra_defs)\n"
         "        target_compile_definitions(${name} PRIVATE ${extra_defs})\n"
         "    endif ()\n\n"
+        "    set (rename_param)\n"
+        "    if (NOT \"${OPT_TEST_RENAME}\" STREQUAL \"\")\n"
+        "        set (rename_param RENAME ${OPT_TEST_RENAME})\n"
+        "    endif()\n\n"
         "    install (\n"
         "        TARGETS ${name}\n"
         "        DESTINATION ${CMAKE_INSTALL_BINDIR}\n"
+        "        ${rename_param}\n"
         "    )\n\n"
         "    if (TARGET ${CC_EXTERNAL_TGT})\n"
         "        add_dependencies(${name} ${CC_EXTERNAL_TGT})\n"
@@ -173,7 +179,7 @@ bool TestCmake::testWriteInternal() const
         "string (REPLACE \"::\" \"/\" OPT_TEST_INPUT_MESSAGES_HEADER \"${OPT_TEST_INPUT_MESSAGES}.h\")\n\n"
         "define_test(#^#PROJ_NS#$#_input_test)\n";
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl);
+    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {

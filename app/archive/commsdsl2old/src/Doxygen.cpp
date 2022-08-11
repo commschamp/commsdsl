@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -161,7 +161,6 @@ bool Doxygen::writeConf() const
         "CLANG_ASSISTED_PARSING = NO\n"
         "CLANG_OPTIONS          =\n"
         "ALPHABETICAL_INDEX     = YES\n"
-        "COLS_IN_ALPHA_INDEX    = 5\n"
         "GENERATE_HTML          = YES\n"
         "HTML_OUTPUT            = html\n"
         "HTML_FILE_EXTENSION    = .html\n"

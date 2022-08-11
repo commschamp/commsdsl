@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema43_1" endian="big">
+    <fields>
+        <int name="F1" type="uint8">
+            <special name="S1" val="1" />
+            <special name="S2" val="2" />
+        </int>
+    </fields>
+</schema>

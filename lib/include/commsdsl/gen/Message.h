@@ -41,6 +41,7 @@ public:
     explicit Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent = nullptr);
     virtual ~Message();
 
+    bool isPrepared() const;
     bool prepare();
     bool write() const;
 

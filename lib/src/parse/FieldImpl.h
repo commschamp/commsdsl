@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -113,6 +113,11 @@ public:
         return m_state.m_forceGen;
     }
 
+    OverrideType valueOverride() const
+    {
+        return m_state.m_valueOverride;
+    }    
+
     OverrideType readOverride() const
     {
         return m_state.m_readOverride;
@@ -142,6 +147,11 @@ public:
     {
         return m_state.m_nameOverride;
     }    
+
+    const std::string& copyCodeFrom() const
+    {
+        return m_state.m_copyCodeFrom;
+    }
 
     std::size_t minLength() const
     {
@@ -185,18 +195,14 @@ public:
     bool isBundleMember() const;
     bool isMessageMember() const;
 
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef) const;
 
     bool isBitCheckable(const std::string& val) const
     {
         return isBitCheckableImpl(val);
     }
 
-    bool isComparableToValue(const std::string& val) const
-    {
-        return isComparableToValueImpl(val);
-    }
-
+    bool isComparableToValue(const std::string& val) const;
     bool isComparableToField(const FieldImpl& field) const;
 
     const PropsMap& extraAttributes() const
@@ -301,6 +307,7 @@ protected:
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const;
     virtual bool reuseImpl(const FieldImpl& other);
     virtual bool parseImpl();
+    virtual bool replaceMembersImpl(FieldsList& members);
     virtual bool verifySiblingsImpl(const FieldsList& fields) const;
     virtual std::size_t minLengthImpl() const = 0;
     virtual std::size_t maxLengthImpl() const;
@@ -316,6 +323,7 @@ protected:
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const;
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const;
     virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const;
+    virtual const XmlWrap::NamesList& supportedMemberTypesImpl() const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);
@@ -378,12 +386,14 @@ private:
         PropsMap m_extraAttrs;
         ContentsList m_extraChildren;
         SemanticType m_semanticType = SemanticType::None;
+        OverrideType m_valueOverride = OverrideType_Any;
         OverrideType m_readOverride = OverrideType_Any;
         OverrideType m_writeOverride = OverrideType_Any;
         OverrideType m_refreshOverride = OverrideType_Any;
         OverrideType m_lengthOverride = OverrideType_Any;
         OverrideType m_validOverride = OverrideType_Any;
         OverrideType m_nameOverride = OverrideType_Any;
+        std::string m_copyCodeFrom;
         bool m_pseudo = false;
         bool m_displayReadOnly = false;
         bool m_displayHidden = false;
@@ -393,6 +403,7 @@ private:
     };
 
     bool checkReuse();
+    bool checkReplace();
     bool updateName();
     bool updateDescription();
     bool updateDisplayName();
@@ -404,12 +415,14 @@ private:
     bool updateCustomizable();
     bool updateFailOnInvalid();
     bool updateForceGen();
+    bool updateValueOverride();
     bool updateReadOverride();
     bool updateWriteOverride();
     bool updateRefreshOverride();
     bool updateLengthOverride();
     bool updateValidOverride();
     bool updateNameOverride();
+    bool updateCopyOverrideCodeFrom();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

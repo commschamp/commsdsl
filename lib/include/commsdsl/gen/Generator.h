@@ -23,6 +23,7 @@
 #include "commsdsl/gen/Logger.h"
 #include "commsdsl/gen/Message.h"
 #include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/Schema.h"
 #include "commsdsl/parse/Endian.h"
 
 #include <memory>
@@ -41,6 +42,7 @@ public:
     using LoggerPtr = std::unique_ptr<Logger>;
     using NamespacesList = Namespace::NamespacesList;
     using PlatformNamesList = std::vector<std::string>;
+    using SchemasList = std::vector<SchemaPtr>;
 
     using NamespacesAccessList = Namespace::NamespacesAccessList;
     using InterfacesAccessList = Namespace::InterfacesAccessList;
@@ -53,7 +55,7 @@ public:
     void forceSchemaVersion(unsigned value);
     void setMinRemoteVersion(unsigned value);
     unsigned getMinRemoteVersion() const;
-    void setMainNamespaceOverride(const std::string& value);    
+    void setNamespaceOverride(const std::string& value);    
 
     void setTopNamespace(const std::string& value);
     const std::string& getTopNamespace() const;
@@ -64,22 +66,19 @@ public:
     void setCodeDir(const std::string& dir);
     const std::string& getCodeDir() const;   
 
+    void setMultipleSchemasEnabled(bool enabled);
+    bool getMultipleSchemasEnabled() const;
+
     void setVersionIndependentCodeForced(bool value = true); 
     bool getVersionIndependentCodeForced() const;
 
-    unsigned parsedSchemaVersion() const;
-    unsigned schemaVersion() const;
-    const std::string& mainNamespace() const;
-    const std::string& schemaName() const;
-    parse::Endian schemaEndian() const;
-    const PlatformNamesList& platformNames() const;
-
-    const Field* getMessageIdField() const;
     const Field* findField(const std::string& externalRef) const;
     Field* findField(const std::string& externalRef);
     const Message* findMessage(const std::string& externalRef) const;
+    Message* findMessage(const std::string& externalRef);
     const Frame* findFrame(const std::string& externalRef) const;
     const Interface* findInterface(const std::string& externalRef) const;
+    static const Schema& schemaOf(const Elem& elem);
 
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;
@@ -102,14 +101,18 @@ public:
 
     bool isElementDeprecated(unsigned deprecatedSince) const;
 
-    bool versionDependentCode() const;
-
     Logger& logger();
     const Logger& logger() const;
 
-    NamespacesList& namespaces();
-    const NamespacesList& namespaces() const;
+    const SchemasList& schemas() const;
 
+    Schema& currentSchema();
+    const Schema& currentSchema() const;
+    Schema& protocolSchema();
+    const Schema& protocolSchema() const;    
+    bool isCurrentProtocolSchema() const;
+
+    SchemaPtr createSchema(commsdsl::parse::Schema dslObj, Elem* parent = nullptr);
     NamespacePtr createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent = nullptr);
     InterfacePtr createInterface(commsdsl::parse::Interface dslObj, Elem* parent);
     MessagePtr createMessage(commsdsl::parse::Message dslObj, Elem* parent);
@@ -141,6 +144,7 @@ public:
 protected:
     virtual bool prepareImpl();
 
+    virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent);
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent);
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent);
@@ -172,6 +176,8 @@ protected:
 
 
     Namespace* addDefaultNamespace();
+    void chooseCurrentSchema(unsigned idx);
+    void chooseProtocolSchema();
 
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    

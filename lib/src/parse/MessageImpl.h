@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 #include "Logger.h"
 #include "Object.h"
 #include "commsdsl/parse/Message.h"
-#include "commsdsl/parse/Protocol.h"
 #include "FieldImpl.h"
 #include "AliasImpl.h"
 #include "BundleFieldImpl.h"
@@ -45,7 +44,7 @@ public:
     using FieldsList = Message::FieldsList;
     using AliasesList = Message::AliasesList;
     using ContentsList = XmlWrap::ContentsList;
-    using PlatformsList = Protocol::PlatformsList;
+    using PlatformsList = Message::PlatformsList;
     using Sender = Message::Sender;
 
     MessageImpl(::xmlNodePtr node, ProtocolImpl& protocol);
@@ -86,7 +85,7 @@ public:
     FieldsList fieldsList() const;
     AliasesList aliasesList() const;
 
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef) const;
 
     const PropsMap& extraAttributes() const
     {
@@ -143,6 +142,11 @@ public:
         return m_nameOverride;
     }        
 
+    const std::string& copyCodeFrom() const
+    {
+        return m_copyCodeFrom;
+    }
+
 protected:
     virtual ObjKind objKindImpl() const override;
 
@@ -170,6 +174,7 @@ private:
     bool updateValidateMinLength();
     bool copyFields();
     bool copyAliases();
+    bool replaceFields();
     bool updateFields();
     bool updateAliases();
     void cloneFieldsFrom(const MessageImpl& other);
@@ -182,6 +187,7 @@ private:
     bool updateLengthOverride();
     bool updateValidOverride();
     bool updateNameOverride();    
+    bool updateCopyOverrideCodeFrom();    
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -209,6 +215,7 @@ private:
     OverrideType m_lengthOverride = OverrideType_Any;
     OverrideType m_validOverride = OverrideType_Any;
     OverrideType m_nameOverride = OverrideType_Any;    
+    std::string m_copyCodeFrom;
     bool m_customizable = false;
 };
 

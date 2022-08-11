@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -153,12 +153,26 @@ const std::string& forceGenStr();
 const std::string& validateMinLengthStr();
 const std::string& defaultValidValueStr();
 const std::string& availableLengthLimitStr();
+const std::string& valueOverrideStr();
 const std::string& readOverrideStr();
 const std::string& writeOverrideStr();
 const std::string& refreshOverrideStr();
 const std::string& lengthOverrideStr();
 const std::string& validOverrideStr();
 const std::string& nameOverrideStr();
+const std::string& replaceStr();
+const std::string& copyCodeFromStr();
+const std::string& semanticLayerTypeStr();
+const std::string& checksumFromStr();
+const std::string& checksumUntilStr();
+const std::string& termSuffixStr();
+const std::string& missingOnReadFailStr();
+const std::string& missingOnInvalidStr();
+const std::string& reuseCodeStr();
+
+char siblingRefPrefix();
+char stringRefPrefix();
+char schemaRefPrefix();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

@@ -141,6 +141,12 @@ const std::string& nameFileSuffixStr()
     return Str;     
 }
 
+const std::string& valueFileSuffixStr()
+{
+    static const std::string Str(".value");
+    return Str;     
+}
+
 const std::string& readFileSuffixStr()
 {
     static const std::string Str(".read");
@@ -290,6 +296,28 @@ const std::string& transportMessageSuffixStr()
     static const std::string Str("TransportMessage");
     return Str;     
 }
+
+const std::string& unexpectedValueStr()
+{
+    static const std::string Str("???");
+    return Str;     
+}
+
+char siblingRefPrefix()
+{
+    return '$';
+}
+
+char stringRefPrefix()
+{
+    return '^';
+}
+
+char schemaRefPrefix()
+{
+    return '@';
+}
+
 
 } // namespace strings
 

@@ -39,6 +39,16 @@ public:
     {
     }
 
+    bool isPrepared() const
+    {
+        return m_prepared;
+    }
+
+    void setPrepared()
+    {
+        m_prepared = true;
+    }    
+
     bool prepare()
     {
         if (!m_dslObj.valid()) {
@@ -98,6 +108,7 @@ private:
     commsdsl::parse::Message m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_fields;
+    bool m_prepared = false;
 }; 
 
 Message::Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
@@ -108,13 +119,26 @@ Message::Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* pa
 
 Message::~Message() = default;
 
+bool Message::isPrepared() const
+{
+    return m_impl->isPrepared();
+}
+
 bool Message::prepare()
 {
+    if (m_impl->isPrepared()) {
+        return true;
+    }
+
     if (!m_impl->prepare()) {
         return false;
     }
 
-    return prepareImpl();
+    bool result = prepareImpl();
+    if (result) {
+        m_impl->setPrepared();
+    }
+    return result;
 }
 
 bool Message::write() const

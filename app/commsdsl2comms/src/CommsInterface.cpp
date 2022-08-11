@@ -123,6 +123,10 @@ bool CommsInterface::prepareImpl()
     m_protectedCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::protectedFileSuffixStr());
     m_privateCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
     m_commsFields = CommsField::commsTransformFieldsList(fields());
+
+    for (auto* f : m_commsFields) {
+        f->commsSetReferenced();
+    }     
     return true;
 }
 
@@ -185,7 +189,7 @@ bool CommsInterface::commsWriteCommonInternal() const
         {"CODE", commsCommonFieldsCodeInternal()}
     };
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -258,7 +262,7 @@ bool CommsInterface::commsWriteDefInternal() const
         templ = &(classTempl());
     }
 
-    return writeFunc(genFilePath, util::processTemplate(*templ, repl));
+    return writeFunc(genFilePath, util::processTemplate(*templ, repl, true));
 }
 
 std::string CommsInterface::commsCommonIncludesInternal() const
@@ -385,8 +389,10 @@ std::string CommsInterface::commsDefBaseClassInternal() const
         ">";
 
     auto& gen = generator();
+    auto& schema = gen.schemaOf(*this);
+
     util::ReplacementMap repl = {
-        {"ENDIAN", comms::dslEndianToOpt(gen.schemaEndian())},
+        {"ENDIAN", comms::dslEndianToOpt(schema.schemaEndian())},
         {"MSG_ID_TYPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), gen)},
         {"EXTRA_OPTS", commsDefExtraOptionsInternal()}
     };

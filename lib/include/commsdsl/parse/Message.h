@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -21,7 +21,6 @@
 
 #include "commsdsl/CommsdslApi.h"
 #include "Field.h"
-#include "Schema.h"
 #include "Alias.h"
 #include "OverrideType.h"
 
@@ -44,8 +43,8 @@ public:
     };
 
     using FieldsList = std::vector<Field>;
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = Field::AttributesMap;
+    using ElementsList = Field::ElementsList;
     using PlatformsList = std::vector<std::string>;
     using AliasesList = std::vector<Alias>;
 
@@ -66,7 +65,7 @@ public:
     bool isDeprecatedRemoved() const;
     FieldsList fields() const;
     AliasesList aliases() const;
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef = true) const;
     bool isCustomizable() const;
     Sender sender() const;
     OverrideType readOverride() const;
@@ -75,6 +74,7 @@ public:
     OverrideType lengthOverride() const;
     OverrideType validOverride() const;
     OverrideType nameOverride() const;    
+    const std::string& copyCodeFrom() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

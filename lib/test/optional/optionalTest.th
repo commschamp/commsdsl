@@ -36,6 +36,12 @@ public:
     void test27();
     void test28();
     void test29();    
+    void test30(); 
+    void test31(); 
+    void test32(); 
+    void test33(); 
+    void test34(); 
+    void test35();
 };
 
 void OptionalTestSuite::setUp()
@@ -53,7 +59,7 @@ void OptionalTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -81,7 +87,7 @@ void OptionalTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -109,7 +115,7 @@ void OptionalTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -175,7 +181,7 @@ void OptionalTestSuite::test6()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -215,7 +221,7 @@ void OptionalTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -255,7 +261,7 @@ void OptionalTestSuite::test8()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema8.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -297,7 +303,7 @@ void OptionalTestSuite::test9()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema9.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -335,7 +341,7 @@ void OptionalTestSuite::test10()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema10.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -373,7 +379,7 @@ void OptionalTestSuite::test11()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema11.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -411,7 +417,7 @@ void OptionalTestSuite::test12()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema12.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -457,7 +463,7 @@ void OptionalTestSuite::test14()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -495,7 +501,7 @@ void OptionalTestSuite::test15()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -533,7 +539,7 @@ void OptionalTestSuite::test16()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema16.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -573,7 +579,7 @@ void OptionalTestSuite::test17()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema17.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -611,7 +617,7 @@ void OptionalTestSuite::test18()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -663,7 +669,7 @@ void OptionalTestSuite::test19()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -713,7 +719,7 @@ void OptionalTestSuite::test20()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema20.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -774,7 +780,7 @@ void OptionalTestSuite::test21()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -869,7 +875,7 @@ void OptionalTestSuite::test29()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema29.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -899,4 +905,122 @@ void OptionalTestSuite::test29()
 
     auto optField = opt.field();
     TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::Field::Kind::Int);
+}
+
+void OptionalTestSuite::test30()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema30.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg = messages.front();
+    TS_ASSERT_EQUALS(msg.name(), "M1");
+
+    auto fields = msg.fields();
+    TS_ASSERT_EQUALS(fields.size(), 2U);
+    auto& f1 = fields[0];
+    auto& f2 = fields[1];
+
+    TS_ASSERT_EQUALS(f1.kind(), commsdsl::parse::Field::Kind::Bundle);
+    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);
+
+    commsdsl::parse::OptionalField opt(f2);
+    auto cond = opt.cond();
+    TS_ASSERT_EQUALS(cond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    commsdsl::parse::OptCondExpr exprCond(cond);
+    TS_ASSERT_EQUALS(exprCond.left(), "$B1");
+    TS_ASSERT_EQUALS(exprCond.op(), "!=");
+    TS_ASSERT_EQUALS(exprCond.right(), "0");
+
+    auto optField = opt.field();
+    TS_ASSERT_EQUALS(optField.kind(), commsdsl::parse::Field::Kind::String);
+}
+
+void OptionalTestSuite::test31()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
+
+        auto& o1 = fields[0];
+        TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::Field::Kind::Optional);
+
+        commsdsl::parse::OptionalField opt(o1);
+        TS_ASSERT(opt.missingOnReadFail());
+        TS_ASSERT(!opt.missingOnInvalid());
+    } while (false);
+
+    do {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
+
+        auto& o2 = fields[1];
+        TS_ASSERT_EQUALS(o2.kind(), commsdsl::parse::Field::Kind::Optional);
+
+        commsdsl::parse::OptionalField opt(o2);
+        TS_ASSERT(!opt.missingOnReadFail());
+        TS_ASSERT(opt.missingOnInvalid());
+    } while (false);
+
+}
+
+void OptionalTestSuite::test32()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test33()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& m1 = messages.front();
+    auto fields = m1.fields();
+
+    auto& o1 = fields[1];
+    TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::Field::Kind::Optional);
+}
+
+void OptionalTestSuite::test34()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema34.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test35()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
+    TS_ASSERT(protocol);
 }

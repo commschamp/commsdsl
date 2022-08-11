@@ -31,7 +31,7 @@ void BundleTestSuite::test1()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema1.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -63,7 +63,7 @@ void BundleTestSuite::test2()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema2.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -95,7 +95,7 @@ void BundleTestSuite::test3()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema3.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -120,7 +120,7 @@ void BundleTestSuite::test4()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema4.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -161,7 +161,7 @@ void BundleTestSuite::test7()
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
     TS_ASSERT(protocol);
 
-    auto namespaces = protocol->namespaces();
+    auto namespaces = protocol->lastParsedSchema().namespaces();
     TS_ASSERT_EQUALS(namespaces.size(), 1U);
 
     auto& ns = namespaces.front();
@@ -178,4 +178,17 @@ void BundleTestSuite::test7()
     auto members = variantField.members();
     TS_ASSERT_EQUALS(members.size(), 3U);
     TS_ASSERT_EQUALS(variantField.defaultMemberIdx(), 2);
+
+    auto& p2 = members[1];
+    TS_ASSERT_EQUALS(p2.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+    commsdsl::parse::BundleField bundleP2Field(p2);
+    auto p2Members = bundleP2Field.members();
+    TS_ASSERT_EQUALS(p2Members.size(), 2U);
+    
+    auto& p2Val = p2Members[1];
+    TS_ASSERT_EQUALS(p2Val.kind(), commsdsl::parse::Field::Kind::Int);
+
+    commsdsl::parse::IntField p2ValField(p2Val);
+    TS_ASSERT_EQUALS(p2ValField.type(), commsdsl::parse::IntField::Type::Uint16);
 }

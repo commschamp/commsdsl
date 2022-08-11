@@ -53,7 +53,8 @@ bool hasIdLayerInternal(const CommsFrame::CommsLayersList& commsLayers)
                     return false;
                 }
 
-                return static_cast<const CommsCustomLayer&>(l->layer()).customDslObj().isIdReplacement();
+                using LayerKind = commsdsl::parse::Layer::Kind;
+                return (static_cast<const CommsCustomLayer&>(l->layer()).customDslObj().semanticLayerType() == LayerKind::Id);
     });
 }
 
@@ -201,7 +202,7 @@ bool CommsFrame::commsWriteCommonInternal() const
         {"BODY", commsCommonBodyInternal()},
     };      
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();      
 }
@@ -311,7 +312,7 @@ bool CommsFrame::commsWriteDefInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -534,7 +535,9 @@ std::string CommsFrame::commsCustomizationOptionsInternal(
     };
 
     if (hasBase) {
-        repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), false) + strings::layersSuffixStr();
+        auto& commsGen = static_cast<const CommsGenerator&>(generator());
+        bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+        repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), hasMainNs) + strings::layersSuffixStr();
     }
 
     return util::processTemplate(Templ, repl);    

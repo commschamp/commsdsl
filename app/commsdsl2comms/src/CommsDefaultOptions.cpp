@@ -17,6 +17,7 @@
 
 #include "CommsGenerator.h"
 #include "CommsNamespace.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -42,7 +43,7 @@ std::string optionsBodyInternal(
     CommsGenerator& generator,
     NamespaceOptionsFunc nsFunc)
 {
-    auto& allNs = generator.namespaces();
+    auto& allNs = generator.currentSchema().namespaces();
     util::StringsList opts;
     for (auto& nsPtr : allNs) {
         auto elem = (static_cast<const CommsNamespace*>(nsPtr.get())->*nsFunc)();
@@ -51,7 +52,26 @@ std::string optionsBodyInternal(
         }
     }
 
-    return util::strListToString(opts, "\n", "");
+    if (opts.empty()) {
+        return strings::emptyString();
+    }
+
+    if (!generator.hasMainNamespaceInOptions()) {
+        return util::strListToString(opts, "\n", "");
+    }
+
+    static const std::string Templ = 
+        "struct #^#NS#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}; // struct #^#NS#$#\n";
+
+    util::ReplacementMap repl = {
+        {"NS", generator.currentSchema().mainNamespace()},
+        {"BODY", util::strListToString(opts, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 bool writeFileInternal(
@@ -112,7 +132,7 @@ util::ReplacementMap extInitialRepl(CommsGenerator& generator)
 {
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
         {"DEFAULT_OPTS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)}
     };
     return repl;
@@ -123,6 +143,11 @@ util::ReplacementMap extInitialRepl(CommsGenerator& generator)
 
 bool CommsDefaultOptions::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyGeneratedCode())) {
+        return true;
+    }
+
     CommsDefaultOptions obj(generator);
     return obj.commsWriteInternal();
 }
@@ -149,11 +174,16 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
         "{\n\n"
         "namespace options\n"
         "{\n\n"
+        "/// @brief Empty class to serve as the base for options.\n"
+        "struct EmptyOptions {};\n\n"
         "/// @brief Default (empty) options of the protocol.\n"
-        "struct #^#CLASS_NAME#$##^#ORIG#$#\n"
+        "template <typename TBase = EmptyOptions>\n"
+        "struct #^#CLASS_NAME#$##^#ORIG#$#T : public TBase\n"
         "{\n"
         "    #^#BODY#$#\n"
         "};\n\n"
+        "/// @brief Default (empty) options of the protocol.\n"
+        "using #^#CLASS_NAME#$##^#ORIG#$# = #^#CLASS_NAME#$##^#ORIG#$#T<>;\n\n"
         "#^#EXTEND#$#\n"
         "#^#APPEND#$#\n"
         "} // namespace options\n\n"
@@ -162,7 +192,7 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
     auto& name = strings::defaultOptionsClassStr();
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.mainNamespace()},
+        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", name},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
@@ -173,7 +203,7 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(strings::defaultOptionsClassStr(), m_generator, util::processTemplate(Templ, repl));
+    writeFileInternal(strings::defaultOptionsClassStr(), m_generator, util::processTemplate(Templ, repl, true));
     return true;
 }
 
@@ -193,7 +223,7 @@ bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
@@ -213,7 +243,7 @@ bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
@@ -233,7 +263,7 @@ bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 
@@ -261,7 +291,7 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
         repl["ORIG"] = strings::origSuffixStr();
     }
 
-    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl));
+    writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
     return true;
 }
 

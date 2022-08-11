@@ -46,11 +46,13 @@ protected:
     virtual std::string commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual bool commsIsLimitedCustomizableImpl() const override;
-    virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const override;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
     virtual std::size_t commsMaxLengthImpl() const override;
+    virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
+    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    virtual void commsSetReferencedImpl() override;
 
 private:
     std::string commsDefFieldOptsInternal() const;

@@ -16,6 +16,7 @@
 #include "CommsInputMessages.h"
 
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -104,7 +105,7 @@ bool writeFileInternal(
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.mainNamespace()},
+        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
         {"NAME", name},
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
@@ -117,7 +118,7 @@ bool writeFileInternal(
         repl["ORIG"] = strings::origSuffixStr();
     }
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -127,6 +128,11 @@ bool writeFileInternal(
 
 bool CommsInputMessages::write(CommsGenerator& generator)
 {
+    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage())) {
+        return true;
+    }
+
     CommsInputMessages obj(generator);
     return obj.commsWriteInternal();
 }
@@ -190,7 +196,7 @@ bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
 
 bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
 {
-    auto& platforms = m_generator.platformNames();
+    auto& platforms = m_generator.currentSchema().platformNames();
     for (auto& p : platforms) {
 
         auto platformCheckFunc = 

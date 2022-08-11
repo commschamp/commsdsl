@@ -7,6 +7,10 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
+            <validValue name="M4" val="4" />
+            <validValue name="M5" val="5" />
+            <validValue name="M6" val="6" />
         </enum>
 
         <int name="I1" type="uint8" />        
@@ -16,7 +20,37 @@
         </optional>
         <optional name="O3">
             <ref name="O3" field="I1" />
-        </optional>        
+        </optional>  
+
+        <enum name="E1" type="uint8">
+            <validValue name="V0" val="0" />
+            <validValue name="V1" val="1" />
+        </enum>    
+
+        <int name="I2" type="uint8">
+            <special name="S1" val="0" />
+            <special name="S2" val="1" />
+        </int>  
+
+        <bundle name="B1" failOnInvalid="true" validOverride="replace" refreshOverride="replace">
+            <description>
+                Testing failOnInvalid with custom valid
+            </description>
+            <members>
+                <int name="M1" type="uint8" />
+                <int name="M2" type="uint8" />
+            </members>        
+        </bundle>     
+
+        <optional name="O5" validOverride="replace" missingOnInvalid="true">
+            <bundle name="B2">
+                <members>
+                    <int name="M1" type="uint8" />
+                    <int name="M2" type="uint8" />
+                </members>        
+            </bundle> 
+        </optional>  
+
     </fields>
     
     <interface name="Message">
@@ -32,8 +66,73 @@
         </optional>
         <optional name="f5" defaultMode="exists" sinceVersion="2" >
             <int name="f5" type="uint16" />
-        </optional>        
+        </optional>     
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <description>
+            Testing missingOnReadFail property
+        </description>
+        <fields>
+            <int name="F1" type="uint16" />
+            <optional name="F2" defaultMode="tentative" missingOnReadFail="true">
+                <int name="ActF2" type="uint8" validRange="[0, 10]" failOnInvalid="true" />
+            </optional>
+            <int name="F3" type="uint16" />
+        </fields>
+    </message>    
+
+    <message name="Msg3" id="MsgId.M3">
+        <description>
+            Testing conditions referencing external fields
+        </description>
+        <fields>
+            <int name="F1" type="uint16" />
+            <ref name="F2" field="E1" />
+            <int name="F3" type="uint8" />
+            <optional name="O1" defaultMode="exists" cond="$F1 = E1.V0">
+                <int name="ActO1" type="uint8" />
+            </optional>
+            <optional name="O2" defaultMode="exists" cond="$F2 = E1.V0">
+                <int name="ActO2" type="uint8" />
+            </optional>
+            <optional name="O3" defaultMode="exists" cond="$F3 = I2.S1">
+                <int name="ActO3" type="uint8" />
+            </optional>
+        </fields>
+    </message>      
+
+    <message name="Msg4" id="MsgId.M4">
+        <description>
+            Testing failOnInvalid with custom valid
+        </description>
+        <fields>
+            <ref field="B1" name="F1" failOnInvalid="true" />
+        </fields>
+    </message>   
+
+    <message name="Msg5" id="MsgId.M5">
+        <description>
+            Testing missingOnInvalid property
+        </description>
+        <fields>
+            <int name="F1" type="uint16" />
+            <optional name="F2" defaultMode="tentative" missingOnInvalid="true">
+                <int name="ActF2" type="uint8" validRange="[0, 10]" />
+            </optional>
+            <int name="F3" type="uint16" />
+        </fields>
+    </message>  
+
+    <message name="Msg6" id="MsgId.M6">
+        <description>
+            Testing missingOnInvalid with custom valid
+        </description>
+        <fields>
+            <ref field="O5" name="F1" />
+        </fields>
+    </message>             
+
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />

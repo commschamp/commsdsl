@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -110,10 +110,10 @@ Message::AliasesList Message::aliases() const
     return m_pImpl->aliasesList();
 }
 
-std::string Message::externalRef() const
+std::string Message::externalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef();
+    return m_pImpl->externalRef(schemaRef);
 }
 
 bool Message::isCustomizable() const
@@ -162,6 +162,12 @@ OverrideType Message::nameOverride() const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->nameOverride();
+}
+
+const std::string& Message::copyCodeFrom() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->copyCodeFrom();
 }
 
 const Message::AttributesMap& Message::extraAttributes() const

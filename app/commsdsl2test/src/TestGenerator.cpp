@@ -15,10 +15,20 @@
 
 #include "TestGenerator.h"
 
-#include "commsdsl/version.h"
-
 #include "Test.h"
 #include "TestCmake.h"
+
+#include "commsdsl/version.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+#include <fstream>
+#include <filesystem>
+
+namespace fs = std::filesystem;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2test
 {
@@ -34,9 +44,100 @@ const std::string& TestGenerator::fileGeneratedComment()
 
 bool TestGenerator::writeImpl()
 {
+    assert(&currentSchema() == &protocolSchema());
     return 
         Test::write(*this) &&
-        TestCmake::write(*this);
+        TestCmake::write(*this) &&
+        testWriteExtraFilesInternal();
+}
+
+bool TestGenerator::testWriteExtraFilesInternal() const
+{
+    auto& inputDir = getCodeDir();
+    if (inputDir.empty()) {
+        return true;
+    }
+
+    auto& outputDir = getOutputDir();
+    auto pos = inputDir.size();
+    auto endIter = fs::recursive_directory_iterator();
+    for (auto iter = fs::recursive_directory_iterator(inputDir); iter != endIter; ++iter) {
+        if (!iter->is_regular_file()) {
+            continue;
+        }
+        
+
+        auto srcPath = iter->path();
+        auto pathStr = srcPath.string();
+        auto posTmp = pos;
+        while (posTmp < pathStr.size()) {
+            if (pathStr[posTmp] == fs::path::preferred_separator) {
+                ++posTmp;
+                continue;
+            }
+            break;
+        }
+
+        if (pathStr.size() <= posTmp) {
+            continue;
+        }
+
+        std::string relPath(pathStr, posTmp);
+        auto& protSchema = protocolSchema();
+        auto schemaNs = util::strToName(protSchema.schemaName());
+        do {
+            if (protSchema.mainNamespace() == schemaNs) {
+                break;
+            }
+
+            auto srcPrefix = (fs::path(strings::includeDirStr()) / schemaNs).string();
+            if (!util::strStartsWith(relPath, srcPrefix)) {
+                break;
+            }
+
+            auto dstPrefix = (fs::path(strings::includeDirStr()) / protSchema.mainNamespace()).string();
+            relPath = dstPrefix + std::string(relPath, srcPrefix.size());
+        } while (false);
+
+        auto destPath = fs::path(outputDir) / relPath;
+        logger().info("Copying " + destPath.string());
+
+        if (!createDirectory(destPath.parent_path().string())) {
+            return false;
+        }
+
+        std::error_code ec;
+        fs::copy_file(srcPath, destPath, fs::copy_options::overwrite_existing, ec);
+        if (ec) {
+            logger().error("Failed to copy with reason: " + ec.message());
+            return false;
+        }
+
+        if (protSchema.mainNamespace() != schemaNs) {
+            // The namespace has changed
+
+            auto destStr = destPath.string();
+            std::ifstream stream(destStr);
+            if (!stream) {
+                logger().error("Failed to open " + destStr + " for modification.");
+                return false;
+            }
+
+            std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+            stream.close();
+
+            util::strReplace(content, "namespace " + schemaNs, "namespace " + protSchema.mainNamespace());
+            std::ofstream outStream(destStr, std::ios_base::trunc);
+            if (!outStream) {
+                logger().error("Failed to modify " + destStr + ".");
+                return false;
+            }
+
+            outStream << content;
+            logger().info("Updated " + destStr + " to have proper main namespace.");
+        }
+    }
+    return true;
 }
 
 } // namespace commsdsl2test

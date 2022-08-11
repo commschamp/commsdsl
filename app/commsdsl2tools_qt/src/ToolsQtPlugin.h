@@ -70,6 +70,7 @@ private:
     std::string toolsPluginClassNameInternal() const;
     std::string toolsConfigWidgetClassNameInternal() const;
     bool toolsHasConfigWidgetInternal() const;
+    std::string toolsRelFilePath(const std::string& name) const;
 
     ToolsQtGenerator& m_generator;
     std::string m_frame;

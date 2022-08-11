@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema8"
-        id="1"
-        endian="big"
-        dslVersion="2">
+<schema name="Schema8" endian="big" dslVersion="5">
     <fields>
         <bundle name="Bundle1">
             <enum name="Enum1" type="uint8">
@@ -15,5 +12,18 @@
                 <bit name="B1" idx="1" />
             </set>
         </bundle>
+
+        <bundle name="Bundle2">
+            <int name="Type" type="uint8" defaultValidValue="1" failOnInvalid="true" />
+            <bundle name="Length" semanticType="length" valueOverride="replace">
+                <int name="Short" type="uint8">
+                    <special name="LongVariant" val="0xff" />
+                </int>
+                <optional name="Long" defaultMode="missing" cond="$Short != 0xff">
+                    <int name="ActLong" type="uint16" />
+                </optional>
+            </bundle>
+            <string name="Value" />
+        </bundle>           
     </fields>
 </schema>

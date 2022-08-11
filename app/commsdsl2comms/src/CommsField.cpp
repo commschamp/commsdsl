@@ -15,7 +15,11 @@
 
 #include "CommsField.h"
 
+#include "CommsBitfieldField.h"
+#include "CommsBundleField.h"
 #include "CommsGenerator.h"
+#include "CommsInterface.h"
+#include "CommsMessage.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -52,6 +56,15 @@ bool isOverrideCodeRequired(commsdsl::parse::OverrideType value)
         (value == commsdsl::parse::OverrideType_Extend);
 }
 
+void readCustomCodeInternal(const std::string& codePath, std::string& code)
+{
+    if (!util::isFileReadable(codePath)) {
+        return;
+    }
+
+    code = util::readFileContents(codePath);
+}
+
 } // namespace 
     
 
@@ -82,23 +95,32 @@ CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl:
 
 bool CommsField::commsPrepare()
 {
-    auto& generator = m_field.generator();
-    auto codePathPrefix = comms::inputCodePathFor(m_field, generator);
 
+    if (!copyCodeFromInternal()) {
+        return false;
+    }
+
+    auto codePathPrefix = comms::inputCodePathFor(m_field, m_field.generator());
     auto& obj = m_field.dslObj();
     bool overrides = 
-        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customRead, "read") &&
-        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customWrite, "write") &&
-        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customRefresh, "refresh") &&
-        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customLength, "length") &&
-        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customValid, "valid") &&
-        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customName, "name");
+        commsPrepareOverrideInternal(obj.valueOverride(), codePathPrefix, strings::valueFileSuffixStr(), m_customCode.m_value, "value") &&
+        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read") &&
+        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write") &&
+        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh") &&
+        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length") &&
+        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid") &&
+        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name");
 
     if (!overrides) {
         return false;
     }
 
-    m_customExtend = util::readFileContents(codePathPrefix + strings::extendFileSuffixStr());
+    readCustomCodeInternal(codePathPrefix + strings::incFileSuffixStr(), m_customCode.m_inc);
+    readCustomCodeInternal(codePathPrefix + strings::publicFileSuffixStr(), m_customCode.m_public);
+    readCustomCodeInternal(codePathPrefix + strings::protectedFileSuffixStr(), m_customCode.m_protected);
+    readCustomCodeInternal(codePathPrefix + strings::privateFileSuffixStr(), m_customCode.m_private);
+    readCustomCodeInternal(codePathPrefix + strings::extendFileSuffixStr(), m_customCode.m_extend);
+    readCustomCodeInternal(codePathPrefix + strings::appendFileSuffixStr(), m_customCode.m_append);
     return true;
 }
 
@@ -196,7 +218,7 @@ bool CommsField::commsHasGeneratedReadCode() const
 
 bool CommsField::commsIsVersionDependent() const
 {
-    if (!m_field.generator().versionDependentCode()) {
+    if (!m_field.generator().schemaOf(m_field).versionDependentCode()) {
         return false;
     }
 
@@ -214,6 +236,10 @@ std::size_t CommsField::commsMinLength() const
 
 std::size_t CommsField::commsMaxLength() const
 {
+    if (m_field.dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) {
+        return comms::maxPossibleLength();
+    }
+    
     return commsMaxLengthImpl();
 }
 
@@ -256,7 +282,7 @@ std::string CommsField::commsDefCode() const
         {"MEMBERS", commsDefMembersCodeInternal()},
         {"FIELD", commsFieldDefCodeInternal()},
         {"OPTIONAL", commsOptionalDefCodeInternal()},
-        {"APPEND", util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::appendFileSuffixStr())}
+        {"APPEND", m_customCode.m_append}
     };
 
     return util::processTemplate(Templ, repl);
@@ -272,27 +298,57 @@ std::string CommsField::commsDefBundledRefreshFuncBody(const CommsFieldsList& si
     return commsDefBundledRefreshFuncBodyImpl(siblings);
 }
 
-std::string CommsField::commsCompareToValueCode(
-    const std::string& op,
-    const std::string& value,
-    const std::string& nameOverride,
-    bool forcedVersionOptional) const
+std::string CommsField::commsValueAccessStr(const std::string& accStr, const std::string& prefix) const
 {
-    return commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
+    std::string optPrefix;
+    if (commsIsVersionOptional()) {
+        optPrefix = "field().";
+    }
+    return commsValueAccessStrImpl(accStr, prefix + optPrefix);
 }
 
-std::string CommsField::commsCompareToFieldCode(
-    const std::string& op,
-    const CommsField& field,
-    const std::string& nameOverride,
-    bool forcedVersionOptional) const
+CommsField::StringsList CommsField::commsCompOptChecks(const std::string& accStr, const std::string& prefix) const
 {
-    return commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);
+    StringsList checks;
+    commsCompOptChecks(accStr, checks, prefix);
+    return checks;
+}
+
+void CommsField::commsCompOptChecks(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    std::string prefixExtra;
+    if (commsIsVersionOptional()) {
+        checks.push_back(prefix + "doesExist()");
+        prefixExtra = "field().";
+    }
+
+    return commsCompOptChecksImpl(accStr, checks, prefix + prefixExtra);
+}
+
+std::string CommsField::commsCompValueCastType(const std::string& accStr, const std::string& prefix) const
+{
+    std::string prefixExtra;
+    if (commsIsVersionOptional()) {
+        prefixExtra = "Field::";
+    }
+
+    return commsCompValueCastTypeImpl(accStr, prefix + prefixExtra);
+}
+
+std::string CommsField::commsCompPrepValueStr(const std::string& accStr, const std::string& value) const
+{
+    return commsCompPrepValueStrImpl(accStr, value);
 }
 
 bool CommsField::commsIsVersionOptional() const
 {
     return comms::isVersionOptionaField(m_field, m_field.generator());
+}
+
+void CommsField::commsSetReferenced()
+{
+    m_referenced = true;
+    commsSetReferencedImpl();
 }
 
 std::string CommsField::commsDefaultOptions() const
@@ -320,6 +376,84 @@ std::string CommsField::commsBareMetalDefaultOptions() const
             &CommsField::commsBareMetalDefaultOptions,
             &CommsField::commsExtraBareMetalDefaultOptionsInternal,
             true);
+}
+
+bool CommsField::commsHasCustomValue() const
+{
+    return !m_customCode.m_value.empty();
+}
+
+bool CommsField::commsHasCustomValid() const
+{
+    return (!m_customCode.m_valid.empty()) || (!commsDefValidFuncBodyImpl().empty());
+}
+
+bool CommsField::commsHasCustomLength(bool deepCheck) const
+{
+    if ((!m_customCode.m_length.empty()) || (!commsDefLengthFuncBodyImpl().empty())) {
+        return true;
+    }
+
+    if (!deepCheck) {
+        return false;
+    }
+     
+    return commsHasCustomLengthDeepImpl();
+}
+
+const CommsField* CommsField::commsFindSibling(const std::string& name) const
+{
+    auto* parent = m_field.getParent();
+    if (parent == nullptr) {
+        return nullptr;
+    }
+
+    auto findFieldFunc = 
+        [&name](const CommsFieldsList& fields) -> const CommsField*
+        {
+            auto iter = 
+                std::find_if(
+                    fields.begin(), fields.end(),
+                    [&name](auto* commsField)
+                    {
+                        return commsField->field().dslObj().name() == name;
+                    });
+
+            if (iter == fields.end()) {
+                return nullptr;
+            }
+
+            return (*iter);
+        };
+
+    auto elemType = parent->elemType();
+    if (elemType == commsdsl::gen::Elem::Type_Message) {
+        auto* msg = static_cast<const CommsMessage*>(parent);
+        return findFieldFunc(msg->commsFields());
+    }
+
+    if (elemType == commsdsl::gen::Elem::Type_Interface) {
+        auto* iFace = static_cast<const CommsInterface*>(parent);
+        return findFieldFunc(iFace->commsFields());
+    }    
+
+    if (elemType != commsdsl::gen::Elem::Type_Field) {
+        return nullptr;
+    }    
+
+    auto* parentField = static_cast<const commsdsl::gen::Field*>(parent);
+    auto fieldKind = parentField->dslObj().kind();
+    if (fieldKind == commsdsl::parse::Field::Kind::Bitfield) {
+        auto* bitfield = static_cast<const CommsBitfieldField*>(parentField);
+        return findFieldFunc(bitfield->commsMembers());
+    }
+
+    if (fieldKind == commsdsl::parse::Field::Kind::Bundle) {
+        auto* bundle = static_cast<const CommsBundleField*>(parentField);
+        return findFieldFunc(bundle->commsMembers());
+    }    
+
+    return nullptr;
 }
 
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
@@ -449,69 +583,6 @@ bool CommsField::commsDefHasNameFuncImpl() const
     return true;
 }
 
-std::string CommsField::commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(m_field.dslObj().name());
-    }
-
-    bool versionOptional = forcedVersionOptional || commsIsVersionOptional();
-    if (!versionOptional) {
-        return
-            "field_" + usedName + "().value() " +
-            op + ' ' + value;
-    }
-
-    return
-        "field_" + usedName + "().doesExist() &&\n" +
-        "(field_" + usedName + "().field().value() " +
-        op + ' ' + value + ')';
-}
-
-std::string CommsField::commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const
-{
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(m_field.dslObj().name());
-    }
-
-    auto fieldName = comms::accessName(field.m_field.dslObj().name());
-    bool thisOptional = forcedVersionOptional || commsIsVersionOptional();
-    bool otherOptional = field.commsIsVersionOptional();
-
-    std::string thisFieldValue = "field_" + usedName + "()";
-    if (thisOptional) {
-        thisFieldValue += ".field()";
-    }
-    thisFieldValue += ".value() ";
-
-    std::string otherFieldValue = " field_" + fieldName + "()";
-    if (otherOptional) {
-        otherFieldValue += ".field()";
-    }
-    otherFieldValue += ".value()";
-
-    auto compareExpr = thisFieldValue + op + otherFieldValue;
-
-    if ((!thisOptional) && (!otherOptional)) {
-        return compareExpr;
-    }
-
-    if ((!thisOptional) && (otherOptional)) {
-        return "field_" + fieldName + "().doesExist() &&\n(" + compareExpr + ')';
-    }
-
-    if ((thisOptional) && (!otherOptional)) {
-        return "field_" + usedName + "().doesExist() &&\n(" + compareExpr + ')';
-    }
-
-    return
-        "field_" + usedName + "().doesExist() &&\n"
-        "field_" + fieldName + "().doesExist() &&\n"
-                               "(" + compareExpr + ')';
-}
-
 std::string CommsField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
 {
     static_cast<void>(fieldOptsFunc);
@@ -538,14 +609,52 @@ std::size_t CommsField::commsMaxLengthImpl() const
     return m_field.dslObj().maxLength();
 }
 
+std::string CommsField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+    return prefix + "getValue()";
+}
+
+void CommsField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    static_cast<void>(accStr);
+    static_cast<void>(checks);
+    static_cast<void>(prefix);
+    assert(accStr.empty());
+}
+
+std::string CommsField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    static_cast<void>(accStr);
+    static_cast<void>(prefix);
+    assert(accStr.empty());
+    return prefix + "ValueType";
+}
+
+std::string CommsField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+    return value;
+}
+
+bool CommsField::commsHasCustomLengthDeepImpl() const
+{
+    return false;
+}
+
+void CommsField::commsSetReferencedImpl()
+{
+}
+
 std::string CommsField::commsCommonNameFuncCode() const
 {
     auto& generator = m_field.generator();
     auto customNamePath = comms::inputCodePathFor(m_field, generator) + strings::nameFileSuffixStr();
 
-    auto customFunc = util::readFileContents(customNamePath);
-    if (!customFunc.empty()) {
-        return customFunc;
+    if (!m_customCode.m_name.empty()) {
+        return m_customCode.m_name;
     }
 
     static const std::string Templ = 
@@ -565,8 +674,8 @@ std::string CommsField::commsCommonNameFuncCode() const
 
 std::string CommsField::commsFieldBaseParams(commsdsl::parse::Endian endian) const
 {
-    auto& generator = m_field.generator();
-    auto schemaEndian = generator.schemaEndian();
+    auto& schema = commsdsl::gen::Generator::schemaOf(m_field);
+    auto schemaEndian = schema.schemaEndian();
     assert(endian < commsdsl::parse::Endian_NumOfValues);
     assert(schemaEndian < commsdsl::parse::Endian_NumOfValues);
 
@@ -585,31 +694,72 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
     }
 
     if (commsIsFieldCustomizable()) {
-        opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), false, true));
+        auto& gen = static_cast<const CommsGenerator&>(m_field.generator());
+        opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), gen.hasMainNamespaceInOptions(), true));
     }
 
-    if (m_forcedFailOnInvalid) {
-        opts.push_back("comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
-    }
-    else if (m_field.dslObj().isFailOnInvalid()) {
+    do {
+        auto checkFieldTypeFunc = 
+            [this, &opts]()
+            {
+                if (commsHasCustomValid()) {
+                    commsAddFieldTypeOption(opts);
+                }
+            };
+
+        if (m_forcedFailOnInvalid) {
+            opts.push_back("comms::option::def::FailOnInvalid<comms::ErrorStatus::ProtocolError>");
+            checkFieldTypeFunc();
+            break;
+        }         
+
+        if (!m_field.dslObj().isFailOnInvalid()) {
+            break;
+        }      
+
         util::addToStrList("comms::option::def::FailOnInvalid<>", opts);
-    }
+        checkFieldTypeFunc();
+    } while (false);
 
-    if (!m_customRead.empty()) {
+    if (!m_customCode.m_read.empty()) {
         util::addToStrList("comms::option::def::HasCustomRead", opts);
     }
 
-    if (!m_customRefresh.empty()) {
+    if (!m_customCode.m_refresh.empty()) {
         util::addToStrList("comms::option::def::HasCustomRefresh", opts);
     }
 
-    if (!m_customWrite.empty()) {
+    if (!m_customCode.m_write.empty()) {
         util::addToStrList("comms::option::def::HasCustomWrite", opts);
     }    
 
     if (m_forcedPseudo || m_field.dslObj().isPseudo()) {
         util::addToStrList("comms::option::def::EmptySerialization", opts);
     }
+}
+
+void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const
+{
+    static const std::string Templ = 
+        "comms::option::def::FieldType<#^#NAME#$##^#SUFFIX#$##^#ORIG#$##^#PARAMS#$#>";
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::className(m_field.name())}
+    };
+
+    if (commsIsVersionOptional()) {
+        repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    }
+    
+    if (!m_customCode.m_extend.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }    
+
+    if (comms::isGlobalField(m_field)) {
+        repl["PARAMS"] = "<TOpt, TExtraOpts...>";
+    }   
+
+    util::addToStrList(util::processTemplate(Templ, repl), opts);                                 
 }
 
 bool CommsField::commsIsFieldCustomizable() const
@@ -633,7 +783,37 @@ bool CommsField::commsIsFieldCustomizable() const
 
 bool CommsField::commsIsExtended() const
 {
-    return !m_customExtend.empty();
+    return !m_customCode.m_extend.empty();
+}
+
+void CommsField::commsUpdateFieldReferencedIfExists(CommsField* field)
+{
+    if (field != nullptr) {
+        field->commsSetReferenced();
+    }
+}
+
+bool CommsField::copyCodeFromInternal()
+{
+    auto obj = m_field.dslObj();
+    auto& copyFrom = obj.copyCodeFrom();
+    if (copyFrom.empty()) {
+        return true;
+    }
+
+    auto& gen = m_field.generator();
+    auto* origField = gen.findField(copyFrom);
+    if (origField == nullptr) {
+        gen.logger().error(
+            "Failed to find referenced field \"" + copyFrom + "\" for copying overriding code.");
+        assert(false); // Should not happen
+        return false;
+    }
+
+    auto* commsField = dynamic_cast<CommsField*>(origField);
+    assert(commsField != nullptr);
+    m_customCode = commsField->m_customCode;
+    return true;
 }
 
 bool CommsField::commsPrepareOverrideInternal(
@@ -650,9 +830,19 @@ bool CommsField::commsPrepareOverrideInternal(
         return false;
     }
 
-    if (isOverrideCodeAllowed(type)) {
-        customCode = util::readFileContents(codePathPrefix + suffix);
-    }    
+    do {
+        if (!isOverrideCodeAllowed(type)) {
+            customCode.clear();
+            break;
+        }
+
+        auto contents = util::readFileContents(codePathPrefix + suffix);
+        if (contents.empty()) {
+            break;
+        }
+
+        customCode = std::move(contents);
+    } while (false);
 
     if (customCode.empty() && isOverrideCodeRequired(type)) {
         m_field.generator().logger().error(
@@ -708,7 +898,7 @@ bool CommsField::commsWriteCommonInternal() const
         {"DEF", commsCommonCode()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -747,13 +937,13 @@ bool CommsField::commsWriteDefInternal() const
         {"GENERATED", CommsGenerator::fileGeneratedComment()},
         {"FIELD_NAME", util::displayName(m_field.dslObj().displayName(), m_field.dslObj().name())},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
-        {"EXTRA_INCLUDES", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::incFileSuffixStr())},
+        {"EXTRA_INCLUDES", m_customCode.m_inc},
         {"NS_BEGIN", comms::namespaceBeginFor(m_field, generator)},
         {"NS_END", comms::namespaceEndFor(m_field, generator)},
         {"DEF", commsDefCode()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -785,7 +975,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
     auto priv = commsDefPrivateCodeInternal();
 
     auto* templ = &Templ;
-    if (pub.empty() && prot.empty() && priv.empty() && m_customExtend.empty()) {
+    if (pub.empty() && prot.empty() && priv.empty() && m_customCode.m_extend.empty()) {
         static const std::string AliasTempl = 
             "#^#BRIEF#$#\n"
             "#^#DETAILS#$#\n"
@@ -809,14 +999,14 @@ std::string CommsField::commsFieldDefCodeInternal() const
         {"PUBLIC", std::move(pub)},
         {"PROTECTED", std::move(prot)},
         {"PRIVATE", std::move(priv)},
-        {"EXTEND", m_customExtend},
+        {"EXTEND", m_customCode.m_extend},
     };
 
     if (commsIsVersionOptional()) {
         repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
     }
     
-    if (!m_customExtend.empty()) {
+    if (!m_customCode.m_extend.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
     }
 
@@ -982,6 +1172,7 @@ std::string CommsField::commsDefPublicCodeInternal() const
         "public:\n"
         "    #^#FIELD_DEF#$#\n"
         "    #^#NAME#$#\n"
+        "    #^#VALUE#$#\n"
         "    #^#READ#$#\n"
         "    #^#WRITE#$#\n"
         "    #^#REFRESH#$#\n"
@@ -990,16 +1181,16 @@ std::string CommsField::commsDefPublicCodeInternal() const
         "    #^#EXTRA_PUBLIC#$#\n"
     };
 
-    auto& generator = m_field.generator();
     util::ReplacementMap repl = {
         {"FIELD_DEF", commsDefPublicCodeImpl()},
         {"NAME", commsDefNameFuncCodeInternal()},
+        {"VALUE", commsDefValueCodeInternal()},
         {"READ", commsDefReadFuncCodeInternal()},
         {"WRITE", commsDefWriteFuncCodeInternal()},
         {"REFRESH", commsDefRefreshFuncCodeInternal()},
         {"LENGTH", commsDefLengthFuncCodeInternal()},
         {"VALID", commsDefValidFuncCodeInternal()},
-        {"EXTRA_PUBLIC", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::publicFileSuffixStr())},
+        {"EXTRA_PUBLIC", m_customCode.m_public},
     };
 
     bool hasValue = 
@@ -1027,14 +1218,13 @@ std::string CommsField::commsDefProtectedCodeInternal() const
     util::ReplacementMap repl;
 
     auto field = commsDefProtectedCodeImpl();
-    auto custom = util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::protectedFileSuffixStr());
     
     if (!field.empty()) {
         repl.insert({{"FIELD", std::move(field)}});
     }
 
-    if (!custom.empty()) {
-        repl.insert({{"CUSTOM", std::move(custom)}});
+    if (!m_customCode.m_protected.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_protected}});
     }
 
     if (repl.empty()) {
@@ -1054,14 +1244,13 @@ std::string CommsField::commsDefPrivateCodeInternal() const
     util::ReplacementMap repl;
 
     auto field = commsDefPrivateCodeImpl();
-    auto custom = util::readFileContents(comms::inputCodePathFor(m_field, m_field.generator()) + strings::privateFileSuffixStr());
     
     if (!field.empty()) {
         repl.insert({{"FIELD", std::move(field)}});
     }
 
-    if (!custom.empty()) {
-        repl.insert({{"CUSTOM", std::move(custom)}});
+    if (!m_customCode.m_private.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_private}});
     }
 
     if (repl.empty()) {
@@ -1077,12 +1266,12 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
 
     std::string custom;
     auto overrideType = m_field.dslObj().nameOverride();
-    if (m_customName.empty() && (!commsDefHasNameFuncImpl())) {
+    if (m_customCode.m_name.empty() && (!commsDefHasNameFuncImpl())) {
         return strings::emptyString();
     }
 
     if (!hasOrigCode(overrideType)) {
-        return m_customName;
+        return m_customCode.m_name;
     }
 
     static const std::string Templ = 
@@ -1095,7 +1284,7 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
 
     util::ReplacementMap repl = {
         {"SCOPE", comms::commonScopeFor(m_field, generator)},
-        {"CUSTOM", m_customName},
+        {"CUSTOM", m_customCode.m_name},
     };
 
     if (!repl["CUSTOM"].empty()) {
@@ -1103,6 +1292,11 @@ std::string CommsField::commsDefNameFuncCodeInternal() const
     }
     
     return util::processTemplate(Templ, repl);
+}
+
+const std::string& CommsField::commsDefValueCodeInternal() const
+{
+    return m_customCode.m_value;
 }
 
 std::string CommsField::commsDefReadFuncCodeInternal() const
@@ -1133,7 +1327,7 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customRead.empty()) {
+        if (!m_customCode.m_read.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
@@ -1154,8 +1348,8 @@ std::string CommsField::commsDefReadFuncCodeInternal() const
         repl["ORIG"] = util::processTemplate(OrigTempl, origRepl);
     }
 
-    if (!m_customRead.empty()) {
-        repl.insert({{"CUSTOM", m_customRead}});
+    if (!m_customCode.m_read.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_read}});
     }
 
     if (repl.empty()) {
@@ -1191,15 +1385,15 @@ std::string CommsField::commsDefWriteFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customWrite.empty()) {
+        if (!m_customCode.m_write.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
         repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
     }
 
-    if (!m_customWrite.empty()) {
-        repl.insert({{"CUSTOM", m_customWrite}});
+    if (!m_customCode.m_write.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_write}});
     }
 
     if (repl.empty()) {
@@ -1233,15 +1427,15 @@ std::string CommsField::commsDefRefreshFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customRefresh.empty()) {
+        if (!m_customCode.m_refresh.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
         repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
     }
 
-    if (!m_customRefresh.empty()) {
-        repl.insert({{"CUSTOM", m_customRefresh}});
+    if (!m_customCode.m_refresh.empty()) {
+        repl.insert({{"CUSTOM", m_customCode.m_refresh}});
     }
 
     if (repl.empty()) {
@@ -1276,15 +1470,15 @@ std::string CommsField::commsDefLengthFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customLength.empty()) {
+        if (!m_customCode.m_length.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
         repl.insert({{"ORIG", util::processTemplate(OrigTempl, origRepl)}});
     }
 
-    if (!m_customLength.empty()) {
-        repl["CUSTOM"] = m_customLength;
+    if (!m_customCode.m_length.empty()) {
+        repl["CUSTOM"] = m_customCode.m_length;
     }
 
     if (repl.empty()) {
@@ -1318,15 +1512,15 @@ std::string CommsField::commsDefValidFuncCodeInternal() const
             {"BODY", std::move(body)}
         };
 
-        if (!m_customValid.empty()) {
+        if (!m_customCode.m_valid.empty()) {
             origRepl["SUFFIX"] = strings::origSuffixStr();
         }
 
         repl["ORIG"] = util::processTemplate(OrigTempl, origRepl);
     }
 
-    if (!m_customValid.empty()) {
-        repl["CUSTOM"] = m_customValid;
+    if (!m_customCode.m_valid.empty()) {
+        repl["CUSTOM"] = m_customCode.m_valid;
     }
 
     if (repl.empty()) {
@@ -1435,7 +1629,9 @@ std::string CommsField::commsCustomizationOptionsInternal(
         };
 
         if (hasBase) {
-            repl["EXT"] = " : public TBase::" + comms::scopeFor(m_field, m_field.generator(), false) + strings::membersSuffixStr();
+            auto& commsGen = static_cast<const CommsGenerator&>(m_field.generator());
+            bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+            repl["EXT"] = " : public TBase::" + comms::scopeFor(m_field, m_field.generator(), hasMainNs) + strings::membersSuffixStr();
         }
 
         elems.push_back(util::processTemplate(Templ, repl));
@@ -1460,7 +1656,9 @@ std::string CommsField::commsCustomizationOptionsInternal(
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {
-            extraOpts.push_back("typename TBase::" + comms::scopeFor(m_field, m_field.generator(), false));
+            auto& commsGen = static_cast<const CommsGenerator&>(m_field.generator());
+            bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+            extraOpts.push_back("typename TBase::" + comms::scopeFor(m_field, m_field.generator(), hasMainNs));
         }
 
         auto docStr = 

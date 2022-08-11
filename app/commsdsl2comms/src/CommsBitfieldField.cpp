@@ -145,7 +145,7 @@ std::string CommsBitfieldField::commsDefBaseClassImpl() const
     auto& gen = generator();
     auto dslObj = bitfieldDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"CLASS_NAME", comms::className(dslObj.name())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()},
@@ -191,9 +191,112 @@ std::string CommsBitfieldField::commsMembersCustomizationOptionsBodyImpl(FieldOp
     return util::strListToString(elems, "\n", "");
 }
 
+std::string CommsBitfieldField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsValueAccessStrImpl(accStr, prefix);
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return strings::unexpectedValueStr();
+    }
+
+    return memInfo.first->commsValueAccessStr(memInfo.second, prefix + "field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "().");
+}
+
+void CommsBitfieldField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        CommsBase::commsCompOptChecksImpl(accStr, checks, prefix);
+        return;
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return;
+    }
+
+    return memInfo.first->commsCompOptChecks(memInfo.second, checks, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()));
+}
+
+std::string CommsBitfieldField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsCompValueCastTypeImpl(accStr, prefix);
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return strings::unexpectedValueStr();
+    }
+
+    auto accName = comms::accessName(memInfo.first->field().dslObj().name());
+    return memInfo.first->commsCompValueCastType(memInfo.second, prefix + "Field_" + accName + "::");
+}
+
+std::string CommsBitfieldField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return value;
+    }
+
+    auto accName = comms::accessName(memInfo.first->field().dslObj().name());
+    return memInfo.first->commsCompPrepValueStr(memInfo.second, value);
+}
+
+bool CommsBitfieldField::commsHasCustomLengthDeepImpl() const
+{
+    return 
+        std::any_of(
+            m_members.begin(), m_members.end(),
+            [](auto* m)
+            {
+                return m->commsHasCustomLength(true);
+            });
+}
+
+void CommsBitfieldField::commsSetReferencedImpl()
+{
+    for (auto* m : m_members) {
+        m->commsSetReferenced();
+    }
+}
+
 bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());
+
+    if ((bitfieldDslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) && 
+        (!commsHasCustomValue())) {
+        generator().logger().warning(
+            "Field \"" + comms::scopeFor(*this, generator()) + "\" is used as \"length\" field (semanticType=\"length\"), but custom value "
+            "retrieval functionality is not provided. Please create relevant code injection functionality with \"" + 
+            strings::valueFileSuffixStr() + "\" file name suffix. Inside that file the following functions are "
+            "expected to be defined: getValue(), setValue(), and maxValue()."
+        );
+    }    
     return true;
 }
 
@@ -241,6 +344,31 @@ std::string CommsBitfieldField::commsAccessCodeInternal() const
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+std::pair<const CommsField*, std::string> CommsBitfieldField::parseMemRefInternal(const std::string accStr) const
+{
+    auto sepPos = accStr.find(".");
+    auto memberName = accStr.substr(0, sepPos);
+
+    auto iter = 
+        std::find_if(
+            m_members.begin(), m_members.end(),
+            [&memberName](auto* mem)
+            {
+                return mem->field().dslObj().name() == memberName;
+            });
+
+    if (iter == m_members.end()) {
+        return std::make_pair(nullptr, accStr);
+    }
+
+    std::string remAccStr;
+    if (sepPos < accStr.size()) {
+        remAccStr = accStr.substr(sepPos + 1);
+    }
+
+    return std::make_pair(*iter, std::move(remAccStr));
 }
 
 } // namespace commsdsl2comms

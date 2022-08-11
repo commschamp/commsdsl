@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -91,7 +91,7 @@ bool ValueLayerImpl::updateInterfaces()
     do {
         auto iter = props().find(common::interfacesStr());
         if (iter == props().end()) {
-            auto& namespaces = protocol().namespaces();
+            auto& namespaces = protocol().currSchema().namespaces();
             for (auto& n : namespaces) {
                 auto& interfaces = n.second->interfaces();
                 for (auto& i : interfaces) {

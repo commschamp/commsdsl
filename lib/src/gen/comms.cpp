@@ -39,7 +39,7 @@ std::string scopeForElement(
 {
     std::string result;
     if (addMainNamespace) {
-        result = generator.mainNamespace();
+        result = generator.currentSchema().mainNamespace();
     }
 
     for (auto& elem : subElems) {
@@ -152,11 +152,12 @@ std::string scopeForInternal(
     auto fieldTypeScope = (leaf->elemType() == Elem::Type_Field) && (sep == ScopeSep);
 
     auto* parent = elem.getParent();
-    if (parent != nullptr) {
+    assert(parent != nullptr);
+    if (parent->elemType() != Elem::Type_Schema) {
         result = scopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
-        result = generator.mainNamespace();
+        result = generator.schemaOf(elem).mainNamespace();
     }
 
     do {
@@ -177,8 +178,6 @@ std::string scopeForInternal(
         }
         
         auto& elemName = elem.name();
-
-        assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         if (elemType == Elem::Type_Namespace) {
             addNamespaceScopeInernal(elemName, sep, result);
@@ -227,11 +226,12 @@ std::string commonScopeForInternal(
     auto fieldTypeScope = (leaf->elemType() == Elem::Type_Field) && (sep == ScopeSep);
 
     auto* parent = elem.getParent();
-    if (parent != nullptr) {
+    assert(parent != nullptr);
+    if (parent->elemType() != Elem::Type_Schema) {
         result = commonScopeForInternal(*parent, generator, addMainNamespace, true, sep, leaf);
     }
     else if (addMainNamespace) {
-        result = generator.mainNamespace();
+        result = generator.schemaOf(elem).mainNamespace();
     }
 
     do {
@@ -249,8 +249,6 @@ std::string commonScopeForInternal(
         if (!result.empty()) {
             result.append(sep);
         }
-
-        assert((elemType == Elem::Type_Namespace) || (parent != nullptr)); // Only namespace allowed not to have parent
 
         addElemNamespaceScopeInternal(elemType, parent, sep, result);    
 
@@ -310,7 +308,8 @@ std::string fullNameFor(const Elem& elem)
 {
     std::string result;
     auto* parent = elem.getParent();
-    if (parent != nullptr) {
+    assert(parent != nullptr);
+    if (parent->elemType() != Elem::Type_Schema) {
         result = fullNameFor(*parent);
     }
 
@@ -434,9 +433,9 @@ std::string scopeForCustomLayer(
     return scopeForElement(elem.name(), generator, SubElems, addMainNamespace, addElement, ScopeSep); 
 }
 
-std::string relHeaderPathFor(const Elem& elem, const Generator& generator)
+std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool addMainNamespace)
 {
-    return scopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
+    return scopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator)
@@ -453,13 +452,13 @@ std::string relHeaderPathForField(const std::string& name, const Generator& gene
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForOptions(const std::string& name, const Generator& generator)
+std::string relHeaderForOptions(const std::string& name, const Generator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems = {
         strings::optionsNamespaceStr()
     };
 
-    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+    return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
 std::string relHeaderForDispatch(const std::string& name, const Generator& generator)
@@ -491,19 +490,19 @@ std::string relHeaderForChecksum(const std::string& name, const Generator& gener
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForInput(const std::string& name, const Generator& generator)
+std::string relHeaderForInput(const std::string& name, const Generator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems = {
         strings::inputNamespaceStr()
     };
 
-    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+    return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForRoot(const std::string& name, const Generator& generator)
+std::string relHeaderForRoot(const std::string& name, const Generator& generator, bool addMainNamespace)
 {
     static const std::vector<std::string> SubElems;
-    return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
+    return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
 std::string headerPathFor(const Elem& elem, const Generator& generator)
@@ -548,12 +547,18 @@ std::string pathForDoc(const std::string& name, const Generator& generator)
 
 std::string inputCodePathFor(const Elem& elem, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, generator);
+    return 
+        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
+        generator.schemaOf(elem).origNamespace() + '/' +
+        comms::relHeaderPathFor(elem, generator, false);
 }
 
 std::string inputCodePathForRoot(const std::string& name, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForRoot(name, generator);
+    return 
+        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
+        generator.currentSchema().origNamespace() + '/' +
+        comms::relHeaderForRoot(name, generator, false);
 }
 
 std::string inputCodePathForDoc(const std::string& name, const Generator& generator)
@@ -563,12 +568,18 @@ std::string inputCodePathForDoc(const std::string& name, const Generator& genera
 
 std::string inputCodePathForOptions(const std::string& name, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForOptions(name, generator);
+    return 
+        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
+        generator.currentSchema().origNamespace() + '/' +
+        comms::relHeaderForOptions(name, generator, false);
 }
 
 std::string inputCodePathForInput(const std::string& name, const Generator& generator)
 {
-    return generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderForInput(name, generator);
+    return 
+        generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
+        generator.currentSchema().origNamespace() + '/' +
+        comms::relHeaderForInput(name, generator, false);
 }
 
 std::string namespaceBeginFor(
@@ -584,8 +595,9 @@ std::string namespaceBeginFor(
         };
 
     auto* parent = elem.getParent();
+    assert(parent != nullptr);
     do {
-        if (parent != nullptr) {
+        if (parent->elemType() != Elem::Type_Schema) {
             result += namespaceBeginFor(*parent, generator);
             break;
         }
@@ -595,7 +607,7 @@ std::string namespaceBeginFor(
             appendToResultFunc(namespaceName(topNamespace));
         }
 
-        appendToResultFunc(namespaceName(generator.mainNamespace()));
+        appendToResultFunc(namespaceName(generator.schemaOf(elem).mainNamespace()));
     } while (false);
 
     auto elemType = elem.elemType();
@@ -644,6 +656,7 @@ std::string namespaceEndFor(
         };
 
     auto* parent = elem.getParent();
+    assert(parent != nullptr);
 
     auto elemType = elem.elemType();
     if (elemType != Elem::Type_Namespace) {
@@ -679,12 +692,12 @@ std::string namespaceEndFor(
     }
     
     do {
-        if (parent != nullptr) {
+        if (parent->elemType() != Elem::Type_Schema) {
             result += namespaceEndFor(*parent, generator);
             break;
         }
 
-        appendToResultFunc(namespaceName(generator.mainNamespace()));
+        appendToResultFunc(namespaceName(generator.schemaOf(elem).mainNamespace()));
 
         auto& topNamespace = generator.getTopNamespace();
         if (!topNamespace.empty()) {
@@ -848,7 +861,7 @@ bool isVersionOptionaField(const Elem& elem, const Generator& generator)
         return false;
     }    
 
-    if (!generator.versionDependentCode()) {
+    if (!generator.schemaOf(elem).versionDependentCode()) {
         return false;
     }
 
@@ -977,9 +990,9 @@ const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
 
 std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& generator)
 {
-    auto msgIdField = generator.getMessageIdField();
+    auto msgIdField = generator.currentSchema().getMessageIdField();
     if (msgIdField == nullptr) {
-        return generator.mainNamespace() + "::" + strings::msgIdPrefixStr() + comms::fullNameFor(msg);
+        return generator.currentSchema().mainNamespace() + "::" + strings::msgIdPrefixStr() + comms::fullNameFor(msg);
     }
 
     assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
@@ -996,7 +1009,7 @@ std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& 
     }
 
     if (!name.empty()) {
-        return generator.mainNamespace() + "::" + strings::msgIdPrefixStr() + name;
+        return generator.currentSchema().mainNamespace() + "::" + strings::msgIdPrefixStr() + name;
     }
 
     return util::numToString(id);    

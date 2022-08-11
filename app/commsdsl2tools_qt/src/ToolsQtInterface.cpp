@@ -39,7 +39,7 @@ namespace
 
 unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Generator& generator)
 {
-    auto* msgIdField = generator.getMessageIdField();
+    auto* msgIdField = generator.currentSchema().getMessageIdField();
     if (msgIdField == nullptr) {
         return 0U;
     }
@@ -87,13 +87,12 @@ ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse:
 
 std::string ToolsQtInterface::toolsHeaderFilePath() const
 {
-    auto scope = comms::scopeFor(*this, generator(), false);
-    return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
+    return toolsRelFilePath() + strings::cppHeaderSuffixStr();
 }
 
 ToolsQtInterface::StringsList ToolsQtInterface::toolsSourceFiles() const
 {
-    return StringsList{comms::className(toolsNameInternal()) + strings::cppSourceSuffixStr()};
+    return StringsList{toolsRelFilePath() + strings::cppSourceSuffixStr()};
 }
 
 bool ToolsQtInterface::prepareImpl()
@@ -103,6 +102,9 @@ bool ToolsQtInterface::prepareImpl()
     }
 
     m_toolsFields = ToolsQtField::toolsTransformFieldsList(fields());
+    for (auto* f : m_toolsFields) {
+        f->toolsSetReferenced();
+    }    
     return true;
 }
 
@@ -114,7 +116,7 @@ bool ToolsQtInterface::writeImpl() const
 bool ToolsQtInterface::toolsWriteHeaderInternal() const
 {
     auto& gen = generator();
-    auto filePath = gen.getOutputDir() + '/' + comms::className(toolsNameInternal()) + strings::cppHeaderSuffixStr();
+    auto filePath = gen.getOutputDir() + '/' + toolsHeaderFilePath();
 
     auto& logger = gen.logger();
     logger.info("Generating " + filePath);
@@ -150,7 +152,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         {"DEF", toolsHeaderCodeInternal()},
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -158,7 +160,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
 bool ToolsQtInterface::toolsWriteSrcInternal() const
 {
     auto& gen = generator();
-    auto filePath = gen.getOutputDir() + '/' + comms::className(toolsNameInternal()) + strings::cppSourceSuffixStr();
+    auto filePath = gen.getOutputDir() + '/' + toolsRelFilePath() + strings::cppSourceSuffixStr();
 
     auto& logger = gen.logger();
     logger.info("Generating " + filePath);
@@ -202,7 +204,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
         {"INCLUDES", util::strListToString(includes, "\n", "\n")}
     };
     
-    stream << util::processTemplate(Templ, repl);
+    stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();
 }
@@ -292,6 +294,12 @@ const std::string& ToolsQtInterface::toolsNameInternal() const
     }
 
     return dslObj().name();
+}
+
+std::string ToolsQtInterface::toolsRelFilePath() const
+{
+    auto scope = comms::scopeFor(*this, generator());
+    return generator().getTopNamespace() + '/' + util::strReplace(scope, "::", "/");
 }
 
 } // namespace commsdsl2tools_qt

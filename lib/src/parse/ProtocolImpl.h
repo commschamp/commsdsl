@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,17 +18,18 @@
 #include <string>
 #include <memory>
 #include <vector>
+#include <utility>
 
 #include <libxml/xmlmemory.h>
 #include <libxml/parser.h>
 #include <libxml/xmlerror.h>
 
-#include "commsdsl/parse/Protocol.h"
 #include "commsdsl/parse/ErrorLevel.h"
+#include "commsdsl/parse/Protocol.h"
 #include "commsdsl/parse/Schema.h"
 #include "Logger.h"
-#include "SchemaImpl.h"
 #include "NamespaceImpl.h"
+#include "SchemaImpl.h"
 
 namespace commsdsl
 {
@@ -40,21 +41,28 @@ class ProtocolImpl
 {
 public:
     using ErrorReportFunction = Protocol::ErrorReportFunction;
-    using NamespacesList = Protocol::NamespacesList;
-    using MessagesList = Protocol::MessagesList;
     using ExtraPrefixes = std::vector<std::string>;
-    using PlatformsList = Protocol::PlatformsList;
-    using NamespacesMap = NamespaceImpl::NamespacesMap;
+    using SchemasList = std::vector<SchemaImplPtr>;
+    using SchemasAccessList = Protocol::SchemasList;
 
     ProtocolImpl();
     bool parse(const std::string& input);
     bool validate();
 
-    Schema schema() const;
+    SchemasAccessList schemas() const;
 
-    SchemaImpl& schemaImpl();
-    const SchemaImpl& schemaImpl() const;
+    SchemasList& schemaImpls()
+    {
+        return m_schemas;
+    }
 
+    const SchemasList& schemaImpls() const
+    {
+        return m_schemas;
+    }
+
+    SchemaImpl& currSchema();
+    const SchemaImpl& currSchema() const;
 
     void setErrorReportCallback(ErrorReportFunction&& cb)
     {
@@ -65,13 +73,6 @@ public:
     {
         return m_logger;
     }
-
-    const NamespacesMap& namespaces() const
-    {
-        return m_namespaces;
-    }
-
-    NamespacesList namespacesList() const;
 
     const FieldImpl* findField(const std::string& ref, bool checkRef = true) const;
 
@@ -89,8 +90,6 @@ public:
 
     bool strToStringValue(const std::string& str, std::string& val) const;
 
-    MessagesList allMessages() const;
-
     void addExpectedExtraPrefix(const std::string& value)
     {
         m_extraPrefixes.push_back(value);
@@ -101,22 +100,28 @@ public:
         return m_extraPrefixes;
     }
 
-    const PlatformsList& platforms() const
-    {
-        return m_platforms;
-    }
-
     bool isFeatureSupported(unsigned minDslVersion) const;
+    bool isPropertySupported(const std::string& name) const;    
     bool isFieldValueReferenceSupported() const;
     bool isSemanticTypeLengthSupported() const;
     bool isSemanticTypeRefInheritanceSupported() const;
+    bool isNonIntSemanticTypeLengthSupported() const;
     bool isNonUniqueSpecialsAllowedSupported() const;
     bool isFieldAliasSupported() const;
-    bool isValidateMinLengthSupported() const;
-    bool isDefaultValidValueSupported() const;
     bool isCopyFieldsFromBundleSupported() const;
-    bool isAvailableLengthLimitSupported() const;
     bool isOverrideTypeSupported() const;
+    bool isMemberReplaceSupported() const;
+    bool isMultiSchemaSupported() const;
+
+    void setMultipleSchemasEnabled(bool value)
+    {
+        m_multipleSchemasEnabled = value;
+    }
+
+    bool getMultipleSchemasEnabled() const
+    {
+        return m_multipleSchemasEnabled;
+    }
 
 private:
     struct XmlDocFree
@@ -129,7 +134,6 @@ private:
 
     using XmlDocPtr = std::unique_ptr<::xmlDoc, XmlDocFree>;
     using DocsList = std::vector<XmlDocPtr>;
-    using SchemaImplPtr = std::unique_ptr<SchemaImpl>;
     using StrToValueConvertFunc = std::function<bool (const NamespaceImpl& ns, const std::string& ref)>;
 
     static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
@@ -140,22 +144,23 @@ private:
     bool validateSinglePlatform(::xmlNodePtr node);
     bool validateNamespaces(::xmlNodePtr root);
     bool validateAllMessages();
-    unsigned countMessageIds() const;
-    const NamespaceImpl* getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const;
+    bool validateMessageIds();
+    // unsigned countMessageIds() const;
     bool strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
+    std::pair<const SchemaImpl*, std::string> parseExternalRef(const std::string& externalRef) const;
 
     LogWrapper logError() const;
     LogWrapper logWarning() const;
 
     ErrorReportFunction m_errorReportCb;
     DocsList m_docs;
-    bool m_validated = false;
     ErrorLevel m_minLevel = ErrorLevel_Info;
     mutable Logger m_logger;
-    SchemaImplPtr m_schema;
-    NamespacesMap m_namespaces;
+    SchemasList m_schemas;
+    SchemaImpl* m_currSchema = nullptr;
     ExtraPrefixes m_extraPrefixes;
-    PlatformsList m_platforms;
+    bool m_validated = false;
+    bool m_multipleSchemasEnabled = false;
 };
 
 } // namespace parse

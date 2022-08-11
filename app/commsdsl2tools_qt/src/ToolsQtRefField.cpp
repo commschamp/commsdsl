@@ -45,7 +45,6 @@ bool ToolsQtRefField::prepareImpl()
     assert(referencedField() != nullptr);
     m_toolsReferenceField = dynamic_cast<ToolsQtField*>(referencedField());
     assert(m_toolsReferenceField != nullptr);
-    m_toolsReferenceField->toolsSetReferenced();
     return true;
 }
 
@@ -120,6 +119,12 @@ std::string ToolsQtRefField::toolsDefFuncBodyImpl() const
     };
 
     return util::processTemplate(*templ, repl);
+}
+
+void ToolsQtRefField::toolsSetReferencedImpl()
+{
+    assert(referencedField() != nullptr);
+    m_toolsReferenceField->toolsSetReferenced();
 }
 
 std::string ToolsQtRefField::toolsExtraPropsInternal() const

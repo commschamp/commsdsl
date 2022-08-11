@@ -2,7 +2,66 @@ name: Github Actions Build
 
 on: [push]
 
+env:
+  COMMS_BRANCH: master
+  CC_TOOLS_QT_BRANCH: master
+
 jobs:
+  build_gcc_limited_ubuntu_18_04:
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [Debug, Release, MinSizeRel]
+        cc_ver: [4.8]
+        cpp: [11]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Prepare Install
+      run: sudo apt-get update --fix-missing    
+      
+    - name: Install Packages
+      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} gcc-8 g++-8
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build    
+
+    - name: Prepare externals
+      shell: bash
+      run: $GITHUB_WORKSPACE/script/prepare_externals.sh
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+        CC: gcc-${{matrix.cc_ver}}
+        CXX: g++-${{matrix.cc_ver}}
+        EXTERNALS_DIR: ${{runner.workspace}}/externals
+        COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
+        COMMON_BUILD_TYPE: ${{matrix.type}}
+        COMMON_CXX_STANDARD: ${{matrix.cpp}}
+        COMMS_TAG: ${{env.COMMS_BRANCH}}
+        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}}
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
+      env:
+        CC: gcc-8
+        CXX: g++-8
+
+    - name: Build Target 
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build . --config ${{matrix.type}} --target install
+      env:
+        VERBOSE: 1 
+
+    - name: Testing    
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ctest
+
   build_gcc_ubuntu_18_04:
     runs-on: ubuntu-18.04
     strategy:
@@ -19,30 +78,45 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 qtbase5-dev qtbase5-dev libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} gcc-8 g++-8 doxygen
+      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} gcc-8 g++-8
 
     - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      run: cmake -E make_directory ${{runner.workspace}}/build    
+
+    - name: Prepare externals
+      shell: bash
+      run: $GITHUB_WORKSPACE/script/prepare_externals.sh
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+        CC: gcc-${{matrix.cc_ver}}
+        CXX: g++-${{matrix.cc_ver}}
+        EXTERNALS_DIR: ${{runner.workspace}}/externals
+        COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
+        COMMON_BUILD_TYPE: ${{matrix.type}}
+        COMMON_CXX_STANDARD: ${{matrix.cpp}}
+        COMMS_TAG: ${{env.COMMS_BRANCH}}
+        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}}
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
       env:
         CC: gcc-8
         CXX: g++-8
 
-    - name: Build
+    - name: Build Target 
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: cmake --build . --target install
+      run: cmake --build . --config ${{matrix.type}} --target install
       env:
         VERBOSE: 1 
 
-    - name: Test
+    - name: Testing    
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest 
+      run: ctest
+
 
   build_gcc_ubuntu_20_04:
     runs-on: ubuntu-20.04
@@ -53,8 +127,6 @@ jobs:
         cc_ver: [8, 9, 10, 11]
         cpp: [11, 14, 17, 20]
         exclude:
-          - cc_ver: 7
-            cpp: 20
           - cc_ver: 8
             cpp: 20
 
@@ -65,30 +137,44 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} doxygen
+      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}}
 
     - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      run: cmake -E make_directory ${{runner.workspace}}/build      
+
+    - name: Prepare externals
+      shell: bash
+      run: $GITHUB_WORKSPACE/script/prepare_externals.sh
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+        CC: gcc-${{matrix.cc_ver}}
+        CXX: g++-${{matrix.cc_ver}}
+        EXTERNALS_DIR: ${{runner.workspace}}/externals
+        COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
+        COMMON_BUILD_TYPE: ${{matrix.type}}
+        COMMON_CXX_STANDARD: ${{matrix.cpp}}
+        COMMS_TAG: ${{env.COMMS_BRANCH}}
+        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}}
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
 
-    - name: Build
+    - name: Build Target 
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: cmake --build . --target install
+      run: cmake --build . --config ${{matrix.type}} --target install
       env:
         VERBOSE: 1 
-
-    - name: Test
+      
+    - name: Testing    
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest 
+      run: ctest
       
   build_clang_ubuntu_18_04:
     runs-on: ubuntu-18.04
@@ -96,8 +182,12 @@ jobs:
       fail-fast: false
       matrix:
         type: [Debug, Release, MinSizeRel]
-        cc_ver: ["4.0", "5.0"]
-        cpp: [11, 14]
+        cc_ver: ["4.0", "5.0", "6.0"]
+        cpp: [11, 14, 17]
+        exclude:
+          - cc_ver: "4.0"
+            cpp: 17
+
 
     steps:
     - uses: actions/checkout@v2
@@ -106,30 +196,45 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} clang-6.0 doxygen
+      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} clang-6.0 g++
+
 
     - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      run: cmake -E make_directory ${{runner.workspace}}/build      
+
+    - name: Prepare externals
+      shell: bash
+      run: $GITHUB_WORKSPACE/script/prepare_externals.sh
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+        CC: clang-${{matrix.cc_ver}}
+        CXX: clang++-${{matrix.cc_ver}}
+        EXTERNALS_DIR: ${{runner.workspace}}/externals
+        COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
+        COMMON_BUILD_TYPE: ${{matrix.type}}
+        COMMON_CXX_STANDARD: ${{matrix.cpp}}
+        COMMS_TAG: ${{env.COMMS_BRANCH}}
+        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}}
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=clang-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=clang++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
       env:
         CC: clang-6.0
         CXX: clang++-6.0
 
-    - name: Build
+    - name: Build Target 
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: cmake --build . --target install
+      run: cmake --build . --config ${{matrix.type}} --target install
       env:
         VERBOSE: 1 
 
-    - name: Test
+    - name: Testing    
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest 
+      run: ctest
 
   build_clang_ubuntu_20_04:
     runs-on: ubuntu-20.04
@@ -143,7 +248,7 @@ jobs:
           - cc_ver: 7
             cpp: 20
           - cc_ver: 8
-            cpp: 20        
+            cpp: 20
 
     steps:
     - uses: actions/checkout@v2
@@ -152,28 +257,41 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} doxygen
+      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}}
 
     - name: Create Build Environment
-      run: cmake -E make_directory ${{runner.workspace}}/build
+      run: cmake -E make_directory ${{runner.workspace}}/build      
+
+    - name: Prepare externals
+      shell: bash
+      run: $GITHUB_WORKSPACE/script/prepare_externals.sh
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+        CC: clang-${{matrix.cc_ver}}
+        CXX: clang++-${{matrix.cc_ver}}
+        EXTERNALS_DIR: ${{runner.workspace}}/externals
+        COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
+        COMMON_BUILD_TYPE: ${{matrix.type}}
+        COMMON_CXX_STANDARD: ${{matrix.cpp}}
+        COMMS_TAG: ${{env.COMMS_BRANCH}}
+        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}} 
 
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
 
-    - name: Build
+    - name: Build Target 
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: cmake --build . --target install
+      run: cmake --build . --config ${{matrix.type}} --target install
       env:
         VERBOSE: 1 
 
-    - name: Test
+    - name: Testing    
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest 
-          
+      run: ctest

@@ -2,7 +2,7 @@
 
 function (test_func name)
     set (test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
-    set (schema_file "${test_dir}/Schema.xml")
+    file (GLOB schema_files ${test_dir}/Schema*.xml)
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
     set (code_input_dir "${test_dir}/src")
     set (code_input_param)
@@ -24,8 +24,8 @@ function (test_func name)
 
     add_custom_command(
         OUTPUT ${output_dir}.tmp
-        DEPENDS ${schema_file} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> -d --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_file}
+        DEPENDS ${schema_files} ${APP_NAME} ${rm_tmp_tgt}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_files}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
@@ -33,7 +33,7 @@ function (test_func name)
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc;include" 
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
-        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_file} ${APP_NAME})
+        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
 
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
@@ -43,21 +43,39 @@ function (test_func name)
     execute_process (
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 
-    add_custom_target(${build_tgt} ALL
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}"
-        COMMAND 
-            ${CMAKE_COMMAND} 
-                ${output_dir}
-                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER} -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
-                -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-                -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} 
-                -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-                -DCMAKE_INSTALL_PREFIX=${install_dir}
-                -DOPT_REQUIRE_COMMS_LIB=OFF
-        COMMAND
-            ${CMAKE_COMMAND} --build ${build_dir} --config ${CMAKE_BUILD_TYPE} --target install
-        WORKING_DIRECTORY ${build_dir}
-        DEPENDS ${output_tgt})    
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")        
+
+    execute_process (
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")               
+
+    ExternalProject_Add(
+        ${build_tgt}
+        BUILD_ALWAYS TRUE
+        DEPENDS ${output_tgt}
+        SOURCE_DIR ${output_dir}
+        BINARY_DIR ${build_dir}
+        INSTALL_DIR ${install_dir}
+        CMAKE_GENERATOR ${CMAKE_GENERATOR}
+        LIST_SEPARATOR |
+        CMAKE_ARGS 
+            -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
+            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
+            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS}
+            -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
+            -DCMAKE_INSTALL_PREFIX=${install_dir}
+            -DOPT_REQUIRE_COMMS_LIB=OFF
+    )          
+
+    if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
+        ExternalProject_Add_Step(
+            ${build_tgt}
+            "doc"
+            COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}
+            DEPENDEES "build"
+            DEPENDERS "install"
+        )
+    endif ()    
 
     set (tests "${test_dir}/${name}Test.th")
 
@@ -86,13 +104,6 @@ function (test_func name)
         ) 
     endif ()    
 
-    if (COMMSDSL_TEST_BUILD_DOC AND DOXYGEN_FOUND)
-        add_custom_target(${APP_NAME}.doc_${name} ALL
-            COMMAND COMMAND ${CMAKE_COMMAND} --build ${build_dir} --target doc_${name}
-            DEPENDS ${build_tgt} 
-        )
-    endif ()
-        
 endfunction ()
 
 #################################################################
@@ -101,7 +112,9 @@ if (NOT BUILD_TESTING)
     return ()
 endif () 
 
-commsdsl_ensure_comms_target ()
+find_package(LibComms REQUIRED)
+
+set (CMAKE_CXX_STANDARD ${COMMSDSL_TESTS_CXX_STANDARD})
 
 set (COMMSDSL_SANITIZER_OPTS)
 if (COMMSDSL_TEST_USE_SANITIZERS AND
@@ -129,6 +142,8 @@ find_package (Doxygen)
 if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9"))
     set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-ignored-qualifiers")
 endif ()
+
+include(ExternalProject)
 
 test_func (test1)
 test_func (test2)
@@ -177,3 +192,6 @@ test_func (test44)
 test_func (test45)
 test_func (test46)
 test_func (test47)
+test_func (test48)
+test_func (test49)
+test_func (test50)

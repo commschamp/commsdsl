@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -137,6 +137,32 @@ const Schema::ElementsList& Schema::extraElements() const
 
     return m_pImpl->extraChildrenElements();
 
+}
+
+Schema::NamespacesList Schema::namespaces() const
+{
+    if (!valid()) {
+        assert(Unexpected_call_on_invalid_schema_object);
+        static const NamespacesList List;
+        return List;
+    }
+
+    return m_pImpl->namespacesList();
+}
+
+const Schema::PlatformsList& Schema::platforms() const
+{
+    return m_pImpl->platforms();
+}
+
+Schema::MessagesList Schema::allMessages() const
+{
+    return m_pImpl->allMessages();
+}
+
+std::string Schema::externalRef() const
+{
+    return m_pImpl->externalRef();
 }
 
 } // namespace parse

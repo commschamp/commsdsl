@@ -37,8 +37,10 @@ public:
     const std::string& getFilesListPrefix() const;
     const ArgsList& getFiles() const;
     const std::string& getOutputDirectory() const;
+    const std::string& getCodeInputDirectory() const;
     bool hasNamespaceOverride() const;
     const std::string& getNamespace() const;
+    bool multipleSchemasEnabled() const;
 };
 
 } // namespace commsdsl2test

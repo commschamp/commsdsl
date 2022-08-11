@@ -48,9 +48,6 @@ bool CommsStringField::prepareImpl()
         auto* externalPrefix = externalPrefixField();
         m_commsExternalPrefixField = dynamic_cast<CommsField*>(externalPrefix);
         assert((m_commsExternalPrefixField != nullptr) || (externalPrefix == nullptr)); // Make sure dynamic cast is successful
-        if (m_commsExternalPrefixField != nullptr) {
-            m_commsExternalPrefixField->commsSetReferenced();
-        }
 
         auto* memberPrefix = memberPrefixField();
         m_commsMemberPrefixField = dynamic_cast<CommsField*>(memberPrefix);
@@ -142,7 +139,7 @@ std::string CommsStringField::commsDefBaseClassImpl() const
     ">";    
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", generator().mainNamespace()},
+        {"PROT_NAMESPACE", generator().schemaOf(*this).mainNamespace()},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
@@ -167,7 +164,7 @@ std::string CommsStringField::commsDefPublicCodeImpl() const
         "{\n"
         "    static const char Str[] = \"#^#STR#$#\";\n"
         "    static const std::size_t StrSize = std::extent<decltype(Str)>::value;\n"
-        "    Base::value() = typename Base::ValueType(&Str[0], StrSize - 1);\n"
+        "    Base::setValue(typename Base::ValueType(&Str[0], StrSize - 1));\n"
         "}\n";
 
     util::ReplacementMap repl = {
@@ -216,7 +213,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
     if ((!versionOptional) && (!lenVersionOptional)) {
         static const std::string Templ =
             "field_#^#NAME#$#().forceReadLength(\n"
-            "    static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n";
+            "    static_cast<std::size_t>(field_#^#LEN_NAME#$#().getValue()));\n";
 
         return util::processTemplate(Templ, repl);
     }
@@ -225,7 +222,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
         static const std::string Templ =
             "if (field_#^#NAME#$#().doesExist()) {\n"
             "    field_#^#NAME#$#().field().forceReadLength(\n"
-            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().value()));\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().getValue()));\n"
             "}\n";
 
         return util::processTemplate(Templ, repl);
@@ -235,7 +232,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
         static const std::string Templ =
             "if (field_#^#LEN_NAME#$#().doesExist()) {\n"
             "    field_#^#NAME#$#().forceReadLength(\n"
-            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().value()));\n"
+            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().getValue()));\n"
             "}\n";
 
         return util::processTemplate(Templ, repl);
@@ -245,7 +242,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
     static const std::string Templ =
         "if (field_#^#NAME#$#().doesExist() && field_#^#LEN_NAME#$#().doesExist()) {\n"
         "    field_#^#NAME#$#().field().forceReadLength(\n"
-        "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().value()));\n"
+        "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().getValue()));\n"
         "}\n";
 
     return util::processTemplate(Templ, repl);
@@ -277,15 +274,15 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
     bool lenVersionOptional = (*iter)->commsIsVersionOptional();
 
     static const std::string Templ = 
-        "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value());\n"
+        "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.getValue());\n"
         "auto realLength = field_#^#NAME#$#()#^#STR_ACC#$#.value().size();\n"
         "if (expectedLength == realLength) {\n"
         "    return false;\n"
         "}\n\n"
-        "using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value())>::type;\n"
+        "using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.getValue())>::type;\n"
         "static const auto MaxLenValue = static_cast<std::size_t>(std::numeric_limits<LenValueType>::max());\n"
         "auto maxAllowedLen = std::min(MaxLenValue, realLength);\n"
-        "field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.value() = static_cast<LenValueType>(maxAllowedLen);\n"
+        "field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.setValue(maxAllowedLen);\n"
         "if (maxAllowedLen < realLength) {\n"
         "    field_#^#NAME#$#()#^#STR_ACC#$#.value().resize(maxAllowedLen);\n"
         "}\n"
@@ -310,15 +307,6 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
 bool CommsStringField::commsIsLimitedCustomizableImpl() const
 {
     return true;
-}
-
-std::string CommsStringField::commsCompareToValueCodeImpl(
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
-{
-    return CommsBase::commsCompareToValueCodeImpl(op, '\"' + value + '\"', nameOverride, forcedVersionOptional);
 }
 
 std::string CommsStringField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
@@ -364,6 +352,70 @@ std::size_t CommsStringField::commsMaxLengthImpl() const
     }
 
     return comms::maxPossibleLength();
+}
+
+std::string CommsStringField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    assert(accStr.empty());
+    static_cast<void>(accStr);
+    static_cast<void>(prefix);
+    return strings::emptyString();
+}
+
+std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    std::string valueTmp = value;
+    do {
+        if (value.empty()) {
+            break;
+        }
+
+        static const char Prefix = strings::stringRefPrefix();
+        if (value[0] == Prefix) {
+            auto* refField = generator().findField(std::string(value, 1));
+            if (refField == nullptr) {
+                generator().logger().warning("Failed to find referenced field: " + value);
+                break;
+            }
+
+            if (refField->dslObj().kind() != commsdsl::parse::Field::Kind::String) {
+                generator().logger().warning("Not referencing <string> field: " + value);
+                break;                
+            }
+
+            auto* refStringField = static_cast<const CommsStringField*>(refField);
+            valueTmp = refStringField->stringDslObj().defaultValue();
+            break;
+        }
+
+        auto prefixPos = value.find_first_of(Prefix);
+        if (prefixPos == std::string::npos) {
+            break;
+        }
+
+        assert(0U < prefixPos);
+        bool allBackSlashes =
+            std::all_of(
+                value.begin(), value.begin() + static_cast<std::ptrdiff_t>(prefixPos),
+                [](char ch)
+                {
+                    return ch == '\\';
+                });
+
+        if (!allBackSlashes) {
+            break;
+        }
+
+        valueTmp.assign(value, 1, std::string::npos);
+    } while (false);
+
+    return CommsBase::commsCompPrepValueStrImpl(accStr, '\"' + valueTmp + '\"');
+}
+
+void CommsStringField::commsSetReferencedImpl()
+{
+    commsUpdateFieldReferencedIfExists(m_commsExternalPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberPrefixField);
 }
 
 std::string CommsStringField::commsDefFieldOptsInternal() const
@@ -435,7 +487,7 @@ void CommsStringField::commsAddTermSuffixOptInternal(StringsList& opts) const
         ">";
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", generator().mainNamespace()},
+        {"PROT_NAMESPACE", generator().schemaOf(*this).mainNamespace()},
     };
 
     opts.push_back(util::processTemplate(Templ, repl));

@@ -44,6 +44,134 @@ bool isPathSep(char ch)
     return false;
 }
 
+void cleanSpaces(std::string& code)
+{
+    bool removeChar = false;
+    std::size_t processedCount = 0U;
+
+    code.erase(
+        std::remove_if(
+            code.begin(), code.end(),
+            [&](const char& ch)
+            {
+                auto idx = static_cast<unsigned>(std::distance(code.c_str(), &ch));
+                if (idx < processedCount) {
+                    return removeChar;
+                }
+
+                if (ch != ' ') {
+                    processedCount = idx + 1U;
+                    removeChar = false;                    
+                    return removeChar;
+                }
+
+                auto endLinePos = code.find_first_of("\n", idx + 1U);
+                if (code.size() <= endLinePos) {
+                    processedCount = code.size();
+                    removeChar = false;
+                    return removeChar;
+                }
+
+                processedCount = endLinePos;
+                auto notSpacePos = code.find_first_not_of(" \t", idx + 1);                
+                removeChar = (endLinePos <= notSpacePos);
+                return removeChar;
+            }),
+        code.end());
+}
+
+void cleanExtraNewLines(std::string& code)
+{
+    code.erase(
+        std::remove_if(
+            code.begin(), code.end(),
+            [&](const char& ch)
+            {
+                auto idx = static_cast<unsigned>(std::distance(code.c_str(), &ch));
+                if (ch != '\n') {
+                    return false;
+                }
+
+                auto notEndlPos = code.find_first_not_of("\n", idx);   
+                if (code.size() <= notEndlPos) {
+                    return idx < (code.size() - 1U);
+                }
+
+                auto endlCount = notEndlPos - idx;
+                return endlCount > 2U; // No more than 2 lines
+            }),
+        code.end());
+}
+
+void cleanNewLinesBeforeCloseBracket(std::string& code)
+{
+    std::size_t processedCount = 0U;
+
+    code.erase(
+        std::remove_if(
+            code.begin(), code.end(),
+            [&](const char& ch)
+            {
+                auto idx = static_cast<unsigned>(std::distance(code.c_str(), &ch));
+                if (idx < processedCount) {
+                    return false;
+                }
+
+                processedCount = idx + 1U;
+                if (ch != '\n') {
+                    return false;
+                }
+
+                auto nextLinePos = code.find_first_not_of("\n", idx + 1);
+                if (code.size() <= nextLinePos) {
+                    processedCount = code.size();
+                    return false;
+                }
+
+                assert(idx < nextLinePos);
+
+                auto newLinesCount = (nextLinePos - idx);
+                
+                assert (newLinesCount <= 2U);
+                if (newLinesCount <= 1U) {
+                    return false;
+                }
+
+                std::size_t nonSpacePos = code.find_first_not_of(" \t", nextLinePos);
+                if (code.size() <= nonSpacePos) {
+                    processedCount = code.size();
+                    return false;
+                }    
+
+                assert(idx < nonSpacePos);
+
+                processedCount = nonSpacePos;
+                if (code[nonSpacePos] != '}') {
+                    return false;
+                }           
+
+                // Check the closing namespace
+                static const std::string NamespaceClose("} // namespace");
+                if (((nonSpacePos + NamespaceClose.size()) < code.size()) &&
+                    (std::equal(NamespaceClose.begin(), NamespaceClose.end(), &code[nonSpacePos]))) {
+                    // Don't strip lines when closing namespace
+                    return false;
+                }
+
+                return true;           
+            }),
+        code.end());    
+}
+
+void doTidyCode(std::string& code)
+{
+    static_cast<void>(code);
+    cleanSpaces(code);
+    cleanExtraNewLines(code);
+    cleanNewLinesBeforeCloseBracket(code);
+}
+
+
 } // namespace 
 
 
@@ -234,7 +362,7 @@ std::string pathUp(const std::string& path)
     return path.substr(0, sepPos);
 }
 
-std::string processTemplate(const std::string& templ, const ReplacementMap& repl)
+std::string processTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode)
 {
     std::string result;
     result.reserve(templ.size() * 2U);
@@ -328,6 +456,10 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
 
     if (templPos < templ.size()) {
         result.insert(result.end(), templ.begin() + templPos, templ.end());
+    }
+
+    if (tidyCode) {
+        doTidyCode(result);
     }
     return result;
 }

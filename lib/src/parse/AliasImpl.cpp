@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -196,12 +196,12 @@ bool AliasImpl::updateFieldName(const PropsMap& props)
         return false;
     }
 
-    if (m_state.m_fieldName.empty() || (m_state.m_fieldName[0] != '$')) {
+    if (m_state.m_fieldName.empty() || (m_state.m_fieldName[0] != common::siblingRefPrefix())) {
         reportUnexpectedPropertyValue(common::fieldStr(), m_state.m_fieldName);
         return false;
     }
 
-    m_state.m_fieldName.erase(m_state.m_fieldName.begin()); // remove '$';
+    m_state.m_fieldName.erase(m_state.m_fieldName.begin()); // remove sibling ref prefix;
 
     if (!common::isValidRefName(m_state.m_fieldName)) {
         reportUnexpectedPropertyValue(common::fieldStr(), m_state.m_fieldName);

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,13 +93,13 @@ FrameImpl::LayersList FrameImpl::layersList() const
     return result;
 }
 
-std::string FrameImpl::externalRef() const
+std::string FrameImpl::externalRef(bool schemaRef) const
 {
     assert(getParent() != nullptr);
     assert(getParent()->objKind() == ObjKind::Namespace);
 
     auto& ns = static_cast<const NamespaceImpl&>(*getParent());
-    auto nsRef = ns.externalRef();
+    auto nsRef = ns.externalRef(schemaRef);
     if (nsRef.empty()) {
         return name();
     }

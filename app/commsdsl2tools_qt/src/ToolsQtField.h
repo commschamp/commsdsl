@@ -46,11 +46,7 @@ public:
     //     m_forcedPseudo = true;
     // }
 
-    void toolsSetReferenced()
-    {
-        m_referenced = true;
-    }
-
+    void toolsSetReferenced();
     bool toolsIsPseudo() const;
 
     IncludesList toolsHeaderIncludes() const;
@@ -70,6 +66,9 @@ protected:
     virtual std::string toolsDefFuncBodyImpl() const;
     virtual std::string toolsExtraPropsImpl() const;
     virtual std::string toolsDefMembersImpl() const;
+    virtual void toolsSetReferencedImpl();
+
+    static void toolsUpdateFieldReferencedIfExists(ToolsQtField* field);
 
 private:
     bool toolsWriteHeaderInternal() const;

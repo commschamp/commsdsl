@@ -20,7 +20,7 @@
 #
 
 macro (commsdsl_compile)
-    set (_prefix COMMSDSL_COMMPILE)
+    set (_prefix COMMSDSL_COMPILE)
     set (_options WARN_AS_ERR STATIC_RUNTIME USE_CCACHE)
     set (_oneValueArgs)
     set (_mutiValueArgs)
@@ -67,24 +67,24 @@ macro (commsdsl_compile)
             list (APPEND extra_flags_list "-Wno-dangling-field -Wno-unused-command-line-argument")
         endif ()
         
-        if (COMMSDSL_COMMPILE_WARN_AS_ERR)
+        if (COMMSDSL_COMPILE_WARN_AS_ERR)
             list (APPEND extra_flags_list "-Werror")
         endif ()
         
         string(REPLACE ";" " " extra_flags "${extra_flags_list}")
         set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${extra_flags}")
         
-        if (COMMSDSL_COMMPILE_STATIC_RUNTIME)
+        if (COMMSDSL_COMPILE_STATIC_RUNTIME)
             SET(CMAKE_EXE_LINKER_FLAGS  "${CMAKE_EXE_LINKER_FLAGS} -static-libstdc++ -static-libgcc")
         endif ()
     elseif (MSVC)
         add_definitions("/wd4503" "-D_SCL_SECURE_NO_WARNINGS")
 
-        if (COMMSDSL_COMMPILE_WARN_AS_ERR)
+        if (COMMSDSL_COMPILE_WARN_AS_ERR)
             add_definitions("/WX")
         endif ()
 
-        if (COMMSDSL_COMMPILE_STATIC_RUNTIME)
+        if (COMMSDSL_COMPILE_STATIC_RUNTIME)
             foreach(flag_var 
                     CMAKE_CXX_FLAGS CMAKE_CXX_FLAGS_DEBUG CMAKE_CXX_FLAGS_RELEASE
                     CMAKE_CXX_FLAGS_MINSIZEREL CMAKE_CXX_FLAGS_RELWITHDEBINFO)
@@ -95,7 +95,7 @@ macro (commsdsl_compile)
         endif ()
     endif ()   
 
-    if (COMMSDSL_COMMPILE_USE_CCACHE)
+    if (COMMSDSL_COMPILE_USE_CCACHE)
         find_program(CCACHE_FOUND ccache)
         if(CCACHE_FOUND)
             set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)

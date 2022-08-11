@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,10 +56,10 @@ Frame::LayersList Frame::layers() const
     return m_pImpl->layersList();
 }
 
-std::string Frame::externalRef() const
+std::string Frame::externalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->externalRef();
+    return m_pImpl->externalRef(schemaRef);
 }
 
 const Frame::AttributesMap& Frame::extraAttributes() const

@@ -61,7 +61,7 @@ bool CommsChecksumLayer::commsReorderImpl(CommsLayersList& siblings, bool& succe
     }
 
     auto obj = checksumDslObj();
-    auto& gen = const_cast<CommsChecksumLayer*>(this)->generator();
+    auto& gen = generator();
     auto& untilStr = obj.untilLayer();
     if (!untilStr.empty()) {
         assert(obj.fromLayer().empty());

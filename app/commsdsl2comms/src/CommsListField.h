@@ -46,11 +46,10 @@ protected:
     virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual bool commsIsLimitedCustomizableImpl() const override;
     virtual bool commsIsVersionDependentImpl() const override;
-    virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const override;
-    virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
     virtual std::size_t commsMaxLengthImpl() const override;
+    virtual void commsSetReferencedImpl() override;
 
 private:
     std::string commsDefFieldOptsInternal() const;
@@ -60,6 +59,7 @@ private:
     void commsAddCountPrefixOptInternal(StringsList& opts) const;
     void commsAddLengthPrefixOptInternal(StringsList& opts) const;
     void commsAddElemLengthPrefixOptInternal(StringsList& opts) const;
+    void commsAddTermSuffixOptInternal(StringsList& opts) const;
     void commsAddLengthForcingOptInternal(StringsList& opts) const;
 
     CommsField* m_commsExternalElementField = nullptr;
@@ -70,6 +70,9 @@ private:
     CommsField* m_commsMemberLengthPrefixField = nullptr;
     CommsField* m_commsExternalElemLengthPrefixField = nullptr;
     CommsField* m_commsMemberElemLengthPrefixField = nullptr;
+    CommsField* m_commsExternalTermSuffixField = nullptr;
+    CommsField* m_commsMemberTermSuffixField = nullptr;
+
 };
 
 } // namespace commsdsl2comms

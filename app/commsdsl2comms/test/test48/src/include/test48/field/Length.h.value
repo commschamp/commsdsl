@@ -1,0 +1,30 @@
+/// @brief Overriding value retrieval functionality
+std::size_t getValue() const
+{
+    if (field_long().doesExist()) {
+        return static_cast<std::size_t>(field_long().field().value());
+    }
+
+    return static_cast<std::size_t>(field_short().value());
+}
+
+/// @brief Overriding value update functionality
+template <typename U>
+void setValue(U&& val)
+{
+    if (val < field_short().valueHasLong()) {
+        comms::cast_assign(field_short().value()) = std::forward<U>(val);
+        field_long().setMissing();
+        return;
+    }
+
+    field_short().setHasLong();
+    comms::cast_assign(field_long().field().value()) = std::forward<U>(val);
+    field_long().setExists();
+}
+
+// @brief Overriding max available value
+static constexpr std::size_t maxValue()
+{
+    return Field_long::Field::maxValue();
+}

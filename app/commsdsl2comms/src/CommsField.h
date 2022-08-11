@@ -54,17 +54,12 @@ public:
     std::string commsDefCode() const;
     std::string commsDefBundledReadPrepareFuncBody(const CommsFieldsList& siblings) const;
     std::string commsDefBundledRefreshFuncBody(const CommsFieldsList& siblings) const;
-    std::string commsCompareToValueCode(
-        const std::string& op,
-        const std::string& value,
-        const std::string& nameOverride = std::string(),
-        bool forcedVersionOptional = false) const;
 
-    std::string commsCompareToFieldCode(
-        const std::string& op,
-        const CommsField& field,
-        const std::string& nameOverride = std::string(),
-        bool forcedVersionOptional = false) const;                
+    std::string commsValueAccessStr(const std::string& accStr, const std::string& prefix = std::string()) const;
+    StringsList commsCompOptChecks(const std::string& accStr, const std::string& prefix = std::string()) const;
+    void commsCompOptChecks(const std::string& accStr, StringsList& checks, const std::string& prefix = std::string()) const;
+    std::string commsCompValueCastType(const std::string& accStr, const std::string& prefix = std::string()) const;
+    std::string commsCompPrepValueStr(const std::string& accStr, const std::string& value) const;
 
     bool commsIsVersionOptional() const;
 
@@ -78,19 +73,25 @@ public:
         m_forcedPseudo = true;
     }
 
-    void commsSetReferenced()
-    {
-        m_referenced = true;
-    }
-
     const commsdsl::gen::Field& field() const
     {
         return m_field;
     }
 
+    void commsSetReferenced();
+    bool commsIsReferenced() const
+    {
+        return m_referenced;
+    }
+
     std::string commsDefaultOptions() const;
     std::string commsDataViewDefaultOptions() const;
     std::string commsBareMetalDefaultOptions() const;
+
+    bool commsHasCustomValue() const;
+    bool commsHasCustomValid() const;
+    bool commsHasCustomLength(bool deepCheck = true) const;
+    const CommsField* commsFindSibling(const std::string& name) const;
 
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
@@ -118,23 +119,48 @@ protected:
     virtual bool commsIsLimitedCustomizableImpl() const;
     virtual bool commsIsVersionDependentImpl() const;
     virtual bool commsDefHasNameFuncImpl() const;
-    virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const;  
-    virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;
     virtual std::size_t commsMinLengthImpl() const;
     virtual std::size_t commsMaxLengthImpl() const;    
+    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const;
+    virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const;
+    virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const;
+    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const;
+    virtual bool commsHasCustomLengthDeepImpl() const;
+    virtual void commsSetReferencedImpl();
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
     void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
+    void commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsFieldCustomizable() const;
     bool commsIsExtended() const;
+
+    static void commsUpdateFieldReferencedIfExists(CommsField* field);
 
 private:
     using ExtraFieldOptsFunc = StringsList (CommsField::*)() const;
 
+    struct CustomCode
+    {
+        std::string m_value;
+        std::string m_read;
+        std::string m_write;
+        std::string m_refresh;
+        std::string m_length;
+        std::string m_valid;
+        std::string m_name;
+        std::string m_inc;
+        std::string m_public;
+        std::string m_protected;
+        std::string m_private;
+        std::string m_extend;
+        std::string m_append;
+    };
+
+    bool copyCodeFromInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::OverrideType type, 
         std::string& codePathPrefix, 
@@ -154,6 +180,7 @@ private:
     std::string commsDefProtectedCodeInternal() const;
     std::string commsDefPrivateCodeInternal() const;
     std::string commsDefNameFuncCodeInternal() const;
+    const std::string& commsDefValueCodeInternal() const;
     std::string commsDefReadFuncCodeInternal() const;
     std::string commsDefWriteFuncCodeInternal() const;
     std::string commsDefRefreshFuncCodeInternal() const;
@@ -169,13 +196,7 @@ private:
     StringsList commsExtraBareMetalDefaultOptionsInternal() const;
 
     commsdsl::gen::Field& m_field;
-    std::string m_customRead;
-    std::string m_customWrite;
-    std::string m_customRefresh;
-    std::string m_customLength;
-    std::string m_customValid;
-    std::string m_customName;
-    std::string m_customExtend;
+    CustomCode m_customCode;
     bool m_forcedFailOnInvalid = false;
     bool m_forcedPseudo = false;
     bool m_referenced = false;

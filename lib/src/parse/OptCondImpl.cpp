@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,9 +19,11 @@
 #include <algorithm>
 #include <iterator>
 
-#include "BundleFieldImpl.h"
 #include "BitfieldFieldImpl.h"
+#include "BundleFieldImpl.h"
+#include "RefFieldImpl.h"
 #include "SetFieldImpl.h"
+#include "common.h"
 #include "util.h"
 
 //#include <iostream>
@@ -36,7 +38,7 @@ namespace
 {
 
 const char Esc = '\\';
-const char Deref = '$';
+const char Deref = common::siblingRefPrefix();
 
 } // namespace
 
@@ -145,6 +147,7 @@ bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string
             "comparison operator must dereference other field.";
         return false;
     }
+    
 
     return true;
 }
@@ -227,13 +230,22 @@ FieldImpl* OptCondExprImpl::findField(
             return findField(members, name, remPos);
         };
 
-    auto fieldKind = (*iter)->kind();
+    assert(*iter != nullptr);
+
+    const auto* derefField = (*iter).get();
+    while (derefField->kind() == FieldImpl::Kind::Ref) {
+        auto& refField = static_cast<const RefFieldImpl&>(*derefField);
+        derefField = refField.fieldImpl();
+        assert(derefField != nullptr);
+    }
+
+    auto fieldKind = derefField->kind();
     if (fieldKind == FieldImpl::Kind::Bundle) {
-        return redirectFunc(static_cast<const BundleFieldImpl&>(**iter));
+        return redirectFunc(static_cast<const BundleFieldImpl&>(*derefField));
     }
 
     if (fieldKind == FieldImpl::Kind::Bitfield) {
-        return redirectFunc(static_cast<const BundleFieldImpl&>(**iter));
+        return redirectFunc(static_cast<const BitfieldFieldImpl&>(*derefField));
     }
 
     return iter->get();
@@ -280,6 +292,12 @@ bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::
         return false;
     }
 
+    if (remPos < m_left.size()) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The \"" << m_left << "\" is not valid field dereference expression.";        
+        return false;
+    }
+
     if (m_right[0] == Deref) {
         std::size_t rightRemPos = 1U;
         auto rightField = findField(fields, m_right, rightRemPos);
@@ -289,6 +307,12 @@ bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::
                 common::bundleStr() << "\" or \"" << common::messageStr() << "\"";
             return false;
         }
+
+        if (rightRemPos < m_right.size()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The \"" << m_right << "\" is not valid field dereference expression.";        
+            return false;
+        }        
 
         if (!field->isComparableToField(*rightField)) {
             logError(logger) << XmlWrap::logPrefix(node) <<

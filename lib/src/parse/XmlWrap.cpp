@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -319,10 +319,10 @@ bool XmlWrap::checkVersions(
     unsigned parentDeprecated)
 {
     assert(parentVersion < parentDeprecated);
-    if (protocol.schemaImpl().version() < sinceVersion) {
+    if (protocol.currSchema().version() < sinceVersion) {
         logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::sinceVersionStr() << "\" property (" << sinceVersion << ") cannot "
-            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.schemaImpl().version() << ").";
+            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.currSchema().version() << ").";
         return false;
     }
 
@@ -356,10 +356,10 @@ bool XmlWrap::checkVersions(
     }
 
     if ((deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated()) &&
-        (protocol.schemaImpl().version() < deprecatedSince)) {
+        (protocol.currSchema().version() < deprecatedSince)) {
         logError(protocol.logger()) << XmlWrap::logPrefix(node) <<
             "The value of \"" << common::deprecatedStr() << "\" property (" << deprecatedSince << ") cannot "
-            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.schemaImpl().version() << ").";
+            "be greater than value of \"" << common::versionStr() << "\" property of the schema (" << protocol.currSchema().version() << ").";
         return false;
     }
 
@@ -379,7 +379,7 @@ bool XmlWrap::getAndCheckVersions(
     auto sinceVerIter = props.find(common::sinceVersionStr());
     do {
         if (sinceVerIter == props.end()) {
-            assert(sinceVersion <= protocol.schemaImpl().version());
+            assert(sinceVersion <= protocol.currSchema().version());
             break;
         }
 

@@ -1,0 +1,55 @@
+comms::ErrorStatus FrameTransportMessage::readImpl(ReadIterator& iter, std::size_t len)
+{
+    // Read until payload
+    auto es = doReadUntilAndUpdateLen<4U>(iter, len);
+    if (es != comms::ErrorStatus::Success) {
+        return es;
+    }
+
+    auto& checksumTypeField = std::get<3>(fields());
+    auto checksumType = checksumTypeField.value();
+    using ChecksumType = typename std::decay<decltype(checksumType)>::type;
+
+    auto& checksumField = std::get<5>(fields());
+    auto checksumLen = checksumField.minLength();
+    do {
+        if (checksumType == ChecksumType::Sum8) {
+            checksumLen = sizeof(std::uint8_t);
+            break;
+        }
+
+        if (checksumType == ChecksumType::Crc16) {
+            checksumLen = sizeof(std::uint16_t);
+            break;
+        }        
+    } while (false);
+
+    len -= checksumLen;
+
+    es = doReadFromUntilAndUpdateLen<4U, 5U>(iter, len);
+    if (es != comms::ErrorStatus::Success) {
+        return es;
+    }
+
+    using ChecksumFieldType = typename std::decay<decltype(checksumField)>::type;
+    using FieldBase = ChecksumFieldType::FieldBase;
+
+    if (checksumType == ChecksumType::Sum8) {
+        using FieldTmp = comms::field::IntValue<FieldBase, std::uint8_t>;
+        FieldTmp fieldTmp;
+        es = fieldTmp.read(iter, checksumLen);
+        checksumField.value() = static_cast<ChecksumFieldType::ValueType>(fieldTmp.value());
+        return es;
+    }
+
+    if (checksumType == ChecksumType::Crc16) {
+        using FieldTmp = comms::field::IntValue<FieldBase, std::uint16_t>;
+        FieldTmp fieldTmp;
+        es = fieldTmp.read(iter, checksumLen);
+        checksumField.value() = static_cast<ChecksumFieldType::ValueType>(fieldTmp.value());
+        return es;
+    }    
+
+    len += checksumLen;
+    return doReadFrom<5U>(iter, len);    
+}

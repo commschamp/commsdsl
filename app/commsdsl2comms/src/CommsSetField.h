@@ -43,9 +43,8 @@ protected:
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual std::string commsDefValidFuncBodyImpl() const override;
-    virtual std::string commsCompareToValueCodeImpl(const std::string& op, const std::string& value, const std::string& nameOverride, bool forcedVersionOptional) const override;  
-    virtual std::string commsCompareToFieldCodeImpl(const std::string& op, const CommsField& field, const std::string& nameOverride, bool forcedVersionOptional) const override;
-
+    virtual std::size_t commsMinLengthImpl() const override;
+    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
 
 private:
     std::string commsCommonBitNameFuncCodeInternal() const;
@@ -56,6 +55,7 @@ private:
     void commsAddLengthOptInternal(commsdsl::gen::util::StringsList& opts) const;
     void commsAddDefaultValueOptInternal(commsdsl::gen::util::StringsList& opts) const;
     void commsAddReservedBitsOptInternal(commsdsl::gen::util::StringsList& opts) const;
+    void commsAddAvailableLengthLimitOptInternal(StringsList& opts) const;
 };
 
 } // namespace commsdsl2comms

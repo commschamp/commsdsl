@@ -29,12 +29,14 @@
 #include "commsdsl/gen/OptionalField.h"
 #include "commsdsl/gen/PayloadLayer.h"
 #include "commsdsl/gen/RefField.h"
+#include "commsdsl/gen/Schema.h"
 #include "commsdsl/gen/SetField.h"
 #include "commsdsl/gen/SizeLayer.h"
 #include "commsdsl/gen/StringField.h"
 #include "commsdsl/gen/SyncLayer.h"
 #include "commsdsl/gen/ValueLayer.h"
 #include "commsdsl/gen/VariantField.h"
+#include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include "commsdsl/parse/Protocol.h"
@@ -42,6 +44,7 @@
 #include <cassert>
 #include <algorithm>
 #include <filesystem>
+#include <map>
 #include <system_error>
 
 namespace commsdsl
@@ -49,13 +52,6 @@ namespace commsdsl
 
 namespace gen
 {
-
-namespace 
-{
-
-const unsigned MaxDslVersion = 4U;
-
-} // namespace 
 
 
 class GeneratorImpl
@@ -65,9 +61,11 @@ public:
     using FilesList = Generator::FilesList;
     using NamespacesList = Generator::NamespacesList;
     using PlatformNamesList = Generator::PlatformNamesList;
+    using SchemasList = Generator::SchemasList;
 
     explicit GeneratorImpl(Generator& generator) :
-        m_generator(generator)
+        m_generator(generator),
+        m_outputDir(std::filesystem::current_path().string())
     {
     }
 
@@ -86,15 +84,40 @@ public:
         m_logger = std::move(logger);
     }
 
-    NamespacesList& namespaces()
+    const SchemasList& schemas() const
     {
-        return m_namespaces;
+        return m_schemas;
     }
 
-    const NamespacesList& namespaces() const
+    Schema& currentSchema()
     {
-        return m_namespaces;
-    }    
+        assert(m_currentSchema != nullptr);
+        return *m_currentSchema;
+    }
+
+    const Schema& currentSchema() const
+    {
+        assert(m_currentSchema != nullptr);
+        return *m_currentSchema;
+    }
+
+    Schema& protocolSchema()
+    {
+        assert(!m_schemas.empty());
+        return *m_schemas.back();
+    }
+
+    const Schema& protocolSchema() const
+    {
+        assert(!m_schemas.empty());
+        return *m_schemas.back();
+    }
+
+    void chooseCurrentSchema(unsigned idx)
+    {
+        assert(idx < m_schemas.size());
+        m_currentSchema = m_schemas[idx].get();
+    }
 
     void forceSchemaVersion(unsigned value)
     {
@@ -111,9 +134,33 @@ public:
         return m_minRemoteVersion;
     }
 
-    void setMainNamespaceOverride(const std::string& value)
+    void setNamespaceOverride(const std::string& value)
     {
-        m_mainNamespace = value;
+        m_namespaceOverrides.clear();
+        if (value.empty()) {
+            return;
+        }
+
+        auto elems = util::strSplitByAnyChar(value, ",");
+        for (auto& e : elems) {
+            if (e.empty()) {
+                continue;
+            }
+
+            auto pos = e.find_first_of(":");
+            std::string first;
+            std::string second = e;
+            do {
+                if ((e.size() - 1U) <= pos) {
+                    break;
+                }
+
+                first = e.substr(0, pos);
+                second = e.substr(pos + 1);
+            } while (false);
+
+            m_namespaceOverrides[first] = second;
+        }
     }
 
     void setTopNamespace(const std::string& value)
@@ -128,7 +175,9 @@ public:
 
     void setOutputDir(const std::string& outDir)
     {
-        m_outputDir = outDir;
+        if (!outDir.empty()) {
+            m_outputDir = outDir;
+        }
     }
 
     const std::string& getOutputDir() const
@@ -146,6 +195,16 @@ public:
         return m_codeDir;
     }
 
+    void setMultipleSchemasEnabled(bool enabled)
+    {
+        m_protocol.setMultipleSchemasEnabled(enabled);
+    }
+
+    bool getMultipleSchemasEnabled() const
+    {
+        return m_protocol.getMultipleSchemasEnabled();
+    }
+
     void setVersionIndependentCodeForced(bool value)
     {
         m_versionIndependentCodeForced = value;
@@ -156,207 +215,74 @@ public:
         return m_versionIndependentCodeForced;
     }
 
-    unsigned parsedSchemaVersion() const
-    {
-        return m_parsedSchemaVersion;
-    }
-
-    unsigned schemaVersion() const
-    {
-        if (0 <= m_forcedSchemaVersion) {
-            return static_cast<unsigned>(m_forcedSchemaVersion);
-        }
-
-        return parsedSchemaVersion();
-    }
-
-    const std::string& mainNamespace() const
-    {
-        return m_mainNamespace;
-    }
-
-    const std::string& schemaName() const
-    {
-        return m_protocol.schema().name();
-    }
-
-    parse::Endian schemaEndian() const
-    {
-        return m_protocol.schema().endian();
-    }
-
-    const PlatformNamesList& platformNames() const
-    {
-        return m_protocol.platforms();
-    }
-
-    const Field* getMessageIdField() const
-    {
-        return m_messageIdField;
-    }
-
     const Field* findField(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
-        auto pos = externalRef.find_first_of('.');
-        std::string nsName;
-        if (pos != std::string::npos) {
-            nsName.assign(externalRef.begin(), externalRef.begin() + pos);
-        }
-
-        auto nsIter =
-            std::lower_bound(
-                m_namespaces.begin(), m_namespaces.end(), nsName,
-                [](auto& ns, const std::string& n)
-                {
-                    return ns->name() < n;
-                });
-
-        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
-            m_logger->error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        std::size_t fromPos = 0U;
-        if (pos != std::string::npos) {
-            fromPos = pos + 1U;
-        }
-        std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->findField(remStr);
-        if (result == nullptr) {
-            m_logger->error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
-        }
-        return result;        
+        return parsedRef.first->findField(parsedRef.second);
     }
 
     Field* findField(const std::string& externalRef)
     {
-        return const_cast<Field*>(static_cast<const GeneratorImpl*>(this)->findField(externalRef));
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+            return nullptr;
+        }
+
+        return const_cast<Schema*>(parsedRef.first)->findField(parsedRef.second);
     }
 
     const Message* findMessage(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
-        auto pos = externalRef.find_first_of('.');
-        std::string nsName;
-        if (pos != std::string::npos) {
-            nsName.assign(externalRef.begin(), externalRef.begin() + pos);
-        }
-
-        auto nsIter =
-            std::lower_bound(
-                m_namespaces.begin(), m_namespaces.end(), nsName,
-                [](auto& ns, const std::string& n)
-                {
-                    return ns->name() < n;
-                });
-
-        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
-            m_logger->error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        std::size_t fromPos = 0U;
-        if (pos != std::string::npos) {
-            fromPos = pos + 1U;
-        }
-        std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->findMessage(remStr);
-        if (result == nullptr) {
-            m_logger->error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
-        }
-        return result;        
+        return parsedRef.first->findMessage(parsedRef.second);
     }  
+
+    Message* findMessage(const std::string& externalRef)
+    {
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+            return nullptr;
+        }
+
+        return const_cast<Schema*>(parsedRef.first)->findMessage(parsedRef.second);
+    }
 
     const Frame* findFrame(const std::string& externalRef) const
     {
         assert(!externalRef.empty());
-        auto pos = externalRef.find_first_of('.');
-        std::string nsName;
-        if (pos != std::string::npos) {
-            nsName.assign(externalRef.begin(), externalRef.begin() + pos);
-        }
-
-        auto nsIter =
-            std::lower_bound(
-                m_namespaces.begin(), m_namespaces.end(), nsName,
-                [](auto& ns, const std::string& n)
-                {
-                    return ns->name() < n;
-                });
-
-        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
-            m_logger->error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        std::size_t fromPos = 0U;
-        if (pos != std::string::npos) {
-            fromPos = pos + 1U;
-        }
-        std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->findFrame(remStr);
-        if (result == nullptr) {
-            m_logger->error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
-        }
-        return result;        
+        return parsedRef.first->findFrame(parsedRef.second);
     }
 
     const Interface* findInterface(const std::string& externalRef) const
     {
-        auto pos = externalRef.find_first_of('.');
-        std::string nsName;
-        if (pos != std::string::npos) {
-            nsName.assign(externalRef.begin(), externalRef.begin() + pos);
+        if (externalRef.empty()) {
+            return currentSchema().findInterface(externalRef);
         }
-
-        auto nsIter =
-            std::lower_bound(
-                m_namespaces.begin(), m_namespaces.end(), nsName,
-                [](auto& ns, const std::string& n)
-                {
-                    return ns->name() < n;
-                });
-
-        if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
-            m_logger->error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
+        
+        assert(!externalRef.empty());
+        auto parsedRef = parseExternalRef(externalRef);
+        if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
             return nullptr;
         }
 
-        std::size_t fromPos = 0U;
-        if (pos != std::string::npos) {
-            fromPos = pos + 1U;
-        }
-        std::string remStr(externalRef, fromPos);
-        auto result = (*nsIter)->findInterface(remStr);
-        if (result == nullptr) {
-            m_logger->error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
-        }
-        return result;        
+        return parsedRef.first->findInterface(parsedRef.second);
     }                
 
     bool prepare(const FilesList& files)
@@ -390,71 +316,70 @@ public:
             return false;
         }
 
-        auto schema = m_protocol.schema();
-        m_schemaNamespace = util::strToName(schema.name());
-        if (m_mainNamespace.empty()) {
-            assert(!schema.name().empty());
-            m_mainNamespace = m_schemaNamespace;
-        }
-
-        m_schemaEndian = schema.endian();
-        m_parsedSchemaVersion = schema.version();
-        if ((0 <= m_forcedSchemaVersion) && 
-            (m_parsedSchemaVersion < static_cast<decltype(m_parsedSchemaVersion)>(m_forcedSchemaVersion))) {
-            m_logger->error("Cannot force version to be greater than " + util::numToString(m_parsedSchemaVersion));
+        auto allSchemas = m_protocol.schemas();
+        if (allSchemas.empty()) {
+            m_logger->error("No schemas available");
             return false;
         }
 
-        auto dslVersion = schema.dslVersion();
-        if (MaxDslVersion < dslVersion) {
-            m_logger->error(
-                "Required DSL version is too big (" + std::to_string(dslVersion) +
-                "), upgrade your code generator.");
-            return false;
-        }
+        for (auto& s : allSchemas) {
+            auto schema = m_generator.createSchema(s);
+            schema->setVersionIndependentCodeForced(m_versionIndependentCodeForced);
 
-        auto dslNamespaces = m_protocol.namespaces();
-        m_namespaces.reserve(dslNamespaces.size());
-        for (auto dslObj : dslNamespaces) {
-            auto ptr = m_generator.createNamespace(dslObj);
-            if (!ptr->createAll()) {
-                m_logger->error("Failed to create elements inside namespace \"" + dslObj.name() + "\"");
-                return false;                
+            auto renameIter = m_namespaceOverrides.find(util::strToName(s.name()));
+            if (renameIter != m_namespaceOverrides.end()) {
+                schema->setMainNamespaceOverride(renameIter->second);
             }
+            m_schemas.push_back(std::move(schema));
+        }
 
-            if (!ptr) {
-                m_logger->error("Failed to create namespace \"" + dslObj.name() + "\"");
+        assert(!m_schemas.empty());
+        auto& protocolSchemaPtr = m_schemas.back();
+        
+        protocolSchemaPtr->setMinRemoteVersion(m_minRemoteVersion);
+        if (0 <= m_forcedSchemaVersion) {
+            protocolSchemaPtr->forceSchemaVersion(static_cast<unsigned>(m_forcedSchemaVersion));
+        }
+
+        auto renameIter = m_namespaceOverrides.find(strings::emptyString());
+        if (renameIter != m_namespaceOverrides.end()) {
+            protocolSchemaPtr->setMainNamespaceOverride(renameIter->second);
+        }
+
+        for (auto& s : m_schemas) {
+            m_currentSchema = s.get();
+            if (!s->createAll()) {
+                m_logger->error("Failed to create elements inside schema \"" + s->dslObj().name() + "\"");
                 return false;
-            }
+            }            
+        }   
 
-            m_namespaces.push_back(std::move(ptr));
-        }
+        for (auto& s : m_schemas) {
+            m_currentSchema = s.get();
+            if (!s->prepare()) {
+                m_logger->error("Failed to prepare elements inside schema \"" + s->dslObj().name() + "\"");
+                return false;
+            }            
+        }               
 
-        if (!m_versionIndependentCodeForced) {
-            m_versionDependentCode = anyInterfaceHasVersion();
-        }
 
-        for (auto& nPtr : m_namespaces) {
-            if (!nPtr->prepare()) {
-                m_logger->error("Failed to prepare namespace \"" + nPtr->name() + "\"");
-                return false;                
-            }
-        }
-
-        m_messageIdField = findMessageIdField();
+        if (m_logger->hadWarning()) {
+            m_logger->error("Warning treated as error");
+            return false;
+        }        
 
         return true;
     }
 
     bool write()
     {
-        return 
-            std::all_of(
-                m_namespaces.begin(), m_namespaces.end(),
-                [](auto& ns)
-                {
-                    return ns->write();
-                });
+        return std::all_of(
+            m_schemas.begin(), m_schemas.end(),
+            [this](auto& s)
+            {
+                m_currentSchema = s.get();
+                return s->write();
+            });
     }
 
     bool wasDirectoryCreated(const std::string& path) const
@@ -475,68 +400,54 @@ public:
         return m_protocol;
     }
 
-    bool versionDependentCode() const
-    {
-        return m_versionDependentCode;
-    }
-
 private:
-    const Field* findMessageIdField() const
+    std::pair<const Schema*, std::string> parseExternalRef(const std::string& externalRef) const
     {
-        for (auto& n : m_namespaces) {
-            auto ptr = n->findMessageIdField();
-            if (ptr != nullptr) {
-                return ptr;
-            }
+        assert(!externalRef.empty());
+        if (externalRef[0] != strings::schemaRefPrefix()) {
+            return std::make_pair(m_currentSchema, externalRef);
         }
-        return nullptr;
-    }
 
-    bool anyInterfaceHasVersion() const
-    {
-        return
-            std::any_of(
-                m_namespaces.begin(), m_namespaces.end(),
-                [](auto& n)
+        std::string schemaName;
+        std::string restRef;
+
+        auto dotPos = externalRef.find('.');
+        if (externalRef.size() <= dotPos) {
+            schemaName = externalRef.substr(1);
+        }
+        else {
+            schemaName = externalRef.substr(1, dotPos - 1);
+            restRef = externalRef.substr(dotPos + 1);
+        }
+
+        auto iter = 
+            std::find_if(
+                m_schemas.begin(), m_schemas.end(),
+                [&schemaName](auto& s)
                 {
-                    auto interfaces = n->getAllInterfaces();
-
-                    return 
-                        std::any_of(
-                            interfaces.begin(), interfaces.end(),
-                            [](auto& i)
-                            {
-
-                                auto& fields = i->fields();
-                                return
-                                    std::any_of(
-                                        fields.begin(), fields.end(),
-                                        [](auto& f)
-                                        {
-                                            return f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version;
-                                        });
-
-                            });
+                    return schemaName == s->name();
                 });
+
+        if (iter == m_schemas.end()) {
+            return std::make_pair(nullptr, std::move(restRef));
+        }
+
+        return std::make_pair(iter->get(), std::move(restRef));
     }
 
     Generator& m_generator;
     commsdsl::parse::Protocol m_protocol;
     LoggerPtr m_logger;
-    NamespacesList m_namespaces;
-    std::string m_schemaNamespace;
-    std::string m_mainNamespace;
+    SchemasList m_schemas;
+    Schema* m_currentSchema = nullptr;
+    std::map<std::string, std::string> m_namespaceOverrides;
     std::string m_topNamespace;
-    commsdsl::parse::Endian m_schemaEndian = commsdsl::parse::Endian_Little;
-    unsigned m_parsedSchemaVersion = 0U;
     int m_forcedSchemaVersion = -1;
     unsigned m_minRemoteVersion = 0U;
     std::string m_outputDir;
     std::string m_codeDir;
-    const Field* m_messageIdField = nullptr;
     mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
-    bool m_versionDependentCode = false;
 }; 
 
 Generator::Generator() : 
@@ -561,9 +472,9 @@ unsigned Generator::getMinRemoteVersion() const
     return m_impl->getMinRemoteVersion();
 }
 
-void Generator::setMainNamespaceOverride(const std::string& value)
+void Generator::setNamespaceOverride(const std::string& value)
 {
-    m_impl->setMainNamespaceOverride(value);
+    m_impl->setNamespaceOverride(value);
 }
 
 void Generator::setTopNamespace(const std::string& value)
@@ -596,6 +507,16 @@ const std::string& Generator::getCodeDir() const
     return m_impl->getCodeDir();
 }
 
+void Generator::setMultipleSchemasEnabled(bool enabled)
+{
+    m_impl->setMultipleSchemasEnabled(enabled);
+}
+
+bool Generator::getMultipleSchemasEnabled() const
+{
+    return m_impl->getMultipleSchemasEnabled();
+}
+
 void Generator::setVersionIndependentCodeForced(bool value)
 {
     m_impl->setVersionIndependentCodeForced(value);
@@ -606,45 +527,10 @@ bool Generator::getVersionIndependentCodeForced() const
     return m_impl->getVersionIndependentCodeForced();
 }
 
-unsigned Generator::parsedSchemaVersion() const
-{
-    return m_impl->parsedSchemaVersion();
-}
-
-unsigned Generator::schemaVersion() const
-{
-    return m_impl->schemaVersion();
-}
-
-const std::string& Generator::mainNamespace() const
-{
-    return m_impl->mainNamespace();
-}
-
-const std::string& Generator::schemaName() const
-{
-    return m_impl->schemaName();
-}
-
-parse::Endian Generator::schemaEndian() const
-{
-    return m_impl->schemaEndian();
-}
-
-const Generator::PlatformNamesList& Generator::platformNames() const
-{
-    return m_impl->platformNames();
-}
-
-const Field* Generator::getMessageIdField() const
-{
-    return m_impl->getMessageIdField();
-}
-
 const Field* Generator::findField(const std::string& externalRef) const
 {
     auto* field = m_impl->findField(externalRef);
-    assert(field->isPrepared());
+    assert((field == nullptr) || (field->isPrepared()));
     return field;
 }
 
@@ -671,6 +557,24 @@ const Message* Generator::findMessage(const std::string& externalRef) const
     return m_impl->findMessage(externalRef);
 }
 
+Message* Generator::findMessage(const std::string& externalRef) 
+{
+    auto* msg = m_impl->findMessage(externalRef);
+    do {
+        if (msg->isPrepared()) {
+            break;
+        }
+
+        if (msg->prepare()) {
+            break;
+        }
+
+        logger().warning("Failed to prepare message: " + msg->dslObj().externalRef());
+        msg = nullptr;
+    } while (false);
+    return msg;
+}
+
 const Frame* Generator::findFrame(const std::string& externalRef) const
 {
     return m_impl->findFrame(externalRef);
@@ -681,35 +585,30 @@ const Interface* Generator::findInterface(const std::string& externalRef) const
     return m_impl->findInterface(externalRef);
 }
 
+const Schema& Generator::schemaOf(const Elem& elem)
+{
+    auto* parent = elem.getParent();
+    assert(parent != nullptr);
+    if (parent->elemType() == Elem::Type_Schema) {
+        return static_cast<const Schema&>(*parent);
+    }
+
+    return schemaOf(*parent);
+}
+
 Generator::NamespacesAccessList Generator::getAllNamespaces() const
 {
-    NamespacesAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto subResult = n->getAllNamespaces();
-        result.insert(result.end(), subResult.begin(), subResult.end());
-        result.push_back(n.get());
-    }
-    return result;
+    return currentSchema().getAllNamespaces();
 }
 
 Generator::InterfacesAccessList Generator::getAllInterfaces() const
 {
-    InterfacesAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto subResult = n->getAllInterfaces();
-        result.insert(result.end(), subResult.begin(), subResult.end());
-    }
-    return result;
+    return currentSchema().getAllInterfaces();
 }
 
 Generator::MessagesAccessList Generator::getAllMessages() const
 {
-    MessagesAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto subResult = n->getAllMessages();
-        result.insert(result.end(), subResult.begin(), subResult.end());
-    }
-    return result;
+    return currentSchema().getAllMessages();
 }
 
 Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
@@ -733,12 +632,7 @@ Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
 
 Generator::FramesAccessList Generator::getAllFrames() const
 {
-    FramesAccessList result;
-    for (auto& n : m_impl->namespaces()) {
-        auto nList = n->getAllFrames();
-        result.insert(result.end(), nList.begin(), nList.end());
-    }
-    return result;
+    return currentSchema().getAllFrames();
 }
 
 bool Generator::prepare(const FilesList& files)
@@ -773,17 +667,7 @@ bool Generator::doesElementExist(
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    unsigned sVersion = schemaVersion();
-
-    if (sVersion < sinceVersion) {
-        return false;
-    }
-
-    if (deprecatedRemoved && (deprecatedSince <= getMinRemoteVersion())) {
-        return false;
-    }
-
-    return true;
+    return currentSchema().doesElementExist(sinceVersion, deprecatedSince, deprecatedRemoved);
 }
 
 bool Generator::isElementOptional(
@@ -791,26 +675,13 @@ bool Generator::isElementOptional(
     unsigned deprecatedSince,
     bool deprecatedRemoved) const
 {
-    if (getMinRemoteVersion() < sinceVersion) {
-        return true;
-    }
-
-    if (deprecatedRemoved && (deprecatedSince < commsdsl::parse::Protocol::notYetDeprecated())) {
-        return true;
-    }
-
-    return false;
+    return currentSchema().isElementOptional(sinceVersion, deprecatedSince, deprecatedRemoved);
 }
 
 bool Generator::isElementDeprecated(unsigned deprecatedSince) const
 {
-    return deprecatedSince < schemaVersion();
+    return currentSchema().isElementDeprecated(deprecatedSince);
 } 
-
-bool Generator::versionDependentCode() const
-{
-    return m_impl->versionDependentCode();
-}
 
 Logger& Generator::logger()
 {
@@ -837,14 +708,39 @@ const Logger& Generator::logger() const
     return *loggerPtr;
 }
 
-Generator::NamespacesList& Generator::namespaces()
+const Generator::SchemasList& Generator::schemas() const
 {
-    return m_impl->namespaces();
+    return m_impl->schemas();
 }
 
-const Generator::NamespacesList& Generator::namespaces() const
+Schema& Generator::currentSchema()
 {
-    return m_impl->namespaces();
+    return m_impl->currentSchema();
+}
+
+const Schema& Generator::currentSchema() const
+{
+    return m_impl->currentSchema();
+}
+
+Schema& Generator::protocolSchema()
+{
+    return m_impl->protocolSchema();
+}
+
+const Schema& Generator::protocolSchema() const
+{
+    return m_impl->protocolSchema();
+}
+
+bool Generator::isCurrentProtocolSchema() const
+{
+    return &currentSchema() == &protocolSchema();
+}
+
+SchemaPtr Generator::createSchema(commsdsl::parse::Schema dslObj, Elem* parent)
+{
+    return createSchemaImpl(dslObj, parent);
 }
 
 NamespacePtr Generator::createNamespace(commsdsl::parse::Namespace dslObj, Elem* parent)
@@ -1007,6 +903,11 @@ bool Generator::prepareImpl()
     return true;
 }
 
+SchemaPtr Generator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+{
+    return std::make_unique<Schema>(*this, dslObj, parent);
+}
+
 NamespacePtr Generator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
 {
     return std::make_unique<Namespace>(*this, dslObj, parent);
@@ -1134,16 +1035,18 @@ Generator::LoggerPtr Generator::createLoggerImpl()
 
 Namespace* Generator::addDefaultNamespace()
 {
-    auto& nsList = m_impl->namespaces();
-    for (auto& nsPtr : nsList) {
-        assert(nsPtr);
-        if ((!nsPtr->dslObj().valid()) || nsPtr->dslObj().name().empty()) {
-            return nsPtr.get();
-        }
-    }
+    return currentSchema().addDefaultNamespace();
+}
 
-    auto iter = nsList.insert(nsList.begin(), createNamespace(commsdsl::parse::Namespace(nullptr), nullptr));
-    return iter->get();
+void Generator::chooseCurrentSchema(unsigned idx)
+{
+    m_impl->chooseCurrentSchema(idx);
+}
+
+void Generator::chooseProtocolSchema()
+{
+    assert(!schemas().empty());
+    chooseCurrentSchema(static_cast<unsigned>(schemas().size() - 1U));
 }
 
 } // namespace gen

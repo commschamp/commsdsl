@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test48" endian="big">
+    <description>
+        Testing complex length fields
+    </description>
+    <fields>
+        <enum name="MsgId" type="uint8" semanticType="messageId" >
+            <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
+            <validValue name="M4" val="4" />
+            <validValue name="M5" val="5" />
+            <validValue name="M6" val="6" />
+        </enum>
+
+        <bundle name="Length" semanticType="length" valueOverride="replace">
+            <int name="Short" type="uint8">
+                <special name="HasLong" val="0xff" />
+            </int>
+            <optional name="Long" defaultMode="missing" cond="$Short = 0xff">
+                <int name="ActLong" type="uint16" />
+            </optional>
+        </bundle>
+
+        <bitfield name="Length2" semanticType="length" valueOverride="replace">
+            <int name="Len" type="uint16" bitLength="14" />
+            <set name="Flags" bitLength="2">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </bitfield>      
+
+        <bitfield name="Length3" valueOverride="replace" copyCodeFrom="Length2">
+            <int name="Len" type="uint16" bitLength="12" />
+            <enum name="SomeVal" type="uint8" bitLength="4">
+                <validValue name="V0" val="0" />
+                <validValue name="V1" val="0xf" />
+            </enum>
+        </bitfield>          
+
+        <int name="VariantType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
+
+        <variant name="Variant1">
+            <bundle name="P0">
+                <int name="Type" reuse="VariantType" defaultValidValue="0"/>
+                <ref field="Length" />
+                <int name="Val" type="uint8" />
+            </bundle>
+            <bundle name="P1">
+                <int name="Type" reuse="VariantType" defaultValidValue="1"/>
+                <ref field="Length" />
+                <int name="Val" type="uint16" />
+            </bundle>
+            <bundle name="P2">
+                <int name="Type" reuse="VariantType" defaultValidValue="2"/>
+                <ref field="Length" />
+                <string name="Val"/>
+            </bundle>
+        </variant>
+    </fields>
+    
+    <message name="Msg1" id="MsgId.M1">
+        <list name="F1" element="Variant1" />
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <string name="F1" lengthPrefix="Length" />
+    </message>    
+
+    <message name="Msg3" id="MsgId.M3">
+        <data name="F1" lengthPrefix="Length" defaultValue="0102030405"/>
+    </message>   
+
+    <message name="Msg4" id="MsgId.M4">
+        <list name="F1" lengthPrefix="Length">
+            <int name="Elem" type="uint16" />
+        </list>
+    </message>     
+
+    <message name="Msg5" id="MsgId.M5">
+        <list name="F1" lengthPrefix="Length2" elemLengthPrefix="Length">
+            <string name="Elem" />
+        </list>
+    </message>    
+
+    <message name="Msg6" id="MsgId.M6">
+        <string name="F1">
+            <lengthPrefix>
+                <ref field="Length3" semanticType="length" />
+            </lengthPrefix>
+        </string>
+    </message>         
+
+    <frame name="Frame">
+        <sync name="Sync">
+            <int name="Prefix" type="uint16" defaultValue="0xabcd" />
+        </sync>
+        <size name="Size" field="Length" />
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>     
+</schema>

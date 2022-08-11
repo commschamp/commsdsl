@@ -38,7 +38,22 @@ function (cc_prefetch)
         find_package(Git REQUIRED)
     endif ()
 
-    if (EXISTS "${CC_FETCH_SRC_DIR}/cmake/CC_External.cmake")
+    if (EXISTS "${CC_FETCH_SRC_DIR}/.git")
+        execute_process (
+            COMMAND ${GIT_EXECUTABLE} fetch
+            WORKING_DIRECTORY ${CC_FETCH_SRC_DIR}
+        )
+
+        execute_process (
+            COMMAND ${GIT_EXECUTABLE} checkout ${CC_FETCH_TAG}
+            WORKING_DIRECTORY ${CC_FETCH_SRC_DIR}
+        )  
+
+        execute_process (
+            COMMAND ${GIT_EXECUTABLE} pull
+            WORKING_DIRECTORY ${CC_FETCH_SRC_DIR}
+        )        
+
         return ()
     endif()    
 

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema13"
+        id="1"
+        endian="big">
+    <fields>
+        <bitfield name="F1">
+            <int name="M1" type="uint16" bitLength="14" />
+            <set name="M2" bitLength="2">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </bitfield>
+
+        <bitfield name="F2" reuse="F1">
+            <replace>
+                <enum name="M2" type="uint8" bitLength="2">
+                    <validValue name="V0" val="0" />
+                    <validValue name="V1" val="1" />
+                </enum>
+            </replace>
+        </bitfield>        
+    </fields>
+</schema>

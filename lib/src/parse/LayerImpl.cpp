@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -522,7 +522,7 @@ bool LayerImpl::checkFieldAsChild()
 
     m_extField = nullptr;
     m_field = std::move(field);
-    assert(m_field->externalRef().empty());
+    assert(m_field->externalRef(false).empty());
     return true;
 }
 

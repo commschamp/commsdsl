@@ -1,0 +1,33 @@
+/// Override ValueType
+using ValueType = std::size_t;
+
+/// @brief Custom retrieval of value
+std::size_t getValue() const
+{
+    if (field_short().isHasLong()) {
+        return static_cast<std::size_t>(field_long().field().value());
+    }
+
+    return static_cast<std::size_t>(field_short().value());
+}
+
+/// @brief Custom set of value
+template <typename U>
+void setValue(U&& val)
+{
+    if (static_cast<std::size_t>(val) < Field_short::valueHasLong()) {
+        field_short().setValue(std::forward<U>(val));
+        field_long().setMissing();
+        return;
+    }
+
+    field_short().setHasLong();
+    field_long().setExists();
+    field_long().field().setValue(std::forward<U>(val));
+}
+
+/// @brief Custom set of value
+static constexpr std::size_t maxValue()
+{
+    return std::numeric_limits<std::uint16_t>::max();
+}

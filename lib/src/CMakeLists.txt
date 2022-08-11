@@ -172,6 +172,7 @@ set (
     gen/ProgramOptions.cpp
     gen/PayloadLayer.cpp
     gen/RefField.cpp
+    gen/Schema.cpp
     gen/SetField.cpp
     gen/SizeLayer.cpp
     gen/StringField.cpp

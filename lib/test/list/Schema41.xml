@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema41"
+        id="1"
+        endian="big">
+    <ns name="ns1">
+        <fields>
+            <list name="L1">
+                <element>
+                    <int name="Elem" type="uint32" />
+                </element>
+                <termSuffix>
+                    <int name="TermSuffix" type="uint8" defaultValue="0" />
+                </termSuffix>
+            </list>
+
+            <int name="TermSuffix" type="uint16" defaultValue="0" />
+            <list name="L2" termSuffix="ns1.TermSuffix">
+                <element>
+                    <int name="Elem" type="uint32" />
+                </element>
+            </list>
+
+            <list name="L3" reuse="ns1.L2" />
+
+            <list name="L4" reuse="ns1.L2">
+                <termSuffix>
+                    <int name="TermSuffix" type="uint8" defaultValue="0" />
+                </termSuffix>
+            </list>
+
+            <bundle name="B1">
+                <int name="TermSuffix" type="uint8" defaultValue="0" />
+                <int name="SomeOtherField" type="uint8" defaultValue="0" />
+                <list name="List" termSuffix="$TermSuffix">
+                    <element>
+                        <int name="Elem" type="uint32" />
+                    </element>
+                </list>
+            </bundle>
+
+        </fields>
+    </ns>
+</schema>

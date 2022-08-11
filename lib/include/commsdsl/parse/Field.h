@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
 
 #pragma once
 
+#include <map>
 #include <string>
+#include <vector>
 
 #include "commsdsl/CommsdslApi.h"
-#include "Schema.h"
 #include "OverrideType.h"
 
 namespace commsdsl
@@ -26,14 +27,14 @@ namespace commsdsl
 
 namespace parse
 {
-
+    
 class FieldImpl;
 class COMMSDSL_API Field
 {
 public:
 
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = std::multimap<std::string, std::string>;
+    using ElementsList = std::vector<std::string>;
 
     enum class Kind
     {
@@ -77,7 +78,7 @@ public:
     unsigned sinceVersion() const;
     unsigned deprecatedSince() const;
     bool isDeprecatedRemoved() const;
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef = true) const;
     bool isPseudo() const;
     bool isDisplayReadOnly() const;
     bool isDisplayHidden() const;
@@ -85,12 +86,14 @@ public:
     bool isFailOnInvalid() const;
     bool isForceGen() const;
     std::string schemaPos() const;
+    OverrideType valueOverride() const;
     OverrideType readOverride() const;
     OverrideType writeOverride() const;
     OverrideType refreshOverride() const;
     OverrideType lengthOverride() const;
     OverrideType validOverride() const;
     OverrideType nameOverride() const;
+    const std::string& copyCodeFrom() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

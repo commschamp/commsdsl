@@ -126,6 +126,26 @@ bool CommsIntField::commsVariantIsValidPropKey() const
     return true;
 }
 
+bool CommsIntField::commsVariantIsPropKeyEquivalent(const CommsIntField& other) const
+{
+    auto thisDslObj = intDslObj();
+    auto otherDslObj = other.intDslObj();
+
+    auto thisType = comms::cppIntTypeFor(thisDslObj.type(), thisDslObj.maxLength());
+    auto otherType = comms::cppIntTypeFor(otherDslObj.type(), otherDslObj.maxLength());
+    if (thisType != otherType) {
+        return false;
+    }
+
+    auto thisOpts = commsDefFieldOptsInternal(true);
+    auto otherOpts = other.commsDefFieldOptsInternal(true);
+    if (thisOpts != otherOpts) {
+        return false;
+    }
+
+    return thisDslObj.endian() == otherDslObj.endian();
+}
+
 bool CommsIntField::prepareImpl()
 {
     return Base::prepareImpl() && commsPrepare();
@@ -231,7 +251,7 @@ std::string CommsIntField::commsDefRefreshFuncBodyImpl() const
         "if (Base::valid()) {\n"
         "    return updated;\n"
         "};\n"
-        "Base::value() = static_cast<ValueType>(#^#VALID_VALUE#$#);\n"
+        "Base::setValue(#^#VALID_VALUE#$#);\n"
         "return true;\n";
 
     auto obj = intDslObj();
@@ -247,7 +267,7 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
     auto obj = intDslObj();
 
     bool validCheckVersion =
-        generator().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {
@@ -314,11 +334,11 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
         }
 
         if (r.m_min == r.m_max) {
-            conds.push_back("(static_cast<ValueType>(" + minVal + ") == Base::value())");
+            conds.push_back("(static_cast<ValueType>(" + minVal + ") == Base::getValue())");
         }
         else {
-            conds.push_back("(static_cast<ValueType>(" + minVal + ") <= Base::value())");
-            conds.push_back("(Base::value() <= static_cast<ValueType>(" + maxVal + "))");
+            conds.push_back("(static_cast<ValueType>(" + minVal + ") <= Base::getValue())");
+            conds.push_back("(Base::getValue() <= static_cast<ValueType>(" + maxVal + "))");
         }
 
         util::ReplacementMap rangeRepl = {
@@ -334,101 +354,86 @@ std::string CommsIntField::commsDefValidFuncBodyImpl() const
     return util::processTemplate(Templ, repl);    
 }
 
-std::string CommsIntField::commsCompareToValueCodeImpl(
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+std::size_t CommsIntField::commsMinLengthImpl() const
 {
-    try {
-        std::string newValStr;
-        if (isUnsignedType()) {
-            newValStr = util::numToString(static_cast<std::uintmax_t>(std::stoull(value)));
-        }
-        else {
-            newValStr = util::numToString(static_cast<std::intmax_t>(std::stoll(value)));
-        }
+    if (intDslObj().availableLengthLimit()) {
+        return 1U;
+    }
 
-        return CommsBase::commsCompareToValueCodeImpl(op, newValStr, nameOverride, forcedVersionOptional);
-    }
-    catch (...) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
-        assert(Should_not_happen);
-        return strings::emptyString();
-    }
+    return CommsBase::commsMinLengthImpl();
 }
 
-std::string CommsIntField::commsCompareToFieldCodeImpl(
-    const std::string& op, 
-    const CommsField& field, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
+std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
 {
-    auto usedName = nameOverride;
-    if (usedName.empty()) {
-        usedName = comms::accessName(dslObj().name());
-    }
+    static_cast<void>(accStr);
+    assert(accStr.empty());
 
-    auto strGenFunc =
-        [this, &op, &field, &usedName, forcedVersionOptional](const std::string& type)
+    auto valToString = 
+        [this](std::intmax_t val)
         {
-            bool thisOptional = forcedVersionOptional || commsIsVersionOptional();
-            bool otherOptional = field.commsIsVersionOptional();
-
-            auto fieldName = comms::accessName(field.field().dslObj().name());
-
-            std::string thisFieldValue;
-            if (thisOptional) {
-                thisFieldValue = "field_" + usedName + "().field().value() ";
-            }
-            else {
-                thisFieldValue = "field_" + usedName + "().value() ";
+            if (isUnsignedType()) {
+                return util::numToString(static_cast<std::uintmax_t>(val));
             }
 
-            std::string otherFieldValue;
-            if (otherOptional) {
-                otherFieldValue = "field_" + fieldName + "().field().value()";
-            }
-            else {
-                otherFieldValue = "field_" + fieldName + "().value()";
-            }
-
-            auto compareExpr = thisFieldValue + op + " static_cast<" + type + ">(" + otherFieldValue + ')';
-
-            if ((!thisOptional) && (!otherOptional)) {
-                return compareExpr;
-            }
-
-
-            if ((!thisOptional) && (otherOptional)) {
-                return
-                    "field_" + fieldName + "().doesExist() &&\n(" +
-                    compareExpr + ")";
-            }
-
-            if ((thisOptional) && (!otherOptional)) {
-                return
-                    "field_" + usedName + "().doesExist() &&\n(" +
-                    compareExpr + ")";
-            }
-
-            return
-                "field_" + usedName + "().doesExist() &&\n" +
-                "field_" + fieldName + "().doesExist() &&\n(" +
-                compareExpr + ")";
+            return util::numToString(val);      
         };
 
-    if (field.field().dslObj().kind() != dslObj().kind()) {
-        return strGenFunc(comms::cppIntTypeFor(intDslObj().type(), intDslObj().maxLength()));
+    if (value.empty()) {
+        return valToString(intDslObj().defaultValue());
+    }
+    
+    try {
+        if (isUnsignedType()) {
+            return util::numToString(static_cast<std::uintmax_t>(std::stoull(value, nullptr, 0)));
+        }
+
+        return util::numToString(static_cast<std::intmax_t>(std::stoll(value, nullptr, 0)));
+    }
+    catch (...) {
+        // nothing to do
     }
 
-    auto& otherField = static_cast<const CommsIntField&>(field);
-    if (isUnsignedType() == otherField.isUnsignedType()) {
-        return CommsBase::commsCompareToFieldCodeImpl(op, field, usedName, forcedVersionOptional);
+    auto& specials = intDslObj().specialValues();
+    auto iter = specials.find(value);
+    if (iter != specials.end()) {
+        return valToString(iter->second.m_value);
     }
 
-    return strGenFunc(comms::cppIntChangedSignTypeFor(otherField.intDslObj().type(), otherField.intDslObj().maxLength()));    
+    auto& gen = generator();
+    do {
+        auto pos = value.find_first_of(".");
+        auto fieldRef = value; // copy
+        std::string valueSubstr;
+
+        if (pos < value.size() && (value[0] == strings::schemaRefPrefix())) {
+            pos = value.find_first_of(".", pos + 1); // find second
+        }
+
+        if (pos < value.size()) {
+            fieldRef = value.substr(0, pos);
+            valueSubstr = value.substr(pos + 1);
+        }
+
+        auto field = gen.findField(fieldRef);
+        if (field == nullptr) {
+            break;        
+        }
+
+        auto* commsField = dynamic_cast<const CommsField*>(field);
+        assert(commsField != nullptr);
+        auto newValue = commsField->commsCompPrepValueStr(std::string(), valueSubstr);
+        if (newValue.empty() || (newValue == strings::unexpectedValueStr())) {
+            break;
+        }
+
+        return commsCompPrepValueStrImpl(std::string(), newValue);
+    } while (false);
+
+    gen.logger().error("Unknown value comparison string \"" + value + "\" for field " + comms::scopeFor(*this, gen));
+    static constexpr bool Not_yet_implemented = false;
+    static_cast<void>(Not_yet_implemented);
+    assert(Not_yet_implemented);
+    return strings::unexpectedValueStr();
 }
 
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
@@ -615,12 +620,12 @@ std::string CommsIntField::commsDefSpecialsCodeInternal() const
             "/// @brief Check the value is equal to special @ref value#^#SPEC_ACC#$#().\n"
             "bool is#^#SPEC_ACC#$#() const\n"
             "{\n"
-            "    return Base::value() == value#^#SPEC_ACC#$#();\n"
+            "    return Base::getValue() == value#^#SPEC_ACC#$#();\n"
             "}\n\n"
             "/// @brief Assign special value @ref value#^#SPEC_ACC#$#() to the field.\n"
             "void set#^#SPEC_ACC#$#()\n"
             "{\n"
-            "    Base::value() = value#^#SPEC_ACC#$#();\n"
+            "    Base::setValue(value#^#SPEC_ACC#$#());\n"
             "}\n"            
         );
 
@@ -693,7 +698,7 @@ std::string CommsIntField::commsDefBaseClassInternal(bool variantPropKey) const
     auto& gen = generator();
     auto dslObj = intDslObj();
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", gen.mainNamespace()},
+        {"PROT_NAMESPACE", gen.schemaOf(*this).mainNamespace()},
         {"FIELD_BASE_PARAMS", commsFieldBaseParams(dslObj.endian())},
         {"FIELD_TYPE", comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength())},
         {"FIELD_OPTS", commsDefFieldOptsInternal(variantPropKey)}
@@ -825,7 +830,7 @@ void CommsIntField::commsAddDefaultValueOptInternal(StringsList& opts) const
     if ((defaultValue == 0) &&
         (obj.semanticType() == commsdsl::parse::Field::SemanticType::Version)) {
         std::string str = "comms::option::def::DefaultNumValue<";
-        str += util::numToString(generator().schemaVersion());
+        str += util::numToString(generator().schemaOf(*this).schemaVersion());
         str += '>';
         util::addToStrList(std::move(str), opts);
         return;
@@ -867,7 +872,7 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
         ((type != commsdsl::parse::IntField::Type::Uintvar) && (obj.maxLength() >= sizeof(std::int64_t)));
 
     bool validCheckVersion =
-        generator().versionDependentCode() &&
+        generator().schemaOf(*this).versionDependentCode() &&
         obj.validCheckVersion();
 
     if (!validCheckVersion) {

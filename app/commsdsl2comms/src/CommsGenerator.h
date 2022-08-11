@@ -30,6 +30,7 @@ public:
     using InterfacePtr = commsdsl::gen::InterfacePtr;
     using LayerPtr = commsdsl::gen::LayerPtr;
     using MessagePtr = commsdsl::gen::MessagePtr;
+    using SchemaPtr = commsdsl::gen::SchemaPtr;
     using NamespacePtr = commsdsl::gen::NamespacePtr;
     using ExtraMessageBundle = std::pair<std::string, MessagesAccessList>;
     using ExtraMessageBundlesList = std::vector<ExtraMessageBundle>;
@@ -49,16 +50,20 @@ public:
     const std::string& getProtocolVersion() const;
     void setProtocolVersion(const std::string& value);
 
+    bool getMainNamespaceInOptionsForced() const;
+    void setMainNamespaceInOptionsForced(bool value);
+    bool hasMainNamespaceInOptions() const;
+
     const std::vector<std::string>& getExtraInputBundles() const;
     void setExtraInputBundles(const std::vector<std::string>& inputBundles);
     const ExtraMessageBundlesList& extraMessageBundles() const;
 
     static const std::string& minCommsVersion();
 
-
 protected:
     virtual bool prepareImpl() override;
 
+    virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent) override;
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
@@ -97,6 +102,7 @@ private:
     std::string m_protocolVersion;
     std::vector<std::string> m_extraInputBundles;
     ExtraMessageBundlesList m_extraMessageBundles;
+    bool m_mainNamespaceInOptionsForced = false;
 };
 
 } // namespace commsdsl2comms

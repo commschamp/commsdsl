@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -267,7 +267,7 @@ bool EnumFieldImpl::updateEndian()
         return true;
     }
 
-    m_state.m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    m_state.m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
     if (m_state.m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;
@@ -628,22 +628,7 @@ bool EnumFieldImpl::updateHexAssign()
 
 bool EnumFieldImpl::updateAvailableLengthLimit()
 {
-    if (!validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit)) {
-        return false;
-    }
-
-    auto iter = props().find(common::availableLengthLimitStr());
-    if (iter == props().end()) {
-        return true;
-    }
-
-    if (!protocol().isAvailableLengthLimitSupported()) {
-        logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().schema().dslVersion();        
-        m_state.m_availableLengthLimit = false;
-    }
-
-    return true;
+    return validateAndUpdateBoolPropValue(common::availableLengthLimitStr(), m_state.m_availableLengthLimit);
 }
 
 bool EnumFieldImpl::strToValue(
@@ -683,6 +668,7 @@ bool EnumFieldImpl::strToValue(
         }
         return true;
     }
+
 
     bool ok = false;
     if (IntFieldImpl::isBigUnsigned(m_state.m_type)) {

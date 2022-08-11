@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schema name="test32"
-        id="1"
         endian="big"
         version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
+            <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
         <enum name="Prop" type="uint8">
             <validValue name="P1" val="0" />
             <validValue name="P2" val="1" />
             <validValue name="P3" val="2" />
+            <validValue name="P4" val="3" />
         </enum>
         <int name="PropType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
         <variant name="Variant1">
@@ -33,18 +35,102 @@
                     <validValue name="V3" val="0xffffff" />
                 </enum>
             </bundle>            
+            <bundle name="P4">
+                <int name="Type" reuse="PropType" defaultValidValue="Prop.P4"/>
+                <int name="Length" type="uint8" semanticType="length" />
+                <set name="Value" type="uint32" availableLengthLimit="true">
+                    <bit name="B0" idx="0" />
+                    <bit name="B8" idx="8" />
+                    <bit name="B16" idx="16" />
+                    <bit name="B24" idx="24" />
+                </set>
+            </bundle>            
             <bundle name="Any">
                 <int name="Type" type="uint8"/>
                 <int name="Length" type="uint8" semanticType="length" />
                 <data name="Value" />
             </bundle>
         </variant>
+
+        <bundle name="ComplexLength" semanticType="length" valueOverride="replace" readOverride="replace" refreshOverride="replace">
+            <int name="Short" type="uint8">
+                <special name="LongPresent" val="0xff" />
+            </int>
+            <optional name="Long" cond="$Short = 0xff">
+                <int name="ActLong" type="uint16" />
+            </optional>
+        </bundle>
+
+        <variant name="Variant2">
+            <bundle name="P1">
+                <int name="Type" reuse="PropType" defaultValidValue="Prop.P1"/>
+                <ref field="ComplexLength" name="Length" />
+                <int name="Value" type="uint32" availableLengthLimit="true"/>
+            </bundle>
+            <bundle name="P2">
+                <int name="Type" reuse="PropType" defaultValidValue="Prop.P2"/>
+                <ref field="ComplexLength" name="Length" />
+                <int name="value" type="uint8" />
+            </bundle>
+            <bundle name="P3">
+                <int name="Type" reuse="PropType" defaultValidValue="Prop.P3"/>
+                <ref field="ComplexLength" name="Length" />
+                <enum name="Value" type="uint32" availableLengthLimit="true">
+                    <validValue name="V1" val="0xff" />
+                    <validValue name="V2" val="0xffff" />
+                    <validValue name="V3" val="0xffffff" />
+                </enum>
+            </bundle>            
+            <bundle name="P4">
+                <int name="Type" reuse="PropType" defaultValidValue="Prop.P4"/>
+                <ref field="ComplexLength" name="Length" />
+                <set name="Value" type="uint32" availableLengthLimit="true">
+                    <bit name="B0" idx="0" />
+                    <bit name="B8" idx="8" />
+                    <bit name="B16" idx="16" />
+                    <bit name="B24" idx="24" />
+                </set>
+            </bundle>            
+            <bundle name="Any">
+                <int name="Type" type="uint8"/>
+                <ref field="ComplexLength" name="Length" />
+                <data name="Value" />
+            </bundle>
+        </variant>        
     </fields>
     
     <message name="Msg1" id="MsgId.M1">
         <ref name="F1" field="Variant1" />
         <int name="F2" type="uint16" />
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <bundle name="F1">
+            <int name="Length" type="uint8" semanticType="length" />
+            <int name="Value" type="uint32" availableLengthLimit="true"/>
+        </bundle>
+
+        <bundle name="F2">
+            <int name="Length" type="uint8" semanticType="length" />
+            <enum name="Value" type="uint32" availableLengthLimit="true">
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="0xffff" />
+            </enum>
+        </bundle>
+
+        <bundle name="F3">
+            <int name="Length" type="uint8" semanticType="length" />
+            <set name="Value" type="uint32" availableLengthLimit="true">
+                <bit name="B0" idx="0" />
+                <bit name="B16" idx="16" />
+            </set>
+        </bundle>
+    </message>    
+
+    <message name="Msg3" id="MsgId.M3">
+        <ref name="F1" field="Variant2" />
+        <int name="F2" type="uint16" />
+    </message>    
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />

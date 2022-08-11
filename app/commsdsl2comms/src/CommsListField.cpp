@@ -54,7 +54,6 @@ bool CommsListField::prepareImpl()
 
                 auto commsField = dynamic_cast<CommsField*>(field);
                 assert(commsField != nullptr);
-                commsField->commsSetReferenced();
                 return commsField;
             };
 
@@ -66,7 +65,17 @@ bool CommsListField::prepareImpl()
         m_commsMemberLengthPrefixField = castField(memberLengthPrefixField());
         m_commsExternalElemLengthPrefixField = castField(externalElemLengthPrefixField());
         m_commsMemberElemLengthPrefixField = castField(memberElemLengthPrefixField());
+        m_commsExternalTermSuffixField = castField(externalTermSuffixField());
+        m_commsMemberTermSuffixField = castField(memberTermSuffixField());
     }
+
+    if (!listDslObj().detachedTermSuffixFieldName().empty()) {
+        generator().logger().error(
+            "Detached termination suffix is currently not supported, "
+            "please contact the developer and request this feature");
+        return false;
+    }
+    
     return result;
 }
 
@@ -94,6 +103,7 @@ CommsListField::IncludesList CommsListField::commsCommonIncludesImpl() const
     addIncludesFrom(m_commsMemberCountPrefixField);
     addIncludesFrom(m_commsMemberLengthPrefixField);
     addIncludesFrom(m_commsMemberElemLengthPrefixField);
+    addIncludesFrom(m_commsMemberTermSuffixField);
     return result;
 }
 
@@ -119,6 +129,7 @@ std::string CommsListField::commsCommonMembersCodeImpl() const
     addMemberCode(m_commsMemberCountPrefixField);
     addMemberCode(m_commsMemberLengthPrefixField);
     addMemberCode(m_commsMemberElemLengthPrefixField);
+    addMemberCode(m_commsMemberTermSuffixField);
     return util::strListToString(memberDefs, "\n", "");
 }
 
@@ -143,6 +154,7 @@ CommsListField::IncludesList CommsListField::commsDefIncludesImpl() const
     addExternalFieldInclude(m_commsExternalCountPrefixField);
     addExternalFieldInclude(m_commsExternalLengthPrefixField);
     addExternalFieldInclude(m_commsExternalElemLengthPrefixField);
+    addExternalFieldInclude(m_commsExternalTermSuffixField);
 
     auto addIncludesFrom = 
         [&result](const CommsField* commsField)
@@ -160,6 +172,7 @@ CommsListField::IncludesList CommsListField::commsDefIncludesImpl() const
     addIncludesFrom(m_commsMemberCountPrefixField);
     addIncludesFrom(m_commsMemberLengthPrefixField);
     addIncludesFrom(m_commsMemberElemLengthPrefixField);
+    addIncludesFrom(m_commsMemberTermSuffixField);
 
     auto obj = listDslObj();
     if ((!obj.detachedCountPrefixFieldName().empty()) ||
@@ -194,6 +207,7 @@ std::string CommsListField::commsDefMembersCodeImpl() const
     addMemberCode(m_commsMemberCountPrefixField);
     addMemberCode(m_commsMemberLengthPrefixField);
     addMemberCode(m_commsMemberElemLengthPrefixField);
+    addMemberCode(m_commsMemberTermSuffixField);
     return util::strListToString(memberDefs, "\n", "");
 }
 
@@ -207,7 +221,7 @@ std::string CommsListField::commsDefBaseClassImpl() const
     ">";    
 
     util::ReplacementMap repl = {
-        {"PROT_NAMESPACE", generator().mainNamespace()},
+        {"PROT_NAMESPACE", generator().schemaOf(*this).mainNamespace()},
         {"ELEMENT", commsDefElementInternal()},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
@@ -256,7 +270,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
             if ((!versionOptional) && (!prefixVersionOptional)) {
                 static const std::string Templ =
                     "field_#^#NAME#$#().#^#FUNC#$#(\n"
-                    "    static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().value()));\n";
+                    "    static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().getValue()));\n";
 
                 preps.push_back(util::processTemplate(Templ, repl));
                 return;
@@ -266,7 +280,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
                 static const std::string Templ =
                     "if (field_#^#NAME#$#().doesExist()) {\n"
                     "    field_#^#NAME#$#().field().#^#FUNC#$#(\n"
-                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().value()));\n"
+                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().getValue()));\n"
                     "}\n";
 
                 preps.push_back(util::processTemplate(Templ, repl));
@@ -277,7 +291,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
                 static const std::string Templ =
                     "if (field_#^#PREFIX_NAME#$#().doesExist()) {\n"
                     "    field_#^#NAME#$#().#^#FUNC#$#(\n"
-                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().value()));\n"
+                    "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().getValue()));\n"
                     "}\n";
 
                 preps.push_back(util::processTemplate(Templ, repl));
@@ -288,7 +302,7 @@ std::string CommsListField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
             static const std::string Templ =
                 "if (field_#^#NAME#$#().doesExist() && field_#^#PREFIX_NAME#$#().doesExist()) {\n"
                 "    field_#^#NAME#$#().field().#^#FUNC#$#(\n"
-                "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().value()));\n"
+                "        static_cast<std::size_t>(field_#^#PREFIX_NAME#$#().field().getValue()));\n"
                 "}\n";
 
             preps.push_back(util::processTemplate(Templ, repl));
@@ -355,16 +369,16 @@ std::string CommsListField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
 
             static const std::string Templ = 
                 "do {\n"
-                "    auto expectedValue = static_cast<std::size_t>(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value());\n"
+                "    auto expectedValue = static_cast<std::size_t>(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.getValue());\n"
                 "    #^#REAL_VALUE#$#\n"
                 "    if (expectedValue == realValue) {\n"
                 "        break;\n"
                 "    }\n\n"
-                "    using PrefixValueType = typename std::decay<decltype(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value())>::type;\n"
+                "    using PrefixValueType = typename std::decay<decltype(field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.getValue())>::type;\n"
                 "    static const auto MaxPrefixValue = static_cast<std::size_t>(std::numeric_limits<PrefixValueType>::max());\n"
                 "    auto maxAllowedValue = std::min(MaxPrefixValue, realValue);\n"
                 "    #^#ADJUST_LIST#$#\n"
-                "    field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.value() = static_cast<PrefixValueType>(#^#PREFIX_VALUE#$#);\n"
+                "    field_#^#PREFIX_NAME#$#()#^#PREFIX_ACC#$#.setValue(#^#PREFIX_VALUE#$#);\n"
                 "    updated = true;\n"
                 "} while (false);\n";
 
@@ -475,29 +489,13 @@ bool CommsListField::commsIsVersionDependentImpl() const
 
     if ((m_commsMemberElemLengthPrefixField != nullptr) && (m_commsMemberElemLengthPrefixField->commsIsVersionDependent())) {
         return true;
-    }            
+    }    
+
+    if ((m_commsMemberTermSuffixField != nullptr) && (m_commsMemberTermSuffixField->commsIsVersionDependent())) {
+        return true;
+    }              
 
     return false;
-}
-
-std::string CommsListField::commsCompareToValueCodeImpl(
-    const std::string& op, 
-    const std::string& value, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
-{
-    assert(false); // Should not be called
-    return CommsBase::commsCompareToValueCodeImpl(op, value, nameOverride, forcedVersionOptional);
-}
-
-std::string CommsListField::commsCompareToFieldCodeImpl(
-    const std::string& op, 
-    const CommsField& field, 
-    const std::string& nameOverride, 
-    bool forcedVersionOptional) const
-{
-    assert(false); // Should not be called
-    return CommsBase::commsCompareToFieldCodeImpl(op, field, nameOverride, forcedVersionOptional);  
 }
 
 std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
@@ -527,7 +525,11 @@ std::string CommsListField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFu
 
     if (m_commsMemberElemLengthPrefixField != nullptr) {
         addStr((m_commsMemberElemLengthPrefixField->*fieldOptsFunc)());
-    }      
+    }   
+
+    if (m_commsMemberTermSuffixField != nullptr) {
+        addStr((m_commsMemberTermSuffixField->*fieldOptsFunc)());
+    }           
 
     return util::strListToString(elems, "\n", "");
 }
@@ -559,6 +561,20 @@ std::size_t CommsListField::commsMaxLengthImpl() const
     return comms::maxPossibleLength();
 }
 
+void CommsListField::commsSetReferencedImpl()
+{
+    commsUpdateFieldReferencedIfExists(m_commsExternalElementField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberElementField);
+    commsUpdateFieldReferencedIfExists(m_commsExternalCountPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberCountPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsExternalLengthPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberLengthPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsExternalElemLengthPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberElemLengthPrefixField);
+    commsUpdateFieldReferencedIfExists(m_commsExternalTermSuffixField);
+    commsUpdateFieldReferencedIfExists(m_commsMemberTermSuffixField);
+}
+
 std::string CommsListField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;
@@ -568,6 +584,7 @@ std::string CommsListField::commsDefFieldOptsInternal() const
     commsAddCountPrefixOptInternal(opts);
     commsAddLengthPrefixOptInternal(opts);
     commsAddElemLengthPrefixOptInternal(opts);
+    commsAddTermSuffixOptInternal(opts);
     commsAddLengthForcingOptInternal(opts);
 
     return util::strListToString(opts, ",\n", "");
@@ -681,6 +698,30 @@ void CommsListField::commsAddElemLengthPrefixOptInternal(StringsList& opts) cons
     }
 
     opts.push_back("comms::option::def::" + opt + "<" + prefixName + '>');    
+}
+
+void CommsListField::commsAddTermSuffixOptInternal(StringsList& opts) const
+{
+    if ((m_commsExternalTermSuffixField == nullptr) && (m_commsMemberTermSuffixField == nullptr)) {
+        return;
+    }
+
+    std::string suffixName;
+    if (m_commsMemberTermSuffixField != nullptr) {
+        suffixName = "typename " + comms::className(name()) + strings::membersSuffixStr();
+        if (comms::isGlobalField(*this)) {
+            suffixName += "<TOpt>";
+        }
+
+        suffixName += "::" + comms::className(m_commsMemberTermSuffixField->field().name());
+    }
+    else {
+        assert(m_commsExternalTermSuffixField != nullptr);
+        suffixName = comms::scopeFor(m_commsExternalTermSuffixField->field(), generator(), true, true);
+        suffixName += "<TOpt> ";
+    }
+
+    opts.push_back("comms::option::def::SequenceTerminationFieldSuffix<" + suffixName + '>');
 }
 
 void CommsListField::commsAddLengthForcingOptInternal(StringsList& opts) const

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,6 @@
 #include "commsdsl/CommsdslApi.h"
 #include "ErrorLevel.h"
 #include "Schema.h"
-#include "Namespace.h"
 #include "Field.h"
 
 namespace commsdsl
@@ -38,9 +37,7 @@ class COMMSDSL_API Protocol
 {
 public:
     using ErrorReportFunction = std::function<void (ErrorLevel, const std::string&)>;
-    using NamespacesList = std::vector<Namespace>;
-    using MessagesList = Namespace::MessagesList;
-    using PlatformsList = Message::PlatformsList;
+    using SchemasList = std::vector<Schema>;
 
     Protocol();
     ~Protocol();
@@ -50,8 +47,9 @@ public:
     bool parse(const std::string& input);
     bool validate();
 
-    Schema schema() const;
-    NamespacesList namespaces() const;
+    SchemasList schemas() const;
+
+    Schema lastParsedSchema() const;
 
     static constexpr unsigned notYetDeprecated() noexcept
     {
@@ -60,11 +58,10 @@ public:
 
     Field findField(const std::string& externalRef) const;
 
-    MessagesList allMessages() const;
-
     void addExpectedExtraPrefix(const std::string& value);
 
-    const PlatformsList& platforms() const;
+    void setMultipleSchemasEnabled(bool value);
+    bool getMultipleSchemasEnabled() const;
 
 private:
     std::unique_ptr<ProtocolImpl> m_pImpl;

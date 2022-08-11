@@ -26,14 +26,6 @@ namespace commsdsl2comms
 namespace
 {
 
-#ifdef COMMS_TAG
-#define COMMS_TAG_QUITE_(x_) #x_
-#define COMMS_TAG_QUITE(x_) COMMS_TAG_QUITE_(x_)
-const std::string DefaultCommsTag(COMMS_TAG_QUITE(COMMS_TAG));
-#else
-const std::string DefaultCommsTag("master");
-#endif    
-
 const std::string QuietStr("quiet");
 const std::string FullQuietStr("q," + QuietStr);
 const std::string DebugStr("debug");
@@ -57,9 +49,12 @@ const std::string FullProtocolVerStr("V," + ProtocolVerStr);
 const std::string MinRemoteVerStr("min-remote-version");
 const std::string FullMinRemoteVerStr("m," + MinRemoteVerStr);
 const std::string CustomizationStr("customization");
-const std::string CommsTagStr("comms-tag");
 const std::string VersionIndependentCodeStr("version-independent-code");
 const std::string ExtraMessagesBundleStr("extra-messages-bundle");
+const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
+const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
+const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
+
 
 } // namespace
 
@@ -72,7 +67,11 @@ CommsProgramOptions::CommsProgramOptions()
     (FullOutputDirStr, "Output directory path. When not provided current is used.", true)        
     (FullInputFilesListStr, "File containing list of input files.", true)        
     (FullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
-    (FullNamespaceStr, "Force protocol namespace. Defaults to schema name.", true) 
+    (FullNamespaceStr, 
+        "Force main namespace change. Defaults to schema name. "
+        "In case of having multiple schemas the renaming happends to the last protocol one. "
+        "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
+        true) 
     (WarnAsErrStr, "Treat warning as error.")
     (FullCodeInputDirStr, 
         "Directory with code updates.", true)
@@ -88,10 +87,6 @@ CommsProgramOptions::CommsProgramOptions()
         "  * \"limited\" - For limited customization of variable length fields and messages.\n"
         "  * \"none\" - No compile time customization is allowed.",
         std::string("limited"))
-    (CommsTagStr, 
-        "Default tag/branch of the COMMS library project, will be used by the "
-        "main \"CMakeLists.txt\" file of the generated project.",
-        DefaultCommsTag)
     (VersionIndependentCodeStr,
         "By default the generated code is version dependent if at least one defined "
         "interface has \"version\" field. Use this switch to forcefully disable generation "
@@ -105,7 +100,9 @@ CommsProgramOptions::CommsProgramOptions()
         "The Name part (with separating @) can be omitted, in such case file basename is used as bundle name. "
         "Multiple bundles are separated by comma (\'Name1@ListFile1,Name2@ListFile2\').",
         true)
- 
+    (FullMultipleSchemasEnabledStr, 
+        "Allow having multiple schemas with different names.")
+    (ForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
     ;
 }
 
@@ -193,11 +190,6 @@ const std::string& CommsProgramOptions::getCustomizationLevel() const
     return value(CustomizationStr);
 }
 
-const std::string& CommsProgramOptions::getCommsLibTag() const
-{
-    return value(CommsTagStr);
-}
-
 bool CommsProgramOptions::versionIndependentCodeRequested() const
 {
     return isOptUsed(VersionIndependentCodeStr);
@@ -206,6 +198,16 @@ bool CommsProgramOptions::versionIndependentCodeRequested() const
 std::vector<std::string> CommsProgramOptions::getExtraInputBundles() const
 {
     return commsdsl::gen::util::strSplitByAnyChar(value(ExtraMessagesBundleStr), ",");    
+}
+
+bool CommsProgramOptions::multipleSchemasEnabled() const
+{
+    return isOptUsed(MultipleSchemasEnabledStr);
+}
+
+bool CommsProgramOptions::isMainNamespaceInOptionsForced() const
+{
+    return isOptUsed(ForceMainNamespaceInOptionsStr);
 }
 
 } // namespace commsdsl2comms

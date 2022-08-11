@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ XmlWrap::NamesList getExtraNames()
     names.push_back(common::countPrefixStr());
     names.push_back(common::lengthPrefixStr());
     names.push_back(common::elemLengthPrefixStr());
+    names.push_back(common::termSuffixStr());
     return names;
 }
 
@@ -92,6 +93,7 @@ const XmlWrap::NamesList& ListFieldImpl::extraPossiblePropsNamesImpl() const
         common::countPrefixStr(),
         common::lengthPrefixStr(),
         common::elemLengthPrefixStr(),
+        common::termSuffixStr(),
     };
     return List;
 }
@@ -127,7 +129,8 @@ bool ListFieldImpl::parseImpl()
         updateCountPrefix() &&
         updateLengthPrefix() &&
         updateElemFixedLength() &&
-        updateElemLengthPrefix();
+        updateElemLengthPrefix() &&
+        updateTermSuffix();
         
 }
 
@@ -156,6 +159,10 @@ std::size_t ListFieldImpl::minLengthImpl() const
     if (hasLengthPrefixField()) {
         return lengthPrefixField().minLength();
     }
+
+    if (hasTermSuffixField()) {
+        return termSuffixField().minLength();
+    }    
 
     return 0U;
 }
@@ -229,6 +236,11 @@ void ListFieldImpl::cloneFields(const ListFieldImpl& other)
         assert(other.m_state.m_extElemLengthPrefixField == nullptr);
         m_elemLengthPrefixField = other.m_elemLengthPrefixField->clone();
     }
+
+    if (other.m_termSuffixField) {
+        assert(other.m_state.m_extTermSuffixField == nullptr);
+        m_termSuffixField = other.m_termSuffixField->clone();
+    }    
 }
 
 bool ListFieldImpl::updateElement()
@@ -266,9 +278,14 @@ bool ListFieldImpl::updateCount()
         return false;
     }
 
-    if ((hasCountPrefixField()) || (hasLengthPrefixField())) {
+    if ((hasCountPrefixField()) || (hasLengthPrefixField()) || (hasTermSuffixField()) ||
+        (!m_state.m_detachedCountPrefixField.empty()) ||
+        (!m_state.m_detachedLengthPrefixField.empty()) ||
+        (!m_state.m_detachedElemLengthPrefixField.empty()) ||
+        (!m_state.m_detachedTermSuffixField.empty())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Cannot force fixed length after reusing data sequence with count or length prefixes.";
+            "Cannot use " << common::countStr() << " property after reusing list with " << 
+            common::countPrefixStr() << ", " << common::lengthPrefixStr() << ", or" << common::termSuffixStr() << ".";
         return false;
     }
 
@@ -289,15 +306,21 @@ bool ListFieldImpl::updateCountPrefix()
 
     if (m_state.m_count != 0U) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Element count prefix is not applicable to fixed length data sequences.";
+            common::countStr() << " and " << common::countPrefixStr() << " cannot be used together.";
         return false;
     }
 
     if (hasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Element count and serialisation length prefixes cannot be used together.";
+            common::lengthPrefixStr() << " and " << common::countPrefixStr() << " cannot be used together.";
         return false;
     }
+
+    if (hasTermSuffixField() || (!m_state.m_detachedTermSuffixField.empty())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            common::termSuffixStr() << " and " << common::countPrefixStr() << " cannot be used together.";
+        return false;
+    }    
 
     return true;
 }
@@ -315,15 +338,21 @@ bool ListFieldImpl::updateLengthPrefix()
 
     if (m_state.m_count != 0U) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Serialisation length prefix is not applicable to fixed length data sequences.";
+            common::countStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }
 
     if (hasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Element count and serialisation length prefixes cannot be used together.";
+            common::countPrefixStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
         return false;
     }
+
+    if (hasTermSuffixField() || (!m_state.m_detachedTermSuffixField.empty())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            common::termSuffixStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
+        return false;
+    }     
 
     return true;
 }
@@ -378,6 +407,48 @@ bool ListFieldImpl::updateElemFixedLength()
             "true when list element has variable length.";
         return false;
     }
+    return true;
+}
+
+bool ListFieldImpl::updateTermSuffix()
+{
+    auto& prop = common::termSuffixStr();
+    if ((!checkPrefixFromRef(prop, m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField)) ||
+        (!checkPrefixAsChild(prop, m_state.m_extTermSuffixField, m_termSuffixField, m_state.m_detachedTermSuffixField))) {
+        return false;
+    }
+
+    if ((!hasTermSuffixField()) && (m_state.m_detachedTermSuffixField.empty())) {
+        return true;
+    }
+
+    if (!protocol().isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Usage of the " << prop << " property is not supported for the used dslVersion, ignoring...";
+        m_state.m_extTermSuffixField = nullptr;
+        m_state.m_detachedTermSuffixField.clear();
+        m_termSuffixField.reset();
+        return true;
+    }
+
+    if (m_state.m_count != 0U) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            common::termSuffixStr() << " and " << common::countStr() << " cannot be used together.";
+        return false;
+    }
+
+    if (hasCountPrefixField() || (!m_state.m_detachedCountPrefixField.empty())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            common::termSuffixStr() << " and " << common::countPrefixStr() << " cannot be used together.";
+        return false;
+    }
+
+    if (hasLengthPrefixField() || (!m_state.m_detachedLengthPrefixField.empty())) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            common::termSuffixStr() << " and " << common::lengthPrefixStr() << " cannot be used together.";
+        return false;
+    }    
+
     return true;
 }
 
@@ -516,7 +587,7 @@ bool ListFieldImpl::checkElementAsChild()
 
     m_state.m_extElementField = nullptr;
     m_elementField = std::move(field);
-    assert(m_elementField->externalRef().empty());
+    assert(m_elementField->externalRef(false).empty());
     return true;
 }
 
@@ -541,7 +612,7 @@ bool ListFieldImpl::checkPrefixFromRef(
         return false;
     }
 
-    if (str[0] == '$') {
+    if (str[0] == common::siblingRefPrefix()) {
         if (!checkDetachedPrefixAllowed()) {
             return false;
         }
@@ -567,10 +638,11 @@ bool ListFieldImpl::checkPrefixFromRef(
         return false;
     }
 
-    if (field->kind() != Kind::Int) {
+    if ((field->kind() != Kind::Int) && (field->semanticType() != SemanticType::Length)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
             "The field referenced by \"" << type <<
-            "\" property (" << iter->second << ") must be of type \"" << common::intStr() << "\".";
+            "\" property (" << iter->second << ") must be of type \"" << common::intStr() << 
+            "\" or have semanticType=\"length\" property set.";
         return false;
     }
 
@@ -628,12 +700,6 @@ bool ListFieldImpl::checkPrefixAsChild(
     auto fieldNode = prefixFields.front();
     assert(fieldNode->name != nullptr);
     std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
-    if (fieldKind != common::intStr()) {
-        logError() << XmlWrap::logPrefix(fieldNode) <<
-            "The field defined by \"" << type <<
-            "\" element must be of type \"" << common::intStr() << "\".";
-        return false;
-    }
 
     auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
     if (!field) {
@@ -647,6 +713,13 @@ bool ListFieldImpl::checkPrefixAsChild(
     if (!field->parse()) {
         return false;
     }
+
+    if ((field->kind() != Kind::Int) && (field->semanticType() != SemanticType::Length)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The \"" << type << "\" element  must be of type \"" << common::intStr() << 
+            "\" or have semanticType=\"length\" property set.";
+        return false;
+    }      
 
     extField = nullptr;
     locField = std::move(field);
@@ -690,9 +763,10 @@ bool ListFieldImpl::verifySiblingsForPrefix(
     }
 
     auto fieldKind = getNonRefFieldKind(*sibling);
-    if (fieldKind != Kind::Int) {
+    if ((fieldKind != Kind::Int) && (sibling->semanticType() != SemanticType::Length)) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-            "Detached prefix \"" << detachedName << "\" is expected to be of \"" << common::intStr() << "\" type.";
+            "Detached prefix \"" << detachedName << "\" is expected to be of \"" << common::intStr() << "\" type "
+            "or have semanticType=\"length\" property set.";
         return false;
     }
 

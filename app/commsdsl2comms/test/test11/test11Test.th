@@ -1,12 +1,19 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test11/Message.h"
-#include "test11/message/Msg1.h"
+#include "test11/frame/Frame.h"
+
+#include "comms/iterator.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
 
     using Interface =
         test11::Message<
@@ -20,6 +27,12 @@ public:
         >;
 
     using Msg1 = test11::message::Msg1<Interface>;
+    using Msg2 = test11::message::Msg2<Interface>;
+    using Msg3 = test11::message::Msg3<Interface>;
+    using Msg4 = test11::message::Msg4<Interface>;
+    using Msg5 = test11::message::Msg5<Interface>;
+    using Msg6 = test11::message::Msg6<Interface>;
+    using Frame = test11::frame::Frame<Interface>;
 };
 
 void TestSuite::test1()
@@ -30,3 +43,237 @@ void TestSuite::test1()
     TS_ASSERT(msg.refresh());
     TS_ASSERT(!msg.field_f5().doesExist());
 }
+
+void TestSuite::test2()
+{
+    Frame frame;
+    do {
+        static const std::uint8_t Buf[] = {
+            0x02, // MsgId.M2
+            0xde, 0xad, // F1
+            0xbe, 0xef, // F3
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        auto* msg = dynamic_cast<Msg2*>(msgPtr.get());
+        TS_ASSERT(msg != nullptr);
+        TS_ASSERT_EQUALS(msg->field_f1().value(), 0xdead);
+        TS_ASSERT(msg->field_f2().isMissing());
+        TS_ASSERT_EQUALS(msg->field_f3().value(), 0xbeef);
+    } while (false);
+
+    do {
+        static const std::uint8_t Buf[] = {
+            0x02, // MsgId.M2
+            0xde, 0xad, // F1
+            0x05, // F2
+            0xbe, 0xef, // F3
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        auto* msg = dynamic_cast<Msg2*>(msgPtr.get());
+        TS_ASSERT(msg != nullptr);
+        TS_ASSERT_EQUALS(msg->field_f1().value(), 0xdead);
+        TS_ASSERT(msg->field_f2().doesExist());
+        TS_ASSERT_EQUALS(msg->field_f2().field().value(), 0x05);
+        TS_ASSERT_EQUALS(msg->field_f3().value(), 0xbeef);
+    } while (false);    
+}
+
+void TestSuite::test3()
+{
+    Frame frame;
+    do {
+        static const std::uint8_t Buf[] = {
+            0x03, // MsgId.M3
+            0x01, 0x02, // F1
+            0x01, // F2
+            0x01, // F3
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        auto* msg = dynamic_cast<Msg3*>(msgPtr.get());
+        TS_ASSERT(msg != nullptr);
+        TS_ASSERT_EQUALS(msg->field_f1().value(), 0x0102);
+        TS_ASSERT_EQUALS(msg->field_f2().value(), Msg3::Field_f2::ValueType::V1);
+        TS_ASSERT_EQUALS(msg->field_f3().value(), 1U);
+        TS_ASSERT(msg->field_o1().isMissing());
+        TS_ASSERT(msg->field_o2().isMissing());
+        TS_ASSERT(msg->field_o3().isMissing());
+    } while (false);
+ 
+}
+
+void TestSuite::test4()
+{
+    Frame frame;
+    do {
+        static const std::uint8_t Buf[] = {
+            0x04, // MsgId.M4
+            0x00, // F1.M1
+            0x01, // F1.M2 // invalid
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
+        TS_ASSERT(!msgPtr);
+    } while (false);
+
+    do {
+        static const std::uint8_t Buf[] = {
+            0x04, // MsgId.M4
+            0x01, // F1.M1
+            0x01, // F1.M2 
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        TS_ASSERT(msgPtr);
+        TS_ASSERT(msgPtr->valid());
+    } while (false);    
+
+    do {
+        Msg4 msg;
+        TS_ASSERT(msg.doValid());
+        msg.field_f1().field_m2().setValue(1U);
+        TS_ASSERT(!msg.doValid());
+        TS_ASSERT(msg.doRefresh());
+        TS_ASSERT(msg.doValid());
+        TS_ASSERT_EQUALS(msg.field_f1().field_m2().getValue(), 0U);
+    } while (false);     
+}
+
+void TestSuite::test5()
+{
+    Frame frame;
+    do {
+        static const std::uint8_t Buf[] = {
+            0x05, // MsgId.M5
+            0xde, 0xad, // F1
+            0xbe, 0xef, // F3
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        auto* msg = dynamic_cast<Msg5*>(msgPtr.get());
+        TS_ASSERT(msg != nullptr);
+        TS_ASSERT_EQUALS(msg->field_f1().value(), 0xdead);
+        TS_ASSERT(msg->field_f2().isMissing());
+        TS_ASSERT_EQUALS(msg->field_f3().value(), 0xbeef);
+    } while (false);
+
+    do {
+        static const std::uint8_t Buf[] = {
+            0x05, // MsgId.M5
+            0xde, 0xad, // F1
+            0x05, // F2
+            0xbe, 0xef, // F3
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        auto* msg = dynamic_cast<Msg5*>(msgPtr.get());
+        TS_ASSERT(msg != nullptr);
+        TS_ASSERT_EQUALS(msg->field_f1().value(), 0xdead);
+        TS_ASSERT(msg->field_f2().doesExist());
+        TS_ASSERT_EQUALS(msg->field_f2().field().value(), 0x05);
+        TS_ASSERT_EQUALS(msg->field_f3().value(), 0xbeef);
+    } while (false);   
+
+    do {
+        Msg5 msg;
+        msg.field_f2().setExists();
+        msg.field_f2().field().setValue(11);
+        TS_ASSERT(!msg.doValid());
+        TS_ASSERT(msg.doRefresh());
+        TS_ASSERT(msg.doValid());
+        TS_ASSERT(msg.field_f2().isMissing());
+        TS_ASSERT_EQUALS(msg.length(), 4U);
+    } while (false);
+}
+
+void TestSuite::test6()
+{
+    Frame frame;
+    do {
+        static const std::uint8_t Buf[] = {
+            0x06, // MsgId.M6
+            0x00, // M1
+            0x01, // M2 // invalid
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        TS_ASSERT(msgPtr);
+        auto* msg6 = dynamic_cast<Msg6*>(msgPtr.get());
+        TS_ASSERT(msg6 != nullptr);
+        TS_ASSERT(msg6->field_f1().isMissing());
+
+    } while (false);
+
+    do {
+        static const std::uint8_t Buf[] = {
+            0x06, // MsgId.M6
+            0x01, // M1
+            0x01, // M2 
+        };
+        
+        static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+        Frame::MsgPtr msgPtr;
+        auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+        auto es = frame.read(msgPtr, readIter, BufSize);
+        TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+        TS_ASSERT(msgPtr);
+        auto* msg6 = dynamic_cast<Msg6*>(msgPtr.get());
+        TS_ASSERT(msg6 != nullptr);
+        TS_ASSERT(msg6->field_f1().doesExist());
+    } while (false);    
+
+    do {
+        Msg6 msg;
+        TS_ASSERT(msg.doValid());
+        msg.field_f1().setExists();
+        msg.field_f1().field().field_m2().setValue(1U);
+        TS_ASSERT(!msg.doValid());
+        TS_ASSERT(msg.doRefresh());
+        TS_ASSERT(msg.doValid());
+        TS_ASSERT(msg.field_f1().isMissing());
+    } while (false);     
+}
+

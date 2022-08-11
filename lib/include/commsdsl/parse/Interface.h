@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,8 +34,8 @@ class COMMSDSL_API Interface
 {
 public:
     using FieldsList = std::vector<Field>;
-    using AttributesMap = Schema::AttributesMap;
-    using ElementsList = Schema::ElementsList;
+    using AttributesMap = Field::AttributesMap;
+    using ElementsList = Field::ElementsList;
     using AliasesList = std::vector<Alias>;
 
     explicit Interface(const InterfaceImpl* impl);
@@ -47,7 +47,7 @@ public:
     const std::string& description() const;
     FieldsList fields() const;
     AliasesList aliases() const;
-    std::string externalRef() const;
+    std::string externalRef(bool schemaRef = true) const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

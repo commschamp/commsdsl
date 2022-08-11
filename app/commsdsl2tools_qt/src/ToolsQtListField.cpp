@@ -46,10 +46,6 @@ bool ToolsQtListField::prepareImpl()
 
     m_toolsMemberElementField = dynamic_cast<ToolsQtField*>(memberElementField());
     m_toolsExternalElementField = dynamic_cast<ToolsQtField*>(externalElementField());
-
-    if (m_toolsExternalElementField != nullptr) {
-        m_toolsExternalElementField->toolsSetReferenced();
-    }    
     return true;
 }
 
@@ -144,6 +140,12 @@ std::string ToolsQtListField::toolsDefMembersImpl() const
 
     elems.push_back(m_toolsMemberElementField->toolsDefFunc());
     return util::strListToString(elems, "\n", "");
+}
+
+void ToolsQtListField::toolsSetReferencedImpl()
+{
+    toolsUpdateFieldReferencedIfExists(m_toolsMemberElementField);
+    toolsUpdateFieldReferencedIfExists(m_toolsExternalElementField);
 }
 
 std::string ToolsQtListField::toolsPrefixNameInternal() const

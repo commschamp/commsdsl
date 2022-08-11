@@ -1,0 +1,230 @@
+#include "cxxtest/TestSuite.h"
+
+#include "comms/iterator.h"
+#include "test48/Message.h"
+#include "test48/frame/Frame.h"
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
+
+    using Interface = test48::Message<>;
+    using Msg1 = test48::message::Msg1<Interface>;
+    using Msg2 = test48::message::Msg2<Interface>;
+    using Msg3 = test48::message::Msg3<Interface>;
+    using Msg4 = test48::message::Msg4<Interface>;
+    using Msg5 = test48::message::Msg5<Interface>;
+    using Msg6 = test48::message::Msg6<Interface>;
+    using Frame = test48::frame::Frame<Interface>;
+};
+
+void TestSuite::test1()
+{
+    Msg1 outMsg;
+    auto& propsList = outMsg.field_f1().value();
+    propsList.resize(3);
+    propsList[0].initField_p0().field_val().value() = 0xaa;
+    propsList[1].initField_p1().field_val().value() = 0x0123;
+    propsList[2].initField_p2().field_val().value().assign(300, 'a');
+
+    outMsg.doRefresh();
+
+    std::vector<std::uint8_t> buf;
+    Frame frame;
+    auto writeIter = std::back_inserter(buf);
+
+    auto es = frame.write(outMsg, writeIter, buf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(!buf.empty());
+
+    auto readIter = &buf[0];
+    Frame::MsgPtr inMsg;
+    auto id = test48::MsgId_ValuesLimit;
+    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(outMsg.doGetId(), id);
+
+    auto* inMsg1 = static_cast<Msg1*>(inMsg.get());
+    TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg1->field_f1());
+
+    static const std::uint8_t BufPrefix[] = {
+        0xab, 0xcd, // sync
+        0xff, 0x01, 0x38, // size
+        0x01, // msg id
+        0x0, // P0 type
+        0x01, // P0 length
+        0xaa, // P0 value
+        0x01, // P1 type
+        0x02, // P1 length
+        0x01, 0x23, // P1 value
+        0x02, // P2 type
+        0xff, 0x01, 0x2c // P2 length
+    };
+    static const std::size_t BufPrefixSize = std::extent<decltype(BufPrefix)>::value;
+    TS_ASSERT(std::equal(std::begin(BufPrefix), std::end(BufPrefix), buf.begin()))
+    TS_ASSERT(std::equal(propsList[2].accessField_p2().field_val().value().begin(), propsList[2].accessField_p2().field_val().value().end(), buf.begin() + BufPrefixSize));
+}
+
+void TestSuite::test2()
+{
+    Msg2 outMsg;
+    outMsg.field_f1().value() = "hello";
+
+    std::vector<std::uint8_t> buf;
+    Frame frame;
+    auto writeIter = std::back_inserter(buf);
+
+    auto es = frame.write(outMsg, writeIter, buf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(!buf.empty());
+
+    auto readIter = &buf[0];
+    Frame::MsgPtr inMsg;
+    auto id = test48::MsgId_ValuesLimit;
+    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(outMsg.doGetId(), id);
+
+    auto* inMsg2 = static_cast<Msg2*>(inMsg.get());
+    TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg2->field_f1());
+
+    static const std::uint8_t Buf[] = {
+        0xab, 0xcd, // sync
+        0x07, // size
+        0x02, // msg id
+        0x05, 'h', 'e', 'l', 'l', 'o'
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    TS_ASSERT_EQUALS(frame.length(outMsg), BufSize);
+    TS_ASSERT(std::equal(std::begin(Buf), std::end(Buf), buf.begin()));
+}
+
+void TestSuite::test3()
+{
+    Msg3 outMsg;
+
+    std::vector<std::uint8_t> buf;
+    Frame frame;
+    auto writeIter = std::back_inserter(buf);
+
+    auto es = frame.write(outMsg, writeIter, buf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(!buf.empty());
+
+    auto readIter = &buf[0];
+    Frame::MsgPtr inMsg;
+    auto id = test48::MsgId_ValuesLimit;
+    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(outMsg.doGetId(), id);
+
+    auto* inMsg3= static_cast<Msg3*>(inMsg.get());
+    TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg3->field_f1());
+
+    static const std::uint8_t Buf[] = {
+        0xab, 0xcd, // sync
+        0x07, // size
+        0x03, // msg id
+        0x05, 0x01, 0x02, 0x03, 0x04, 0x05
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    TS_ASSERT_EQUALS(frame.length(outMsg), BufSize);
+    TS_ASSERT(std::equal(std::begin(Buf), std::end(Buf), buf.begin()));
+}
+
+void TestSuite::test4()
+{
+    Msg4 outMsg;
+    outMsg.field_f1().value().resize(5);
+    for (auto idx = 0U; idx < outMsg.field_f1().value().size(); ++idx) {
+        auto& elem = outMsg.field_f1().value()[idx];
+        comms::cast_assign(elem.value()) = idx + 1U;
+    }
+
+    std::vector<std::uint8_t> buf;
+    Frame frame;
+    auto writeIter = std::back_inserter(buf);
+
+    auto es = frame.write(outMsg, writeIter, buf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(!buf.empty());
+
+    auto readIter = &buf[0];
+    Frame::MsgPtr inMsg;
+    auto id = test48::MsgId_ValuesLimit;
+    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(outMsg.doGetId(), id);
+
+    auto* inMsg4= static_cast<Msg4*>(inMsg.get());
+    TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg4->field_f1());
+}
+
+
+void TestSuite::test5()
+{
+    Msg5 outMsg;
+    outMsg.field_f1().value().resize(5);
+    for (auto idx = 0U; idx < outMsg.field_f1().value().size(); ++idx) {
+        auto& elem = outMsg.field_f1().value()[idx];
+        comms::cast_assign(elem.value()) = "hello" + std::to_string(idx);
+    }
+
+    std::vector<std::uint8_t> buf;
+    Frame frame;
+    auto writeIter = std::back_inserter(buf);
+
+    auto es = frame.write(outMsg, writeIter, buf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(!buf.empty());
+
+    auto readIter = &buf[0];
+    Frame::MsgPtr inMsg;
+    auto id = test48::MsgId_ValuesLimit;
+    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(outMsg.doGetId(), id);
+
+    auto* inMsg5= static_cast<Msg5*>(inMsg.get());
+    TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg5->field_f1());
+}
+
+void TestSuite::test6()
+{
+    Msg6 outMsg;
+    outMsg.field_f1().value() = "hello";
+
+    std::vector<std::uint8_t> buf;
+    Frame frame;
+    auto writeIter = std::back_inserter(buf);
+
+    auto es = frame.write(outMsg, writeIter, buf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(!buf.empty());
+
+    auto readIter = &buf[0];
+    Frame::MsgPtr inMsg;
+    auto id = test48::MsgId_ValuesLimit;
+    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(outMsg.doGetId(), id);
+
+    auto* inMsg6 = static_cast<Msg6*>(inMsg.get());
+    TS_ASSERT_EQUALS(outMsg.field_f1(), inMsg6->field_f1());
+
+    static const std::uint8_t Buf[] = {
+        0xab, 0xcd, // sync
+        0x08, // size
+        0x06, // msg id
+        0x0, 0x05, 'h', 'e', 'l', 'l', 'o'
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    TS_ASSERT_EQUALS(frame.length(outMsg), BufSize);
+    TS_ASSERT(std::equal(std::begin(Buf), std::end(Buf), buf.begin()));
+}

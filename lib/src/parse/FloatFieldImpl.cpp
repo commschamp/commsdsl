@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -302,7 +302,7 @@ bool FloatFieldImpl::updateEndian()
     }
 
     auto& endianStr = common::getStringProp(props(), common::endianStr());
-    m_state.m_endian = common::parseEndian(endianStr, protocol().schemaImpl().endian());
+    m_state.m_endian = common::parseEndian(endianStr, protocol().currSchema().endian());
     if (m_state.m_endian == Endian_NumOfValues) {
         reportUnexpectedPropertyValue(common::endianStr(), endianStr);
         return false;

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2021 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -92,13 +92,8 @@ bool ProtocolImpl::validate()
         }
     }
 
-    if (!validateAllMessages()) {
-        return false;
-    }
-
-    auto messageIdsCount = countMessageIds();
-    if (1U < messageIdsCount) {
-        logError() << "Only single field with \"" << common::messageIdStr() << "\" as semantic type is allowed.";
+    if ((!validateAllMessages()) ||
+        (!validateMessageIds())) {
         return false;
     }
 
@@ -106,67 +101,59 @@ bool ProtocolImpl::validate()
     return true;
 }
 
-Schema ProtocolImpl::schema() const
+ProtocolImpl::SchemasAccessList ProtocolImpl::schemas() const
 {
-    if ((!m_validated) && (!m_schema)) {
-        logError() << "Invalid access to schema object.";
-        return Schema(nullptr);
+    SchemasAccessList list;
+    for (auto& s : m_schemas) {
+        list.push_back(Schema(s.get()));
     }
 
-    return Schema(m_schema.get());
+    return list;
 }
 
-SchemaImpl& ProtocolImpl::schemaImpl()
+SchemaImpl& ProtocolImpl::currSchema()
 {
-    assert(m_schema);
-    return *m_schema;
+    assert(m_currSchema != nullptr);
+    return *m_currSchema;
 }
 
-const SchemaImpl& ProtocolImpl::schemaImpl() const
+const SchemaImpl& ProtocolImpl::currSchema() const
 {
-    assert(m_schema);
-    return *m_schema;
-}
-
-ProtocolImpl::NamespacesList ProtocolImpl::namespacesList() const
-{
-    NamespacesList result;
-    result.reserve(m_namespaces.size());
-    for (auto& n : m_namespaces) {
-        result.emplace_back(n.second.get());
-    }
-    return result;
+    assert(m_currSchema != nullptr);
+    return *m_currSchema;
 }
 
 const FieldImpl* ProtocolImpl::findField(const std::string& ref, bool checkRef) const
 {
-    std::string fieldName;
-    auto ns = getNsFromPath(ref, checkRef, fieldName);
-    if (ns == nullptr) {
+    assert(!ref.empty());
+    auto parsedRef = parseExternalRef(ref);
+    if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
         return nullptr;
     }
-    return ns->findField(fieldName);
+
+    return parsedRef.first->findField(parsedRef.second, checkRef);
 }
 
 const MessageImpl* ProtocolImpl::findMessage(const std::string& ref, bool checkRef) const
 {
-    std::string msgName;
-    auto ns = getNsFromPath(ref, checkRef, msgName);
-    if (ns == nullptr) {
+    assert(!ref.empty());
+    auto parsedRef = parseExternalRef(ref);
+    if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
         return nullptr;
     }
-    return ns->findMessage(msgName);
+
+    return parsedRef.first->findMessage(parsedRef.second, checkRef);
 }
 
 const InterfaceImpl* ProtocolImpl::findInterface(const std::string& ref, bool checkRef) const
 {
-    std::string name;
-    auto ns = getNsFromPath(ref, checkRef, name);
-    if (ns == nullptr) {
+    assert(!ref.empty());
+    auto parsedRef = parseExternalRef(ref);
+    if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
         return nullptr;
     }
 
-    return ns->findInterface(name);
+    return parsedRef.first->findInterface(parsedRef.second, checkRef);
 }
 
 bool ProtocolImpl::strToEnumValue(
@@ -281,50 +268,38 @@ bool ProtocolImpl::strToData(
             });
 }
 
-ProtocolImpl::MessagesList ProtocolImpl::allMessages() const
-{
-    auto total =
-        std::accumulate(
-            m_namespaces.begin(), m_namespaces.end(), static_cast<std::size_t>(0U),
-            [](std::size_t soFar, auto& ns) -> std::size_t
-            {
-                return soFar + ns.second->messages().size();
-            });
-
-    NamespaceImpl::MessagesList messages;
-    messages.reserve(total);
-    for (auto& ns : m_namespaces) {
-        auto nsMsgs = ns.second->messagesList();
-        messages.insert(messages.end(), nsMsgs.begin(), nsMsgs.end());
-    }
-
-    std::sort(
-        messages.begin(), messages.end(),
-        [](const auto& msg1, const auto& msg2)
-        {
-            assert(msg1.valid());
-            assert(msg2.valid());
-            auto id1 = msg1.id();
-            auto id2 = msg2.id();
-            if (id1 != id2) {
-                return id1 < id2;
-            }
-
-            return msg1.order() < msg2.order();
-        });
-
-    return messages;
-}
-
 bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
 {
-    assert(m_schema);
-    auto currDslVersion = m_schema->dslVersion();
+    auto currDslVersion = currSchema().dslVersion();
     if (currDslVersion == 0U) {
         return true;
     }
 
     return minDslVersion <= currDslVersion;
+}
+
+bool ProtocolImpl::isPropertySupported(const std::string& name) const
+{
+    static const std::map<std::string, unsigned> Map = {
+        {common::validateMinLengthStr(), 4U},
+        {common::defaultValidValueStr(), 4U},
+        {common::availableLengthLimitStr(), 4U},
+        {common::copyCodeFromStr(), 5U},
+        {common::semanticLayerTypeStr(), 5U},
+        {common::checksumFromStr(), 5U},
+        {common::checksumUntilStr(), 5U},
+        {common::termSuffixStr(), 5U},
+        {common::missingOnReadFailStr(), 5U},
+        {common::missingOnInvalidStr(), 5U},
+        {common::reuseCodeStr(), 5U},
+    };
+
+    auto iter = Map.find(name);
+    if (iter == Map.end()) {
+        return true;
+    }
+
+    return isFeatureSupported(iter->second);
 }
 
 bool ProtocolImpl::isFieldValueReferenceSupported() const
@@ -352,22 +327,7 @@ bool ProtocolImpl::isFieldAliasSupported() const
     return isFeatureSupported(3U);
 }
 
-bool ProtocolImpl::isValidateMinLengthSupported() const
-{
-    return isFeatureSupported(4U);
-}
-
-bool ProtocolImpl::isDefaultValidValueSupported() const
-{
-    return isFeatureSupported(4U);
-}
-
 bool ProtocolImpl::isCopyFieldsFromBundleSupported() const
-{
-    return isFeatureSupported(4U);
-}
-
-bool ProtocolImpl::isAvailableLengthLimitSupported() const
 {
     return isFeatureSupported(4U);
 }
@@ -375,6 +335,21 @@ bool ProtocolImpl::isAvailableLengthLimitSupported() const
 bool ProtocolImpl::isOverrideTypeSupported() const
 {
     return isFeatureSupported(4U);
+}
+
+bool ProtocolImpl::isNonIntSemanticTypeLengthSupported() const
+{
+    return isFeatureSupported(5U);
+}
+
+bool ProtocolImpl::isMemberReplaceSupported() const
+{
+    return isFeatureSupported(5U);
+}
+
+bool ProtocolImpl::isMultiSchemaSupported() const
+{
+    return isFeatureSupported(5U);
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
@@ -446,19 +421,48 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
         return false;
     }
 
-    if (!m_schema) {
-        m_schema = std::move(schema);
-
-        if (m_schema->name().empty()) {
-            logError() << XmlWrap::logPrefix(m_schema->getNode()) <<
-                "First schema definition must define \"" << common::nameStr << "\" property.";
-            return false;
-        }
-        return true;
+    auto schemaName = schema->name();
+    if (schemaName.empty() && (m_currSchema != nullptr)) {
+        schemaName = m_currSchema->name();
     }
 
+    if (schemaName.empty()) {
+        logError() << XmlWrap::logPrefix(schema->getNode()) <<
+            "First schema definition must define \"" << common::nameStr() << "\" property.";
+        return false;
+    }    
+
+    auto schemaIter = 
+        std::find_if(
+            m_schemas.begin(), m_schemas.end(), 
+            [&schemaName](auto& s)
+            {
+                return schemaName == s->name();
+            });
+
+    if (schemaIter == m_schemas.end()) {
+        assert(!schema->name().empty());
+        if ((!m_schemas.empty()) && (!isMultiSchemaSupported())) {
+            logError() << XmlWrap::logPrefix(schema->getNode()) <<
+                "Multiple schemas is not supported in the selected " << common::dslVersionStr();
+            return false;
+        }
+
+        if ((!m_schemas.empty()) && (!m_multipleSchemasEnabled)) {
+            logError() << XmlWrap::logPrefix(schema->getNode()) <<
+                "Multiple schemas support must be explicitly enabled by the code generator.";
+            return false;
+        }
+
+        m_schemas.push_back(std::move(schema));
+        m_currSchema = m_schemas.back().get();
+        return true;        
+    } 
+
+    m_currSchema = schemaIter->get();
+
     auto& props = schema->props();
-    auto& origProps = m_schema->props();
+    auto& origProps = m_currSchema->props();
     for (auto& p : props) {
         auto iter = origProps.find(p.first);
         if ((iter == origProps.end()) ||
@@ -472,7 +476,7 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
     }
 
     auto& attrs = schema->extraAttributes();
-    auto& origAttrs = m_schema->extraAttributes();
+    auto& origAttrs = m_currSchema->extraAttributes();
     for (auto& a : attrs) {
         auto iter = origAttrs.find(a.first);
         if (iter == origAttrs.end()) {
@@ -490,7 +494,7 @@ bool ProtocolImpl::validateSchema(::xmlNodePtr node)
     }
 
     auto& children = schema->extraChildrenElements();
-    auto& origChildren = m_schema->extraChildrenElements();
+    auto& origChildren = m_currSchema->extraChildrenElements();
     for (auto& c : children) {
         origChildren.push_back(c);
     }
@@ -546,13 +550,6 @@ bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
     }
 
     auto& name = iter->second;
-    auto platIter = std::lower_bound(m_platforms.begin(), m_platforms.end(), name);
-    if ((platIter != m_platforms.end()) && (*platIter == name)) {
-        logWarning() << XmlWrap::logPrefix(node) <<
-            "Platform \"" << name << "\" defined more than once.";
-        return true;
-    }
-
     static const std::string InvalidChars("+-,");
     auto pos = name.find_first_of(InvalidChars);
     if (pos != std::string::npos) {
@@ -561,12 +558,18 @@ bool ProtocolImpl::validateSinglePlatform(::xmlNodePtr node)
         return false;
     }
 
-    m_platforms.insert(platIter, name);
+    if (!currSchema().addPlatform(name)) {
+        logWarning() << XmlWrap::logPrefix(node) <<
+            "Platform \"" << name << "\" defined more than once.";
+        return true;
+    }
+
     return true;
 }
 
 bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
 {
+    auto& namespaces = currSchema().namespaces();
     auto& childrenNames = NamespaceImpl::supportedChildren();
     auto children = XmlWrap::getChildren(root, childrenNames);
     for (auto& c : children) {
@@ -579,19 +582,20 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
 
         if (cName == common::nsStr()) {
             NamespaceImplPtr ns(new NamespaceImpl(c, *this));
+            ns->setParent(&currSchema());
             if (!ns->parseProps()) {
                 return false;
             }
 
             auto& nsName = ns->name();
-            auto iter = m_namespaces.find(nsName);
+            auto iter = namespaces.find(nsName);
             NamespaceImpl* nsToProcess = nullptr;
             NamespaceImpl* realNs = nullptr;
             do {
-                if (iter == m_namespaces.end()) {
-                    m_namespaces.insert(std::make_pair(nsName, std::move(ns)));
-                    iter = m_namespaces.find(nsName);
-                    assert(iter != m_namespaces.end());
+                if (iter == namespaces.end()) {
+                    currSchema().addNamespace(std::move(ns));
+                    iter = namespaces.find(nsName);
+                    assert(iter != namespaces.end());
                     nsToProcess = iter->second.get();
                     break;
                 }
@@ -636,12 +640,9 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
             continue;
         }
 
-        auto& globalNsPtr = m_namespaces[common::emptyString()]; // create if needed
-        if (!globalNsPtr) {
-            globalNsPtr.reset(new NamespaceImpl(nullptr, *this));
-        }
+        auto& globalNs = currSchema().defaultNamespace();
 
-        if (!globalNsPtr->processChild(c)) {
+        if (!globalNs.processChild(c)) {
             return false;
         }
     }
@@ -651,114 +652,31 @@ bool ProtocolImpl::validateNamespaces(::xmlNodePtr root)
 
 bool ProtocolImpl::validateAllMessages()
 {
-    assert(m_schema);
-    bool allowNonUniquIds = m_schema->nonUniqueMsgIdAllowed();
-    auto allMsgs = allMessages();
-    if (allMsgs.empty()) {
-        return true;
-    }
-
-    for (auto iter = allMsgs.begin(); iter != (allMsgs.end() - 1); ++iter) {
-        auto nextIter = iter + 1;
-        assert(nextIter != allMsgs.end());
-
-        assert(iter->valid());
-        assert(nextIter->valid());
-        if (iter->id() != nextIter->id()) {
-            continue;
-        }
-
-        if (!allowNonUniquIds) {
-            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same id.";
-            return false;
-        }
-
-        if (iter->order() == nextIter->order()) {
-            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same \"" <<
-                          common::idStr() << "\" and \"" << common::orderStr() << "\" values.";
-            return false;
-        }
-
-        assert(iter->order() < nextIter->order());
-    }
-
-    return true;
-}
-
-unsigned ProtocolImpl::countMessageIds() const
-{
-    return
-        std::accumulate(
-            m_namespaces.begin(), m_namespaces.end(), unsigned(0U),
-            [](unsigned soFar, auto& n)
+    return 
+        std::all_of(
+            m_schemas.begin(), m_schemas.end(),
+            [](auto& s)
             {
-                return soFar + n.second->countMessageIds();
+                return s->validateAllMessages();
             });
 }
 
-const NamespaceImpl* ProtocolImpl::getNsFromPath(const std::string& ref, bool checkRef, std::string& remName) const
+bool ProtocolImpl::validateMessageIds()
 {
-    if (checkRef) {
-        if (!common::isValidRefName(ref)) {
-            logInfo(m_logger) << "Invalid ref name: " << ref;
-            return nullptr;
-        }
-    }
-    else {
-        assert(common::isValidRefName(ref));
-    }
+    return 
+        std::all_of(
+            m_schemas.begin(), m_schemas.end(),
+            [this](auto& s)
+            {
+                auto messageIdsCount = s->countMessageIds();
+                if (1U < messageIdsCount) {
+                    logError() << "Only single field with \"" << common::messageIdStr() << "\" as semantic type is allowed in schema " << s->name();
+                    return false;
+                }
+                return true;
+            });
 
 
-    auto nameSepPos = ref.find_last_of('.');
-    const NamespaceImpl* ns = nullptr;
-    do {
-        if (nameSepPos == std::string::npos) {
-            auto iter = m_namespaces.find(common::emptyString());
-            if (iter == m_namespaces.end()) {
-                return nullptr;
-            }
-
-            remName = ref;
-            ns = iter->second.get();
-            assert(ns != nullptr);
-            break;
-        }
-        
-        auto signedNameSepPos = static_cast<std::ptrdiff_t>(nameSepPos);
-        remName.assign(ref.begin() + signedNameSepPos + 1, ref.end());
-        std::size_t nsNamePos = 0;
-        assert(nameSepPos != std::string::npos);
-        while (nsNamePos < nameSepPos) {
-            auto nextDotPos = ref.find_first_of('.', nsNamePos);
-            assert(nextDotPos != std::string::npos);
-            std::string nsName(
-                    ref.begin() + static_cast<std::ptrdiff_t>(nsNamePos), 
-                    ref.begin() + static_cast<std::ptrdiff_t>(nextDotPos));
-            if (nsName.empty()) {
-                return nullptr;
-            }
-
-            auto* nsMap = &m_namespaces;
-            if (ns != nullptr) {
-                nsMap = &(ns->namespacesMap());
-            }
-
-            auto iter = nsMap->find(nsName);
-            if (iter == nsMap->end()) {
-                return nullptr;
-            }
-
-            assert(iter->second);
-            ns = iter->second.get();
-            nsNamePos = nextDotPos + 1;
-        }
-
-    } while (false);
-
-    assert(ns != nullptr);
-    return ns;
 }
 
 bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const
@@ -776,32 +694,68 @@ bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueC
 
     } while (false);
 
+    auto parsedRef = parseExternalRef(ref);
+    if ((parsedRef.first == nullptr) || (parsedRef.second.empty())) {
+        return false;
+    }
+
+    auto& namespaces = parsedRef.first->namespaces();    
+
     auto redirectToGlobalNs =
-        [this, &func, &ref]() -> bool
+        [&func, &parsedRef, &namespaces]() -> bool
         {
-            auto iter = m_namespaces.find(common::emptyString());
-            if (iter == m_namespaces.end()) {
+            auto iter = namespaces.find(common::emptyString());
+            if (iter == namespaces.end()) {
                 return false;
             }
             assert(iter->second);
-            return func(*iter->second, ref);
+            return func(*iter->second, parsedRef.second);
         };
 
-    auto firstDotPos = ref.find_first_of('.');
+    auto firstDotPos = parsedRef.second.find_first_of('.');
     if (firstDotPos == std::string::npos) {
         return redirectToGlobalNs();
     }
 
-    std::string ns(ref, 0, firstDotPos);
+    std::string ns(parsedRef.second, 0, firstDotPos);
     assert(!ns.empty());
-    auto nsIter = m_namespaces.find(ns);
-    if (nsIter == m_namespaces.end()) {
+    auto nsIter = namespaces.find(ns);
+    if (nsIter == namespaces.end()) {
         return redirectToGlobalNs();
     }
 
     assert(nsIter->second);
-    std::string subRef(ref, firstDotPos + 1);
+    std::string subRef(parsedRef.second, firstDotPos + 1);
     return func(*nsIter->second, subRef);
+}
+
+std::pair<const SchemaImpl*, std::string> ProtocolImpl::parseExternalRef(const std::string& externalRef) const
+{
+    assert(!externalRef.empty());
+    if (externalRef[0] != common::schemaRefPrefix()) {
+        return std::make_pair(&currSchema(), externalRef);
+    }
+
+    auto dotPos = externalRef.find('.');
+    if (externalRef.size() <= dotPos) {
+        return std::make_pair(nullptr, externalRef);
+    }
+
+    std::string schemaName = externalRef.substr(1, dotPos - 1);
+    auto restRef = externalRef.substr(dotPos + 1);
+    auto iter = 
+        std::find_if(
+            m_schemas.begin(), m_schemas.end(),
+            [&schemaName](auto& s)
+            {
+                return schemaName == s->name();
+            });
+
+    if (iter == m_schemas.end()) {
+        return std::make_pair(nullptr, std::move(restRef));
+    }
+
+    return std::make_pair(iter->get(), std::move(restRef));
 }
 
 LogWrapper ProtocolImpl::logError() const
@@ -823,7 +777,7 @@ bool ProtocolImpl::strToStringValue(
         return true;
     }
 
-    static const char Prefix = '^';
+    static const char Prefix = common::stringRefPrefix();
     if (str[0] == Prefix) {
         return strToString(std::string(str, 1), true, val);
     }

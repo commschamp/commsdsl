@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="ext1" endian="big">
+    <description>
+        Testing multiple schemas
+    </description>
+    <fields>
+        <int name="I1" type="uint8">        
+            <special name="S1" val="0xaa" />
+        </int>
+
+        <string name="S1" lengthPrefix="I1" />
+
+        <bitfield name="B1">
+            <int name="Mem1" type="uint8" bitLength="4" />
+            <int name="Mem2" type="uint8" bitLength="4" />
+        </bitfield>
+    </fields>
+</schema>

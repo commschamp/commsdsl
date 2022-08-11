@@ -46,6 +46,9 @@ const std::string WarnAsErrStr("warn-as-err");
 const std::string CodeInputDirStr("code-input-dir");
 const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string ProtocolStr("protocol");
+const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
+const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
+
 
 } // namespace
 
@@ -57,7 +60,11 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
     (FullOutputDirStr, "Output directory path. When not provided current is used.", true)        
     (FullInputFilesListStr, "File containing list of input files.", true)        
     (FullInputFilesPrefixStr, "Prefix for the values from the list file.", true)
-    (FullNamespaceStr, "Force protocol namespace. Defaults to schema name.", true) 
+    (FullNamespaceStr, 
+        "Force main namespace change. Defaults to schema name. "
+        "In case of having multiple schemas the renaming happends to the last protocol one. "
+        "Renaming of non-protocol or multiple schemas is allowed using <orig_name>:<new_name> comma separated pairs.",
+        true) 
     (WarnAsErrStr, "Treat warning as error.")
     (FullCodeInputDirStr, "Directory with code updates.", true)
     (ProtocolStr, 
@@ -66,6 +73,7 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
         "one frame and one interface from the schema will be chosen and code for only one protocol "
         "plugin will be generated. Can be omitted if there is only one frame and one interface types "
         "defined in the schema.", true)    
+    (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")            
     ;
 }
 
@@ -147,6 +155,11 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
         resInfo.m_desc = values[ValueIdx_Desc];
     }
     return result;
+}
+
+bool ToolsQtProgramOptions::multipleSchemasEnabled() const
+{
+    return isOptUsed(MultipleSchemasEnabledStr);
 }
 
 } // namespace commsdsl2tools_qt
