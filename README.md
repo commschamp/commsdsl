@@ -32,7 +32,7 @@ The code of this project (libraries and tools it contains)
 is licensed under [Apache v2.0](https://www.apache.org/licenses/LICENSE-2.0) license.
 
 The generated code has no license, the vendor is free to
-pick any as long as it's compatibile with the
+pick any as long as it's compatible with the
 [license](https://commschamp.github.io/licenses/) of the
 relevant [CommsChampion Ecosystem](https://commschamp.github.io) project.
 

@@ -31,7 +31,7 @@ function (test_func name)
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND}
-            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc;include" 
+            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc\;include" 
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
         DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
 
@@ -44,10 +44,10 @@ function (test_func name)
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")        
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}/include")        
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")               
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/include/dummy.txt")               
 
     ExternalProject_Add(
         ${build_tgt}
