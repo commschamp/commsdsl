@@ -52,11 +52,13 @@
             </bundle>
         </variant>
 
+        <int name="ShortLength" type="uint8">
+            <special name="LongPresent" val="0xff" />
+        </int>        
+
         <bundle name="ComplexLength" semanticType="length" valueOverride="replace" readOverride="replace" refreshOverride="replace">
-            <int name="Short" type="uint8">
-                <special name="LongPresent" val="0xff" />
-            </int>
-            <optional name="Long" cond="$Short = 0xff">
+            <ref field="ShortLength" name="Short" />
+            <optional name="Long" cond="$Short = ShortLength.LongPresent">
                 <int name="ActLong" type="uint16" />
             </optional>
         </bundle>
