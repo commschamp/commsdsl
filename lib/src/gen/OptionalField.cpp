@@ -75,6 +75,12 @@ public:
         return m_memberField.get();
     }    
 
+    void setReferenced()
+    {
+        Field::setFieldReferencedIfExists(m_externalField);
+        Field::setFieldReferencedIfExists(m_memberField.get());
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::OptionalField m_dslObj;
@@ -91,11 +97,6 @@ OptionalField::OptionalField(Generator& generator, commsdsl::parse::Field dslObj
 }
 
 OptionalField::~OptionalField() = default;
-
-bool OptionalField::prepareImpl()
-{
-    return m_impl->prepare();
-}
 
 Field* OptionalField::externalField()
 {
@@ -115,7 +116,17 @@ Field* OptionalField::memberField()
 const Field* OptionalField::memberField() const
 {
     return m_impl->memberField();
-}   
+}  
+
+bool OptionalField::prepareImpl()
+{
+    return m_impl->prepare();
+}
+
+void OptionalField::setReferencedImpl()
+{
+    m_impl->setReferenced();
+}
 
 commsdsl::parse::OptionalField OptionalField::optionalDslObj() const
 {

@@ -54,12 +54,6 @@ bool ToolsQtOptionalField::writeImpl() const
     return toolsWrite();
 }
 
-void ToolsQtOptionalField::toolsSetReferencedImpl()
-{
-    toolsUpdateFieldReferencedIfExists(m_toolsMemberField);
-    toolsUpdateFieldReferencedIfExists(m_toolsExternalField);
-}
-
 ToolsQtOptionalField::IncludesList ToolsQtOptionalField::toolsExtraSrcIncludesImpl() const
 {
     IncludesList result;

@@ -370,12 +370,6 @@ std::size_t CommsDataField::commsMaxLengthImpl() const
     return comms::maxPossibleLength();    
 }
 
-void CommsDataField::commsSetReferencedImpl()
-{
-    commsUpdateFieldReferencedIfExists(m_commsExternalPrefixField);
-    commsUpdateFieldReferencedIfExists(m_commsMemberPrefixField);
-}
-
 std::string CommsDataField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

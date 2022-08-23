@@ -50,7 +50,6 @@ protected:
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const override;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
     virtual std::size_t commsMaxLengthImpl() const override; 
-    virtual void commsSetReferencedImpl() override;
 
 private:
     std::string commsDefFieldOptsInternal() const;

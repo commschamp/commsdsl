@@ -52,7 +52,6 @@ protected:
     virtual std::size_t commsMaxLengthImpl() const override;
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
-    virtual void commsSetReferencedImpl() override;
 
 private:
     std::string commsDefFieldOptsInternal() const;

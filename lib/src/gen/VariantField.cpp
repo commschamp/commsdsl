@@ -62,6 +62,13 @@ public:
         return m_members;
     }
 
+    void setReferenced()
+    {
+        for (auto& m : m_members) {
+            m->setReferenced();
+        }
+    }    
+
 private:
     Generator& m_generator;
     commsdsl::parse::VariantField m_dslObj;
@@ -86,6 +93,11 @@ const VariantField::FieldsList& VariantField::members() const
 bool VariantField::prepareImpl()
 {
     return m_impl->prepare();
+}
+
+void VariantField::setReferencedImpl()
+{
+    m_impl->setReferenced();
 }
 
 commsdsl::parse::VariantField VariantField::variantDslObj() const

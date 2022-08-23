@@ -66,7 +66,9 @@ public:
             m_fields.begin(), m_fields.end(),
             [](auto& f)
             {
-                return f->prepare();
+                bool result = f->prepare();
+                f->setReferenced();
+                return result;
             });
     }
 

@@ -412,12 +412,6 @@ std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accSt
     return CommsBase::commsCompPrepValueStrImpl(accStr, '\"' + valueTmp + '\"');
 }
 
-void CommsStringField::commsSetReferencedImpl()
-{
-    commsUpdateFieldReferencedIfExists(m_commsExternalPrefixField);
-    commsUpdateFieldReferencedIfExists(m_commsMemberPrefixField);
-}
-
 std::string CommsStringField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

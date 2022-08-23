@@ -64,6 +64,7 @@ public:
                 return false;
             }
 
+            ptr->setReferenced();
             m_fields.push_back(std::move(ptr));
         }
 

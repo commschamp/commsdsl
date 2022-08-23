@@ -273,6 +273,20 @@ public:
         return m_memberTermSuffixField.get();
     }   
 
+    void setReferenced()
+    {
+        Field::setFieldReferencedIfExists(m_externalElementField);
+        Field::setFieldReferencedIfExists(m_memberElementField.get());
+        Field::setFieldReferencedIfExists(m_externalCountPrefixField);
+        Field::setFieldReferencedIfExists(m_memberCountPrefixField.get());
+        Field::setFieldReferencedIfExists(m_externalLengthPrefixField);
+        Field::setFieldReferencedIfExists(m_memberLengthPrefixField.get());    
+        Field::setFieldReferencedIfExists(m_externalElemLengthPrefixField);
+        Field::setFieldReferencedIfExists(m_memberElemLengthPrefixField.get());   
+        Field::setFieldReferencedIfExists(m_externalTermSuffixField);
+        Field::setFieldReferencedIfExists(m_memberTermSuffixField.get());                     
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::ListField m_dslObj;
@@ -401,6 +415,11 @@ const Field* ListField::memberTermSuffixField() const
 bool ListField::prepareImpl()
 {
     return m_impl->prepare();
+}
+
+void ListField::setReferencedImpl()
+{
+    m_impl->setReferenced();
 }
 
 commsdsl::parse::ListField ListField::listDslObj() const

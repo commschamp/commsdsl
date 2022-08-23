@@ -34,7 +34,6 @@ protected:
     // Base overrides
     virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;   
-    virtual void toolsSetReferencedImpl() override;
 
     // ToolsBase overrides 
     virtual IncludesList toolsExtraSrcIncludesImpl() const override;

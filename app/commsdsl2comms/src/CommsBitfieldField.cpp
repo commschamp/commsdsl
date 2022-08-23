@@ -277,13 +277,6 @@ bool CommsBitfieldField::commsHasCustomLengthDeepImpl() const
             });
 }
 
-void CommsBitfieldField::commsSetReferencedImpl()
-{
-    for (auto* m : m_members) {
-        m->commsSetReferenced();
-    }
-}
-
 bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());

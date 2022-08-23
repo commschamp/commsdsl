@@ -63,6 +63,13 @@ public:
         return m_members;
     }
 
+    void setReferenced()
+    {
+        for (auto& m : m_members) {
+            m->setReferenced();
+        }
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::BitfieldField m_dslObj;
@@ -87,6 +94,11 @@ const BitfieldField::FieldsList& BitfieldField::members() const
 bool BitfieldField::prepareImpl()
 {
     return m_impl->prepare();
+}
+
+void BitfieldField::setReferencedImpl()
+{
+    m_impl->setReferenced();
 }
 
 commsdsl::parse::BitfieldField BitfieldField::bitfieldDslObj() const

@@ -141,7 +141,7 @@ bool CommsField::commsWrite() const
     }
 
     auto& dslObj = m_field.dslObj();
-    if ((!dslObj.isForceGen()) && (!m_referenced)) {
+    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
         // Not referenced fields do not need to be written
         return true;
     }
@@ -343,12 +343,6 @@ std::string CommsField::commsCompPrepValueStr(const std::string& accStr, const s
 bool CommsField::commsIsVersionOptional() const
 {
     return comms::isVersionOptionaField(m_field, m_field.generator());
-}
-
-void CommsField::commsSetReferenced()
-{
-    m_referenced = true;
-    commsSetReferencedImpl();
 }
 
 std::string CommsField::commsDefaultOptions() const
@@ -644,10 +638,6 @@ bool CommsField::commsHasCustomLengthDeepImpl() const
     return false;
 }
 
-void CommsField::commsSetReferencedImpl()
-{
-}
-
 std::string CommsField::commsCommonNameFuncCode() const
 {
     auto& generator = m_field.generator();
@@ -784,13 +774,6 @@ bool CommsField::commsIsFieldCustomizable() const
 bool CommsField::commsIsExtended() const
 {
     return !m_customCode.m_extend.empty();
-}
-
-void CommsField::commsUpdateFieldReferencedIfExists(CommsField* field)
-{
-    if (field != nullptr) {
-        field->commsSetReferenced();
-    }
 }
 
 bool CommsField::copyCodeFromInternal()
@@ -1609,7 +1592,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
     ExtraFieldOptsFunc extraFieldOptsFunc,
     bool hasBase) const
 {
-    if ((!m_referenced) && (comms::isGlobalField(m_field))) {
+    if ((!m_field.isReferenced()) && (comms::isGlobalField(m_field))) {
         return strings::emptyString();
     }
     

@@ -217,7 +217,7 @@ bool CommsNamespace::commsHasReferencedMsgId() const
             [](auto* f)
             {
                 return 
-                    (f->commsIsReferenced()) && 
+                    (f->field().isReferenced()) && 
                     (f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
             });
 }
@@ -235,7 +235,7 @@ bool CommsNamespace::commsHasAnyGeneratedCode() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return f->commsIsReferenced();
+                return f->field().isReferenced();
             });
 
 
@@ -293,7 +293,7 @@ bool CommsNamespace::commsHasAnyField() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return f->commsIsReferenced();
+                return f->field().isReferenced();
             });
 
     if (hasReferencedFields) {

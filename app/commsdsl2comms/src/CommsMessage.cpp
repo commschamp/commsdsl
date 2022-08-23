@@ -138,10 +138,6 @@ bool CommsMessage::prepareImpl()
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
     }  
 
-    for (auto* f : m_commsFields) {
-        f->commsSetReferenced();
-    }  
-
     return true;
 }
 

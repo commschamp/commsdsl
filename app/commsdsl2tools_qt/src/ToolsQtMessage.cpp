@@ -289,10 +289,6 @@ bool ToolsQtMessage::prepareImpl()
     }
 
     m_toolsFields = ToolsQtField::toolsTransformFieldsList(fields());
-
-    for (auto* f : m_toolsFields) {
-        f->toolsSetReferenced();
-    }
     return true;
 }
 
