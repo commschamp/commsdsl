@@ -1,6 +1,19 @@
 set (src
+    SwigBitfieldField.cpp
+    SwigBundleField.cpp
+    SwigDataField.cpp
+    SwigEnumField.cpp
+    SwigField.cpp
+    SwigFloatField.cpp
     SwigGenerator.cpp
+    SwigIntField.cpp
+    SwigListField.cpp
+    SwigOptionalField.cpp
     SwigProgramOptions.cpp
+    SwigRefField.cpp
+    SwigSetField.cpp
+    SwigStringField.cpp
+    SwigVariantField.cpp
     main.cpp
 )
 
