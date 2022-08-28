@@ -5,4 +5,4 @@ endif ()
 set (APP_NAME "commsdsl2swig")
 
 add_subdirectory (src)
-#add_subdirectory (test)
+add_subdirectory (test)

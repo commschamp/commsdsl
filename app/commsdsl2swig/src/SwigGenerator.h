@@ -27,6 +27,8 @@ public:
     using FieldPtr = commsdsl::gen::FieldPtr;
     
     static const std::string& fileGeneratedComment();
+    
+    std::string inputCodePathForFile(const std::string& name) const;
 
 protected:
     virtual bool writeImpl() override;    

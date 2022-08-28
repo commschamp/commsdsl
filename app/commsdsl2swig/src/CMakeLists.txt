@@ -1,4 +1,5 @@
 set (src
+    Swig.cpp
     SwigBitfieldField.cpp
     SwigBundleField.cpp
     SwigDataField.cpp

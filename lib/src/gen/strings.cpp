@@ -219,6 +219,12 @@ const std::string& appendFileSuffixStr()
     return Str;     
 }
 
+const std::string& prependFileSuffixStr()
+{
+    static const std::string Str(".prepend");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");

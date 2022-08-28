@@ -15,6 +15,7 @@
 
 #include "SwigGenerator.h"
 
+#include "Swig.h"
 #include "SwigBitfieldField.h"
 #include "SwigBundleField.h"
 #include "SwigDataField.h"
@@ -53,12 +54,15 @@ const std::string& SwigGenerator::fileGeneratedComment()
     return Str;
 }
 
+std::string SwigGenerator::inputCodePathForFile(const std::string& name) const
+{
+    return getCodeDir() + '/' + name;
+}
+
 bool SwigGenerator::writeImpl()
 {
-    // TODO
-    // assert(&currentSchema() == &protocolSchema());
     return 
-    //     Test::write(*this) &&
+        Swig::swigWrite(*this) &&
     //     TestCmake::write(*this) &&
         swigWriteExtraFilesInternal();
 
