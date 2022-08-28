@@ -42,6 +42,7 @@ const std::string CodeInputDirStr("code-input-dir");
 const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
 const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
+const std::string ForceMainNamespaceInNamesStr("force-main-ns-in-names");
 
 } // namespace
 
@@ -61,6 +62,7 @@ SwigProgramOptions::SwigProgramOptions()
     (WarnAsErrStr.c_str(), "Treat warning as error.")
     (FullCodeInputDirStr, "Directory with code updates.", true)
     (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    
+    (ForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
     ;
 }
 
@@ -117,6 +119,11 @@ const std::string& SwigProgramOptions::getNamespace() const
 bool SwigProgramOptions::multipleSchemasEnabled() const
 {
     return isOptUsed(MultipleSchemasEnabledStr);
+}
+
+bool SwigProgramOptions::isMainNamespaceInNamesForced() const
+{
+    return isOptUsed(ForceMainNamespaceInNamesStr);
 }
 
 } // namespace commsdsl2swig

@@ -98,6 +98,7 @@ int main(int argc, const char* argv[])
         generator.setOutputDir(options.getOutputDirectory());
         generator.setCodeDir(options.getCodeInputDirectory());
         generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
+        generator.setMainNamespaceInNamesForced(options.isMainNamespaceInNamesForced());
 
         auto files = commsdsl2swig::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

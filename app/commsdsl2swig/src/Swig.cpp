@@ -56,8 +56,8 @@ bool Swig::swigWriteInternal() const
 
     util::ReplacementMap repl = {
         {"NS", schema.mainNamespace()},
-        {"PREPEND", util::readFileContents(m_generator.inputCodePathForFile(swigName + strings::prependFileSuffixStr()))},
-        {"APPEND", util::readFileContents(m_generator.inputCodePathForFile(swigName + strings::appendFileSuffixStr()))},
+        {"PREPEND", util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::prependFileSuffixStr()))},
+        {"APPEND", util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::appendFileSuffixStr()))},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);

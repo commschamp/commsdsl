@@ -44,6 +44,8 @@ public:
 protected:
 
 private:
+    std::string swigClassDefInternal() const;
+    
     commsdsl::gen::Field& m_field;
 };
 

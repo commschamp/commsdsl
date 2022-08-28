@@ -29,15 +29,17 @@
 #include "SwigStringField.h"
 #include "SwigVariantField.h"
 
-#include "commsdsl/version.h"
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
+#include "commsdsl/version.h"
 
 #include <algorithm>
 #include <cassert>
 #include <fstream>
 #include <filesystem>
 
+namespace comms = commsdsl::gen::comms;
 namespace fs = std::filesystem;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
@@ -54,9 +56,16 @@ const std::string& SwigGenerator::fileGeneratedComment()
     return Str;
 }
 
-std::string SwigGenerator::inputCodePathForFile(const std::string& name) const
+std::string SwigGenerator::swigInputCodePathForFile(const std::string& name) const
 {
     return getCodeDir() + '/' + name;
+}
+
+std::string SwigGenerator::swigClassName(const Elem& elem) const
+{
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
+    auto str = comms::scopeFor(elem, *this, addMainNamespace);
+    return util::strReplace(str, "::", "_");
 }
 
 bool SwigGenerator::writeImpl()
@@ -66,6 +75,11 @@ bool SwigGenerator::writeImpl()
     //     TestCmake::write(*this) &&
         swigWriteExtraFilesInternal();
 
+}
+
+void SwigGenerator::setMainNamespaceInNamesForced(bool value)
+{
+    m_mainNamespaceInNamesForced = value;
 }
 
 SwigGenerator::FieldPtr SwigGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)

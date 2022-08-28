@@ -41,6 +41,7 @@ public:
     bool hasNamespaceOverride() const;
     const std::string& getNamespace() const;
     bool multipleSchemasEnabled() const;
+    bool isMainNamespaceInNamesForced() const;
 };
 
 } // namespace commsdsl2swig

@@ -27,8 +27,21 @@ public:
     using FieldPtr = commsdsl::gen::FieldPtr;
     
     static const std::string& fileGeneratedComment();
+
+    static SwigGenerator& cast(commsdsl::gen::Generator& generator)
+    {
+        return static_cast<SwigGenerator&>(generator);
+    }
+
+    static const SwigGenerator& cast(const commsdsl::gen::Generator& generator)
+    {
+        return static_cast<const SwigGenerator&>(generator);
+    }    
     
-    std::string inputCodePathForFile(const std::string& name) const;
+    std::string swigInputCodePathForFile(const std::string& name) const;
+    std::string swigClassName(const Elem& elem) const;
+
+    void setMainNamespaceInNamesForced(bool value);
 
 protected:
     virtual bool writeImpl() override;    
@@ -48,6 +61,8 @@ protected:
 
 private:
     bool swigWriteExtraFilesInternal() const;
+
+    bool m_mainNamespaceInNamesForced = false;
 };
 
 } // namespace commsdsl2swig

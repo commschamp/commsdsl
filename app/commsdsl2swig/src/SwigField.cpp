@@ -15,7 +15,18 @@
 
 #include "SwigField.h"
 
+#include "SwigGenerator.h"
+
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/util.h"
+
+#include <fstream>
+
+namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
+
 #include <cassert>
+
 
 namespace commsdsl2swig
 {
@@ -68,8 +79,53 @@ bool SwigField::swigWrite() const
         return true;
     }
 
-    // TODO:
-    return false;
+    auto& generator = m_field.generator();
+    auto filePath = comms::headerPathFor(m_field, generator);
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!generator.createDirectory(dirPath)) {
+        return false;
+    }       
+
+    auto& logger = generator.logger();
+    logger.info("Generating " + filePath);
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        logger.error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    static const std::string Templ = 
+        "#^#GENERATED#$#\n"
+        "#pragma once\n\n"
+        "#^#DEF#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"GENERATED", SwigGenerator::fileGeneratedComment()},
+        {"DEF", swigClassDefInternal()},
+    };
+    
+    stream << util::processTemplate(Templ, repl, true);
+    stream.flush();
+    return stream.good();    
+}
+
+std::string SwigField::swigClassDefInternal() const
+{
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#\n"
+        "{\n"
+        "public:\n"
+        "};\n";
+
+    auto& generator = SwigGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", generator.swigClassName(m_field)}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig
