@@ -38,14 +38,23 @@ public:
 
     static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
 
+    bool swigIsVersionOptional() const;
+
     // bool swigPrepare();
     bool swigWrite() const;
 
 protected:
+    virtual std::string swigMembersDefImpl() const;
+    virtual std::string swigValueTypeImpl() const;
+    virtual std::string swigValueAccImpl() const;
+    virtual std::string swigExtraPublicFuncsImpl() const;
 
+    static const std::string& swigCommonPublicFuncs();
+    
 private:
     std::string swigClassDefInternal() const;
-    
+    std::string swigOptionalDefInternal() const;
+
     commsdsl::gen::Field& m_field;
 };
 

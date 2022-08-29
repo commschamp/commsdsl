@@ -17,6 +17,14 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2swig
 {
 
@@ -26,9 +34,85 @@ SwigIntField::SwigIntField(SwigGenerator& generator, commsdsl::parse::Field dslO
 {
 }
 
+const std::string& SwigIntField::swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len)
+{
+    static const std::string Map[] = {
+        /* Int8 */ "signed char",
+        /* Uint8 */ "unsigned char",
+        /* Int16 */ "short",
+        /* Uint16 */ "unsigned short",
+        /* Int32 */ "int",
+        /* Uint32 */ "unsigned",
+        /* Int64 */ "long long",
+        /* Uint64 */ "unsigned long long",
+        /* Intvar */ strings::emptyString(),
+        /* Uintvar */ strings::emptyString(),
+    };
+    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
+    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues), "Invalid map");
+
+    auto idx = static_cast<unsigned>(value);
+    if (MapSize <= idx) {
+        assert(false); // should not happen
+        return strings::emptyString();
+    }
+
+    auto& str = Map[idx];
+    if (!str.empty()) {
+        return str;
+    }
+
+    using Type = commsdsl::parse::IntField::Type;
+
+    if (value == Type::Intvar) {
+        if (len <= 1) {
+            return swigConvertIntType(Type::Int8, 0U);
+        }
+
+        if (len <= 2) {
+            return swigConvertIntType(Type::Int16, 0U);
+        }
+
+        if (len <= 4) {
+            return swigConvertIntType(Type::Int32, 0U);
+        }        
+
+        return swigConvertIntType(Type::Int64, 0U);
+    }
+
+    assert(value == Type::Uintvar);
+    if (len <= 1) {
+        return swigConvertIntType(Type::Uint8, 0U);
+    }
+
+    if (len <= 2) {
+        return swigConvertIntType(Type::Uint16, 0U);
+    }
+
+    if (len <= 4) {
+        return swigConvertIntType(Type::Uint32, 0U);
+    }        
+
+    return swigConvertIntType(Type::Uint64, 0U);
+}
+
 bool SwigIntField::writeImpl() const
 {
     return swigWrite();
 }
+
+std::string SwigIntField::swigValueTypeImpl() const
+{
+    static const std::string Templ = 
+        "using ValueType = #^#TYPE#$#;\n";
+
+    auto obj = intDslObj();
+    util::ReplacementMap repl = {
+        {"TYPE", swigConvertIntType(obj.type(), obj.maxLength())}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 
 } // namespace commsdsl2swig

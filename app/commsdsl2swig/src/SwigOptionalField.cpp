@@ -17,6 +17,12 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/strings.h"
+
+#include <cassert>
+
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2swig
 {
 
@@ -24,6 +30,14 @@ SwigOptionalField::SwigOptionalField(SwigGenerator& generator, commsdsl::parse::
     Base(generator, dslObj, parent),
     SwigBase(static_cast<Base&>(*this))
 {
+}
+
+std::string SwigOptionalField::swigDefBodyCode(const std::string& fieldType)
+{
+    // TODO:
+    static_cast<void>(fieldType);
+    assert(false); // Not yet implemented
+    return strings::emptyString();
 }
 
 bool SwigOptionalField::writeImpl() const

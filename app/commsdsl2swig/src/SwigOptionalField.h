@@ -31,6 +31,8 @@ class SwigOptionalField final : public commsdsl::gen::OptionalField, public Swig
 public:
     SwigOptionalField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
+    static std::string swigDefBodyCode(const std::string& fieldType);
+
 protected:
     // Base overrides
     virtual bool writeImpl() const override;    
