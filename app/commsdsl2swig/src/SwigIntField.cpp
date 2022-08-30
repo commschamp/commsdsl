@@ -17,11 +17,13 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
 
+namespace comms = commsdsl::gen::comms;
 namespace util = commsdsl::gen::util;
 namespace strings = commsdsl::gen::strings;
 
@@ -62,38 +64,38 @@ const std::string& SwigIntField::swigConvertIntType(commsdsl::parse::IntField::T
         return str;
     }
 
-    using Type = commsdsl::parse::IntField::Type;
+    using IntType = commsdsl::parse::IntField::Type;
 
-    if (value == Type::Intvar) {
+    if (value == IntType::Intvar) {
         if (len <= 1) {
-            return swigConvertIntType(Type::Int8, 0U);
+            return swigConvertIntType(IntType::Int8, 0U);
         }
 
         if (len <= 2) {
-            return swigConvertIntType(Type::Int16, 0U);
+            return swigConvertIntType(IntType::Int16, 0U);
         }
 
         if (len <= 4) {
-            return swigConvertIntType(Type::Int32, 0U);
+            return swigConvertIntType(IntType::Int32, 0U);
         }        
 
-        return swigConvertIntType(Type::Int64, 0U);
+        return swigConvertIntType(IntType::Int64, 0U);
     }
 
-    assert(value == Type::Uintvar);
+    assert(value == IntType::Uintvar);
     if (len <= 1) {
-        return swigConvertIntType(Type::Uint8, 0U);
+        return swigConvertIntType(IntType::Uint8, 0U);
     }
 
     if (len <= 2) {
-        return swigConvertIntType(Type::Uint16, 0U);
+        return swigConvertIntType(IntType::Uint16, 0U);
     }
 
     if (len <= 4) {
-        return swigConvertIntType(Type::Uint32, 0U);
+        return swigConvertIntType(IntType::Uint32, 0U);
     }        
 
-    return swigConvertIntType(Type::Uint64, 0U);
+    return swigConvertIntType(IntType::Uint64, 0U);
 }
 
 bool SwigIntField::writeImpl() const
@@ -114,5 +116,71 @@ std::string SwigIntField::swigValueTypeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string SwigIntField::swigExtraPublicFuncsImpl() const
+{
+    static const std::string Templ = 
+        "bool hasSpecials();\n"
+        "#^#SCPECIALS#$#\n"
+        "#^#DISPLAY_DECIMALS#$#\n";
+
+    util::ReplacementMap repl {
+        {"SCPECIALS", swigSpecialsDefInternal()},
+        {"DISPLAY_DECIMALS", swigDisplayDecimalsInternal()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string SwigIntField::swigSpecialsDefInternal() const
+{
+    auto& specials = specialsSortedByValue();
+    if (specials.empty()) {
+        return strings::emptyString();
+    }
+
+    util::StringsList specialsList;
+    for (auto& s : specials) {
+        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        static const std::string Templ =
+            "static ValueType value#^#SPEC_ACC#$#();\n"
+            "bool is#^#SPEC_ACC#$#() const;\n"
+            "void set#^#SPEC_ACC#$#();\n"
+        ;
+
+        util::ReplacementMap repl = {
+            {"SPEC_ACC", comms::className(s.first)},
+        };
+
+        specialsList.push_back(util::processTemplate(Templ, repl));
+    }    
+
+    static const std::string Templ = 
+        "using SpecialNameInfo = std::pair<ValueType, const char*>;\n"
+        "using SpecialNamesMapInfo = std::pair<const SpecialNameInfo*, std::size_t>;\n"
+        "static SpecialNamesMapInfo specialNamesMap();\n"
+        "#^#SPECIALS#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"SPECIALS", util::strListToString(specialsList, "", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string SwigIntField::swigDisplayDecimalsInternal() const
+{
+    auto obj = intDslObj();
+    auto scaling = obj.scaling();
+    std::string result;
+    if (scaling.first != scaling.second) {
+        result = "static unsigned displayDecimals();";
+    }
+
+    return result;
+}
 
 } // namespace commsdsl2swig

@@ -39,8 +39,12 @@ protected:
 
     // SwigBase overrides
     virtual std::string swigValueTypeImpl() const override;
+    virtual std::string swigExtraPublicFuncsImpl() const override;
 
 private:
+    std::string swigSpecialsDefInternal() const;
+    std::string swigDisplayDecimalsInternal() const;
+
 };
 
 } // namespace commsdsl2swig
