@@ -13,14 +13,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "Swig.h"
-
 #include "SwigComms.h"
+
 #include "SwigGenerator.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <cassert>
 #include <fstream>
 
 namespace strings = commsdsl::gen::strings;
@@ -29,19 +29,29 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
-
-bool Swig::swigWrite(SwigGenerator& generator)
+bool SwigComms::swigWrite(SwigGenerator& generator)
 {
-    Swig obj(generator);
+    SwigComms obj(generator);
     return obj.swigWriteInternal();
 }
 
-bool Swig::swigWriteInternal() const
+const std::string& SwigComms::swigRelHeader()
 {
+    static const std::string Str = strings::includeDirStr() + "/comms.h";
+    return Str;
+}
 
+bool SwigComms::swigWriteInternal() const
+{
     auto& schema = m_generator.protocolSchema();        
     auto swigName = schema.mainNamespace() + ".i";
-    auto filePath = util::pathAddElem(m_generator.getOutputDir(), swigName);
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), swigRelHeader());
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!m_generator.createDirectory(dirPath)) {
+        return false;
+    }       
+
     m_generator.logger().info("Generating " + filePath);
     std::ofstream stream(filePath);
     if (!stream) {
@@ -50,19 +60,25 @@ bool Swig::swigWriteInternal() const
     }     
 
     const std::string Templ = 
-        "%module #^#NS#$#\n"
-        "#^#PREPEND#$#\n"
-        "#^#CODE#$#\n"
-        "#^#INCLUDES#$#\n"
-        "#^#APPEND#$#\n"
+        "#^#GENERATED#$#\n"
+        "#pragma once\n\n"
+        "enum class comms_ErrorStatus\n"
+        "{\n"
+        "    Success,\n"
+        "    UpdateRequired,\n"
+        "    NotEnoughData,\n"
+        "    ProtocolError,\n"
+        "    BufferOverflow,\n"
+        "    InvalidMsgId,\n"
+        "    InvalidMsgData,\n"
+        "    MsgAllocFailure,\n"
+        "    NotSupported,\n"
+        "    NumOfErrorStatuses\n"
+        "};\n"
         ;      
 
     util::ReplacementMap repl = {
-        {"NS", schema.mainNamespace()},
-        {"CODE", swigCodeBlockInternal()},
-        {"INCLUDES", swigIncludesInternal()},
-        {"PREPEND", util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::prependFileSuffixStr()))},
-        {"APPEND", util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::appendFileSuffixStr()))},
+        {"GENERATED", SwigGenerator::fileGeneratedComment()},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
@@ -74,29 +90,6 @@ bool Swig::swigWriteInternal() const
     }
 
     return true;
-}
-
-std::string Swig::swigCodeBlockInternal() const
-{
-    // TODO: 
-    return strings::emptyString();
-}
-
-std::string Swig::swigIncludesInternal() const
-{
-    util::StringsList result;
-
-    auto addInclude = 
-        [&result](const std::string& path)
-        {
-            result.push_back("%include \"" + path + '\"');
-        };
-
-    addInclude(SwigComms::swigRelHeader());
-
-    // TODO: includes from schemas
-
-    return util::strListToString(result, "\n", "");
 }
 
 } // namespace commsdsl2swig

@@ -2,6 +2,7 @@ set (src
     Swig.cpp
     SwigBitfieldField.cpp
     SwigBundleField.cpp
+    SwigComms.cpp
     SwigDataField.cpp
     SwigEnumField.cpp
     SwigField.cpp

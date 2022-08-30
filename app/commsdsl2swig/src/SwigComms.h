@@ -21,17 +21,17 @@ namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class Swig
+class SwigComms
 {
 public:
     static bool swigWrite(SwigGenerator& generator);
 
+    static const std::string& swigRelHeader();
+
 private:
-    explicit Swig(SwigGenerator& generator) : m_generator(generator) {}
+    explicit SwigComms(SwigGenerator& generator) : m_generator(generator) {}
 
     bool swigWriteInternal() const;
-    std::string swigCodeBlockInternal() const;
-    std::string swigIncludesInternal() const;
 
     SwigGenerator& m_generator;
 };

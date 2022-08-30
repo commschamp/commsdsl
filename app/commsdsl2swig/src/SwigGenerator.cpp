@@ -18,6 +18,7 @@
 #include "Swig.h"
 #include "SwigBitfieldField.h"
 #include "SwigBundleField.h"
+#include "SwigComms.h"
 #include "SwigDataField.h"
 #include "SwigEnumField.h"
 #include "SwigFloatField.h"
@@ -71,6 +72,7 @@ std::string SwigGenerator::swigClassName(const Elem& elem) const
 bool SwigGenerator::writeImpl()
 {
     return 
+        SwigComms::swigWrite(*this) &&
         Swig::swigWrite(*this) &&
     //     TestCmake::write(*this) &&
         swigWriteExtraFilesInternal();
