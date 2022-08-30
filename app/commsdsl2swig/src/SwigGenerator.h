@@ -25,6 +25,7 @@ class SwigGenerator final : public commsdsl::gen::Generator
 public:
     using Elem = commsdsl::gen::Elem;
     using FieldPtr = commsdsl::gen::FieldPtr;
+    using NamespacePtr = commsdsl::gen::NamespacePtr;
     
     static const std::string& fileGeneratedComment();
 
@@ -45,6 +46,8 @@ public:
 
 protected:
     virtual bool writeImpl() override;    
+
+    virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
 
     virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     virtual FieldPtr createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;

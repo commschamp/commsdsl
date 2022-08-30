@@ -24,6 +24,7 @@
 #include "SwigFloatField.h"
 #include "SwigIntField.h"
 #include "SwigListField.h"
+#include "SwigNamespace.h"
 #include "SwigOptionalField.h"
 #include "SwigRefField.h"
 #include "SwigSetField.h"
@@ -82,6 +83,11 @@ bool SwigGenerator::writeImpl()
 void SwigGenerator::setMainNamespaceInNamesForced(bool value)
 {
     m_mainNamespaceInNamesForced = value;
+}
+
+SwigGenerator::NamespacePtr SwigGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
+{
+    return std::make_unique<SwigNamespace>(*this, dslObj, parent);
 }
 
 SwigGenerator::FieldPtr SwigGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)

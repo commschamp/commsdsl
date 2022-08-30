@@ -10,6 +10,7 @@ set (src
     SwigGenerator.cpp
     SwigIntField.cpp
     SwigListField.cpp
+    SwigNamespace.cpp
     SwigOptionalField.cpp
     SwigProgramOptions.cpp
     SwigRefField.cpp

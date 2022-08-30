@@ -94,6 +94,8 @@ std::string Swig::swigIncludesInternal() const
 
     addInclude(SwigComms::swigRelHeader());
 
+    // TODO: include of message id
+
     // TODO: includes from schemas
 
     return util::strListToString(result, "\n", "");

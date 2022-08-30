@@ -60,6 +60,11 @@ SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen
     return result;    
 }
 
+std::string SwigField::swigRelHeaderPath() const
+{
+    return comms::relHeaderPathFor(m_field, m_field.generator());
+}
+
 bool SwigField::swigIsVersionOptional() const
 {
     return comms::isVersionOptionaField(m_field, m_field.generator());
