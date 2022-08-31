@@ -159,7 +159,7 @@ std::string SwigIntField::swigSpecialsDefInternal() const
 
     static const std::string Templ = 
         "using SpecialNameInfo = std::pair<ValueType, const char*>;\n"
-        "using SpecialNamesMapInfo = std::pair<const SpecialNameInfo*, std::size_t>;\n"
+        "using SpecialNamesMapInfo = std::pair<const SpecialNameInfo*, unsigned long long>;\n"
         "static SpecialNamesMapInfo specialNamesMap();\n"
         "#^#SPECIALS#$#\n"
     ;

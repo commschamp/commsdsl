@@ -31,13 +31,18 @@ class SwigEnumField final : public commsdsl::gen::EnumField, public SwigField
 public:
     SwigEnumField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
+    StringsList swigEnumValues() const;
+
 protected:
     // Base overrides
     virtual bool writeImpl() const override;    
 
     // SwigBase overrides
+    virtual std::string swigValueTypeImpl() const override;
+    virtual std::string swigExtraPublicFuncsImpl() const override;
 
 private:
+    bool swigIsDirectValueNameMappingInternal() const;
 };
 
 } // namespace commsdsl2swig

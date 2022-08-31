@@ -41,6 +41,7 @@ public:
     
     std::string swigInputCodePathForFile(const std::string& name) const;
     std::string swigClassName(const Elem& elem) const;
+    static std::string swigScopeToName(const std::string& scope);
 
     void setMainNamespaceInNamesForced(bool value);
 

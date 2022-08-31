@@ -67,7 +67,12 @@ std::string SwigGenerator::swigClassName(const Elem& elem) const
 {
     bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
     auto str = comms::scopeFor(elem, *this, addMainNamespace);
-    return util::strReplace(str, "::", "_");
+    return swigScopeToName(str);
+}
+
+std::string SwigGenerator::swigScopeToName(const std::string& scope)
+{
+    return util::strReplace(scope, "::", "_");
 }
 
 bool SwigGenerator::writeImpl()

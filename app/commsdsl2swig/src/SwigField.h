@@ -41,6 +41,7 @@ public:
     std::string swigRelHeaderPath() const;
 
     bool swigIsVersionOptional() const;
+    std::string swigClassDef() const;
 
     // bool swigPrepare();
     bool swigWrite() const;

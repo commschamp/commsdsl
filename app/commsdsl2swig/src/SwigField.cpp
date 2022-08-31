@@ -70,6 +70,23 @@ bool SwigField::swigIsVersionOptional() const
     return comms::isVersionOptionaField(m_field, m_field.generator());
 }
 
+std::string SwigField::swigClassDef() const
+{
+    static const std::string Templ = 
+        "#^#MEMBERS#$#\n"
+        "#^#DEF#$#\n"
+        "#^#OPTIONAL#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"MEMBERS", swigMembersDefImpl()},
+        {"DEF", swigClassDefInternal()},
+        {"OPTIONAL", swigOptionalDefInternal()},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 bool SwigField::swigWrite() const
 {
     auto* parent = m_field.getParent();
@@ -112,16 +129,12 @@ bool SwigField::swigWrite() const
     static const std::string Templ = 
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
-        "#^#MEMBERS#$#\n"
         "#^#DEF#$#\n"
-        "#^#OPTIONAL#$#\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"MEMBERS", swigMembersDefImpl()},
-        {"DEF", swigClassDefInternal()},
-        {"OPTIONAL", swigOptionalDefInternal()},
+        {"DEF", swigClassDef()},
     };
     
     stream << util::processTemplate(Templ, repl, true);
