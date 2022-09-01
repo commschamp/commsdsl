@@ -26,6 +26,7 @@ public:
     using Elem = commsdsl::gen::Elem;
     using FieldPtr = commsdsl::gen::FieldPtr;
     using NamespacePtr = commsdsl::gen::NamespacePtr;
+    using MessagePtr = commsdsl::gen::MessagePtr;
     
     static const std::string& fileGeneratedComment();
 
@@ -50,6 +51,7 @@ protected:
     virtual bool writeImpl() override;    
 
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
+    virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
 
     virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
     virtual FieldPtr createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
