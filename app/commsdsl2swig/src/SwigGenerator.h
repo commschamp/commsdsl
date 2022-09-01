@@ -39,6 +39,7 @@ public:
         return static_cast<const SwigGenerator&>(generator);
     }    
     
+    std::string swigInputCodePathFor(const Elem& elem) const;
     std::string swigInputCodePathForFile(const std::string& name) const;
     std::string swigClassName(const Elem& elem) const;
     static std::string swigScopeToName(const std::string& scope);

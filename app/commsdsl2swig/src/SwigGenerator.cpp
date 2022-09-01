@@ -58,6 +58,12 @@ const std::string& SwigGenerator::fileGeneratedComment()
     return Str;
 }
 
+std::string SwigGenerator::swigInputCodePathFor(const Elem& elem) const
+{
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
+    return getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, *this, addMainNamespace);
+}
+
 std::string SwigGenerator::swigInputCodePathForFile(const std::string& name) const
 {
     return getCodeDir() + '/' + name;

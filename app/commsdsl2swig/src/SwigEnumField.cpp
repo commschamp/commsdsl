@@ -251,7 +251,7 @@ std::string SwigEnumField::swigExtraPublicFuncsImpl() const
 {
     static const std::string Templ = 
         "using ValueNameInfo = #^#NAME_INFO_TYPE#$#;\n"
-        "using ValueNamesMapInfo = std::pair<const ValueNameInfo*, unsigned long long>;\n"
+        "using ValueNamesMapInfo = std::pair<const ValueNameInfo*, unsigned long>;\n"
         "static const char* valueNameOf(ValueType val);\n"
         "const char* valueName() const;\n"
         "static ValueNamesMapInfo valueNamesMap();\n"

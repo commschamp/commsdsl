@@ -89,17 +89,9 @@ std::string SwigField::swigClassDef() const
 
 bool SwigField::swigWrite() const
 {
-    auto* parent = m_field.getParent();
-    if (parent == nullptr) {
-        assert(false); // Should not happen
-        return false;
-    } 
-
-    auto type = parent->elemType();
-    if (type != commsdsl::gen::Elem::Type::Type_Namespace)
-    {
+    if (!comms::isGlobalField(m_field)) {
         // Skip write for non-global fields,
-        // The code generation will be driven by other means
+        // The code generation will be driven by other means        
         return true;
     }
 
@@ -172,7 +164,7 @@ const std::string& SwigField::swigCommonPublicFuncs()
         "comms_ErrorStatus read(const unsigned char*& iter, unsigned long len);\n"
         "comms_ErrorStatus write(unsigned char*& iter, unsigned long len) const;\n"
         "bool refresh();\n"
-        "unsigned long long length();\n"
+        "unsigned long length();\n"
         "bool valid() const;\n"
     ;
     return Templ;
@@ -188,6 +180,7 @@ std::string SwigField::swigClassDefInternal() const
         "    #^#VALUE_ACC#$#\n"
         "    #^#COMMON_FUNCS#$#\n"
         "    #^#EXTRA#$#\n"
+        "    #^#CUSTOM#$#\n"
         "};\n";
 
     auto& generator = SwigGenerator::cast(m_field.generator());
@@ -201,6 +194,11 @@ std::string SwigField::swigClassDefInternal() const
 
     if (swigIsVersionOptional()) {
         repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    }
+
+    if (comms::isGlobalField(m_field)) {
+        repl["CUSTOM"] = 
+            util::readFileContents(generator.swigInputCodePathFor(m_field) + strings::appendFileSuffixStr());  
     }
 
     return util::processTemplate(Templ, repl);

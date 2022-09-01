@@ -16,6 +16,15 @@
 #include "SwigSetField.h"
 
 #include "SwigGenerator.h"
+#include "SwigIntField.h"
+
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2swig
 {
@@ -29,6 +38,59 @@ SwigSetField::SwigSetField(SwigGenerator& generator, commsdsl::parse::Field dslO
 bool SwigSetField::writeImpl() const
 {
     return swigWrite();
+}
+
+std::string SwigSetField::swigValueTypeImpl() const
+{
+    static const std::string Templ = 
+        "using ValueType = #^#TYPE#$#;\n";
+
+    auto obj = setDslObj();
+    util::ReplacementMap repl = {
+        {"TYPE", SwigIntField::swigConvertIntType(obj.type(), obj.maxLength())}
+    };
+
+    return util::processTemplate(Templ, repl);    
+}
+
+std::string SwigSetField::swigExtraPublicFuncsImpl() const
+{
+    auto obj = setDslObj();
+
+    util::StringsList indices;
+    util::StringsList accesses;
+
+    for (auto& bitInfo : obj.revBits()) {
+        indices.push_back("BitIdx_" + bitInfo.second + " = " + std::to_string(bitInfo.first));
+
+        static const std::string Templ = 
+            "bool getBitValue_#^#NAME#$#() const;\n"
+            "void setBitValue_#^#NAME#$#(bool val);";
+
+        util::ReplacementMap repl = {
+            {"NAME", bitInfo.second}
+        };
+
+        accesses.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ = 
+        "enum BitIdx : unsigned\n"
+        "{\n"
+        "    #^#INDICES#$#,\n"
+        "    BitIdx_numOfValues\n"
+        "};\n\n"
+        "bool getBitValue(unsigned bitNum) const;\n"
+        "void setBitValue(unsigned bitNum, bool val);\n"        
+        "#^#ACCESS_FUNCS#$#\n"
+        ;    
+
+    util::ReplacementMap repl = {
+        {"INDICES", util::strListToString(indices, ",\n", "")},
+        {"ACCESS_FUNCS", util::strListToString(accesses, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig
