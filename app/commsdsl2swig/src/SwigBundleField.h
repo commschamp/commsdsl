@@ -18,7 +18,6 @@
 #include "SwigField.h"
 
 #include "commsdsl/gen/BundleField.h"
-#include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
@@ -42,6 +41,10 @@ protected:
     virtual bool writeImpl() const override;    
 
     // SwigBase overrides
+    virtual std::string swigMembersDefImpl() const override;
+    virtual std::string swigValueTypeImpl() const override;
+    virtual std::string swigValueAccImpl() const override;
+    virtual std::string swigExtraPublicFuncsImpl() const override;
 
 private:
     bool prepareInternal();

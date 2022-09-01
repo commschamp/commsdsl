@@ -18,7 +18,6 @@
 #include "SwigField.h"
 
 #include "commsdsl/gen/BitfieldField.h"
-#include "commsdsl/gen/util.h"
 
 
 namespace commsdsl2swig
