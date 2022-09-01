@@ -44,7 +44,7 @@ protected:
 private:
     std::string swigSpecialsDefInternal() const;
     std::string swigDisplayDecimalsInternal() const;
-
+    std::string swigScaledDeclFuncsInternal() const;
 };
 
 } // namespace commsdsl2swig

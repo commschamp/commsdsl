@@ -121,11 +121,13 @@ std::string SwigIntField::swigExtraPublicFuncsImpl() const
     static const std::string Templ = 
         "bool hasSpecials();\n"
         "#^#SCPECIALS#$#\n"
-        "#^#DISPLAY_DECIMALS#$#\n";
+        "#^#DISPLAY_DECIMALS#$#\n"
+        "#^#SCALED#$#\n";
 
     util::ReplacementMap repl {
         {"SCPECIALS", swigSpecialsDefInternal()},
-        {"DISPLAY_DECIMALS", swigDisplayDecimalsInternal()}
+        {"DISPLAY_DECIMALS", swigDisplayDecimalsInternal()},
+        {"SCALED", swigScaledDeclFuncsInternal()}
     };
 
     return util::processTemplate(Templ, repl);
@@ -181,6 +183,25 @@ std::string SwigIntField::swigDisplayDecimalsInternal() const
     }
 
     return result;
+}
+
+std::string SwigIntField::swigScaledDeclFuncsInternal() const
+{
+    auto obj = intDslObj();
+    auto scaling = obj.scaling();
+    auto num = scaling.first;
+    auto denom = scaling.second;
+
+    if ((num == 1) && (denom == 1)) {
+        return strings::emptyString();
+    }
+
+    std::string Templ = {
+        "double getScaled() const;\n"
+        "void setScaled(double val);\n"
+    };
+
+    return Templ;
 }
 
 } // namespace commsdsl2swig
