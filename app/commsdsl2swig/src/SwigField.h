@@ -38,6 +38,16 @@ public:
 
     static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
 
+    commsdsl::gen::Field& field()
+    {
+        return m_field;
+    }
+
+    const commsdsl::gen::Field& field() const
+    {
+        return m_field;
+    }
+
     std::string swigRelHeaderPath() const;
 
     bool swigIsVersionOptional() const;

@@ -17,6 +17,17 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
+
 namespace commsdsl2swig
 {
 
@@ -42,6 +53,51 @@ bool SwigBitfieldField::prepareInternal()
 {
     m_members = swigTransformFieldsList(members());
     return true;
+}
+
+std::string SwigBitfieldField::swigMembersDefImpl() const
+{
+    StringsList memberDefs;
+    memberDefs.reserve(m_members.size());
+
+    for (auto* m : m_members) {
+        memberDefs.push_back(m->swigClassDef());
+    }
+
+    return util::strListToString(memberDefs, "\n", "\n");
+}
+
+std::string SwigBitfieldField::swigValueTypeImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string SwigBitfieldField::swigValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string SwigBitfieldField::swigExtraPublicFuncsImpl() const
+{
+    StringsList accFuncs;
+    accFuncs.reserve(m_members.size());
+
+    auto& gen = SwigGenerator::cast(generator());
+    for (auto* m : m_members) {
+        static const std::string Templ = {
+            "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
+            "const #^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() const;\n"
+        };
+
+        util::ReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(m->field())},
+            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+        };
+
+        accFuncs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(accFuncs, "\n", "");
 }
 
 } // namespace commsdsl2swig
