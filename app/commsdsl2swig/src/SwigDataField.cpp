@@ -17,6 +17,16 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2swig
 {
 
@@ -30,5 +40,36 @@ bool SwigDataField::writeImpl() const
 {
     return swigWrite();
 }
+
+std::string SwigDataField::swigMembersDefImpl() const
+{
+    auto* mem = SwigField::cast(memberPrefixField());
+    if (mem == nullptr) {
+        return strings::emptyString();
+    }
+
+    return mem->swigClassDef();
+}
+
+std::string SwigDataField::swigValueTypeImpl() const
+{
+    static const std::string Templ = 
+        "using ValueType = std::vector<#^#UINT8_T#$#>;\n";
+
+    auto& gen = SwigGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string SwigDataField::swigValueAccImpl() const
+{
+    return 
+        "ValueType& value();\n" + 
+        SwigBase::swigValueAccImpl();
+}
+
 
 } // namespace commsdsl2swig
