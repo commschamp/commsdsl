@@ -36,6 +36,7 @@ public:
     explicit SwigField(commsdsl::gen::Field& field);
     virtual ~SwigField();
 
+    static const SwigField* cast(const commsdsl::gen::Field* field);
     static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
 
     commsdsl::gen::Field& field()

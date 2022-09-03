@@ -41,6 +41,16 @@ SwigField::SwigField(commsdsl::gen::Field& field) :
 
 SwigField::~SwigField() = default;
 
+const SwigField* SwigField::cast(const commsdsl::gen::Field* field)
+{
+    if (field == nullptr) {
+        return nullptr;
+    }
+
+    auto* swigField = dynamic_cast<const SwigField*>(field);    
+    assert(swigField != nullptr);
+    return swigField;
+}
 
 SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
 {
@@ -49,12 +59,12 @@ SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen
     for (auto& fPtr : fields) {
         assert(fPtr);
 
-        auto* swighField = 
+        auto* swigField = 
             const_cast<SwigField*>(
                 dynamic_cast<const SwigField*>(fPtr.get()));
 
-        assert(swighField != nullptr);
-        result.push_back(swighField);
+        assert(swigField != nullptr);
+        result.push_back(swigField);
     }
 
     return result;    
@@ -220,14 +230,16 @@ std::string SwigField::swigOptionalDefInternal() const
     static const std::string Templ =
         "struct #^#CLASS_NAME#$#\n"
         "{\n"
-        "   #^#BODY#$#"
+        "   #^#COMMON_FUNCS#$#\n"
+        "   #^#OPTIONAL_FUNCS#$#\n"
         "};\n";     
 
     auto& generator = SwigGenerator::cast(m_field.generator());
     auto className = generator.swigClassName(m_field);
     util::ReplacementMap repl = {
         {"CLASS_NAME", className},
-        {"BODY", SwigOptionalField::swigDefBodyCode(className + strings::versionOptionalFieldSuffixStr())},
+        {"COMMON_FUNCS", swigCommonPublicFuncs()},
+        {"OPTIONAL_FUNCS", SwigOptionalField::swigDefFuncs(className + strings::versionOptionalFieldSuffixStr())},
     };
 
     return util::processTemplate(Templ, repl);

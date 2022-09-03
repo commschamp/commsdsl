@@ -18,10 +18,12 @@
 #include "SwigGenerator.h"
 
 #include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <cassert>
 
 namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2swig
 {
@@ -32,17 +34,65 @@ SwigOptionalField::SwigOptionalField(SwigGenerator& generator, commsdsl::parse::
 {
 }
 
-std::string SwigOptionalField::swigDefBodyCode(const std::string& fieldType)
+std::string SwigOptionalField::swigDefFuncs(const std::string& fieldType)
 {
-    // TODO:
-    static_cast<void>(fieldType);
-    assert(false); // Not yet implemented
-    return strings::emptyString();
+    static const std::string Templ = 
+        "using Field = #^#FIELD_TYPE#$#;\n"
+        "using Mode = comms_field_OptionalMode;\n\n"
+        "Field& field();\n"
+        "const Field& field() const;\n\n"
+        "Mode getMode() const;\n"
+        "void setMode(Mode val) const;\n"
+        "bool isTenative() const;\n"
+        "void setTenative();\n"
+        "bool doesExist() const;\n"
+        "void setExists();\n"
+        "bool isMissing() const;\n"
+        "void setMissing();\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"FIELD_TYPE", fieldType}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 bool SwigOptionalField::writeImpl() const
 {
     return swigWrite();
+}
+
+std::string SwigOptionalField::swigMembersDefImpl() const
+{
+    auto* mem = SwigField::cast(memberField());
+    if (mem == nullptr) {
+        return strings::emptyString();
+    }
+
+    return mem->swigClassDef();
+}
+
+std::string SwigOptionalField::swigValueTypeImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string SwigOptionalField::swigValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string SwigOptionalField::swigExtraPublicFuncsImpl() const
+{
+    auto* mem = SwigField::cast(memberField());
+    if (mem == nullptr) {
+        mem = SwigField::cast(externalField());
+    }
+
+    assert(mem != nullptr);
+
+    return swigDefFuncs(SwigGenerator::cast(generator()).swigClassName(mem->field()));
 }
 
 } // namespace commsdsl2swig

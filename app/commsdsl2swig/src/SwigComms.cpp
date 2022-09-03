@@ -74,6 +74,13 @@ bool SwigComms::swigWriteInternal() const
         "    MsgAllocFailure,\n"
         "    NotSupported,\n"
         "    NumOfErrorStatuses\n"
+        "};\n\n"
+        "enum class comms_field_OptionalMode\n"
+        "{\n"
+        "    Tentative,\n"
+        "    Exists,\n"
+        "    Missing,\n"
+        "    NumOfModes\n"
         "};\n"
         ;      
 
