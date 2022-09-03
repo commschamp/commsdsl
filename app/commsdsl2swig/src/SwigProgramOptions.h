@@ -42,6 +42,8 @@ public:
     const std::string& getNamespace() const;
     bool multipleSchemasEnabled() const;
     bool isMainNamespaceInNamesForced() const;
+    bool hasForcedInterface() const;
+    const std::string& getForcedInterface() const;
 };
 
 } // namespace commsdsl2swig

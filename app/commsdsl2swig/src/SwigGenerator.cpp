@@ -22,6 +22,7 @@
 #include "SwigDataField.h"
 #include "SwigEnumField.h"
 #include "SwigFloatField.h"
+#include "SwigInterface.h"
 #include "SwigIntField.h"
 #include "SwigListField.h"
 #include "SwigMessage.h"
@@ -110,6 +111,32 @@ std::string SwigGenerator::swigScopeToName(const std::string& scope)
     return util::strReplace(scope, "::", "_");
 }
 
+bool SwigGenerator::prepareImpl()
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    bool result =  
+        prepareDefaultInterfaceInternal();
+
+    if (!result) {
+        return false;
+    }
+
+    if (m_forcedInterface.empty()) {
+        return true;
+    }
+    
+    auto* iFace = findInterface(m_forcedInterface);
+    if (iFace == nullptr) {
+        logger().error("The selected forced interface \"" + m_forcedInterface + "\" hasn't been found");
+        return false;
+    }
+
+    return true;
+}
+
 bool SwigGenerator::writeImpl()
 {
     return 
@@ -125,9 +152,39 @@ void SwigGenerator::setMainNamespaceInNamesForced(bool value)
     m_mainNamespaceInNamesForced = value;
 }
 
+void SwigGenerator::setForcedInterface(const std::string& value)
+{
+    m_forcedInterface = value;
+}
+
+const SwigInterface* SwigGenerator::swigMainInterface() const
+{
+    do {
+        if (m_forcedInterface.empty()) {
+            break;
+        }
+
+        auto iFace = findInterface(m_forcedInterface);
+        if (iFace == nullptr) {
+            break;
+        }
+
+        return static_cast<const SwigInterface*>(iFace);
+    } while (false);
+
+    auto allInterfaces = getAllInterfaces();
+    assert(!allInterfaces.empty());
+    return static_cast<const SwigInterface*>(allInterfaces.front());
+}
+
 SwigGenerator::NamespacePtr SwigGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
 {
     return std::make_unique<SwigNamespace>(*this, dslObj, parent);
+}
+
+SwigGenerator::InterfacePtr SwigGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
+{
+    return std::make_unique<SwigInterface>(*this, dslObj, parent);
 }
 
 SwigGenerator::MessagePtr SwigGenerator::createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent)
@@ -295,6 +352,24 @@ bool SwigGenerator::swigWriteExtraFilesInternal() const
             logger().info("Updated " + destStr + " to have proper main namespace.");
         }
     }
+    return true;
+}
+
+
+bool SwigGenerator::prepareDefaultInterfaceInternal()
+{
+    auto allInterfaces = getAllInterfaces();
+    if (!allInterfaces.empty()) {
+        return true;
+    }
+
+    auto* defaultNamespace = addDefaultNamespace();
+    auto* interface = defaultNamespace->addDefaultInterface();
+    if (interface == nullptr) {
+        logger().error("Failed to create default interface");
+        return false;
+    }
+
     return true;
 }
 

@@ -8,6 +8,7 @@ set (src
     SwigField.cpp
     SwigFloatField.cpp
     SwigGenerator.cpp
+    SwigInterface.cpp
     SwigIntField.cpp
     SwigListField.cpp
     SwigMessage.cpp

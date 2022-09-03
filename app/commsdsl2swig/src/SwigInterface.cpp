@@ -13,10 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "SwigMessage.h"
+#include "SwigInterface.h"
 
 #include "SwigGenerator.h"
-#include "SwigInterface.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -33,14 +32,14 @@ namespace commsdsl2swig
 {
 
 
-SwigMessage::SwigMessage(SwigGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
+SwigInterface::SwigInterface(SwigGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
 
-SwigMessage::~SwigMessage() = default;
+SwigInterface::~SwigInterface() = default;
 
-bool SwigMessage::prepareImpl()
+bool SwigInterface::prepareImpl()
 {
     if (!Base::prepareImpl()) {
         return false;
@@ -50,7 +49,7 @@ bool SwigMessage::prepareImpl()
     return true;
 }
 
-bool SwigMessage::writeImpl() const
+bool SwigInterface::writeImpl() const
 {
     auto filePath = comms::headerPathFor(*this, generator());
     auto dirPath = util::pathUp(filePath);
@@ -86,7 +85,7 @@ bool SwigMessage::writeImpl() const
     return stream.good();   
 }
 
-std::string SwigMessage::swigFieldDefsInternal() const
+std::string SwigInterface::swigFieldDefsInternal() const
 {
     StringsList fields;
     fields.reserve(m_swigFields.size());
@@ -98,28 +97,27 @@ std::string SwigMessage::swigFieldDefsInternal() const
     return util::strListToString(fields, "\n", "");
 }
 
-std::string SwigMessage::swigClassDefInternal() const
+std::string SwigInterface::swigClassDefInternal() const
 {
     static const std::string Templ = 
-        "class #^#CLASS_NAME#$# : public #^#INTERFACE#$#\n"
+        "class #^#CLASS_NAME#$#\n"
         "{\n"
         "public:\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    virtual ~#^#CLASS_NAME#$#();\n\n"
         "    #^#FIELDS#$#\n"
-        "    static const char* doName();\n"
-        "    comms_ErrorStatus doRead(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
-        "    comms_ErrorStatus doWrite(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
-        "    bool doRefresh();\n"
-        "    #^#SIZE_T#$# doLength() const;\n"
-        "    bool doValid() const;\n"
+        "    static const char* name();\n"
+        "    comms_ErrorStatus read(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
+        "    comms_ErrorStatus write(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
+        "    bool refresh();\n"
+        "    #^#SIZE_T#$# length() const;\n"
+        "    bool valid() const;\n"
         "    #^#CUSTOM#$#\n"
         "};\n";
 
     auto& gen = SwigGenerator::cast(generator());
-    auto* iFace = gen.swigMainInterface();
-    assert(iFace != nullptr);
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
-        {"INTERFACE", gen.swigClassName(*iFace)},
         {"FIELDS", swigFieldsAccessInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
@@ -129,7 +127,7 @@ std::string SwigMessage::swigClassDefInternal() const
     return util::processTemplate(Templ, repl);    
 }
 
-std::string SwigMessage::swigFieldsAccessInternal() const
+std::string SwigInterface::swigFieldsAccessInternal() const
 {
     StringsList accFuncs;
     accFuncs.reserve(m_swigFields.size());
@@ -137,8 +135,8 @@ std::string SwigMessage::swigFieldsAccessInternal() const
     auto& gen = SwigGenerator::cast(generator());
     for (auto* f : m_swigFields) {
         static const std::string Templ = {
-            "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
-            "const #^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() const;\n"
+            "#^#CLASS_NAME#$#& transportField_#^#ACC_NAME#$#();\n"
+            "const #^#CLASS_NAME#$#& transportField_#^#ACC_NAME#$#() const;\n"
         };
 
         util::ReplacementMap repl = {

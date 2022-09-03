@@ -95,6 +95,10 @@ int main(int argc, const char* argv[])
             generator.setNamespaceOverride(options.getNamespace());
         }
 
+        if (options.hasForcedInterface()) {
+            generator.setForcedInterface(options.getForcedInterface());
+        }
+
         generator.setOutputDir(options.getOutputDirectory());
         generator.setCodeDir(options.getCodeInputDirectory());
         generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());

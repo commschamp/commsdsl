@@ -43,6 +43,7 @@ const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
 const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
 const std::string ForceMainNamespaceInNamesStr("force-main-ns-in-names");
+const std::string ForceInterfaceStr("force-interface");
 
 } // namespace
 
@@ -63,6 +64,7 @@ SwigProgramOptions::SwigProgramOptions()
     (FullCodeInputDirStr, "Directory with code updates.", true)
     (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    
     (ForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
+    (ForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
     ;
 }
 
@@ -124,6 +126,16 @@ bool SwigProgramOptions::multipleSchemasEnabled() const
 bool SwigProgramOptions::isMainNamespaceInNamesForced() const
 {
     return isOptUsed(ForceMainNamespaceInNamesStr);
+}
+
+bool SwigProgramOptions::hasForcedInterface() const
+{
+    return isOptUsed(ForceInterfaceStr);
+}
+
+const std::string& SwigProgramOptions::getForcedInterface() const
+{
+    return value(ForceInterfaceStr);
 }
 
 } // namespace commsdsl2swig

@@ -24,12 +24,16 @@
 namespace commsdsl2swig 
 {
 
+class SwigInterface;
 class SwigGenerator final : public commsdsl::gen::Generator
 {
+    using Base = commsdsl::gen::Generator;
+    
 public:
     using Elem = commsdsl::gen::Elem;
     using FieldPtr = commsdsl::gen::FieldPtr;
     using NamespacePtr = commsdsl::gen::NamespacePtr;
+    using InterfacePtr = commsdsl::gen::InterfacePtr;
     using MessagePtr = commsdsl::gen::MessagePtr;
     
     static const std::string& fileGeneratedComment();
@@ -53,11 +57,16 @@ public:
     static std::string swigScopeToName(const std::string& scope);
 
     void setMainNamespaceInNamesForced(bool value);
+    void setForcedInterface(const std::string& value);
+
+    const SwigInterface* swigMainInterface() const;
 
 protected:
+    virtual bool prepareImpl() override;
     virtual bool writeImpl() override;    
 
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
+    virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
 
     virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
@@ -75,7 +84,9 @@ protected:
 
 private:
     bool swigWriteExtraFilesInternal() const;
+    bool prepareDefaultInterfaceInternal();
 
+    std::string m_forcedInterface;
     bool m_mainNamespaceInNamesForced = false;
 };
 
