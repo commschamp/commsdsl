@@ -17,6 +17,10 @@
 
 #include "commsdsl/gen/Generator.h"
 
+#include "commsdsl/parse/IntField.h"
+
+#include <string>
+
 namespace commsdsl2swig 
 {
 
@@ -43,6 +47,9 @@ public:
     std::string swigInputCodePathFor(const Elem& elem) const;
     std::string swigInputCodePathForFile(const std::string& name) const;
     std::string swigClassName(const Elem& elem) const;
+    const std::string& swigConvertCppType(const std::string& str) const;
+    const std::string& swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len) const;
+
     static std::string swigScopeToName(const std::string& scope);
 
     void setMainNamespaceInNamesForced(bool value);

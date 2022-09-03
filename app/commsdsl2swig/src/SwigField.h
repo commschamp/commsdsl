@@ -62,7 +62,7 @@ protected:
     virtual std::string swigValueAccImpl() const;
     virtual std::string swigExtraPublicFuncsImpl() const;
 
-    static const std::string& swigCommonPublicFuncs();
+    std::string swigCommonPublicFuncs() const;
     
 private:
     std::string swigClassDefInternal() const;

@@ -100,24 +100,28 @@ std::string SwigMessage::swigFieldDefsInternal() const
 std::string SwigMessage::swigClassDefInternal() const
 {
     static const std::string Templ = 
-        "class #^#CLASS_NAME#$#\n"
+        "class #^#CLASS_NAME#$# : public #^#INTERFACE#$#\n"
         "{\n"
         "public:\n"
         "    #^#FIELDS#$#\n"
         "    static const char* doName();\n"
-        "    comms_ErrorStatus doRead(const unsigned char*& iter, unsigned long len);\n"
-        "    comms_ErrorStatus doWrite(unsigned char*& iter, unsigned long len) const;\n"
+        "    comms_ErrorStatus doRead(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
+        "    comms_ErrorStatus doWrite(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
         "    bool doRefresh();\n"
-        "    unsigned long doLength();\n"
+        "    #^#SIZE_T#$# doLength() const;\n"
         "    bool doValid() const;\n"
         "    #^#CUSTOM#$#\n"
         "};\n";
 
     auto& gen = SwigGenerator::cast(generator());
+    //auto* iFace = gen.swigMainInterface();
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"FIELDS", swigFieldsAccessInternal()},
-        {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())}
+        {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
+        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
+        {"SIZE_T", gen.swigConvertCppType("std::size_t")},
+        // TODO: interface
     };
 
     return util::processTemplate(Templ, repl);    

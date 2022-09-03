@@ -221,7 +221,7 @@ bool SwigEnumField::writeImpl() const
 
 std::string SwigEnumField::swigValueTypeImpl() const
 {
-    auto& gen = generator();
+    auto& gen = SwigGenerator::cast(generator());
     if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
         static const std::string Templ =
             "using ValueType = #^#MSG_ID#$#;\n";
@@ -241,7 +241,7 @@ std::string SwigEnumField::swigValueTypeImpl() const
 
     auto values = swigEnumValues();
     util::ReplacementMap repl = {
-        {"TYPE", SwigIntField::swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength())},
+        {"TYPE", gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength())},
         {"VALUES", util::strListToString(values, "\n", "")}
     };
     return util::processTemplate(Templ, repl); 

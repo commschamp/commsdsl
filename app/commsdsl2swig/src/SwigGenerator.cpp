@@ -41,6 +41,7 @@
 #include <cassert>
 #include <fstream>
 #include <filesystem>
+#include <map>
 
 namespace comms = commsdsl::gen::comms;
 namespace fs = std::filesystem;
@@ -75,6 +76,33 @@ std::string SwigGenerator::swigClassName(const Elem& elem) const
     bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
     auto str = comms::scopeFor(elem, *this, addMainNamespace);
     return swigScopeToName(str);
+}
+
+const std::string& SwigGenerator::swigConvertCppType(const std::string& str) const
+{
+    static const std::map<std::string, std::string> Map = {
+        {"std::int8_t", "signed char"},
+        {"std::uint8_t", "unsigned char"},
+        {"std::int16_t", "short"},
+        {"std::uint16_t", "unsigned short"},
+        {"std::int32_t", "int"},
+        {"std::uint32_t", "unsigned"},
+        {"std::int64_t", "long long"},
+        {"std::uint64_t", "unsigned long long"},
+        {"std::size_t", "unsigned long"},        
+    };
+
+    auto iter = Map.find(str);
+    if (iter == Map.end()) {
+        return str;
+    }
+
+    return iter->second;
+}
+
+const std::string& SwigGenerator::swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len) const
+{
+    return swigConvertCppType(comms::cppIntTypeFor(value, len));
 }
 
 std::string SwigGenerator::swigScopeToName(const std::string& scope)

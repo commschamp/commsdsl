@@ -47,7 +47,7 @@ std::string SwigSetField::swigValueTypeImpl() const
 
     auto obj = setDslObj();
     util::ReplacementMap repl = {
-        {"TYPE", SwigIntField::swigConvertIntType(obj.type(), obj.maxLength())}
+        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.type(), obj.maxLength())}
     };
 
     return util::processTemplate(Templ, repl);    

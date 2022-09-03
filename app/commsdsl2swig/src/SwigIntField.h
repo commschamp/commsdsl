@@ -31,8 +31,6 @@ class SwigIntField final : public commsdsl::gen::IntField, public SwigField
 public:
     SwigIntField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
-    static const std::string& swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len);
-
 protected:
     // Base overrides
     virtual bool writeImpl() const override;    

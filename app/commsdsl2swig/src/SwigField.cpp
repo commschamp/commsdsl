@@ -157,17 +157,24 @@ std::string SwigField::swigExtraPublicFuncsImpl() const
     return strings::emptyString();
 }
 
-const std::string& SwigField::swigCommonPublicFuncs()
+std::string SwigField::swigCommonPublicFuncs() const
 {
     static const std::string Templ = 
         "static const char* name();\n"
-        "comms_ErrorStatus read(const unsigned char*& iter, unsigned long len);\n"
-        "comms_ErrorStatus write(unsigned char*& iter, unsigned long len) const;\n"
+        "comms_ErrorStatus read(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
+        "comms_ErrorStatus write(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
         "bool refresh();\n"
-        "unsigned long length();\n"
+        "#^#SIZE_T#$# length() const;\n"
         "bool valid() const;\n"
     ;
-    return Templ;
+
+    auto& gen = SwigGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
+        {"SIZE_T", gen.swigConvertCppType("std::size_t")},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 std::string SwigField::swigClassDefInternal() const

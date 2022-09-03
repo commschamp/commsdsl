@@ -36,68 +36,6 @@ SwigIntField::SwigIntField(SwigGenerator& generator, commsdsl::parse::Field dslO
 {
 }
 
-const std::string& SwigIntField::swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len)
-{
-    static const std::string Map[] = {
-        /* Int8 */ "signed char",
-        /* Uint8 */ "unsigned char",
-        /* Int16 */ "short",
-        /* Uint16 */ "unsigned short",
-        /* Int32 */ "int",
-        /* Uint32 */ "unsigned",
-        /* Int64 */ "long long",
-        /* Uint64 */ "unsigned long long",
-        /* Intvar */ strings::emptyString(),
-        /* Uintvar */ strings::emptyString(),
-    };
-    static const std::size_t MapSize = std::extent<decltype(Map)>::value;
-    static_assert(MapSize == static_cast<std::size_t>(commsdsl::parse::IntField::Type::NumOfValues), "Invalid map");
-
-    auto idx = static_cast<unsigned>(value);
-    if (MapSize <= idx) {
-        assert(false); // should not happen
-        return strings::emptyString();
-    }
-
-    auto& str = Map[idx];
-    if (!str.empty()) {
-        return str;
-    }
-
-    using IntType = commsdsl::parse::IntField::Type;
-
-    if (value == IntType::Intvar) {
-        if (len <= 1) {
-            return swigConvertIntType(IntType::Int8, 0U);
-        }
-
-        if (len <= 2) {
-            return swigConvertIntType(IntType::Int16, 0U);
-        }
-
-        if (len <= 4) {
-            return swigConvertIntType(IntType::Int32, 0U);
-        }        
-
-        return swigConvertIntType(IntType::Int64, 0U);
-    }
-
-    assert(value == IntType::Uintvar);
-    if (len <= 1) {
-        return swigConvertIntType(IntType::Uint8, 0U);
-    }
-
-    if (len <= 2) {
-        return swigConvertIntType(IntType::Uint16, 0U);
-    }
-
-    if (len <= 4) {
-        return swigConvertIntType(IntType::Uint32, 0U);
-    }        
-
-    return swigConvertIntType(IntType::Uint64, 0U);
-}
-
 bool SwigIntField::writeImpl() const
 {
     return swigWrite();
@@ -110,7 +48,7 @@ std::string SwigIntField::swigValueTypeImpl() const
 
     auto obj = intDslObj();
     util::ReplacementMap repl = {
-        {"TYPE", swigConvertIntType(obj.type(), obj.maxLength())}
+        {"TYPE", SwigGenerator::cast(generator()).swigConvertIntType(obj.type(), obj.maxLength())}
     };
 
     return util::processTemplate(Templ, repl);
