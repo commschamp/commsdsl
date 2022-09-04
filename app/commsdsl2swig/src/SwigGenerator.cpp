@@ -18,19 +18,27 @@
 #include "Swig.h"
 #include "SwigBitfieldField.h"
 #include "SwigBundleField.h"
+#include "SwigChecksumLayer.h"
 #include "SwigComms.h"
+#include "SwigCustomLayer.h"
 #include "SwigDataField.h"
 #include "SwigEnumField.h"
 #include "SwigFloatField.h"
+#include "SwigFrame.h"
+#include "SwigIdLayer.h"
 #include "SwigInterface.h"
 #include "SwigIntField.h"
 #include "SwigListField.h"
 #include "SwigMessage.h"
 #include "SwigNamespace.h"
 #include "SwigOptionalField.h"
+#include "SwigPayloadLayer.h"
 #include "SwigRefField.h"
 #include "SwigSetField.h"
+#include "SwigSizeLayer.h"
 #include "SwigStringField.h"
+#include "SwigSyncLayer.h"
+#include "SwigValueLayer.h"
 #include "SwigVariantField.h"
 
 #include "commsdsl/gen/comms.h"
@@ -192,6 +200,11 @@ SwigGenerator::MessagePtr SwigGenerator::createMessageImpl(commsdsl::parse::Mess
     return std::make_unique<SwigMessage>(*this, dslObj, parent);
 }
 
+SwigGenerator::FramePtr SwigGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+{
+    return std::make_unique<SwigFrame>(*this, dslObj, parent);
+}
+
 SwigGenerator::FieldPtr SwigGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<SwigIntField>(*this, dslObj, parent);
@@ -250,6 +263,41 @@ SwigGenerator::FieldPtr SwigGenerator::createOptionalFieldImpl(commsdsl::parse::
 SwigGenerator::FieldPtr SwigGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {
     return std::make_unique<SwigVariantField>(*this, dslObj, parent);
+}
+
+SwigGenerator::LayerPtr SwigGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SwigCustomLayer>(*this, dslObj, parent);
+}
+
+SwigGenerator::LayerPtr SwigGenerator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SwigSyncLayer>(*this, dslObj, parent);
+}
+
+SwigGenerator::LayerPtr SwigGenerator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SwigSizeLayer>(*this, dslObj, parent);
+}
+
+SwigGenerator::LayerPtr SwigGenerator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SwigIdLayer>(*this, dslObj, parent);
+}
+
+SwigGenerator::LayerPtr SwigGenerator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SwigValueLayer>(*this, dslObj, parent);
+}
+
+SwigGenerator::LayerPtr SwigGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SwigPayloadLayer>(*this, dslObj, parent);
+}
+
+SwigGenerator::LayerPtr SwigGenerator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<SwigChecksumLayer>(*this, dslObj, parent);
 }
 
 bool SwigGenerator::swigWriteExtraFilesInternal() const

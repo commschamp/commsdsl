@@ -16,7 +16,6 @@
 #include "SwigNamespace.h"
 
 #include "SwigGenerator.h"
-//#include "SwigInterface.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"

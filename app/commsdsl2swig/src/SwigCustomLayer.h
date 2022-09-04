@@ -1,7 +1,6 @@
 //
 // Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
 //
-
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,29 +15,24 @@
 
 #pragma once
 
-#include "SwigField.h"
+#include "SwigLayer.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/CustomLayer.h"
+#include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigNamespace final: public commsdsl::gen::Namespace
+class SwigCustomLayer final : public commsdsl::gen::CustomLayer, public SwigLayer
 {
-    using Base = commsdsl::gen::Namespace;
-
+    using Base = commsdsl::gen::CustomLayer;
+    using SwigBase = SwigLayer;
 public:
-    explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
-    virtual ~SwigNamespace();
+    SwigCustomLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
-    virtual bool prepareImpl() override;    
-
-private:
-    using SwigFieldsList = SwigField::SwigFieldsList;
-
-    SwigFieldsList m_swigFields;        
+    // SwigBase overrides
 };
 
 } // namespace commsdsl2swig

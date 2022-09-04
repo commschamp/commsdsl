@@ -2,22 +2,31 @@ set (src
     Swig.cpp
     SwigBitfieldField.cpp
     SwigBundleField.cpp
+    SwigChecksumLayer.cpp
     SwigComms.cpp
+    SwigCustomLayer.cpp
     SwigDataField.cpp
     SwigEnumField.cpp
     SwigField.cpp
     SwigFloatField.cpp
+    SwigFrame.cpp
     SwigGenerator.cpp
+    SwigIdLayer.cpp
     SwigInterface.cpp
     SwigIntField.cpp
+    SwigLayer.cpp
     SwigListField.cpp
     SwigMessage.cpp
     SwigNamespace.cpp
     SwigOptionalField.cpp
+    SwigPayloadLayer.cpp
     SwigProgramOptions.cpp
     SwigRefField.cpp
     SwigSetField.cpp
+    SwigSizeLayer.cpp
     SwigStringField.cpp
+    SwigSyncLayer.cpp
+    SwigValueLayer.cpp
     SwigVariantField.cpp
     main.cpp
 )

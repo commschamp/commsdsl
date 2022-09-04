@@ -18,27 +18,28 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/Frame.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigNamespace final: public commsdsl::gen::Namespace
+class SwigFrame final: public commsdsl::gen::Frame
 {
-    using Base = commsdsl::gen::Namespace;
+    using Base = commsdsl::gen::Frame;
 
 public:
-    explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
-    virtual ~SwigNamespace();
+    explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
+    virtual ~SwigFrame();
 
-protected:
-    virtual bool prepareImpl() override;    
+protected:    
+    virtual bool writeImpl() const override;    
 
 private:
-    using SwigFieldsList = SwigField::SwigFieldsList;
-
-    SwigFieldsList m_swigFields;        
+    std::string swigLayerDeclsInternal() const;
+    std::string swigHandlerDeclInternal() const;
+    std::string swigClassDeclInternal() const;
+    std::string swigLayersAccessInternal() const;
 };
 
 } // namespace commsdsl2swig

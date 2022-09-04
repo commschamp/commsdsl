@@ -18,8 +18,6 @@
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/util.h"
 
-#include "commsdsl/parse/Endian.h"
-
 #include <string>
 #include <vector>
 
