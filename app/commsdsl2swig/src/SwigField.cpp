@@ -144,6 +144,11 @@ bool SwigField::swigWrite() const
     return stream.good();    
 }
 
+std::string SwigField::swigBaseClassImpl() const
+{
+    return strings::emptyString();
+}
+
 std::string SwigField::swigMembersDefImpl() const
 {
     return strings::emptyString();
@@ -165,6 +170,11 @@ std::string SwigField::swigValueAccImpl() const
 std::string SwigField::swigExtraPublicFuncsImpl() const
 {
     return strings::emptyString();
+}
+
+std::string SwigField::swigCommonPublicFuncsImpl() const
+{
+    return swigCommonPublicFuncs();
 }
 
 std::string SwigField::swigCommonPublicFuncs() const
@@ -190,7 +200,7 @@ std::string SwigField::swigCommonPublicFuncs() const
 std::string SwigField::swigClassDefInternal() const
 {
     static const std::string Templ = 
-        "class #^#CLASS_NAME#$##^#SUFFIX#$#\n"
+        "class #^#CLASS_NAME#$##^#SUFFIX#$##^#PUBLIC#$##^#BASE#$#\n"
         "{\n"
         "public:\n"
         "    #^#VALUE_TYPE#$#\n"
@@ -205,8 +215,9 @@ std::string SwigField::swigClassDefInternal() const
         {"CLASS_NAME", generator.swigClassName(m_field)},
         {"VALUE_TYPE", swigValueTypeImpl()},
         {"VALUE_ACC", swigValueAccImpl()},
-        {"COMMON_FUNCS", swigCommonPublicFuncs()},
+        {"COMMON_FUNCS", swigCommonPublicFuncsImpl()},
         {"EXTRA", swigExtraPublicFuncsImpl()},
+        {"BASE", swigBaseClassImpl()}
     };
 
     if (swigIsVersionOptional()) {
@@ -216,6 +227,10 @@ std::string SwigField::swigClassDefInternal() const
     if (comms::isGlobalField(m_field)) {
         repl["CUSTOM"] = 
             util::readFileContents(generator.swigInputCodePathFor(m_field) + strings::appendFileSuffixStr());  
+    }
+
+    if (!repl["BASE"].empty()) {
+        repl["PUBLIC"] = " : public ";
     }
 
     return util::processTemplate(Templ, repl);

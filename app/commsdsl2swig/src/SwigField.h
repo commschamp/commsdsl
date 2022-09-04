@@ -58,10 +58,12 @@ public:
     bool swigWrite() const;
 
 protected:
+    virtual std::string swigBaseClassImpl() const;
     virtual std::string swigMembersDefImpl() const;
     virtual std::string swigValueTypeImpl() const;
     virtual std::string swigValueAccImpl() const;
     virtual std::string swigExtraPublicFuncsImpl() const;
+    virtual std::string swigCommonPublicFuncsImpl() const;
 
     std::string swigCommonPublicFuncs() const;
     

@@ -36,8 +36,11 @@ protected:
     virtual bool writeImpl() const override;    
 
     // SwigBase overrides
+    virtual std::string swigValueTypeImpl() const override;
+    virtual std::string swigExtraPublicFuncsImpl() const override;
 
 private:
+    std::string swigSpecialsDefInternal() const;
 };
 
 } // namespace commsdsl2swig

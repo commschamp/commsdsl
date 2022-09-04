@@ -79,8 +79,9 @@ std::string SwigIntField::swigSpecialsDefInternal() const
     }
 
     util::StringsList specialsList;
+    auto& gen = SwigGenerator::cast(generator());
     for (auto& s : specials) {
-        if (!generator().doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
+        if (!gen.doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
             continue;
         }
 
@@ -99,13 +100,14 @@ std::string SwigIntField::swigSpecialsDefInternal() const
 
     static const std::string Templ = 
         "using SpecialNameInfo = std::pair<ValueType, const char*>;\n"
-        "using SpecialNamesMapInfo = std::pair<const SpecialNameInfo*, unsigned long long>;\n"
+        "using SpecialNamesMapInfo = std::pair<const SpecialNameInfo*, #^#SIZE_T#$#>;\n"
         "static SpecialNamesMapInfo specialNamesMap();\n"
         "#^#SPECIALS#$#\n"
     ;
 
     util::ReplacementMap repl = {
-        {"SPECIALS", util::strListToString(specialsList, "", "")}
+        {"SPECIALS", util::strListToString(specialsList, "", "")},
+        {"SIZE_T", gen.swigConvertCppType("std::size_t")}
     };
 
     return util::processTemplate(Templ, repl);
