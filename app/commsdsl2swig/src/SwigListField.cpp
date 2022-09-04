@@ -17,6 +17,16 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2swig
 {
 
@@ -29,6 +39,42 @@ SwigListField::SwigListField(SwigGenerator& generator, commsdsl::parse::Field ds
 bool SwigListField::writeImpl() const
 {
     return swigWrite();
+}
+
+std::string SwigListField::swigMembersDefImpl() const
+{
+    auto* elem = SwigField::cast(memberElementField());
+    if (elem == nullptr) {
+        return strings::emptyString();
+    }
+
+    return elem->swigClassDef();
+}
+
+std::string SwigListField::swigValueTypeImpl() const
+{
+    static const std::string Templ = 
+        "using ValueType = std::vector<#^#ELEM#$#>;\n";
+
+    auto* elem = memberElementField();
+    if (elem == nullptr) {
+        elem = externalElementField();
+    }
+
+    assert(elem != nullptr);
+
+    util::ReplacementMap repl = {
+        {"ELEM", SwigGenerator::cast(generator()).swigClassName(*elem)}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string SwigListField::swigValueAccImpl() const
+{
+    return 
+        "ValueType& value();\n" + 
+        SwigBase::swigValueAccImpl();
 }
 
 } // namespace commsdsl2swig
