@@ -17,6 +17,16 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2swig
 {
 
@@ -30,5 +40,21 @@ bool SwigStringField::writeImpl() const
 {
     return swigWrite();
 }
+
+std::string SwigStringField::swigValueTypeImpl() const
+{
+    static const std::string Templ = 
+        "using ValueType = std::string;\n";
+
+    return Templ;
+}
+
+std::string SwigStringField::swigValueAccImpl() const
+{
+    return 
+        "ValueType& value();\n" + 
+        SwigBase::swigValueAccImpl();
+}
+
 
 } // namespace commsdsl2swig

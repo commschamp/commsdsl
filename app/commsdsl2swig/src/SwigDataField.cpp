@@ -41,16 +41,6 @@ bool SwigDataField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigDataField::swigMembersDefImpl() const
-{
-    auto* mem = SwigField::cast(memberPrefixField());
-    if (mem == nullptr) {
-        return strings::emptyString();
-    }
-
-    return mem->swigClassDef();
-}
-
 std::string SwigDataField::swigValueTypeImpl() const
 {
     static const std::string Templ = 
