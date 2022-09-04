@@ -17,6 +17,16 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2swig
 {
 
@@ -29,6 +39,27 @@ SwigRefField::SwigRefField(SwigGenerator& generator, commsdsl::parse::Field dslO
 bool SwigRefField::writeImpl() const
 {
     return swigWrite();
+}
+
+std::string SwigRefField::swigBaseClassImpl() const
+{
+    auto* field = SwigField::cast(referencedField());
+    assert(field != nullptr);
+    return SwigGenerator::cast(generator()).swigClassName(field->field());
+}
+
+std::string SwigRefField::swigValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string SwigRefField::swigCommonPublicFuncsImpl() const
+{
+    static const std::string Templ = 
+        "static const char* name();\n"
+    ;
+
+    return Templ;
 }
 
 } // namespace commsdsl2swig

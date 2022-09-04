@@ -36,6 +36,9 @@ protected:
     virtual bool writeImpl() const override;    
 
     // SwigBase overrides
+    virtual std::string swigBaseClassImpl() const override;
+    virtual std::string swigValueAccImpl() const override;
+    virtual std::string swigCommonPublicFuncsImpl() const override;
 
 private:
 };
