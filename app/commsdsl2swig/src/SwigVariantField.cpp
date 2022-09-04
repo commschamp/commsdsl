@@ -17,6 +17,16 @@
 
 #include "SwigGenerator.h"
 
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+
+#include <cassert>
+
+namespace comms = commsdsl::gen::comms;
+namespace util = commsdsl::gen::util;
+namespace strings = commsdsl::gen::strings;
+
 namespace commsdsl2swig
 {
 
@@ -30,7 +40,7 @@ bool SwigVariantField::prepareImpl()
 {
     return 
         Base::prepareImpl() &&
-        prepareInternal();
+        swigPrepareInternal();
 }
 
 bool SwigVariantField::writeImpl() const
@@ -38,10 +48,96 @@ bool SwigVariantField::writeImpl() const
     return swigWrite();
 }
 
-bool SwigVariantField::prepareInternal()
+
+std::string SwigVariantField::swigMembersDefImpl() const
+{
+    StringsList memberDefs;
+    memberDefs.reserve(m_members.size());
+
+    for (auto* m : m_members) {
+        memberDefs.push_back(m->swigClassDef());
+    }
+
+    memberDefs.push_back(swigHandlerDeclInternal());
+
+    return util::strListToString(memberDefs, "\n", "\n");
+}
+
+std::string SwigVariantField::swigValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string SwigVariantField::swigExtraPublicFuncsImpl() const
+{
+    StringsList accFuncs;
+    accFuncs.reserve(m_members.size());
+
+    auto& gen = SwigGenerator::cast(generator());
+    for (auto* m : m_members) {
+        static const std::string Templ = {
+            "#^#CLASS_NAME#$#& initField_#^#ACC_NAME#$#();\n"
+            "#^#CLASS_NAME#$#& accessField_#^#ACC_NAME#$#();\n"
+        };
+
+        util::ReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(m->field())},
+            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+        };
+
+        accFuncs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ = 
+        "#^#SIZE_T#$# currentField() const;\n"
+        "void selectField(#^#SIZE_T#$# idx);\n"
+        "void currentFieldExec(#^#CLASS_NAME#$#_Handler& handler);\n\n"
+        "#^#MEMBERS#$#";
+
+    util::ReplacementMap repl = {
+        {"SIZE_T", gen.swigConvertCppType("std::size_t")},
+        {"CLASS_NAME", gen.swigClassName(*this)},
+        {"MEMBERS", util::strListToString(accFuncs, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+bool SwigVariantField::swigPrepareInternal()
 {
     m_members = swigTransformFieldsList(members());
     return true;
+}
+
+std::string SwigVariantField::swigHandlerDeclInternal() const
+{
+    auto& gen = SwigGenerator::cast(generator());
+    StringsList accessFuncs;
+    for (auto* m : m_members) {
+        static const std::string Templ = 
+            "virtual void handle_#^#ACC_NAME#$#(#^#CLASS_NAME#$#& field);\n";
+
+        util::ReplacementMap repl = {
+            {"ACC_NAME", comms::accessName(m->field().dslObj().name())},
+            {"CLASS_NAME", gen.swigClassName(m->field())}
+        };
+
+        accessFuncs.push_back(util::processTemplate(Templ, repl));
+    }    
+
+    static const std::string Templ = 
+        "struct #^#CLASS_NAME#$#_Handler\n"
+        "{\n"
+        "    #^#ACCESS_FUNCS#$#\n"
+        "};\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(*this)},
+        {"ACCESS_FUNCS", util::strListToString(accessFuncs, "", "")},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig

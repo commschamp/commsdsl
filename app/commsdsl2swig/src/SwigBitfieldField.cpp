@@ -67,11 +67,6 @@ std::string SwigBitfieldField::swigMembersDefImpl() const
     return util::strListToString(memberDefs, "\n", "\n");
 }
 
-std::string SwigBitfieldField::swigValueTypeImpl() const
-{
-    return strings::emptyString();
-}
-
 std::string SwigBitfieldField::swigValueAccImpl() const
 {
     return strings::emptyString();
@@ -84,10 +79,9 @@ std::string SwigBitfieldField::swigExtraPublicFuncsImpl() const
 
     auto& gen = SwigGenerator::cast(generator());
     for (auto* m : m_members) {
-        static const std::string Templ = {
+        static const std::string Templ = 
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
-            "const #^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() const;\n"
-        };
+        ;
 
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.swigClassName(m->field())},

@@ -42,9 +42,13 @@ protected:
     virtual bool writeImpl() const override;    
 
     // SwigBase overrides
+    virtual std::string swigMembersDefImpl() const override;
+    virtual std::string swigValueAccImpl() const override;
+    virtual std::string swigExtraPublicFuncsImpl() const override;    
 
 private:
-    bool prepareInternal();
+    bool swigPrepareInternal();
+    std::string swigHandlerDeclInternal() const;
     
     SwigFieldsList m_members;
 };
