@@ -53,25 +53,37 @@ const SwigLayer* SwigLayer::cast(const commsdsl::gen::Layer* layer)
 std::string SwigLayer::swigDeclCode() const
 {
     static const std::string Templ = 
-        "#^#FIELD#$#\n"
+        "#^#MEMBER#$#\n"
         "class #^#CLASS_NAME#$#\n"
         "{\n"
         "#^#PUBLIC#$#\n"
-        "    #^#CODE#$#\n"
+        "    #^#FIELD#$#\n"
+        "    #^#FUNCS#$#\n"
         "};\n";
 
     auto& gen = SwigGenerator::cast(m_layer.generator());
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.swigClassName(m_layer)},
-        {"CODE", swigDeclFuncsImpl()},
-    };
-
     auto* memField = SwigField::cast(m_layer.memberField());
-    if (memField != nullptr) {
-        repl["FIELD"] = memField->swigClassDef();
+    auto* field = memField;
+    if (field == nullptr) {
+        field = SwigField::cast(m_layer.externalField());
     }
 
-    if (!repl["CODE"].empty()) {
+    std::string fieldDef;
+    if (field != nullptr) {
+        fieldDef = "using Field = " + gen.swigClassName(field->field()) + ";";
+    }
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(m_layer)},
+        {"FIELD", std::move(fieldDef)},
+        {"FUNCS", swigDeclFuncsImpl()},
+    };
+
+    if (memField != nullptr) {
+        repl["MEMBER"] = memField->swigClassDef();
+    }
+
+    if ((!repl["FIELD"].empty()) || (!repl["FUNCS"].empty())) {
         repl["PUBLIC"] = "public:";
     }
 

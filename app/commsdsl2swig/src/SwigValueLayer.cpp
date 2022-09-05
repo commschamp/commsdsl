@@ -36,4 +36,17 @@ SwigValueLayer::SwigValueLayer(SwigGenerator& generator, commsdsl::parse::Layer 
 {
 }
 
+std::string SwigValueLayer::swigDeclFuncsImpl() const
+{
+    auto obj = valueDslObj();
+    if (!obj.pseudo()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "Field& pseudoField();\n";
+
+    return Templ;
+}
+
 } // namespace commsdsl2swig

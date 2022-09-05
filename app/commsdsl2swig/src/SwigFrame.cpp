@@ -95,8 +95,40 @@ std::string SwigFrame::swigLayerDeclsInternal() const
 
 std::string SwigFrame::swigHandlerDeclInternal() const
 {
-    // TODO:
-    return strings::emptyString();
+    auto& gen = SwigGenerator::cast(generator());
+    auto* iFace = gen.swigMainInterface();
+    assert(iFace != nullptr);
+
+    auto allMessages = gen.getAllMessagesIdSorted();
+    util::StringsList handleFuncs;
+    handleFuncs.reserve(allMessages.size());
+
+    for (auto* m : allMessages) {
+        static const std::string Templ = 
+            "virtual handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
+
+        util::ReplacementMap repl = {
+            {"MESSAGE", gen.swigClassName(*m)}
+        };
+
+        handleFuncs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#_Handler\n"
+        "{\n"
+        "public:\n"
+        "     #^#HANDLE_FUNCS#$#\n"
+        "     virtual handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg);\n"
+        "};\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(*this)},
+        {"INTERFACE", gen.swigClassName(*iFace)},
+        {"HANDLE_FUNCS", util::strListToString(handleFuncs, "", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 std::string SwigFrame::swigClassDeclInternal() const

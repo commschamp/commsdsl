@@ -8,6 +8,9 @@ file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 #find_package(LibComms REQUIRED)
 
+add_custom_target(${APP_NAME}.all_tests
+    COMMAND ${CMAKE_COMMAND} -E echo "All ${APP_NAME} tests are built")
+
 include(ExternalProject)
 
 foreach (name ${tests})
@@ -80,5 +83,7 @@ foreach (name ${tests})
 #            -DCMAKE_PREFIX_PATH=${build_prefix_path_str}
 #            ${options_param}
 #    )  
+
+    add_dependencies(${APP_NAME}.all_tests ${APP_NAME}.${name}_output_tgt)
 
 endforeach ()
