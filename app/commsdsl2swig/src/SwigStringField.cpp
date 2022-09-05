@@ -41,7 +41,7 @@ bool SwigStringField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigStringField::swigValueTypeImpl() const
+std::string SwigStringField::swigValueTypeDeclImpl() const
 {
     static const std::string Templ = 
         "using ValueType = std::string;\n";
@@ -49,11 +49,11 @@ std::string SwigStringField::swigValueTypeImpl() const
     return Templ;
 }
 
-std::string SwigStringField::swigValueAccImpl() const
+std::string SwigStringField::swigValueAccDeclImpl() const
 {
     return 
         "ValueType& value();\n" + 
-        SwigBase::swigValueAccImpl();
+        SwigBase::swigValueAccDeclImpl();
 }
 
 

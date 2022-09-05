@@ -49,13 +49,13 @@ bool SwigVariantField::writeImpl() const
 }
 
 
-std::string SwigVariantField::swigMembersDefImpl() const
+std::string SwigVariantField::swigMembersDeclImpl() const
 {
     StringsList memberDefs;
-    memberDefs.reserve(m_members.size());
+    memberDefs.reserve(m_swigMembers.size());
 
-    for (auto* m : m_members) {
-        memberDefs.push_back(m->swigClassDef());
+    for (auto* m : m_swigMembers) {
+        memberDefs.push_back(m->swigClassDecl());
     }
 
     memberDefs.push_back(swigHandlerDeclInternal());
@@ -63,18 +63,18 @@ std::string SwigVariantField::swigMembersDefImpl() const
     return util::strListToString(memberDefs, "\n", "\n");
 }
 
-std::string SwigVariantField::swigValueAccImpl() const
+std::string SwigVariantField::swigValueAccDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigVariantField::swigExtraPublicFuncsImpl() const
+std::string SwigVariantField::swigExtraPublicFuncsDeclImpl() const
 {
     StringsList accFuncs;
-    accFuncs.reserve(m_members.size());
+    accFuncs.reserve(m_swigMembers.size());
 
     auto& gen = SwigGenerator::cast(generator());
-    for (auto* m : m_members) {
+    for (auto* m : m_swigMembers) {
         static const std::string Templ = {
             "#^#CLASS_NAME#$#& initField_#^#ACC_NAME#$#();\n"
             "#^#CLASS_NAME#$#& accessField_#^#ACC_NAME#$#();\n"
@@ -105,7 +105,7 @@ std::string SwigVariantField::swigExtraPublicFuncsImpl() const
 
 bool SwigVariantField::swigPrepareInternal()
 {
-    m_members = swigTransformFieldsList(members());
+    m_swigMembers = swigTransformFieldsList(members());
     return true;
 }
 
@@ -113,7 +113,7 @@ std::string SwigVariantField::swigHandlerDeclInternal() const
 {
     auto& gen = SwigGenerator::cast(generator());
     StringsList accessFuncs;
-    for (auto* m : m_members) {
+    for (auto* m : m_swigMembers) {
         static const std::string Templ = 
             "virtual void handle_#^#ACC_NAME#$#(#^#CLASS_NAME#$#& field);\n";
 

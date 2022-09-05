@@ -41,19 +41,19 @@ bool SwigRefField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigRefField::swigBaseClassImpl() const
+std::string SwigRefField::swigBaseClassDeclImpl() const
 {
     auto* field = SwigField::cast(referencedField());
     assert(field != nullptr);
     return SwigGenerator::cast(generator()).swigClassName(field->field());
 }
 
-std::string SwigRefField::swigValueAccImpl() const
+std::string SwigRefField::swigValueAccDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigRefField::swigCommonPublicFuncsImpl() const
+std::string SwigRefField::swigCommonPublicFuncsDeclImpl() const
 {
     static const std::string Templ = 
         "static const char* name();\n"

@@ -50,24 +50,24 @@ public:
     std::string swigRelHeaderPath() const;
 
     bool swigIsVersionOptional() const;
-    std::string swigClassDef() const;
+    std::string swigClassDecl() const;
 
     // bool swigPrepare();
     bool swigWrite() const;
 
 protected:
-    virtual std::string swigBaseClassImpl() const;
-    virtual std::string swigMembersDefImpl() const;
-    virtual std::string swigValueTypeImpl() const;
-    virtual std::string swigValueAccImpl() const;
-    virtual std::string swigExtraPublicFuncsImpl() const;
-    virtual std::string swigCommonPublicFuncsImpl() const;
+    virtual std::string swigBaseClassDeclImpl() const;
+    virtual std::string swigMembersDeclImpl() const;
+    virtual std::string swigValueTypeDeclImpl() const;
+    virtual std::string swigValueAccDeclImpl() const;
+    virtual std::string swigExtraPublicFuncsDeclImpl() const;
+    virtual std::string swigCommonPublicFuncsDeclImpl() const;
 
-    std::string swigCommonPublicFuncs() const;
+    std::string swigCommonPublicFuncsDecl() const;
     
 private:
-    std::string swigClassDefInternal() const;
-    std::string swigOptionalDefInternal() const;
+    std::string swigClassDeclInternal() const;
+    std::string swigOptionalDeclInternal() const;
 
     commsdsl::gen::Field& m_field;
 };

@@ -63,27 +63,27 @@ bool SwigOptionalField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigOptionalField::swigMembersDefImpl() const
+std::string SwigOptionalField::swigMembersDeclImpl() const
 {
     auto* mem = SwigField::cast(memberField());
     if (mem == nullptr) {
         return strings::emptyString();
     }
 
-    return mem->swigClassDef();
+    return mem->swigClassDecl();
 }
 
-std::string SwigOptionalField::swigValueTypeImpl() const
+std::string SwigOptionalField::swigValueTypeDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigOptionalField::swigValueAccImpl() const
+std::string SwigOptionalField::swigValueAccDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigOptionalField::swigExtraPublicFuncsImpl() const
+std::string SwigOptionalField::swigExtraPublicFuncsDeclImpl() const
 {
     auto* mem = SwigField::cast(memberField());
     if (mem == nullptr) {

@@ -41,7 +41,7 @@ bool SwigFloatField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigFloatField::swigValueTypeImpl() const
+std::string SwigFloatField::swigValueTypeDeclImpl() const
 {
     static const std::string Templ = 
         "using ValueType = #^#TYPE#$#;\n";
@@ -54,7 +54,7 @@ std::string SwigFloatField::swigValueTypeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigFloatField::swigExtraPublicFuncsImpl() const
+std::string SwigFloatField::swigExtraPublicFuncsDeclImpl() const
 {
     static const std::string Templ = 
         "bool hasSpecials();\n"
@@ -62,14 +62,14 @@ std::string SwigFloatField::swigExtraPublicFuncsImpl() const
         "static unsigned displayDecimals();\n";
 
     util::ReplacementMap repl {
-        {"SCPECIALS", swigSpecialsDefInternal()},
+        {"SCPECIALS", swigSpecialsDeclInternal()},
     };
 
     return util::processTemplate(Templ, repl);
 }
 
 
-std::string SwigFloatField::swigSpecialsDefInternal() const
+std::string SwigFloatField::swigSpecialsDeclInternal() const
 {
     auto& specials = specialsSortedByValue();
     if (specials.empty()) {

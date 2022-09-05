@@ -41,7 +41,7 @@ bool SwigBitfieldField::prepareImpl()
 {
     return 
         Base::prepareImpl() &&
-        prepareInternal();
+        swigPrepareInternal();
 }
 
 bool SwigBitfieldField::writeImpl() const
@@ -49,36 +49,36 @@ bool SwigBitfieldField::writeImpl() const
     return swigWrite();
 }
 
-bool SwigBitfieldField::prepareInternal()
+bool SwigBitfieldField::swigPrepareInternal()
 {
-    m_members = swigTransformFieldsList(members());
+    m_swigMembers = swigTransformFieldsList(members());
     return true;
 }
 
-std::string SwigBitfieldField::swigMembersDefImpl() const
+std::string SwigBitfieldField::swigMembersDeclImpl() const
 {
     StringsList memberDefs;
-    memberDefs.reserve(m_members.size());
+    memberDefs.reserve(m_swigMembers.size());
 
-    for (auto* m : m_members) {
-        memberDefs.push_back(m->swigClassDef());
+    for (auto* m : m_swigMembers) {
+        memberDefs.push_back(m->swigClassDecl());
     }
 
     return util::strListToString(memberDefs, "\n", "\n");
 }
 
-std::string SwigBitfieldField::swigValueAccImpl() const
+std::string SwigBitfieldField::swigValueAccDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigBitfieldField::swigExtraPublicFuncsImpl() const
+std::string SwigBitfieldField::swigExtraPublicFuncsDeclImpl() const
 {
     StringsList accFuncs;
-    accFuncs.reserve(m_members.size());
+    accFuncs.reserve(m_swigMembers.size());
 
     auto& gen = SwigGenerator::cast(generator());
-    for (auto* m : m_members) {
+    for (auto* m : m_swigMembers) {
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
         ;

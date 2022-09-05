@@ -33,7 +33,7 @@ public:
 
     const SwigFieldsList& swigMembers() const
     {
-        return m_members;
+        return m_swigMembers;
     }
 
 protected:
@@ -42,14 +42,14 @@ protected:
     virtual bool writeImpl() const override;    
 
     // SwigBase overrides
-    virtual std::string swigMembersDefImpl() const override;
-    virtual std::string swigValueAccImpl() const override;
-    virtual std::string swigExtraPublicFuncsImpl() const override;
+    virtual std::string swigMembersDeclImpl() const override;
+    virtual std::string swigValueAccDeclImpl() const override;
+    virtual std::string swigExtraPublicFuncsDeclImpl() const override;
 
 private:
-    bool prepareInternal();
+    bool swigPrepareInternal();
     
-    SwigFieldsList m_members;
+    SwigFieldsList m_swigMembers;
 };
 
 } // namespace commsdsl2swig

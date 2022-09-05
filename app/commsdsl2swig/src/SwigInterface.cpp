@@ -76,8 +76,8 @@ bool SwigInterface::writeImpl() const
 
     util::ReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"FIELDS", swigFieldDefsInternal()},
-        {"DEF", swigClassDefInternal()},
+        {"FIELDS", swigFieldDeclsInternal()},
+        {"DEF", swigClassDeclInternal()},
     };
     
     stream << util::processTemplate(Templ, repl, true);
@@ -85,19 +85,19 @@ bool SwigInterface::writeImpl() const
     return stream.good();   
 }
 
-std::string SwigInterface::swigFieldDefsInternal() const
+std::string SwigInterface::swigFieldDeclsInternal() const
 {
     StringsList fields;
     fields.reserve(m_swigFields.size());
 
     for (auto* f : m_swigFields) {
-        fields.push_back(f->swigClassDef());
+        fields.push_back(f->swigClassDecl());
     }
 
     return util::strListToString(fields, "\n", "");
 }
 
-std::string SwigInterface::swigClassDefInternal() const
+std::string SwigInterface::swigClassDeclInternal() const
 {
     static const std::string Templ = 
         "class #^#CLASS_NAME#$#\n"
@@ -118,7 +118,7 @@ std::string SwigInterface::swigClassDefInternal() const
     auto& gen = SwigGenerator::cast(generator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
-        {"FIELDS", swigFieldsAccessInternal()},
+        {"FIELDS", swigFieldsAccessDeclInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
@@ -127,7 +127,7 @@ std::string SwigInterface::swigClassDefInternal() const
     return util::processTemplate(Templ, repl);    
 }
 
-std::string SwigInterface::swigFieldsAccessInternal() const
+std::string SwigInterface::swigFieldsAccessDeclInternal() const
 {
     StringsList accFuncs;
     accFuncs.reserve(m_swigFields.size());

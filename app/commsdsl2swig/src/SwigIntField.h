@@ -36,13 +36,13 @@ protected:
     virtual bool writeImpl() const override;    
 
     // SwigBase overrides
-    virtual std::string swigValueTypeImpl() const override;
-    virtual std::string swigExtraPublicFuncsImpl() const override;
+    virtual std::string swigValueTypeDeclImpl() const override;
+    virtual std::string swigExtraPublicFuncsDeclImpl() const override;
 
 private:
-    std::string swigSpecialsDefInternal() const;
-    std::string swigDisplayDecimalsInternal() const;
-    std::string swigScaledDeclFuncsInternal() const;
+    std::string swigSpecialsDeclInternal() const;
+    std::string swigDisplayDecimalsDeclInternal() const;
+    std::string swigScaledFuncsDeclInternal() const;
 };
 
 } // namespace commsdsl2swig

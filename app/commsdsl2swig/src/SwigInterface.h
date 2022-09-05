@@ -41,9 +41,9 @@ private:
     using SwigFieldsList = SwigField::SwigFieldsList;
     using StringsList = commsdsl::gen::util::StringsList;
 
-    std::string swigFieldDefsInternal() const;
-    std::string swigClassDefInternal() const;
-    std::string swigFieldsAccessInternal() const;    
+    std::string swigFieldDeclsInternal() const;
+    std::string swigClassDeclInternal() const;
+    std::string swigFieldsAccessDeclInternal() const;    
 
     SwigFieldsList m_swigFields;        
 };

@@ -78,7 +78,7 @@ bool SwigMessage::writeImpl() const
     util::ReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"FIELDS", swigFieldDefsInternal()},
-        {"DEF", swigClassDefInternal()},
+        {"DEF", swigClassDeclInternal()},
     };
     
     stream << util::processTemplate(Templ, repl, true);
@@ -92,13 +92,13 @@ std::string SwigMessage::swigFieldDefsInternal() const
     fields.reserve(m_swigFields.size());
 
     for (auto* f : m_swigFields) {
-        fields.push_back(f->swigClassDef());
+        fields.push_back(f->swigClassDecl());
     }
 
     return util::strListToString(fields, "\n", "");
 }
 
-std::string SwigMessage::swigClassDefInternal() const
+std::string SwigMessage::swigClassDeclInternal() const
 {
     static const std::string Templ = 
         "class #^#CLASS_NAME#$# : public #^#INTERFACE#$#\n"

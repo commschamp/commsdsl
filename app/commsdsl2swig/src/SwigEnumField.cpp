@@ -219,7 +219,7 @@ bool SwigEnumField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigEnumField::swigValueTypeImpl() const
+std::string SwigEnumField::swigValueTypeDeclImpl() const
 {
     auto& gen = SwigGenerator::cast(generator());
     if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
@@ -247,7 +247,7 @@ std::string SwigEnumField::swigValueTypeImpl() const
     return util::processTemplate(Templ, repl); 
 }
 
-std::string SwigEnumField::swigExtraPublicFuncsImpl() const
+std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
 {
     static const std::string Templ = 
         "using ValueNameInfo = #^#NAME_INFO_TYPE#$#;\n"

@@ -80,7 +80,7 @@ std::string SwigLayer::swigDeclCode() const
     };
 
     if (memField != nullptr) {
-        repl["MEMBER"] = memField->swigClassDef();
+        repl["MEMBER"] = memField->swigClassDecl();
     }
 
     if ((!repl["FIELD"].empty()) || (!repl["FUNCS"].empty())) {

@@ -41,7 +41,7 @@ bool SwigDataField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigDataField::swigValueTypeImpl() const
+std::string SwigDataField::swigValueTypeDeclImpl() const
 {
     static const std::string Templ = 
         "using ValueType = std::vector<#^#UINT8_T#$#>;\n";
@@ -54,11 +54,11 @@ std::string SwigDataField::swigValueTypeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigDataField::swigValueAccImpl() const
+std::string SwigDataField::swigValueAccDeclImpl() const
 {
     return 
         "ValueType& value();\n" + 
-        SwigBase::swigValueAccImpl();
+        SwigBase::swigValueAccDeclImpl();
 }
 
 

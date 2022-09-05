@@ -41,17 +41,17 @@ bool SwigListField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigListField::swigMembersDefImpl() const
+std::string SwigListField::swigMembersDeclImpl() const
 {
     auto* elem = SwigField::cast(memberElementField());
     if (elem == nullptr) {
         return strings::emptyString();
     }
 
-    return elem->swigClassDef();
+    return elem->swigClassDecl();
 }
 
-std::string SwigListField::swigValueTypeImpl() const
+std::string SwigListField::swigValueTypeDeclImpl() const
 {
     static const std::string Templ = 
         "using ValueType = std::vector<#^#ELEM#$#>;\n";
@@ -70,11 +70,11 @@ std::string SwigListField::swigValueTypeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigListField::swigValueAccImpl() const
+std::string SwigListField::swigValueAccDeclImpl() const
 {
     return 
         "ValueType& value();\n" + 
-        SwigBase::swigValueAccImpl();
+        SwigBase::swigValueAccDeclImpl();
 }
 
 } // namespace commsdsl2swig

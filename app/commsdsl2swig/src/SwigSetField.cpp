@@ -40,7 +40,7 @@ bool SwigSetField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigSetField::swigValueTypeImpl() const
+std::string SwigSetField::swigValueTypeDeclImpl() const
 {
     static const std::string Templ = 
         "using ValueType = #^#TYPE#$#;\n";
@@ -53,7 +53,7 @@ std::string SwigSetField::swigValueTypeImpl() const
     return util::processTemplate(Templ, repl);    
 }
 
-std::string SwigSetField::swigExtraPublicFuncsImpl() const
+std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
 {
     auto obj = setDslObj();
 

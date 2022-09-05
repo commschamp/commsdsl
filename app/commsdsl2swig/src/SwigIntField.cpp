@@ -41,7 +41,7 @@ bool SwigIntField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigIntField::swigValueTypeImpl() const
+std::string SwigIntField::swigValueTypeDeclImpl() const
 {
     static const std::string Templ = 
         "using ValueType = #^#TYPE#$#;\n";
@@ -54,7 +54,7 @@ std::string SwigIntField::swigValueTypeImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigIntField::swigExtraPublicFuncsImpl() const
+std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
 {
     static const std::string Templ = 
         "bool hasSpecials();\n"
@@ -63,15 +63,15 @@ std::string SwigIntField::swigExtraPublicFuncsImpl() const
         "#^#SCALED#$#\n";
 
     util::ReplacementMap repl {
-        {"SCPECIALS", swigSpecialsDefInternal()},
-        {"DISPLAY_DECIMALS", swigDisplayDecimalsInternal()},
-        {"SCALED", swigScaledDeclFuncsInternal()}
+        {"SCPECIALS", swigSpecialsDeclInternal()},
+        {"DISPLAY_DECIMALS", swigDisplayDecimalsDeclInternal()},
+        {"SCALED", swigScaledFuncsDeclInternal()}
     };
 
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigIntField::swigSpecialsDefInternal() const
+std::string SwigIntField::swigSpecialsDeclInternal() const
 {
     auto& specials = specialsSortedByValue();
     if (specials.empty()) {
@@ -113,7 +113,7 @@ std::string SwigIntField::swigSpecialsDefInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigIntField::swigDisplayDecimalsInternal() const
+std::string SwigIntField::swigDisplayDecimalsDeclInternal() const
 {
     auto obj = intDslObj();
     auto scaling = obj.scaling();
@@ -125,7 +125,7 @@ std::string SwigIntField::swigDisplayDecimalsInternal() const
     return result;
 }
 
-std::string SwigIntField::swigScaledDeclFuncsInternal() const
+std::string SwigIntField::swigScaledFuncsDeclInternal() const
 {
     auto obj = intDslObj();
     auto scaling = obj.scaling();

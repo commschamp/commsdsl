@@ -40,7 +40,7 @@ bool SwigBundleField::prepareImpl()
 {
     return 
         Base::prepareImpl() &&
-        prepareInternal();
+        swigPrepareInternal();
 }
 
 bool SwigBundleField::writeImpl() const
@@ -48,36 +48,36 @@ bool SwigBundleField::writeImpl() const
     return swigWrite();
 }
 
-bool SwigBundleField::prepareInternal()
+bool SwigBundleField::swigPrepareInternal()
 {
-    m_members = swigTransformFieldsList(members());
+    m_swigMembers = swigTransformFieldsList(members());
     return true;
 }
 
-std::string SwigBundleField::swigMembersDefImpl() const
+std::string SwigBundleField::swigMembersDeclImpl() const
 {
     StringsList memberDefs;
-    memberDefs.reserve(m_members.size());
+    memberDefs.reserve(m_swigMembers.size());
 
-    for (auto* m : m_members) {
-        memberDefs.push_back(m->swigClassDef());
+    for (auto* m : m_swigMembers) {
+        memberDefs.push_back(m->swigClassDecl());
     }
 
     return util::strListToString(memberDefs, "\n", "\n");
 }
 
-std::string SwigBundleField::swigValueAccImpl() const
+std::string SwigBundleField::swigValueAccDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigBundleField::swigExtraPublicFuncsImpl() const
+std::string SwigBundleField::swigExtraPublicFuncsDeclImpl() const
 {
     StringsList accFuncs;
-    accFuncs.reserve(m_members.size());
+    accFuncs.reserve(m_swigMembers.size());
 
     auto& gen = SwigGenerator::cast(generator());
-    for (auto* m : m_members) {
+    for (auto* m : m_swigMembers) {
         static const std::string Templ = 
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
         ;

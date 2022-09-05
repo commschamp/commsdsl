@@ -80,7 +80,7 @@ bool SwigField::swigIsVersionOptional() const
     return comms::isVersionOptionaField(m_field, m_field.generator());
 }
 
-std::string SwigField::swigClassDef() const
+std::string SwigField::swigClassDecl() const
 {
     static const std::string Templ = 
         "#^#MEMBERS#$#\n"
@@ -89,9 +89,9 @@ std::string SwigField::swigClassDef() const
     ;
 
     util::ReplacementMap repl = {
-        {"MEMBERS", swigMembersDefImpl()},
-        {"DEF", swigClassDefInternal()},
-        {"OPTIONAL", swigOptionalDefInternal()},
+        {"MEMBERS", swigMembersDeclImpl()},
+        {"DEF", swigClassDeclInternal()},
+        {"OPTIONAL", swigOptionalDeclInternal()},
     };
 
     return util::processTemplate(Templ, repl);
@@ -136,7 +136,7 @@ bool SwigField::swigWrite() const
 
     util::ReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"DEF", swigClassDef()},
+        {"DEF", swigClassDecl()},
     };
     
     stream << util::processTemplate(Templ, repl, true);
@@ -144,22 +144,22 @@ bool SwigField::swigWrite() const
     return stream.good();    
 }
 
-std::string SwigField::swigBaseClassImpl() const
+std::string SwigField::swigBaseClassDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigField::swigMembersDefImpl() const
+std::string SwigField::swigMembersDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigField::swigValueTypeImpl() const
+std::string SwigField::swigValueTypeDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigField::swigValueAccImpl() const
+std::string SwigField::swigValueAccDeclImpl() const
 {
     return std::string(
         "const ValueType& getValue() const;\n"
@@ -167,17 +167,17 @@ std::string SwigField::swigValueAccImpl() const
     );
 }
 
-std::string SwigField::swigExtraPublicFuncsImpl() const
+std::string SwigField::swigExtraPublicFuncsDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigField::swigCommonPublicFuncsImpl() const
+std::string SwigField::swigCommonPublicFuncsDeclImpl() const
 {
-    return swigCommonPublicFuncs();
+    return swigCommonPublicFuncsDecl();
 }
 
-std::string SwigField::swigCommonPublicFuncs() const
+std::string SwigField::swigCommonPublicFuncsDecl() const
 {
     static const std::string Templ = 
         "static const char* name();\n"
@@ -197,7 +197,7 @@ std::string SwigField::swigCommonPublicFuncs() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigField::swigClassDefInternal() const
+std::string SwigField::swigClassDeclInternal() const
 {
     static const std::string Templ = 
         "class #^#CLASS_NAME#$##^#SUFFIX#$##^#PUBLIC#$##^#BASE#$#\n"
@@ -213,11 +213,11 @@ std::string SwigField::swigClassDefInternal() const
     auto& generator = SwigGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", generator.swigClassName(m_field)},
-        {"VALUE_TYPE", swigValueTypeImpl()},
-        {"VALUE_ACC", swigValueAccImpl()},
-        {"COMMON_FUNCS", swigCommonPublicFuncsImpl()},
-        {"EXTRA", swigExtraPublicFuncsImpl()},
-        {"BASE", swigBaseClassImpl()}
+        {"VALUE_TYPE", swigValueTypeDeclImpl()},
+        {"VALUE_ACC", swigValueAccDeclImpl()},
+        {"COMMON_FUNCS", swigCommonPublicFuncsDeclImpl()},
+        {"EXTRA", swigExtraPublicFuncsDeclImpl()},
+        {"BASE", swigBaseClassDeclImpl()}
     };
 
     if (swigIsVersionOptional()) {
@@ -236,7 +236,7 @@ std::string SwigField::swigClassDefInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigField::swigOptionalDefInternal() const
+std::string SwigField::swigOptionalDeclInternal() const
 {
     if (!swigIsVersionOptional()) {
         return strings::emptyString();
@@ -253,7 +253,7 @@ std::string SwigField::swigOptionalDefInternal() const
     auto className = generator.swigClassName(m_field);
     util::ReplacementMap repl = {
         {"CLASS_NAME", className},
-        {"COMMON_FUNCS", swigCommonPublicFuncs()},
+        {"COMMON_FUNCS", swigCommonPublicFuncsDecl()},
         {"OPTIONAL_FUNCS", SwigOptionalField::swigDefFuncs(className + strings::versionOptionalFieldSuffixStr())},
     };
 
