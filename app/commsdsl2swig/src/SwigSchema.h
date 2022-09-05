@@ -18,29 +18,22 @@
 
 #include "SwigField.h"
 
-#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/Schema.h"
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigNamespace final: public commsdsl::gen::Namespace
+class SwigSchema final: public commsdsl::gen::Schema
 {
-    using Base = commsdsl::gen::Namespace;
+    using Base = commsdsl::gen::Schema;
 
 public:
-    explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
-    virtual ~SwigNamespace();
+    explicit SwigSchema(SwigGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent);
+    virtual ~SwigSchema();
 
-    bool swigHasReferencedMsgId() const;
-
-protected:
-    virtual bool prepareImpl() override;    
-
-private:
-    using SwigFieldsList = SwigField::SwigFieldsList;
-
-    SwigFieldsList m_swigFields;        
+    bool swigHasAnyMessage() const;
+    bool swigHasReferencedMsgId() const;    
 };
 
 } // namespace commsdsl2swig

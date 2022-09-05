@@ -1,7 +1,6 @@
 //
 // Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
 //
-
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -16,31 +15,25 @@
 
 #pragma once
 
-#include "SwigField.h"
-
-#include "commsdsl/gen/Namespace.h"
+#include <string>
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class SwigNamespace final: public commsdsl::gen::Namespace
+class SwigMsgId
 {
-    using Base = commsdsl::gen::Namespace;
-
 public:
-    explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
-    virtual ~SwigNamespace();
-
-    bool swigHasReferencedMsgId() const;
-
-protected:
-    virtual bool prepareImpl() override;    
+    static bool write(SwigGenerator& generator);
 
 private:
-    using SwigFieldsList = SwigField::SwigFieldsList;
+    explicit SwigMsgId(SwigGenerator& generator) : m_generator(generator) {}
 
-    SwigFieldsList m_swigFields;        
+    bool swigWriteInternal() const;
+    std::string swigTypeInternal() const;
+    std::string swigIdsInternal() const;
+    
+    SwigGenerator& m_generator;
 };
 
 } // namespace commsdsl2swig

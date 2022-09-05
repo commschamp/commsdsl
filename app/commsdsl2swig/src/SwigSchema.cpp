@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -13,16 +13,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "SwigNamespace.h"
+#include "SwigSchema.h"
 
 #include "SwigGenerator.h"
+#include "SwigNamespace.h"
+
+#include <algorithm>
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
-
-#include <algorithm>
-#include <cassert>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -32,34 +32,28 @@ namespace commsdsl2swig
 {
 
 
-SwigNamespace::SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
+SwigSchema::SwigSchema(SwigGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent) :
     Base(generator, dslObj, parent)
 {
 }   
 
-SwigNamespace::~SwigNamespace() = default;
+SwigSchema::~SwigSchema() = default;
 
-bool SwigNamespace::swigHasReferencedMsgId() const
+bool SwigSchema::swigHasAnyMessage() const
 {
-    return 
-        std::any_of(
-            m_swigFields.begin(), m_swigFields.end(),
-            [](auto* f)
-            {
-                return 
-                    (f->field().isReferenced()) && 
-                    (f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
-            });
+    return !getAllMessages().empty();
 }
 
-bool SwigNamespace::prepareImpl()
+bool SwigSchema::swigHasReferencedMsgId() const
 {
-    if (!Base::prepareImpl()) {
-        return false;
-    }
-
-    m_swigFields = SwigField::swigTransformFieldsList(fields());
-    return true;
+    auto allNs = getAllNamespaces();
+    return 
+        std::any_of(
+            allNs.begin(), allNs.end(),
+            [](auto* ns)
+            {
+                return static_cast<const SwigNamespace*>(ns)->swigHasReferencedMsgId();
+            });
 }
 
 

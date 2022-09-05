@@ -17,11 +17,13 @@ set (src
     SwigLayer.cpp
     SwigListField.cpp
     SwigMessage.cpp
+    SwigMsgId.cpp
     SwigNamespace.cpp
     SwigOptionalField.cpp
     SwigPayloadLayer.cpp
     SwigProgramOptions.cpp
     SwigRefField.cpp
+    SwigSchema.cpp
     SwigSetField.cpp
     SwigSizeLayer.cpp
     SwigStringField.cpp

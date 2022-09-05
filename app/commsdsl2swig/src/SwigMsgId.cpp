@@ -13,11 +13,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "CommsMsgId.h"
+#include "SwigMsgId.h"
 
-#include "CommsGenerator.h"
-#include "CommsEnumField.h"
-#include "CommsSchema.h"
+#include "SwigGenerator.h"
+#include "SwigEnumField.h"
+#include "SwigSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -32,32 +32,24 @@ namespace util = commsdsl::gen::util;
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 
-namespace commsdsl2comms
+namespace commsdsl2swig
 {
 
-namespace 
+
+bool SwigMsgId::write(SwigGenerator& generator)
 {
-
-using ReplacementMap = commsdsl::gen::util::ReplacementMap;
-
-} // namespace 
-    
-
-bool CommsMsgId::write(CommsGenerator& generator)
-{
-    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage()) && (!thisSchema.commsHasReferencedMsgId())) {
+    auto& thisSchema = static_cast<SwigSchema&>(generator.currentSchema());
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.swigHasAnyMessage()) && (!thisSchema.swigHasReferencedMsgId())) {
         return true;
     }
 
-    CommsMsgId obj(generator);
-    return obj.commsWriteInternal();
+    SwigMsgId obj(generator);
+    return obj.swigWriteInternal();
 }
 
-bool CommsMsgId::commsWriteInternal() const
+bool SwigMsgId::swigWriteInternal() const
 {
     auto filePath = comms::headerPathRoot(strings::msgIdEnumNameStr(), m_generator);
-
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -74,26 +66,18 @@ bool CommsMsgId::commsWriteInternal() const
 
     const std::string Templ = 
         "#^#GENERATED#$#\n"
-        "/// @file\n"
-        "/// @brief Contains definition of message ids enumeration.\n\n"
         "#pragma once\n\n"
-        "#include <cstdint>\n"
-        "#include \"#^#PROT_NAMESPACE#$#/Version.h\"\n\n"
-        "namespace #^#PROT_NAMESPACE#$#\n"
-        "{\n"
-        "/// @brief Message ids enumeration.\n"
-        "enum MsgId : #^#TYPE#$#\n"
+        "enum #^#CLASS_NAME#$# : #^#TYPE#$#\n"
         "{\n"
         "    #^#IDS#$#\n"
-        "};\n\n"
-        "} // namespace #^#PROT_NAMESPACE#$#\n\n"        
+        "};\n"
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
-        {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
-        {"TYPE", commsTypeInternal()},
-        {"IDS", commsIdsInternal()}
+        {"GENERATED", SwigGenerator::fileGeneratedComment()},
+        {"CLASS_NAME", SwigGenerator::swigScopeToName(comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator))},
+        {"TYPE", swigTypeInternal()},
+        {"IDS", swigIdsInternal()}
     };
 
     stream << util::processTemplate(Templ, repl, true);
@@ -106,12 +90,12 @@ bool CommsMsgId::commsWriteInternal() const
     return true;    
 }
 
-std::string CommsMsgId::commsTypeInternal() const
+std::string SwigMsgId::swigTypeInternal() const
 {
     auto* msgIdField = m_generator.currentSchema().getMessageIdField();
     if (msgIdField != nullptr) {
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
-        auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
+        auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->enumDslObj();
         return comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength());
     }
@@ -143,14 +127,14 @@ std::string CommsMsgId::commsTypeInternal() const
     return result;
 }
 
-std::string CommsMsgId::commsIdsInternal() const
+std::string SwigMsgId::swigIdsInternal() const
 {
     auto* msgIdField = m_generator.currentSchema().getMessageIdField();
     auto& prefix = strings::msgIdPrefixStr();
     if (msgIdField != nullptr) {
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
-        auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
-        auto enumValues = castedMsgIdField->commsEnumValues();
+        auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
+        auto enumValues = castedMsgIdField->swigEnumValues();
         static const std::string CommentPrefix("// ---");
         for (auto& v : enumValues) {
             auto commentPos = v.find(CommentPrefix);
@@ -173,4 +157,4 @@ std::string CommsMsgId::commsIdsInternal() const
     return util::strListToString(ids, ",\n", "");
 }
 
-} // namespace commsdsl2comms
+} // namespace commsdsl2swig

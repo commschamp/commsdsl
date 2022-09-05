@@ -30,10 +30,12 @@
 #include "SwigIntField.h"
 #include "SwigListField.h"
 #include "SwigMessage.h"
+#include "SwigMsgId.h"
 #include "SwigNamespace.h"
 #include "SwigOptionalField.h"
 #include "SwigPayloadLayer.h"
 #include "SwigRefField.h"
+#include "SwigSchema.h"
 #include "SwigSetField.h"
 #include "SwigSizeLayer.h"
 #include "SwigStringField.h"
@@ -147,10 +149,19 @@ bool SwigGenerator::prepareImpl()
 
 bool SwigGenerator::writeImpl()
 {
+    for (auto idx = 0U; idx < schemas().size(); ++idx) {
+        chooseCurrentSchema(idx);
+        bool result = 
+            SwigMsgId::write(*this);
+
+        if (!result) {
+            return false;
+        }
+    }
+
     return 
         SwigComms::swigWrite(*this) &&
         Swig::swigWrite(*this) &&
-    //     TestCmake::write(*this) &&
         swigWriteExtraFilesInternal();
 
 }
@@ -183,6 +194,11 @@ const SwigInterface* SwigGenerator::swigMainInterface() const
     auto allInterfaces = getAllInterfaces();
     assert(!allInterfaces.empty());
     return static_cast<const SwigInterface*>(allInterfaces.front());
+}
+
+SwigGenerator::SchemaPtr SwigGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+{
+    return std::make_unique<SwigSchema>(*this, dslObj, parent);
 }
 
 SwigGenerator::NamespacePtr SwigGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)

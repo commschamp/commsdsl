@@ -37,6 +37,7 @@ public:
     using MessagePtr = commsdsl::gen::MessagePtr;
     using FramePtr = commsdsl::gen::FramePtr;
     using LayerPtr = commsdsl::gen::LayerPtr;
+    using SchemaPtr = commsdsl::gen::SchemaPtr;
     
     static const std::string& fileGeneratedComment();
 
@@ -67,6 +68,7 @@ protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() override;    
 
+    virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent) override;
     virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
