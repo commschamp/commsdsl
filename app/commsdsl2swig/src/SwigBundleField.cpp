@@ -93,4 +93,11 @@ std::string SwigBundleField::swigExtraPublicFuncsDeclImpl() const
     return util::strListToString(accFuncs, "\n", "");
 }
 
+void SwigBundleField::swigAddDefImpl(StringsList& list) const
+{
+    for (auto* m : m_swigMembers) {
+        m->swigAddDef(list);
+    }    
+}
+
 } // namespace commsdsl2swig

@@ -40,6 +40,32 @@ SwigFrame::SwigFrame(SwigGenerator& generator, commsdsl::parse::Frame dslObj, El
 
 SwigFrame::~SwigFrame() = default;
 
+void SwigFrame::swigAddCodeIncludes(StringsList& list) const
+{
+    list.push_back(comms::relHeaderPathFor(*this, generator()));
+}
+
+void SwigFrame::swigAddDef(StringsList& list) const
+{
+    for (auto& l : layers()) {
+        auto* swigLayer = SwigLayer::cast(l.get());
+        assert(swigLayer != nullptr);
+
+        swigLayer->swigAddDef(list);
+    }
+
+    static const std::string Templ = 
+        "%feature(\"director\") #^#CLASS_NAME#$#_Handler;";
+
+    auto& gen = SwigGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(*this)},
+    };
+
+    list.push_back(util::processTemplate(Templ, repl));
+    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(*this, generator())));
+}
+
 bool SwigFrame::writeImpl() const
 {
     auto filePath = comms::headerPathFor(*this, generator());

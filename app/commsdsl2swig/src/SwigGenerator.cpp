@@ -121,6 +121,11 @@ std::string SwigGenerator::swigScopeToName(const std::string& scope)
     return util::strReplace(scope, "::", "_");
 }
 
+std::string SwigGenerator::swigDefInclude(const std::string& path)
+{
+    return "%include \"include/" + path + '\"';
+}
+
 bool SwigGenerator::prepareImpl()
 {
     if (!Base::prepareImpl()) {

@@ -17,12 +17,16 @@
 
 #include "SwigComms.h"
 #include "SwigGenerator.h"
+#include "SwigMsgId.h"
+#include "SwigSchema.h"
 
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <fstream>
 
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
@@ -50,17 +54,17 @@ bool Swig::swigWriteInternal() const
     }     
 
     const std::string Templ = 
-        "%module #^#NS#$#\n"
+        "%module(directors=\"1\") #^#NS#$#\n"
         "#^#PREPEND#$#\n"
         "#^#CODE#$#\n"
-        "#^#INCLUDES#$#\n"
+        "#^#DEF#$#\n"
         "#^#APPEND#$#\n"
         ;      
 
     util::ReplacementMap repl = {
         {"NS", schema.mainNamespace()},
         {"CODE", swigCodeBlockInternal()},
-        {"INCLUDES", swigIncludesInternal()},
+        {"DEF", swigDefInternal()},
         {"PREPEND", util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::prependFileSuffixStr()))},
         {"APPEND", util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::appendFileSuffixStr()))},
     };
@@ -78,25 +82,38 @@ bool Swig::swigWriteInternal() const
 
 std::string Swig::swigCodeBlockInternal() const
 {
-    // TODO: 
-    return strings::emptyString();
+    util::StringsList includes = {
+        "comms/comms.h"
+    };
+
+    for (auto& sPtr : m_generator.schemas()) {
+        SwigSchema::cast(sPtr.get())->swigAddCodeIncludes(includes);
+    }
+
+    static const std::string Templ = 
+        "%{\n"
+        "#^#INCLUDES#$#\n"
+        "%}\n"
+        ;
+
+    comms::prepareIncludeStatement(includes);
+    util::ReplacementMap repl = {
+        {"INCLUDES", util::strListToString(includes, "\n", "\n")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
-std::string Swig::swigIncludesInternal() const
+std::string Swig::swigDefInternal() const
 {
     util::StringsList result;
 
-    auto addInclude = 
-        [&result](const std::string& path)
-        {
-            result.push_back("%include \"" + path + '\"');
-        };
+    SwigComms::swigAddDef(result);
+    SwigMsgId::swigAddDef(m_generator, result);
 
-    addInclude(SwigComms::swigRelHeader());
-
-    // TODO: include of message id
-
-    // TODO: includes from schemas
+    for (auto& sPtr : m_generator.schemas()) {
+        SwigSchema::cast(sPtr.get())->swigAddDef(result);
+    }    
 
     return util::strListToString(result, "\n", "");
 }

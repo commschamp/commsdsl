@@ -103,6 +103,23 @@ std::string SwigVariantField::swigExtraPublicFuncsDeclImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+void SwigVariantField::swigAddDefImpl(StringsList& list) const
+{
+    static const std::string Templ = 
+        "%feature(\"director\") #^#CLASS_NAME#$#_Handler;";
+
+    auto& gen = SwigGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(*this)},
+    };
+
+    list.push_back(util::processTemplate(Templ, repl));
+
+    for (auto* m : m_swigMembers) {
+        m->swigAddDef(list);
+    }    
+}
+
 bool SwigVariantField::swigPrepareInternal()
 {
     m_swigMembers = swigTransformFieldsList(members());

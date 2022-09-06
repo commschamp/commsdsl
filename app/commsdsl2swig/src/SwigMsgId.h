@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "commsdsl/gen/util.h"
+
 #include <string>
 
 namespace commsdsl2swig
@@ -24,7 +26,10 @@ class SwigGenerator;
 class SwigMsgId
 {
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+
     static bool write(SwigGenerator& generator);
+    static void swigAddDef(const SwigGenerator& generator, StringsList& list);
 
 private:
     explicit SwigMsgId(SwigGenerator& generator) : m_generator(generator) {}

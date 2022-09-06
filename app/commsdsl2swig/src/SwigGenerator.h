@@ -58,6 +58,7 @@ public:
     const std::string& swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len) const;
 
     static std::string swigScopeToName(const std::string& scope);
+    static std::string swigDefInclude(const std::string& path);
 
     void setMainNamespaceInNamesForced(bool value);
     void setForcedInterface(const std::string& value);

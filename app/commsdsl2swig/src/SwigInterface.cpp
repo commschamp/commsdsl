@@ -39,6 +39,26 @@ SwigInterface::SwigInterface(SwigGenerator& generator, commsdsl::parse::Interfac
 
 SwigInterface::~SwigInterface() = default;
 
+void SwigInterface::swigAddCodeIncludes(StringsList& list) const
+{
+    auto& gen = SwigGenerator::cast(generator());
+    auto* mainInterface = gen.swigMainInterface();
+    if (mainInterface != this) {
+        return;
+    }
+
+    list.push_back(comms::relHeaderPathFor(*this, gen));
+}
+
+void SwigInterface::swigAddDef(StringsList& list) const
+{
+    for (auto* f : m_swigFields) {
+        f->swigAddDef(list);
+    }
+        
+    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(*this, generator())));
+}
+
 bool SwigInterface::prepareImpl()
 {
     if (!Base::prepareImpl()) {

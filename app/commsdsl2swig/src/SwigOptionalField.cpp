@@ -95,4 +95,15 @@ std::string SwigOptionalField::swigExtraPublicFuncsDeclImpl() const
     return swigDefFuncs(SwigGenerator::cast(generator()).swigClassName(mem->field()));
 }
 
+void SwigOptionalField::swigAddDefImpl(StringsList& list) const
+{
+    auto* mem = SwigField::cast(memberField());
+    if (mem == nullptr) {
+        return;
+    }
+
+    assert(mem != nullptr);
+    mem->swigAddDef(list);
+}
+
 } // namespace commsdsl2swig

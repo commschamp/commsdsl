@@ -17,6 +17,8 @@
 
 #include <string>
 
+#include "commsdsl/gen/util.h"
+
 namespace commsdsl2swig
 {
 
@@ -24,9 +26,13 @@ class SwigGenerator;
 class SwigComms
 {
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+
     static bool swigWrite(SwigGenerator& generator);
 
     static const std::string& swigRelHeader();
+
+    static void swigAddDef(StringsList& list);
 
 private:
     explicit SwigComms(SwigGenerator& generator) : m_generator(generator) {}

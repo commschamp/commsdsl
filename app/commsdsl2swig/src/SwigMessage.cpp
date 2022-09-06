@@ -40,6 +40,20 @@ SwigMessage::SwigMessage(SwigGenerator& generator, commsdsl::parse::Message dslO
 
 SwigMessage::~SwigMessage() = default;
 
+void SwigMessage::swigAddCodeIncludes(StringsList& list) const
+{
+    list.push_back(comms::relHeaderPathFor(*this, generator()));
+}
+
+void SwigMessage::swigAddDef(StringsList& list) const
+{
+    for (auto* f : m_swigFields) {
+        f->swigAddDef(list);
+    }
+
+    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(*this, generator())));
+}
+
 bool SwigMessage::prepareImpl()
 {
     if (!Base::prepareImpl()) {

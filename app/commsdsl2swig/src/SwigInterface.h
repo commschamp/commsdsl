@@ -30,8 +30,18 @@ class SwigInterface final: public commsdsl::gen::Interface
     using Base = commsdsl::gen::Interface;
 
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+    
     explicit SwigInterface(SwigGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
     virtual ~SwigInterface();
+
+    void swigAddCodeIncludes(StringsList& list) const; 
+    void swigAddDef(StringsList& list) const;
+
+    static const SwigInterface* cast(const commsdsl::gen::Interface* i)
+    {
+        return static_cast<const SwigInterface*>(i);
+    }
 
 protected:
     virtual bool prepareImpl() override;    
@@ -39,7 +49,6 @@ protected:
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
-    using StringsList = commsdsl::gen::util::StringsList;
 
     std::string swigFieldDeclsInternal() const;
     std::string swigClassDeclInternal() const;

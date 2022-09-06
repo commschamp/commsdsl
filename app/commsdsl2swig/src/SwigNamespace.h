@@ -19,6 +19,7 @@
 #include "SwigField.h"
 
 #include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
@@ -29,10 +30,20 @@ class SwigNamespace final: public commsdsl::gen::Namespace
     using Base = commsdsl::gen::Namespace;
 
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+
     explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual ~SwigNamespace();
 
     bool swigHasReferencedMsgId() const;
+
+    void swigAddCodeIncludes(StringsList& list) const; 
+    void swigAddDef(StringsList& list) const;
+
+    static const SwigNamespace* cast(const commsdsl::gen::Namespace* ns)
+    {
+        return static_cast<const SwigNamespace*>(ns);
+    }
 
 protected:
     virtual bool prepareImpl() override;    

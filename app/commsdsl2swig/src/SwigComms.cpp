@@ -41,6 +41,11 @@ const std::string& SwigComms::swigRelHeader()
     return Str;
 }
 
+void SwigComms::swigAddDef(StringsList& list)
+{
+    list.push_back(SwigGenerator::swigDefInclude("comms.h"));
+}
+
 bool SwigComms::swigWriteInternal() const
 {
     auto& schema = m_generator.protocolSchema();        

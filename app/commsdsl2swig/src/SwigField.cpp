@@ -97,6 +97,42 @@ std::string SwigField::swigClassDecl() const
     return util::processTemplate(Templ, repl);
 }
 
+void SwigField::swigAddCodeIncludes(StringsList& list) const
+{
+    if (!comms::isGlobalField(m_field)) {
+        // Skip write for non-global fields,
+        // The code generation will be driven by other means        
+        return;
+    }
+
+    auto& dslObj = m_field.dslObj();
+    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
+        // Code for not referenced does not exist
+        return;
+    }
+
+    list.push_back(comms::relHeaderPathFor(m_field, m_field.generator()));
+}
+
+void SwigField::swigAddDef(StringsList& list) const
+{
+    swigAddDefImpl(list);
+    
+    if (!comms::isGlobalField(m_field)) {
+        // Skip write for non-global fields,
+        // The code generation will be driven by other means        
+        return;
+    }
+
+    auto& dslObj = m_field.dslObj();
+    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
+        // Code for not referenced does not exist
+        return;
+    }
+
+    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(m_field, m_field.generator())));
+}
+
 bool SwigField::swigWrite() const
 {
     if (!comms::isGlobalField(m_field)) {
@@ -175,6 +211,11 @@ std::string SwigField::swigExtraPublicFuncsDeclImpl() const
 std::string SwigField::swigCommonPublicFuncsDeclImpl() const
 {
     return swigCommonPublicFuncsDecl();
+}
+
+void SwigField::swigAddDefImpl(StringsList& list) const
+{
+    static_cast<void>(list);
 }
 
 std::string SwigField::swigCommonPublicFuncsDecl() const

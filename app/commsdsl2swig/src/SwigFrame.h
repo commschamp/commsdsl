@@ -19,6 +19,7 @@
 #include "SwigField.h"
 
 #include "commsdsl/gen/Frame.h"
+#include "commsdsl/gen/util.h"
 
 namespace commsdsl2swig
 {
@@ -29,8 +30,18 @@ class SwigFrame final: public commsdsl::gen::Frame
     using Base = commsdsl::gen::Frame;
 
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+
     explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
     virtual ~SwigFrame();
+
+    void swigAddCodeIncludes(StringsList& list) const;
+    void swigAddDef(StringsList& list) const;
+
+    static const SwigFrame* cast(const commsdsl::gen::Frame* i)
+    {
+        return static_cast<const SwigFrame*>(i);
+    }        
 
 protected:    
     virtual bool writeImpl() const override;    

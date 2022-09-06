@@ -15,7 +15,10 @@
 
 #include "SwigNamespace.h"
 
+#include "SwigFrame.h"
 #include "SwigGenerator.h"
+#include "SwigInterface.h"
+#include "SwigMessage.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -50,6 +53,52 @@ bool SwigNamespace::swigHasReferencedMsgId() const
                     (f->field().isReferenced()) && 
                     (f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
             });
+}
+
+void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
+{
+    for (auto& ns : namespaces()) {
+        SwigNamespace::cast(ns.get())->swigAddCodeIncludes(list);
+    }
+
+    for (auto* f : m_swigFields) {
+        f->swigAddCodeIncludes(list);
+    }
+
+    for (auto& i : interfaces()) {
+        SwigInterface::cast(i.get())->swigAddCodeIncludes(list);
+    }
+
+    for (auto& m : messages()) {
+        SwigMessage::cast(m.get())->swigAddCodeIncludes(list);
+    }   
+
+    for (auto& f : frames()) {
+        SwigFrame::cast(f.get())->swigAddCodeIncludes(list);
+    }    
+}
+
+void SwigNamespace::swigAddDef(StringsList& list) const
+{
+    for (auto* f : m_swigFields) {
+        f->swigAddDef(list);
+    }
+
+    for (auto& i : interfaces()) {
+        SwigInterface::cast(i.get())->swigAddDef(list);
+    }
+
+    for (auto& m : messages()) {
+        SwigMessage::cast(m.get())->swigAddDef(list);
+    }   
+
+    for (auto& f : frames()) {
+        SwigFrame::cast(f.get())->swigAddDef(list);
+    } 
+
+    for (auto& ns : namespaces()) {
+        SwigNamespace::cast(ns.get())->swigAddDef(list);
+    }    
 }
 
 bool SwigNamespace::prepareImpl()

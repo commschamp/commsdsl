@@ -31,7 +31,7 @@ private:
 
     bool swigWriteInternal() const;
     std::string swigCodeBlockInternal() const;
-    std::string swigIncludesInternal() const;
+    std::string swigDefInternal() const;
 
     SwigGenerator& m_generator;
 };

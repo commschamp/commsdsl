@@ -51,6 +51,8 @@ public:
 
     bool swigIsVersionOptional() const;
     std::string swigClassDecl() const;
+    void swigAddCodeIncludes(StringsList& list) const; 
+    void swigAddDef(StringsList& list) const;
 
     // bool swigPrepare();
     bool swigWrite() const;
@@ -62,6 +64,7 @@ protected:
     virtual std::string swigValueAccDeclImpl() const;
     virtual std::string swigExtraPublicFuncsDeclImpl() const;
     virtual std::string swigCommonPublicFuncsDeclImpl() const;
+    virtual void swigAddDefImpl(StringsList& list) const;
 
     std::string swigCommonPublicFuncsDecl() const;
     

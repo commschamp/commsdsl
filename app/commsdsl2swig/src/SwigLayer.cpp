@@ -90,6 +90,16 @@ std::string SwigLayer::swigDeclCode() const
     return util::processTemplate(Templ, repl);
 }
 
+void SwigLayer::swigAddDef(StringsList& list) const
+{
+    auto* memField = SwigField::cast(m_layer.memberField());
+    if (memField == nullptr) {
+        return;
+    }
+
+    memField->swigAddDef(list);
+}
+
 std::string SwigLayer::swigDeclFuncsImpl() const
 {
     return strings::emptyString();

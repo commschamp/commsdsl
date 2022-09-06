@@ -16,6 +16,7 @@
 #pragma once
 
 #include "commsdsl/gen/Layer.h"
+#include "commsdsl/gen/util.h"
 
 #include <string>
 #include <vector>
@@ -26,6 +27,8 @@ namespace commsdsl2swig
 class SwigLayer
 {
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+    
     explicit SwigLayer(commsdsl::gen::Layer& layer);
     virtual ~SwigLayer();
 
@@ -42,6 +45,7 @@ public:
     }
 
     std::string swigDeclCode() const;
+    void swigAddDef(StringsList& list) const;
 
 protected:
     virtual std::string swigDeclFuncsImpl() const;    

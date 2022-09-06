@@ -94,4 +94,11 @@ std::string SwigBitfieldField::swigExtraPublicFuncsDeclImpl() const
     return util::strListToString(accFuncs, "\n", "");
 }
 
+void SwigBitfieldField::swigAddDefImpl(StringsList& list) const
+{
+    for (auto* m : m_swigMembers) {
+        m->swigAddDef(list);
+    }    
+}
+
 } // namespace commsdsl2swig

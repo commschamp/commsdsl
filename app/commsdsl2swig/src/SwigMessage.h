@@ -30,8 +30,18 @@ class SwigMessage final: public commsdsl::gen::Message
     using Base = commsdsl::gen::Message;
 
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+
     explicit SwigMessage(SwigGenerator& generator, commsdsl::parse::Message dslObj, Elem* parent);
     virtual ~SwigMessage();
+
+    void swigAddCodeIncludes(StringsList& list) const;
+    void swigAddDef(StringsList& list) const;
+
+    static const SwigMessage* cast(const commsdsl::gen::Message* i)
+    {
+        return static_cast<const SwigMessage*>(i);
+    }    
 
 protected:
     virtual bool prepareImpl() override;    
@@ -39,7 +49,6 @@ protected:
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
-    using StringsList = commsdsl::gen::util::StringsList;
 
     std::string swigFieldDefsInternal() const;
     std::string swigClassDeclInternal() const;

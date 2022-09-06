@@ -77,4 +77,14 @@ std::string SwigListField::swigValueAccDeclImpl() const
         SwigBase::swigValueAccDeclImpl();
 }
 
+void SwigListField::swigAddDefImpl(StringsList& list) const
+{
+    auto* elem = memberElementField();
+    if (elem == nullptr) {
+        return;
+    }    
+
+    SwigField::cast(elem)->swigAddDef(list);
+}
+
 } // namespace commsdsl2swig

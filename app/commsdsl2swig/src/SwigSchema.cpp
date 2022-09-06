@@ -52,9 +52,22 @@ bool SwigSchema::swigHasReferencedMsgId() const
             allNs.begin(), allNs.end(),
             [](auto* ns)
             {
-                return static_cast<const SwigNamespace*>(ns)->swigHasReferencedMsgId();
+                return SwigNamespace::cast(ns)->swigHasReferencedMsgId();
             });
 }
 
+void SwigSchema::swigAddCodeIncludes(StringsList& list) const
+{
+    for (auto& ns : namespaces()) {
+        SwigNamespace::cast(ns.get())->swigAddCodeIncludes(list);
+    }
+}
+
+void SwigSchema::swigAddDef(StringsList& list) const
+{
+    for (auto& ns : namespaces()) {
+        SwigNamespace::cast(ns.get())->swigAddDef(list);
+    }
+}
 
 } // namespace commsdsl2swig

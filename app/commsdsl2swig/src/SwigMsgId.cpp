@@ -47,6 +47,11 @@ bool SwigMsgId::write(SwigGenerator& generator)
     return obj.swigWriteInternal();
 }
 
+void SwigMsgId::swigAddDef(const SwigGenerator& generator, StringsList& list)
+{
+    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(strings::msgIdEnumNameStr(), generator)));
+}
+
 bool SwigMsgId::swigWriteInternal() const
 {
     auto filePath = comms::headerPathRoot(strings::msgIdEnumNameStr(), m_generator);
