@@ -52,6 +52,20 @@ void SwigMsgId::swigAddDef(const SwigGenerator& generator, StringsList& list)
     list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(strings::msgIdEnumNameStr(), generator)));
 }
 
+void SwigMsgId::swigAddCode(const SwigGenerator& generator, StringsList& list)
+{
+    const std::string Templ = 
+        "using #^#SWIG_TYPE#$# = #^#COMMS_TYPE#$#;\n";
+
+    auto commsType = comms::scopeForRoot(strings::msgIdEnumNameStr(), generator);
+    util::ReplacementMap repl = {
+        {"SWIG_TYPE", SwigGenerator::swigScopeToName(commsType)},
+        {"COMMS_TYPE", commsType}
+    };
+
+    list.push_back(util::processTemplate(Templ, repl));
+}
+
 bool SwigMsgId::swigWriteInternal() const
 {
     auto filePath = comms::headerPathRoot(strings::msgIdEnumNameStr(), m_generator);

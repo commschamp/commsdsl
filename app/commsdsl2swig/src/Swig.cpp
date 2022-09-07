@@ -86,19 +86,28 @@ std::string Swig::swigCodeBlockInternal() const
         "comms/comms.h"
     };
 
+    util::StringsList codeElems;
+
+    SwigComms::swigAddCode(codeElems);
+    SwigMsgId::swigAddCode(m_generator, codeElems);
+
     for (auto& sPtr : m_generator.schemas()) {
-        SwigSchema::cast(sPtr.get())->swigAddCodeIncludes(includes);
+        auto* schema = SwigSchema::cast(sPtr.get());
+        schema->swigAddCodeIncludes(includes);
+        schema->swigAddCode(codeElems);
     }
 
     static const std::string Templ = 
         "%{\n"
         "#^#INCLUDES#$#\n"
+        "#^#CODE#$#\n"
         "%}\n"
         ;
 
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
-        {"INCLUDES", util::strListToString(includes, "\n", "\n")}
+        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
+        {"CODE", util::strListToString(codeElems, "\n", "")}
     };
 
     return util::processTemplate(Templ, repl);

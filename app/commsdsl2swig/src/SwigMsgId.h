@@ -30,6 +30,7 @@ public:
 
     static bool write(SwigGenerator& generator);
     static void swigAddDef(const SwigGenerator& generator, StringsList& list);
+    static void swigAddCode(const SwigGenerator& generator, StringsList& list);
 
 private:
     explicit SwigMsgId(SwigGenerator& generator) : m_generator(generator) {}

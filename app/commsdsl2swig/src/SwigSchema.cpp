@@ -63,6 +63,13 @@ void SwigSchema::swigAddCodeIncludes(StringsList& list) const
     }
 }
 
+void SwigSchema::swigAddCode(StringsList& list) const
+{
+    for (auto& ns : namespaces()) {
+        SwigNamespace::cast(ns.get())->swigAddCode(list);
+    }
+}
+
 void SwigSchema::swigAddDef(StringsList& list) const
 {
     for (auto& ns : namespaces()) {

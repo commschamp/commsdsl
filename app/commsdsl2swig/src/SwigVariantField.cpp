@@ -120,6 +120,13 @@ void SwigVariantField::swigAddDefImpl(StringsList& list) const
     }    
 }
 
+void SwigVariantField::swigAddCodeImpl(StringsList& list) const
+{
+    for (auto* m : m_swigMembers) {
+        m->swigAddCode(list);
+    }    
+}
+
 bool SwigVariantField::swigPrepareInternal()
 {
     m_swigMembers = swigTransformFieldsList(members());

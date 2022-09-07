@@ -36,6 +36,7 @@ public:
     virtual ~SwigMessage();
 
     void swigAddCodeIncludes(StringsList& list) const;
+    void swigAddCode(StringsList& list) const; 
     void swigAddDef(StringsList& list) const;
 
     static const SwigMessage* cast(const commsdsl::gen::Message* i)

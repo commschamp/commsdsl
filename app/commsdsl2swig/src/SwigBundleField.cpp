@@ -100,4 +100,12 @@ void SwigBundleField::swigAddDefImpl(StringsList& list) const
     }    
 }
 
+void SwigBundleField::swigAddCodeImpl(StringsList& list) const
+{
+    for (auto* m : m_swigMembers) {
+        m->swigAddCode(list);
+    }    
+}
+
+
 } // namespace commsdsl2swig

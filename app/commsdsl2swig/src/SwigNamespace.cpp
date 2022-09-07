@@ -78,6 +78,29 @@ void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
     }    
 }
 
+void SwigNamespace::swigAddCode(StringsList& list) const
+{
+    for (auto* f : m_swigFields) {
+        f->swigAddCode(list);
+    }
+
+    for (auto& i : interfaces()) {
+        SwigInterface::cast(i.get())->swigAddCode(list);
+    }
+
+    for (auto& m : messages()) {
+        SwigMessage::cast(m.get())->swigAddCode(list);
+    }   
+
+    for (auto& f : frames()) {
+        SwigFrame::cast(f.get())->swigAddCode(list);
+    }    
+
+    for (auto& ns : namespaces()) {
+        SwigNamespace::cast(ns.get())->swigAddCode(list);
+    }    
+}
+
 void SwigNamespace::swigAddDef(StringsList& list) const
 {
     for (auto* f : m_swigFields) {

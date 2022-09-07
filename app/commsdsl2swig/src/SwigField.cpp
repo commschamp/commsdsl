@@ -114,6 +114,22 @@ void SwigField::swigAddCodeIncludes(StringsList& list) const
     list.push_back(comms::relHeaderPathFor(m_field, m_field.generator()));
 }
 
+void SwigField::swigAddCode(StringsList& list) const
+{
+    if (m_codeAdded) {
+        return;
+    }
+
+    m_codeAdded = true;
+
+    if (comms::isGlobalField(m_field) && (!m_field.isReferenced()) && (!m_field.dslObj().isForceGen())) {
+        return;
+    }
+
+    swigAddCodeImpl(list);
+    list.push_back(swigClassCodeInternal());
+}
+
 void SwigField::swigAddDef(StringsList& list) const
 {
     swigAddDefImpl(list);
@@ -208,12 +224,22 @@ std::string SwigField::swigExtraPublicFuncsDeclImpl() const
     return strings::emptyString();
 }
 
+std::string SwigField::swigExtraPublicFuncsCodeImpl() const
+{
+    return strings::emptyString();
+}
+
 std::string SwigField::swigCommonPublicFuncsDeclImpl() const
 {
     return swigCommonPublicFuncsDecl();
 }
 
 void SwigField::swigAddDefImpl(StringsList& list) const
+{
+    static_cast<void>(list);
+}
+
+void SwigField::swigAddCodeImpl(StringsList& list) const
 {
     static_cast<void>(list);
 }
@@ -267,7 +293,7 @@ std::string SwigField::swigClassDeclInternal() const
 
     if (comms::isGlobalField(m_field)) {
         repl["CUSTOM"] = 
-            util::readFileContents(generator.swigInputCodePathFor(m_field) + strings::appendFileSuffixStr());  
+            util::readFileContents(generator.swigInputCodePathFor(m_field) + strings::publicFileSuffixStr());  
     }
 
     if (!repl["BASE"].empty()) {
@@ -299,6 +325,73 @@ std::string SwigField::swigOptionalDeclInternal() const
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string SwigField::swigClassCodeInternal() const
+{
+    auto& gen = SwigGenerator::cast(m_field.generator());
+
+    util::ReplacementMap repl = {
+        {"COMMS_CLASS", comms::scopeFor(m_field, gen)},
+        {"CLASS_NAME", gen.swigClassName(m_field)}
+    };
+
+
+    std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(m_field) + strings::publicFileSuffixStr());
+    std::string protectedCode = util::readFileContents(gen.swigInputCodePathFor(m_field) + strings::protectedFileSuffixStr());
+    std::string privateCode = util::readFileContents(gen.swigInputCodePathFor(m_field) + strings::privateFileSuffixStr());
+    std::string extraFuncs = swigExtraPublicFuncsCodeImpl();
+
+    if (publicCode.empty() && protectedCode.empty() && privateCode.empty() && extraFuncs.empty()) {
+        static const std::string Templ = 
+            "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$# {};\n";
+
+        return util::processTemplate(Templ, repl);
+    }
+
+    if (!protectedCode.empty()) {
+        static const std::string TemplTmp = 
+            "protected:\n"
+            "    #^#CODE#$#\n";
+
+        util::ReplacementMap replTmp = {
+            {"CODE", std::move(protectedCode)}
+        };
+
+        protectedCode = util::processTemplate(TemplTmp, replTmp);
+    }
+
+    if (!privateCode.empty()) {
+        static const std::string TemplTmp = 
+            "private:\n"
+            "    #^#CODE#$#\n";
+
+        util::ReplacementMap replTmp = {
+            {"CODE", std::move(privateCode)}
+        };
+
+        privateCode = util::processTemplate(TemplTmp, replTmp);
+    }    
+
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
+        "{\n"
+        "    using Base = #^#COMMS_CLASS#$#;\n"
+        "public:\n"
+        "    #^#EXTRA#$#\n"
+        "    #^#PUBLIC#$#\n"
+        "#^#PROTECTED#$#\n"
+        "#^#PRIVATE#$#\n"
+        "};\n";
+
+    repl.insert({
+        {"EXTRA", std::move(extraFuncs)},
+        {"PUBLIC", std::move(publicCode)},
+        {"PROTECTED", std::move(protectedCode)},
+        {"PRIVATE", std::move(privateCode)}
+    });
+
+    return util::processTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2swig

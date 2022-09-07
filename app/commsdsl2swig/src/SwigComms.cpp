@@ -46,6 +46,15 @@ void SwigComms::swigAddDef(StringsList& list)
     list.push_back(SwigGenerator::swigDefInclude("comms.h"));
 }
 
+void SwigComms::swigAddCode(StringsList& list)
+{
+     std::string str = 
+        "using comms_ErrorStatus = comms::ErrorStatus;\n"
+        "using comms_field_OptionalMode = comms::field::OptionalMode;\n";
+
+    list.push_back(std::move(str));
+}
+
 bool SwigComms::swigWriteInternal() const
 {
     auto& schema = m_generator.protocolSchema();        

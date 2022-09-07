@@ -101,4 +101,11 @@ void SwigBitfieldField::swigAddDefImpl(StringsList& list) const
     }    
 }
 
+void SwigBitfieldField::swigAddCodeImpl(StringsList& list) const
+{
+    for (auto* m : m_swigMembers) {
+        m->swigAddDef(list);
+    }    
+}
+
 } // namespace commsdsl2swig

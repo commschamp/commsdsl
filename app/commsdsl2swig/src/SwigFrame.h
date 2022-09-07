@@ -36,6 +36,7 @@ public:
     virtual ~SwigFrame();
 
     void swigAddCodeIncludes(StringsList& list) const;
+    void swigAddCode(StringsList& list) const;
     void swigAddDef(StringsList& list) const;
 
     static const SwigFrame* cast(const commsdsl::gen::Frame* i)

@@ -46,6 +46,7 @@ protected:
     virtual std::string swigValueAccDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsDeclImpl() const override;
     virtual void swigAddDefImpl(StringsList& list) const override;
+    virtual void swigAddCodeImpl(StringsList& list) const override;
 
 private:
     bool swigPrepareInternal();

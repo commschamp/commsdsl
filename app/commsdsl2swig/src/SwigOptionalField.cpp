@@ -73,6 +73,7 @@ std::string SwigOptionalField::swigMembersDeclImpl() const
     return mem->swigClassDecl();
 }
 
+
 std::string SwigOptionalField::swigValueTypeDeclImpl() const
 {
     return strings::emptyString();
@@ -104,6 +105,17 @@ void SwigOptionalField::swigAddDefImpl(StringsList& list) const
 
     assert(mem != nullptr);
     mem->swigAddDef(list);
+}
+
+void SwigOptionalField::swigAddCodeImpl(StringsList& list) const
+{
+    auto* mem = SwigField::cast(memberField());
+    if (mem == nullptr) {
+        mem = SwigField::cast(externalField());
+    }
+
+    assert(mem != nullptr);
+    mem->swigAddCode(list);
 }
 
 } // namespace commsdsl2swig

@@ -33,6 +33,7 @@ public:
     static const std::string& swigRelHeader();
 
     static void swigAddDef(StringsList& list);
+    static void swigAddCode(StringsList& list);
 
 private:
     explicit SwigComms(SwigGenerator& generator) : m_generator(generator) {}

@@ -39,6 +39,7 @@ public:
     bool swigHasReferencedMsgId() const;   
 
     void swigAddCodeIncludes(StringsList& list) const; 
+    void swigAddCode(StringsList& list) const; 
     void swigAddDef(StringsList& list) const;
 
     static const SwigSchema* cast(const commsdsl::gen::Schema* schema)

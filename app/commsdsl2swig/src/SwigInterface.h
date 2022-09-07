@@ -36,6 +36,7 @@ public:
     virtual ~SwigInterface();
 
     void swigAddCodeIncludes(StringsList& list) const; 
+    void swigAddCode(StringsList& list) const; 
     void swigAddDef(StringsList& list) const;
 
     static const SwigInterface* cast(const commsdsl::gen::Interface* i)

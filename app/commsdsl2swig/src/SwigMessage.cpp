@@ -45,6 +45,11 @@ void SwigMessage::swigAddCodeIncludes(StringsList& list) const
     list.push_back(comms::relHeaderPathFor(*this, generator()));
 }
 
+void SwigMessage::swigAddCode(StringsList& list) const
+{
+    static_cast<void>(list); // TODO
+}
+
 void SwigMessage::swigAddDef(StringsList& list) const
 {
     for (auto* f : m_swigFields) {

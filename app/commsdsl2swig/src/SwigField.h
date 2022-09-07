@@ -51,7 +51,9 @@ public:
 
     bool swigIsVersionOptional() const;
     std::string swigClassDecl() const;
+    
     void swigAddCodeIncludes(StringsList& list) const; 
+    void swigAddCode(StringsList& list) const; 
     void swigAddDef(StringsList& list) const;
 
     // bool swigPrepare();
@@ -63,16 +65,20 @@ protected:
     virtual std::string swigValueTypeDeclImpl() const;
     virtual std::string swigValueAccDeclImpl() const;
     virtual std::string swigExtraPublicFuncsDeclImpl() const;
+    virtual std::string swigExtraPublicFuncsCodeImpl() const;
     virtual std::string swigCommonPublicFuncsDeclImpl() const;
     virtual void swigAddDefImpl(StringsList& list) const;
+    virtual void swigAddCodeImpl(StringsList& list) const;
 
     std::string swigCommonPublicFuncsDecl() const;
     
 private:
     std::string swigClassDeclInternal() const;
     std::string swigOptionalDeclInternal() const;
+    std::string swigClassCodeInternal() const;
 
     commsdsl::gen::Field& m_field;
+    mutable bool m_codeAdded = false;
 };
 
 } // namespace commsdsl2swig

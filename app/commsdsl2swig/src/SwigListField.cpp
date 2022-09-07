@@ -87,4 +87,17 @@ void SwigListField::swigAddDefImpl(StringsList& list) const
     SwigField::cast(elem)->swigAddDef(list);
 }
 
+void SwigListField::swigAddCodeImpl(StringsList& list) const
+{
+    auto* elem = memberElementField();
+    if (elem == nullptr) {
+        elem = externalElementField();
+    }    
+
+    assert(elem != nullptr);
+
+    SwigField::cast(elem)->swigAddCode(list);
+}
+
+
 } // namespace commsdsl2swig

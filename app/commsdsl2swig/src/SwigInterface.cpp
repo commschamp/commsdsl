@@ -50,6 +50,11 @@ void SwigInterface::swigAddCodeIncludes(StringsList& list) const
     list.push_back(comms::relHeaderPathFor(*this, gen));
 }
 
+void SwigInterface::swigAddCode(StringsList& list) const
+{
+    static_cast<void>(list);
+}
+
 void SwigInterface::swigAddDef(StringsList& list) const
 {
     for (auto* f : m_swigFields) {
