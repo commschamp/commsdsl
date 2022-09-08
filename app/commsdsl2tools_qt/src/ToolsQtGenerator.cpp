@@ -75,6 +75,13 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
         }
     }
 
+    auto interfaces = toolsGetSelectedInterfaces();
+    for (auto& i : interfaces) {
+        auto iResult = static_cast<const ToolsQtInterface*>(i)->toolsSourceFiles();
+        result.reserve(result.size() + iResult.size());
+        std::move(iResult.begin(), iResult.end(), std::back_inserter(result));
+    }    
+
     return result;
 }
 
@@ -83,7 +90,8 @@ bool ToolsQtGenerator::prepareImpl()
     chooseProtocolSchema();
     bool result = 
         Base::prepareImpl() &&
-        toolsPrepareDefaultInterfaceInternal();
+        toolsPrepareDefaultInterfaceInternal() &&
+        toolsPrepareSelectedInterfacesInternal();
 
     if (!result) {
         return false;
@@ -278,6 +286,36 @@ bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
     }
 
     return true;
+}
+
+bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()
+{
+    std::vector<std::string> ifNames;
+    for (auto& info : m_pluginInfos) {
+        ifNames.push_back(info.m_interface);
+    }
+
+    std::sort(ifNames.begin(), ifNames.end());
+    ifNames.erase(
+        std::unique(ifNames.begin(), ifNames.end()),
+        ifNames.end()
+    );
+
+    for (auto& iName : ifNames) {
+        auto* iFace = findInterface(iName);
+        if (iFace == nullptr) {
+            logger().error("Selected interface \"" + iName + "\" cannot be found");
+            return false;
+        }
+
+        m_selectedInterfaces.push_back(iFace);
+    }
+
+    if (m_selectedInterfaces.empty()) {
+        m_selectedInterfaces = getAllInterfaces();
+    }
+
+    return true;    
 }
 
 } // namespace commsdsl2tools_qt

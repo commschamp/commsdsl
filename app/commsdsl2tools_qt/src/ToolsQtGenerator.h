@@ -50,12 +50,32 @@ public:
         m_pluginInfos = std::move(value);
     }
 
+    const PluginInfosList& getPluginInfosList() const
+    {
+        return m_pluginInfos;
+    }
+
     StringsList toolsSourceFiles() const;
 
     const PluginsList& toolsPlugins() const
     {
         return m_plugins;
     }
+
+    InterfacesAccessList toolsGetSelectedInterfaces() const
+    {
+        return m_selectedInterfaces;
+    }
+
+    static ToolsQtGenerator& cast(commsdsl::gen::Generator& generator)
+    {
+        return static_cast<ToolsQtGenerator&>(generator);
+    }
+
+    static const ToolsQtGenerator& cast(const commsdsl::gen::Generator& generator)
+    {
+        return static_cast<const ToolsQtGenerator&>(generator);
+    }    
 
 protected:
     virtual bool prepareImpl() override;
@@ -90,9 +110,11 @@ protected:
 
 private:
     bool toolsPrepareDefaultInterfaceInternal();
+    bool toolsPrepareSelectedInterfacesInternal();
 
     PluginInfosList m_pluginInfos;
     PluginsList m_plugins;
+    InterfacesAccessList m_selectedInterfaces;
 };
 
 } // namespace commsdsl2tools_qt
