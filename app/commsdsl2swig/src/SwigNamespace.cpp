@@ -84,10 +84,6 @@ void SwigNamespace::swigAddCode(StringsList& list) const
         f->swigAddCode(list);
     }
 
-    for (auto& i : interfaces()) {
-        SwigInterface::cast(i.get())->swigAddCode(list);
-    }
-
     for (auto& m : messages()) {
         SwigMessage::cast(m.get())->swigAddCode(list);
     }   

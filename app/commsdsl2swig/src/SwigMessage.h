@@ -53,7 +53,8 @@ private:
 
     std::string swigFieldDefsInternal() const;
     std::string swigClassDeclInternal() const;
-    std::string swigFieldsAccessInternal() const;
+    std::string swigFieldsAccDeclInternal() const;
+    std::string swigFieldsAccCodeInternal() const;
 
     SwigFieldsList m_swigFields;        
 };

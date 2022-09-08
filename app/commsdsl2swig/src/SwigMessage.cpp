@@ -47,7 +47,76 @@ void SwigMessage::swigAddCodeIncludes(StringsList& list) const
 
 void SwigMessage::swigAddCode(StringsList& list) const
 {
-    static_cast<void>(list); // TODO
+    for (auto* f : m_swigFields) {
+        f->swigAddCode(list);
+    }
+
+    auto& gen = SwigGenerator::cast(generator());
+    auto* mainInterface = gen.swigMainInterface();
+    assert(mainInterface != nullptr);
+
+    util::ReplacementMap repl = {
+        {"COMMS_CLASS", comms::scopeFor(*this, gen)},
+        {"CLASS_NAME", gen.swigClassName(*this)},
+        {"INTERFACE", gen.swigClassName(*mainInterface)}
+    };
+
+
+    std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::publicFileSuffixStr());
+    std::string protectedCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::protectedFileSuffixStr());
+    std::string privateCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::privateFileSuffixStr());
+
+    if (publicCode.empty() && protectedCode.empty() && privateCode.empty() && (m_swigFields.empty())) {
+        static const std::string Templ = 
+            "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#<#^#INTERFACE#$#> {};\n";
+
+        list.push_back(util::processTemplate(Templ, repl));
+        return;
+    }
+
+    if (!protectedCode.empty()) {
+        static const std::string TemplTmp = 
+            "protected:\n"
+            "    #^#CODE#$#\n";
+
+        util::ReplacementMap replTmp = {
+            {"CODE", std::move(protectedCode)}
+        };
+
+        protectedCode = util::processTemplate(TemplTmp, replTmp);
+    }
+
+    if (!privateCode.empty()) {
+        static const std::string TemplTmp = 
+            "private:\n"
+            "    #^#CODE#$#\n";
+
+        util::ReplacementMap replTmp = {
+            {"CODE", std::move(privateCode)}
+        };
+
+        privateCode = util::processTemplate(TemplTmp, replTmp);
+    }    
+
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#<#^#INTERFACE#$#>\n"
+        "{\n"
+        "    using Base = #^#COMMS_CLASS#$#<#^#INTERFACE#$#>;\n"
+        "public:\n"
+        "    #^#FIELDS#$#\n"
+        "    #^#PUBLIC#$#\n"
+        "#^#PROTECTED#$#\n"
+        "#^#PRIVATE#$#\n"
+        "};\n";
+
+    repl.insert({
+        {"FIELDS", swigFieldsAccCodeInternal()},
+        {"PUBLIC", std::move(publicCode)},
+        {"PROTECTED", std::move(protectedCode)},
+        {"PRIVATE", std::move(privateCode)}
+    });
+
+    list.push_back(util::processTemplate(Templ, repl));    
 }
 
 void SwigMessage::swigAddDef(StringsList& list) const
@@ -139,7 +208,7 @@ std::string SwigMessage::swigClassDeclInternal() const
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*iFace)},
-        {"FIELDS", swigFieldsAccessInternal()},
+        {"FIELDS", swigFieldsAccDeclInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
@@ -148,7 +217,7 @@ std::string SwigMessage::swigClassDeclInternal() const
     return util::processTemplate(Templ, repl);    
 }
 
-std::string SwigMessage::swigFieldsAccessInternal() const
+std::string SwigMessage::swigFieldsAccDeclInternal() const
 {
     StringsList accFuncs;
     accFuncs.reserve(m_swigFields.size());
@@ -157,7 +226,31 @@ std::string SwigMessage::swigFieldsAccessInternal() const
     for (auto* f : m_swigFields) {
         static const std::string Templ = {
             "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#();\n"
-            "const #^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() const;\n"
+        };
+
+        util::ReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(f->field())},
+            {"ACC_NAME", comms::accessName(f->field().dslObj().name())}
+        };
+
+        accFuncs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(accFuncs, "\n", "");
+}
+
+std::string SwigMessage::swigFieldsAccCodeInternal() const
+{
+    StringsList accFuncs;
+    accFuncs.reserve(m_swigFields.size());
+
+    auto& gen = SwigGenerator::cast(generator());
+    for (auto* f : m_swigFields) {
+        static const std::string Templ = {
+            "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#()\n"
+            "{\n"
+            "    return static_cast<#^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#());\n"
+            "}\n"
         };
 
         util::ReplacementMap repl = {

@@ -17,6 +17,7 @@
 
 #include "SwigComms.h"
 #include "SwigGenerator.h"
+#include "SwigInterface.h"
 #include "SwigMsgId.h"
 #include "SwigSchema.h"
 
@@ -90,6 +91,7 @@ std::string Swig::swigCodeBlockInternal() const
 
     SwigComms::swigAddCode(codeElems);
     SwigMsgId::swigAddCode(m_generator, codeElems);
+    SwigGenerator::cast(m_generator).swigMainInterface()->swigAddCode(codeElems);
 
     for (auto& sPtr : m_generator.schemas()) {
         auto* schema = SwigSchema::cast(sPtr.get());
