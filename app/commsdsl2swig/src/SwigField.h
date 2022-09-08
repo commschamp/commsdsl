@@ -76,6 +76,7 @@ private:
     std::string swigClassDeclInternal() const;
     std::string swigOptionalDeclInternal() const;
     std::string swigClassCodeInternal() const;
+    std::string swigTemplateScopeInternal() const;
 
     commsdsl::gen::Field& m_field;
     mutable bool m_codeAdded = false;

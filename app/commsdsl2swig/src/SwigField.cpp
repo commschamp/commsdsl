@@ -22,13 +22,13 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <cassert>
+#include <algorithm>
 #include <fstream>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
-
-#include <cassert>
 
 
 namespace commsdsl2swig
@@ -332,7 +332,7 @@ std::string SwigField::swigClassCodeInternal() const
     auto& gen = SwigGenerator::cast(m_field.generator());
 
     util::ReplacementMap repl = {
-        {"COMMS_CLASS", comms::scopeFor(m_field, gen)},
+        {"COMMS_CLASS", swigTemplateScopeInternal()},
         {"CLASS_NAME", gen.swigClassName(m_field)}
     };
 
@@ -392,6 +392,54 @@ std::string SwigField::swigClassCodeInternal() const
     });
 
     return util::processTemplate(Templ, repl);    
+}
+
+std::string SwigField::swigTemplateScopeInternal() const
+{
+    static const std::string TemplParams = "<>";
+
+    auto& gen = SwigGenerator::cast(m_field.generator());
+    auto commsScope = comms::scopeFor(m_field, gen);
+
+    if (comms::isGlobalField(m_field)) {
+        return commsScope + TemplParams;
+    }
+
+    using Elem = commsdsl::gen::Elem;
+
+    auto formScopeFunc = 
+        [&commsScope, &gen](const Elem* parent, const std::string& suffix)
+        {
+            auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
+            assert(optLevelScope.size() < commsScope.size());
+            assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
+            
+            return optLevelScope + TemplParams + commsScope.substr(optLevelScope.size());
+        };
+
+    
+    Elem* parent = m_field.getParent();
+    while (parent != nullptr)  {
+        auto elemType = parent->elemType();
+
+        if (elemType == Elem::Type_Interface) {
+            return commsScope;
+        }        
+
+        if (elemType == Elem::Type_Message) {
+
+            return formScopeFunc(parent, strings::fieldsSuffixStr());
+        }
+
+        if (elemType == Elem::Type_Frame) {
+            return formScopeFunc(parent, strings::layersSuffixStr());
+        }        
+
+        parent = parent->getParent();
+    }
+
+    assert(false); // Should not happen
+    return commsScope;
 }
 
 } // namespace commsdsl2swig
