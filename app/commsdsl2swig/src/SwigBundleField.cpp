@@ -90,8 +90,31 @@ std::string SwigBundleField::swigExtraPublicFuncsDeclImpl() const
         accFuncs.push_back(util::processTemplate(Templ, repl));
     }
 
-    return util::strListToString(accFuncs, "\n", "");
+    return util::strListToString(accFuncs, "", "");
 }
+
+std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
+{
+    StringsList accFuncs;
+    accFuncs.reserve(m_swigMembers.size());
+
+    auto& gen = SwigGenerator::cast(generator());
+    for (auto* m : m_swigMembers) {
+        static const std::string Templ = 
+            "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#())); }\n"
+        ;
+
+        util::ReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(m->field())},
+            {"ACC_NAME", comms::accessName(m->field().dslObj().name())}
+        };
+
+        accFuncs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(accFuncs, "", "");
+}
+
 
 void SwigBundleField::swigAddDefImpl(StringsList& list) const
 {
@@ -100,7 +123,7 @@ void SwigBundleField::swigAddDefImpl(StringsList& list) const
     }    
 }
 
-void SwigBundleField::swigAddCodeImpl(StringsList& list) const
+void SwigBundleField::swigAddMembersCodeImpl(StringsList& list) const
 {
     for (auto* m : m_swigMembers) {
         m->swigAddCode(list);

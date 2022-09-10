@@ -40,7 +40,7 @@ protected:
     virtual std::string swigValueTypeDeclImpl() const override;
     virtual std::string swigValueAccDeclImpl() const override;
     virtual void swigAddDefImpl(StringsList& list) const override;
-    virtual void swigAddCodeImpl(StringsList& list) const override;
+    virtual void swigAddMembersCodeImpl(StringsList& list) const override;
 };
 
 } // namespace commsdsl2swig

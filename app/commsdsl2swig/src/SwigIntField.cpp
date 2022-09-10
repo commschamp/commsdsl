@@ -71,6 +71,25 @@ std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string SwigIntField::swigExtraPublicFuncsCodeImpl() const
+{
+    auto obj = intDslObj();
+    auto scaling = obj.scaling();
+    auto num = scaling.first;
+    auto denom = scaling.second;
+
+    if ((num == 1) && (denom == 1)) {
+        return strings::emptyString();
+    }
+        
+    std::string Templ = {
+        "double getScaled() const { return Base::getScaled<double>(); }\n"
+        "void setScaled(double val) {Base::setScaled(val); }\n"
+    };
+
+    return Templ;        
+}
+
 std::string SwigIntField::swigSpecialsDeclInternal() const
 {
     auto& specials = specialsSortedByValue();

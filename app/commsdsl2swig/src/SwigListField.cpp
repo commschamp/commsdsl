@@ -87,7 +87,7 @@ void SwigListField::swigAddDefImpl(StringsList& list) const
     SwigField::cast(elem)->swigAddDef(list);
 }
 
-void SwigListField::swigAddCodeImpl(StringsList& list) const
+void SwigListField::swigAddMembersCodeImpl(StringsList& list) const
 {
     auto* elem = memberElementField();
     if (elem == nullptr) {

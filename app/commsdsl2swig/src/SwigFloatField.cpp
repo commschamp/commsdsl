@@ -68,7 +68,6 @@ std::string SwigFloatField::swigExtraPublicFuncsDeclImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-
 std::string SwigFloatField::swigSpecialsDeclInternal() const
 {
     auto& specials = specialsSortedByValue();

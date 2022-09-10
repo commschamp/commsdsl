@@ -44,13 +44,16 @@ protected:
     // SwigBase overrides
     virtual std::string swigMembersDeclImpl() const override;
     virtual std::string swigValueAccDeclImpl() const override;
-    virtual std::string swigExtraPublicFuncsDeclImpl() const override;    
+    virtual std::string swigExtraPublicFuncsDeclImpl() const override;
+    virtual std::string swigExtraPublicFuncsCodeImpl() const override;
+    
     virtual void swigAddDefImpl(StringsList& list) const override;
-    virtual void swigAddCodeImpl(StringsList& list) const override;
+    virtual void swigAddMembersCodeImpl(StringsList& list) const override;
 
 private:
     bool swigPrepareInternal();
     std::string swigHandlerDeclInternal() const;
+    void swigAddHandlerCodeInternal(StringsList& list) const;
     
     SwigFieldsList m_swigMembers;
 };

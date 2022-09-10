@@ -68,7 +68,7 @@ protected:
     virtual std::string swigExtraPublicFuncsCodeImpl() const;
     virtual std::string swigCommonPublicFuncsDeclImpl() const;
     virtual void swigAddDefImpl(StringsList& list) const;
-    virtual void swigAddCodeImpl(StringsList& list) const;
+    virtual void swigAddMembersCodeImpl(StringsList& list) const;
 
     std::string swigCommonPublicFuncsDecl() const;
     

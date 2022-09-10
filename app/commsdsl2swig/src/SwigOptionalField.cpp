@@ -34,7 +34,7 @@ SwigOptionalField::SwigOptionalField(SwigGenerator& generator, commsdsl::parse::
 {
 }
 
-std::string SwigOptionalField::swigDefFuncs(const std::string& fieldType)
+std::string SwigOptionalField::swigDeclFuncs(const std::string& fieldType)
 {
     static const std::string Templ = 
         "using Field = #^#FIELD_TYPE#$#;\n"
@@ -93,7 +93,7 @@ std::string SwigOptionalField::swigExtraPublicFuncsDeclImpl() const
 
     assert(mem != nullptr);
 
-    return swigDefFuncs(SwigGenerator::cast(generator()).swigClassName(mem->field()));
+    return swigDeclFuncs(SwigGenerator::cast(generator()).swigClassName(mem->field()));
 }
 
 void SwigOptionalField::swigAddDefImpl(StringsList& list) const
@@ -107,7 +107,7 @@ void SwigOptionalField::swigAddDefImpl(StringsList& list) const
     mem->swigAddDef(list);
 }
 
-void SwigOptionalField::swigAddCodeImpl(StringsList& list) const
+void SwigOptionalField::swigAddMembersCodeImpl(StringsList& list) const
 {
     auto* mem = SwigField::cast(memberField());
     if (mem == nullptr) {

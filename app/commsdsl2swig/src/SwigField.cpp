@@ -126,7 +126,7 @@ void SwigField::swigAddCode(StringsList& list) const
         return;
     }
 
-    swigAddCodeImpl(list);
+    swigAddMembersCodeImpl(list);
     list.push_back(swigClassCodeInternal());
 }
 
@@ -239,7 +239,7 @@ void SwigField::swigAddDefImpl(StringsList& list) const
     static_cast<void>(list);
 }
 
-void SwigField::swigAddCodeImpl(StringsList& list) const
+void SwigField::swigAddMembersCodeImpl(StringsList& list) const
 {
     static_cast<void>(list);
 }
@@ -321,7 +321,7 @@ std::string SwigField::swigOptionalDeclInternal() const
     util::ReplacementMap repl = {
         {"CLASS_NAME", className},
         {"COMMON_FUNCS", swigCommonPublicFuncsDecl()},
-        {"OPTIONAL_FUNCS", SwigOptionalField::swigDefFuncs(className + strings::versionOptionalFieldSuffixStr())},
+        {"OPTIONAL_FUNCS", SwigOptionalField::swigDeclFuncs(className + strings::versionOptionalFieldSuffixStr())},
     };
 
     return util::processTemplate(Templ, repl);
@@ -426,8 +426,11 @@ std::string SwigField::swigTemplateScopeInternal() const
             return commsScope;
         }        
 
-        if (elemType == Elem::Type_Message) {
+        if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
+            return formScopeFunc(parent, strings::membersSuffixStr());
+        }        
 
+        if (elemType == Elem::Type_Message) {
             return formScopeFunc(parent, strings::fieldsSuffixStr());
         }
 
