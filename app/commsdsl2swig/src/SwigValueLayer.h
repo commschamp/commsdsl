@@ -34,6 +34,7 @@ public:
 protected:
     // SwigBase overrides
     virtual std::string swigDeclFuncsImpl() const override;    
+    virtual std::string swigCodeFuncsImpl() const override;    
 };
 
 } // namespace commsdsl2swig

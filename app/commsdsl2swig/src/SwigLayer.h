@@ -46,11 +46,15 @@ public:
 
     std::string swigDeclCode() const;
     void swigAddDef(StringsList& list) const;
+    void swigAddCode(StringsList& list) const;
 
 protected:
     virtual std::string swigDeclFuncsImpl() const;    
+    virtual std::string swigCodeFuncsImpl() const;    
     
 private:
+    std::string swigTemplateScopeInternal() const;
+
     commsdsl::gen::Layer& m_layer;
 };
 

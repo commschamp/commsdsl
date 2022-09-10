@@ -100,9 +100,75 @@ void SwigLayer::swigAddDef(StringsList& list) const
     memField->swigAddDef(list);
 }
 
+void SwigLayer::swigAddCode(StringsList& list) const
+{
+    auto* field = SwigField::cast(m_layer.memberField());
+    if (field == nullptr) {
+        field = SwigField::cast(m_layer.externalField());
+    }
+
+    if (field != nullptr) {
+        field->swigAddCode(list);
+    }
+
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
+        "{\n"
+        "    using Base = #^#COMMS_CLASS#$#;\n"
+        "#^#PUBLIC#$#\n"
+        "    #^#FIELD#$#\n"
+        "    #^#FUNCS#$#\n"
+        "};\n";
+
+    auto& gen = SwigGenerator::cast(m_layer.generator());
+
+    std::string fieldDef;
+    if (field != nullptr) {
+        fieldDef = "using Field = " + gen.swigClassName(field->field()) + ";";
+    }
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(m_layer)},
+        {"COMMS_CLASS", swigTemplateScopeInternal()},
+        {"FIELD", std::move(fieldDef)},
+        {"FUNCS", swigCodeFuncsImpl()},
+    };
+
+    if ((!repl["FIELD"].empty()) || (!repl["FUNCS"].empty())) {
+        repl["PUBLIC"] = "public:";
+    }
+
+    list.push_back(util::processTemplate(Templ, repl));
+}
+
 std::string SwigLayer::swigDeclFuncsImpl() const
 {
     return strings::emptyString();
 }
+
+std::string SwigLayer::swigCodeFuncsImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string SwigLayer::swigTemplateScopeInternal() const
+{
+    static const std::string TemplParams = "<>";
+
+    auto& gen = SwigGenerator::cast(m_layer.generator());
+    auto commsScope = comms::scopeFor(m_layer, gen);
+
+    using Elem = commsdsl::gen::Elem;
+    auto* parent = m_layer.getParent();
+    assert(parent != nullptr);
+    assert(parent->elemType() == Elem::Type_Frame);
+
+    auto optLevelScope = comms::scopeFor(*parent, gen) + strings::layersSuffixStr();
+    assert(optLevelScope.size() < commsScope.size());
+    assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
+    
+    return optLevelScope + TemplParams + commsScope.substr(optLevelScope.size());
+}
+
 
 } // namespace commsdsl2swig

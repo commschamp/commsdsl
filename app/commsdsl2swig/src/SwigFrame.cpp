@@ -47,7 +47,16 @@ void SwigFrame::swigAddCodeIncludes(StringsList& list) const
 
 void SwigFrame::swigAddCode(StringsList& list) const
 {
-    static_cast<void>(list); // TODO
+    for (auto& l : layers()) {
+        auto* swigLayer = SwigLayer::cast(l.get());
+        assert(swigLayer != nullptr);
+
+        swigLayer->swigAddCode(list);
+    }
+
+    list.push_back(swigHandlerCodeInternal());
+    list.push_back(swigAllMessagesCodeInternal());
+    list.push_back(swigFrameCodeInternal());
 }
 
 void SwigFrame::swigAddDef(StringsList& list) const
@@ -162,6 +171,48 @@ std::string SwigFrame::swigHandlerDeclInternal() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string SwigFrame::swigHandlerCodeInternal() const
+{
+    auto& gen = SwigGenerator::cast(generator());
+    auto* iFace = gen.swigMainInterface();
+    assert(iFace != nullptr);
+    auto interfaceClassName = gen.swigClassName(*iFace);
+
+    auto allMessages = gen.getAllMessagesIdSorted();
+    util::StringsList handleFuncs;
+    handleFuncs.reserve(allMessages.size());
+
+    for (auto* m : allMessages) {
+        static const std::string Templ = 
+            "void handle(#^#MESSAGE#$#& msg) { handle_#^#MESSAGE#$#(msg); }\n"
+            "virtual handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n";
+
+        util::ReplacementMap repl = {
+            {"INTERFACE", interfaceClassName},
+            {"MESSAGE", gen.swigClassName(*m)}
+        };
+
+        handleFuncs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#_Handler\n"
+        "{\n"
+        "public:\n"
+        "     #^#HANDLE_FUNCS#$#\n"
+        "     void handle(#^#INTERFACE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n"
+        "     virtual handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg) { static_cast<void>(msg); }\n"
+        "};\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(*this)},
+        {"INTERFACE", interfaceClassName},
+        {"HANDLE_FUNCS", util::strListToString(handleFuncs, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 std::string SwigFrame::swigClassDeclInternal() const
 {
     static const std::string Templ =
@@ -180,7 +231,7 @@ std::string SwigFrame::swigClassDeclInternal() const
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*iFace)},
-        {"LAYERS", swigLayersAccessInternal()},
+        {"LAYERS", swigLayersAccDeclInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
@@ -189,7 +240,7 @@ std::string SwigFrame::swigClassDeclInternal() const
     return util::processTemplate(Templ, repl);            
 }
 
-std::string SwigFrame::swigLayersAccessInternal() const
+std::string SwigFrame::swigLayersAccDeclInternal() const
 {
     auto& gen = SwigGenerator::cast(generator());
     util::StringsList elems;
@@ -205,6 +256,96 @@ std::string SwigFrame::swigLayersAccessInternal() const
         elems.push_back(util::processTemplate(Templ, repl));
     }
     return util::strListToString(elems, "", "");
+}
+
+std::string SwigFrame::swigLayersAccCodeInternal() const
+{
+    auto& gen = SwigGenerator::cast(generator());
+    util::StringsList elems;
+    for (auto& l : layers()) {
+        static const std::string Templ = 
+            "#^#CLASS_NAME#$#& layer_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(m_frame.layer_#^#ACC_NAME#$#()); }\n";
+
+        util::ReplacementMap repl = {
+            {"CLASS_NAME", gen.swigClassName(*l)},
+            {"ACC_NAME", comms::accessName(l->dslObj().name())}
+        };
+
+        elems.push_back(util::processTemplate(Templ, repl));
+    }
+    return util::strListToString(elems, "", "");
+}
+
+std::string SwigFrame::swigAllMessagesCodeInternal() const
+{
+    auto& gen = SwigGenerator::cast(generator());
+    auto allMessages = gen.getAllMessagesIdSorted();
+    util::StringsList msgList;
+    msgList.reserve(allMessages.size());
+
+    auto* iFace = gen.swigMainInterface();
+    assert(iFace != nullptr);
+    auto interfaceClassName = gen.swigClassName(*iFace);
+
+
+    for (auto* m : allMessages) {
+        msgList.push_back(gen.swigClassName(*m));
+    }
+
+    const std::string Templ = 
+        "using AllMessages =\n"
+        "    std::tuple<\n"
+        "        #^#MESSAGES#$#\n"
+        "    >;\n";
+
+    util::ReplacementMap repl = {
+        {"MESSAGES", util::strListToString(msgList, ",\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string SwigFrame::swigFrameCodeInternal() const
+{
+    static const std::string Templ =
+        "class #^#CLASS_NAME#$#\n"
+        "{\n"
+        "public:\n"
+        "    #^#LAYERS#$#\n\n"
+        "    #^#SIZE_T#$# processInputData(const std::vector<#^#UINT8_T#$#>& buf, #^#CLASS_NAME#$#_Handler& handler)\n"
+        "    {\n"
+        "        if (buf.empty()) { return 0U; }\n"
+        "        return static_cast<#^#SIZE_T#$#>(comms::processAllWithDispatch(&buf[0], buf.size(), m_frame, handler);\n"
+        "    }\n\n"
+        "    std::vector<#^#UINT8_T#$#> writeMessage(const #^#INTERFACE#$#& msg)\n"
+        "    {\n"
+        "        std::vector<#^#UINT8_T#$#> outBuf(m_frame.length(msg));\n"
+        "        auto writeIter = &outBuf[0];"
+        "        auto es = m_frame.write(msg, writeIter, outBuf.size());\n"
+        "        static_cast<void>(es);\n"
+        "        assert(es == comms::ErrorStatus::Success);\n"
+        "        return outBuf;\n"
+        "    }\n\n"
+        "    #^#CUSTOM#$#\n\n"
+        "private:\n"
+        "    using Frame = #^#COMMS_CLASS#$#<#^#INTERFACE#$#, AllMessages>;\n"
+        "    Frame m_frame;\n"
+        "};\n";    
+
+    auto& gen = SwigGenerator::cast(generator());
+    auto* iFace = gen.swigMainInterface();
+    assert(iFace != nullptr);
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(*this)},
+        {"INTERFACE", gen.swigClassName(*iFace)},
+        {"LAYERS", swigLayersAccCodeInternal()},
+        {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
+        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
+        {"SIZE_T", gen.swigConvertCppType("std::size_t")},
+        {"COMMS_CLASS", comms::scopeFor(*this, gen)}
+    };
+
+    return util::processTemplate(Templ, repl);   
 }
 
 } // namespace commsdsl2swig

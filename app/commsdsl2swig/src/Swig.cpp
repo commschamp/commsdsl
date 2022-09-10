@@ -117,7 +117,18 @@ std::string Swig::swigCodeBlockInternal() const
 
 std::string Swig::swigDefInternal() const
 {
-    util::StringsList result;
+    auto includeWrap = 
+        [](const std::string& str)
+        {
+            return "%include \"" + str + '\"';
+        };
+
+    util::StringsList result = {
+        includeWrap("std_array.i"),
+        includeWrap("std_pair.i"),
+        includeWrap("std_string.i"),
+        includeWrap("std_vector.i")
+    };
 
     SwigComms::swigAddDef(result);
     SwigMsgId::swigAddDef(m_generator, result);

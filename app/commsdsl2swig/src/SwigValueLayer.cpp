@@ -49,4 +49,17 @@ std::string SwigValueLayer::swigDeclFuncsImpl() const
     return Templ;
 }
 
+std::string SwigValueLayer::swigCodeFuncsImpl() const
+{
+    auto obj = valueDslObj();
+    if (!obj.pseudo()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "Field& pseudoField() { return static_cast<Field&>(Base::pseudoField()); }\n";
+
+    return Templ;
+}
+
 } // namespace commsdsl2swig

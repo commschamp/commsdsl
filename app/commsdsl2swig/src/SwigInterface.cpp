@@ -143,7 +143,9 @@ void SwigInterface::swigAddDef(StringsList& list) const
     for (auto* f : m_swigFields) {
         f->swigAddDef(list);
     }
-        
+
+    auto& gen = SwigGenerator::cast(generator());
+    list.push_back("%nodefaultctor " + gen.swigClassName(*this) + ";");
     list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(*this, generator())));
 }
 

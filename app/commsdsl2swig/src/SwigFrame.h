@@ -50,8 +50,12 @@ protected:
 private:
     std::string swigLayerDeclsInternal() const;
     std::string swigHandlerDeclInternal() const;
+    std::string swigHandlerCodeInternal() const;
     std::string swigClassDeclInternal() const;
-    std::string swigLayersAccessInternal() const;
+    std::string swigLayersAccDeclInternal() const;
+    std::string swigLayersAccCodeInternal() const;
+    std::string swigAllMessagesCodeInternal() const;
+    std::string swigFrameCodeInternal() const;
 };
 
 } // namespace commsdsl2swig
