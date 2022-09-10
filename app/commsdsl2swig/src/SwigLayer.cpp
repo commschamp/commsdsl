@@ -15,13 +15,17 @@
 
 #include "SwigLayer.h"
 
+#include "SwigCustomLayer.h"
 #include "SwigField.h"
+#include "SwigFrame.h"
 #include "SwigGenerator.h"
+#include "SwigInterface.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace comms = commsdsl::gen::comms;
@@ -48,6 +52,11 @@ const SwigLayer* SwigLayer::cast(const commsdsl::gen::Layer* layer)
     auto* swigLayer = dynamic_cast<const SwigLayer*>(layer);    
     assert(swigLayer != nullptr);
     return swigLayer;
+}
+
+bool SwigLayer::swigReorder(SwigLayersList& siblings, bool& success) const
+{
+    return swigReorderImpl(siblings, success);
 }
 
 std::string SwigLayer::swigDeclCode() const
@@ -141,6 +150,13 @@ void SwigLayer::swigAddCode(StringsList& list) const
     list.push_back(util::processTemplate(Templ, repl));
 }
 
+bool SwigLayer::swigReorderImpl(SwigLayersList& siblings, bool& success) const
+{
+    static_cast<void>(siblings);
+    success = true;
+    return false;
+}
+
 std::string SwigLayer::swigDeclFuncsImpl() const
 {
     return strings::emptyString();
@@ -167,7 +183,53 @@ std::string SwigLayer::swigTemplateScopeInternal() const
     assert(optLevelScope.size() < commsScope.size());
     assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
     
-    return optLevelScope + TemplParams + commsScope.substr(optLevelScope.size());
+    auto result = optLevelScope + TemplParams + commsScope.substr(optLevelScope.size());
+
+    auto* frame = static_cast<const SwigFrame*>(parent);
+    auto allLayers = frame->swigLayers();
+
+    auto iter = std::find(allLayers.begin(), allLayers.end(), this);
+    if (iter == allLayers.end()) {
+        assert(false); // Mustn't happen
+        return result;
+    }
+
+    auto addIdParams = 
+        [&gen, &result]()
+        {
+            static const std::string Templ = 
+                "<#^#INTERFACE#$#, #^#ALL_MESSAGES#$#>";
+
+            auto* iFace = gen.swigMainInterface();
+            assert(iFace != nullptr);
+            util::ReplacementMap repl = {
+                {"INTERFACE", gen.swigClassName(*iFace)},
+                {"ALL_MESSAGES", strings::allMessagesStr()}
+            };
+
+            result += util::processTemplate(Templ, repl);
+        };
+
+    for (auto iterTmp = iter; iterTmp != allLayers.end(); ++iterTmp) {
+        auto kind = (*iterTmp)->layer().dslObj().kind();
+        if (kind == commsdsl::parse::Layer::Kind::Id) {
+            addIdParams();
+            break;
+        }
+
+        if (kind != commsdsl::parse::Layer::Kind::Custom) {
+            continue;
+        }
+
+        auto& customLayer = static_cast<const commsdsl::gen::CustomLayer&>((*iterTmp)->layer());
+        auto customKind = customLayer.customDslObj().semanticLayerType();
+        if (customKind == commsdsl::parse::Layer::Kind::Id) {
+            addIdParams();
+            break;            
+        }
+    }
+
+    return result;
 }
 
 

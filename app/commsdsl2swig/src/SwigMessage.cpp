@@ -17,6 +17,7 @@
 
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
+#include "SwigMsgId.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -194,6 +195,7 @@ std::string SwigMessage::swigClassDeclInternal() const
         "public:\n"
         "    #^#FIELDS#$#\n"
         "    static const char* doName();\n"
+        "    #^#MSG_ID#$# doGetId() const;\n"
         "    comms_ErrorStatus doRead(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
         "    comms_ErrorStatus doWrite(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
         "    bool doRefresh();\n"
@@ -212,6 +214,7 @@ std::string SwigMessage::swigClassDeclInternal() const
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
+        {"MSG_ID", SwigMsgId::swigClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);    

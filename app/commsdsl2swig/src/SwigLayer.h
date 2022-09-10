@@ -28,11 +28,14 @@ class SwigLayer
 {
 public:
     using StringsList = commsdsl::gen::util::StringsList;
+    using SwigLayersList = std::vector<SwigLayer*>;
     
     explicit SwigLayer(commsdsl::gen::Layer& layer);
     virtual ~SwigLayer();
 
     static const SwigLayer* cast(const commsdsl::gen::Layer* layer);
+
+    bool swigReorder(SwigLayersList& siblings, bool& success) const;
 
     commsdsl::gen::Layer& layer()
     {
@@ -49,6 +52,7 @@ public:
     void swigAddCode(StringsList& list) const;
 
 protected:
+    virtual bool swigReorderImpl(SwigLayersList& siblings, bool& success) const;
     virtual std::string swigDeclFuncsImpl() const;    
     virtual std::string swigCodeFuncsImpl() const;    
     

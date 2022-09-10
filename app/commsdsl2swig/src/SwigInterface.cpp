@@ -16,6 +16,7 @@
 #include "SwigInterface.h"
 
 #include "SwigGenerator.h"
+#include "SwigMsgId.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -115,7 +116,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
         "    #^#BASE#$#\n"
         "{\n"
         "    using Base = \n"
-        "        #^#BASE#$#\n"
+        "        #^#BASE#$#;\n"
         "public:\n"
         "    #^#FIELDS#$#\n"
         "    #^#PUBLIC#$#\n"
@@ -222,16 +223,19 @@ std::string SwigInterface::swigClassDeclInternal() const
         "class #^#CLASS_NAME#$#\n"
         "{\n"
         "public:\n"
-        "    #^#CLASS_NAME#$#();\n"
         "    virtual ~#^#CLASS_NAME#$#();\n\n"
         "    #^#FIELDS#$#\n"
-        "    static const char* name();\n"
+        "    const char* name() const;\n"
+        "    #^#MSG_ID#$# getId() const;\n"
         "    comms_ErrorStatus read(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
         "    comms_ErrorStatus write(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
         "    bool refresh();\n"
         "    #^#SIZE_T#$# length() const;\n"
         "    bool valid() const;\n"
         "    #^#CUSTOM#$#\n"
+        "protected:\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& other);\n"
         "};\n";
 
     auto& gen = SwigGenerator::cast(generator());
@@ -241,6 +245,7 @@ std::string SwigInterface::swigClassDeclInternal() const
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
+        {"MSG_ID", SwigMsgId::swigClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);    

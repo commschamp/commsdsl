@@ -47,25 +47,20 @@ void SwigFrame::swigAddCodeIncludes(StringsList& list) const
 
 void SwigFrame::swigAddCode(StringsList& list) const
 {
-    for (auto& l : layers()) {
-        auto* swigLayer = SwigLayer::cast(l.get());
-        assert(swigLayer != nullptr);
+    list.push_back(swigAllMessagesCodeInternal());    
 
-        swigLayer->swigAddCode(list);
+    for (auto* l : m_swigLayers) {
+        l->swigAddCode(list);
     }
 
     list.push_back(swigHandlerCodeInternal());
-    list.push_back(swigAllMessagesCodeInternal());
     list.push_back(swigFrameCodeInternal());
 }
 
 void SwigFrame::swigAddDef(StringsList& list) const
 {
-    for (auto& l : layers()) {
-        auto* swigLayer = SwigLayer::cast(l.get());
-        assert(swigLayer != nullptr);
-
-        swigLayer->swigAddDef(list);
+    for (auto* l : m_swigLayers) {
+        l->swigAddDef(list);
     }
 
     static const std::string Templ = 
@@ -78,6 +73,43 @@ void SwigFrame::swigAddDef(StringsList& list) const
 
     list.push_back(util::processTemplate(Templ, repl));
     list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(*this, generator())));
+}
+
+bool SwigFrame::prepareImpl()
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    for (auto& l : layers()) {
+        m_swigLayers.push_back(const_cast<SwigLayer*>(SwigLayer::cast(l.get())));
+        assert(m_swigLayers.back() != nullptr);
+    } 
+
+    assert(!m_swigLayers.empty());
+    while (true) {
+        bool rearanged = false;
+        for (auto* l : m_swigLayers) {
+            bool success = false;
+            rearanged = l->swigReorder(m_swigLayers, success);
+
+            if (!success) {
+                return false;
+            }
+
+            if (rearanged) {
+                // Order has changed restart from the beginning
+                break;
+            }
+        }
+
+        if (!rearanged) {
+            // reordering is complete
+            break;
+        }
+    }    
+
+    return true;   
 }
 
 bool SwigFrame::writeImpl() const
@@ -121,11 +153,9 @@ bool SwigFrame::writeImpl() const
 std::string SwigFrame::swigLayerDeclsInternal() const
 {
     util::StringsList elems;
-    for (auto& l : layers()) {
-        auto* swigLayer = SwigLayer::cast(l.get());
-        assert(swigLayer != nullptr);
+    for (auto* l : m_swigLayers) {
 
-        auto code = swigLayer->swigDeclCode();
+        auto code = l->swigDeclCode();
         if (!code.empty()) {
             elems.push_back(std::move(code));
         }
@@ -145,7 +175,7 @@ std::string SwigFrame::swigHandlerDeclInternal() const
 
     for (auto* m : allMessages) {
         static const std::string Templ = 
-            "virtual handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
+            "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
 
         util::ReplacementMap repl = {
             {"MESSAGE", gen.swigClassName(*m)}
@@ -158,8 +188,9 @@ std::string SwigFrame::swigHandlerDeclInternal() const
         "class #^#CLASS_NAME#$#_Handler\n"
         "{\n"
         "public:\n"
+        "     virtual ~#^#CLASS_NAME#$#_Handler();\n\n"
         "     #^#HANDLE_FUNCS#$#\n"
-        "     virtual handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg);\n"
+        "     virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg);\n"
         "};\n";
 
     util::ReplacementMap repl = {
@@ -185,7 +216,7 @@ std::string SwigFrame::swigHandlerCodeInternal() const
     for (auto* m : allMessages) {
         static const std::string Templ = 
             "void handle(#^#MESSAGE#$#& msg) { handle_#^#MESSAGE#$#(msg); }\n"
-            "virtual handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n";
+            "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n";
 
         util::ReplacementMap repl = {
             {"INTERFACE", interfaceClassName},
@@ -199,9 +230,10 @@ std::string SwigFrame::swigHandlerCodeInternal() const
         "class #^#CLASS_NAME#$#_Handler\n"
         "{\n"
         "public:\n"
+        "     virtual ~#^#CLASS_NAME#$#_Handler() = default;\n\n"
         "     #^#HANDLE_FUNCS#$#\n"
         "     void handle(#^#INTERFACE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n"
-        "     virtual handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg) { static_cast<void>(msg); }\n"
+        "     virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg) { static_cast<void>(msg); }\n"
         "};\n";
 
     util::ReplacementMap repl = {
@@ -293,12 +325,13 @@ std::string SwigFrame::swigAllMessagesCodeInternal() const
     }
 
     const std::string Templ = 
-        "using AllMessages =\n"
+        "using #^#NAME#$# =\n"
         "    std::tuple<\n"
         "        #^#MESSAGES#$#\n"
         "    >;\n";
 
     util::ReplacementMap repl = {
+        {"NAME", strings::allMessagesStr()},
         {"MESSAGES", util::strListToString(msgList, ",\n", "")}
     };
 
@@ -315,7 +348,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    #^#SIZE_T#$# processInputData(const std::vector<#^#UINT8_T#$#>& buf, #^#CLASS_NAME#$#_Handler& handler)\n"
         "    {\n"
         "        if (buf.empty()) { return 0U; }\n"
-        "        return static_cast<#^#SIZE_T#$#>(comms::processAllWithDispatch(&buf[0], buf.size(), m_frame, handler);\n"
+        "        return static_cast<#^#SIZE_T#$#>(comms::processAllWithDispatch(&buf[0], buf.size(), m_frame, handler));\n"
         "    }\n\n"
         "    std::vector<#^#UINT8_T#$#> writeMessage(const #^#INTERFACE#$#& msg)\n"
         "    {\n"

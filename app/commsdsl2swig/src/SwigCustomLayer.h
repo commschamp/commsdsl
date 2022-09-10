@@ -33,6 +33,7 @@ public:
 
 protected:
     // SwigBase overrides
+    virtual bool swigReorderImpl(SwigLayersList& siblings, bool& success) const override;
 };
 
 } // namespace commsdsl2swig

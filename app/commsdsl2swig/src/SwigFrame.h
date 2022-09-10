@@ -16,7 +16,7 @@
 
 #pragma once
 
-#include "SwigField.h"
+#include "SwigLayer.h"
 
 #include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/util.h"
@@ -31,6 +31,7 @@ class SwigFrame final: public commsdsl::gen::Frame
 
 public:
     using StringsList = commsdsl::gen::util::StringsList;
+    using SwigLayersList = SwigLayer::SwigLayersList;
 
     explicit SwigFrame(SwigGenerator& generator, commsdsl::parse::Frame dslObj, Elem* parent);
     virtual ~SwigFrame();
@@ -44,10 +45,17 @@ public:
         return static_cast<const SwigFrame*>(i);
     }        
 
+    const SwigLayersList& swigLayers() const
+    {
+        return m_swigLayers;
+    }
+
 protected:    
+    virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
 
 private:
+
     std::string swigLayerDeclsInternal() const;
     std::string swigHandlerDeclInternal() const;
     std::string swigHandlerCodeInternal() const;
@@ -56,6 +64,8 @@ private:
     std::string swigLayersAccCodeInternal() const;
     std::string swigAllMessagesCodeInternal() const;
     std::string swigFrameCodeInternal() const;
+
+    SwigLayersList m_swigLayers;
 };
 
 } // namespace commsdsl2swig

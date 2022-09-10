@@ -59,11 +59,19 @@ void SwigMsgId::swigAddCode(const SwigGenerator& generator, StringsList& list)
 
     auto commsType = comms::scopeForRoot(strings::msgIdEnumNameStr(), generator);
     util::ReplacementMap repl = {
-        {"SWIG_TYPE", SwigGenerator::swigScopeToName(commsType)},
+        {"SWIG_TYPE", swigClassName(generator)},
         {"COMMS_TYPE", commsType}
     };
 
     list.push_back(util::processTemplate(Templ, repl));
+
+    SwigMsgId obj(const_cast<SwigGenerator&>(generator)); 
+    list.push_back(obj.swigCodeInternal());
+}
+
+std::string SwigMsgId::swigClassName(const SwigGenerator& generator)
+{
+    return SwigGenerator::swigScopeToName(comms::scopeForRoot(strings::msgIdEnumNameStr(), generator));
 }
 
 bool SwigMsgId::swigWriteInternal() const
@@ -94,7 +102,7 @@ bool SwigMsgId::swigWriteInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"CLASS_NAME", SwigGenerator::swigScopeToName(comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator))},
+        {"CLASS_NAME", swigClassName(m_generator)},
         {"TYPE", swigTypeInternal()},
         {"IDS", swigIdsInternal()}
     };
@@ -174,6 +182,57 @@ std::string SwigMsgId::swigIdsInternal() const
         ids.push_back(prefix + comms::fullNameFor(*m) + " = " + util::numToString(m->dslObj().id()));
     }
     return util::strListToString(ids, ",\n", "");
+}
+
+std::string SwigMsgId::swigCodeInternal() const
+{
+    static const std::string Templ = 
+        "using #^#SCOPE#$#_#^#NAME#$#;\n";
+
+    auto scope = comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator);
+
+    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
+    if (msgIdField != nullptr) {
+        assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
+        auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
+        auto enumValues = castedMsgIdField->swigEnumValues();
+
+
+        static const std::string CommentPrefix("// ---");
+        static const std::string EqStr(" = ");
+        util::StringsList result;
+        for (auto& v : enumValues) {
+            auto commentPos = v.find(CommentPrefix);
+            if (commentPos != std::string::npos) {
+                continue;
+            }
+
+            auto eqPos = v.find(EqStr);
+            assert(eqPos < v.size());
+
+            util::ReplacementMap repl = {
+                {"SCOPE", scope},
+                {"NAME", v.substr(0, eqPos)}
+            };
+
+            result.push_back(util::processTemplate(Templ, repl));
+        }
+
+        return util::strListToString(result, "", "");
+    }
+
+    auto allMessages = m_generator.getAllMessagesIdSorted();
+    util::StringsList result;
+    result.reserve(allMessages.size());
+    for (auto* m : allMessages) {
+        util::ReplacementMap repl = {
+            {"SCOPE", scope},
+            {"NAME", comms::fullNameFor(*m)}
+        };
+
+        result.push_back(util::processTemplate(Templ, repl));
+    }
+    return util::strListToString(result, "", "");
 }
 
 } // namespace commsdsl2swig
