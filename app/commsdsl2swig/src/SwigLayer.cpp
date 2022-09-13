@@ -101,12 +101,14 @@ std::string SwigLayer::swigDeclCode() const
 
 void SwigLayer::swigAddDef(StringsList& list) const
 {
-    auto* memField = SwigField::cast(m_layer.memberField());
-    if (memField == nullptr) {
-        return;
+    auto* field = SwigField::cast(m_layer.memberField());
+    if (field == nullptr) {
+        field = SwigField::cast(m_layer.externalField());
     }
 
-    memField->swigAddDef(list);
+    if (field != nullptr) {
+        field->swigAddDef(list);
+    }
 }
 
 void SwigLayer::swigAddCode(StringsList& list) const
@@ -150,6 +152,11 @@ void SwigLayer::swigAddCode(StringsList& list) const
     list.push_back(util::processTemplate(Templ, repl));
 }
 
+bool SwigLayer::isMainInterfaceSupported() const
+{
+    return isMainInterfaceSupportedImpl();
+}
+
 bool SwigLayer::swigReorderImpl(SwigLayersList& siblings, bool& success) const
 {
     static_cast<void>(siblings);
@@ -167,6 +174,11 @@ std::string SwigLayer::swigCodeFuncsImpl() const
     return strings::emptyString();
 }
 
+bool SwigLayer::isMainInterfaceSupportedImpl() const
+{
+    return true;
+}
+
 std::string SwigLayer::swigTemplateScopeInternal() const
 {
     static const std::string TemplParams = "<>";
@@ -174,10 +186,9 @@ std::string SwigLayer::swigTemplateScopeInternal() const
     auto& gen = SwigGenerator::cast(m_layer.generator());
     auto commsScope = comms::scopeFor(m_layer, gen);
 
-    using Elem = commsdsl::gen::Elem;
     auto* parent = m_layer.getParent();
     assert(parent != nullptr);
-    assert(parent->elemType() == Elem::Type_Frame);
+    assert(parent->elemType() == commsdsl::gen::Elem::Type_Frame);
 
     auto optLevelScope = comms::scopeFor(*parent, gen) + strings::layersSuffixStr();
     assert(optLevelScope.size() < commsScope.size());

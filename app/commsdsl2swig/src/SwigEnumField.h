@@ -40,6 +40,7 @@ protected:
     // SwigBase overrides
     virtual std::string swigValueTypeDeclImpl() const override;
     virtual std::string swigExtraPublicFuncsDeclImpl() const override;
+    virtual std::string swigExtraPublicFuncsCodeImpl() const override;
 
 private:
     bool swigIsDirectValueNameMappingInternal() const;

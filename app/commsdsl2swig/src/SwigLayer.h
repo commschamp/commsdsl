@@ -51,10 +51,13 @@ public:
     void swigAddDef(StringsList& list) const;
     void swigAddCode(StringsList& list) const;
 
+    bool isMainInterfaceSupported() const;
+
 protected:
     virtual bool swigReorderImpl(SwigLayersList& siblings, bool& success) const;
     virtual std::string swigDeclFuncsImpl() const;    
     virtual std::string swigCodeFuncsImpl() const;    
+    virtual bool isMainInterfaceSupportedImpl() const;
     
 private:
     std::string swigTemplateScopeInternal() const;

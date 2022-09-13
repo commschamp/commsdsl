@@ -8,7 +8,7 @@ option (COMMSDSL_INSTALL_LIBRARY_HEADERS "Install commdsl library headers" ${COM
 option (COMMSDSL_BUILD_COMMSDSL2COMMS "Build commsdsl2comms" ON)
 option (COMMSDSL_BUILD_COMMSDSL2TEST "Build commsdsl2test" ON)
 option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT "Build commsdsl2tools_qt" ON)
-option (COMMSDSL_BUILD_COMMSDSL2SWIG "Build commsdsl2swig" ON)
+option (COMMSDSL_BUILD_COMMSDSL2SWIG "Build commsdsl2swig" OFF)
 option (COMMSDSL_INSTALL_APPS "Install applications" ON)
 option (COMMSDSL_BUILD_UNIT_TESTS "Build unittests." OFF)
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)

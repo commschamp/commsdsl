@@ -132,6 +132,12 @@ void SwigField::swigAddCode(StringsList& list) const
 
 void SwigField::swigAddDef(StringsList& list) const
 {
+    if (m_defAdded) {
+        return;
+    }
+
+    m_defAdded = true;
+
     swigAddDefImpl(list);
     
     if (!comms::isGlobalField(m_field)) {
@@ -264,6 +270,57 @@ std::string SwigField::swigCommonPublicFuncsDecl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string SwigField::swigTemplateScope() const
+{
+    static const std::string TemplParams = "<>";
+
+    auto& gen = SwigGenerator::cast(m_field.generator());
+    auto commsScope = comms::scopeFor(m_field, gen);
+
+    if (comms::isGlobalField(m_field)) {
+        return commsScope + TemplParams;
+    }
+
+    using Elem = commsdsl::gen::Elem;
+
+    auto formScopeFunc = 
+        [&commsScope, &gen](const Elem* parent, const std::string& suffix)
+        {
+            auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
+            assert(optLevelScope.size() < commsScope.size());
+            assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
+            
+            return optLevelScope + TemplParams + commsScope.substr(optLevelScope.size());
+        };
+
+    
+    Elem* parent = m_field.getParent();
+    while (parent != nullptr)  {
+        auto elemType = parent->elemType();
+
+        if (elemType == Elem::Type_Interface) {
+            return commsScope;
+        }        
+
+        if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
+            return formScopeFunc(parent, strings::membersSuffixStr());
+        }        
+
+        if (elemType == Elem::Type_Message) {
+            return formScopeFunc(parent, strings::fieldsSuffixStr());
+        }
+
+        if (elemType == Elem::Type_Frame) {
+            return formScopeFunc(parent, strings::layersSuffixStr());
+        }        
+
+        parent = parent->getParent();
+    }
+
+    assert(false); // Should not happen
+    return commsScope;
+}
+
 std::string SwigField::swigClassDeclInternal() const
 {
     static const std::string Templ = 
@@ -332,10 +389,25 @@ std::string SwigField::swigClassCodeInternal() const
     auto& gen = SwigGenerator::cast(m_field.generator());
 
     util::ReplacementMap repl = {
-        {"COMMS_CLASS", swigTemplateScopeInternal()},
+        {"COMMS_CLASS", swigTemplateScope()},
         {"CLASS_NAME", gen.swigClassName(m_field)}
     };
 
+    auto finalizeCode = 
+        [this, &repl](const std::string& templ)
+        {
+            if (!swigIsVersionOptional()) {
+                return util::processTemplate(templ, repl);
+            }
+
+            repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+            static const std::string OptTempl = 
+                "#^#FIELD#$#\n"
+                "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$# {};\n";
+
+            repl["FIELD"] = util::processTemplate(templ, repl);
+            return util::processTemplate(OptTempl, repl);            
+        };
 
     std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(m_field) + strings::publicFileSuffixStr());
     std::string protectedCode = util::readFileContents(gen.swigInputCodePathFor(m_field) + strings::protectedFileSuffixStr());
@@ -344,9 +416,9 @@ std::string SwigField::swigClassCodeInternal() const
 
     if (publicCode.empty() && protectedCode.empty() && privateCode.empty() && extraFuncs.empty()) {
         static const std::string Templ = 
-            "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$# {};\n";
+            "class #^#CLASS_NAME#$##^#SUFFIX#$# : public #^#COMMS_CLASS#$##^#SUFFIX#$# {};\n";
 
-        return util::processTemplate(Templ, repl);
+        return finalizeCode(Templ);
     }
 
     if (!protectedCode.empty()) {
@@ -374,9 +446,9 @@ std::string SwigField::swigClassCodeInternal() const
     }    
 
     static const std::string Templ = 
-        "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
+        "class #^#CLASS_NAME#$##^#SUFFIX#$# : public #^#COMMS_CLASS#$##^#SUFFIX#$#\n"
         "{\n"
-        "    using Base = #^#COMMS_CLASS#$#;\n"
+        "    using Base = #^#COMMS_CLASS#$##^#SUFFIX#$#;\n"
         "public:\n"
         "    #^#EXTRA#$#\n"
         "    #^#PUBLIC#$#\n"
@@ -391,58 +463,9 @@ std::string SwigField::swigClassCodeInternal() const
         {"PRIVATE", std::move(privateCode)}
     });
 
-    return util::processTemplate(Templ, repl);    
+    return finalizeCode(Templ);
 }
 
-std::string SwigField::swigTemplateScopeInternal() const
-{
-    static const std::string TemplParams = "<>";
 
-    auto& gen = SwigGenerator::cast(m_field.generator());
-    auto commsScope = comms::scopeFor(m_field, gen);
-
-    if (comms::isGlobalField(m_field)) {
-        return commsScope + TemplParams;
-    }
-
-    using Elem = commsdsl::gen::Elem;
-
-    auto formScopeFunc = 
-        [&commsScope, &gen](const Elem* parent, const std::string& suffix)
-        {
-            auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
-            assert(optLevelScope.size() < commsScope.size());
-            assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
-            
-            return optLevelScope + TemplParams + commsScope.substr(optLevelScope.size());
-        };
-
-    
-    Elem* parent = m_field.getParent();
-    while (parent != nullptr)  {
-        auto elemType = parent->elemType();
-
-        if (elemType == Elem::Type_Interface) {
-            return commsScope;
-        }        
-
-        if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
-            return formScopeFunc(parent, strings::membersSuffixStr());
-        }        
-
-        if (elemType == Elem::Type_Message) {
-            return formScopeFunc(parent, strings::fieldsSuffixStr());
-        }
-
-        if (elemType == Elem::Type_Frame) {
-            return formScopeFunc(parent, strings::layersSuffixStr());
-        }        
-
-        parent = parent->getParent();
-    }
-
-    assert(false); // Should not happen
-    return commsScope;
-}
 
 } // namespace commsdsl2swig

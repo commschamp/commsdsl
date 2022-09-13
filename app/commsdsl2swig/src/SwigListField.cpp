@@ -81,9 +81,9 @@ void SwigListField::swigAddDefImpl(StringsList& list) const
 {
     auto* elem = memberElementField();
     if (elem == nullptr) {
-        return;
-    }    
-
+        elem = externalElementField();
+    }   
+    
     SwigField::cast(elem)->swigAddDef(list);
 }
 

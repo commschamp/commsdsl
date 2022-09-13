@@ -254,6 +254,10 @@ std::string SwigMessage::swigFieldsAccCodeInternal() const
             "{\n"
             "    return static_cast<#^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#());\n"
             "}\n"
+            "const #^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() const\n"
+            "{\n"
+            "    return static_cast<const #^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#());\n"
+            "}\n"            
         };
 
         util::ReplacementMap repl = {

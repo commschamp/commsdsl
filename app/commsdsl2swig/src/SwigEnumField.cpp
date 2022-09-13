@@ -252,17 +252,47 @@ std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
     static const std::string Templ = 
         "using ValueNameInfo = #^#NAME_INFO_TYPE#$#;\n"
         "using ValueNamesMapInfo = std::pair<const ValueNameInfo*, unsigned long>;\n"
-        "static const char* valueNameOf(ValueType val);\n"
+        "static const char* valueNameOf(#^#TYPE#$# val);\n"
         "const char* valueName() const;\n"
         "static ValueNamesMapInfo valueNamesMap();\n"
     ;
 
+    auto& gen = SwigGenerator::cast(generator());
+    auto type = gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength());
     util::ReplacementMap repl = {
-        {"NAME_INFO_TYPE", swigIsDirectValueNameMappingInternal() ? "const char*" : "std::pair<ValueType, const char*>"}
+        {"NAME_INFO_TYPE", swigIsDirectValueNameMappingInternal() ? "const char*" : "std::pair<" + type + ", const char*>"},
+        {"TYPE", type}
     };
 
     return util::processTemplate(Templ, repl);
 }
+
+std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
+{
+    static const std::string Templ = 
+        "using ValueNameInfo = #^#NAME_INFO_TYPE#$#;\n"
+        "using ValueNamesMapInfo = std::pair<const ValueNameInfo*, unsigned long>;\n"
+        "static const char* valueNameOf(#^#TYPE#$# val)\n"
+        "{"
+        "    return Base::valueNameOf(static_cast<Base::ValueType>(val));\n"
+        "}\n\n"
+        "static ValueNamesMapInfo valueNamesMap()\n"
+        "{\n"
+        "    auto info = Base::valueNamesMap();\n"
+        "    return ValueNamesMapInfo(reinterpret_cast<const ValueNameInfo*>(info.first), info.second);\n"
+        "}\n"
+    ;
+
+    auto& gen = SwigGenerator::cast(generator());
+    auto type = gen.swigConvertIntType(enumDslObj().type(), enumDslObj().maxLength());
+    util::ReplacementMap repl = {
+        {"NAME_INFO_TYPE", swigIsDirectValueNameMappingInternal() ? "const char*" : "std::pair<" + type + ", const char*>"},
+        {"TYPE", type}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 
 bool SwigEnumField::swigIsDirectValueNameMappingInternal() const
 {

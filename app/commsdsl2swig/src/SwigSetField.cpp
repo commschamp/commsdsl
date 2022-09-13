@@ -77,7 +77,7 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
     static const std::string Templ = 
         "enum BitIdx : unsigned\n"
         "{\n"
-        "    #^#INDICES#$#,\n"
+        "    #^#INDICES#$#\n"
         "    BitIdx_numOfValues\n"
         "};\n\n"
         "bool getBitValue(unsigned bitNum) const;\n"
@@ -86,7 +86,7 @@ std::string SwigSetField::swigExtraPublicFuncsDeclImpl() const
         ;    
 
     util::ReplacementMap repl = {
-        {"INDICES", util::strListToString(indices, ",\n", "")},
+        {"INDICES", util::strListToString(indices, ",\n", ",")},
         {"ACCESS_FUNCS", util::strListToString(accesses, "\n", "")}
     };
 

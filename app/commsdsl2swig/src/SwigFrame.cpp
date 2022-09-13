@@ -23,6 +23,7 @@
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 #include <fstream>
 
@@ -42,11 +43,19 @@ SwigFrame::~SwigFrame() = default;
 
 void SwigFrame::swigAddCodeIncludes(StringsList& list) const
 {
+    if (!m_validFrame) {
+        return;
+    }
+
     list.push_back(comms::relHeaderPathFor(*this, generator()));
 }
 
 void SwigFrame::swigAddCode(StringsList& list) const
 {
+    if (!m_validFrame) {
+        return;
+    }
+
     list.push_back(swigAllMessagesCodeInternal());    
 
     for (auto* l : m_swigLayers) {
@@ -59,6 +68,10 @@ void SwigFrame::swigAddCode(StringsList& list) const
 
 void SwigFrame::swigAddDef(StringsList& list) const
 {
+    if (!m_validFrame) {
+        return;
+    }
+
     for (auto* l : m_swigLayers) {
         l->swigAddDef(list);
     }
@@ -85,6 +98,18 @@ bool SwigFrame::prepareImpl()
         m_swigLayers.push_back(const_cast<SwigLayer*>(SwigLayer::cast(l.get())));
         assert(m_swigLayers.back() != nullptr);
     } 
+
+    m_validFrame = 
+        std::all_of(
+            m_swigLayers.begin(), m_swigLayers.end(),
+            [](auto* l)
+            {
+                return l->isMainInterfaceSupported();
+            });
+
+    if (!m_validFrame) {
+        return true;
+    }
 
     assert(!m_swigLayers.empty());
     while (true) {
@@ -114,6 +139,10 @@ bool SwigFrame::prepareImpl()
 
 bool SwigFrame::writeImpl() const
 {
+    if (!m_validFrame) {
+        return true;
+    }
+
     auto filePath = comms::headerPathFor(*this, generator());
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());

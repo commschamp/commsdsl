@@ -101,7 +101,7 @@ std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
     auto& gen = SwigGenerator::cast(generator());
     for (auto* m : m_swigMembers) {
         static const std::string Templ = 
-            "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#())); }\n"
+            "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#()); }\n"
         ;
 
         util::ReplacementMap repl = {

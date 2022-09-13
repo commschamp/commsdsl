@@ -71,14 +71,15 @@ protected:
     virtual void swigAddMembersCodeImpl(StringsList& list) const;
 
     std::string swigCommonPublicFuncsDecl() const;
+    std::string swigTemplateScope() const;
     
 private:
     std::string swigClassDeclInternal() const;
     std::string swigOptionalDeclInternal() const;
     std::string swigClassCodeInternal() const;
-    std::string swigTemplateScopeInternal() const;
 
     commsdsl::gen::Field& m_field;
+    mutable bool m_defAdded = false;
     mutable bool m_codeAdded = false;
 };
 

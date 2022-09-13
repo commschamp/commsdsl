@@ -62,6 +62,12 @@ std::string SwigRefField::swigCommonPublicFuncsDeclImpl() const
     return Templ;
 }
 
+void SwigRefField::swigAddDefImpl(StringsList& list) const
+{
+    // Make sure the referenced field is defined before
+    SwigField::cast(referencedField())->swigAddDef(list);
+}
+
 void SwigRefField::swigAddMembersCodeImpl(StringsList& list) const
 {
     // Make sure the referenced field is defined before

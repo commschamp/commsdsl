@@ -42,9 +42,9 @@ std::string SwigOptionalField::swigDeclFuncs(const std::string& fieldType)
         "Field& field();\n"
         "const Field& field() const;\n\n"
         "Mode getMode() const;\n"
-        "void setMode(Mode val) const;\n"
-        "bool isTenative() const;\n"
-        "void setTenative();\n"
+        "void setMode(Mode val);\n"
+        "bool isTentative() const;\n"
+        "void setTentative();\n"
         "bool doesExist() const;\n"
         "void setExists();\n"
         "bool isMissing() const;\n"
@@ -100,7 +100,7 @@ void SwigOptionalField::swigAddDefImpl(StringsList& list) const
 {
     auto* mem = SwigField::cast(memberField());
     if (mem == nullptr) {
-        return;
+        mem = SwigField::cast(externalField());
     }
 
     assert(mem != nullptr);

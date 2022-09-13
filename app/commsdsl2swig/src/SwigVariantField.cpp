@@ -207,6 +207,7 @@ std::string SwigVariantField::swigHandlerDeclInternal() const
     static const std::string Templ = 
         "struct #^#CLASS_NAME#$#_Handler\n"
         "{\n"
+        "    virtual ~#^#CLASS_NAME#$#_Handler();\n\n"
         "    #^#ACCESS_FUNCS#$#\n"
         "};\n"
     ;
@@ -238,6 +239,7 @@ void SwigVariantField::swigAddHandlerCodeInternal(StringsList& list) const
     static const std::string Templ = 
         "struct #^#CLASS_NAME#$#_Handler\n"
         "{\n"
+        "    virtual ~#^#CLASS_NAME#$#_Handler() = default;\n\n"
         "    #^#ACCESS_FUNCS#$#\n"
         "};\n"
     ;

@@ -16,11 +16,13 @@
 #include "SwigValueLayer.h"
 
 #include "SwigGenerator.h"
+#include "SwigInterface.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace comms = commsdsl::gen::comms;
@@ -57,9 +59,30 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
     }
 
     static const std::string Templ = 
-        "Field& pseudoField() { return static_cast<Field&>(Base::pseudoField()); }\n";
+        "Field& pseudoField() { return reinterpret_cast<Field&>(Base::pseudoField()); }\n";
 
     return Templ;
+}
+
+bool SwigValueLayer::isMainInterfaceSupportedImpl() const
+{
+    auto obj = valueDslObj();
+    auto supportedInterfaces = obj.interfaces();
+
+    if (supportedInterfaces.empty()) {
+        return true;
+    }
+
+    auto& gen = SwigGenerator::cast(generator());
+    auto* iFace = gen.swigMainInterface();
+    assert(iFace != nullptr);
+    return 
+        std::any_of(
+            supportedInterfaces.begin(), supportedInterfaces.end(),
+            [iFace, &gen](auto& i)
+            {
+                return gen.findInterface(i.externalRef()) == iFace;
+            });
 }
 
 } // namespace commsdsl2swig

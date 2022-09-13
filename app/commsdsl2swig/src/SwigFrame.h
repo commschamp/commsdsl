@@ -66,6 +66,7 @@ private:
     std::string swigFrameCodeInternal() const;
 
     SwigLayersList m_swigLayers;
+    bool m_validFrame = true;
 };
 
 } // namespace commsdsl2swig

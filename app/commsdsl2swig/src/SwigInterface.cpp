@@ -285,6 +285,10 @@ std::string SwigInterface::swigFieldsAccCodeInternal() const
             "{\n"
             "    return static_cast<#^#CLASS_NAME#$#&>(Base::transportField_#^#ACC_NAME#$#());\n"
             "}\n"
+            "const #^#CLASS_NAME#$#& transportField_#^#ACC_NAME#$#() const\n"
+            "{\n"
+            "    return static_cast<const #^#CLASS_NAME#$#&>(Base::transportField_#^#ACC_NAME#$#());\n"
+            "}\n"            
         };
 
         util::ReplacementMap repl = {
