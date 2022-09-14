@@ -18,6 +18,7 @@
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
 #include "SwigMsgId.h"
+#include "SwigProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -62,6 +63,9 @@ void SwigMessage::swigAddCode(StringsList& list) const
         {"INTERFACE", gen.swigClassName(*mainInterface)}
     };
 
+    if (SwigProtocolOptions::swigIsDefined(gen)) {
+        repl["OPTS"] = ", " + SwigProtocolOptions::swigClassName(gen);
+    }
 
     std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::publicFileSuffixStr());
     std::string protectedCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::protectedFileSuffixStr());
@@ -69,7 +73,7 @@ void SwigMessage::swigAddCode(StringsList& list) const
 
     if (publicCode.empty() && protectedCode.empty() && privateCode.empty() && (m_swigFields.empty())) {
         static const std::string Templ = 
-            "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#<#^#INTERFACE#$#> {};\n";
+            "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#<#^#INTERFACE#$##^#OPTS#$#> {};\n";
 
         list.push_back(util::processTemplate(Templ, repl));
         return;
@@ -100,9 +104,9 @@ void SwigMessage::swigAddCode(StringsList& list) const
     }    
 
     static const std::string Templ = 
-        "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#<#^#INTERFACE#$#>\n"
+        "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#<#^#INTERFACE#$##^#OPTS#$#>\n"
         "{\n"
-        "    using Base = #^#COMMS_CLASS#$#<#^#INTERFACE#$#>;\n"
+        "    using Base = #^#COMMS_CLASS#$#<#^#INTERFACE#$##^#OPTS#$#>;\n"
         "public:\n"
         "    #^#FIELDS#$#\n"
         "    #^#PUBLIC#$#\n"

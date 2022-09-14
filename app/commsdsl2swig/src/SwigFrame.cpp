@@ -18,6 +18,7 @@
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
 #include "SwigLayer.h"
+#include "SwigProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -390,7 +391,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    }\n\n"
         "    #^#CUSTOM#$#\n\n"
         "private:\n"
-        "    using Frame = #^#COMMS_CLASS#$#<#^#INTERFACE#$#, AllMessages>;\n"
+        "    using Frame = #^#COMMS_CLASS#$#<#^#INTERFACE#$#, AllMessages#^#OPTS#$#>;\n"
         "    Frame m_frame;\n"
         "};\n";    
 
@@ -406,6 +407,10 @@ std::string SwigFrame::swigFrameCodeInternal() const
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"COMMS_CLASS", comms::scopeFor(*this, gen)}
     };
+
+    if (SwigProtocolOptions::swigIsDefined(gen)) {
+        repl["OPTS"] = ", " + SwigProtocolOptions::swigClassName(gen);
+    }
 
     return util::processTemplate(Templ, repl);   
 }

@@ -139,6 +139,9 @@ public:
     LayerPtr createPayloadLayer(commsdsl::parse::Layer dslObj, Elem* parent);
     LayerPtr createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* parent);
 
+    void chooseCurrentSchema(unsigned idx);
+    void chooseProtocolSchema();
+
     bool createDirectory(const std::string& path) const;
 
 protected:
@@ -174,10 +177,7 @@ protected:
     virtual bool writeImpl();
     virtual LoggerPtr createLoggerImpl();
 
-
     Namespace* addDefaultNamespace();
-    void chooseCurrentSchema(unsigned idx);
-    void chooseProtocolSchema();
 
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    

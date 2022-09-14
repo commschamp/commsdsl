@@ -19,6 +19,7 @@
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
 #include "SwigMsgId.h"
+#include "SwigProtocolOptions.h"
 #include "SwigSchema.h"
 
 #include "commsdsl/gen/comms.h"
@@ -87,10 +88,13 @@ std::string Swig::swigCodeBlockInternal() const
         "comms/comms.h"
     };
 
+    SwigProtocolOptions::swigAddCodeIncludes(m_generator, includes);
+
     util::StringsList codeElems;
 
     SwigComms::swigAddCode(codeElems);
     SwigMsgId::swigAddCode(m_generator, codeElems);
+    SwigProtocolOptions::swigAddCode(m_generator, codeElems);
     SwigGenerator::cast(m_generator).swigMainInterface()->swigAddCode(codeElems);
 
     for (auto& sPtr : m_generator.schemas()) {

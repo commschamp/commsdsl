@@ -22,6 +22,7 @@ set (src
     SwigOptionalField.cpp
     SwigPayloadLayer.cpp
     SwigProgramOptions.cpp
+    SwigProtocolOptions.cpp
     SwigRefField.cpp
     SwigSchema.cpp
     SwigSetField.cpp

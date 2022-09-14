@@ -17,6 +17,7 @@
 
 #include "SwigGenerator.h"
 #include "SwigOptionalField.h"
+#include "SwigProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -272,25 +273,24 @@ std::string SwigField::swigCommonPublicFuncsDecl() const
 
 std::string SwigField::swigTemplateScope() const
 {
-    static const std::string TemplParams = "<>";
-
     auto& gen = SwigGenerator::cast(m_field.generator());
     auto commsScope = comms::scopeFor(m_field, gen);
+    std::string optionsParams = "<" + SwigProtocolOptions::swigClassName(gen) + ">";
 
     if (comms::isGlobalField(m_field)) {
-        return commsScope + TemplParams;
+        return commsScope + optionsParams;
     }
 
     using Elem = commsdsl::gen::Elem;
 
     auto formScopeFunc = 
-        [&commsScope, &gen](const Elem* parent, const std::string& suffix)
+        [&commsScope, &gen, &optionsParams](const Elem* parent, const std::string& suffix)
         {
             auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
             assert(optLevelScope.size() < commsScope.size());
             assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
             
-            return optLevelScope + TemplParams + commsScope.substr(optLevelScope.size());
+            return optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
         };
 
     

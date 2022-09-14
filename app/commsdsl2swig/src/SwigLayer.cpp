@@ -20,6 +20,7 @@
 #include "SwigFrame.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
+#include "SwigProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -181,10 +182,9 @@ bool SwigLayer::isMainInterfaceSupportedImpl() const
 
 std::string SwigLayer::swigTemplateScopeInternal() const
 {
-    static const std::string TemplParams = "<>";
-
     auto& gen = SwigGenerator::cast(m_layer.generator());
     auto commsScope = comms::scopeFor(m_layer, gen);
+    std::string optionsParams = "<" + SwigProtocolOptions::swigClassName(gen) + ">";
 
     auto* parent = m_layer.getParent();
     assert(parent != nullptr);
@@ -194,7 +194,7 @@ std::string SwigLayer::swigTemplateScopeInternal() const
     assert(optLevelScope.size() < commsScope.size());
     assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
     
-    auto result = optLevelScope + TemplParams + commsScope.substr(optLevelScope.size());
+    auto result = optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
 
     auto* frame = static_cast<const SwigFrame*>(parent);
     auto allLayers = frame->swigLayers();

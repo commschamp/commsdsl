@@ -877,6 +877,17 @@ LayerPtr Generator::createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* par
     return createChecksumLayerImpl(dslObj, parent);
 }
 
+void Generator::chooseCurrentSchema(unsigned idx)
+{
+    m_impl->chooseCurrentSchema(idx);
+}
+
+void Generator::chooseProtocolSchema()
+{
+    assert(!schemas().empty());
+    chooseCurrentSchema(static_cast<unsigned>(schemas().size() - 1U));
+}
+
 bool Generator::createDirectory(const std::string& path) const
 {
     if (m_impl->wasDirectoryCreated(path)) {
@@ -1036,17 +1047,6 @@ Generator::LoggerPtr Generator::createLoggerImpl()
 Namespace* Generator::addDefaultNamespace()
 {
     return currentSchema().addDefaultNamespace();
-}
-
-void Generator::chooseCurrentSchema(unsigned idx)
-{
-    m_impl->chooseCurrentSchema(idx);
-}
-
-void Generator::chooseProtocolSchema()
-{
-    assert(!schemas().empty());
-    chooseCurrentSchema(static_cast<unsigned>(schemas().size() - 1U));
 }
 
 } // namespace gen
