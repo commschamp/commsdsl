@@ -62,10 +62,15 @@ public:
         return m_plugins;
     }
 
-    InterfacesAccessList toolsGetSelectedInterfaces() const
+    const InterfacesAccessList& toolsGetSelectedInterfaces() const
     {
         return m_selectedInterfaces;
     }
+
+    const FramesAccessList& toolsGetSelectedFrames() const
+    {
+        return m_selectedFrames;
+    }    
 
     static ToolsQtGenerator& cast(commsdsl::gen::Generator& generator)
     {
@@ -111,10 +116,12 @@ protected:
 private:
     bool toolsPrepareDefaultInterfaceInternal();
     bool toolsPrepareSelectedInterfacesInternal();
+    bool toolsPrepareSelectedFramesInternal();
 
     PluginInfosList m_pluginInfos;
     PluginsList m_plugins;
     InterfacesAccessList m_selectedInterfaces;
+    FramesAccessList m_selectedFrames;
 };
 
 } // namespace commsdsl2tools_qt

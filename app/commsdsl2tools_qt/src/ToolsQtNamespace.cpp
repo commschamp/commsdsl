@@ -44,13 +44,6 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles() const
             std::move(list.begin(), list.end(), std::back_inserter(result));
         };
 
-    // for (auto& iPtr : interfaces()) {
-    //     assert(iPtr);
-    //     auto* toolsInterface = static_cast<const ToolsQtInterface*>(iPtr.get());
-    //     assert(toolsInterface != nullptr);
-    //     addToResult(toolsInterface->toolsSourceFiles());
-    // }            
-
     for (auto& fPtr : fields()) {
         assert(fPtr);
         auto* toolsField = dynamic_cast<const ToolsQtField*>(fPtr.get());
@@ -64,13 +57,6 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles() const
         assert(toolsMessage != nullptr);
         addToResult(toolsMessage->toolsSourceFiles());
     }    
-
-    for (auto& fPtr : frames()) {
-        assert(fPtr);
-        auto* toolsFrame = static_cast<const ToolsQtFrame*>(fPtr.get());
-        assert(toolsFrame != nullptr);
-        addToResult(toolsFrame->toolsSourceFiles());
-    }       
 
     return result;
 }

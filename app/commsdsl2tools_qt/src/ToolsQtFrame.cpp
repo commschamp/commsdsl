@@ -90,6 +90,14 @@ bool ToolsQtFrame::prepareImpl()
 
 bool ToolsQtFrame::writeImpl() const
 {
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto frames = gen.toolsGetSelectedFrames();
+    auto iter = std::find(frames.begin(), frames.end(), this);
+    if (iter == frames.end()) {
+        // Frame not used.
+        return true;
+    }
+
     return 
         toolsWriteHeaderInternal() &&
         toolsWriteTransportMsgHeaderInternal() &&

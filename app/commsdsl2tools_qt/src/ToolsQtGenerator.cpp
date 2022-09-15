@@ -77,10 +77,17 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
 
     auto interfaces = toolsGetSelectedInterfaces();
     for (auto& i : interfaces) {
-        auto iResult = static_cast<const ToolsQtInterface*>(i)->toolsSourceFiles();
+        auto iResult = ToolsQtInterface::cast(i)->toolsSourceFiles();
         result.reserve(result.size() + iResult.size());
         std::move(iResult.begin(), iResult.end(), std::back_inserter(result));
     }    
+
+    auto frames = toolsGetSelectedFrames();
+    for (auto& f : frames) {
+        auto fResult = ToolsQtFrame::cast(f)->toolsSourceFiles();
+        result.reserve(result.size() + fResult.size());
+        std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
+    }      
 
     return result;
 }
@@ -91,7 +98,8 @@ bool ToolsQtGenerator::prepareImpl()
     bool result = 
         Base::prepareImpl() &&
         toolsPrepareDefaultInterfaceInternal() &&
-        toolsPrepareSelectedInterfacesInternal();
+        toolsPrepareSelectedInterfacesInternal() &&
+        toolsPrepareSelectedFramesInternal();
 
     if (!result) {
         return false;
@@ -313,6 +321,36 @@ bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()
 
     if (m_selectedInterfaces.empty()) {
         m_selectedInterfaces = getAllInterfaces();
+    }
+
+    return true;    
+}
+
+bool ToolsQtGenerator::toolsPrepareSelectedFramesInternal()
+{
+    std::vector<std::string> frameNames;
+    for (auto& info : m_pluginInfos) {
+        frameNames.push_back(info.m_frame);
+    }
+
+    std::sort(frameNames.begin(), frameNames.end());
+    frameNames.erase(
+        std::unique(frameNames.begin(), frameNames.end()),
+        frameNames.end()
+    );
+
+    for (auto& fName : frameNames) {
+        auto* frame = findFrame(fName);
+        if (frame == nullptr) {
+            logger().error("Selected frame \"" + fName + "\" cannot be found");
+            return false;
+        }
+
+        m_selectedFrames.push_back(frame);
+    }
+
+    if (m_selectedFrames.empty()) {
+        m_selectedFrames = getAllFrames();
     }
 
     return true;    
