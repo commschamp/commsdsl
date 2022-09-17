@@ -1209,11 +1209,26 @@ bool IntFieldImpl::updateSignExt()
         return true;
     }
 
-    if ((isUnsigned(m_state.m_type)) || (maxTypeLength(m_state.m_type) <= minLength())) {
-        logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << common::signExtStr() << "\" is relevant only to signed types with "
-            "length limitation.";
-    }
+    do {
+        if (isUnsigned(m_state.m_type)) {
+            break;
+        }
+
+        auto bitLen = bitLength();
+        if (bitLen == 0U) {
+            bitLen = minLength() * 8U;
+        }
+
+        if ((maxTypeLength(m_state.m_type) * 8U) <= bitLen) {
+            break;
+        }
+
+        return true;
+    } while (false);
+
+    logWarning() << XmlWrap::logPrefix(getNode()) <<
+        "Property \"" << common::signExtStr() << "\" is relevant only to signed types with "
+        "length limitation.";
 
     return true;
 }

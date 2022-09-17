@@ -1,12 +1,13 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test10/Message.h"
-#include "test10/message/Msg1.h"
+#include "test10/input/AllMessages.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     using Interface =
         test10::Message<
@@ -20,6 +21,7 @@ public:
         >;
 
     using Msg1 = test10::message::Msg1<Interface>;
+    using Msg2 = test10::message::Msg2<Interface>;
 };
 
 void TestSuite::test1()
@@ -29,3 +31,19 @@ void TestSuite::test1()
     msg.field_f1().field_m1().value() = 6U;
     TS_ASSERT(!msg.valid());
 }
+
+void TestSuite::test2()
+{
+    const std::uint8_t Buf[] = {
+        0xff, 0xff
+    };
+    static constexpr std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    auto readIter = &Buf[0];
+
+    Msg2 msg;
+    auto es = msg.doRead(readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msg.field_f1().field_year().value(), 2127);
+}
+

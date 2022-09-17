@@ -727,9 +727,14 @@ void CommsIntField::commsAddLengthOptInternal(StringsList& opts) const
     }
 
     if (obj.bitLength() != 0U) {
+        std::string secondParam;
+        if (!obj.signExt()) {
+            secondParam = ", false";
+        }
+
         auto str =
             "comms::option::def::FixedBitLength<" +
-            util::numToString(obj.bitLength()) +
+            util::numToString(obj.bitLength()) + secondParam +
             '>';
         util::addToStrList(std::move(str), opts);
         return;
