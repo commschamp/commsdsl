@@ -3,7 +3,7 @@ name: Github Actions Build
 on: [push]
 
 env:
-  COMMS_BRANCH: master
+  COMMS_BRANCH: develop
   CC_TOOLS_QT_BRANCH: master
 
 jobs:

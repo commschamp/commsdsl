@@ -18,7 +18,7 @@ configuration:
     - Release
 
 environment:
-    COMMS_BRANCH: master
+    COMMS_BRANCH: develop
     CC_TOOLS_QT_BRANCH: master
     matrix:
         - CPP_STD: 11
