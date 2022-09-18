@@ -9,13 +9,16 @@ protocol visualization.
 - **commsdsl2comms** - A code generator, that produces C++11 code for binary
 protocol definition out of [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) 
 schema files. The generated outcome is actually a CMake project that can be used to
-build and install multiple targets. For details on how to use the tool, please read the 
+properly install protocol definition headers as well as relevant cmake configuration files. 
+For details on how to use the tool, please read the 
 [commsdsl2comms Manual](doc/Manual_commsdsl2comms.md) 
 documentation page. For details on the generated CMake project please read the
 [Generated CMake Project Walkthrough](doc/GeneratedProjectWalkthrough.md)
 documentation page.
 - **commsdsl2test** - A code generator, that produces C++11 code for fuzz
 testing of the protocol definition produced by the **commsdsl2comms**.
+Please read [Testing Generated Protocol Code](doc/TestingGeneratedProtocolCode.md) for
+details
 - **commsdsl2tools_qt** - A code generator, that produces the protocol
 definition plugin code for [CommmsChampion Tools](https://github.com/commschamp/cc_tools_qt).
 - **libcommsdsl** - A C++ library for parsing of 
