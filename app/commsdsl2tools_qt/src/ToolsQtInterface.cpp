@@ -110,6 +110,14 @@ bool ToolsQtInterface::prepareImpl()
 
 bool ToolsQtInterface::writeImpl() const
 {
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto interfaces = gen.toolsGetSelectedInterfaces();
+    auto iter = std::find(interfaces.begin(), interfaces.end(), this);
+    if (iter == interfaces.end()) {
+        // Interface not used.
+        return true;
+    }
+
     return toolsWriteHeaderInternal() && toolsWriteSrcInternal();
 }
 

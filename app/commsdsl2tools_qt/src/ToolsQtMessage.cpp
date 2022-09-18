@@ -427,7 +427,7 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesMultipleInterfac
 
 ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesSinglePimplInterfaceInternal() const
 {
-    auto interfaces = generator().getAllInterfaces();
+    auto interfaces = ToolsQtGenerator::cast(generator()).toolsGetSelectedInterfaces();
     assert(!interfaces.empty());
     auto* defaultInterface = static_cast<const ToolsQtInterface*>(interfaces.front());
     assert(defaultInterface != nullptr);
@@ -440,7 +440,7 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesSinglePimplInter
 
 ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesSingleInterfaceWithFieldsInternal() const
 {
-    auto interfaces = generator().getAllInterfaces();
+    auto interfaces = ToolsQtGenerator::cast(generator()).toolsGetSelectedInterfaces();
     assert(!interfaces.empty());
     auto* defaultInterface = static_cast<const ToolsQtInterface*>(interfaces.front());
     assert(defaultInterface != nullptr);
@@ -469,8 +469,8 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
     assert(codeType <= MapSize);
     auto func = Map[codeType];
 
-    auto& gen = static_cast<const ToolsQtGenerator&>(generator());
-    auto interfaces = gen.getAllInterfaces();
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto interfaces = gen.toolsGetSelectedInterfaces();
     assert(!interfaces.empty());
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
@@ -546,8 +546,8 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
     assert(codeType <= MapSize);
     auto func = Map[codeType];
 
-    auto& gen = static_cast<const ToolsQtGenerator&>(generator());
-    auto interfaces = generator().getAllInterfaces();
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto interfaces = gen.toolsGetSelectedInterfaces();
     assert(!interfaces.empty());
 
     util::StringsList fieldsProps;
@@ -579,7 +579,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
 
 ToolsQtMessage::CodeType ToolsQtMessage::toolCodeType() const
 {
-    auto interfaces = generator().getAllInterfaces();
+    auto interfaces = ToolsQtGenerator::cast(generator()).toolsGetSelectedInterfaces();
     assert(!interfaces.empty());
     if (1U < interfaces.size()) {
         return CodeType_MultipleInterfaces;
