@@ -47,7 +47,9 @@ install:
 build_script:
     - echo ------------------------- Building Project -------------------------
     - cd %BUILD_DIR%
-    - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX="%COMMON_INSTALL_DIR%" -DCMAKE_PREFIX_PATH="%COMMON_INSTALL_DIR%" -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% -DCOMMSDSL_BUILD_UNIT_TESTS=ON
+    - cmake .. -DCMAKE_BUILD_TYPE=%CONFIGURATION% -G "NMake Makefiles" -DCMAKE_INSTALL_PREFIX="%COMMON_INSTALL_DIR%" ^
+        -DCMAKE_PREFIX_PATH="%COMMON_INSTALL_DIR%" -DCOMMSDSL_TESTS_CXX_STANDARD=%CPP_STD% ^
+        -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
     - cmake --build . --config %CONFIGURATION% --target install
     - echo ------------------------- Testing -------------------------
     - ctest

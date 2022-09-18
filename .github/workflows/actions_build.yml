@@ -45,7 +45,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+              -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
+              -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} \
+              -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF \
+              -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: gcc-8
         CXX: g++-8
@@ -100,7 +105,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+          -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
+          -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} \
+          -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF \
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: gcc-8
         CXX: g++-8
@@ -159,7 +169,11 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON
+      run: |
+        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+        -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
+        -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON \
+        -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
@@ -219,7 +233,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=clang-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=clang++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+          -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
+          -DCOMMSDSL_TESTS_C_COMPILER=clang-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=clang++-${{matrix.cc_ver}} \
+          -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF \
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: clang-6.0
         CXX: clang++-6.0
@@ -279,7 +298,11 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+          -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
+          -DCOMMSDSL_BUILD_UNIT_TESTS=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
