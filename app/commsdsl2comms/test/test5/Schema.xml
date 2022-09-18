@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test5"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test5" endian="big" version="5">
     <fields>
         <string name="Msg1Name" defaultValue="Message1" />
         <string name="Msg2Name" defaultValue="Message2" />

@@ -57,7 +57,7 @@ foreach (name ${tests})
         add_custom_command(
             OUTPUT ${output_dir}/${name}.i
             DEPENDS ${output_tgt}
-            COMMAND ${CMAKE_COMMAND} -E echo "The swit interface file ${output_dir}/${name}.i is ready"
+            COMMAND ${CMAKE_COMMAND} -E echo "The swig interface file ${output_dir}/${name}.i is ready"
         )            
 
         set (protocol_install_dir ${dep_prefix_path}/${name}/build/install)
@@ -76,64 +76,28 @@ foreach (name ${tests})
         target_include_directories(${swig_tgt} PRIVATE ${protocol_install_dir}/include)
         include (${CMAKE_CURRENT_SOURCE_DIR}/commsdsl_lang_${lang}.cmake)
 
-        set (gcc_clang_opts
+        set (common_gcc_clang_opts
             -Wno-old-style-cast -Wno-cast-qual -Wno-shadow -Wno-double-promotion
         )
 
+        set (gcc_opts ${common_gcc_clang_opts})
+
+        if (CMAKE_COMPILER_IS_GNUCC)
+            if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.0")
+                list (APPEND gcc_opts
+                    "-Wno-duplicated-branches" 
+                )
+            endif()                        
+        endif ()
+
+        set (clang_opts ${common_gcc_clang_opts})
+
         target_compile_options(${swig_tgt} PRIVATE
             $<$<CXX_COMPILER_ID:MSVC>:/bigobj>
-            $<$<CXX_COMPILER_ID:GNU>:${gcc_clang_opts}>
-            $<$<CXX_COMPILER_ID:Clang>:${gcc_clang_opts}>
+            $<$<CXX_COMPILER_ID:GNU>:${gcc_opts}>
+            $<$<CXX_COMPILER_ID:Clang>:${clang_opts}>
         )            
-
-
-        # TODO: lang specific build and test
 
         add_dependencies(${APP_NAME}.all_tests ${swig_tgt})
     endforeach()    
-
-
-
-
-#    set (build_tgt ${APP_NAME}.${name}_build_tgt)
-#    set (build_dir ${output_dir}_build)
-#    set (install_dir ${build_dir}/install)
-
-#    execute_process (
-#        COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
-
-#    execute_process (
-#        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")        
-
-#    execute_process (
-#        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")           
-
-#    set (options_param)
-#    if (EXISTS "${code_input_dir}/TestDefaultOptions.h")
-#        set (options_param "-DOPT_TEST_OPTIONS=TestDefaultOptions")
-#    endif()            
-
-#    set (protocol_install_dir ${dep_prefix_path}/${name}/build/install)
-#    set (build_prefix_path ${CMAKE_PREFIX_PATH} ${protocol_install_dir})
-#    string (REPLACE ";" "|" build_prefix_path_str "${build_prefix_path}")    
-
-#    ExternalProject_Add(
-#        ${build_tgt}
-#        BUILD_ALWAYS TRUE
-#        DEPENDS ${output_tgt} commsdsl2comms.${name}_build_tgt
-#        SOURCE_DIR ${output_dir}
-#        BINARY_DIR ${build_dir}
-#        INSTALL_DIR ${install_dir}
-#        CMAKE_GENERATOR ${CMAKE_GENERATOR}
-#        LIST_SEPARATOR |
-#        CMAKE_ARGS 
-#            -DCMAKE_C_COMPILER=${COMMSDSL_TESTS_C_COMPILER} -DCMAKE_CXX_COMPILER=${COMMSDSL_TESTS_CXX_COMPILER}
-#            -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE} -DCMAKE_GENERATOR=${CMAKE_GENERATOR}
-#            -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE} -DCMAKE_EXE_LINKER_FLAGS=${CMAKE_EXE_LINKER_FLAGS}
-#            -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
-#            -DCMAKE_INSTALL_PREFIX=${install_dir}
-#            -DCMAKE_PREFIX_PATH=${build_prefix_path_str}
-#            ${options_param}
-#    )  
-
 endforeach ()
