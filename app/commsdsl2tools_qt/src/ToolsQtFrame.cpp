@@ -90,6 +90,14 @@ bool ToolsQtFrame::prepareImpl()
 
 bool ToolsQtFrame::writeImpl() const
 {
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto frames = gen.toolsGetSelectedFrames();
+    auto iter = std::find(frames.begin(), frames.end(), this);
+    if (iter == frames.end()) {
+        // Frame not used.
+        return true;
+    }
+
     return 
         toolsWriteHeaderInternal() &&
         toolsWriteTransportMsgHeaderInternal() &&
@@ -98,7 +106,7 @@ bool ToolsQtFrame::writeImpl() const
 
 bool ToolsQtFrame::toolsWriteHeaderInternal() const
 {
-    auto& gen = generator();
+    auto& gen = ToolsQtGenerator::cast(generator());
     auto filePath = gen.getOutputDir() + '/' + toolsHeaderFilePath();
 
     auto& logger = gen.logger();
@@ -146,7 +154,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
         {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), gen)},
     };
 
-    auto allInterfaces = gen.getAllInterfaces();
+    auto allInterfaces = gen.toolsGetSelectedInterfaces();
     assert(!allInterfaces.empty());
     if (1U < allInterfaces.size()) {
         repl["INTERFACE_TEMPL_PARAM"] = "template <typename TInterface>";
@@ -167,7 +175,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
 
 bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
 {
-    auto& gen = static_cast<const ToolsQtGenerator&>(generator());
+    auto& gen = ToolsQtGenerator::cast(generator());
     auto filePath = gen.getOutputDir() + '/' + toolsTransportMessageHeaderFilePathInternal();
 
     auto& logger = gen.logger();
@@ -231,7 +239,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
         {"DEF_OPETIONS_INC", ToolsQtDefaultOptions::toolsRelHeaderPath(gen)},
     };
 
-    auto allInterfaces = gen.getAllInterfaces();
+    auto allInterfaces = gen.toolsGetSelectedInterfaces();
     assert(!allInterfaces.empty());
     auto payloadOffset = toolsCalcBackPayloadOffsetInternal();
 
@@ -289,7 +297,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
 
 bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
 {
-    auto& gen = generator();
+    auto& gen = ToolsQtGenerator::cast(generator());
     auto filePath = gen.getOutputDir() + '/' + toolsTransportMessageSrcFilePathInternal();
 
     auto& logger = gen.logger();
@@ -361,7 +369,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
         {"APPENDS", util::strListToString(appends, "\n", "")},
     };
 
-    auto allInterfaces = gen.getAllInterfaces();
+    auto allInterfaces = gen.toolsGetSelectedInterfaces();
     assert(!allInterfaces.empty());
     auto payloadOffset = toolsCalcBackPayloadOffsetInternal();
     auto readIdxCalcFunc = 

@@ -36,6 +36,11 @@ public:
     std::string toolsHeaderFilePath() const;
     StringsList toolsSourceFiles() const;
 
+    static const ToolsQtFrame* cast(const commsdsl::gen::Frame* val)
+    {
+        return static_cast<const ToolsQtFrame*>(val);
+    }
+
 protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    

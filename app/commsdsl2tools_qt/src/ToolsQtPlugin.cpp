@@ -282,7 +282,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         {"PROT_NAME", toolsAdjustedNameInternal()},
     };        
 
-    auto allInterfaces = m_generator.getAllInterfaces();
+    auto allInterfaces = m_generator.toolsGetSelectedInterfaces();
     if (1U < allInterfaces.size()) {
         assert(m_interfacePtr != nullptr);
         repl["INTERFACE_TEMPL_PARAM"] = '<' + m_generator.getTopNamespace() + "::" + comms::scopeFor(*m_interfacePtr, m_generator) + '>';

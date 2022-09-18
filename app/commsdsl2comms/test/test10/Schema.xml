@@ -10,7 +10,13 @@
         <bitfield name="B1">
             <int name="m1" reuse="I1" bitLength="3" validRange="[0,5]" />
             <int name="m2" type="uint8" bitLength="5" />
-        </bitfield>        
+        </bitfield>   
+
+        <bitfield name="Date">
+            <int name="Year" type="int16" serOffset="-2000" defaultValue="2000" bitLength="7" signExt="false" />
+            <int name="Month" type="uint8" bitLength="4" />
+            <int name="Day" type="uint8" bitLength="5" />
+        </bitfield>                
     </fields>
     
     <interface name="Message">
@@ -24,6 +30,10 @@
             <int name="m2" type="uint8" bitLength="5" />
         </bitfield>          
     </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <ref name="f1" field="Date" />
+    </message>    
     
     <frame name="Frame">
         <id name="ID" field="MsgId" />

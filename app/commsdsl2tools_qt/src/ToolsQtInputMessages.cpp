@@ -69,7 +69,7 @@ bool writeFileInternal(
     util::StringsList scopes;
 
     std::string interfaceTempl;
-    auto interfaces = generator.getAllInterfaces();
+    auto interfaces = generator.toolsGetSelectedInterfaces();
     if (1U < interfaces.size()) {
         interfaceTempl = "<TInterface>";
     }

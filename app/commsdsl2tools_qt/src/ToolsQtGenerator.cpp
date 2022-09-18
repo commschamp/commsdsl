@@ -75,6 +75,20 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
         }
     }
 
+    auto interfaces = toolsGetSelectedInterfaces();
+    for (auto& i : interfaces) {
+        auto iResult = ToolsQtInterface::cast(i)->toolsSourceFiles();
+        result.reserve(result.size() + iResult.size());
+        std::move(iResult.begin(), iResult.end(), std::back_inserter(result));
+    }    
+
+    auto frames = toolsGetSelectedFrames();
+    for (auto& f : frames) {
+        auto fResult = ToolsQtFrame::cast(f)->toolsSourceFiles();
+        result.reserve(result.size() + fResult.size());
+        std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
+    }      
+
     return result;
 }
 
@@ -83,7 +97,9 @@ bool ToolsQtGenerator::prepareImpl()
     chooseProtocolSchema();
     bool result = 
         Base::prepareImpl() &&
-        toolsPrepareDefaultInterfaceInternal();
+        toolsPrepareDefaultInterfaceInternal() &&
+        toolsPrepareSelectedInterfacesInternal() &&
+        toolsPrepareSelectedFramesInternal();
 
     if (!result) {
         return false;
@@ -278,6 +294,66 @@ bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
     }
 
     return true;
+}
+
+bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()
+{
+    std::vector<std::string> ifNames;
+    for (auto& info : m_pluginInfos) {
+        ifNames.push_back(info.m_interface);
+    }
+
+    std::sort(ifNames.begin(), ifNames.end());
+    ifNames.erase(
+        std::unique(ifNames.begin(), ifNames.end()),
+        ifNames.end()
+    );
+
+    for (auto& iName : ifNames) {
+        auto* iFace = findInterface(iName);
+        if (iFace == nullptr) {
+            logger().error("Selected interface \"" + iName + "\" cannot be found");
+            return false;
+        }
+
+        m_selectedInterfaces.push_back(iFace);
+    }
+
+    if (m_selectedInterfaces.empty()) {
+        m_selectedInterfaces = getAllInterfaces();
+    }
+
+    return true;    
+}
+
+bool ToolsQtGenerator::toolsPrepareSelectedFramesInternal()
+{
+    std::vector<std::string> frameNames;
+    for (auto& info : m_pluginInfos) {
+        frameNames.push_back(info.m_frame);
+    }
+
+    std::sort(frameNames.begin(), frameNames.end());
+    frameNames.erase(
+        std::unique(frameNames.begin(), frameNames.end()),
+        frameNames.end()
+    );
+
+    for (auto& fName : frameNames) {
+        auto* frame = findFrame(fName);
+        if (frame == nullptr) {
+            logger().error("Selected frame \"" + fName + "\" cannot be found");
+            return false;
+        }
+
+        m_selectedFrames.push_back(frame);
+    }
+
+    if (m_selectedFrames.empty()) {
+        m_selectedFrames = getAllFrames();
+    }
+
+    return true;    
 }
 
 } // namespace commsdsl2tools_qt
