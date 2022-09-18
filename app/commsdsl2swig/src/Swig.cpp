@@ -127,21 +127,35 @@ std::string Swig::swigDefInternal() const
             return "%include \"" + str + '\"';
         };
 
-    util::StringsList result = {
+    util::StringsList stdIncludes = {
         includeWrap("std_array.i"),
         includeWrap("std_pair.i"),
         includeWrap("std_string.i"),
         includeWrap("std_vector.i")
     };
 
-    SwigComms::swigAddDef(result);
-    SwigMsgId::swigAddDef(m_generator, result);
+    util::StringsList headerIncludes;
+
+    SwigComms::swigAddDef(headerIncludes);
+    SwigMsgId::swigAddDef(m_generator, headerIncludes);
 
     for (auto& sPtr : m_generator.schemas()) {
-        SwigSchema::cast(sPtr.get())->swigAddDef(result);
+        SwigSchema::cast(sPtr.get())->swigAddDef(headerIncludes);
     }    
 
-    return util::strListToString(result, "\n", "");
+    static const std::string Templ = 
+        "#^#STD_INCLUDES#$#\n"
+        "namespace std {\n"
+        "    %template(DataBuf) std::vector<unsigned char>;\n"
+        "}\n\n"
+        "#^#INCLUDES#$#\n";
+
+    util::ReplacementMap repl = {
+        {"STD_INCLUDES", util::strListToString(stdIncludes, "\n", "\n")},
+        {"INCLUDES", util::strListToString(headerIncludes, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig

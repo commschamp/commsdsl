@@ -39,8 +39,7 @@ namespace
 
 std::string swigCodeInternal(SwigGenerator& generator, std::size_t idx)
 {
-    auto& schemas = generator.schemas();
-    assert(idx < schemas.size());
+    assert(idx < generator.schemas().size());
 
     generator.chooseCurrentSchema(static_cast<unsigned>(idx));
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
