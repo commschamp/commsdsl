@@ -21,11 +21,9 @@ class MsgHandler(test1.frame_Frame_Handler):
         self.msg2 = True
         if (self.msgFunc is not None):
             self.msgFunc(msg)
-  
 
     def handle_Message(self, msg):
-        self.fail("shouldn't happen")
-
+        sys.exit("shouldn't happen")
 
 class TestProtocol(unittest.TestCase):
     def test_1(self):

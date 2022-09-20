@@ -1,0 +1,9 @@
+double getMeters()
+{
+    return comms::units::getMeters<double>(*this);
+}
+
+void setMeters(double val)
+{
+    comms::units::setMeters(*this, val);
+}

@@ -376,7 +376,7 @@ std::string SwigField::swigClassDeclInternal() const
 
     if (comms::isGlobalField(m_field)) {
         repl["CUSTOM"] = 
-            util::readFileContents(generator.swigInputCodePathFor(m_field) + strings::publicFileSuffixStr());  
+            util::readFileContents(generator.swigInputCodePathFor(m_field) + strings::publicFileSuffixStr());
     }
 
     if (!repl["BASE"].empty()) {
