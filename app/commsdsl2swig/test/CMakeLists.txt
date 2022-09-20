@@ -68,7 +68,7 @@ foreach (name ${tests})
                 GENERATED TRUE
                 CPLUSPLUS ON
         )
-        set (swig_tgt ${name}_${lang}_swig)
+        set (swig_tgt ${APP_NAME}_${name}_${lang})
         set (test_build_dir ${output_dir}_build)
         swig_add_library(${swig_tgt} LANGUAGE ${lang} SOURCES ${output_dir}/${name}.i)
         target_link_libraries(${swig_tgt} cc::comms)
