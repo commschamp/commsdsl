@@ -55,6 +55,7 @@ private:
     std::string swigClassDeclInternal() const;
     std::string swigFieldsAccDeclInternal() const;    
     std::string swigFieldsAccCodeInternal() const;
+    std::string swigCommonCodeInternal() const;
 
     SwigFieldsList m_swigFields;        
     bool m_inUse = false;

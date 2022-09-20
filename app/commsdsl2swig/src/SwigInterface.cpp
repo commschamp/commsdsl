@@ -15,6 +15,7 @@
 
 #include "SwigInterface.h"
 
+#include "SwigDataBuf.h"
 #include "SwigGenerator.h"
 #include "SwigMsgId.h"
 
@@ -65,6 +66,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
         {"COMMS_CLASS", comms::scopeFor(*this, gen)},
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
+        {"DATA_BUF", SwigDataBuf::swigClassName()},
     };    
 
     std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::publicFileSuffixStr());
@@ -100,8 +102,8 @@ void SwigInterface::swigAddCode(StringsList& list) const
         const std::string BaseTempl = 
             "#^#COMMS_CLASS#$#<\n"
             "    comms::option::app::IdInfoInterface,\n"
-            "    comms::option::app::ReadIterator<const #^#UINT8_T#$#*>,\n"
-            "    comms::option::app::WriteIterator<#^#UINT8_T#$#*>,\n"
+            "    comms::option::app::ReadIterator<#^#DATA_BUF#$#::const_iterator>,\n"
+            "    comms::option::app::WriteIterator<#^#DATA_BUF#$#::iterator>,\n"
             "    comms::option::app::ValidCheckInterface,\n"
             "    comms::option::app::LengthInfoInterface,\n"
             "    comms::option::app::RefreshInterface,\n"
@@ -119,6 +121,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
         "        #^#BASE#$#;\n"
         "public:\n"
         "    #^#FIELDS#$#\n"
+        "    #^#COMMON#$#\n"
         "    #^#PUBLIC#$#\n"
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
@@ -127,6 +130,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
     repl.insert({
         {"BASE", std::move(base)},
         {"FIELDS", swigFieldsAccCodeInternal()},
+        {"COMMON", swigCommonCodeInternal()},
         {"PUBLIC", std::move(publicCode)},
         {"PROTECTED", std::move(protectedCode)},
         {"PRIVATE", std::move(privateCode)}
@@ -227,8 +231,8 @@ std::string SwigInterface::swigClassDeclInternal() const
         "    #^#FIELDS#$#\n"
         "    const char* name() const;\n"
         "    #^#MSG_ID#$# getId() const;\n"
-        "    comms_ErrorStatus read(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
-        "    comms_ErrorStatus write(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
+        "    comms_ErrorStatus read(const #^#DATA_BUF#$#& buf);\n"
+        "    comms_ErrorStatus write(#^#DATA_BUF#$#& buf) const;\n"
         "    bool refresh();\n"
         "    #^#SIZE_T#$# length() const;\n"
         "    bool valid() const;\n"
@@ -243,9 +247,9 @@ std::string SwigInterface::swigClassDeclInternal() const
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"FIELDS", swigFieldsAccDeclInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
-        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
-        {"MSG_ID", SwigMsgId::swigClassName(gen)}
+        {"MSG_ID", SwigMsgId::swigClassName(gen)},
+        {"DATA_BUF", SwigDataBuf::swigClassName()},
     };
 
     return util::processTemplate(Templ, repl);    
@@ -300,6 +304,31 @@ std::string SwigInterface::swigFieldsAccCodeInternal() const
     }
 
     return util::strListToString(accFuncs, "\n", "");
+}
+
+std::string SwigInterface::swigCommonCodeInternal() const
+{
+    static const std::string Templ = 
+        "using Base::read;\n"
+        "comms_ErrorStatus read(const #^#DATA_BUF#$#& buf)\n"
+        "{\n"
+        "    auto iter = buf.begin();\n"
+        "    return Base::read(iter, buf.size());\n"
+        "}\n\n"
+        "using Base::write;\n"
+        "comms_ErrorStatus write(#^#DATA_BUF#$#& buf) const\n"
+        "{\n"
+        "    buf.resize(length());\n"
+        "    auto iter = buf.begin();\n"
+        "    return Base::write(iter, buf.size());\n"
+        "}\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"DATA_BUF", SwigDataBuf::swigClassName()},
+    };
+
+    return util::processTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2swig

@@ -15,6 +15,7 @@
 
 #include "SwigFrame.h"
 
+#include "SwigDataBuf.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
 #include "SwigLayer.h"
@@ -282,8 +283,8 @@ std::string SwigFrame::swigClassDeclInternal() const
         "{\n"
         "public:\n"
         "    #^#LAYERS#$#\n\n"
-        "    #^#SIZE_T#$# processInputData(const std::vector<#^#UINT8_T#$#>& buf, #^#CLASS_NAME#$#_Handler& handler);\n"
-        "    std::vector<#^#UINT8_T#$#> writeMessage(const #^#INTERFACE#$#& msg);\n"
+        "    #^#SIZE_T#$# processInputData(const #^#DATA_BUF#$#& buf, #^#CLASS_NAME#$#_Handler& handler);\n"
+        "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg);\n"
         "    #^#CUSTOM#$#\n"
         "};\n";    
 
@@ -295,7 +296,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         {"INTERFACE", gen.swigClassName(*iFace)},
         {"LAYERS", swigLayersAccDeclInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
-        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
+        {"DATA_BUF", SwigDataBuf::swigClassName()},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
     };
 
@@ -375,15 +376,15 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "{\n"
         "public:\n"
         "    #^#LAYERS#$#\n\n"
-        "    #^#SIZE_T#$# processInputData(const std::vector<#^#UINT8_T#$#>& buf, #^#CLASS_NAME#$#_Handler& handler)\n"
+        "    #^#SIZE_T#$# processInputData(const #^#DATA_BUF#$#& buf, #^#CLASS_NAME#$#_Handler& handler)\n"
         "    {\n"
         "        if (buf.empty()) { return 0U; }\n"
-        "        return static_cast<#^#SIZE_T#$#>(comms::processAllWithDispatch(&buf[0], buf.size(), m_frame, handler));\n"
+        "        return static_cast<#^#SIZE_T#$#>(comms::processAllWithDispatch(buf.begin(), buf.size(), m_frame, handler));\n"
         "    }\n\n"
-        "    std::vector<#^#UINT8_T#$#> writeMessage(const #^#INTERFACE#$#& msg)\n"
+        "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg)\n"
         "    {\n"
-        "        std::vector<#^#UINT8_T#$#> outBuf(m_frame.length(msg));\n"
-        "        auto writeIter = &outBuf[0];"
+        "        #^#DATA_BUF#$# outBuf(m_frame.length(msg));\n"
+        "        auto writeIter = outBuf.begin();"
         "        auto es = m_frame.write(msg, writeIter, outBuf.size());\n"
         "        static_cast<void>(es);\n"
         "        assert(es == comms::ErrorStatus::Success);\n"
@@ -403,9 +404,9 @@ std::string SwigFrame::swigFrameCodeInternal() const
         {"INTERFACE", gen.swigClassName(*iFace)},
         {"LAYERS", swigLayersAccCodeInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
-        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
-        {"COMMS_CLASS", comms::scopeFor(*this, gen)}
+        {"COMMS_CLASS", comms::scopeFor(*this, gen)},
+        {"DATA_BUF", SwigDataBuf::swigClassName()},
     };
 
     if (SwigProtocolOptions::swigIsDefined(gen)) {

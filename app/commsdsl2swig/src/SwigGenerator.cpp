@@ -21,6 +21,7 @@
 #include "SwigChecksumLayer.h"
 #include "SwigComms.h"
 #include "SwigCustomLayer.h"
+#include "SwigDataBuf.h"
 #include "SwigDataField.h"
 #include "SwigEnumField.h"
 #include "SwigFloatField.h"
@@ -166,6 +167,7 @@ bool SwigGenerator::writeImpl()
 
     return 
         SwigComms::swigWrite(*this) &&
+        SwigDataBuf::write(*this) &&
         Swig::swigWrite(*this) &&
         swigWriteExtraFilesInternal();
 

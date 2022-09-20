@@ -198,13 +198,6 @@ std::string SwigMessage::swigClassDeclInternal() const
         "{\n"
         "public:\n"
         "    #^#FIELDS#$#\n"
-        "    static const char* doName();\n"
-        "    #^#MSG_ID#$# doGetId() const;\n"
-        "    comms_ErrorStatus doRead(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
-        "    comms_ErrorStatus doWrite(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
-        "    bool doRefresh();\n"
-        "    #^#SIZE_T#$# doLength() const;\n"
-        "    bool doValid() const;\n"
         "    #^#CUSTOM#$#\n"
         "};\n";
 
@@ -215,10 +208,7 @@ std::string SwigMessage::swigClassDeclInternal() const
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"INTERFACE", gen.swigClassName(*iFace)},
         {"FIELDS", swigFieldsAccDeclInternal()},
-        {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
-        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
-        {"SIZE_T", gen.swigConvertCppType("std::size_t")},
-        {"MSG_ID", SwigMsgId::swigClassName(gen)}
+        {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::publicFileSuffixStr())},
     };
 
     return util::processTemplate(Templ, repl);    

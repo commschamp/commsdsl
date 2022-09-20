@@ -16,6 +16,7 @@
 #include "Swig.h"
 
 #include "SwigComms.h"
+#include "SwigDataBuf.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
 #include "SwigMsgId.h"
@@ -93,6 +94,7 @@ std::string Swig::swigCodeBlockInternal() const
     util::StringsList codeElems;
 
     SwigComms::swigAddCode(codeElems);
+    SwigDataBuf::swigAddCode(m_generator, codeElems);
     SwigMsgId::swigAddCode(m_generator, codeElems);
     SwigProtocolOptions::swigAddCode(m_generator, codeElems);
     SwigGenerator::cast(m_generator).swigMainInterface()->swigAddCode(codeElems);
@@ -134,25 +136,23 @@ std::string Swig::swigDefInternal() const
         includeWrap("std_vector.i")
     };
 
-    util::StringsList headerIncludes;
+    util::StringsList defs;
 
-    SwigComms::swigAddDef(headerIncludes);
-    SwigMsgId::swigAddDef(m_generator, headerIncludes);
+    SwigComms::swigAddDef(defs);
+    SwigDataBuf::swigAddDef(m_generator, defs);
+    SwigMsgId::swigAddDef(m_generator, defs);
 
     for (auto& sPtr : m_generator.schemas()) {
-        SwigSchema::cast(sPtr.get())->swigAddDef(headerIncludes);
+        SwigSchema::cast(sPtr.get())->swigAddDef(defs);
     }    
 
     static const std::string Templ = 
         "#^#STD_INCLUDES#$#\n"
-        "namespace std {\n"
-        "    %template(DataBuf) std::vector<unsigned char>;\n"
-        "}\n\n"
-        "#^#INCLUDES#$#\n";
+        "#^#DEFS#$#\n";
 
     util::ReplacementMap repl = {
         {"STD_INCLUDES", util::strListToString(stdIncludes, "\n", "\n")},
-        {"INCLUDES", util::strListToString(headerIncludes, "\n", "")}
+        {"DEFS", util::strListToString(defs, "\n", "")}
     };
 
     return util::processTemplate(Templ, repl);

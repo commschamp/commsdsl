@@ -73,23 +73,7 @@ std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
 
 std::string SwigIntField::swigExtraPublicFuncsCodeImpl() const
 {
-    static const std::string Templ = 
-        "#^#SPECIALS#$#\n"
-        "#^#SCALED#$#\n";
-
-    auto specials = swigSpecialsCodeInternal();
-    auto scaled = swigScaledFuncsCodeInternal();
-
-    if (specials.empty() && scaled.empty()) {
-        return strings::emptyString();
-    }
-
-    util::ReplacementMap repl = {
-        {"SPECIALS", std::move(specials)},
-        {"SCALED", std::move(scaled)}
-    };
-
-    return util::processTemplate(Templ, repl);
+    return swigScaledFuncsCodeInternal();
 }
 
 std::string SwigIntField::swigSpecialsDeclInternal() const
@@ -119,54 +103,7 @@ std::string SwigIntField::swigSpecialsDeclInternal() const
         specialsList.push_back(util::processTemplate(Templ, repl));
     }    
 
-    static const std::string Templ = 
-        "using SpecialNameInfo = std::pair<ValueType, const char*>;\n"
-        "using SpecialNamesMapInfo = std::pair<const SpecialNameInfo*, #^#SIZE_T#$#>;\n"
-        "static SpecialNamesMapInfo specialNamesMap();\n"
-        "#^#SPECIALS#$#\n"
-    ;
-
-    util::ReplacementMap repl = {
-        {"SPECIALS", util::strListToString(specialsList, "", "")},
-        {"SIZE_T", gen.swigConvertCppType("std::size_t")}
-    };
-
-    return util::processTemplate(Templ, repl);
-}
-
-std::string SwigIntField::swigSpecialsCodeInternal() const
-{
-    auto& specials = specialsSortedByValue();
-    if (specials.empty()) {
-        return strings::emptyString();
-    }
-        
-    auto obj = intDslObj();
-    auto cppType = comms::cppIntTypeFor(obj.type(), obj.maxLength());
-
-    static const std::string Int64Type = comms::cppIntTypeFor(commsdsl::parse::IntField::Type::Int64, sizeof(std::int64_t));
-    static const std::string Uint64Type = comms::cppIntTypeFor(commsdsl::parse::IntField::Type::Uint64, sizeof(std::uint64_t));
-    if ((cppType != Int64Type) && (cppType != Uint64Type)) {
-        return strings::emptyString();
-    }
-
-    static const std::string Templ = 
-        "using SpecialNameInfo = std::pair<#^#VALUE_TYPE#$#, const char*>;\n"
-        "using SpecialNamesMapInfo = std::pair<const SpecialNameInfo*, #^#SIZE_T#$#>;\n"
-        "static_assert(sizeof(#^#VALUE_TYPE#$#) == sizeof(Base::ValueType), \"Invalid assumption\");\n"
-        "static SpecialNamesMapInfo specialNamesMap()\n"
-        "{\n"
-        "    auto info = Base::specialNamesMap();\n"
-        "    return SpecialNamesMapInfo(reinterpret_cast<const SpecialNameInfo*>(info.first), info.second);\n"
-        "}\n";
-
-    auto& gen = SwigGenerator::cast(generator());
-    util::ReplacementMap repl = {
-        {"VALUE_TYPE", gen.swigConvertIntType(obj.type(), obj.maxLength())},
-        {"SIZE_T", gen.swigConvertCppType("std::size_t")}
-    };
-
-    return util::processTemplate(Templ, repl);
+    return util::strListToString(specialsList, "", "");
 }
 
 std::string SwigIntField::swigDisplayDecimalsDeclInternal() const

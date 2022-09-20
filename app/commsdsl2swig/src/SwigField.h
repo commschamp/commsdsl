@@ -71,6 +71,7 @@ protected:
     virtual void swigAddMembersCodeImpl(StringsList& list) const;
 
     std::string swigCommonPublicFuncsDecl() const;
+    std::string swigCommonPublicFuncsCode() const;
     std::string swigTemplateScope() const;
     
 private:

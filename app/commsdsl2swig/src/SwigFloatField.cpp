@@ -95,19 +95,7 @@ std::string SwigFloatField::swigSpecialsDeclInternal() const
         specialsList.push_back(util::processTemplate(Templ, repl));
     }    
 
-    static const std::string Templ = 
-        "using SpecialNameInfo = std::pair<ValueType, const char*>;\n"
-        "using SpecialNamesMapInfo = std::pair<const SpecialNameInfo*, #^#SIZE_T#$#>;\n"
-        "static SpecialNamesMapInfo specialNamesMap();\n"
-        "#^#SPECIALS#$#\n"
-    ;
-
-    util::ReplacementMap repl = {
-        {"SPECIALS", util::strListToString(specialsList, "", "")},
-        {"SIZE_T", gen.swigConvertCppType("std::size_t")}
-    };
-
-    return util::processTemplate(Templ, repl);
+    return util::strListToString(specialsList, "", "");
 }
 
 } // namespace commsdsl2swig

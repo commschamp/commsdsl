@@ -5,6 +5,7 @@ set (src
     SwigChecksumLayer.cpp
     SwigComms.cpp
     SwigCustomLayer.cpp
+    SwigDataBuf.cpp
     SwigDataField.cpp
     SwigEnumField.cpp
     SwigField.cpp

@@ -267,7 +267,7 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
 {
     static const std::string Templ = 
         "static const char* valueNameOf(#^#TYPE#$# val)\n"
-        "{"
+        "{\n"
         "    return Base::valueNameOf(static_cast<Base::ValueType>(val));\n"
         "}\n"
     ;

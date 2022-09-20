@@ -15,6 +15,7 @@
 
 #include "SwigField.h"
 
+#include "SwigDataBuf.h"
 #include "SwigGenerator.h"
 #include "SwigOptionalField.h"
 #include "SwigProtocolOptions.h"
@@ -255,8 +256,8 @@ std::string SwigField::swigCommonPublicFuncsDecl() const
 {
     static const std::string Templ = 
         "static const char* name();\n"
-        "comms_ErrorStatus read(const #^#UINT8_T#$#*& iter, #^#SIZE_T#$# len);\n"
-        "comms_ErrorStatus write(#^#UINT8_T#$#*& iter, #^#SIZE_T#$# len) const;\n"
+        "comms_ErrorStatus read(const #^#DATA_BUF#$#& buf);\n"
+        "comms_ErrorStatus write(#^#DATA_BUF#$#& buf) const;\n"
         "bool refresh();\n"
         "#^#SIZE_T#$# length() const;\n"
         "bool valid() const;\n"
@@ -264,8 +265,33 @@ std::string SwigField::swigCommonPublicFuncsDecl() const
 
     auto& gen = SwigGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
-        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
+        {"DATA_BUF", SwigDataBuf::swigClassName()},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string SwigField::swigCommonPublicFuncsCode() const
+{
+    static const std::string Templ = 
+        "using Base::read;\n"
+        "comms_ErrorStatus read(const #^#DATA_BUF#$#& buf)\n"
+        "{\n"
+        "    auto iter = buf.begin();\n"
+        "    return Base::read(iter, buf.size());\n"
+        "}\n\n"
+        "using Base::write;\n"
+        "comms_ErrorStatus write(#^#DATA_BUF#$#& buf) const\n"
+        "{\n"
+        "    buf.resize(length());\n"
+        "    auto iter = buf.begin();\n"
+        "    return Base::write(iter, buf.size());\n"
+        "}\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"DATA_BUF", SwigDataBuf::swigClassName()},
     };
 
     return util::processTemplate(Templ, repl);
@@ -388,38 +414,10 @@ std::string SwigField::swigClassCodeInternal() const
 {
     auto& gen = SwigGenerator::cast(m_field.generator());
 
-    util::ReplacementMap repl = {
-        {"COMMS_CLASS", swigTemplateScope()},
-        {"CLASS_NAME", gen.swigClassName(m_field)}
-    };
-
-    auto finalizeCode = 
-        [this, &repl](const std::string& templ)
-        {
-            if (!swigIsVersionOptional()) {
-                return util::processTemplate(templ, repl);
-            }
-
-            repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
-            static const std::string OptTempl = 
-                "#^#FIELD#$#\n"
-                "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$# {};\n";
-
-            repl["FIELD"] = util::processTemplate(templ, repl);
-            return util::processTemplate(OptTempl, repl);            
-        };
-
     std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(m_field) + strings::publicFileSuffixStr());
     std::string protectedCode = util::readFileContents(gen.swigInputCodePathFor(m_field) + strings::protectedFileSuffixStr());
     std::string privateCode = util::readFileContents(gen.swigInputCodePathFor(m_field) + strings::privateFileSuffixStr());
     std::string extraFuncs = swigExtraPublicFuncsCodeImpl();
-
-    if (publicCode.empty() && protectedCode.empty() && privateCode.empty() && extraFuncs.empty()) {
-        static const std::string Templ = 
-            "class #^#CLASS_NAME#$##^#SUFFIX#$# : public #^#COMMS_CLASS#$##^#SUFFIX#$# {};\n";
-
-        return finalizeCode(Templ);
-    }
 
     if (!protectedCode.empty()) {
         static const std::string TemplTmp = 
@@ -450,22 +448,41 @@ std::string SwigField::swigClassCodeInternal() const
         "{\n"
         "    using Base = #^#COMMS_CLASS#$##^#SUFFIX#$#;\n"
         "public:\n"
+        "    #^#COMMON#$#\n"
         "    #^#EXTRA#$#\n"
         "    #^#PUBLIC#$#\n"
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
         "};\n";
 
-    repl.insert({
+    util::ReplacementMap repl = {
+        {"COMMS_CLASS", swigTemplateScope()},
+        {"CLASS_NAME", gen.swigClassName(m_field)},
+        {"COMMON", swigCommonPublicFuncsCode()},
         {"EXTRA", std::move(extraFuncs)},
         {"PUBLIC", std::move(publicCode)},
         {"PROTECTED", std::move(protectedCode)},
         {"PRIVATE", std::move(privateCode)}
-    });
+    };
 
-    return finalizeCode(Templ);
+    if (!swigIsVersionOptional()) {
+        return util::processTemplate(Templ, repl);
+    }
+
+    repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    repl["FIELD"] = util::processTemplate(Templ, repl);
+
+    static const std::string OptTempl = 
+        "#^#FIELD#$#\n"
+        "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
+        "{\n"
+        "    using Base = #^#COMMS_CLASS#$#;\n"
+        "public:\n"
+        "    #^#COMMON#$#\n"
+        "};\n";
+
+    return util::processTemplate(OptTempl, repl);
 }
-
 
 
 } // namespace commsdsl2swig
