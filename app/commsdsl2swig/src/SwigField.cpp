@@ -154,6 +154,7 @@ void SwigField::swigAddDef(StringsList& list) const
         return;
     }
 
+    list.push_back(swigComparisonRenameInternal());
     list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(m_field, m_field.generator())));
 }
 
@@ -353,12 +354,19 @@ std::string SwigField::swigClassDeclInternal() const
         "class #^#CLASS_NAME#$##^#SUFFIX#$##^#PUBLIC#$##^#BASE#$#\n"
         "{\n"
         "public:\n"
+        "    #^#CLASS_NAME#$##^#SUFFIX#$#();\n"
+        "    #^#CLASS_NAME#$##^#SUFFIX#$#(const #^#CLASS_NAME#$##^#SUFFIX#$#&);\n\n"
         "    #^#VALUE_TYPE#$#\n"
         "    #^#VALUE_ACC#$#\n"
         "    #^#COMMON_FUNCS#$#\n"
         "    #^#EXTRA#$#\n"
         "    #^#CUSTOM#$#\n"
-        "};\n";
+        "};\n\n"
+        "// Equality comparison operator is renamed as eq_#^#CLASS_NAME#$##^#SUFFIX#$# function by SWIG\n"
+        "bool operator==(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second);\n\n"
+        "// Order comparison operator is renamed as lt_#^#CLASS_NAME#$##^#SUFFIX#$# function by SWIG\n"
+        "bool operator<(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second);\n"
+        ;
 
     auto& generator = SwigGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
@@ -395,9 +403,16 @@ std::string SwigField::swigOptionalDeclInternal() const
     static const std::string Templ =
         "struct #^#CLASS_NAME#$#\n"
         "{\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&);\n\n"
         "   #^#COMMON_FUNCS#$#\n"
         "   #^#OPTIONAL_FUNCS#$#\n"
-        "};\n";     
+        "};\n\n"
+        "// Equality comparison operator is renamed as eq_#^#CLASS_NAME#$# function by SWIG\n"
+        "bool operator==(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n\n"
+        "// Order comparison operator is renamed as lt_#^#CLASS_NAME#$# function by SWIG\n"
+        "bool operator<(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n"
+        ;     
 
     auto& generator = SwigGenerator::cast(m_field.generator());
     auto className = generator.swigClassName(m_field);
@@ -482,6 +497,25 @@ std::string SwigField::swigClassCodeInternal() const
         "};\n";
 
     return util::processTemplate(OptTempl, repl);
+}
+
+std::string SwigField::swigComparisonRenameInternal() const
+{
+    static const std::string Templ = 
+        "%rename(eq_#^#CLASS_NAME#$##^#SUFFIX#$#) operator==(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);"
+        "%rename(lt_#^#CLASS_NAME#$##^#SUFFIX#$#) operator<(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", SwigGenerator::cast(m_field.generator()).swigClassName(m_field)},
+    };
+
+    if (!swigIsVersionOptional()) {
+        return util::processTemplate(Templ, repl);
+    }    
+
+    auto noSuffix = util::processTemplate(Templ, repl);
+    repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    return util::processTemplate(Templ, repl) + '\n' + noSuffix;
 }
 
 

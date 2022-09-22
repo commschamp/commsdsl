@@ -130,6 +130,15 @@ void SwigMessage::swigAddDef(StringsList& list) const
         f->swigAddDef(list);
     }
 
+    static const std::string Templ = 
+        "%rename(eq_#^#CLASS_NAME#$#) operator==(const #^#CLASS_NAME#$#&, const #^#CLASS_NAME#$#&);";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", SwigGenerator::cast(generator()).swigClassName(*this)},
+    };
+
+    list.push_back(util::processTemplate(Templ, repl));
+
     list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(*this, generator())));
 }
 
@@ -197,9 +206,13 @@ std::string SwigMessage::swigClassDeclInternal() const
         "class #^#CLASS_NAME#$# : public #^#INTERFACE#$#\n"
         "{\n"
         "public:\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&);\n\n"
         "    #^#FIELDS#$#\n"
         "    #^#CUSTOM#$#\n"
-        "};\n";
+        "};\n\n"
+        "// Equality comparison operator is renamed as eq_#^#CLASS_NAME#$# function by SWIG\n"
+        "bool operator==(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n";
 
     auto& gen = SwigGenerator::cast(generator());
     auto* iFace = gen.swigMainInterface();

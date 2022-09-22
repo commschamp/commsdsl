@@ -67,6 +67,7 @@ foreach (name ${tests})
             PROPERTIES
                 GENERATED TRUE
                 CPLUSPLUS ON
+                CMAKE_SWIG_FLAGS -Wall
         )
         set (swig_tgt ${APP_NAME}_${name}_${lang})
         set (test_build_dir ${output_dir}_build)

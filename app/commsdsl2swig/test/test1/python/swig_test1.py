@@ -25,6 +25,7 @@ class MsgHandler(test1.frame_Frame_Handler):
     def handle_Message(self, msg):
         sys.exit("shouldn't happen")
 
+
 class TestProtocol(unittest.TestCase):
     def test_1(self):
         f1 = 0
