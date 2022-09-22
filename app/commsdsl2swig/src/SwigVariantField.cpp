@@ -91,6 +91,8 @@ std::string SwigVariantField::swigExtraPublicFuncsDeclImpl() const
     static const std::string Templ = 
         "#^#SIZE_T#$# currentField() const;\n"
         "void selectField(#^#SIZE_T#$# idx);\n"
+        "void reset();\n"
+        "#^#SIZE_T#$# totalFields() const;\n"
         "void currentFieldExec(#^#CLASS_NAME#$#_Handler& handler);\n\n"
         "#^#MEMBERS#$#\n";
 
@@ -139,6 +141,10 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
 
     static const std::string Templ = 
         "#^#MEMBERS#$#\n"
+        "#^#SIZE_T#$# totalFields() const\n"
+        "{\n"
+        "    return static_cast<#^#SIZE_T#$#>(std::tuple_size<typename Base::Members>::value);\n"
+        "}\n\n"
         "void currentFieldExec(#^#CLASS_NAME#$#_Handler& handler)\n"
         "{\n"
         "    switch(currentField()) {\n"
@@ -150,7 +156,8 @@ std::string SwigVariantField::swigExtraPublicFuncsCodeImpl() const
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"MEMBERS", util::strListToString(accFuncs, "\n", "")},
-        {"CASES", util::strListToString(cases, "", "")}
+        {"CASES", util::strListToString(cases, "", "")},
+        {"SIZE_T", gen.swigConvertCppType("std::size_t")},
     };
 
     return util::processTemplate(Templ, repl);
