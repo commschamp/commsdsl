@@ -1,7 +1,6 @@
 import os
 import sys
 import unittest
-import pickle
 
 sys.path.append(os.getcwd())
 
@@ -21,7 +20,7 @@ class MsgHandler(test7.frame_Frame_Handler):
     def handle_Message(self, msg):
         sys.exit("shouldn't happen")
 
-class TestProtocol(unittest.TestCase, test7.frame_Frame_Handler):
+class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test7.message_Msg1()
         self.assertEqual(m.field_f1().getBitValue_b2(), True)
