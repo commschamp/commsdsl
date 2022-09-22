@@ -211,7 +211,7 @@ std::string SwigMessage::swigClassDeclInternal() const
         "    #^#FIELDS#$#\n"
         "    #^#CUSTOM#$#\n"
         "};\n\n"
-        "// Equality comparison operator is renamed as eq_#^#CLASS_NAME#$# function by SWIG\n"
+        "// Equality comparison operator is renamed as \"eq_#^#CLASS_NAME#$#()\" function by SWIG\n"
         "bool operator==(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n";
 
     auto& gen = SwigGenerator::cast(generator());

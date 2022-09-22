@@ -142,19 +142,18 @@ void SwigField::swigAddDef(StringsList& list) const
 
     swigAddDefImpl(list);
     
-    if (!comms::isGlobalField(m_field)) {
-        // Skip write for non-global fields,
-        // The code generation will be driven by other means        
-        return;
-    }
-
-    auto& dslObj = m_field.dslObj();
-    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
+    bool global = comms::isGlobalField(m_field);
+    if (global && (!m_field.dslObj().isForceGen()) && (!m_field.isReferenced())) {
         // Code for not referenced does not exist
         return;
     }
 
     list.push_back(swigComparisonRenameInternal());
+
+    if (!global) {
+        return;
+    }
+
     list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(m_field, m_field.generator())));
 }
 
@@ -362,9 +361,9 @@ std::string SwigField::swigClassDeclInternal() const
         "    #^#EXTRA#$#\n"
         "    #^#CUSTOM#$#\n"
         "};\n\n"
-        "// Equality comparison operator is renamed as eq_#^#CLASS_NAME#$##^#SUFFIX#$# function by SWIG\n"
+        "// Equality comparison operator is renamed as \"eq_#^#CLASS_NAME#$##^#SUFFIX#$#()\" function by SWIG\n"
         "bool operator==(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second);\n\n"
-        "// Order comparison operator is renamed as lt_#^#CLASS_NAME#$##^#SUFFIX#$# function by SWIG\n"
+        "// Order comparison operator is renamed as \"lt_#^#CLASS_NAME#$##^#SUFFIX#$#()\" function by SWIG\n"
         "bool operator<(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second);\n"
         ;
 
@@ -408,9 +407,9 @@ std::string SwigField::swigOptionalDeclInternal() const
         "   #^#COMMON_FUNCS#$#\n"
         "   #^#OPTIONAL_FUNCS#$#\n"
         "};\n\n"
-        "// Equality comparison operator is renamed as eq_#^#CLASS_NAME#$# function by SWIG\n"
+        "// Equality comparison operator is renamed as \"eq_#^#CLASS_NAME#$#()\" function by SWIG\n"
         "bool operator==(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n\n"
-        "// Order comparison operator is renamed as lt_#^#CLASS_NAME#$# function by SWIG\n"
+        "// Order comparison operator is renamed as \"lt_#^#CLASS_NAME#$#\"() function by SWIG\n"
         "bool operator<(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n"
         ;     
 
