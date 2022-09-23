@@ -23,7 +23,7 @@ class MsgHandler(test22.frame_Frame_Handler):
             self.testObj.msg2 = test22.message_Msg2(msg)    
 
     def handle_message_Msg3(self, msg):
-        self.msg2 = True
+        self.msg3 = True
         if (self.testObj is not None):
             self.testObj.msg3 = test22.message_Msg3(msg)                         
 
