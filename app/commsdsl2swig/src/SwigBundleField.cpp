@@ -68,7 +68,11 @@ std::string SwigBundleField::swigMembersDeclImpl() const
 
 std::string SwigBundleField::swigValueAccDeclImpl() const
 {
-    return strings::emptyString();
+    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) {
+        return strings::emptyString();
+    }
+
+    return swigSemanticTypeLengthValueAccDecl();
 }
 
 std::string SwigBundleField::swigExtraPublicFuncsDeclImpl() const
@@ -112,7 +116,21 @@ std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
         accFuncs.push_back(util::processTemplate(Templ, repl));
     }
 
-    return util::strListToString(accFuncs, "", "");
+    std::string valueAccCode;
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) {
+        valueAccCode = swigSemanticTypeLengthValueAccCode();
+    }
+
+    static const std::string Templ = 
+        "#^#VALUE_ACC#$#\n"
+        "#^#MEM_ACC#$#\n";
+
+    util::ReplacementMap repl = {
+        {"VALUE_ACC", std::move(valueAccCode)},
+        {"MEM_ACC", util::strListToString(accFuncs, "", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 

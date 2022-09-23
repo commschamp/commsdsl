@@ -69,7 +69,11 @@ std::string SwigBitfieldField::swigMembersDeclImpl() const
 
 std::string SwigBitfieldField::swigValueAccDeclImpl() const
 {
-    return strings::emptyString();
+    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) {
+        return strings::emptyString();
+    }
+
+    return swigSemanticTypeLengthValueAccDecl();
 }
 
 std::string SwigBitfieldField::swigExtraPublicFuncsDeclImpl() const
@@ -113,7 +117,21 @@ std::string SwigBitfieldField::swigExtraPublicFuncsCodeImpl() const
         accFuncs.push_back(util::processTemplate(Templ, repl));
     }
 
-    return util::strListToString(accFuncs, "", "");
+    std::string valueAccCode;
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Length) {
+        valueAccCode = swigSemanticTypeLengthValueAccCode();
+    }
+
+    static const std::string Templ = 
+        "#^#VALUE_ACC#$#\n"
+        "#^#MEM_ACC#$#\n";
+
+    util::ReplacementMap repl = {
+        {"VALUE_ACC", std::move(valueAccCode)},
+        {"MEM_ACC", util::strListToString(accFuncs, "", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 void SwigBitfieldField::swigAddDefImpl(StringsList& list) const

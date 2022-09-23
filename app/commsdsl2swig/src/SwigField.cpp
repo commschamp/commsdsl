@@ -347,6 +347,38 @@ std::string SwigField::swigTemplateScope() const
     return commsScope;
 }
 
+std::string SwigField::swigSemanticTypeLengthValueAccDecl() const
+{
+    static const std::string Templ = 
+        "#^#SIZE_T#$# getValue() const;\n"
+        "void setValue(#^#SIZE_T#$# val);\n";
+
+    util::ReplacementMap repl = {
+        {"SIZE_T", SwigGenerator::cast(m_field.generator()).swigConvertCppType("std::size_t")},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string SwigField::swigSemanticTypeLengthValueAccCode() const
+{
+    static const std::string Templ = 
+        "#^#SIZE_T#$# getValue() const\n"
+        "{\n"
+        "    return static_cast<#^#SIZE_T#$#>(Base::getValue());\n"
+        "}\n\n"
+        "void setValue(#^#SIZE_T#$# val)\n"
+        "{\n"
+        "    Base::setValue(val);\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"SIZE_T", SwigGenerator::cast(m_field.generator()).swigConvertCppType("std::size_t")},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 std::string SwigField::swigClassDeclInternal() const
 {
     static const std::string Templ = 
@@ -501,7 +533,7 @@ std::string SwigField::swigClassCodeInternal() const
 std::string SwigField::swigComparisonRenameInternal() const
 {
     static const std::string Templ = 
-        "%rename(eq_#^#CLASS_NAME#$##^#SUFFIX#$#) operator==(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);"
+        "%rename(eq_#^#CLASS_NAME#$##^#SUFFIX#$#) operator==(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);\n"
         "%rename(lt_#^#CLASS_NAME#$##^#SUFFIX#$#) operator<(const #^#CLASS_NAME#$##^#SUFFIX#$#&, const #^#CLASS_NAME#$##^#SUFFIX#$#&);";
 
     util::ReplacementMap repl = {

@@ -73,6 +73,9 @@ protected:
     std::string swigCommonPublicFuncsDecl() const;
     std::string swigCommonPublicFuncsCode() const;
     std::string swigTemplateScope() const;
+
+    std::string swigSemanticTypeLengthValueAccDecl() const;
+    std::string swigSemanticTypeLengthValueAccCode() const;
     
 private:
     std::string swigClassDeclInternal() const;
