@@ -1,0 +1,209 @@
+//
+// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "SwigMsgHandler.h"
+
+#include "SwigGenerator.h"
+#include "SwigInterface.h"
+#include "SwigProtocolOptions.h"
+
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
+#include "commsdsl/gen/comms.h"
+
+#include <algorithm>
+#include <cassert>
+#include <fstream>
+#include <limits>
+
+namespace util = commsdsl::gen::util;
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
+
+namespace commsdsl2swig
+{
+
+namespace 
+{
+
+const std::string ClassName("MsgHandler");
+
+} // namespace
+
+bool SwigMsgHandler::write(SwigGenerator& generator)
+{
+    SwigMsgHandler obj(generator);
+    return obj.swigWriteInternal();
+}
+
+void SwigMsgHandler::swigAddCode(const SwigGenerator& generator, StringsList& list)
+{
+    auto* iFace = generator.swigMainInterface();
+    assert(iFace != nullptr);
+    auto interfaceClassName = generator.swigClassName(*iFace);
+
+    auto allMessages = generator.getAllMessagesIdSorted();
+    util::StringsList handleFuncs;
+    handleFuncs.reserve(allMessages.size());
+
+    for (auto* m : allMessages) {
+        static const std::string Templ = 
+            "void handle(#^#COMMS_MESSAGE#$#<#^#INTERFACE#$##^#OPTS#$#>& msg) { handle(static_cast<#^#MESSAGE#$#&>(msg)); }\n"
+            "void handle(#^#MESSAGE#$#& msg) { handle_#^#MESSAGE#$#(msg); }\n"
+            "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n";
+
+        util::ReplacementMap repl = {
+            {"INTERFACE", interfaceClassName},
+            {"MESSAGE", generator.swigClassName(*m)},
+            {"COMMS_MESSAGE", comms::scopeFor(*m, generator)}
+        };
+
+        if (SwigProtocolOptions::swigIsDefined(generator)) {
+            repl["OPTS"] = ", " + SwigProtocolOptions::swigClassName(generator);
+        }
+
+        handleFuncs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#\n"
+        "{\n"
+        "public:\n"
+        "     virtual ~#^#CLASS_NAME#$#() = default;\n\n"
+        "     void dispatchMsg(#^#INTERFACE#$#& msg, #^#SIZE_T#$# idx = 0U)\n"
+        "     {\n"
+        "         #^#MAIN_NS#$#::dispatch::dispatchMessage#^#OPTS#$#(msg.getId(), idx, msg, *this);\n"
+        "     }\n\n"
+        "     #^#HANDLE_FUNCS#$#\n"
+        "     void handle(#^#INTERFACE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n"
+        "     virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg) { static_cast<void>(msg); }\n"
+        "};\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME",swigClassName(generator)},
+        {"INTERFACE", interfaceClassName},
+        {"HANDLE_FUNCS", util::strListToString(handleFuncs, "\n", "")},
+        {"SIZE_T", generator.swigConvertCppType("std::size_t")},
+        {"MAIN_NS", generator.protocolSchema().mainNamespace()}
+    };
+
+    if (SwigProtocolOptions::swigIsDefined(generator)) {
+        repl["OPTS"] = '<' + SwigProtocolOptions::swigClassName(generator) + '>';
+    }
+    else {
+        repl["OPTS"] = strings::defaultOptionsClassStr();
+    }
+
+    list.push_back(util::processTemplate(Templ, repl));
+}
+
+void SwigMsgHandler::swigAddDef(const SwigGenerator& generator, StringsList& list)
+{
+    static const std::string Templ = 
+        "%feature(\"director\") #^#CLASS_NAME#$#;";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", swigClassName(generator)},
+    };    
+
+    list.push_back(util::processTemplate(Templ, repl));
+
+    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(swigClassName(generator), generator)));    
+}
+
+std::string SwigMsgHandler::swigClassName(const SwigGenerator& generator)
+{
+    return generator.swigClassNameForRoot(ClassName);
+}
+
+bool SwigMsgHandler::swigWriteInternal() const
+{
+    auto filePath = comms::headerPathRoot(swigClassName(m_generator), m_generator);
+    m_generator.logger().info("Generating " + filePath);
+
+    auto dirPath = util::pathUp(filePath);
+    assert(!dirPath.empty());
+    if (!m_generator.createDirectory(dirPath)) {
+        return false;
+    }
+
+    std::ofstream stream(filePath);
+    if (!stream) {
+        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
+        return false;
+    }
+
+    const std::string Templ = 
+        "#^#GENERATED#$#\n"
+        "#pragma once\n\n"
+        "#^#CLASS#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"GENERATED", SwigGenerator::fileGeneratedComment()},
+        {"CLASS", swigClassDeclInternal()},
+    };
+
+    stream << util::processTemplate(Templ, repl, true);
+    stream.flush();
+    if (!stream.good()) {
+        m_generator.logger().error("Failed to write \"" + filePath + "\".");
+        return false;
+    }
+    
+    return true;    
+}
+
+std::string SwigMsgHandler::swigClassDeclInternal() const
+{
+    auto* iFace = m_generator.swigMainInterface();
+    assert(iFace != nullptr);
+
+    auto allMessages = m_generator.getAllMessagesIdSorted();
+    util::StringsList handleFuncs;
+    handleFuncs.reserve(allMessages.size());
+
+    for (auto* m : allMessages) {
+        static const std::string Templ = 
+            "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
+
+        util::ReplacementMap repl = {
+            {"MESSAGE", m_generator.swigClassName(*m)}
+        };
+
+        handleFuncs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#\n"
+        "{\n"
+        "public:\n"
+        "     virtual ~#^#CLASS_NAME#$#();\n\n"
+        "     void dispatchMsg(#^#INTERFACE#$#& msg, #^#SIZE_T#$# idx = 0U);\n\n"
+        "     #^#HANDLE_FUNCS#$#\n"
+        "     virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg);\n"
+        "};\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", swigClassName(m_generator)},
+        {"INTERFACE", m_generator.swigClassName(*iFace)},
+        {"HANDLE_FUNCS", util::strListToString(handleFuncs, "", "")},
+        {"SIZE_T", m_generator.swigConvertCppType("std::size_t")},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+} // namespace commsdsl2swig

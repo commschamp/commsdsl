@@ -17,8 +17,10 @@
 
 #include "SwigComms.h"
 #include "SwigDataBuf.h"
+#include "SwigFrame.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
+#include "SwigMsgHandler.h"
 #include "SwigMsgId.h"
 #include "SwigProtocolOptions.h"
 #include "SwigSchema.h"
@@ -107,6 +109,14 @@ std::string Swig::swigCodeBlockInternal() const
         schema->swigAddCode(codeElems);
     }
 
+    SwigMsgHandler::swigAddCode(m_generator, codeElems);
+
+    auto allFrames = m_generator.getAllFrames();
+    for (auto* fPtr : allFrames) {
+        auto* frame = SwigFrame::cast(fPtr);
+        frame->swigAddCode(codeElems);
+    }
+
     static const std::string Templ = 
         "%{\n"
         "#^#INCLUDES#$#\n"
@@ -146,6 +156,14 @@ std::string Swig::swigDefInternal() const
 
     for (auto& sPtr : m_generator.schemas()) {
         SwigSchema::cast(sPtr.get())->swigAddDef(defs);
+    }    
+
+    SwigMsgHandler::swigAddDef(m_generator, defs);
+
+    auto allFrames = m_generator.getAllFrames();
+    for (auto* fPtr : allFrames) {
+        auto* frame = SwigFrame::cast(fPtr);
+        frame->swigAddDef(defs);
     }    
 
     static const std::string Templ = 

@@ -6,10 +6,10 @@ sys.path.append(os.getcwd())
 
 import test7
 
-class MsgHandler(test7.frame_Frame_Handler):
+class MsgHandler(test7.MsgHandler):
 
     def __init__(self, testObj = None):
-        test7.frame_Frame_Handler.__init__(self)
+        test7.MsgHandler.__init__(self)
         self.testObj = testObj
 
     def handle_message_Msg1(self, msg):

@@ -57,8 +57,6 @@ protected:
 private:
 
     std::string swigLayerDeclsInternal() const;
-    std::string swigHandlerDeclInternal() const;
-    std::string swigHandlerCodeInternal() const;
     std::string swigClassDeclInternal() const;
     std::string swigLayersAccDeclInternal() const;
     std::string swigLayersAccCodeInternal() const;

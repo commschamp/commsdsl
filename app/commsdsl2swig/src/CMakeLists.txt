@@ -18,6 +18,7 @@ set (src
     SwigLayer.cpp
     SwigListField.cpp
     SwigMessage.cpp
+    SwigMsgHandler.cpp
     SwigMsgId.cpp
     SwigNamespace.cpp
     SwigOptionalField.cpp

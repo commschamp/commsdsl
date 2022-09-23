@@ -88,9 +88,9 @@ void SwigNamespace::swigAddCode(StringsList& list) const
         SwigMessage::cast(m.get())->swigAddCode(list);
     }   
 
-    for (auto& f : frames()) {
-        SwigFrame::cast(f.get())->swigAddCode(list);
-    }    
+    // for (auto& f : frames()) {
+    //     SwigFrame::cast(f.get())->swigAddCode(list);
+    // }    
 
     for (auto& ns : namespaces()) {
         SwigNamespace::cast(ns.get())->swigAddCode(list);
@@ -111,9 +111,9 @@ void SwigNamespace::swigAddDef(StringsList& list) const
         SwigMessage::cast(m.get())->swigAddDef(list);
     }   
 
-    for (auto& f : frames()) {
-        SwigFrame::cast(f.get())->swigAddDef(list);
-    } 
+    // for (auto& f : frames()) {
+    //     SwigFrame::cast(f.get())->swigAddDef(list);
+    // } 
 
     for (auto& ns : namespaces()) {
         SwigNamespace::cast(ns.get())->swigAddDef(list);

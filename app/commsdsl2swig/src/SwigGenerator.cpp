@@ -31,6 +31,7 @@
 #include "SwigIntField.h"
 #include "SwigListField.h"
 #include "SwigMessage.h"
+#include "SwigMsgHandler.h"
 #include "SwigMsgId.h"
 #include "SwigNamespace.h"
 #include "SwigOptionalField.h"
@@ -88,6 +89,13 @@ std::string SwigGenerator::swigClassName(const Elem& elem) const
     auto str = comms::scopeFor(elem, *this, addMainNamespace);
     return swigScopeToName(str);
 }
+
+ std::string SwigGenerator::swigClassNameForRoot(const std::string& name) const
+ {
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
+    auto str = comms::scopeForRoot(name, *this, addMainNamespace);
+    return swigScopeToName(str);
+ }
 
 const std::string& SwigGenerator::swigConvertCppType(const std::string& str) const
 {
@@ -167,6 +175,7 @@ bool SwigGenerator::writeImpl()
     return 
         SwigComms::swigWrite(*this) &&
         SwigDataBuf::write(*this) &&
+        SwigMsgHandler::write(*this) &&
         Swig::swigWrite(*this) &&
         swigWriteExtraFilesInternal();
 
