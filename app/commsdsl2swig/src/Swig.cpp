@@ -89,6 +89,8 @@ std::string Swig::swigCodeBlockInternal() const
         "comms/comms.h"
     };
 
+    includes.push_back(m_generator.protocolSchema().mainNamespace() + "/dispatch/DispatchMessage.h");
+
     SwigProtocolOptions::swigAddCodeIncludes(m_generator, includes);
 
     util::StringsList codeElems;

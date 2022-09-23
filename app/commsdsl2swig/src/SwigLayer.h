@@ -50,17 +50,24 @@ public:
     std::string swigDeclCode() const;
     void swigAddDef(StringsList& list) const;
     void swigAddCode(StringsList& list) const;
+    void swigAddToAllFieldsDecl(StringsList& list) const;
 
-    bool isMainInterfaceSupported() const;
+    bool swigIsMainInterfaceSupported() const;
+    std::string swigFieldAccName() const;
 
 protected:
     virtual bool swigReorderImpl(SwigLayersList& siblings, bool& success) const;
     virtual std::string swigDeclFuncsImpl() const;    
     virtual std::string swigCodeFuncsImpl() const;    
-    virtual bool isMainInterfaceSupportedImpl() const;
+    virtual bool swigIsMainInterfaceSupportedImpl() const;
+    virtual std::string swigMemberFieldDeclImpl() const;
+    virtual void swigAddCodeImpl(StringsList& list) const;
+    virtual std::string swigFieldTypeImpl() const;
+
+    std::string swigTemplateScope() const;
     
 private:
-    std::string swigTemplateScopeInternal() const;
+    
 
     commsdsl::gen::Layer& m_layer;
 };

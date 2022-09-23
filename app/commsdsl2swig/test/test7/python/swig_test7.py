@@ -38,6 +38,20 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(self.msg1.field_f1().getValue(), m.field_f1().getValue())
         self.assertTrue(test7.eq_message_Msg1(self.msg1, m))
 
+    def test_2(self):
+        m = test7.message_Msg1()
+
+        frame = test7.frame_Frame()
+        buf = frame.writeMessage(m)
+
+        h = MsgHandler(self)
+        frame.processInputData(buf, h)
+        frameFields = test7.frame_Frame_AllFields()
+        frame.processInputDataSingleMsg(buf, h, frameFields)
+
+        self.assertEqual(self.msg1.field_f1().getValue(), m.field_f1().getValue())
+        self.assertEqual(frameFields.m_iD.getValue(), 1)
+        self.assertEqual(bytearray(frameFields.m_data.getValue()), bytearray(b'\x00\x00\x06\x00'))
 
 if __name__ == '__main__':
     unittest.main()

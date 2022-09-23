@@ -734,7 +734,7 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
         "/// @tparam TProtOptions Protocol options struct used for the application,\n"
         "///     like @ref #^#DEFAULT_OPTIONS#$#.\n"
         "/// @headerfile #^#HEADERFILE#$#\n"
-        "template <typename TProtOptions>\n"
+        "template <typename TProtOptions = #^#DEFAULT_OPTIONS#$#>\n"
         "struct #^#NAME#$#MsgDispatcher\n"
         "{\n"
         "    /// @brief Class detection tag\n"
@@ -789,7 +789,7 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
         "///     @ref #^#DEFAULT_OPTIONS#$# as template parameter.\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
         "using #^#NAME#$#MsgDispatcherDefaultOptions =\n"
-        "    #^#NAME#$#MsgDispatcher<#^#DEFAULT_OPTIONS#$#>;\n";
+        "    #^#NAME#$#MsgDispatcher<>;\n";
 
     util::ReplacementMap repl = {
         {"NAME", inputPrefix},

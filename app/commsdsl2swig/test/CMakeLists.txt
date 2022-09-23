@@ -21,7 +21,7 @@ add_custom_target(${APP_NAME}.all_tests
 
 include(ExternalProject)
 
-set(CMAKE_POLICY_DEFAULT_CMP0086 NEW)
+set (CMAKE_SWIG_FLAGS -Wall -Werror)
 
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
@@ -67,7 +67,6 @@ foreach (name ${tests})
             PROPERTIES
                 GENERATED TRUE
                 CPLUSPLUS ON
-                CMAKE_SWIG_FLAGS -Wall
         )
         set (swig_tgt ${APP_NAME}_${name}_${lang})
         set (test_build_dir ${output_dir}_build)

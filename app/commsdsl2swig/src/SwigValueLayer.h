@@ -35,7 +35,7 @@ protected:
     // SwigBase overrides
     virtual std::string swigDeclFuncsImpl() const override;    
     virtual std::string swigCodeFuncsImpl() const override;  
-    virtual bool isMainInterfaceSupportedImpl() const override;  
+    virtual bool swigIsMainInterfaceSupportedImpl() const override;  
 };
 
 } // namespace commsdsl2swig

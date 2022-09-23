@@ -64,7 +64,7 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
     return Templ;
 }
 
-bool SwigValueLayer::isMainInterfaceSupportedImpl() const
+bool SwigValueLayer::swigIsMainInterfaceSupportedImpl() const
 {
     auto obj = valueDslObj();
     auto supportedInterfaces = obj.interfaces();

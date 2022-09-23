@@ -65,6 +65,7 @@ void SwigFrame::swigAddCode(StringsList& list) const
     }
 
     list.push_back(swigHandlerCodeInternal());
+    list.push_back(swigAllFieldsInternal());
     list.push_back(swigFrameCodeInternal());
 }
 
@@ -106,7 +107,7 @@ bool SwigFrame::prepareImpl()
             m_swigLayers.begin(), m_swigLayers.end(),
             [](auto* l)
             {
-                return l->isMainInterfaceSupported();
+                return l->swigIsMainInterfaceSupported();
             });
 
     if (!m_validFrame) {
@@ -166,6 +167,7 @@ bool SwigFrame::writeImpl() const
         "#pragma once\n\n"
         "#^#LAYERS#$#\n"
         "#^#HANDLER#$#\n"
+        "#^#ALL_FIELDS#$#\n"
         "#^#DEF#$#\n"
     ;
 
@@ -173,6 +175,7 @@ bool SwigFrame::writeImpl() const
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
         {"LAYERS", swigLayerDeclsInternal()},
         {"HANDLER", swigHandlerDeclInternal()},
+        {"ALL_FIELDS", swigAllFieldsInternal()},
         {"DEF", swigClassDeclInternal()},
     };
     
@@ -246,13 +249,19 @@ std::string SwigFrame::swigHandlerCodeInternal() const
 
     for (auto* m : allMessages) {
         static const std::string Templ = 
+            "void handle(#^#COMMS_MESSAGE#$#<#^#INTERFACE#$##^#OPTS#$#>& msg) { handle(static_cast<#^#MESSAGE#$#&>(msg)); }\n"
             "void handle(#^#MESSAGE#$#& msg) { handle_#^#MESSAGE#$#(msg); }\n"
             "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n";
 
         util::ReplacementMap repl = {
             {"INTERFACE", interfaceClassName},
-            {"MESSAGE", gen.swigClassName(*m)}
+            {"MESSAGE", gen.swigClassName(*m)},
+            {"COMMS_MESSAGE", comms::scopeFor(*m, gen)}
         };
+
+        if (SwigProtocolOptions::swigIsDefined(gen)) {
+            repl["OPTS"] = ", " + SwigProtocolOptions::swigClassName(gen);
+        }
 
         handleFuncs.push_back(util::processTemplate(Templ, repl));
     }
@@ -284,6 +293,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         "public:\n"
         "    #^#LAYERS#$#\n\n"
         "    #^#SIZE_T#$# processInputData(const #^#DATA_BUF#$#& buf, #^#CLASS_NAME#$#_Handler& handler);\n"
+        "    #^#SIZE_T#$# processInputDataSingleMsg(const #^#DATA_BUF#$#& buf, #^#CLASS_NAME#$#_Handler& handler, #^#CLASS_NAME#$#_AllFields* allFields = nullptr);\n"
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg);\n"
         "    #^#CUSTOM#$#\n"
         "};\n";    
@@ -379,8 +389,53 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    #^#SIZE_T#$# processInputData(const #^#DATA_BUF#$#& buf, #^#CLASS_NAME#$#_Handler& handler)\n"
         "    {\n"
         "        if (buf.empty()) { return 0U; }\n"
-        "        return static_cast<#^#SIZE_T#$#>(comms::processAllWithDispatch(buf.begin(), buf.size(), m_frame, handler));\n"
+        "        using Dispatcher = #^#MAIN_NS#$#::dispatch::MsgDispatcher<#^#PROT_OPTS#$#>;\n"
+        "        return static_cast<#^#SIZE_T#$#>(comms::processAllWithDispatchViaDispatcher<Dispatcher>(buf.begin(), buf.size(), m_frame, handler));\n"
         "    }\n\n"
+        "    #^#SIZE_T#$# processInputDataSingleMsg(const #^#DATA_BUF#$#& buf, #^#CLASS_NAME#$#_Handler& handler, #^#CLASS_NAME#$#_AllFields* allFields = nullptr)\n"
+        "    {\n"
+        "        if (buf.empty()) { return 0U; }\n"
+        "        #^#SIZE_T#$# consumed = 0U;\n"
+        "        Frame::MsgPtr msg;\n"
+        "        Frame::AllFields frameFields;\n"
+        "        while (consumed < buf.size()) {\n"
+        "            auto begIter = buf.begin() + consumed;\n"
+        "            auto iter = begIter;\n\n"
+        "            auto es = comms::ErrorStatus::Success;\n"
+        "            auto len = buf.size() - consumed;\n"
+        "            std::size_t idx = 0U;\n"
+        "            if (allFields == nullptr) {\n"
+        "                es = m_frame.read(msg, iter, len, comms::protocol::msgIndex(idx));\n"
+        "            }\n"
+        "            else {\n"
+        "                es = m_frame.readFieldsCached(frameFields, msg, iter, len, comms::protocol::msgIndex(idx));\n"
+        "            }\n\n"
+        "            if (es == comms::ErrorStatus::NotEnoughData) {\n"
+        "                return consumed;\n"
+        "            }\n\n"
+        "            if (es == comms::ErrorStatus::ProtocolError) {\n"
+        "                ++consumed;\n"
+        "                continue;\n"
+        "            }\n\n"
+        "            if (allFields != nullptr) {\n"
+        "                auto allFieldsValues =\n"
+        "                    std::tie(\n"
+        "                        #^#ALL_FIELDS_VALUES#$#);\n\n"
+        "                auto frameFieldsValues =\n"
+        "                    std::forward_as_tuple(\n"
+        "                        #^#FRAME_FIELDS_VALUES#$#);\n\n"        
+        "                allFieldsValues = std::move(frameFieldsValues);\n"
+        "            }\n\n"
+        "            consumed += static_cast<decltype(consumed)>(std::distance(begIter, iter));\n\n"
+        "            if (es == comms::ErrorStatus::Success) {\n"
+        "                using Dispatcher = #^#MAIN_NS#$#::dispatch::MsgDispatcher<#^#PROT_OPTS#$#>;\n"
+        "                using AllMessagesType = typename Frame::AllMessages;\n"
+        "                Dispatcher::template dispatch<AllMessagesType>(msg->getId(), idx, *msg, handler);\n"
+        "            }\n"
+        "            break;\n"
+        "        }\n"
+        "        return consumed;\n"
+        "    }\n\n"        
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg)\n"
         "    {\n"
         "        #^#DATA_BUF#$# outBuf(m_frame.length(msg));\n"
@@ -396,6 +451,16 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    Frame m_frame;\n"
         "};\n";    
 
+    util::StringsList allFieldsAcc;
+    for (auto* l : m_swigLayers) {
+        allFieldsAcc.push_back("allFields->" + l->swigFieldAccName() + ".value()");
+    }
+
+    util::StringsList frameFieldsAcc;
+    for (auto idx = 0U; idx < m_swigLayers.size(); ++idx) {
+        frameFieldsAcc.push_back("std::move(std::get<" + std::to_string(idx) + ">(frameFields).value())");
+    }    
+
     auto& gen = SwigGenerator::cast(generator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
@@ -407,6 +472,10 @@ std::string SwigFrame::swigFrameCodeInternal() const
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"COMMS_CLASS", comms::scopeFor(*this, gen)},
         {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"MAIN_NS", gen.protocolSchema().mainNamespace()},
+        {"PROT_OPTS", SwigProtocolOptions::swigClassName(gen)},
+        {"ALL_FIELDS_VALUES", util::strListToString(allFieldsAcc, ",\n", "")},
+        {"FRAME_FIELDS_VALUES", util::strListToString(frameFieldsAcc, ",\n", "")}
     };
 
     if (SwigProtocolOptions::swigIsDefined(gen)) {
@@ -414,6 +483,28 @@ std::string SwigFrame::swigFrameCodeInternal() const
     }
 
     return util::processTemplate(Templ, repl);   
+}
+
+std::string SwigFrame::swigAllFieldsInternal() const
+{
+    static const std::string Templ = 
+        "struct #^#CLASS_NAME#$#_AllFields\n"
+        "{\n"
+        "   #^#FIELDS#$#\n"
+        "};\n";
+
+    StringsList fields;
+    for (auto* l : m_swigLayers) {
+        l->swigAddToAllFieldsDecl(fields);
+    }
+
+    auto& gen = SwigGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(*this)},
+        {"FIELDS", util::strListToString(fields, "", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2swig

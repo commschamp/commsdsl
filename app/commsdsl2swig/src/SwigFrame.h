@@ -64,6 +64,7 @@ private:
     std::string swigLayersAccCodeInternal() const;
     std::string swigAllMessagesCodeInternal() const;
     std::string swigFrameCodeInternal() const;
+    std::string swigAllFieldsInternal() const;
 
     SwigLayersList m_swigLayers;
     bool m_validFrame = true;

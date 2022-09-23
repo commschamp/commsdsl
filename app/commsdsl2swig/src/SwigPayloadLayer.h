@@ -33,6 +33,9 @@ public:
 
 protected:
     // SwigBase overrides
+    virtual std::string swigMemberFieldDeclImpl() const override;
+    virtual void swigAddCodeImpl(StringsList& list) const override;
+    virtual std::string swigFieldTypeImpl() const override;
 };
 
 } // namespace commsdsl2swig

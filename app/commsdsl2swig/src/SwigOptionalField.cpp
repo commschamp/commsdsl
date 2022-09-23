@@ -39,8 +39,7 @@ std::string SwigOptionalField::swigDeclFuncs(const std::string& fieldType)
     static const std::string Templ = 
         "using Field = #^#FIELD_TYPE#$#;\n"
         "using Mode = comms_field_OptionalMode;\n\n"
-        "Field& field();\n"
-        "const Field& field() const;\n\n"
+        "Field& field();\n\n"
         "Mode getMode() const;\n"
         "void setMode(Mode val);\n"
         "bool isTentative() const;\n"

@@ -36,4 +36,43 @@ SwigPayloadLayer::SwigPayloadLayer(SwigGenerator& generator, commsdsl::parse::La
 {
 }
 
+std::string SwigPayloadLayer::swigMemberFieldDeclImpl() const
+{
+    static const std::string Templ = 
+        "class #^#FIELD_TYPE#$#\n"
+        "{\n"
+        "public:\n"
+        "    using ValueType = std::vector<#^#UINT8_T#$#>;\n\n"
+        "    const ValueType& getValue() const;\n"
+        "    void setValue(const ValueType& val);\n"
+        "};\n";
+
+    auto& gen = SwigGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"FIELD_TYPE", swigFieldTypeImpl()},
+        {"UINT8_T", gen.swigConvertCppType("std::uint8_t")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+void SwigPayloadLayer::swigAddCodeImpl(StringsList& list) const
+{
+    static const std::string Templ = 
+        "class #^#FIELD_TYPE#$# : public #^#COMMS_SCOPE#$#::Field {};\n";
+
+    util::ReplacementMap repl = {
+        {"FIELD_TYPE", swigFieldTypeImpl()},
+        {"COMMS_SCOPE", swigTemplateScope()}
+    };
+
+    list.push_back(util::processTemplate(Templ, repl));
+}
+
+std::string SwigPayloadLayer::swigFieldTypeImpl() const
+{
+    auto& gen = SwigGenerator::cast(generator());
+    return gen.swigClassName(*this) + "Field";
+}
+
 } // namespace commsdsl2swig

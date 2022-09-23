@@ -66,8 +66,8 @@ std::string SwigLayer::swigDeclCode() const
         "#^#MEMBER#$#\n"
         "class #^#CLASS_NAME#$#\n"
         "{\n"
-        "#^#PUBLIC#$#\n"
-        "    #^#FIELD#$#\n"
+        "public:\n"
+        "    using Field = #^#FIELD#$#;\n"
         "    #^#FUNCS#$#\n"
         "};\n";
 
@@ -78,23 +78,20 @@ std::string SwigLayer::swigDeclCode() const
         field = SwigField::cast(m_layer.externalField());
     }
 
-    std::string fieldDef;
+    std::string fieldDef = swigFieldTypeImpl();
     if (field != nullptr) {
-        fieldDef = "using Field = " + gen.swigClassName(field->field()) + ";";
+        fieldDef = gen.swigClassName(field->field());
     }
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(m_layer)},
         {"FIELD", std::move(fieldDef)},
         {"FUNCS", swigDeclFuncsImpl()},
+        {"MEMBER", swigMemberFieldDeclImpl()}
     };
 
     if (memField != nullptr) {
         repl["MEMBER"] = memField->swigClassDecl();
-    }
-
-    if ((!repl["FIELD"].empty()) || (!repl["FUNCS"].empty())) {
-        repl["PUBLIC"] = "public:";
     }
 
     return util::processTemplate(Templ, repl);
@@ -123,39 +120,56 @@ void SwigLayer::swigAddCode(StringsList& list) const
         field->swigAddCode(list);
     }
 
+    swigAddCodeImpl(list);
+
     static const std::string Templ = 
         "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
         "{\n"
         "    using Base = #^#COMMS_CLASS#$#;\n"
-        "#^#PUBLIC#$#\n"
-        "    #^#FIELD#$#\n"
+        "public:\n"
+        "    using Field = #^#FIELD#$#;\n"
         "    #^#FUNCS#$#\n"
         "};\n";
 
     auto& gen = SwigGenerator::cast(m_layer.generator());
 
-    std::string fieldDef;
+    std::string fieldDef = swigFieldTypeImpl();
     if (field != nullptr) {
-        fieldDef = "using Field = " + gen.swigClassName(field->field()) + ";";
+        fieldDef = gen.swigClassName(field->field());
     }
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(m_layer)},
-        {"COMMS_CLASS", swigTemplateScopeInternal()},
+        {"COMMS_CLASS", swigTemplateScope()},
         {"FIELD", std::move(fieldDef)},
         {"FUNCS", swigCodeFuncsImpl()},
     };
 
-    if ((!repl["FIELD"].empty()) || (!repl["FUNCS"].empty())) {
-        repl["PUBLIC"] = "public:";
-    }
+    list.push_back(util::processTemplate(Templ, repl));
+}
+
+void SwigLayer::swigAddToAllFieldsDecl(StringsList& list) const
+{
+    static const std::string Templ = 
+        "#^#CLASS_NAME#$#::Field #^#ACC_NAME#$#;\n";
+
+    auto& gen = SwigGenerator::cast(m_layer.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(m_layer)},
+        {"ACC_NAME", swigFieldAccName()}
+    };
 
     list.push_back(util::processTemplate(Templ, repl));
 }
 
-bool SwigLayer::isMainInterfaceSupported() const
+bool SwigLayer::swigIsMainInterfaceSupported() const
 {
-    return isMainInterfaceSupportedImpl();
+    return swigIsMainInterfaceSupportedImpl();
+}
+
+std::string SwigLayer::swigFieldAccName() const
+{
+    return "m_" + comms::accessName(m_layer.dslObj().name());
 }
 
 bool SwigLayer::swigReorderImpl(SwigLayersList& siblings, bool& success) const
@@ -175,12 +189,27 @@ std::string SwigLayer::swigCodeFuncsImpl() const
     return strings::emptyString();
 }
 
-bool SwigLayer::isMainInterfaceSupportedImpl() const
+bool SwigLayer::swigIsMainInterfaceSupportedImpl() const
 {
     return true;
 }
 
-std::string SwigLayer::swigTemplateScopeInternal() const
+std::string SwigLayer::swigMemberFieldDeclImpl() const
+{
+    return strings::emptyString();
+}
+
+void SwigLayer::swigAddCodeImpl(StringsList& list) const
+{
+    static_cast<void>(list);
+}
+
+std::string SwigLayer::swigFieldTypeImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string SwigLayer::swigTemplateScope() const
 {
     auto& gen = SwigGenerator::cast(m_layer.generator());
     auto commsScope = comms::scopeFor(m_layer, gen);
