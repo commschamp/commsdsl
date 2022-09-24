@@ -17,6 +17,7 @@
 
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
+#include "SwigMsgHandler.h"
 #include "SwigMsgId.h"
 #include "SwigProtocolOptions.h"
 
@@ -60,7 +61,8 @@ void SwigMessage::swigAddCode(StringsList& list) const
     util::ReplacementMap repl = {
         {"COMMS_CLASS", comms::scopeFor(*this, gen)},
         {"CLASS_NAME", gen.swigClassName(*this)},
-        {"INTERFACE", gen.swigClassName(*mainInterface)}
+        {"INTERFACE", gen.swigClassName(*mainInterface)},
+        {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)}
     };
 
     if (SwigProtocolOptions::swigIsDefined(gen)) {
@@ -70,26 +72,6 @@ void SwigMessage::swigAddCode(StringsList& list) const
     std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::publicFileSuffixStr());
     std::string protectedCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::protectedFileSuffixStr());
     std::string privateCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::privateFileSuffixStr());
-
-    if (publicCode.empty() && protectedCode.empty() && privateCode.empty() && (m_swigFields.empty())) {
-        static const std::string Templ = 
-            "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#<#^#INTERFACE#$##^#OPTS#$#> {};\n";
-
-        list.push_back(util::processTemplate(Templ, repl));
-        return;
-    }
-
-    if (!protectedCode.empty()) {
-        static const std::string TemplTmp = 
-            "protected:\n"
-            "    #^#CODE#$#\n";
-
-        util::ReplacementMap replTmp = {
-            {"CODE", std::move(protectedCode)}
-        };
-
-        protectedCode = util::processTemplate(TemplTmp, replTmp);
-    }
 
     if (!privateCode.empty()) {
         static const std::string TemplTmp = 
@@ -110,7 +92,12 @@ void SwigMessage::swigAddCode(StringsList& list) const
         "public:\n"
         "    #^#FIELDS#$#\n"
         "    #^#PUBLIC#$#\n"
-        "#^#PROTECTED#$#\n"
+        "protected:\n"
+        "    virtual void dispatchImpl(#^#MSG_HANDLER#$#& handler) override\n"
+        "    {\n"
+        "        handler.handle(*this);\n"
+        "    }\n\n"
+        "    #^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
         "};\n";
 
@@ -122,6 +109,18 @@ void SwigMessage::swigAddCode(StringsList& list) const
     });
 
     list.push_back(util::processTemplate(Templ, repl));    
+}
+
+void SwigMessage::swigAddFwdCode(StringsList& list) const
+{
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#;";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", SwigGenerator::cast(generator()).swigClassName(*this)}
+    };
+
+    list.push_back(util::processTemplate(Templ, repl));
 }
 
 void SwigMessage::swigAddDef(StringsList& list) const

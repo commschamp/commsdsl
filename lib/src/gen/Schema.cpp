@@ -622,6 +622,16 @@ Schema::FramesAccessList Schema::getAllFrames() const
     return result;
 }
 
+Schema::FieldsAccessList Schema::getAllFields() const
+{
+    FieldsAccessList result;
+    for (auto& n : m_impl->namespaces()) {
+        auto nList = n->getAllFields();
+        result.insert(result.end(), nList.begin(), nList.end());
+    }
+    return result;    
+}
+
 bool Schema::createAll()
 {
     return m_impl->createAll();

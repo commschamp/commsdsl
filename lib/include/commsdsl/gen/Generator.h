@@ -48,6 +48,7 @@ public:
     using InterfacesAccessList = Namespace::InterfacesAccessList;
     using MessagesAccessList = Namespace::MessagesAccessList;
     using FramesAccessList = Namespace::FramesAccessList;
+    using FieldsAccessList = Namespace::FieldsAccessList;
 
     Generator();
     virtual ~Generator();
@@ -85,6 +86,14 @@ public:
     MessagesAccessList getAllMessages() const;
     MessagesAccessList getAllMessagesIdSorted() const;
     FramesAccessList getAllFrames() const;
+    FieldsAccessList getAllFields() const;
+
+    NamespacesAccessList getAllNamespacesFromAllSchemas() const;
+    InterfacesAccessList getAllInterfacesFromAllSchemas() const;
+    MessagesAccessList getAllMessagesFromAllSchemas() const;
+    MessagesAccessList getAllMessagesIdSortedFromAllSchemas() const;
+    FramesAccessList getAllFramesFromAllSchemas() const;
+    FieldsAccessList getAllFieldsFromAllSchemas() const;    
 
     bool prepare(const FilesList& files);
     bool write();

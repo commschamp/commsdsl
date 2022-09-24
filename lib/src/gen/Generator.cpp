@@ -635,6 +635,85 @@ Generator::FramesAccessList Generator::getAllFrames() const
     return currentSchema().getAllFrames();
 }
 
+Generator::FieldsAccessList Generator::getAllFields() const
+{
+    return currentSchema().getAllFields();
+}
+
+Generator::NamespacesAccessList Generator::getAllNamespacesFromAllSchemas() const
+{
+    NamespacesAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllNamespaces();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
+Generator::InterfacesAccessList Generator::getAllInterfacesFromAllSchemas() const
+{
+    InterfacesAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllInterfaces();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
+Generator::MessagesAccessList Generator::getAllMessagesFromAllSchemas() const
+{
+    MessagesAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllMessages();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
+Generator::MessagesAccessList Generator::getAllMessagesIdSortedFromAllSchemas() const
+{
+    auto result = getAllMessagesFromAllSchemas();
+    std::sort(
+        result.begin(), result.end(),
+        [](auto* msg1, auto* msg2)
+        {
+            auto id1 = msg1->dslObj().id();
+            auto id2 = msg2->dslObj().id();
+
+            if (id1 != id2) {
+                return id1 < id2;
+            }
+
+            return msg1->dslObj().order() < msg2->dslObj().order();
+        });
+    return result;    
+}
+
+Generator::FramesAccessList Generator::getAllFramesFromAllSchemas() const
+{
+    FramesAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllFrames();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
+Generator::FieldsAccessList Generator::getAllFieldsFromAllSchemas() const
+{
+    FieldsAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllFields();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
 bool Generator::prepare(const FilesList& files)
 {
     // Make sure the logger is created

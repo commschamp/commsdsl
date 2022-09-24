@@ -17,6 +17,7 @@
 
 #include "SwigDataBuf.h"
 #include "SwigGenerator.h"
+#include "SwigMsgHandler.h"
 #include "SwigMsgId.h"
 
 #include "commsdsl/gen/comms.h"
@@ -67,6 +68,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
         {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)}
     };    
 
     std::string publicCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::publicFileSuffixStr());
@@ -107,7 +109,8 @@ void SwigInterface::swigAddCode(StringsList& list) const
             "    comms::option::app::ValidCheckInterface,\n"
             "    comms::option::app::LengthInfoInterface,\n"
             "    comms::option::app::RefreshInterface,\n"
-            "    comms::option::app::NameInterface\n"
+            "    comms::option::app::NameInterface,\n"
+            "    comms::option::app::Handler<#^#MSG_HANDLER#$#>\n"
             ">";
 
         base = util::processTemplate(BaseTempl, repl);
@@ -224,6 +227,7 @@ std::string SwigInterface::swigFieldDeclsInternal() const
 std::string SwigInterface::swigClassDeclInternal() const
 {
     static const std::string Templ = 
+        "class #^#MSG_HANDLER#$#;\n\n"
         "class #^#CLASS_NAME#$#\n"
         "{\n"
         "public:\n"
@@ -236,6 +240,7 @@ std::string SwigInterface::swigClassDeclInternal() const
         "    bool refresh();\n"
         "    #^#SIZE_T#$# length() const;\n"
         "    bool valid() const;\n"
+        "    void dispatch(#^#MSG_HANDLER#$#& handler);\n"
         "    #^#CUSTOM#$#\n"
         "protected:\n"
         "    #^#CLASS_NAME#$#();\n"
@@ -250,6 +255,7 @@ std::string SwigInterface::swigClassDeclInternal() const
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"MSG_ID", SwigMsgId::swigClassName(gen)},
         {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);    

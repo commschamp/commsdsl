@@ -30,7 +30,9 @@ public:
 
     static bool write(SwigGenerator& generator);
 
-    static void swigAddCode(const SwigGenerator& generator, StringsList& list);
+    static void swigAddFwdCode(const SwigGenerator& generator, StringsList& list);
+    static void swigAddClassCode(const SwigGenerator& generator, StringsList& list);
+    static void swigAddFuncsCode(const SwigGenerator& generator, StringsList& list);
     static void swigAddDef(const SwigGenerator& generator, StringsList& list);
     static std::string swigClassName(const SwigGenerator& generator);
 

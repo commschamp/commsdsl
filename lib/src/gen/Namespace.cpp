@@ -629,6 +629,23 @@ Namespace::FramesAccessList Namespace::getAllFrames() const
     return result;
 }
 
+Namespace::FieldsAccessList Namespace::getAllFields() const
+{
+    FieldsAccessList result;
+    auto& subNs = m_impl->namespaces();
+    for (auto& n : subNs) {
+        auto list = n->getAllFields();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    result.reserve(result.size() + m_impl->fields().size());
+    for (auto& f : m_impl->fields()) {
+        result.emplace_back(f.get());
+    }
+
+    return result;
+}
+
 Generator& Namespace::generator()
 {
     return m_impl->generator();
