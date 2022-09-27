@@ -23,12 +23,12 @@ class MsgHandler(test15.MsgHandler):
 class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test15.message_Msg1()
-        self.assertEqual(bytearray(m.field_f1().getValue()), bytearray(b'\x0a\x0b\x0c\x0d\x01'))
+        self.assertEqual(bytearray(m.field_f1().ref().getValue()), bytearray(b'\x0a\x0b\x0c\x0d\x01'))
         self.assertTrue(m.field_f10().doesExist())
 
-        m.field_f1().setValue(bytearray(b'\x01\x02\x03\x00\x00'));
-        m.field_f2().setValue(bytearray(b'\x04\x05\x06'));
-        m.field_f3().setValue(bytearray(b'\x07\x08'));
+        m.field_f1().ref().setValue(bytearray(b'\x01\x02\x03\x00\x00'));
+        m.field_f2().ref().setValue(bytearray(b'\x04\x05\x06'));
+        m.field_f3().ref().setValue(bytearray(b'\x07\x08'));
         m.field_f10().field().setValue(bytearray(b'\x0a\x0b'));
 
         frame = test15.frame_Frame()

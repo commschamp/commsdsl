@@ -27,12 +27,12 @@ class TestProtocol(unittest.TestCase):
 
     def test_1(self):
         m = test9.message_Msg1()
-        self.assertTrue(math.isnan(m.field_f1().getValue()))
-        self.assertTrue(m.field_f1().isNull())
-        m.field_f1().setS1()
-        self.assertTrue(m.field_f1().isS1())
-        self.assertTrue(math.isinf(m.field_f1().getValue()))
-        m.field_f1().setS4()
+        self.assertTrue(math.isnan(m.field_f1().ref().getValue()))
+        self.assertTrue(m.field_f1().ref().isNull())
+        m.field_f1().ref().setS1()
+        self.assertTrue(m.field_f1().ref().isS1())
+        self.assertTrue(math.isinf(m.field_f1().ref().getValue()))
+        m.field_f1().ref().setS4()
 
         frame = test9.frame_Frame()
         buf = frame.writeMessage(m)

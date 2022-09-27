@@ -99,6 +99,16 @@ std::string SwigField::swigClassDecl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string SwigField::swigPublicDecl() const
+{
+    return swigPublicDeclImpl();
+}
+
+std::string SwigField::swigExtraPublicFuncsCode() const
+{
+    return swigExtraPublicFuncsCodeImpl();
+}
+
 void SwigField::swigAddCodeIncludes(StringsList& list) const
 {
     if (!comms::isGlobalField(m_field)) {
@@ -157,6 +167,56 @@ void SwigField::swigAddDef(StringsList& list) const
     list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderPathFor(m_field, m_field.generator())));
 }
 
+std::string SwigField::swigTemplateScope() const
+{
+    auto& gen = SwigGenerator::cast(m_field.generator());
+    auto commsScope = comms::scopeFor(m_field, gen);
+    std::string optionsParams = "<" + SwigProtocolOptions::swigClassName(gen) + ">";
+
+    if (comms::isGlobalField(m_field)) {
+        return commsScope + optionsParams;
+    }
+
+    using Elem = commsdsl::gen::Elem;
+
+    auto formScopeFunc = 
+        [&commsScope, &gen, &optionsParams](const Elem* parent, const std::string& suffix)
+        {
+            auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
+            assert(optLevelScope.size() < commsScope.size());
+            assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
+            
+            return optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
+        };
+
+    
+    Elem* parent = m_field.getParent();
+    while (parent != nullptr)  {
+        auto elemType = parent->elemType();
+
+        if (elemType == Elem::Type_Interface) {
+            return commsScope;
+        }        
+
+        if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
+            return formScopeFunc(parent, strings::membersSuffixStr());
+        }        
+
+        if (elemType == Elem::Type_Message) {
+            return formScopeFunc(parent, strings::fieldsSuffixStr());
+        }
+
+        if (elemType == Elem::Type_Frame) {
+            return formScopeFunc(parent, strings::layersSuffixStr());
+        }        
+
+        parent = parent->getParent();
+    }
+
+    assert(false); // Should not happen
+    return commsScope;
+}
+
 bool SwigField::swigWrite() const
 {
     if (!comms::isGlobalField(m_field)) {
@@ -204,11 +264,6 @@ bool SwigField::swigWrite() const
     return stream.good();    
 }
 
-std::string SwigField::swigBaseClassDeclImpl() const
-{
-    return strings::emptyString();
-}
-
 std::string SwigField::swigMembersDeclImpl() const
 {
     return strings::emptyString();
@@ -237,9 +292,23 @@ std::string SwigField::swigExtraPublicFuncsCodeImpl() const
     return strings::emptyString();
 }
 
-std::string SwigField::swigCommonPublicFuncsDeclImpl() const
+std::string SwigField::swigPublicDeclImpl() const
 {
-    return swigCommonPublicFuncsDecl();
+    static const std::string Templ = 
+        "#^#VALUE_TYPE#$#\n"
+        "#^#VALUE_ACC#$#\n"
+        "#^#COMMON_FUNCS#$#\n"
+        "#^#EXTRA#$#\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"VALUE_TYPE", swigValueTypeDeclImpl()},
+        {"VALUE_ACC", swigValueAccDeclImpl()},
+        {"COMMON_FUNCS", swigCommonPublicFuncsDecl()},
+        {"EXTRA", swigExtraPublicFuncsDeclImpl()},
+    };            
+
+    return util::processTemplate(Templ, repl);
 }
 
 void SwigField::swigAddDefImpl(StringsList& list) const
@@ -297,56 +366,6 @@ std::string SwigField::swigCommonPublicFuncsCode() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string SwigField::swigTemplateScope() const
-{
-    auto& gen = SwigGenerator::cast(m_field.generator());
-    auto commsScope = comms::scopeFor(m_field, gen);
-    std::string optionsParams = "<" + SwigProtocolOptions::swigClassName(gen) + ">";
-
-    if (comms::isGlobalField(m_field)) {
-        return commsScope + optionsParams;
-    }
-
-    using Elem = commsdsl::gen::Elem;
-
-    auto formScopeFunc = 
-        [&commsScope, &gen, &optionsParams](const Elem* parent, const std::string& suffix)
-        {
-            auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
-            assert(optLevelScope.size() < commsScope.size());
-            assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
-            
-            return optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
-        };
-
-    
-    Elem* parent = m_field.getParent();
-    while (parent != nullptr)  {
-        auto elemType = parent->elemType();
-
-        if (elemType == Elem::Type_Interface) {
-            return commsScope;
-        }        
-
-        if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
-            return formScopeFunc(parent, strings::membersSuffixStr());
-        }        
-
-        if (elemType == Elem::Type_Message) {
-            return formScopeFunc(parent, strings::fieldsSuffixStr());
-        }
-
-        if (elemType == Elem::Type_Frame) {
-            return formScopeFunc(parent, strings::layersSuffixStr());
-        }        
-
-        parent = parent->getParent();
-    }
-
-    assert(false); // Should not happen
-    return commsScope;
-}
-
 std::string SwigField::swigSemanticTypeLengthValueAccDecl() const
 {
     static const std::string Templ = 
@@ -382,15 +401,12 @@ std::string SwigField::swigSemanticTypeLengthValueAccCode() const
 std::string SwigField::swigClassDeclInternal() const
 {
     static const std::string Templ = 
-        "class #^#CLASS_NAME#$##^#SUFFIX#$##^#PUBLIC#$##^#BASE#$#\n"
+        "class #^#CLASS_NAME#$##^#SUFFIX#$#\n"
         "{\n"
         "public:\n"
         "    #^#CLASS_NAME#$##^#SUFFIX#$#();\n"
         "    #^#CLASS_NAME#$##^#SUFFIX#$#(const #^#CLASS_NAME#$##^#SUFFIX#$#&);\n\n"
-        "    #^#VALUE_TYPE#$#\n"
-        "    #^#VALUE_ACC#$#\n"
-        "    #^#COMMON_FUNCS#$#\n"
-        "    #^#EXTRA#$#\n"
+        "    #^#PUBLIC#$#\n"
         "    #^#CUSTOM#$#\n"
         "};\n\n"
         "// Equality comparison operator is renamed as \"eq_#^#CLASS_NAME#$##^#SUFFIX#$#()\" function by SWIG\n"
@@ -402,11 +418,7 @@ std::string SwigField::swigClassDeclInternal() const
     auto& generator = SwigGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", generator.swigClassName(m_field)},
-        {"VALUE_TYPE", swigValueTypeDeclImpl()},
-        {"VALUE_ACC", swigValueAccDeclImpl()},
-        {"COMMON_FUNCS", swigCommonPublicFuncsDeclImpl()},
-        {"EXTRA", swigExtraPublicFuncsDeclImpl()},
-        {"BASE", swigBaseClassDeclImpl()}
+        {"PUBLIC", swigPublicDeclImpl()},
     };
 
     if (swigIsVersionOptional()) {
@@ -416,10 +428,6 @@ std::string SwigField::swigClassDeclInternal() const
     if (comms::isGlobalField(m_field)) {
         repl["CUSTOM"] = 
             util::readFileContents(generator.swigInputCodePathFor(m_field) + strings::publicFileSuffixStr());
-    }
-
-    if (!repl["BASE"].empty()) {
-        repl["PUBLIC"] = " : public ";
     }
 
     return util::processTemplate(Templ, repl);

@@ -5,14 +5,23 @@ endif ()
 set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
-set (languages "python")
+set (languages python java)
 
 cmake_policy(SET CMP0078 NEW)
 cmake_policy(SET CMP0086 NEW)
 
 find_package(LibComms REQUIRED)
-find_package(SWIG REQUIRED OPTIONAL_COMPONENTS ${LANGUAGES})
-find_package(Python3 COMPONENTS Interpreter Development)
+find_package(SWIG REQUIRED COMPONENTS ${LANGUAGES})
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
+find_package(JNI REQUIRED)
+
+if (NOT TARGET JNI::JNI AND JNI_FOUND)
+    add_library(JNI::JNI UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(JNI::JNI PROPERTIES
+        IMPORTED_LOCATION "${JAVA_AWT_LIBRARY}"
+        INTERFACE_INCLUDE_DIRECTORIES "${JNI_INCLUDE_DIRS}")
+endif ()
+
 include (UseSWIG)
 set (UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
 
@@ -26,17 +35,17 @@ set (CMAKE_SWIG_FLAGS -Wall -Werror)
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
     file (GLOB schema_files ${test_dir}/Schema*.xml)
+    set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
+
     foreach (lang ${languages})
         set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name}_${lang})
-
-        set (this_test_dir "${CMAKE_CURRENT_SOURCE_DIR}/${name}")
         set (code_input_dir "${this_test_dir}/${lang}/src")
         set (code_input_param)
         if (EXISTS "${code_input_dir}/")
             set (code_input_param -c ${code_input_dir})
-        endif()     
+        endif()          
 
-        set (rm_tmp_tgt ${APP_NAME}.${name}_rm_tmp_tgt)
+        set (rm_tmp_tgt ${APP_NAME}.${name}_${lang}_rm_tmp_tgt)
         add_custom_target(${rm_tmp_tgt}
             COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
         )

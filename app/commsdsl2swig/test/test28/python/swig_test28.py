@@ -47,11 +47,11 @@ class Variant1Handler(test28.field_Variant1_Handler):
 class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test28.message_Msg1()
-        self.assertFalse(m.field_variant1().valid())
-        self.assertEqual(m.field_variant1().currentField(), 2)
-        m.field_variant1().initField_p2()
-        self.assertEqual(m.field_variant1().currentField(), 1)
-        self.assertEqual(m.field_variant2().currentField(), 0)
+        self.assertFalse(m.field_variant1().ref().valid())
+        self.assertEqual(m.field_variant1().ref().currentField(), 2)
+        m.field_variant1().ref().initField_p2()
+        self.assertEqual(m.field_variant1().ref().currentField(), 1)
+        self.assertEqual(m.field_variant2().ref().currentField(), 0)
 
 
         frame = test28.frame_Frame()
@@ -63,11 +63,11 @@ class TestProtocol(unittest.TestCase):
         self.assertTrue(test28.eq_message_Msg1(self.msg1, m))
 
         vh = Variant1Handler(self)
-        self.msg1.field_variant1().currentFieldExec(vh);   
+        self.msg1.field_variant1().ref().currentFieldExec(vh);   
         self.assertTrue(vh.p2)
-        self.assertTrue(test28.eq_field_Variant1Members_P2(self.p2, m.field_variant1().accessField_p2()))             
+        self.assertTrue(test28.eq_field_Variant1Members_P2(self.p2, m.field_variant1().ref().accessField_p2()))             
 
-        m.field_variant1().reset()
+        m.field_variant1().ref().reset()
 
 
 if __name__ == '__main__':

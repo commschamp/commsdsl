@@ -25,10 +25,10 @@ class MsgHandler(test20.MsgHandler):
 class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test20.message_Msg2()
-        m.field_f1().setMeters(0.1)
-        self.assertEqual(m.field_f1().getMeters(), 0.1)
-        self.assertEqual(m.field_f1().getScaled(), 100.0)
-        self.assertEqual(m.field_f1().getValue(), 10000)
+        m.field_f1().ref().setMeters(0.1)
+        self.assertEqual(m.field_f1().ref().getMeters(), 0.1)
+        self.assertEqual(m.field_f1().ref().getScaled(), 100.0)
+        self.assertEqual(m.field_f1().ref().getValue(), 10000)
 
 
 if __name__ == '__main__':

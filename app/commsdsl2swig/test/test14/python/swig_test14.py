@@ -23,16 +23,16 @@ class MsgHandler(test14.MsgHandler):
 class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test14.message_Msg1()
-        self.assertEqual(m.field_f1().getValue(), "hello")
-        self.assertEqual(m.field_f2().getValue(), "hello")
-        self.assertEqual(m.field_f3().getValue(), "hello")
-        self.assertEqual(m.field_f4().getValue(), "")
+        self.assertEqual(m.field_f1().ref().getValue(), "hello")
+        self.assertEqual(m.field_f2().ref().getValue(), "hello")
+        self.assertEqual(m.field_f3().ref().getValue(), "hello")
+        self.assertEqual(m.field_f4().ref().getValue(), "")
         self.assertEqual(m.field_f10().getValue(), "")
 
-        m.field_f1().setValue("bla");
-        m.field_f2().setValue("aaa");
-        m.field_f3().setValue("bbb");
-        m.field_f4().setValue("ccc");
+        m.field_f1().ref().setValue("bla");
+        m.field_f2().ref().setValue("aaa");
+        m.field_f3().ref().setValue("bbb");
+        m.field_f4().ref().setValue("ccc");
         m.field_f10().setValue("ddd");
 
         frame = test14.frame_Frame()
@@ -42,7 +42,7 @@ class TestProtocol(unittest.TestCase):
         frame.processInputData(buf, h)
                 
         self.assertTrue(test14.eq_message_Msg1(self.msg1, m))
-        self.assertEqual(self.msg1.field_f1().getValue(), "bla")
+        self.assertEqual(self.msg1.field_f1().ref().getValue(), "bla")
 
 
 if __name__ == '__main__':

@@ -32,9 +32,9 @@ class TestProtocol(unittest.TestCase):
 
     def test_1(self):
         m = test10.message_Msg2()
-        m.field_f1().field_year().setValue(2127)
-        m.field_f1().field_month().setValue(1)
-        m.field_f1().field_day().setValue(10)
+        m.field_f1().ref().field_year().setValue(2127)
+        m.field_f1().ref().field_month().setValue(1)
+        m.field_f1().ref().field_day().setValue(10)
 
         frame = test10.frame_Frame()
         buf = frame.writeMessage(m)

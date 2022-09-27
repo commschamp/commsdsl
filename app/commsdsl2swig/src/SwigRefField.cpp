@@ -41,25 +41,45 @@ bool SwigRefField::writeImpl() const
     return swigWrite();
 }
 
-std::string SwigRefField::swigBaseClassDeclImpl() const
-{
-    auto* field = SwigField::cast(referencedField());
-    assert(field != nullptr);
-    return SwigGenerator::cast(generator()).swigClassName(field->field());
-}
-
 std::string SwigRefField::swigValueAccDeclImpl() const
 {
     return strings::emptyString();
 }
 
-std::string SwigRefField::swigCommonPublicFuncsDeclImpl() const
+std::string SwigRefField::swigExtraPublicFuncsCodeImpl() const
 {
-    static const std::string Templ = 
-        "static const char* name();\n"
+    static const std::string Templ =
+        "using RefType = #^#REF_TYPE#$#;\n"
+        "#^#REF_TYPE#$#& ref()\n"
+        "{\n"
+        "    return static_cast<#^#REF_TYPE#$#&>(reinterpret_cast<#^#BASE_TYPE#$#&>(*this));\n"
+        "}\n"
     ;
 
-    return Templ;
+    auto& gen = SwigGenerator::cast(generator());
+    auto* field = SwigField::cast(referencedField());
+    util::ReplacementMap repl = {
+        {"REF_TYPE", gen.swigClassName(field->field())},
+        {"BASE_TYPE", field->swigTemplateScope()},
+    };    
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string SwigRefField::swigPublicDeclImpl() const
+{
+    static const std::string Templ = 
+        "using RefType = #^#REF_TYPE#$#;\n"
+        "#^#REF_TYPE#$#& ref();\n"
+        "#^#FUNCS#$#\n";   
+
+    auto& gen = SwigGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"REF_TYPE", gen.swigClassName(*referencedField())},
+        {"FUNCS", swigCommonPublicFuncsDecl()}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 void SwigRefField::swigAddDefImpl(StringsList& list) const

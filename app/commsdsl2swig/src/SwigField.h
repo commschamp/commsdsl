@@ -51,28 +51,30 @@ public:
 
     bool swigIsVersionOptional() const;
     std::string swigClassDecl() const;
+    std::string swigPublicDecl() const;
+    std::string swigExtraPublicFuncsCode() const;
     
     void swigAddCodeIncludes(StringsList& list) const; 
     void swigAddCode(StringsList& list) const; 
     void swigAddDef(StringsList& list) const;
 
+    std::string swigTemplateScope() const;
+
     // bool swigPrepare();
     bool swigWrite() const;
 
 protected:
-    virtual std::string swigBaseClassDeclImpl() const;
     virtual std::string swigMembersDeclImpl() const;
     virtual std::string swigValueTypeDeclImpl() const;
     virtual std::string swigValueAccDeclImpl() const;
     virtual std::string swigExtraPublicFuncsDeclImpl() const;
     virtual std::string swigExtraPublicFuncsCodeImpl() const;
-    virtual std::string swigCommonPublicFuncsDeclImpl() const;
+    virtual std::string swigPublicDeclImpl() const;
     virtual void swigAddDefImpl(StringsList& list) const;
     virtual void swigAddMembersCodeImpl(StringsList& list) const;
 
     std::string swigCommonPublicFuncsDecl() const;
     std::string swigCommonPublicFuncsCode() const;
-    std::string swigTemplateScope() const;
 
     std::string swigSemanticTypeLengthValueAccDecl() const;
     std::string swigSemanticTypeLengthValueAccCode() const;

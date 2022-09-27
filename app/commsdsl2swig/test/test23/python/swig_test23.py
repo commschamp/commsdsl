@@ -38,7 +38,7 @@ class MsgHandler(test23.MsgHandler):
 class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test23.message_Msg4()
-        self.assertTrue(m.field_b1().field_data2().doesExist())
+        self.assertTrue(m.field_b1().ref().field_data2().doesExist())
         
         frame = test23.frame_Frame()
         buf = frame.writeMessage(m)
@@ -50,10 +50,10 @@ class TestProtocol(unittest.TestCase):
 
     def test_2(self):
         m = test23.message_Msg4()
-        self.assertTrue(m.field_b1().field_data2().doesExist())
+        self.assertTrue(m.field_b1().ref().field_data2().doesExist())
         m.transportField_version().setValue(1)
         m.refresh()
-        self.assertTrue(m.field_b1().field_data2().isMissing())
+        self.assertTrue(m.field_b1().ref().field_data2().isMissing())
         
         frame = test23.frame_Frame()
         buf = frame.writeMessage(m)

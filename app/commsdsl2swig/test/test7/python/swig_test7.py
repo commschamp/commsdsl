@@ -23,9 +23,9 @@ class MsgHandler(test7.MsgHandler):
 class TestProtocol(unittest.TestCase):
     def test_1(self):
         m = test7.message_Msg1()
-        self.assertEqual(m.field_f1().getBitValue_b2(), True)
-        self.assertEqual(m.field_f1().getBitValue_b3(), False)
-        m.field_f1().setValue(0xff)
+        self.assertEqual(m.field_f1().ref().getBitValue_b2(), True)
+        self.assertEqual(m.field_f1().ref().getBitValue_b3(), False)
+        m.field_f1().ref().setValue(0xff)
         m.field_f2().setBitValue_b3(True)
         self.assertEqual(m.field_f2().getValue(), 0x8)
 
@@ -35,7 +35,7 @@ class TestProtocol(unittest.TestCase):
         h = MsgHandler(self)
         frame.processInputData(buf, h)
                 
-        self.assertEqual(self.msg1.field_f1().getValue(), m.field_f1().getValue())
+        self.assertEqual(self.msg1.field_f1().ref().getValue(), m.field_f1().ref().getValue())
         self.assertTrue(test7.eq_message_Msg1(self.msg1, m))
 
     def test_2(self):
@@ -49,7 +49,7 @@ class TestProtocol(unittest.TestCase):
         frameFields = test7.frame_Frame_AllFields()
         frame.processInputDataSingleMsg(buf, h, frameFields)
 
-        self.assertEqual(self.msg1.field_f1().getValue(), m.field_f1().getValue())
+        self.assertEqual(self.msg1.field_f1().ref().getValue(), m.field_f1().ref().getValue())
         self.assertEqual(frameFields.m_iD.getValue(), 1)
         self.assertEqual(bytearray(frameFields.m_data.getValue()), bytearray(b'\x00\x00\x06\x00'))
 
