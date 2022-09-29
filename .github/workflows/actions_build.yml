@@ -202,7 +202,9 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} python3 libpython3-dev swig
+      run: |
+        sudo apt install libqt5gui5 qtbase5-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} \
+        python3 libpython3-dev swig default-jdk default-jre
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build      
@@ -390,7 +392,9 @@ jobs:
       run: sudo apt-get update --fix-missing    
       
     - name: Install Packages
-      run: sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} python3 libpython3-dev swig
+      run: |
+        sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} \
+        python3 libpython3-dev swig  default-jdk default-jre
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build      

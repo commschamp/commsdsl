@@ -14,6 +14,7 @@ find_package(LibComms REQUIRED)
 find_package(SWIG REQUIRED COMPONENTS ${LANGUAGES})
 find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 find_package(JNI REQUIRED)
+find_package(Java REQUIRED COMPONENTS Runtime Development)
 
 if (NOT TARGET JNI::JNI AND JNI_FOUND)
     add_library(JNI::JNI UNKNOWN IMPORTED GLOBAL)
@@ -24,6 +25,7 @@ endif ()
 
 include (UseSWIG)
 set (UseSWIG_TARGET_NAME_PREFERENCE STANDARD)
+set (UseSWIG_MODULE_VERSION 2)
 
 add_custom_target(${APP_NAME}.all_tests
     COMMAND ${CMAKE_COMMAND} -E echo "All ${APP_NAME} tests are built")
@@ -78,8 +80,8 @@ foreach (name ${tests})
                 CPLUSPLUS ON
         )
         set (swig_tgt ${APP_NAME}_${name}_${lang})
-        set (test_build_dir ${output_dir}_build)
-        swig_add_library(${swig_tgt} LANGUAGE ${lang} SOURCES ${output_dir}/${name}.i)
+        set (swig_output_dir ${output_dir}_swig)
+        swig_add_library(${swig_tgt} LANGUAGE ${lang} OUTPUT_DIR ${swig_output_dir} SOURCES ${output_dir}/${name}.i)
         target_link_libraries(${swig_tgt} cc::comms)
         add_dependencies(${swig_tgt} ${output_tgt} commsdsl2comms.${name}_build_tgt)
         target_include_directories(${swig_tgt} PRIVATE ${protocol_install_dir}/include)

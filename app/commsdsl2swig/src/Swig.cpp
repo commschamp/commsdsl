@@ -157,7 +157,15 @@ std::string Swig::swigDefInternal() const
         includeWrap("std_vector.i")
     };
 
-    util::StringsList defs;
+    std::string javaDefs = 
+        "#ifdef SWIGJAVA\n"
+        "%include \"enums.swg\"\n"
+        //"%javaconst(1);\n"
+        "#endif // #ifdef SWIGJAVA\n";
+
+    util::StringsList defs = {
+        std::move(javaDefs)
+    };
 
     SwigComms::swigAddDef(defs);
     SwigDataBuf::swigAddDef(m_generator, defs);

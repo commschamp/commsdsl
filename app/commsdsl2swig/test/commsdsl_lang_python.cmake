@@ -4,6 +4,6 @@ if (EXISTS ${this_test_dir}/${lang}/swig_${name}.py)
     add_test(
         NAME ${APP_NAME}.${name}_${lang}
         COMMAND ${Python_EXECUTABLE} ${this_test_dir}/${lang}/swig_${name}.py
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+        WORKING_DIRECTORY ${swig_output_dir}
     )
 endif ()

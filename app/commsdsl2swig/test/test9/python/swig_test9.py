@@ -4,6 +4,7 @@ import unittest
 import math
 
 sys.path.append(os.getcwd())
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
 
 import test9
 
