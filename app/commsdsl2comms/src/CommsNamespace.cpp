@@ -73,7 +73,7 @@ std::string CommsNamespace::commsDefaultOptions() const
             false
         );
 
-    auto nsName = comms::namespaceName(name());
+    auto nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
@@ -96,7 +96,7 @@ std::string CommsNamespace::commsClientDefaultOptions() const
         return strings::emptyString();
     }
 
-    auto nsName = comms::namespaceName(name());
+    auto& nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
@@ -128,7 +128,7 @@ std::string CommsNamespace::commsServerDefaultOptions() const
         return strings::emptyString();
     }
 
-    auto nsName = comms::namespaceName(name());
+    auto& nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)}
@@ -160,7 +160,7 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
         return strings::emptyString();
     }
 
-    auto nsName = comms::namespaceName(name());
+    auto& nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
@@ -192,7 +192,7 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
         return strings::emptyString();
     }
 
-    auto nsName = comms::namespaceName(name());
+    auto& nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},

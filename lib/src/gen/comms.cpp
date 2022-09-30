@@ -133,7 +133,7 @@ void addNamespaceScopeInernal(
         str.append(sep);
     }               
 
-    str.append(namespaceName(elemName));
+    str.append(elemName);
 }
 
 std::string scopeForInternal(
@@ -294,16 +294,6 @@ std::string accessName(const std::string& name)
     return result;
 }
 
-std::string namespaceName(const std::string& name)
-{
-    auto result = name;
-    if (!result.empty()) {
-        result[0] = static_cast<char>(std::tolower(static_cast<int>(result[0])));
-    }
-
-    return result;    
-}
-
 std::string fullNameFor(const Elem& elem)
 {
     std::string result;
@@ -320,7 +310,7 @@ std::string fullNameFor(const Elem& elem)
     auto elemType = elem.elemType();
     do {
         if (elemType == Elem::Type_Namespace) {
-            result.append(namespaceName(elem.name()));
+            result.append(elem.name());
             break;
         }
 
@@ -604,10 +594,10 @@ std::string namespaceBeginFor(
 
         auto& topNamespace = generator.getTopNamespace();
         if (!topNamespace.empty()) {
-            appendToResultFunc(namespaceName(topNamespace));
+            appendToResultFunc(topNamespace);
         }
 
-        appendToResultFunc(namespaceName(generator.schemaOf(elem).mainNamespace()));
+        appendToResultFunc(generator.schemaOf(elem).mainNamespace());
     } while (false);
 
     auto elemType = elem.elemType();
@@ -639,7 +629,7 @@ std::string namespaceBeginFor(
         return result;
     }
 
-    appendToResultFunc(namespaceName(elemName));
+    appendToResultFunc(elemName);
     return result;
 }       
 
@@ -688,7 +678,7 @@ std::string namespaceEndFor(
     auto& elemName = elem.name();
     
     if (!elemName.empty()) {
-        appendToResultFunc(namespaceName(elemName));
+        appendToResultFunc(elemName);
     }
     
     do {
@@ -697,11 +687,11 @@ std::string namespaceEndFor(
             break;
         }
 
-        appendToResultFunc(namespaceName(generator.schemaOf(elem).mainNamespace()));
+        appendToResultFunc(generator.schemaOf(elem).mainNamespace());
 
         auto& topNamespace = generator.getTopNamespace();
         if (!topNamespace.empty()) {
-            appendToResultFunc(namespaceName(topNamespace));
+            appendToResultFunc(topNamespace);
         }
     } while (false);
 
