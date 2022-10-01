@@ -163,8 +163,14 @@ std::string Swig::swigDefInternal() const
         //"%javaconst(1);\n"
         "#endif // #ifdef SWIGJAVA\n";
 
+    std::string csharpDefs = 
+        "#ifdef SWIGCSHARP\n"
+        "#pragma SWIG nowarn=314\n"
+        "#endif // #ifdef SWIGCSHARP\n";
+
     util::StringsList defs = {
-        std::move(javaDefs)
+        std::move(javaDefs),
+        std::move(csharpDefs)
     };
 
     SwigComms::swigAddDef(defs);

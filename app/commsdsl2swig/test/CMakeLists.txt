@@ -5,7 +5,7 @@ endif ()
 set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
-set (languages python java)
+set (languages python java csharp)
 
 cmake_policy(SET CMP0078 NEW)
 cmake_policy(SET CMP0086 NEW)
@@ -81,20 +81,27 @@ foreach (name ${tests})
         )
         set (swig_tgt ${APP_NAME}_${name}_${lang})
         set (swig_output_dir ${output_dir}_swig)
-        set (CMAKE_SWIG_FLAGS -Wall -Werror)
+        set (CMAKE_SWIG_FLAGS -Werror )
 
         if ("${lang}" STREQUAL "java")
-            list (APPEND CMAKE_SWIG_FLAGS "-package" ${name}_p)
+            list (APPEND CMAKE_SWIG_FLAGS "-Wall" "-package" ${name}_p)
+        elseif ("${lang}" STREQUAL "csharp")            
+            list (APPEND CMAKE_SWIG_FLAGS "-namespace" ${name}_p)
+        else ()
+            list (APPEND CMAKE_SWIG_FLAGS "-Wall")
         endif ()
 
         swig_add_library(${swig_tgt} LANGUAGE ${lang} OUTPUT_DIR ${swig_output_dir} SOURCES ${output_dir}/${name}.i)
         target_link_libraries(${swig_tgt} cc::comms)
         add_dependencies(${swig_tgt} ${output_tgt} commsdsl2comms.${name}_build_tgt)
         target_include_directories(${swig_tgt} PRIVATE ${protocol_install_dir}/include)
-        include (${CMAKE_CURRENT_SOURCE_DIR}/commsdsl_lang_${lang}.cmake)
+        set (update_inc ${CMAKE_CURRENT_SOURCE_DIR}/commsdsl_lang_${lang}.cmake)
+        if (EXISTS ${update_inc})
+            include (${update_inc})
+        endif ()
 
         set (common_gcc_clang_opts
-            -Wno-old-style-cast -Wno-cast-qual -Wno-shadow -Wno-double-promotion
+            -Wno-old-style-cast -Wno-cast-qual -Wno-shadow -Wno-double-promotion -Wno-implicit-int-conversion
         )
 
         set (gcc_opts ${common_gcc_clang_opts} "-Wno-strict-aliasing")
