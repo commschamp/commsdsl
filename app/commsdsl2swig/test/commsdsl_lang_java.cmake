@@ -13,7 +13,7 @@ if (EXISTS ${this_test_dir}/${lang}/SwigTest.java)
 
     add_test(
         NAME ${APP_NAME}.${name}_${lang}
-        COMMAND ${Java_JAVA_EXECUTABLE} SwigTest
+        COMMAND ${Java_JAVA_EXECUTABLE} -ea SwigTest
         WORKING_DIRECTORY ${swig_output_dir}
     )    
 

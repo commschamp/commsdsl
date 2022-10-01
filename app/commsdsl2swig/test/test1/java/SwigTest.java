@@ -14,7 +14,7 @@ public class SwigTest {
         System.loadLibrary("commsdsl2swig_test1_java");
     }
 
-    public void test1() {
+    public void doTest1() {
         var msg = new test1_message_Msg1();
         msg.field_f1().setValue(0x123456);
         msg.field_f2().setValue(300);
@@ -31,6 +31,6 @@ public class SwigTest {
 
     public static void main(String argv[]) {
         var suite = new SwigTest();
-        suite.test1();
+        suite.doTest1();
     }
 }

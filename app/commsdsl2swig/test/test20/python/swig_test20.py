@@ -18,6 +18,10 @@ class MsgHandler(test20.MsgHandler):
         if (self.msgFunc is not None):
             self.msgFunc(msg)
 
+    def handle_message_Msg2(self, msg):
+        self.msg2 = True
+        if (self.msgFunc is not None):
+            self.msgFunc(msg)
 
     def handle_Message(self, msg):
         sys.exit("shouldn't happen")
