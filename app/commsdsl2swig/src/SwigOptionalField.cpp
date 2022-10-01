@@ -15,6 +15,7 @@
 
 #include "SwigOptionalField.h"
 
+#include "SwigComms.h"
 #include "SwigGenerator.h"
 
 #include "commsdsl/gen/strings.h"
@@ -34,11 +35,11 @@ SwigOptionalField::SwigOptionalField(SwigGenerator& generator, commsdsl::parse::
 {
 }
 
-std::string SwigOptionalField::swigDeclFuncs(const std::string& fieldType)
+std::string SwigOptionalField::swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType)
 {
     static const std::string Templ = 
         "using Field = #^#FIELD_TYPE#$#;\n"
-        "using Mode = comms_field_OptionalMode;\n\n"
+        "using Mode = #^#OPT_MODE#$#;\n\n"
         "Field& field();\n\n"
         "Mode getMode() const;\n"
         "void setMode(Mode val);\n"
@@ -50,8 +51,10 @@ std::string SwigOptionalField::swigDeclFuncs(const std::string& fieldType)
         "void setMissing();\n"
     ;
 
+    auto& gen = SwigGenerator::cast(generator);
     util::ReplacementMap repl = {
-        {"FIELD_TYPE", fieldType}
+        {"FIELD_TYPE", fieldType},
+        {"OPT_MODE", SwigComms::swigOptionalModeClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);
@@ -91,8 +94,8 @@ std::string SwigOptionalField::swigExtraPublicFuncsDeclImpl() const
     }
 
     assert(mem != nullptr);
-
-    return swigDeclFuncs(SwigGenerator::cast(generator()).swigClassName(mem->field()));
+    auto& gen = SwigGenerator::cast(generator());
+    return swigDeclFuncs(gen, gen.swigClassName(mem->field()));
 }
 
 void SwigOptionalField::swigAddDefImpl(StringsList& list) const

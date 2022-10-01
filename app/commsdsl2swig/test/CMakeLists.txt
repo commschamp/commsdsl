@@ -52,10 +52,15 @@ foreach (name ${tests})
             COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
         )
 
+        set (extra_gen_params)
+        if ("${lang}" STREQUAL "java")
+            set (extra_gen_params "--force-main-ns-in-names")
+        endif ()
+
         add_custom_command(
             OUTPUT ${output_dir}.tmp
             DEPENDS ${schema_files} ${APP_NAME} ${rm_tmp_tgt}
-            COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
+            COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} ${extra_gen_params} -o ${output_dir}.tmp ${schema_files}
         )
 
         set (output_tgt ${APP_NAME}.${name}_${lang}_output_tgt)

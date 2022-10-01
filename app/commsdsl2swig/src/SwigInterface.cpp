@@ -15,6 +15,7 @@
 
 #include "SwigInterface.h"
 
+#include "SwigComms.h"
 #include "SwigDataBuf.h"
 #include "SwigGenerator.h"
 #include "SwigMsgHandler.h"
@@ -67,7 +68,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
         {"COMMS_CLASS", comms::scopeFor(*this, gen)},
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"UINT8_T", gen.swigConvertCppType("std::uint8_t")},
-        {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)}
     };    
 
@@ -235,8 +236,8 @@ std::string SwigInterface::swigClassDeclInternal() const
         "    #^#FIELDS#$#\n"
         "    const char* name() const;\n"
         "    #^#MSG_ID#$# getId() const;\n"
-        "    comms_ErrorStatus read(const #^#DATA_BUF#$#& buf);\n"
-        "    comms_ErrorStatus write(#^#DATA_BUF#$#& buf) const;\n"
+        "    #^#ERR_STATUS#$# read(const #^#DATA_BUF#$#& buf);\n"
+        "    #^#ERR_STATUS#$# write(#^#DATA_BUF#$#& buf) const;\n"
         "    bool refresh();\n"
         "    #^#SIZE_T#$# length() const;\n"
         "    bool valid() const;\n"
@@ -254,8 +255,9 @@ std::string SwigInterface::swigClassDeclInternal() const
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"MSG_ID", SwigMsgId::swigClassName(gen)},
-        {"DATA_BUF", SwigDataBuf::swigClassName()},
-        {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)}
+        {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
+        {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)},
+        {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);    
@@ -316,13 +318,13 @@ std::string SwigInterface::swigCommonCodeInternal() const
 {
     static const std::string Templ = 
         "using Base::read;\n"
-        "comms_ErrorStatus read(const #^#DATA_BUF#$#& buf)\n"
+        "#^#ERR_STATUS#$# read(const #^#DATA_BUF#$#& buf)\n"
         "{\n"
         "    auto iter = buf.begin();\n"
         "    return Base::read(iter, buf.size());\n"
         "}\n\n"
         "using Base::write;\n"
-        "comms_ErrorStatus write(#^#DATA_BUF#$#& buf) const\n"
+        "#^#ERR_STATUS#$# write(#^#DATA_BUF#$#& buf) const\n"
         "{\n"
         "    buf.resize(length());\n"
         "    auto iter = buf.begin();\n"
@@ -330,8 +332,10 @@ std::string SwigInterface::swigCommonCodeInternal() const
         "}\n"
     ;
 
+    auto& gen = SwigGenerator::cast(generator());
     util::ReplacementMap repl = {
-        {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
+        {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);    

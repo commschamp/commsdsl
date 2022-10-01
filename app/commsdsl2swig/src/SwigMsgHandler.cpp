@@ -137,7 +137,7 @@ void SwigMsgHandler::swigAddDef(const SwigGenerator& generator, StringsList& lis
 
     list.push_back(util::processTemplate(Templ, repl));
 
-    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(swigClassName(generator), generator)));    
+    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(ClassName, generator)));    
 }
 
 std::string SwigMsgHandler::swigClassName(const SwigGenerator& generator)
@@ -147,7 +147,7 @@ std::string SwigMsgHandler::swigClassName(const SwigGenerator& generator)
 
 bool SwigMsgHandler::swigWriteInternal() const
 {
-    auto filePath = comms::headerPathRoot(swigClassName(m_generator), m_generator);
+    auto filePath = comms::headerPathRoot(ClassName, m_generator);
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);

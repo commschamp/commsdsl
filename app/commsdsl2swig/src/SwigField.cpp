@@ -15,6 +15,7 @@
 
 #include "SwigField.h"
 
+#include "SwigComms.h"
 #include "SwigDataBuf.h"
 #include "SwigGenerator.h"
 #include "SwigOptionalField.h"
@@ -325,8 +326,8 @@ std::string SwigField::swigCommonPublicFuncsDecl() const
 {
     static const std::string Templ = 
         "static const char* name();\n"
-        "comms_ErrorStatus read(const #^#DATA_BUF#$#& buf);\n"
-        "comms_ErrorStatus write(#^#DATA_BUF#$#& buf) const;\n"
+        "#^#ERR_STATUS#$# read(const #^#DATA_BUF#$#& buf);\n"
+        "#^#ERR_STATUS#$# write(#^#DATA_BUF#$#& buf) const;\n"
         "bool refresh();\n"
         "#^#SIZE_T#$# length() const;\n"
         "bool valid() const;\n"
@@ -334,8 +335,9 @@ std::string SwigField::swigCommonPublicFuncsDecl() const
 
     auto& gen = SwigGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
-        {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
+        {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);
@@ -345,13 +347,13 @@ std::string SwigField::swigCommonPublicFuncsCode() const
 {
     static const std::string Templ = 
         "using Base::read;\n"
-        "comms_ErrorStatus read(const #^#DATA_BUF#$#& buf)\n"
+        "#^#ERR_STATUS#$# read(const #^#DATA_BUF#$#& buf)\n"
         "{\n"
         "    auto iter = buf.begin();\n"
         "    return Base::read(iter, buf.size());\n"
         "}\n\n"
         "using Base::write;\n"
-        "comms_ErrorStatus write(#^#DATA_BUF#$#& buf) const\n"
+        "#^#ERR_STATUS#$# write(#^#DATA_BUF#$#& buf) const\n"
         "{\n"
         "    buf.resize(length());\n"
         "    auto iter = buf.begin();\n"
@@ -359,8 +361,10 @@ std::string SwigField::swigCommonPublicFuncsCode() const
         "}\n"
     ;
 
+    auto& gen = SwigGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
-        {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
+        {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);
@@ -453,12 +457,12 @@ std::string SwigField::swigOptionalDeclInternal() const
         "bool operator<(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second);\n"
         ;     
 
-    auto& generator = SwigGenerator::cast(m_field.generator());
-    auto className = generator.swigClassName(m_field);
+    auto& gen = SwigGenerator::cast(m_field.generator());
+    auto className = gen.swigClassName(m_field);
     util::ReplacementMap repl = {
         {"CLASS_NAME", className},
         {"COMMON_FUNCS", swigCommonPublicFuncsDecl()},
-        {"OPTIONAL_FUNCS", SwigOptionalField::swigDeclFuncs(className + strings::versionOptionalFieldSuffixStr())},
+        {"OPTIONAL_FUNCS", SwigOptionalField::swigDeclFuncs(gen, className + strings::versionOptionalFieldSuffixStr())},
     };
 
     return util::processTemplate(Templ, repl);

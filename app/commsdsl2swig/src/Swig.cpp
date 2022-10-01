@@ -97,7 +97,7 @@ std::string Swig::swigCodeBlockInternal() const
 
     util::StringsList codeElems;
 
-    SwigComms::swigAddCode(codeElems);
+    SwigComms::swigAddCode(m_generator, codeElems);
     SwigDataBuf::swigAddCode(m_generator, codeElems);
     SwigMsgId::swigAddCode(m_generator, codeElems);
     SwigProtocolOptions::swigAddCode(m_generator, codeElems);

@@ -31,7 +31,7 @@ class SwigOptionalField final : public commsdsl::gen::OptionalField, public Swig
 public:
     SwigOptionalField(SwigGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
-    static std::string swigDeclFuncs(const std::string& fieldType);
+    static std::string swigDeclFuncs(const SwigGenerator& generator, const std::string& fieldType);
 
 protected:
     // Base overrides

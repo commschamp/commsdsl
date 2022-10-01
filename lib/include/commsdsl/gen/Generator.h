@@ -148,6 +148,7 @@ public:
     LayerPtr createPayloadLayer(commsdsl::parse::Layer dslObj, Elem* parent);
     LayerPtr createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* parent);
 
+    unsigned currentSchemaIdx() const;
     void chooseCurrentSchema(unsigned idx);
     void chooseProtocolSchema();
 

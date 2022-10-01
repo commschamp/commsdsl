@@ -119,6 +119,20 @@ public:
         m_currentSchema = m_schemas[idx].get();
     }
 
+    unsigned currentSchemaIdx() const
+    {
+        assert(m_currentSchema != nullptr);
+        auto iter = 
+            std::find_if(
+                m_schemas.begin(), m_schemas.end(), 
+                [this](auto& sPtr)
+                {
+                    return m_currentSchema == sPtr.get();
+                });
+        assert(iter != m_schemas.end());
+        return static_cast<unsigned>(std::distance(m_schemas.begin(), iter));
+    }
+
     void forceSchemaVersion(unsigned value)
     {
         m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
@@ -954,6 +968,11 @@ LayerPtr Generator::createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* par
 {
     assert(dslObj.kind() == commsdsl::parse::Layer::Kind::Checksum);
     return createChecksumLayerImpl(dslObj, parent);
+}
+
+unsigned Generator::currentSchemaIdx() const
+{
+    return m_impl->currentSchemaIdx();
 }
 
 void Generator::chooseCurrentSchema(unsigned idx)

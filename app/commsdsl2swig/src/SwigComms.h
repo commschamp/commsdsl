@@ -33,7 +33,10 @@ public:
     static const std::string& swigRelHeader();
 
     static void swigAddDef(StringsList& list);
-    static void swigAddCode(StringsList& list);
+    static void swigAddCode(const SwigGenerator& generator, StringsList& list);
+
+    static std::string swigErrorStatusClassName(const SwigGenerator& generator);
+    static std::string swigOptionalModeClassName(const SwigGenerator& generator);
 
 private:
     explicit SwigComms(SwigGenerator& generator) : m_generator(generator) {}

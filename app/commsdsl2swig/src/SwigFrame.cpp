@@ -207,7 +207,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         {"INTERFACE", gen.swigClassName(*iFace)},
         {"LAYERS", swigLayersAccDeclInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
-        {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"HANDLER", SwigMsgHandler::swigClassName(gen)},
     };
@@ -370,7 +370,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"COMMS_CLASS", comms::scopeFor(*this, gen)},
-        {"DATA_BUF", SwigDataBuf::swigClassName()},
+        {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"MAIN_NS", gen.protocolSchema().mainNamespace()},
         {"PROT_OPTS", SwigProtocolOptions::swigClassName(gen)},
         {"ALL_FIELDS_VALUES", util::strListToString(allFieldsAcc, ",\n", "")},

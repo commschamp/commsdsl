@@ -90,12 +90,23 @@ std::string SwigGenerator::swigClassName(const Elem& elem) const
     return swigScopeToName(str);
 }
 
- std::string SwigGenerator::swigClassNameForRoot(const std::string& name) const
- {
+std::string SwigGenerator::swigClassNameForRoot(const std::string& name) const
+{
     bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
     auto str = comms::scopeForRoot(name, *this, addMainNamespace);
     return swigScopeToName(str);
- }
+}
+
+std::string SwigGenerator::swigProtocolClassNameForRoot(const std::string& name) const
+{
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
+    auto schemaIdx = currentSchemaIdx();
+    auto* thisGen = const_cast<SwigGenerator*>(this);
+    thisGen->chooseProtocolSchema();
+    auto str = comms::scopeForRoot(name, *this, addMainNamespace);
+    thisGen->chooseCurrentSchema(schemaIdx);
+    return swigScopeToName(str);
+}
 
 const std::string& SwigGenerator::swigConvertCppType(const std::string& str) const
 {

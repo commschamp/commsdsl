@@ -56,7 +56,7 @@ void SwigDataBuf::swigAddDef(const SwigGenerator& generator, StringsList& list)
         "%template(#^#CLASS_NAME#$#) std::vector<#^#UINT8_T#$#>;";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", swigClassName()},
+        {"CLASS_NAME", swigClassName(generator)},
         {"UINT8_T", SwigGenerator::cast(generator).swigConvertCppType("std::uint8_t")}
     };
 
@@ -71,16 +71,16 @@ void SwigDataBuf::swigAddCode(const SwigGenerator& generator, StringsList& list)
         "using #^#CLASS_NAME#$# = std::vector<#^#UINT8_T#$#>;\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", swigClassName()},
+        {"CLASS_NAME", swigClassName(generator)},
         {"UINT8_T", SwigGenerator::cast(generator).swigConvertCppType("std::uint8_t")}
     };
 
     list.push_back(util::processTemplate(Templ, repl));
 }
 
-const std::string& SwigDataBuf::swigClassName()
+std::string SwigDataBuf::swigClassName(const SwigGenerator& generator)
 {
-    return ClassName;
+    return generator.swigProtocolClassNameForRoot(ClassName);
 }
 
 bool SwigDataBuf::swigWriteInternal() const
@@ -109,7 +109,7 @@ bool SwigDataBuf::swigWriteInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"CLASS_NAME", swigClassName()},
+        {"CLASS_NAME", swigClassName(m_generator)},
         {"UINT8_T", SwigGenerator::cast(m_generator).swigConvertCppType("std::uint8_t")}
     };
 

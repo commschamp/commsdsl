@@ -31,7 +31,7 @@ public:
     static bool write(SwigGenerator& generator);
     static void swigAddDef(const SwigGenerator& generator, StringsList& list);
     static void swigAddCode(const SwigGenerator& generator, StringsList& list);
-    static const std::string& swigClassName();
+    static std::string swigClassName(const SwigGenerator& generator);
 
 private:
     explicit SwigDataBuf(SwigGenerator& generator) : m_generator(generator) {}

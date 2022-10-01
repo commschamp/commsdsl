@@ -29,6 +29,15 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
+namespace 
+{
+
+const std::string ErrorStatusClass("comms_ErrorStatus");
+const std::string OptionalModeClass("comms_field_OptionalMode");
+
+} // namespace 
+    
+
 bool SwigComms::swigWrite(SwigGenerator& generator)
 {
     SwigComms obj(generator);
@@ -46,13 +55,28 @@ void SwigComms::swigAddDef(StringsList& list)
     list.push_back(SwigGenerator::swigDefInclude("comms.h"));
 }
 
-void SwigComms::swigAddCode(StringsList& list)
+void SwigComms::swigAddCode(const SwigGenerator& generator, StringsList& list)
 {
-     std::string str = 
-        "using comms_ErrorStatus = comms::ErrorStatus;\n"
-        "using comms_field_OptionalMode = comms::field::OptionalMode;\n";
+    const std::string Templ = 
+        "using #^#ERR_STATUS#$# = comms::ErrorStatus;\n"
+        "using #^#OPT_MODE#$# = comms::field::OptionalMode;\n";
 
-    list.push_back(std::move(str));
+    util::ReplacementMap repl = {
+        {"ERR_STATUS", swigErrorStatusClassName(generator)},
+        {"OPT_MODE", swigOptionalModeClassName(generator)}
+    };
+
+    list.push_back(util::processTemplate(Templ, repl));
+}
+
+std::string SwigComms::swigErrorStatusClassName(const SwigGenerator& generator)
+{
+    return generator.swigProtocolClassNameForRoot(ErrorStatusClass);
+}
+
+std::string SwigComms::swigOptionalModeClassName(const SwigGenerator& generator)
+{
+    return generator.swigProtocolClassNameForRoot(OptionalModeClass);
 }
 
 bool SwigComms::swigWriteInternal() const
@@ -76,7 +100,7 @@ bool SwigComms::swigWriteInternal() const
     const std::string Templ = 
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
-        "enum class comms_ErrorStatus\n"
+        "enum class #^#ERR_STATUS#$#\n"
         "{\n"
         "    Success,\n"
         "    UpdateRequired,\n"
@@ -89,7 +113,7 @@ bool SwigComms::swigWriteInternal() const
         "    NotSupported,\n"
         "    NumOfErrorStatuses\n"
         "};\n\n"
-        "enum class comms_field_OptionalMode\n"
+        "enum class #^#OPT_MODE#$#\n"
         "{\n"
         "    Tentative,\n"
         "    Exists,\n"
@@ -100,6 +124,8 @@ bool SwigComms::swigWriteInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
+        {"ERR_STATUS", swigErrorStatusClassName(m_generator)},
+        {"OPT_MODE", swigOptionalModeClassName(m_generator)}
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
