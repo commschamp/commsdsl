@@ -32,8 +32,6 @@ add_custom_target(${APP_NAME}.all_tests
 
 include(ExternalProject)
 
-set (CMAKE_SWIG_FLAGS -Wall -Werror)
-
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
     file (GLOB schema_files ${test_dir}/Schema*.xml)
@@ -53,9 +51,6 @@ foreach (name ${tests})
         )
 
         set (extra_gen_params)
-        if ("${lang}" STREQUAL "java")
-            set (extra_gen_params "--force-main-ns-in-names")
-        endif ()
 
         add_custom_command(
             OUTPUT ${output_dir}.tmp
@@ -86,6 +81,12 @@ foreach (name ${tests})
         )
         set (swig_tgt ${APP_NAME}_${name}_${lang})
         set (swig_output_dir ${output_dir}_swig)
+        set (CMAKE_SWIG_FLAGS -Wall -Werror)
+
+        if ("${lang}" STREQUAL "java")
+            list (APPEND CMAKE_SWIG_FLAGS "-package" ${name}_p)
+        endif ()
+
         swig_add_library(${swig_tgt} LANGUAGE ${lang} OUTPUT_DIR ${swig_output_dir} SOURCES ${output_dir}/${name}.i)
         target_link_libraries(${swig_tgt} cc::comms)
         add_dependencies(${swig_tgt} ${output_tgt} commsdsl2comms.${name}_build_tgt)

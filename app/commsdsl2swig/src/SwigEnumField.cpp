@@ -222,15 +222,7 @@ bool SwigEnumField::writeImpl() const
 std::string SwigEnumField::swigValueTypeDeclImpl() const
 {
     auto& gen = SwigGenerator::cast(generator());
-    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
-        static const std::string Templ =
-            "using ValueType = #^#MSG_ID#$#;\n";
 
-        util::ReplacementMap repl = {
-            {"MSG_ID", SwigGenerator::swigScopeToName(comms::scopeForRoot(strings::msgIdEnumNameStr(), gen))}
-        };
-        return util::processTemplate(Templ, repl);
-    }
 
     static const std::string Templ =
         "enum class ValueType : #^#TYPE#$#\n"
@@ -266,6 +258,7 @@ std::string SwigEnumField::swigExtraPublicFuncsDeclImpl() const
 std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
 {
     static const std::string Templ = 
+        "#^#VALUE_TYPE#$#\n"
         "static const char* valueNameOf(#^#TYPE#$# val)\n"
         "{\n"
         "    return Base::valueNameOf(static_cast<Base::ValueType>(val));\n"
@@ -277,6 +270,26 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
     util::ReplacementMap repl = {
         {"TYPE", type}
     };
+
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+        const std::string ValTempl = 
+            "#^#TYPE#$#\n"
+            "const ValueType& getValue() const\n"
+            "{\n"
+            "    static_assert(sizeof(ValueType) == sizeof(Base::ValueType), \"Invalid assumption\");\n"
+            "    return *(reinterpret_cast<const ValueType*>(&Base::getValue()));\n"
+            "}\n\n"
+            "void setValue(const ValueType& val)\n"
+            "{\n"
+            "    Base::setValue(static_cast<Base::ValueType>(val));\n"
+            "}\n";
+
+        util::ReplacementMap valRepl = {
+            {"TYPE", swigValueTypeDeclImpl()},
+        };
+
+        repl["VALUE_TYPE"] = util::processTemplate(ValTempl, valRepl);
+    }
 
     return util::processTemplate(Templ, repl);
 }

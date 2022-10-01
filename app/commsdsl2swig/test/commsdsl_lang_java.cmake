@@ -6,10 +6,12 @@ target_link_libraries(${swig_tgt} JNI::JNI)
 if (EXISTS ${this_test_dir}/${lang}/SwigTest.java)
     add_custom_target(
         ${swig_tgt}_javac ALL
-        COMMAND ${Java_JAVAC_EXECUTABLE} -d . ${this_test_dir}/${lang}/*.java *.java
+        COMMAND ${Java_JAVAC_EXECUTABLE} -Xdiags:verbose -d . ${this_test_dir}/${lang}/*.java *.java
         DEPENDS ${swig_tgt}
         WORKING_DIRECTORY ${swig_output_dir}
     )
+
+    add_dependencies(${APP_NAME}.all_tests ${swig_tgt}_javac)
 
     add_test(
         NAME ${APP_NAME}.${name}_${lang}

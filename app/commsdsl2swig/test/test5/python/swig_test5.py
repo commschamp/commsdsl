@@ -46,7 +46,7 @@ class TestProtocol(unittest.TestCase):
         self.assertEqual(h.msg1, True)
         #self.assertEqual(f1, test5.field_E1.ValueType_V2)
         self.assertEqual(f1, test5.field_E1.ValueType_V2)
-        self.assertEqual(f2, test5.MsgId_m5)
+        self.assertEqual(f2, test5.field_MsgId.ValueType_m5)
         self.assertEqual(f3, test5.field_E2.ValueType_V10)
         self.assertEqual(f4, test5.message_Msg1Fields_F4.ValueType_V3)
 
