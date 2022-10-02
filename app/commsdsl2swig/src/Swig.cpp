@@ -57,26 +57,35 @@ bool Swig::swigWriteInternal() const
         return false;
     }     
 
-    const std::string Templ = 
-        "%module(directors=\"1\") #^#NS#$#\n\n"
-        "#^#LANG_DEFS#$#\n"
-        "#^#PREPEND#$#\n"
-        "#^#CODE#$#\n"
-        "#^#DEF#$#\n"
-        "#^#APPEND#$#\n"
-        ;      
+    do {
+        auto replaceFile = util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::replaceFileSuffixStr()));
+        if (!replaceFile.empty()) {
+            stream << replaceFile;
+            break;
+        }
 
-    util::ReplacementMap repl = {
-        {"NS", m_generator.protocolSchema().mainNamespace()},
-        {"LANG_DEFS", swigLangDefsInternal()},
-        {"CODE", swigCodeBlockInternal()},
-        {"DEF", swigDefInternal()},
-        {"PREPEND", swigPrependInternal()},
-        {"APPEND", swigAppendInternal()},
-    };
+        const std::string Templ = 
+            "%module(directors=\"1\") #^#NS#$#\n\n"
+            "#^#LANG_DEFS#$#\n"
+            "#^#PREPEND#$#\n"
+            "#^#CODE#$#\n"
+            "#^#DEF#$#\n"
+            "#^#APPEND#$#\n"
+            ;      
 
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
-    stream << str;
+        util::ReplacementMap repl = {
+            {"NS", m_generator.protocolSchema().mainNamespace()},
+            {"LANG_DEFS", swigLangDefsInternal()},
+            {"CODE", swigCodeBlockInternal()},
+            {"DEF", swigDefInternal()},
+            {"PREPEND", swigPrependInternal()},
+            {"APPEND", swigAppendInternal()},
+        };
+
+        auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
+        stream << str;
+    } while (false);
+
     stream.flush();
     if (!stream.good()) {
         m_generator.logger().error("Failed to write \"" + filePath + "\".");

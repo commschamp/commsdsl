@@ -19,6 +19,7 @@
 #include "SwigBitfieldField.h"
 #include "SwigBundleField.h"
 #include "SwigChecksumLayer.h"
+#include "SwigCmake.h"
 #include "SwigComms.h"
 #include "SwigCustomLayer.h"
 #include "SwigDataBuf.h"
@@ -188,6 +189,7 @@ bool SwigGenerator::writeImpl()
         SwigDataBuf::write(*this) &&
         SwigMsgHandler::write(*this) &&
         Swig::swigWrite(*this) &&
+        SwigCmake::swigWrite(*this) &&
         swigWriteExtraFilesInternal();
 
 }

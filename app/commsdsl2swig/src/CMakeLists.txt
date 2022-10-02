@@ -3,6 +3,7 @@ set (src
     SwigBitfieldField.cpp
     SwigBundleField.cpp
     SwigChecksumLayer.cpp
+    SwigCmake.cpp
     SwigComms.cpp
     SwigCustomLayer.cpp
     SwigDataBuf.cpp
