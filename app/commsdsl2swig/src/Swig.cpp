@@ -48,9 +48,7 @@ bool Swig::swigWrite(SwigGenerator& generator)
 
 bool Swig::swigWriteInternal() const
 {
-
-    auto& schema = m_generator.protocolSchema();        
-    auto swigName = schema.mainNamespace() + ".i";
+    auto swigName = swigFileNameInternal();
     auto filePath = util::pathAddElem(m_generator.getOutputDir(), swigName);
     m_generator.logger().info("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -60,7 +58,8 @@ bool Swig::swigWriteInternal() const
     }     
 
     const std::string Templ = 
-        "%module(directors=\"1\") #^#NS#$#\n"
+        "%module(directors=\"1\") #^#NS#$#\n\n"
+        "#^#LANG_DEFS#$#\n"
         "#^#PREPEND#$#\n"
         "#^#CODE#$#\n"
         "#^#DEF#$#\n"
@@ -68,11 +67,12 @@ bool Swig::swigWriteInternal() const
         ;      
 
     util::ReplacementMap repl = {
-        {"NS", schema.mainNamespace()},
+        {"NS", m_generator.protocolSchema().mainNamespace()},
+        {"LANG_DEFS", swigLangDefsInternal()},
         {"CODE", swigCodeBlockInternal()},
         {"DEF", swigDefInternal()},
-        {"PREPEND", util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::prependFileSuffixStr()))},
-        {"APPEND", util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::appendFileSuffixStr()))},
+        {"PREPEND", swigPrependInternal()},
+        {"APPEND", swigAppendInternal()},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
@@ -157,21 +157,7 @@ std::string Swig::swigDefInternal() const
         includeWrap("std_vector.i")
     };
 
-    std::string javaDefs = 
-        "#ifdef SWIGJAVA\n"
-        "%include \"enums.swg\"\n"
-        //"%javaconst(1);\n"
-        "#endif // #ifdef SWIGJAVA\n";
-
-    std::string csharpDefs = 
-        "#ifdef SWIGCSHARP\n"
-        "#pragma SWIG nowarn=314\n"
-        "#endif // #ifdef SWIGCSHARP\n";
-
-    util::StringsList defs = {
-        std::move(javaDefs),
-        std::move(csharpDefs)
-    };
+    util::StringsList defs;
 
     SwigComms::swigAddDef(defs);
     SwigDataBuf::swigAddDef(m_generator, defs);
@@ -199,6 +185,80 @@ std::string Swig::swigDefInternal() const
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string Swig::swigLangDefsInternal() const
+{
+    std::string pythonDefs = 
+        "#ifdef SWIGPYTHON\n"
+        "%{\n"
+        "#define SWIG_FILE_WITH_INIT\n"
+        "%}\n"
+        "#endif // #ifdef SWIGPYTHON\n";
+
+    std::string javaDefs = 
+        "#ifdef SWIGJAVA\n"
+        "%include \"enums.swg\"\n"
+        //"%javaconst(1);\n"
+        "#endif // #ifdef SWIGJAVA\n";
+
+    std::string csharpDefs = 
+        "#ifdef SWIGCSHARP\n"
+        "#pragma SWIG nowarn=314\n"
+        "#endif // #ifdef SWIGCSHARP\n";
+
+
+    util::StringsList defs = {
+        std::move(pythonDefs),
+        std::move(javaDefs),
+        std::move(csharpDefs)
+    };
+
+    return util::strListToString(defs, "\n", "");
+}
+
+std::string Swig::swigPrependInternal() const
+{
+    auto swigName = swigFileNameInternal();
+    auto fromFile = util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::prependFileSuffixStr()));
+    if (!fromFile.empty()) {
+        return fromFile;
+    }
+
+    const std::string Templ = 
+        "// Use #^#NAME#$##^#SUFFIX#$# file to inject code here.\n";
+
+    util::ReplacementMap repl = {
+        {"NAME", swigName},
+        {"SUFFIX", strings::prependFileSuffixStr()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string Swig::swigAppendInternal() const
+{
+    auto swigName = swigFileNameInternal();
+    auto fromFile = util::readFileContents(m_generator.swigInputCodePathForFile(swigName + strings::appendFileSuffixStr()));
+    if (!fromFile.empty()) {
+        return fromFile;
+    }
+
+    const std::string Templ = 
+        "// Use #^#NAME#$##^#SUFFIX#$# file to inject code here.\n";
+
+    util::ReplacementMap repl = {
+        {"NAME", swigName},
+        {"SUFFIX", strings::appendFileSuffixStr()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string Swig::swigFileNameInternal() const
+{
+    auto& schema = m_generator.protocolSchema();        
+    return schema.mainNamespace() + ".i";
 }
 
 } // namespace commsdsl2swig

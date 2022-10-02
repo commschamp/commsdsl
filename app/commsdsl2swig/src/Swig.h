@@ -32,6 +32,10 @@ private:
     bool swigWriteInternal() const;
     std::string swigCodeBlockInternal() const;
     std::string swigDefInternal() const;
+    std::string swigLangDefsInternal() const;
+    std::string swigPrependInternal() const;
+    std::string swigAppendInternal() const;
+    std::string swigFileNameInternal() const;
 
     SwigGenerator& m_generator;
 };
