@@ -92,6 +92,7 @@ foreach (name ${tests})
         endif ()
 
         swig_add_library(${swig_tgt} LANGUAGE ${lang} OUTPUT_DIR ${swig_output_dir} SOURCES ${output_dir}/${name}.i)
+
         target_link_libraries(${swig_tgt} cc::comms)
         add_dependencies(${swig_tgt} ${output_tgt} commsdsl2comms.${name}_build_tgt)
         target_include_directories(${swig_tgt} PRIVATE ${protocol_install_dir}/include)
@@ -120,8 +121,13 @@ foreach (name ${tests})
             $<$<CXX_COMPILER_ID:MSVC>:/bigobj>
             $<$<CXX_COMPILER_ID:GNU>:${gcc_opts}>
             $<$<CXX_COMPILER_ID:Clang>:${clang_opts}>
-        )            
+        )    
 
+        if ("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.15)
+            set_target_properties(${output_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES "${output_dir}.tmp;${output_dir}")
+            set_target_properties(${swig_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES ${swig_output_dir})
+        endif ()        
+                
         add_dependencies(${APP_NAME}.all_tests ${swig_tgt})
     endforeach()    
 endforeach ()

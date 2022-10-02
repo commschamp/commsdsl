@@ -169,7 +169,7 @@ std::string CommsVersion::commsProtVersionFuncsInternal() const
         "{\n"
         "    return #^#NS#$#_PATCH_VERSION;\n"
         "}\n\n"  
-        "/// @brief Full version of the protocol library as single number\n"
+        "/// @brief Full version of the protocol library as a single number\n"
         "inline constexpr unsigned version()\n"
         "{\n"
         "    return #^#NS#$#_VERSION;\n"

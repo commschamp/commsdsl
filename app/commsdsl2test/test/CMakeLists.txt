@@ -40,6 +40,9 @@ foreach (name ${tests})
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
         DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
 
+    if ("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.15)
+        set_target_properties(${output_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES "${output_dir}.tmp;${output_dir}")
+    endif ()  
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}_build)
