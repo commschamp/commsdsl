@@ -36,7 +36,7 @@ namespace commsdsl2swig
 {
 
 
-bool SwigMsgId::write(SwigGenerator& generator)
+bool SwigMsgId::swigWrite(SwigGenerator& generator)
 {
     auto& thisSchema = static_cast<SwigSchema&>(generator.currentSchema());
     if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.swigHasAnyMessage()) && (!thisSchema.swigHasReferencedMsgId())) {

@@ -96,13 +96,14 @@ int main(int argc, const char* argv[])
         }
 
         if (options.hasForcedInterface()) {
-            generator.setForcedInterface(options.getForcedInterface());
+            generator.swigSetForcedInterface(options.getForcedInterface());
         }
 
         generator.setOutputDir(options.getOutputDirectory());
         generator.setCodeDir(options.getCodeInputDirectory());
         generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
-        generator.setMainNamespaceInNamesForced(options.isMainNamespaceInNamesForced());
+        generator.swigSetMainNamespaceInNamesForced(options.isMainNamespaceInNamesForced());
+        generator.swigSetHasProtocolVersion(options.hasProtocolVersion());
 
         auto files = commsdsl2swig::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

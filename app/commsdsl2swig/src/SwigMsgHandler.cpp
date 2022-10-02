@@ -42,7 +42,7 @@ const std::string ClassName("MsgHandler");
 
 } // namespace
 
-bool SwigMsgHandler::write(SwigGenerator& generator)
+bool SwigMsgHandler::swigWrite(SwigGenerator& generator)
 {
     SwigMsgHandler obj(generator);
     return obj.swigWriteInternal();

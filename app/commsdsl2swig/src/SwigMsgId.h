@@ -28,7 +28,7 @@ class SwigMsgId
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    static bool write(SwigGenerator& generator);
+    static bool swigWrite(SwigGenerator& generator);
     static void swigAddDef(const SwigGenerator& generator, StringsList& list);
     static void swigAddCode(const SwigGenerator& generator, StringsList& list);
     static std::string swigClassName(const SwigGenerator& generator);

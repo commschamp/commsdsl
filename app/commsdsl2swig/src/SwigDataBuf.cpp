@@ -44,7 +44,7 @@ const std::string ClassName("DataBuf");
     
 
 
-bool SwigDataBuf::write(SwigGenerator& generator)
+bool SwigDataBuf::swigWrite(SwigGenerator& generator)
 {
     SwigDataBuf obj(generator);
     return obj.swigWriteInternal();

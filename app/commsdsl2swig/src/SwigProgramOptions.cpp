@@ -36,7 +36,6 @@ const std::string InputFilesPrefixStr("input-files-prefix");
 const std::string FullInputFilesPrefixStr("p," + InputFilesPrefixStr);
 const std::string NamespaceStr("namespace");
 const std::string FullNamespaceStr("n," + NamespaceStr);
-const std::string InputFileStr("input-file");
 const std::string WarnAsErrStr("warn-as-err");
 const std::string CodeInputDirStr("code-input-dir");
 const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
@@ -44,6 +43,7 @@ const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
 const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
 const std::string ForceMainNamespaceInNamesStr("force-main-ns-in-names");
 const std::string ForceInterfaceStr("force-interface");
+const std::string HasProtocolStr("has-protocol-version");
 
 } // namespace
 
@@ -65,6 +65,7 @@ SwigProgramOptions::SwigProgramOptions()
     (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    
     (ForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
     (ForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
+    (HasProtocolStr, "The protocol definition (produced by commsdsl2comms) contains protocol semantic version.")
     ;
 }
 
@@ -136,6 +137,11 @@ bool SwigProgramOptions::hasForcedInterface() const
 const std::string& SwigProgramOptions::getForcedInterface() const
 {
     return value(ForceInterfaceStr);
+}
+
+bool SwigProgramOptions::hasProtocolVersion() const
+{
+    return isOptUsed(HasProtocolStr);
 }
 
 } // namespace commsdsl2swig

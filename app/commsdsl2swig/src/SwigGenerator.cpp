@@ -153,7 +153,7 @@ bool SwigGenerator::prepareImpl()
     }
 
     bool result =  
-        prepareDefaultInterfaceInternal();
+        swigPrepareDefaultInterfaceInternal();
 
     if (!result) {
         return false;
@@ -177,7 +177,7 @@ bool SwigGenerator::writeImpl()
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
         bool result = 
-            SwigMsgId::write(*this);
+            SwigMsgId::swigWrite(*this);
 
         if (!result) {
             return false;
@@ -186,22 +186,32 @@ bool SwigGenerator::writeImpl()
 
     return 
         SwigComms::swigWrite(*this) &&
-        SwigDataBuf::write(*this) &&
-        SwigMsgHandler::write(*this) &&
+        SwigDataBuf::swigWrite(*this) &&
+        SwigMsgHandler::swigWrite(*this) &&
         Swig::swigWrite(*this) &&
         SwigCmake::swigWrite(*this) &&
         swigWriteExtraFilesInternal();
 
 }
 
-void SwigGenerator::setMainNamespaceInNamesForced(bool value)
+void SwigGenerator::swigSetMainNamespaceInNamesForced(bool value)
 {
     m_mainNamespaceInNamesForced = value;
 }
 
-void SwigGenerator::setForcedInterface(const std::string& value)
+void SwigGenerator::swigSetForcedInterface(const std::string& value)
 {
     m_forcedInterface = value;
+}
+
+void SwigGenerator::swigSetHasProtocolVersion(bool value)
+{
+    m_hasProtocolVersion = value;
+}
+
+bool SwigGenerator::swigHasProtocolVersion() const
+{
+    return m_hasProtocolVersion;
 }
 
 const SwigInterface* SwigGenerator::swigMainInterface() const
@@ -448,7 +458,7 @@ bool SwigGenerator::swigWriteExtraFilesInternal() const
 }
 
 
-bool SwigGenerator::prepareDefaultInterfaceInternal()
+bool SwigGenerator::swigPrepareDefaultInterfaceInternal()
 {
     auto allInterfaces = getAllInterfaces();
     if (!allInterfaces.empty()) {

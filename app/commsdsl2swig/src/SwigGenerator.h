@@ -62,8 +62,11 @@ public:
     static std::string swigScopeToName(const std::string& scope);
     static std::string swigDefInclude(const std::string& path);
 
-    void setMainNamespaceInNamesForced(bool value);
-    void setForcedInterface(const std::string& value);
+    void swigSetMainNamespaceInNamesForced(bool value);
+    void swigSetForcedInterface(const std::string& value);
+    void swigSetHasProtocolVersion(bool value);
+
+    bool swigHasProtocolVersion() const;
 
     const SwigInterface* swigMainInterface() const;
 
@@ -100,10 +103,11 @@ protected:
 
 private:
     bool swigWriteExtraFilesInternal() const;
-    bool prepareDefaultInterfaceInternal();
+    bool swigPrepareDefaultInterfaceInternal();
 
     std::string m_forcedInterface;
     bool m_mainNamespaceInNamesForced = false;
+    bool m_hasProtocolVersion = false;
 };
 
 } // namespace commsdsl2swig

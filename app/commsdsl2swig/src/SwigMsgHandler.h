@@ -28,7 +28,7 @@ class SwigMsgHandler
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    static bool write(SwigGenerator& generator);
+    static bool swigWrite(SwigGenerator& generator);
 
     static void swigAddFwdCode(const SwigGenerator& generator, StringsList& list);
     static void swigAddClassCode(const SwigGenerator& generator, StringsList& list);
