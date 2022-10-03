@@ -58,6 +58,10 @@ public:
 
     bool prepare()
     {
+        if (!m_referenced) {
+            return true;
+        }
+
         if (m_fields.empty()) {
             return true;
         }
@@ -74,6 +78,10 @@ public:
 
     bool write() const
     {
+        if (!m_referenced) {
+            return true;
+        }
+
         bool result = 
             std::all_of(
                 m_fields.begin(), m_fields.end(),
@@ -105,11 +113,22 @@ public:
         return m_generator;
     }
 
+    bool isReferenced() const
+    {
+        return m_referenced;
+    }
+
+    void setReferenced(bool value)
+    {
+        m_referenced = value;
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::Interface m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_fields;
+    bool m_referenced = false;
 }; 
 
 Interface::Interface(Generator& generator, commsdsl::parse::Interface dslObj, Elem* parent) :
@@ -131,6 +150,10 @@ bool Interface::prepare()
         return false;
     }
 
+    if (!isReferenced()) {
+        return true;
+    }
+
     return prepareImpl();
 }
 
@@ -138,6 +161,10 @@ bool Interface::write() const
 {
     if (!m_impl->write()) {
         return false;
+    }
+
+    if (!isReferenced()) {
+        return true;
     }
 
     return writeImpl();
@@ -173,6 +200,16 @@ bool Interface::hasVersionField() const
             {
                 return f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version;
             });    
+}
+
+bool Interface::isReferenced() const
+{
+    return m_impl->isReferenced();
+}
+
+void Interface::setReferenced(bool value)
+{
+    m_impl->setReferenced(value);
 }
 
 Elem::Type Interface::elemTypeImpl() const

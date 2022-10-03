@@ -154,7 +154,16 @@ public:
 
     bool createDirectory(const std::string& path) const;
 
+    void referenceAllMessages();
+    bool getAllMessagesReferencedByDefault() const;
+    void setAllMessagesReferencedByDefault(bool value = true);
+
+    void referenceAllInterfaces();
+    bool getAllInterfacesReferencedByDefault() const;
+    void setAllInterfacesReferencedByDefault(bool value = true);    
+
 protected:
+    virtual bool createCompleteImpl();
     virtual bool prepareImpl();
 
     virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent);

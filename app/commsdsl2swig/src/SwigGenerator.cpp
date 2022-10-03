@@ -66,6 +66,12 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2swig
 {
 
+SwigGenerator::SwigGenerator()
+{
+    Base::setAllInterfacesReferencedByDefault(false);
+    Base::setAllMessagesReferencedByDefault(false);
+}    
+
 const std::string& SwigGenerator::fileGeneratedComment()
 {
     static const std::string Str =
@@ -147,6 +153,13 @@ std::string SwigGenerator::swigDefInclude(const std::string& path)
     return "%include \"include/" + path + '\"';
 }
 
+bool SwigGenerator::createCompleteImpl()
+{
+    return 
+        swigReferenceRequestedInterface() &&
+        swigReferenceRequestedMessages();
+}
+
 bool SwigGenerator::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -211,6 +224,11 @@ void SwigGenerator::swigSetHasProtocolVersion(bool value)
     m_hasProtocolVersion = value;
 }
 
+void SwigGenerator::swigSetMessagesListFile(const std::string& value)
+{
+    m_messagesListFile = value;
+}
+
 bool SwigGenerator::swigHasProtocolVersion() const
 {
     return m_hasProtocolVersion;
@@ -232,8 +250,15 @@ const SwigInterface* SwigGenerator::swigMainInterface() const
     } while (false);
 
     auto allInterfaces = getAllInterfaces();
-    assert(!allInterfaces.empty());
+    if (allInterfaces.empty()) {
+        return nullptr;
+    }
     return static_cast<const SwigInterface*>(allInterfaces.front());
+}
+
+SwigInterface* SwigGenerator::swigMainInterface()
+{
+    return const_cast<SwigInterface*>(static_cast<const SwigGenerator*>(this)->swigMainInterface());
 }
 
 SwigGenerator::SchemaPtr SwigGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
@@ -472,6 +497,45 @@ bool SwigGenerator::swigPrepareDefaultInterfaceInternal()
     if (interface == nullptr) {
         logger().error("Failed to create default interface");
         return false;
+    }
+
+    return true;
+}
+
+bool SwigGenerator::swigReferenceRequestedInterface()
+{
+    auto* mainInterface = swigMainInterface();
+    if (mainInterface != nullptr) {
+        mainInterface->setReferenced(true);
+    }
+
+    return true;
+}
+
+bool SwigGenerator::swigReferenceRequestedMessages()
+{
+    if (m_messagesListFile.empty()) {
+        referenceAllMessages();
+        return true;
+    }
+
+    std::ifstream stream(m_messagesListFile);
+    if (!stream) {
+        logger().error("Failed to open messages list file: \"" + m_messagesListFile + "\".");
+        return false;
+    }
+
+    std::string contents(std::istreambuf_iterator<char>(stream), (std::istreambuf_iterator<char>()));
+    auto lines = util::strSplitByAnyChar(contents, "\n\r");
+
+    for (auto& l : lines) {
+        auto* m = findMessage(l);
+        if (m == nullptr) {
+            logger().error("Failed to fined message \"" + l + "\" listed in \"" + m_messagesListFile + "\".");
+            return false;
+        }
+
+        m->setReferenced(true);
     }
 
     return true;

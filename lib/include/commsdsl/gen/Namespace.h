@@ -82,6 +82,9 @@ public:
 
     Interface* addDefaultInterface();
 
+    void setAllInterfacesReferenced();
+    void setAllMessagesReferenced();
+
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();

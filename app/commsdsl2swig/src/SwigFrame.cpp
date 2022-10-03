@@ -264,6 +264,9 @@ std::string SwigFrame::swigAllMessagesCodeInternal() const
 
 
     for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
         msgList.push_back(gen.swigClassName(*m));
     }
 

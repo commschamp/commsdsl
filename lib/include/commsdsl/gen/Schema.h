@@ -105,6 +105,9 @@ public:
 
     bool isElementDeprecated(unsigned deprecatedSince) const;
 
+    void setAllInterfacesReferenced();
+    void setAllMessagesReferenced();
+
 protected:
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();

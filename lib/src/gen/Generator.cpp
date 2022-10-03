@@ -299,7 +299,8 @@ public:
         return parsedRef.first->findInterface(parsedRef.second);
     }                
 
-    bool prepare(const FilesList& files)
+    using CreateCompleteFunc = std::function<bool ()>;
+    bool prepare(const FilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
     {
         m_protocol.setErrorReportCallback(
             [this](commsdsl::parse::ErrorLevel level, const std::string& msg)
@@ -365,8 +366,20 @@ public:
             if (!s->createAll()) {
                 m_logger->error("Failed to create elements inside schema \"" + s->dslObj().name() + "\"");
                 return false;
-            }            
+            }       
+
+            if (m_allInterfacesReferencedByDefault) {
+                s->setAllInterfacesReferenced();
+            }                 
+
+            if (m_allMessagesReferencedByDefault) {
+                s->setAllMessagesReferenced();
+            }
         }   
+        
+        if (createCompleteCb && (!createCompleteCb())) {
+            return false;
+        }
 
         for (auto& s : m_schemas) {
             m_currentSchema = s.get();
@@ -412,6 +425,40 @@ public:
     const commsdsl::parse::Protocol& protocol() const
     {
         return m_protocol;
+    }
+
+    void referenceAllMessages()
+    {
+        for (auto& sPtr : m_schemas) {
+            sPtr->setAllMessagesReferenced();
+        }
+    }
+
+    void referenceAllInterfaces()
+    {
+        for (auto& sPtr : m_schemas) {
+            sPtr->setAllInterfacesReferenced();
+        }
+    }    
+
+    bool getAllMessagesReferencedByDefault() const
+    {
+        return m_allMessagesReferencedByDefault;
+    }
+
+    void setAllMessagesReferencedByDefault(bool value)
+    {
+        m_allMessagesReferencedByDefault = value;
+    }
+
+    bool getAllInterfacesReferencedByDefault() const
+    {
+        return m_allInterfacesReferencedByDefault;
+    }
+
+    void setAllInterfacesReferencedByDefault(bool value)
+    {
+        m_allInterfacesReferencedByDefault = value;
     }
 
 private:
@@ -462,6 +509,8 @@ private:
     std::string m_codeDir;
     mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
+    bool m_allMessagesReferencedByDefault = true;
+    bool m_allInterfacesReferencedByDefault = true;
 }; 
 
 Generator::Generator() : 
@@ -734,7 +783,13 @@ bool Generator::prepare(const FilesList& files)
     auto& l = logger();
     static_cast<void>(l);
 
-    if (!m_impl->prepare(files)) {
+    auto createCompleteFunc = 
+        [this]()
+        {
+            return createCompleteImpl();
+        };
+
+    if (!m_impl->prepare(files, createCompleteFunc)) {
         return false;
     }
 
@@ -1004,6 +1059,41 @@ bool Generator::createDirectory(const std::string& path) const
     }
 
     m_impl->recordCreatedDirectory(path);
+    return true;
+}
+
+void Generator::referenceAllMessages()
+{
+    m_impl->referenceAllMessages();
+}
+
+bool Generator::getAllMessagesReferencedByDefault() const
+{
+    return m_impl->getAllMessagesReferencedByDefault();
+}
+
+void Generator::setAllMessagesReferencedByDefault(bool value)
+{
+    m_impl->setAllMessagesReferencedByDefault(value);
+}
+
+void Generator::referenceAllInterfaces()
+{
+    m_impl->referenceAllInterfaces();
+}
+
+bool Generator::getAllInterfacesReferencedByDefault() const
+{
+    return m_impl->getAllInterfacesReferencedByDefault();
+}
+
+void Generator::setAllInterfacesReferencedByDefault(bool value)
+{
+    m_impl->setAllInterfacesReferencedByDefault(value);
+}    
+
+bool Generator::createCompleteImpl()
+{
     return true;
 }
 

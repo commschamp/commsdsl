@@ -71,6 +71,10 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
     handleFuncs.reserve(allMessages.size());
 
     for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+
         static const std::string Templ = 
             "void handle(#^#MESSAGE#$#& msg) { handle_#^#MESSAGE#$#(msg); }\n"
             "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
@@ -111,6 +115,10 @@ void SwigMsgHandler::swigAddFuncsCode(const SwigGenerator& generator, StringsLis
     list.reserve(list.size() + allMessages.size());
 
     for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+
         static const std::string Templ = 
             "void #^#CLASS_NAME#$#::handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg) { handle_#^#INTERFACE#$#(msg); }";
 
@@ -193,6 +201,10 @@ std::string SwigMsgHandler::swigClassDeclInternal() const
     handleFuncs.reserve(allMessages.size());
 
     for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+                
         static const std::string Templ = 
             "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
 

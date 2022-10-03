@@ -57,7 +57,7 @@ private:
     std::string swigFieldsAccDeclInternal() const;
     std::string swigFieldsAccCodeInternal() const;
 
-    SwigFieldsList m_swigFields;        
+    SwigFieldsList m_swigFields;    
 };
 
 } // namespace commsdsl2swig

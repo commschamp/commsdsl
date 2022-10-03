@@ -58,7 +58,6 @@ private:
     std::string swigCommonCodeInternal() const;
 
     SwigFieldsList m_swigFields;        
-    bool m_inUse = false;
 };
 
 } // namespace commsdsl2swig

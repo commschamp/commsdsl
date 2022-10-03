@@ -179,6 +179,10 @@ std::string SwigMsgId::swigIdsInternal() const
     util::StringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+
         ids.push_back(prefix + comms::fullNameFor(*m) + " = " + util::numToString(m->dslObj().id()));
     }
     return util::strListToString(ids, ",\n", "");
@@ -225,6 +229,10 @@ std::string SwigMsgId::swigCodeInternal() const
     util::StringsList result;
     result.reserve(allMessages.size());
     for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+                
         util::ReplacementMap repl = {
             {"SCOPE", scope},
             {"NAME", comms::fullNameFor(*m)}

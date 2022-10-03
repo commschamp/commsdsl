@@ -15,9 +15,13 @@
 
 #include "SwigProgramOptions.h"
 
+#include "commsdsl/gen/util.h"
+
 #include <iostream>
 #include <cassert>
 #include <vector>
+
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2swig
 {
@@ -41,9 +45,12 @@ const std::string CodeInputDirStr("code-input-dir");
 const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
 const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
+const std::string MinRemoteVerStr("min-remote-version");
+const std::string FullMinRemoteVerStr("m," + MinRemoteVerStr);
 const std::string ForceMainNamespaceInNamesStr("force-main-ns-in-names");
 const std::string ForceInterfaceStr("force-interface");
 const std::string HasProtocolStr("has-protocol-version");
+const std::string MessagesListStr("messages-list");
 
 } // namespace
 
@@ -63,9 +70,16 @@ SwigProgramOptions::SwigProgramOptions()
     (WarnAsErrStr.c_str(), "Treat warning as error.")
     (FullCodeInputDirStr, "Directory with code updates.", true)
     (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")    
+    (FullMinRemoteVerStr, "Set minimal supported remote version. Defaults to 0.", true)
     (ForceMainNamespaceInNamesStr, "Force having main namespace in generated class names.")
     (ForceInterfaceStr, "Force usage of the provided interface (CommsDSL reference string).", true)
     (HasProtocolStr, "The protocol definition (produced by commsdsl2comms) contains protocol semantic version.")
+    (MessagesListStr, 
+        "Path to the file containing list of messages that need to be supported. "
+        "In case the message resides in a namespace its name must be "
+        "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
+        "If not provided all the defined messages are going to be supported.",
+        true)
     ;
 }
 
@@ -124,6 +138,15 @@ bool SwigProgramOptions::multipleSchemasEnabled() const
     return isOptUsed(MultipleSchemasEnabledStr);
 }
 
+unsigned SwigProgramOptions::getMinRemoteVersion() const
+{
+    if (!isOptUsed(MinRemoteVerStr)) {
+        return 0U;
+    }
+
+    return util::strToUnsigned(value(MinRemoteVerStr));
+}
+
 bool SwigProgramOptions::isMainNamespaceInNamesForced() const
 {
     return isOptUsed(ForceMainNamespaceInNamesStr);
@@ -142,6 +165,11 @@ const std::string& SwigProgramOptions::getForcedInterface() const
 bool SwigProgramOptions::hasProtocolVersion() const
 {
     return isOptUsed(HasProtocolStr);
+}
+
+const std::string& SwigProgramOptions::messagesListFile() const
+{
+    return value(MessagesListStr);
 }
 
 } // namespace commsdsl2swig

@@ -45,7 +45,7 @@ SwigInterface::~SwigInterface() = default;
 
 void SwigInterface::swigAddCodeIncludes(StringsList& list) const
 {
-    if (!m_inUse) {
+    if (!isReferenced()) {
         return;
     }
 
@@ -54,7 +54,7 @@ void SwigInterface::swigAddCodeIncludes(StringsList& list) const
 
 void SwigInterface::swigAddCode(StringsList& list) const
 {
-    if (!m_inUse) {
+    if (!isReferenced()) {
         return;
     }
 
@@ -145,7 +145,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
 
 void SwigInterface::swigAddDef(StringsList& list) const
 {
-    if (!m_inUse) {
+    if (!isReferenced()) {
         return;
     }
 
@@ -164,10 +164,7 @@ bool SwigInterface::prepareImpl()
         return false;
     }
 
-    m_inUse = (SwigGenerator::cast(generator()).swigMainInterface() == this);
-    if (!m_inUse) {
-        return true;
-    }
+    assert(isReferenced());
 
     m_swigFields = SwigField::swigTransformFieldsList(fields());
     return true;
@@ -175,9 +172,7 @@ bool SwigInterface::prepareImpl()
 
 bool SwigInterface::writeImpl() const
 {
-    if (!m_inUse) {
-        return true;
-    }
+    assert(isReferenced());
 
     auto filePath = comms::headerPathFor(*this, generator());
     auto dirPath = util::pathUp(filePath);

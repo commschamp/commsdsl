@@ -38,6 +38,8 @@ public:
     using FramePtr = commsdsl::gen::FramePtr;
     using LayerPtr = commsdsl::gen::LayerPtr;
     using SchemaPtr = commsdsl::gen::SchemaPtr;
+
+    SwigGenerator();
     
     static const std::string& fileGeneratedComment();
 
@@ -65,12 +67,15 @@ public:
     void swigSetMainNamespaceInNamesForced(bool value);
     void swigSetForcedInterface(const std::string& value);
     void swigSetHasProtocolVersion(bool value);
+    void swigSetMessagesListFile(const std::string& value);
 
     bool swigHasProtocolVersion() const;
 
     const SwigInterface* swigMainInterface() const;
+    SwigInterface* swigMainInterface();
 
 protected:
+    virtual bool createCompleteImpl() override;
     virtual bool prepareImpl() override;
     virtual bool writeImpl() override;    
 
@@ -104,8 +109,11 @@ protected:
 private:
     bool swigWriteExtraFilesInternal() const;
     bool swigPrepareDefaultInterfaceInternal();
+    bool swigReferenceRequestedInterface();
+    bool swigReferenceRequestedMessages();
 
     std::string m_forcedInterface;
+    std::string m_messagesListFile;
     bool m_mainNamespaceInNamesForced = false;
     bool m_hasProtocolVersion = false;
 };

@@ -45,11 +45,19 @@ SwigMessage::~SwigMessage() = default;
 
 void SwigMessage::swigAddCodeIncludes(StringsList& list) const
 {
+    if (!isReferenced()) {
+        return;
+    }
+
     list.push_back(comms::relHeaderPathFor(*this, generator()));
 }
 
 void SwigMessage::swigAddCode(StringsList& list) const
 {
+    if (!isReferenced()) {
+        return;
+    }
+
     for (auto* f : m_swigFields) {
         f->swigAddCode(list);
     }
@@ -113,6 +121,10 @@ void SwigMessage::swigAddCode(StringsList& list) const
 
 void SwigMessage::swigAddFwdCode(StringsList& list) const
 {
+    if (!isReferenced()) {
+        return;
+    }
+
     static const std::string Templ = 
         "class #^#CLASS_NAME#$#;";
 
@@ -125,6 +137,10 @@ void SwigMessage::swigAddFwdCode(StringsList& list) const
 
 void SwigMessage::swigAddDef(StringsList& list) const
 {
+    if (!isReferenced()) {
+        return;
+    }
+
     for (auto* f : m_swigFields) {
         f->swigAddDef(list);
     }
@@ -153,6 +169,7 @@ bool SwigMessage::prepareImpl()
 
 bool SwigMessage::writeImpl() const
 {
+    assert(isReferenced());
     auto filePath = comms::headerPathFor(*this, generator());
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
