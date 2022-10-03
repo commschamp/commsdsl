@@ -93,11 +93,11 @@ bool CommsVersion::writeInternal() const
 
 
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"VERSION", util::numToString(m_generator.currentSchema().schemaVersion())},
         {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())},
-        {"COMMS_MIN", util::strReplace(CommsGenerator::minCommsVersion(), ".", ", ")},
+        {"COMMS_MIN", util::strReplace(CommsGenerator::commsMinCommsVersion(), ".", ", ")},
         {"PROT_VER_DEFINE", commsProtVersionDefineInternal()},
         {"PROT_VER_FUNC", commsProtVersionFuncsInternal()},
         {"APPEND", util::readFileContents(comms::inputCodePathForRoot("Version", m_generator))},
@@ -116,7 +116,7 @@ bool CommsVersion::writeInternal() const
 
 std::string CommsVersion::commsProtVersionDefineInternal() const
 {
-    auto& protVersion = m_generator.getProtocolVersion();
+    auto& protVersion = m_generator.commsGetProtocolVersion();
     if (protVersion.empty()) {
         return strings::emptyString();
     }
@@ -148,7 +148,7 @@ std::string CommsVersion::commsProtVersionDefineInternal() const
 
 std::string CommsVersion::commsProtVersionFuncsInternal() const
 {
-    auto& protVersion = m_generator.getProtocolVersion();
+    auto& protVersion = m_generator.commsGetProtocolVersion();
     if (protVersion.empty()) {
         return strings::emptyString();
     }

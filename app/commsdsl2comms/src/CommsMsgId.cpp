@@ -90,7 +90,7 @@ bool CommsMsgId::commsWriteInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"TYPE", commsTypeInternal()},
         {"IDS", commsIdsInternal()}

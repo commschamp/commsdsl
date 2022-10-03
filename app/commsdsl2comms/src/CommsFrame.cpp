@@ -191,7 +191,7 @@ bool CommsFrame::commsWriteCommonInternal() const
         "#^#NS_END#$#\n";
 
     util::ReplacementMap repl =  {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"INCLUDES", commsCommonIncludesInternal()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
@@ -288,7 +288,7 @@ bool CommsFrame::commsWriteDefInternal() const
 
     auto extendCode = util::readFileContents(inputCodePrefix + strings::extendFileSuffixStr());
     util::ReplacementMap repl =  {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"INCLUDES", commsDefIncludesInternal()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
@@ -536,7 +536,7 @@ std::string CommsFrame::commsCustomizationOptionsInternal(
 
     if (hasBase) {
         auto& commsGen = static_cast<const CommsGenerator&>(generator());
-        bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+        bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
         repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), hasMainNs) + strings::layersSuffixStr();
     }
 

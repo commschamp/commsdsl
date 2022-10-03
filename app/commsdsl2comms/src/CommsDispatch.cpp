@@ -91,7 +91,7 @@ const std::string& dispatchTempl()
 util::ReplacementMap initialRepl(CommsGenerator& generator)
 {
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
     };
     return repl;
@@ -483,7 +483,7 @@ bool CommsDispatch::commsWritePlatformDispatchInternal() const
 
 bool CommsDispatch::commsWriteExtraDispatchInternal() const
 {
-    auto& extraBundles = m_generator.extraMessageBundles();
+    auto& extraBundles = m_generator.commsExtraMessageBundles();
     for (auto& b : extraBundles) {
 
         auto bundleCheckFunc = 

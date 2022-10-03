@@ -89,7 +89,7 @@ bool CommsFieldBase::commsWriteInternal() const
     // TODO: version type
 
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"OPTIONS", util::strListToString(options, ",\n", "")},
     };        

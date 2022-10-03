@@ -43,22 +43,22 @@ public:
         NumOfValues
     };    
 
-    static const std::string& fileGeneratedComment();
-    CustomizationLevel getCustomizationLevel() const;
-    void setCustomizationLevel(const std::string& opt);
+    static const std::string& commsFileGeneratedComment();
+    CustomizationLevel commsGetCustomizationLevel() const;
+    void commsSetCustomizationLevel(const std::string& opt);
 
-    const std::string& getProtocolVersion() const;
-    void setProtocolVersion(const std::string& value);
+    const std::string& commsGetProtocolVersion() const;
+    void commsSetProtocolVersion(const std::string& value);
 
-    bool getMainNamespaceInOptionsForced() const;
-    void setMainNamespaceInOptionsForced(bool value);
-    bool hasMainNamespaceInOptions() const;
+    bool commsGetMainNamespaceInOptionsForced() const;
+    void commsSetMainNamespaceInOptionsForced(bool value);
+    bool commsHasMainNamespaceInOptions() const;
 
-    const std::vector<std::string>& getExtraInputBundles() const;
-    void setExtraInputBundles(const std::vector<std::string>& inputBundles);
-    const ExtraMessageBundlesList& extraMessageBundles() const;
+    const std::vector<std::string>& commsGetExtraInputBundles() const;
+    void commsSetExtraInputBundles(const std::vector<std::string>& inputBundles);
+    const ExtraMessageBundlesList& commsExtraMessageBundles() const;
 
-    static const std::string& minCommsVersion();
+    static const std::string& commsMinCommsVersion();
 
 protected:
     virtual bool prepareImpl() override;
@@ -93,15 +93,15 @@ protected:
     virtual bool writeImpl() override;    
 
 private:
-    bool prepareDefaultInterfaceInternal();
-    bool prepareExtraMessageBundlesInternal();
+    bool commsPrepareDefaultInterfaceInternal();
+    bool commsPrepareExtraMessageBundlesInternal();
     bool commsWriteExtraFilesInternal() const;
     
     static const CustomizationLevel DefaultCustomizationLevel = CustomizationLevel::Limited;
     CustomizationLevel m_customizationLevel = DefaultCustomizationLevel;    
     std::string m_protocolVersion;
     std::vector<std::string> m_extraInputBundles;
-    ExtraMessageBundlesList m_extraMessageBundles;
+    ExtraMessageBundlesList m_commsExtraMessageBundles;
     bool m_mainNamespaceInOptionsForced = false;
 };
 

@@ -103,7 +103,7 @@ std::string CommsNamespace::commsClientDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -135,7 +135,7 @@ std::string CommsNamespace::commsServerDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -167,7 +167,7 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -199,7 +199,7 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -357,7 +357,7 @@ std::string CommsNamespace::commsOptionsInternal(
         };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
     if (!thisNsScope.empty()) {
         thisNsScope.append("::");

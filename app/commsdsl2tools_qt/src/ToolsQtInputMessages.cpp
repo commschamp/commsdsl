@@ -189,7 +189,7 @@ bool ToolsQtInputMessages::toolsWritePlatformInputMessagesInternal() const
 
 // bool ToolsQtInputMessages::toolsWriteExtraInputMessagesInternal() const
 // {
-//     auto& extraBundles = m_generator.extraMessageBundles();
+//     auto& extraBundles = m_generator.commsExtraMessageBundles();
 //     for (auto& b : extraBundles) {
 
 //         auto bundleCheckFunc = 
