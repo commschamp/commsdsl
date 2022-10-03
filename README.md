@@ -15,12 +15,17 @@ For details on how to use the tool, please read the
 documentation page. For details on the generated CMake project please read the
 [Generated CMake Project Walkthrough](doc/GeneratedProjectWalkthrough.md)
 documentation page.
-- **commsdsl2test** - A code generator, that produces C++11 code for fuzz
+- **commsdsl2test** - A code generator that produces C++11 code for fuzz
 testing of the protocol definition produced by the **commsdsl2comms**.
 Please read [Testing Generated Protocol Code](doc/TestingGeneratedProtocolCode.md) for
 details
 - **commsdsl2tools_qt** - A code generator, that produces the protocol
 definition plugin code for [CommmsChampion Tools](https://github.com/commschamp/cc_tools_qt).
+- **commsdsl2swig** - A code generator that produces [SWIG](https://www.swig.org) interface 
+file(s) the protocol definition produced by the **commsdsl2comms**. 
+It allows generation of the bindings (glue code) to other high level 
+programming languages using external [swig](https://www.swig.org) utility.
+
 - **libcommsdsl** - A C++ library for parsing of 
 [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) schema files.
 It can be used to implement independent code generators, which can produce
