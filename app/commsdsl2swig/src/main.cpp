@@ -106,6 +106,7 @@ int main(int argc, const char* argv[])
         generator.swigSetMainNamespaceInNamesForced(options.isMainNamespaceInNamesForced());
         generator.swigSetHasProtocolVersion(options.hasProtocolVersion());
         generator.swigSetMessagesListFile(options.messagesListFile());
+        generator.swigSetForcedPlatform(options.forcedPlatform());
 
         auto files = commsdsl2swig::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

@@ -47,6 +47,7 @@ public:
     const std::string& getForcedInterface() const;
     bool hasProtocolVersion() const;
     const std::string& messagesListFile() const;
+    const std::string& forcedPlatform() const;
 };
 
 } // namespace commsdsl2swig

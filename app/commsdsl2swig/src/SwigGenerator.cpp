@@ -156,8 +156,8 @@ std::string SwigGenerator::swigDefInclude(const std::string& path)
 bool SwigGenerator::createCompleteImpl()
 {
     return 
-        swigReferenceRequestedInterface() &&
-        swigReferenceRequestedMessages();
+        swigReferenceRequestedInterfaceInternal() &&
+        swigReferenceRequestedMessagesInternal();
 }
 
 bool SwigGenerator::prepareImpl()
@@ -227,6 +227,11 @@ void SwigGenerator::swigSetHasProtocolVersion(bool value)
 void SwigGenerator::swigSetMessagesListFile(const std::string& value)
 {
     m_messagesListFile = value;
+}
+
+void SwigGenerator::swigSetForcedPlatform(const std::string& value)
+{
+    m_forcedPlatform = value;
 }
 
 bool SwigGenerator::swigHasProtocolVersion() const
@@ -502,7 +507,7 @@ bool SwigGenerator::swigPrepareDefaultInterfaceInternal()
     return true;
 }
 
-bool SwigGenerator::swigReferenceRequestedInterface()
+bool SwigGenerator::swigReferenceRequestedInterfaceInternal()
 {
     auto* mainInterface = swigMainInterface();
     if (mainInterface != nullptr) {
@@ -512,13 +517,31 @@ bool SwigGenerator::swigReferenceRequestedInterface()
     return true;
 }
 
-bool SwigGenerator::swigReferenceRequestedMessages()
+bool SwigGenerator::swigReferenceRequestedMessagesInternal()
 {
-    if (m_messagesListFile.empty()) {
+    if ((m_messagesListFile.empty()) && (m_forcedPlatform.empty())) {
         referenceAllMessages();
         return true;
     }
 
+    if ((!m_messagesListFile.empty()) && (!m_forcedPlatform.empty())) {
+        logger().error("Cannot force platform messages together with explicit message list.");
+        return false;
+    }    
+
+    if (!m_messagesListFile.empty()) {
+        return swigProcessMessagesListFileInternal();
+    }
+
+    if (!m_forcedPlatform.empty()) {
+        return swigProcessForcedPlatformInternal();
+    }    
+
+    return true;
+}
+
+bool SwigGenerator::swigProcessMessagesListFileInternal()
+{
     std::ifstream stream(m_messagesListFile);
     if (!stream) {
         logger().error("Failed to open messages list file: \"" + m_messagesListFile + "\".");
@@ -536,6 +559,42 @@ bool SwigGenerator::swigReferenceRequestedMessages()
         }
 
         m->setReferenced(true);
+    }
+
+    return true;
+}
+
+bool SwigGenerator::swigProcessForcedPlatformInternal()
+{
+    bool validPlatform = false;
+
+    assert(!m_forcedPlatform.empty());
+    for (auto* m : getAllMessages()) {
+        assert(m != nullptr);
+        auto& s = schemaOf(*m);
+        auto& schemaPlatforms = s.dslObj().platforms();
+        auto iter = std::find(schemaPlatforms.begin(), schemaPlatforms.end(), m_forcedPlatform);
+        if (iter == schemaPlatforms.end()) {
+            continue;
+        }
+
+        validPlatform = true;
+
+        auto* swigM = const_cast<SwigMessage*>(SwigMessage::cast(m));
+        auto& messagePlatforms = swigM->dslObj().platforms();
+
+        bool messageSupported = 
+            (messagePlatforms.empty()) || 
+            (std::find(messagePlatforms.begin(), messagePlatforms.end(), m_forcedPlatform) != messagePlatforms.end());
+
+        if (messageSupported) {
+            swigM->setReferenced(true);
+        }
+    }
+    
+    if (!validPlatform) {
+        logger().error("Unknown platform: \"" + m_forcedPlatform + "\".");
+        return false;
     }
 
     return true;

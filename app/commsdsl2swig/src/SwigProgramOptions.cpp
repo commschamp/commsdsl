@@ -51,6 +51,7 @@ const std::string ForceMainNamespaceInNamesStr("force-main-ns-in-names");
 const std::string ForceInterfaceStr("force-interface");
 const std::string HasProtocolStr("has-protocol-version");
 const std::string MessagesListStr("messages-list");
+const std::string ForcePlatformStr("force-platform");
 
 } // namespace
 
@@ -80,6 +81,7 @@ SwigProgramOptions::SwigProgramOptions()
         "specified in the same way as being referenced in CommsDSL (\'Namespace.MessageName\'). "
         "If not provided all the defined messages are going to be supported.",
         true)
+    (ForcePlatformStr, "Support only messages applicable to specified platform. Requires protocol schema to define it.", true)        
     ;
 }
 
@@ -170,6 +172,11 @@ bool SwigProgramOptions::hasProtocolVersion() const
 const std::string& SwigProgramOptions::messagesListFile() const
 {
     return value(MessagesListStr);
+}
+
+const std::string& SwigProgramOptions::forcedPlatform() const
+{
+    return value(ForcePlatformStr);
 }
 
 } // namespace commsdsl2swig

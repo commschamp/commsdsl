@@ -68,6 +68,7 @@ public:
     void swigSetForcedInterface(const std::string& value);
     void swigSetHasProtocolVersion(bool value);
     void swigSetMessagesListFile(const std::string& value);
+    void swigSetForcedPlatform(const std::string& value);
 
     bool swigHasProtocolVersion() const;
 
@@ -109,11 +110,14 @@ protected:
 private:
     bool swigWriteExtraFilesInternal() const;
     bool swigPrepareDefaultInterfaceInternal();
-    bool swigReferenceRequestedInterface();
-    bool swigReferenceRequestedMessages();
+    bool swigReferenceRequestedInterfaceInternal();
+    bool swigReferenceRequestedMessagesInternal();
+    bool swigProcessMessagesListFileInternal();
+    bool swigProcessForcedPlatformInternal();
 
     std::string m_forcedInterface;
     std::string m_messagesListFile;
+    std::string m_forcedPlatform;
     bool m_mainNamespaceInNamesForced = false;
     bool m_hasProtocolVersion = false;
 };
