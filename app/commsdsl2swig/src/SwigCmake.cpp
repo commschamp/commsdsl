@@ -78,7 +78,7 @@ bool SwigCmake::swigWriteInternal() const
         "#^#PREPEND#$#\n"
         "foreach (lang ${languages})\n"
         "    #^#PREPEND_LANG#$#\n"
-        "    swig_add_library(#^#PROJ_NAME#$#_swig_${lang} LANGUAGE ${lang} SOURCES ${PROJECT_SOURCE_DIR}/${#^#PROJ_NAME#$#}.i)\n"
+        "    swig_add_library(#^#PROJ_NAME#$#_swig_${lang} LANGUAGE ${lang} SOURCES ${PROJECT_SOURCE_DIR}/#^#PROJ_NAME#$#.i)\n"
         "    target_link_libraries(#^#PROJ_NAME#$#_swig_${lang} ${OPT_PROTOCOL_TARGET} cc::comms)\n"
         "endforeach()\n\n"
         "#^#APPEND#$#"
