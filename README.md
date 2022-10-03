@@ -1,9 +1,9 @@
 # Overview
 This project is a member of [CommsChampion Ecosystem](https://commschamp.github.io).
-It provides several code generators that produce C++11 code of a binary communication protocol,
-defined using [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) 
-schema files as well as satellite codes that could be used for testing and 
-protocol visualization. 
+It provides multiple code generators to produce C++11 binary protocol
+definition code as well as other satellite components that can be used to (fuzz) test
+the protocol definition, visualize the message contents, debug the protocol messages exchange,
+as well as create bindings (glue code) for other high level programming languages.
 
 # What's Inside
 - **commsdsl2comms** - A code generator, that produces C++11 code for binary
@@ -15,17 +15,19 @@ For details on how to use the tool, please read the
 documentation page. For details on the generated CMake project please read the
 [Generated CMake Project Walkthrough](doc/GeneratedProjectWalkthrough.md)
 documentation page.
+
 - **commsdsl2test** - A code generator that produces C++11 code for fuzz
 testing of the protocol definition produced by the **commsdsl2comms**.
 Please read [Testing Generated Protocol Code](doc/TestingGeneratedProtocolCode.md) for
 details
 - **commsdsl2tools_qt** - A code generator, that produces the protocol
-definition plugin code for [CommmsChampion Tools](https://github.com/commschamp/cc_tools_qt).
+definition plugin code for [CommmsChampion Tools](https://github.com/commschamp/cc_tools_qt),
+which can be used to visullize message contents as well as debug / observe exchange
+of the messages between different systems.
 - **commsdsl2swig** - A code generator that produces [SWIG](https://www.swig.org) interface 
-file(s) the protocol definition produced by the **commsdsl2comms**. 
+file(s) for the protocol definition produced by the **commsdsl2comms**.
 It allows generation of the bindings (glue code) to other high level 
 programming languages using external [swig](https://www.swig.org) utility.
-
 - **libcommsdsl** - A C++ library for parsing of 
 [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) schema files.
 It can be used to implement independent code generators, which can produce
