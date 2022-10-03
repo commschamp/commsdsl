@@ -45,6 +45,7 @@
 #include "SwigSyncLayer.h"
 #include "SwigValueLayer.h"
 #include "SwigVariantField.h"
+#include "SwigVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -91,7 +92,7 @@ std::string SwigGenerator::swigClassName(const Elem& elem) const
     return swigScopeToName(str);
 }
 
-std::string SwigGenerator::swigClassNameForRoot(const std::string& name) const
+std::string SwigGenerator::swigScopeNameForRoot(const std::string& name) const
 {
     bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
     auto str = comms::scopeForRoot(name, *this, addMainNamespace);
@@ -177,7 +178,8 @@ bool SwigGenerator::writeImpl()
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
         bool result = 
-            SwigMsgId::swigWrite(*this);
+            SwigMsgId::swigWrite(*this) &&
+            SwigVersion::swigWrite(*this);
 
         if (!result) {
             return false;

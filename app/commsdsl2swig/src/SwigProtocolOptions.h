@@ -28,7 +28,7 @@ class SwigProtocolOptions
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    static void swigAddCodeIncludes(const SwigGenerator& generator, StringsList& list);
+    static void swigAddCodeIncludes(SwigGenerator& generator, StringsList& list);
     static void swigAddCode(const SwigGenerator& generator, StringsList& list);
     static std::string swigClassName(const SwigGenerator& generator);
     static bool swigIsDefined(const SwigGenerator& generator);

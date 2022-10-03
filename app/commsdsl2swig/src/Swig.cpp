@@ -25,6 +25,7 @@
 #include "SwigMsgId.h"
 #include "SwigProtocolOptions.h"
 #include "SwigSchema.h"
+#include "SwigVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -46,7 +47,7 @@ bool Swig::swigWrite(SwigGenerator& generator)
     return obj.swigWriteInternal();
 }
 
-bool Swig::swigWriteInternal() const
+bool Swig::swigWriteInternal()
 {
     auto swigName = swigFileNameInternal();
     auto filePath = util::pathAddElem(m_generator.getOutputDir(), swigName);
@@ -95,20 +96,22 @@ bool Swig::swigWriteInternal() const
     return true;
 }
 
-std::string Swig::swigCodeBlockInternal() const
+std::string Swig::swigCodeBlockInternal()
 {
     util::StringsList includes = {
         "comms/comms.h"
     };
 
-
     SwigProtocolOptions::swigAddCodeIncludes(m_generator, includes);
+    SwigVersion::swigAddCodeIncludes(m_generator, includes);
 
     util::StringsList codeElems;
 
     SwigComms::swigAddCode(m_generator, codeElems);
     SwigDataBuf::swigAddCode(m_generator, codeElems);
     SwigMsgId::swigAddCode(m_generator, codeElems);
+    SwigVersion::swigAddCode(m_generator, codeElems);
+
     SwigProtocolOptions::swigAddCode(m_generator, codeElems);
 
     SwigMsgHandler::swigAddFwdCode(m_generator, codeElems);
@@ -151,7 +154,7 @@ std::string Swig::swigCodeBlockInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string Swig::swigDefInternal() const
+std::string Swig::swigDefInternal()
 {
     auto includeWrap = 
         [](const std::string& str)
@@ -171,6 +174,7 @@ std::string Swig::swigDefInternal() const
     SwigComms::swigAddDef(defs);
     SwigDataBuf::swigAddDef(m_generator, defs);
     SwigMsgId::swigAddDef(m_generator, defs);
+    SwigVersion::swigAddDef(m_generator, defs);
 
     for (auto& sPtr : m_generator.schemas()) {
         SwigSchema::cast(sPtr.get())->swigAddDef(defs);

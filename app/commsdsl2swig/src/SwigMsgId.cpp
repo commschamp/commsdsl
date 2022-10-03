@@ -71,7 +71,7 @@ void SwigMsgId::swigAddCode(const SwigGenerator& generator, StringsList& list)
 
 std::string SwigMsgId::swigClassName(const SwigGenerator& generator)
 {
-    return generator.swigClassNameForRoot(strings::msgIdEnumNameStr());
+    return generator.swigScopeNameForRoot(strings::msgIdEnumNameStr());
 }
 
 bool SwigMsgId::swigWriteInternal() const

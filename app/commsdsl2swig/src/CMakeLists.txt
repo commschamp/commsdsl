@@ -34,6 +34,7 @@ set (src
     SwigSyncLayer.cpp
     SwigValueLayer.cpp
     SwigVariantField.cpp
+    SwigVersion.cpp
     main.cpp
 )
 

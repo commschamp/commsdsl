@@ -54,7 +54,7 @@ public:
     std::string swigInputCodePathFor(const Elem& elem) const;
     std::string swigInputCodePathForFile(const std::string& name) const;
     std::string swigClassName(const Elem& elem) const;
-    std::string swigClassNameForRoot(const std::string& name) const;
+    std::string swigScopeNameForRoot(const std::string& name) const;
     std::string swigProtocolClassNameForRoot(const std::string& name) const;
     const std::string& swigConvertCppType(const std::string& str) const;
     const std::string& swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len) const;

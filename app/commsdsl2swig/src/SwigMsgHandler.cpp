@@ -142,7 +142,7 @@ void SwigMsgHandler::swigAddDef(const SwigGenerator& generator, StringsList& lis
 
 std::string SwigMsgHandler::swigClassName(const SwigGenerator& generator)
 {
-    return generator.swigClassNameForRoot(ClassName);
+    return generator.swigScopeNameForRoot(ClassName);
 }
 
 bool SwigMsgHandler::swigWriteInternal() const

@@ -15,28 +15,29 @@
 
 #pragma once
 
+#include "commsdsl/gen/util.h"
+
 #include <string>
 
 namespace commsdsl2swig
 {
 
 class SwigGenerator;
-class Swig
+class SwigVersion
 {
 public:
+    using StringsList = commsdsl::gen::util::StringsList;
+
     static bool swigWrite(SwigGenerator& generator);
+    static void swigAddCodeIncludes(SwigGenerator& generator, StringsList& list);
+    static void swigAddDef(SwigGenerator& generator, StringsList& list);
+    static void swigAddCode(SwigGenerator& generator, StringsList& list);
 
 private:
-    explicit Swig(SwigGenerator& generator) : m_generator(generator) {}
+    explicit SwigVersion(SwigGenerator& generator) : m_generator(generator) {}
 
-    bool swigWriteInternal();
-    std::string swigCodeBlockInternal();
-    std::string swigDefInternal();
-    std::string swigLangDefsInternal() const;
-    std::string swigPrependInternal() const;
-    std::string swigAppendInternal() const;
-    std::string swigFileNameInternal() const;
-
+    bool swigWriteInternal() const;
+    
     SwigGenerator& m_generator;
 };
 

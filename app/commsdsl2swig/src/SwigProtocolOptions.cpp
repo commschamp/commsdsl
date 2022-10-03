@@ -63,7 +63,7 @@ std::string swigCodeInternal(SwigGenerator& generator, std::size_t idx)
 
 } // namespace 
 
-void SwigProtocolOptions::swigAddCodeIncludes(const SwigGenerator& generator, StringsList& list)
+void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, StringsList& list)
 {
     if (!swigIsDefined(generator)) {
         return;
@@ -71,14 +71,13 @@ void SwigProtocolOptions::swigAddCodeIncludes(const SwigGenerator& generator, St
 
     assert(generator.isCurrentProtocolSchema());
 
-    auto& gen = const_cast<SwigGenerator&>(generator);
-    auto& schemas = gen.schemas();
+    auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        gen.chooseCurrentSchema(idx);
+        generator.chooseCurrentSchema(idx);
         list.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator));
     }
 
-    gen.chooseProtocolSchema();
+    generator.chooseProtocolSchema();
 }
     
 
