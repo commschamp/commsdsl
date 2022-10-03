@@ -105,7 +105,7 @@ foreach (name ${tests})
             -Wno-old-style-cast -Wno-cast-qual -Wno-shadow -Wno-double-promotion -Wno-implicit-int-conversion
         )
 
-        set (gcc_opts ${common_gcc_clang_opts} -Wno-strict-aliasing -Wno-coversion)
+        set (gcc_opts ${common_gcc_clang_opts} -Wno-strict-aliasing -Wno-conversion)
 
         if (CMAKE_COMPILER_IS_GNUCC)
             if(NOT CMAKE_CXX_COMPILER_VERSION VERSION_LESS "7.0")
