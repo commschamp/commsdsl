@@ -53,7 +53,8 @@ bool SwigDataBuf::swigWrite(SwigGenerator& generator)
 void SwigDataBuf::swigAddDef(const SwigGenerator& generator, StringsList& list)
 {
     static const std::string Templ = 
-        "%template(#^#CLASS_NAME#$#) std::vector<#^#UINT8_T#$#>;";
+        "%template(#^#CLASS_NAME#$#) std::vector<#^#UINT8_T#$#>;\n"
+        "%feature(\"valuewrapper\") #^#CLASS_NAME#$#;";
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", swigClassName(generator)},
