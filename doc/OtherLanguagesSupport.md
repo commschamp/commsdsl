@@ -147,7 +147,7 @@ Also, the **commsdsl2swig** code generator has the `force-main-ns-in-names` comm
 prefixing of the generated classes.
 
 ## Raw Data Buffer
-When dealing with raw data buffers, the binding C++ classes expect to work with `std::vector<unsigned char>`
+When dealing with raw data buffers, the binding C++ classes expect to work with `std::vector<unsigned_char>`
 (defined in `/include/DataBuf`). The [SWIG](https://www.swig.org/) generation is expected to generate appropriate
 wrapper and/or translation functionality.
 
@@ -211,7 +211,10 @@ public:
 };
 ```
 By default every `handle_message_X()` calls the interface invocation `handle_Message()`, which by default
-does nothing. The extending class in the target language can override any of the necessary virtual functions.
+does nothing. The `MsgHandler` class is marked as the swig [director](https://www.swig.org/Doc4.0/SWIGDocumentation.html#SWIGPlus_target_language_callbacks)
+allowing its extension by the target language.
+
+The extending class in the target language can override any of the necessary virtual functions.
 
 For example in Python:
 ```python
@@ -239,12 +242,141 @@ public class ClientMsgHandler extends my_prot_pkg.MsgHandler {
 }
 ```
 
-## Working with Raw Data Input / Output
+## Working with Frames
+Every protocol definition is expected to define its framing:
+```xml
+<shema name="my_prot">
+    <frame name="ProtFrame">
+        ...
+    </frame>
+</schema>
+```
+The wrapping class interface definition will reside in `include/my_prot/frame/ProtFrame.h`
+and look like this:
+```cpp
+struct frame_ProtFrame_AllFields
+{
+   ...
+};
+
+class frame_ProtFrame
+{
+public:
+    ...
+
+    unsigned long processInputData(const DataBuf& buf, MsgHandler& handler);
+    unsigned long processInputDataSingleMsg(const DataBuf& buf, MsgHandler& handler, frame_ProtFrame_AllFields* allFields = nullptr);
+    DataBuf writeMessage(const Message& msg);
+};
+```
+The `processInputData()` will process bytes in the input buffer, create appropriate message object and dispatch them to the
+provided handler. The function returns number of consumed bytes in the buffer. It's up the the target language caller to
+manage the input buffer and delete consumed bytes from it. In case the function returns amount of consumed bytes less than
+held by the buffer, it means that framing of the last message is incomplete (not all bytes received). The remaining bytes
+need to be preserved and then re-process attempted when new raw data comes in.
+
+The `processInputDataSingleMsg()` is very similar to `processInputData()`, but allows creation and handling only one message object
+at a time. It also provides an opportunity (via `allFields` output parameter) to get and analyze the message frame constructing fields.
+In cases the function invocation returns `0` when the input buffer is not empty, then it means there are not enough bytes
+to properly construct the message. The remaining bytes
+need to be preserved and then re-process attempted when new raw data comes in.
+
+The `writeMessage()` needs to be used to frame and serialize any message object. The returned output buffer needs to be sent
+to its destination over the I/O link.
 
 ## Memory Management
+As the rule of thumb: Do **NOT** store references to the objects you have not **explicitly** created. For example the
+invocation of the frame's `processInputData()` results in creation of the message object, then dispatching it to the
+handler. Once the handling object returns, the allocated message is deleted / destructed by C++ code. If such object
+needs to be stored, used explicit copy-construction.
+
+For example in Python:
+```python
+class ClientMsgHandler(my_prot.MsgHandler):
+    def handle_message_Msg1(self, msg):
+        self.msg1 = msg                        # Bad, creates dangling reference
+        self.msg1 = my_prot.message_Msg1(msg)  # Good, uses explicit copy construction
+```
+
+Also extra care is required when working with a reference to data members. They mustn't be accessed after
+the reference to the holding object is invalidated.
+```python
+m = my_prot.message_Msg1()
+f1 = m.field_f1()              # Reference to member field
+m = None                       # May result in destruction of the message object
+f1.setValue(1)                 # Access to invalid memory
+```
+
+Another thing worth mentioning is that `writeMessage()` member function of the frame class described earlier
+returns data buffer **by value**. Although [swig](https://www.swig.org/) still uses dynamic memory allocation and
+returns a pointer to the dynamically allocated object, the wrapping class in cooperation with the swig binding (glue)
+code take care of this memory and automatically delete the dynamically allocated vector at the time when
+target language wrapping class is destructed. Treat this data buffer object as **explicitly** allocated, i.e.
+reference to it can be stored as long as needed.
+
+## Working with Fields
+The access to message fields and their values is very similar to the one used when working directly with C++ code.
+Every message has `field_x()` accessor function(s) for the member field object(s), and the latter have
+`getValue()` and `setValue()` member functions to get / set the field's value.
+
+For example:
+```xml
+<shema name="my_prot">
+    <message name="Msg1" id="1">
+        <int name="F1" type="uint8" />
+    </message>
+    <frame name="ProtFrame">
+        ...
+    </frame>
+</schema>
+```
+The Python code may look like this:
+```python
+msg1 = my_prot.message_Msg1()
+msg1.field_f1().setValue(123)
+frame = my_prot.frame_ProtFrame()
+buf = frame.writeMessage(msg1)
+... # Send raw data from buffer over I/O link
+```
+
+## Working with &lt;ref&gt; Fields
+It is quite common to define field in the global space and then `<ref>`-erence it as the
+member field of the `<message>`.
+```xml
+<shema name="my_prot">
+    <fields>
+        <int name="F1" type="uint8" />
+    </fields>
+    <message name="Msg1" id="1">
+        <ref field="F1" />
+    </message>
+</schema>
+```
+When working with C++ there is a direct inheritance relationship between generated
+`my_prot::field::F1` and `my_prot::message::Msg1Fields::F1` and the member functions and types
+of the first can be used when working with the second. However, this is not the
+case with the generated wrapper classes:
+
+- `field_F1` --> `my_prot::field::F1`
+- `message_Msg1Fields_F1` --> `my_prot::message::Msg1Fields::F1` --> `my_prot::field::F1`
+
+As it is visible there is no direct inheritance relationship between `field_F1` and `message_Msg1Fields_F1`.
+As the result the member functions and types of the first cannot be seamlessly used when working
+with the second. To workaround this problem every wrapping class of the `<ref>` field has `ref()` member
+function to do the explicit casting to the global field type:
+```python
+msg1 = my_prot.message_Msg1()
+msg1.field_f1().ref().setValue(123)
+```
+Note that for some languages, like C#, the `ref` can be a keyword and cannot be used as a function name. In
+such cases [swig](https://www.swig.org/) automatically renames the function to `ref_()`.
+
+## Working with &lt;enum&gt; Fields
+
+## Working with &lt;variant&gt; Fields
 
 ## Working with Units
 
-## Handling Variant Members
-
 ## Language Specific
+
+## Updates to SWIG Interface File
