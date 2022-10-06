@@ -42,8 +42,6 @@ const std::string ClassName("DataBuf");
 
 } // namespace 
     
-
-
 bool SwigDataBuf::swigWrite(SwigGenerator& generator)
 {
     SwigDataBuf obj(generator);
