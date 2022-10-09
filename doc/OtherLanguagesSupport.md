@@ -101,7 +101,7 @@ target_link_libraries(my_prot_swig_java JNI::JNI)
 
 add_custom_target(
     my_prot_swig_java_compile ALL
-    COMMAND ${Java_JAVAC_EXECUTABLE} -Xdiags:verbose -d . ${CMAKE_CURRENT_BINARY_DIR}/*.java
+    COMMAND ${Java_JAVAC_EXECUTABLE} -Xdiags:verbose -d . ${CMAKE_CURRENT_BINARY_DIR}/output_java/*.java
     DEPENDS ${my_prot_swig_java}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 )

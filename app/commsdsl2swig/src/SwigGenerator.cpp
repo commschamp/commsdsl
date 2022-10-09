@@ -411,6 +411,8 @@ bool SwigGenerator::swigWriteExtraFilesInternal() const
             strings::publicFileSuffixStr(),
             strings::incFileSuffixStr(),
             strings::appendFileSuffixStr(),
+            strings::prependFileSuffixStr(),
+            strings::prependLangFileSuffixStr(),
         };        
         auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
         if (extIter != std::end(ReservedExt)) {

@@ -2,9 +2,6 @@ import os
 import sys
 import unittest
 
-sys.path.append(os.getcwd())
-sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '..')))
-
 import test28
 
 class MsgHandler(test28.MsgHandler):

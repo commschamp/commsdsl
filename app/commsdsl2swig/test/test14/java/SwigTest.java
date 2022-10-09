@@ -1,16 +1,16 @@
 public class SwigTest {
-    private test14_p.message_Msg1 m_msg1 = null;
+    private test14_swig.message_Msg1 m_msg1 = null;
 
     static {
-        System.loadLibrary("commsdsl2swig_test14_java");
+        System.loadLibrary("test14_swig_java");
     }
 
-    public void setMsg1(test14_p.message_Msg1 msg) {
+    public void setMsg1(test14_swig.message_Msg1 msg) {
         m_msg1 = msg;
     }    
 
     public void doTest1() {
-        var msg = new test14_p.message_Msg1();
+        var msg = new test14_swig.message_Msg1();
         System.out.println("f1=" + msg.field_f1().ref().getValue());
 
         assert msg.field_f1().ref().getValue().equals("hello");
@@ -25,13 +25,13 @@ public class SwigTest {
         msg.field_f4().ref().setValue("ccc");
         msg.field_f10().setValue("ddd");        
 
-        var frame = new test14_p.frame_Frame();
+        var frame = new test14_swig.frame_Frame();
         var buf = frame.writeMessage(msg);
         var handler = new TestMsgHandler(this);
 
         var consumed = frame.processInputData(buf, handler);
         assert consumed == buf.size();
-        assert test14_p.test14.eq_message_Msg1(msg, m_msg1): "Messages not equal";
+        assert test14_swig.test14.eq_message_Msg1(msg, m_msg1): "Messages not equal";
         System.out.println("Test1 Complete");
     }
 
