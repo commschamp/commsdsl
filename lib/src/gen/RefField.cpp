@@ -73,6 +73,12 @@ public:
         return m_referencedField;
     }
 
+    void setReferenced()
+    {
+        assert(m_referencedField != nullptr);
+        m_referencedField->setReferenced();
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::RefField m_dslObj;
@@ -101,6 +107,11 @@ const Field* RefField::referencedField() const
 bool RefField::prepareImpl()
 {
     return m_impl->prepare();
+}
+
+void RefField::setReferencedImpl()
+{
+    m_impl->setReferenced();
 }
 
 commsdsl::parse::RefField RefField::refDslObj() const

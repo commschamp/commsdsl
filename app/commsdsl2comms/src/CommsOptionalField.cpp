@@ -206,12 +206,6 @@ void CommsOptionalField::commsCompOptChecksImpl(const std::string& accStr, Strin
     m_commsMemberField->commsCompOptChecks(accStr, checks, prefix + ".field()");   
 }
 
-void CommsOptionalField::commsSetReferencedImpl()
-{
-    commsUpdateFieldReferencedIfExists(m_commsExternalField);
-    commsUpdateFieldReferencedIfExists(m_commsMemberField);
-}
-
 std::string CommsOptionalField::commsDefFieldRefInternal() const
 {
     if (m_commsExternalField != nullptr) {

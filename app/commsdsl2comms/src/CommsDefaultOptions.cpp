@@ -56,7 +56,7 @@ std::string optionsBodyInternal(
         return strings::emptyString();
     }
 
-    if (!generator.hasMainNamespaceInOptions()) {
+    if (!generator.commsHasMainNamespaceInOptions()) {
         return util::strListToString(opts, "\n", "");
     }
 
@@ -131,7 +131,7 @@ const std::string& extOptionsTempl()
 util::ReplacementMap extInitialRepl(CommsGenerator& generator)
 {
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
         {"DEFAULT_OPTS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)}
     };
@@ -191,7 +191,7 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
 
     auto& name = strings::defaultOptionsClassStr();
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", name},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions)},

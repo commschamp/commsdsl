@@ -62,23 +62,17 @@ ToolsQtField::ToolsQtFieldsList ToolsQtField::toolsTransformFieldsList(const com
 
 bool ToolsQtField::toolsWrite() const
 {
-    if ((!comms::isGlobalField(m_field)) || (!m_referenced)) { 
+    if ((!comms::isGlobalField(m_field)) || (!m_field.isReferenced())) { 
         return true;
     }
 
     auto& dslObj = m_field.dslObj();
-    if ((!dslObj.isForceGen()) && (!m_referenced)) {
+    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
         // Not referenced fields do not need to be written
         return true;
     }
 
     return toolsWriteHeaderInternal() && toolsWriteSrcInternal();
-}
-
-void ToolsQtField::toolsSetReferenced()
-{
-    m_referenced = true;
-    toolsSetReferencedImpl();
 }
 
 bool ToolsQtField::toolsIsPseudo() const
@@ -255,7 +249,7 @@ std::string ToolsQtField::toolsRelDefSrcFile() const
 
 ToolsQtField::StringsList ToolsQtField::toolsSourceFiles() const
 {
-    if ((!comms::isGlobalField(m_field)) || (!m_referenced)) { 
+    if ((!comms::isGlobalField(m_field)) || (!m_field.isReferenced())) { 
         return StringsList{};
     }
     
@@ -330,17 +324,6 @@ std::string ToolsQtField::toolsExtraPropsImpl() const
 std::string ToolsQtField::toolsDefMembersImpl() const
 {
     return strings::emptyString();
-}
-
-void ToolsQtField::toolsSetReferencedImpl()
-{
-}
-
-void ToolsQtField::toolsUpdateFieldReferencedIfExists(ToolsQtField* field)
-{
-    if (field != nullptr) {
-        field->toolsSetReferenced();
-    }
 }
 
 bool ToolsQtField::toolsWriteHeaderInternal() const

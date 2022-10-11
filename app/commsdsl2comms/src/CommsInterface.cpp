@@ -124,9 +124,6 @@ bool CommsInterface::prepareImpl()
     m_privateCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
     m_commsFields = CommsField::commsTransformFieldsList(fields());
 
-    for (auto* f : m_commsFields) {
-        f->commsSetReferenced();
-    }     
     return true;
 }
 
@@ -180,7 +177,7 @@ bool CommsInterface::commsWriteCommonInternal() const
         "#^#NS_END#$#\n";
 
     util::ReplacementMap repl =  {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"CLASS_NAME", m_name},
         {"SCOPE", comms::scopeFor(*this, gen)},
         {"INCLUDES", commsCommonIncludesInternal()},
@@ -229,7 +226,7 @@ bool CommsInterface::commsWriteDefInternal() const
 
     auto obj = dslObj();
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"CLASS_NAME", m_name},
         {"INCLUDES", commsDefIncludesInternal()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},

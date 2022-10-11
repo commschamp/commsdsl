@@ -121,12 +121,6 @@ std::string ToolsQtRefField::toolsDefFuncBodyImpl() const
     return util::processTemplate(*templ, repl);
 }
 
-void ToolsQtRefField::toolsSetReferencedImpl()
-{
-    assert(referencedField() != nullptr);
-    m_toolsReferenceField->toolsSetReferenced();
-}
-
 std::string ToolsQtRefField::toolsExtraPropsInternal() const
 {
     util::StringsList updates;

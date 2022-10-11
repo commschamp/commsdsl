@@ -142,8 +142,8 @@ bool CommsCmake::commsWriteInternal() const
     ;
     
     util::ReplacementMap repl = {
-        {"NAME", m_generator.currentSchema().mainNamespace()},
-        {"CAP_NAME", util::strToUpper(m_generator.currentSchema().mainNamespace())},
+        {"NAME", m_generator.protocolSchema().mainNamespace()},
+        {"CAP_NAME", util::strToUpper(m_generator.protocolSchema().mainNamespace())},
     };
 
     stream << util::processTemplate(Templ, repl);

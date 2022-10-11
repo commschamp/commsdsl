@@ -60,10 +60,21 @@ public:
         return m_generator;
     }
 
+    bool isReferenced() const
+    {
+        return m_referenced;
+    }
+
+    void setReferenced()
+    {
+        m_referenced = true;
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::Field m_dslObj;
     bool m_prepared = false;
+    bool m_referenced = false;
 };    
 
 Field::Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent) :
@@ -146,6 +157,24 @@ const Generator& Field::generator() const
     return m_impl->generator();
 }
 
+bool Field::isReferenced() const
+{
+    return m_impl->isReferenced();
+}
+
+void Field::setReferenced()
+{
+    m_impl->setReferenced();
+    setReferencedImpl();
+}
+
+void Field::setFieldReferencedIfExists(Field* field)
+{
+    if (field != nullptr) {
+        field->setReferenced();
+    }
+}
+
 Elem::Type Field::elemTypeImpl() const
 {
     return Type_Field;
@@ -161,6 +190,9 @@ bool Field::writeImpl() const
     return true;
 }
 
+void Field::setReferencedImpl()
+{
+}
 
 } // namespace gen
 

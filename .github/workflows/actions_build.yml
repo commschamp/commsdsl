@@ -45,7 +45,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+              -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
+              -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} \
+              -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF \
+              -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: gcc-8
         CXX: g++-8
@@ -100,7 +105,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+          -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
+          -DCOMMSDSL_TESTS_C_COMPILER=gcc-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=g++-${{matrix.cc_ver}} \
+          -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF \
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: gcc-8
         CXX: g++-8
@@ -117,18 +127,14 @@ jobs:
       shell: bash
       run: ctest
 
-
   build_gcc_ubuntu_20_04:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
         type: [Debug, Release, MinSizeRel]
-        cc_ver: [8, 9, 10, 11]
-        cpp: [11, 14, 17, 20]
-        exclude:
-          - cc_ver: 8
-            cpp: 20
+        cc_ver: [8]
+        cpp: [11, 14, 17]
 
     steps:
     - uses: actions/checkout@v2
@@ -159,7 +165,11 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON
+      run: |
+        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+        -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
+        -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON \
+        -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
@@ -175,6 +185,67 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: ctest
+
+  build_gcc_ubuntu_22_04:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [Debug, Release, MinSizeRel]
+        cc_ver: [9, 10, 11, 12]
+        cpp: [11, 14, 17, 20]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Prepare Install
+      run: sudo apt-get update --fix-missing    
+      
+    - name: Install Packages
+      run: |
+        sudo apt install libqt5gui5 qtbase5-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} \
+        python3 libpython3-dev swig default-jdk default-jre
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build      
+
+    - name: Prepare externals
+      shell: bash
+      run: $GITHUB_WORKSPACE/script/prepare_externals.sh
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+        CC: gcc-${{matrix.cc_ver}}
+        CXX: g++-${{matrix.cc_ver}}
+        EXTERNALS_DIR: ${{runner.workspace}}/externals
+        COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
+        COMMON_BUILD_TYPE: ${{matrix.type}}
+        COMMON_CXX_STANDARD: ${{matrix.cpp}}
+        COMMS_TAG: ${{env.COMMS_BRANCH}}
+        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}}
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: |
+        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+        -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
+        -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON \
+        -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON
+      env:
+        CC: gcc-${{matrix.cc_ver}}
+        CXX: g++-${{matrix.cc_ver}}
+
+    - name: Build Target 
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build . --config ${{matrix.type}} --target install
+      env:
+        VERBOSE: 1 
+      
+    - name: Testing    
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ctest      
       
   build_clang_ubuntu_18_04:
     runs-on: ubuntu-18.04
@@ -219,7 +290,12 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_C_COMPILER=clang-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=clang++-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+          -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
+          -DCOMMSDSL_TESTS_C_COMPILER=clang-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=clang++-${{matrix.cc_ver}} \
+          -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF \
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
       env:
         CC: clang-6.0
         CXX: clang++-6.0
@@ -242,7 +318,7 @@ jobs:
       fail-fast: false
       matrix:
         type: [Debug, Release, MinSizeRel]
-        cc_ver: [7, 8, 9, 10, 11, 12]
+        cc_ver: [7, 8, 9, 10, 11]
         cpp: [11, 14, 17, 20]
         exclude:
           - cc_ver: 7
@@ -279,7 +355,72 @@ jobs:
     - name: Configure CMake
       shell: bash
       working-directory: ${{runner.workspace}}/build
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+          -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
+          -DCOMMSDSL_BUILD_UNIT_TESTS=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
+      env:
+        CC: clang-${{matrix.cc_ver}}
+        CXX: clang++-${{matrix.cc_ver}}
+
+    - name: Build Target 
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build . --config ${{matrix.type}} --target install
+      env:
+        VERBOSE: 1 
+
+    - name: Testing    
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: ctest
+
+  build_clang_ubuntu_22_04:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [Debug, Release, MinSizeRel]
+        cc_ver: [12, 13, 14]
+        cpp: [11, 14, 17, 20]
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Prepare Install
+      run: sudo apt-get update --fix-missing    
+      
+    - name: Install Packages
+      run: |
+        sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} \
+        python3 libpython3-dev swig  default-jdk default-jre
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build      
+
+    - name: Prepare externals
+      shell: bash
+      run: $GITHUB_WORKSPACE/script/prepare_externals.sh
+      env:
+        BUILD_DIR: ${{runner.workspace}}/build
+        CC: clang-${{matrix.cc_ver}}
+        CXX: clang++-${{matrix.cc_ver}}
+        EXTERNALS_DIR: ${{runner.workspace}}/externals
+        COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
+        COMMON_BUILD_TYPE: ${{matrix.type}}
+        COMMON_CXX_STANDARD: ${{matrix.cpp}}
+        COMMS_TAG: ${{env.COMMS_BRANCH}}
+        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}} 
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+          -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
+          -DCOMMSDSL_BUILD_UNIT_TESTS=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}

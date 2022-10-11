@@ -73,7 +73,7 @@ std::string CommsNamespace::commsDefaultOptions() const
             false
         );
 
-    auto nsName = comms::namespaceName(name());
+    auto nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
@@ -96,14 +96,14 @@ std::string CommsNamespace::commsClientDefaultOptions() const
         return strings::emptyString();
     }
 
-    auto nsName = comms::namespaceName(name());
+    auto& nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -128,14 +128,14 @@ std::string CommsNamespace::commsServerDefaultOptions() const
         return strings::emptyString();
     }
 
-    auto nsName = comms::namespaceName(name());
+    auto& nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)}
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -160,14 +160,14 @@ std::string CommsNamespace::commsDataViewDefaultOptions() const
         return strings::emptyString();
     }
 
-    auto nsName = comms::namespaceName(name());
+    auto& nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -192,14 +192,14 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
         return strings::emptyString();
     }
 
-    auto nsName = comms::namespaceName(name());
+    auto& nsName = name();
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", std::move(body)},
     };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
 
     if (!thisNsScope.empty()) {
@@ -217,7 +217,7 @@ bool CommsNamespace::commsHasReferencedMsgId() const
             [](auto* f)
             {
                 return 
-                    (f->commsIsReferenced()) && 
+                    (f->field().isReferenced()) && 
                     (f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
             });
 }
@@ -235,7 +235,7 @@ bool CommsNamespace::commsHasAnyGeneratedCode() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return f->commsIsReferenced();
+                return f->field().isReferenced();
             });
 
 
@@ -293,7 +293,7 @@ bool CommsNamespace::commsHasAnyField() const
             m_commsFields.begin(), m_commsFields.end(),
             [](auto* f)
             {
-                return f->commsIsReferenced();
+                return f->field().isReferenced();
             });
 
     if (hasReferencedFields) {
@@ -357,7 +357,7 @@ std::string CommsNamespace::commsOptionsInternal(
         };
 
     auto& commsGen = static_cast<const CommsGenerator&>(generator());
-    bool hasMainNs = commsGen.hasMainNamespaceInOptions(); 
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
     auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
     if (!thisNsScope.empty()) {
         thisNsScope.append("::");

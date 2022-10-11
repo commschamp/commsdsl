@@ -97,12 +97,14 @@ int main(int argc, const char* argv[])
 
         generator.setOutputDir(options.getOutputDirectory());
         generator.setVersionIndependentCodeForced(options.versionIndependentCodeRequested());
-        generator.setCustomizationLevel(options.getCustomizationLevel());
-        generator.setProtocolVersion(options.getProtocolVersion());
-        generator.setCodeDir(options.getCodeInputDirectory());
-        generator.setExtraInputBundles(options.getExtraInputBundles());
         generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
-        generator.setMainNamespaceInOptionsForced(options.isMainNamespaceInOptionsForced());
+        generator.setCodeDir(options.getCodeInputDirectory());
+        generator.setMinRemoteVersion(options.getMinRemoteVersion());
+
+        generator.commsSetCustomizationLevel(options.getCustomizationLevel());
+        generator.commsSetProtocolVersion(options.getProtocolVersion());
+        generator.commsSetExtraInputBundles(options.getExtraInputBundles());
+        generator.commsSetMainNamespaceInOptionsForced(options.isMainNamespaceInOptionsForced());
 
         auto files = commsdsl2comms::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

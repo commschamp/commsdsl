@@ -97,12 +97,6 @@ std::string ToolsQtBitfieldField::toolsDefMembersImpl() const
     return util::strListToString(elems, "\n", "");
 }
 
-void ToolsQtBitfieldField::toolsSetReferencedImpl()
-{
-    for (auto* m : m_members) {
-        m->toolsSetReferenced();
-    }
-}
 
 
 

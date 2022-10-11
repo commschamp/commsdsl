@@ -78,6 +78,12 @@ public:
         return m_memberPrefixField.get();
     }    
 
+    void setReferenced()
+    {
+        Field::setFieldReferencedIfExists(m_externalPrefixField);
+        Field::setFieldReferencedIfExists(m_memberPrefixField.get());
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::StringField m_dslObj;
@@ -116,14 +122,19 @@ const Field* StringField::memberPrefixField() const
     return m_impl->memberPrefixField();
 }
 
-commsdsl::parse::StringField StringField::stringDslObj() const
-{
-    return commsdsl::parse::StringField(dslObj());
-}
-
 bool StringField::prepareImpl()
 {
     return m_impl->prepare();
+}
+
+void StringField::setReferencedImpl()
+{
+    m_impl->setReferenced();
+}
+
+commsdsl::parse::StringField StringField::stringDslObj() const
+{
+    return commsdsl::parse::StringField(dslObj());
 }
 
 } // namespace gen

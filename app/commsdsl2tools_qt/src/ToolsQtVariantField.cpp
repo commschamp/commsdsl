@@ -103,11 +103,4 @@ std::string ToolsQtVariantField::toolsDefMembersImpl() const
     return util::strListToString(elems, "\n", "");
 }
 
-void ToolsQtVariantField::toolsSetReferencedImpl()
-{
-    for (auto* m : m_members) {
-        m->toolsSetReferenced();
-    }
-}
-
 } // namespace commsdsl2tools_qt

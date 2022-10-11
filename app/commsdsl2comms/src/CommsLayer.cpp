@@ -46,14 +46,6 @@ bool CommsLayer::commsPrepare()
     m_commsMemberField = dynamic_cast<CommsField*>(m_layer.memberField());
     assert((m_commsExternalField != nullptr) || (m_layer.externalField() == nullptr));
     assert((m_commsMemberField != nullptr) || (m_layer.memberField() == nullptr));
-
-    if (m_commsExternalField != nullptr) {
-        m_commsExternalField->commsSetReferenced();
-    }
-
-    if (m_commsMemberField != nullptr) {
-        m_commsMemberField->commsSetReferenced();
-    }
     return true;
 }
 
@@ -159,7 +151,7 @@ std::string CommsLayer::commsDefType(const CommsLayer* prevLayer, bool& hasInput
 bool CommsLayer::commsIsCustomizable() const
 {
     auto& gen = static_cast<CommsGenerator&>(m_layer.generator());
-    auto level = gen.getCustomizationLevel();
+    auto level = gen.commsGetCustomizationLevel();
     if (level == CommsGenerator::CustomizationLevel::Full) {
         return true;
     }
@@ -299,7 +291,7 @@ std::string CommsLayer::commsDefExtraOpts() const
 
     if (commsIsCustomizable()) {
         auto& gen = static_cast<const CommsGenerator&>(m_layer.generator());
-        opts.push_back("typename TOpt::" + comms::scopeFor(m_layer, m_layer.generator(), gen.hasMainNamespaceInOptions()));
+        opts.push_back("typename TOpt::" + comms::scopeFor(m_layer, m_layer.generator(), gen.commsHasMainNamespaceInOptions()));
     }    
 
     return util::strListToString(opts, ",\n", "");
@@ -377,7 +369,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
 
         if (hasBase) {
             auto& commsGen = static_cast<const CommsGenerator&>(m_layer.generator());
-            bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+            bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
             repl["EXT"] = " : public TBase::" + comms::scopeFor(m_layer, m_layer.generator(), hasMainNs) + strings::membersSuffixStr();
         }
 
@@ -405,7 +397,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
 
         if ((!extraOpts.empty()) && (hasBase)) {
             auto& commsGen = static_cast<const CommsGenerator&>(m_layer.generator());
-            bool hasMainNs = commsGen.hasMainNamespaceInOptions();            
+            bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();            
             extraOpts.push_back("typename TBase::" + comms::scopeFor(m_layer, m_layer.generator(), hasMainNs));
         }
 

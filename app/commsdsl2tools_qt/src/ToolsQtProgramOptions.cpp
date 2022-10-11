@@ -41,7 +41,6 @@ const std::string InputFilesPrefixStr("input-files-prefix");
 const std::string FullInputFilesPrefixStr("p," + InputFilesPrefixStr);
 const std::string NamespaceStr("namespace");
 const std::string FullNamespaceStr("n," + NamespaceStr);
-const std::string InputFileStr("input-file");
 const std::string WarnAsErrStr("warn-as-err");
 const std::string CodeInputDirStr("code-input-dir");
 const std::string FullCodeInputDirStr("c," + CodeInputDirStr);

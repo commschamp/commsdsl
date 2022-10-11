@@ -47,6 +47,7 @@ public:
 
 protected:    
     virtual bool prepareImpl() override;
+    virtual void setReferencedImpl() override;
 
 private:
     std::unique_ptr<StringFieldImpl> m_impl;

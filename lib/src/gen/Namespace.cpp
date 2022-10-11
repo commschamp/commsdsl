@@ -145,6 +145,20 @@ public:
         return m_generator;
     }    
 
+    void setAllInterfacesReferenced()
+    {
+        for (auto& iPtr : m_interfaces) {
+            iPtr->setReferenced(true);
+        }
+    }
+
+    void setAllMessagesReferenced()
+    {
+        for (auto& mPtr : m_messages) {
+            mPtr->setReferenced(true);
+        }
+    }
+
 private:
     bool createNamespaces()
     {
@@ -239,6 +253,9 @@ private:
         m_messages.reserve(messages.size());
         for (auto& m : messages) {
             auto ptr = m_generator.createMessage(m, m_parent);
+            if (!ptr->createAll()) {
+                return false;
+            }            
             assert(ptr);
             m_messages.push_back(std::move(ptr));
         }
@@ -629,6 +646,23 @@ Namespace::FramesAccessList Namespace::getAllFrames() const
     return result;
 }
 
+Namespace::FieldsAccessList Namespace::getAllFields() const
+{
+    FieldsAccessList result;
+    auto& subNs = m_impl->namespaces();
+    for (auto& n : subNs) {
+        auto list = n->getAllFields();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    result.reserve(result.size() + m_impl->fields().size());
+    for (auto& f : m_impl->fields()) {
+        result.emplace_back(f.get());
+    }
+
+    return result;
+}
+
 Generator& Namespace::generator()
 {
     return m_impl->generator();
@@ -650,12 +684,23 @@ Interface* Namespace::addDefaultInterface()
     }
 
     auto iter = intList.insert(intList.begin(), generator().createInterface(commsdsl::parse::Interface(nullptr), this));
+    (*iter)->setReferenced(true);
     if (!(*iter)->prepare()) {
         intList.erase(iter);
         return nullptr;
     }
     
     return iter->get();    
+}
+
+void Namespace::setAllInterfacesReferenced()
+{
+    m_impl->setAllInterfacesReferenced();
+}
+
+void Namespace::setAllMessagesReferenced()
+{
+    m_impl->setAllMessagesReferenced();
 }
 
 Elem::Type Namespace::elemTypeImpl() const

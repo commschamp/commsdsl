@@ -42,14 +42,6 @@ bool ToolsQtLayer::prepare()
 {
     m_toolsExternalField = dynamic_cast<ToolsQtField*>(m_layer.externalField());
     m_toolsMemberField = dynamic_cast<ToolsQtField*>(m_layer.memberField());
-
-    if (m_toolsExternalField != nullptr) {
-        m_toolsExternalField->toolsSetReferenced();
-    }
-
-    if (m_toolsMemberField != nullptr) {
-        m_toolsMemberField->toolsSetReferenced();
-    }
     return true;
 }
 

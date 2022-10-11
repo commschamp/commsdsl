@@ -53,6 +53,9 @@ public:
 
     bool hasVersionField() const;
 
+    bool isReferenced() const;
+    void setReferenced(bool value = true);
+
 protected:    
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();

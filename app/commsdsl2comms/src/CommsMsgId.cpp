@@ -90,7 +90,7 @@ bool CommsMsgId::commsWriteInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"TYPE", commsTypeInternal()},
         {"IDS", commsIdsInternal()}
@@ -116,7 +116,7 @@ std::string CommsMsgId::commsTypeInternal() const
         return comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength());
     }
 
-    auto allMessages = m_generator.getAllMessages();
+    auto allMessages = m_generator.currentSchema().getAllMessages();
     auto iter = 
         std::max_element(
             allMessages.begin(), allMessages.end(),

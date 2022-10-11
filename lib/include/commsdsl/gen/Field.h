@@ -51,12 +51,18 @@ public:
     Generator& generator();
     const Generator& generator() const;
 
+    bool isReferenced() const;
+    void setReferenced();
+
+    static void setFieldReferencedIfExists(Field* field);
+
 protected:    
     Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent = nullptr);
 
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();
     virtual bool writeImpl() const;
+    virtual void setReferencedImpl();
 
 
 private:

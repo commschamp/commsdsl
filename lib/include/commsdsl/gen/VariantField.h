@@ -41,6 +41,7 @@ public:
 
 protected:    
     virtual bool prepareImpl() override;
+    virtual void setReferencedImpl() override;
 
     commsdsl::parse::VariantField variantDslObj() const;
 

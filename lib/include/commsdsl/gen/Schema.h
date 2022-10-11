@@ -46,6 +46,7 @@ public:
     using InterfacesAccessList = Namespace::InterfacesAccessList;
     using MessagesAccessList = Namespace::MessagesAccessList;
     using FramesAccessList = Namespace::FramesAccessList;
+    using FieldsAccessList = Namespace::FieldsAccessList;
 
     Schema(Generator& generator, commsdsl::parse::Schema dslObj, Elem* parent = nullptr);
     virtual ~Schema();
@@ -71,6 +72,7 @@ public:
     MessagesAccessList getAllMessages() const;
     MessagesAccessList getAllMessagesIdSorted() const;
     FramesAccessList getAllFrames() const;
+    FieldsAccessList getAllFields() const;
 
     bool createAll();
     bool prepare();
@@ -102,6 +104,9 @@ public:
         bool deprecatedRemoved) const;  
 
     bool isElementDeprecated(unsigned deprecatedSince) const;
+
+    void setAllInterfacesReferenced();
+    void setAllMessagesReferenced();
 
 protected:
     virtual Type elemTypeImpl() const override final;

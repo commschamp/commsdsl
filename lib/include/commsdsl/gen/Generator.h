@@ -48,6 +48,7 @@ public:
     using InterfacesAccessList = Namespace::InterfacesAccessList;
     using MessagesAccessList = Namespace::MessagesAccessList;
     using FramesAccessList = Namespace::FramesAccessList;
+    using FieldsAccessList = Namespace::FieldsAccessList;
 
     Generator();
     virtual ~Generator();
@@ -85,6 +86,14 @@ public:
     MessagesAccessList getAllMessages() const;
     MessagesAccessList getAllMessagesIdSorted() const;
     FramesAccessList getAllFrames() const;
+    FieldsAccessList getAllFields() const;
+
+    NamespacesAccessList getAllNamespacesFromAllSchemas() const;
+    InterfacesAccessList getAllInterfacesFromAllSchemas() const;
+    MessagesAccessList getAllMessagesFromAllSchemas() const;
+    MessagesAccessList getAllMessagesIdSortedFromAllSchemas() const;
+    FramesAccessList getAllFramesFromAllSchemas() const;
+    FieldsAccessList getAllFieldsFromAllSchemas() const;    
 
     bool prepare(const FilesList& files);
     bool write();
@@ -139,9 +148,22 @@ public:
     LayerPtr createPayloadLayer(commsdsl::parse::Layer dslObj, Elem* parent);
     LayerPtr createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* parent);
 
+    unsigned currentSchemaIdx() const;
+    void chooseCurrentSchema(unsigned idx);
+    void chooseProtocolSchema();
+
     bool createDirectory(const std::string& path) const;
 
+    void referenceAllMessages();
+    bool getAllMessagesReferencedByDefault() const;
+    void setAllMessagesReferencedByDefault(bool value = true);
+
+    void referenceAllInterfaces();
+    bool getAllInterfacesReferencedByDefault() const;
+    void setAllInterfacesReferencedByDefault(bool value = true);    
+
 protected:
+    virtual bool createCompleteImpl();
     virtual bool prepareImpl();
 
     virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent);
@@ -174,10 +196,7 @@ protected:
     virtual bool writeImpl();
     virtual LoggerPtr createLoggerImpl();
 
-
     Namespace* addDefaultNamespace();
-    void chooseCurrentSchema(unsigned idx);
-    void chooseProtocolSchema();
 
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    

@@ -41,9 +41,12 @@ public:
     explicit Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent = nullptr);
     virtual ~Message();
 
+    bool createAll();
     bool isPrepared() const;
     bool prepare();
     bool write() const;
+    bool isReferenced() const;
+    void setReferenced(bool value);
 
     commsdsl::parse::Message dslObj() const;
 

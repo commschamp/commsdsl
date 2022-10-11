@@ -1,4 +1,3 @@
-
 set (
     src
     ToolsQtBitfieldField.cpp

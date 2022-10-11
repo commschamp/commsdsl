@@ -55,6 +55,7 @@ public:
         if (!extRef.empty()) {
             m_externalField = m_generator.findField(extRef);
             assert(m_externalField != nullptr);
+            m_externalField->setReferenced();
             return true;
         }
 
@@ -63,6 +64,7 @@ public:
             return false;
         }
 
+        m_memberField->setReferenced();
         return true;
     }
 

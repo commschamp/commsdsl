@@ -1,0 +1,8 @@
+set (CMAKE_SWIG_FLAGS -Werror)
+if ("${lang}" STREQUAL "java")
+    list (APPEND CMAKE_SWIG_FLAGS "-Wall" "-package" ${PROJECT_NAME})
+elseif ("${lang}" STREQUAL "csharp")            
+    list (APPEND CMAKE_SWIG_FLAGS "-namespace" ${PROJECT_NAME})
+else ()
+    list (APPEND CMAKE_SWIG_FLAGS "-Wall")
+endif ()

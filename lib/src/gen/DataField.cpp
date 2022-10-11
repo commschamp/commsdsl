@@ -77,6 +77,12 @@ public:
         return m_memberPrefixField.get();
     }    
 
+    void setReferenced()
+    {
+        Field::setFieldReferencedIfExists(m_externalPrefixField);
+        Field::setFieldReferencedIfExists(m_memberPrefixField.get());
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::DataField m_dslObj;
@@ -117,6 +123,11 @@ const Field* DataField::memberPrefixField() const
 bool DataField::prepareImpl()
 {
     return m_impl->prepare();
+}
+
+void DataField::setReferencedImpl()
+{
+    m_impl->setReferenced();
 }
 
 commsdsl::parse::DataField DataField::dataDslObj() const

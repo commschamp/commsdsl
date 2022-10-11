@@ -49,7 +49,7 @@ public:
         m_prepared = true;
     }    
 
-    bool prepare()
+    bool createAll()
     {
         if (!m_dslObj.valid()) {
             return true;
@@ -60,18 +60,38 @@ public:
         for (auto& dslObj : fields) {
             auto ptr = Field::create(m_generator, dslObj, m_parent);
             assert(ptr);
-            if (!ptr->prepare()) {
-                return false;
-            }
-
             m_fields.push_back(std::move(ptr));
         }
 
-        return true;
+        return true;        
+    }    
+
+    bool prepare()
+    {
+        if (!m_referenced) {
+            return true;
+        }
+
+        if (!m_dslObj.valid()) {
+            return true;
+        }
+
+        return std::all_of(
+            m_fields.begin(), m_fields.end(),
+            [](auto& f)
+            {
+                bool result = f->prepare();
+                f->setReferenced();
+                return result;
+            });        
     }
 
     bool write() const
     {
+        if (!m_referenced) {
+            return true;
+        }
+
         bool result = 
             std::all_of(
                 m_fields.begin(), m_fields.end(),
@@ -103,12 +123,23 @@ public:
         return m_generator;
     }
 
+    bool isReferenced() const
+    {
+        return m_referenced;
+    }
+
+    void setReferenced(bool value)
+    {
+        m_referenced = value;
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::Message m_dslObj;
     Elem* m_parent = nullptr;
     FieldsList m_fields;
     bool m_prepared = false;
+    bool m_referenced = false;
 }; 
 
 Message::Message(Generator& generator, commsdsl::parse::Message dslObj, Elem* parent) :
@@ -124,6 +155,11 @@ bool Message::isPrepared() const
     return m_impl->isPrepared();
 }
 
+bool Message::createAll()
+{
+    return m_impl->createAll();
+}
+
 bool Message::prepare()
 {
     if (m_impl->isPrepared()) {
@@ -132,6 +168,10 @@ bool Message::prepare()
 
     if (!m_impl->prepare()) {
         return false;
+    }
+
+    if (!isReferenced()) {
+        return true;
     }
 
     bool result = prepareImpl();
@@ -147,7 +187,21 @@ bool Message::write() const
         return false;
     }
 
+    if (!m_impl->isReferenced()) {
+        return false;
+    }
+
     return writeImpl();
+}
+
+bool Message::isReferenced() const
+{
+    return m_impl->isReferenced();
+}
+
+void Message::setReferenced(bool value = true)
+{
+    m_impl->setReferenced(value);
 }
 
 commsdsl::parse::Message Message::dslObj() const

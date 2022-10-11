@@ -22,7 +22,6 @@ namespace comms
 
 std::string className(const std::string& name);
 std::string accessName(const std::string& name);
-std::string namespaceName(const std::string& name);
 
 std::string fullNameFor(const Elem& elem);
 

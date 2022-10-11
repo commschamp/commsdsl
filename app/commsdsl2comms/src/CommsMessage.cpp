@@ -138,10 +138,6 @@ bool CommsMessage::prepareImpl()
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
     }  
 
-    for (auto* f : m_commsFields) {
-        f->commsSetReferenced();
-    }  
-
     return true;
 }
 
@@ -245,7 +241,7 @@ bool CommsMessage::commsWriteCommonInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"SCOPE", comms::scopeFor(*this, gen)},
         {"INCLUDES", commsCommonIncludesInternal()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
@@ -337,7 +333,7 @@ bool CommsMessage::commsWriteDefInternal() const
     
     auto obj = dslObj();
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"MESSAGE_NAME", util::displayName(obj.displayName(), obj.name())},
         {"INCLUDES", commsDefIncludesInternal()},
         {"CUSTOM_INCLUDES", m_customCode.m_inc},
@@ -539,7 +535,7 @@ std::string CommsMessage::commsDefCustomizationOptInternal() const
     std::string result;
     if (commsIsCustomizableInternal()) {
         auto& gen = static_cast<const CommsGenerator&>(generator());
-        result = "typename TOpt::" + comms::scopeFor(*this, generator(), gen.hasMainNamespaceInOptions(), true) + ",";
+        result = "typename TOpt::" + comms::scopeFor(*this, generator(), gen.commsHasMainNamespaceInOptions(), true) + ",";
     }
     return result;
 }
@@ -1041,7 +1037,7 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
 bool CommsMessage::commsIsCustomizableInternal() const
 {
     auto& gen = static_cast<const CommsGenerator&>(generator());
-    auto level = gen.getCustomizationLevel();
+    auto level = gen.commsGetCustomizationLevel();
     if (level == CommsGenerator::CustomizationLevel::Full) {
         return true;
     }
@@ -1102,7 +1098,7 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
 
         if (hasBase) {
             auto& commsGen = static_cast<const CommsGenerator&>(generator());
-            bool hasMainNs = commsGen.hasMainNamespaceInOptions();                        
+            bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();                        
             repl["EXT"] = " : public TBase::" + comms::scopeFor(*this, generator(), hasMainNs) + strings::fieldsSuffixStr();
         }
 
@@ -1129,7 +1125,7 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
 
         if ((!extraOpts.empty()) && (hasBase)) {
             auto& commsGen = static_cast<const CommsGenerator&>(generator());
-            bool hasMainNs = commsGen.hasMainNamespaceInOptions();             
+            bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();             
             extraOpts.push_back("typename TBase::" + comms::scopeFor(*this, generator(), hasMainNs));
         }        
 

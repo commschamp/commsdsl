@@ -46,7 +46,6 @@ public:
     //     m_forcedPseudo = true;
     // }
 
-    void toolsSetReferenced();
     bool toolsIsPseudo() const;
 
     IncludesList toolsHeaderIncludes() const;
@@ -66,9 +65,6 @@ protected:
     virtual std::string toolsDefFuncBodyImpl() const;
     virtual std::string toolsExtraPropsImpl() const;
     virtual std::string toolsDefMembersImpl() const;
-    virtual void toolsSetReferencedImpl();
-
-    static void toolsUpdateFieldReferencedIfExists(ToolsQtField* field);
 
 private:
     bool toolsWriteHeaderInternal() const;
@@ -80,7 +76,6 @@ private:
 
     commsdsl::gen::Field& m_field;
     bool m_forcedPseudo = false;
-    bool m_referenced = false;
 };
 
 } // namespace commsdsl2tools_qt

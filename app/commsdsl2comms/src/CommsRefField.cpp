@@ -189,12 +189,6 @@ std::string CommsRefField::commsCompPrepValueStrImpl(const std::string& accStr, 
     return m_commsReferencedField->commsCompPrepValueStr(accStr, value);
 }
 
-void CommsRefField::commsSetReferencedImpl()
-{
-    assert(m_commsReferencedField != nullptr);
-    m_commsReferencedField->commsSetReferenced();
-}
-
 std::string CommsRefField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

@@ -447,6 +447,20 @@ public:
         m_minRemoteVersion = value;
     }
 
+    void setAllInterfacesReferenced()
+    {
+        for (auto& nPtr : m_namespaces) {
+            nPtr->setAllInterfacesReferenced();
+        }
+    }    
+
+    void setAllMessagesReferenced()
+    {
+        for (auto& nPtr : m_namespaces) {
+            nPtr->setAllMessagesReferenced();
+        }
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::Schema m_dslObj;
@@ -622,6 +636,16 @@ Schema::FramesAccessList Schema::getAllFrames() const
     return result;
 }
 
+Schema::FieldsAccessList Schema::getAllFields() const
+{
+    FieldsAccessList result;
+    for (auto& n : m_impl->namespaces()) {
+        auto nList = n->getAllFields();
+        result.insert(result.end(), nList.begin(), nList.end());
+    }
+    return result;    
+}
+
 bool Schema::createAll()
 {
     return m_impl->createAll();
@@ -730,6 +754,16 @@ bool Schema::isElementOptional(
 bool Schema::isElementDeprecated(unsigned deprecatedSince) const
 {
     return deprecatedSince < schemaVersion();
+}
+
+void Schema::setAllInterfacesReferenced()
+{
+    m_impl->setAllInterfacesReferenced();
+}
+
+void Schema::setAllMessagesReferenced()
+{
+    m_impl->setAllMessagesReferenced();
 }
 
 Elem::Type Schema::elemTypeImpl() const

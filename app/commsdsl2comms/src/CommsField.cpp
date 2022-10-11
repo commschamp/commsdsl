@@ -141,7 +141,7 @@ bool CommsField::commsWrite() const
     }
 
     auto& dslObj = m_field.dslObj();
-    if ((!dslObj.isForceGen()) && (!m_referenced)) {
+    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
         // Not referenced fields do not need to be written
         return true;
     }
@@ -343,12 +343,6 @@ std::string CommsField::commsCompPrepValueStr(const std::string& accStr, const s
 bool CommsField::commsIsVersionOptional() const
 {
     return comms::isVersionOptionaField(m_field, m_field.generator());
-}
-
-void CommsField::commsSetReferenced()
-{
-    m_referenced = true;
-    commsSetReferencedImpl();
 }
 
 std::string CommsField::commsDefaultOptions() const
@@ -644,10 +638,6 @@ bool CommsField::commsHasCustomLengthDeepImpl() const
     return false;
 }
 
-void CommsField::commsSetReferencedImpl()
-{
-}
-
 std::string CommsField::commsCommonNameFuncCode() const
 {
     auto& generator = m_field.generator();
@@ -695,7 +685,7 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
 
     if (commsIsFieldCustomizable()) {
         auto& gen = static_cast<const CommsGenerator&>(m_field.generator());
-        opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), gen.hasMainNamespaceInOptions(), true));
+        opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), gen.commsHasMainNamespaceInOptions(), true));
     }
 
     do {
@@ -765,7 +755,7 @@ void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts)
 bool CommsField::commsIsFieldCustomizable() const
 {
     auto& generator = static_cast<CommsGenerator&>(m_field.generator());
-    auto level = generator.getCustomizationLevel();
+    auto level = generator.commsGetCustomizationLevel();
     if (level == CommsGenerator::CustomizationLevel::Full) {
         return true;
     }
@@ -784,13 +774,6 @@ bool CommsField::commsIsFieldCustomizable() const
 bool CommsField::commsIsExtended() const
 {
     return !m_customCode.m_extend.empty();
-}
-
-void CommsField::commsUpdateFieldReferencedIfExists(CommsField* field)
-{
-    if (field != nullptr) {
-        field->commsSetReferenced();
-    }
 }
 
 bool CommsField::copyCodeFromInternal()
@@ -890,7 +873,7 @@ bool CommsField::commsWriteCommonInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"FIELD_SCOPE", comms::scopeFor(m_field, generator)},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"NS_BEGIN", comms::namespaceBeginFor(m_field, generator)},
@@ -934,7 +917,7 @@ bool CommsField::commsWriteDefInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"FIELD_NAME", util::displayName(m_field.dslObj().displayName(), m_field.dslObj().name())},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"EXTRA_INCLUDES", m_customCode.m_inc},
@@ -1609,7 +1592,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
     ExtraFieldOptsFunc extraFieldOptsFunc,
     bool hasBase) const
 {
-    if ((!m_referenced) && (comms::isGlobalField(m_field))) {
+    if ((!m_field.isReferenced()) && (comms::isGlobalField(m_field))) {
         return strings::emptyString();
     }
     
@@ -1630,7 +1613,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
 
         if (hasBase) {
             auto& commsGen = static_cast<const CommsGenerator&>(m_field.generator());
-            bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+            bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
             repl["EXT"] = " : public TBase::" + comms::scopeFor(m_field, m_field.generator(), hasMainNs) + strings::membersSuffixStr();
         }
 
@@ -1657,7 +1640,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
 
         if ((!extraOpts.empty()) && (hasBase)) {
             auto& commsGen = static_cast<const CommsGenerator&>(m_field.generator());
-            bool hasMainNs = commsGen.hasMainNamespaceInOptions();
+            bool hasMainNs = commsGen.commsHasMainNamespaceInOptions();
             extraOpts.push_back("typename TBase::" + comms::scopeFor(m_field, m_field.generator(), hasMainNs));
         }
 

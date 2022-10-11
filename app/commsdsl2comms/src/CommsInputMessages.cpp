@@ -104,7 +104,7 @@ bool writeFileInternal(
 
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
-        {"GENERATED", CommsGenerator::fileGeneratedComment()},
+        {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
         {"NAME", name},
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)},
@@ -250,7 +250,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
 
 bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
 {
-    auto& extraBundles = m_generator.extraMessageBundles();
+    auto& extraBundles = m_generator.commsExtraMessageBundles();
     for (auto& b : extraBundles) {
 
         auto bundleCheckFunc = 

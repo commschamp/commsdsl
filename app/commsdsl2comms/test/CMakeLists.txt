@@ -31,10 +31,13 @@ function (test_func name)
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
         COMMAND ${CMAKE_COMMAND}
-            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc;include" 
+            -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc\;include" 
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
         DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
 
+    if ("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.15)
+        set_target_properties(${output_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES "${output_dir}.tmp;${output_dir}")
+    endif ()      
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}/build)
@@ -44,10 +47,10 @@ function (test_func name)
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}")        
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${output_dir}/include")        
 
     execute_process (
-        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")               
+        COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/include/dummy.txt")               
 
     ExternalProject_Add(
         ${build_tgt}
@@ -55,7 +58,6 @@ function (test_func name)
         DEPENDS ${output_tgt}
         SOURCE_DIR ${output_dir}
         BINARY_DIR ${build_dir}
-        INSTALL_DIR ${install_dir}
         CMAKE_GENERATOR ${CMAKE_GENERATOR}
         LIST_SEPARATOR |
         CMAKE_ARGS 

@@ -119,6 +119,20 @@ public:
         m_currentSchema = m_schemas[idx].get();
     }
 
+    unsigned currentSchemaIdx() const
+    {
+        assert(m_currentSchema != nullptr);
+        auto iter = 
+            std::find_if(
+                m_schemas.begin(), m_schemas.end(), 
+                [this](auto& sPtr)
+                {
+                    return m_currentSchema == sPtr.get();
+                });
+        assert(iter != m_schemas.end());
+        return static_cast<unsigned>(std::distance(m_schemas.begin(), iter));
+    }
+
     void forceSchemaVersion(unsigned value)
     {
         m_forcedSchemaVersion = static_cast<decltype(m_forcedSchemaVersion)>(value);
@@ -285,7 +299,8 @@ public:
         return parsedRef.first->findInterface(parsedRef.second);
     }                
 
-    bool prepare(const FilesList& files)
+    using CreateCompleteFunc = std::function<bool ()>;
+    bool prepare(const FilesList& files, CreateCompleteFunc createCompleteCb = CreateCompleteFunc())
     {
         m_protocol.setErrorReportCallback(
             [this](commsdsl::parse::ErrorLevel level, const std::string& msg)
@@ -351,8 +366,20 @@ public:
             if (!s->createAll()) {
                 m_logger->error("Failed to create elements inside schema \"" + s->dslObj().name() + "\"");
                 return false;
-            }            
+            }       
+
+            if (m_allInterfacesReferencedByDefault) {
+                s->setAllInterfacesReferenced();
+            }                 
+
+            if (m_allMessagesReferencedByDefault) {
+                s->setAllMessagesReferenced();
+            }
         }   
+        
+        if (createCompleteCb && (!createCompleteCb())) {
+            return false;
+        }
 
         for (auto& s : m_schemas) {
             m_currentSchema = s.get();
@@ -398,6 +425,40 @@ public:
     const commsdsl::parse::Protocol& protocol() const
     {
         return m_protocol;
+    }
+
+    void referenceAllMessages()
+    {
+        for (auto& sPtr : m_schemas) {
+            sPtr->setAllMessagesReferenced();
+        }
+    }
+
+    void referenceAllInterfaces()
+    {
+        for (auto& sPtr : m_schemas) {
+            sPtr->setAllInterfacesReferenced();
+        }
+    }    
+
+    bool getAllMessagesReferencedByDefault() const
+    {
+        return m_allMessagesReferencedByDefault;
+    }
+
+    void setAllMessagesReferencedByDefault(bool value)
+    {
+        m_allMessagesReferencedByDefault = value;
+    }
+
+    bool getAllInterfacesReferencedByDefault() const
+    {
+        return m_allInterfacesReferencedByDefault;
+    }
+
+    void setAllInterfacesReferencedByDefault(bool value)
+    {
+        m_allInterfacesReferencedByDefault = value;
     }
 
 private:
@@ -448,6 +509,8 @@ private:
     std::string m_codeDir;
     mutable std::vector<std::string> m_createdDirectories;
     bool m_versionIndependentCodeForced = false;
+    bool m_allMessagesReferencedByDefault = true;
+    bool m_allInterfacesReferencedByDefault = true;
 }; 
 
 Generator::Generator() : 
@@ -635,13 +698,98 @@ Generator::FramesAccessList Generator::getAllFrames() const
     return currentSchema().getAllFrames();
 }
 
+Generator::FieldsAccessList Generator::getAllFields() const
+{
+    return currentSchema().getAllFields();
+}
+
+Generator::NamespacesAccessList Generator::getAllNamespacesFromAllSchemas() const
+{
+    NamespacesAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllNamespaces();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
+Generator::InterfacesAccessList Generator::getAllInterfacesFromAllSchemas() const
+{
+    InterfacesAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllInterfaces();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
+Generator::MessagesAccessList Generator::getAllMessagesFromAllSchemas() const
+{
+    MessagesAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllMessages();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
+Generator::MessagesAccessList Generator::getAllMessagesIdSortedFromAllSchemas() const
+{
+    auto result = getAllMessagesFromAllSchemas();
+    std::sort(
+        result.begin(), result.end(),
+        [](auto* msg1, auto* msg2)
+        {
+            auto id1 = msg1->dslObj().id();
+            auto id2 = msg2->dslObj().id();
+
+            if (id1 != id2) {
+                return id1 < id2;
+            }
+
+            return msg1->dslObj().order() < msg2->dslObj().order();
+        });
+    return result;    
+}
+
+Generator::FramesAccessList Generator::getAllFramesFromAllSchemas() const
+{
+    FramesAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllFrames();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
+Generator::FieldsAccessList Generator::getAllFieldsFromAllSchemas() const
+{
+    FieldsAccessList result;
+    for (auto& sPtr : schemas()) {
+        auto list = sPtr->getAllFields();
+        result.insert(result.end(), list.begin(), list.end());
+    }
+
+    return result;
+}
+
 bool Generator::prepare(const FilesList& files)
 {
     // Make sure the logger is created
     auto& l = logger();
     static_cast<void>(l);
 
-    if (!m_impl->prepare(files)) {
+    auto createCompleteFunc = 
+        [this]()
+        {
+            return createCompleteImpl();
+        };
+
+    if (!m_impl->prepare(files, createCompleteFunc)) {
         return false;
     }
 
@@ -877,6 +1025,22 @@ LayerPtr Generator::createChecksumLayer(commsdsl::parse::Layer dslObj, Elem* par
     return createChecksumLayerImpl(dslObj, parent);
 }
 
+unsigned Generator::currentSchemaIdx() const
+{
+    return m_impl->currentSchemaIdx();
+}
+
+void Generator::chooseCurrentSchema(unsigned idx)
+{
+    m_impl->chooseCurrentSchema(idx);
+}
+
+void Generator::chooseProtocolSchema()
+{
+    assert(!schemas().empty());
+    chooseCurrentSchema(static_cast<unsigned>(schemas().size() - 1U));
+}
+
 bool Generator::createDirectory(const std::string& path) const
 {
     if (m_impl->wasDirectoryCreated(path)) {
@@ -895,6 +1059,41 @@ bool Generator::createDirectory(const std::string& path) const
     }
 
     m_impl->recordCreatedDirectory(path);
+    return true;
+}
+
+void Generator::referenceAllMessages()
+{
+    m_impl->referenceAllMessages();
+}
+
+bool Generator::getAllMessagesReferencedByDefault() const
+{
+    return m_impl->getAllMessagesReferencedByDefault();
+}
+
+void Generator::setAllMessagesReferencedByDefault(bool value)
+{
+    m_impl->setAllMessagesReferencedByDefault(value);
+}
+
+void Generator::referenceAllInterfaces()
+{
+    m_impl->referenceAllInterfaces();
+}
+
+bool Generator::getAllInterfacesReferencedByDefault() const
+{
+    return m_impl->getAllInterfacesReferencedByDefault();
+}
+
+void Generator::setAllInterfacesReferencedByDefault(bool value)
+{
+    m_impl->setAllInterfacesReferencedByDefault(value);
+}    
+
+bool Generator::createCompleteImpl()
+{
     return true;
 }
 
@@ -1036,17 +1235,6 @@ Generator::LoggerPtr Generator::createLoggerImpl()
 Namespace* Generator::addDefaultNamespace()
 {
     return currentSchema().addDefaultNamespace();
-}
-
-void Generator::chooseCurrentSchema(unsigned idx)
-{
-    m_impl->chooseCurrentSchema(idx);
-}
-
-void Generator::chooseProtocolSchema()
-{
-    assert(!schemas().empty());
-    chooseCurrentSchema(static_cast<unsigned>(schemas().size() - 1U));
 }
 
 } // namespace gen
