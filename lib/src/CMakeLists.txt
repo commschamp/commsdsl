@@ -244,7 +244,7 @@ if (COMMSDSL_INSTALL_LIBRARY_HEADERS)
     install(
         EXPORT LibCommsdslTargets 
         DESTINATION ${CMAKE_INSTALL_LIBDIR}/LibCommsdsl/cmake/
-        NAMESPACE commsdsl::
+        NAMESPACE cc::
     )
 
     include(CMakePackageConfigHelpers)
