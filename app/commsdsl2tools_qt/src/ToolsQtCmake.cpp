@@ -59,9 +59,9 @@ bool ToolsQtCmake::testWriteInternal() const
 
     static const std::string Template =
         "cmake_minimum_required (VERSION 3.1)\n"
-        "project (\"#^#PROT#$#_cc_tools_qt_plugin\")\n\n"
+        "project (\"#^#MAIN_NS#$#_cc_tools_qt_plugin\")\n\n"
         "find_package(LibComms REQUIRED)\n"
-        "find_package(#^#PROT#$# REQUIRED)\n"
+        "find_package(#^#MAIN_NS#$# REQUIRED)\n"
         "find_package(cc_tools_qt REQUIRED)\n"
         "find_package(Qt5Widgets REQUIRED)\n"
         "find_package(Qt5Core REQUIRED)\n\n"
@@ -69,7 +69,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "cc_compile(WARN_AS_ERR)\n"
         "cc_msvc_force_warn_opt(/W4)\n\n"
         "include(GNUInstallDirs)\n\n"
-        "set (CORE_LIB_NAME \"#^#PROT#$#_cc_tools_qt_plugin_core\")\n\n"
+        "set (CORE_LIB_NAME \"#^#MAIN_NS#$#_cc_tools_qt_plugin_core\")\n\n"
         "######################################################################\n\n"
         "function (cc_plugin_core)\n"
         "    set (name ${CORE_LIB_NAME})\n"
@@ -77,7 +77,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "        #^#CORE_FILES#$#\n"
         "    )\n\n"
         "    add_library (${name} STATIC ${src})\n"
-        "    target_link_libraries (${name} PUBLIC cc::#^#PROT#$# cc::comms cc::cc_tools_qt Qt5::Widgets Qt5::Core)\n"
+        "    target_link_libraries (${name} PUBLIC cc::#^#MAIN_NS#$# cc::comms cc::cc_tools_qt Qt5::Widgets Qt5::Core)\n"
         "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR})\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
@@ -148,7 +148,6 @@ bool ToolsQtCmake::testWriteInternal() const
 
 
     util::ReplacementMap repl = {
-        {"PROT", util::strToName(m_generator.protocolSchema().schemaName())},
         {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
         {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
         {"TOP_NS", m_generator.getTopNamespace()},
