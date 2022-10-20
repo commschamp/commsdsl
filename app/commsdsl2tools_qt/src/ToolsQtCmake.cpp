@@ -88,24 +88,24 @@ bool ToolsQtCmake::testWriteInternal() const
         "######################################################################\n\n"
         "function (cc_plugin protocol has_config_widget)\n"
         "    string(TOLOWER \"cc_plugin_${protocol}\" name)\n\n"
-        "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.json\")\n"
+        "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.json\")\n"
         "    set (stamp_file \"${CMAKE_CURRENT_BINARY_DIR}/${protocol}_refresh_stamp.txt\")\n\n"
         "    if ((NOT EXISTS ${stamp_file}) OR (${meta_file} IS_NEWER_THAN ${stamp_file}))\n"
         "        execute_process(\n"
-        "            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.h)\n\n"
+        "            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.h)\n\n"
         "        execute_process(\n"
         "            COMMAND ${CMAKE_COMMAND} -E touch ${stamp_file})\n"
         "    endif ()\n\n"
         "    set (src\n"
-        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Protocol.cpp\n"
-        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.cpp\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Protocol_${protocol}.cpp\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.cpp\n"
         "    )\n\n"
         "    set (hdr\n"
-        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.h\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.h\n"
         "    )\n\n"
         "    if (has_config_widget)\n"
-        "        list (APPEND src #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}ConfigWidget.cpp)\n"
-        "        list (APPEND hdr #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}ConfigWidget.h)\n"
+        "        list (APPEND src #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/ConfigWidget_${protocol}.cpp)\n"
+        "        list (APPEND hdr #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/ConfigWidget_${protocol}.h)\n"
         "    endif ()\n\n"
         "    qt5_wrap_cpp(moc ${hdr})\n\n"
         "    set(extra_link_opts)\n"
@@ -143,7 +143,7 @@ bool ToolsQtCmake::testWriteInternal() const
     util::StringsList pluginInvokes;
     for (auto& p : plugins) {
         assert(p);
-        pluginInvokes.push_back("cc_plugin (\"" + p->toolsClassName() + "\" " + (p->toolsHasConfigWidget() ? "TRUE" : "FALSE") + ")");
+        pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" " + (p->toolsHasConfigWidget() ? "TRUE" : "FALSE") + ")");
     }
 
 

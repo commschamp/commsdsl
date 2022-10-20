@@ -34,9 +34,9 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-const std::string ProtSuffix("Protocol");
-const std::string PluginSuffix("Plugin");
-const std::string WidgetSuffix("ConfigWidget");
+const std::string ProtPrefix("Protocol_");
+const std::string PluginPrefix("Plugin_");
+const std::string WidgetPrefix("ConfigWidget_");
 
 } // namespace    
 
@@ -70,9 +70,9 @@ bool ToolsQtPlugin::write()
         toolsWriteConfigWidgetSrcInternal();
 }
 
-std::string ToolsQtPlugin::toolsClassName() const
+std::string ToolsQtPlugin::toolsProtocolName() const
 {
-    return comms::className(toolsAdjustedNameInternal());
+    return util::strToName(toolsAdjustedNameInternal());
 }
 
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
@@ -632,7 +632,7 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
     static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + 
-        toolsRelFilePath(comms::className(util::strToName(toolsAdjustedNameInternal()))) + ".cfg";
+        toolsRelFilePath(toolsProtocolName()) + ".cfg";
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -818,24 +818,24 @@ const std::string& ToolsQtPlugin::toolsAdjustedNameInternal() const
 {
     auto* nameToUse = &m_name;
     if (nameToUse->empty()) {
-        nameToUse = &m_generator.currentSchema().schemaName();
+        nameToUse = &m_generator.protocolSchema().schemaName();
     }
     return *nameToUse;
 }
 
 std::string ToolsQtPlugin::toolsProtClassNameInternal() const
 {
-    return comms::className(util::strToName(toolsAdjustedNameInternal())) + ProtSuffix;
+    return ProtPrefix + toolsProtocolName();
 }
 
 std::string ToolsQtPlugin::toolsPluginClassNameInternal() const
 {
-    return comms::className(util::strToName(toolsAdjustedNameInternal())) + PluginSuffix;
+    return PluginPrefix + toolsProtocolName();
 }
 
 std::string ToolsQtPlugin::toolsConfigWidgetClassNameInternal() const
 {
-    return comms::className(util::strToName(toolsAdjustedNameInternal())) + WidgetSuffix;
+    return WidgetPrefix + toolsProtocolName();
 }
 
 bool ToolsQtPlugin::toolsHasConfigWidgetInternal() const

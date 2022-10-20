@@ -47,7 +47,7 @@ public:
     bool prepare();
     bool write();
 
-    std::string toolsClassName() const;
+    std::string toolsProtocolName() const;
 
     bool toolsHasConfigWidget() const
     {
