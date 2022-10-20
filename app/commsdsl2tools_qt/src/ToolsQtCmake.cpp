@@ -87,7 +87,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "endfunction()\n\n"
         "######################################################################\n\n"
         "function (cc_plugin protocol has_config_widget)\n"
-        "    set (name \"cc_plugin_${protocol}\")\n\n"
+        "    string(TOLOWER \"cc_plugin_${protocol}\" name)\n\n"
         "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.json\")\n"
         "    set (stamp_file \"${CMAKE_CURRENT_BINARY_DIR}/${protocol}_refresh_stamp.txt\")\n\n"
         "    if ((NOT EXISTS ${stamp_file}) OR (${meta_file} IS_NEWER_THAN ${stamp_file}))\n"
