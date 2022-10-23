@@ -1053,7 +1053,8 @@ bool Generator::createDirectory(const std::string& path) const
         return true;
     }
 
-    if (!std::filesystem::create_directories(path, ec)) {
+    std::filesystem::create_directories(path, ec);
+    if (ec) {
         logger().error("Failed to create directory \"" + path + "\" with error: " + ec.message());
         return false;
     }
