@@ -105,7 +105,14 @@ std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
     auto& gen = SwigGenerator::cast(generator());
     for (auto* m : m_swigMembers) {
         static const std::string Templ = 
-            "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() { return static_cast<#^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#()); }\n"
+            "#^#CLASS_NAME#$#& field_#^#ACC_NAME#$#()\n"
+            "{\n"
+            "    return static_cast<#^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#());\n"
+            "}\n"
+            "const #^#CLASS_NAME#$#& field_#^#ACC_NAME#$#() const\n"
+            "{\n"
+            "    return static_cast<const #^#CLASS_NAME#$#&>(Base::field_#^#ACC_NAME#$#());\n"
+            "}\n"
         ;
 
         util::ReplacementMap repl = {
@@ -127,7 +134,7 @@ std::string SwigBundleField::swigExtraPublicFuncsCodeImpl() const
 
     util::ReplacementMap repl = {
         {"VALUE_ACC", std::move(valueAccCode)},
-        {"MEM_ACC", util::strListToString(accFuncs, "", "")}
+        {"MEM_ACC", util::strListToString(accFuncs, "\n", "")}
     };
 
     return util::processTemplate(Templ, repl);
