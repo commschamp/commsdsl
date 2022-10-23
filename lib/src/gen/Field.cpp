@@ -134,6 +134,11 @@ bool Field::prepare()
     if (result) {
         m_impl->setPrepared();
     }
+
+    if (dslObj().isForceGen()) {
+        setReferenced();
+    }
+    
     return result;
 }
 

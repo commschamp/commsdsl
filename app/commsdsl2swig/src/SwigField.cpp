@@ -118,8 +118,7 @@ void SwigField::swigAddCodeIncludes(StringsList& list) const
         return;
     }
 
-    auto& dslObj = m_field.dslObj();
-    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
+    if (!m_field.isReferenced()) {
         // Code for not referenced does not exist
         return;
     }
@@ -135,7 +134,7 @@ void SwigField::swigAddCode(StringsList& list) const
 
     m_codeAdded = true;
 
-    if (comms::isGlobalField(m_field) && (!m_field.isReferenced()) && (!m_field.dslObj().isForceGen())) {
+    if (comms::isGlobalField(m_field) && (!m_field.isReferenced())) {
         return;
     }
 
@@ -154,7 +153,7 @@ void SwigField::swigAddDef(StringsList& list) const
     swigAddDefImpl(list);
     
     bool global = comms::isGlobalField(m_field);
-    if (global && (!m_field.dslObj().isForceGen()) && (!m_field.isReferenced())) {
+    if (global && (!m_field.isReferenced())) {
         // Code for not referenced does not exist
         return;
     }
@@ -226,8 +225,7 @@ bool SwigField::swigWrite() const
         return true;
     }
 
-    auto& dslObj = m_field.dslObj();
-    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
+    if (!m_field.isReferenced()) {
         // Code for not referenced does not exist
         return true;
     }
