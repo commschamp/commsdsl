@@ -66,8 +66,7 @@ bool ToolsQtField::toolsWrite() const
         return true;
     }
 
-    auto& dslObj = m_field.dslObj();
-    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
+    if (!m_field.isReferenced()) {
         // Not referenced fields do not need to be written
         return true;
     }

@@ -59,9 +59,9 @@ bool ToolsQtCmake::testWriteInternal() const
 
     static const std::string Template =
         "cmake_minimum_required (VERSION 3.1)\n"
-        "project (\"#^#PROT#$#_cc_tools_qt_plugin\")\n\n"
+        "project (\"#^#MAIN_NS#$#_cc_tools_qt_plugin\")\n\n"
         "find_package(LibComms REQUIRED)\n"
-        "find_package(#^#PROT#$# REQUIRED)\n"
+        "find_package(#^#MAIN_NS#$# REQUIRED)\n"
         "find_package(cc_tools_qt REQUIRED)\n"
         "find_package(Qt5Widgets REQUIRED)\n"
         "find_package(Qt5Core REQUIRED)\n\n"
@@ -69,7 +69,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "cc_compile(WARN_AS_ERR)\n"
         "cc_msvc_force_warn_opt(/W4)\n\n"
         "include(GNUInstallDirs)\n\n"
-        "set (CORE_LIB_NAME \"#^#PROT#$#_cc_tools_qt_plugin_core\")\n\n"
+        "set (CORE_LIB_NAME \"#^#MAIN_NS#$#_cc_tools_qt_plugin_core\")\n\n"
         "######################################################################\n\n"
         "function (cc_plugin_core)\n"
         "    set (name ${CORE_LIB_NAME})\n"
@@ -77,7 +77,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "        #^#CORE_FILES#$#\n"
         "    )\n\n"
         "    add_library (${name} STATIC ${src})\n"
-        "    target_link_libraries (${name} PUBLIC cc::#^#PROT#$# cc::comms cc::cc_tools_qt Qt5::Widgets Qt5::Core)\n"
+        "    target_link_libraries (${name} PUBLIC cc::#^#MAIN_NS#$# cc::comms cc::cc_tools_qt Qt5::Widgets Qt5::Core)\n"
         "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR})\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
@@ -87,25 +87,25 @@ bool ToolsQtCmake::testWriteInternal() const
         "endfunction()\n\n"
         "######################################################################\n\n"
         "function (cc_plugin protocol has_config_widget)\n"
-        "    set (name \"cc_plugin_${protocol}\")\n\n"
-        "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}.json\")\n"
+        "    string(TOLOWER \"cc_plugin_${protocol}\" name)\n\n"
+        "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.json\")\n"
         "    set (stamp_file \"${CMAKE_CURRENT_BINARY_DIR}/${protocol}_refresh_stamp.txt\")\n\n"
         "    if ((NOT EXISTS ${stamp_file}) OR (${meta_file} IS_NEWER_THAN ${stamp_file}))\n"
         "        execute_process(\n"
-        "            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.h)\n\n"
+        "            COMMAND ${CMAKE_COMMAND} -E touch ${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.h)\n\n"
         "        execute_process(\n"
         "            COMMAND ${CMAKE_COMMAND} -E touch ${stamp_file})\n"
         "    endif ()\n\n"
         "    set (src\n"
-        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Protocol.cpp\n"
-        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.cpp\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Protocol_${protocol}.cpp\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.cpp\n"
         "    )\n\n"
         "    set (hdr\n"
-        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}Plugin.h\n"
+        "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.h\n"
         "    )\n\n"
         "    if (has_config_widget)\n"
-        "        list (APPEND src #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}ConfigWidget.cpp)\n"
-        "        list (APPEND hdr #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/${protocol}ConfigWidget.h)\n"
+        "        list (APPEND src #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/ConfigWidget_${protocol}.cpp)\n"
+        "        list (APPEND hdr #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/ConfigWidget_${protocol}.h)\n"
         "    endif ()\n\n"
         "    qt5_wrap_cpp(moc ${hdr})\n\n"
         "    set(extra_link_opts)\n"
@@ -143,12 +143,11 @@ bool ToolsQtCmake::testWriteInternal() const
     util::StringsList pluginInvokes;
     for (auto& p : plugins) {
         assert(p);
-        pluginInvokes.push_back("cc_plugin (\"" + p->toolsClassName() + "\" " + (p->toolsHasConfigWidget() ? "TRUE" : "FALSE") + ")");
+        pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" " + (p->toolsHasConfigWidget() ? "TRUE" : "FALSE") + ")");
     }
 
 
     util::ReplacementMap repl = {
-        {"PROT", util::strToName(m_generator.protocolSchema().schemaName())},
         {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
         {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
         {"TOP_NS", m_generator.getTopNamespace()},

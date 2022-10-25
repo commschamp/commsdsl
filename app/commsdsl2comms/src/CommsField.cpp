@@ -140,9 +140,10 @@ bool CommsField::commsWrite() const
         return true;
     }
 
-    auto& dslObj = m_field.dslObj();
-    if ((!dslObj.isForceGen()) && (!m_field.isReferenced())) {
+    if (!m_field.isReferenced()) {
         // Not referenced fields do not need to be written
+        m_field.generator().logger().debug(
+            "Skipping file generation for non-referenced field \"" + m_field.dslObj().externalRef() + "\".");
         return true;
     }
 
