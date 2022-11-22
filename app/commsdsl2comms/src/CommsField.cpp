@@ -299,11 +299,20 @@ std::string CommsField::commsDefBundledRefreshFuncBody(const CommsFieldsList& si
     return commsDefBundledRefreshFuncBodyImpl(siblings);
 }
 
+std::string CommsField::commsFieldAccessStr(const std::string& accStr, const std::string& prefix) const
+{
+    auto str = commsValueAccessStr(accStr, prefix);
+    auto lastDotPos = str.find_last_of(".");
+    assert(lastDotPos < str.size());
+    str.resize(lastDotPos);
+    return str;
+}
+
 std::string CommsField::commsValueAccessStr(const std::string& accStr, const std::string& prefix) const
 {
     std::string optPrefix;
     if (commsIsVersionOptional()) {
-        optPrefix = "field().";
+        optPrefix = ".field()";
     }
     return commsValueAccessStrImpl(accStr, prefix + optPrefix);
 }
@@ -319,8 +328,8 @@ void CommsField::commsCompOptChecks(const std::string& accStr, StringsList& chec
 {
     std::string prefixExtra;
     if (commsIsVersionOptional()) {
-        checks.push_back(prefix + "doesExist()");
-        prefixExtra = "field().";
+        checks.push_back(prefix + ".doesExist()");
+        prefixExtra = ".field()";
     }
 
     return commsCompOptChecksImpl(accStr, checks, prefix + prefixExtra);
@@ -608,7 +617,7 @@ std::string CommsField::commsValueAccessStrImpl(const std::string& accStr, const
 {
     static_cast<void>(accStr);
     assert(accStr.empty());
-    return prefix + "getValue()";
+    return prefix + ".getValue()";
 }
 
 void CommsField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const

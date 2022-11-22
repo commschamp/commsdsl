@@ -279,6 +279,11 @@ const XmlWrap::NamesList& BundleFieldImpl::supportedMemberTypesImpl() const
     return bundleSupportedTypes();
 }
 
+const BundleFieldImpl::FieldsList& BundleFieldImpl::membersImpl() const
+{
+    return m_members;
+}
+
 bool BundleFieldImpl::updateMembers()
 {
     if (!m_members.empty()) {

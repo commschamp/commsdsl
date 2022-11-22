@@ -569,6 +569,12 @@ const XmlWrap::NamesList& FieldImpl::supportedMemberTypesImpl() const
     return List;
 }
 
+const FieldImpl::FieldsList& FieldImpl::membersImpl() const
+{
+    static const FieldsList List;
+    return List;
+}
+
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)
 {
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, protocol().logger(), mustHave);
@@ -720,12 +726,15 @@ const XmlWrap::NamesList& FieldImpl::commonChildren()
 
 const FieldImpl* FieldImpl::findSibling(const FieldsList& fields, const std::string& sibName) const
 {
+    auto pos = sibName.find_first_of(".");
+    auto actSibName = sibName.substr(0, pos);
+
     auto iter =
         std::find_if(
             fields.begin(), fields.end(),
-            [&sibName](auto& f)
+            [&actSibName](auto& f)
             {
-                return f->name() == sibName;
+                return f->name() == actSibName;
             });
 
     if (iter == fields.end()) {
@@ -736,7 +745,13 @@ const FieldImpl* FieldImpl::findSibling(const FieldsList& fields, const std::str
         return nullptr;
     }
 
-    return iter->get();
+    auto* firstLevelSibling = iter->get();
+    if (sibName.size() <= pos) {
+        return firstLevelSibling;
+    }
+
+    auto rest = sibName.substr(pos + 1);
+    return findSibling(firstLevelSibling->members(), rest);
 }
 
 FieldImpl::Kind FieldImpl::getNonRefFieldKind(const FieldImpl& field)

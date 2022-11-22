@@ -199,6 +199,11 @@ bool VariantFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::ui
     return strToDataOnFields(ref, m_members, val);
 }
 
+const VariantFieldImpl::FieldsList& VariantFieldImpl::membersImpl() const
+{
+    return m_members;
+}
+
 bool VariantFieldImpl::updateMembers()
 {
     if (!m_members.empty()) {

@@ -38,11 +38,6 @@ public:
         return m_endian;
     }
 
-    const FieldsList& members() const
-    {
-        return m_members;
-    }
-
     Members membersList() const;
 
     static const XmlWrap::NamesList& supportedTypes();
@@ -63,6 +58,7 @@ protected:
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
     virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const override;
     virtual const XmlWrap::NamesList& supportedMemberTypesImpl() const override;
+    virtual const FieldsList& membersImpl() const override;
 
 private:
     bool updateEndian();
