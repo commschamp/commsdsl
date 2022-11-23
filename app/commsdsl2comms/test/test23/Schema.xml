@@ -6,6 +6,7 @@
             <validValue name="M2" val="2" />
             <validValue name="M3" val="3" />
             <validValue name="M4" val="4" />
+            <validValue name="M5" val="5" />
         </enum>
         <int name="Version" type="uint8" />
         <bundle name="B1">
@@ -38,6 +39,15 @@
 
     <message name="Msg4" id="MsgId.M4">
         <ref field="B1" />
+    </message>
+
+    <message name="Msg5" id="MsgId.M5">
+        <bundle name="F1">
+            <int name="Len1" type="uint8" />
+            <int name="Len2" type="uint8" sinceVersion="3"/>
+        </bundle>
+        <string name="Str1" lengthPrefix="$F1.Len1" />
+        <string name="Str2" lengthPrefix="$F1.Len2" sinceVersion="3" />
     </message>
 
     <interface name="Message">
