@@ -231,6 +231,11 @@ const XmlWrap::NamesList& BitfieldFieldImpl::supportedMemberTypesImpl() const
     return BitfieldFieldImpl::supportedTypes();
 }
 
+const BitfieldFieldImpl::FieldsList& BitfieldFieldImpl::membersImpl() const
+{
+    return m_members;
+}
+
 bool BitfieldFieldImpl::updateEndian()
 {
     if (!validateSinglePropInstance(common::endianStr())) {

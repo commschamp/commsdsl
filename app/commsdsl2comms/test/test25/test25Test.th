@@ -12,6 +12,7 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
 
     using Interface =
         test25::Message<
@@ -26,6 +27,7 @@ public:
 
     using Msg1 = test25::message::Msg1<Interface>;
     using Msg2 = test25::message::Msg2<Interface>;
+    using Msg3 = test25::message::Msg3<Interface>;
     using Frame = test25::frame::Frame<Interface>;
 };
 
@@ -174,3 +176,35 @@ void TestSuite::test3()
     auto* inMsg = static_cast<Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());    
 }
+
+void TestSuite::test4()
+{
+    Msg3 msg;
+    msg.field_f1().field_someOtherVal().setValue(0xf);
+    auto& f2Vec = msg.field_f2().value();
+    f2Vec.resize(2);
+    f2Vec[0].setValue(0x01020304);
+    f2Vec[1].setValue(0x05060708);
+
+    bool refreshed = msg.refresh();
+    TS_ASSERT(refreshed);
+    TS_ASSERT_EQUALS(msg.field_f1().field_f2Len().getValue(), 2U);
+    TS_ASSERT_EQUALS(msg.field_f1().field_someOtherVal().getValue(), 0xf);
+
+    Frame frame;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto readIter = comms::readIteratorFor<Interface>(&outBuf[0]);
+    es = frame.read(msgPtr, readIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test25::MsgId_M3);
+    auto* inMsg = static_cast<Msg3*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());    
+}
+

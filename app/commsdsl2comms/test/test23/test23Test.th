@@ -2,10 +2,6 @@
 
 #include "comms/iterator.h"
 #include "test23/Message.h"
-#include "test23/message/Msg1.h"
-#include "test23/message/Msg2.h"
-#include "test23/message/Msg3.h"
-#include "test23/message/Msg4.h"
 #include "test23/frame/Frame.h"
 
 class TestSuite : public CxxTest::TestSuite
@@ -17,6 +13,8 @@ public:
     void test4();
     void test5();
     void test6();
+    void test7();
+    void test8();
 
     using Interface =
         test23::Message<
@@ -33,7 +31,10 @@ public:
     using Msg2 = test23::message::Msg2<Interface>;
     using Msg3 = test23::message::Msg3<Interface>;
     using Msg4 = test23::message::Msg4<Interface>;
+    using Msg5 = test23::message::Msg5<Interface>;
+    using Msg6 = test23::message::Msg6<Interface>;
     using Frame = test23::frame::Frame<Interface>;
+    
 };
 
 void TestSuite::test1()
@@ -274,5 +275,65 @@ void TestSuite::test6()
     TS_ASSERT(msgPtr);
     TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M4);
     auto* inMsg = static_cast<Msg4*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());
+}
+
+void TestSuite::test7()
+{
+    Msg5 msg;
+    TS_ASSERT(msg.field_f1().field_len2().doesExist());
+    TS_ASSERT(msg.field_str2().doesExist());
+    msg.field_str1().setValue("hello");
+    msg.field_str2().field().setValue("blabla");
+
+    bool refreshed = msg.refresh();
+    TS_ASSERT(refreshed);
+    TS_ASSERT_EQUALS(msg.field_f1().field_len1().getValue(), 5U);
+    TS_ASSERT_EQUALS(msg.field_f1().field_len2().field().getValue(), 6U);
+
+    Frame frame;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto readIter = comms::readIteratorFor<Interface>(&outBuf[0]);
+    es = frame.read(msgPtr, readIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M5);
+    auto* inMsg = static_cast<Msg5*>(msgPtr.get());
+    TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());
+}
+
+void TestSuite::test8()
+{
+    Msg6 msg;
+    TS_ASSERT(msg.field_f1().field_len2().doesExist());
+    TS_ASSERT(msg.field_data2().doesExist());
+    msg.field_data1().value() = {0x01, 0x02, 0x03, 0x04};
+    msg.field_data2().field().value() = {0x05, 0x06};
+
+    bool refreshed = msg.refresh();
+    TS_ASSERT(refreshed);
+    TS_ASSERT_EQUALS(msg.field_f1().field_len1().getValue(), 4U);
+    TS_ASSERT_EQUALS(msg.field_f1().field_len2().field().getValue(), 2U);
+
+    Frame frame;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto writeIter = comms::writeIteratorFor<Interface>(&outBuf[0]);
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto readIter = comms::readIteratorFor<Interface>(&outBuf[0]);
+    es = frame.read(msgPtr, readIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(msgPtr);
+    TS_ASSERT_EQUALS(msgPtr->getId(), test23::MsgId_M6);
+    auto* inMsg = static_cast<Msg6*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg.fields(), inMsg->fields());
 }

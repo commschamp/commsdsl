@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test25"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test25" endian="big" version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
@@ -35,6 +32,14 @@
             <sinceVersion value="3" />
         </list>
     </message>    
+
+    <message name="Msg3" id="MsgId.M3">
+        <bitfield name="F1">
+            <int name="F2Len" type="uint8" bitLength="4" />
+            <int name="SomeOtherVal" type="uint8" bitLength="4" />
+        </bitfield>
+        <list name="F2" element="E1" countPrefix="$F1.F2Len" />
+    </message>      
 
     <interface name="Message">
         <int name="version" type="uint8" semanticType="version" />

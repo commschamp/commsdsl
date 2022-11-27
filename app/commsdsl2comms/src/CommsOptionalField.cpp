@@ -399,7 +399,7 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
         }
 
         auto rightAccName = comms::accessName(rightField->field().dslObj().name());
-        return op + "field_" + rightAccName + "()." + rightField->commsValueAccessStr(accStr);
+        return op + "field_" + rightAccName + "()" + rightField->commsValueAccessStr(accStr);
     }
 
     if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
@@ -459,7 +459,7 @@ std::string CommsOptionalField::commsDslCondToStringFieldValueCompInternal(
     const std::string& value)
 {
     auto accName = comms::accessName(field->field().dslObj().name());
-    auto prefix = "field_" + accName + "().";
+    auto prefix = "field_" + accName + "()";
     auto optConds = field->commsCompOptChecks(accStr, prefix);
     auto valueStr = field->commsCompPrepValueStr(accStr, value);
     auto typeCast = field->commsCompValueCastType(accStr);
@@ -493,9 +493,9 @@ std::string CommsOptionalField::commsDslCondToStringFieldFieldCompInternal(
     const std::string& rightAccStr)
 {
     auto leftAccName = comms::accessName(leftField->field().dslObj().name());
-    auto leftPrefix = "field_" + leftAccName + "().";
+    auto leftPrefix = "field_" + leftAccName + "()";
     auto rightAccName = comms::accessName(rightField->field().dslObj().name());
-    auto rightPrefix = "field_" + rightAccName + "().";
+    auto rightPrefix = "field_" + rightAccName + "()";
 
     auto optConds = leftField->commsCompOptChecks(leftAccStr, leftPrefix);
     rightField->commsCompOptChecks(rightAccStr, optConds, rightPrefix);

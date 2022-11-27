@@ -186,14 +186,19 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
         return strings::emptyString();
     }
 
-    bool versionOptional = commsIsVersionOptional();
+    auto sepPos = detachedPrefixName.find_first_of(".");
+    std::string sibName = detachedPrefixName.substr(0, sepPos);
+    std::string accRest;
+    if (sepPos < detachedPrefixName.size()) {
+        accRest = detachedPrefixName.substr(sepPos + 1);
+    }
 
     auto iter =
         std::find_if(
             siblings.begin(), siblings.end(),
-            [&detachedPrefixName](auto& f)
+            [&sibName](auto& f)
             {
-                return f->field().dslObj().name() == detachedPrefixName;
+                return f->field().dslObj().name() == sibName;
             });
 
     if (iter == siblings.end()) {
@@ -203,48 +208,36 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
         return strings::emptyString();
     }
 
-    bool lenVersionOptional = (*iter)->commsIsVersionOptional();
+    auto fieldPrefix = "field_" + comms::accessName(dslObj().name()) + "()";
+    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().name()) + "()";
+
+    auto conditions = commsCompOptChecks(std::string(), fieldPrefix);
+    auto sibConditions = (*iter)->commsCompOptChecks(accRest, sibPrefix);
+
+    if (!sibConditions.empty()) {
+        std::move(sibConditions.begin(), sibConditions.end(), std::back_inserter(conditions));
+    }
 
     util::ReplacementMap repl = {
-        {"NAME", comms::accessName(dslObj().name())},
-        {"LEN_NAME", comms::accessName(detachedPrefixName)},
+        {"STR_FIELD", commsFieldAccessStr(std::string(), fieldPrefix)},
+        {"LEN_VALUE", (*iter)->commsValueAccessStr(accRest, sibPrefix)},
     };
 
-    if ((!versionOptional) && (!lenVersionOptional)) {
+    if (conditions.empty()) {
         static const std::string Templ =
-            "field_#^#NAME#$#().forceReadLength(\n"
-            "    static_cast<std::size_t>(field_#^#LEN_NAME#$#().getValue()));\n";
-
+            "#^#STR_FIELD#$#.forceReadLength(\n"
+            "    static_cast<std::size_t>(#^#LEN_VALUE#$#));\n";
+        
         return util::processTemplate(Templ, repl);
     }
 
-    if ((versionOptional) && (!lenVersionOptional)) {
-        static const std::string Templ =
-            "if (field_#^#NAME#$#().doesExist()) {\n"
-            "    field_#^#NAME#$#().field().forceReadLength(\n"
-            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().getValue()));\n"
-            "}\n";
+    static const std::string Templ = 
+        "if (#^#COND#$#) {\n"
+        "    #^#STR_FIELD#$#.forceReadLength(\n"
+        "        static_cast<std::size_t>(#^#LEN_VALUE#$#));\n"        
+        "}";
 
-        return util::processTemplate(Templ, repl);
-    }
-
-    if ((!versionOptional) && (lenVersionOptional)) {
-        static const std::string Templ =
-            "if (field_#^#LEN_NAME#$#().doesExist()) {\n"
-            "    field_#^#NAME#$#().forceReadLength(\n"
-            "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().getValue()));\n"
-            "}\n";
-
-        return util::processTemplate(Templ, repl);
-    }
-
-    assert(versionOptional && lenVersionOptional);
-    static const std::string Templ =
-        "if (field_#^#NAME#$#().doesExist() && field_#^#LEN_NAME#$#().doesExist()) {\n"
-        "    field_#^#NAME#$#().field().forceReadLength(\n"
-        "        static_cast<std::size_t>(field_#^#LEN_NAME#$#().field().getValue()));\n"
-        "}\n";
-
+    repl["COND"] = util::strListToString(conditions, " &&\n", "");
     return util::processTemplate(Templ, repl);
 }
 
@@ -256,12 +249,19 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
         return strings::emptyString();
     }
 
+    auto sepPos = detachedPrefixName.find_first_of(".");
+    std::string sibName = detachedPrefixName.substr(0, sepPos);
+    std::string accRest;
+    if (sepPos < detachedPrefixName.size()) {
+        accRest = detachedPrefixName.substr(sepPos + 1);
+    }
+
     auto iter =
         std::find_if(
             siblings.begin(), siblings.end(),
-            [&detachedPrefixName](auto& f)
+            [&sibName](auto& f)
             {
-                return f->field().dslObj().name() == detachedPrefixName;
+                return f->field().dslObj().name() == sibName;
             });
 
     if (iter == siblings.end()) {
@@ -271,36 +271,29 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
         return strings::emptyString();
     }
 
-    bool lenVersionOptional = (*iter)->commsIsVersionOptional();
-
     static const std::string Templ = 
-        "auto expectedLength = static_cast<std::size_t>(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.getValue());\n"
-        "auto realLength = field_#^#NAME#$#()#^#STR_ACC#$#.value().size();\n"
-        "if (expectedLength == realLength) {\n"
+        "auto lenValue = #^#LEN_VALUE#$#;\n"
+        "auto realLength = #^#STR_FIELD#$#.value().size();\n"
+        "if (static_cast<std::size_t>(lenValue) == realLength) {\n"
         "    return false;\n"
         "}\n\n"
-        "using LenValueType = typename std::decay<decltype(field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.getValue())>::type;\n"
+        "using LenValueType = typename std::decay<decltype(lenValue)>::type;\n"
         "static const auto MaxLenValue = static_cast<std::size_t>(std::numeric_limits<LenValueType>::max());\n"
         "auto maxAllowedLen = std::min(MaxLenValue, realLength);\n"
-        "field_#^#LEN_NAME#$#()#^#LEN_ACC#$#.setValue(maxAllowedLen);\n"
+        "#^#LEN_FIELD#$#.setValue(maxAllowedLen);\n"
         "if (maxAllowedLen < realLength) {\n"
-        "    field_#^#NAME#$#()#^#STR_ACC#$#.value().resize(maxAllowedLen);\n"
+        "    #^#STR_FIELD#$#.value().resize(maxAllowedLen);\n"
         "}\n"
         "return true;";
 
+    auto fieldPrefix = "field_" + comms::accessName(dslObj().name()) + "()";
+    auto sibPrefix = "field_" + comms::accessName((*iter)->field().dslObj().name()) + "()";
     util::ReplacementMap repl = {
-        {"NAME", comms::accessName(dslObj().name())},
-        {"LEN_NAME", comms::accessName(detachedPrefixName)}
+        {"LEN_VALUE", (*iter)->commsValueAccessStr(accRest, sibPrefix)},
+        {"LEN_FIELD", (*iter)->commsFieldAccessStr(accRest, sibPrefix)},
+        {"STR_FIELD", commsFieldAccessStr(std::string(), fieldPrefix)},
     };
 
-    if (commsIsVersionOptional()) {
-        repl["STR_ACC"] = ".field()";
-    }
-
-    if (lenVersionOptional) {
-        repl["LEN_ACC"] = ".field()";
-    }
-    
     return util::processTemplate(Templ, repl);
 }
 

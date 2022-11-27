@@ -282,7 +282,7 @@ CommsEnumField::IncludesList CommsEnumField::commsCommonIncludesImpl() const
     }  
 
     if ((MaxRangesInOpts < m_validRanges.size()) ||
-        (commsIsDirectValueNameMappingInternal())) {
+        (!commsIsDirectValueNameMappingInternal())) {
         result.insert(result.end(), {
             "<algorithm>",
             "<iterator>"

@@ -387,7 +387,7 @@ std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, co
         return strings::unexpectedValueStr();
     }
 
-    return prefix + "getBitValue_" + accStr + "()";
+    return prefix + ".getBitValue_" + accStr + "()";
 }
 
 std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const

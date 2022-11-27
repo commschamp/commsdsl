@@ -266,6 +266,11 @@ public:
 
     std::string schemaPos() const;
 
+    const FieldsList& members() const
+    {
+        return membersImpl();
+    }
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -324,6 +329,7 @@ protected:
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const;
     virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const;
     virtual const XmlWrap::NamesList& supportedMemberTypesImpl() const;
+    virtual const FieldsList& membersImpl() const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

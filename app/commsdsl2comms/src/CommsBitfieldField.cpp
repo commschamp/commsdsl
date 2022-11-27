@@ -206,7 +206,7 @@ std::string CommsBitfieldField::commsValueAccessStrImpl(const std::string& accSt
         return strings::unexpectedValueStr();
     }
 
-    return memInfo.first->commsValueAccessStr(memInfo.second, prefix + "field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "().");
+    return memInfo.first->commsValueAccessStr(memInfo.second, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "()");
 }
 
 void CommsBitfieldField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
@@ -225,7 +225,7 @@ void CommsBitfieldField::commsCompOptChecksImpl(const std::string& accStr, Strin
         return;
     }
 
-    return memInfo.first->commsCompOptChecks(memInfo.second, checks, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()));
+    return memInfo.first->commsCompOptChecks(memInfo.second, checks, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "()");
 }
 
 std::string CommsBitfieldField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const

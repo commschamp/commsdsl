@@ -55,6 +55,7 @@ public:
     std::string commsDefBundledReadPrepareFuncBody(const CommsFieldsList& siblings) const;
     std::string commsDefBundledRefreshFuncBody(const CommsFieldsList& siblings) const;
 
+    std::string commsFieldAccessStr(const std::string& accStr, const std::string& prefix = std::string()) const;
     std::string commsValueAccessStr(const std::string& accStr, const std::string& prefix = std::string()) const;
     StringsList commsCompOptChecks(const std::string& accStr, const std::string& prefix = std::string()) const;
     void commsCompOptChecks(const std::string& accStr, StringsList& checks, const std::string& prefix = std::string()) const;
