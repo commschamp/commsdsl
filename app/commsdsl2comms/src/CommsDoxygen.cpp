@@ -968,7 +968,7 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
             {
                 auto name = comms::className(p) + type + "InputMessages";
                 auto scope = comms::scopeForInput(name, m_generator);
-                auto file = comms::headerPathForInput(name, m_generator);
+                auto file = comms::relHeaderForInput(name, m_generator);
                 auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
                 list.push_back(std::move(str));
             };
