@@ -195,10 +195,7 @@ if ((CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX) AND
     target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
 endif ()
 
-
-if (WIN32)
-    target_link_libraries(${PROJECT_NAME} PUBLIC Setupapi.lib Ws2_32.lib imm32.lib winmm.lib)
-endif ()
+commsdsl_platform_specific_link(${PROJECT_NAME})
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VERSION ${COMMSDSL_VERSION})
 

@@ -60,7 +60,6 @@ public:
 
     std::string swigTemplateScope() const;
 
-    // bool swigPrepare();
     bool swigWrite() const;
 
 protected:

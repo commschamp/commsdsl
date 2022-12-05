@@ -31,6 +31,7 @@ const std::string& dispatchNamespaceStr();
 const std::string& inputNamespaceStr();
 const std::string& pluginNamespaceStr();
 const std::string& includeDirStr();
+const std::string& srcDirStr();
 const std::string& docDirStr();
 const std::string& nameFileSuffixStr();
 const std::string& valueFileSuffixStr();

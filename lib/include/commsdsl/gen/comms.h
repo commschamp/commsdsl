@@ -80,6 +80,7 @@ std::string scopeForCustomLayer(
     bool addElement = true);      
 
 std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool addMainNamespace = true);
+std::string relSrcPathFor(const Elem& elem, const Generator& generator, bool addMainNamespace = true);
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string relHeaderPathForField(const std::string& name, const Generator& generator); 
 std::string relHeaderForOptions(const std::string& name, const Generator& generator, bool addMainNamespace = true); 

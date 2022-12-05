@@ -129,6 +129,12 @@ const std::string& includeDirStr()
     return Str;   
 }
 
+const std::string& srcDirStr()
+{
+    static const std::string Str("src");
+    return Str;   
+}
+
 const std::string& docDirStr()
 {
     static const std::string Str("doc");

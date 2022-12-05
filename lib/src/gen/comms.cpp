@@ -428,6 +428,11 @@ std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool 
     return scopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
+std::string relSrcPathFor(const Elem& elem, const Generator& generator, bool addMainNamespace)
+{
+    return scopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::cppSourceSuffixStr();    
+}
+
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator)
 {
     return commonScopeForInternal(elem, generator, true, true, PathSep) + strings::cppHeaderSuffixStr();    
