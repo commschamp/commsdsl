@@ -22,7 +22,7 @@
 // #include "EmscriptenCmake.h"
 #include "EmscriptenComms.h"
 // #include "EmscriptenCustomLayer.h"
-// #include "EmscriptenDataBuf.h"
+#include "EmscriptenDataBuf.h"
 #include "EmscriptenDataField.h"
 #include "EmscriptenEnumField.h"
 #include "EmscriptenFloatField.h"
@@ -94,6 +94,11 @@ std::string EmscriptenGenerator::emscriptenOutputCodeHeaderPathFor(const Elem& e
 std::string EmscriptenGenerator::emscriptenOutputCodeSrcPathFor(const Elem& elem) const
 {
     return getOutputDir() + '/' + strings::srcDirStr() + '/' + comms::relSrcPathFor(elem, *this);
+}
+
+std::string EmscriptenGenerator::emscriptenOutputCodeHeaderPathForRoot(const std::string& name) const
+{
+    return getOutputDir() + '/' + strings::includeDirStr() + '/' + name + strings::cppHeaderSuffixStr();
 }
 
 std::string EmscriptenGenerator::emscriptenOutputCodeSrcPathForRoot(const std::string& name) const
@@ -210,7 +215,7 @@ bool EmscriptenGenerator::writeImpl()
 
     return 
         EmscriptenComms::emscriptenWrite(*this) &&
-        // EmscriptenDataBuf::emscriptenWrite(*this) &&
+        EmscriptenDataBuf::emscriptenWrite(*this) &&
         // EmscriptenMsgHandler::emscriptenWrite(*this) &&
         // Emscripten::emscriptenWrite(*this) &&
         // EmscriptenCmake::emscriptenWrite(*this) &&

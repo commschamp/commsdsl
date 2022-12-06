@@ -2,6 +2,7 @@ set (src
     EmscriptenBitfieldField.cpp
     EmscriptenBundleField.cpp
     EmscriptenComms.cpp
+    EmscriptenDataBuf.cpp
     EmscriptenDataField.cpp
     EmscriptenEnumField.cpp
     EmscriptenField.cpp
