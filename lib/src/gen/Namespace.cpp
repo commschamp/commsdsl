@@ -159,6 +159,54 @@ public:
         }
     }
 
+    bool hasReferencedMessageIdField() const
+    {
+        bool hasInFields = 
+            std::any_of(
+                m_fields.begin(), m_fields.end(),
+                [](auto& f)
+                {
+                    return 
+                        (f->isReferenced()) && 
+                        (f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
+                });   
+
+        if (hasInFields) {
+            return true;
+        }
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasReferencedMessageIdField();
+                });
+    }
+
+    bool hasAnyReferencedMessage() const
+    {
+        bool hasMessage = 
+            std::any_of(
+                m_messages.begin(), m_messages.end(),
+                [](auto& m)
+                {
+                    return m->isReferenced();
+                });   
+
+        if (hasMessage) {
+            return true;
+        }
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasAnyReferencedMessage();
+                });        
+    }
+
 private:
     bool createNamespaces()
     {
@@ -701,6 +749,16 @@ void Namespace::setAllInterfacesReferenced()
 void Namespace::setAllMessagesReferenced()
 {
     m_impl->setAllMessagesReferenced();
+}
+
+bool Namespace::hasReferencedMessageIdField() const
+{
+    return m_impl->hasReferencedMessageIdField();
+}
+
+bool Namespace::hasAnyReferencedMessage() const
+{
+    return m_impl->hasAnyReferencedMessage();
 }
 
 Elem::Type Namespace::elemTypeImpl() const

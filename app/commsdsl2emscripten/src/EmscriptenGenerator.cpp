@@ -33,7 +33,7 @@
 #include "EmscriptenListField.h"
 #include "EmscriptenMessage.h"
 // #include "EmscriptenMsgHandler.h"
-// #include "EmscriptenMsgId.h"
+#include "EmscriptenMsgId.h"
 // #include "EmscriptenNamespace.h"
 #include "EmscriptenOptionalField.h"
 // #include "EmscriptenPayloadLayer.h"
@@ -136,33 +136,6 @@ std::string EmscriptenGenerator::emscriptenProtocolClassNameForRoot(const std::s
     return emscriptenScopeToName(str);
 }
 
-// const std::string& EmscriptenGenerator::emscriptenConvertCppType(const std::string& str) const
-// {
-//     static const std::map<std::string, std::string> Map = {
-//         {"std::int8_t", "signed char"},
-//         {"std::uint8_t", "unsigned char"},
-//         {"std::int16_t", "short"},
-//         {"std::uint16_t", "unsigned short"},
-//         {"std::int32_t", "int"},
-//         {"std::uint32_t", "unsigned"},
-//         {"std::int64_t", "long long"},
-//         {"std::uint64_t", "unsigned long long"},
-//         {"std::size_t", "unsigned long"},        
-//     };
-
-//     auto iter = Map.find(str);
-//     if (iter == Map.end()) {
-//         return str;
-//     }
-
-//     return iter->second;
-// }
-
-// const std::string& EmscriptenGenerator::emscriptenConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len) const
-// {
-//     return emscriptenConvertCppType(comms::cppIntTypeFor(value, len));
-// }
-
 std::string EmscriptenGenerator::emscriptenScopeToName(const std::string& scope)
 {
     return util::strReplace(scope, "::", "_");
@@ -204,20 +177,19 @@ bool EmscriptenGenerator::writeImpl()
 {
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
-        // bool result = 
-        //     EmscriptenMsgId::emscriptenWrite(*this) &&
-        //     EmscriptenVersion::emscriptenWrite(*this);
+        bool result = 
+            EmscriptenMsgId::emscriptenWrite(*this) /* &&
+            EmscriptenVersion::emscriptenWrite(*this)*/;
 
-        // if (!result) {
-        //     return false;
-        // }
+        if (!result) {
+            return false;
+        }
     }
 
     return 
         EmscriptenComms::emscriptenWrite(*this) &&
         EmscriptenDataBuf::emscriptenWrite(*this) &&
         // EmscriptenMsgHandler::emscriptenWrite(*this) &&
-        // Emscripten::emscriptenWrite(*this) &&
         // EmscriptenCmake::emscriptenWrite(*this) &&
         emscriptenWriteExtraFilesInternal();
 

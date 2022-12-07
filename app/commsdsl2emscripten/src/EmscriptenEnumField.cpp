@@ -36,6 +36,13 @@ EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, commsds
 {
 }
 
+std::string EmscriptenEnumField::emscriptenBindValues() const
+{
+    StringsList result;
+    // TODO:
+    return util::strListToString(result, "\n", "");
+}
+
 bool EmscriptenEnumField::writeImpl() const
 {
     return emscriptenWrite();

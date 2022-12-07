@@ -42,19 +42,6 @@ SwigNamespace::SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespac
 
 SwigNamespace::~SwigNamespace() = default;
 
-bool SwigNamespace::swigHasReferencedMsgId() const
-{
-    return 
-        std::any_of(
-            m_swigFields.begin(), m_swigFields.end(),
-            [](auto* f)
-            {
-                return 
-                    (f->field().isReferenced()) && 
-                    (f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
-            });
-}
-
 void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
 {
     for (auto& ns : namespaces()) {

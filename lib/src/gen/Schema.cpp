@@ -461,6 +461,28 @@ public:
         }
     }
 
+    bool hasReferencedMessageIdField() const
+    {
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasReferencedMessageIdField();
+                });
+    }
+
+    bool hasAnyReferencedMessage() const
+    {
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasAnyReferencedMessage();
+                });
+    }
+
 private:
     Generator& m_generator;
     commsdsl::parse::Schema m_dslObj;
@@ -764,6 +786,16 @@ void Schema::setAllInterfacesReferenced()
 void Schema::setAllMessagesReferenced()
 {
     m_impl->setAllMessagesReferenced();
+}
+
+bool Schema::hasReferencedMessageIdField() const
+{
+    return m_impl->hasReferencedMessageIdField();
+}
+
+bool Schema::hasAnyReferencedMessage() const
+{
+    return m_impl->hasAnyReferencedMessage();
 }
 
 Elem::Type Schema::elemTypeImpl() const

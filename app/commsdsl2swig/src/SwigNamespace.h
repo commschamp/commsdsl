@@ -35,8 +35,6 @@ public:
     explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual ~SwigNamespace();
 
-    bool swigHasReferencedMsgId() const;
-
     void swigAddCodeIncludes(StringsList& list) const; 
     void swigAddCode(StringsList& list) const; 
 

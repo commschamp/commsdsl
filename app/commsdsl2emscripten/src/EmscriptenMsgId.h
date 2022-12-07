@@ -15,35 +15,28 @@
 
 #pragma once
 
-#include "EmscriptenField.h"
+#include "commsdsl/gen/util.h"
 
-#include "commsdsl/gen/EnumField.h"
+#include <string>
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenEnumField final : public commsdsl::gen::EnumField, public EmscriptenField
+class EmscriptenMsgId
 {
-    using Base = commsdsl::gen::EnumField;
-    using EmscriptenBase = EmscriptenField;
 public:
-    EmscriptenEnumField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
+    using StringsList = commsdsl::gen::util::StringsList;
 
-    static const EmscriptenEnumField* cast(const commsdsl::gen::Field* f)
-    {
-        return static_cast<const EmscriptenEnumField*>(f);
-    }
-
-    std::string emscriptenBindValues() const;
-
-protected:
-    // Base overrides
-    virtual bool writeImpl() const override;    
-
-    // EmscriptenBase overrides
+    static bool emscriptenWrite(EmscriptenGenerator& generator);
 
 private:
+    explicit EmscriptenMsgId(EmscriptenGenerator& generator) : m_generator(generator) {}
+
+    bool emscriptenWriteSrcInternal() const;
+    std::string emscriptenIdsInternal() const;
+    
+    EmscriptenGenerator& m_generator;
 };
 
 } // namespace commsdsl2emscripten

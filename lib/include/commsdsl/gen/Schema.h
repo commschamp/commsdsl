@@ -108,6 +108,9 @@ public:
     void setAllInterfacesReferenced();
     void setAllMessagesReferenced();
 
+    bool hasReferencedMessageIdField() const;
+    bool hasAnyReferencedMessage() const;    
+
 protected:
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();

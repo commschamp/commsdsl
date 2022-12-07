@@ -41,19 +41,12 @@ SwigSchema::~SwigSchema() = default;
 
 bool SwigSchema::swigHasAnyMessage() const
 {
-    return !getAllMessages().empty();
+    return hasAnyReferencedMessage();
 }
 
 bool SwigSchema::swigHasReferencedMsgId() const
 {
-    auto allNs = getAllNamespaces();
-    return 
-        std::any_of(
-            allNs.begin(), allNs.end(),
-            [](auto* ns)
-            {
-                return SwigNamespace::cast(ns)->swigHasReferencedMsgId();
-            });
+    return hasReferencedMessageIdField();
 }
 
 void SwigSchema::swigAddCodeIncludes(StringsList& list) const
