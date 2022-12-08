@@ -181,7 +181,7 @@ bool EmscriptenField::emscriptenWrite() const
 bool EmscriptenField::emscriptenWriteHeaderInternal() const
 {
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
-    auto filePath = generator.emscriptenOutputCodeHeaderPathFor(m_field);
+    auto filePath = comms::headerPathFor(m_field, generator);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!generator.createDirectory(dirPath)) {
@@ -216,7 +216,7 @@ bool EmscriptenField::emscriptenWriteHeaderInternal() const
 bool EmscriptenField::emscriptenWriteSrcInternal() const
 {
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
-    auto filePath = generator.emscriptenOutputCodeSrcPathFor(m_field);
+    auto filePath = comms::sourcePathFor(m_field, generator);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!generator.createDirectory(dirPath)) {

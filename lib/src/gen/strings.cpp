@@ -321,6 +321,12 @@ const std::string& unexpectedValueStr()
     return Str;     
 }
 
+const std::string& versionFileNameStr()
+{
+    static const std::string Str("Version");
+    return Str;      
+}
+
 char siblingRefPrefix()
 {
     return '$';

@@ -428,7 +428,7 @@ std::string relHeaderPathFor(const Elem& elem, const Generator& generator, bool 
     return scopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
-std::string relSrcPathFor(const Elem& elem, const Generator& generator, bool addMainNamespace)
+std::string relSourcePathFor(const Elem& elem, const Generator& generator, bool addMainNamespace)
 {
     return scopeForInternal(elem, generator, addMainNamespace, true, PathSep) + strings::cppSourceSuffixStr();    
 }
@@ -500,9 +500,20 @@ std::string relHeaderForRoot(const std::string& name, const Generator& generator
     return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
+std::string relSourceForRoot(const std::string& name, const Generator& generator, bool addMainNamespace)
+{
+    static const std::vector<std::string> SubElems;
+    return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppSourceSuffixStr();
+}
+
 std::string headerPathFor(const Elem& elem, const Generator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathFor(elem, generator);
+}
+
+std::string sourcePathFor(const Elem& elem, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::srcDirStr() + '/' + relSourcePathFor(elem, generator);
 }
 
 std::string headerPathForField(const std::string& name, const Generator& generator)
@@ -533,6 +544,11 @@ std::string commonHeaderPathFor(const Elem& elem, const Generator& generator)
 std::string headerPathRoot(const std::string& name, const Generator& generator)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForRoot(name, generator);
+}
+
+std::string sourcePathRoot(const std::string& name, const Generator& generator)
+{
+    return generator.getOutputDir() + '/' + strings::srcDirStr() + '/' + relSourceForRoot(name, generator);
 }
 
 std::string pathForDoc(const std::string& name, const Generator& generator)

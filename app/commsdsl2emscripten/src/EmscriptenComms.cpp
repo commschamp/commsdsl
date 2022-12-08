@@ -17,12 +17,14 @@
 
 #include "EmscriptenGenerator.h"
 
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
 #include <fstream>
 
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
@@ -49,7 +51,7 @@ bool EmscriptenComms::emscriptenWrite(EmscriptenGenerator& generator)
 bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 {
     auto name = m_generator.emscriptenScopeToName(ErrorStatusScopeStr);
-    auto filePath = m_generator.emscriptenOutputCodeSrcPathForRoot(name);
+    auto filePath = comms::sourcePathRoot(name, m_generator);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {
@@ -121,7 +123,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
 {
     auto name = m_generator.emscriptenScopeToName(OptionalModeScopeStr);
-    auto filePath = m_generator.emscriptenOutputCodeSrcPathForRoot(name);
+    auto filePath = comms::sourcePathRoot(name, m_generator);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {

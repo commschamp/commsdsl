@@ -19,6 +19,7 @@ set (src
     EmscriptenSetField.cpp
     EmscriptenStringField.cpp
     EmscriptenVariantField.cpp
+    EmscriptenVersion.cpp
     main.cpp
 )
 

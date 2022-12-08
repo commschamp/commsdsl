@@ -13,10 +13,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "EmscriptenMsgId.h"
+#include "EmscriptenVersion.h"
 
 #include "EmscriptenGenerator.h"
-#include "EmscriptenEnumField.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -34,22 +33,15 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-
-bool EmscriptenMsgId::emscriptenWrite(EmscriptenGenerator& generator)
+bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 {
-    auto& thisSchema = generator.currentSchema();
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.hasReferencedMessageIdField()) && (!thisSchema.hasAnyReferencedMessage())) {
-        return true;
-    }
-
-    EmscriptenMsgId obj(generator);
+    EmscriptenVersion obj(generator);
     return obj.emscriptenWriteSrcInternal();
 }
 
-bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
+bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 {
-    auto name = m_generator.emscriptenScopeNameForRoot(strings::msgIdEnumNameStr());
-    auto filePath = comms::sourcePathRoot(strings::msgIdEnumNameStr(), m_generator);
+    auto filePath = comms::sourcePathRoot(strings::versionFileNameStr(), m_generator);
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -69,18 +61,17 @@ bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
         "#include <emscripten/bind.h>\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "EMSCRIPTEN_BINDINGS(#^#NAME#$#) {\n"
-        "    enum_<#^#SCOPE#$#>(\"#^#NAME#$#\")\n"
-        "        #^#VALUES#$#\n"
-        "        ;\n"
+        "    #^#SPEC#$#\n"
+        "    #^#PROT#$#\n"
         "}\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"NAME", name},
-        {"SCOPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator)},
-        {"VALUES", emscriptenIdsInternal()},
-        {"HEADER", comms::relHeaderForRoot(strings::msgIdEnumNameStr(), m_generator)},
+        {"HEADER", comms::relHeaderForRoot(strings::versionFileNameStr(), m_generator)},
+        {"NAME", m_generator.emscriptenScopeNameForRoot(strings::versionFileNameStr())},
+        {"SPEC", emscriptenSpecConstantsInternal()},
+        {"PROT", emscriptenProtConstantsInternal()},
     };
 
     stream << util::processTemplate(Templ, repl, true);
@@ -93,37 +84,35 @@ bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
     return true;    
 }
 
-
-std::string EmscriptenMsgId::emscriptenIdsInternal() const
+std::string EmscriptenVersion::emscriptenSpecConstantsInternal() const
 {
-    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
-    if (msgIdField != nullptr) {
-        assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
-        auto* castedMsgIdField = EmscriptenEnumField::cast(msgIdField);
-        return castedMsgIdField->emscriptenBindValues();
-    }
+    const std::string Templ = 
+        "emscripten::constant(\"#^#NS#$#_SPEC_VERSION\", #^#NS#$#_SPEC_VERSION);";
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
-    util::StringsList ids;
-    ids.reserve(allMessages.size());
-
-    static const std::string Templ = 
-        ".value(\"#^#MSG#$#\", #^#SCOPE#$#_#^#MSG#$#)";
-            
     util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator)}   
+        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())}
     };
 
-    for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
-            continue;
-        }
-
-        repl["MSG"] = comms::fullNameFor(*m);
-        ids.push_back(util::processTemplate(Templ, repl));
-    }
-    return util::strListToString(ids, ",\n", "");
+    return util::processTemplate(Templ, repl);
 }
 
+std::string EmscriptenVersion::emscriptenProtConstantsInternal() const
+{
+    if (!m_generator.emscriptenHasProtocolVersion()) {
+        return strings::emptyString();
+    }
+
+    const std::string Templ = 
+        "emscripten::constant(\"#^#NS#$#_MAJOR_VERSION\", #^#NS#$#_MAJOR_VERSION);\n"
+        "emscripten::constant(\"#^#NS#$#_MINOR_VERSION\", #^#NS#$#_MINOR_VERSION);\n"
+        "emscripten::constant(\"#^#NS#$#_PATCH_VERSION\", #^#NS#$#_PATCH_VERSION);"
+        ;
+
+    util::ReplacementMap repl = {
+        {"NS", util::strToUpper(m_generator.currentSchema().mainNamespace())}
+    };
+
+    return util::processTemplate(Templ, repl);    
+}
 
 } // namespace commsdsl2emscripten

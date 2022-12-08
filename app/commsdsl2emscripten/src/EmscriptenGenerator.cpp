@@ -45,7 +45,7 @@
 // #include "EmscriptenSyncLayer.h"
 // #include "EmscriptenValueLayer.h"
 #include "EmscriptenVariantField.h"
-// #include "EmscriptenVersion.h"
+#include "EmscriptenVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -79,31 +79,6 @@ const std::string& EmscriptenGenerator::fileGeneratedComment()
         '.' + std::to_string(commsdsl::versionMinor()) + '.' +
         std::to_string(commsdsl::versionPatch()) + '\n';
     return Str;
-}
-
-std::string EmscriptenGenerator::emscriptenInputCodeHeaderPathFor(const Elem& elem) const
-{
-    return getCodeDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, *this);
-}
-
-std::string EmscriptenGenerator::emscriptenOutputCodeHeaderPathFor(const Elem& elem) const
-{
-    return getOutputDir() + '/' + strings::includeDirStr() + '/' + comms::relHeaderPathFor(elem, *this);
-}
-
-std::string EmscriptenGenerator::emscriptenOutputCodeSrcPathFor(const Elem& elem) const
-{
-    return getOutputDir() + '/' + strings::srcDirStr() + '/' + comms::relSrcPathFor(elem, *this);
-}
-
-std::string EmscriptenGenerator::emscriptenOutputCodeHeaderPathForRoot(const std::string& name) const
-{
-    return getOutputDir() + '/' + strings::includeDirStr() + '/' + name + strings::cppHeaderSuffixStr();
-}
-
-std::string EmscriptenGenerator::emscriptenOutputCodeSrcPathForRoot(const std::string& name) const
-{
-    return getOutputDir() + '/' + strings::srcDirStr() + '/' + name + strings::cppSourceSuffixStr();
 }
 
 // std::string EmscriptenGenerator::emscriptenInputCodePathForFile(const std::string& name) const
@@ -178,8 +153,8 @@ bool EmscriptenGenerator::writeImpl()
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
         bool result = 
-            EmscriptenMsgId::emscriptenWrite(*this) /* &&
-            EmscriptenVersion::emscriptenWrite(*this)*/;
+            EmscriptenMsgId::emscriptenWrite(*this) &&
+            EmscriptenVersion::emscriptenWrite(*this);
 
         if (!result) {
             return false;

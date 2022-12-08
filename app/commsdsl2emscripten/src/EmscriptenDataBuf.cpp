@@ -59,7 +59,7 @@ std::string EmscriptenDataBuf::emscriptenRelHeader(const EmscriptenGenerator& ge
 
 bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 {
-    auto filePath = m_generator.emscriptenOutputCodeHeaderPathForRoot(ClassName);
+    auto filePath = comms::headerPathRoot(ClassName, m_generator);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {
@@ -142,7 +142,7 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 
 bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
 {
-    auto filePath = m_generator.emscriptenOutputCodeSrcPathForRoot(ClassName);
+    auto filePath = comms::sourcePathRoot(ClassName, m_generator);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {

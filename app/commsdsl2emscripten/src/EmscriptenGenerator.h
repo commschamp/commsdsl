@@ -53,11 +53,6 @@ public:
         return static_cast<const EmscriptenGenerator&>(generator);
     }    
     
-    std::string emscriptenInputCodeHeaderPathFor(const Elem& elem) const;
-    std::string emscriptenOutputCodeHeaderPathFor(const Elem& elem) const;
-    std::string emscriptenOutputCodeSrcPathFor(const Elem& elem) const;
-    std::string emscriptenOutputCodeHeaderPathForRoot(const std::string& name) const;
-    std::string emscriptenOutputCodeSrcPathForRoot(const std::string& name) const;
     std::string emscriptenClassName(const Elem& elem) const;
     std::string emscriptenScopeNameForRoot(const std::string& name) const;
     std::string emscriptenProtocolClassNameForRoot(const std::string& name) const;

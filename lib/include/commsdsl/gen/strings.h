@@ -63,6 +63,7 @@ const std::string& bareMetalStr();
 const std::string& dataViewStr();
 const std::string& transportMessageSuffixStr();
 const std::string& unexpectedValueStr();
+const std::string& versionFileNameStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();
