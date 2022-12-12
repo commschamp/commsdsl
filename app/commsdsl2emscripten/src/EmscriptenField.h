@@ -52,11 +52,20 @@ public:
     bool emscriptenIsVersionOptional() const;
     bool emscriptenWrite() const;
 
+    std::string emscriptenHeaderClass() const;
+    std::string emscriptenTemplateScope() const;
+
 protected:
+    virtual std::string emscriptenHeaderMembersImpl() const;
+    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
+
+    std::string emscriptenHeaderCommonPublicFuncs() const;
     
 private:
     bool emscriptenWriteHeaderInternal() const;
     bool emscriptenWriteSrcInternal() const;
+    std::string emscriptenHeaderIncludesInternal() const;
+    std::string emscriptenHeaderClassInternal() const;
 
     commsdsl::gen::Field& m_field;
 };

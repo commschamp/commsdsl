@@ -95,7 +95,6 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsLis
         "using #^#SWIG_TYPE#$# =\n"
         "    #^#CODE#$#;\n\n";
 
-    auto commsType = comms::scopeForRoot(strings::msgIdEnumNameStr(), generator);
     util::ReplacementMap repl = {
         {"SWIG_TYPE", swigClassName(generator)},
         {"CODE", swigCodeInternal(gen, gen.schemas().size() - 1U)}

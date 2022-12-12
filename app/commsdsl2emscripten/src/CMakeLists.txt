@@ -15,6 +15,7 @@ set (src
     EmscriptenMsgId.cpp
     EmscriptenOptionalField.cpp
     EmscriptenProgramOptions.cpp
+    EmscriptenProtocolOptions.cpp
     EmscriptenRefField.cpp
     EmscriptenSetField.cpp
     EmscriptenStringField.cpp

@@ -37,6 +37,7 @@
 // #include "EmscriptenNamespace.h"
 #include "EmscriptenOptionalField.h"
 // #include "EmscriptenPayloadLayer.h"
+#include "EmscriptenProtocolOptions.h"
 #include "EmscriptenRefField.h"
 // #include "EmscriptenSchema.h"
 #include "EmscriptenSetField.h"
@@ -164,6 +165,7 @@ bool EmscriptenGenerator::writeImpl()
     return 
         EmscriptenComms::emscriptenWrite(*this) &&
         EmscriptenDataBuf::emscriptenWrite(*this) &&
+        EmscriptenProtocolOptions::emscriptenWrite(*this) &&
         // EmscriptenMsgHandler::emscriptenWrite(*this) &&
         // EmscriptenCmake::emscriptenWrite(*this) &&
         emscriptenWriteExtraFilesInternal();

@@ -559,5 +559,4 @@ std::string SwigField::swigComparisonRenameInternal() const
     return util::processTemplate(Templ, repl) + '\n' + noSuffix;
 }
 
-
 } // namespace commsdsl2swig
