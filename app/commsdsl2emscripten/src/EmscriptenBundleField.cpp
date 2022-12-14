@@ -36,6 +36,16 @@ EmscriptenBundleField::EmscriptenBundleField(EmscriptenGenerator& generator, com
 {
 }
 
+bool EmscriptenBundleField::prepareImpl()
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    emscriptenAssignMembers(members());
+    return true;
+}
+
 bool EmscriptenBundleField::writeImpl() const
 {
     return emscriptenWrite();

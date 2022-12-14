@@ -36,6 +36,16 @@ EmscriptenBitfieldField::EmscriptenBitfieldField(EmscriptenGenerator& generator,
 {
 }
 
+bool EmscriptenBitfieldField::prepareImpl()
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    emscriptenAssignMembers(members());
+    return true;
+}
+
 bool EmscriptenBitfieldField::writeImpl() const
 {
     return emscriptenWrite();

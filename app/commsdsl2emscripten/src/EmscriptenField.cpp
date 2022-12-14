@@ -110,7 +110,7 @@ std::string EmscriptenField::emscriptenHeaderClass() const
     ;
 
     util::ReplacementMap repl = {
-        {"MEMBERS", emscriptenHeaderMembersImpl()},
+        {"MEMBERS", emscriptenHeaderMembersInternal()},
         {"DEF", emscriptenHeaderClassInternal()},
     };
 
@@ -167,14 +167,34 @@ std::string EmscriptenField::emscriptenTemplateScope() const
     return commsScope;
 }
 
-void EmscriptenField::emscriptenHeaderMembersAddIncludesImpl(StringsList& incs) const
+std::string EmscriptenField::emscriptenSourceCode() const
 {
-    static_cast<void>(incs);
+    static const std::string Templ = 
+        "#^#MEMBERS#$#\n"
+        "#^#VALUE_ACC#$#\n"
+        "#^#EXTRA#$#\n"
+        "#^#COMMON#$#\n"
+        "#^#BIND#$#\n";       
+
+    util::ReplacementMap repl = {
+        {"MEMBERS", emscriptenSourceMembersInternal()},
+        {"VALUE_ACC", emscriptenSourceValueAccImpl()},
+        {"EXTRA", emscriptenSourceExtraPublicFuncsImpl()},
+        {"COMMON", emscriptenSourceCommonPublicFuncsInternal()},
+        {"BIND", emscriptenSourceBindInternal()},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
-std::string EmscriptenField::emscriptenHeaderMembersImpl() const
+void EmscriptenField::emscriptenHeaderAddExtraIncludes(StringsList& incs) const
 {
-    return strings::emptyString();
+    emscriptenHeaderAddExtraIncludesImpl(incs);
+}
+
+void EmscriptenField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+{
+    static_cast<void>(incs);
 }
 
 std::string EmscriptenField::emscriptenHeaderValueAccImpl() const
@@ -187,11 +207,6 @@ std::string EmscriptenField::emscriptenHeaderValueAccImpl() const
 }
 
 std::string EmscriptenField::emscriptenHeaderExtraPublicFuncsImpl() const
-{
-    return strings::emptyString();
-}
-
-std::string EmscriptenField::emscriptenSourceMembersImpl() const
 {
     return strings::emptyString();
 }
@@ -239,9 +254,19 @@ std::string EmscriptenField::emscriptenSourceBindValueAccImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string EmscriptenField::emscriptenSourceExtraBindImpl() const
+std::string EmscriptenField::emscriptenSourceBindFuncsImpl() const
 {
     return strings::emptyString();
+}
+
+std::string EmscriptenField::emscriptenSourceBindExtraImpl() const
+{
+    return strings::emptyString();
+}
+
+void EmscriptenField::emscriptenAssignMembers(const commsdsl::gen::Field::FieldsList& fields)
+{
+    m_members = emscriptenTransformFieldsList(fields);
 }
 
 bool EmscriptenField::emscriptenWriteHeaderInternal() const
@@ -305,21 +330,13 @@ bool EmscriptenField::emscriptenWriteSrcInternal() const
     static const std::string Templ = 
         "#^#GENERATED#$#\n\n"
         "#^#INCLUDES#$#\n"
-        "#^#MEMBERS#$#\n"
-        "#^#VALUE_ACC#$#\n"
-        "#^#EXTRA#$#\n"
-        "#^#COMMON#$#\n"
-        "#^#BIND#$#\n"
+        "#^#CODE#$#\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"INCLUDES", emscriptenSourceIncludesInternal()},
-        {"MEMBERS", emscriptenSourceMembersImpl()},
-        {"VALUE_ACC", emscriptenSourceValueAccImpl()},
-        {"EXTRA", emscriptenSourceExtraPublicFuncsImpl()},
-        {"COMMON", emscriptenSourceCommonPublicFuncsInternal()}
-        // TODO
+        {"CODE", emscriptenSourceCode()},
     };
     
     stream << util::processTemplate(Templ, repl, true);
@@ -337,7 +354,9 @@ std::string EmscriptenField::emscriptenHeaderIncludesInternal() const
 
     EmscriptenProtocolOptions::emscriptenAddInclude(generator, includes);
 
-    emscriptenHeaderMembersAddIncludesImpl(includes);
+    for (auto* m : m_members) {
+        m->emscriptenHeaderAddExtraIncludes(includes);
+    }
 
     comms::prepareIncludeStatement(includes);
     auto result = util::strListToString(includes, "\n", "\n");
@@ -349,11 +368,15 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
 {
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
 
-    auto inputCodePrefix = generator.emspriptenInputAbsHeaderFor(m_field);
-    std::string publicCode = util::readFileContents(inputCodePrefix + strings::publicFileSuffixStr());
-    std::string protectedCode = util::readFileContents(inputCodePrefix + strings::protectedFileSuffixStr());
-    std::string privateCode = util::readFileContents(inputCodePrefix + strings::privateFileSuffixStr());
-    std::string extraFuncs = emscriptenHeaderExtraPublicFuncsImpl();
+    std::string publicCode;
+    std::string protectedCode;
+    std::string privateCode;
+    if (comms::isGlobalField(m_field)) {
+        auto inputCodePrefix = generator.emspriptenInputAbsHeaderFor(m_field);
+        publicCode = util::readFileContents(inputCodePrefix + strings::publicFileSuffixStr());
+        protectedCode = util::readFileContents(inputCodePrefix + strings::protectedFileSuffixStr());
+        privateCode = util::readFileContents(inputCodePrefix + strings::privateFileSuffixStr());
+    }
 
     if (!protectedCode.empty()) {
         static const std::string TemplTmp = 
@@ -400,7 +423,7 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         {"CLASS_NAME", generator.emscriptenClassName(m_field)},
         {"COMMON", emscriptenHeaderCommonPublicFuncsInternal()},
         {"VALUE_ACC", emscriptenHeaderValueAccImpl()},
-        {"EXTRA", std::move(extraFuncs)},
+        {"EXTRA", emscriptenHeaderExtraPublicFuncsImpl()},
         {"PUBLIC", std::move(publicCode)},
         {"PROTECTED", std::move(protectedCode)},
         {"PRIVATE", std::move(privateCode)}
@@ -506,7 +529,9 @@ std::string EmscriptenField::emscriptenSourceCommonPublicFuncsInternal() const
         "#^#COMMON#$#\n";
 
     util::ReplacementMap optRepl = {
-        {"COMMON", util::processTemplate(Templ, repl)}
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)},
+        {"COMMON", util::processTemplate(Templ, repl)},
+        {"SUFFIX", strings::versionOptionalFieldSuffixStr()}
     };
 
     repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
@@ -523,10 +548,11 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         "        .constructor<>()\n"
         "        .constructor<const #^#CLASS_NAME#$##^#SUFFIX#$#&>()\n"
         "        #^#VALUE_ACC#$#\n"
-        "        #^#EXTRA#$#\n"
+        "        #^#FUNCS#$#\n"
         "        #^#COMMON#$#\n"
         "        #^#CUSTOM#$#\n"
         "        ;\n"
+        "    #^#EXTRA#$#\n"
         "}\n"
         ;
 
@@ -534,9 +560,10 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
     util::ReplacementMap repl = {
         {"CLASS_NAME", generator.emscriptenClassName(m_field)},
         {"VALUE_ACC", emscriptenSourceBindValueAccImpl()},
-        {"EXTRA", emscriptenSourceExtraBindImpl()},
+        {"EXTRA", emscriptenSourceBindFuncsImpl()},
         {"COMMON", emscriptenSourceBindCommonInternal()},
-        {"CUSTOM", util::readFileContents(generator.emspriptenInputAbsSourceFor(m_field) + strings::bindFileSuffixStr())}
+        {"CUSTOM", util::readFileContents(generator.emspriptenInputAbsSourceFor(m_field) + strings::bindFileSuffixStr())},
+        {"EXTRA", emscriptenSourceBindExtraImpl()},
     };
 
     if (!emscriptenIsVersionOptional()) {
@@ -585,6 +612,32 @@ std::string EmscriptenField::emscriptenSourceBindCommonInternal(bool skipVersion
     }
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenField::emscriptenHeaderMembersInternal() const
+{
+    util::StringsList members;
+    for (auto* m : m_members) {
+        auto str = m->emscriptenHeaderClass();
+        if (!str.empty()) {
+            members.push_back(std::move(str));
+        }
+    }
+
+    return util::strListToString(members, "\n", "");
+}
+
+std::string EmscriptenField::emscriptenSourceMembersInternal() const
+{
+    util::StringsList members;
+    for (auto* m : m_members) {
+        auto str = m->emscriptenSourceCode();
+        if (!str.empty()) {
+            members.push_back(std::move(str));
+        }
+    }
+
+    return util::strListToString(members, "\n", "");    
 }
 
 } // namespace commsdsl2emscripten

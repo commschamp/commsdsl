@@ -36,6 +36,16 @@ EmscriptenVariantField::EmscriptenVariantField(EmscriptenGenerator& generator, c
 {
 }
 
+bool EmscriptenVariantField::prepareImpl()
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    emscriptenAssignMembers(members());
+    return true;
+}
+
 bool EmscriptenVariantField::writeImpl() const
 {
     return emscriptenWrite();

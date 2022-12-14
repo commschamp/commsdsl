@@ -32,6 +32,7 @@ public:
 
 protected:
     // Base overrides
+    virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
 
     // EmscriptenBase overrides

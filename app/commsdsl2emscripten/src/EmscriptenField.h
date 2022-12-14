@@ -54,18 +54,26 @@ public:
 
     std::string emscriptenHeaderClass() const;
     std::string emscriptenTemplateScope() const;
+    std::string emscriptenSourceCode() const;
+
+    void emscriptenHeaderAddExtraIncludes(StringsList& incs) const;
 
 protected:
-    virtual void emscriptenHeaderMembersAddIncludesImpl(StringsList& incs) const;
-    virtual std::string emscriptenHeaderMembersImpl() const;
+    virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const;
     virtual std::string emscriptenHeaderValueAccImpl() const;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
-    virtual std::string emscriptenSourceMembersImpl() const;
     virtual std::string emscriptenSourceValueAccImpl() const;
     virtual std::string emscriptenSourceExtraPublicFuncsImpl() const;
     virtual std::string emscriptenSourceBindValueAccImpl() const;
-    virtual std::string emscriptenSourceExtraBindImpl() const;
+    virtual std::string emscriptenSourceBindFuncsImpl() const;
+    virtual std::string emscriptenSourceBindExtraImpl() const;
 
+    void emscriptenAssignMembers(const commsdsl::gen::Field::FieldsList& fields);
+
+    const EmscriptenFieldsList& members() const
+    {
+        return m_members;
+    }
 
 private:
     bool emscriptenWriteHeaderInternal() const;
@@ -77,8 +85,11 @@ private:
     std::string emscriptenSourceCommonPublicFuncsInternal() const;
     std::string emscriptenSourceBindInternal() const;
     std::string emscriptenSourceBindCommonInternal(bool skipVersionOptCheck = false) const;
+    std::string emscriptenHeaderMembersInternal() const;
+    std::string emscriptenSourceMembersInternal() const;
 
     commsdsl::gen::Field& m_field;
+    EmscriptenFieldsList m_members;
 };
 
 } // namespace commsdsl2emscripten
