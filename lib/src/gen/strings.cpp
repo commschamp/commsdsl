@@ -237,6 +237,12 @@ const std::string& prependLangFileSuffixStr()
     return Str;     
 }
 
+const std::string& bindFileSuffixStr()
+{
+    static const std::string Str(".bind");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");

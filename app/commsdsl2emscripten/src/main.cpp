@@ -107,6 +107,7 @@ int main(int argc, const char* argv[])
         generator.emscriptenSetHasProtocolVersion(options.hasProtocolVersion());
         generator.emscriptenSetMessagesListFile(options.messagesListFile());
         generator.emscriptenSetForcedPlatform(options.forcedPlatform());
+        generator.setTopNamespace("cc_emscripten");
 
         auto files = commsdsl2emscripten::getFilesList(options.getFilesListFile(), options.getFilesListPrefix());
         auto otherFiles = options.getFiles();

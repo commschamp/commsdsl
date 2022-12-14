@@ -51,7 +51,7 @@ bool EmscriptenComms::emscriptenWrite(EmscriptenGenerator& generator)
 bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 {
     auto name = m_generator.emscriptenScopeToName(ErrorStatusScopeStr);
-    auto filePath = comms::sourcePathRoot(name, m_generator);
+    auto filePath = m_generator.emscriptenAbsSourceForRoot(name);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {
@@ -123,7 +123,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
 {
     auto name = m_generator.emscriptenScopeToName(OptionalModeScopeStr);
-    auto filePath = comms::sourcePathRoot(name, m_generator);
+    auto filePath = m_generator.emscriptenAbsSourceForRoot(name);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {

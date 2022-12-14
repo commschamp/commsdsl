@@ -41,7 +41,7 @@ bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 
 bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 {
-    auto filePath = comms::sourcePathRoot(strings::versionFileNameStr(), m_generator);
+    auto filePath = m_generator.emscriptenAbsSourceForRoot(strings::versionFileNameStr());
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -68,7 +68,7 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"HEADER", comms::relHeaderForRoot(strings::versionFileNameStr(), m_generator)},
+        {"HEADER", m_generator.emscriptenRelHeaderForRoot(strings::versionFileNameStr())},
         {"NAME", m_generator.emscriptenScopeNameForRoot(strings::versionFileNameStr())},
         {"SPEC", emscriptenSpecConstantsInternal()},
         {"PROT", emscriptenProtConstantsInternal()},

@@ -49,7 +49,7 @@ bool EmscriptenMsgId::emscriptenWrite(EmscriptenGenerator& generator)
 bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
 {
     auto name = m_generator.emscriptenScopeNameForRoot(strings::msgIdEnumNameStr());
-    auto filePath = comms::sourcePathRoot(strings::msgIdEnumNameStr(), m_generator);
+    auto filePath = m_generator.emscriptenAbsSourceForRoot(name);
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -80,7 +80,7 @@ bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
         {"NAME", name},
         {"SCOPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator)},
         {"VALUES", emscriptenIdsInternal()},
-        {"HEADER", comms::relHeaderForRoot(strings::msgIdEnumNameStr(), m_generator)},
+        {"HEADER", m_generator.emscriptenRelHeaderForRoot(strings::msgIdEnumNameStr())},
     };
 
     stream << util::processTemplate(Templ, repl, true);

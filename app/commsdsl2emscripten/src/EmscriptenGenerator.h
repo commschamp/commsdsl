@@ -57,6 +57,20 @@ public:
     std::string emscriptenScopeNameForRoot(const std::string& name) const;
     std::string emscriptenProtocolClassNameForRoot(const std::string& name) const;
 
+    std::string emscriptenRelHeaderForRoot(const std::string& name) const;
+    std::string emscriptenAbsHeaderForRoot(const std::string& name) const;
+    std::string emscriptenRelSourceForRoot(const std::string& name) const;
+    std::string emscriptenAbsSourceForRoot(const std::string& name) const;
+
+    std::string emscriptenRelHeaderFor(const Elem& elem) const;
+    std::string emscriptenAbsHeaderFor(const Elem& elem) const;
+    std::string emscriptenRelSourceFor(const Elem& elem) const;
+    std::string emscriptenAbsSourceFor(const Elem& elem) const;
+
+    std::string emspriptenInputAbsHeaderFor(const Elem& elem) const;
+    std::string emspriptenInputAbsSourceFor(const Elem& elem) const;
+
+
     static std::string emscriptenScopeToName(const std::string& scope);
 
     void emscriptenSetMainNamespaceInNamesForced(bool value);

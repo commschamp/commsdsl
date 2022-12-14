@@ -83,7 +83,7 @@ void EmscriptenProtocolOptions::emscriptenAddInclude(const EmscriptenGenerator& 
     }
 
     auto name = emscriptenClassName(generator);
-    list.push_back(comms::relHeaderForRoot(name, generator));
+    list.push_back(generator.emscriptenRelHeaderForRoot(name));
 }
 
 bool EmscriptenProtocolOptions::emscriptenWrite(EmscriptenGenerator& generator)
@@ -104,7 +104,7 @@ EmscriptenProtocolOptions::EmscriptenProtocolOptions(EmscriptenGenerator& genera
 bool EmscriptenProtocolOptions::emsciptenWriteHeaderInternal()
 {
     auto name = emscriptenClassName(m_generator);
-    auto filePath = comms::headerPathRoot(name, m_generator);
+    auto filePath = m_generator.emscriptenAbsHeaderForRoot(name);
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);

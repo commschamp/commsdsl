@@ -112,6 +112,56 @@ std::string EmscriptenGenerator::emscriptenProtocolClassNameForRoot(const std::s
     return emscriptenScopeToName(str);
 }
 
+std::string EmscriptenGenerator::emscriptenRelHeaderForRoot(const std::string& name) const
+{
+    return getTopNamespace() + '/' + comms::relHeaderForRoot(name, *this);
+}
+
+std::string EmscriptenGenerator::emscriptenAbsHeaderForRoot(const std::string& name) const
+{
+    return getOutputDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderForRoot(name);
+}
+
+std::string EmscriptenGenerator::emscriptenRelSourceForRoot(const std::string& name) const
+{
+    return getTopNamespace() + '/' + comms::relSourceForRoot(name, *this);
+}
+
+std::string EmscriptenGenerator::emscriptenAbsSourceForRoot(const std::string& name) const
+{
+    return getOutputDir() + '/' + emscriptenRelSourceForRoot(name);
+}
+
+std::string EmscriptenGenerator::emscriptenRelHeaderFor(const Elem& elem) const
+{
+    return getTopNamespace() + '/' + comms::relHeaderPathFor(elem, *this);
+}
+
+std::string EmscriptenGenerator::emscriptenAbsHeaderFor(const Elem& elem) const
+{
+    return getOutputDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderFor(elem);
+}
+
+std::string EmscriptenGenerator::emscriptenRelSourceFor(const Elem& elem) const
+{
+    return getTopNamespace() + '/' + comms::relSourcePathFor(elem, *this);
+}
+
+std::string EmscriptenGenerator::emscriptenAbsSourceFor(const Elem& elem) const
+{
+    return getOutputDir() + '/' + emscriptenRelSourceFor(elem);
+}
+
+std::string EmscriptenGenerator::emspriptenInputAbsHeaderFor(const Elem& elem) const
+{
+    return getCodeDir() + '/' + emscriptenRelHeaderFor(elem);
+}
+
+std::string EmscriptenGenerator::emspriptenInputAbsSourceFor(const Elem& elem) const
+{
+    return getCodeDir() + '/' + emscriptenRelSourceFor(elem);
+}
+
 std::string EmscriptenGenerator::emscriptenScopeToName(const std::string& scope)
 {
     return util::strReplace(scope, "::", "_");

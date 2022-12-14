@@ -75,90 +75,14 @@ EmscriptenField::EmscriptenFieldsList EmscriptenField::emscriptenTransformFields
 
 std::string EmscriptenField::emscriptenRelHeaderPath() const
 {
-    return comms::relHeaderPathFor(m_field, m_field.generator());
+    auto& generator = EmscriptenGenerator::cast(m_field.generator());
+    return generator.emscriptenRelHeaderFor(m_field);
 }
 
 bool EmscriptenField::emscriptenIsVersionOptional() const
 {
     return comms::isVersionOptionaField(m_field, m_field.generator());
 }
-
-// std::string EmscriptenField::emscriptenClassDecl() const
-// {
-//     static const std::string Templ = 
-//         "#^#MEMBERS#$#\n"
-//         "#^#DEF#$#\n"
-//         "#^#OPTIONAL#$#\n"
-//     ;
-
-//     util::ReplacementMap repl = {
-//         {"MEMBERS", emscriptenMembersDeclImpl()},
-//         {"DEF", emscriptenClassDeclInternal()},
-//         {"OPTIONAL", emscriptenOptionalDeclInternal()},
-//     };
-
-//     return util::processTemplate(Templ, repl);
-// }
-
-// std::string EmscriptenField::emscriptenPublicDecl() const
-// {
-//     return emscriptenPublicDeclImpl();
-// }
-
-// std::string EmscriptenField::emscriptenExtraPublicFuncsCode() const
-// {
-//     return emscriptenExtraPublicFuncsCodeImpl();
-// }
-
-// std::string EmscriptenField::emscriptenTemplateScope() const
-// {
-//     auto& gen = EmscriptenGenerator::cast(m_field.generator());
-//     auto commsScope = comms::scopeFor(m_field, gen);
-//     std::string optionsParams = "<" + EmscriptenProtocolOptions::emscriptenClassName(gen) + ">";
-
-//     if (comms::isGlobalField(m_field)) {
-//         return commsScope + optionsParams;
-//     }
-
-//     using Elem = commsdsl::gen::Elem;
-
-//     auto formScopeFunc = 
-//         [&commsScope, &gen, &optionsParams](const Elem* parent, const std::string& suffix)
-//         {
-//             auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
-//             assert(optLevelScope.size() < commsScope.size());
-//             assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
-            
-//             return optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
-//         };
-
-    
-//     Elem* parent = m_field.getParent();
-//     while (parent != nullptr)  {
-//         auto elemType = parent->elemType();
-
-//         if (elemType == Elem::Type_Interface) {
-//             return commsScope;
-//         }        
-
-//         if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
-//             return formScopeFunc(parent, strings::membersSuffixStr());
-//         }        
-
-//         if (elemType == Elem::Type_Message) {
-//             return formScopeFunc(parent, strings::fieldsSuffixStr());
-//         }
-
-//         if (elemType == Elem::Type_Frame) {
-//             return formScopeFunc(parent, strings::layersSuffixStr());
-//         }        
-
-//         parent = parent->getParent();
-//     }
-
-//     assert(false); // Should not happen
-//     return commsScope;
-// }
 
 bool EmscriptenField::emscriptenWrite() const
 {
@@ -183,7 +107,6 @@ std::string EmscriptenField::emscriptenHeaderClass() const
     static const std::string Templ = 
         "#^#MEMBERS#$#\n"
         "#^#DEF#$#\n"
-        "#^#OPTIONAL#$#\n"
     ;
 
     util::ReplacementMap repl = {
@@ -244,9 +167,23 @@ std::string EmscriptenField::emscriptenTemplateScope() const
     return commsScope;
 }
 
+void EmscriptenField::emscriptenHeaderMembersAddIncludesImpl(StringsList& incs) const
+{
+    static_cast<void>(incs);
+}
+
 std::string EmscriptenField::emscriptenHeaderMembersImpl() const
 {
     return strings::emptyString();
+}
+
+std::string EmscriptenField::emscriptenHeaderValueAccImpl() const
+{
+    static const std::string Templ = 
+        "const ValueType& getValue() const;\n"
+        "void setValue(const ValueType& val) const;\n";
+
+    return Templ;
 }
 
 std::string EmscriptenField::emscriptenHeaderExtraPublicFuncsImpl() const
@@ -254,29 +191,63 @@ std::string EmscriptenField::emscriptenHeaderExtraPublicFuncsImpl() const
     return strings::emptyString();
 }
 
-std::string EmscriptenField::emscriptenHeaderCommonPublicFuncs() const
+std::string EmscriptenField::emscriptenSourceMembersImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenField::emscriptenSourceValueAccImpl() const
 {
     static const std::string Templ = 
-        "comms::ErrorStatus read(const #^#DATA_BUF#$#& buf);\n"
-        "comms::ErrorStatus write(#^#DATA_BUF#$#& buf) const;\n"
-        "bool refresh();\n"
-        "std::size_t length();\n"
-        "bool valid() const;\n"
-        "const char* name() const;"
-        ;
+        "const #^#CLASS_NAME#$#::ValueType& #^#CLASS_NAME#$#::getValue() const\n"
+        "{\n"
+        "    return Base::getValue();\n"
+        "}\n\n"
+        "void #^#CLASS_NAME#$#::setValue(const ValueType& val) const\n"
+        "{\n"
+        "    Base::setValue(val);\n"
+        "}\n";
 
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
-        {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(generator)}
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)}
     };
-    
+
     return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenField::emscriptenSourceExtraPublicFuncsImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenField::emscriptenSourceBindValueAccImpl() const
+{
+    static const std::string Templ = 
+        ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue)\n"
+        ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)";
+
+    auto& generator = EmscriptenGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)}
+    };
+
+    if (emscriptenIsVersionOptional()) {
+        repl["CLASS_NAME"].append(strings::versionOptionalFieldSuffixStr());
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenField::emscriptenSourceExtraBindImpl() const
+{
+    return strings::emptyString();
 }
 
 bool EmscriptenField::emscriptenWriteHeaderInternal() const
 {
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
-    auto filePath = comms::headerPathFor(m_field, generator);
+    auto filePath = generator.emscriptenAbsHeaderFor(m_field);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!generator.createDirectory(dirPath)) {
@@ -304,7 +275,7 @@ bool EmscriptenField::emscriptenWriteHeaderInternal() const
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"INCLUDES", emscriptenHeaderIncludesInternal()},
         {"CLASS", emscriptenHeaderClass()},
-        {"APPEND", util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::appendFileSuffixStr())}
+        {"APPEND", util::readFileContents(generator.emspriptenInputAbsHeaderFor(m_field) + strings::appendFileSuffixStr())}
     };
     
     stream << util::processTemplate(Templ, repl, true);
@@ -315,7 +286,7 @@ bool EmscriptenField::emscriptenWriteHeaderInternal() const
 bool EmscriptenField::emscriptenWriteSrcInternal() const
 {
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
-    auto filePath = comms::sourcePathFor(m_field, generator);
+    auto filePath = generator.emscriptenAbsSourceFor(m_field);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!generator.createDirectory(dirPath)) {
@@ -332,12 +303,22 @@ bool EmscriptenField::emscriptenWriteSrcInternal() const
     }
 
     static const std::string Templ = 
-        "#^#GENERATED#$#\n"
-        // TODO
+        "#^#GENERATED#$#\n\n"
+        "#^#INCLUDES#$#\n"
+        "#^#MEMBERS#$#\n"
+        "#^#VALUE_ACC#$#\n"
+        "#^#EXTRA#$#\n"
+        "#^#COMMON#$#\n"
+        "#^#BIND#$#\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
+        {"INCLUDES", emscriptenSourceIncludesInternal()},
+        {"MEMBERS", emscriptenSourceMembersImpl()},
+        {"VALUE_ACC", emscriptenSourceValueAccImpl()},
+        {"EXTRA", emscriptenSourceExtraPublicFuncsImpl()},
+        {"COMMON", emscriptenSourceCommonPublicFuncsInternal()}
         // TODO
     };
     
@@ -356,17 +337,19 @@ std::string EmscriptenField::emscriptenHeaderIncludesInternal() const
 
     EmscriptenProtocolOptions::emscriptenAddInclude(generator, includes);
 
+    emscriptenHeaderMembersAddIncludesImpl(includes);
+
     comms::prepareIncludeStatement(includes);
     auto result = util::strListToString(includes, "\n", "\n");
-    result.append(util::readFileContents(comms::inputCodePathFor(m_field, generator) + strings::incFileSuffixStr()));
+    result.append(util::readFileContents(generator.emspriptenInputAbsHeaderFor(m_field) + strings::incFileSuffixStr()));
     return result;
 }
 
 std::string EmscriptenField::emscriptenHeaderClassInternal() const
 {
-    auto& gen = EmscriptenGenerator::cast(m_field.generator());
+    auto& generator = EmscriptenGenerator::cast(m_field.generator());
 
-    auto inputCodePrefix = comms::inputCodePathFor(m_field, gen);
+    auto inputCodePrefix = generator.emspriptenInputAbsHeaderFor(m_field);
     std::string publicCode = util::readFileContents(inputCodePrefix + strings::publicFileSuffixStr());
     std::string protectedCode = util::readFileContents(inputCodePrefix + strings::protectedFileSuffixStr());
     std::string privateCode = util::readFileContents(inputCodePrefix + strings::privateFileSuffixStr());
@@ -401,6 +384,10 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "{\n"
         "    using Base = #^#COMMS_CLASS#$##^#SUFFIX#$#;\n"
         "public:\n"
+        "    #^#CLASS_NAME#$##^#SUFFIX#$#() = default;\n"
+        "    #^#CLASS_NAME#$##^#SUFFIX#$#(const #^#CLASS_NAME#$##^#SUFFIX#$#&) = default;\n"
+        "    ~#^#CLASS_NAME#$##^#SUFFIX#$#() = default;\n\n"
+        "    #^#VALUE_ACC#$#\n"
         "    #^#EXTRA#$#\n"
         "    #^#COMMON#$#\n"
         "    #^#PUBLIC#$#\n"
@@ -410,8 +397,9 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
 
     util::ReplacementMap repl = {
         {"COMMS_CLASS", emscriptenTemplateScope()},
-        {"CLASS_NAME", gen.emscriptenClassName(m_field)},
-        {"COMMON", emscriptenHeaderCommonPublicFuncs()},
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)},
+        {"COMMON", emscriptenHeaderCommonPublicFuncsInternal()},
+        {"VALUE_ACC", emscriptenHeaderValueAccImpl()},
         {"EXTRA", std::move(extraFuncs)},
         {"PUBLIC", std::move(publicCode)},
         {"PROTECTED", std::move(protectedCode)},
@@ -431,11 +419,172 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "{\n"
         "    using Base = #^#COMMS_CLASS#$#;\n"
         "public:\n"
+        "    #^#CLASS_NAME#$##^#SUFFIX#$#* field();\n\n"
         "    #^#COMMON#$#\n"
         "};\n";
+
 
     return util::processTemplate(OptTempl, repl);
 }
 
+std::string EmscriptenField::emscriptenHeaderCommonPublicFuncsInternal() const
+{
+    static const std::string Templ = 
+        "comms::ErrorStatus read(const #^#DATA_BUF#$#& buf);\n"
+        "comms::ErrorStatus write(#^#DATA_BUF#$#& buf) const;\n"
+        "bool refresh();\n"
+        "std::size_t length();\n"
+        "bool valid() const;\n"
+        "const char* name() const;"
+        ;
+
+    auto& generator = EmscriptenGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(generator)}
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenField::emscriptenSourceIncludesInternal() const
+{
+    StringsList includes = {
+        "<emscripten/bind.h>",
+        emscriptenRelHeaderPath()
+    };
+
+    comms::prepareIncludeStatement(includes);
+    return util::strListToString(includes, "\n", "\n");
+}
+
+std::string EmscriptenField::emscriptenSourceCommonPublicFuncsInternal() const
+{
+    static const std::string Templ = 
+        "comms::ErrorStatus #^#CLASS_NAME#$##^#SUFFIX#$#::read(const #^#DATA_BUF#$#& buf)\n"
+        "{\n"
+        "    return Base::read(buf.begin(), buf.size());\n"
+        "}\n\n"
+        "comms::ErrorStatus #^#CLASS_NAME#$##^#SUFFIX#$#::write(#^#DATA_BUF#$#& buf) const\n"
+        "{\n"
+        "    return Base::write(buf.begin(), buf.size());\n"
+        "}\n\n"
+        "bool #^#CLASS_NAME#$##^#SUFFIX#$#::refresh()\n"
+        "{\n"
+        "    return Base::refresh();\n"
+        "}\n\n"
+        "std::size_t #^#CLASS_NAME#$##^#SUFFIX#$#::length()\n"
+        "{\n"
+        "    return Base::length();\n"
+        "}\n\n"
+        "bool #^#CLASS_NAME#$##^#SUFFIX#$#::valid() const\n"
+        "{\n"
+        "    return Base::valid();\n"
+        "}\n\n"
+        "const char* #^#CLASS_NAME#$##^#SUFFIX#$#::name() const"
+        "{\n"
+        "    return Base::name();\n"
+        "}\n\n"        
+        ;
+
+    auto& generator = EmscriptenGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)},
+        {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(generator)}
+    };
+
+    if (!emscriptenIsVersionOptional()) {
+        return util::processTemplate(Templ, repl);
+    }    
+
+
+    static const std::string OptTempl = 
+        "#^#FIELD#$#\n"
+        "#^#CLASS_NAME#$##^#SUFFIX#$#* #^#CLASS_NAME#$#::field()\n"
+        "{\n"
+        "    return static_cast<#^#CLASS_NAME#$##^#SUFFIX#$#*>(&(Base::field()));\n"
+        "}\n\n"
+        "#^#COMMON#$#\n";
+
+    util::ReplacementMap optRepl = {
+        {"COMMON", util::processTemplate(Templ, repl)}
+    };
+
+    repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    optRepl["FIELD"] = util::processTemplate(Templ, repl);
+    
+    return util::processTemplate(OptTempl, optRepl);
+}
+
+std::string EmscriptenField::emscriptenSourceBindInternal() const
+{
+    static const std::string Templ = 
+        "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$##^#SUFFIX#$#) {\n"
+        "    emscripten::class_<#^#CLASS_NAME#$##^#SUFFIX#$#>(\"#^#CLASS_NAME#$##^#SUFFIX#$#\")\n"
+        "        .constructor<>()\n"
+        "        .constructor<const #^#CLASS_NAME#$##^#SUFFIX#$#&>()\n"
+        "        #^#VALUE_ACC#$#\n"
+        "        #^#EXTRA#$#\n"
+        "        #^#COMMON#$#\n"
+        "        #^#CUSTOM#$#\n"
+        "        ;\n"
+        "}\n"
+        ;
+
+    auto& generator = EmscriptenGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)},
+        {"VALUE_ACC", emscriptenSourceBindValueAccImpl()},
+        {"EXTRA", emscriptenSourceExtraBindImpl()},
+        {"COMMON", emscriptenSourceBindCommonInternal()},
+        {"CUSTOM", util::readFileContents(generator.emspriptenInputAbsSourceFor(m_field) + strings::bindFileSuffixStr())}
+    };
+
+    if (!emscriptenIsVersionOptional()) {
+        return util::processTemplate(Templ, repl);
+    }
+
+    repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+
+    static const std::string OptTempl = 
+        "#^#FIELD#$#\n"
+        "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
+        "    emscripten::class_<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
+        "        .constructor<>()\n"
+        "        .constructor<const #^#CLASS_NAME#$#&>()\n"
+        "        .function(\"field\", &#^#CLASS_NAME#$#::field, emscripten::allow_raw_pointers())\n"
+        "        #^#COMMON#$#\n"
+        "        ;\n"
+        "}\n"; 
+
+    util::ReplacementMap optRepl = {
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)},
+        {"COMMON", emscriptenSourceBindCommonInternal(true)},
+        {"FIELD", util::processTemplate(Templ, repl)}
+    };
+
+    return util::processTemplate(OptTempl, optRepl);
+}
+
+std::string EmscriptenField::emscriptenSourceBindCommonInternal(bool skipVersionOptCheck) const
+{
+    static const std::string Templ = 
+        ".function(\"read\", &#^#CLASS_NAME#$#::read)\n"
+        ".function(\"write\", &#^#CLASS_NAME#$#::write)\n"
+        ".function(\"refresh\", &#^#CLASS_NAME#$#::refresh)\n"
+        ".function(\"length\", &#^#CLASS_NAME#$#::length)\n"
+        ".function(\"valid\", &#^#CLASS_NAME#$#::valid)"
+        ;
+
+    auto& generator = EmscriptenGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)},
+    };
+
+    if ((!skipVersionOptCheck) && (emscriptenIsVersionOptional())) {
+        repl["CLASS_NAME"].append(strings::versionOptionalFieldSuffixStr());
+    }
+
+    return util::processTemplate(Templ, repl);
+}
 
 } // namespace commsdsl2emscripten

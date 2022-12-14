@@ -56,16 +56,27 @@ public:
     std::string emscriptenTemplateScope() const;
 
 protected:
+    virtual void emscriptenHeaderMembersAddIncludesImpl(StringsList& incs) const;
     virtual std::string emscriptenHeaderMembersImpl() const;
+    virtual std::string emscriptenHeaderValueAccImpl() const;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
+    virtual std::string emscriptenSourceMembersImpl() const;
+    virtual std::string emscriptenSourceValueAccImpl() const;
+    virtual std::string emscriptenSourceExtraPublicFuncsImpl() const;
+    virtual std::string emscriptenSourceBindValueAccImpl() const;
+    virtual std::string emscriptenSourceExtraBindImpl() const;
 
-    std::string emscriptenHeaderCommonPublicFuncs() const;
-    
+
 private:
     bool emscriptenWriteHeaderInternal() const;
     bool emscriptenWriteSrcInternal() const;
     std::string emscriptenHeaderIncludesInternal() const;
     std::string emscriptenHeaderClassInternal() const;
+    std::string emscriptenHeaderCommonPublicFuncsInternal() const;    
+    std::string emscriptenSourceIncludesInternal() const;
+    std::string emscriptenSourceCommonPublicFuncsInternal() const;
+    std::string emscriptenSourceBindInternal() const;
+    std::string emscriptenSourceBindCommonInternal(bool skipVersionOptCheck = false) const;
 
     commsdsl::gen::Field& m_field;
 };

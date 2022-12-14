@@ -54,12 +54,12 @@ std::string EmscriptenDataBuf::emscriptenClassName(const EmscriptenGenerator& ge
 
 std::string EmscriptenDataBuf::emscriptenRelHeader(const EmscriptenGenerator& generator)
 {
-    return comms::relHeaderForRoot(ClassName, generator, false);
+    return generator.emscriptenRelHeaderForRoot(ClassName);
 }
 
 bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 {
-    auto filePath = comms::headerPathRoot(ClassName, m_generator);
+    auto filePath = m_generator.emscriptenAbsHeaderForRoot(ClassName);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {
@@ -142,7 +142,7 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 
 bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
 {
-    auto filePath = comms::sourcePathRoot(ClassName, m_generator);
+    auto filePath = m_generator.emscriptenAbsSourceForRoot(ClassName);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {
