@@ -63,12 +63,14 @@ protected:
     virtual std::string emscriptenHeaderValueAccImpl() const;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
     virtual std::string emscriptenSourceExtraPublicFuncsImpl() const;
-    virtual bool emscriptenSourceBindHasValueAccPropertyImpl() const;
+    virtual std::string emscriptenSourceBindValueAccImpl() const;
     virtual std::string emscriptenSourceBindFuncsImpl() const;
     virtual std::string emscriptenSourceBindExtraImpl() const;
 
     void emscriptenAssignMembers(const commsdsl::gen::Field::FieldsList& fields);
+    static std::string emscriptenHeaderValueAccByRef();
     static std::string emscriptenHeaderValueAccByValue();
+    std::string emscriptenSourceBindValueAcc(bool hasProperty = true) const;
 
     const EmscriptenFieldsList& emscriptenMembers() const
     {
@@ -86,7 +88,6 @@ private:
     std::string emscriptenSourceBindCommonInternal(bool skipVersionOptCheck = false) const;
     std::string emscriptenHeaderMembersInternal() const;
     std::string emscriptenSourceMembersInternal() const;
-    std::string emscriptenSourceBindValueAccInternal() const;
 
     commsdsl::gen::Field& m_field;
     EmscriptenFieldsList m_members;

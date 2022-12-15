@@ -195,17 +195,7 @@ void EmscriptenField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) co
 
 std::string EmscriptenField::emscriptenHeaderValueAccImpl() const
 {
-    static const std::string Templ = 
-        "const ValueType& getValue() const\n"
-        "{\n"
-        "    return Base::getValue();\n"
-        "}\n\n"
-        "void setValue(const ValueType& val) const\n"
-        "{\n"
-        "    Base::setValue(val);\n"
-        "}\n";        
-
-    return Templ;
+    return emscriptenHeaderValueAccByRef();
 }
 
 std::string EmscriptenField::emscriptenHeaderExtraPublicFuncsImpl() const
@@ -218,9 +208,9 @@ std::string EmscriptenField::emscriptenSourceExtraPublicFuncsImpl() const
     return strings::emptyString();
 }
 
-bool EmscriptenField::emscriptenSourceBindHasValueAccPropertyImpl() const
+std::string EmscriptenField::emscriptenSourceBindValueAccImpl() const
 {
-    return true;
+    return emscriptenSourceBindValueAcc();
 }
 
 std::string EmscriptenField::emscriptenSourceBindFuncsImpl() const
@@ -238,6 +228,21 @@ void EmscriptenField::emscriptenAssignMembers(const commsdsl::gen::Field::Fields
     m_members = emscriptenTransformFieldsList(fields);
 }
 
+std::string EmscriptenField::emscriptenHeaderValueAccByRef()
+{
+    static const std::string Templ = 
+        "const ValueType& getValue() const\n"
+        "{\n"
+        "    return Base::getValue();\n"
+        "}\n\n"
+        "void setValue(const ValueType& val) const\n"
+        "{\n"
+        "    Base::setValue(val);\n"
+        "}\n";        
+
+    return Templ;
+}
+
 std::string EmscriptenField::emscriptenHeaderValueAccByValue()
 {
     static const std::string Templ = 
@@ -251,6 +256,33 @@ std::string EmscriptenField::emscriptenHeaderValueAccByValue()
         "}\n";        
 
     return Templ;
+}
+
+
+std::string EmscriptenField::emscriptenSourceBindValueAcc(bool hasProperty) const
+{
+    static const std::string Templ = 
+        "#^#PROPERTY#$#\n"
+        ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue)\n"
+        ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
+        ;
+
+    auto& generator = EmscriptenGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", generator.emscriptenClassName(m_field)}
+    };
+
+    if (emscriptenIsVersionOptional()) {
+        repl["CLASS_NAME"].append(strings::versionOptionalFieldSuffixStr());
+    }
+
+    if (hasProperty) {
+        static const std::string PropTempl = 
+            ".property(\"value\", &#^#CLASS_NAME#$#::getValue, &#^#CLASS_NAME#$#::setValue)";
+        repl["PROPERTY"] = util::processTemplate(PropTempl, repl);
+    }
+
+    return util::processTemplate(Templ, repl);
 }
 
 bool EmscriptenField::emscriptenWriteHeaderInternal() const
@@ -504,7 +536,7 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", generator.emscriptenClassName(m_field)},
-        {"VALUE_ACC", emscriptenSourceBindValueAccInternal()},
+        {"VALUE_ACC", emscriptenSourceBindValueAccImpl()},
         {"FUNCS", emscriptenSourceBindFuncsImpl()},
         {"COMMON", emscriptenSourceBindCommonInternal()},
         {"CUSTOM", util::readFileContents(generator.emspriptenInputAbsSourceFor(m_field) + strings::bindFileSuffixStr())},
@@ -585,30 +617,5 @@ std::string EmscriptenField::emscriptenSourceMembersInternal() const
     return util::strListToString(members, "\n", "");    
 }
 
-std::string EmscriptenField::emscriptenSourceBindValueAccInternal() const
-{
-    static const std::string Templ = 
-        "#^#PROPERTY#$#\n"
-        ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue)\n"
-        ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
-        ;
-
-    auto& generator = EmscriptenGenerator::cast(m_field.generator());
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", generator.emscriptenClassName(m_field)}
-    };
-
-    if (emscriptenIsVersionOptional()) {
-        repl["CLASS_NAME"].append(strings::versionOptionalFieldSuffixStr());
-    }
-
-    if (emscriptenSourceBindHasValueAccPropertyImpl()) {
-        static const std::string PropTempl = 
-            ".property(\"value\", &#^#CLASS_NAME#$#::getValue, &#^#CLASS_NAME#$#::setValue)";
-        repl["PROPERTY"] = util::processTemplate(PropTempl, repl);
-    }
-
-    return util::processTemplate(Templ, repl);
-}
 
 } // namespace commsdsl2emscripten
