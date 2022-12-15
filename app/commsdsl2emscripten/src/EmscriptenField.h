@@ -62,15 +62,15 @@ protected:
     virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const;
     virtual std::string emscriptenHeaderValueAccImpl() const;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
-    virtual std::string emscriptenSourceValueAccImpl() const;
     virtual std::string emscriptenSourceExtraPublicFuncsImpl() const;
-    virtual std::string emscriptenSourceBindValueAccImpl() const;
+    virtual bool emscriptenSourceBindHasValueAccPropertyImpl() const;
     virtual std::string emscriptenSourceBindFuncsImpl() const;
     virtual std::string emscriptenSourceBindExtraImpl() const;
 
     void emscriptenAssignMembers(const commsdsl::gen::Field::FieldsList& fields);
+    static std::string emscriptenHeaderValueAccByValue();
 
-    const EmscriptenFieldsList& members() const
+    const EmscriptenFieldsList& emscriptenMembers() const
     {
         return m_members;
     }
@@ -82,11 +82,11 @@ private:
     std::string emscriptenHeaderClassInternal() const;
     std::string emscriptenHeaderCommonPublicFuncsInternal() const;    
     std::string emscriptenSourceIncludesInternal() const;
-    std::string emscriptenSourceCommonPublicFuncsInternal() const;
     std::string emscriptenSourceBindInternal() const;
     std::string emscriptenSourceBindCommonInternal(bool skipVersionOptCheck = false) const;
     std::string emscriptenHeaderMembersInternal() const;
     std::string emscriptenSourceMembersInternal() const;
+    std::string emscriptenSourceBindValueAccInternal() const;
 
     commsdsl::gen::Field& m_field;
     EmscriptenFieldsList m_members;
