@@ -57,6 +57,18 @@ std::string EmscriptenDataBuf::emscriptenRelHeader(const EmscriptenGenerator& ge
     return generator.emscriptenRelHeaderForRoot(ClassName);
 }
 
+const std::string& EmscriptenDataBuf::emscriptenMemViewFuncName()
+{
+    static const std::string Str("dataBufMemoryView");
+    return Str;
+}
+
+const std::string& EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()
+{
+    static const std::string Str("jsArrayToDataBuf");
+    return Str;
+}
+
 bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 {
     auto filePath = m_generator.emscriptenAbsHeaderForRoot(ClassName);
@@ -78,54 +90,16 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
         "#include <stdint>\n"
         "#include <vector>\n\n"
         "#include <emscripten/val.h>\n\n"
-        "// Extending standard vector just to add extra functions for bindings\n"
-        "class #^#CLASS_NAME#$# : public std::vector<std::uint8_t>\n"
-        "{\n"
-        "    using Base = std::vector<std::uint8_t>;\n\n"
-        "public:\n"
-        "    DataBuf() = default;\n"
-        "    DataBuf(const DataBuf&) = default;\n"
-        "    DataBuf(DataBuf&&) = default;\n\n"
-        "    // Use this constructor to convert from js array\n"
-        "    DataBuf(const emscripten::val& jsArray)\n"
-        "    {\n"
-        "        asVector() = emscripten::convertJSArrayToNumberVector<std::uint8_t>(jsArray);\n"
-        "    }\n\n"
-        "    ~DataBuf() = default;\n\n"
-        "    size_type size() const\n"
-        "    {\n"
-        "        return Base::size();\n"
-        "    }\n\n"
-        "    void resize(size_type val)\n"
-        "    {\n"
-        "        Base::resize(val);\n"
-        "    }\n\n"
-        "    value_type get(std::size_t idx)\n"
-        "    {\n"
-        "        return Base::at(idx);\n"
-        "    }\n\n"
-        "    void set(std::size_t idx, value_type val)\n"
-        "    {\n"
-        "        Base::at(idx) = val;\n"
-        "    }\n\n"
-        "    void push_back(value_type val)\n"
-        "    {\n"
-        "        Base::push_back(val);\n"
-        "    }\n\n"
-        "    const value_type* data() const\n"
-        "    {\n"
-        "        return Base::data();\n"
-        "    }\n\n"
-        "    Base& asVector()\n"
-        "    {\n"
-        "        return *this;\n"
-        "    }\n\n"
-        "};\n"
+        "using #^#CLASS_NAME#$# = std::vector<std::uint8_t>;\n\n"
+        "emscripten::val #^#MEM_VIEW#$#(const #^#CLASS_NAME#$#& buf);\n"
+        "#^#CLASS_NAME#$# #^#JS_ARRAY#$#(const emscripten::val& buf);\n"
         ;
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"MEM_VIEW", emscriptenMemViewFuncName()},
+        {"JS_ARRAY", emscriptenJsArrayToDataBufFuncName()},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
@@ -160,25 +134,27 @@ bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
         "#^#GENERATED#$#\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#include <emscripten/bind.h>\n\n"
-        "EMSCRIPTEN_BINDINGS(#^#NAME#$#) {\n"
-        "    emscripten::class_<#^#NAME#$#>(\"#^#NAME#$#\")\n"
-        "        .constructor<>()\n"
-        "        .constructor<const #^#NAME#$#&>()\n"
-        "        .constructor<const emscripten::val&>()\n"
-        "        .function(\"size\", &#^#NAME#$#::size)\n"
-        "        .function(\"resize\", &#^#NAME#$#::resize)\n"
-        "        .function(\"get\", &#^#NAME#$#::get)\n"
-        "        .function(\"set\", &#^#NAME#$#::set)\n"
-        "        .function(\"push_back\", &#^#NAME#$#::push_back)\n"
-        "        .function(\"data\", &#^#NAME#$#::data)\n"
-        "        ;\n"
+        "emscripten::val #^#MEM_VIEW#$#(const #^#CLASS_NAME#$#& buf)\n"
+        "{\n"
+        "    return emscripten::val(emscripten::typed_memory_view(buf.size(), buf.data()));\n"
+        "}\n\n"
+        "#^#CLASS_NAME#$# #^#JS_ARRAY#$#(const emscripten::val& val)\n"
+        "{\n"
+        "    return emscripten::convertJSArrayToNumberVector<std::uint8_t>(val);\n"
+        "}\n\n"
+        "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
+        "    emscripten::register_vector<std::uint8_t>(\"#^#CLASS_NAME#$#\");\n"
+        "    emscripten::function(\"#^#MEM_VIEW#$#\", &#^#MEM_VIEW#$#);\n"
+        "    emscripten::function(\"#^#JS_ARRAY#$#\", &#^#JS_ARRAY#$#);\n"
         "}\n"
         ;
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", emscriptenRelHeader(m_generator)},
-        {"NAME", emscriptenClassName(m_generator)},
+        {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"MEM_VIEW", emscriptenMemViewFuncName()},
+        {"JS_ARRAY", emscriptenJsArrayToDataBufFuncName()},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);

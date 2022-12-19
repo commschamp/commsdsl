@@ -99,6 +99,7 @@ bool Swig::swigWriteInternal()
 std::string Swig::swigCodeBlockInternal()
 {
     util::StringsList includes = {
+        "<iterator>",
         "comms/comms.h"
     };
 

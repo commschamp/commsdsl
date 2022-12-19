@@ -353,9 +353,8 @@ std::string SwigField::swigCommonPublicFuncsCode() const
         "using Base::write;\n"
         "#^#ERR_STATUS#$# write(#^#DATA_BUF#$#& buf) const\n"
         "{\n"
-        "    buf.resize(length());\n"
-        "    auto iter = buf.begin();\n"
-        "    return Base::write(iter, buf.size());\n"
+        "    auto iter = std::back_inserter(buf);\n"
+        "    return Base::write(iter, buf.max_size() - buf.size());\n"
         "}\n"
     ;
 

@@ -31,6 +31,8 @@ public:
     static bool emscriptenWrite(EmscriptenGenerator& generator);
     static std::string emscriptenClassName(const EmscriptenGenerator& generator);
     static std::string emscriptenRelHeader(const EmscriptenGenerator& generator);
+    static const std::string& emscriptenMemViewFuncName();
+    static const std::string& emscriptenJsArrayToDataBufFuncName();
 
 private:
     explicit EmscriptenDataBuf(EmscriptenGenerator& generator) : m_generator(generator) {}

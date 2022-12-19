@@ -364,6 +364,7 @@ std::string EmscriptenField::emscriptenHeaderIncludesInternal() const
 {
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
     StringsList includes = {
+        "<iterator>",
         comms::relHeaderPathFor(m_field, generator),
         EmscriptenDataBuf::emscriptenRelHeader(generator)
     };
@@ -472,13 +473,19 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
 std::string EmscriptenField::emscriptenHeaderCommonPublicFuncsInternal() const
 {
     static const std::string Templ = 
-        "comms::ErrorStatus read(const #^#DATA_BUF#$#& buf)\n"
+        "comms::ErrorStatus readDataBuf(const #^#DATA_BUF#$#& buf)\n"
         "{\n"
         "    return Base::read(buf.begin(), buf.size());\n"
-        "}\n\n"        
-        "comms::ErrorStatus write(#^#DATA_BUF#$#& buf) const\n"
+        "}\n\n"   
+        "comms::ErrorStatus readJsArray(const emscripten::val& jsArray)\n"
         "{\n"
-        "    return Base::write(buf.begin(), buf.size());\n"
+        "    auto dataBuf = #^#JS_ARRAY_FUNC#$#(jsArray);"
+        "    return readDataBuf(&dataBuf);\n"
+        "}\n\n"              
+        "comms::ErrorStatus writeDataBuf(#^#DATA_BUF#$#& buf) const\n"
+        "{\n"
+        "    auto iter = std::back_inserter(buf);\n"
+        "    return Base::write(inter, buf.max_size());\n"
         "}\n\n"        
         "bool refresh()\n"
         "{\n"
@@ -492,15 +499,16 @@ std::string EmscriptenField::emscriptenHeaderCommonPublicFuncsInternal() const
         "{\n"
         "    return Base::valid()\n"
         "}\n\n"
-        "const char* name() const"
+        "std::string name() const"
         "{\n"
-        "    return Base::name();\n"
+        "    return std::string(Base::name());\n"
         "}\n"
         ;
 
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
-        {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(generator)}
+        {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(generator)},
+        {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
     };
     
     return util::processTemplate(Templ, repl);
@@ -572,8 +580,9 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
 std::string EmscriptenField::emscriptenSourceBindCommonInternal(bool skipVersionOptCheck) const
 {
     static const std::string Templ = 
-        ".function(\"read\", &#^#CLASS_NAME#$#::read)\n"
-        ".function(\"write\", &#^#CLASS_NAME#$#::write)\n"
+        ".function(\"readDataBuf\", &#^#CLASS_NAME#$#::readDataBuf)\n"
+        ".function(\"readJsArray\", &#^#CLASS_NAME#$#::readJsArray)\n"
+        ".function(\"writeDataBuf\", &#^#CLASS_NAME#$#::writeDataBuf)\n"
         ".function(\"refresh\", &#^#CLASS_NAME#$#::refresh)\n"
         ".function(\"length\", &#^#CLASS_NAME#$#::length)\n"
         ".function(\"valid\", &#^#CLASS_NAME#$#::valid)"
