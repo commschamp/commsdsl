@@ -45,34 +45,14 @@ bool ToolsQtEnumField::writeImpl() const
 std::string ToolsQtEnumField::toolsExtraPropsImpl() const
 {
     util::StringsList props;
+    auto& revValues = sortedRevValues();
     auto obj = enumDslObj();
-    auto type = obj.type();
-    bool bigUnsigned =
-        (type == commsdsl::parse::EnumField::Type::Uint64) ||
-        (type == commsdsl::parse::EnumField::Type::Uintvar);
-
-    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
-    using SortedRevValues = std::vector<RevValueInfo>;
-    SortedRevValues sortedRevValues;
-    for (auto& v : obj.revValues()) {
-        sortedRevValues.push_back(std::make_pair(v.first, &v.second));
-    }
-
-    if (bigUnsigned) {
-        std::sort(
-            sortedRevValues.begin(), sortedRevValues.end(),
-            [](const auto& elem1, const auto& elem2) -> bool
-            {
-                return static_cast<std::uintmax_t>(elem1.first) < static_cast<std::uintmax_t>(elem2.first);
-            });
-    }
-
     auto& values = obj.values();
 
-    props.reserve(sortedRevValues.size());
+    props.reserve(revValues.size());
     std::intmax_t prevValue = 0;
     bool prevValueValid = false;
-    for (auto& rVal : sortedRevValues) {
+    for (auto& rVal : revValues) {
         if ((prevValueValid) && (prevValue == rVal.first)) {
             continue;
         }

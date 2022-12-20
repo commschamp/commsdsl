@@ -29,6 +29,7 @@ namespace commsdsl
 namespace gen
 {
 
+class EnumFieldImpl;
 class COMMSDSL_API EnumField : public Field
 {
     using Base = Field;
@@ -43,7 +44,19 @@ public:
 
     commsdsl::parse::EnumField enumDslObj() const;
 
+    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
+    using SortedRevValues = std::vector<RevValueInfo>;
+    const SortedRevValues& sortedRevValues() const;
+
+    std::string valueToString(std::intmax_t val) const;
+
+    bool hasValuesLimit() const;
+
+protected:    
+    virtual bool prepareImpl() override;
+
 private:
+    std::unique_ptr<EnumFieldImpl> m_impl;        
 };
 
 } // namespace gen

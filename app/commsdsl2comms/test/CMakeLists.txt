@@ -79,6 +79,8 @@ function (test_func name)
         )
     endif ()    
 
+    add_dependencies(${APP_NAME}.all_tests ${build_tgt})     
+
     set (tests "${test_dir}/${name}Test.th")
 
     set (testName "${APP_NAME}.${name}Test")
@@ -146,6 +148,9 @@ if (CMAKE_COMPILER_IS_GNUCC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER "7.9
 endif ()
 
 include(ExternalProject)
+
+add_custom_target(${APP_NAME}.all_tests
+    COMMAND ${CMAKE_COMMAND} -E echo "All ${APP_NAME} tests are built")
 
 test_func (test1)
 test_func (test2)

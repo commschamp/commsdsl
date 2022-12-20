@@ -65,6 +65,9 @@ const std::string& dataViewStr();
 const std::string& transportMessageSuffixStr();
 const std::string& unexpectedValueStr();
 const std::string& versionFileNameStr();
+const std::string& enumFirstValueStr();
+const std::string& enumLastValueStr();
+const std::string& enumValuesLimitStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

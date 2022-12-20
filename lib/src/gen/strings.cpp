@@ -333,6 +333,24 @@ const std::string& versionFileNameStr()
     return Str;      
 }
 
+const std::string& enumFirstValueStr()
+{
+    static const std::string Str("FirstValue");
+    return Str;
+}
+
+const std::string& enumLastValueStr()
+{
+    static const std::string Str("LastValue");
+    return Str;
+}
+
+const std::string& enumValuesLimitStr()
+{
+    static const std::string Str("ValuesLimit");
+    return Str;
+}
+
 char siblingRefPrefix()
 {
     return '$';
