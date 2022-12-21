@@ -69,7 +69,7 @@ bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
         "#include <emscripten/bind.h>\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "EMSCRIPTEN_BINDINGS(#^#NAME#$#) {\n"
-        "    enum_<#^#SCOPE#$#>(\"#^#NAME#$#\")\n"
+        "    emscripten::enum_<#^#SCOPE#$#>(\"#^#NAME#$#\")\n"
         "        #^#VALUES#$#\n"
         "        ;\n"
         "}\n"

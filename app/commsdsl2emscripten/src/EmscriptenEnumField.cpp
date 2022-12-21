@@ -39,13 +39,128 @@ EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, commsds
 std::string EmscriptenEnumField::emscriptenBindValues() const
 {
     StringsList result;
-    // TODO:
+
+    auto addValueBind = 
+        [this, &result](const std::string& name)
+        {
+            if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+                static const std::string Templ = 
+                    ".value(\"#^#NAME#$#\", #^#SCOPE#$#_#^#NAME#$#)";
+
+                util::ReplacementMap repl = {
+                    {"NAME", name},
+                    {"SCOPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), generator())}
+                };                    
+
+                result.push_back(util::processTemplate(Templ, repl));
+                return;
+            }
+
+            static const std::string Templ = 
+                ".value(\"#^#NAME#$#\", #^#SCOPE#$#::ValueType::#^#NAME#$#)";
+
+            util::ReplacementMap repl = {
+                {"NAME", name},
+                {"SCOPE", comms::scopeFor(*this, generator())}
+            };
+
+            result.push_back(util::processTemplate(Templ, repl));
+        };
+
+    auto& revValues = sortedRevValues();
+    result.reserve(revValues.size() + 3);
+    auto obj = enumDslObj();
+    auto& values = obj.values();
+
+    for (auto& v : revValues) {
+        auto iter = values.find(*v.second);
+        if (iter == values.end()) {
+            static constexpr bool Should_not_happen = false;
+            static_cast<void>(Should_not_happen);
+            assert(Should_not_happen);
+            continue;
+        }
+
+        bool exists =
+            generator().doesElementExist(
+                iter->second.m_sinceVersion,
+                iter->second.m_deprecatedSince,
+                false);
+
+        if (!exists) {
+            continue;
+        }
+
+        addValueBind(iter->first);
+    }
+
+    addValueBind(firstValueStr());
+    addValueBind(lastValueStr());
+    if (hasValuesLimit()) {
+        addValueBind(valuesLimitStr());
+    }
+
     return util::strListToString(result, "\n", "");
 }
 
 bool EmscriptenEnumField::writeImpl() const
 {
     return emscriptenWrite();
+}
+
+std::string EmscriptenEnumField::emscriptenHeaderValueAccImpl() const
+{
+    return emscriptenHeaderValueAccByValue();
+}
+
+std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
+{
+    static const std::string Templ = 
+        "static std::string valueNameOf(ValueType val)\n"
+        "{\n"
+        "    return std::string(Base::valueNameOf(val));\n"
+        "}\n\n"        
+        "/// @brief Retrieve name of the @b current value\n"
+        "std::string valueName() const\n"
+        "{\n"
+        "    return std::string(Base::valueName());\n"
+        "}\n";       
+    return Templ;
+}
+
+std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
+{
+    static const std::string Templ = 
+        ".class_function(\"valueNameOf\", &#^#SCOPE#$#::valueNameOf)\n"
+        ".function(\"valueName\", &#^#SCOPE#$#::valueName)";
+
+    util::ReplacementMap repl = {
+        {"SCOPE", comms::scopeFor(*this, generator())}
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
+{
+    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+        // The bindings for MsgId are created separately
+        return strings::emptyString();    
+    }
+
+    static const std::string Templ = 
+        "emscripten::enum_<#^#SCOPE#$#::ValueType>(\"#^#CLASS_NAME#$#_ValueType\")\n"
+        "    #^#VALUES#$#\n"
+        "   ;\n";
+
+    auto& gen = EmscriptenGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.emscriptenClassName(*this)},
+        {"SCOPE", comms::scopeFor(*this, gen)},
+        {"VALUES", emscriptenBindValues()}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten
