@@ -41,6 +41,7 @@ public:
     bool isUnsignedUnderlyingType() const;
     unsigned hexWidth() const;
     std::string valueName(std::intmax_t value) const;
+    std::string adjustName(const std::string& val) const;
 
     commsdsl::parse::EnumField enumDslObj() const;
 
@@ -51,6 +52,10 @@ public:
     std::string valueToString(std::intmax_t val) const;
 
     bool hasValuesLimit() const;
+
+    std::string firstValueStr() const;
+    std::string lastValueStr() const;
+    std::string valuesLimitStr() const;
 
 protected:    
     virtual bool prepareImpl() override;

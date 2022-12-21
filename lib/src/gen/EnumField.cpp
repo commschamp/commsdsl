@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <cstring>
 
 namespace commsdsl
 {
@@ -105,6 +106,23 @@ public:
         return static_cast<unsigned>(hexWidth);
     }
 
+    std::string adjustName(const std::string& val) const
+    {
+        std::string result = val;        
+        adjustFirstLetterInName(result);
+
+        auto& values = m_dslObj.values();        
+        while (true) {
+            if (values.find(result) == values.end()) {
+                break;
+            }
+
+            result += '_';
+        }        
+
+        return result;
+    }
+
     std::string valueToString(std::intmax_t val) const
     {
         unsigned hexW = hexWidth();
@@ -132,6 +150,23 @@ public:
     }
 
 private:
+    void adjustFirstLetterInName(std::string& val) const
+    {
+        auto& firstElem = m_sortedRevValues.front();
+        assert(firstElem.second != nullptr);
+        assert(!firstElem.second->empty());
+        auto firstLetter = firstElem.second->front();
+        bool useLower = (std::tolower(firstLetter) == static_cast<int>(firstLetter));
+
+        if (!useLower) {
+            assert(!val.empty());
+            assert(val[0] == static_cast<char>(std::toupper(val[0])));
+            return;
+        }        
+
+        val[0] = static_cast<char>(std::tolower(val[0]));
+    }
+
     commsdsl::parse::EnumField m_dslObj;
     SortedRevValues m_sortedRevValues;       
     bool m_bigUnsigned = false;
@@ -168,6 +203,11 @@ std::string EnumField::valueName(std::intmax_t value) const
     return strings::emptyString();
 }
 
+std::string EnumField::adjustName(const std::string& val) const
+{
+    return m_impl->adjustName(val);
+}
+
 commsdsl::parse::EnumField EnumField::enumDslObj() const
 {
     return commsdsl::parse::EnumField(dslObj());
@@ -186,6 +226,21 @@ std::string EnumField::valueToString(std::intmax_t val) const
 bool EnumField::hasValuesLimit() const
 {
     return m_impl->hasValuesLimit();
+}
+
+std::string EnumField::firstValueStr() const
+{
+    return adjustName(strings::enumFirstValueStr());
+}
+
+std::string EnumField::lastValueStr() const
+{
+    return adjustName(strings::enumLastValueStr());
+}
+
+std::string EnumField::valuesLimitStr() const
+{
+    return adjustName(strings::enumValuesLimitStr());
 }
 
 bool EnumField::prepareImpl()

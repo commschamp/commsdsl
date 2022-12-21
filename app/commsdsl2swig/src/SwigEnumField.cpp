@@ -83,56 +83,19 @@ SwigEnumField::StringsList SwigEnumField::swigEnumValues() const
     }
 
     if (!revValues.empty()) {
-        auto addNameSuffixFunc =
-            [&values](const std::string& n) -> std::string
-            {
-                std::string suffix;
-                while (true) {
-                    auto s = n + suffix;
-                    if (values.find(s) == values.end()) {
-                        return s;
-                    }
-
-                    suffix += '_';
-                }
-            };
-
-        auto& firstElem = revValues.front();
-        assert(firstElem.second != nullptr);
-        assert(!firstElem.second->empty());
-        auto firstLetter = firstElem.second->front();
-        bool useLower = (std::tolower(firstLetter) == static_cast<int>(firstLetter));
-
-        auto adjustFirstLetterNameFunc =
-            [useLower](const std::string& s)
-            {
-                if (!useLower) {
-                    assert(!s.empty());
-                    assert(s[0] == static_cast<char>(std::toupper(s[0])));
-                    return s;
-                }
-
-                auto sCpy = s;
-                assert(!s.empty());
-                sCpy[0] = static_cast<char>(std::tolower(sCpy[0]));
-                return sCpy;
-            };
-
         auto createValueStrFunc =
-            [this, &adjustFirstLetterNameFunc, &addNameSuffixFunc](const std::string& n, std::intmax_t val, const std::string& doc) -> std::string
+            [this](const std::string& n, std::intmax_t val, const std::string& doc) -> std::string
             {
-                return
-                    adjustFirstLetterNameFunc(addNameSuffixFunc(n)) + " = " +
-                    valueToString(val) + ", // " + doc;
+                return n + " = " + valueToString(val) + ", // " + doc;
 
             };
 
         valuesStrings.push_back("\n// --- Extra values generated for convenience ---");
-        valuesStrings.push_back(createValueStrFunc(strings::enumFirstValueStr(), revValues.front().first, "First defined value."));
-        valuesStrings.push_back(createValueStrFunc(strings::enumLastValueStr(), revValues.back().first, "Last defined value."));
+        valuesStrings.push_back(createValueStrFunc(firstValueStr(), revValues.front().first, "First defined value."));
+        valuesStrings.push_back(createValueStrFunc(lastValueStr(), revValues.back().first, "Last defined value."));
 
         if (hasValuesLimit()) {
-            valuesStrings.push_back(createValueStrFunc(strings::enumValuesLimitStr(), revValues.back().first + 1, "Upper limit for defined values."));
+            valuesStrings.push_back(createValueStrFunc(valuesLimitStr(), revValues.back().first + 1, "Upper limit for defined values."));
         }
     }
 
