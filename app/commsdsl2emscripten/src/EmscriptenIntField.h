@@ -40,6 +40,12 @@ protected:
     virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
+    std::string emscriptenHeaderSpecialsInternal() const;
+    std::string emscriptenHeaderDisplayDecimalsInternal() const;
+    std::string emscriptenHeaderScaledInternal() const;
+    std::string emscriptenSourceSpecialsBindInternal() const;
+    std::string emscriptenSourceDisplayDecimalsBindInternal() const;
+    std::string emscriptenSourceScaledBindInternal() const;
 };
 
 } // namespace commsdsl2emscripten

@@ -57,7 +57,7 @@ std::string SwigIntField::swigValueTypeDeclImpl() const
 std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
 {
     static const std::string Templ = 
-        "bool hasSpecials();\n"
+        "static bool hasSpecials();\n"
         "#^#SCPECIALS#$#\n"
         "#^#DISPLAY_DECIMALS#$#\n"
         "#^#SCALED#$#\n";
@@ -148,10 +148,10 @@ std::string SwigIntField::swigScaledFuncsCodeInternal() const
         return strings::emptyString();
     }
         
-    std::string Templ = {
+    static const std::string Templ = 
         "double getScaled() const { return Base::getScaled<double>(); }\n"
         "void setScaled(double val) {Base::setScaled(val); }\n"
-    };
+    ;
 
     return Templ;        
 }
