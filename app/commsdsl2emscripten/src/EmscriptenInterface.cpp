@@ -43,6 +43,12 @@ EmscriptenInterface::EmscriptenInterface(EmscriptenGenerator& generator, commsds
 
 EmscriptenInterface::~EmscriptenInterface() = default;
 
+std::string EmscriptenInterface::emscriptenRelHeader() const
+{
+    auto& gen = EmscriptenGenerator::cast(generator());
+    return gen.emscriptenRelHeaderFor(*this);
+}
+
 bool EmscriptenInterface::prepareImpl()
 {
     if (!Base::prepareImpl()) {
