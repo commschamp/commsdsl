@@ -71,7 +71,7 @@ std::string EmscriptenIntField::emscriptenSourceBindFuncsImpl() const
     static const std::string Templ = 
         "#^#SCPECIALS#$#\n"
         "#^#DISPLAY_DECIMALS#$#\n"
-        "#^#SCALED#$#";
+        "#^#SCALED#$#\n";
 
     util::ReplacementMap repl = {
         {"SPECIALS", emscriptenSourceSpecialsBindInternal()},
@@ -172,12 +172,8 @@ std::string EmscriptenIntField::emscriptenSourceSpecialsBindInternal() const
     util::StringsList specialsList;
     auto& gen = EmscriptenGenerator::cast(generator());
     util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.emscriptenClassName(*this)}
+        {"CLASS_NAME", emscriptenBindClassName()}
     };
-
-    if (emscriptenIsVersionOptional()) {
-        repl["CLASS_NAME"].append(strings::versionOptionalFieldSuffixStr());
-    }
 
     for (auto& s : specials) {
         if (!gen.doesElementExist(s.second.m_sinceVersion, s.second.m_deprecatedSince, true)) {
@@ -212,9 +208,8 @@ std::string EmscriptenIntField::emscriptenSourceDisplayDecimalsBindInternal() co
         static const std::string Templ = 
             ".class_function(\"displayDecimals\", &#^#CLASS_NAME#$#::displayDecimals)";
 
-        auto& gen = EmscriptenGenerator::cast(generator());
         util::ReplacementMap repl = {
-            {"CLASS_NAME", gen.emscriptenClassName(*this)}
+            {"CLASS_NAME", emscriptenBindClassName()}
         };
 
         result = util::processTemplate(Templ, repl);
@@ -238,9 +233,8 @@ std::string EmscriptenIntField::emscriptenSourceScaledBindInternal() const
         ".function(\"getScaled\", &#^#CLASS_NAME#$#::getScaled)\n"
         ".function(\"setScaled\", &#^#CLASS_NAME#$#::setScaled)";
 
-    auto& gen = EmscriptenGenerator::cast(generator());
     util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.emscriptenClassName(*this)}
+        {"CLASS_NAME", emscriptenBindClassName()}
     };
 
     return util::processTemplate(Templ, repl);    

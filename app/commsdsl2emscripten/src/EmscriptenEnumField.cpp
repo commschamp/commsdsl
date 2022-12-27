@@ -57,11 +57,11 @@ std::string EmscriptenEnumField::emscriptenBindValues() const
             }
 
             static const std::string Templ = 
-                ".value(\"#^#NAME#$#\", #^#SCOPE#$#::ValueType::#^#NAME#$#)";
+                ".value(\"#^#NAME#$#\", #^#CLASS_NAME#$#::ValueType::#^#NAME#$#)";
 
             util::ReplacementMap repl = {
                 {"NAME", name},
-                {"SCOPE", comms::scopeFor(*this, generator())}
+                {"CLASS_NAME", emscriptenBindClassName()}
             };
 
             result.push_back(util::processTemplate(Templ, repl));
@@ -131,11 +131,11 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
 std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
 {
     static const std::string Templ = 
-        ".class_function(\"valueNameOf\", &#^#SCOPE#$#::valueNameOf)\n"
-        ".function(\"valueName\", &#^#SCOPE#$#::valueName)";
+        ".class_function(\"valueNameOf\", &#^#CLASS_NAME#$#::valueNameOf)\n"
+        ".function(\"valueName\", &#^#CLASS_NAME#$#::valueName)";
 
     util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeFor(*this, generator())}
+        {"CLASS_NAME", emscriptenBindClassName()}
     };
     
     return util::processTemplate(Templ, repl);
@@ -149,14 +149,12 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
     }
 
     static const std::string Templ = 
-        "emscripten::enum_<#^#SCOPE#$#::ValueType>(\"#^#CLASS_NAME#$#_ValueType\")\n"
+        "emscripten::enum_<#^#CLASS_NAME#$#::ValueType>(\"#^#CLASS_NAME#$#_ValueType\")\n"
         "    #^#VALUES#$#\n"
         "   ;\n";
 
-    auto& gen = EmscriptenGenerator::cast(generator());
     util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.emscriptenClassName(*this)},
-        {"SCOPE", comms::scopeFor(*this, gen)},
+        {"CLASS_NAME", emscriptenBindClassName()},
         {"VALUES", emscriptenBindValues()}
     };
 

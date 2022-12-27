@@ -285,6 +285,18 @@ std::string EmscriptenField::emscriptenSourceBindValueAcc(bool hasProperty) cons
     return util::processTemplate(Templ, repl);
 }
 
+std::string EmscriptenField::emscriptenBindClassName(bool checkVersionOptional) const
+{
+    auto& gen = EmscriptenGenerator::cast(m_field.generator());
+    auto result = gen.emscriptenClassName(m_field);
+
+    if (checkVersionOptional && emscriptenIsVersionOptional()) {
+        result.append(strings::versionOptionalFieldSuffixStr());
+    }    
+
+    return result;
+}
+
 bool EmscriptenField::emscriptenWriteHeaderInternal() const
 {
     auto& generator = EmscriptenGenerator::cast(m_field.generator());
@@ -424,6 +436,7 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "{\n"
         "    using Base = #^#COMMS_CLASS#$##^#SUFFIX#$#;\n"
         "public:\n"
+        "    using ValueType = Base::ValueType;\n\n"
         "    #^#CLASS_NAME#$##^#SUFFIX#$#() = default;\n"
         "    #^#CLASS_NAME#$##^#SUFFIX#$#(const #^#CLASS_NAME#$##^#SUFFIX#$#&) = default;\n"
         "    ~#^#CLASS_NAME#$##^#SUFFIX#$#() = default;\n\n"
@@ -457,7 +470,7 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "#^#FIELD#$#\n"
         "class #^#CLASS_NAME#$# : public #^#COMMS_CLASS#$#\n"
         "{\n"
-        "    using Base = #^#COMMS_CLASS#$#;\n"
+        "    using Base = #^#COMMS_CLASS#$#;\n\n"
         "public:\n"
         "    #^#CLASS_NAME#$##^#SUFFIX#$#* field()\n"
         "    {\n"
@@ -479,7 +492,7 @@ std::string EmscriptenField::emscriptenHeaderCommonPublicFuncsInternal() const
         "}\n\n"   
         "comms::ErrorStatus readJsArray(const emscripten::val& jsArray)\n"
         "{\n"
-        "    auto dataBuf = #^#JS_ARRAY_FUNC#$#(jsArray);"
+        "    auto dataBuf = #^#JS_ARRAY_FUNC#$#(jsArray);\n"
         "    return readDataBuf(&dataBuf);\n"
         "}\n\n"              
         "comms::ErrorStatus writeDataBuf(#^#DATA_BUF#$#& buf) const\n"
@@ -491,7 +504,7 @@ std::string EmscriptenField::emscriptenHeaderCommonPublicFuncsInternal() const
         "{\n"
         "    return Base::refresh();\n"
         "}\n\n"
-        "std::size_t length() const"
+        "std::size_t length() const\n"
         "{\n"
         "    return Base::length();\n"
         "}\n\n"
@@ -499,7 +512,7 @@ std::string EmscriptenField::emscriptenHeaderCommonPublicFuncsInternal() const
         "{\n"
         "    return Base::valid()\n"
         "}\n\n"
-        "std::string name() const"
+        "std::string name() const\n"
         "{\n"
         "    return std::string(Base::name());\n"
         "}\n"

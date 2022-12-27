@@ -77,6 +77,8 @@ protected:
         return m_members;
     }
 
+    std::string emscriptenBindClassName(bool checkVersionOptional = true) const;
+
 private:
     bool emscriptenWriteHeaderInternal() const;
     bool emscriptenWriteSrcInternal() const;
