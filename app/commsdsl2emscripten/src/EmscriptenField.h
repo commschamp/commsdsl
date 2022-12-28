@@ -78,6 +78,8 @@ protected:
     }
 
     std::string emscriptenBindClassName(bool checkVersionOptional = true) const;
+    std::string emscriptenMembersAccessFuncs() const;
+    std::string emscriptenMembersBindFuncs() const;
 
 private:
     bool emscriptenWriteHeaderInternal() const;

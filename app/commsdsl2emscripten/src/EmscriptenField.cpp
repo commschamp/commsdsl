@@ -185,6 +185,10 @@ std::string EmscriptenField::emscriptenSourceCode() const
 
 void EmscriptenField::emscriptenHeaderAddExtraIncludes(StringsList& incs) const
 {
+    for (auto* m : m_members) {
+        m->emscriptenHeaderAddExtraIncludes(incs);
+    }
+
     emscriptenHeaderAddExtraIncludesImpl(incs);
 }
 
@@ -295,6 +299,47 @@ std::string EmscriptenField::emscriptenBindClassName(bool checkVersionOptional) 
     }    
 
     return result;
+}
+
+std::string EmscriptenField::emscriptenMembersAccessFuncs() const
+{
+    auto& gen = EmscriptenGenerator::cast(m_field.generator());
+    util::StringsList fields;
+    for (auto* f : emscriptenMembers()) {
+        static const std::string Templ = 
+            "#^#FIELD_CLASS#$#* field_#^#NAME#$#()"
+            "{\n"
+            "    return static_cast<#^#FIELD_CLASS#$#*>(&Base::field_#^#NAME#$#());\n"
+            "}\n";
+
+        util::ReplacementMap repl = {
+            {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
+            {"NAME", comms::accessName(f->field().dslObj().name())},
+        };
+
+        fields.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(fields, "\n", "");
+}
+
+std::string EmscriptenField::emscriptenMembersBindFuncs() const
+{
+    util::StringsList fields;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()},
+    };
+
+    for (auto* f : emscriptenMembers()) {
+        static const std::string Templ = 
+            ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#)";
+
+        repl["NAME"] = comms::accessName(f->field().dslObj().name());
+        fields.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(fields, "\n", "");
 }
 
 bool EmscriptenField::emscriptenWriteHeaderInternal() const
@@ -436,7 +481,6 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "{\n"
         "    using Base = #^#COMMS_CLASS#$##^#SUFFIX#$#;\n"
         "public:\n"
-        "    using ValueType = Base::ValueType;\n\n"
         "    #^#CLASS_NAME#$##^#SUFFIX#$#() = default;\n"
         "    #^#CLASS_NAME#$##^#SUFFIX#$#(const #^#CLASS_NAME#$##^#SUFFIX#$#&) = default;\n"
         "    ~#^#CLASS_NAME#$##^#SUFFIX#$#() = default;\n\n"

@@ -51,4 +51,24 @@ bool EmscriptenBitfieldField::writeImpl() const
     return emscriptenWrite();
 }
 
+std::string EmscriptenBitfieldField::emscriptenHeaderValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenBitfieldField::emscriptenHeaderExtraPublicFuncsImpl() const
+{
+    return emscriptenMembersAccessFuncs();
+}
+
+std::string EmscriptenBitfieldField::emscriptenSourceBindValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenBitfieldField::emscriptenSourceBindFuncsImpl() const
+{
+    return emscriptenMembersBindFuncs();
+}
+
 } // namespace commsdsl2emscripten

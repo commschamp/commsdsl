@@ -36,6 +36,10 @@ protected:
     virtual bool writeImpl() const override;    
 
     // EmscriptenBase overrides
+    virtual std::string emscriptenHeaderValueAccImpl() const override;
+    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
+    virtual std::string emscriptenSourceBindValueAccImpl() const override;
+    virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
 };
