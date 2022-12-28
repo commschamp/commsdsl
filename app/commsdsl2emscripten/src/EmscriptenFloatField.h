@@ -35,8 +35,13 @@ protected:
     virtual bool writeImpl() const override;    
 
     // EmscriptenBase overrides
+    virtual std::string emscriptenHeaderValueAccImpl() const override;
+    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
+    virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
+    std::string emscriptenHeaderSpecialsInternal() const;
+    std::string emscriptenSourceSpecialsBindInternal() const;
 };
 
 } // namespace commsdsl2emscripten
