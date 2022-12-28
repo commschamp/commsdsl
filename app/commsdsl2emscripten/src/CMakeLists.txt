@@ -12,6 +12,7 @@ set (src
     EmscriptenIntField.cpp
     EmscriptenListField.cpp
     EmscriptenMessage.cpp
+    EmscriptenMsgHandler.cpp
     EmscriptenMsgId.cpp
     EmscriptenOptionalField.cpp
     EmscriptenProgramOptions.cpp

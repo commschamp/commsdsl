@@ -49,6 +49,16 @@ protected:
 private:
     using EmscriptenFieldsList = EmscriptenField::EmscriptenFieldsList;
 
+    bool emscriptenWriteHeaderInternal() const;
+    bool emscriptenWriteSourceInternal() const; 
+
+    std::string emscriptenHeaderIncludesInternal() const;
+    std::string emscriptenHeaderFieldsInternal() const;
+    std::string emscriptenHeaderClassInternal() const;
+    std::string emscriptenHeaderBaseInternal() const;
+    std::string emscriptenSourceFieldsInternal() const;
+    std::string emscriptenSourceCodeInternal() const;       
+
     EmscriptenFieldsList m_emscriptenFields;        
 };
 

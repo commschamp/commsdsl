@@ -144,9 +144,7 @@ std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
 {
     auto& gen = EmscriptenGenerator::cast(generator());
     util::StringsList includes = {
-        "<iterator>",
         comms::relHeaderPathFor(*this, gen),
-        EmscriptenDataBuf::emscriptenRelHeader(gen)
     };
 
     EmscriptenProtocolOptions::emscriptenAddInclude(gen, includes);
@@ -154,6 +152,11 @@ std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
     includes.push_back(iFace->emscriptenRelHeader());
+
+    if (!m_emscriptenFields.empty()) {
+        includes.push_back("<iterator>");
+        includes.push_back(EmscriptenDataBuf::emscriptenRelHeader(gen));
+    }
 
     for (auto* f : m_emscriptenFields) {
         f->emscriptenHeaderAddExtraIncludes(includes);
@@ -237,7 +240,6 @@ std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
-        {"COMMS_SCOPE", comms::scopeFor(*this, gen)}
     };
 
     util::StringsList fields;
@@ -251,7 +253,7 @@ std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
 
     static const std::string Templ = 
         "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
-        "    emscripten::class_<#^#COMMS_SCOPE#$#, emscripten::base<#^#INTERFACE#$#> >(\"#^#CLASS_NAME#$#\")\n"
+        "    emscripten::class_<#^#CLASS_NAME#$#, emscripten::base<#^#INTERFACE#$#> >(\"#^#CLASS_NAME#$#\")\n"
         "        .constructor<>()\n"
         "        .constructor<const #^#CLASS_NAME#$#&>()\n"
         "        #^#FIELDS#$#\n"

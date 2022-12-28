@@ -493,7 +493,7 @@ std::string EmscriptenField::emscriptenHeaderCommonPublicFuncsInternal() const
         "comms::ErrorStatus readJsArray(const emscripten::val& jsArray)\n"
         "{\n"
         "    auto dataBuf = #^#JS_ARRAY_FUNC#$#(jsArray);\n"
-        "    return readDataBuf(&dataBuf);\n"
+        "    return readDataBuf(dataBuf);\n"
         "}\n\n"              
         "comms::ErrorStatus writeDataBuf(#^#DATA_BUF#$#& buf) const\n"
         "{\n"

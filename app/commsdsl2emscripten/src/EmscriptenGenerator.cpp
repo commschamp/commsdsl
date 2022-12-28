@@ -32,7 +32,7 @@
 #include "EmscriptenIntField.h"
 #include "EmscriptenListField.h"
 #include "EmscriptenMessage.h"
-// #include "EmscriptenMsgHandler.h"
+#include "EmscriptenMsgHandler.h"
 #include "EmscriptenMsgId.h"
 // #include "EmscriptenNamespace.h"
 #include "EmscriptenOptionalField.h"
@@ -216,7 +216,7 @@ bool EmscriptenGenerator::writeImpl()
         EmscriptenComms::emscriptenWrite(*this) &&
         EmscriptenDataBuf::emscriptenWrite(*this) &&
         EmscriptenProtocolOptions::emscriptenWrite(*this) &&
-        // EmscriptenMsgHandler::emscriptenWrite(*this) &&
+        EmscriptenMsgHandler::emscriptenWrite(*this) &&
         // EmscriptenCmake::emscriptenWrite(*this) &&
         emscriptenWriteExtraFilesInternal();
 
