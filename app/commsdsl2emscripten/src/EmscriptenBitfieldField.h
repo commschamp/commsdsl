@@ -40,8 +40,6 @@ protected:
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
     virtual std::string emscriptenSourceBindValueAccImpl() const override;
     virtual std::string emscriptenSourceBindFuncsImpl() const override;
-
-private:
 };
 
 } // namespace commsdsl2emscripten

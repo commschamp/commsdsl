@@ -307,7 +307,7 @@ std::string EmscriptenField::emscriptenMembersAccessFuncs() const
     util::StringsList fields;
     for (auto* f : emscriptenMembers()) {
         static const std::string Templ = 
-            "#^#FIELD_CLASS#$#* field_#^#NAME#$#()"
+            "#^#FIELD_CLASS#$#* field_#^#NAME#$#()\n"
             "{\n"
             "    return static_cast<#^#FIELD_CLASS#$#*>(&Base::field_#^#NAME#$#());\n"
             "}\n";

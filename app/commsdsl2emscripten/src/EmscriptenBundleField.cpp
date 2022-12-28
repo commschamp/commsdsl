@@ -51,4 +51,24 @@ bool EmscriptenBundleField::writeImpl() const
     return emscriptenWrite();
 }
 
+std::string EmscriptenBundleField::emscriptenHeaderValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenBundleField::emscriptenHeaderExtraPublicFuncsImpl() const
+{
+    return emscriptenMembersAccessFuncs();
+}
+
+std::string EmscriptenBundleField::emscriptenSourceBindValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenBundleField::emscriptenSourceBindFuncsImpl() const
+{
+    return emscriptenMembersBindFuncs();
+}
+
 } // namespace commsdsl2emscripten
