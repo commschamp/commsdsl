@@ -271,14 +271,9 @@ std::string EmscriptenField::emscriptenSourceBindValueAcc(bool hasProperty) cons
         ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
         ;
 
-    auto& generator = EmscriptenGenerator::cast(m_field.generator());
     util::ReplacementMap repl = {
-        {"CLASS_NAME", generator.emscriptenClassName(m_field)}
+        {"CLASS_NAME", emscriptenBindClassName()}
     };
-
-    if (emscriptenIsVersionOptional()) {
-        repl["CLASS_NAME"].append(strings::versionOptionalFieldSuffixStr());
-    }
 
     if (hasProperty) {
         static const std::string PropTempl = 

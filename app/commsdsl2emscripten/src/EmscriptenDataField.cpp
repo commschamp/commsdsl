@@ -15,6 +15,7 @@
 
 #include "EmscriptenDataField.h"
 
+#include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -39,6 +40,63 @@ EmscriptenDataField::EmscriptenDataField(EmscriptenGenerator& generator, commsds
 bool EmscriptenDataField::writeImpl() const
 {
     return emscriptenWrite();
+}
+
+std::string EmscriptenDataField::emscriptenHeaderValueAccImpl() const
+{
+    static const std::string Templ = 
+        "const ValueType* getValue() const\n"
+        "{\n"
+        "    return &Base::getValue();\n"
+        "}\n\n"
+        "void setValue(const ValueType& val)\n"
+        "{\n"
+        "    Base::setValue(val);\n"
+        "}\n";
+
+    return Templ;
+}
+
+std::string EmscriptenDataField::emscriptenHeaderExtraPublicFuncsImpl() const
+{
+    static const std::string Templ = 
+        "void assignJsArray(const emscripten::val& jsArray)\n"
+        "{\n"
+        "    Base::value() = #^#JS_ARRAY_FUNC#$#(jsArray);"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenDataField::emscriptenSourceBindValueAccImpl() const
+{
+    static const std::string Templ = 
+        ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue, emscripten::allow_raw_pointers())\n"
+        ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenDataField::emscriptenSourceBindFuncsImpl() const
+{
+    static const std::string Templ = 
+        ".function(\"assignJsArray\", &#^#CLASS_NAME#$#::assignJsArray)"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()}
+    };
+
+    return util::processTemplate(Templ, repl);    
 }
 
 } // namespace commsdsl2emscripten

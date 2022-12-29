@@ -35,8 +35,6 @@ protected:
     virtual bool writeImpl() const override;    
 
     // EmscriptenBase overrides
-
-private:
 };
 
 } // namespace commsdsl2emscripten
