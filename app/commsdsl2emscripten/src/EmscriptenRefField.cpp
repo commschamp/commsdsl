@@ -41,4 +41,56 @@ bool EmscriptenRefField::writeImpl() const
     return emscriptenWrite();
 }
 
+void EmscriptenRefField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+{
+    auto* refField = EmscriptenField::cast(referencedField());
+    assert(refField != nullptr);
+    incs.push_back(refField->emscriptenRelHeaderPath());
+}
+
+std::string EmscriptenRefField::emscriptenHeaderValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
+{
+    static const std::string Templ = 
+        "#^#REF_FIELD#$#* ref()\n"
+        "{\n"
+        "    return\n"
+        "        static_cast<#^#REF_FIELD#$#*>(\n"
+        "            static_cast<#^#REF_BASE#$#*>(this));\n"
+        "}\n";
+
+    auto& gen = EmscriptenGenerator::cast(generator());
+    auto* refField = EmscriptenField::cast(referencedField());
+    assert(refField != nullptr);
+
+    util::ReplacementMap repl = {
+        {"REF_FIELD", gen.emscriptenClassName(refField->field())},
+        {"REF_BASE", refField->emscriptenTemplateScope()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenRefField::emscriptenSourceBindValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenRefField::emscriptenSourceBindFuncsImpl() const
+{
+    static const std::string Templ = 
+        ".function(\"ref\", &#^#CLASS_NAME#$#::ref, emscripten::allow_raw_pointers())";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+
 } // namespace commsdsl2emscripten

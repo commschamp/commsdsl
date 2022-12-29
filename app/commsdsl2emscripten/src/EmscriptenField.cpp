@@ -317,7 +317,6 @@ std::string EmscriptenField::emscriptenSourceBindValueAcc() const
 std::string EmscriptenField::emscriptenSourceBindValueAccByPointer() const
 {
     static const std::string Templ = 
-        ".property(\"value\", &#^#CLASS_NAME#$#::getValue, &#^#CLASS_NAME#$#::setValue)\n"
         ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue, emscripten::allow_raw_pointers())\n"
         ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
         ;
