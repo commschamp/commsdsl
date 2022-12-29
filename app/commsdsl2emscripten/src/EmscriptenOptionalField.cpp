@@ -36,9 +36,125 @@ EmscriptenOptionalField::EmscriptenOptionalField(EmscriptenGenerator& generator,
 {
 }
 
+bool EmscriptenOptionalField::prepareImpl()
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    auto* memField = memberField();
+    if (memField != nullptr) {
+        emscriptenAddMember(memField);
+        m_field = EmscriptenField::cast(memField);
+        return true;
+    }    
+
+    m_field = EmscriptenField::cast(externalField());
+    assert(m_field != nullptr);
+    return true;
+}
+
 bool EmscriptenOptionalField::writeImpl() const
 {
     return emscriptenWrite();
+}
+
+void EmscriptenOptionalField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+{
+    auto* extField = externalField();
+    if (extField == nullptr) {
+        return;
+    }
+
+    auto* emsciptenField = EmscriptenField::cast(extField);
+    assert(emsciptenField != nullptr);
+    incs.push_back(emsciptenField->emscriptenRelHeaderPath());
+}
+
+std::string EmscriptenOptionalField::emscriptenHeaderValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenOptionalField::emscriptenHeaderExtraPublicFuncsImpl() const
+{
+    static const std::string Templ = 
+        "#^#FIELD#$#* field()\n"
+        "{\n"
+        "    return static_cast<#^#FIELD#$#*>(#^#PTR#$#);\n"
+        "}\n\n"
+        "Mode getMode() const\n"
+        "{\n"
+        "    return Base::getMode();\n"
+        "}\n\n"        
+        "void setMode(Mode val)\n"
+        "{\n"
+        "    Base::setMode(val);\n"
+        "}\n\n"        
+        "bool isTentative() const\n"
+        "{\n"
+        "    return Base::isTentative();\n"
+        "}\n\n"
+        "void setTentative()\n"
+        "{\n"
+        "    Base::setTentative();\n"
+        "}\n\n"
+        "bool doesExist() const\n"
+        "{\n"
+        "    return Base::doesExist();\n"
+        "}\n\n"        
+        "void setExists()\n"
+        "{\n"
+        "    Base::setExists();\n"
+        "}\n\n"
+        "bool isMissing() const\n"
+        "{\n"
+        "    return Base::isMissing();\n"
+        "}\n\n"        
+        "void setMissing()\n"
+        "{\n"
+        "    Base::setMissing();\n"
+        "}\n\n";
+
+    auto& gen = EmscriptenGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"FIELD", gen.emscriptenClassName(m_field->field())}
+    };     
+
+    if (memberField() != nullptr) {
+        repl["PTR"] = "&Base::field()";
+    }
+    else {
+        repl["PTR"] = "static_cast<" + m_field->emscriptenTemplateScope() + "*>(&Base::field())";
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenOptionalField::emscriptenSourceBindValueAccImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string EmscriptenOptionalField::emscriptenSourceBindFuncsImpl() const
+{
+    static const std::string Templ = 
+        ".function(\"field\", &#^#CLASS_NAME#$#::field, emscripten::allow_raw_pointers())\n"
+        ".function(\"getMode\", &#^#CLASS_NAME#$#::getMode)\n"
+        ".function(\"setMode\", &#^#CLASS_NAME#$#::setMode)\n"
+        ".function(\"isTentative\", &#^#CLASS_NAME#$#::isTentative)\n"
+        ".function(\"setTentative\", &#^#CLASS_NAME#$#::setTentative)\n"
+        ".function(\"doesExist\", &#^#CLASS_NAME#$#::doesExist)\n"
+        ".function(\"setExists\", &#^#CLASS_NAME#$#::setExists)\n"
+        ".function(\"isMissing\", &#^#CLASS_NAME#$#::isMissing)\n"
+        ".function(\"setMissing\", &#^#CLASS_NAME#$#::setMissing)"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten

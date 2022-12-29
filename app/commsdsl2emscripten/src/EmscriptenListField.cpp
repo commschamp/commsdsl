@@ -44,7 +44,7 @@ bool EmscriptenListField::prepareImpl()
 
     auto* memElement = memberElementField();
     if (memElement != nullptr) {
-        emscriptenAddMember(memberElementField());
+        emscriptenAddMember(memElement);
         m_element = EmscriptenField::cast(memElement);
         return true;
     }
