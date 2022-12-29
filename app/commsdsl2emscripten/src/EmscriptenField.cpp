@@ -55,6 +55,17 @@ const EmscriptenField* EmscriptenField::cast(const commsdsl::gen::Field* field)
     return emscriptenField;
 }
 
+EmscriptenField* EmscriptenField::cast(commsdsl::gen::Field* field)
+{
+    if (field == nullptr) {
+        return nullptr;
+    }
+
+    auto* emscriptenField = dynamic_cast<EmscriptenField*>(field);    
+    assert(emscriptenField != nullptr);
+    return emscriptenField;
+}
+
 EmscriptenField::EmscriptenFieldsList EmscriptenField::emscriptenTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
 {
     EmscriptenFieldsList result;
@@ -232,6 +243,17 @@ void EmscriptenField::emscriptenAssignMembers(const commsdsl::gen::Field::Fields
     m_members = emscriptenTransformFieldsList(fields);
 }
 
+void EmscriptenField::emscriptenAddMember(commsdsl::gen::Field* field)
+{
+    if (field == nullptr) {
+        return;
+    }
+
+    auto* emscriptenField = cast(field);
+    assert(emscriptenField != nullptr);
+    m_members.push_back(emscriptenField);
+}
+
 std::string EmscriptenField::emscriptenHeaderValueAccByRef()
 {
     static const std::string Templ = 
@@ -262,11 +284,25 @@ std::string EmscriptenField::emscriptenHeaderValueAccByValue()
     return Templ;
 }
 
-
-std::string EmscriptenField::emscriptenSourceBindValueAcc(bool hasProperty) const
+std::string EmscriptenField::emscriptenHeaderValueAccByPointer()
 {
     static const std::string Templ = 
-        "#^#PROPERTY#$#\n"
+        "const ValueType* getValue() const\n"
+        "{\n"
+        "    return &Base::getValue();\n"
+        "}\n\n"
+        "void setValue(const ValueType& val) const\n"
+        "{\n"
+        "    Base::setValue(val);\n"
+        "}\n";        
+
+    return Templ;
+}
+
+std::string EmscriptenField::emscriptenSourceBindValueAcc() const
+{
+    static const std::string Templ = 
+        ".property(\"value\", &#^#CLASS_NAME#$#::getValue, &#^#CLASS_NAME#$#::setValue)\n"
         ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue)\n"
         ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
         ;
@@ -275,11 +311,20 @@ std::string EmscriptenField::emscriptenSourceBindValueAcc(bool hasProperty) cons
         {"CLASS_NAME", emscriptenBindClassName()}
     };
 
-    if (hasProperty) {
-        static const std::string PropTempl = 
-            ".property(\"value\", &#^#CLASS_NAME#$#::getValue, &#^#CLASS_NAME#$#::setValue)";
-        repl["PROPERTY"] = util::processTemplate(PropTempl, repl);
-    }
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenField::emscriptenSourceBindValueAccByPointer() const
+{
+    static const std::string Templ = 
+        ".property(\"value\", &#^#CLASS_NAME#$#::getValue, &#^#CLASS_NAME#$#::setValue)\n"
+        ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue, emscripten::allow_raw_pointers())\n"
+        ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()}
+    };
 
     return util::processTemplate(Templ, repl);
 }
@@ -422,6 +467,8 @@ std::string EmscriptenField::emscriptenHeaderIncludesInternal() const
     };
 
     EmscriptenProtocolOptions::emscriptenAddInclude(generator, includes);
+
+    emscriptenHeaderAddExtraIncludes(includes);
 
     for (auto* m : m_members) {
         m->emscriptenHeaderAddExtraIncludes(includes);

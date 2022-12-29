@@ -35,6 +35,7 @@ public:
     virtual ~EmscriptenField();
 
     static const EmscriptenField* cast(const commsdsl::gen::Field* field);
+    static EmscriptenField* cast(commsdsl::gen::Field* field);
     static EmscriptenFieldsList emscriptenTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
 
     commsdsl::gen::Field& field()
@@ -68,9 +69,12 @@ protected:
     virtual std::string emscriptenSourceBindExtraImpl() const;
 
     void emscriptenAssignMembers(const commsdsl::gen::Field::FieldsList& fields);
+    void emscriptenAddMember(commsdsl::gen::Field* field);
     static std::string emscriptenHeaderValueAccByRef();
     static std::string emscriptenHeaderValueAccByValue();
-    std::string emscriptenSourceBindValueAcc(bool hasProperty = true) const;
+    static std::string emscriptenHeaderValueAccByPointer();
+    std::string emscriptenSourceBindValueAcc() const;
+    std::string emscriptenSourceBindValueAccByPointer() const;
 
     const EmscriptenFieldsList& emscriptenMembers() const
     {

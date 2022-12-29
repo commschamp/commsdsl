@@ -36,9 +36,78 @@ EmscriptenListField::EmscriptenListField(EmscriptenGenerator& generator, commsds
 {
 }
 
+bool EmscriptenListField::prepareImpl()
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    auto* memElement = memberElementField();
+    if (memElement != nullptr) {
+        emscriptenAddMember(memberElementField());
+        m_element = EmscriptenField::cast(memElement);
+        return true;
+    }
+    
+    m_element = EmscriptenField::cast(externalElementField());
+    assert(m_element != nullptr);
+    return true;
+}
+
 bool EmscriptenListField::writeImpl() const
 {
     return emscriptenWrite();
+}
+
+void EmscriptenListField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+{
+    auto* extElement = externalElementField();
+    if (extElement == nullptr) {
+        return;
+    }
+
+    auto* emsciptenField = EmscriptenField::cast(extElement);
+    assert(emsciptenField != nullptr);
+    incs.push_back(emsciptenField->emscriptenRelHeaderPath());
+}
+
+std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
+{
+    static const std::string Templ = 
+        "using ValueType = std::vector<#^#ELEMENT#$#>;\n\n"
+        "const ValueType* getValue() const\n"
+        "{\n"
+        "    return reinterpret_cast<const ValueType*>(&Base::getValue());\n"
+        "}\n\n"
+        "void setValue(const ValueType& val) const\n"
+        "{\n"
+        "    Base::setValue(reinterpret_cast<Base::ValueType&>(val));\n"
+        "}\n";        
+
+    assert(m_element != nullptr);
+    auto& gen = EmscriptenGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"ELEMENT", gen.emscriptenClassName(m_element->field())},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
+{
+    return emscriptenSourceBindValueAccByPointer();
+}
+
+std::string EmscriptenListField::emscriptenSourceBindExtraImpl() const
+{
+    static const std::string Templ = 
+        "emscripten::register_vector<#^#CLASS_NAME#$#::ValueType>(\"#^#CLASS_NAME#$#_ValueType\");";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2emscripten

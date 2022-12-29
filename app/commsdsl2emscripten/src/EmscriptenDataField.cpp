@@ -44,17 +44,7 @@ bool EmscriptenDataField::writeImpl() const
 
 std::string EmscriptenDataField::emscriptenHeaderValueAccImpl() const
 {
-    static const std::string Templ = 
-        "const ValueType* getValue() const\n"
-        "{\n"
-        "    return &Base::getValue();\n"
-        "}\n\n"
-        "void setValue(const ValueType& val)\n"
-        "{\n"
-        "    Base::setValue(val);\n"
-        "}\n";
-
-    return Templ;
+    return emscriptenHeaderValueAccByPointer();
 }
 
 std::string EmscriptenDataField::emscriptenHeaderExtraPublicFuncsImpl() const
@@ -74,16 +64,7 @@ std::string EmscriptenDataField::emscriptenHeaderExtraPublicFuncsImpl() const
 
 std::string EmscriptenDataField::emscriptenSourceBindValueAccImpl() const
 {
-    static const std::string Templ = 
-        ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue, emscripten::allow_raw_pointers())\n"
-        ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
-        ;
-
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", emscriptenBindClassName()}
-    };
-
-    return util::processTemplate(Templ, repl);
+    return emscriptenSourceBindValueAccByPointer();
 }
 
 std::string EmscriptenDataField::emscriptenSourceBindFuncsImpl() const

@@ -32,11 +32,17 @@ public:
 
 protected:
     // Base overrides
+    virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
 
     // EmscriptenBase overrides
-
+    virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const override;
+    virtual std::string emscriptenHeaderValueAccImpl() const override;
+    virtual std::string emscriptenSourceBindValueAccImpl() const override;
+    virtual std::string emscriptenSourceBindExtraImpl() const override;
+    
 private:
+    const EmscriptenField* m_element = nullptr;
 };
 
 } // namespace commsdsl2emscripten
