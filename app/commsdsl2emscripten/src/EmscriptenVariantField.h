@@ -36,8 +36,19 @@ protected:
     virtual bool writeImpl() const override;    
 
     // EmscriptenBase overrides
+    virtual std::string emscriptenHeaderExtraCodePrefixImpl() const override;
+    virtual std::string emscriptenHeaderValueAccImpl() const override;
+    virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const override;
+    virtual std::string emscriptenSourceExtraCodeImpl() const override;
+    virtual std::string emscriptenSourceBindValueAccImpl() const override;
+    virtual std::string emscriptenSourceBindFuncsImpl() const override;
 
 private:
+    std::string emscriptenHeaderMembersAccessInternal() const;
+    std::string emscriptenHandlerClassInternal() const;
+    std::string emscriptenHandlerWrapperClassInternal() const;
+    std::string emscriptenSourceWrapperFuncsInternal() const;
+    std::string emscriptenSourceWrapperBindsInternal() const;
 };
 
 } // namespace commsdsl2emscripten

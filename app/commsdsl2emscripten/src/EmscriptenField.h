@@ -61,9 +61,10 @@ public:
 
 protected:
     virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const;
+    virtual std::string emscriptenHeaderExtraCodePrefixImpl() const;
     virtual std::string emscriptenHeaderValueAccImpl() const;
     virtual std::string emscriptenHeaderExtraPublicFuncsImpl() const;
-    virtual std::string emscriptenSourceExtraPublicFuncsImpl() const;
+    virtual std::string emscriptenSourceExtraCodeImpl() const;
     virtual std::string emscriptenSourceBindValueAccImpl() const;
     virtual std::string emscriptenSourceBindFuncsImpl() const;
     virtual std::string emscriptenSourceBindExtraImpl() const;

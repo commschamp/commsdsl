@@ -257,7 +257,8 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
 std::string EmscriptenMsgHandler::emscriptenSourceWrapperClassInternal() const
 {
     const std::string Templ = 
-        "struct #^#WRAPPER#$# : public emscripten::wrapper<#^#CLASS_NAME#$#> {\n"
+        "struct #^#WRAPPER#$# : public emscripten::wrapper<#^#CLASS_NAME#$#>\n"
+        "{\n"
         "    EMSCRIPTEN_WRAPPER(#^#WRAPPER#$#);\n\n"
         "    #^#FUNCS#$#\n"
         "};\n";

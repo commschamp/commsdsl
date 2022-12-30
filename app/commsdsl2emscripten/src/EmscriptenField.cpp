@@ -117,11 +117,13 @@ std::string EmscriptenField::emscriptenHeaderClass() const
 {
     static const std::string Templ = 
         "#^#MEMBERS#$#\n"
+        "#^#EXTRA#$#\n"
         "#^#DEF#$#\n"
     ;
 
     util::ReplacementMap repl = {
         {"MEMBERS", emscriptenHeaderMembersInternal()},
+        {"EXTRA", emscriptenHeaderExtraCodePrefixImpl()},
         {"DEF", emscriptenHeaderClassInternal()},
     };
 
@@ -187,7 +189,7 @@ std::string EmscriptenField::emscriptenSourceCode() const
 
     util::ReplacementMap repl = {
         {"MEMBERS", emscriptenSourceMembersInternal()},
-        {"EXTRA", emscriptenSourceExtraPublicFuncsImpl()},
+        {"EXTRA", emscriptenSourceExtraCodeImpl()},
         {"BIND", emscriptenSourceBindInternal()},
     };
 
@@ -208,6 +210,11 @@ void EmscriptenField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) co
     static_cast<void>(incs);
 }
 
+std::string EmscriptenField::emscriptenHeaderExtraCodePrefixImpl() const
+{
+    return strings::emptyString();
+}
+
 std::string EmscriptenField::emscriptenHeaderValueAccImpl() const
 {
     return emscriptenHeaderValueAccByRef();
@@ -218,7 +225,7 @@ std::string EmscriptenField::emscriptenHeaderExtraPublicFuncsImpl() const
     return strings::emptyString();
 }
 
-std::string EmscriptenField::emscriptenSourceExtraPublicFuncsImpl() const
+std::string EmscriptenField::emscriptenSourceExtraCodeImpl() const
 {
     return strings::emptyString();
 }
