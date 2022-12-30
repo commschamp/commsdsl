@@ -38,6 +38,14 @@ private:
     bool emscriptenWriteHeaderInternal() const;
     bool emscriptenWriteSrcInternal() const;
 
+    std::string emscriptenHeaderIncludesInternal() const;
+    std::string emscriptenHeaderHandleFuncsInternal() const;
+    std::string emscriptenSourceHandleFuncsInternal() const;
+    std::string emscriptenSourceWrapperClassInternal() const;
+    std::string emscriptenSourceWrapperFuncsInternal() const;
+    std::string emscriptenSourceBindInternal() const;
+    std::string emscriptenSourceBindFuncsInternal() const;
+
     EmscriptenGenerator& m_generator;
 };
 

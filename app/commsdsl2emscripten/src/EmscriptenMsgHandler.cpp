@@ -15,7 +15,11 @@
 
 #include "EmscriptenMsgHandler.h"
 
+#include "EmscriptenAllMessages.h"
 #include "EmscriptenGenerator.h"
+#include "EmscriptenInterface.h"
+#include "EmscriptenMessage.h"
+#include "EmscriptenProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -35,6 +39,7 @@ namespace
 {
 
 const std::string ClassName("MsgHandler");
+const std::string WrapperClassName(ClassName + "Wrapper");
 
 } // namespace 
     
@@ -75,12 +80,31 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
 
     const std::string Templ = 
         "#^#GENERATED#$#\n\n"
-        // TODO
+        "#^#INCLUDES#$#\n"
+        "class #^#CLASS_NAME#$#\n"
+        "{\n"
+        "public:\n"
+        "    #^#CLASS_NAME#$#() = default;\n"
+        "    virtual ~#^#CLASS_NAME#$#() = default;\n\n"
+        "    #^#FUNCS#$#\n"
+        "    void handle(#^#COMMS_INTERFACE#$#& msg)\n"
+        "    {\n"
+        "        handle_#^#INTERFACE#$#(&msg);\n"
+        "    }\n\n"
+        "    virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#* msg);\n"
+        "};\n"
         ;
+
+    auto* iFace = m_generator.emscriptenMainInterface();
+    assert(iFace != nullptr);
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"INCLUDES", emscriptenHeaderIncludesInternal()},
+        {"COMMS_INTERFACE", comms::scopeFor(*iFace, m_generator)},
+        {"INTERFACE", m_generator.emscriptenClassName(*iFace)},
+        {"FUNCS", emscriptenHeaderHandleFuncsInternal()},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
@@ -113,14 +137,22 @@ bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
     const std::string Templ = 
         "#^#GENERATED#$#\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
-        "#include <emscripten/bind.h>\n\n"
-        // TODO
+        "#include <emscripten/bind.h>\n"
+        "#include <emscripten/val.h>\n"
+        "#include \"#^#ALL_MESSAGES#$#\"\n\n"
+        "#^#FUNCS#$#\n"
+        "#^#WRAPPER#$#\n"
+        "#^#BIND#$#\n"
         ;
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", emscriptenRelHeader(m_generator)},
         {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"ALL_MESSAGES", EmscriptenAllMessages::emscriptenRelHeader(m_generator)},
+        {"FUNCS", emscriptenSourceHandleFuncsInternal()},
+        {"WRAPPER", emscriptenSourceWrapperClassInternal()},
+        {"BIND", emscriptenSourceBindInternal()},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
@@ -132,6 +164,200 @@ bool EmscriptenMsgHandler::emscriptenWriteSrcInternal() const
     }
 
     return true;
+}
+
+std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
+{
+    auto* iFace = m_generator.emscriptenMainInterface();
+    assert(iFace != nullptr);
+
+    util::StringsList includes = {
+        comms::relHeaderForInput(strings::allMessagesStr(), m_generator),
+        EmscriptenAllMessages::emscriptenRelFwdHeader(m_generator),
+        iFace->emscriptenRelHeader()
+    };
+
+    comms::prepareIncludeStatement(includes);
+    return util::strListToString(includes, "\n", "\n");
+}
+
+std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
+{
+    auto* iFace = m_generator.emscriptenMainInterface();
+    assert(iFace != nullptr);
+
+    util::ReplacementMap repl = {
+        {"INTERFACE", m_generator.emscriptenClassName(*iFace)},
+    };
+
+    if (EmscriptenProtocolOptions::emscriptenIsDefined(m_generator)) {
+        repl["PROT_OPTS"] = ", " + EmscriptenProtocolOptions::emscriptenClassName(m_generator);
+    }
+    
+    util::StringsList funcs;
+
+    auto allMessages = m_generator.getAllMessagesIdSorted();
+    funcs.reserve(allMessages.size());
+    
+    for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+
+        static const std::string Templ = 
+            "void handle(#^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg)\n"
+            "{\n"
+            "    handle_#^#CLASS_NAME#$#(&msg);\n"
+            "}\n\n"
+            "virtual void handle_#^#CLASS_NAME#$#(#^#CLASS_NAME#$#* msg);\n";
+
+        repl["COMMS_CLASS"] = comms::scopeFor(*m, m_generator);
+        repl["CLASS_NAME"] = m_generator.emscriptenClassName(*m);
+        funcs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(funcs, "\n", "\n");
+}
+
+std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
+{
+    auto* iFace = m_generator.emscriptenMainInterface();
+    assert(iFace != nullptr);
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"INTERFACE", m_generator.emscriptenClassName(*iFace)},
+    };
+
+    util::StringsList funcs;
+
+    auto allMessages = m_generator.getAllMessagesIdSorted();
+    funcs.reserve(allMessages.size() + 1U);
+    
+    for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+
+        static const std::string Templ = 
+            "void #^#CLASS_NAME#$#::handle_#^#MSG_CLASS#$#(#^#MSG_CLASS#$#* msg) { handle_#^#INTERFACE#$#(msg); }\n";
+
+        repl["MSG_CLASS"] = m_generator.emscriptenClassName(*m);
+        funcs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string InterfaceTempl = 
+        "void #^#CLASS_NAME#$#::handle_#^#INTERFACE#$#(#^#INTERFACE#$#* msg) { static_cast<void>(msg); }\n";
+
+
+    funcs.push_back(util::processTemplate(InterfaceTempl, repl));
+    return util::strListToString(funcs, "", "\n");
+}
+
+std::string EmscriptenMsgHandler::emscriptenSourceWrapperClassInternal() const
+{
+    const std::string Templ = 
+        "struct #^#WRAPPER#$# : public emscripten::wrapper<#^#CLASS_NAME#$#> {\n"
+        "    EMSCRIPTEN_WRAPPER(#^#WRAPPER#$#);\n\n"
+        "    #^#FUNCS#$#\n"
+        "};\n";
+
+    util::ReplacementMap repl = {
+        {"WRAPPER", m_generator.emscriptenScopeNameForRoot(WrapperClassName)},
+        {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"FUNCS", emscriptenSourceWrapperFuncsInternal()},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenMsgHandler::emscriptenSourceWrapperFuncsInternal() const
+{
+    const std::string Templ = 
+        "virtual void handle_#^#TYPE#$#(#^#TYPE#$#* msg) override\n"
+        "{\n"
+        "    call<void>(\"handle_#^#TYPE#$#\", emscripten::val(msg));\n"
+        "}\n";
+
+
+    util::StringsList funcs;
+
+    auto allMessages = m_generator.getAllMessagesIdSorted();
+    funcs.reserve(allMessages.size() + 1U);
+    
+    for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+
+        util::ReplacementMap repl = {
+            {"TYPE", m_generator.emscriptenClassName(*m)}
+        };
+
+        funcs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    auto* iFace = m_generator.emscriptenMainInterface();
+    assert(iFace != nullptr);
+
+    util::ReplacementMap repl = {
+        {"TYPE", m_generator.emscriptenClassName(*iFace)}
+    };    
+
+    funcs.push_back(util::processTemplate(Templ, repl));
+    return util::strListToString(funcs, "\n", "\n");
+}
+
+std::string EmscriptenMsgHandler::emscriptenSourceBindInternal() const
+{
+    const std::string Templ = 
+        "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
+        "    emscripten::class_<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
+        "        .constructor<>()\n"
+        "        .allow_subclass<#^#WRAPPER#$#>(\"#^#WRAPPER#$#\")\n"
+        "        #^#FUNCS#$#\n"
+        "        ;\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"WRAPPER", m_generator.emscriptenScopeNameForRoot(WrapperClassName)},
+        {"FUNCS", emscriptenSourceBindFuncsInternal()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
+{
+    const std::string Templ = 
+        ".function(\"handle_#^#TYPE#$#\", emscripten::optional_override([](#^#HANDLER#$#& self, #^#TYPE#$#* msg) { return self.#^#HANDLER#$#::handle_#^#TYPE#$#(msg);}), emscripten::allow_raw_pointers())";
+
+    util::ReplacementMap repl = {
+        {"HANDLER", emscriptenClassName(m_generator)},
+    };
+
+    util::StringsList funcs;
+
+    auto allMessages = m_generator.getAllMessagesIdSorted();
+    funcs.reserve(allMessages.size() + 1U);
+    
+    for (auto* m : allMessages) {
+        if (!m->isReferenced()) {
+            continue;
+        }
+
+        repl["TYPE"] = m_generator.emscriptenClassName(*m);
+        funcs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    auto* iFace = m_generator.emscriptenMainInterface();
+    assert(iFace != nullptr);
+
+    repl["TYPE"] = m_generator.emscriptenClassName(*iFace);
+    funcs.push_back(util::processTemplate(Templ, repl));
+
+    return util::strListToString(funcs, "\n", "");
 }
 
 } // namespace commsdsl2emscripten
