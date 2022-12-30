@@ -42,6 +42,12 @@ EmscriptenMessage::EmscriptenMessage(EmscriptenGenerator& generator, commsdsl::p
 
 EmscriptenMessage::~EmscriptenMessage() = default;
 
+std::string EmscriptenMessage::emscriptenRelHeader() const
+{
+    auto& gen = EmscriptenGenerator::cast(generator());
+    return gen.emscriptenRelHeaderFor(*this);
+}
+
 bool EmscriptenMessage::prepareImpl()
 {
     if (!Base::prepareImpl()) {

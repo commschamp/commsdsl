@@ -40,6 +40,8 @@ public:
         return static_cast<const EmscriptenMessage*>(i);
     }
 
+    std::string emscriptenRelHeader() const;
+
 protected:
     virtual bool prepareImpl() override;    
     virtual bool writeImpl() const override;

@@ -1,4 +1,5 @@
 set (src
+    EmscriptenAllMessages.cpp
     EmscriptenBitfieldField.cpp
     EmscriptenBundleField.cpp
     EmscriptenComms.cpp

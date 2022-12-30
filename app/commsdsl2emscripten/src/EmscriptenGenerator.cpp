@@ -15,7 +15,7 @@
 
 #include "EmscriptenGenerator.h"
 
-// #include "Emscripten.h"
+#include "EmscriptenAllMessages.h"
 #include "EmscriptenBitfieldField.h"
 #include "EmscriptenBundleField.h"
 // #include "EmscriptenChecksumLayer.h"
@@ -216,6 +216,7 @@ bool EmscriptenGenerator::writeImpl()
         EmscriptenComms::emscriptenWrite(*this) &&
         EmscriptenDataBuf::emscriptenWrite(*this) &&
         EmscriptenProtocolOptions::emscriptenWrite(*this) &&
+        EmscriptenAllMessages::emscriptenWrite(*this) &&
         EmscriptenMsgHandler::emscriptenWrite(*this) &&
         // EmscriptenCmake::emscriptenWrite(*this) &&
         emscriptenWriteExtraFilesInternal();
