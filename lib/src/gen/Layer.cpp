@@ -15,7 +15,13 @@
 // limitations under the License.
 
 #include "commsdsl/gen/Layer.h"
+
+#include "commsdsl/gen/CustomLayer.h"
+#include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <cassert>
 #include <algorithm>
@@ -209,6 +215,76 @@ const Generator& Layer::generator() const
 bool Layer::forceCommsOrder(LayersAccessList& layers, bool& success) const
 {
     return forceCommsOrderImpl(layers, success);
+}
+
+std::string Layer::templateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const
+{
+    auto commsScope = comms::scopeFor(*this, generator());
+    std::string optionsParams = "<" + protOptionsStr + ">";
+
+    auto* parent = getParent();
+    assert(parent != nullptr);
+    assert(parent->elemType() == commsdsl::gen::Elem::Type_Frame);
+
+    auto optLevelScope = comms::scopeFor(*parent, generator()) + strings::layersSuffixStr();
+    assert(optLevelScope.size() < commsScope.size());
+    assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
+    
+    auto result = optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
+
+    auto* frame = static_cast<const Frame*>(parent);
+    bool success = true;
+    auto allLayers = frame->getCommsOrderOfLayers(success);
+    static_cast<void>(success);
+    assert(success);
+
+    auto iter = 
+        std::find_if(
+            allLayers.begin(), allLayers.end(), 
+            [this](const auto* l)
+            {
+                return this == l;
+            });
+
+    if (iter == allLayers.end()) {
+        assert(false); // Mustn't happen
+        return result;
+    }
+
+    auto addIdParams = 
+        [&iFaceStr, &allMessagesStr, &result]()
+        {
+            static const std::string Templ = 
+                "<#^#INTERFACE#$#, #^#ALL_MESSAGES#$#>";
+
+            util::ReplacementMap repl = {
+                {"INTERFACE", iFaceStr},
+                {"ALL_MESSAGES", allMessagesStr}
+            };
+
+            result += util::processTemplate(Templ, repl);
+        };
+
+    for (auto iterTmp = iter; iterTmp != allLayers.end(); ++iterTmp) {
+        auto kind = (*iterTmp)->dslObj().kind();
+        if (kind == commsdsl::parse::Layer::Kind::Id) {
+            addIdParams();
+            break;
+        }
+
+        if (kind != commsdsl::parse::Layer::Kind::Custom) {
+            continue;
+        }
+
+        auto& customLayer = static_cast<const CustomLayer&>(**iterTmp);
+        auto customKind = customLayer.customDslObj().semanticLayerType();
+        if (customKind == commsdsl::parse::Layer::Kind::Id) {
+            addIdParams();
+            break;            
+        }
+    }
+
+    return result;
 }
 
 Elem::Type Layer::elemTypeImpl() const

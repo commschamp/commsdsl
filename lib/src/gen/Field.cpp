@@ -16,6 +16,8 @@
 
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/comms.h"
+#include "commsdsl/gen/strings.h"
 
 #include <cassert>
 #include <algorithm>
@@ -178,6 +180,55 @@ void Field::setFieldReferencedIfExists(Field* field)
     if (field != nullptr) {
         field->setReferenced();
     }
+}
+
+std::string Field::templateScopeOfComms(const std::string& protOptionsStr) const
+{
+    auto commsScope = comms::scopeFor(*this, generator());
+    std::string optionsParams = "<" + protOptionsStr + ">";
+
+    if (comms::isGlobalField(*this)) {
+        return commsScope + optionsParams;
+    }
+
+    using Elem = commsdsl::gen::Elem;
+
+    auto formScopeFunc = 
+        [this, &commsScope, &optionsParams](const Elem* parent, const std::string& suffix)
+        {
+            auto optLevelScope = comms::scopeFor(*parent, generator()) + suffix;
+            assert(optLevelScope.size() < commsScope.size());
+            assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
+            
+            return optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
+        };
+
+    
+    auto* parent = getParent();
+    while (parent != nullptr)  {
+        auto elemType = parent->elemType();
+
+        if (elemType == Elem::Type_Interface) {
+            return commsScope;
+        }        
+
+        if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
+            return formScopeFunc(parent, strings::membersSuffixStr());
+        }        
+
+        if (elemType == Elem::Type_Message) {
+            return formScopeFunc(parent, strings::fieldsSuffixStr());
+        }
+
+        if (elemType == Elem::Type_Frame) {
+            return formScopeFunc(parent, strings::layersSuffixStr());
+        }        
+
+        parent = parent->getParent();
+    }
+
+    assert(false); // Should not happen
+    return commsScope;
 }
 
 Elem::Type Field::elemTypeImpl() const

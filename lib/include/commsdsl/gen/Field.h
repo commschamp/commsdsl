@@ -56,6 +56,8 @@ public:
 
     static void setFieldReferencedIfExists(Field* field);
 
+    std::string templateScopeOfComms(const std::string& protOptionsStr) const;
+
 protected:    
     Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent = nullptr);
 

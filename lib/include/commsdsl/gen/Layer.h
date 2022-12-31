@@ -58,6 +58,8 @@ public:
     // return true if re-order happened, false otherwise
     bool forceCommsOrder(LayersAccessList& layers, bool& success) const;
 
+    std::string templateScopeOfComms(const std::string& iFaceStr, const std::string& allMessagesStr, const std::string& protOptionsStr) const;
+
 protected:    
     Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent = nullptr);
 

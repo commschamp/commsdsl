@@ -11,6 +11,7 @@ set (src
     EmscriptenGenerator.cpp
     EmscriptenInterface.cpp
     EmscriptenIntField.cpp
+    EmscriptenLayer.cpp
     EmscriptenListField.cpp
     EmscriptenMessage.cpp
     EmscriptenMsgHandler.cpp

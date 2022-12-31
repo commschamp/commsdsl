@@ -133,51 +133,7 @@ std::string EmscriptenField::emscriptenHeaderClass() const
 std::string EmscriptenField::emscriptenTemplateScope() const
 {
     auto& gen = EmscriptenGenerator::cast(m_field.generator());
-    auto commsScope = comms::scopeFor(m_field, gen);
-    std::string optionsParams = "<" + EmscriptenProtocolOptions::emscriptenClassName(gen) + ">";
-
-    if (comms::isGlobalField(m_field)) {
-        return commsScope + optionsParams;
-    }
-
-    using Elem = commsdsl::gen::Elem;
-
-    auto formScopeFunc = 
-        [&commsScope, &gen, &optionsParams](const Elem* parent, const std::string& suffix)
-        {
-            auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
-            assert(optLevelScope.size() < commsScope.size());
-            assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
-            
-            return optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
-        };
-
-    
-    Elem* parent = m_field.getParent();
-    while (parent != nullptr)  {
-        auto elemType = parent->elemType();
-
-        if (elemType == Elem::Type_Interface) {
-            return commsScope;
-        }        
-
-        if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
-            return formScopeFunc(parent, strings::membersSuffixStr());
-        }        
-
-        if (elemType == Elem::Type_Message) {
-            return formScopeFunc(parent, strings::fieldsSuffixStr());
-        }
-
-        if (elemType == Elem::Type_Frame) {
-            return formScopeFunc(parent, strings::layersSuffixStr());
-        }        
-
-        parent = parent->getParent();
-    }
-
-    assert(false); // Should not happen
-    return commsScope;
+    return m_field.templateScopeOfComms(EmscriptenProtocolOptions::emscriptenClassName(gen));
 }
 
 std::string EmscriptenField::emscriptenSourceCode() const
