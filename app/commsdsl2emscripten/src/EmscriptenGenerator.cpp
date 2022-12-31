@@ -18,16 +18,16 @@
 #include "EmscriptenAllMessages.h"
 #include "EmscriptenBitfieldField.h"
 #include "EmscriptenBundleField.h"
-// #include "EmscriptenChecksumLayer.h"
+#include "EmscriptenChecksumLayer.h"
 // #include "EmscriptenCmake.h"
 #include "EmscriptenComms.h"
-// #include "EmscriptenCustomLayer.h"
+#include "EmscriptenCustomLayer.h"
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenDataField.h"
 #include "EmscriptenEnumField.h"
 #include "EmscriptenFloatField.h"
 // #include "EmscriptenFrame.h"
-// #include "EmscriptenIdLayer.h"
+#include "EmscriptenIdLayer.h"
 #include "EmscriptenInterface.h"
 #include "EmscriptenIntField.h"
 #include "EmscriptenListField.h"
@@ -35,14 +35,14 @@
 #include "EmscriptenMsgHandler.h"
 #include "EmscriptenMsgId.h"
 #include "EmscriptenOptionalField.h"
-// #include "EmscriptenPayloadLayer.h"
+#include "EmscriptenPayloadLayer.h"
 #include "EmscriptenProtocolOptions.h"
 #include "EmscriptenRefField.h"
 #include "EmscriptenSetField.h"
-// #include "EmscriptenSizeLayer.h"
+#include "EmscriptenSizeLayer.h"
 #include "EmscriptenStringField.h"
-// #include "EmscriptenSyncLayer.h"
-// #include "EmscriptenValueLayer.h"
+#include "EmscriptenSyncLayer.h"
+#include "EmscriptenValueLayer.h"
 #include "EmscriptenVariantField.h"
 #include "EmscriptenVersion.h"
 
@@ -348,40 +348,40 @@ EmscriptenGenerator::FieldPtr EmscriptenGenerator::createVariantFieldImpl(commsd
     return std::make_unique<EmscriptenVariantField>(*this, dslObj, parent);
 }
 
-// EmscriptenGenerator::LayerPtr EmscriptenGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenCustomLayer>(*this, dslObj, parent);
-// }
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenCustomLayer>(*this, dslObj, parent);
+}
 
-// EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenSyncLayer>(*this, dslObj, parent);
-// }
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenSyncLayer>(*this, dslObj, parent);
+}
 
-// EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenSizeLayer>(*this, dslObj, parent);
-// }
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createSizeLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenSizeLayer>(*this, dslObj, parent);
+}
 
-// EmscriptenGenerator::LayerPtr EmscriptenGenerator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenIdLayer>(*this, dslObj, parent);
-// }
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createIdLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenIdLayer>(*this, dslObj, parent);
+}
 
-// EmscriptenGenerator::LayerPtr EmscriptenGenerator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenValueLayer>(*this, dslObj, parent);
-// }
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createValueLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenValueLayer>(*this, dslObj, parent);
+}
 
-// EmscriptenGenerator::LayerPtr EmscriptenGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenPayloadLayer>(*this, dslObj, parent);
-// }
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createPayloadLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenPayloadLayer>(*this, dslObj, parent);
+}
 
-// EmscriptenGenerator::LayerPtr EmscriptenGenerator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenChecksumLayer>(*this, dslObj, parent);
-// }
+EmscriptenGenerator::LayerPtr EmscriptenGenerator::createChecksumLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenChecksumLayer>(*this, dslObj, parent);
+}
 
 bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const
 {

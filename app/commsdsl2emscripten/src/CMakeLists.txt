@@ -2,13 +2,16 @@ set (src
     EmscriptenAllMessages.cpp
     EmscriptenBitfieldField.cpp
     EmscriptenBundleField.cpp
+    EmscriptenChecksumLayer.cpp
     EmscriptenComms.cpp
+    EmscriptenCustomLayer.cpp
     EmscriptenDataBuf.cpp
     EmscriptenDataField.cpp
     EmscriptenEnumField.cpp
     EmscriptenField.cpp
     EmscriptenFloatField.cpp
     EmscriptenGenerator.cpp
+    EmscriptenIdLayer.cpp
     EmscriptenInterface.cpp
     EmscriptenIntField.cpp
     EmscriptenLayer.cpp
@@ -17,11 +20,15 @@ set (src
     EmscriptenMsgHandler.cpp
     EmscriptenMsgId.cpp
     EmscriptenOptionalField.cpp
+    EmscriptenPayloadLayer.cpp
     EmscriptenProgramOptions.cpp
     EmscriptenProtocolOptions.cpp
     EmscriptenRefField.cpp
     EmscriptenSetField.cpp
+    EmscriptenSizeLayer.cpp
     EmscriptenStringField.cpp
+    EmscriptenSyncLayer.cpp
+    EmscriptenValueLayer.cpp
     EmscriptenVariantField.cpp
     EmscriptenVersion.cpp
     main.cpp
