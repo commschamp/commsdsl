@@ -206,6 +206,11 @@ const Generator& Layer::generator() const
     return m_impl->generator();
 }
 
+bool Layer::forceCommsOrder(LayersAccessList& layers, bool& success) const
+{
+    return forceCommsOrderImpl(layers, success);
+}
+
 Elem::Type Layer::elemTypeImpl() const
 {
     return Type_Layer;
@@ -221,7 +226,12 @@ bool Layer::writeImpl() const
     return true;
 }
 
-
+bool Layer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) const
+{
+    static_cast<void>(layers);
+    success = true;
+    return false;
+}
 
 } // namespace gen
 

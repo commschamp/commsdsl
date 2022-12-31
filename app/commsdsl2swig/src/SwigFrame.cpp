@@ -88,10 +88,17 @@ bool SwigFrame::prepareImpl()
         return false;
     }
 
-    for (auto& l : layers()) {
-        m_swigLayers.push_back(const_cast<SwigLayer*>(SwigLayer::cast(l.get())));
-        assert(m_swigLayers.back() != nullptr);
-    } 
+    bool success = true;
+    auto reorderedLayers = getCommsOrderOfLayers(success);
+    if (!success) {
+        return false;
+    }
+
+    for (auto* l : reorderedLayers) {
+        auto* swigLayer = SwigLayer::cast(l);
+        assert(swigLayer != nullptr);
+        m_swigLayers.push_back(const_cast<SwigLayer*>(swigLayer));
+    }
 
     m_validFrame = 
         std::all_of(
@@ -104,29 +111,6 @@ bool SwigFrame::prepareImpl()
     if (!m_validFrame) {
         return true;
     }
-
-    assert(!m_swigLayers.empty());
-    while (true) {
-        bool rearanged = false;
-        for (auto* l : m_swigLayers) {
-            bool success = false;
-            rearanged = l->swigReorder(m_swigLayers, success);
-
-            if (!success) {
-                return false;
-            }
-
-            if (rearanged) {
-                // Order has changed restart from the beginning
-                break;
-            }
-        }
-
-        if (!rearanged) {
-            // reordering is complete
-            break;
-        }
-    }    
 
     return true;   
 }

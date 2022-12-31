@@ -98,35 +98,16 @@ bool CommsFrame::prepareImpl()
         return false;
     }
 
-    for (auto& lPtr : layers()) {
-        assert(lPtr);
-        auto* commsLayer = dynamic_cast<const CommsLayer*>(lPtr.get());
-
-        assert(commsLayer != nullptr);
-        m_commsLayers.push_back(const_cast<CommsLayer*>(commsLayer));
+    bool success = true;
+    auto reorderedLayers = getCommsOrderOfLayers(success);
+    if (!success) {
+        return false;
     }
 
-    assert(!m_commsLayers.empty());
-    while (true) {
-        bool rearanged = false;
-        for (auto& l : m_commsLayers) {
-            bool success = false;
-            rearanged = l->commsReorder(m_commsLayers, success);
-
-            if (!success) {
-                return false;
-            }
-
-            if (rearanged) {
-                // Order has changed restart from the beginning
-                break;
-            }
-        }
-
-        if (!rearanged) {
-            // reordering is complete
-            break;
-        }
+    for (auto* l : reorderedLayers) {
+        auto* commsLayer = CommsLayer::cast(l);
+        assert(commsLayer != nullptr);
+        m_commsLayers.push_back(const_cast<CommsLayer*>(commsLayer));
     }
 
     m_hasCommonCode = 

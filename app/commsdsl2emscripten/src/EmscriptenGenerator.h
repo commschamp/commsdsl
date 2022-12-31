@@ -89,8 +89,6 @@ protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() override;    
 
-    // virtual SchemaPtr createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent) override;
-    // virtual NamespacePtr createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent) override;
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
     // virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent) override;

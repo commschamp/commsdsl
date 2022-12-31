@@ -34,12 +34,10 @@
 #include "EmscriptenMessage.h"
 #include "EmscriptenMsgHandler.h"
 #include "EmscriptenMsgId.h"
-// #include "EmscriptenNamespace.h"
 #include "EmscriptenOptionalField.h"
 // #include "EmscriptenPayloadLayer.h"
 #include "EmscriptenProtocolOptions.h"
 #include "EmscriptenRefField.h"
-// #include "EmscriptenSchema.h"
 #include "EmscriptenSetField.h"
 // #include "EmscriptenSizeLayer.h"
 #include "EmscriptenStringField.h"
@@ -81,11 +79,6 @@ const std::string& EmscriptenGenerator::fileGeneratedComment()
         std::to_string(commsdsl::versionPatch()) + '\n';
     return Str;
 }
-
-// std::string EmscriptenGenerator::emscriptenInputCodePathForFile(const std::string& name) const
-// {
-//     return getCodeDir() + '/' + name;
-// }
 
 std::string EmscriptenGenerator::emscriptenClassName(const Elem& elem) const
 {
@@ -279,16 +272,6 @@ EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface()
 {
     return const_cast<EmscriptenInterface*>(static_cast<const EmscriptenGenerator*>(this)->emscriptenMainInterface());
 }
-
-// EmscriptenGenerator::SchemaPtr EmscriptenGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenSchema>(*this, dslObj, parent);
-// }
-
-// EmscriptenGenerator::NamespacePtr EmscriptenGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenNamespace>(*this, dslObj, parent);
-// }
 
 EmscriptenGenerator::InterfacePtr EmscriptenGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)
 {

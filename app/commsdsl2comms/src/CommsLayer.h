@@ -36,9 +36,18 @@ public:
     explicit CommsLayer(commsdsl::gen::Layer& layer);
     virtual ~CommsLayer();
 
+    static CommsLayer* cast(commsdsl::gen::Layer* layer)
+    {
+        return dynamic_cast<CommsLayer*>(layer);
+    }
+
+    static const CommsLayer* cast(const commsdsl::gen::Layer* layer)
+    {
+        return dynamic_cast<const CommsLayer*>(layer);
+    }    
+
     bool commsPrepare();
 
-    bool commsReorder(CommsLayersList& siblings, bool& success) const;
     IncludesList commsCommonIncludes() const;
     std::string commsCommonCode() const;
     IncludesList commsDefIncludes() const;
@@ -73,8 +82,6 @@ public:
 
 
 protected:
-    virtual bool commsReorderImpl(CommsLayersList& siblings, bool& success) const;
-    // virtual IncludesList commsCommonIncludesImpl() const;
     virtual IncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
     virtual bool commsDefHasInputMessagesImpl() const;

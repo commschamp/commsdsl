@@ -37,6 +37,7 @@ class COMMSDSL_API Frame : public Elem
 public:
     using Ptr = std::unique_ptr<Frame>;
     using LayersList = std::vector<LayerPtr>;
+    using LayersAccessList = Layer::LayersAccessList;
 
     explicit Frame(Generator& generator, commsdsl::parse::Frame dslObj, Elem* parent = nullptr);
     virtual ~Frame();
@@ -49,6 +50,8 @@ public:
 
     Generator& generator();
     const Generator& generator() const;
+
+    LayersAccessList getCommsOrderOfLayers(bool& success) const;
 
 protected:    
     virtual Type elemTypeImpl() const override final;

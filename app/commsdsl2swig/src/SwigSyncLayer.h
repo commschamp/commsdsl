@@ -30,9 +30,6 @@ class SwigSyncLayer final : public commsdsl::gen::SyncLayer, public SwigLayer
     using SwigBase = SwigLayer;
 public:
     SwigSyncLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // SwigBase overrides
 };
 
 } // namespace commsdsl2swig

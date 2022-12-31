@@ -35,8 +35,6 @@ public:
 
     static const SwigLayer* cast(const commsdsl::gen::Layer* layer);
 
-    bool swigReorder(SwigLayersList& siblings, bool& success) const;
-
     commsdsl::gen::Layer& layer()
     {
         return m_layer;
@@ -56,7 +54,6 @@ public:
     std::string swigFieldAccName() const;
 
 protected:
-    virtual bool swigReorderImpl(SwigLayersList& siblings, bool& success) const;
     virtual std::string swigDeclFuncsImpl() const;    
     virtual std::string swigCodeFuncsImpl() const;    
     virtual bool swigIsMainInterfaceSupportedImpl() const;

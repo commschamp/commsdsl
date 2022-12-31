@@ -22,6 +22,7 @@
 #include "commsdsl/gen/Field.h"
 
 #include <memory>
+#include <vector>
 
 namespace commsdsl
 {
@@ -35,6 +36,7 @@ class COMMSDSL_API Layer : public Elem
     using Base = Elem;
 public:
     using Ptr = std::unique_ptr<Layer>;
+    using LayersAccessList = std::vector<const Layer*>;
 
     virtual ~Layer();
 
@@ -53,12 +55,16 @@ public:
     Generator& generator();
     const Generator& generator() const;    
 
+    // return true if re-order happened, false otherwise
+    bool forceCommsOrder(LayersAccessList& layers, bool& success) const;
+
 protected:    
     Layer(Generator& generator, const commsdsl::parse::Layer& dslObj, Elem* parent = nullptr);
 
     virtual Type elemTypeImpl() const override final;
     virtual bool prepareImpl();
     virtual bool writeImpl() const;
+    virtual bool forceCommsOrderImpl(LayersAccessList& layers, bool& success) const;
 
 
 private:

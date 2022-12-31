@@ -30,10 +30,6 @@ class SwigCustomLayer final : public commsdsl::gen::CustomLayer, public SwigLaye
     using SwigBase = SwigLayer;
 public:
     SwigCustomLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // SwigBase overrides
-    virtual bool swigReorderImpl(SwigLayersList& siblings, bool& success) const override;
 };
 
 } // namespace commsdsl2swig

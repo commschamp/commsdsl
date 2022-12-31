@@ -39,6 +39,9 @@ public:
 
     commsdsl::parse::CustomLayer customDslObj() const;
 
+protected:
+    virtual bool forceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;    
+
 };
 
 } // namespace gen

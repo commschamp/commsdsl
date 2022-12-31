@@ -49,11 +49,6 @@ bool CommsLayer::commsPrepare()
     return true;
 }
 
-bool CommsLayer::commsReorder(CommsLayersList& siblings, bool& success) const
-{
-    return commsReorderImpl(siblings, success);
-}
-
 CommsLayer::IncludesList CommsLayer::commsCommonIncludes() const
 {
     IncludesList result;
@@ -203,13 +198,6 @@ std::string CommsLayer::commsBareMetalDefaultOptions() const
             &CommsLayer::commsExtraBareMetalDefaultOptionsInternal,
             true
         );
-}
-
-bool CommsLayer::commsReorderImpl(CommsLayersList& siblings, bool& success) const
-{
-    static_cast<void>(siblings);
-    success = true;
-    return false;
 }
 
 CommsLayer::IncludesList CommsLayer::commsDefIncludesImpl() const

@@ -55,11 +55,6 @@ const SwigLayer* SwigLayer::cast(const commsdsl::gen::Layer* layer)
     return swigLayer;
 }
 
-bool SwigLayer::swigReorder(SwigLayersList& siblings, bool& success) const
-{
-    return swigReorderImpl(siblings, success);
-}
-
 std::string SwigLayer::swigDeclCode() const
 {
     static const std::string Templ = 
@@ -170,13 +165,6 @@ bool SwigLayer::swigIsMainInterfaceSupported() const
 std::string SwigLayer::swigFieldAccName() const
 {
     return "m_" + comms::accessName(m_layer.dslObj().name());
-}
-
-bool SwigLayer::swigReorderImpl(SwigLayersList& siblings, bool& success) const
-{
-    static_cast<void>(siblings);
-    success = true;
-    return false;
 }
 
 std::string SwigLayer::swigDeclFuncsImpl() const

@@ -38,6 +38,8 @@ public:
     virtual ~ChecksumLayer();
 
 protected:    
+    virtual bool forceCommsOrderImpl(LayersAccessList& layers, bool& success) const override final;
+    
     commsdsl::parse::ChecksumLayer checksumDslObj() const;
 };
 
