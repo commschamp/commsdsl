@@ -159,6 +159,8 @@ bool EmscriptenFrame::emscriptenWriteSourceInternal() const
         "#^#GENERATED#$#\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#include <iterator>\n\n"
+        "#include <emscripten/bind.h>\n\n"
+        "#include \"comms/process.h\"\n\n"
         "#^#LAYERS#$#\n"
         "#^#CODE#$#\n"
         "#^#BIND#$#\n"
@@ -294,7 +296,7 @@ std::string EmscriptenFrame::emscriptenHeaderLayersAccessInternal() const
         static const std::string Templ = 
             "#^#CLASS_NAME#$#* layer_#^#NAME#$#()\n"
             "{\n"
-            "    return static_cast<#^#CLASS_NAME#$#*>(&Base::layer_#^#NAME#$#());\n"
+            "    return static_cast<#^#CLASS_NAME#$#*>(&m_frame.layer_#^#NAME#$#());\n"
             "}";
 
         util::ReplacementMap repl = {
@@ -334,7 +336,7 @@ std::string EmscriptenFrame::emscriptenSourceAllFieldsInternal() const
     }
 
     static const std::string Templ = 
-        "value_object<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
+        "emscripten::value_object<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
         "    #^#FIELDS#$#\n"
         "    ;\n";
 
@@ -414,13 +416,17 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
     }    
 
     auto& gen = EmscriptenGenerator::cast(generator());
+    auto* iFace = gen.emscriptenMainInterface();
+    assert(iFace != nullptr);
+
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
         {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
         {"HANDLER", EmscriptenMsgHandler::emscriptenClassName(gen)},
         {"ALL_FIELDS", emscriptenHeaderAllFieldsNameInternal()},
-        {"ALL_FIELDS_VALUES", util::strListToString(allFieldsAcc, "\n", "")},
-        {"FRAME_FIELDS_VALUES", util::strListToString(frameFieldsAcc, "\n", "")},
+        {"ALL_FIELDS_VALUES", util::strListToString(allFieldsAcc, ",\n", "")},
+        {"FRAME_FIELDS_VALUES", util::strListToString(frameFieldsAcc, ",\n", "")},
+        {"INTERFACE", gen.emscriptenClassName(*iFace)},
     };
     return util::processTemplate(Templ, repl);
 }

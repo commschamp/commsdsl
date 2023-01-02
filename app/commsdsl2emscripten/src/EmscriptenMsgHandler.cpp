@@ -85,6 +85,7 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
 
     const std::string Templ = 
         "#^#GENERATED#$#\n\n"
+        "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
         "class #^#CLASS_NAME#$#\n"
         "{\n"
@@ -92,10 +93,7 @@ bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
         "    #^#CLASS_NAME#$#() = default;\n"
         "    virtual ~#^#CLASS_NAME#$#() = default;\n\n"
         "    #^#FUNCS#$#\n"
-        "    void handle(#^#COMMS_INTERFACE#$#& msg)\n"
-        "    {\n"
-        "        handle_#^#INTERFACE#$#(&msg);\n"
-        "    }\n\n"
+        "    void handle(#^#INTERFACE#$#& msg) { handle_#^#INTERFACE#$#(&msg); }\n"
         "    virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#* msg);\n"
         "};\n"
         ;
@@ -210,10 +208,7 @@ std::string EmscriptenMsgHandler::emscriptenHeaderHandleFuncsInternal() const
         }
 
         static const std::string Templ = 
-            "void handle(#^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg)\n"
-            "{\n"
-            "    handle_#^#CLASS_NAME#$#(&msg);\n"
-            "}\n\n"
+            "void handle(#^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg);\n"
             "virtual void handle_#^#CLASS_NAME#$#(#^#CLASS_NAME#$#* msg);\n";
 
         repl["COMMS_CLASS"] = comms::scopeFor(*m, m_generator);
@@ -234,6 +229,10 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
         {"INTERFACE", m_generator.emscriptenClassName(*iFace)},
     };
 
+    if (EmscriptenProtocolOptions::emscriptenIsDefined(m_generator)) {
+        repl["PROT_OPTS"] = ", " + EmscriptenProtocolOptions::emscriptenClassName(m_generator);
+    }    
+
     util::StringsList funcs;
 
     auto allMessages = m_generator.getAllMessagesIdSorted();
@@ -245,15 +244,16 @@ std::string EmscriptenMsgHandler::emscriptenSourceHandleFuncsInternal() const
         }
 
         static const std::string Templ = 
+            "void #^#CLASS_NAME#$#::handle(#^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg) { handle_#^#MSG_CLASS#$#(static_cast<#^#MSG_CLASS#$#*>(&msg)); }\n"
             "void #^#CLASS_NAME#$#::handle_#^#MSG_CLASS#$#(#^#MSG_CLASS#$#* msg) { handle_#^#INTERFACE#$#(msg); }\n";
 
+        repl["COMMS_CLASS"] = comms::scopeFor(*m, m_generator);
         repl["MSG_CLASS"] = m_generator.emscriptenClassName(*m);
         funcs.push_back(util::processTemplate(Templ, repl));
     }
 
     static const std::string InterfaceTempl = 
         "void #^#CLASS_NAME#$#::handle_#^#INTERFACE#$#(#^#INTERFACE#$#* msg) { static_cast<void>(msg); }\n";
-
 
     funcs.push_back(util::processTemplate(InterfaceTempl, repl));
     return util::strListToString(funcs, "", "\n");

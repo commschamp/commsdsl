@@ -18,6 +18,7 @@
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
 #include "EmscriptenInterface.h"
+#include "EmscriptenMsgHandler.h"
 #include "EmscriptenProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -161,6 +162,7 @@ std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
     auto& gen = EmscriptenGenerator::cast(generator());
     util::StringsList includes = {
         comms::relHeaderPathFor(*this, gen),
+        EmscriptenMsgHandler::emscriptenRelHeader(gen),
     };
 
     EmscriptenProtocolOptions::emscriptenAddInclude(gen, includes);
@@ -217,7 +219,7 @@ std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
         "    using Base = #^#COMMS_CLASS#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>;\n"
         "public:\n"
         "    #^#CLASS_NAME#$#() = default;\n"
-        "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#) = default;\n"
+        "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&) = default;\n"
         "    virtual ~#^#CLASS_NAME#$#() = default;\n\n"
         "    #^#FIELDS#$#\n"
         "};\n"

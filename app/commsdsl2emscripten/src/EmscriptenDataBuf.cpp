@@ -92,7 +92,7 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 
     const std::string Templ = 
         "#^#GENERATED#$#\n\n"
-        "#include <stdint>\n"
+        "#include <cstdint>\n"
         "#include <vector>\n\n"
         "#include <emscripten/val.h>\n\n"
         "using #^#CLASS_NAME#$# = std::vector<std::uint8_t>;\n\n"

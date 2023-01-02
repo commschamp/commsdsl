@@ -55,7 +55,7 @@ std::string EmscriptenPayloadLayer::emscriptenHeaderFieldDefImpl() const
         "    #^#CLASS_NAME#$#() = default;\n"
         "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&) = default;\n"
         "    ~#^#CLASS_NAME#$#() = default;\n\n"
-        "    ValueType* getValue()\n"
+        "    const ValueType* getValue() const\n"
         "    {\n"
         "        return &Base::getValue();\n"
         "    }\n\n"
@@ -91,9 +91,9 @@ std::string EmscriptenPayloadLayer::emscriptenSourceFieldBindImpl() const
         "    emscripten::class_<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
         "        .constructor<>()\n"
         "        .constructor<const #^#CLASS_NAME#$#&>()\n"
-        "        .function(\"getValue\", &#^#CLASS_NAME#$#&::getValue, emscripten::allow_raw_pointers())\n"
-        "        .function(\"setValue\", &#^#CLASS_NAME#$#&::setValue)\n"
-        "        .function(\"assignJsArray\", &#^#CLASS_NAME#$#&::assignJsArray)\n"
+        "        .function(\"getValue\", &#^#CLASS_NAME#$#::getValue, emscripten::allow_raw_pointers())\n"
+        "        .function(\"setValue\", &#^#CLASS_NAME#$#::setValue)\n"
+        "        .function(\"assignJsArray\", &#^#CLASS_NAME#$#::assignJsArray)\n"
         "        ;\n"
         "}\n";
 

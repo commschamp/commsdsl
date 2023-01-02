@@ -102,7 +102,7 @@ bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
         "#include <emscripten/bind.h>\n\n"
         "#include \"comms/ErrorStatus.h\"\n\n"
         "EMSCRIPTEN_BINDINGS(#^#NAME#$#) {\n"
-        "    enum_<#^#SCOPE#$#>(\"#^#NAME#$#\")\n"
+        "    emscripten::enum_<#^#SCOPE#$#>(\"#^#NAME#$#\")\n"
         "        #^#BINDS#$#\n"
         "        ;\n"
         "}\n";
@@ -157,7 +157,7 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
 
         util::ReplacementMap repl = {
             {"VAL", v},
-            {"SCOPE", ErrorStatusScopeStr}
+            {"SCOPE", OptionalModeScopeStr}
         };
 
         binds.push_back(util::processTemplate(Templ, repl));
@@ -168,7 +168,7 @@ bool EmscriptenComms::emscriptenWriteOptionalModeInternal() const
         "#include <emscripten/bind.h>\n\n"
         "#include \"comms/field/OptionalMode.h\"\n\n"
         "EMSCRIPTEN_BINDINGS(#^#NAME#$#) {\n"
-        "    enum_<#^#SCOPE#$#>(\"#^#NAME#$#\")\n"
+        "    emscripten::enum_<#^#SCOPE#$#>(\"#^#NAME#$#\")\n"
         "        #^#BINDS#$#\n"
         "        ;\n"
         "}\n";

@@ -140,6 +140,7 @@ bool EmscriptenInterface::emscriptenWriteSourceInternal() const
         "#^#GENERATED#$#\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#include <emscripten/bind.h>\n\n"
+        "#include \"#^#MSG_HANDLER#$#\"\n\n"
         "#^#FIELDS#$#\n"
         "#^#CODE#$#\n"
     ;
@@ -149,6 +150,7 @@ bool EmscriptenInterface::emscriptenWriteSourceInternal() const
         {"HEADER", gen.emscriptenRelHeaderFor(*this)},
         {"FIELDS", emscriptenSourceFieldsInternal()},
         {"CODE", emscriptenSourceCodeInternal()},
+        {"MSG_HANDLER", EmscriptenMsgHandler::emscriptenRelHeader(gen)},
     };
     
     stream << util::processTemplate(Templ, repl, true);
@@ -164,7 +166,6 @@ std::string EmscriptenInterface::emscriptenHeaderIncludesInternal() const
         "<emscripten/val.h>",
         comms::relHeaderPathFor(*this, gen),
         EmscriptenDataBuf::emscriptenRelHeader(gen),
-        EmscriptenMsgHandler::emscriptenRelHeader(gen),
     };
 
     for (auto* f : m_emscriptenFields) {
@@ -188,6 +189,7 @@ std::string EmscriptenInterface::emscriptenHeaderFieldsInternal() const
 std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
 {
     const std::string Templ = 
+        "class #^#MSG_HANDLER#$#;\n"
         "class #^#CLASS_NAME#$# : public\n"
         "    #^#BASE#$#\n"
         "{\n"
@@ -197,7 +199,8 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
         "    #^#FIELDS#$#\n"
         "    comms::ErrorStatus readDataBuf(const #^#DATA_BUF#$#& buf)\n"
         "    {\n"
-        "        return Base::read(buf.begin(), buf.size());\n"
+        "        auto iter = buf.begin();\n"
+        "        return Base::read(iter, buf.size());\n"
         "    }\n\n"   
         "    comms::ErrorStatus readJsArray(const emscripten::val& jsArray)\n"
         "    {\n"
@@ -207,7 +210,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
         "    comms::ErrorStatus writeDataBuf(#^#DATA_BUF#$#& buf) const\n"
         "    {\n"
         "        auto iter = std::back_inserter(buf);\n"
-        "        return Base::write(inter, buf.max_size());\n"
+        "        return Base::write(iter, buf.max_size());\n"
         "    }\n\n"
         "    #^#MSG_ID#$# getId() const\n"
         "    {\n"
@@ -223,7 +226,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
         "    }\n\n"
         "    bool valid() const\n"
         "    {\n"
-        "        return Base::valid()\n"
+        "        return Base::valid();\n"
         "    }\n\n"
         "    std::string name() const\n"
         "    {\n"
@@ -259,6 +262,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
             {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
             {"MSG_ID", comms::scopeForRoot(strings::msgIdEnumNameStr(), gen)},
             {"FIELDS", util::strListToString(fields, "\n", "")},
+            {"MSG_HANDLER", EmscriptenMsgHandler::emscriptenClassName(gen)},
         };
     return util::processTemplate(Templ, repl);
 }
