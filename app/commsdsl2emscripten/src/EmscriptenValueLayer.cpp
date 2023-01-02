@@ -36,4 +36,38 @@ EmscriptenValueLayer::EmscriptenValueLayer(EmscriptenGenerator& generator, comms
 {
 }
 
+std::string EmscriptenValueLayer::emscriptenHeaderExtraFuncsImpl() const
+{
+    auto obj = valueDslObj();
+    if (!obj.pseudo()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "Field* pseudoField()\n"
+        "{\n"
+        "    return reinterpret_cast<Field*>(&Base::pseudoField());\n"
+        "}\n";
+
+    return Templ;
+}
+
+std::string EmscriptenValueLayer::emscriptenSourceExtraFuncsImpl() const
+{
+    auto obj = valueDslObj();
+    if (!obj.pseudo()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        ".function(\"pseudoField\", &#^#CLASS_NAME#$#::psuedoField, emscripten::allow_raw_pointers())";
+
+    auto& gen = EmscriptenGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.emscriptenClassName(*this)}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 } // namespace commsdsl2emscripten

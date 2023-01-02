@@ -26,7 +26,7 @@
 #include "EmscriptenDataField.h"
 #include "EmscriptenEnumField.h"
 #include "EmscriptenFloatField.h"
-// #include "EmscriptenFrame.h"
+#include "EmscriptenFrame.h"
 #include "EmscriptenIdLayer.h"
 #include "EmscriptenInterface.h"
 #include "EmscriptenIntField.h"
@@ -283,10 +283,10 @@ EmscriptenGenerator::MessagePtr EmscriptenGenerator::createMessageImpl(commsdsl:
     return std::make_unique<EmscriptenMessage>(*this, dslObj, parent);
 }
 
-// EmscriptenGenerator::FramePtr EmscriptenGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
-// {
-//     return std::make_unique<EmscriptenFrame>(*this, dslObj, parent);
-// }
+EmscriptenGenerator::FramePtr EmscriptenGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenFrame>(*this, dslObj, parent);
+}
 
 EmscriptenGenerator::FieldPtr EmscriptenGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
 {

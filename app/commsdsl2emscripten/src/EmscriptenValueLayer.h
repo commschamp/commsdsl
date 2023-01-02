@@ -30,6 +30,10 @@ class EmscriptenValueLayer final : public commsdsl::gen::ValueLayer, public Emsc
     using EmscriptenBase = EmscriptenLayer;
 public:
     EmscriptenValueLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
+
+protected:
+    virtual std::string emscriptenHeaderExtraFuncsImpl() const override;    
+    virtual std::string emscriptenSourceExtraFuncsImpl() const override;
 };
 
 } // namespace commsdsl2emscripten

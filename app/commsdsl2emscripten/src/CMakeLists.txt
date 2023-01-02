@@ -10,6 +10,7 @@ set (src
     EmscriptenEnumField.cpp
     EmscriptenField.cpp
     EmscriptenFloatField.cpp
+    EmscriptenFrame.cpp
     EmscriptenGenerator.cpp
     EmscriptenIdLayer.cpp
     EmscriptenInterface.cpp

@@ -325,7 +325,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg)\n"
         "    {\n"
         "        #^#DATA_BUF#$# outBuf(m_frame.length(msg));\n"
-        "        auto writeIter = outBuf.begin();"
+        "        auto writeIter = outBuf.begin();\n"
         "        auto es = m_frame.write(msg, writeIter, outBuf.size());\n"
         "        static_cast<void>(es);\n"
         "        assert(es == comms::ErrorStatus::Success);\n"

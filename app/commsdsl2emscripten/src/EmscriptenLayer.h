@@ -46,11 +46,26 @@ public:
 
     bool emscriptenIsMainInterfaceSupported() const;
     std::string emscriptenFieldAccName() const;
+    void emscriptenAddHeaderInclude(StringsList& includes) const;
+    std::string emscriptenHeaderClass() const;
+    std::string emscriptenSourceCode() const;
 
 protected:
     virtual bool emscriptenIsMainInterfaceSupportedImpl() const;
+    virtual std::string emscriptenHeaderFieldDefImpl() const;
+    virtual std::string emscriptenFieldClassNameImpl() const;
+    virtual std::string emscriptenHeaderExtraFuncsImpl() const;
+    virtual std::string emscriptenSourceFieldBindImpl() const;
+    virtual std::string emscriptenSourceExtraFuncsImpl() const;
 
     std::string emscriptenTemplateScope() const;
+
+private:    
+    std::string emscriptenHeaderFieldDefInternal() const;
+    std::string emscriptenHeaderClassDefInternal() const;
+    std::string emscriptenFieldClassNameInternal() const;
+    std::string emscriptenSourceFieldBindInternal() const;
+    std::string emscriptenSourceCodeInternal() const;
     
 private:
     commsdsl::gen::Layer& m_layer;

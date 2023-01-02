@@ -15,6 +15,7 @@
 
 #include "EmscriptenPayloadLayer.h"
 
+#include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -30,10 +31,78 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
+namespace 
+{
+
+const std::string FieldClassNameSuffix("Field");
+
+} // namespace 
+    
+
 EmscriptenPayloadLayer::EmscriptenPayloadLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent) : 
     Base(generator, dslObj, parent),
     EmscriptenBase(static_cast<Base&>(*this))
 {
 }
+
+std::string EmscriptenPayloadLayer::emscriptenHeaderFieldDefImpl() const
+{
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$# : public #^#COMMS_SCOPE#$#::Field\n"
+        "{\n"
+        "    using Base = #^#COMMS_SCOPE#$#::Field;\n"
+        "public:\n"
+        "    #^#CLASS_NAME#$#() = default;\n"
+        "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&) = default;\n"
+        "    ~#^#CLASS_NAME#$#() = default;\n\n"
+        "    ValueType* getValue()\n"
+        "    {\n"
+        "        return &Base::getValue();\n"
+        "    }\n\n"
+        "    void setValue(const ValueType& val)\n"
+        "    {\n"
+        "        Base::setValue(val);\n"
+        "    }\n\n"
+        "    void assignJsArray(const emscripten::val& jsArray)\n"
+        "    {\n"
+        "        Base::value() = #^#JS_ARRAY_FUNC#$#(jsArray);\n"
+        "    }\n"
+        "};\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenFieldClassNameImpl()},
+        {"COMMS_SCOPE", emscriptenTemplateScope()},
+        {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenPayloadLayer::emscriptenFieldClassNameImpl() const
+{
+    auto& gen = EmscriptenGenerator::cast(generator());
+    return gen.emscriptenClassName(*this) + FieldClassNameSuffix;
+}
+
+std::string EmscriptenPayloadLayer::emscriptenSourceFieldBindImpl() const
+{
+    static const std::string Templ =
+        "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
+        "    emscripten::class_<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
+        "        .constructor<>()\n"
+        "        .constructor<const #^#CLASS_NAME#$#&>()\n"
+        "        .function(\"getValue\", &#^#CLASS_NAME#$#&::getValue, emscripten::allow_raw_pointers())\n"
+        "        .function(\"setValue\", &#^#CLASS_NAME#$#&::setValue)\n"
+        "        .function(\"assignJsArray\", &#^#CLASS_NAME#$#&::assignJsArray)\n"
+        "        ;\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenFieldClassNameImpl()},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 
 } // namespace commsdsl2emscripten
