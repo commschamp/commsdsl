@@ -57,7 +57,7 @@ std::string EmscriptenVariantField::emscriptenHeaderExtraCodePrefixImpl() const
     auto& gen = EmscriptenGenerator::cast(generator());
     for (auto* m : emscriptenMembers()) {
         static const std::string MemTempl = 
-            "virtual handle_#^#NAME#$#(#^#MEM_CLASS#$#* field);\n";
+            "virtual void handle_#^#NAME#$#(#^#MEM_CLASS#$#* field);\n";
 
         util::ReplacementMap memRepl = {
             {"NAME", comms::accessName(m->field().dslObj().name())},
@@ -71,6 +71,7 @@ std::string EmscriptenVariantField::emscriptenHeaderExtraCodePrefixImpl() const
         "class #^#CLASS_NAME#$#\n"
         "{\n"
         "public:\n"
+        "   #^#CLASS_NAME#$#() = default;\n"
         "   virtual ~#^#CLASS_NAME#$#() = default;\n\n"
         "   #^#FUNCS#$#\n"
         "};\n";
@@ -141,13 +142,14 @@ std::string EmscriptenVariantField::emscriptenHeaderExtraPublicFuncsImpl() const
 std::string EmscriptenVariantField::emscriptenSourceExtraCodeImpl() const
 {
     const std::string Templ = 
+        "#^#HANDLE_FUNCS#$#\n"
         "struct #^#WRAPPER#$# : public emscripten::wrapper<#^#CLASS_NAME#$#>\n"
         "{\n"
         "    EMSCRIPTEN_WRAPPER(#^#WRAPPER#$#);\n\n"
         "    #^#FUNCS#$#\n"
         "};\n\n"
-        "EMSCRIPTEN_BINDINGS(#^#WRAPPER#$#) {\n"
-        "    emscripten::class_<#^#WRAPPER#$#>(\"#^#CLASS_NAME#$#\")\n"
+        "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
+        "    emscripten::class_<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
         "        .constructor<>()\n"
         "        .allow_subclass<#^#WRAPPER#$#>(\"#^#WRAPPER#$#\")\n"
         "        #^#BINDS#$#\n"
@@ -156,6 +158,7 @@ std::string EmscriptenVariantField::emscriptenSourceExtraCodeImpl() const
         ;
 
     util::ReplacementMap repl = {
+        {"HANDLE_FUNCS", emscriptenSourceHandleFuncsInternal()},
         {"WRAPPER", emscriptenHandlerWrapperClassInternal()},
         {"CLASS_NAME", emscriptenHandlerClassInternal()},
         {"FUNCS", emscriptenSourceWrapperFuncsInternal()},
@@ -175,8 +178,8 @@ std::string EmscriptenVariantField::emscriptenSourceBindFuncsImpl() const
     util::StringsList access;
     for (auto* m : emscriptenMembers()) {
         static const std::string MemTempl = 
-            ".function(\"initField_#^#NAME#$#\", #^#CLASS_NAME#$#::initField_#^#NAME#$#, emscripten::allow_raw_pointers())\n"
-            ".function(\"accessField_#^#NAME#$#\", #^#CLASS_NAME#$#::accessField_#^#NAME#$#, emscripten::allow_raw_pointers())";
+            ".function(\"initField_#^#NAME#$#\", &#^#CLASS_NAME#$#::initField_#^#NAME#$#, emscripten::allow_raw_pointers())\n"
+            ".function(\"accessField_#^#NAME#$#\", &#^#CLASS_NAME#$#::accessField_#^#NAME#$#, emscripten::allow_raw_pointers())";
 
         util::ReplacementMap memRepl = {
             {"CLASS_NAME", emscriptenBindClassName()},
@@ -188,11 +191,11 @@ std::string EmscriptenVariantField::emscriptenSourceBindFuncsImpl() const
 
     static const std::string Templ = 
         "#^#MEMBERS_ACC#$#\n"
-        ".function(\"currentField\", #^#CLASS_NAME#$#::currentField)\n"
-        ".function(\"selectField\", #^#CLASS_NAME#$#::selectField)\n"
-        ".function(\"reset\", #^#CLASS_NAME#$#::reset)\n"
-        ".function(\"totalFields\", #^#CLASS_NAME#$#::totalFields)\n"
-        ".function(\"currentFieldExec\", #^#CLASS_NAME#$#::currentFieldExec)"
+        ".function(\"currentField\", &#^#CLASS_NAME#$#::currentField)\n"
+        ".function(\"selectField\", &#^#CLASS_NAME#$#::selectField)\n"
+        ".function(\"reset\", &#^#CLASS_NAME#$#::reset)\n"
+        ".function(\"totalFields\", &#^#CLASS_NAME#$#::totalFields)\n"
+        ".function(\"currentFieldExec\", &#^#CLASS_NAME#$#::currentFieldExec)"
         ;
 
     util::ReplacementMap repl = {
@@ -246,7 +249,7 @@ std::string EmscriptenVariantField::emscriptenSourceWrapperFuncsInternal() const
     auto& gen = EmscriptenGenerator::cast(generator());
     for (auto* m : emscriptenMembers()) {
         static const std::string Templ = 
-            "virtual handle_#^#NAME#$#(#^#MEM_CLASS#$#* field) override\n"
+            "virtual void handle_#^#NAME#$#(#^#MEM_CLASS#$#* field) override\n"
             "{\n"
             "    call<void>(\"handle_#^#NAME#$#\", emscripten::val(field));\n"
             "}\n";
@@ -269,16 +272,39 @@ std::string EmscriptenVariantField::emscriptenSourceWrapperBindsInternal() const
         {"HANDLER", emscriptenHandlerClassInternal()},
     };
 
+    auto& gen = EmscriptenGenerator::cast(generator());
     for (auto* m : emscriptenMembers()) {
         static const std::string Templ = 
-            ".function(\"handle_#^#NAME#$#\", emscripten::optional_override([](#^#HANDLER#$#& self, #^#NAME#$#* field) { return self.#^#HANDLER#$#::handle_#^#NAME#$#(field);}), emscripten::allow_raw_pointers())";
+            ".function(\"handle_#^#NAME#$#\", emscripten::optional_override([](#^#HANDLER#$#& self, #^#MEM_CLASS#$#* field) { self.#^#HANDLER#$#::handle_#^#NAME#$#(field);}), emscripten::allow_raw_pointers())";
 
         repl["NAME"] = comms::accessName(m->field().dslObj().name());
+        repl["MEM_CLASS"] = gen.emscriptenClassName(m->field());
         funcs.push_back(util::processTemplate(Templ, repl));
     }
 
     return util::strListToString(funcs, "\n", "");
 }
 
+std::string EmscriptenVariantField::emscriptenSourceHandleFuncsInternal() const
+{
+    util::StringsList funcs;
+    auto& gen = EmscriptenGenerator::cast(generator());
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenHandlerClassInternal()},
+    };
+        
+    for (auto* m : emscriptenMembers()) {
+        static const std::string Templ = 
+            "void #^#CLASS_NAME#$#::handle_#^#NAME#$#(#^#MEM_CLASS#$#* field) { static_cast<void>(field); }";
+
+        repl["NAME"] = comms::accessName(m->field().dslObj().name());
+        repl["MEM_CLASS"] = gen.emscriptenClassName(m->field());
+
+        funcs.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(funcs, "\n", "\n");
+}
 
 } // namespace commsdsl2emscripten

@@ -49,6 +49,7 @@ private:
     std::string emscriptenHandlerWrapperClassInternal() const;
     std::string emscriptenSourceWrapperFuncsInternal() const;
     std::string emscriptenSourceWrapperBindsInternal() const;
+    std::string emscriptenSourceHandleFuncsInternal() const;
 };
 
 } // namespace commsdsl2emscripten

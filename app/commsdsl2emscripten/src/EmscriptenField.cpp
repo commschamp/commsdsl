@@ -345,7 +345,7 @@ std::string EmscriptenField::emscriptenMembersBindFuncs() const
 
     for (auto* f : emscriptenMembers()) {
         static const std::string Templ = 
-            ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#)";
+            ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#, emscripten::allow_raw_pointers())";
 
         repl["NAME"] = comms::accessName(f->field().dslObj().name());
         fields.push_back(util::processTemplate(Templ, repl));

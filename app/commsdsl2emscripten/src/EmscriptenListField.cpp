@@ -79,9 +79,9 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
         "{\n"
         "    return reinterpret_cast<const ValueType*>(&Base::getValue());\n"
         "}\n\n"
-        "void setValue(const ValueType& val) const\n"
+        "void setValue(const ValueType& val)\n"
         "{\n"
-        "    Base::setValue(reinterpret_cast<Base::ValueType&>(val));\n"
+        "    Base::setValue(*reinterpret_cast<const Base::ValueType*>(&val));\n"
         "}\n";        
 
     assert(m_element != nullptr);

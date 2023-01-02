@@ -337,7 +337,7 @@ std::string EmscriptenMsgHandler::emscriptenSourceBindInternal() const
 std::string EmscriptenMsgHandler::emscriptenSourceBindFuncsInternal() const
 {
     const std::string Templ = 
-        ".function(\"handle_#^#TYPE#$#\", emscripten::optional_override([](#^#HANDLER#$#& self, #^#TYPE#$#* msg) { return self.#^#HANDLER#$#::handle_#^#TYPE#$#(msg);}), emscripten::allow_raw_pointers())";
+        ".function(\"handle_#^#TYPE#$#\", emscripten::optional_override([](#^#HANDLER#$#& self, #^#TYPE#$#* msg) { self.#^#HANDLER#$#::handle_#^#TYPE#$#(msg);}), emscripten::allow_raw_pointers())";
 
     util::ReplacementMap repl = {
         {"HANDLER", emscriptenClassName(m_generator)},
