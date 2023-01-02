@@ -48,6 +48,12 @@ bool EmscriptenComms::emscriptenWrite(EmscriptenGenerator& generator)
         obj.emscriptenWriteOptionalModeInternal();
 }
 
+void EmscriptenComms::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+{
+    sources.push_back(generator.emscriptenRelSourceForRoot(generator.emscriptenScopeToName(ErrorStatusScopeStr)));
+    sources.push_back(generator.emscriptenRelSourceForRoot(generator.emscriptenScopeToName(OptionalModeScopeStr)));
+}
+
 bool EmscriptenComms::emscriptenWriteErrorStatusInternal() const
 {
     auto name = m_generator.emscriptenScopeToName(ErrorStatusScopeStr);

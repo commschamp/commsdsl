@@ -69,6 +69,11 @@ const std::string& EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()
     return Str;
 }
 
+void EmscriptenDataBuf::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+{
+    sources.push_back(generator.emscriptenRelSourceForRoot(ClassName));
+}
+
 bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
 {
     auto filePath = m_generator.emscriptenAbsHeaderForRoot(ClassName);

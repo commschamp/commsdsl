@@ -62,6 +62,11 @@ std::string EmscriptenMsgHandler::emscriptenRelHeader(const EmscriptenGenerator&
     return generator.emscriptenRelHeaderForRoot(ClassName);
 }
 
+void EmscriptenMsgHandler::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+{
+    sources.push_back(generator.emscriptenRelSourceForRoot(ClassName));
+}
+
 bool EmscriptenMsgHandler::emscriptenWriteHeaderInternal() const
 {
     auto filePath = m_generator.emscriptenAbsHeaderForRoot(ClassName);

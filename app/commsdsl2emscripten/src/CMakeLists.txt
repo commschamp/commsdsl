@@ -3,6 +3,7 @@ set (src
     EmscriptenBitfieldField.cpp
     EmscriptenBundleField.cpp
     EmscriptenChecksumLayer.cpp
+    EmscriptenCmake.cpp
     EmscriptenComms.cpp
     EmscriptenCustomLayer.cpp
     EmscriptenDataBuf.cpp
@@ -20,11 +21,13 @@ set (src
     EmscriptenMessage.cpp
     EmscriptenMsgHandler.cpp
     EmscriptenMsgId.cpp
+    EmscriptenNamespace.cpp
     EmscriptenOptionalField.cpp
     EmscriptenPayloadLayer.cpp
     EmscriptenProgramOptions.cpp
     EmscriptenProtocolOptions.cpp
     EmscriptenRefField.cpp
+    EmscriptenSchema.cpp
     EmscriptenSetField.cpp
     EmscriptenSizeLayer.cpp
     EmscriptenStringField.cpp

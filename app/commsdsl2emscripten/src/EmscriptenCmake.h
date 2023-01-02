@@ -23,29 +23,17 @@ namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenMsgHandler
+class EmscriptenCmake
 {
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
-    static std::string emscriptenClassName(const EmscriptenGenerator& generator);
-    static std::string emscriptenRelHeader(const EmscriptenGenerator& generator);
-    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources);
 
 private:
-    explicit EmscriptenMsgHandler(EmscriptenGenerator& generator) : m_generator(generator) {}
+    explicit EmscriptenCmake(EmscriptenGenerator& generator) : m_generator(generator) {}
 
-    bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSrcInternal() const;
-
-    std::string emscriptenHeaderIncludesInternal() const;
-    std::string emscriptenHeaderHandleFuncsInternal() const;
-    std::string emscriptenSourceHandleFuncsInternal() const;
-    std::string emscriptenSourceWrapperClassInternal() const;
-    std::string emscriptenSourceWrapperFuncsInternal() const;
-    std::string emscriptenSourceBindInternal() const;
-    std::string emscriptenSourceBindFuncsInternal() const;
+    bool emscriptenWriteInternal() const;
 
     EmscriptenGenerator& m_generator;
 };

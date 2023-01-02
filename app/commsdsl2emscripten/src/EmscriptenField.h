@@ -58,6 +58,7 @@ public:
     std::string emscriptenSourceCode() const;
 
     void emscriptenHeaderAddExtraIncludes(StringsList& incs) const;
+    void emscriptenAddSourceFiles(StringsList& sources) const;
 
 protected:
     virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const;

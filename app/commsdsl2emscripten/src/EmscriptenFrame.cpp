@@ -45,6 +45,12 @@ EmscriptenFrame::EmscriptenFrame(EmscriptenGenerator& generator, commsdsl::parse
 
 EmscriptenFrame::~EmscriptenFrame() = default;
 
+void EmscriptenFrame::emscriptenAddSourceFiles(StringsList& sources) const
+{
+    auto& gen = EmscriptenGenerator::cast(generator());
+    sources.push_back(gen.emscriptenRelSourceFor(*this));
+}
+
 bool EmscriptenFrame::prepareImpl()
 {
     if (!Base::prepareImpl()) {

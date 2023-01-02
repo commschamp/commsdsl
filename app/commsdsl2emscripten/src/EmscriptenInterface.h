@@ -41,6 +41,7 @@ public:
     }
 
     std::string emscriptenRelHeader() const;
+    void emscriptenAddSourceFiles(StringsList& sources) const;
 
 protected:
     virtual bool prepareImpl() override;    

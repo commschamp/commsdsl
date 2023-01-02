@@ -40,6 +40,8 @@ public:
         return static_cast<const EmscriptenFrame*>(i);
     }        
 
+    void emscriptenAddSourceFiles(StringsList& sources) const;
+
 protected:    
     virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    

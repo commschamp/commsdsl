@@ -19,7 +19,7 @@
 #include "EmscriptenBitfieldField.h"
 #include "EmscriptenBundleField.h"
 #include "EmscriptenChecksumLayer.h"
-// #include "EmscriptenCmake.h"
+#include "EmscriptenCmake.h"
 #include "EmscriptenComms.h"
 #include "EmscriptenCustomLayer.h"
 #include "EmscriptenDataBuf.h"
@@ -34,10 +34,12 @@
 #include "EmscriptenMessage.h"
 #include "EmscriptenMsgHandler.h"
 #include "EmscriptenMsgId.h"
+#include "EmscriptenNamespace.h"
 #include "EmscriptenOptionalField.h"
 #include "EmscriptenPayloadLayer.h"
 #include "EmscriptenProtocolOptions.h"
 #include "EmscriptenRefField.h"
+#include "EmscriptenSchema.h"
 #include "EmscriptenSetField.h"
 #include "EmscriptenSizeLayer.h"
 #include "EmscriptenStringField.h"
@@ -211,7 +213,7 @@ bool EmscriptenGenerator::writeImpl()
         EmscriptenProtocolOptions::emscriptenWrite(*this) &&
         EmscriptenAllMessages::emscriptenWrite(*this) &&
         EmscriptenMsgHandler::emscriptenWrite(*this) &&
-        // EmscriptenCmake::emscriptenWrite(*this) &&
+        EmscriptenCmake::emscriptenWrite(*this) &&
         emscriptenWriteExtraFilesInternal();
 
 }
@@ -271,6 +273,16 @@ const EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface() const
 EmscriptenInterface* EmscriptenGenerator::emscriptenMainInterface()
 {
     return const_cast<EmscriptenInterface*>(static_cast<const EmscriptenGenerator*>(this)->emscriptenMainInterface());
+}
+
+EmscriptenGenerator::SchemaPtr EmscriptenGenerator::createSchemaImpl(commsdsl::parse::Schema dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenSchema>(*this, dslObj, parent);
+}
+
+EmscriptenGenerator::NamespacePtr EmscriptenGenerator::createNamespaceImpl(commsdsl::parse::Namespace dslObj, Elem* parent)
+{
+    return std::make_unique<EmscriptenNamespace>(*this, dslObj, parent);
 }
 
 EmscriptenGenerator::InterfacePtr EmscriptenGenerator::createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent)

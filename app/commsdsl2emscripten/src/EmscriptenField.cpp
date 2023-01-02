@@ -161,6 +161,16 @@ void EmscriptenField::emscriptenHeaderAddExtraIncludes(StringsList& incs) const
     emscriptenHeaderAddExtraIncludesImpl(incs);
 }
 
+void EmscriptenField::emscriptenAddSourceFiles(StringsList& sources) const
+{
+    if ((!comms::isGlobalField(m_field)) || (!m_field.isReferenced())) {
+        return;
+    }
+
+    auto& gen = EmscriptenGenerator::cast(m_field.generator());
+    sources.push_back(gen.emscriptenRelSourceFor(m_field));
+}
+
 void EmscriptenField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
 {
     static_cast<void>(incs);

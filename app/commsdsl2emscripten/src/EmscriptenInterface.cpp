@@ -47,6 +47,16 @@ std::string EmscriptenInterface::emscriptenRelHeader() const
     return gen.emscriptenRelHeaderFor(*this);
 }
 
+void EmscriptenInterface::emscriptenAddSourceFiles(StringsList& sources) const
+{
+    if (!isReferenced()) {
+        return;
+    }
+    
+    auto& gen = EmscriptenGenerator::cast(generator());
+    sources.push_back(gen.emscriptenRelSourceFor(*this));
+}
+
 bool EmscriptenInterface::prepareImpl()
 {
     if (!Base::prepareImpl()) {

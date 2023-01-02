@@ -1,6 +1,7 @@
 //
 // Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
 //
+
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
@@ -15,33 +16,31 @@
 
 #pragma once
 
-#include <string>
+#include "EmscriptenField.h"
 
+#include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/util.h"
 
 namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
-class EmscriptenDataBuf
+class EmscriptenNamespace final: public commsdsl::gen::Namespace
 {
+    using Base = commsdsl::gen::Namespace;
+
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    static bool emscriptenWrite(EmscriptenGenerator& generator);
-    static std::string emscriptenClassName(const EmscriptenGenerator& generator);
-    static std::string emscriptenRelHeader(const EmscriptenGenerator& generator);
-    static const std::string& emscriptenMemViewFuncName();
-    static const std::string& emscriptenJsArrayToDataBufFuncName();
-    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources);
+    explicit EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
+    virtual ~EmscriptenNamespace();
 
-private:
-    explicit EmscriptenDataBuf(EmscriptenGenerator& generator) : m_generator(generator) {}
+    static const EmscriptenNamespace* cast(const commsdsl::gen::Namespace* schema)
+    {
+        return static_cast<const EmscriptenNamespace*>(schema);
+    }
 
-    bool emscriptenWriteHeaderInternal() const;
-    bool emscriptenWriteSrcInternal() const;
-
-    EmscriptenGenerator& m_generator;
+    void emscriptenAddSourceFiles(StringsList& sources) const;
 };
 
 } // namespace commsdsl2emscripten
