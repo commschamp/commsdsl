@@ -66,23 +66,10 @@ std::string SwigValueLayer::swigCodeFuncsImpl() const
 
 bool SwigValueLayer::swigIsMainInterfaceSupportedImpl() const
 {
-    auto obj = valueDslObj();
-    auto supportedInterfaces = obj.interfaces();
-
-    if (supportedInterfaces.empty()) {
-        return true;
-    }
-
     auto& gen = SwigGenerator::cast(generator());
     auto* iFace = gen.swigMainInterface();
     assert(iFace != nullptr);
-    return 
-        std::any_of(
-            supportedInterfaces.begin(), supportedInterfaces.end(),
-            [iFace, &gen](auto& i)
-            {
-                return gen.findInterface(i.externalRef()) == iFace;
-            });
+    return isInterfaceSupported(iFace);
 }
 
 } // namespace commsdsl2swig

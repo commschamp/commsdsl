@@ -143,6 +143,13 @@ std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
 
 std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
 {
+    if (!emscriptenCanProvideValuesInternal()) {
+        generator().logger().warning(
+            "emscripten cannot handle enum values with types wider than long, cannot provide bindings for " +
+            emscriptenBindClassName() + "::ValueType.");
+        return strings::emptyString();
+    }
+
     if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
         // The bindings for MsgId are created separately
         return strings::emptyString();    
@@ -159,6 +166,34 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+bool EmscriptenEnumField::emscriptenCanProvideValuesInternal() const
+{
+    auto type = enumDslObj().type();
+    if (type < commsdsl::parse::IntField::Type::Int64) {
+        return true;
+    }
+
+    if (type == commsdsl::parse::IntField::Type::Int64) {
+        return false;
+    }
+
+    if (type == commsdsl::parse::IntField::Type::Uint64) {
+        return false;
+    }   
+
+    if ((type == commsdsl::parse::IntField::Type::Intvar) &&
+        (dslObj().minLength() > sizeof(std::int32_t))) {
+        return false;
+    }
+
+    if ((type == commsdsl::parse::IntField::Type::Uintvar) &&
+        (dslObj().minLength() > sizeof(std::int32_t))) {
+        return false;
+    }
+
+    return true;
 }
 
 } // namespace commsdsl2emscripten

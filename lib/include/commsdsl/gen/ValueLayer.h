@@ -29,6 +29,7 @@ namespace commsdsl
 namespace gen
 {
 
+class Interface;
 class COMMSDSL_API ValueLayer : public Layer
 {
     using Base = Layer;
@@ -36,6 +37,8 @@ public:
 
     ValueLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);
     virtual ~ValueLayer();
+
+    bool isInterfaceSupported(const Interface* iFace) const;
 
 protected:    
     commsdsl::parse::ValueLayer valueDslObj() const;

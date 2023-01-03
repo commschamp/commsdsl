@@ -93,9 +93,8 @@ std::string EmscriptenSetField::emscriptenSourceBindFuncsImpl() const
 {
     auto obj = setDslObj();
 
-    auto& gen = EmscriptenGenerator::cast(generator());
     util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.emscriptenClassName(*this)},
+        {"CLASS_NAME", emscriptenBindClassName()},
     };    
 
     util::StringsList accesses;
@@ -123,16 +122,15 @@ std::string EmscriptenSetField::emscriptenSourceBindExtraImpl() const
 {
     auto obj = setDslObj();
 
-    auto& gen = EmscriptenGenerator::cast(generator());
     util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.emscriptenClassName(*this)},
+        {"CLASS_NAME", emscriptenBindClassName()},
     };    
 
     util::StringsList values;
     for (auto& bitInfo : obj.revBits()) {
 
         static const std::string Templ = 
-            ".value(\"#^#NAME#$#\", &#^#CLASS_NAME#$#::BitIdx_#^#NAME#$#)";
+            ".value(\"#^#NAME#$#\", #^#CLASS_NAME#$#::BitIdx_#^#NAME#$#)";
 
         repl["NAME"] = bitInfo.second;
         values.push_back(util::processTemplate(Templ, repl));

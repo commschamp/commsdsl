@@ -32,6 +32,7 @@ public:
     EmscriptenValueLayer(EmscriptenGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
 
 protected:
+    virtual bool emscriptenIsMainInterfaceSupportedImpl() const override;
     virtual std::string emscriptenHeaderExtraFuncsImpl() const override;    
     virtual std::string emscriptenSourceExtraFuncsImpl() const override;
 };

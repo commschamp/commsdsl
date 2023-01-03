@@ -191,8 +191,6 @@ std::string Field::templateScopeOfComms(const std::string& protOptionsStr) const
         return commsScope + optionsParams;
     }
 
-    using Elem = commsdsl::gen::Elem;
-
     auto formScopeFunc = 
         [this, &commsScope, &optionsParams](const Elem* parent, const std::string& suffix)
         {

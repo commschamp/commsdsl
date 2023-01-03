@@ -49,7 +49,7 @@ std::string EmscriptenFloatField::emscriptenHeaderValueAccImpl() const
 std::string EmscriptenFloatField::emscriptenHeaderExtraPublicFuncsImpl() const
 {
     static const std::string Templ = 
-        "bool hasSpecials()\n"
+        "static bool hasSpecials()\n"
         "{\n"
         "    return Base::hasSpecials();\n"
         "}\n\n"

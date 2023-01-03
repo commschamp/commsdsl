@@ -16,6 +16,7 @@
 #include "EmscriptenValueLayer.h"
 
 #include "EmscriptenGenerator.h"
+#include "EmscriptenInterface.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -34,6 +35,14 @@ EmscriptenValueLayer::EmscriptenValueLayer(EmscriptenGenerator& generator, comms
     Base(generator, dslObj, parent),
     EmscriptenBase(static_cast<Base&>(*this))
 {
+}
+
+bool EmscriptenValueLayer::emscriptenIsMainInterfaceSupportedImpl() const
+{
+    auto& gen = EmscriptenGenerator::cast(generator());
+    auto* iFace = gen.emscriptenMainInterface();
+    assert(iFace != nullptr);
+    return isInterfaceSupported(iFace);
 }
 
 std::string EmscriptenValueLayer::emscriptenHeaderExtraFuncsImpl() const
@@ -60,7 +69,7 @@ std::string EmscriptenValueLayer::emscriptenSourceExtraFuncsImpl() const
     }
 
     static const std::string Templ = 
-        ".function(\"pseudoField\", &#^#CLASS_NAME#$#::psuedoField, emscripten::allow_raw_pointers())";
+        ".function(\"pseudoField\", &#^#CLASS_NAME#$#::pseudoField, emscripten::allow_raw_pointers())";
 
     auto& gen = EmscriptenGenerator::cast(generator());
     util::ReplacementMap repl = {

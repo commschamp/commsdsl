@@ -60,7 +60,7 @@ std::string EmscriptenRefField::emscriptenHeaderExtraPublicFuncsImpl() const
         "{\n"
         "    return\n"
         "        static_cast<#^#REF_FIELD#$#*>(\n"
-        "            static_cast<#^#REF_BASE#$#*>(this));\n"
+        "            reinterpret_cast<#^#REF_BASE#$#*>(this));\n"
         "}\n";
 
     auto& gen = EmscriptenGenerator::cast(generator());

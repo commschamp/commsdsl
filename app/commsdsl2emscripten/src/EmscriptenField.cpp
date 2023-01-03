@@ -234,7 +234,7 @@ std::string EmscriptenField::emscriptenHeaderValueAccByRef()
         "{\n"
         "    return Base::getValue();\n"
         "}\n\n"
-        "void setValue(const ValueType& val) const\n"
+        "void setValue(const ValueType& val)\n"
         "{\n"
         "    Base::setValue(val);\n"
         "}\n";        
@@ -264,7 +264,7 @@ std::string EmscriptenField::emscriptenHeaderValueAccByPointer()
         "{\n"
         "    return &Base::getValue();\n"
         "}\n\n"
-        "void setValue(const ValueType& val) const\n"
+        "void setValue(const ValueType& val)\n"
         "{\n"
         "    Base::setValue(val);\n"
         "}\n";        

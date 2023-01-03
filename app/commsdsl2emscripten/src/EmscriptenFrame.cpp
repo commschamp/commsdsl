@@ -47,6 +47,10 @@ EmscriptenFrame::~EmscriptenFrame() = default;
 
 void EmscriptenFrame::emscriptenAddSourceFiles(StringsList& sources) const
 {
+    if (!m_validFrame) {
+        return;
+    }
+
     auto& gen = EmscriptenGenerator::cast(generator());
     sources.push_back(gen.emscriptenRelSourceFor(*this));
 }
@@ -77,11 +81,7 @@ bool EmscriptenFrame::prepareImpl()
                 return l->emscriptenIsMainInterfaceSupported();
             });
 
-    if (!m_validFrame) {
-        return true;
-    }
-
-    return true;   
+    return true;
 }
 
 bool EmscriptenFrame::writeImpl() const
