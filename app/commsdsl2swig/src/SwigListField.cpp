@@ -77,13 +77,54 @@ std::string SwigListField::swigValueAccDeclImpl() const
         SwigBase::swigValueAccDeclImpl();
 }
 
+std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
+{
+    static const std::string Templ = 
+        "using ValueType = std::vector<#^#ELEM#$#>;\n\n"
+        "ValueType& value()\n"
+        "{\n"
+        "    return reinterpret_cast<ValueType&>(Base::value());\n"
+        "}\n\n"
+        "const ValueType& getValue() const\n"
+        "{\n"
+        "    return reinterpret_cast<const ValueType&>(Base::getValue());\n"
+        "}\n\n"
+        "void setValue(const ValueType& val)\n"
+        "{\n"
+        "    Base::setValue(reinterpret_cast<const Base::ValueType&>(val));\n"
+        "}\n";
+
+    auto* elem = memberElementField();
+    if (elem == nullptr) {
+        elem = externalElementField();
+    }
+
+    assert(elem != nullptr);
+
+    util::ReplacementMap repl = {
+        {"ELEM", SwigGenerator::cast(generator()).swigClassName(*elem)}
+    };
+
+    return util::processTemplate(Templ, repl);        
+}
+
 void SwigListField::swigAddDefImpl(StringsList& list) const
 {
     auto* elem = memberElementField();
     if (elem == nullptr) {
         elem = externalElementField();
     }   
-    
+
+    static const std::string Templ = 
+        "%template(#^#CLASS_NAME#$#_ValueType) std::vector<#^#ELEM#$#>;";
+
+    auto& gen = SwigGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(*this)},
+        {"ELEM", gen.swigClassName(*elem)}
+    }; 
+
+    list.push_back(util::processTemplate(Templ, repl));
     SwigField::cast(elem)->swigAddDef(list);
 }
 

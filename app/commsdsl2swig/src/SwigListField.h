@@ -39,6 +39,7 @@ protected:
     virtual std::string swigMembersDeclImpl() const override;
     virtual std::string swigValueTypeDeclImpl() const override;
     virtual std::string swigValueAccDeclImpl() const override;
+    virtual std::string swigExtraPublicFuncsCodeImpl() const override;
     virtual void swigAddDefImpl(StringsList& list) const override;
     virtual void swigAddMembersCodeImpl(StringsList& list) const override;
 };
