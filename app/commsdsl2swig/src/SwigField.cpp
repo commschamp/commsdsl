@@ -55,6 +55,11 @@ const SwigField* SwigField::cast(const commsdsl::gen::Field* field)
     return swigField;
 }
 
+SwigField* SwigField::cast(commsdsl::gen::Field* field)
+{
+    return const_cast<SwigField*>(cast(static_cast<const commsdsl::gen::Field*>(field)));
+}
+
 SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
 {
     SwigFieldsList result;
@@ -149,6 +154,8 @@ void SwigField::swigAddDef(StringsList& list) const
     }
 
     m_defAdded = true;
+
+    swigAddVectorTemplateInternal(list);
 
     swigAddDefImpl(list);
     
@@ -512,6 +519,23 @@ std::string SwigField::swigComparisonRenameInternal() const
     auto noSuffix = util::processTemplate(Templ, repl);
     repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
     return util::processTemplate(Templ, repl) + '\n' + noSuffix;
+}
+
+void SwigField::swigAddVectorTemplateInternal(StringsList& list) const
+{
+    if (!m_listElement) {
+        return;
+    }
+
+    static const std::string Templ = 
+        "%template(#^#CLASS_NAME#$#_Vector) std::vector<#^#CLASS_NAME#$#>;";
+
+    auto& gen = SwigGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(m_field)},
+    };    
+
+    list.push_back(util::processTemplate(Templ, repl));
 }
 
 } // namespace commsdsl2swig

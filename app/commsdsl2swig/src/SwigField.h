@@ -35,6 +35,8 @@ public:
     virtual ~SwigField();
 
     static const SwigField* cast(const commsdsl::gen::Field* field);
+    static SwigField* cast(commsdsl::gen::Field* field);
+
     static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
 
     commsdsl::gen::Field& field()
@@ -62,6 +64,11 @@ public:
 
     bool swigWrite() const;
 
+    void swigSetListElement()
+    {
+        m_listElement = true;
+    }
+
 protected:
     virtual std::string swigMembersDeclImpl() const;
     virtual std::string swigValueTypeDeclImpl() const;
@@ -83,10 +90,12 @@ private:
     std::string swigOptionalDeclInternal() const;
     std::string swigClassCodeInternal() const;
     std::string swigComparisonRenameInternal() const;
+    void swigAddVectorTemplateInternal(StringsList& list) const;
 
     commsdsl::gen::Field& m_field;
     mutable bool m_defAdded = false;
     mutable bool m_codeAdded = false;
+    bool m_listElement = false;
 };
 
 } // namespace commsdsl2swig

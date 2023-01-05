@@ -15,6 +15,7 @@
 
 #include "SwigListField.h"
 
+#include "SwigField.h"
 #include "SwigGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -34,6 +35,23 @@ SwigListField::SwigListField(SwigGenerator& generator, commsdsl::parse::Field ds
     Base(generator, dslObj, parent),
     SwigBase(static_cast<Base&>(*this))
 {
+}
+
+bool SwigListField::prepareImpl() 
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    auto* elem = memberElementField();
+    if (elem == nullptr) {
+        elem = externalElementField();
+    }
+
+    assert(elem != nullptr);
+    SwigField::cast(elem)->swigSetListElement();    
+
+    return true;
 }
 
 bool SwigListField::writeImpl() const
@@ -115,16 +133,6 @@ void SwigListField::swigAddDefImpl(StringsList& list) const
         elem = externalElementField();
     }   
 
-    static const std::string Templ = 
-        "%template(#^#CLASS_NAME#$#_ValueType) std::vector<#^#ELEM#$#>;";
-
-    auto& gen = SwigGenerator::cast(generator());
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", gen.swigClassName(*this)},
-        {"ELEM", gen.swigClassName(*elem)}
-    }; 
-
-    list.push_back(util::processTemplate(Templ, repl));
     SwigField::cast(elem)->swigAddDef(list);
 }
 
