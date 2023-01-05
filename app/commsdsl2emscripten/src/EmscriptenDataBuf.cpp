@@ -49,12 +49,12 @@ bool EmscriptenDataBuf::emscriptenWrite(EmscriptenGenerator& generator)
 
 std::string EmscriptenDataBuf::emscriptenClassName(const EmscriptenGenerator& generator)
 {
-    return generator.emscriptenScopeNameForRoot(ClassName);
+    return generator.emscriptenProtocolClassNameForRoot(ClassName);
 }
 
 std::string EmscriptenDataBuf::emscriptenRelHeader(const EmscriptenGenerator& generator)
 {
-    return generator.emscriptenRelHeaderForRoot(ClassName);
+    return generator.emscriptenProtocolRelHeaderForRoot(ClassName);
 }
 
 const std::string& EmscriptenDataBuf::emscriptenMemViewFuncName()

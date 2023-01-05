@@ -50,17 +50,17 @@ bool EmscriptenAllMessages::emscriptenWrite(EmscriptenGenerator& generator)
 
 std::string EmscriptenAllMessages::emscriptenClassName(const EmscriptenGenerator& generator)
 {
-    return generator.emscriptenScopeNameForRoot(strings::allMessagesStr());
+    return generator.emscriptenProtocolClassNameForRoot(strings::allMessagesStr());
 }
 
 std::string EmscriptenAllMessages::emscriptenRelHeader(const EmscriptenGenerator& generator)
 {
-    return generator.emscriptenRelHeaderForRoot(strings::allMessagesStr());
+    return generator.emscriptenProtocolRelHeaderForRoot(strings::allMessagesStr());
 }
 
 std::string EmscriptenAllMessages::emscriptenRelFwdHeader(const EmscriptenGenerator& generator)
 {
-    return generator.emscriptenRelHeaderForRoot(strings::allMessagesStr() + FwdSuffix);
+    return generator.emscriptenProtocolRelHeaderForRoot(strings::allMessagesStr() + FwdSuffix);
 }
 
 bool EmscriptenAllMessages::emscriptenWriteHeaderInternal() const

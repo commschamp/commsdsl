@@ -180,6 +180,8 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
         iFace->emscriptenRelHeader()
     };
 
+    EmscriptenProtocolOptions::emscriptenAddInclude(m_generator, includes);
+
     comms::prepareIncludeStatement(includes);
     return util::strListToString(includes, "\n", "\n");
 }

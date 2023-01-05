@@ -242,9 +242,10 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
         util::StringsList fields;
         for (auto* f : m_emscriptenFields) {
             static const std::string Templ = 
-                "#^#FIELD_CLASS#$#* transportField_#^#NAME#$#()\n"
+                "using Base::transportField_#^#NAME#$#;\n"
+                "#^#FIELD_CLASS#$#* transportField_#^#NAME#$#_()\n"
                 "{\n"
-                "    return static_cast<#^#FIELD_CLASS#$#*>(&Base::transportField_#^#NAME#$#());\n"
+                "    return static_cast<#^#FIELD_CLASS#$#*>(&transportField_#^#NAME#$#());\n"
                 "}\n";
 
             util::ReplacementMap repl = {
@@ -311,7 +312,7 @@ std::string EmscriptenInterface::emscriptenSourceCodeInternal() const
     util::StringsList fields;
     for (auto* f : m_emscriptenFields) {
         static const std::string Templ = 
-            ".function(\"transportField_#^#NAME#$#\", &#^#CLASS_NAME#$#::transportField_#^#NAME#$#, emscripten::allow_raw_pointers())";
+            ".function(\"transportField_#^#NAME#$#\", &#^#CLASS_NAME#$#::transportField_#^#NAME#$#_, emscripten::allow_raw_pointers())";
 
         repl["NAME"] = comms::accessName(f->field().dslObj().name());
         fields.push_back(util::processTemplate(Templ, repl));

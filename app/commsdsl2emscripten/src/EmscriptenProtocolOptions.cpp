@@ -83,7 +83,7 @@ void EmscriptenProtocolOptions::emscriptenAddInclude(const EmscriptenGenerator& 
     }
 
     auto name = emscriptenClassName(generator);
-    list.push_back(generator.emscriptenRelHeaderForRoot(name));
+    list.push_back(generator.emscriptenProtocolRelHeaderForRoot(name));
 }
 
 bool EmscriptenProtocolOptions::emscriptenWrite(EmscriptenGenerator& generator)
@@ -123,7 +123,6 @@ bool EmscriptenProtocolOptions::emsciptenWriteHeaderInternal()
         "#^#GENERATED#$#\n" 
         "#^#INCLUDES#$#\n"
         "#^#DEF#$#\n"
-        "}\n"
     ;
 
     util::ReplacementMap repl = {

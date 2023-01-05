@@ -319,9 +319,10 @@ std::string EmscriptenField::emscriptenMembersAccessFuncs() const
     util::StringsList fields;
     for (auto* f : emscriptenMembers()) {
         static const std::string Templ = 
-            "#^#FIELD_CLASS#$#* field_#^#NAME#$#()\n"
+            "using Base::field_#^#NAME#$#;\n"
+            "#^#FIELD_CLASS#$#* field_#^#NAME#$#_()\n"
             "{\n"
-            "    return static_cast<#^#FIELD_CLASS#$#*>(&Base::field_#^#NAME#$#());\n"
+            "    return static_cast<#^#FIELD_CLASS#$#*>(&field_#^#NAME#$#());\n"
             "}\n";
 
         util::ReplacementMap repl = {
@@ -345,7 +346,7 @@ std::string EmscriptenField::emscriptenMembersBindFuncs() const
 
     for (auto* f : emscriptenMembers()) {
         static const std::string Templ = 
-            ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#, emscripten::allow_raw_pointers())";
+            ".function(\"field_#^#NAME#$#\", &#^#CLASS_NAME#$#::field_#^#NAME#$#_, emscripten::allow_raw_pointers())";
 
         repl["NAME"] = comms::accessName(f->field().dslObj().name());
         fields.push_back(util::processTemplate(Templ, repl));

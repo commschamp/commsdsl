@@ -98,13 +98,12 @@ std::string EmscriptenGenerator::emscriptenScopeNameForRoot(const std::string& n
 
 std::string EmscriptenGenerator::emscriptenProtocolClassNameForRoot(const std::string& name) const
 {
-    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
     auto schemaIdx = currentSchemaIdx();
     auto* thisGen = const_cast<EmscriptenGenerator*>(this);
     thisGen->chooseProtocolSchema();
-    auto str = comms::scopeForRoot(name, *this, addMainNamespace);
+    auto str = emscriptenScopeNameForRoot(name);
     thisGen->chooseCurrentSchema(schemaIdx);
-    return emscriptenScopeToName(str);
+    return str;
 }
 
 std::string EmscriptenGenerator::emscriptenRelHeaderForRoot(const std::string& name) const
@@ -125,6 +124,16 @@ std::string EmscriptenGenerator::emscriptenRelSourceForRoot(const std::string& n
 std::string EmscriptenGenerator::emscriptenAbsSourceForRoot(const std::string& name) const
 {
     return getOutputDir() + '/' + emscriptenRelSourceForRoot(name);
+}
+
+std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForRoot(const std::string& name) const
+{
+    auto schemaIdx = currentSchemaIdx();
+    auto* thisGen = const_cast<EmscriptenGenerator*>(this);
+    thisGen->chooseProtocolSchema();
+    auto str = emscriptenRelHeaderForRoot(name);
+    thisGen->chooseCurrentSchema(schemaIdx);
+    return str;
 }
 
 std::string EmscriptenGenerator::emscriptenRelHeaderFor(const Elem& elem) const
