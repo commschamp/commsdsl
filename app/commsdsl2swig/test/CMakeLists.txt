@@ -2,7 +2,6 @@ if (NOT BUILD_TESTING)
     return ()
 endif () 
 
-set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 set (languages python java csharp)
@@ -53,8 +52,6 @@ foreach (name ${tests})
         DEPENDS ${output_tgt}
         COMMAND ${CMAKE_COMMAND} -E echo "The swig interface file ${output_dir}/${name}.i is ready"
     )            
-
-    set (protocol_install_dir ${dep_prefix_path}/${name}/build/install)
 
     set_source_files_properties(
         ${output_dir}/${name}.i

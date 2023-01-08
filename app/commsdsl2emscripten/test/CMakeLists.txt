@@ -19,6 +19,12 @@ add_custom_target(${APP_NAME}.all_tests
 
 include(ExternalProject)
 
+set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
+set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
+file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
+
+find_program (NODE_EXECUTABLE NAMES node nodejs REQUIRED)
+
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
     file (GLOB schema_files ${test_dir}/Schema*.xml)
@@ -50,6 +56,10 @@ foreach (name ${tests})
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
         DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
+
+    if ("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.15)
+        set_target_properties(${output_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES "${output_dir}.tmp;${output_dir}")
+    endif ()            
 
     add_dependencies(${APP_NAME}.all_tests ${output_tgt})         
 
@@ -84,5 +94,15 @@ foreach (name ${tests})
     )     
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt})     
+
+    if (EXISTS ${this_test_dir}/emscripten_${name}.js)
+        add_test(
+            NAME ${APP_NAME}.${name}
+            COMMAND ${NODE_EXECUTABLE} ${this_test_dir}/emscripten_${name}.js
+            WORKING_DIRECTORY ${build_dir}
+        )    
+
+        set_property(TEST ${APP_NAME}.${name} PROPERTY ENVIRONMENT "NODE_PATH=${install_dir}/js")
+    endif ()
 
 endforeach ()
