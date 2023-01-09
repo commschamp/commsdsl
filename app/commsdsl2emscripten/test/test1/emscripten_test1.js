@@ -1,9 +1,8 @@
 var assert = require('assert');
 var factory = require('test1_emscripten.js');
 
-factory().then((instance) => {
-    console.log("Loaded");
-
+function allocHandler(instance)
+{
     var DerivedHandler = instance.MsgHandler.extend("MsgHandler", {
         handle_message_Msg1: function(msg) {
             this.msg1 = new instance.message_Msg1(msg);
@@ -14,48 +13,55 @@ factory().then((instance) => {
         handle_Message: function(msg) {
             assert(false); /* should not happen */
         }
-    });
+    });    
 
+    return new DerivedHandler;
+}
+
+function test1(instance) {
     var msg1 = new instance.message_Msg1();
-    msg1.field_f1().setValue(123);
-    msg1.field_f2().setValue(1);
-
     var frame = new instance.frame_Frame();
-
+    var handler = allocHandler(instance);
     var buf = new instance.DataBuf();
-    var es = frame.writeMessage(msg1, buf);
-    assert(es == instance.comms_ErrorStatus.Success);
 
-    var handler = new DerivedHandler;
-    frame.processInputData(buf, handler);
+    try {
+        msg1.field_f1().setValue(123);
+        msg1.field_f2().setValue(1);
 
-    assert(handler.msg1.field_f1().getValue() == handler.msg1.field_f1().getValue());
+        var es = frame.writeMessage(msg1, buf);
+        assert(es == instance.comms_ErrorStatus.Success);
+        frame.processInputData(buf, handler);
+        assert(handler.msg1.field_f1().getValue() == handler.msg1.field_f1().getValue());
+    }
+    finally {
+        buf.delete();
+        handler.delete();
+        frame.delete();
+        msg1.delete();
+    }
 
-    handler.delete();
-    buf.delete();
-    frame.delete();
-    msg1.delete();
+}
 
-//     var data = [1, 2, 3, 4, 5];
-//     var data2 = new Uint8Array(data);
+function test2(instance) {
+    var jsArray = new Uint8Array([1, 1, 2, 3, 4]);
+    var buf = instance.jsArrayToDataBuf(jsArray);
+    var frame = new instance.frame_Frame();
+    var handler = allocHandler(instance);
 
+    try {
+        frame.processInputData(buf, handler);
+        assert(handler.msg1.field_f1().getValue() == 0x030201);
+        assert(handler.msg1.field_f2().getValue() == 0x04);
+    }
+    finally {
+        handler.delete();
+        frame.delete();
+        buf.delete();
+    }
+}
 
-//     //var handler = new instance.Handler();
-    
-//     var msg1 = new instance.Msg1();
-//     msg1.field_f1().value = 20;
-//     //msg1.field_f2().value = data;
-//     msg1.field_f2().setValue(data2);
-//     var vecData = msg1.field_f2().getValue();
-
-//     var fieldData = new Uint8Array(vecData.size()).map((_, id) => vecData.get(id))
-//     console.log("!!!data: " + fieldData);
-
-//     msg1.dispatch(handler);
-
-//     msg1.delete();
-//     handler.delete()
-
-//     console.log("End");
+factory().then((instance) => {
+    test1(instance);
+    test2(instance);
 });
 
