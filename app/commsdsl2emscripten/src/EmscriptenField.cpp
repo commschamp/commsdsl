@@ -505,7 +505,16 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "    #^#PUBLIC#$#\n"
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
-        "};\n";
+        "};\n\n"
+        "inline bool eq_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
+        "{\n"
+        "    return first == second;\n"
+        "}\n\n"
+        "inline bool lt_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
+        "{\n"
+        "    return first < second;\n"
+        "}\n"        
+        ;
 
     util::ReplacementMap repl = {
         {"COMMS_CLASS", emscriptenTemplateScope()},
@@ -610,6 +619,8 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         "        #^#COMMON#$#\n"
         "        #^#CUSTOM#$#\n"
         "        ;\n"
+        "    emscripten::function(\"eq_#^#CLASS_NAME#$#\", &eq_#^#CLASS_NAME#$#);\n"
+        "    emscripten::function(\"lt_#^#CLASS_NAME#$#\", &lt_#^#CLASS_NAME#$#);\n"
         "    #^#EXTRA#$#\n"
         "}\n"
         ;

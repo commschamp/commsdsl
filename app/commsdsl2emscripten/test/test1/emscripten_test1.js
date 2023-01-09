@@ -19,6 +19,7 @@ function allocHandler(instance)
 }
 
 function test1(instance) {
+    console.log("!!! test1");
     var msg1 = new instance.message_Msg1();
     var frame = new instance.frame_Frame();
     var handler = allocHandler(instance);
@@ -29,9 +30,10 @@ function test1(instance) {
         msg1.field_f2().setValue(1);
 
         var es = frame.writeMessage(msg1, buf);
+        console.log("Output buf: " + instance.dataBufMemoryView(buf));
         assert(es == instance.comms_ErrorStatus.Success);
         frame.processInputData(buf, handler);
-        assert(handler.msg1.field_f1().getValue() == handler.msg1.field_f1().getValue());
+        assert(instance.eq_message_Msg1(msg1, handler.msg1));
     }
     finally {
         buf.delete();
@@ -39,10 +41,10 @@ function test1(instance) {
         frame.delete();
         msg1.delete();
     }
-
 }
 
 function test2(instance) {
+    console.log("!!! test2");
     var jsArray = new Uint8Array([1, 1, 2, 3, 4]);
     var buf = instance.jsArrayToDataBuf(jsArray);
     var frame = new instance.frame_Frame();

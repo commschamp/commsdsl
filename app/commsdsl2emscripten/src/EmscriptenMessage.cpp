@@ -223,7 +223,11 @@ std::string EmscriptenMessage::emscriptenHeaderClassInternal() const
         "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&) = default;\n"
         "    virtual ~#^#CLASS_NAME#$#() = default;\n\n"
         "    #^#FIELDS#$#\n"
-        "};\n"
+        "};\n\n"
+        "inline bool eq_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
+        "{\n"
+        "    return first == second;\n"
+        "}\n"
         ;
 
     auto* iFace = gen.emscriptenMainInterface();
@@ -277,6 +281,7 @@ std::string EmscriptenMessage::emscriptenSourceCodeInternal() const
         "        .constructor<const #^#CLASS_NAME#$#&>()\n"
         "        #^#FIELDS#$#\n"
         "        ;\n"
+        "    emscripten::function(\"eq_#^#CLASS_NAME#$#\", &eq_#^#CLASS_NAME#$#);\n"
         "}\n";
 
     auto* iFace = gen.emscriptenMainInterface();
