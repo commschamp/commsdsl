@@ -204,7 +204,7 @@ jobs:
     - name: Install Packages
       run: |
         sudo apt install libqt5gui5 qtbase5-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} \
-        python3 libpython3-dev swig default-jdk default-jre node
+        python3 libpython3-dev swig default-jdk default-jre nodejs
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build      
@@ -395,7 +395,7 @@ jobs:
     - name: Install Packages
       run: |
         sudo apt install libqt5gui5 qtbase5-dev libxml2-dev clang-${{matrix.cc_ver}} \
-        python3 libpython3-dev swig default-jdk default-jre node
+        python3 libpython3-dev swig default-jdk default-jre nodejs
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build      
