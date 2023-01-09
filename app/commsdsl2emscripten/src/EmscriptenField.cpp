@@ -506,11 +506,11 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
         "};\n\n"
-        "inline bool eq_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
+        "inline bool eq_#^#CLASS_NAME#$##^#SUFFIX#$#(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second)\n"
         "{\n"
         "    return first == second;\n"
         "}\n\n"
-        "inline bool lt_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
+        "inline bool lt_#^#CLASS_NAME#$##^#SUFFIX#$#(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second)\n"
         "{\n"
         "    return first < second;\n"
         "}\n"        
@@ -545,7 +545,16 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "        return static_cast<#^#CLASS_NAME#$##^#SUFFIX#$#*>(&(Base::field()));\n"
         "    }\n\n"
         "    #^#COMMON#$#\n"
-        "};\n";
+        "};\n\n"
+        "inline bool eq_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
+        "{\n"
+        "    return first == second;\n"
+        "}\n\n"
+        "inline bool lt_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
+        "{\n"
+        "    return first < second;\n"
+        "}\n"        
+        ;
 
 
     return util::processTemplate(OptTempl, repl);
@@ -619,8 +628,8 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         "        #^#COMMON#$#\n"
         "        #^#CUSTOM#$#\n"
         "        ;\n"
-        "    emscripten::function(\"eq_#^#CLASS_NAME#$#\", &eq_#^#CLASS_NAME#$#);\n"
-        "    emscripten::function(\"lt_#^#CLASS_NAME#$#\", &lt_#^#CLASS_NAME#$#);\n"
+        "    emscripten::function(\"eq_#^#CLASS_NAME#$##^#SUFFIX#$#\", &eq_#^#CLASS_NAME#$##^#SUFFIX#$#);\n"
+        "    emscripten::function(\"lt_#^#CLASS_NAME#$##^#SUFFIX#$#\", &lt_#^#CLASS_NAME#$##^#SUFFIX#$#);\n"
         "    #^#EXTRA#$#\n"
         "}\n"
         ;
@@ -650,6 +659,8 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         "        .function(\"field\", &#^#CLASS_NAME#$#::field, emscripten::allow_raw_pointers())\n"
         "        #^#COMMON#$#\n"
         "        ;\n"
+        "    emscripten::function(\"eq_#^#CLASS_NAME#$#\", &eq_#^#CLASS_NAME#$#);\n"
+        "    emscripten::function(\"lt_#^#CLASS_NAME#$#\", &lt_#^#CLASS_NAME#$#);\n"
         "}\n"; 
 
     util::ReplacementMap optRepl = {

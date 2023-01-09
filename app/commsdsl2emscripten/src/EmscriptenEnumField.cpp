@@ -94,8 +94,6 @@ std::string EmscriptenEnumField::emscriptenBindValues() const
         addValueBind(iter->first);
     }
 
-    addValueBind(firstValueStr());
-    addValueBind(lastValueStr());
     if (hasValuesLimit()) {
         addValueBind(valuesLimitStr());
     }

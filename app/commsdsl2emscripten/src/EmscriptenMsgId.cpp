@@ -46,6 +46,17 @@ bool EmscriptenMsgId::emscriptenWrite(EmscriptenGenerator& generator)
     return obj.emscriptenWriteSrcInternal();
 }
 
+void EmscriptenMsgId::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+{
+    auto& thisSchema = generator.currentSchema();
+    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.hasReferencedMessageIdField()) && (!thisSchema.hasAnyReferencedMessage())) {
+        return;
+    }
+
+    auto name = generator.emscriptenScopeNameForRoot(strings::msgIdEnumNameStr());
+    sources.push_back(generator.emscriptenRelSourceForRoot(name));
+}
+
 bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
 {
     auto name = m_generator.emscriptenScopeNameForRoot(strings::msgIdEnumNameStr());
@@ -80,7 +91,7 @@ bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
         {"NAME", name},
         {"SCOPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator)},
         {"VALUES", emscriptenIdsInternal()},
-        {"HEADER", m_generator.emscriptenRelHeaderForRoot(strings::msgIdEnumNameStr())},
+        {"HEADER", comms::relHeaderForRoot(strings::msgIdEnumNameStr(), m_generator)},
     };
 
     stream << util::processTemplate(Templ, repl, true);
@@ -122,7 +133,7 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
         repl["MSG"] = comms::fullNameFor(*m);
         ids.push_back(util::processTemplate(Templ, repl));
     }
-    return util::strListToString(ids, ",\n", "");
+    return util::strListToString(ids, "\n", "");
 }
 
 
