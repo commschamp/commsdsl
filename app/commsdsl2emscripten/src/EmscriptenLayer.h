@@ -46,6 +46,7 @@ public:
 
     bool emscriptenIsMainInterfaceSupported() const;
     std::string emscriptenFieldAccName() const;
+    std::string emscriptenFieldAccFuncName() const;
     void emscriptenAddHeaderInclude(StringsList& includes) const;
     std::string emscriptenHeaderClass() const;
     std::string emscriptenSourceCode() const;

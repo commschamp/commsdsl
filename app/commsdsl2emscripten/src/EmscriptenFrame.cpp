@@ -217,28 +217,42 @@ std::string EmscriptenFrame::emscriptenHeaderAllFieldsInternal() const
 {
     auto& gen = EmscriptenGenerator::cast(generator());
     util::StringsList fields;
+    util::StringsList accFuncs;
+
     for (auto* l : m_emscriptenLayers) {
         static const std::string FieldTempl = 
             "#^#CLASS_NAME#$#::Field #^#NAME#$#;";
 
+        static const std::string AccTempl = 
+            "#^#CLASS_NAME#$#::Field* #^#FUNC_NAME#$#()\n"
+            "{\n"
+            "    return &#^#NAME#$#;\n"
+            "}\n";            
+
         util::ReplacementMap fieldRepl = {
             {"CLASS_NAME", gen.emscriptenClassName(l->layer())},
             {"NAME", l->emscriptenFieldAccName()},
+            {"FUNC_NAME", l->emscriptenFieldAccFuncName()},
         };
 
         fields.push_back(util::processTemplate(FieldTempl, fieldRepl));
+        accFuncs.push_back(util::processTemplate(AccTempl, fieldRepl));
     }
 
     static const std::string Templ = 
-        "struct #^#CLASS_NAME#$#\n"
+        "class #^#CLASS_NAME#$#\n"
         "{\n"
+        "public:"
+        "    #^#FUNCS#$#\n"
+        "private:"
         "    #^#FIELDS#$#\n"
         "};\n";
 
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", emscriptenHeaderAllFieldsNameInternal()},
-        {"FIELDS", util::strListToString(fields, "\n", "")}
+        {"FIELDS", util::strListToString(fields, "\n", "")},
+        {"FUNCS", util::strListToString(accFuncs, "\n", "\n")}
     };
 
     return util::processTemplate(Templ, repl);
@@ -325,18 +339,20 @@ std::string EmscriptenFrame::emscriptenSourceAllFieldsInternal() const
     util::StringsList fields;
     for (auto* l : m_emscriptenLayers) {
         static const std::string FieldTempl = 
-            ".field(\"#^#NAME#$#\", &#^#CLASS_NAME#$#::#^#NAME#$#)";
+            ".function(\"#^#NAME#$#\", &#^#CLASS_NAME#$#::#^#NAME#$#, emscripten::allow_raw_pointers())";
 
         util::ReplacementMap fieldRepl = {
             {"CLASS_NAME", emscriptenHeaderAllFieldsNameInternal()},
-            {"NAME", l->emscriptenFieldAccName()},
+            {"NAME", l->emscriptenFieldAccFuncName()},
         };
 
         fields.push_back(util::processTemplate(FieldTempl, fieldRepl));
     }
 
     static const std::string Templ = 
-        "emscripten::value_object<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
+        "emscripten::class_<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#\")\n"
+        "    .constructor<>()"
+        "    .constructor<const #^#CLASS_NAME#$#&>()"
         "    #^#FIELDS#$#\n"
         "    ;\n";
 
@@ -407,7 +423,7 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
 
     util::StringsList allFieldsAcc;
     for (auto* l : m_emscriptenLayers) {
-        allFieldsAcc.push_back("allFields->" + l->emscriptenFieldAccName() + ".value()");
+        allFieldsAcc.push_back("allFields->" + l->emscriptenFieldAccFuncName() + "()->value()");
     }
 
     util::StringsList frameFieldsAcc;

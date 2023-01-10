@@ -96,7 +96,7 @@ bool EmscriptenDataBuf::emscriptenWriteHeaderInternal() const
         "#include <vector>\n\n"
         "#include <emscripten/val.h>\n\n"
         "using #^#CLASS_NAME#$# = std::vector<std::uint8_t>;\n\n"
-        "emscripten::val #^#MEM_VIEW#$#(const #^#CLASS_NAME#$#& buf);\n"
+        "emscripten::val #^#MEM_VIEW#$#(const #^#CLASS_NAME#$#* buf);\n"
         "#^#CLASS_NAME#$# #^#JS_ARRAY#$#(const emscripten::val& buf);\n"
         ;
 
@@ -139,9 +139,9 @@ bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
         "#^#GENERATED#$#\n\n"
         "#include \"#^#HEADER#$#\"\n\n"
         "#include <emscripten/bind.h>\n\n"
-        "emscripten::val #^#MEM_VIEW#$#(const #^#CLASS_NAME#$#& buf)\n"
+        "emscripten::val #^#MEM_VIEW#$#(const #^#CLASS_NAME#$#* buf)\n"
         "{\n"
-        "    return emscripten::val(emscripten::typed_memory_view(buf.size(), buf.data()));\n"
+        "    return emscripten::val(emscripten::typed_memory_view(buf->size(), buf->data()));\n"
         "}\n\n"
         "#^#CLASS_NAME#$# #^#JS_ARRAY#$#(const emscripten::val& val)\n"
         "{\n"
@@ -149,7 +149,7 @@ bool EmscriptenDataBuf::emscriptenWriteSrcInternal() const
         "}\n\n"
         "EMSCRIPTEN_BINDINGS(#^#CLASS_NAME#$#) {\n"
         "    emscripten::register_vector<std::uint8_t>(\"#^#CLASS_NAME#$#\");\n"
-        "    emscripten::function(\"#^#MEM_VIEW#$#\", &#^#MEM_VIEW#$#);\n"
+        "    emscripten::function(\"#^#MEM_VIEW#$#\", &#^#MEM_VIEW#$#, emscripten::allow_raw_pointers());\n"
         "    emscripten::function(\"#^#JS_ARRAY#$#\", &#^#JS_ARRAY#$#);\n"
         "}\n"
         ;

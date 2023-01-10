@@ -64,6 +64,11 @@ std::string EmscriptenLayer::emscriptenFieldAccName() const
     return "m_" + comms::accessName(m_layer.dslObj().name());
 }
 
+std::string EmscriptenLayer::emscriptenFieldAccFuncName() const
+{
+    return "get" + comms::className(m_layer.dslObj().name());
+}
+
 void EmscriptenLayer::emscriptenAddHeaderInclude(StringsList& includes) const
 {
     auto& gen = EmscriptenGenerator::cast(m_layer.generator());
