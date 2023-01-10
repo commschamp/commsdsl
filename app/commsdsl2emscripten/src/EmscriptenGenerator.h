@@ -63,6 +63,7 @@ public:
     std::string emscriptenAbsSourceForRoot(const std::string& name) const;
     
     std::string emscriptenProtocolRelHeaderForRoot(const std::string& name) const;
+    std::string emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const;
 
     std::string emscriptenRelHeaderFor(const Elem& elem) const;
     std::string emscriptenAbsHeaderFor(const Elem& elem) const;

@@ -29,6 +29,7 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
 
     static bool emscriptenWrite(EmscriptenGenerator& generator);
+    static void emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources);
 
 private:
     explicit EmscriptenVersion(EmscriptenGenerator& generator) : m_generator(generator) {}

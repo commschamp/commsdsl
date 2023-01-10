@@ -5,11 +5,20 @@ function allocHandler(instance)
 {
     var DerivedHandler = instance.MsgHandler.extend("MsgHandler", {
         handle_message_Msg1: function(msg) {
+            this.clean_Msg1();
             this.msg1 = new instance.message_Msg1(msg);
         },
         handle_Message: function(msg) {
             assert(false); /* should not happen */
-        }
+        },
+        clean_Msg1: function() {
+            if (this.msg1) {
+                this.msg1.delete();
+            }
+        },
+        clean: function() {
+            this.clean_Msg1();
+        } 
     });    
 
     return new DerivedHandler;
@@ -33,6 +42,7 @@ function test1(instance) {
     }
     finally {
         buf.delete();
+        handler.clean();
         handler.delete();
         frame.delete();
         msg1.delete();
@@ -54,6 +64,7 @@ function test2(instance) {
         assert(handler.msg1.field_f4().getValue() == instance.message_Msg1Fields_F4_ValueType.V3);
     }
     finally {
+        handler.clean();
         handler.delete();
         frame.delete();
         buf.delete();

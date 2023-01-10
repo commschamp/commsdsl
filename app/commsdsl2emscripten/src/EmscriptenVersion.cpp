@@ -39,6 +39,13 @@ bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
     return obj.emscriptenWriteSrcInternal();
 }
 
+void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
+{
+    for (auto idx = 0U; idx < generator.schemas().size(); ++idx) {
+        sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::versionFileNameStr()));
+    }
+}
+
 bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 {
     auto filePath = m_generator.emscriptenAbsSourceForRoot(strings::versionFileNameStr());
@@ -68,7 +75,7 @@ bool EmscriptenVersion::emscriptenWriteSrcInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"HEADER", m_generator.emscriptenRelHeaderForRoot(strings::versionFileNameStr())},
+        {"HEADER", comms::relHeaderForRoot(strings::versionFileNameStr(), m_generator)},
         {"NAME", m_generator.emscriptenScopeNameForRoot(strings::versionFileNameStr())},
         {"SPEC", emscriptenSpecConstantsInternal()},
         {"PROT", emscriptenProtConstantsInternal()},

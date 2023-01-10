@@ -136,6 +136,16 @@ std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForRoot(const std::s
     return str;
 }
 
+std::string EmscriptenGenerator::emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const
+{
+    auto currSchemaIdx = currentSchemaIdx();
+    auto* thisGen = const_cast<EmscriptenGenerator*>(this);
+    thisGen->chooseCurrentSchema(schemaIdx);
+    auto str = emscriptenRelSourceForRoot(name);
+    thisGen->chooseCurrentSchema(currSchemaIdx);
+    return str;
+}
+
 std::string EmscriptenGenerator::emscriptenRelHeaderFor(const Elem& elem) const
 {
     return getTopNamespace() + '/' + comms::relHeaderPathFor(elem, *this);

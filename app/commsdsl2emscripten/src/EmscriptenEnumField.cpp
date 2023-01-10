@@ -118,11 +118,23 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
         "{\n"
         "    return std::string(Base::valueNameOf(val));\n"
         "}\n\n"        
-        "/// @brief Retrieve name of the @b current value\n"
         "std::string valueName() const\n"
         "{\n"
         "    return std::string(Base::valueName());\n"
-        "}\n";       
+        "}\n"
+        "static typename std::underlying_type<ValueType>::type asConstant(ValueType val)\n"
+        "{\n"
+        "    return static_cast<typename std::underlying_type<ValueType>::type>(val);\n"
+        "}\n\n"    
+        "typename std::underlying_type<ValueType>::type getValueConstant() const\n"
+        "{\n"
+        "    return asConstant(getValue());\n"
+        "}\n\n"  
+        "void setValueConstant(typename std::underlying_type<ValueType>::type val)\n"               
+        "{\n"
+        "    return setValue(static_cast<ValueType>(val));\n"
+        "}\n"          
+        ;       
     return Templ;
 }
 
@@ -130,7 +142,11 @@ std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
 {
     static const std::string Templ = 
         ".class_function(\"valueNameOf\", &#^#CLASS_NAME#$#::valueNameOf)\n"
-        ".function(\"valueName\", &#^#CLASS_NAME#$#::valueName)";
+        ".function(\"valueName\", &#^#CLASS_NAME#$#::valueName)\n"
+        ".class_function(\"asConstant\", &#^#CLASS_NAME#$#::asConstant)\n"
+        ".function(\"getValueConstant\", &#^#CLASS_NAME#$#::getValueConstant)\n"
+        ".function(\"setValueConstant\", &#^#CLASS_NAME#$#::setValueConstant)"
+        ;
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}

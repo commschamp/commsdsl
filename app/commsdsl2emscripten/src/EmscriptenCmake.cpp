@@ -21,6 +21,7 @@
 #include "EmscriptenMsgHandler.h"
 #include "EmscriptenMsgId.h"
 #include "EmscriptenSchema.h"
+#include "EmscriptenVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -116,6 +117,7 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
     EmscriptenDataBuf::emscriptenAddSourceFiles(m_generator, sources);
     EmscriptenMsgHandler::emscriptenAddSourceFiles(m_generator, sources);
     EmscriptenMsgId::emscriptenAddSourceFiles(m_generator, sources);
+    EmscriptenVersion::emscriptenAddSourceFiles(m_generator, sources);
 
     for (auto& sPtr : m_generator.schemas()) {
         auto* s = EmscriptenSchema::cast(sPtr.get());
