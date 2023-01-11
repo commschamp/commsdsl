@@ -188,6 +188,24 @@ std::string EmscriptenInterface::emscriptenHeaderFieldsInternal() const
 
 std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
 {
+        auto& gen = EmscriptenGenerator::cast(generator());
+        util::StringsList fields;
+        for (auto* f : m_emscriptenFields) {
+            static const std::string Templ = 
+                "using Base::transportField_#^#NAME#$#;\n"
+                "#^#FIELD_CLASS#$#* transportField_#^#NAME#$#_()\n"
+                "{\n"
+                "    return static_cast<#^#FIELD_CLASS#$#*>(&transportField_#^#NAME#$#());\n"
+                "}\n";
+
+            util::ReplacementMap repl = {
+                {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
+                {"NAME", comms::accessName(f->field().dslObj().name())},
+            };
+
+            fields.push_back(util::processTemplate(Templ, repl));
+        }
+
     const std::string Templ = 
         "class #^#MSG_HANDLER#$#;\n"
         "class #^#CLASS_NAME#$# : public\n"
@@ -236,25 +254,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
         "    {\n"
         "        Base::dispatch(handler);\n"
         "    }\n"        
-        "};\n";
-
-        auto& gen = EmscriptenGenerator::cast(generator());
-        util::StringsList fields;
-        for (auto* f : m_emscriptenFields) {
-            static const std::string Templ = 
-                "using Base::transportField_#^#NAME#$#;\n"
-                "#^#FIELD_CLASS#$#* transportField_#^#NAME#$#_()\n"
-                "{\n"
-                "    return static_cast<#^#FIELD_CLASS#$#*>(&transportField_#^#NAME#$#());\n"
-                "}\n";
-
-            util::ReplacementMap repl = {
-                {"FIELD_CLASS", gen.emscriptenClassName(f->field())},
-                {"NAME", comms::accessName(f->field().dslObj().name())},
-            };
-
-            fields.push_back(util::processTemplate(Templ, repl));
-        }
+        "};\n";        
         
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.emscriptenClassName(*this)},
