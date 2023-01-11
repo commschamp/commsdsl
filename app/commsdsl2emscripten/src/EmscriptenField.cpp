@@ -15,10 +15,9 @@
 
 #include "EmscriptenField.h"
 
-// #include "EmscriptenComms.h"
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
-// #include "EmscriptenOptionalField.h"
+#include "EmscriptenOptionalField.h"
 #include "EmscriptenProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -545,6 +544,7 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "        return static_cast<#^#CLASS_NAME#$##^#SUFFIX#$#*>(&(Base::field()));\n"
         "    }\n\n"
         "    #^#COMMON#$#\n"
+        "    #^#COMMON_OPTIONAL#$#\n"
         "};\n\n"
         "inline bool eq_#^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& first, const #^#CLASS_NAME#$#& second)\n"
         "{\n"
@@ -556,6 +556,7 @@ std::string EmscriptenField::emscriptenHeaderClassInternal() const
         "}\n"        
         ;
 
+    repl["COMMON_OPTIONAL"] = EmscriptenOptionalField::emscriptenHeaderCommonModeFuncs();
 
     return util::processTemplate(OptTempl, repl);
 }
@@ -630,6 +631,7 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         "        ;\n"
         "    emscripten::function(\"eq_#^#CLASS_NAME#$##^#SUFFIX#$#\", &eq_#^#CLASS_NAME#$##^#SUFFIX#$#);\n"
         "    emscripten::function(\"lt_#^#CLASS_NAME#$##^#SUFFIX#$#\", &lt_#^#CLASS_NAME#$##^#SUFFIX#$#);\n"
+        "    #^#VECTOR#$#\n"
         "    #^#EXTRA#$#\n"
         "}\n"
         ;
@@ -641,6 +643,7 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         {"FUNCS", emscriptenSourceBindFuncsImpl()},
         {"COMMON", emscriptenSourceBindCommonInternal()},
         {"CUSTOM", util::readFileContents(generator.emspriptenInputAbsSourceFor(m_field) + strings::bindFileSuffixStr())},
+        {"VECTOR", emscriptenSourceRegisterVectorInternal()},
         {"EXTRA", emscriptenSourceBindExtraImpl()},
     };
 
@@ -658,6 +661,14 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         "        .constructor<const #^#CLASS_NAME#$#&>()\n"
         "        .function(\"field\", &#^#CLASS_NAME#$#::field, emscripten::allow_raw_pointers())\n"
         "        #^#COMMON#$#\n"
+        "        .function(\"getMode\", &#^#CLASS_NAME#$#::getMode)\n"
+        "        .function(\"setMode\", &#^#CLASS_NAME#$#::setMode)\n"
+        "        .function(\"isTentative\", &#^#CLASS_NAME#$#::isTentative)\n"
+        "        .function(\"setTentative\", &#^#CLASS_NAME#$#::setTentative)\n"
+        "        .function(\"doesExist\", &#^#CLASS_NAME#$#::doesExist)\n"
+        "        .function(\"setExists\", &#^#CLASS_NAME#$#::setExists)\n"
+        "        .function(\"isMissing\", &#^#CLASS_NAME#$#::isMissing)\n"
+        "        .function(\"setMissing\", &#^#CLASS_NAME#$#::setMissing)"        
         "        ;\n"
         "    emscripten::function(\"eq_#^#CLASS_NAME#$#\", &eq_#^#CLASS_NAME#$#);\n"
         "    emscripten::function(\"lt_#^#CLASS_NAME#$#\", &lt_#^#CLASS_NAME#$#);\n"
@@ -719,6 +730,22 @@ std::string EmscriptenField::emscriptenSourceMembersInternal() const
     }
 
     return util::strListToString(members, "\n", "");    
+}
+
+std::string EmscriptenField::emscriptenSourceRegisterVectorInternal() const
+{
+    if (!m_listElement) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "emscripten::register_vector<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#_Vector\");";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 

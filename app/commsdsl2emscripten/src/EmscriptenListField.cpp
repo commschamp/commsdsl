@@ -46,11 +46,12 @@ bool EmscriptenListField::prepareImpl()
     if (memElement != nullptr) {
         emscriptenAddMember(memElement);
         m_element = EmscriptenField::cast(memElement);
-        return true;
     }
-    
-    m_element = EmscriptenField::cast(externalElementField());
+    else {
+        m_element = EmscriptenField::cast(externalElementField());
+    }
     assert(m_element != nullptr);
+    m_element->emscriptenSetListElement();
     return true;
 }
 
@@ -98,16 +99,5 @@ std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
     return emscriptenSourceBindValueAccByPointer();
 }
 
-std::string EmscriptenListField::emscriptenSourceBindExtraImpl() const
-{
-    static const std::string Templ = 
-        "emscripten::register_vector<#^#CLASS_NAME#$#::ValueType>(\"#^#CLASS_NAME#$#_ValueType\");";
-
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", emscriptenBindClassName()},
-    };
-
-    return util::processTemplate(Templ, repl);
-}
 
 } // namespace commsdsl2emscripten

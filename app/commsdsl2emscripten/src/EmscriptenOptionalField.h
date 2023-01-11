@@ -30,6 +30,8 @@ class EmscriptenOptionalField final : public commsdsl::gen::OptionalField, publi
 public:
     EmscriptenOptionalField(EmscriptenGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
+    static const std::string& emscriptenHeaderCommonModeFuncs();
+
 protected:
     // Base overrides
     virtual bool prepareImpl() override;

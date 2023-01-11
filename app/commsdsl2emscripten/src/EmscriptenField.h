@@ -60,6 +60,11 @@ public:
     void emscriptenHeaderAddExtraIncludes(StringsList& incs) const;
     void emscriptenAddSourceFiles(StringsList& sources) const;
 
+    void emscriptenSetListElement()
+    {
+        m_listElement = true;
+    }    
+
 protected:
     virtual void emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const;
     virtual std::string emscriptenHeaderExtraCodePrefixImpl() const;
@@ -98,9 +103,11 @@ private:
     std::string emscriptenSourceBindCommonInternal(bool skipVersionOptCheck = false) const;
     std::string emscriptenHeaderMembersInternal() const;
     std::string emscriptenSourceMembersInternal() const;
+    std::string emscriptenSourceRegisterVectorInternal() const;
 
     commsdsl::gen::Field& m_field;
     EmscriptenFieldsList m_members;
+    bool m_listElement = false;
 };
 
 } // namespace commsdsl2emscripten
