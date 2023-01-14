@@ -144,7 +144,7 @@ std::string EmscriptenField::emscriptenSourceCode() const
 
     util::ReplacementMap repl = {
         {"MEMBERS", emscriptenSourceMembersInternal()},
-        {"EXTRA", emscriptenSourceExtraCodeImpl()},
+        {"EXTRA", emscriptenSourceExtraCodeInternal()},
         {"BIND", emscriptenSourceBindInternal()},
     };
 
@@ -271,6 +271,17 @@ std::string EmscriptenField::emscriptenHeaderValueAccByPointer()
     return Templ;
 }
 
+std::string EmscriptenField::emscriptenHeaderValueStorageAccByPointer()
+{
+    static const std::string Templ = 
+        "ValueType* value()\n"
+        "{\n"
+        "    return &Base::value();\n"
+        "}\n";
+
+    return Templ;
+}
+
 std::string EmscriptenField::emscriptenSourceBindValueAcc() const
 {
     static const std::string Templ = 
@@ -291,6 +302,19 @@ std::string EmscriptenField::emscriptenSourceBindValueAccByPointer() const
     static const std::string Templ = 
         ".function(\"getValue\", &#^#CLASS_NAME#$#::getValue, emscripten::allow_raw_pointers())\n"
         ".function(\"setValue\", &#^#CLASS_NAME#$#::setValue)"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenField::emscriptenSourceBindValueStorageAccByPointer() const
+{
+    static const std::string Templ = 
+        ".function(\"value\", &#^#CLASS_NAME#$#::value, emscripten::allow_raw_pointers())"
         ;
 
     util::ReplacementMap repl = {
@@ -738,14 +762,53 @@ std::string EmscriptenField::emscriptenSourceRegisterVectorInternal() const
         return strings::emptyString();
     }
 
-    static const std::string Templ = 
-        "emscripten::register_vector<#^#CLASS_NAME#$#>(\"#^#CLASS_NAME#$#_Vector\");";
+    static const std::string Templ =
+        "emscripten::class_<std::vector<#^#CLASS_NAME#$#> >(\"#^#CLASS_NAME#$#_Vector\")\n" 
+        "    .constructor<>()\n"
+        "    .constructor<const std::vector<#^#CLASS_NAME#$#>&>()\n"
+        "    .function(\"resize\", &#^#CLASS_NAME#$#_Vector_resize)\n"
+        "    .function(\"size\", &#^#CLASS_NAME#$#_Vector_size)\n"
+        "    .function(\"at\", &#^#CLASS_NAME#$#_Vector_at, emscripten::allow_raw_pointers());";
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()},
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string EmscriptenField::emscriptenSourceExtraVectorFuncsInternal() const
+{
+    static const std::string Templ = 
+        "void #^#CLASS_NAME#$#_Vector_resize(std::vector<#^#CLASS_NAME#$#>& vec, std::size_t count)\n"
+        "{\n"
+        "    vec.resize(count);\n"
+        "}\n\n"
+        "std::size_t #^#CLASS_NAME#$#_Vector_size(const std::vector<#^#CLASS_NAME#$#>& vec)\n"
+        "{\n"
+        "    return vec.size();\n"
+        "}\n\n"           
+        "#^#CLASS_NAME#$#* #^#CLASS_NAME#$#_Vector_at(std::vector<#^#CLASS_NAME#$#>& vec, std::size_t idx)\n"
+        "{\n"
+        "    return &vec.at(idx);\n"
+        "}\n"        
+    ;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", emscriptenBindClassName()},
+    };
+
+    return util::processTemplate(Templ, repl);        
+}
+
+std::string EmscriptenField::emscriptenSourceExtraCodeInternal() const
+{
+    auto str = emscriptenSourceExtraVectorFuncsInternal();
+    if (!str.empty()) {
+        str += "\n";
+    }
+    str += emscriptenSourceExtraCodeImpl();
+    return str;
 }
 
 

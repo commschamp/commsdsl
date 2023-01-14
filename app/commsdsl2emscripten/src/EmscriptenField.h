@@ -80,8 +80,10 @@ protected:
     static std::string emscriptenHeaderValueAccByRef();
     static std::string emscriptenHeaderValueAccByValue();
     static std::string emscriptenHeaderValueAccByPointer();
+    static std::string emscriptenHeaderValueStorageAccByPointer();
     std::string emscriptenSourceBindValueAcc() const;
     std::string emscriptenSourceBindValueAccByPointer() const;
+    std::string emscriptenSourceBindValueStorageAccByPointer() const;
 
     const EmscriptenFieldsList& emscriptenMembers() const
     {
@@ -104,6 +106,8 @@ private:
     std::string emscriptenHeaderMembersInternal() const;
     std::string emscriptenSourceMembersInternal() const;
     std::string emscriptenSourceRegisterVectorInternal() const;
+    std::string emscriptenSourceExtraVectorFuncsInternal() const;
+    std::string emscriptenSourceExtraCodeInternal() const;
 
     commsdsl::gen::Field& m_field;
     EmscriptenFieldsList m_members;

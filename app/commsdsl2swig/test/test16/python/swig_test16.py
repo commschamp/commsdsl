@@ -31,7 +31,7 @@ class TestProtocol(unittest.TestCase):
         f1Vec.resize(5)
         f1Vec[0].setValue(0x1111)
         f1Vec[1].setValue(0x2222)
-        # The rest are 0-ed
+        # The rest are defaulted
 
         f2Vec = m.field_f2().ref().value()
         f2Vec.resize(3)

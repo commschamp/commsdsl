@@ -76,6 +76,10 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
 {
     static const std::string Templ = 
         "using ValueType = std::vector<#^#ELEMENT#$#>;\n\n"
+        "ValueType* value()\n"
+        "{\n"
+        "    return reinterpret_cast<ValueType*>(&Base::value());\n"
+        "}\n\n"
         "const ValueType* getValue() const\n"
         "{\n"
         "    return reinterpret_cast<const ValueType*>(&Base::getValue());\n"
@@ -89,6 +93,7 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
     auto& gen = EmscriptenGenerator::cast(generator());
     util::ReplacementMap repl = {
         {"ELEMENT", gen.emscriptenClassName(m_element->field())},
+        {"STORAGE", emscriptenHeaderValueStorageAccByPointer()},
     };
 
     return util::processTemplate(Templ, repl);
@@ -96,7 +101,16 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
 
 std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const
 {
-    return emscriptenSourceBindValueAccByPointer();
+    static const std::string Templ = 
+        "#^#STORAGE#$#\n"
+        "#^#ACC#$#";
+
+    util::ReplacementMap repl = {
+        {"STORAGE", emscriptenSourceBindValueStorageAccByPointer()},
+        {"ACC", emscriptenSourceBindValueAccByPointer()}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 
