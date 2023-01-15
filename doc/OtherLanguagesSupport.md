@@ -381,7 +381,7 @@ case with the generated wrapper classes:
 - `field_F1` --> `my_prot::field::F1`
 - `message_Msg1Fields_F1` --> `my_prot::message::Msg1Fields::F1` --> `my_prot::field::F1`
 
-As it is visible there is no direct inheritance relationship between `field_F1` and `message_Msg1Fields_F1`.
+It is visible there is no direct inheritance relationship between `field_F1` and `message_Msg1Fields_F1`.
 As the result the member functions and types of the first cannot be seamlessly used when working
 with the second. To workaround this problem every wrapping class of the `<ref>` field has `ref()` member
 function to do the explicit casting to the global field type:
@@ -511,6 +511,8 @@ public:
 
     field_Variant1Members_P2& initField_p2();
     field_Variant1Members_P2& accessField_p2();
+    ...
+    void currentFieldExec(field_Variant1_Handler& handler);
     ...
 };
 ```

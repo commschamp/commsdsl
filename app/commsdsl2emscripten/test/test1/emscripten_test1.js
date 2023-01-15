@@ -80,8 +80,28 @@ function test2(instance) {
     }
 }
 
+function test3(instance) {
+    console.log("!!! test3");
+    var msg1 = new instance.message_Msg1();
+    var handler = allocHandler(instance);
+
+    try {
+        msg1.field_f1().value = 123; // using property
+        msg1.field_f2().setValue(1);
+
+        msg1.dispatch(handler);
+        assert(instance.eq_message_Msg1(msg1, handler.msg1));
+    }
+    finally {
+        handler.clean();
+        handler.delete();
+        msg1.delete();
+    }
+}
+
 factory().then((instance) => {
     test1(instance);
     test2(instance);
+    test3(instance);
 });
 
