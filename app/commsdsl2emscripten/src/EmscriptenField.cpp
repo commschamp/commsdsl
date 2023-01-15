@@ -256,6 +256,21 @@ std::string EmscriptenField::emscriptenHeaderValueAccByValue()
     return Templ;
 }
 
+std::string EmscriptenField::emscriptenHeaderValueAccLengthField()
+{
+    static const std::string Templ = 
+        "std::size_t getValue() const\n"
+        "{\n"
+        "    return Base::getValue();\n"
+        "}\n\n"
+        "void setValue(std::size_t val)\n"
+        "{\n"
+        "    Base::setValue(val);\n"
+        "}\n";        
+
+    return Templ;
+}
+
 std::string EmscriptenField::emscriptenHeaderValueAccByPointer()
 {
     static const std::string Templ = 

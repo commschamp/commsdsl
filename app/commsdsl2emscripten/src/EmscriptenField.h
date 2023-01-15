@@ -79,6 +79,7 @@ protected:
     void emscriptenAddMember(commsdsl::gen::Field* field);
     static std::string emscriptenHeaderValueAccByRef();
     static std::string emscriptenHeaderValueAccByValue();
+    static std::string emscriptenHeaderValueAccLengthField();
     static std::string emscriptenHeaderValueAccByPointer();
     static std::string emscriptenHeaderValueStorageAccByPointer();
     std::string emscriptenSourceBindValueAcc() const;

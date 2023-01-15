@@ -53,7 +53,11 @@ bool EmscriptenBundleField::writeImpl() const
 
 std::string EmscriptenBundleField::emscriptenHeaderValueAccImpl() const
 {
-    return strings::emptyString();
+    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) {
+        return strings::emptyString();
+    }
+    
+    return emscriptenHeaderValueAccLengthField();
 }
 
 std::string EmscriptenBundleField::emscriptenHeaderExtraPublicFuncsImpl() const
@@ -63,7 +67,11 @@ std::string EmscriptenBundleField::emscriptenHeaderExtraPublicFuncsImpl() const
 
 std::string EmscriptenBundleField::emscriptenSourceBindValueAccImpl() const
 {
-    return strings::emptyString();
+    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Length) {
+        return strings::emptyString();
+    }
+
+    return emscriptenSourceBindValueAcc();
 }
 
 std::string EmscriptenBundleField::emscriptenSourceBindFuncsImpl() const

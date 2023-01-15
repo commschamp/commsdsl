@@ -39,8 +39,7 @@ class Variant1Handler(test28.field_Variant1_Handler):
         if (self.testObj is not None):
             self.testObj.p2 = test28.field_Variant1Members_P2(field)    
 
-    def handle_Message(self, msg):
-        sys.exit("shouldn't happen")        
+  
 
 class TestProtocol(unittest.TestCase):
     def test_1(self):

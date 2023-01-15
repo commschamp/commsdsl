@@ -242,9 +242,9 @@ std::string EmscriptenFrame::emscriptenHeaderAllFieldsInternal() const
     static const std::string Templ = 
         "class #^#CLASS_NAME#$#\n"
         "{\n"
-        "public:"
+        "public:\n"
         "    #^#FUNCS#$#\n"
-        "private:"
+        "private:\n"
         "    #^#FIELDS#$#\n"
         "};\n";
 
