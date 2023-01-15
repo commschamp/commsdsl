@@ -692,7 +692,7 @@ std::string EmscriptenField::emscriptenSourceBindInternal() const
         "        .function(\"doesExist\", &#^#CLASS_NAME#$#::doesExist)\n"
         "        .function(\"setExists\", &#^#CLASS_NAME#$#::setExists)\n"
         "        .function(\"isMissing\", &#^#CLASS_NAME#$#::isMissing)\n"
-        "        .function(\"setMissing\", &#^#CLASS_NAME#$#::setMissing)"        
+        "        .function(\"setMissing\", &#^#CLASS_NAME#$#::setMissing)\n"
         "        ;\n"
         "    emscripten::function(\"eq_#^#CLASS_NAME#$#\", &eq_#^#CLASS_NAME#$#);\n"
         "    emscripten::function(\"lt_#^#CLASS_NAME#$#\", &lt_#^#CLASS_NAME#$#);\n"

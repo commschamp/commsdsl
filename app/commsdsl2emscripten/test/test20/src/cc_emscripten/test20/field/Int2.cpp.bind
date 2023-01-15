@@ -1,0 +1,2 @@
+.function("getMeters", &field_Int2::getMeters)
+.function("setMeters", &field_Int2::setMeters)

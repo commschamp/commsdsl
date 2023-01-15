@@ -33,8 +33,6 @@ foreach (name ${tests})
     set (code_input_param)
     if (EXISTS "${code_input_dir}/")
         set (code_input_param -c ${code_input_dir})
-    elseif (EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/common_src)
-        set (code_input_param -c ${CMAKE_CURRENT_SOURCE_DIR}/common_src)
     endif()    
 
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})

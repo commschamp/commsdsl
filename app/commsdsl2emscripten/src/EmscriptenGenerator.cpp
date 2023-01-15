@@ -168,7 +168,7 @@ std::string EmscriptenGenerator::emscriptenAbsSourceFor(const Elem& elem) const
 
 std::string EmscriptenGenerator::emspriptenInputAbsHeaderFor(const Elem& elem) const
 {
-    return getCodeDir() + '/' + emscriptenRelHeaderFor(elem);
+    return getCodeDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderFor(elem);
 }
 
 std::string EmscriptenGenerator::emspriptenInputAbsSourceFor(const Elem& elem) const
@@ -440,6 +440,7 @@ bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const
             strings::incFileSuffixStr(),
             strings::appendFileSuffixStr(),
             strings::prependFileSuffixStr(),
+            strings::bindFileSuffixStr(),
         };        
         auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
         if (extIter != std::end(ReservedExt)) {
