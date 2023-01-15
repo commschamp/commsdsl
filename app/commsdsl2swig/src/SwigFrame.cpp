@@ -15,6 +15,7 @@
 
 #include "SwigFrame.h"
 
+#include "SwigComms.h"
 #include "SwigDataBuf.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
@@ -178,6 +179,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         "    #^#SIZE_T#$# processInputData(const #^#DATA_BUF#$#& buf, #^#HANDLER#$#& handler);\n"
         "    #^#SIZE_T#$# processInputDataSingleMsg(const #^#DATA_BUF#$#& buf, #^#HANDLER#$#& handler, #^#CLASS_NAME#$#_AllFields* allFields = nullptr);\n"
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg);\n"
+        "    #^#ERR_STATUS#$# appendMessage(const #^#INTERFACE#$#& msg, #^#DATA_BUF#$#& buf);\n"
         "    #^#CUSTOM#$#\n"
         "};\n";    
 
@@ -192,6 +194,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"HANDLER", SwigMsgHandler::swigClassName(gen)},
+        {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);            
@@ -289,13 +292,20 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    }\n\n"        
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg)\n"
         "    {\n"
-        "        #^#DATA_BUF#$# outBuf(m_frame.length(msg));\n"
-        "        auto writeIter = outBuf.begin();\n"
-        "        auto es = m_frame.write(msg, writeIter, outBuf.size());\n"
+        "        #^#DATA_BUF#$# outBuf;\n"
+        "        outBuf.reserve(m_frame.length(msg));\n"
+        "        auto writeIter = std::back_inserter(outBuf);\n"
+        "        auto es = m_frame.write(msg, writeIter, outBuf.max_size());\n"
         "        static_cast<void>(es);\n"
         "        assert(es == comms::ErrorStatus::Success);\n"
         "        return outBuf;\n"
         "    }\n\n"
+        "    #^#ERR_STATUS#$# appendMessage(const #^#INTERFACE#$#& msg, #^#DATA_BUF#$#& buf)\n"
+        "    {\n"
+        "        buf.reserve(buf.size() + m_frame.length(msg));\n"
+        "        auto writeIter = std::back_inserter(buf);\n"
+        "        return m_frame.write(msg, writeIter, buf.max_size() - buf.size());\n"
+        "    }\n\n"        
         "    #^#CUSTOM#$#\n\n"
         "private:\n"
         "    using Frame = #^#COMMS_CLASS#$#<#^#INTERFACE#$#, AllMessages#^#OPTS#$#>;\n"
@@ -328,6 +338,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         {"ALL_FIELDS_VALUES", util::strListToString(allFieldsAcc, ",\n", "")},
         {"FRAME_FIELDS_VALUES", util::strListToString(frameFieldsAcc, ",\n", "")},
         {"HANDLER", SwigMsgHandler::swigClassName(gen)},
+        {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)},
     };
 
     if (SwigProtocolOptions::swigIsDefined(gen)) {

@@ -276,6 +276,7 @@ public:
     unsigned long processInputData(const DataBuf& buf, MsgHandler& handler);
     unsigned long processInputDataSingleMsg(const DataBuf& buf, MsgHandler& handler, frame_ProtFrame_AllFields* allFields = nullptr);
     DataBuf writeMessage(const Message& msg);
+    comms_ErrorStatus appendMessage(const Message& msg, DataBuf& buf);
 };
 ```
 This is the primary integration point between the protocol library and the client code. The raw data received over the
@@ -297,6 +298,9 @@ need to be preserved and then re-process attempted when new raw data comes in.
 
 The `writeMessage()` needs to be used to frame and serialize any message object. The returned output buffer needs to be sent
 to its destination over the I/O link.
+
+The `appendMessage()` is very similar to the `writeMessage()`, but appends the serialized message bytes to the provided buffer.
+It can be usefull to serialize multiple messages into the same buffer and then then them all in one go.
 
 ## Memory Management
 As the rule of thumb: Do **NOT** store references to the objects you have not **explicitly** created. For example the

@@ -106,7 +106,7 @@ void SwigInterface::swigAddCode(StringsList& list) const
             "#^#COMMS_CLASS#$#<\n"
             "    comms::option::app::IdInfoInterface,\n"
             "    comms::option::app::ReadIterator<#^#DATA_BUF#$#::const_iterator>,\n"
-            "    comms::option::app::WriteIterator<#^#DATA_BUF#$#::iterator>,\n"
+            "    comms::option::app::WriteIterator<std::back_insert_iterator<#^#DATA_BUF#$#> >,\n"
             "    comms::option::app::ValidCheckInterface,\n"
             "    comms::option::app::LengthInfoInterface,\n"
             "    comms::option::app::RefreshInterface,\n"
@@ -321,9 +321,9 @@ std::string SwigInterface::swigCommonCodeInternal() const
         "using Base::write;\n"
         "#^#ERR_STATUS#$# write(#^#DATA_BUF#$#& buf) const\n"
         "{\n"
-        "    buf.resize(length());\n"
-        "    auto iter = buf.begin();\n"
-        "    return Base::write(iter, buf.size());\n"
+        "    buf.reserve(buf.size() + length());\n"
+        "    auto iter = std::back_inserter(buf);\n"
+        "    return Base::write(iter, buf.max_size() - buf.size());\n"
         "}\n"
     ;
 
