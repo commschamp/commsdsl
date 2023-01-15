@@ -59,8 +59,6 @@ void SwigFrame::swigAddCode(StringsList& list) const
         return;
     }
 
-    list.push_back(swigAllMessagesCodeInternal());    
-
     for (auto* l : m_swigLayers) {
         l->swigAddCode(list);
     }
@@ -233,39 +231,6 @@ std::string SwigFrame::swigLayersAccCodeInternal() const
         elems.push_back(util::processTemplate(Templ, repl));
     }
     return util::strListToString(elems, "", "");
-}
-
-std::string SwigFrame::swigAllMessagesCodeInternal() const
-{
-    auto& gen = SwigGenerator::cast(generator());
-    auto allMessages = gen.getAllMessagesIdSorted();
-    util::StringsList msgList;
-    msgList.reserve(allMessages.size());
-
-    auto* iFace = gen.swigMainInterface();
-    assert(iFace != nullptr);
-    auto interfaceClassName = gen.swigClassName(*iFace);
-
-
-    for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
-            continue;
-        }
-        msgList.push_back(gen.swigClassName(*m));
-    }
-
-    const std::string Templ = 
-        "using #^#NAME#$# =\n"
-        "    std::tuple<\n"
-        "        #^#MESSAGES#$#\n"
-        "    >;\n";
-
-    util::ReplacementMap repl = {
-        {"NAME", strings::allMessagesStr()},
-        {"MESSAGES", util::strListToString(msgList, ",\n", "")}
-    };
-
-    return util::processTemplate(Templ, repl);
 }
 
 std::string SwigFrame::swigFrameCodeInternal() const

@@ -60,7 +60,6 @@ private:
     std::string swigClassDeclInternal() const;
     std::string swigLayersAccDeclInternal() const;
     std::string swigLayersAccCodeInternal() const;
-    std::string swigAllMessagesCodeInternal() const;
     std::string swigFrameCodeInternal() const;
     std::string swigAllFieldsInternal() const;
 

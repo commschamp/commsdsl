@@ -15,6 +15,7 @@
 
 #include "Swig.h"
 
+#include "SwigAllMessages.h"
 #include "SwigComms.h"
 #include "SwigDataBuf.h"
 #include "SwigFrame.h"
@@ -132,6 +133,8 @@ std::string Swig::swigCodeBlockInternal()
     }
 
     SwigMsgHandler::swigAddFuncsCode(m_generator, codeElems);
+
+    SwigAllMessages::swigAddCode(m_generator, codeElems);
 
     auto allFrames = m_generator.getAllFramesFromAllSchemas();
     for (auto* fPtr : allFrames) {

@@ -1,5 +1,6 @@
 set (src
     Swig.cpp
+    SwigAllMessages.cpp
     SwigBitfieldField.cpp
     SwigBundleField.cpp
     SwigChecksumLayer.cpp
