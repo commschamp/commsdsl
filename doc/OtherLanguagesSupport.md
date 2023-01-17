@@ -152,7 +152,7 @@ prefixing of the generated classes.
 
 ## Raw Data Buffer
 When dealing with raw data buffers, the binding C++ classes expect to work with `std::vector<unsigned char>`
-(defined in `/include/DataBuf.h`). The [SWIG](https://www.swig.org/) is expected to generate appropriate
+(defined in `include/DataBuf.h`). The [SWIG](https://www.swig.org/) is expected to generate appropriate
 wrapper and/or translation functionality.
 
 For example, in Python, it is possible to use
@@ -211,12 +211,12 @@ to contain the message class name as well:
 class MsgHandler
 {
 public:
-     virtual ~MsgHandler();
+    virtual ~MsgHandler();
 
-     virtual void handle_message_Msg1(message_Msg1& msg);
-     virtual void handle_message_Msg2(message_Msg2& msg);
+    virtual void handle_message_Msg1(message_Msg1& msg);
+    virtual void handle_message_Msg2(message_Msg2& msg);
 
-     virtual void handle_Message(Message& msg);
+    virtual void handle_Message(Message& msg);
 };
 ```
 By default every `handle_message_X()` calls the interface invocation `handle_Message()`, which by default
@@ -384,7 +384,7 @@ case with the generated wrapper classes:
 It is visible there is no direct inheritance relationship between `field_F1` and `message_Msg1Fields_F1`.
 As the result the member functions and types of the first cannot be seamlessly used when working
 with the second. To workaround this problem every wrapping class of the `<ref>` field has `ref()` member
-function to do the explicit casting to the global field type:
+function to do the explicit conversion to the global field type:
 ```python
 msg1 = my_prot.message_Msg1()
 msg1.field_f1().ref().setValue(123)
@@ -504,8 +504,6 @@ struct field_Variant1_Handler
 class field_Variant1
 {
 public:
-    void currentFieldExec(field_Variant1_Handler& handler);
-
     field_Variant1Members_P1& initField_p1();
     field_Variant1Members_P1& accessField_p1();
 
