@@ -272,7 +272,9 @@ std::string EmscriptenFrame::emscriptenHeaderClassInternal() const
     "public:\n"
     "    #^#ACC#$#\n"
     "    std::size_t processInputData(const #^#DATA_BUF#$#& buf, #^#MSG_HANDER#$#& handler);\n"
+    "    std::size_t processInputJsArray(const emscripten::val& buf, #^#MSG_HANDER#$#& handler);\n"
     "    std::size_t processInputDataSingleMsg(const #^#DATA_BUF#$#& buf, #^#MSG_HANDER#$#& handler, #^#ALL_FIELDS#$#* allFields = nullptr);\n"
+    "    std::size_t processInputJsArraySingleMsg(const emscripten::val& buf, #^#MSG_HANDER#$#& handler, #^#ALL_FIELDS#$#* allFields = nullptr);\n"
     "    comms::ErrorStatus writeMessage(const #^#INTERFACE#$#& msg, #^#DATA_BUF#$#& buf);\n"
     "\n"
     "private:\n"
@@ -372,6 +374,10 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
         "    if (buf.empty()) { return 0U; }\n"
         "    return static_cast<std::size_t>(comms::processAllWithDispatch(buf.begin(), buf.size(), m_frame, handler));\n"
         "}\n\n"
+        "std::size_t #^#CLASS_NAME#$#::processInputJsArray(const emscripten::val& buf, #^#HANDLER#$#& handler)\n"
+        "{\n"
+        "    return processInputData(#^#JS_ARRAY#$#(buf), handler);\n"
+        "}\n\n"        
         "std::size_t #^#CLASS_NAME#$#::processInputDataSingleMsg(const #^#DATA_BUF#$#& buf, #^#HANDLER#$#& handler, #^#ALL_FIELDS#$#* allFields)\n"
         "{\n"
         "    if (buf.empty()) { return 0U; }\n"
@@ -414,6 +420,10 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
         "    }\n"
         "    return consumed;\n"
         "}\n\n"    
+        "std::size_t #^#CLASS_NAME#$#::processInputJsArraySingleMsg(const emscripten::val& buf, #^#HANDLER#$#& handler, #^#ALL_FIELDS#$#* allFields)\n"
+        "{\n"
+        "    return processInputDataSingleMsg(#^#JS_ARRAY#$#(buf), handler, allFields);\n"
+        "}\n\n"        
         "comms::ErrorStatus #^#CLASS_NAME#$#::writeMessage(const #^#INTERFACE#$#& msg, #^#DATA_BUF#$#& buf)\n"
         "{\n"
         "    buf.reserve(buf.size() + m_frame.length(msg));\n"
@@ -443,6 +453,7 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
         {"ALL_FIELDS_VALUES", util::strListToString(allFieldsAcc, ",\n", "")},
         {"FRAME_FIELDS_VALUES", util::strListToString(frameFieldsAcc, ",\n", "")},
         {"INTERFACE", gen.emscriptenClassName(*iFace)},
+        {"JS_ARRAY", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()}
     };
     return util::processTemplate(Templ, repl);
 }
@@ -457,7 +468,9 @@ std::string EmscriptenFrame::emscriptenSourceBindInternal() const
         "        .constructor<const #^#CLASS_NAME#$#&>()\n"
         "        #^#LAYERS_ACC#$#\n"
         "        .function(\"processInputData\", &#^#CLASS_NAME#$#::processInputData)\n"
+        "        .function(\"processInputJsArray\", &#^#CLASS_NAME#$#::processInputJsArray)\n"
         "        .function(\"processInputDataSingleMsg\", &#^#CLASS_NAME#$#::processInputDataSingleMsg, emscripten::allow_raw_pointers())\n"
+        "        .function(\"processInputJsArraySingleMsg\", &#^#CLASS_NAME#$#::processInputJsArraySingleMsg, emscripten::allow_raw_pointers())\n"
         "        .function(\"writeMessage\", &#^#CLASS_NAME#$#::writeMessage)\n"
         "        ;\n"
         "}\n";

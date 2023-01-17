@@ -121,7 +121,7 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
         "std::string valueName() const\n"
         "{\n"
         "    return std::string(Base::valueName());\n"
-        "}\n"
+        "}\n\n"
         "static typename std::underlying_type<ValueType>::type asConstant(ValueType val)\n"
         "{\n"
         "    return static_cast<typename std::underlying_type<ValueType>::type>(val);\n"

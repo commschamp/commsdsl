@@ -794,6 +794,10 @@ std::string EmscriptenField::emscriptenSourceRegisterVectorInternal() const
 
 std::string EmscriptenField::emscriptenSourceExtraVectorFuncsInternal() const
 {
+    if (!m_listElement) {
+        return strings::emptyString();
+    }
+        
     static const std::string Templ = 
         "void #^#CLASS_NAME#$#_Vector_resize(std::vector<#^#CLASS_NAME#$#>& vec, std::size_t count)\n"
         "{\n"
