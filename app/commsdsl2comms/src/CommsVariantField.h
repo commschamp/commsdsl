@@ -47,6 +47,10 @@ protected:
     virtual std::string commsDefPrivateCodeImpl() const override;
     virtual std::string commsDefReadFuncBodyImpl() const override;
     virtual StringsList commsDefReadMsvcSuppressWarningsImpl() const override;
+    virtual std::string commsDefWriteFuncBodyImpl() const override;
+    virtual std::string commsDefRefreshFuncBodyImpl() const override;
+    virtual std::string commsDefLengthFuncBodyImpl() const override;
+    virtual std::string commsDefValidFuncBodyImpl() const override;    
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual std::size_t commsMaxLengthImpl() const override;
