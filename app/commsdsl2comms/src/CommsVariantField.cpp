@@ -581,6 +581,8 @@ std::string CommsVariantField::commsDefFieldOptsInternal() const
     commsAddFieldDefOptions(opts);
     commsAddDefaultIdxOptInternal(opts);
     commsAddCustomReadOptInternal(opts);
+    util::addToStrList("comms::option::def::HasCustomWrite", opts);
+    util::addToStrList("comms::option::def::HasCustomRefresh", opts);        
     return util::strListToString(opts, ",\n", "");
 }
 
