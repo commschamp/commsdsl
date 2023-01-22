@@ -17,9 +17,10 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <cassert>
+#include <cctype>
 #include <iterator>
 #include <limits>
-#include <cassert>
 
 #include "common.h"
 #include "ProtocolImpl.h"

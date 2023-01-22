@@ -16,6 +16,7 @@
 #include "AliasImpl.h"
 
 #include <cassert>
+#include <cctype>
 #include <iterator>
 
 #include "common.h"
