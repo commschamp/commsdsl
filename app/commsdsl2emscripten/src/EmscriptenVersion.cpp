@@ -16,6 +16,7 @@
 #include "EmscriptenVersion.h"
 
 #include "EmscriptenGenerator.h"
+#include "EmscriptenSchema.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -45,11 +46,13 @@ bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 
 void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
 {
-    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
-        return;
-    }
 
     for (auto idx = 0U; idx < generator.schemas().size(); ++idx) {
+        auto& schema = generator.schemas()[idx];
+        if ((schema.get() != &generator.protocolSchema()) && (!schema->hasAnyReferencedComponent())) {
+            continue;
+        }
+        
         sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::versionFileNameStr()));
     }
 }

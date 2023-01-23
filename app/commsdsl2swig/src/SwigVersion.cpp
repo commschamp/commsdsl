@@ -74,14 +74,14 @@ void SwigVersion::swigAddCodeIncludes(SwigGenerator& generator, StringsList& lis
 
 void SwigVersion::swigAddDef(SwigGenerator& generator, StringsList& list)
 {
-    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
-        return;
-    }
-
     assert(generator.isCurrentProtocolSchema());
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.chooseCurrentSchema(idx);
+
+        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+            continue;
+        }        
 
         const std::string Templ = 
             "%constant unsigned #^#NS#$#_#^#NAME#$# = #^#NS#$#_#^#NAME#$#;";
@@ -110,10 +110,6 @@ void SwigVersion::swigAddDef(SwigGenerator& generator, StringsList& list)
 
 void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
 {
-    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
-        return;
-    }
-        
     const std::string Templ = 
         "unsigned #^#NAME#$#()\n"
         "{\n"
@@ -124,6 +120,10 @@ void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.chooseCurrentSchema(idx);
+        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+            continue;
+        }      
+
         util::ReplacementMap specRepl = {
             {"NAME", generator.swigScopeNameForRoot(SpecVersionFunc)},
             {"COMMS_SCOPE", comms::scopeForRoot(SpecVersionFunc, generator)}
