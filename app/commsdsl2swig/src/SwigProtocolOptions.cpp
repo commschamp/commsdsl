@@ -115,7 +115,18 @@ std::string SwigProtocolOptions::swigClassName(const SwigGenerator& generator)
 
 bool SwigProtocolOptions::swigIsDefined(const SwigGenerator& generator)
 {
-    return 1U < generator.schemas().size();
+    auto& schemas = generator.schemas();
+    if (schemas.size() <= 1) {
+        return false;
+    }
+
+    for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
+        if (schemas[idx]->hasAnyReferencedComponent()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 } // namespace commsdsl2swig

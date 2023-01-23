@@ -47,12 +47,20 @@ const std::string PatchVersionFunc("versionPatch");
 
 bool SwigVersion::swigWrite(SwigGenerator& generator)
 {
+    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        return true;
+    }
+
     SwigVersion obj(generator);
     return obj.swigWriteInternal();
 }
 
 void SwigVersion::swigAddCodeIncludes(SwigGenerator& generator, StringsList& list)
 {
+    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        return;
+    }
+
     assert(generator.isCurrentProtocolSchema());
 
     auto& schemas = generator.schemas();
@@ -66,6 +74,10 @@ void SwigVersion::swigAddCodeIncludes(SwigGenerator& generator, StringsList& lis
 
 void SwigVersion::swigAddDef(SwigGenerator& generator, StringsList& list)
 {
+    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        return;
+    }
+
     assert(generator.isCurrentProtocolSchema());
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
@@ -98,6 +110,10 @@ void SwigVersion::swigAddDef(SwigGenerator& generator, StringsList& list)
 
 void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
 {
+    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        return;
+    }
+        
     const std::string Templ = 
         "unsigned #^#NAME#$#()\n"
         "{\n"

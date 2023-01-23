@@ -73,7 +73,18 @@ std::string EmscriptenProtocolOptions::emscriptenClassName(const EmscriptenGener
 
 bool EmscriptenProtocolOptions::emscriptenIsDefined(const EmscriptenGenerator& generator)
 {
-    return 1U < generator.schemas().size();
+    auto& schemas = generator.schemas();
+    if (schemas.size() <= 1) {
+        return false;
+    }
+
+    for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
+        if (schemas[idx]->hasAnyReferencedComponent()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 void EmscriptenProtocolOptions::emscriptenAddInclude(const EmscriptenGenerator& generator, StringsList& list)

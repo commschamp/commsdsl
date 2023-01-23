@@ -35,12 +35,20 @@ namespace commsdsl2emscripten
 
 bool EmscriptenVersion::emscriptenWrite(EmscriptenGenerator& generator)
 {
+    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        return true;
+    }
+
     EmscriptenVersion obj(generator);
     return obj.emscriptenWriteSrcInternal();
 }
 
 void EmscriptenVersion::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
 {
+    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        return;
+    }
+
     for (auto idx = 0U; idx < generator.schemas().size(); ++idx) {
         sources.push_back(generator.emscriptenSchemaRelSourceForRoot(idx, strings::versionFileNameStr()));
     }

@@ -483,6 +483,17 @@ public:
                 });
     }
 
+    bool hasAnyReferencedComponent() const
+    {
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasAnyReferencedComponent();
+                });
+    }    
+
 private:
     Generator& m_generator;
     commsdsl::parse::Schema m_dslObj;
@@ -796,6 +807,11 @@ bool Schema::hasReferencedMessageIdField() const
 bool Schema::hasAnyReferencedMessage() const
 {
     return m_impl->hasAnyReferencedMessage();
+}
+
+bool Schema::hasAnyReferencedComponent() const
+{
+    return m_impl->hasAnyReferencedComponent();
 }
 
 Elem::Type Schema::elemTypeImpl() const

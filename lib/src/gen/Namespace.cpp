@@ -207,6 +207,57 @@ public:
                 });        
     }
 
+    bool hasAnyReferencedComponent() const
+    {
+        if (!m_frames.empty()) {
+            return true;
+        }
+
+        bool hasMessage = 
+            std::any_of(
+                m_messages.begin(), m_messages.end(),
+                [](auto& m)
+                {
+                    return m->isReferenced();
+                });   
+
+        if (hasMessage) {
+            return true;
+        }
+
+        bool hasInterface = 
+            std::any_of(
+                m_interfaces.begin(), m_interfaces.end(),
+                [](auto& i)
+                {
+                    return i->isReferenced();
+                });   
+
+        if (hasInterface) {
+            return true;
+        }     
+
+        bool hasField = 
+            std::any_of(
+                m_fields.begin(), m_fields.end(),
+                [](auto& f)
+                {
+                    return f->isReferenced();
+                });   
+
+        if (hasField) {
+            return true;
+        }             
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasAnyReferencedComponent();
+                });        
+    }    
+
 private:
     bool createNamespaces()
     {
@@ -759,6 +810,11 @@ bool Namespace::hasReferencedMessageIdField() const
 bool Namespace::hasAnyReferencedMessage() const
 {
     return m_impl->hasAnyReferencedMessage();
+}
+
+bool Namespace::hasAnyReferencedComponent() const
+{
+    return m_impl->hasAnyReferencedComponent();
 }
 
 Elem::Type Namespace::elemTypeImpl() const

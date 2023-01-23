@@ -110,6 +110,7 @@ public:
 
     bool hasReferencedMessageIdField() const;
     bool hasAnyReferencedMessage() const;    
+    bool hasAnyReferencedComponent() const;    
 
 protected:
     virtual Type elemTypeImpl() const override final;
