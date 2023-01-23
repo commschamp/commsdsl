@@ -57,15 +57,14 @@ bool SwigVersion::swigWrite(SwigGenerator& generator)
 
 void SwigVersion::swigAddCodeIncludes(SwigGenerator& generator, StringsList& list)
 {
-    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
-        return;
-    }
-
     assert(generator.isCurrentProtocolSchema());
 
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.chooseCurrentSchema(idx);
+        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+            continue;
+        }            
         list.push_back(comms::relHeaderForRoot(strings::versionFileNameStr(), generator));
     }
 
