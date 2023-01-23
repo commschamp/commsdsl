@@ -155,15 +155,15 @@ void SwigField::swigAddDef(StringsList& list) const
 
     m_defAdded = true;
 
-    swigAddVectorTemplateInternal(list);
-
-    swigAddDefImpl(list);
-    
     bool global = comms::isGlobalField(m_field);
     if (global && (!m_field.isReferenced())) {
         // Code for not referenced does not exist
         return;
     }
+
+    swigAddVectorTemplateInternal(list);
+
+    swigAddDefImpl(list);
 
     list.push_back(swigComparisonRenameInternal());
 
