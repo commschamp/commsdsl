@@ -35,6 +35,11 @@ protected:
     virtual bool prepareImpl() override;
 
     // ToolsBase overrides
+    virtual std::string toolExtraFieldTemplParamsImpl() const override;
+    virtual std::string toolsForcedSerHiddenStrImpl() const override;
+
+private:
+    bool toolsIsForcedPseudoInternal() const;    
 };
 
 } // namespace commsdsl2tools_qt

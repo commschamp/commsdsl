@@ -30,6 +30,7 @@ public:
     using IncludesList = StringsList;
 
     explicit ToolsQtLayer(commsdsl::gen::Layer& layer);
+    virtual ~ToolsQtLayer() = default;
 
     bool prepare();
 
@@ -43,6 +44,20 @@ public:
     {
         return m_layer;
     }
+
+protected:
+    virtual std::string toolExtraFieldTemplParamsImpl() const;
+    virtual std::string toolsForcedSerHiddenStrImpl() const;
+
+    const ToolsQtField* toolsExternalField() const
+    {
+        return m_toolsExternalField;
+    }
+
+    const ToolsQtField* toolsMemberField() const
+    {
+        return m_toolsMemberField;
+    }    
 
 private:
     commsdsl::gen::Layer& m_layer ;

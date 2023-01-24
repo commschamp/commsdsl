@@ -132,7 +132,7 @@ std::string ToolsQtLayer::toolsPropsFunc() const
 std::string ToolsQtLayer::toolsCreatePropsInvocation() const
 {
     static const std::string Templ = 
-        "#^#NAME#$#Layer::createProps_#^#FIELD_NAME#$#(false)";
+        "#^#NAME#$#Layer::createProps_#^#FIELD_NAME#$#(#^#SER_HIDDEN#$#)";
 
     std::string fieldName;
     do {
@@ -151,7 +151,8 @@ std::string ToolsQtLayer::toolsCreatePropsInvocation() const
     
     util::ReplacementMap repl = {
         {"NAME", comms::className(m_layer.dslObj().name())},
-        {"FIELD_NAME", comms::accessName(fieldName)}
+        {"FIELD_NAME", comms::accessName(fieldName)},
+        {"SER_HIDDEN", toolsForcedSerHiddenStrImpl()},
     };
 
     return util::processTemplate(Templ, repl);
@@ -160,11 +161,11 @@ std::string ToolsQtLayer::toolsCreatePropsInvocation() const
 std::string ToolsQtLayer::toolsFieldCommsScope() const
 {
     if (m_toolsExternalField != nullptr) {
-        return m_toolsExternalField->toolsCommsScope();
+        return m_toolsExternalField->toolsCommsScope(toolExtraFieldTemplParamsImpl());
     }
 
     if (m_toolsMemberField != nullptr) {
-        return m_toolsMemberField->toolsCommsScope();
+        return m_toolsMemberField->toolsCommsScope(toolExtraFieldTemplParamsImpl());
     }
 
     auto* frameElem = m_layer.getParent();
@@ -194,6 +195,16 @@ unsigned ToolsQtLayer::toolsMinFieldLength() const
 
     assert(false); // should not happen;
     return 0U;
+}
+
+std::string ToolsQtLayer::toolExtraFieldTemplParamsImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string ToolsQtLayer::toolsForcedSerHiddenStrImpl() const
+{
+    return "false";
 }
 
 } // namespace commsdsl2tools_qt

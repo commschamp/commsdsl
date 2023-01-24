@@ -26,7 +26,7 @@ class ToolsQtDefaultOptions
 public:
     static bool write(ToolsQtGenerator& generator);
     static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
-    static std::string toolsTemplParam(const ToolsQtGenerator& generator);
+    static std::string toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams = std::string());
     static std::string toolsScope(const ToolsQtGenerator& generator);
 
 private:

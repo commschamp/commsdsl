@@ -53,7 +53,7 @@ public:
     std::string toolsDeclSig() const;
     std::string toolsDefFunc() const;
     std::string toolsDefMembers() const;
-    std::string toolsCommsScope() const;
+    std::string toolsCommsScope(const std::string& extraTemplParams = std::string()) const;
 
     std::string toolsRelDeclHeaderFile() const;
     std::string toolsRelDefSrcFile() const;

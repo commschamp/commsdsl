@@ -40,9 +40,9 @@ std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& ge
         strings::cppHeaderSuffixStr();
 }
 
-std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& generator)
+std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams)
 {
-    return '<' + toolsScope(generator) + '>';
+    return '<' + toolsScope(generator) + extraParams + '>';
 }
 
 std::string ToolsQtDefaultOptions::toolsScope(const ToolsQtGenerator& generator)
