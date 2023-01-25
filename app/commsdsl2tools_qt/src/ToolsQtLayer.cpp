@@ -165,7 +165,7 @@ std::string ToolsQtLayer::toolsFieldCommsScope() const
     }
 
     if (m_toolsMemberField != nullptr) {
-        return m_toolsMemberField->toolsCommsScope(toolExtraFieldTemplParamsImpl());
+        return m_toolsMemberField->toolsCommsScope();
     }
 
     auto* frameElem = m_layer.getParent();
