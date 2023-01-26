@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,19 +41,6 @@ SwigNamespace::SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespac
 }   
 
 SwigNamespace::~SwigNamespace() = default;
-
-bool SwigNamespace::swigHasReferencedMsgId() const
-{
-    return 
-        std::any_of(
-            m_swigFields.begin(), m_swigFields.end(),
-            [](auto* f)
-            {
-                return 
-                    (f->field().isReferenced()) && 
-                    (f->field().dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
-            });
-}
 
 void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
 {

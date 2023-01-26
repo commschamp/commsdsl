@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +35,11 @@ protected:
     virtual bool prepareImpl() override;
 
     // ToolsBase overrides
+    virtual std::string toolExtraFieldTemplParamsImpl() const override;
+    virtual std::string toolsForcedSerHiddenStrImpl() const override;
+
+private:
+    bool toolsIsForcedPseudoInternal() const;    
 };
 
 } // namespace commsdsl2tools_qt

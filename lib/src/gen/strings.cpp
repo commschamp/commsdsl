@@ -129,6 +129,12 @@ const std::string& includeDirStr()
     return Str;   
 }
 
+const std::string& srcDirStr()
+{
+    static const std::string Str("src");
+    return Str;   
+}
+
 const std::string& docDirStr()
 {
     static const std::string Str("doc");
@@ -231,6 +237,12 @@ const std::string& prependLangFileSuffixStr()
     return Str;     
 }
 
+const std::string& bindFileSuffixStr()
+{
+    static const std::string Str(".bind");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");
@@ -313,6 +325,30 @@ const std::string& unexpectedValueStr()
 {
     static const std::string Str("???");
     return Str;     
+}
+
+const std::string& versionFileNameStr()
+{
+    static const std::string Str("Version");
+    return Str;      
+}
+
+const std::string& enumFirstValueStr()
+{
+    static const std::string Str("FirstValue");
+    return Str;
+}
+
+const std::string& enumLastValueStr()
+{
+    static const std::string Str("LastValue");
+    return Str;
+}
+
+const std::string& enumValuesLimitStr()
+{
+    static const std::string Str("ValuesLimit");
+    return Str;
 }
 
 char siblingRefPrefix()

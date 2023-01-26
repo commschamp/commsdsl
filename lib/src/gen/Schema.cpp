@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -461,6 +461,39 @@ public:
         }
     }
 
+    bool hasReferencedMessageIdField() const
+    {
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasReferencedMessageIdField();
+                });
+    }
+
+    bool hasAnyReferencedMessage() const
+    {
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasAnyReferencedMessage();
+                });
+    }
+
+    bool hasAnyReferencedComponent() const
+    {
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasAnyReferencedComponent();
+                });
+    }    
+
 private:
     Generator& m_generator;
     commsdsl::parse::Schema m_dslObj;
@@ -764,6 +797,21 @@ void Schema::setAllInterfacesReferenced()
 void Schema::setAllMessagesReferenced()
 {
     m_impl->setAllMessagesReferenced();
+}
+
+bool Schema::hasReferencedMessageIdField() const
+{
+    return m_impl->hasReferencedMessageIdField();
+}
+
+bool Schema::hasAnyReferencedMessage() const
+{
+    return m_impl->hasAnyReferencedMessage();
+}
+
+bool Schema::hasAnyReferencedComponent() const
+{
+    return m_impl->hasAnyReferencedComponent();
 }
 
 Elem::Type Schema::elemTypeImpl() const

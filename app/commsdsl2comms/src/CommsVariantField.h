@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +47,10 @@ protected:
     virtual std::string commsDefPrivateCodeImpl() const override;
     virtual std::string commsDefReadFuncBodyImpl() const override;
     virtual StringsList commsDefReadMsvcSuppressWarningsImpl() const override;
+    virtual std::string commsDefWriteFuncBodyImpl() const override;
+    virtual std::string commsDefRefreshFuncBodyImpl() const override;
+    virtual std::string commsDefLengthFuncBodyImpl() const override;
+    virtual std::string commsDefValidFuncBodyImpl() const override;    
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual std::size_t commsMaxLengthImpl() const override;

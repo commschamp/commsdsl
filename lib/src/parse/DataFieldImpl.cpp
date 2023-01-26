@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <cassert>
+#include <cctype>
 #include <iterator>
 #include <limits>
-#include <cassert>
 
 #include "common.h"
 #include "ProtocolImpl.h"

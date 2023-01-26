@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -968,7 +968,7 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
             {
                 auto name = comms::className(p) + type + "InputMessages";
                 auto scope = comms::scopeForInput(name, m_generator);
-                auto file = comms::headerPathForInput(name, m_generator);
+                auto file = comms::relHeaderForInput(name, m_generator);
                 auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
                 list.push_back(std::move(str));
             };

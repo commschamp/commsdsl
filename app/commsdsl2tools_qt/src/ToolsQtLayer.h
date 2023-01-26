@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,6 +30,7 @@ public:
     using IncludesList = StringsList;
 
     explicit ToolsQtLayer(commsdsl::gen::Layer& layer);
+    virtual ~ToolsQtLayer() = default;
 
     bool prepare();
 
@@ -43,6 +44,20 @@ public:
     {
         return m_layer;
     }
+
+protected:
+    virtual std::string toolExtraFieldTemplParamsImpl() const;
+    virtual std::string toolsForcedSerHiddenStrImpl() const;
+
+    const ToolsQtField* toolsExternalField() const
+    {
+        return m_toolsExternalField;
+    }
+
+    const ToolsQtField* toolsMemberField() const
+    {
+        return m_toolsMemberField;
+    }    
 
 private:
     commsdsl::gen::Layer& m_layer ;

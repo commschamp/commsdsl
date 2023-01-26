@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,6 +35,8 @@ public:
     virtual ~SwigField();
 
     static const SwigField* cast(const commsdsl::gen::Field* field);
+    static SwigField* cast(commsdsl::gen::Field* field);
+
     static SwigFieldsList swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields);
 
     commsdsl::gen::Field& field()
@@ -60,8 +62,12 @@ public:
 
     std::string swigTemplateScope() const;
 
-    // bool swigPrepare();
     bool swigWrite() const;
+
+    void swigSetListElement()
+    {
+        m_listElement = true;
+    }
 
 protected:
     virtual std::string swigMembersDeclImpl() const;
@@ -84,10 +90,12 @@ private:
     std::string swigOptionalDeclInternal() const;
     std::string swigClassCodeInternal() const;
     std::string swigComparisonRenameInternal() const;
+    void swigAddVectorTemplateInternal(StringsList& list) const;
 
     commsdsl::gen::Field& m_field;
     mutable bool m_defAdded = false;
     mutable bool m_codeAdded = false;
+    bool m_listElement = false;
 };
 
 } // namespace commsdsl2swig

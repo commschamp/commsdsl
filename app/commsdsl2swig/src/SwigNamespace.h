@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,8 +34,6 @@ public:
 
     explicit SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual ~SwigNamespace();
-
-    bool swigHasReferencedMsgId() const;
 
     void swigAddCodeIncludes(StringsList& list) const; 
     void swigAddCode(StringsList& list) const; 

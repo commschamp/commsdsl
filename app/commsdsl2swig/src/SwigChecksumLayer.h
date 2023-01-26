@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,10 +30,6 @@ class SwigChecksumLayer final : public commsdsl::gen::ChecksumLayer, public Swig
     using SwigBase = SwigLayer;
 public:
     SwigChecksumLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // SwigBase overrides
-    virtual bool swigReorderImpl(SwigLayersList& siblings, bool& success) const override;
 };
 
 } // namespace commsdsl2swig

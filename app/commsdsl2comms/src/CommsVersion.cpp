@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -59,7 +59,7 @@ bool CommsVersion::write(CommsGenerator& generator)
 
 bool CommsVersion::writeInternal() const
 {
-    auto filePath = comms::headerPathRoot("Version", m_generator);
+    auto filePath = comms::headerPathRoot(strings::versionFileNameStr(), m_generator);
 
     m_generator.logger().info("Generating " + filePath);
     std::ofstream stream(filePath);
@@ -100,7 +100,7 @@ bool CommsVersion::writeInternal() const
         {"COMMS_MIN", util::strReplace(CommsGenerator::commsMinCommsVersion(), ".", ", ")},
         {"PROT_VER_DEFINE", commsProtVersionDefineInternal()},
         {"PROT_VER_FUNC", commsProtVersionFuncsInternal()},
-        {"APPEND", util::readFileContents(comms::inputCodePathForRoot("Version", m_generator))},
+        {"APPEND", util::readFileContents(comms::inputCodePathForRoot(strings::versionFileNameStr(), m_generator))},
     };        
     
     stream << util::processTemplate(Templ, repl, true);

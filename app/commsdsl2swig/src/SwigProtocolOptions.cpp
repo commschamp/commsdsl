@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -95,7 +95,6 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsLis
         "using #^#SWIG_TYPE#$# =\n"
         "    #^#CODE#$#;\n\n";
 
-    auto commsType = comms::scopeForRoot(strings::msgIdEnumNameStr(), generator);
     util::ReplacementMap repl = {
         {"SWIG_TYPE", swigClassName(generator)},
         {"CODE", swigCodeInternal(gen, gen.schemas().size() - 1U)}
@@ -116,7 +115,18 @@ std::string SwigProtocolOptions::swigClassName(const SwigGenerator& generator)
 
 bool SwigProtocolOptions::swigIsDefined(const SwigGenerator& generator)
 {
-    return 1U < generator.schemas().size();
+    auto& schemas = generator.schemas();
+    if (schemas.size() <= 1) {
+        return false;
+    }
+
+    for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
+        if (schemas[idx]->hasAnyReferencedComponent()) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 } // namespace commsdsl2swig

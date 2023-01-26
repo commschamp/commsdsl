@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,7 @@
 
 #include "SwigLayer.h"
 
-#include "SwigCustomLayer.h"
 #include "SwigField.h"
-#include "SwigFrame.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
 #include "SwigProtocolOptions.h"
@@ -53,11 +51,6 @@ const SwigLayer* SwigLayer::cast(const commsdsl::gen::Layer* layer)
     auto* swigLayer = dynamic_cast<const SwigLayer*>(layer);    
     assert(swigLayer != nullptr);
     return swigLayer;
-}
-
-bool SwigLayer::swigReorder(SwigLayersList& siblings, bool& success) const
-{
-    return swigReorderImpl(siblings, success);
 }
 
 std::string SwigLayer::swigDeclCode() const
@@ -172,13 +165,6 @@ std::string SwigLayer::swigFieldAccName() const
     return "m_" + comms::accessName(m_layer.dslObj().name());
 }
 
-bool SwigLayer::swigReorderImpl(SwigLayersList& siblings, bool& success) const
-{
-    static_cast<void>(siblings);
-    success = true;
-    return false;
-}
-
 std::string SwigLayer::swigDeclFuncsImpl() const
 {
     return strings::emptyString();
@@ -212,64 +198,9 @@ std::string SwigLayer::swigFieldTypeImpl() const
 std::string SwigLayer::swigTemplateScope() const
 {
     auto& gen = SwigGenerator::cast(m_layer.generator());
-    auto commsScope = comms::scopeFor(m_layer, gen);
-    std::string optionsParams = "<" + SwigProtocolOptions::swigClassName(gen) + ">";
-
-    auto* parent = m_layer.getParent();
-    assert(parent != nullptr);
-    assert(parent->elemType() == commsdsl::gen::Elem::Type_Frame);
-
-    auto optLevelScope = comms::scopeFor(*parent, gen) + strings::layersSuffixStr();
-    assert(optLevelScope.size() < commsScope.size());
-    assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
-    
-    auto result = optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
-
-    auto* frame = static_cast<const SwigFrame*>(parent);
-    auto allLayers = frame->swigLayers();
-
-    auto iter = std::find(allLayers.begin(), allLayers.end(), this);
-    if (iter == allLayers.end()) {
-        assert(false); // Mustn't happen
-        return result;
-    }
-
-    auto addIdParams = 
-        [&gen, &result]()
-        {
-            static const std::string Templ = 
-                "<#^#INTERFACE#$#, #^#ALL_MESSAGES#$#>";
-
-            auto* iFace = gen.swigMainInterface();
-            assert(iFace != nullptr);
-            util::ReplacementMap repl = {
-                {"INTERFACE", gen.swigClassName(*iFace)},
-                {"ALL_MESSAGES", strings::allMessagesStr()}
-            };
-
-            result += util::processTemplate(Templ, repl);
-        };
-
-    for (auto iterTmp = iter; iterTmp != allLayers.end(); ++iterTmp) {
-        auto kind = (*iterTmp)->layer().dslObj().kind();
-        if (kind == commsdsl::parse::Layer::Kind::Id) {
-            addIdParams();
-            break;
-        }
-
-        if (kind != commsdsl::parse::Layer::Kind::Custom) {
-            continue;
-        }
-
-        auto& customLayer = static_cast<const commsdsl::gen::CustomLayer&>((*iterTmp)->layer());
-        auto customKind = customLayer.customDslObj().semanticLayerType();
-        if (customKind == commsdsl::parse::Layer::Kind::Id) {
-            addIdParams();
-            break;            
-        }
-    }
-
-    return result;
+    auto* iFace = gen.swigMainInterface();
+    assert(iFace != nullptr);
+    return m_layer.templateScopeOfComms(gen.swigClassName(*iFace), strings::allMessagesStr(), SwigProtocolOptions::swigClassName(gen));
 }
 
 

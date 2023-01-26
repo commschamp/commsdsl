@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,96 +41,6 @@ CommsChecksumLayer::CommsChecksumLayer(CommsGenerator& generator, commsdsl::pars
 bool CommsChecksumLayer::prepareImpl()
 {
     return Base::prepareImpl() && CommsBase::commsPrepare();
-}
-
-bool CommsChecksumLayer::commsReorderImpl(CommsLayersList& siblings, bool& success) const 
-{
-    auto iter =
-        std::find_if(
-            siblings.begin(), siblings.end(),
-            [this](const CommsLayer* l)
-            {
-                return l == this;
-            });
-
-    if (iter == siblings.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
-        assert(Should_not_happen);
-        return false;
-    }
-
-    auto obj = checksumDslObj();
-    auto& gen = generator();
-    auto& untilStr = obj.untilLayer();
-    if (!untilStr.empty()) {
-        assert(obj.fromLayer().empty());
-        auto untilIter =
-            std::find_if(
-                siblings.begin(), siblings.end(),
-                [&untilStr](const CommsLayer* l)
-                {
-                    return l->layer().dslObj().name() == untilStr;
-                });
-
-        if (untilIter == siblings.end()) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
-            assert(Should_not_happen);
-            success = false;
-            return false;
-        }
-
-        if ((*untilIter)->layer().dslObj().kind() != commsdsl::parse::Layer::Kind::Payload) {
-            gen.logger().error("Checksum prefix must be until payload layer");
-            success = false;
-            return false;
-        }
-
-        success = true;
-        return false;
-    }
-
-    auto& fromStr = obj.fromLayer();
-    if (fromStr.empty()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
-        assert(Should_not_happen);
-        gen.logger().error("Info on checksum layer is missing");
-        success = false;
-        return false;
-    }
-
-    auto fromIter =
-        std::find_if(
-            siblings.begin(), siblings.end(),
-            [&fromStr](const CommsLayer* l)
-            {
-                return l->layer().dslObj().name() == fromStr;
-            });
-
-
-    if (fromIter == siblings.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
-        assert(Should_not_happen);
-        success = false;
-        return false;
-    }            
-
-    auto iterTmp = iter;
-    std::advance(iterTmp, 1U);
-    if (iterTmp == fromIter) {
-        // Already in place
-        success = true;
-        return false;
-    }
-
-    auto thisPtr = std::move(*iter);
-    siblings.erase(iter);
-    siblings.insert(fromIter, std::move(thisPtr));
-    success = true;
-    return true;      
 }
 
 CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() const

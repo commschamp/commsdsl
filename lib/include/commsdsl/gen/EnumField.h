@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@ namespace commsdsl
 namespace gen
 {
 
+class EnumFieldImpl;
 class COMMSDSL_API EnumField : public Field
 {
     using Base = Field;
@@ -40,10 +41,27 @@ public:
     bool isUnsignedUnderlyingType() const;
     unsigned hexWidth() const;
     std::string valueName(std::intmax_t value) const;
+    std::string adjustName(const std::string& val) const;
 
     commsdsl::parse::EnumField enumDslObj() const;
 
+    using RevValueInfo = std::pair<std::intmax_t, const std::string*>;
+    using SortedRevValues = std::vector<RevValueInfo>;
+    const SortedRevValues& sortedRevValues() const;
+
+    std::string valueToString(std::intmax_t val) const;
+
+    bool hasValuesLimit() const;
+
+    std::string firstValueStr() const;
+    std::string lastValueStr() const;
+    std::string valuesLimitStr() const;
+
+protected:    
+    virtual bool prepareImpl() override;
+
 private:
+    std::unique_ptr<EnumFieldImpl> m_impl;        
 };
 
 } // namespace gen

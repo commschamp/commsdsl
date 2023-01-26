@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +17,7 @@
 #include "commsdsl/gen/ValueLayer.h"
 #include "commsdsl/gen/Generator.h"
 
+#include <algorithm>
 #include <cassert>
 
 namespace commsdsl
@@ -32,6 +33,24 @@ ValueLayer::ValueLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem
 }
 
 ValueLayer::~ValueLayer() = default;
+
+bool ValueLayer::isInterfaceSupported(const Interface* iFace) const
+{
+    auto obj = valueDslObj();
+    auto supportedInterfaces = obj.interfaces();
+
+    if (supportedInterfaces.empty()) {
+        return true;
+    }
+
+    return 
+        std::any_of(
+            supportedInterfaces.begin(), supportedInterfaces.end(),
+            [this, iFace](auto& i)
+            {
+                return generator().findInterface(i.externalRef()) == iFace;
+            });  
+}
 
 commsdsl::parse::ValueLayer ValueLayer::valueDslObj() const
 {

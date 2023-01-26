@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,11 +47,6 @@ bool CommsLayer::commsPrepare()
     assert((m_commsExternalField != nullptr) || (m_layer.externalField() == nullptr));
     assert((m_commsMemberField != nullptr) || (m_layer.memberField() == nullptr));
     return true;
-}
-
-bool CommsLayer::commsReorder(CommsLayersList& siblings, bool& success) const
-{
-    return commsReorderImpl(siblings, success);
 }
 
 CommsLayer::IncludesList CommsLayer::commsCommonIncludes() const
@@ -203,13 +198,6 @@ std::string CommsLayer::commsBareMetalDefaultOptions() const
             &CommsLayer::commsExtraBareMetalDefaultOptionsInternal,
             true
         );
-}
-
-bool CommsLayer::commsReorderImpl(CommsLayersList& siblings, bool& success) const
-{
-    static_cast<void>(siblings);
-    success = true;
-    return false;
 }
 
 CommsLayer::IncludesList CommsLayer::commsDefIncludesImpl() const

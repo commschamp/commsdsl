@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -60,7 +60,6 @@ private:
     std::string swigClassDeclInternal() const;
     std::string swigLayersAccDeclInternal() const;
     std::string swigLayersAccCodeInternal() const;
-    std::string swigAllMessagesCodeInternal() const;
     std::string swigFrameCodeInternal() const;
     std::string swigAllFieldsInternal() const;
 

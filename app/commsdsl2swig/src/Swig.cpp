@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 #include "Swig.h"
 
+#include "SwigAllMessages.h"
 #include "SwigComms.h"
 #include "SwigDataBuf.h"
 #include "SwigFrame.h"
@@ -99,6 +100,7 @@ bool Swig::swigWriteInternal()
 std::string Swig::swigCodeBlockInternal()
 {
     util::StringsList includes = {
+        "<iterator>",
         "comms/comms.h"
     };
 
@@ -131,6 +133,8 @@ std::string Swig::swigCodeBlockInternal()
     }
 
     SwigMsgHandler::swigAddFuncsCode(m_generator, codeElems);
+
+    SwigAllMessages::swigAddCode(m_generator, codeElems);
 
     auto allFrames = m_generator.getAllFramesFromAllSchemas();
     for (auto* fPtr : allFrames) {

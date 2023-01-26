@@ -2,7 +2,6 @@ if (NOT BUILD_TESTING)
     return ()
 endif () 
 
-set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 set (languages python java csharp)
@@ -35,12 +34,10 @@ foreach (name ${tests})
         COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
     )
 
-    set (extra_gen_params)
-
     add_custom_command(
         OUTPUT ${output_dir}.tmp
         DEPENDS ${schema_files} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} ${extra_gen_params} -o ${output_dir}.tmp ${schema_files}
+        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
     )
 
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
@@ -56,8 +53,6 @@ foreach (name ${tests})
         COMMAND ${CMAKE_COMMAND} -E echo "The swig interface file ${output_dir}/${name}.i is ready"
     )            
 
-    set (protocol_install_dir ${dep_prefix_path}/${name}/build/install)
-
     set_source_files_properties(
         ${output_dir}/${name}.i
         PROPERTIES
@@ -72,7 +67,6 @@ foreach (name ${tests})
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}_build)
     set (install_dir ${build_dir}/install)
-    set (prot_tgt "commsdsl2comms.${name}_build_tgt")
     set (prot_install_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}/build/install")
     set (build_prefix_path ${CMAKE_PREFIX_PATH} ${prot_install_dir})
     string (REPLACE ";" "|" build_prefix_path_str "${build_prefix_path}")    

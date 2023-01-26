@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,8 +35,6 @@ public:
 
     static const SwigLayer* cast(const commsdsl::gen::Layer* layer);
 
-    bool swigReorder(SwigLayersList& siblings, bool& success) const;
-
     commsdsl::gen::Layer& layer()
     {
         return m_layer;
@@ -56,7 +54,6 @@ public:
     std::string swigFieldAccName() const;
 
 protected:
-    virtual bool swigReorderImpl(SwigLayersList& siblings, bool& success) const;
     virtual std::string swigDeclFuncsImpl() const;    
     virtual std::string swigCodeFuncsImpl() const;    
     virtual bool swigIsMainInterfaceSupportedImpl() const;

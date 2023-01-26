@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,6 +53,11 @@ const SwigField* SwigField::cast(const commsdsl::gen::Field* field)
     auto* swigField = dynamic_cast<const SwigField*>(field);    
     assert(swigField != nullptr);
     return swigField;
+}
+
+SwigField* SwigField::cast(commsdsl::gen::Field* field)
+{
+    return const_cast<SwigField*>(cast(static_cast<const commsdsl::gen::Field*>(field)));
 }
 
 SwigField::SwigFieldsList SwigField::swigTransformFieldsList(const commsdsl::gen::Field::FieldsList& fields)
@@ -150,13 +155,15 @@ void SwigField::swigAddDef(StringsList& list) const
 
     m_defAdded = true;
 
-    swigAddDefImpl(list);
-    
     bool global = comms::isGlobalField(m_field);
     if (global && (!m_field.isReferenced())) {
         // Code for not referenced does not exist
         return;
     }
+
+    swigAddVectorTemplateInternal(list);
+
+    swigAddDefImpl(list);
 
     list.push_back(swigComparisonRenameInternal());
 
@@ -170,51 +177,7 @@ void SwigField::swigAddDef(StringsList& list) const
 std::string SwigField::swigTemplateScope() const
 {
     auto& gen = SwigGenerator::cast(m_field.generator());
-    auto commsScope = comms::scopeFor(m_field, gen);
-    std::string optionsParams = "<" + SwigProtocolOptions::swigClassName(gen) + ">";
-
-    if (comms::isGlobalField(m_field)) {
-        return commsScope + optionsParams;
-    }
-
-    using Elem = commsdsl::gen::Elem;
-
-    auto formScopeFunc = 
-        [&commsScope, &gen, &optionsParams](const Elem* parent, const std::string& suffix)
-        {
-            auto optLevelScope = comms::scopeFor(*parent, gen) + suffix;
-            assert(optLevelScope.size() < commsScope.size());
-            assert(std::equal(optLevelScope.begin(), optLevelScope.end(), commsScope.begin()));
-            
-            return optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
-        };
-
-    
-    Elem* parent = m_field.getParent();
-    while (parent != nullptr)  {
-        auto elemType = parent->elemType();
-
-        if (elemType == Elem::Type_Interface) {
-            return commsScope;
-        }        
-
-        if ((elemType == Elem::Type_Field) && (comms::isGlobalField(*parent))) {
-            return formScopeFunc(parent, strings::membersSuffixStr());
-        }        
-
-        if (elemType == Elem::Type_Message) {
-            return formScopeFunc(parent, strings::fieldsSuffixStr());
-        }
-
-        if (elemType == Elem::Type_Frame) {
-            return formScopeFunc(parent, strings::layersSuffixStr());
-        }        
-
-        parent = parent->getParent();
-    }
-
-    assert(false); // Should not happen
-    return commsScope;
+    return m_field.templateScopeOfComms(SwigProtocolOptions::swigClassName(gen));
 }
 
 bool SwigField::swigWrite() const
@@ -353,9 +316,8 @@ std::string SwigField::swigCommonPublicFuncsCode() const
         "using Base::write;\n"
         "#^#ERR_STATUS#$# write(#^#DATA_BUF#$#& buf) const\n"
         "{\n"
-        "    buf.resize(length());\n"
-        "    auto iter = buf.begin();\n"
-        "    return Base::write(iter, buf.size());\n"
+        "    auto iter = std::back_inserter(buf);\n"
+        "    return Base::write(iter, buf.max_size() - buf.size());\n"
         "}\n"
     ;
 
@@ -559,5 +521,21 @@ std::string SwigField::swigComparisonRenameInternal() const
     return util::processTemplate(Templ, repl) + '\n' + noSuffix;
 }
 
+void SwigField::swigAddVectorTemplateInternal(StringsList& list) const
+{
+    if (!m_listElement) {
+        return;
+    }
+
+    static const std::string Templ = 
+        "%template(#^#CLASS_NAME#$#_Vector) std::vector<#^#CLASS_NAME#$#>;";
+
+    auto& gen = SwigGenerator::cast(m_field.generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", gen.swigClassName(m_field)},
+    };    
+
+    list.push_back(util::processTemplate(Templ, repl));
+}
 
 } // namespace commsdsl2swig

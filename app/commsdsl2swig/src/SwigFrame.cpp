@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 #include "SwigFrame.h"
 
+#include "SwigComms.h"
 #include "SwigDataBuf.h"
 #include "SwigGenerator.h"
 #include "SwigInterface.h"
@@ -59,8 +60,6 @@ void SwigFrame::swigAddCode(StringsList& list) const
         return;
     }
 
-    list.push_back(swigAllMessagesCodeInternal());    
-
     for (auto* l : m_swigLayers) {
         l->swigAddCode(list);
     }
@@ -88,10 +87,17 @@ bool SwigFrame::prepareImpl()
         return false;
     }
 
-    for (auto& l : layers()) {
-        m_swigLayers.push_back(const_cast<SwigLayer*>(SwigLayer::cast(l.get())));
-        assert(m_swigLayers.back() != nullptr);
-    } 
+    bool success = true;
+    auto reorderedLayers = getCommsOrderOfLayers(success);
+    if (!success) {
+        return false;
+    }
+
+    for (auto* l : reorderedLayers) {
+        auto* swigLayer = SwigLayer::cast(l);
+        assert(swigLayer != nullptr);
+        m_swigLayers.push_back(const_cast<SwigLayer*>(swigLayer));
+    }
 
     m_validFrame = 
         std::all_of(
@@ -104,29 +110,6 @@ bool SwigFrame::prepareImpl()
     if (!m_validFrame) {
         return true;
     }
-
-    assert(!m_swigLayers.empty());
-    while (true) {
-        bool rearanged = false;
-        for (auto* l : m_swigLayers) {
-            bool success = false;
-            rearanged = l->swigReorder(m_swigLayers, success);
-
-            if (!success) {
-                return false;
-            }
-
-            if (rearanged) {
-                // Order has changed restart from the beginning
-                break;
-            }
-        }
-
-        if (!rearanged) {
-            // reordering is complete
-            break;
-        }
-    }    
 
     return true;   
 }
@@ -196,6 +179,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         "    #^#SIZE_T#$# processInputData(const #^#DATA_BUF#$#& buf, #^#HANDLER#$#& handler);\n"
         "    #^#SIZE_T#$# processInputDataSingleMsg(const #^#DATA_BUF#$#& buf, #^#HANDLER#$#& handler, #^#CLASS_NAME#$#_AllFields* allFields = nullptr);\n"
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg);\n"
+        "    #^#ERR_STATUS#$# appendMessage(const #^#INTERFACE#$#& msg, #^#DATA_BUF#$#& buf);\n"
         "    #^#CUSTOM#$#\n"
         "};\n";    
 
@@ -210,6 +194,7 @@ std::string SwigFrame::swigClassDeclInternal() const
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
         {"HANDLER", SwigMsgHandler::swigClassName(gen)},
+        {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}
     };
 
     return util::processTemplate(Templ, repl);            
@@ -249,39 +234,6 @@ std::string SwigFrame::swigLayersAccCodeInternal() const
         elems.push_back(util::processTemplate(Templ, repl));
     }
     return util::strListToString(elems, "", "");
-}
-
-std::string SwigFrame::swigAllMessagesCodeInternal() const
-{
-    auto& gen = SwigGenerator::cast(generator());
-    auto allMessages = gen.getAllMessagesIdSorted();
-    util::StringsList msgList;
-    msgList.reserve(allMessages.size());
-
-    auto* iFace = gen.swigMainInterface();
-    assert(iFace != nullptr);
-    auto interfaceClassName = gen.swigClassName(*iFace);
-
-
-    for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
-            continue;
-        }
-        msgList.push_back(gen.swigClassName(*m));
-    }
-
-    const std::string Templ = 
-        "using #^#NAME#$# =\n"
-        "    std::tuple<\n"
-        "        #^#MESSAGES#$#\n"
-        "    >;\n";
-
-    util::ReplacementMap repl = {
-        {"NAME", strings::allMessagesStr()},
-        {"MESSAGES", util::strListToString(msgList, ",\n", "")}
-    };
-
-    return util::processTemplate(Templ, repl);
 }
 
 std::string SwigFrame::swigFrameCodeInternal() const
@@ -340,13 +292,20 @@ std::string SwigFrame::swigFrameCodeInternal() const
         "    }\n\n"        
         "    #^#DATA_BUF#$# writeMessage(const #^#INTERFACE#$#& msg)\n"
         "    {\n"
-        "        #^#DATA_BUF#$# outBuf(m_frame.length(msg));\n"
-        "        auto writeIter = outBuf.begin();"
-        "        auto es = m_frame.write(msg, writeIter, outBuf.size());\n"
+        "        #^#DATA_BUF#$# outBuf;\n"
+        "        outBuf.reserve(m_frame.length(msg));\n"
+        "        auto writeIter = std::back_inserter(outBuf);\n"
+        "        auto es = m_frame.write(msg, writeIter, outBuf.max_size());\n"
         "        static_cast<void>(es);\n"
         "        assert(es == comms::ErrorStatus::Success);\n"
         "        return outBuf;\n"
         "    }\n\n"
+        "    #^#ERR_STATUS#$# appendMessage(const #^#INTERFACE#$#& msg, #^#DATA_BUF#$#& buf)\n"
+        "    {\n"
+        "        buf.reserve(buf.size() + m_frame.length(msg));\n"
+        "        auto writeIter = std::back_inserter(buf);\n"
+        "        return m_frame.write(msg, writeIter, buf.max_size() - buf.size());\n"
+        "    }\n\n"        
         "    #^#CUSTOM#$#\n\n"
         "private:\n"
         "    using Frame = #^#COMMS_CLASS#$#<#^#INTERFACE#$#, AllMessages#^#OPTS#$#>;\n"
@@ -379,6 +338,7 @@ std::string SwigFrame::swigFrameCodeInternal() const
         {"ALL_FIELDS_VALUES", util::strListToString(allFieldsAcc, ",\n", "")},
         {"FRAME_FIELDS_VALUES", util::strListToString(frameFieldsAcc, ",\n", "")},
         {"HANDLER", SwigMsgHandler::swigClassName(gen)},
+        {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)},
     };
 
     if (SwigProtocolOptions::swigIsDefined(gen)) {

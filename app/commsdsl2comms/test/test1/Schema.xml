@@ -8,10 +8,10 @@
         </description>
         <fields>
             <int name="f1" type="int32" length="3" endian="little">
-            <description>
-                Some description of the field.
-            </description>
-            <displayName>Some other field</displayName>
+                <description>
+                    Some description of the field.
+                </description>
+                <displayName>Some other field</displayName>
             </int>
             <int name="F2" type="uintvar" length="4" displayName="some field"/>
         </fields>

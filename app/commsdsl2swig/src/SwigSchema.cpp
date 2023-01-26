@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -41,19 +41,12 @@ SwigSchema::~SwigSchema() = default;
 
 bool SwigSchema::swigHasAnyMessage() const
 {
-    return !getAllMessages().empty();
+    return hasAnyReferencedMessage();
 }
 
 bool SwigSchema::swigHasReferencedMsgId() const
 {
-    auto allNs = getAllNamespaces();
-    return 
-        std::any_of(
-            allNs.begin(), allNs.end(),
-            [](auto* ns)
-            {
-                return SwigNamespace::cast(ns)->swigHasReferencedMsgId();
-            });
+    return hasReferencedMessageIdField();
 }
 
 void SwigSchema::swigAddCodeIncludes(StringsList& list) const

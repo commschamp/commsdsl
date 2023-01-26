@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,12 +33,14 @@ public:
 
 protected:
     // Base overrides
+    virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
 
     // SwigBase overrides
     virtual std::string swigMembersDeclImpl() const override;
     virtual std::string swigValueTypeDeclImpl() const override;
     virtual std::string swigValueAccDeclImpl() const override;
+    virtual std::string swigExtraPublicFuncsCodeImpl() const override;
     virtual void swigAddDefImpl(StringsList& list) const override;
     virtual void swigAddMembersCodeImpl(StringsList& list) const override;
 };

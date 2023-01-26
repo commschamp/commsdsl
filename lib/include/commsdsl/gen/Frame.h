@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -37,6 +37,7 @@ class COMMSDSL_API Frame : public Elem
 public:
     using Ptr = std::unique_ptr<Frame>;
     using LayersList = std::vector<LayerPtr>;
+    using LayersAccessList = Layer::LayersAccessList;
 
     explicit Frame(Generator& generator, commsdsl::parse::Frame dslObj, Elem* parent = nullptr);
     virtual ~Frame();
@@ -49,6 +50,8 @@ public:
 
     Generator& generator();
     const Generator& generator() const;
+
+    LayersAccessList getCommsOrderOfLayers(bool& success) const;
 
 protected:    
     virtual Type elemTypeImpl() const override final;

@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -34,7 +34,6 @@ protected:
     virtual bool prepareImpl() override;
     
     // CommsBase overrides
-    virtual bool commsReorderImpl(CommsLayersList& siblings, bool& success) const override;
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual bool commsDefHasInputMessagesImpl() const override;

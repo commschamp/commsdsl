@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -181,7 +181,7 @@ std::string ToolsQtField::toolsDefMembers() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string ToolsQtField::toolsCommsScope() const
+std::string ToolsQtField::toolsCommsScope(const std::string& extraTemplParams) const
 {
     auto parent = m_field.getParent();
     while (parent != nullptr) {
@@ -207,7 +207,7 @@ std::string ToolsQtField::toolsCommsScope() const
     bool globalField = comms::isGlobalField(m_field);
     do {
         if (globalField) {
-            scope += ToolsQtDefaultOptions::toolsTemplParam(generator);
+            scope += ToolsQtDefaultOptions::toolsTemplParam(generator, extraTemplParams);
             break;
         }
 
@@ -227,7 +227,7 @@ std::string ToolsQtField::toolsCommsScope() const
         assert(parentScope.size() <= scope.size());
         auto suffix = scope.substr(parentScope.size());
         if (parent->elemType() != commsdsl::gen::Elem::Type::Type_Interface) {
-            parentScope += ToolsQtDefaultOptions::toolsTemplParam(generator);
+            parentScope += ToolsQtDefaultOptions::toolsTemplParam(generator, extraTemplParams);
         }
 
         scope = parentScope + suffix;

@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public:
     std::string toolsDeclSig() const;
     std::string toolsDefFunc() const;
     std::string toolsDefMembers() const;
-    std::string toolsCommsScope() const;
+    std::string toolsCommsScope(const std::string& extraTemplParams = std::string()) const;
 
     std::string toolsRelDeclHeaderFile() const;
     std::string toolsRelDefSrcFile() const;

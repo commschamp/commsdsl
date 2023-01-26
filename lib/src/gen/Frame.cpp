@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -149,6 +149,38 @@ Generator& Frame::generator()
 const Generator& Frame::generator() const
 {
     return m_impl->generator();
+}
+
+Frame::LayersAccessList Frame::getCommsOrderOfLayers(bool& success) const
+{
+    LayersAccessList result;
+    for (auto& lPtr : layers()) {
+        result.push_back(lPtr.get());
+    }
+
+    assert(!result.empty());
+    while (true) {
+        bool rearanged = false;
+        for (auto* l : result) {
+            rearanged = l->forceCommsOrder(result, success);
+
+            if (!success) {
+                break;
+            }
+
+            if (rearanged) {
+                // Order has changed restart from the beginning
+                break;
+            }
+        }
+
+        if (!rearanged) {
+            // reordering is complete
+            break;
+        }
+    }   
+
+    return result;    
 }
 
 Elem::Type Frame::elemTypeImpl() const

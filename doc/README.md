@@ -15,3 +15,4 @@ The available documentation pages are:
   definition plugin for the [CommsChampion Tools](https://github.com/commschamp/cc_tools_qt).
 - [OtherLanguagesSupport.md](OtherLanguagesSupport.md) - Support of other high level languages by the
   generation of the bindings (glue code) using [SWIG](https://www.swig.org/).
+- [WebAssemblySupport.md](WebAssemblySupport.md) - WebAssembly support using [emscripten](https://emscripten.org/).

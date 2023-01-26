@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -55,6 +55,8 @@ public:
     void setReferenced();
 
     static void setFieldReferencedIfExists(Field* field);
+
+    std::string templateScopeOfComms(const std::string& protOptionsStr) const;
 
 protected:    
     Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent = nullptr);

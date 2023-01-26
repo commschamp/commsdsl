@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,6 @@ namespace commsdsl2swig
 namespace 
 {
 
-const std::string FileName("Version");
 const std::string SpecVersionFunc("specVersion");
 const std::string MajorVersionFunc("versionMajor");
 const std::string MinorVersionFunc("versionMinor");
@@ -48,6 +47,10 @@ const std::string PatchVersionFunc("versionPatch");
 
 bool SwigVersion::swigWrite(SwigGenerator& generator)
 {
+    if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+        return true;
+    }
+
     SwigVersion obj(generator);
     return obj.swigWriteInternal();
 }
@@ -59,7 +62,10 @@ void SwigVersion::swigAddCodeIncludes(SwigGenerator& generator, StringsList& lis
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.chooseCurrentSchema(idx);
-        list.push_back(comms::relHeaderForRoot(FileName, generator));
+        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+            continue;
+        }            
+        list.push_back(comms::relHeaderForRoot(strings::versionFileNameStr(), generator));
     }
 
     generator.chooseProtocolSchema();
@@ -71,6 +77,10 @@ void SwigVersion::swigAddDef(SwigGenerator& generator, StringsList& list)
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.chooseCurrentSchema(idx);
+
+        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+            continue;
+        }        
 
         const std::string Templ = 
             "%constant unsigned #^#NS#$#_#^#NAME#$# = #^#NS#$#_#^#NAME#$#;";
@@ -92,7 +102,7 @@ void SwigVersion::swigAddDef(SwigGenerator& generator, StringsList& list)
             list.push_back(util::processTemplate(Templ, repl));
         }          
 
-        list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(FileName, generator)));
+        list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(strings::versionFileNameStr(), generator)));
     }
     assert(generator.isCurrentProtocolSchema());
 }
@@ -109,6 +119,10 @@ void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.chooseCurrentSchema(idx);
+        if ((!generator.isCurrentProtocolSchema()) && (!generator.currentSchema().hasAnyReferencedComponent())) {
+            continue;
+        }      
+
         util::ReplacementMap specRepl = {
             {"NAME", generator.swigScopeNameForRoot(SpecVersionFunc)},
             {"COMMS_SCOPE", comms::scopeForRoot(SpecVersionFunc, generator)}
@@ -147,7 +161,7 @@ void SwigVersion::swigAddCode(SwigGenerator& generator, StringsList& list)
 
 bool SwigVersion::swigWriteInternal() const
 {
-    auto filePath = comms::headerPathRoot(FileName, m_generator);
+    auto filePath = comms::headerPathRoot(strings::versionFileNameStr(), m_generator);
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);

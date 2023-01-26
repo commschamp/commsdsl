@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ std::string SwigIntField::swigValueTypeDeclImpl() const
 std::string SwigIntField::swigExtraPublicFuncsDeclImpl() const
 {
     static const std::string Templ = 
-        "bool hasSpecials();\n"
+        "static bool hasSpecials();\n"
         "#^#SCPECIALS#$#\n"
         "#^#DISPLAY_DECIMALS#$#\n"
         "#^#SCALED#$#\n";
@@ -148,10 +148,10 @@ std::string SwigIntField::swigScaledFuncsCodeInternal() const
         return strings::emptyString();
     }
         
-    std::string Templ = {
+    static const std::string Templ = 
         "double getScaled() const { return Base::getScaled<double>(); }\n"
         "void setScaled(double val) {Base::setScaled(val); }\n"
-    };
+    ;
 
     return Templ;        
 }

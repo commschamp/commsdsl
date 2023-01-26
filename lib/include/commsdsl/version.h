@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -23,10 +23,10 @@
 #define COMMSDSL_MAJOR_VERSION 5U
 
 /// @brief Minor verion of the library
-#define COMMSDSL_MINOR_VERSION 1U
+#define COMMSDSL_MINOR_VERSION 2U
 
 /// @brief Patch level of the library
-#define COMMSDSL_PATCH_VERSION 3U
+#define COMMSDSL_PATCH_VERSION 0U
 
 /// @brief Macro to create numeric version as single unsigned number
 #define COMMSDSL_MAKE_VERSION(major_, minor_, patch_) \

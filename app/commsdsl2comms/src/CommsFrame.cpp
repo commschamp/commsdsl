@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -98,35 +98,16 @@ bool CommsFrame::prepareImpl()
         return false;
     }
 
-    for (auto& lPtr : layers()) {
-        assert(lPtr);
-        auto* commsLayer = dynamic_cast<const CommsLayer*>(lPtr.get());
-
-        assert(commsLayer != nullptr);
-        m_commsLayers.push_back(const_cast<CommsLayer*>(commsLayer));
+    bool success = true;
+    auto reorderedLayers = getCommsOrderOfLayers(success);
+    if (!success) {
+        return false;
     }
 
-    assert(!m_commsLayers.empty());
-    while (true) {
-        bool rearanged = false;
-        for (auto& l : m_commsLayers) {
-            bool success = false;
-            rearanged = l->commsReorder(m_commsLayers, success);
-
-            if (!success) {
-                return false;
-            }
-
-            if (rearanged) {
-                // Order has changed restart from the beginning
-                break;
-            }
-        }
-
-        if (!rearanged) {
-            // reordering is complete
-            break;
-        }
+    for (auto* l : reorderedLayers) {
+        auto* commsLayer = CommsLayer::cast(l);
+        assert(commsLayer != nullptr);
+        m_commsLayers.push_back(const_cast<CommsLayer*>(commsLayer));
     }
 
     m_hasCommonCode = 

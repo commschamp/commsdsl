@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,6 +29,7 @@ namespace commsdsl
 namespace gen
 {
 
+class Interface;
 class COMMSDSL_API ValueLayer : public Layer
 {
     using Base = Layer;
@@ -36,6 +37,8 @@ public:
 
     ValueLayer(Generator& generator, commsdsl::parse::Layer dslObj, Elem* parent = nullptr);
     virtual ~ValueLayer();
+
+    bool isInterfaceSupported(const Interface* iFace) const;
 
 protected:    
     commsdsl::parse::ValueLayer valueDslObj() const;

@@ -31,6 +31,12 @@ It allows generation of the bindings (glue code) to other high level
 programming languages using external [swig](https://www.swig.org) utility.
 Details are in the [Other Languages Support](doc/OtherLanguagesSupport.md) documentation page.
 Build requires explicit cmake enable [option](CMakeLists.txt).
+- **commsdsl2emscripten** - A code generator that produces [emscripten](https://emscripten.org/)  
+bindings for the protocol definition produced by the **commsdsl2comms**.
+It allows compilation of the protocol definition C++ code into WebAssembly as well as
+generation javascript bindings to it.
+Details are in the [WebAssembly Support](doc/WebAssemblySupport.md) documentation page.
+Build requires explicit cmake enable [option](CMakeLists.txt).
 - **libcommsdsl** - A C++ library containing common functionality for parsing of the
 [CommsDSL](https://github.com/commschamp/CommsDSL-Specification) schema files as
 well code generation. It can be used to implement independent code generators.

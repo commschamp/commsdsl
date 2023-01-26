@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
 
 #include "SwigListField.h"
 
+#include "SwigField.h"
 #include "SwigGenerator.h"
 
 #include "commsdsl/gen/comms.h"
@@ -34,6 +35,23 @@ SwigListField::SwigListField(SwigGenerator& generator, commsdsl::parse::Field ds
     Base(generator, dslObj, parent),
     SwigBase(static_cast<Base&>(*this))
 {
+}
+
+bool SwigListField::prepareImpl() 
+{
+    if (!Base::prepareImpl()) {
+        return false;
+    }
+
+    auto* elem = memberElementField();
+    if (elem == nullptr) {
+        elem = externalElementField();
+    }
+
+    assert(elem != nullptr);
+    SwigField::cast(elem)->swigSetListElement();    
+
+    return true;
 }
 
 bool SwigListField::writeImpl() const
@@ -77,13 +95,44 @@ std::string SwigListField::swigValueAccDeclImpl() const
         SwigBase::swigValueAccDeclImpl();
 }
 
+std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
+{
+    static const std::string Templ = 
+        "using ValueType = std::vector<#^#ELEM#$#>;\n\n"
+        "ValueType& value()\n"
+        "{\n"
+        "    return reinterpret_cast<ValueType&>(Base::value());\n"
+        "}\n\n"
+        "const ValueType& getValue() const\n"
+        "{\n"
+        "    return reinterpret_cast<const ValueType&>(Base::getValue());\n"
+        "}\n\n"
+        "void setValue(const ValueType& val)\n"
+        "{\n"
+        "    Base::setValue(reinterpret_cast<const Base::ValueType&>(val));\n"
+        "}\n";
+
+    auto* elem = memberElementField();
+    if (elem == nullptr) {
+        elem = externalElementField();
+    }
+
+    assert(elem != nullptr);
+
+    util::ReplacementMap repl = {
+        {"ELEM", SwigGenerator::cast(generator()).swigClassName(*elem)}
+    };
+
+    return util::processTemplate(Templ, repl);        
+}
+
 void SwigListField::swigAddDefImpl(StringsList& list) const
 {
     auto* elem = memberElementField();
     if (elem == nullptr) {
         elem = externalElementField();
     }   
-    
+
     SwigField::cast(elem)->swigAddDef(list);
 }
 

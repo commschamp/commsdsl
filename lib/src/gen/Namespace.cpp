@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -158,6 +158,105 @@ public:
             mPtr->setReferenced(true);
         }
     }
+
+    bool hasReferencedMessageIdField() const
+    {
+        bool hasInFields = 
+            std::any_of(
+                m_fields.begin(), m_fields.end(),
+                [](auto& f)
+                {
+                    return 
+                        (f->isReferenced()) && 
+                        (f->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId);
+                });   
+
+        if (hasInFields) {
+            return true;
+        }
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasReferencedMessageIdField();
+                });
+    }
+
+    bool hasAnyReferencedMessage() const
+    {
+        bool hasMessage = 
+            std::any_of(
+                m_messages.begin(), m_messages.end(),
+                [](auto& m)
+                {
+                    return m->isReferenced();
+                });   
+
+        if (hasMessage) {
+            return true;
+        }
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasAnyReferencedMessage();
+                });        
+    }
+
+    bool hasAnyReferencedComponent() const
+    {
+        if (!m_frames.empty()) {
+            return true;
+        }
+
+        bool hasMessage = 
+            std::any_of(
+                m_messages.begin(), m_messages.end(),
+                [](auto& m)
+                {
+                    return m->isReferenced();
+                });   
+
+        if (hasMessage) {
+            return true;
+        }
+
+        bool hasInterface = 
+            std::any_of(
+                m_interfaces.begin(), m_interfaces.end(),
+                [](auto& i)
+                {
+                    return i->isReferenced();
+                });   
+
+        if (hasInterface) {
+            return true;
+        }     
+
+        bool hasField = 
+            std::any_of(
+                m_fields.begin(), m_fields.end(),
+                [](auto& f)
+                {
+                    return f->isReferenced();
+                });   
+
+        if (hasField) {
+            return true;
+        }             
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& n)
+                {
+                    return n->hasAnyReferencedComponent();
+                });        
+    }    
 
 private:
     bool createNamespaces()
@@ -701,6 +800,21 @@ void Namespace::setAllInterfacesReferenced()
 void Namespace::setAllMessagesReferenced()
 {
     m_impl->setAllMessagesReferenced();
+}
+
+bool Namespace::hasReferencedMessageIdField() const
+{
+    return m_impl->hasReferencedMessageIdField();
+}
+
+bool Namespace::hasAnyReferencedMessage() const
+{
+    return m_impl->hasAnyReferencedMessage();
+}
+
+bool Namespace::hasAnyReferencedComponent() const
+{
+    return m_impl->hasAnyReferencedComponent();
 }
 
 Elem::Type Namespace::elemTypeImpl() const

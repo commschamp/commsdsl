@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -399,6 +399,118 @@ CommsVariantField::StringsList CommsVariantField::commsDefReadMsvcSuppressWarnin
     return StringsList{"4702"};
 }
 
+std::string CommsVariantField::commsDefWriteFuncBodyImpl() const
+{
+    StringsList cases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string Templ =
+            "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().write(iter, len);";
+            
+        util::ReplacementMap repl = {
+            {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+        };
+        cases.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "switch (Base::currentField()) {\n"
+        "#^#CASES#$#\n"
+        "default: break;\n"
+        "}\n\n"
+        "return comms::ErrorStatus::Success;\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CASES", util::strListToString(cases, "\n", "")}
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsVariantField::commsDefRefreshFuncBodyImpl() const
+{
+    StringsList cases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string Templ =
+            "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().refresh();";
+            
+        util::ReplacementMap repl = {
+            {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+        };
+        cases.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "switch (Base::currentField()) {\n"
+        "#^#CASES#$#\n"
+        "default: break;\n"
+        "}\n\n"
+        "return false;\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CASES", util::strListToString(cases, "\n", "")}
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsVariantField::commsDefLengthFuncBodyImpl() const
+{
+    StringsList cases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string Templ =
+            "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().length();";
+            
+        util::ReplacementMap repl = {
+            {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+        };
+        cases.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "switch (Base::currentField()) {\n"
+        "#^#CASES#$#\n"
+        "default: break;\n"
+        "}\n\n"
+        "return 0U;\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CASES", util::strListToString(cases, "\n", "")}
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsVariantField::commsDefValidFuncBodyImpl() const
+{
+    StringsList cases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string Templ =
+            "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().valid();";
+            
+        util::ReplacementMap repl = {
+            {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+        };
+        cases.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "switch (Base::currentField()) {\n"
+        "#^#CASES#$#\n"
+        "default: break;\n"
+        "}\n\n"
+        "return false;\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CASES", util::strListToString(cases, "\n", "")}
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
 bool CommsVariantField::commsIsVersionDependentImpl() const
 {
     return 
@@ -469,6 +581,8 @@ std::string CommsVariantField::commsDefFieldOptsInternal() const
     commsAddFieldDefOptions(opts);
     commsAddDefaultIdxOptInternal(opts);
     commsAddCustomReadOptInternal(opts);
+    util::addToStrList("comms::option::def::HasCustomWrite", opts);
+    util::addToStrList("comms::option::def::HasCustomRefresh", opts);        
     return util::strListToString(opts, ",\n", "");
 }
 
@@ -588,7 +702,6 @@ std::string CommsVariantField::commsDefFieldExecCodeInternal() const
             "    memFieldDispatch<FieldIdx_#^#MEM_NAME#$#>(accessField_#^#MEM_NAME#$#(), std::forward<TFunc>(func));\n"
             "    break;";
         util::ReplacementMap repl = {
-            {"IDX", util::numToString(idx)},
             {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
         };
         cases.push_back(util::processTemplate(Templ, repl));

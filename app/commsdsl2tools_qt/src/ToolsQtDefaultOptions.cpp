@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,9 +40,9 @@ std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& ge
         strings::cppHeaderSuffixStr();
 }
 
-std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& generator)
+std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams)
 {
-    return '<' + toolsScope(generator) + '>';
+    return '<' + toolsScope(generator) + extraParams + '>';
 }
 
 std::string ToolsQtDefaultOptions::toolsScope(const ToolsQtGenerator& generator)

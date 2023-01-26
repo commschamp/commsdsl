@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2022 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,9 +30,6 @@ class SwigSyncLayer final : public commsdsl::gen::SyncLayer, public SwigLayer
     using SwigBase = SwigLayer;
 public:
     SwigSyncLayer(SwigGenerator& generator, commsdsl::parse::Layer dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // SwigBase overrides
 };
 
 } // namespace commsdsl2swig
