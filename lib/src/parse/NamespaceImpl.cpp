@@ -416,6 +416,22 @@ bool NamespaceImpl::strToData(const std::string& ref, std::vector<std::uint8_t>&
             });
 }
 
+NamespaceImpl::ImplInterfacesList NamespaceImpl::allImplInterfaces() const
+{
+    ImplInterfacesList result;
+    for (auto& n : m_namespaces) {
+        auto ifaces = n.second->allImplInterfaces();
+        result.insert(result.end(), ifaces.begin(), ifaces.end());
+    }
+
+    result.reserve(result.size() + m_interfaces.size());
+    for (auto& i : m_interfaces) {
+        result.push_back(i.second.get());
+    }
+
+    return result;
+}
+
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
     return ObjKind::Namespace;

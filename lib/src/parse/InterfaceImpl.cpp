@@ -141,6 +141,17 @@ std::size_t InterfaceImpl::findFieldIdx(const std::string& name) const
     return static_cast<std::size_t>(std::distance(m_fields.begin(), iter));
 }
 
+InterfaceImpl::ImplFieldsList InterfaceImpl::allImplFields() const
+{
+    ImplFieldsList result;
+    result.reserve(m_fields.size());
+    for (auto& fPtr : m_fields) {
+        result.push_back(fPtr.get());
+    }
+
+    return result;
+}
+
 Object::ObjKind InterfaceImpl::objKindImpl() const
 {
     return ObjKind::Interface;

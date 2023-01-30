@@ -69,6 +69,7 @@ public:
     using FieldsList = Namespace::FieldsList;
     using MessagesList = Namespace::MessagesList;
     using InterfacesList = Namespace::InterfacesList;
+    using ImplInterfacesList = std::vector<InterfaceImpl*>;
     using FramesList = Namespace::FramesList;
     using NamespacesMap = std::map<std::string, Ptr>;
     using FieldsMap = std::map<std::string, FieldImplPtr, KeyComp>;
@@ -171,6 +172,8 @@ public:
     bool strToBool(const std::string& ref, bool& val) const;
     bool strToString(const std::string& ref, std::string& val) const;
     bool strToData(const std::string& ref, std::vector<std::uint8_t>& val) const;
+
+    ImplInterfacesList allImplInterfaces() const;
 
 protected:
     virtual ObjKind objKindImpl() const override;

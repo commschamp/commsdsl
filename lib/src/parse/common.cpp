@@ -863,6 +863,11 @@ char schemaRefPrefix()
     return '@';
 }
 
+char interfaceRefPrefix()
+{
+    return '%';
+}
+
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)
 {
     unsigned result = 0U;

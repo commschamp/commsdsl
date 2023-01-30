@@ -167,6 +167,37 @@ SchemaImpl::MessagesList SchemaImpl::allMessages() const
     return messages;
 }
 
+SchemaImpl::InterfacesList SchemaImpl::allInterfaces() const
+{
+    auto total =
+        std::accumulate(
+            m_namespaces.begin(), m_namespaces.end(), static_cast<std::size_t>(0U),
+            [](std::size_t soFar, auto& ns) -> std::size_t
+            {
+                return soFar + ns.second->interfaces().size();
+            });
+
+    NamespaceImpl::InterfacesList interfaces;
+    interfaces.reserve(total);
+    for (auto& ns : m_namespaces) {
+        auto nsMsgs = ns.second->interfacesList();
+        interfaces.insert(interfaces.end(), nsMsgs.begin(), nsMsgs.end());
+    }
+
+    return interfaces;
+}
+
+SchemaImpl::ImplInterfacesList SchemaImpl::allImplInterfaces() const
+{
+    ImplInterfacesList interfaces;
+    for (auto& ns : m_namespaces) {
+        auto nsMsgs = ns.second->allImplInterfaces();
+        interfaces.insert(interfaces.end(), nsMsgs.begin(), nsMsgs.end());
+    }
+
+    return interfaces;
+}
+
 bool SchemaImpl::addPlatform(const std::string& name)
 {
     auto platIter = std::lower_bound(m_platforms.begin(), m_platforms.end(), name);

@@ -143,7 +143,7 @@ bool OptionalFieldImpl::verifySiblingsImpl(const FieldsList& fields) const
         return true;
     }
 
-    return c->verify(fields, getNode(), protocol().logger());
+    return c->verify(fields, getNode(), protocol());
 }
 
 std::size_t OptionalFieldImpl::minLengthImpl() const
@@ -321,7 +321,7 @@ bool OptionalFieldImpl::updateSingleCondition()
     }
 
     auto cond = std::make_unique<OptCondExprImpl>();
-    if (!cond->parse(iter->second, getNode(), protocol().logger())) {
+    if (!cond->parse(iter->second, getNode(), protocol())) {
         return false;
     }
 
@@ -362,7 +362,7 @@ bool OptionalFieldImpl::updateMultiCondition()
     }
 
     auto newCond = std::make_unique<OptCondListImpl>();
-    if (!newCond->parse(multiChildren.front(), protocol().logger())) {
+    if (!newCond->parse(multiChildren.front(), protocol())) {
         return false;
     }
 

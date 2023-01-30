@@ -37,6 +37,8 @@ public:
     using NamespacesMap = NamespaceImpl::NamespacesMap;
     using PlatformsList = Schema::PlatformsList;
     using MessagesList = Schema::MessagesList;
+    using InterfacesList = NamespaceImpl::InterfacesList;
+    using ImplInterfacesList = NamespaceImpl::ImplInterfacesList;
 
     SchemaImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -126,6 +128,8 @@ public:
     }
 
     MessagesList allMessages() const;
+    InterfacesList allInterfaces() const;
+    ImplInterfacesList allImplInterfaces() const;
 
     bool addPlatform(const std::string& name);
     void addNamespace(NamespaceImplPtr ns);
