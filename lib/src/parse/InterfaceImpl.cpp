@@ -152,6 +152,31 @@ InterfaceImpl::ImplFieldsList InterfaceImpl::allImplFields() const
     return result;
 }
 
+InterfaceImpl::FieldRefInfo InterfaceImpl::processInnerFieldRef(const std::string refStr) const
+{
+    auto dotPos = refStr.find_first_of(".");
+    const auto fieldName = refStr.substr(0, dotPos);
+    auto iter = 
+        std::find_if(
+            m_fields.begin(), m_fields.end(),
+            [&fieldName](auto& fieldPtr)
+            {
+                return fieldName == fieldPtr->name();
+            });
+
+    if (iter == m_fields.end()) {
+        return FieldRefInfo();
+    }
+
+    auto nextPos = dotPos;
+    if (dotPos < refStr.size()) {
+        nextPos = dotPos + 1U;
+    }
+
+    return (*iter)->processInnerRef(refStr.substr(nextPos));
+
+}
+
 Object::ObjKind InterfaceImpl::objKindImpl() const
 {
     return ObjKind::Interface;

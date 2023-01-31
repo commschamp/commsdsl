@@ -39,6 +39,7 @@ public:
     using MessagesList = Schema::MessagesList;
     using InterfacesList = NamespaceImpl::InterfacesList;
     using ImplInterfacesList = NamespaceImpl::ImplInterfacesList;
+    using FieldRefInfosList = NamespaceImpl::FieldRefInfosList;
 
     SchemaImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -139,6 +140,8 @@ public:
     unsigned countMessageIds() const;
 
     std::string externalRef() const;
+
+    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr);
 
 protected:
     virtual ObjKind objKindImpl() const override;    

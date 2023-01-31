@@ -43,6 +43,23 @@ public:
     using Kind = Field::Kind;
     using SemanticType = Field::SemanticType;
 
+    enum FieldRefType
+    {
+        FieldRefType_Invalid,
+        FieldRefType_Field,
+        FieldRefType_InnerValue,
+        FieldRefType_ValuesLimit
+    };
+
+    struct FieldRefInfo
+    {
+        const FieldImpl* m_field = nullptr;
+        std::string m_valueName;
+        FieldRefType m_refType = FieldRefType_Invalid;
+    };
+
+    using FieldRefInfosList = std::vector<FieldRefInfo>;
+
     virtual ~FieldImpl() = default;
 
     static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
@@ -271,6 +288,13 @@ public:
         return membersImpl();
     }
 
+    static FieldRefInfo processSiblingRef(const FieldsList& siblings, const std::string& refStr);
+
+    FieldRefInfo processInnerRef(const std::string& refStr) const
+    {
+        return processInnerRefImpl(refStr);
+    }
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -330,6 +354,7 @@ protected:
     virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const;
     virtual const XmlWrap::NamesList& supportedMemberTypesImpl() const;
     virtual const FieldsList& membersImpl() const;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

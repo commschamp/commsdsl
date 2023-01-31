@@ -280,6 +280,22 @@ std::string SchemaImpl::externalRef() const
     return common::schemaRefPrefix() + name();
 }
 
+SchemaImpl::FieldRefInfosList SchemaImpl::processInterfaceFieldRef(const std::string& refStr)
+{
+    FieldRefInfosList result;
+    for (auto& nsInfo : m_namespaces) {
+        auto nsResult = nsInfo.second->processInterfaceFieldRef(refStr);
+        if (nsResult.empty()) {
+            continue;
+        }
+
+        result.reserve(result.size() + nsResult.size());
+        std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
+    }
+
+    return result;
+}
+
 SchemaImpl::ObjKind SchemaImpl::objKindImpl() const
 {
     return ObjKind::Schema;

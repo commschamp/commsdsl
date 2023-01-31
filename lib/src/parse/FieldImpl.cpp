@@ -367,6 +367,35 @@ std::string FieldImpl::schemaPos() const
     return XmlWrap::logPrefix(m_node);
 }
 
+FieldImpl::FieldRefInfo FieldImpl::processSiblingRef(const FieldsList& siblings, const std::string& refStr)
+{
+    FieldRefInfo info;
+    auto dotPos = refStr.find_first_of('.');
+    std::string fieldName(refStr, dotPos);
+    if (fieldName.empty()) {
+        return info;
+    }
+
+    auto iter =
+        std::find_if(
+            siblings.begin(), siblings.end(),
+            [&fieldName](auto& f)
+            {
+                return f->name() == fieldName;
+            });
+
+    if (iter == siblings.end()) {
+        return info;
+    }
+
+    auto nextPos = dotPos;
+    if (dotPos < refStr.size()) {
+        nextPos = dotPos + 1U;
+    }
+
+    return (*iter)->processInnerRef(refStr.substr(nextPos));
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)
@@ -573,6 +602,22 @@ const FieldImpl::FieldsList& FieldImpl::membersImpl() const
 {
     static const FieldsList List;
     return List;
+}
+
+FieldImpl::FieldRefInfo FieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    auto& memFields = members();
+    if (!memFields.empty()) {
+        return processSiblingRef(memFields, refStr);
+    }
+
+    FieldRefInfo info;
+    if (refStr.empty()) {
+        info.m_field = this;
+        info.m_refType = FieldRefType_Field;
+    }
+
+    return info;
 }
 
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)

@@ -432,6 +432,20 @@ NamespaceImpl::ImplInterfacesList NamespaceImpl::allImplInterfaces() const
     return result;
 }
 
+NamespaceImpl::FieldRefInfosList NamespaceImpl::processInterfaceFieldRef(const std::string& refStr)
+{
+    FieldRefInfosList result;
+    auto allInterfaces = allImplInterfaces();
+    result.reserve(allInterfaces.size());
+    for (auto* iface : allInterfaces) {
+        auto info = iface->processInnerFieldRef(refStr);
+        if (info.m_field != nullptr) {
+            result.push_back(std::move(info));
+        }
+    }
+    return result;
+}
+
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
     return ObjKind::Namespace;

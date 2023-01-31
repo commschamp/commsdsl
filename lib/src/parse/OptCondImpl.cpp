@@ -190,6 +190,18 @@ void discardNonFullReference(FoundFieldInfosList& fieldsInfos, std::size_t maxSi
         fieldsInfos.end());
 }
 
+// void discardNonFieldReferences(FieldImpl::FieldRefInfosList& infos)
+// {
+//     infos.erase(
+//         std::remove_if(
+//             infos.begin(), infos.end(),
+//             [](auto& fieldInfo)
+//             {
+//                 return !fieldInfo.m_valueName.empty();
+//             }),
+//         infos.end());
+// }
+
 } // namespace
 
 bool OptCondExprImpl::parse(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol)
