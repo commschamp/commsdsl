@@ -97,7 +97,6 @@ protected:
     virtual bool parseImpl() override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t bitLengthImpl() const override;
-    virtual bool isBitCheckableImpl(const std::string& val) const override;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;

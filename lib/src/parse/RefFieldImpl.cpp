@@ -133,12 +133,6 @@ std::size_t RefFieldImpl::bitLengthImpl() const
     return Base::bitLengthImpl();
 }
 
-bool RefFieldImpl::isBitCheckableImpl(const std::string& val) const
-{
-    assert(m_field != nullptr);
-    return m_field->isBitCheckable(val);
-}
-
 bool RefFieldImpl::isComparableToValueImpl(const std::string& val) const
 {
     assert(m_field != nullptr);

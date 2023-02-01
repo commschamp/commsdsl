@@ -495,12 +495,6 @@ std::size_t FieldImpl::bitLengthImpl() const
     return 0U;
 }
 
-bool FieldImpl::isBitCheckableImpl(const std::string& val) const
-{
-    static_cast<void>(val);
-    return false;
-}
-
 bool FieldImpl::isComparableToValueImpl(const std::string& val) const
 {
     static_cast<void>(val);
