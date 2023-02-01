@@ -218,6 +218,12 @@ bool RefFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) 
     return m_field->verifySemanticType(node, type);
 }
 
+RefFieldImpl::FieldRefInfo RefFieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(m_field != nullptr);
+    return m_field->processInnerRef(refStr);
+}
+
 bool RefFieldImpl::updateBitLength()
 {
     if (!validateSinglePropInstance(common::bitLengthStr())) {

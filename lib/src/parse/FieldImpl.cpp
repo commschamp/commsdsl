@@ -371,7 +371,7 @@ FieldImpl::FieldRefInfo FieldImpl::processSiblingRef(const FieldsList& siblings,
 {
     FieldRefInfo info;
     auto dotPos = refStr.find_first_of('.');
-    std::string fieldName(refStr, dotPos);
+    std::string fieldName(refStr, 0, dotPos);
     if (fieldName.empty()) {
         return info;
     }
@@ -388,12 +388,29 @@ FieldImpl::FieldRefInfo FieldImpl::processSiblingRef(const FieldsList& siblings,
         return info;
     }
 
-    auto nextPos = dotPos;
+    auto nextPos = refStr.size();
     if (dotPos < refStr.size()) {
         nextPos = dotPos + 1U;
     }
 
     return (*iter)->processInnerRef(refStr.substr(nextPos));
+}
+
+FieldImpl::FieldRefInfo FieldImpl::processInnerRef(const std::string& refStr) const
+{
+    if (refStr.empty()) {
+        FieldRefInfo info;
+        info.m_field = this;
+        info.m_refType = FieldRefType_Field;
+        return info;
+    }
+
+    auto& memFields = members();
+    if (!memFields.empty()) {
+        return processSiblingRef(memFields, refStr);
+    }    
+
+    return processInnerRefImpl(refStr);
 }
 
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -606,17 +623,9 @@ const FieldImpl::FieldsList& FieldImpl::membersImpl() const
 
 FieldImpl::FieldRefInfo FieldImpl::processInnerRefImpl(const std::string& refStr) const
 {
-    auto& memFields = members();
-    if (!memFields.empty()) {
-        return processSiblingRef(memFields, refStr);
-    }
-
+    static_cast<void>(refStr);
+    assert(!refStr.empty());
     FieldRefInfo info;
-    if (refStr.empty()) {
-        info.m_field = this;
-        info.m_refType = FieldRefType_Field;
-    }
-
     return info;
 }
 

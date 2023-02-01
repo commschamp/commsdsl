@@ -251,6 +251,20 @@ bool FloatFieldImpl::strToFpImpl(const std::string& ref, double& val) const
     return true;
 }
 
+FloatFieldImpl::FieldRefInfo FloatFieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+    FieldRefInfo info;
+    auto iter = m_state.m_specials.find(refStr);
+    if (iter != m_state.m_specials.end()) {
+        info.m_field = this;
+        info.m_valueName = refStr;
+        info.m_refType = FieldRefType_InnerValue;
+    }
+
+    return info;
+}
+
 bool FloatFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);

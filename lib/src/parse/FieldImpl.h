@@ -290,10 +290,7 @@ public:
 
     static FieldRefInfo processSiblingRef(const FieldsList& siblings, const std::string& refStr);
 
-    FieldRefInfo processInnerRef(const std::string& refStr) const
-    {
-        return processInnerRefImpl(refStr);
-    }
+    FieldRefInfo processInnerRef(const std::string& refStr) const;
 
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);

@@ -177,7 +177,7 @@ public:
 
     ImplInterfacesList allImplInterfaces() const;
 
-    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr);
+    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr) const;
 
 protected:
     virtual ObjKind objKindImpl() const override;

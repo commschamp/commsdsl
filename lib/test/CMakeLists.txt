@@ -17,6 +17,8 @@ function (test_func name)
         $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
     )
 
+    add_dependencies(libcommsdsl.all_tests ${testName}) 
+
 endfunction ()
 
 #################################################################
@@ -44,6 +46,9 @@ target_link_libraries(${COMMON_TEST_LIB_NAME} PRIVATE ${PROJECT_NAME} cxxtest::c
 target_compile_options(${COMMON_TEST_LIB_NAME} PRIVATE
     $<$<CXX_COMPILER_ID:MSVC>: /wd4251>
 )
+
+add_custom_target(libcommsdsl.all_tests
+    COMMAND ${CMAKE_COMMAND} -E echo "All libcommsdsl tests are built")
 
 test_func (int)
 test_func (float)

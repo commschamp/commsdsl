@@ -280,7 +280,7 @@ std::string SchemaImpl::externalRef() const
     return common::schemaRefPrefix() + name();
 }
 
-SchemaImpl::FieldRefInfosList SchemaImpl::processInterfaceFieldRef(const std::string& refStr)
+SchemaImpl::FieldRefInfosList SchemaImpl::processInterfaceFieldRef(const std::string& refStr) const
 {
     FieldRefInfosList result;
     for (auto& nsInfo : m_namespaces) {

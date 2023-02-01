@@ -155,6 +155,7 @@ protected:
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
 
 private:
     bool updateType();

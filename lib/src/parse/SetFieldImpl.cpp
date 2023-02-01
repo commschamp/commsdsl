@@ -202,6 +202,21 @@ bool SetFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bit
     return true;
 }
 
+SetFieldImpl::FieldRefInfo SetFieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+
+    FieldRefInfo info;
+    auto iter = m_state.m_bits.find(refStr);
+    if (iter != m_state.m_bits.end()) {
+        info.m_field = this;
+        info.m_valueName = refStr;
+        info.m_refType = FieldRefType_InnerValue;
+    }
+
+    return info;    
+}
+
 bool SetFieldImpl::updateEndian()
 {
     if (!validateSinglePropInstance(common::endianStr())) {

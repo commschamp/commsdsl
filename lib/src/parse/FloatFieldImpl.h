@@ -101,6 +101,7 @@ protected:
     virtual std::size_t minLengthImpl() const override;
     virtual bool isComparableToValueImpl(const std::string& val) const override;
     virtual bool strToFpImpl(const std::string& ref, double& val) const override;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
 
 private:
     bool updateType();

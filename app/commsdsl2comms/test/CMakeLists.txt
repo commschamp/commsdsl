@@ -91,6 +91,7 @@ function (test_func name)
     endif ()
 
     cc_cxxtest_add_test(NAME ${testName} SRC ${tests} ${valgrand_opt})
+    add_dependencies(${APP_NAME}.all_tests ${testName})     
 
     add_dependencies(${testName} ${build_tgt})
     target_include_directories (${testName} PRIVATE "${install_dir}/include")

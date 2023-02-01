@@ -432,7 +432,7 @@ NamespaceImpl::ImplInterfacesList NamespaceImpl::allImplInterfaces() const
     return result;
 }
 
-NamespaceImpl::FieldRefInfosList NamespaceImpl::processInterfaceFieldRef(const std::string& refStr)
+NamespaceImpl::FieldRefInfosList NamespaceImpl::processInterfaceFieldRef(const std::string& refStr) const
 {
     FieldRefInfosList result;
     auto allInterfaces = allImplInterfaces();

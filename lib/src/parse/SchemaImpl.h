@@ -141,7 +141,7 @@ public:
 
     std::string externalRef() const;
 
-    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr);
+    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr) const;
 
 protected:
     virtual ObjKind objKindImpl() const override;    

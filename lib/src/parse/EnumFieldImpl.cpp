@@ -223,6 +223,21 @@ bool EnumFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type)
     return type == SemanticType::MessageId;
 }
 
+EnumFieldImpl::FieldRefInfo EnumFieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+
+    FieldRefInfo info;
+    auto iter = m_state.m_values.find(refStr);
+    if (iter != m_state.m_values.end()) {
+        info.m_field = this;
+        info.m_valueName = refStr;
+        info.m_refType = FieldRefType_InnerValue;
+    }
+
+    return info;
+}
+
 bool EnumFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
