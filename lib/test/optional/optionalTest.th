@@ -42,6 +42,8 @@ public:
     void test33(); 
     void test34(); 
     void test35();
+    void test36();
+    void test37();
 };
 
 void OptionalTestSuite::setUp()
@@ -1022,5 +1024,57 @@ void OptionalTestSuite::test35()
     m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema35.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test36()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema36.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& m1 = messages[0];
+    auto fields = m1.fields();
+
+    auto& o1 = fields[0];
+    TS_ASSERT_EQUALS(o1.kind(), commsdsl::parse::Field::Kind::Optional);    
+
+    commsdsl::parse::OptionalField optField(o1);
+    auto cond1 = optField.cond();
+    TS_ASSERT_EQUALS(cond1.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    commsdsl::parse::OptCondExpr expr1(cond1);
+    TS_ASSERT(expr1.left().empty());
+    TS_ASSERT(expr1.op().empty());
+    TS_ASSERT_EQUALS(expr1.right(), "%Flags.B0");
+
+    auto& m2 = messages[1];
+    auto m2_fields = m2.fields();
+    TS_ASSERT_EQUALS(m2_fields.size(), 2U);
+
+    auto& m2_o2 = m2_fields[1];
+    TS_ASSERT_EQUALS(m2_o2.kind(), commsdsl::parse::Field::Kind::Optional);    
+
+    commsdsl::parse::OptionalField m2_o2_optField(m2_o2);
+    auto m2_cond2 = m2_o2_optField.cond();
+    TS_ASSERT_EQUALS(m2_cond2.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    commsdsl::parse::OptCondExpr m2_expr2(m2_cond2);
+    TS_ASSERT_EQUALS(m2_expr2.left(), "%Bundle.M0");
+    TS_ASSERT_EQUALS(m2_expr2.op(), "<");
+    TS_ASSERT_EQUALS(m2_expr2.right(), "%Bundle.M1");    
+}
+
+void OptionalTestSuite::test37()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
     TS_ASSERT(protocol);
 }
