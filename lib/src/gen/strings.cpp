@@ -366,6 +366,10 @@ char schemaRefPrefix()
     return '@';
 }
 
+char interfaceFieldRefPrefix()
+{
+    return '%';
+}
 
 } // namespace strings
 

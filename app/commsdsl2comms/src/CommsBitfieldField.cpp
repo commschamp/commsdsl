@@ -277,6 +277,16 @@ bool CommsBitfieldField::commsHasCustomLengthDeepImpl() const
             });
 }
 
+bool CommsBitfieldField::commsVerifyInnerRefImpl(const std::string& refStr) const
+{
+    auto info = parseMemRefInternal(refStr);
+    if (info.first == nullptr) {
+        return false;
+    }
+
+    return info.first->commsVerifyInnerRef(info.second);
+}
+
 bool CommsBitfieldField::commsPrepareInternal()
 {
     m_members = commsTransformFieldsList(members());

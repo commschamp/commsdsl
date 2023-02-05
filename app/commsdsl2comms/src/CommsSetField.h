@@ -45,6 +45,7 @@ protected:
     virtual std::string commsDefValidFuncBodyImpl() const override;
     virtual std::size_t commsMinLengthImpl() const override;
     virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
+    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
     std::string commsCommonBitNameFuncCodeInternal() const;

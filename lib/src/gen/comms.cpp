@@ -865,6 +865,17 @@ bool isInterfaceDeepMemberField(const Elem& elem)
     return false;
 }
 
+bool isInterfaceShallowMemberField(const Elem& elem)
+{
+    if (elem.elemType() != Elem::Type_Field) {
+        return false;
+    }
+
+    auto* parent = elem.getParent();
+    assert(parent != nullptr);
+    return parent->elemType() == Elem::Type_Interface;
+}
+
 bool isVersionOptionaField(const Elem& elem, const Generator& generator)
 {
     if (elem.elemType() != Elem::Type_Field) {

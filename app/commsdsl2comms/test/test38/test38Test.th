@@ -1,7 +1,6 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test38/Message.h"
-#include "test38/message/M1.h"
 #include "test38/frame/Frame.h"
 #include "comms/process.h"
 
@@ -9,6 +8,7 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     class Handler;
 
@@ -22,6 +22,7 @@ public:
         >;
 
     using Msg1 = test38::message::M1<Interface>;
+    using Msg2 = test38::message::M2<Interface>;
     using Frame = test38::frame::Frame<Interface>;
 
     class Handler
@@ -29,28 +30,39 @@ public:
     public:
         void handle(Msg1& msg)
         {
-            static_cast<void>(msg);
-            m_msg1Received = true;
+            m_msg1.reset(new Msg1(msg));
         }
+
+        void handle(Msg2& msg)
+        {
+            m_msg2.reset(new Msg2(msg));
+        }
+
 
         void handle(Interface& msg)
         {
             static_cast<void>(msg);
-            m_msg1Received = false;
         }
 
-        bool getMsg1Received() const
+        const std::unique_ptr<Msg1>& getMsg1() const
         {
-            return m_msg1Received;
+            return m_msg1;
+        }
+
+        const std::unique_ptr<Msg2>& getMsg2() const
+        {
+            return m_msg2;
         }
 
         void reset()
         {
-            m_msg1Received = false;
+            m_msg1.reset();
+            m_msg2.reset();
         }
 
     private:
-        bool m_msg1Received = false;
+        std::unique_ptr<Msg1> m_msg1;
+        std::unique_ptr<Msg2> m_msg2;
     };
 };
 
@@ -70,9 +82,39 @@ void TestSuite::test1()
     Handler handler;
     auto comsumed = comms::processAllWithDispatch(&outBuf[0], outBuf.size(), frame, handler);
     TS_ASSERT_EQUALS(comsumed, outBuf.size());
-    TS_ASSERT(handler.getMsg1Received()); // Make sure that Msg1 is received
+    TS_ASSERT(handler.getMsg1()); // Make sure that Msg1 is received
 
 //    std::cout << "Buf: " << std::hex;
 //    std::copy(outBuf.begin(), outBuf.end(), std::ostream_iterator<unsigned>(std::cout, " "));
 //    std::cout << std::dec << std::endl;
+}
+
+void TestSuite::test2()
+{
+    std::vector<std::uint8_t> outBuf;
+    Frame frame;
+    Msg2 msg;
+
+    msg.transportField_flags().field_b().setBitValue_B0(true);
+    msg.transportField_flags().field_e().setValue(1);
+    msg.doRefresh();
+    TS_ASSERT(msg.field_f1().doesExist());
+    TS_ASSERT(msg.field_f2().doesExist());
+    TS_ASSERT(msg.field_f3().doesExist());
+
+    msg.field_f1().field().setValue(1);
+    msg.field_f2().field().setValue(1);
+    msg.field_f3().field().setValue(3);
+
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Handler handler;
+    auto comsumed = comms::processAllWithDispatch(&outBuf[0], outBuf.size(), frame, handler);
+    TS_ASSERT_EQUALS(comsumed, outBuf.size());
+    auto& msg2Ptr = handler.getMsg2();
+    TS_ASSERT(msg2Ptr); // Make sure that Msg2 is received
+    TS_ASSERT_EQUALS(msg, *msg2Ptr);
 }

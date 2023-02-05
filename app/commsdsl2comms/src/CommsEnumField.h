@@ -51,6 +51,7 @@ protected:
     virtual std::string commsDefValidFuncBodyImpl() const override;
     virtual std::size_t commsMinLengthImpl() const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
     struct RangeInfo

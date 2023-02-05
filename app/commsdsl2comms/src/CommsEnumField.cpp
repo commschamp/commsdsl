@@ -517,6 +517,13 @@ std::string CommsEnumField::commsCompPrepValueStrImpl(const std::string& accStr,
     return util::numToString(otherIter->second.m_value);
 }
 
+bool CommsEnumField::commsVerifyInnerRefImpl(const std::string& refStr) const
+{
+    auto obj = enumDslObj();
+    auto& values = obj.values();
+    return values.find(refStr) != values.end();
+}
+
 bool CommsEnumField::commsPrepareValidRangesInternal()
 {
     auto obj = enumDslObj();

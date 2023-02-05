@@ -61,6 +61,7 @@ public:
     void commsCompOptChecks(const std::string& accStr, StringsList& checks, const std::string& prefix = std::string()) const;
     std::string commsCompValueCastType(const std::string& accStr, const std::string& prefix = std::string()) const;
     std::string commsCompPrepValueStr(const std::string& accStr, const std::string& value) const;
+    bool commsVerifyInnerRef(const std::string refStr) const;
 
     bool commsIsVersionOptional() const;
 
@@ -125,6 +126,7 @@ protected:
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const;
     virtual bool commsHasCustomLengthDeepImpl() const;
+    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const;
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;

@@ -436,6 +436,13 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
     return strings::unexpectedValueStr();
 }
 
+bool CommsIntField::commsVerifyInnerRefImpl(const std::string& refStr) const
+{
+    auto obj = intDslObj();
+    auto& specials = obj.specialValues();
+    return (specials.find(refStr) != specials.end());    
+}
+
 std::string CommsIntField::commsCommonHasSpecialsFuncCodeInternal() const
 {
     auto& specials = specialsSortedByValue();    

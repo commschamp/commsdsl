@@ -350,6 +350,15 @@ std::string CommsField::commsCompPrepValueStr(const std::string& accStr, const s
     return commsCompPrepValueStrImpl(accStr, value);
 }
 
+bool CommsField::commsVerifyInnerRef(const std::string refStr) const
+{
+    if (refStr.empty()) {
+        return true;
+    }
+
+    return commsVerifyInnerRefImpl(refStr);
+}
+
 bool CommsField::commsIsVersionOptional() const
 {
     return comms::isVersionOptionaField(m_field, m_field.generator());
@@ -645,6 +654,12 @@ std::string CommsField::commsCompPrepValueStrImpl(const std::string& accStr, con
 
 bool CommsField::commsHasCustomLengthDeepImpl() const
 {
+    return false;
+}
+
+bool CommsField::commsVerifyInnerRefImpl(const std::string& refStr) const
+{
+    static_cast<void>(refStr);
     return false;
 }
 

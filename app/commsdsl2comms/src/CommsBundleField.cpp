@@ -488,6 +488,16 @@ bool CommsBundleField::commsHasCustomLengthDeepImpl() const
             });
 }
 
+bool CommsBundleField::commsVerifyInnerRefImpl(const std::string& refStr) const
+{
+    auto info = parseMemRefInternal(refStr);
+    if (info.first == nullptr) {
+        return false;
+    }
+
+    return info.first->commsVerifyInnerRef(info.second);
+}
+
 std::string CommsBundleField::commsDefFieldOptsInternal() const
 {
     commsdsl::gen::util::StringsList opts;

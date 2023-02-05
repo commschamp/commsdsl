@@ -72,6 +72,7 @@ const std::string& enumValuesLimitStr();
 char siblingRefPrefix();
 char stringRefPrefix();
 char schemaRefPrefix();
+char interfaceFieldRefPrefix();
 
 } // namespace strings
 

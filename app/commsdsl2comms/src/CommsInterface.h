@@ -36,6 +36,11 @@ public:
     explicit CommsInterface(CommsGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
     virtual ~CommsInterface();
 
+    static const CommsInterface* cast(const commsdsl::gen::Interface* value)
+    {
+        return static_cast<const CommsInterface*>(value);
+    }
+
     const CommsFieldsList& commsFields() const
     {
         return m_commsFields;
