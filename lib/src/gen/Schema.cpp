@@ -35,7 +35,7 @@ namespace gen
 namespace 
 {
 
-const unsigned MaxDslVersion = 5U;
+const unsigned MaxDslVersion = 6U;
 
 } // namespace 
 

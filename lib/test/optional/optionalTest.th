@@ -44,6 +44,7 @@ public:
     void test35();
     void test36();
     void test37();
+    void test38();
 };
 
 void OptionalTestSuite::setUp()
@@ -1076,5 +1077,13 @@ void OptionalTestSuite::test37()
     m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema37.xml");
+    TS_ASSERT(protocol);
+}
+
+void OptionalTestSuite::test38()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema38.xml");
     TS_ASSERT(protocol);
 }

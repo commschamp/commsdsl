@@ -112,6 +112,7 @@ public:
     bool isOverrideTypeSupported() const;
     bool isMemberReplaceSupported() const;
     bool isMultiSchemaSupported() const;
+    bool isInterfaceFieldReferenceSupported() const;
 
     void setMultipleSchemasEnabled(bool value)
     {

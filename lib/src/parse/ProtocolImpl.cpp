@@ -352,6 +352,11 @@ bool ProtocolImpl::isMultiSchemaSupported() const
     return isFeatureSupported(5U);
 }
 
+bool ProtocolImpl::isInterfaceFieldReferenceSupported() const
+{
+    return isFeatureSupported(6U);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);

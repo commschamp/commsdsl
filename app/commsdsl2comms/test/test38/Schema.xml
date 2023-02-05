@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test38" endian="big" dslVersion="3">
+<schema name="test38" endian="big" dslVersion="6">
     <fields>
         
         <enum name="MsgId" type="uint8" semanticType="messageId" >

@@ -160,16 +160,23 @@ bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string
         return false;
     }
 
-    if ((m_left[0] != Deref) &&
-        (m_left[0] != IfaceDeref)) {
-        logError(logger) << XmlWrap::logPrefix(node) <<
-            "Invalid \"" << common::condStr() << "\" expression, left side of "
-            "comparison operator must dereference other field.";
-        return false;
+    if (m_left[0] == Deref) {
+        return true;
     }
-    
 
-    return true;
+    if (m_left[0] == IfaceDeref) {
+        if (!protocol.isInterfaceFieldReferenceSupported()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "References to the interface fields are not supported in the selected " << common::dslVersionStr() << ".";
+            return false;            
+        }
+        return true;
+    }
+
+    logError(logger) << XmlWrap::logPrefix(node) <<
+        "Invalid \"" << common::condStr() << "\" expression, left side of "
+        "comparison operator must dereference other field.";
+    return false;
 }
 
 bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol)
@@ -187,11 +194,20 @@ bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, cons
         };
 
     assert(!expr.empty());
-    if ((expr[0] == Deref) ||
-        (expr[0] == IfaceDeref)) {
+    if (expr[0] == Deref) {
         m_right = expr;
         return true;
     }
+
+    if (expr[0] == IfaceDeref) {
+        if (!protocol.isInterfaceFieldReferenceSupported()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "References to the interface fields are not supported in the selected " << common::dslVersionStr() << ".";
+            return false;            
+        }        
+        m_right = expr;
+        return true;
+    }    
 
     if (expr[0] != '!') {
         reportInvalidExrFunc();
@@ -204,13 +220,26 @@ bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, cons
         return false;
     }
 
-    if ((expr[valPos] != Deref) &&
-        (expr[valPos] != IfaceDeref)) {
+    do {
+        if (expr[valPos] == Deref) {
+            break;
+        }
+
+        if (expr[valPos] == IfaceDeref) {
+            if (!protocol.isInterfaceFieldReferenceSupported()) {
+                logError(logger) << XmlWrap::logPrefix(node) <<
+                    "References to the interface fields are not supported in the selected " << common::dslVersionStr() << ".";
+                return false;            
+            }        
+            break;
+        }          
+
         logError(logger) << XmlWrap::logPrefix(node) <<
             "Invalid \"" << common::condStr() << "\" expression, "
             "the check must dereference other field.";
-        return false;
-    }
+        return false;        
+
+    } while (false);
 
     m_op = "!";
     m_right.assign(expr.begin() + valPos, expr.end());
