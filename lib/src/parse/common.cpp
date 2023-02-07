@@ -848,6 +848,12 @@ const std::string& reuseCodeStr()
     return Str;    
 }
 
+const std::string& constructStr()
+{
+    static const std::string Str("construct");
+    return Str;    
+}
+
 char siblingRefPrefix()
 {
     return '$';

@@ -169,6 +169,7 @@ const std::string& termSuffixStr();
 const std::string& missingOnReadFailStr();
 const std::string& missingOnInvalidStr();
 const std::string& reuseCodeStr();
+const std::string& constructStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

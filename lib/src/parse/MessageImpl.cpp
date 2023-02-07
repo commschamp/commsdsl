@@ -42,6 +42,38 @@ const XmlWrap::NamesList& messageSupportedTypes()
     return Names;
 }
 
+bool verifyConstructInternal(const OptCond& cond)
+{
+    if (cond.kind() == OptCond::Kind::Expr) {
+        OptCondExpr exprCond(cond);
+
+        if (exprCond.left().empty()) {
+            assert(exprCond.op().empty() || (exprCond.op() == "!"));
+            return true;
+        }
+
+        return exprCond.op() == "=";
+    }
+
+    assert (cond.kind() == OptCond::Kind::List);
+    OptCondList listCond(cond);
+    if (listCond.type() != OptCondList::Type::And) {
+        return false;
+    }
+
+    auto conditions = listCond.conditions();
+    if (conditions.empty()) {
+        return false;
+    }
+
+    return 
+        std::all_of(
+            conditions.begin(), conditions.end(),
+            [](const auto& c)
+            {
+                return verifyConstructInternal(c);
+            });
+}
 
 } // namespace
 
@@ -58,6 +90,10 @@ bool MessageImpl::parse()
     if (!XmlWrap::parseChildrenAsProps(m_node, commonProps(), m_protocol.logger(), m_props)) {
         return false;
     }
+
+    if (!XmlWrap::parseChildrenAsProps(m_node, extraProps(), m_protocol.logger(), m_props, false)) {
+        return false;
+    }    
 
     return
         updateName() &&
@@ -82,6 +118,8 @@ bool MessageImpl::parse()
         updateValidOverride() &&
         updateNameOverride() &&   
         updateCopyOverrideCodeFrom() &&     
+        updateSingleConstruct() &&
+        updateMultiConstruct() && 
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -290,11 +328,35 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
     return CommonNames;
 }
 
+const XmlWrap::NamesList& MessageImpl::extraProps()
+{
+    static const XmlWrap::NamesList Names = {
+        common::constructStr(),
+    };
+
+    return Names;
+}
+
+const XmlWrap::NamesList& MessageImpl::allProps()
+{
+    static XmlWrap::NamesList Names;
+    if (Names.empty()) {
+        Names = commonProps();
+        auto& extras = extraProps();
+        Names.insert(Names.end(), extras.begin(), extras.end());
+    }
+
+    return Names;
+}
+
 XmlWrap::NamesList MessageImpl::allNames()
 {
     auto names = commonProps();
     auto& fieldTypes = messageSupportedTypes();
+    auto& extras = extraProps();
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
+    names.insert(names.end(), extras.begin(), extras.end());
+
     names.push_back(common::fieldsStr());
     names.push_back(common::aliasStr());
     names.push_back(common::replaceStr());
@@ -600,8 +662,8 @@ bool MessageImpl::copyFields()
         return false;
     }
 
-    auto iter = props().find(common::copyFieldsFromStr());
-    if (iter == props().end()) {
+    auto iter = m_props.find(common::copyFieldsFromStr());
+    if (iter == m_props.end()) {
         return true;
     }
 
@@ -733,8 +795,8 @@ bool MessageImpl::copyAliases()
         return false;
     }
 
-    auto iter = props().find(propStr);
-    if (iter != props().end() && (!m_protocol.isFieldAliasSupported())) {
+    auto iter = m_props.find(propStr);
+    if (iter != m_props.end() && (!m_protocol.isFieldAliasSupported())) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Unexpected property \"" << propStr << "\".";
         return false;
@@ -745,7 +807,7 @@ bool MessageImpl::copyAliases()
     }
 
     bool copyAliases = true;
-    if (iter != props().end()) {
+    if (iter != m_props.end()) {
         bool ok = false;
         copyAliases = common::strToBool(iter->second, &ok);
         if (!ok) {
@@ -758,7 +820,7 @@ bool MessageImpl::copyAliases()
         return true;
     }
 
-    if ((iter != props().end()) && (m_copyFieldsFromMsg == nullptr) && (m_copyFieldsFromBundle == nullptr)) {
+    if ((iter != m_props.end()) && (m_copyFieldsFromMsg == nullptr) && (m_copyFieldsFromBundle == nullptr)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
             "Property \"" << propStr << "\" is inapplicable without \"" << common::copyFieldsFromStr() << "\".";
         return true;
@@ -1021,9 +1083,92 @@ bool MessageImpl::updateCopyOverrideCodeFrom()
     return true;
 }
 
+bool MessageImpl::updateSingleConstruct()
+{
+    auto& prop = common::constructStr();
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (m_construct) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Only single \"" << prop << "\" property is supported";
+        return false;
+    }
+
+    auto newConstruct = std::make_unique<OptCondExprImpl>();
+    if (!newConstruct->parse(iter->second, m_node, m_protocol)) {
+        return false;
+    }
+
+    if (!newConstruct->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
+        return false;
+    }    
+
+    if (!verifyConstructInternal(OptCond(newConstruct.get()))) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Only bit checks and equality comparisons are supported in the \"" << common::constructStr() << "\" property.";
+        return false;
+    }
+
+    m_construct = std::move(newConstruct);
+    return true;
+}
+
+bool MessageImpl::updateMultiConstruct()
+{
+    auto constructNodes = XmlWrap::getChildren(m_node, common::constructStr());
+    if (constructNodes.empty()) {
+        return true;
+    }
+
+    if (constructNodes.size() > 1U) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Cannot use more that one child to the \"" << common::constructStr() << "\" element.";        
+        return false;
+    }
+
+    auto constructChildren = XmlWrap::getChildren(constructNodes.front(), common::andStr());
+    if (constructChildren.size() != constructNodes.size()) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Only single \"" << common::andStr() << "\" child of the \"" << common::constructStr() << "\" element is supported.";           
+        return false;
+    }    
+
+    if (m_construct) {
+        logError() << XmlWrap::logPrefix(constructNodes.front()) <<
+            "Only single \"" << common::constructStr() << "\" property is supported";
+        return false;
+    }
+
+    auto newConstruct = std::make_unique<OptCondListImpl>();
+    newConstruct->overrideCondStr(common::constructStr());
+    if (!newConstruct->parse(constructChildren.front(), m_protocol)) {
+        return false;
+    }
+
+    if (!newConstruct->verify(OptCondImpl::FieldsList(), constructChildren.front(), m_protocol)) {
+        return false;
+    }    
+
+    if (!verifyConstructInternal(OptCond(newConstruct.get()))) {
+        logError() << XmlWrap::logPrefix(constructChildren.front()) <<
+            "Only \"" << common::andStr() <<  "\" of the bit checks and equality comparisons are supported in the \"" << common::constructStr() << "\" element.";
+        return false;
+    }    
+
+    m_construct = std::move(newConstruct);
+    return true;
+}
+
 bool MessageImpl::updateExtraAttrs()
 {
-    m_extraAttrs = XmlWrap::getExtraAttributes(m_node, commonProps(), m_protocol);
+    m_extraAttrs = XmlWrap::getExtraAttributes(m_node, allProps(), m_protocol);
     return true;
 }
 

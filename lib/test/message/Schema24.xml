@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema24" endian="Big">
+    <fields>
+        <string name="Msg1Name" defaultValue="Message 1" />
+        <string name="Msg2Name" defaultValue="Message 2" />
+        <enum name="MsgId" type="uint8">
+            <validValue name="Msg1" val="0" displayName="^Msg1Name" />
+            <validValue name="Msg2" val="1" displayName="^Msg2Name" />
+        </enum>
+    </fields>
+
+    <interface name="Message">
+        <bitfield name="Flags">
+            <set name="M1" bitLength="2">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+            <int name="M2" type="uint8" bitLength="3" />
+            <int name="M3" type="uint8" bitLength="3" />
+        </bitfield>
+    </interface>
+
+    <message name="Msg1" id="MsgId.Msg1" displayName="^Msg1Name" construct="%Flags.M2 != 1">
+        <description>
+            Error due to unsupported construction conditions
+        </description>
+    </message>
+
+</schema>

@@ -59,12 +59,17 @@ void discardNonFieldReferences(FieldImpl::FieldRefInfosList& infos)
 
 } // namespace
 
+OptCondImpl::OptCondImpl() :
+    m_condStr(common::condStr())
+{
+}
+
 bool OptCondExprImpl::parse(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol)
 {
     auto& logger = protocol.logger();
     if (expr.empty()) {
         logError(logger) << XmlWrap::logPrefix(node) <<
-            "Invalid \"" << common::condStr() << "\" expression";
+            "Invalid condition expression";
         return false;
     }
 
@@ -117,7 +122,7 @@ bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string
         [node, &logger]()
         {
             logError(logger) << XmlWrap::logPrefix(node) <<
-                "Invalid \"" << common::condStr() << "\" expression";
+                "Invalid condition expression";
         };
 
     std::size_t opPos = 0U;
@@ -174,7 +179,7 @@ bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string
     }
 
     logError(logger) << XmlWrap::logPrefix(node) <<
-        "Invalid \"" << common::condStr() << "\" expression, left side of "
+        "Invalid \"" << condStr() << "\" expression, left side of "
         "comparison operator must dereference other field.";
     return false;
 }
@@ -190,7 +195,7 @@ bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, cons
         [node, &logger]()
         {
             logError(logger) << XmlWrap::logPrefix(node) <<
-                "Invalid \"" << common::condStr() << "\" expression";
+                "Invalid condition expression";
         };
 
     assert(!expr.empty());
@@ -235,7 +240,7 @@ bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, cons
         }          
 
         logError(logger) << XmlWrap::logPrefix(node) <<
-            "Invalid \"" << common::condStr() << "\" expression, "
+            "Invalid \"" << condStr() << "\" expression, "
             "the check must dereference other field.";
         return false;        
 
@@ -358,7 +363,7 @@ bool OptCondExprImpl::verifySiblingComparison(const OptCondImpl::FieldsList& fie
 
         if (rightFields.empty()) {
             logError(logger) << XmlWrap::logPrefix(node) <<
-                "The \"" << m_right << "\" is not valid field dereference expression.";        
+                "The \"" << m_right << "\" is not valid field dereference expression for this condition.";        
             return false;
         }        
 
@@ -398,7 +403,7 @@ bool OptCondExprImpl::verifyInterfaceComparison(const FieldsList& fields, ::xmlN
 
     if (leftFields.empty()) {
         logError(logger) << XmlWrap::logPrefix(node) <<
-            "The \"" << m_left << "\" is not valid field dereference expression.";        
+            "The \"" << m_left << "\" is not valid field dereference expression for this condition.";        
         return false;
     }
 
@@ -434,7 +439,7 @@ bool OptCondExprImpl::verifyInterfaceComparison(const FieldsList& fields, ::xmlN
 
         if (rightFields.empty()) {
             logError(logger) << XmlWrap::logPrefix(node) <<
-                "The \"" << m_right << "\" is not valid field dereference expression.";        
+                "The \"" << m_right << "\" is not valid field dereference expression for this condition.";        
             return false;
         }             
 
@@ -529,13 +534,15 @@ bool OptCondListImpl::parse(xmlNodePtr node, const ProtocolImpl& protocol)
     assert(m_conds.empty());
     for (auto c : children) {
         std::string childName(reinterpret_cast<const char*>(c->name));
-        if (childName == common::condStr()) {
+        if (childName == condStr()) {
             std::string expr;
             if (!XmlWrap::parseNodeValue(c, logger, expr, true)) {
                 return false;
             }
 
             auto cond = std::make_unique<OptCondExprImpl>();
+            cond->overrideCondStr(condStr());
+
             if (!cond->parse(expr, c, protocol)) {
                 return false;
             }
@@ -547,11 +554,13 @@ bool OptCondListImpl::parse(xmlNodePtr node, const ProtocolImpl& protocol)
         auto multiIter = std::find(std::begin(CondMap), std::end(CondMap), childName);
         if (multiIter == std::end(CondMap)) {
             logError(logger) << XmlWrap::logPrefix(c) <<
-                "Unknown element inside \"" << elemName << "\' condition bundling";
+                "Unknown element inside \"" << elemName << "\" condition bundling";
             return false;
         }
 
         auto multiCond = std::make_unique<OptCondListImpl>();
+        multiCond->overrideCondStr(condStr());
+
         if (!multiCond->parse(c, protocol)) {
             return false;
         }

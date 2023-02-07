@@ -36,7 +36,7 @@ public:
     using Kind = OptCond::Kind;
     using FieldsList = std::vector<FieldImplPtr>;
 
-    OptCondImpl() = default;
+    OptCondImpl();
     OptCondImpl(const OptCondImpl&) = default;
     OptCondImpl(OptCondImpl&&) = default;
     virtual ~OptCondImpl() = default;
@@ -56,10 +56,23 @@ public:
         return verifyImpl(fields, node, protocol);
     }
 
+    void overrideCondStr(const std::string& str)
+    {
+        m_condStr = str;
+    }
+
 protected:
     virtual Kind kindImpl() const = 0;
     virtual Ptr cloneImpl() const = 0;
     virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const = 0;
+
+    const std::string& condStr() const
+    {
+        return m_condStr;
+    }
+
+private:
+    std::string m_condStr;    
 };
 
 class OptCondExprImpl final: public OptCondImpl

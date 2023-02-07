@@ -20,13 +20,15 @@
 #include <string>
 #include <cstdint>
 
-#include "XmlWrap.h"
-#include "Logger.h"
-#include "Object.h"
 #include "commsdsl/parse/Message.h"
-#include "FieldImpl.h"
+
 #include "AliasImpl.h"
 #include "BundleFieldImpl.h"
+#include "FieldImpl.h"
+#include "Logger.h"
+#include "OptCondImpl.h"
+#include "Object.h"
+#include "XmlWrap.h"
 
 namespace commsdsl
 {
@@ -147,6 +149,11 @@ public:
         return m_copyCodeFrom;
     }
 
+    OptCond construct() const
+    {
+        return OptCond(m_construct.get());
+    }
+
 protected:
     virtual ObjKind objKindImpl() const override;
 
@@ -156,6 +163,9 @@ private:
     LogWrapper logInfo() const;
 
     static const XmlWrap::NamesList& commonProps();
+    static const XmlWrap::NamesList& extraProps();
+    static const XmlWrap::NamesList& allProps();
+    
     static XmlWrap::NamesList allNames();
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
@@ -188,6 +198,8 @@ private:
     bool updateValidOverride();
     bool updateNameOverride();    
     bool updateCopyOverrideCodeFrom();    
+    bool updateSingleConstruct();
+    bool updateMultiConstruct();
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -216,6 +228,7 @@ private:
     OverrideType m_validOverride = OverrideType_Any;
     OverrideType m_nameOverride = OverrideType_Any;    
     std::string m_copyCodeFrom;
+    OptCondImplPtr m_construct;
     bool m_customizable = false;
 };
 

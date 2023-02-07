@@ -27,6 +27,11 @@ public:
     void test18();
     void test19();
     void test20();
+    void test21();
+    void test22();
+    void test23();
+    void test24();
+    void test25();
 };
 
 void MessageTestSuite::setUp()
@@ -469,4 +474,66 @@ void MessageTestSuite::test20()
     auto& msg2 = messages[1];
     TS_ASSERT_EQUALS(msg1.displayName(), "^Msg1Name");
     TS_ASSERT_EQUALS(msg2.displayName(), "^Msg2Name");
+}
+
+void MessageTestSuite::test21()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema21.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& msg1 = messages[0];
+    auto msg1Construct = msg1.construct();
+    TS_ASSERT_EQUALS(msg1Construct.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    commsdsl::parse::OptCondExpr msg1ConstructExpr(msg1Construct);
+    TS_ASSERT(msg1ConstructExpr.left().empty());
+    TS_ASSERT(msg1ConstructExpr.op().empty());
+    TS_ASSERT_EQUALS(msg1ConstructExpr.right(), "%Flags.M1.B0");
+
+
+    auto& msg2 = messages[1];
+    auto msg2Construct = msg2.construct();
+    TS_ASSERT_EQUALS(msg2Construct.kind(), commsdsl::parse::OptCond::Kind::List);
+    commsdsl::parse::OptCondList msg2ConstructExpr(msg2Construct);
+    TS_ASSERT_EQUALS(msg2ConstructExpr.type(), commsdsl::parse::OptCondList::Type::And);
+}
+
+void MessageTestSuite::test22()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema22.xml");
+    TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test23()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test24()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema24.xml");
+    TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test25()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
+    TS_ASSERT(protocol);
 }
