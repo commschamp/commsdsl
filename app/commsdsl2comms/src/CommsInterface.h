@@ -68,6 +68,7 @@ private:
     std::string commsDefFieldsAliasesInternal() const;
 
     std::string m_name;
+    std::string m_constructCode;
     std::string m_publicCode;
     std::string m_protectedCode;
     std::string m_privateCode;

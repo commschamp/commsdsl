@@ -1,0 +1,2 @@
+// Custom constructor
+Msg1Orig() = default;

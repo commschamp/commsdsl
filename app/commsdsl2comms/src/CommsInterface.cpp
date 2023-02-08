@@ -119,6 +119,7 @@ bool CommsInterface::prepareImpl()
         m_name = strings::messageClassStr();
     }
 
+    m_constructCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::constructFileSuffixStr());
     m_publicCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::publicFileSuffixStr());
     m_protectedCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::protectedFileSuffixStr());
     m_privateCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
@@ -244,6 +245,7 @@ bool CommsInterface::commsWriteDefInternal() const
 
     bool useClass = 
         (!m_commsFields.empty()) ||
+        (!m_constructCode.empty()) ||
         (!m_publicCode.empty()) ||
         (!m_protectedCode.empty()) ||
         (!m_privateCode.empty());
@@ -436,6 +438,7 @@ std::string CommsInterface::commsDefPublicInternal() const
 {
     static const std::string Templ =
         "public:\n"
+        "    #^#CONSTRUCT#$#\n"
         "    #^#ACCESS#$#\n"
         "    #^#ALIASES#$#\n"
         "    #^#EXTRA#$#\n"
@@ -443,6 +446,7 @@ std::string CommsInterface::commsDefPublicInternal() const
 
     auto inputCodePrefix = comms::inputCodePathFor(*this, generator());
     util::ReplacementMap repl = {
+        {"CONSTRUCT", m_constructCode},
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
         {"EXTRA", m_publicCode},
@@ -538,7 +542,12 @@ std::string CommsInterface::commsDefFieldsAccessInternal() const
 
 std::string CommsInterface::commsDefFieldsAliasesInternal() const
 {
-    auto aliases = dslObj().aliases();
+    auto obj = dslObj();
+    if (!obj.valid()) {
+        return strings::emptyString();
+    }
+
+    auto aliases = obj.aliases();
     if (aliases.empty()) {
         return strings::emptyString();    
     }

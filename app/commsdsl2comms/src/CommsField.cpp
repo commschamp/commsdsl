@@ -95,7 +95,6 @@ CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl:
 
 bool CommsField::commsPrepare()
 {
-
     if (!copyCodeFromInternal()) {
         return false;
     }
@@ -121,6 +120,7 @@ bool CommsField::commsPrepare()
     readCustomCodeInternal(codePathPrefix + strings::privateFileSuffixStr(), m_customCode.m_private);
     readCustomCodeInternal(codePathPrefix + strings::extendFileSuffixStr(), m_customCode.m_extend);
     readCustomCodeInternal(codePathPrefix + strings::appendFileSuffixStr(), m_customCode.m_append);
+    readCustomCodeInternal(codePathPrefix + strings::constructFileSuffixStr(), m_customConstruct);
     return true;
 }
 
@@ -1178,6 +1178,7 @@ std::string CommsField::commsDefPublicCodeInternal() const
 {
     static const std::string Templ = {
         "public:\n"
+        "    #^#CONSTRUCT#$#\n"
         "    #^#FIELD_DEF#$#\n"
         "    #^#NAME#$#\n"
         "    #^#VALUE#$#\n"
@@ -1190,6 +1191,7 @@ std::string CommsField::commsDefPublicCodeInternal() const
     };
 
     util::ReplacementMap repl = {
+        {"CONSTRUCT", m_customConstruct},
         {"FIELD_DEF", commsDefPublicCodeImpl()},
         {"NAME", commsDefNameFuncCodeInternal()},
         {"VALUE", commsDefValueCodeInternal()},

@@ -192,6 +192,7 @@ private:
 
     commsdsl::gen::Field& m_field;
     CustomCode m_customCode;
+    std::string m_customConstruct;
     bool m_forcedFailOnInvalid = false;
     bool m_forcedPseudo = false;
 };

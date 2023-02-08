@@ -407,6 +407,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             strings::nameFileSuffixStr(),
             strings::incFileSuffixStr(),
             strings::appendFileSuffixStr(),
+            strings::constructFileSuffixStr(),
         };        
         auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
         if (extIter != std::end(ReservedExt)) {

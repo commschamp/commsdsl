@@ -123,6 +123,7 @@ bool CommsMessage::prepareImpl()
         return false;
     }
 
+    readCustomCodeInternal(codePathPrefix + strings::constructFileSuffixStr(), m_customConstruct);
     readCustomCodeInternal(codePathPrefix + strings::incFileSuffixStr(), m_customCode.m_inc);
     readCustomCodeInternal(codePathPrefix + strings::publicFileSuffixStr(), m_customCode.m_public);
     readCustomCodeInternal(codePathPrefix + strings::protectedFileSuffixStr(), m_customCode.m_protected);
@@ -138,6 +139,7 @@ bool CommsMessage::prepareImpl()
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
     }  
 
+    prepareConstructCodeInternal();
     return true;
 }
 
@@ -455,6 +457,34 @@ std::string CommsMessage::commsDefIncludesInternal() const
     return util::strListToString(includes, "\n", "\n");
 }
 
+std::string CommsMessage::commsDefConstructInternal() const
+{
+    if (!m_customConstruct.empty()) {
+        return m_customConstruct;
+    }    
+
+    if (m_internalConstruct.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "#^#CLASS_NAME#$##^#SUFFIX#$#()\n"
+        "{\n"
+        "    #^#CODE#$#\n"    
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CODE", m_internalConstruct}
+    };
+
+    if (!m_customCode.m_extend.empty()) {
+        repl["SUFFIX"] = strings::origSuffixStr();
+    }    
+
+    return util::processTemplate(Templ, repl);
+}
+
 std::string CommsMessage::commsDefFieldsCodeInternal() const
 {
     util::StringsList fields;
@@ -574,6 +604,7 @@ std::string CommsMessage::commsDefPublicInternal() const
 {
     static const std::string Templ =
         "public:\n"
+        "    #^#CONSTRUCT#$#\n"
         "    #^#ACCESS#$#\n"
         "    #^#ALIASES#$#\n"
         "    #^#LENGTH_CHECK#$#\n"
@@ -588,6 +619,7 @@ std::string CommsMessage::commsDefPublicInternal() const
 
     auto inputCodePrefix = comms::inputCodePathFor(*this, generator());
     util::ReplacementMap repl = {
+        {"CONSTRUCT", commsDefConstructInternal()},
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
         {"LENGTH_CHECK", commsDefLengthCheckInternal()},
@@ -674,12 +706,14 @@ std::string CommsMessage::commsDefPrivateInternal() const
 
     static const std::string Templ = 
         "private:\n"
+        "    #^#CONSTRUCT#$#\n"
         "    #^#READS#$#\n"
         "    #^#REFRESHES#$#\n"
         "    #^#CUSTOM#$#\n"
     ;
 
     util::ReplacementMap repl = {
+        {"CONSTRUCT", commsDefPrivateConstructInternal()},
         {"READS", util::strListToString(reads, "\n", "")},
         {"REFRESHES", util::strListToString(refreshes, "\n", "")},
         {"CUSTOM", m_customCode.m_private}
@@ -1034,6 +1068,30 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
     return util::processTemplate(Templ, repl);    
 }
 
+std::string CommsMessage::commsDefPrivateConstructInternal() const
+{
+    if (m_internalConstruct.empty()) {
+        return strings::emptyString();
+    }
+
+    if (m_customConstruct.empty()) {
+        // The construct code is already in the constructor
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "void constructOrig()\n"
+        "{\n"
+        "    #^#CODE#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CODE", m_internalConstruct}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 bool CommsMessage::commsIsCustomizableInternal() const
 {
     auto& gen = static_cast<const CommsGenerator&>(generator());
@@ -1205,6 +1263,11 @@ CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInte
         "comms::option::app::NoReadImpl",
         "comms::option::app::NoDispatchImpl"
     };
+}
+
+void CommsMessage::prepareConstructCodeInternal()
+{
+    // TODO: prepare construct code conditions
 }
 
 } // namespace commsdsl2comms

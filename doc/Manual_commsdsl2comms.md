@@ -134,6 +134,7 @@ going to update, as the generated file inside the output directory.
 
 Every global **field** and/or **message** class will be defined in a separate 
 file and will have the following basic operations:
+- **construct** - Construction
 - **read** - Read operation
 - **write** - Write operation
 - **length** - Serialization length calculation
@@ -149,12 +150,16 @@ will reside in `include/demo/message/Msg1.h`. In order to replace the default **
 operation, there is a need to create `include/demo/message/Msg1.h.read` file
 which will define custom read function. Following the same logic to
 replace all the operations there is a need to have the following files:
+- `include/demo/message/Msg1.h.construct`
 - `include/demo/message/Msg1.h.read`
 - `include/demo/message/Msg1.h.write`
 - `include/demo/message/Msg1.h.length`
 - `include/demo/message/Msg1.h.valid`
 - `include/demo/message/Msg1.h.refresh`
 - `include/demo/message/Msg1.h.name`
+
+The constructor must contain the actual class name. For the other
+functions they differ between **fields** and **messages**.
 
 Note that for **fields** the provided functions are expected to have the
 following signatures.
@@ -196,8 +201,8 @@ and/or **private** areas by using relevant suffix.
 - `include/demo/message/Msg1.h.protected`
 - `include/demo/message/Msg1.h.private`
 
-In case there is a need for a custom constructor / destructor / assignment operator,
-use **public** section to define it.
+In case there is a need for a custom destructor and/or assignment operator,
+use either **.construct** or **.public** code injection to define them.
 
 The custom operation may required additional includes, which may be provided by
 using appropriate definition file with **.inc** suffix. The contents of this

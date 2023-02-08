@@ -243,6 +243,12 @@ const std::string& bindFileSuffixStr()
     return Str;     
 }
 
+const std::string& constructFileSuffixStr()
+{
+    static const std::string Str(".construct");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");
