@@ -45,13 +45,9 @@ commsdsl_negate_option(COMMSDSL_NO_TESTS COMMSDSL_BUILD_UNIT_TESTS)
 
 ################################################
 
-if (NOT CMAKE_CXX_STANDARD)
-    set (CMAKE_CXX_STANDARD 17)
-endif()
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard to use")
+set(COMMSDSL_TESTS_CXX_STANDARD 11 CACHE STRING "The C++ standard to use in tests")
 
-if (NOT COMMSDSL_TESTS_CXX_STANDARD)
-    set (COMMSDSL_TESTS_CXX_STANDARD 11)
-endif ()
 
 if (NOT COMMSDSL_TESTS_C_COMPILER)
     set (COMMSDSL_TESTS_C_COMPILER ${CMAKE_C_COMPILER})
