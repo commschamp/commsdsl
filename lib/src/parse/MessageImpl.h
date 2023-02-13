@@ -154,6 +154,11 @@ public:
         return OptCond(m_construct.get());
     }
 
+    OptCond readCond() const
+    {
+        return OptCond(m_readCond.get());
+    }    
+
 protected:
     virtual ObjKind objKindImpl() const override;
 
@@ -200,6 +205,8 @@ private:
     bool updateCopyOverrideCodeFrom();    
     bool updateSingleConstruct();
     bool updateMultiConstruct();
+    bool updateSingleReadCond();
+    bool updateMultiReadCond();
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
@@ -229,6 +236,7 @@ private:
     OverrideType m_nameOverride = OverrideType_Any;    
     std::string m_copyCodeFrom;
     OptCondImplPtr m_construct;
+    OptCondImplPtr m_readCond;
     bool m_customizable = false;
 };
 

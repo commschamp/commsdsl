@@ -120,6 +120,8 @@ bool MessageImpl::parse()
         updateCopyOverrideCodeFrom() &&     
         updateSingleConstruct() &&
         updateMultiConstruct() && 
+        updateSingleReadCond() &&
+        updateMultiReadCond() &&         
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -332,6 +334,7 @@ const XmlWrap::NamesList& MessageImpl::extraProps()
 {
     static const XmlWrap::NamesList Names = {
         common::constructStr(),
+        common::readCondStr(),
     };
 
     return Names;
@@ -1163,6 +1166,82 @@ bool MessageImpl::updateMultiConstruct()
     }    
 
     m_construct = std::move(newConstruct);
+    return true;
+}
+
+bool MessageImpl::updateSingleReadCond()
+{
+    auto& prop = common::readCondStr();
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (m_readCond) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Only single \"" << prop << "\" property is supported";
+        return false;
+    }
+
+    auto newReadCond = std::make_unique<OptCondExprImpl>();
+    if (!newReadCond->parse(iter->second, m_node, m_protocol)) {
+        return false;
+    }
+
+    if (!newReadCond->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
+        return false;
+    }    
+
+    m_readCond = std::move(newReadCond);
+    return true;
+}
+
+bool MessageImpl::updateMultiReadCond()
+{
+    auto readCondNodes = XmlWrap::getChildren(m_node, common::readCondStr());
+    if (readCondNodes.empty()) {
+        return true;
+    }
+
+    if (readCondNodes.size() > 1U) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Cannot use more that one child to the \"" << common::readCondStr() << "\" element.";        
+        return false;
+    }
+
+    static const XmlWrap::NamesList ElemNames = {
+        common::andStr(),
+        common::orStr()
+    };
+
+    auto readCondChildren = XmlWrap::getChildren(readCondNodes.front(), ElemNames);
+    if (readCondChildren.size() != readCondNodes.size()) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Only single \"" << common::andStr() << "\" or \"" << common::orStr() << "\" child of the \"" << common::readCondStr() << "\" element is supported.";           
+        return false;
+    }    
+
+    if (m_readCond) {
+        logError() << XmlWrap::logPrefix(readCondNodes.front()) <<
+            "Only single \"" << common::readCondStr() << "\" property is supported";
+        return false;
+    }
+
+    auto newReadCond = std::make_unique<OptCondListImpl>();
+    newReadCond->overrideCondStr(common::readCondStr());
+    if (!newReadCond->parse(readCondChildren.front(), m_protocol)) {
+        return false;
+    }
+
+    if (!newReadCond->verify(OptCondImpl::FieldsList(), readCondChildren.front(), m_protocol)) {
+        return false;
+    }    
+
+    m_readCond = std::move(newReadCond);
     return true;
 }
 

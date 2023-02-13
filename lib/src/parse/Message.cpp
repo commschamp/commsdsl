@@ -175,6 +175,11 @@ OptCond Message::construct() const
     return m_pImpl->construct();
 }
 
+OptCond Message::readCond() const
+{
+    return m_pImpl->readCond();
+}
+
 const Message::AttributesMap& Message::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

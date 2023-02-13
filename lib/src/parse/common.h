@@ -170,6 +170,7 @@ const std::string& missingOnReadFailStr();
 const std::string& missingOnInvalidStr();
 const std::string& reuseCodeStr();
 const std::string& constructStr();
+const std::string& readCondStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

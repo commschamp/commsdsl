@@ -78,6 +78,7 @@ public:
     OverrideType nameOverride() const;    
     const std::string& copyCodeFrom() const;
     OptCond construct() const;
+    OptCond readCond() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;
