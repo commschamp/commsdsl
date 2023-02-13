@@ -105,6 +105,39 @@ CommsInterface::CommsInterface(CommsGenerator& generator, commsdsl::parse::Inter
 
 CommsInterface::~CommsInterface() = default;
 
+const CommsField* CommsInterface::findValidReferencedField(const std::string& refStr) const
+{
+    auto dotPos = refStr.find(".");
+    std::string fieldName(refStr, 0, dotPos);
+
+    auto iter = 
+        std::find_if(
+            m_commsFields.begin(), m_commsFields.end(),
+            [&fieldName](auto* f)
+            {
+                return fieldName == f->field().dslObj().name();
+            });
+
+    if (iter == m_commsFields.end()) {
+        return nullptr;
+    }
+
+    std::string restAcc;
+    if (dotPos < refStr.size()) {
+        restAcc = refStr.substr(dotPos + 1);
+    }
+
+    auto info = (*iter)->field().processInnerRef(restAcc);
+
+    if ((info.m_field != nullptr) &&
+        (info.m_valueName.empty()) &&
+        (info.m_refType == commsdsl::gen::Field::FieldRefType_Field)) {
+        return *iter;
+    }
+
+    return nullptr;
+}
+
 bool CommsInterface::prepareImpl()
 {
     if (!Base::prepareImpl()) {

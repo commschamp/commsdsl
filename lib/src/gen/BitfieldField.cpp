@@ -101,6 +101,17 @@ void BitfieldField::setReferencedImpl()
     m_impl->setReferenced();
 }
 
+BitfieldField::FieldRefInfo BitfieldField::processInnerRefImpl(const std::string& refStr) const
+{
+    auto& memFields = members();
+    if (!memFields.empty()) {
+        return processMemberRef(memFields, refStr);
+    }    
+
+    return Base::processInnerRefImpl(refStr);
+}
+
+
 commsdsl::parse::BitfieldField BitfieldField::bitfieldDslObj() const
 {
     return commsdsl::parse::BitfieldField(dslObj());

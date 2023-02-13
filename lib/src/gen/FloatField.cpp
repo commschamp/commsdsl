@@ -128,6 +128,23 @@ bool FloatField::prepareImpl()
     return m_impl->prepare(floatDslObj());
 }
 
+FloatField::FieldRefInfo FloatField::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+    auto obj = floatDslObj();
+    auto& specials = obj.specialValues();
+
+    FieldRefInfo info;
+    auto iter = specials.find(refStr);
+    if (iter != specials.end()) {
+        info.m_field = this;
+        info.m_valueName = refStr;
+        info.m_refType = FieldRefType_InnerValue;
+    }
+
+    return info;    
+}
+
 commsdsl::parse::FloatField FloatField::floatDslObj() const
 {
     return commsdsl::parse::FloatField(dslObj());

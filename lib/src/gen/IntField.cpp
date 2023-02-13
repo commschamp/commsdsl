@@ -105,6 +105,23 @@ bool IntField::prepareImpl()
     return m_impl->prepare(intDslObj());
 }
 
+IntField::FieldRefInfo IntField::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+    auto obj = intDslObj();
+    auto& specials = obj.specialValues();
+
+    FieldRefInfo info;
+    auto iter = specials.find(refStr);
+    if (iter != specials.end()) {
+        info.m_field = this;
+        info.m_valueName = refStr;
+        info.m_refType = FieldRefType_InnerValue;
+    }
+
+    return info;    
+}
+
 commsdsl::parse::IntField IntField::intDslObj() const
 {
     return commsdsl::parse::IntField(dslObj());

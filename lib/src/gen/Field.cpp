@@ -229,6 +229,47 @@ std::string Field::templateScopeOfComms(const std::string& protOptionsStr) const
     return commsScope;
 }
 
+Field::FieldRefInfo Field::processInnerRef(const std::string& refStr) const
+{
+    if (refStr.empty()) {
+        FieldRefInfo info;
+        info.m_field = this;
+        info.m_refType = FieldRefType_Field;
+        return info;
+    }
+
+    return processInnerRefImpl(refStr);
+}
+
+Field::FieldRefInfo Field::processMemberRef(const FieldsList& fields, const std::string& refStr)
+{
+    FieldRefInfo info;
+    auto dotPos = refStr.find_first_of('.');
+    std::string fieldName(refStr, 0, dotPos);
+    if (fieldName.empty()) {
+        return info;
+    }
+
+    auto iter =
+        std::find_if(
+            fields.begin(), fields.end(),
+            [&fieldName](auto& f)
+            {
+                return f->name() == fieldName;
+            });
+
+    if (iter == fields.end()) {
+        return info;
+    }
+
+    auto nextPos = refStr.size();
+    if (dotPos < refStr.size()) {
+        nextPos = dotPos + 1U;
+    }
+
+    return (*iter)->processInnerRef(refStr.substr(nextPos));
+}
+
 Elem::Type Field::elemTypeImpl() const
 {
     return Type_Field;
@@ -246,6 +287,14 @@ bool Field::writeImpl() const
 
 void Field::setReferencedImpl()
 {
+}
+
+Field::FieldRefInfo Field::processInnerRefImpl(const std::string& refStr) const
+{
+    static_cast<void>(refStr);
+    assert(!refStr.empty());
+    FieldRefInfo info;
+    return info;
 }
 
 } // namespace gen

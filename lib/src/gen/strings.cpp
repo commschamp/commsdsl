@@ -357,6 +357,24 @@ const std::string& enumValuesLimitStr()
     return Str;
 }
 
+const std::string& transportFieldAccessPrefixStr()
+{
+    static const std::string Str("transportField_");
+    return Str;    
+}
+
+const std::string& transportFieldTypeAccessPrefixStr()
+{
+    static const std::string Str("TransportField_");
+    return Str;    
+}
+
+const std::string& fieldAccessPrefixStr()
+{
+    static const std::string Str("field_");
+    return Str;    
+}
+
 char siblingRefPrefix()
 {
     return '$';

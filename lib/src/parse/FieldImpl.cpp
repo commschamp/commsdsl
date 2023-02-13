@@ -413,6 +413,12 @@ FieldImpl::FieldRefInfo FieldImpl::processInnerRef(const std::string& refStr) co
     return processInnerRefImpl(refStr);
 }
 
+bool FieldImpl::isValidInnerRef(const std::string& refStr) const
+{
+    auto info = processInnerRef(refStr);
+    return info.m_field != nullptr;
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)

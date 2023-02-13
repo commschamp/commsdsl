@@ -38,6 +38,21 @@ public:
     using Ptr = std::unique_ptr<Field>;
     using FieldsList = std::vector<Ptr>;
 
+    enum FieldRefType
+    {
+        FieldRefType_Invalid,
+        FieldRefType_Field,
+        FieldRefType_InnerValue,
+        FieldRefType_ValuesLimit
+    };
+
+    struct FieldRefInfo
+    {
+        const Field* m_field = nullptr;
+        std::string m_valueName;
+        FieldRefType m_refType = FieldRefType_Invalid;
+    };    
+
     virtual ~Field();
 
     static Ptr create(Generator& generator, commsdsl::parse::Field dslObj, Elem* parent = nullptr);    
@@ -58,6 +73,9 @@ public:
 
     std::string templateScopeOfComms(const std::string& protOptionsStr) const;
 
+    FieldRefInfo processInnerRef(const std::string& refStr) const;
+    static FieldRefInfo processMemberRef(const FieldsList& fields, const std::string& refStr);
+
 protected:    
     Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent = nullptr);
 
@@ -65,6 +83,7 @@ protected:
     virtual bool prepareImpl();
     virtual bool writeImpl() const;
     virtual void setReferencedImpl();
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const;
 
 
 private:

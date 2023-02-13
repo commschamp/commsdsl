@@ -287,6 +287,8 @@ public:
 
     FieldRefInfo processInnerRef(const std::string& refStr) const;
 
+    bool isValidInnerRef(const std::string& refStr) const;
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);

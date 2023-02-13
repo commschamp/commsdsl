@@ -17,6 +17,7 @@
 
 #include "CommsField.h"
 #include "CommsGenerator.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -27,6 +28,7 @@
 #include <fstream>
 #include <iterator>
 #include <numeric>
+#include <utility>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -62,6 +64,138 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
     }
 
     code = util::readFileContents(codePath);
+}
+
+std::pair<const CommsField*, std::string> findInterfaceFieldInternal(const CommsGenerator& generator, const std::string& refStr)
+{
+    auto& currSchema = CommsSchema::cast(generator.currentSchema());
+    auto* field = currSchema.findValidInterfaceReferencedField(refStr);
+    if (field == nullptr) {
+        generator.logger().error("Failed to find interface field \"" + refStr + "\".");
+        assert(false);
+        return std::make_pair(nullptr, std::string());
+    }
+
+    auto dotPos = refStr.find(".");
+    if (refStr.size() < dotPos) {
+        return std::make_pair(field, std::string());
+    }
+
+    return std::make_pair(field, refStr.substr(dotPos + 1));
+}
+
+std::string interfaceFieldAccStrInternal(const CommsField& field)
+{
+    return strings::transportFieldAccessPrefixStr() + comms::accessName(field.field().dslObj().name()) + "()";
+}
+
+void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::OptCondExpr& cond, util::StringsList& code)
+{
+    assert(cond.op().empty() || (cond.op() == "!"));
+    auto& right = cond.right();
+    assert(!right.empty());
+    assert(right[0] == strings::interfaceFieldRefPrefix());
+
+    auto lastSepPos = right.find_last_of(".");
+    assert(lastSepPos < right.size());
+    if (right.size() <= lastSepPos) {
+        return;
+    }
+
+    auto fieldInfo = findInterfaceFieldInternal(generator, right.substr(1, lastSepPos - 1U));
+    if (fieldInfo.first == nullptr) {
+        assert(false); // Should not happen
+        return;
+    }
+
+    auto fieldAccess = fieldInfo.first->commsFieldAccessStr(fieldInfo.second, interfaceFieldAccStrInternal(*fieldInfo.first));
+
+    static const std::string TrueStr("true");
+    static const std::string FalseStr("false");
+
+    auto* valStr = &TrueStr;
+    if (!cond.op().empty()) {
+        valStr = &FalseStr;
+    }
+
+    static const std::string Templ = 
+        "Base::#^#ACC#$#.setBitValue_#^#NAME#$#(#^#VAL#$#);\n";
+
+    util::ReplacementMap repl = {
+        {"ACC", std::move(fieldAccess)},
+        {"NAME", right.substr(lastSepPos + 1U)},
+        {"VAL", *valStr},
+    };
+
+    code.push_back(util::processTemplate(Templ, repl));
+}
+
+void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl::parse::OptCondExpr& cond, util::StringsList& code)
+{
+    auto& left = cond.left();
+    if (left.empty()) {
+        updateConstructBoolInternal(generator, cond, code); 
+        return;
+    }
+
+    assert(left[0] == strings::interfaceFieldRefPrefix());
+    auto leftInfo = findInterfaceFieldInternal(generator, left.substr(1));
+    if (leftInfo.first == nullptr) {
+        assert(false); // Should not happen
+        return;
+    }
+    
+    auto& op = cond.op();
+    assert(op == "=");
+    auto& right = cond.right();
+    assert(!right.empty());
+
+    auto leftFieldAccess = leftInfo.first->commsFieldAccessStr(leftInfo.second, interfaceFieldAccStrInternal(*leftInfo.first));
+
+    auto castPrefix = strings::transportFieldTypeAccessPrefixStr() + comms::accessName(leftInfo.first->field().dslObj().name()) + "::";
+    std::string castType = leftInfo.first->commsCompValueCastType(leftInfo.second, castPrefix);
+    std::string valStr;
+    if (right[0] == strings::interfaceFieldRefPrefix()) {
+        auto rightInfo = findInterfaceFieldInternal(generator, right.substr(1));
+        if (rightInfo.first == nullptr) {
+            assert(false); // Should not happen
+            return;
+        }
+
+        valStr = rightInfo.first->commsValueAccessStr(rightInfo.second, interfaceFieldAccStrInternal(*rightInfo.first));
+    }
+    else {
+        valStr = leftInfo.first->commsCompPrepValueStr(leftInfo.second, right);
+    }
+
+    static const std::string Templ = 
+        "Base::#^#ACC#$#.value() = static_cast<typename Base::#^#CAST#$#>(#^#VAL#$#);\n";
+
+    util::ReplacementMap repl = {
+        {"ACC", std::move(leftFieldAccess)},
+        {"CAST", std::move(castType)},
+        {"VAL", std::move(valStr)}
+    };
+
+    code.push_back(util::processTemplate(Templ, repl));
+}
+
+void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::OptCond& cond, util::StringsList& code)
+{
+    assert(cond.valid());
+    if (cond.kind() == commsdsl::parse::OptCond::Kind::Expr) {
+        commsdsl::parse::OptCondExpr exprCond(cond);
+        updateConstructExprInternal(generator, exprCond, code);
+        return;
+    }
+
+    assert(cond.kind() == commsdsl::parse::OptCond::Kind::List);
+    commsdsl::parse::OptCondList listCond(cond);
+    assert(listCond.type() == commsdsl::parse::OptCondList::Type::And);
+    auto conditions = listCond.conditions();
+    for (auto& c : conditions) {
+        updateConstructCodeInternal(generator, c, code);
+    }
 }
 
 } // namespace 
@@ -700,7 +834,10 @@ std::string CommsMessage::commsDefPrivateInternal() const
         }
     }
 
-    if (reads.empty() && refreshes.empty() && m_customCode.m_private.empty()) {
+    bool hasPrivateConstruct = 
+        (!m_internalConstruct.empty()) && (!m_customConstruct.empty());
+
+    if (reads.empty() && refreshes.empty() && m_customCode.m_private.empty() && (!hasPrivateConstruct)) {
         return strings::emptyString();
     }
 
@@ -1267,7 +1404,19 @@ CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInte
 
 void CommsMessage::prepareConstructCodeInternal()
 {
-    // TODO: prepare construct code conditions
+    auto cond = dslObj().construct();
+    if (!cond.valid()) {
+        return;
+    }
+
+    StringsList code;
+    updateConstructCodeInternal(CommsGenerator::cast(generator()), cond, code);
+
+    if (code.empty()) {
+        return;
+    }
+
+    m_internalConstruct = util::strListToString(code, "", "");
 }
 
 } // namespace commsdsl2comms

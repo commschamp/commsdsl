@@ -262,7 +262,6 @@ std::string CommsBitfieldField::commsCompPrepValueStrImpl(const std::string& acc
         return value;
     }
 
-    auto accName = comms::accessName(memInfo.first->field().dslObj().name());
     return memInfo.first->commsCompPrepValueStr(memInfo.second, value);
 }
 
@@ -349,7 +348,7 @@ std::string CommsBitfieldField::commsAccessCodeInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::pair<const CommsField*, std::string> CommsBitfieldField::parseMemRefInternal(const std::string accStr) const
+std::pair<const CommsField*, std::string> CommsBitfieldField::parseMemRefInternal(const std::string& accStr) const
 {
     auto sepPos = accStr.find(".");
     auto memberName = accStr.substr(0, sepPos);

@@ -16,6 +16,8 @@
 
 #pragma once
 
+#include "CommsField.h"
+
 #include "commsdsl/gen/Schema.h"
 
 namespace commsdsl2comms
@@ -30,10 +32,22 @@ public:
     explicit CommsSchema(CommsGenerator& generator, commsdsl::parse::Schema dslObj, Elem* parent);
     virtual ~CommsSchema();
 
+    static const CommsSchema* cast(const commsdsl::gen::Schema* ptr)
+    {
+        return static_cast<const CommsSchema*>(ptr);
+    }
+
+    static const CommsSchema& cast(const commsdsl::gen::Schema& ref)
+    {
+        return static_cast<const CommsSchema&>(ref);
+    }
+
     bool commsHasAnyMessage() const;
     bool commsHasReferencedMsgId() const;
     bool commsHasAnyField() const;
     bool commsHasAnyGeneratedCode() const;
+
+    const CommsField* findValidInterfaceReferencedField(const std::string& refStr) const;
 };
 
 } // namespace commsdsl2comms

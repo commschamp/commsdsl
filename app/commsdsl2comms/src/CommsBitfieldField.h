@@ -64,7 +64,7 @@ private:
     bool commsPrepareInternal();
     std::string commsDefFieldOptsInternal() const;
     std::string commsAccessCodeInternal() const;
-    std::pair<const CommsField*, std::string> parseMemRefInternal(const std::string accStr) const;
+    std::pair<const CommsField*, std::string> parseMemRefInternal(const std::string& accStr) const;
 
     CommsFieldsList m_members;
 };

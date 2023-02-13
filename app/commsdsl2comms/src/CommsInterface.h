@@ -46,6 +46,9 @@ public:
         return m_commsFields;
     }    
 
+    const CommsField* findValidReferencedField(const std::string& refStr) const;
+
+
 protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;

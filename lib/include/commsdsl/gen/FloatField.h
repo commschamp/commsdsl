@@ -44,6 +44,7 @@ public:
 
 protected:    
     virtual bool prepareImpl() override;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
     
     commsdsl::parse::FloatField floatDslObj() const;
 

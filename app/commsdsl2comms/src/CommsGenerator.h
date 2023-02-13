@@ -43,6 +43,11 @@ public:
         NumOfValues
     };    
 
+    static const CommsGenerator& cast(const commsdsl::gen::Generator& ref)
+    {
+        return static_cast<const CommsGenerator&>(ref);
+    }
+
     static const std::string& commsFileGeneratedComment();
     CustomizationLevel commsGetCustomizationLevel() const;
     void commsSetCustomizationLevel(const std::string& opt);

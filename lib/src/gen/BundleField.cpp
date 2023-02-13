@@ -101,6 +101,16 @@ void BundleField::setReferencedImpl()
     m_impl->setReferenced();
 }
 
+BundleField::FieldRefInfo BundleField::processInnerRefImpl(const std::string& refStr) const
+{
+    auto& memFields = members();
+    if (!memFields.empty()) {
+        return processMemberRef(memFields, refStr);
+    }    
+
+    return Base::processInnerRefImpl(refStr);
+}
+
 commsdsl::parse::BundleField BundleField::bundleDslObj() const
 {
     return commsdsl::parse::BundleField(dslObj());

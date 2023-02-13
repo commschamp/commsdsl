@@ -9,6 +9,7 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
 
     class Handler;
 
@@ -23,6 +24,7 @@ public:
 
     using Msg1 = test38::message::M1<Interface>;
     using Msg2 = test38::message::M2<Interface>;
+    using Msg3 = test38::message::M3<Interface>;
     using Frame = test38::frame::Frame<Interface>;
 
     class Handler
@@ -38,6 +40,10 @@ public:
             m_msg2.reset(new Msg2(msg));
         }
 
+        void handle(Msg3& msg)
+        {
+            m_msg3.reset(new Msg3(msg));
+        }
 
         void handle(Interface& msg)
         {
@@ -54,15 +60,22 @@ public:
             return m_msg2;
         }
 
+        const std::unique_ptr<Msg3>& getMsg3() const
+        {
+            return m_msg3;
+        }        
+
         void reset()
         {
             m_msg1.reset();
             m_msg2.reset();
+            m_msg3.reset();
         }
 
     private:
         std::unique_ptr<Msg1> m_msg1;
         std::unique_ptr<Msg2> m_msg2;
+        std::unique_ptr<Msg3> m_msg3;
     };
 };
 
@@ -117,4 +130,12 @@ void TestSuite::test2()
     auto& msg2Ptr = handler.getMsg2();
     TS_ASSERT(msg2Ptr); // Make sure that Msg2 is received
     TS_ASSERT_EQUALS(msg, *msg2Ptr);
+}
+
+void TestSuite::test3()
+{
+    Msg3 msg;
+    TS_ASSERT(msg.transportField_flags().field_b().getBitValue_B0());
+    TS_ASSERT(!msg.transportField_flags().field_b().getBitValue_B1());
+    TS_ASSERT(msg.transportField_flags().field_e().getValue() == Msg3::TransportField_flags::Field_e::ValueType::V2);
 }

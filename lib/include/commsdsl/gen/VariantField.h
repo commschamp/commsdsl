@@ -42,6 +42,7 @@ public:
 protected:    
     virtual bool prepareImpl() override;
     virtual void setReferencedImpl() override;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
 
     commsdsl::parse::VariantField variantDslObj() const;
 

@@ -5,6 +5,9 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
+            <validValue name="M4" val="4" />
+            <validValue name="M5" val="5" />
         </enum>
         <int name="Length" type="uint16" />
         <string name="String" lengthPrefix="Length" />
@@ -12,6 +15,12 @@
         <string reuse="String" name="ProtocolName" defaultValue="MQTT" displayName="Protocol Name"/>
         <int name="PacketId" type="uint16" displayName="Packet ID"/>
         <ref name="Topic" field="String" />
+
+        <enum name="SomeEnum" type="uint8">
+            <validValue name="V0" val="0" />
+            <validValue name="V1" val="1" />
+            <validValue name="V2" val="2" />
+        </enum>        
     </fields>
     
     <interface name="Message">
@@ -67,5 +76,25 @@
             <int name="ActF3" type="uint8" />
         </optional>            
     </message>
-    
+
+    <message name="M3" id="MsgId.M3">
+        <construct>
+            <and>
+                <construct value="%Flags.B.B0" />
+                <construct value="!%Flags.B.B1" />
+                <construct value="%Flags.E = 2" />
+            </and>
+        </construct>
+    </message>
+
+    <message name="M4" id="MsgId.M4">
+        <construct>
+            <and>
+                <construct value="!%Flags.B.B0" />
+                <construct value="%Flags.B.B1" />
+                <construct value="%Flags.E = SomeEnum.V1" />
+            </and>
+        </construct>
+    </message>    
+
 </schema>

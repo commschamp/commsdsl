@@ -69,6 +69,9 @@ const std::string& versionFileNameStr();
 const std::string& enumFirstValueStr();
 const std::string& enumLastValueStr();
 const std::string& enumValuesLimitStr();
+const std::string& transportFieldAccessPrefixStr();
+const std::string& transportFieldTypeAccessPrefixStr();
+const std::string& fieldAccessPrefixStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();
