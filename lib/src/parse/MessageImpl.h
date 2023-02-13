@@ -207,6 +207,7 @@ private:
     bool updateMultiConstruct();
     bool updateSingleReadCond();
     bool updateMultiReadCond();
+    bool copyConstructToReadCond();
     bool updateExtraAttrs();
     bool updateExtraChildren();
 

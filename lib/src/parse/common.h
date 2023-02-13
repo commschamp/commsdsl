@@ -171,6 +171,7 @@ const std::string& missingOnInvalidStr();
 const std::string& reuseCodeStr();
 const std::string& constructStr();
 const std::string& readCondStr();
+const std::string& constructAsReadCondStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

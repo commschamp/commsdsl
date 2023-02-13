@@ -121,7 +121,8 @@ bool MessageImpl::parse()
         updateSingleConstruct() &&
         updateMultiConstruct() && 
         updateSingleReadCond() &&
-        updateMultiReadCond() &&         
+        updateMultiReadCond() && 
+        copyConstructToReadCond() &&
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -325,6 +326,7 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::validOverrideStr(),
         common::nameOverrideStr(),
         common::copyCodeFromStr(),
+        common::constructAsReadCondStr(),
     };
 
     return CommonNames;
@@ -1243,6 +1245,45 @@ bool MessageImpl::updateMultiReadCond()
 
     m_readCond = std::move(newReadCond);
     return true;
+}
+
+bool MessageImpl::copyConstructToReadCond()
+{
+    auto& prop = common::constructAsReadCondStr();
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }    
+
+    bool ok = false;
+    bool copyConstruct = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(prop, iter->second);
+        return false;
+    }
+
+    if (!copyConstruct) {
+        return true;
+    }
+
+    if (!m_construct) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "No \"" << common::constructStr() << "\" conditions were defined to copy.";           
+        return false;            
+    }
+
+    if (m_readCond) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Set of the \"" << prop << "\" property overrides existing \"" << common::readCondStr() << "\" setting.";          
+        return false;
+    }
+
+    m_readCond = m_construct->clone();
+    return true;    
 }
 
 bool MessageImpl::updateExtraAttrs()

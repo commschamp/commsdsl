@@ -860,6 +860,12 @@ const std::string& readCondStr()
     return Str;    
 }
 
+const std::string& constructAsReadCondStr()
+{
+    static const std::string Str("constructAsReadCond");
+    return Str;       
+}
+
 char siblingRefPrefix()
 {
     return '$';
