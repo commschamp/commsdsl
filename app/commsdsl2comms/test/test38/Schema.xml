@@ -77,7 +77,7 @@
         </optional>            
     </message>
 
-    <message name="M3" id="MsgId.M3">
+    <message name="M3" id="MsgId.M3" constructAsReadCond="true">
         <construct>
             <and>
                 <construct value="%Flags.B.B0" />

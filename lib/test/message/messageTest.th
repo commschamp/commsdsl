@@ -32,6 +32,7 @@ public:
     void test23();
     void test24();
     void test25();
+    void test26();
 };
 
 void MessageTestSuite::setUp()
@@ -536,4 +537,34 @@ void MessageTestSuite::test25()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema25.xml");
     TS_ASSERT(protocol);
+}
+
+void MessageTestSuite::test26()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema26.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& msg1 = messages[0];
+    auto msg1ReadCond = msg1.readCond();
+    TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    commsdsl::parse::OptCondExpr msg1ReadCondExpr(msg1ReadCond);
+    TS_ASSERT(msg1ReadCondExpr.left().empty());
+    TS_ASSERT(msg1ReadCondExpr.op().empty());
+    TS_ASSERT_EQUALS(msg1ReadCondExpr.right(), "%Flags.M1.B0");
+
+
+    auto& msg2 = messages[1];
+    auto msg2ReadCond = msg2.readCond();
+    TS_ASSERT_EQUALS(msg2ReadCond.kind(), commsdsl::parse::OptCond::Kind::List);
+    commsdsl::parse::OptCondList msg2ReadCondExpr(msg2ReadCond);
+    TS_ASSERT_EQUALS(msg2ReadCondExpr.type(), commsdsl::parse::OptCondList::Type::And);
 }

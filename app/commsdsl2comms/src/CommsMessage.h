@@ -111,6 +111,7 @@ private:
         FieldOptsFunc fieldOptsFunc,
         ExtraMessageOptsFunc extraMessageOptsFunc,
         bool hasBase) const;
+    std::string commsDefReadConditionsCodeInternal() const;
 
     StringsList commsClientExtraCustomizationOptionsInternal() const;
     StringsList commsServerExtraCustomizationOptionsInternal() const;

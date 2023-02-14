@@ -30,6 +30,12 @@ class CommsOptionalField final : public commsdsl::gen::OptionalField, public Com
 public:
     CommsOptionalField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
+    static std::string commsDslCondToString(
+        const CommsGenerator& generator, 
+        const CommsFieldsList& siblings, 
+        const commsdsl::parse::OptCond& cond, 
+        bool bracketsWrap = false);
+
 protected:
     // Base overrides
     virtual bool prepareImpl() override;

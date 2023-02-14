@@ -17,6 +17,7 @@
 
 #include "CommsField.h"
 #include "CommsGenerator.h"
+#include "CommsOptionalField.h"
 #include "CommsSchema.h"
 
 #include "commsdsl/gen/comms.h"
@@ -145,8 +146,7 @@ void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl
         return;
     }
     
-    auto& op = cond.op();
-    assert(op == "=");
+    assert(cond.op() == "=");
     auto& right = cond.right();
     assert(!right.empty());
 
@@ -707,13 +707,8 @@ std::string CommsMessage::commsDefCustomizationOptInternal() const
 std::string CommsMessage::commsDefExtraOptionsInternal() const
 {
     util::StringsList opts;
-    bool hasGeneratedRead = 
-        std::any_of(
-            m_bundledReadPrepareCodes.begin(), m_bundledReadPrepareCodes.end(),
-            [](const std::string& code)
-            {
-                return !code.empty();
-            });
+
+    // Messages don't need / support comms::option::def::HasCustomRead option
 
     bool hasGeneratedRefresh = 
         std::any_of(
@@ -723,15 +718,11 @@ std::string CommsMessage::commsDefExtraOptionsInternal() const
                 return !code.empty();
             });
 
-    if ((!m_customCode.m_read.empty()) || hasGeneratedRead) {
-        util::addToStrList("comms::option::def::HasCustomRead", opts);
-    }
-
     if ((!m_customCode.m_refresh.empty()) || hasGeneratedRefresh) {
-        return "comms::option::def::HasCustomRefresh";
+        util::addToStrList("comms::option::def::HasCustomRefresh", opts);
     }
 
-    return strings::emptyString();    
+    return util::strListToString(opts, ",\n", "");    
 }
 
 std::string CommsMessage::commsDefPublicInternal() const
@@ -1047,6 +1038,8 @@ std::string CommsMessage::commsDefReadFuncInternal() const
             break;
         }
 
+        auto readCond = commsDefReadConditionsCodeInternal();
+
         util::StringsList reads;
         assert(m_bundledReadPrepareCodes.size() == m_commsFields.size());
         int prevIdx = -1;
@@ -1087,37 +1080,58 @@ std::string CommsMessage::commsDefReadFuncInternal() const
             prevIdx = idx;        
         }
 
-        if (reads.empty()) {
-            // Members dont have bundled reads
+        if (readCond.empty() && reads.empty()) {
             break;
         }
 
-        if (prevIdx < 0) {
-            // Only the first element has readPrepare()
-            reads.push_back("es = Base::doRead(iter, len);\n");
+        std::string readsCode;
+        if (!reads.empty()) {
+            if (prevIdx < 0) {
+                // Only the first element has readPrepare()
+                reads.push_back("es = Base::doRead(iter, len);\n");
+            }
+            else {
+                auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
+                reads.push_back("es = Base::template doReadFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
+            }
+                        
+            static const std::string ReadsTempl = 
+                "#^#UPDATE_VERSION#$#\n"
+                "auto es = comms::ErrorStatus::Success;\n"
+                "do {\n"
+                "    #^#READS#$#\n"
+                "} while (false);\n"
+                "return es;\n";
+
+            util::ReplacementMap readsRepl = {
+                {"READS", util::strListToString(reads, "\n", "")},
+                {"UPDATE_VERSION", generator().schemaOf(*this).versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
+            };                
+
+            readsCode = util::processTemplate(ReadsTempl, readsRepl);
         }
         else {
-            auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
-            reads.push_back("es = Base::template doReadFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
+            readsCode = "return Base::read(iter, len);\n";
         }
+
+        if (readCond.empty() && readsCode.empty()) {
+            break;
+        }
+
 
         static const std::string Templ = 
             "/// @brief Generated read functionality.\n"
             "template <typename TIter>\n"
             "comms::ErrorStatus doRead#^#ORIG#$#(TIter& iter, std::size_t len)\n"
             "{\n"
-            "    #^#UPDATE_VERSION#$#\n"
-            "    auto es = comms::ErrorStatus::Success;\n"
-            "    do {\n"
-            "        #^#READS#$#\n"
-            "    } while (false);\n"
-            "    return es;\n"
+            "    #^#READ_COND#$#\n"
+            "    #^#READS#$#\n"
             "}\n"
             ;        
 
         util::ReplacementMap repl = {
-            {"READS", util::strListToString(reads, "\n", "")},
-            {"UPDATE_VERSION", generator().schemaOf(*this).versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
+            {"READ_COND", std::move(readCond)},
+            {"READS", std::move(readsCode)},
         };
 
         if (!m_customCode.m_read.empty()) {
@@ -1358,6 +1372,35 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
 
     } while (false);
     return util::strListToString(elems, "\n", "");
+}
+
+std::string CommsMessage::commsDefReadConditionsCodeInternal() const
+{
+    auto readCond = dslObj().readCond();
+    if (!readCond.valid()) {
+        return strings::emptyString();
+    }
+
+    auto& gen = CommsGenerator::cast(generator());
+    auto str = 
+        CommsOptionalField::commsDslCondToString(gen, CommsFieldsList(), readCond, true);
+
+    if (str.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "bool validRead =\n"
+        "    #^#CODE#$#;\n\n"
+        "if (!validRead) {\n"
+        "    return comms::ErrorStatus::InvalidMsgData;\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CODE", std::move(str)},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInternal() const
