@@ -79,7 +79,11 @@ function (test_func name)
         )
     endif ()    
 
-    add_dependencies(${APP_NAME}.all_tests ${build_tgt})     
+    add_dependencies(${APP_NAME}.all_tests ${build_tgt})  
+
+    if (NOT COMMSDSL_BUILD_COMMSDSL2COMMS_TESTS)
+        return()
+    endif ()   
 
     set (tests "${test_dir}/${name}Test.th")
 

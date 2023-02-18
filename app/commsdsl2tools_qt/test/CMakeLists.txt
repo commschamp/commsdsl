@@ -1,4 +1,4 @@
-if (NOT BUILD_TESTING)
+if ((NOT BUILD_TESTING) OR (NOT COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS))
     return ()
 endif () 
 
@@ -48,7 +48,6 @@ foreach (name ${tests})
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
         DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
-
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}_build)
