@@ -7,6 +7,7 @@ set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 find_program (EMCMAKE_EXECUTABLE NAMES "emcmake" REQUIRED)
+message (STATUS "Found emcmake: ${EMCMAKE_EXECUTABLE}")
 
 if (NOT TARGET cc::comms)
     message (FATAL_ERROR "cc::comms target is expected to be present")
@@ -24,6 +25,7 @@ set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
 file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 find_program (NODE_EXECUTABLE NAMES node nodejs REQUIRED)
+message (STATUS "Found node: ${NODE_EXECUTABLE}")
 
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
