@@ -194,13 +194,9 @@ jobs:
     - name: Testing    
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest     
+      run: ctest -V
 
-    - name: Re-running failed Tests
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: ctest --rerun-failed --output-on-failure
-      
+
   build_clang_old_ubuntu_20_04:
     runs-on: ubuntu-20.04
     strategy:
@@ -395,9 +391,4 @@ jobs:
     - name: Testing    
       working-directory: ${{runner.workspace}}/build
       shell: bash
-      run: ctest
-
-    - name: Re-running failed Tests
-      working-directory: ${{runner.workspace}}/build
-      shell: bash
-      run: ctest --rerun-failed --output-on-failure
+      run: ctest -V
