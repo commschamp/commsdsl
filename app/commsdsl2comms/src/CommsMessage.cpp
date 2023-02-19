@@ -1111,7 +1111,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
             readsCode = util::processTemplate(ReadsTempl, readsRepl);
         }
         else {
-            readsCode = "return Base::read(iter, len);\n";
+            readsCode = "return Base::doRead(iter, len);\n";
         }
 
         if (readCond.empty() && readsCode.empty()) {
