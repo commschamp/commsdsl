@@ -35,8 +35,6 @@ commsdsl_add_chunk_tests(COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK3 50 74)
 
 message(STATUS "Building following commsdsl2tools_qt tests: ${tests}")
 
-file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
-
 add_custom_target(${APP_NAME}.all_tests
     COMMAND ${CMAKE_COMMAND} -E echo "All ${APP_NAME} tests are built")
 
