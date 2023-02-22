@@ -1135,7 +1135,7 @@ bool MessageImpl::updateSingleConstruct()
 bool MessageImpl::updateMultiConstruct()
 {
     auto& prop = common::constructStr();
-    auto constructNodes = XmlWrap::getChildren(m_node, prop);
+    auto constructNodes = XmlWrap::getChildren(m_node, prop, true);
     if (constructNodes.empty()) {
         return true;
     }
@@ -1227,7 +1227,7 @@ bool MessageImpl::updateSingleReadCond()
 bool MessageImpl::updateMultiReadCond()
 {
     auto& prop = common::readCondStr();
-    auto readCondNodes = XmlWrap::getChildren(m_node, prop);
+    auto readCondNodes = XmlWrap::getChildren(m_node, prop, true);
     if (readCondNodes.empty()) {
         return true;
     }
