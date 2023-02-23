@@ -96,6 +96,37 @@ const CommsField* findInterfaceFieldInternal(const commsdsl::gen::Generator& gen
     return nullptr;
 }
 
+bool hasInterfaceReferenceInternal(const commsdsl::parse::OptCond& cond)
+{
+    if (cond.kind() == commsdsl::parse::OptCond::Kind::Expr) {
+        commsdsl::parse::OptCondExpr exprCond(cond);
+        auto& left = exprCond.left();
+        auto& right = exprCond.right();
+
+        return 
+            ((!left.empty()) && (left[0] == strings::interfaceFieldRefPrefix())) ||
+            ((!right.empty()) && (right[0] == strings::interfaceFieldRefPrefix()));
+    }
+
+    if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
+        static constexpr bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return false;
+    }    
+
+    commsdsl::parse::OptCondList listCond(cond);
+    auto conditions = listCond.conditions();
+
+    return 
+        std::any_of(
+            conditions.begin(), conditions.end(),
+            [](auto& c)
+            {
+                return hasInterfaceReferenceInternal(c);
+            });
+}
+
 } // namespace 
     
 
@@ -295,7 +326,11 @@ std::string CommsOptionalField::commsDslCondToString(
 
 bool CommsOptionalField::prepareImpl()
 {
-    bool result = Base::prepareImpl() && commsPrepare();
+    bool result = 
+        Base::prepareImpl() && 
+        commsPrepare() &&
+        commsCheckCondSupportedInternal();
+
     if (result) {
         m_commsExternalField = dynamic_cast<CommsField*>(externalField());
         m_commsMemberField = dynamic_cast<CommsField*>(memberField());
@@ -456,6 +491,25 @@ void CommsOptionalField::commsCompOptChecksImpl(const std::string& accStr, Strin
 
     assert(m_commsMemberField != nullptr);
     m_commsMemberField->commsCompOptChecks(accStr, checks, prefix + ".field()");   
+}
+
+bool CommsOptionalField::commsCheckCondSupportedInternal() const
+{
+    auto obj = optionalDslObj();
+    auto cond = obj.cond();
+
+    if ((!cond.valid()) || (comms::isMessageShallowMemberField(*this))) {
+        return true;
+    }    
+
+    if (hasInterfaceReferenceInternal(cond)) {
+        generator().logger().error(
+            "Referencing interface member fields from within " + comms::scopeFor(*this, generator()) + 
+            " is not supported, only direct member fields of the message can use such conditions.");
+        return false;
+    }
+
+    return true;
 }
 
 std::string CommsOptionalField::commsDefFieldRefInternal() const

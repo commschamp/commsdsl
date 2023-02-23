@@ -85,7 +85,7 @@ std::string SwigField::swigRelHeaderPath() const
 
 bool SwigField::swigIsVersionOptional() const
 {
-    return comms::isVersionOptionaField(m_field, m_field.generator());
+    return comms::isVersionOptionalField(m_field, m_field.generator());
 }
 
 std::string SwigField::swigClassDecl() const

@@ -56,6 +56,7 @@ protected:
     virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
 
 private:
+    bool commsCheckCondSupportedInternal() const;
     std::string commsDefFieldRefInternal() const;
     std::string commsDefFieldOptsInternal() const;
 

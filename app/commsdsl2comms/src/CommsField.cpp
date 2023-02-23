@@ -361,7 +361,7 @@ bool CommsField::commsVerifyInnerRef(const std::string refStr) const
 
 bool CommsField::commsIsVersionOptional() const
 {
-    return comms::isVersionOptionaField(m_field, m_field.generator());
+    return comms::isVersionOptionalField(m_field, m_field.generator());
 }
 
 std::string CommsField::commsDefaultOptions() const
