@@ -17,11 +17,8 @@
 
 #include <cassert>
 #include <algorithm>
-#include <iostream>
 
 #include "ProtocolImpl.h"
-
-#include <iostream> // TODO: remove
 
 namespace commsdsl
 {

@@ -30,8 +30,6 @@
 #include "common.h"
 #include "util.h"
 
-//#include <iostream>
-
 namespace commsdsl
 {
 

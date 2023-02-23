@@ -15,15 +15,15 @@
 
 #include "ProtocolImpl.h"
 
-#include <iostream>
-#include <type_traits>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <iostream>
 #include <numeric>
+#include <type_traits>
 
-#include "XmlWrap.h"
-#include "FieldImpl.h"
 #include "EnumFieldImpl.h"
+#include "FieldImpl.h"
+#include "XmlWrap.h"
 
 namespace commsdsl
 {
