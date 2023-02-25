@@ -10,6 +10,7 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
 
     class Handler;
 
@@ -26,6 +27,8 @@ public:
     using Msg1 = test38::message::M1<Interface>;
     using Msg2 = test38::message::M2<Interface>;
     using Msg3 = test38::message::M3<Interface>;
+    using Msg4 = test38::message::M4<Interface>;
+    using Msg5 = test38::message::M5<Interface>;
     using Frame = test38::frame::Frame<Interface>;
 
     class Handler
@@ -145,3 +148,13 @@ void TestSuite::test3()
     TS_ASSERT(!msg.doValid());
     TS_ASSERT(!msg.valid());
 }
+
+void TestSuite::test4()
+{
+    Msg5 msg;
+    TS_ASSERT(msg.transportField_flags().field_b().getBitValue_B1());
+    TS_ASSERT(!msg.doValid());
+    msg.field_f1().value() = 1U;
+    TS_ASSERT(msg.valid());
+}
+

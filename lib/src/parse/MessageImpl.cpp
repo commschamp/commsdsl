@@ -1144,12 +1144,12 @@ bool MessageImpl::updateMultiReadCond()
 
 bool MessageImpl::updateSingleValidCond()
 {
-    return updateSingleCondInternal(common::validCondStr(), m_validCond);
+    return updateSingleCondInternal(common::validCondStr(), m_validCond, true);
 }
 
 bool MessageImpl::updateMultiValidCond()
 {
-    return updateMultiCondInternal(common::validCondStr(), m_validCond);
+    return updateMultiCondInternal(common::validCondStr(), m_validCond, true);
 }
 
 bool MessageImpl::copyConstructToReadCond()
@@ -1187,7 +1187,7 @@ bool MessageImpl::updateExtraChildren()
     return true;
 }
 
-bool MessageImpl::updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond)
+bool MessageImpl::updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond, bool allowFieldsAccess)
 {
     if (!validateSinglePropInstance(prop)) {
         return false;
@@ -1216,7 +1216,13 @@ bool MessageImpl::updateSingleCondInternal(const std::string& prop, OptCondImplP
         return false;
     }
 
-    if (!newCond->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
+    static const OptCondImpl::FieldsList NoFields;
+    auto* fieldsPtr = &NoFields;
+    if (allowFieldsAccess) {
+        fieldsPtr = &m_fields;
+    }    
+
+    if (!newCond->verify(*fieldsPtr, m_node, m_protocol)) {
         return false;
     }   
 
@@ -1224,7 +1230,7 @@ bool MessageImpl::updateSingleCondInternal(const std::string& prop, OptCondImplP
     return true; 
 }
 
-bool MessageImpl::updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond)
+bool MessageImpl::updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond, bool allowFieldsAccess)
 {
     auto condNodes = XmlWrap::getChildren(m_node, prop, true);
     if (condNodes.empty()) {
@@ -1268,7 +1274,13 @@ bool MessageImpl::updateMultiCondInternal(const std::string& prop, OptCondImplPt
         return false;
     }
 
-    if (!newCond->verify(OptCondImpl::FieldsList(), condChildren.front(), m_protocol)) {
+    static const OptCondImpl::FieldsList NoFields;
+    auto* fieldsPtr = &NoFields;
+    if (allowFieldsAccess) {
+        fieldsPtr = &m_fields;
+    }
+
+    if (!newCond->verify(*fieldsPtr, condChildren.front(), m_protocol)) {
         return false;
     }    
 

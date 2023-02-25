@@ -219,8 +219,8 @@ private:
     bool updateExtraAttrs();
     bool updateExtraChildren();
 
-    bool updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond);
-    bool updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond);
+    bool updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond, bool allowFieldsAccess = false);
+    bool updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond, bool allowFieldsAccess = false);
     bool copyCondInternal(
         const std::string& copyProp,
         const std::string& fromProp, 

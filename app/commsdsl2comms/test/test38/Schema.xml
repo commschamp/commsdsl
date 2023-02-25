@@ -8,6 +8,7 @@
             <validValue name="M3" val="3" />
             <validValue name="M4" val="4" />
             <validValue name="M5" val="5" />
+            <validValue name="M6" val="6" />
         </enum>
         <int name="Length" type="uint16" />
         <string name="String" lengthPrefix="Length" />
@@ -96,5 +97,21 @@
             </and>
         </construct>
     </message>    
+
+    <message name="M5" id="MsgId.M5" construct="%Flags.B.B1">
+        <fields>
+            <int name="F1" type="uint8" />
+            <int name="F2" type="uint8" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.B.B1" />
+                <or>
+                    <validCond value="$F1 = 1" />
+                    <validCond value="$F2 = 2" />
+                </or>
+            </and>
+        </validCond>
+    </message>     
 
 </schema>

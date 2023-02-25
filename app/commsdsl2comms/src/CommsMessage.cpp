@@ -1418,7 +1418,7 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
 
     auto& gen = CommsGenerator::cast(generator());
     auto str = 
-        CommsOptionalField::commsDslCondToString(gen, CommsFieldsList(), cond, true);
+        CommsOptionalField::commsDslCondToString(gen, m_commsFields, cond, true);
 
     if (str.empty()) {
         return strings::emptyString();

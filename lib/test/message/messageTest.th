@@ -37,6 +37,7 @@ public:
     void test28();
     void test29();
     void test30();
+    void test31();
 };
 
 void MessageTestSuite::setUp()
@@ -644,4 +645,24 @@ void MessageTestSuite::test30()
     TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
     auto msg1ReadCond = msg1.readCond();
     TS_ASSERT_EQUALS(msg1ReadCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+}
+
+
+void MessageTestSuite::test31()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& msg1 = messages[0];
+    auto msg1ValidCond = msg1.validCond();
+    TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::List);
 }
