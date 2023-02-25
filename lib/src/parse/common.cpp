@@ -860,9 +860,21 @@ const std::string& readCondStr()
     return Str;    
 }
 
+const std::string& validCondStr()
+{
+    static const std::string Str("validCond");
+    return Str;    
+}
+
 const std::string& constructAsReadCondStr()
 {
     static const std::string Str("constructAsReadCond");
+    return Str;       
+}
+
+const std::string& constructAsValidCondStr()
+{
+    static const std::string Str("constructAsValidCond");
     return Str;       
 }
 

@@ -79,6 +79,7 @@ public:
     const std::string& copyCodeFrom() const;
     OptCond construct() const;
     OptCond readCond() const;
+    OptCond validCond() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

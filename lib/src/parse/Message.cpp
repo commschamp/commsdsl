@@ -172,12 +172,20 @@ const std::string& Message::copyCodeFrom() const
 
 OptCond Message::construct() const
 {
+    assert(m_pImpl != nullptr);
     return m_pImpl->construct();
 }
 
 OptCond Message::readCond() const
 {
+    assert(m_pImpl != nullptr);
     return m_pImpl->readCond();
+}
+
+OptCond Message::validCond() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->validCond();
 }
 
 const Message::AttributesMap& Message::extraAttributes() const

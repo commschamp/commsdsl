@@ -122,7 +122,10 @@ bool MessageImpl::parse()
         updateMultiConstruct() && 
         updateSingleReadCond() &&
         updateMultiReadCond() && 
+        updateSingleValidCond() &&
+        updateMultiValidCond() &&         
         copyConstructToReadCond() &&
+        copyConstructToValidCond() &&
         updateExtraAttrs() &&
         updateExtraChildren();
 }
@@ -327,6 +330,7 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::nameOverrideStr(),
         common::copyCodeFromStr(),
         common::constructAsReadCondStr(),
+        common::constructAsValidCondStr(),
     };
 
     return CommonNames;
@@ -337,6 +341,7 @@ const XmlWrap::NamesList& MessageImpl::extraProps()
     static const XmlWrap::NamesList Names = {
         common::constructStr(),
         common::readCondStr(),
+        common::validCondStr(),
     };
 
     return Names;
@@ -356,11 +361,9 @@ const XmlWrap::NamesList& MessageImpl::allProps()
 
 XmlWrap::NamesList MessageImpl::allNames()
 {
-    auto names = commonProps();
+    auto names = allProps();
     auto& fieldTypes = messageSupportedTypes();
-    auto& extras = extraProps();
     names.insert(names.end(), fieldTypes.begin(), fieldTypes.end());
-    names.insert(names.end(), extras.begin(), extras.end());
 
     names.push_back(common::fieldsStr());
     names.push_back(common::aliasStr());
@@ -1090,105 +1093,102 @@ bool MessageImpl::updateCopyOverrideCodeFrom()
 
 bool MessageImpl::updateSingleConstruct()
 {
-    auto& prop = common::constructStr();
-    if (!validateSinglePropInstance(prop)) {
+    if (!updateSingleCondInternal(common::constructStr(), m_construct)) {
         return false;
     }
 
-    auto iter = m_props.find(prop);
-    if (iter == m_props.end()) {
+    if (!m_construct) {
         return true;
     }
 
-    if (!m_protocol.isPropertySupported(prop)) {
-        logWarning() << XmlWrap::logPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
-        return true;
-    }       
-
-    if (m_construct) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-            "Only single \"" << prop << "\" property is supported";
-        return false;
-    }
-
-    auto newConstruct = std::make_unique<OptCondExprImpl>();
-    if (!newConstruct->parse(iter->second, m_node, m_protocol)) {
-        return false;
-    }
-
-    if (!newConstruct->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
-        return false;
-    }    
-
-    if (!verifyConstructInternal(OptCond(newConstruct.get()))) {
+    if (!verifyConstructInternal(OptCond(m_construct.get()))) {
+        m_construct.reset();
         logError() << XmlWrap::logPrefix(m_node) <<
             "Only bit checks and equality comparisons are supported in the \"" << common::constructStr() << "\" property.";
         return false;
     }
 
-    m_construct = std::move(newConstruct);
     return true;
 }
 
 bool MessageImpl::updateMultiConstruct()
 {
-    auto& prop = common::constructStr();
-    auto constructNodes = XmlWrap::getChildren(m_node, prop, true);
-    if (constructNodes.empty()) {
+    if (!updateMultiCondInternal(common::constructStr(), m_construct)) {
+        return false;
+    }
+
+    if (!m_construct) {
         return true;
     }
 
-    if (!m_protocol.isPropertySupported(prop)) {
-        logWarning() << XmlWrap::logPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
-                m_protocol.currSchema().dslVersion() << ".";        
-        return true;
-    }       
-
-    if (constructNodes.size() > 1U) {
+    if (!verifyConstructInternal(OptCond(m_construct.get()))) {
+        m_construct.reset();
         logError() << XmlWrap::logPrefix(m_node) <<
-            "Cannot use more that one child to the \"" << prop << "\" element.";        
-        return false;
-    }
-
-    auto constructChildren = XmlWrap::getChildren(constructNodes.front(), common::andStr());
-    if (constructChildren.size() != constructNodes.size()) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-            "Only single \"" << common::andStr() << "\" child of the \"" << prop << "\" element is supported.";           
+            "Only \"" << common::andStr() <<  
+            "\" of the bit checks and equality comparisons are supported in the \"" << common::constructStr() << "\" element.";
         return false;
     }    
 
-    if (m_construct) {
-        logError() << XmlWrap::logPrefix(constructNodes.front()) <<
-            "Only single \"" << prop << "\" property is supported";
-        return false;
-    }
-
-    auto newConstruct = std::make_unique<OptCondListImpl>();
-    newConstruct->overrideCondStr(prop);
-    if (!newConstruct->parse(constructChildren.front(), m_protocol)) {
-        return false;
-    }
-
-    if (!newConstruct->verify(OptCondImpl::FieldsList(), constructChildren.front(), m_protocol)) {
-        return false;
-    }    
-
-    if (!verifyConstructInternal(OptCond(newConstruct.get()))) {
-        logError() << XmlWrap::logPrefix(constructChildren.front()) <<
-            "Only \"" << common::andStr() <<  "\" of the bit checks and equality comparisons are supported in the \"" << prop << "\" element.";
-        return false;
-    }    
-
-    m_construct = std::move(newConstruct);
     return true;
 }
 
 bool MessageImpl::updateSingleReadCond()
 {
-    auto& prop = common::readCondStr();
+    return updateSingleCondInternal(common::readCondStr(), m_readCond);
+}
+
+bool MessageImpl::updateMultiReadCond()
+{
+    return updateMultiCondInternal(common::readCondStr(), m_readCond);
+}
+
+bool MessageImpl::updateSingleValidCond()
+{
+    return updateSingleCondInternal(common::validCondStr(), m_validCond);
+}
+
+bool MessageImpl::updateMultiValidCond()
+{
+    return updateMultiCondInternal(common::validCondStr(), m_validCond);
+}
+
+bool MessageImpl::copyConstructToReadCond()
+{
+    return 
+        copyCondInternal(
+            common::constructAsReadCondStr(),
+            common::constructStr(),
+            m_construct,
+            common::readCondStr(),
+            m_readCond);
+}
+
+bool MessageImpl::copyConstructToValidCond()
+{
+    return 
+        copyCondInternal(
+            common::constructAsValidCondStr(),
+            common::constructStr(),
+            m_construct,
+            common::validCondStr(),
+            m_validCond);
+}
+
+bool MessageImpl::updateExtraAttrs()
+{
+    m_extraAttrs = XmlWrap::getExtraAttributes(m_node, allProps(), m_protocol);
+    return true;
+}
+
+bool MessageImpl::updateExtraChildren()
+{
+    static const XmlWrap::NamesList ChildrenNames = allNames();
+    m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
+    return true;
+}
+
+bool MessageImpl::updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond)
+{
     if (!validateSinglePropInstance(prop)) {
         return false;
     }
@@ -1205,30 +1205,29 @@ bool MessageImpl::updateSingleReadCond()
         return true;
     }          
 
-    if (m_readCond) {
+    if (cond) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Only single \"" << prop << "\" property is supported";
         return false;
     }
 
-    auto newReadCond = std::make_unique<OptCondExprImpl>();
-    if (!newReadCond->parse(iter->second, m_node, m_protocol)) {
+    auto newCond = std::make_unique<OptCondExprImpl>();
+    if (!newCond->parse(iter->second, m_node, m_protocol)) {
         return false;
     }
 
-    if (!newReadCond->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
+    if (!newCond->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
         return false;
-    }    
+    }   
 
-    m_readCond = std::move(newReadCond);
-    return true;
+    cond = std::move(newCond);
+    return true; 
 }
 
-bool MessageImpl::updateMultiReadCond()
+bool MessageImpl::updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond)
 {
-    auto& prop = common::readCondStr();
-    auto readCondNodes = XmlWrap::getChildren(m_node, prop, true);
-    if (readCondNodes.empty()) {
+    auto condNodes = XmlWrap::getChildren(m_node, prop, true);
+    if (condNodes.empty()) {
         return true;
     }
 
@@ -1239,7 +1238,7 @@ bool MessageImpl::updateMultiReadCond()
         return true;
     }      
 
-    if (readCondNodes.size() > 1U) {
+    if (condNodes.size() > 1U) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Cannot use more that one child to the \"" << prop << "\" element.";        
         return false;
@@ -1250,92 +1249,82 @@ bool MessageImpl::updateMultiReadCond()
         common::orStr()
     };
 
-    auto readCondChildren = XmlWrap::getChildren(readCondNodes.front(), ElemNames);
-    if (readCondChildren.size() != readCondNodes.size()) {
+    auto condChildren = XmlWrap::getChildren(condNodes.front(), ElemNames);
+    if (condChildren.size() != condNodes.size()) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Only single \"" << common::andStr() << "\" or \"" << common::orStr() << "\" child of the \"" << prop << "\" element is supported.";           
         return false;
     }    
 
-    if (m_readCond) {
-        logError() << XmlWrap::logPrefix(readCondNodes.front()) <<
+    if (cond) {
+        logError() << XmlWrap::logPrefix(condNodes.front()) <<
             "Only single \"" << prop << "\" property is supported";
         return false;
     }
 
-    auto newReadCond = std::make_unique<OptCondListImpl>();
-    newReadCond->overrideCondStr(prop);
-    if (!newReadCond->parse(readCondChildren.front(), m_protocol)) {
+    auto newCond = std::make_unique<OptCondListImpl>();
+    newCond->overrideCondStr(prop);
+    if (!newCond->parse(condChildren.front(), m_protocol)) {
         return false;
     }
 
-    if (!newReadCond->verify(OptCondImpl::FieldsList(), readCondChildren.front(), m_protocol)) {
+    if (!newCond->verify(OptCondImpl::FieldsList(), condChildren.front(), m_protocol)) {
         return false;
     }    
 
-    m_readCond = std::move(newReadCond);
+    cond = std::move(newCond);
     return true;
 }
 
-bool MessageImpl::copyConstructToReadCond()
+bool MessageImpl::copyCondInternal(
+    const std::string& copyProp,
+    const std::string& fromProp, 
+    const OptCondImplPtr& fromCond, 
+    const std::string& toProp, 
+    OptCondImplPtr& toCond)
 {
-    auto& prop = common::constructAsReadCondStr();
-    if (!validateSinglePropInstance(prop)) {
+    if (!validateSinglePropInstance(copyProp)) {
         return false;
     }
 
-    auto iter = m_props.find(prop);
+    auto iter = m_props.find(copyProp);
     if (iter == m_props.end()) {
         return true;
     }    
 
-    if (!m_protocol.isPropertySupported(prop)) {
+    if (!m_protocol.isPropertySupported(copyProp)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
-            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+            "The property \"" << copyProp << "\" is not supported for dslVersion=" << 
                 m_protocol.currSchema().dslVersion() << ".";        
         return true;
     }      
 
     bool ok = false;
-    bool copyConstruct = common::strToBool(iter->second, &ok);
+    bool copyRequested = common::strToBool(iter->second, &ok);
     if (!ok) {
-        reportUnexpectedPropertyValue(prop, iter->second);
+        reportUnexpectedPropertyValue(copyProp, iter->second);
         return false;
     }
 
-    if (!copyConstruct) {
+    if (!copyRequested) {
         return true;
     }
 
-    if (!m_construct) {
+    if (!fromCond) {
         logError() << XmlWrap::logPrefix(m_node) <<
-            "No \"" << common::constructStr() << "\" conditions were defined to copy.";           
+            "No \"" << fromProp << "\" conditions were defined to copy.";           
         return false;            
     }
 
-    if (m_readCond) {
+    if (toCond) {
         logError() << XmlWrap::logPrefix(m_node) <<
-            "Set of the \"" << prop << "\" property overrides existing \"" << prop << "\" setting.";          
+            "Set of the \"" << copyProp << "\" property overrides existing \"" << toProp << "\" setting.";          
         return false;
     }
 
-    m_readCond = m_construct->clone();
+    toCond = fromCond->clone();
     return true;    
 }
-
-bool MessageImpl::updateExtraAttrs()
-{
-    m_extraAttrs = XmlWrap::getExtraAttributes(m_node, allProps(), m_protocol);
-    return true;
-}
-
-bool MessageImpl::updateExtraChildren()
-{
-    static const XmlWrap::NamesList ChildrenNames = allNames();
-    m_extraChildren = XmlWrap::getExtraChildren(m_node, ChildrenNames, m_protocol);
-    return true;
-}
-
 
 } // namespace parse
 

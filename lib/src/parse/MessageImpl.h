@@ -157,7 +157,12 @@ public:
     OptCond readCond() const
     {
         return OptCond(m_readCond.get());
-    }    
+    }  
+
+    OptCond validCond() const
+    {
+        return OptCond(m_validCond.get());
+    }          
 
 protected:
     virtual ObjKind objKindImpl() const override;
@@ -207,9 +212,21 @@ private:
     bool updateMultiConstruct();
     bool updateSingleReadCond();
     bool updateMultiReadCond();
+    bool updateSingleValidCond();
+    bool updateMultiValidCond();    
     bool copyConstructToReadCond();
+    bool copyConstructToValidCond();
     bool updateExtraAttrs();
     bool updateExtraChildren();
+
+    bool updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond);
+    bool updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond);
+    bool copyCondInternal(
+        const std::string& copyProp,
+        const std::string& fromProp, 
+        const OptCondImplPtr& fromCond, 
+        const std::string& toProp, 
+        OptCondImplPtr& toCond);
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
@@ -238,6 +255,7 @@ private:
     std::string m_copyCodeFrom;
     OptCondImplPtr m_construct;
     OptCondImplPtr m_readCond;
+    OptCondImplPtr m_validCond;
     bool m_customizable = false;
 };
 
