@@ -77,7 +77,7 @@
         </optional>            
     </message>
 
-    <message name="M3" id="MsgId.M3" constructAsReadCond="true">
+    <message name="M3" id="MsgId.M3" constructAsReadCond="true" constructAsValidCond="true">
         <construct>
             <and>
                 <construct value="%Flags.B.B0" />
@@ -87,7 +87,7 @@
         </construct>
     </message>
 
-    <message name="M4" id="MsgId.M4">
+    <message name="M4" id="MsgId.M4" constructAsValidCond="true">
         <construct>
             <and>
                 <construct value="!%Flags.B.B0" />

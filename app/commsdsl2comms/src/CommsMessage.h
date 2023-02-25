@@ -112,10 +112,12 @@ private:
         ExtraMessageOptsFunc extraMessageOptsFunc,
         bool hasBase) const;
     std::string commsDefReadConditionsCodeInternal() const;
+    std::string commsDefOrigValidCodeInternal() const;
+    std::string commsDefValidFuncInternal() const;
 
     StringsList commsClientExtraCustomizationOptionsInternal() const;
     StringsList commsServerExtraCustomizationOptionsInternal() const;
-    void prepareConstructCodeInternal();
+    void commsPrepareConstructCodeInternal();
 
     CommsFieldsList m_commsFields;  
     commsdsl::gen::util::StringsList m_bundledReadPrepareCodes;

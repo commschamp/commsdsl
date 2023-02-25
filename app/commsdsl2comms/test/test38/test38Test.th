@@ -19,6 +19,7 @@ public:
             comms::option::app::ReadIterator<const std::uint8_t*>,
             comms::option::app::WriteIterator<std::uint8_t*>,
             comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
             comms::option::app::Handler<Handler>
         >;
 
@@ -138,4 +139,9 @@ void TestSuite::test3()
     TS_ASSERT(msg.transportField_flags().field_b().getBitValue_B0());
     TS_ASSERT(!msg.transportField_flags().field_b().getBitValue_B1());
     TS_ASSERT(msg.transportField_flags().field_e().getValue() == Msg3::TransportField_flags::Field_e::ValueType::V2);
+    TS_ASSERT(msg.doValid());
+
+    msg.transportField_flags().field_b().setBitValue_B1(true);
+    TS_ASSERT(!msg.doValid());
+    TS_ASSERT(!msg.valid());
 }

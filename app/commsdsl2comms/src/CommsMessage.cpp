@@ -273,7 +273,7 @@ bool CommsMessage::prepareImpl()
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
     }  
 
-    prepareConstructCodeInternal();
+    commsPrepareConstructCodeInternal();
     return true;
 }
 
@@ -753,7 +753,7 @@ std::string CommsMessage::commsDefPublicInternal() const
         {"READ", commsDefReadFuncInternal()},
         {"WRITE", m_customCode.m_write},
         {"LENGTH", m_customCode.m_length},
-        {"VALID", m_customCode.m_valid},
+        {"VALID", commsDefValidFuncInternal()},
         {"REFRESH", commsDefRefreshFuncInternal()},
     };
 
@@ -1403,6 +1403,72 @@ std::string CommsMessage::commsDefReadConditionsCodeInternal() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string CommsMessage::commsDefOrigValidCodeInternal() const
+{
+    auto obj = dslObj();
+
+    if ((!m_customCode.m_valid.empty()) && (!hasOrigCode(obj.validOverride()))) {
+        return strings::emptyString();
+    }
+
+    auto cond = obj.validCond();
+    if (!cond.valid()) {
+        return strings::emptyString();
+    }
+
+    auto& gen = CommsGenerator::cast(generator());
+    auto str = 
+        CommsOptionalField::commsDslCondToString(gen, CommsFieldsList(), cond, true);
+
+    if (str.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "// Generated valididity check functionality\n"
+        "bool doValid#^#SUFFIX#$#() const\n"
+        "{\n"
+        "    if (!Base::doValid()) {\n"
+        "        return false;\n"
+        "    }\n\n"
+        "    return\n"
+        "        #^#CODE#$#;\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CODE", std::move(str)},
+    };
+
+    if (!m_customCode.m_valid.empty()) {
+        repl["SUFFIX"] = strings::origSuffixStr();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsDefValidFuncInternal() const
+{
+    auto orig = commsDefOrigValidCodeInternal();
+    if (m_customCode.m_valid.empty()) {
+        return orig;
+    }
+
+    if (orig.empty()) {
+        return m_customCode.m_valid;
+    }
+
+    static const std::string Templ = 
+        "#^#ORIG#$#\n"
+        "#^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl = {
+        {"ORIG", std::move(orig)},
+        {"CUSTOM", m_customCode.m_valid}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInternal() const
 {
     auto sender = dslObj().sender();
@@ -1445,7 +1511,7 @@ CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInte
     };
 }
 
-void CommsMessage::prepareConstructCodeInternal()
+void CommsMessage::commsPrepareConstructCodeInternal()
 {
     auto cond = dslObj().construct();
     if (!cond.valid()) {
