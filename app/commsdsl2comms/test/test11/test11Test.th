@@ -14,6 +14,7 @@ public:
     void test4();
     void test5();
     void test6();
+    void test7();
 
     using Interface =
         test11::Message<
@@ -32,6 +33,7 @@ public:
     using Msg4 = test11::message::Msg4<Interface>;
     using Msg5 = test11::message::Msg5<Interface>;
     using Msg6 = test11::message::Msg6<Interface>;
+    using Msg7 = test11::message::Msg7<Interface>;
     using Frame = test11::frame::Frame<Interface>;
 };
 
@@ -277,3 +279,11 @@ void TestSuite::test6()
     } while (false);     
 }
 
+void TestSuite::test7()
+{
+    Msg7 msg;
+    TS_ASSERT(msg.field_f2().doesExist());
+    msg.field_f1().setBitValue_B0(true);
+    msg.doRefresh();
+    TS_ASSERT(msg.field_f2().isMissing());
+}

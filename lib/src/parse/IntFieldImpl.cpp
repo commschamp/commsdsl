@@ -1616,28 +1616,28 @@ bool IntFieldImpl::strToValue(
     }
 
     if (common::isValidRefName(str)) {
-         bool bigUnsigned = false;
-         if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
-             return false;
-         }
+        bool bigUnsigned = false;
+        if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
+            return false;
+        }
 
-         if ((!bigUnsigned) && (val < 0) && (isUnsigned(m_state.m_type))) {
-             logError() << XmlWrap::logPrefix(getNode()) <<
-                 "Cannot assign negative value (" << val << " references as " <<
-                str << ") to field with positive type.";
-             return false;
-         }
+        if ((!bigUnsigned) && (val < 0) && (isUnsigned(m_state.m_type))) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot assign negative value (" << val << " references as " <<
+            str << ") to field with positive type.";
+            return false;
+        }
 
-         if (bigUnsigned && (!isBigUnsigned(m_state.m_type))) {
-             logError() << XmlWrap::logPrefix(getNode()) <<
-                "Cannot assign such big positive number (" <<
-                static_cast<std::uintmax_t>(val) << " referenced as " <<
-                str << ").";
-             return false;
+        if (bigUnsigned && (!isBigUnsigned(m_state.m_type))) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot assign such big positive number (" <<
+            static_cast<std::uintmax_t>(val) << " referenced as " <<
+            str << ").";
+            return false;
 
-         }
-         return true;
-     }
+        }
+        return true;
+    }
 
     bool ok = false;
     if (isBigUnsigned(m_state.m_type)) {

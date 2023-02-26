@@ -141,6 +141,42 @@ std::size_t SetFieldImpl::bitLengthImpl() const
     return Base::bitLengthImpl();
 }
 
+bool SetFieldImpl::isComparableToValueImpl(const std::string& val) const
+{
+    if (common::isValidRefName(val)) {
+        bool bigUnsigned = false;
+        std::intmax_t valTmp = 0;
+        if (!protocol().strToNumeric(val, false, valTmp, bigUnsigned)) {
+            return false;
+        }
+
+        if ((!bigUnsigned) && (valTmp < 0)) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot compare negative value (" << valTmp << " referenced as " <<
+            val << ").";
+            return false;
+        }
+
+        return true;
+    }
+
+    bool ok = false;
+    auto valTmp = common::strToIntMax(val, &ok);
+    if (ok && (valTmp < 0)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot compare to negative number " << valTmp << ".";        
+        return false;
+    }
+
+    return ok;    
+}
+
+bool SetFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
+{
+    auto fieldKind = field.kind();
+    return (fieldKind == Kind::Set);    
+}
+
 bool SetFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
 {
     if (!protocol().isFieldValueReferenceSupported()) {
