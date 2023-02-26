@@ -1425,7 +1425,7 @@ std::string CommsMessage::commsDefOrigValidCodeInternal() const
     }
 
     static const std::string Templ = 
-        "// Generated valididity check functionality\n"
+        "// Generated validity check functionality\n"
         "bool doValid#^#SUFFIX#$#() const\n"
         "{\n"
         "    if (!Base::doValid()) {\n"
