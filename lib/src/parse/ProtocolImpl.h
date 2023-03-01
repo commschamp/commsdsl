@@ -113,6 +113,7 @@ public:
     bool isMemberReplaceSupported() const;
     bool isMultiSchemaSupported() const;
     bool isInterfaceFieldReferenceSupported() const;
+    bool isFailOnInvalidInMessageSupported() const;
 
     void setMultipleSchemasEnabled(bool value)
     {

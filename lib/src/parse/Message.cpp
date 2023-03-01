@@ -122,6 +122,12 @@ bool Message::isCustomizable() const
     return m_pImpl->isCustomizable();
 }
 
+bool Message::isFailOnInvalid() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isFailOnInvalid();
+}
+
 Message::Sender Message::sender() const
 {
     assert(m_pImpl != nullptr);

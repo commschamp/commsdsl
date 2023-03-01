@@ -722,6 +722,11 @@ std::string CommsMessage::commsDefExtraOptionsInternal() const
         util::addToStrList("comms::option::def::HasCustomRefresh", opts);
     }
 
+    auto obj = dslObj();
+    if (obj.isFailOnInvalid()) {
+        util::addToStrList("comms::option::def::FailOnInvalid<>", opts);
+    }
+
     return util::strListToString(opts, ",\n", "");    
 }
 
@@ -1101,12 +1106,29 @@ std::string CommsMessage::commsDefReadFuncInternal() const
                 "do {\n"
                 "    #^#READS#$#\n"
                 "} while (false);\n"
+                "#^#FAIL_ON_INVALID#$#\n"
                 "return es;\n";
 
             util::ReplacementMap readsRepl = {
                 {"READS", util::strListToString(reads, "\n", "")},
                 {"UPDATE_VERSION", generator().schemaOf(*this).versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
             };                
+
+            if (dslObj().isFailOnInvalid()) {
+                static const std::string FailOnInvalidTempl = 
+                    "if (!#^#VALID_PREFIX#$#doValid()) {\n"
+                    "    es = comms::ErrorStatus::InvalidMsgData;\n"
+                    "}\n";
+
+                util::ReplacementMap failOnInvalidRepl;
+
+                bool hasGeneratedValid = commsDefValidFuncInternal().empty();
+                if (hasGeneratedValid) {
+                    failOnInvalidRepl["VALID_PREFIX"] = "Base::";
+                }
+
+                readsRepl["FAIL_ON_INVALID"] = util::processTemplate(FailOnInvalidTempl, failOnInvalidRepl);
+            }
 
             readsCode = util::processTemplate(ReadsTempl, readsRepl);
         }

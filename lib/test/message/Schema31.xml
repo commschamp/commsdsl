@@ -20,7 +20,7 @@
         </bitfield>
     </interface>
 
-    <message name="Msg1" id="MsgId.Msg1" displayName="^Msg1Name">
+    <message name="Msg1" id="MsgId.Msg1" displayName="^Msg1Name" failOnInvalid="true">
         <fields>
             <int name="F1" type="uint8" />
             <int name="F2" type="uint8" />

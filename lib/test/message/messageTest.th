@@ -663,6 +663,7 @@ void MessageTestSuite::test31()
     TS_ASSERT_EQUALS(messages.size(), 1U);
 
     auto& msg1 = messages[0];
+    TS_ASSERT(msg1.isFailOnInvalid());
     auto msg1ValidCond = msg1.validCond();
     TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::List);
 }

@@ -109,6 +109,11 @@ public:
         return m_customizable;
     }
 
+    bool isFailOnInvalid() const
+    {
+        return m_failOnInvalid;
+    }       
+
     Sender sender() const
     {
         return m_sender;
@@ -181,6 +186,7 @@ private:
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false, bool allowDeref = false);
     bool validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value);
+    bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool updateName();
     bool updateDescription();
@@ -192,6 +198,7 @@ private:
     bool updateCustomizable();
     bool updateSender();
     bool updateValidateMinLength();
+    bool updateFailOnInvalid();
     bool copyFields();
     bool copyAliases();
     bool replaceFields();
@@ -257,6 +264,7 @@ private:
     OptCondImplPtr m_readCond;
     OptCondImplPtr m_validCond;
     bool m_customizable = false;
+    bool m_failOnInvalid = false;
 };
 
 using MessageImplPtr = MessageImpl::Ptr;

@@ -69,6 +69,7 @@ public:
     AliasesList aliases() const;
     std::string externalRef(bool schemaRef = true) const;
     bool isCustomizable() const;
+    bool isFailOnInvalid() const;
     Sender sender() const;
     OverrideType readOverride() const;
     OverrideType writeOverride() const;

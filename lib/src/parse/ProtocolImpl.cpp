@@ -362,6 +362,11 @@ bool ProtocolImpl::isInterfaceFieldReferenceSupported() const
     return isFeatureSupported(6U);
 }
 
+bool ProtocolImpl::isFailOnInvalidInMessageSupported() const
+{
+    return isFeatureSupported(6U);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);

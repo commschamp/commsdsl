@@ -11,6 +11,7 @@ public:
     void test2();
     void test3();
     void test4();
+    void test5();
 
     class Handler;
 
@@ -49,6 +50,16 @@ public:
             m_msg3.reset(new Msg3(msg));
         }
 
+        void handle(Msg4& msg)
+        {
+            m_msg4.reset(new Msg4(msg));
+        }      
+
+        void handle(Msg5& msg)
+        {
+            m_msg5.reset(new Msg5(msg));
+        }             
+
         void handle(Interface& msg)
         {
             static_cast<void>(msg);
@@ -74,12 +85,16 @@ public:
             m_msg1.reset();
             m_msg2.reset();
             m_msg3.reset();
+            m_msg4.reset();
+            m_msg5.reset();
         }
 
     private:
         std::unique_ptr<Msg1> m_msg1;
         std::unique_ptr<Msg2> m_msg2;
         std::unique_ptr<Msg3> m_msg3;
+        std::unique_ptr<Msg4> m_msg4;
+        std::unique_ptr<Msg5> m_msg5;
     };
 };
 
@@ -147,6 +162,18 @@ void TestSuite::test3()
     msg.transportField_flags().field_b().setBitValue_B1(true);
     TS_ASSERT(!msg.doValid());
     TS_ASSERT(!msg.valid());
+
+    Frame frame;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto* readIter = &outBuf[0];
+    es = comms::processSingle(readIter, outBuf.size(), frame, msgPtr);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);    
 }
 
 void TestSuite::test4()
@@ -157,4 +184,23 @@ void TestSuite::test4()
     msg.field_f1().value() = 1U;
     TS_ASSERT(msg.valid());
 }
+
+void TestSuite::test5()
+{
+    Msg5 msg;
+    TS_ASSERT(!msg.doValid());
+    Frame frame;
+
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto* readIter = &outBuf[0];
+    es = comms::processSingle(readIter, outBuf.size(), frame, msgPtr);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
+}
+
 

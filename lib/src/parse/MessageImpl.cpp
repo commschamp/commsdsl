@@ -106,6 +106,7 @@ bool MessageImpl::parse()
         updateCustomizable() &&
         updateSender() &&
         updateValidateMinLength() &&
+        updateFailOnInvalid() &&
         copyFields() &&
         replaceFields() &&
         updateFields() &&
@@ -300,6 +301,34 @@ bool MessageImpl::validateAndUpdateOverrideTypePropValue(const std::string& prop
     return true;
 }
 
+
+bool MessageImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
+{
+    if (!validateSinglePropInstance(propName, mustHave)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.isPropertySupported(propName)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.currSchema().dslVersion();                
+        return true;
+    }
+
+    bool ok = false;
+    value = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }
+
+    return true;
+}
+
 void MessageImpl::reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue)
 {
     XmlWrap::reportUnexpectedPropertyValue(m_node, common::messageStr(), propName, propValue, m_protocol.logger());
@@ -331,6 +360,7 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::copyCodeFromStr(),
         common::constructAsReadCondStr(),
         common::constructAsValidCondStr(),
+        common::failOnInvalidStr(),
     };
 
     return CommonNames;
@@ -587,23 +617,7 @@ bool MessageImpl::updatePlatforms()
 
 bool MessageImpl::updateCustomizable()
 {
-    auto& propStr = common::customizableStr();
-    if (!validateSinglePropInstance(propStr)) {
-        return false;
-    }
-
-    auto iter = m_props.find(propStr);
-    if (iter == m_props.end()) {
-        return true;
-    }
-
-    bool ok = false;
-    m_customizable = common::strToBool(iter->second, &ok);
-    if (!ok) {
-        reportUnexpectedPropertyValue(propStr, iter->second);
-        return false;
-    }
-    return true;
+    return validateAndUpdateBoolPropValue(common::customizableStr(), m_customizable);
 }
 
 bool MessageImpl::updateSender()
@@ -661,6 +675,23 @@ bool MessageImpl::updateValidateMinLength()
         reportUnexpectedPropertyValue(propStr, iter->second);
         return false;
     }    
+    return true;
+}
+
+bool MessageImpl::updateFailOnInvalid()
+{
+    auto& propStr = common::failOnInvalidStr();
+    if (!validateAndUpdateBoolPropValue(propStr, m_failOnInvalid)) {
+        return false;
+    }
+
+    if (m_failOnInvalid && (!m_protocol.isFailOnInvalidInMessageSupported())) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+        m_failOnInvalid = false;
+        return true;
+    }
+
     return true;
 }
 
