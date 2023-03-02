@@ -1105,7 +1105,7 @@ std::string CommsMessage::commsDefReadFuncInternal() const
                 "auto es = comms::ErrorStatus::Success;\n"
                 "do {\n"
                 "    #^#READS#$#\n"
-                "} while (false);\n"
+                "} while (false);\n\n"
                 "#^#FAIL_ON_INVALID#$#\n"
                 "return es;\n";
 

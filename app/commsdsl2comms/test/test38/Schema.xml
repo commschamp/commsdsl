@@ -112,6 +112,23 @@
                 </or>
             </and>
         </validCond>
-    </message>     
+    </message>   
+
+    <message name="M6" id="MsgId.M6" failOnInvalid="true" constructAsValidCond="true">
+        <fields>
+            <optional name="F1" defaultMode="exists" cond="%Flags.B.B0">
+                <int name="ActF1" type="uint8" />
+            </optional>
+            <optional name="F2" defaultMode="exists" cond="%Flags.B.B1">
+                <int name="ActF2" type="uint8" />
+            </optional>            
+        </fields>
+        <construct>
+            <and>
+                <construct value="%Flags.B.B0" />
+                <construct value="%Flags.B.B1" />
+            </and>
+        </construct>
+    </message>        
 
 </schema>

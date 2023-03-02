@@ -12,6 +12,7 @@ public:
     void test3();
     void test4();
     void test5();
+    void test6();
 
     class Handler;
 
@@ -30,6 +31,7 @@ public:
     using Msg3 = test38::message::M3<Interface>;
     using Msg4 = test38::message::M4<Interface>;
     using Msg5 = test38::message::M5<Interface>;
+    using Msg6 = test38::message::M6<Interface>;
     using Frame = test38::frame::Frame<Interface>;
 
     class Handler
@@ -203,4 +205,27 @@ void TestSuite::test5()
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
 }
 
+void TestSuite::test6()
+{
+    Msg6 msg;
+    TS_ASSERT(msg.doValid());
+
+    msg.transportField_flags().field_b().setBitValue_B0(false);
+    msg.doRefresh();
+    TS_ASSERT(!msg.doValid());
+
+
+    Frame frame;
+
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto* readIter = &outBuf[0];
+    es = comms::processSingle(readIter, outBuf.size(), frame, msgPtr);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
+}
 
