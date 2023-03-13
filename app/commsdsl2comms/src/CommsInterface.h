@@ -36,10 +36,18 @@ public:
     explicit CommsInterface(CommsGenerator& generator, commsdsl::parse::Interface dslObj, Elem* parent);
     virtual ~CommsInterface();
 
+    static const CommsInterface* cast(const commsdsl::gen::Interface* value)
+    {
+        return static_cast<const CommsInterface*>(value);
+    }
+
     const CommsFieldsList& commsFields() const
     {
         return m_commsFields;
     }    
+
+    const CommsField* findValidReferencedField(const std::string& refStr) const;
+
 
 protected:
     virtual bool prepareImpl() override;
@@ -63,6 +71,7 @@ private:
     std::string commsDefFieldsAliasesInternal() const;
 
     std::string m_name;
+    std::string m_constructCode;
     std::string m_publicCode;
     std::string m_protectedCode;
     std::string m_privateCode;

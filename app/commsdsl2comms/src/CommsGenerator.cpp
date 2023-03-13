@@ -67,7 +67,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string MinCommsVersion("5.0.3");    
+const std::string MinCommsVersion("5.1.0");    
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {
@@ -407,6 +407,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
             strings::nameFileSuffixStr(),
             strings::incFileSuffixStr(),
             strings::appendFileSuffixStr(),
+            strings::constructFileSuffixStr(),
         };        
         auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
         if (extIter != std::end(ReservedExt)) {

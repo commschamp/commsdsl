@@ -81,7 +81,7 @@ std::string ToolsQtRefField::toolsDefFuncBodyImpl() const
         "        .field(std::move(props))\n"
         "        .asMap();\n";
 
-    bool verOptional = comms::isVersionOptionaField(*this, generator());
+    bool verOptional = comms::isVersionOptionalField(*this, generator());
     auto* templ = &Templ;
     if (verOptional) {
         templ = &VerOptTempl;

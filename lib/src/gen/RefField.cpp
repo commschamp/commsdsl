@@ -114,6 +114,13 @@ void RefField::setReferencedImpl()
     m_impl->setReferenced();
 }
 
+RefField::FieldRefInfo RefField::processInnerRefImpl(const std::string& refStr) const
+{
+    auto* field = referencedField();
+    assert(field != nullptr);
+    return field->processInnerRef(refStr);
+}
+
 commsdsl::parse::RefField RefField::refDslObj() const
 {
     return commsdsl::parse::RefField(dslObj());

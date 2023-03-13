@@ -169,10 +169,16 @@ const std::string& termSuffixStr();
 const std::string& missingOnReadFailStr();
 const std::string& missingOnInvalidStr();
 const std::string& reuseCodeStr();
+const std::string& constructStr();
+const std::string& readCondStr();
+const std::string& validCondStr();
+const std::string& constructAsReadCondStr();
+const std::string& constructAsValidCondStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();
 char schemaRefPrefix();
+char interfaceRefPrefix();
 
 unsigned strToUnsigned(const std::string& str, bool* ok = nullptr, int base = 0);
 std::intmax_t strToIntMax(const std::string& str, bool* ok = nullptr, int base = 0);

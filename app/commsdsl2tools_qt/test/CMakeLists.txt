@@ -1,4 +1,4 @@
-if (NOT BUILD_TESTING)
+if ((NOT BUILD_TESTING) OR (NOT COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS))
     return ()
 endif () 
 
@@ -12,7 +12,28 @@ find_package(cc_tools_qt REQUIRED)
 
 set (dep_prefix_path ${PROJECT_BINARY_DIR}/app/commsdsl2comms/test)
 set (tests_path ${PROJECT_SOURCE_DIR}/app/commsdsl2comms/test)
-file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
+
+set (tests)
+
+macro (commsdsl_add_chunk_tests chunk from to)
+    foreach(t RANGE ${from} ${to})
+        if (NOT ${chunk})
+            break()
+        endif()
+
+        if (NOT EXISTS "${tests_path}/test${t}")
+            break()
+        endif ()
+
+        list(APPEND tests "test${t}")
+    endforeach ()
+endmacro()
+
+commsdsl_add_chunk_tests(COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK1 1 24)
+commsdsl_add_chunk_tests(COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK2 25 49)
+commsdsl_add_chunk_tests(COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK3 50 74)
+
+message(STATUS "Building following commsdsl2tools_qt tests: ${tests}")
 
 add_custom_target(${APP_NAME}.all_tests
     COMMAND ${CMAKE_COMMAND} -E echo "All ${APP_NAME} tests are built")
@@ -48,7 +69,6 @@ foreach (name ${tests})
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
         DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
-
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}_build)

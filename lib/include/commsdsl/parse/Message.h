@@ -20,8 +20,10 @@
 #include <cstdint>
 
 #include "commsdsl/CommsdslApi.h"
-#include "Field.h"
+
 #include "Alias.h"
+#include "Field.h"
+#include "OptCond.h"
 #include "OverrideType.h"
 
 namespace commsdsl
@@ -67,6 +69,7 @@ public:
     AliasesList aliases() const;
     std::string externalRef(bool schemaRef = true) const;
     bool isCustomizable() const;
+    bool isFailOnInvalid() const;
     Sender sender() const;
     OverrideType readOverride() const;
     OverrideType writeOverride() const;
@@ -75,6 +78,9 @@ public:
     OverrideType validOverride() const;
     OverrideType nameOverride() const;    
     const std::string& copyCodeFrom() const;
+    OptCond construct() const;
+    OptCond readCond() const;
+    OptCond validCond() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

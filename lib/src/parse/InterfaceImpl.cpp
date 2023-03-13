@@ -141,6 +141,42 @@ std::size_t InterfaceImpl::findFieldIdx(const std::string& name) const
     return static_cast<std::size_t>(std::distance(m_fields.begin(), iter));
 }
 
+InterfaceImpl::ImplFieldsList InterfaceImpl::allImplFields() const
+{
+    ImplFieldsList result;
+    result.reserve(m_fields.size());
+    for (auto& fPtr : m_fields) {
+        result.push_back(fPtr.get());
+    }
+
+    return result;
+}
+
+InterfaceImpl::FieldRefInfo InterfaceImpl::processInnerFieldRef(const std::string refStr) const
+{
+    auto dotPos = refStr.find_first_of(".");
+    const auto fieldName = refStr.substr(0, dotPos);
+    auto iter = 
+        std::find_if(
+            m_fields.begin(), m_fields.end(),
+            [&fieldName](auto& fieldPtr)
+            {
+                return fieldName == fieldPtr->name();
+            });
+
+    if (iter == m_fields.end()) {
+        return FieldRefInfo();
+    }
+
+    auto nextPos = dotPos;
+    if (dotPos < refStr.size()) {
+        nextPos = dotPos + 1U;
+    }
+
+    return (*iter)->processInnerRef(refStr.substr(nextPos));
+
+}
+
 Object::ObjKind InterfaceImpl::objKindImpl() const
 {
     return ObjKind::Interface;

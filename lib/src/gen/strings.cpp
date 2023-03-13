@@ -243,6 +243,12 @@ const std::string& bindFileSuffixStr()
     return Str;     
 }
 
+const std::string& constructFileSuffixStr()
+{
+    static const std::string Str(".construct");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");
@@ -351,6 +357,24 @@ const std::string& enumValuesLimitStr()
     return Str;
 }
 
+const std::string& transportFieldAccessPrefixStr()
+{
+    static const std::string Str("transportField_");
+    return Str;    
+}
+
+const std::string& transportFieldTypeAccessPrefixStr()
+{
+    static const std::string Str("TransportField_");
+    return Str;    
+}
+
+const std::string& fieldAccessPrefixStr()
+{
+    static const std::string Str("field_");
+    return Str;    
+}
+
 char siblingRefPrefix()
 {
     return '$';
@@ -366,6 +390,10 @@ char schemaRefPrefix()
     return '@';
 }
 
+char interfaceFieldRefPrefix()
+{
+    return '%';
+}
 
 } // namespace strings
 

@@ -416,6 +416,36 @@ bool NamespaceImpl::strToData(const std::string& ref, std::vector<std::uint8_t>&
             });
 }
 
+NamespaceImpl::ImplInterfacesList NamespaceImpl::allImplInterfaces() const
+{
+    ImplInterfacesList result;
+    for (auto& n : m_namespaces) {
+        auto ifaces = n.second->allImplInterfaces();
+        result.insert(result.end(), ifaces.begin(), ifaces.end());
+    }
+
+    result.reserve(result.size() + m_interfaces.size());
+    for (auto& i : m_interfaces) {
+        result.push_back(i.second.get());
+    }
+
+    return result;
+}
+
+NamespaceImpl::FieldRefInfosList NamespaceImpl::processInterfaceFieldRef(const std::string& refStr) const
+{
+    FieldRefInfosList result;
+    auto allInterfaces = allImplInterfaces();
+    result.reserve(allInterfaces.size());
+    for (auto* iface : allInterfaces) {
+        auto info = iface->processInnerFieldRef(refStr);
+        if (info.m_field != nullptr) {
+            result.push_back(std::move(info));
+        }
+    }
+    return result;
+}
+
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
     return ObjKind::Namespace;

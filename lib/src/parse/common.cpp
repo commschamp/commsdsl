@@ -848,6 +848,36 @@ const std::string& reuseCodeStr()
     return Str;    
 }
 
+const std::string& constructStr()
+{
+    static const std::string Str("construct");
+    return Str;    
+}
+
+const std::string& readCondStr()
+{
+    static const std::string Str("readCond");
+    return Str;    
+}
+
+const std::string& validCondStr()
+{
+    static const std::string Str("validCond");
+    return Str;    
+}
+
+const std::string& constructAsReadCondStr()
+{
+    static const std::string Str("constructAsReadCond");
+    return Str;       
+}
+
+const std::string& constructAsValidCondStr()
+{
+    static const std::string Str("constructAsValidCond");
+    return Str;       
+}
+
 char siblingRefPrefix()
 {
     return '$';
@@ -861,6 +891,11 @@ char stringRefPrefix()
 char schemaRefPrefix()
 {
     return '@';
+}
+
+char interfaceRefPrefix()
+{
+    return '%';
 }
 
 unsigned strToUnsigned(const std::string& str, bool* ok, int base)

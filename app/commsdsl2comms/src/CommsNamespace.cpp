@@ -310,6 +310,27 @@ bool CommsNamespace::commsHasAnyField() const
             });    
 }
 
+const CommsField* CommsNamespace::findValidInterfaceReferencedField(const std::string& refStr) const
+{
+    for (auto& iPtr : interfaces()) {
+        auto* commsInterface = CommsInterface::cast(iPtr.get());
+        auto field = commsInterface->findValidReferencedField(refStr);
+        if (field != nullptr) {
+            return field;
+        }
+    }
+
+    for (auto& nPtr : namespaces()) {
+        auto* commsNamespace = CommsNamespace::cast(nPtr.get());
+        auto field = commsNamespace->findValidInterfaceReferencedField(refStr);
+        if (field != nullptr) {
+            return field;
+        }
+    }
+
+    return nullptr;
+}
+
 bool CommsNamespace::prepareImpl()
 {
     if (!Base::prepareImpl()) {

@@ -161,7 +161,7 @@ std::string CommsMsgId::commsIdsInternal() const
             v.insert(v.begin(), prefix.begin(), prefix.end());
         }
 
-        return util::strListToString(enumValues, ",\n", "");
+        return util::strListToString(enumValues, "\n", "");
     }
 
     auto allMessages = m_generator.getAllMessagesIdSorted();

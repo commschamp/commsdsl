@@ -398,6 +398,13 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+bool CommsFloatField::commsVerifyInnerRefImpl(const std::string& refStr) const
+{
+    auto obj = floatDslObj();
+    auto& specials = obj.specialValues();
+    return (specials.find(refStr) != specials.end());
+}
+
 std::string CommsFloatField::commsCommonHasSpecialsFuncCodeInternal() const
 {
     auto& specials = specialsSortedByValue();    

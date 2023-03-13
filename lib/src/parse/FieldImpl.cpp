@@ -367,6 +367,58 @@ std::string FieldImpl::schemaPos() const
     return XmlWrap::logPrefix(m_node);
 }
 
+FieldImpl::FieldRefInfo FieldImpl::processSiblingRef(const FieldsList& siblings, const std::string& refStr)
+{
+    FieldRefInfo info;
+    auto dotPos = refStr.find_first_of('.');
+    std::string fieldName(refStr, 0, dotPos);
+    if (fieldName.empty()) {
+        return info;
+    }
+
+    auto iter =
+        std::find_if(
+            siblings.begin(), siblings.end(),
+            [&fieldName](auto& f)
+            {
+                return f->name() == fieldName;
+            });
+
+    if (iter == siblings.end()) {
+        return info;
+    }
+
+    auto nextPos = refStr.size();
+    if (dotPos < refStr.size()) {
+        nextPos = dotPos + 1U;
+    }
+
+    return (*iter)->processInnerRef(refStr.substr(nextPos));
+}
+
+FieldImpl::FieldRefInfo FieldImpl::processInnerRef(const std::string& refStr) const
+{
+    if (refStr.empty()) {
+        FieldRefInfo info;
+        info.m_field = this;
+        info.m_refType = FieldRefType_Field;
+        return info;
+    }
+
+    auto& memFields = members();
+    if (!memFields.empty()) {
+        return processSiblingRef(memFields, refStr);
+    }    
+
+    return processInnerRefImpl(refStr);
+}
+
+bool FieldImpl::isValidInnerRef(const std::string& refStr) const
+{
+    auto info = processInnerRef(refStr);
+    return info.m_field != nullptr;
+}
+
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
     m_protocol(protocol)
@@ -447,12 +499,6 @@ std::size_t FieldImpl::maxLengthImpl() const
 std::size_t FieldImpl::bitLengthImpl() const
 {
     return 0U;
-}
-
-bool FieldImpl::isBitCheckableImpl(const std::string& val) const
-{
-    static_cast<void>(val);
-    return false;
 }
 
 bool FieldImpl::isComparableToValueImpl(const std::string& val) const
@@ -573,6 +619,14 @@ const FieldImpl::FieldsList& FieldImpl::membersImpl() const
 {
     static const FieldsList List;
     return List;
+}
+
+FieldImpl::FieldRefInfo FieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    static_cast<void>(refStr);
+    assert(!refStr.empty());
+    FieldRefInfo info;
+    return info;
 }
 
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)

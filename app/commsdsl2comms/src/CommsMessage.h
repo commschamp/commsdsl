@@ -87,6 +87,7 @@ private:
     std::string commsCommonNameFuncInternal() const;
     std::string commsCommonFieldsCodeInternal() const;
     std::string commsDefIncludesInternal() const;
+    std::string commsDefConstructInternal() const;
     std::string commsDefFieldsCodeInternal() const;
     std::string commsDefFieldClassNamesListInternal() const;
     std::string commsDefDocDetailsInternal() const;
@@ -103,19 +104,26 @@ private:
     std::string commsDefNameFuncInternal() const;
     std::string commsDefReadFuncInternal() const;
     std::string commsDefRefreshFuncInternal() const;
+    std::string commsDefPrivateConstructInternal() const;
     bool commsIsCustomizableInternal() const;
     // bool commsMustGenerateReadRefresh() const;
     std::string commsCustomizationOptionsInternal(
         FieldOptsFunc fieldOptsFunc,
         ExtraMessageOptsFunc extraMessageOptsFunc,
         bool hasBase) const;
+    std::string commsDefReadConditionsCodeInternal() const;
+    std::string commsDefOrigValidCodeInternal() const;
+    std::string commsDefValidFuncInternal() const;
 
     StringsList commsClientExtraCustomizationOptionsInternal() const;
     StringsList commsServerExtraCustomizationOptionsInternal() const;
+    void commsPrepareConstructCodeInternal();
 
     CommsFieldsList m_commsFields;  
     commsdsl::gen::util::StringsList m_bundledReadPrepareCodes;
     commsdsl::gen::util::StringsList m_bundledRefreshCodes;
+    std::string m_internalConstruct;
+    std::string m_customConstruct;
     CustomCode m_customCode;
 };
 

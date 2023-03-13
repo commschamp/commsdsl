@@ -11,6 +11,7 @@
             <validValue name="M4" val="4" />
             <validValue name="M5" val="5" />
             <validValue name="M6" val="6" />
+            <validValue name="M7" val="7" />
         </enum>
 
         <int name="I1" type="uint8" />        
@@ -131,7 +132,23 @@
         <fields>
             <ref field="O5" name="F1" />
         </fields>
-    </message>             
+    </message>
+
+    <message name="Msg7" id="MsgId.M7">
+        <description>
+            Testing comparison of set to int
+        </description>
+        <fields>
+            <set name="F1" length="1">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+
+            <optional name="F2" cond="$F1 = 0" defaultMode="exists">
+                <int name="ActF2" type="uint8" />
+            </optional>
+        </fields>
+    </message>                     
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />

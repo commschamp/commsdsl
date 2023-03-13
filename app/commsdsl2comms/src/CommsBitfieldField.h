@@ -58,12 +58,13 @@ protected:
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
     virtual bool commsHasCustomLengthDeepImpl() const override;
+    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
     bool commsPrepareInternal();
     std::string commsDefFieldOptsInternal() const;
     std::string commsAccessCodeInternal() const;
-    std::pair<const CommsField*, std::string> parseMemRefInternal(const std::string accStr) const;
+    std::pair<const CommsField*, std::string> parseMemRefInternal(const std::string& accStr) const;
 
     CommsFieldsList m_members;
 };

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema39" endian="big" dslVersion="5">
+    <description>
+        Comparing set fields to numeric values
+    </description>
+
+    <message name="Msg1" id="1">
+        <set name="F1" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+        </set>
+
+        <optional name="F2" cond="$F1 != 0">
+            <int name="ActF2" type="uint8" />
+        </optional>
+    </message>
+</schema>

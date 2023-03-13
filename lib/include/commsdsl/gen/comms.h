@@ -124,7 +124,9 @@ const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value);
 
 bool isGlobalField(const Elem& elem);
 bool isInterfaceDeepMemberField(const Elem& elem);
-bool isVersionOptionaField(const Elem& elem, const Generator& generator);
+bool isInterfaceShallowMemberField(const Elem& elem);
+bool isMessageShallowMemberField(const Elem& elem);
+bool isVersionOptionalField(const Elem& elem, const Generator& generator);
 
 unsigned sinceVersionOf(const Elem& elem);
 

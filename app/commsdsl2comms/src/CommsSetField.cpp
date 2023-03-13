@@ -390,6 +390,12 @@ std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, co
     return prefix + ".getBitValue_" + accStr + "()";
 }
 
+bool CommsSetField::commsVerifyInnerRefImpl(const std::string& refStr) const
+{
+    auto& bits = setDslObj().bits();
+    return bits.find(refStr) != bits.end();
+}
+
 std::string CommsSetField::commsCommonBitNameFuncCodeInternal() const
 {
     auto obj = setDslObj();

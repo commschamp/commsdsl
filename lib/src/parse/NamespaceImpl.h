@@ -69,12 +69,15 @@ public:
     using FieldsList = Namespace::FieldsList;
     using MessagesList = Namespace::MessagesList;
     using InterfacesList = Namespace::InterfacesList;
+    using ImplInterfacesList = std::vector<InterfaceImpl*>;
     using FramesList = Namespace::FramesList;
     using NamespacesMap = std::map<std::string, Ptr>;
     using FieldsMap = std::map<std::string, FieldImplPtr, KeyComp>;
     using MessagesMap = std::map<std::string, MessageImplPtr, KeyComp>;
     using InterfacesMap = std::map<std::string, InterfaceImplPtr, KeyComp>;
     using FramesMap = std::map<std::string, FrameImplPtr, KeyComp>;
+    using FieldRefInfo = FieldImpl::FieldRefInfo;
+    using FieldRefInfosList = FieldImpl::FieldRefInfosList;
 
     NamespaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     virtual ~NamespaceImpl() = default;
@@ -171,6 +174,10 @@ public:
     bool strToBool(const std::string& ref, bool& val) const;
     bool strToString(const std::string& ref, std::string& val) const;
     bool strToData(const std::string& ref, std::vector<std::uint8_t>& val) const;
+
+    ImplInterfacesList allImplInterfaces() const;
+
+    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr) const;
 
 protected:
     virtual ObjKind objKindImpl() const override;

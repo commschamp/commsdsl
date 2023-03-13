@@ -59,6 +59,7 @@ public:
 
 protected:    
     virtual bool prepareImpl() override;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override final;
 
 private:
     std::unique_ptr<EnumFieldImpl> m_impl;        

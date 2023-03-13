@@ -17,7 +17,6 @@
 
 #include <cassert>
 #include <algorithm>
-#include <iostream>
 
 #include "ProtocolImpl.h"
 
@@ -51,16 +50,16 @@ XmlWrap::PropsMap XmlWrap::parseNodeProps(::xmlNodePtr node)
     return map;
 }
 
-XmlWrap::NodesList XmlWrap::getChildren(::xmlNodePtr node, const std::string& name)
+XmlWrap::NodesList XmlWrap::getChildren(::xmlNodePtr node, const std::string& name, bool skipValueAttr)
 {
     NamesList names;
     if (!name.empty()) {
         names.push_back(name);
     }
-    return getChildren(node, names);
+    return getChildren(node, names, skipValueAttr);
 }
 
-XmlWrap::NodesList XmlWrap::getChildren(::xmlNodePtr node, const NamesList& names)
+XmlWrap::NodesList XmlWrap::getChildren(::xmlNodePtr node, const NamesList& names, bool skipValueAttr)
 {
     NodesList result;
     auto* cur = node->children;
@@ -75,12 +74,22 @@ XmlWrap::NodesList XmlWrap::getChildren(::xmlNodePtr node, const NamesList& name
                 break;
             }
 
+            if (skipValueAttr) {
+                auto props = parseNodeProps(cur);
+                static const std::string ValueAttr("value");
+                if (props.find(ValueAttr) != props.end()) {
+                    // Skip one with the value attribute
+                    break;
+                }            
+            }
+
             std::string elemName(reinterpret_cast<const char*>(cur->name));
             auto iter = std::find(names.begin(), names.end(), elemName);
-            if (iter != names.end()) {
-                result.push_back(cur);
+            if (iter == names.end()) {
                 break;
             }
+
+            result.push_back(cur);
         } while (false);
 
         cur = cur->next;

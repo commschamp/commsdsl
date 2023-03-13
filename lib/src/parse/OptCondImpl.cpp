@@ -15,18 +15,20 @@
 
 #include "OptCondImpl.h"
 
-#include <cassert>
 #include <algorithm>
+#include <cassert>
 #include <iterator>
+#include <vector>
 
 #include "BitfieldFieldImpl.h"
 #include "BundleFieldImpl.h"
+#include "Logger.h"
+#include "ProtocolImpl.h"
 #include "RefFieldImpl.h"
+#include "SchemaImpl.h"
 #include "SetFieldImpl.h"
 #include "common.h"
 #include "util.h"
-
-//#include <iostream>
 
 namespace commsdsl
 {
@@ -39,26 +41,45 @@ namespace
 
 const char Esc = '\\';
 const char Deref = common::siblingRefPrefix();
+const char IfaceDeref = common::interfaceRefPrefix();
+
+void discardNonFieldReferences(FieldImpl::FieldRefInfosList& infos)
+{
+    infos.erase(
+        std::remove_if(
+            infos.begin(), infos.end(),
+            [](auto& fieldInfo)
+            {
+                return !fieldInfo.m_valueName.empty();
+            }),
+        infos.end());
+}
 
 } // namespace
 
-bool OptCondExprImpl::parse(const std::string& expr, ::xmlNodePtr node, Logger& logger)
+OptCondImpl::OptCondImpl() :
+    m_condStr(common::condStr())
 {
+}
+
+bool OptCondExprImpl::parse(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol)
+{
+    auto& logger = protocol.logger();
     if (expr.empty()) {
         logError(logger) << XmlWrap::logPrefix(node) <<
-            "Invalid \"" << common::condStr() << "\" expression";
+            "Invalid condition expression";
         return false;
     }
 
     assert(!hasUpdatedValue());
     return
-        checkComparison(expr, "!=", node, logger) &&
-        checkComparison(expr, ">=", node, logger) &&
-        checkComparison(expr, "<=", node, logger) &&
-        checkComparison(expr, "=", node, logger) &&
-        checkComparison(expr, ">", node, logger) &&
-        checkComparison(expr, "<", node, logger) &&
-        checkBool(expr, node, logger) &&
+        checkComparison(expr, "!=", node, protocol) &&
+        checkComparison(expr, ">=", node, protocol) &&
+        checkComparison(expr, "<=", node, protocol) &&
+        checkComparison(expr, "=", node, protocol) &&
+        checkComparison(expr, ">", node, protocol) &&
+        checkComparison(expr, "<", node, protocol) &&
+        checkBool(expr, node, protocol) &&
         hasUpdatedValue();
 }
 
@@ -72,13 +93,13 @@ OptCondImpl::Ptr OptCondExprImpl::cloneImpl() const
     return Ptr(new OptCondExprImpl(*this));
 }
 
-bool OptCondExprImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
+bool OptCondExprImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const
 {
     if (m_left.empty()) {
-        return verifyBitCheck(fields, node, logger);
+        return verifyBitCheck(fields, node, protocol);
     }
 
-    return verifyComparison(fields, node, logger);
+    return verifyComparison(fields, node, protocol);
 }
 
 bool OptCondExprImpl::hasUpdatedValue()
@@ -88,17 +109,18 @@ bool OptCondExprImpl::hasUpdatedValue()
            (!m_op.empty());
 }
 
-bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, Logger& logger)
+bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, const ProtocolImpl& protocol)
 {
     if (hasUpdatedValue()) {
         return true;
     }
 
+    auto& logger = protocol.logger();
     auto reportInvalidExrFunc =
         [node, &logger]()
         {
             logError(logger) << XmlWrap::logPrefix(node) <<
-                "Invalid \"" << common::condStr() << "\" expression";
+                "Invalid condition expression";
         };
 
     std::size_t opPos = 0U;
@@ -141,28 +163,37 @@ bool OptCondExprImpl::checkComparison(const std::string& expr, const std::string
         return false;
     }
 
-    if (m_left[0] != Deref) {
-        logError(logger) << XmlWrap::logPrefix(node) <<
-            "Invalid \"" << common::condStr() << "\" expression, left side of "
-            "comparison operator must dereference other field.";
-        return false;
+    if (m_left[0] == Deref) {
+        return true;
     }
-    
 
-    return true;
+    if (m_left[0] == IfaceDeref) {
+        if (!protocol.isInterfaceFieldReferenceSupported()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "References to the interface fields are not supported in the selected " << common::dslVersionStr() << ".";
+            return false;            
+        }
+        return true;
+    }
+
+    logError(logger) << XmlWrap::logPrefix(node) <<
+        "Invalid \"" << condStr() << "\" expression, left side of "
+        "comparison operator must dereference other field.";
+    return false;
 }
 
-bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, Logger& logger)
+bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol)
 {
     if (hasUpdatedValue()) {
         return true;
     }
 
+    auto& logger = protocol.logger();
     auto reportInvalidExrFunc =
         [node, &logger]()
         {
             logError(logger) << XmlWrap::logPrefix(node) <<
-                "Invalid \"" << common::condStr() << "\" expression";
+                "Invalid condition expression";
         };
 
     assert(!expr.empty());
@@ -170,6 +201,16 @@ bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, Logg
         m_right = expr;
         return true;
     }
+
+    if (expr[0] == IfaceDeref) {
+        if (!protocol.isInterfaceFieldReferenceSupported()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "References to the interface fields are not supported in the selected " << common::dslVersionStr() << ".";
+            return false;            
+        }        
+        m_right = expr;
+        return true;
+    }    
 
     if (expr[0] != '!') {
         reportInvalidExrFunc();
@@ -182,139 +223,129 @@ bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, Logg
         return false;
     }
 
-    if (expr[valPos] != Deref) {
+    do {
+        if (expr[valPos] == Deref) {
+            break;
+        }
+
+        if (expr[valPos] == IfaceDeref) {
+            if (!protocol.isInterfaceFieldReferenceSupported()) {
+                logError(logger) << XmlWrap::logPrefix(node) <<
+                    "References to the interface fields are not supported in the selected " << common::dslVersionStr() << ".";
+                return false;            
+            }        
+            break;
+        }          
+
         logError(logger) << XmlWrap::logPrefix(node) <<
-            "Invalid \"" << common::condStr() << "\" expression, "
+            "Invalid \"" << condStr() << "\" expression, "
             "the check must dereference other field.";
-        return false;
-    }
+        return false;        
+
+    } while (false);
 
     m_op = "!";
     m_right.assign(expr.begin() + valPos, expr.end());
     return true;
 }
 
-FieldImpl* OptCondExprImpl::findField(
-    const FieldsList& fields,
-    const std::string& name,
-    std::size_t& remPos)
+bool OptCondExprImpl::verifyBitCheck(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const
 {
-    auto dotPos = name.find_first_of('.', remPos);
-    std::string fieldName(name, remPos, dotPos - remPos);
-    if (fieldName.empty()) {
-        return nullptr;
+    assert(!m_right.empty());
+    if (m_right[0] == Deref) {
+        return verifySiblingBitCheck(fields, node, protocol);
     }
 
-    auto iter =
-        std::find_if(
-            fields.begin(), fields.end(),
-            [&fieldName](auto& f)
-            {
-                return f->name() == fieldName;
-            });
-
-    if (iter == fields.end()) {
-        return nullptr;
-    }
-
-    if (dotPos == std::string::npos) {
-        remPos = dotPos;
-        return iter->get();
-    }
-
-    remPos = dotPos + 1;
-    auto redirectFunc =
-        [&name, &remPos](const auto& f)
-        {
-            auto& members = f.members();
-            return findField(members, name, remPos);
-        };
-
-    assert(*iter != nullptr);
-
-    const auto* derefField = (*iter).get();
-    while (derefField->kind() == FieldImpl::Kind::Ref) {
-        auto& refField = static_cast<const RefFieldImpl&>(*derefField);
-        derefField = refField.fieldImpl();
-        assert(derefField != nullptr);
-    }
-
-    auto fieldKind = derefField->kind();
-    if (fieldKind == FieldImpl::Kind::Bundle) {
-        return redirectFunc(static_cast<const BundleFieldImpl&>(*derefField));
-    }
-
-    if (fieldKind == FieldImpl::Kind::Bitfield) {
-        return redirectFunc(static_cast<const BitfieldFieldImpl&>(*derefField));
-    }
-
-    return iter->get();
+    assert(m_right[0] == IfaceDeref);
+    return verifyInterfaceBitCheck(node, protocol);
 }
 
-bool OptCondExprImpl::verifyBitCheck(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
+bool OptCondExprImpl::verifySiblingBitCheck(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const
 {
     assert(!m_right.empty());
     assert(m_right[0] == Deref);
 
-    std::size_t remPos = 1;
-    auto field = findField(fields, m_right, remPos);
-    do {
-        if (field == nullptr) {
-            break;
-        }
-
-        std::string bitName(m_right, remPos);
-        if (!field->isBitCheckable(bitName)) {
-            break;
-        }
-
+    auto info = FieldImpl::processSiblingRef(fields, m_right.substr(1));
+    if ((info.m_field != nullptr) && 
+        (info.m_refType == FieldImpl::FieldRefType_InnerValue)) {
+        assert(!info.m_valueName.empty());
         return true;
-    } while (false);
+    }
 
+    auto& logger = protocol.logger();
     logError(logger) << XmlWrap::logPrefix(node) <<
         "The \"" << m_right << "\" string is expected to dereference existing bit in existing <" <<
         common::setStr() << "> field or <" << common::refStr() << "> to it.";
     return false;
 }
 
-bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
+bool OptCondExprImpl::verifyInterfaceBitCheck(::xmlNodePtr node, const ProtocolImpl& protocol) const
+{
+    assert(!m_right.empty());
+    assert(m_right[0] == IfaceDeref);
+
+    auto& schema = protocol.currSchema();
+    auto foundFields = schema.processInterfaceFieldRef(m_right.substr(1));
+    auto hasValidRef = 
+        std::any_of(
+            foundFields.begin(), foundFields.end(),
+            [](auto& info)
+            {
+                assert(info.m_field != nullptr);
+                return 
+                    (info.m_refType == FieldImpl::FieldRefType_InnerValue) &&
+                    (info.m_field->kind() == FieldImpl::Kind::Set);
+            });
+
+    if (hasValidRef) {
+        return true;
+    }
+
+    auto& logger = protocol.logger();
+    logError(logger) << XmlWrap::logPrefix(node) <<
+        "The \"" << m_right << "\" string is expected to dereference existing bit in existing <" <<
+        common::setStr() << "> field or <" << common::refStr() << "> to it in one of the <" << common::interfaceStr() << ">-es.";
+    return false;
+}
+
+bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const
+{
+    assert(!m_left.empty());
+    assert(!m_right.empty());
+    if (m_left[0] == Deref) {
+        return verifySiblingComparison(fields, node, protocol);
+    }
+
+    assert(m_left[0] == IfaceDeref);
+    return verifyInterfaceComparison(fields, node, protocol);
+}
+
+bool OptCondExprImpl::verifySiblingComparison(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const
 {
     assert(!m_left.empty());
     assert(!m_right.empty());
     assert(m_left[0] == Deref);
 
-    std::size_t remPos = 1;
-    auto field = findField(fields, m_left, remPos);
-    if (field == nullptr) {
+    auto& logger = protocol.logger();
+    auto leftInfo = FieldImpl::processSiblingRef(fields, m_left.substr(1));
+    if ((leftInfo.m_field == nullptr) || 
+        (leftInfo.m_refType != FieldImpl::FieldRefType_Field)) {
         logError(logger) << XmlWrap::logPrefix(node) <<
-            "The \"" << m_left << "\" string is expected to dereference existing field in the containing \"" <<
-            common::bundleStr() << "\" or \"" << common::messageStr() << "\"";
+            "The \"" << m_left << "\" string is expected to dereference existing sibling field.";
         return false;
-    }
-
-    if (remPos < m_left.size()) {
-        logError(logger) << XmlWrap::logPrefix(node) <<
-            "The \"" << m_left << "\" is not valid field dereference expression.";        
-        return false;
-    }
+    }    
 
     if (m_right[0] == Deref) {
-        std::size_t rightRemPos = 1U;
-        auto rightField = findField(fields, m_right, rightRemPos);
-        if (rightField == nullptr) {
-            logError(logger) << XmlWrap::logPrefix(node) <<
-                "The \"" << m_right << "\" string is expected to dereference existing field in the containing \"" <<
-                common::bundleStr() << "\" or \"" << common::messageStr() << "\"";
-            return false;
-        }
+        auto rightInfo = FieldImpl::processSiblingRef(fields, m_right.substr(1));
 
-        if (rightRemPos < m_right.size()) {
+        if ((rightInfo.m_field == nullptr) || 
+            (rightInfo.m_refType != FieldImpl::FieldRefType_Field)) {
             logError(logger) << XmlWrap::logPrefix(node) <<
-                "The \"" << m_right << "\" is not valid field dereference expression.";        
+                "The \"" << m_right << "\" string is expected to dereference existing sibling field.";
             return false;
-        }        
+        }         
 
-        if (!field->isComparableToField(*rightField)) {
+        if (!leftInfo.m_field->isComparableToField(*rightInfo.m_field)) {
             logError(logger) << XmlWrap::logPrefix(node) <<
                 "Two dereferenced fields \"" << m_left << "\" and \"" << m_right << "\" cannot be compared.";
             return false;
@@ -323,12 +354,133 @@ bool OptCondExprImpl::verifyComparison(const OptCondImpl::FieldsList& fields, ::
         return true;
     }
 
-    if (!field->isComparableToValue(m_right)) {
+    if (m_right[0] == IfaceDeref) {
+        auto& schema = protocol.currSchema();
+        auto rightFields = schema.processInterfaceFieldRef(m_right.substr(1));
+        discardNonFieldReferences(rightFields);
+
+        if (rightFields.empty()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The \"" << m_right << "\" is not valid field dereference expression for this condition.";        
+            return false;
+        }        
+
+        for (auto& fieldInfo : rightFields) {
+            assert(fieldInfo.m_field != nullptr);
+            if (leftInfo.m_field->isComparableToField(*fieldInfo.m_field)) {
+                return true;
+            }
+        }
+
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The \"" << m_right << "\" string is expected to dereference existing field in any \"" <<
+            common::interfaceStr() << "\"";            
+
+        return false;
+    }    
+
+    if (!leftInfo.m_field->isComparableToValue(m_right)) {
         logError(logger) << XmlWrap::logPrefix(node) <<
             "The dereferenced fields \"" << m_left << "\" cannot be compared to value \"" << m_right << "\".";
         return false;
     }
+
     return true;
+}
+
+bool OptCondExprImpl::verifyInterfaceComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const
+{
+    assert(!m_left.empty());
+    assert(!m_right.empty());
+    assert(m_left[0] == IfaceDeref);
+
+    auto& logger = protocol.logger();
+    auto& schema = protocol.currSchema();
+    auto leftFields = schema.processInterfaceFieldRef(m_left.substr(1));
+    discardNonFieldReferences(leftFields);
+
+    if (leftFields.empty()) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The \"" << m_left << "\" is not valid field dereference expression for this condition.";        
+        return false;
+    }
+
+    if (m_right[0] == Deref) {
+        auto rightInfo = FieldImpl::processSiblingRef(fields, m_right.substr(1));
+        if ((rightInfo.m_field == nullptr) || 
+            (rightInfo.m_refType != FieldImpl::FieldRefType_Field)) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The \"" << m_right << "\" string is expected to dereference existing sibling field.";
+            return false;
+        }    
+
+        bool hasComparable = 
+            std::any_of(
+                leftFields.begin(), leftFields.end(),
+                [rightInfo](auto& fieldInfo)
+                {
+                    return fieldInfo.m_field->isComparableToField(*rightInfo.m_field);
+                });
+
+        if (!hasComparable) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "Two dereferenced fields \"" << m_left << "\" and \"" << m_right << "\" cannot be compared.";
+            return false;
+        }
+
+        return true;
+    }
+
+    if (m_right[0] == IfaceDeref) {
+        auto rightFields = schema.processInterfaceFieldRef(m_right.substr(1));
+        discardNonFieldReferences(rightFields);
+
+        if (rightFields.empty()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The \"" << m_right << "\" is not valid field dereference expression for this condition.";        
+            return false;
+        }             
+
+        bool hasComparable = 
+            std::any_of(
+                leftFields.begin(), leftFields.end(),
+                [&rightFields](auto& leftFieldInfo)
+                {
+                    assert(leftFieldInfo.m_field != nullptr);
+                    return std::any_of(
+                        rightFields.begin(), rightFields.end(),
+                        [&leftFieldInfo](auto& rightFieldInfo)
+                        {
+                            assert(rightFieldInfo.m_field != nullptr);
+                            return leftFieldInfo.m_field->isComparableToField(*rightFieldInfo.m_field);
+                        });
+                });  
+
+        if (!hasComparable) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "Two dereferenced fields \"" << m_left << "\" and \"" << m_right << "\" cannot be compared.";
+            return false;
+        }    
+
+        return true;
+    }
+
+    bool hasComparable = 
+        std::any_of(
+            leftFields.begin(), leftFields.end(),
+            [this](auto& fieldInfo)
+            {
+                assert(fieldInfo.m_field != nullptr);
+                return fieldInfo.m_field->isComparableToValue(m_right);
+            });    
+
+    if (!hasComparable) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The dereferenced fields \"" << m_left << "\" cannot be compared to value \"" << m_right << "\".";
+        return false;
+    }
+
+    return true;    
 }
 
 OptCondListImpl::OptCondListImpl(const OptCondListImpl& other)
@@ -352,7 +504,7 @@ OptCondListImpl::CondList OptCondListImpl::condList() const
     return result;
 }
 
-bool OptCondListImpl::parse(xmlNodePtr node, Logger& logger)
+bool OptCondListImpl::parse(xmlNodePtr node, const ProtocolImpl& protocol)
 {
     static const std::string CondMap[] = {
         common::andStr(),
@@ -365,6 +517,7 @@ bool OptCondListImpl::parse(xmlNodePtr node, Logger& logger)
     static_assert(0U == util::toUnsigned(Type::And), "Invalid map");
     static_assert(1U == util::toUnsigned(Type::Or), "Invalid map");
 
+    auto& logger = protocol.logger();
     std::string elemName(reinterpret_cast<const char*>(node->name));
     auto iter = std::find(std::begin(CondMap), std::end(CondMap), elemName);
     if (iter == std::end(CondMap)) {
@@ -379,14 +532,16 @@ bool OptCondListImpl::parse(xmlNodePtr node, Logger& logger)
     assert(m_conds.empty());
     for (auto c : children) {
         std::string childName(reinterpret_cast<const char*>(c->name));
-        if (childName == common::condStr()) {
+        if (childName == condStr()) {
             std::string expr;
             if (!XmlWrap::parseNodeValue(c, logger, expr, true)) {
                 return false;
             }
 
             auto cond = std::make_unique<OptCondExprImpl>();
-            if (!cond->parse(expr, c, logger)) {
+            cond->overrideCondStr(condStr());
+
+            if (!cond->parse(expr, c, protocol)) {
                 return false;
             }
 
@@ -397,12 +552,14 @@ bool OptCondListImpl::parse(xmlNodePtr node, Logger& logger)
         auto multiIter = std::find(std::begin(CondMap), std::end(CondMap), childName);
         if (multiIter == std::end(CondMap)) {
             logError(logger) << XmlWrap::logPrefix(c) <<
-                "Unknown element inside \"" << elemName << "\' condition bundling";
+                "Unknown element inside \"" << elemName << "\" condition bundling";
             return false;
         }
 
         auto multiCond = std::make_unique<OptCondListImpl>();
-        if (!multiCond->parse(c, logger)) {
+        multiCond->overrideCondStr(condStr());
+
+        if (!multiCond->parse(c, protocol)) {
             return false;
         }
 
@@ -429,13 +586,13 @@ OptCondImpl::Ptr OptCondListImpl::cloneImpl() const
     return Ptr(new OptCondListImpl(*this));
 }
 
-bool OptCondListImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
+bool OptCondListImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const
 {
     return std::all_of(
         m_conds.begin(), m_conds.end(),
-        [&fields, node, &logger](auto& c)
+        [&fields, node, &protocol](auto& c)
         {
-            return c->verify(fields, node, logger);
+            return c->verify(fields, node, protocol);
         });
 }
 

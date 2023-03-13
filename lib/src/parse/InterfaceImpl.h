@@ -45,6 +45,8 @@ public:
     using FieldsList = Interface::FieldsList;
     using AliasesList = Interface::AliasesList;
     using ContentsList = XmlWrap::ContentsList;
+    using ImplFieldsList = std::vector<FieldImpl*>;
+    using FieldRefInfo = FieldImpl::FieldRefInfo;
 
     InterfaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     InterfaceImpl(const InterfaceImpl&) = delete;
@@ -83,6 +85,10 @@ public:
     }
 
     std::size_t findFieldIdx(const std::string& name) const;
+
+    ImplFieldsList allImplFields() const;
+
+    FieldRefInfo processInnerFieldRef(const std::string refStr) const;
 
 protected:
 

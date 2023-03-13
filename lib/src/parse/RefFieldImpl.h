@@ -54,7 +54,6 @@ protected:
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
     virtual std::size_t bitLengthImpl() const override;
-    virtual bool isBitCheckableImpl(const std::string& val) const override;
     virtual bool isComparableToValueImpl(const std::string& val) const override;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const override;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const override;
@@ -64,6 +63,7 @@ protected:
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
 
 private:
     using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;

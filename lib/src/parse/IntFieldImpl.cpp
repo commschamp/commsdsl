@@ -495,6 +495,20 @@ bool IntFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) 
     return false;
 }
 
+IntFieldImpl::FieldRefInfo IntFieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+    FieldRefInfo info;
+    auto iter = m_state.m_specials.find(refStr);
+    if (iter != m_state.m_specials.end()) {
+        info.m_field = this;
+        info.m_valueName = refStr;
+        info.m_refType = FieldRefType_InnerValue;
+    }
+
+    return info;
+}
+
 bool IntFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);
@@ -1602,28 +1616,28 @@ bool IntFieldImpl::strToValue(
     }
 
     if (common::isValidRefName(str)) {
-         bool bigUnsigned = false;
-         if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
-             return false;
-         }
+        bool bigUnsigned = false;
+        if (!protocol().strToNumeric(str, false, val, bigUnsigned)) {
+            return false;
+        }
 
-         if ((!bigUnsigned) && (val < 0) && (isUnsigned(m_state.m_type))) {
-             logError() << XmlWrap::logPrefix(getNode()) <<
-                 "Cannot assign negative value (" << val << " references as " <<
-                str << ") to field with positive type.";
-             return false;
-         }
+        if ((!bigUnsigned) && (val < 0) && (isUnsigned(m_state.m_type))) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot assign negative value (" << val << " references as " <<
+            str << ") to field with positive type.";
+            return false;
+        }
 
-         if (bigUnsigned && (!isBigUnsigned(m_state.m_type))) {
-             logError() << XmlWrap::logPrefix(getNode()) <<
-                "Cannot assign such big positive number (" <<
-                static_cast<std::uintmax_t>(val) << " referenced as " <<
-                str << ").";
-             return false;
+        if (bigUnsigned && (!isBigUnsigned(m_state.m_type))) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot assign such big positive number (" <<
+            static_cast<std::uintmax_t>(val) << " referenced as " <<
+            str << ").";
+            return false;
 
-         }
-         return true;
-     }
+        }
+        return true;
+    }
 
     bool ok = false;
     if (isBigUnsigned(m_state.m_type)) {

@@ -95,7 +95,6 @@ CommsField::CommsFieldsList CommsField::commsTransformFieldsList(const commsdsl:
 
 bool CommsField::commsPrepare()
 {
-
     if (!copyCodeFromInternal()) {
         return false;
     }
@@ -121,6 +120,7 @@ bool CommsField::commsPrepare()
     readCustomCodeInternal(codePathPrefix + strings::privateFileSuffixStr(), m_customCode.m_private);
     readCustomCodeInternal(codePathPrefix + strings::extendFileSuffixStr(), m_customCode.m_extend);
     readCustomCodeInternal(codePathPrefix + strings::appendFileSuffixStr(), m_customCode.m_append);
+    readCustomCodeInternal(codePathPrefix + strings::constructFileSuffixStr(), m_customConstruct);
     return true;
 }
 
@@ -350,9 +350,18 @@ std::string CommsField::commsCompPrepValueStr(const std::string& accStr, const s
     return commsCompPrepValueStrImpl(accStr, value);
 }
 
+bool CommsField::commsVerifyInnerRef(const std::string refStr) const
+{
+    if (refStr.empty()) {
+        return true;
+    }
+
+    return commsVerifyInnerRefImpl(refStr);
+}
+
 bool CommsField::commsIsVersionOptional() const
 {
-    return comms::isVersionOptionaField(m_field, m_field.generator());
+    return comms::isVersionOptionalField(m_field, m_field.generator());
 }
 
 std::string CommsField::commsDefaultOptions() const
@@ -645,6 +654,12 @@ std::string CommsField::commsCompPrepValueStrImpl(const std::string& accStr, con
 
 bool CommsField::commsHasCustomLengthDeepImpl() const
 {
+    return false;
+}
+
+bool CommsField::commsVerifyInnerRefImpl(const std::string& refStr) const
+{
+    static_cast<void>(refStr);
     return false;
 }
 
@@ -1163,6 +1178,7 @@ std::string CommsField::commsDefPublicCodeInternal() const
 {
     static const std::string Templ = {
         "public:\n"
+        "    #^#CONSTRUCT#$#\n"
         "    #^#FIELD_DEF#$#\n"
         "    #^#NAME#$#\n"
         "    #^#VALUE#$#\n"
@@ -1175,6 +1191,7 @@ std::string CommsField::commsDefPublicCodeInternal() const
     };
 
     util::ReplacementMap repl = {
+        {"CONSTRUCT", m_customConstruct},
         {"FIELD_DEF", commsDefPublicCodeImpl()},
         {"NAME", commsDefNameFuncCodeInternal()},
         {"VALUE", commsDefValueCodeInternal()},

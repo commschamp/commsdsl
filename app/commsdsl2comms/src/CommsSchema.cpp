@@ -44,7 +44,7 @@ bool CommsSchema::commsHasReferencedMsgId() const
             allNs.begin(), allNs.end(),
             [](auto* ns)
             {
-                return static_cast<const CommsNamespace*>(ns)->commsHasReferencedMsgId();
+                return CommsNamespace::cast(ns)->commsHasReferencedMsgId();
             });
 }
 
@@ -56,7 +56,7 @@ bool CommsSchema::commsHasAnyField() const
             allNs.begin(), allNs.end(),
             [](auto* ns)
             {
-                return static_cast<const CommsNamespace*>(ns)->commsHasAnyField();
+                return CommsNamespace::cast(ns)->commsHasAnyField();
             });
 }
 
@@ -68,8 +68,20 @@ bool CommsSchema::commsHasAnyGeneratedCode() const
             allNs.begin(), allNs.end(),
             [](auto* ns)
             {
-                return static_cast<const CommsNamespace*>(ns)->commsHasAnyGeneratedCode();
+                return CommsNamespace::cast(ns)->commsHasAnyGeneratedCode();
             });
+}
+
+const CommsField* CommsSchema::findValidInterfaceReferencedField(const std::string& refStr) const
+{
+    for (auto& nsPtr : namespaces()) {
+        auto* field = CommsNamespace::cast(nsPtr.get())->findValidInterfaceReferencedField(refStr);
+        if (field != nullptr) {
+            return field;
+        }
+    } 
+
+    return nullptr;  
 }
 
 } // namespace commsdsl2comms

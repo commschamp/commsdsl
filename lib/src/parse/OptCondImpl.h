@@ -20,7 +20,6 @@
 
 #include "commsdsl/parse/OptCond.h"
 #include "XmlWrap.h"
-#include "Logger.h"
 #include "FieldImpl.h"
 
 namespace commsdsl
@@ -29,6 +28,7 @@ namespace commsdsl
 namespace parse
 {
 
+class ProtocolImpl;
 class OptCondImpl
 {
 public:
@@ -36,7 +36,7 @@ public:
     using Kind = OptCond::Kind;
     using FieldsList = std::vector<FieldImplPtr>;
 
-    OptCondImpl() = default;
+    OptCondImpl();
     OptCondImpl(const OptCondImpl&) = default;
     OptCondImpl(OptCondImpl&&) = default;
     virtual ~OptCondImpl() = default;
@@ -51,15 +51,28 @@ public:
         return cloneImpl();
     }
 
-    bool verify(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const
+    bool verify(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const
     {
-        return verifyImpl(fields, node, logger);
+        return verifyImpl(fields, node, protocol);
+    }
+
+    void overrideCondStr(const std::string& str)
+    {
+        m_condStr = str;
     }
 
 protected:
     virtual Kind kindImpl() const = 0;
     virtual Ptr cloneImpl() const = 0;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const = 0;
+    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const = 0;
+
+    const std::string& condStr() const
+    {
+        return m_condStr;
+    }
+
+private:
+    std::string m_condStr;    
 };
 
 class OptCondExprImpl final: public OptCondImpl
@@ -69,7 +82,7 @@ public:
     OptCondExprImpl(const OptCondExprImpl&) = default;
     OptCondExprImpl(OptCondExprImpl&&) = default;
 
-    bool parse(const std::string& expr, ::xmlNodePtr node, Logger& logger);
+    bool parse(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol);
 
     const std::string& left() const
     {
@@ -89,18 +102,18 @@ public:
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override;
+    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const override;
 
 private:
     bool hasUpdatedValue();
-    bool checkComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, Logger& logger);
-    bool checkBool(const std::string& expr, ::xmlNodePtr node, Logger& logger);
-    static FieldImpl* findField(
-        const FieldsList& fields,
-        const std::string& name,
-        std::size_t& remPos);
-    bool verifyBitCheck(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const;
-    bool verifyComparison(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const;
+    bool checkComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, const ProtocolImpl& protocol);
+    bool checkBool(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol);
+    bool verifyBitCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifySiblingBitCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifyInterfaceBitCheck(::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifyComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifySiblingComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifyInterfaceComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
 
     std::string m_left;
     std::string m_op;
@@ -126,14 +139,14 @@ public:
 
     CondList condList() const;
 
-    bool parse(::xmlNodePtr node, Logger& logger);
+    bool parse(::xmlNodePtr node, const ProtocolImpl& protocol);
 
 
 
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
-    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, Logger& logger) const override;
+    virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const override;
 
 private:
     List m_conds;

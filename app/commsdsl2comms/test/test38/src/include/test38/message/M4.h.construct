@@ -1,0 +1,5 @@
+// Custom construct
+M4()
+{
+    constructOrig();
+}

@@ -43,6 +43,23 @@ public:
     using Kind = Field::Kind;
     using SemanticType = Field::SemanticType;
 
+    enum FieldRefType
+    {
+        FieldRefType_Invalid,
+        FieldRefType_Field,
+        FieldRefType_InnerValue,
+        FieldRefType_ValuesLimit
+    };
+
+    struct FieldRefInfo
+    {
+        const FieldImpl* m_field = nullptr;
+        std::string m_valueName;
+        FieldRefType m_refType = FieldRefType_Invalid;
+    };
+
+    using FieldRefInfosList = std::vector<FieldRefInfo>;
+
     virtual ~FieldImpl() = default;
 
     static Ptr create(const std::string& kind, ::xmlNodePtr node, ProtocolImpl& protocol);
@@ -197,11 +214,6 @@ public:
 
     std::string externalRef(bool schemaRef) const;
 
-    bool isBitCheckable(const std::string& val) const
-    {
-        return isBitCheckableImpl(val);
-    }
-
     bool isComparableToValue(const std::string& val) const;
     bool isComparableToField(const FieldImpl& field) const;
 
@@ -271,6 +283,12 @@ public:
         return membersImpl();
     }
 
+    static FieldRefInfo processSiblingRef(const FieldsList& siblings, const std::string& refStr);
+
+    FieldRefInfo processInnerRef(const std::string& refStr) const;
+
+    bool isValidInnerRef(const std::string& refStr) const;
+
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     FieldImpl(const FieldImpl&);
@@ -317,7 +335,6 @@ protected:
     virtual std::size_t minLengthImpl() const = 0;
     virtual std::size_t maxLengthImpl() const;
     virtual std::size_t bitLengthImpl() const;
-    virtual bool isBitCheckableImpl(const std::string& val) const;
     virtual bool isComparableToValueImpl(const std::string& val) const;
     virtual bool isComparableToFieldImpl(const FieldImpl& field) const;
     virtual bool strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const;
@@ -330,6 +347,7 @@ protected:
     virtual bool verifyAliasedMemberImpl(const std::string& fieldName) const;
     virtual const XmlWrap::NamesList& supportedMemberTypesImpl() const;
     virtual const FieldsList& membersImpl() const;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);

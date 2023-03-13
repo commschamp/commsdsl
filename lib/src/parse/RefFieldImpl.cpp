@@ -133,12 +133,6 @@ std::size_t RefFieldImpl::bitLengthImpl() const
     return Base::bitLengthImpl();
 }
 
-bool RefFieldImpl::isBitCheckableImpl(const std::string& val) const
-{
-    assert(m_field != nullptr);
-    return m_field->isBitCheckable(val);
-}
-
 bool RefFieldImpl::isComparableToValueImpl(const std::string& val) const
 {
     assert(m_field != nullptr);
@@ -216,6 +210,12 @@ bool RefFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) 
 {
     assert(m_field != nullptr);
     return m_field->verifySemanticType(node, type);
+}
+
+RefFieldImpl::FieldRefInfo RefFieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(m_field != nullptr);
+    return m_field->processInnerRef(refStr);
 }
 
 bool RefFieldImpl::updateBitLength()

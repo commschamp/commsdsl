@@ -200,6 +200,12 @@ const std::string& Field::copyCodeFrom() const
     return m_pImpl->copyCodeFrom();
 }
 
+bool Field::isValidInnerRef(const std::string& refStr) const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isValidInnerRef(refStr);
+}
+
 const Field::AttributesMap& Field::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

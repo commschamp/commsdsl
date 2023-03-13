@@ -141,10 +141,40 @@ std::size_t SetFieldImpl::bitLengthImpl() const
     return Base::bitLengthImpl();
 }
 
-bool SetFieldImpl::isBitCheckableImpl(const std::string& val) const
+bool SetFieldImpl::isComparableToValueImpl(const std::string& val) const
 {
-    auto iter = m_state.m_bits.find(val);
-    return iter != m_state.m_bits.end();
+    if (common::isValidRefName(val)) {
+        bool bigUnsigned = false;
+        std::intmax_t valTmp = 0;
+        if (!protocol().strToNumeric(val, false, valTmp, bigUnsigned)) {
+            return false;
+        }
+
+        if ((!bigUnsigned) && (valTmp < 0)) {
+            logError() << XmlWrap::logPrefix(getNode()) <<
+                "Cannot compare negative value (" << valTmp << " referenced as " <<
+            val << ").";
+            return false;
+        }
+
+        return true;
+    }
+
+    bool ok = false;
+    auto valTmp = common::strToIntMax(val, &ok);
+    if (ok && (valTmp < 0)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot compare to negative number " << valTmp << ".";        
+        return false;
+    }
+
+    return ok;    
+}
+
+bool SetFieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
+{
+    auto fieldKind = field.kind();
+    return (fieldKind == Kind::Set);    
 }
 
 bool SetFieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
@@ -200,6 +230,21 @@ bool SetFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bit
     }
 
     return true;
+}
+
+SetFieldImpl::FieldRefInfo SetFieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+
+    FieldRefInfo info;
+    auto iter = m_state.m_bits.find(refStr);
+    if (iter != m_state.m_bits.end()) {
+        info.m_field = this;
+        info.m_valueName = refStr;
+        info.m_refType = FieldRefType_InnerValue;
+    }
+
+    return info;    
 }
 
 bool SetFieldImpl::updateEndian()

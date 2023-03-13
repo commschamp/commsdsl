@@ -20,13 +20,15 @@
 #include <string>
 #include <cstdint>
 
-#include "XmlWrap.h"
-#include "Logger.h"
-#include "Object.h"
 #include "commsdsl/parse/Message.h"
-#include "FieldImpl.h"
+
 #include "AliasImpl.h"
 #include "BundleFieldImpl.h"
+#include "FieldImpl.h"
+#include "Logger.h"
+#include "OptCondImpl.h"
+#include "Object.h"
+#include "XmlWrap.h"
 
 namespace commsdsl
 {
@@ -107,6 +109,11 @@ public:
         return m_customizable;
     }
 
+    bool isFailOnInvalid() const
+    {
+        return m_failOnInvalid;
+    }       
+
     Sender sender() const
     {
         return m_sender;
@@ -147,6 +154,21 @@ public:
         return m_copyCodeFrom;
     }
 
+    OptCond construct() const
+    {
+        return OptCond(m_construct.get());
+    }
+
+    OptCond readCond() const
+    {
+        return OptCond(m_readCond.get());
+    }  
+
+    OptCond validCond() const
+    {
+        return OptCond(m_validCond.get());
+    }          
+
 protected:
     virtual ObjKind objKindImpl() const override;
 
@@ -156,11 +178,15 @@ private:
     LogWrapper logInfo() const;
 
     static const XmlWrap::NamesList& commonProps();
+    static const XmlWrap::NamesList& extraProps();
+    static const XmlWrap::NamesList& allProps();
+    
     static XmlWrap::NamesList allNames();
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false, bool allowDeref = false);
     bool validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value);
+    bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
     bool updateName();
     bool updateDescription();
@@ -172,6 +198,7 @@ private:
     bool updateCustomizable();
     bool updateSender();
     bool updateValidateMinLength();
+    bool updateFailOnInvalid();
     bool copyFields();
     bool copyAliases();
     bool replaceFields();
@@ -188,8 +215,25 @@ private:
     bool updateValidOverride();
     bool updateNameOverride();    
     bool updateCopyOverrideCodeFrom();    
+    bool updateSingleConstruct();
+    bool updateMultiConstruct();
+    bool updateSingleReadCond();
+    bool updateMultiReadCond();
+    bool updateSingleValidCond();
+    bool updateMultiValidCond();    
+    bool copyConstructToReadCond();
+    bool copyConstructToValidCond();
     bool updateExtraAttrs();
     bool updateExtraChildren();
+
+    bool updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond, bool allowFieldsAccess = false);
+    bool updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond, bool allowFieldsAccess = false);
+    bool copyCondInternal(
+        const std::string& copyProp,
+        const std::string& fromProp, 
+        const OptCondImplPtr& fromCond, 
+        const std::string& toProp, 
+        OptCondImplPtr& toCond);
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;
@@ -216,7 +260,11 @@ private:
     OverrideType m_validOverride = OverrideType_Any;
     OverrideType m_nameOverride = OverrideType_Any;    
     std::string m_copyCodeFrom;
+    OptCondImplPtr m_construct;
+    OptCondImplPtr m_readCond;
+    OptCondImplPtr m_validCond;
     bool m_customizable = false;
+    bool m_failOnInvalid = false;
 };
 
 using MessageImplPtr = MessageImpl::Ptr;

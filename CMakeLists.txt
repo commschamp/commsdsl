@@ -12,6 +12,12 @@ option (COMMSDSL_BUILD_COMMSDSL2SWIG "Build commsdsl2swig" OFF)
 option (COMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN "Build commsdsl2emscripten" OFF)
 option (COMMSDSL_INSTALL_APPS "Install applications" ON)
 option (COMMSDSL_BUILD_UNIT_TESTS "Build unittests." OFF)
+option (COMMSDSL_BUILD_COMMSDSL2COMMS_TESTS "Build commsdsl2comms unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
+option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS "Build commsdsl2tools_qt unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
+option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK1 "Build chunk1 commsdsl2tools_qt unittests." ${COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS})
+option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK2 "Build chunk2 commsdsl2tools_qt unittests." ${COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS})
+option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK3 "Build chunk3 commsdsl2tools_qt unittests." ${COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS})
+option (COMMSDSL_BUILD_COMMSDSL2TEST_TESTS "Build commsdsl2test unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
 option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ON)
 option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
@@ -45,13 +51,9 @@ commsdsl_negate_option(COMMSDSL_NO_TESTS COMMSDSL_BUILD_UNIT_TESTS)
 
 ################################################
 
-if (NOT CMAKE_CXX_STANDARD)
-    set (CMAKE_CXX_STANDARD 17)
-endif()
+set(CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard to use")
+set(COMMSDSL_TESTS_CXX_STANDARD 11 CACHE STRING "The C++ standard to use in tests")
 
-if (NOT COMMSDSL_TESTS_CXX_STANDARD)
-    set (COMMSDSL_TESTS_CXX_STANDARD 11)
-endif ()
 
 if (NOT COMMSDSL_TESTS_C_COMPILER)
     set (COMMSDSL_TESTS_C_COMPILER ${CMAKE_C_COMPILER})

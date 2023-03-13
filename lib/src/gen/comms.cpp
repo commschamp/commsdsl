@@ -865,7 +865,29 @@ bool isInterfaceDeepMemberField(const Elem& elem)
     return false;
 }
 
-bool isVersionOptionaField(const Elem& elem, const Generator& generator)
+bool isInterfaceShallowMemberField(const Elem& elem)
+{
+    if (elem.elemType() != Elem::Type_Field) {
+        return false;
+    }
+
+    auto* parent = elem.getParent();
+    assert(parent != nullptr);
+    return parent->elemType() == Elem::Type_Interface;
+}
+
+bool isMessageShallowMemberField(const Elem& elem)
+{
+    if (elem.elemType() != Elem::Type_Field) {
+        return false;
+    }
+
+    auto* parent = elem.getParent();
+    assert(parent != nullptr);
+    return parent->elemType() == Elem::Type_Message;
+}
+
+bool isVersionOptionalField(const Elem& elem, const Generator& generator)
 {
     if (elem.elemType() != Elem::Type_Field) {
         assert(false); // Should not happen

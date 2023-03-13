@@ -249,6 +249,24 @@ bool EnumField::prepareImpl()
     return m_impl->prepare();
 }
 
+EnumField::FieldRefInfo EnumField::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+
+    auto obj = enumDslObj();
+    auto& values = obj.values();
+
+    FieldRefInfo info;
+    auto iter = values.find(refStr);
+    if (iter != values.end()) {
+        info.m_field = this;
+        info.m_valueName = refStr;
+        info.m_refType = FieldRefType_InnerValue;
+    }
+
+    return info;    
+}
+
 } // namespace gen
 
 } // namespace commsdsl

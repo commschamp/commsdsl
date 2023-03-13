@@ -15,15 +15,15 @@
 
 #include "ProtocolImpl.h"
 
-#include <iostream>
-#include <type_traits>
-#include <cassert>
 #include <algorithm>
+#include <cassert>
+#include <iostream>
 #include <numeric>
+#include <type_traits>
 
-#include "XmlWrap.h"
-#include "FieldImpl.h"
 #include "EnumFieldImpl.h"
+#include "FieldImpl.h"
+#include "XmlWrap.h"
 
 namespace commsdsl
 {
@@ -292,6 +292,11 @@ bool ProtocolImpl::isPropertySupported(const std::string& name) const
         {common::missingOnReadFailStr(), 5U},
         {common::missingOnInvalidStr(), 5U},
         {common::reuseCodeStr(), 5U},
+        {common::constructStr(), 6U},
+        {common::readCondStr(), 6U},
+        {common::validCondStr(), 6U},
+        {common::constructAsReadCondStr(), 6U},
+        {common::constructAsValidCondStr(), 6U},
     };
 
     auto iter = Map.find(name);
@@ -350,6 +355,16 @@ bool ProtocolImpl::isMemberReplaceSupported() const
 bool ProtocolImpl::isMultiSchemaSupported() const
 {
     return isFeatureSupported(5U);
+}
+
+bool ProtocolImpl::isInterfaceFieldReferenceSupported() const
+{
+    return isFeatureSupported(6U);
+}
+
+bool ProtocolImpl::isFailOnInvalidInMessageSupported() const
+{
+    return isFeatureSupported(6U);
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)

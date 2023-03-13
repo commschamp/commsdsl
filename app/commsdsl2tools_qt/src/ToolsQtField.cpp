@@ -289,7 +289,7 @@ std::string ToolsQtField::toolsDefFuncBodyImpl() const
         "        .asMap();\n";
 
     auto& generator = m_field.generator();
-    bool verOptional = comms::isVersionOptionaField(m_field, generator);
+    bool verOptional = comms::isVersionOptionalField(m_field, generator);
     auto* templ = &Templ;
     if (verOptional) {
         templ = &VerOptTempl;

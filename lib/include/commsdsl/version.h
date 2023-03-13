@@ -20,10 +20,10 @@
 #pragma once
 
 /// @brief Major verion of the library
-#define COMMSDSL_MAJOR_VERSION 5U
+#define COMMSDSL_MAJOR_VERSION 6U
 
 /// @brief Minor verion of the library
-#define COMMSDSL_MINOR_VERSION 2U
+#define COMMSDSL_MINOR_VERSION 0U
 
 /// @brief Patch level of the library
 #define COMMSDSL_PATCH_VERSION 0U

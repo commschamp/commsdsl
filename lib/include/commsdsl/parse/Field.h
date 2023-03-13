@@ -94,6 +94,7 @@ public:
     OverrideType validOverride() const;
     OverrideType nameOverride() const;
     const std::string& copyCodeFrom() const;
+    bool isValidInnerRef(const std::string& refStr) const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

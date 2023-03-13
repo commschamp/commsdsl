@@ -1,7 +1,6 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test38/Message.h"
-#include "test38/message/M1.h"
 #include "test38/frame/Frame.h"
 #include "comms/process.h"
 
@@ -9,6 +8,11 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
+    void test3();
+    void test4();
+    void test5();
+    void test6();
 
     class Handler;
 
@@ -18,10 +22,16 @@ public:
             comms::option::app::ReadIterator<const std::uint8_t*>,
             comms::option::app::WriteIterator<std::uint8_t*>,
             comms::option::app::LengthInfoInterface,
+            comms::option::app::ValidCheckInterface,
             comms::option::app::Handler<Handler>
         >;
 
     using Msg1 = test38::message::M1<Interface>;
+    using Msg2 = test38::message::M2<Interface>;
+    using Msg3 = test38::message::M3<Interface>;
+    using Msg4 = test38::message::M4<Interface>;
+    using Msg5 = test38::message::M5<Interface>;
+    using Msg6 = test38::message::M6<Interface>;
     using Frame = test38::frame::Frame<Interface>;
 
     class Handler
@@ -29,28 +39,64 @@ public:
     public:
         void handle(Msg1& msg)
         {
-            static_cast<void>(msg);
-            m_msg1Received = true;
+            m_msg1.reset(new Msg1(msg));
         }
+
+        void handle(Msg2& msg)
+        {
+            m_msg2.reset(new Msg2(msg));
+        }
+
+        void handle(Msg3& msg)
+        {
+            m_msg3.reset(new Msg3(msg));
+        }
+
+        void handle(Msg4& msg)
+        {
+            m_msg4.reset(new Msg4(msg));
+        }      
+
+        void handle(Msg5& msg)
+        {
+            m_msg5.reset(new Msg5(msg));
+        }             
 
         void handle(Interface& msg)
         {
             static_cast<void>(msg);
-            m_msg1Received = false;
         }
 
-        bool getMsg1Received() const
+        const std::unique_ptr<Msg1>& getMsg1() const
         {
-            return m_msg1Received;
+            return m_msg1;
         }
+
+        const std::unique_ptr<Msg2>& getMsg2() const
+        {
+            return m_msg2;
+        }
+
+        const std::unique_ptr<Msg3>& getMsg3() const
+        {
+            return m_msg3;
+        }        
 
         void reset()
         {
-            m_msg1Received = false;
+            m_msg1.reset();
+            m_msg2.reset();
+            m_msg3.reset();
+            m_msg4.reset();
+            m_msg5.reset();
         }
 
     private:
-        bool m_msg1Received = false;
+        std::unique_ptr<Msg1> m_msg1;
+        std::unique_ptr<Msg2> m_msg2;
+        std::unique_ptr<Msg3> m_msg3;
+        std::unique_ptr<Msg4> m_msg4;
+        std::unique_ptr<Msg5> m_msg5;
     };
 };
 
@@ -70,9 +116,116 @@ void TestSuite::test1()
     Handler handler;
     auto comsumed = comms::processAllWithDispatch(&outBuf[0], outBuf.size(), frame, handler);
     TS_ASSERT_EQUALS(comsumed, outBuf.size());
-    TS_ASSERT(handler.getMsg1Received()); // Make sure that Msg1 is received
+    TS_ASSERT(handler.getMsg1()); // Make sure that Msg1 is received
 
 //    std::cout << "Buf: " << std::hex;
 //    std::copy(outBuf.begin(), outBuf.end(), std::ostream_iterator<unsigned>(std::cout, " "));
 //    std::cout << std::dec << std::endl;
 }
+
+void TestSuite::test2()
+{
+    std::vector<std::uint8_t> outBuf;
+    Frame frame;
+    Msg2 msg;
+
+    msg.transportField_flags().field_b().setBitValue_B0(true);
+    msg.transportField_flags().field_e().setValue(1);
+    msg.doRefresh();
+    TS_ASSERT(msg.field_f1().doesExist());
+    TS_ASSERT(msg.field_f2().doesExist());
+    TS_ASSERT(msg.field_f3().doesExist());
+
+    msg.field_f1().field().setValue(1);
+    msg.field_f2().field().setValue(1);
+    msg.field_f3().field().setValue(3);
+
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Handler handler;
+    auto comsumed = comms::processAllWithDispatch(&outBuf[0], outBuf.size(), frame, handler);
+    TS_ASSERT_EQUALS(comsumed, outBuf.size());
+    auto& msg2Ptr = handler.getMsg2();
+    TS_ASSERT(msg2Ptr); // Make sure that Msg2 is received
+    TS_ASSERT_EQUALS(msg, *msg2Ptr);
+}
+
+void TestSuite::test3()
+{
+    Msg3 msg;
+    TS_ASSERT(msg.transportField_flags().field_b().getBitValue_B0());
+    TS_ASSERT(!msg.transportField_flags().field_b().getBitValue_B1());
+    TS_ASSERT(msg.transportField_flags().field_e().getValue() == Msg3::TransportField_flags::Field_e::ValueType::V2);
+    TS_ASSERT(msg.doValid());
+
+    msg.transportField_flags().field_b().setBitValue_B1(true);
+    TS_ASSERT(!msg.doValid());
+    TS_ASSERT(!msg.valid());
+
+    Frame frame;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto* readIter = &outBuf[0];
+    es = comms::processSingle(readIter, outBuf.size(), frame, msgPtr);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);    
+}
+
+void TestSuite::test4()
+{
+    Msg5 msg;
+    TS_ASSERT(msg.transportField_flags().field_b().getBitValue_B1());
+    TS_ASSERT(!msg.doValid());
+    msg.field_f1().value() = 1U;
+    TS_ASSERT(msg.valid());
+}
+
+void TestSuite::test5()
+{
+    Msg5 msg;
+    TS_ASSERT(!msg.doValid());
+    Frame frame;
+
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto* readIter = &outBuf[0];
+    es = comms::processSingle(readIter, outBuf.size(), frame, msgPtr);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
+}
+
+void TestSuite::test6()
+{
+    Msg6 msg;
+    TS_ASSERT(msg.doValid());
+
+    msg.transportField_flags().field_b().setBitValue_B0(false);
+    msg.doRefresh();
+    TS_ASSERT(!msg.doValid());
+
+
+    Frame frame;
+
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto* writeIter = &outBuf[0];
+    auto es = frame.write(msg, writeIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr msgPtr;
+    auto* readIter = &outBuf[0];
+    es = comms::processSingle(readIter, outBuf.size(), frame, msgPtr);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
+}
+

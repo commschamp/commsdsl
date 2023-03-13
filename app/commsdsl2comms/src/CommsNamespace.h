@@ -34,6 +34,11 @@ public:
     explicit CommsNamespace(CommsGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent);
     virtual ~CommsNamespace();
 
+    static const CommsNamespace* cast(const commsdsl::gen::Namespace* ptr)
+    {
+        return static_cast<const CommsNamespace*>(ptr);
+    }
+
     std::string commsDefaultOptions() const;
     std::string commsClientDefaultOptions() const;
     std::string commsServerDefaultOptions() const;
@@ -43,6 +48,8 @@ public:
     bool commsHasReferencedMsgId() const;
     bool commsHasAnyGeneratedCode() const;
     bool commsHasAnyField() const;
+
+    const CommsField* findValidInterfaceReferencedField(const std::string& refStr) const;
 
 protected:
     virtual bool prepareImpl() override;    

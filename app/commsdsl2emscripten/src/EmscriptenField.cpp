@@ -91,7 +91,7 @@ std::string EmscriptenField::emscriptenRelHeaderPath() const
 
 bool EmscriptenField::emscriptenIsVersionOptional() const
 {
-    return comms::isVersionOptionaField(m_field, m_field.generator());
+    return comms::isVersionOptionalField(m_field, m_field.generator());
 }
 
 bool EmscriptenField::emscriptenWrite() const

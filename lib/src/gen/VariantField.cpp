@@ -100,6 +100,16 @@ void VariantField::setReferencedImpl()
     m_impl->setReferenced();
 }
 
+VariantField::FieldRefInfo VariantField::processInnerRefImpl(const std::string& refStr) const
+{
+    auto& memFields = members();
+    if (!memFields.empty()) {
+        return processMemberRef(memFields, refStr);
+    }    
+
+    return Base::processInnerRefImpl(refStr);
+}
+
 commsdsl::parse::VariantField VariantField::variantDslObj() const
 {
     return commsdsl::parse::VariantField(dslObj());

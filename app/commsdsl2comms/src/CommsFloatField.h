@@ -42,6 +42,7 @@ protected:
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual std::string commsDefValidFuncBodyImpl() const override;
+    virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
     std::string commsCommonHasSpecialsFuncCodeInternal() const;

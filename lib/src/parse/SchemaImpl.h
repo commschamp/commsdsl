@@ -37,6 +37,9 @@ public:
     using NamespacesMap = NamespaceImpl::NamespacesMap;
     using PlatformsList = Schema::PlatformsList;
     using MessagesList = Schema::MessagesList;
+    using InterfacesList = NamespaceImpl::InterfacesList;
+    using ImplInterfacesList = NamespaceImpl::ImplInterfacesList;
+    using FieldRefInfosList = NamespaceImpl::FieldRefInfosList;
 
     SchemaImpl(::xmlNodePtr node, ProtocolImpl& protocol);
 
@@ -126,6 +129,8 @@ public:
     }
 
     MessagesList allMessages() const;
+    InterfacesList allInterfaces() const;
+    ImplInterfacesList allImplInterfaces() const;
 
     bool addPlatform(const std::string& name);
     void addNamespace(NamespaceImplPtr ns);
@@ -135,6 +140,8 @@ public:
     unsigned countMessageIds() const;
 
     std::string externalRef() const;
+
+    FieldRefInfosList processInterfaceFieldRef(const std::string& refStr) const;
 
 protected:
     virtual ObjKind objKindImpl() const override;    

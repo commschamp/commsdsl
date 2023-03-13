@@ -50,6 +50,7 @@ const std::string& appendFileSuffixStr();
 const std::string& prependFileSuffixStr();
 const std::string& prependLangFileSuffixStr();
 const std::string& bindFileSuffixStr();
+const std::string& constructFileSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
 const std::string& fieldBaseClassStr();
 const std::string& defaultOptionsClassStr();
@@ -68,10 +69,14 @@ const std::string& versionFileNameStr();
 const std::string& enumFirstValueStr();
 const std::string& enumLastValueStr();
 const std::string& enumValuesLimitStr();
+const std::string& transportFieldAccessPrefixStr();
+const std::string& transportFieldTypeAccessPrefixStr();
+const std::string& fieldAccessPrefixStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();
 char schemaRefPrefix();
+char interfaceFieldRefPrefix();
 
 } // namespace strings
 

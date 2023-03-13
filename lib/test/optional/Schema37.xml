@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema37" endian="big">
+    <description>
+        Referencing various fields in interface
+    </description>
+
+    <interface name="Interface1">
+        <set name="Flags" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+        </set>
+    </interface>
+
+    <message name="Msg1" id="1">
+        <optional name="O1" cond="%Flags.B0">
+            <int name="ActO1" type="uint8" />
+        </optional>
+
+        <optional name="O2" cond="!%Flags.B1">
+            <int name="ActO2" type="uint8" />
+        </optional>   
+    </message>
+
+    <message name="Msg2" id="2">
+        <optional name="O1" cond="%Bundle.M0 = 1">
+            <int name="ActO1" type="uint8" />
+        </optional>
+        <optional name="O2" cond="%Bundle.M0 &lt; %Bundle.M1">
+            <int name="ActO1" type="uint8" />
+        </optional>        
+    </message>
+
+</schema>

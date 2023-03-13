@@ -30,6 +30,12 @@ class CommsOptionalField final : public commsdsl::gen::OptionalField, public Com
 public:
     CommsOptionalField(CommsGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
 
+    static std::string commsDslCondToString(
+        const CommsGenerator& generator, 
+        const CommsFieldsList& siblings, 
+        const commsdsl::parse::OptCond& cond, 
+        bool bracketsWrap = false);
+
 protected:
     // Base overrides
     virtual bool prepareImpl() override;
@@ -50,6 +56,7 @@ protected:
     virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
 
 private:
+    bool commsCheckCondSupportedInternal() const;
     std::string commsDefFieldRefInternal() const;
     std::string commsDefFieldOptsInternal() const;
 
@@ -57,7 +64,7 @@ private:
     void commsAddMissingOnReadFailOptInternal(StringsList& opts) const;
     void commsAddMissingOnInvalidOptInternal(StringsList& opts) const;
 
-    static std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::OptCond& cond, bool bracketsWrap = false);
+    std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::OptCond& cond, bool bracketsWrap = false) const;
     static std::string commsDslCondToStringFieldValueCompInternal(
         const CommsField* field, 
         const std::string& accStr,

@@ -17,6 +17,8 @@
 
 #include "CommsField.h"
 #include "CommsGenerator.h"
+#include "CommsOptionalField.h"
+#include "CommsSchema.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -27,6 +29,7 @@
 #include <fstream>
 #include <iterator>
 #include <numeric>
+#include <utility>
 
 namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
@@ -62,6 +65,137 @@ void readCustomCodeInternal(const std::string& codePath, std::string& code)
     }
 
     code = util::readFileContents(codePath);
+}
+
+std::pair<const CommsField*, std::string> findInterfaceFieldInternal(const CommsGenerator& generator, const std::string& refStr)
+{
+    auto& currSchema = CommsSchema::cast(generator.currentSchema());
+    auto* field = currSchema.findValidInterfaceReferencedField(refStr);
+    if (field == nullptr) {
+        generator.logger().error("Failed to find interface field \"" + refStr + "\".");
+        assert(false);
+        return std::make_pair(nullptr, std::string());
+    }
+
+    auto dotPos = refStr.find(".");
+    if (refStr.size() < dotPos) {
+        return std::make_pair(field, std::string());
+    }
+
+    return std::make_pair(field, refStr.substr(dotPos + 1));
+}
+
+std::string interfaceFieldAccStrInternal(const CommsField& field)
+{
+    return strings::transportFieldAccessPrefixStr() + comms::accessName(field.field().dslObj().name()) + "()";
+}
+
+void updateConstructBoolInternal(const CommsGenerator& generator, const commsdsl::parse::OptCondExpr& cond, util::StringsList& code)
+{
+    assert(cond.op().empty() || (cond.op() == "!"));
+    auto& right = cond.right();
+    assert(!right.empty());
+    assert(right[0] == strings::interfaceFieldRefPrefix());
+
+    auto lastSepPos = right.find_last_of(".");
+    assert(lastSepPos < right.size());
+    if (right.size() <= lastSepPos) {
+        return;
+    }
+
+    auto fieldInfo = findInterfaceFieldInternal(generator, right.substr(1, lastSepPos - 1U));
+    if (fieldInfo.first == nullptr) {
+        assert(false); // Should not happen
+        return;
+    }
+
+    auto fieldAccess = fieldInfo.first->commsFieldAccessStr(fieldInfo.second, interfaceFieldAccStrInternal(*fieldInfo.first));
+
+    static const std::string TrueStr("true");
+    static const std::string FalseStr("false");
+
+    auto* valStr = &TrueStr;
+    if (!cond.op().empty()) {
+        valStr = &FalseStr;
+    }
+
+    static const std::string Templ = 
+        "Base::#^#ACC#$#.setBitValue_#^#NAME#$#(#^#VAL#$#);\n";
+
+    util::ReplacementMap repl = {
+        {"ACC", std::move(fieldAccess)},
+        {"NAME", right.substr(lastSepPos + 1U)},
+        {"VAL", *valStr},
+    };
+
+    code.push_back(util::processTemplate(Templ, repl));
+}
+
+void updateConstructExprInternal(const CommsGenerator& generator, const commsdsl::parse::OptCondExpr& cond, util::StringsList& code)
+{
+    auto& left = cond.left();
+    if (left.empty()) {
+        updateConstructBoolInternal(generator, cond, code); 
+        return;
+    }
+
+    assert(left[0] == strings::interfaceFieldRefPrefix());
+    auto leftInfo = findInterfaceFieldInternal(generator, left.substr(1));
+    if (leftInfo.first == nullptr) {
+        assert(false); // Should not happen
+        return;
+    }
+    
+    assert(cond.op() == "=");
+    auto& right = cond.right();
+    assert(!right.empty());
+
+    auto leftFieldAccess = leftInfo.first->commsFieldAccessStr(leftInfo.second, interfaceFieldAccStrInternal(*leftInfo.first));
+
+    auto castPrefix = strings::transportFieldTypeAccessPrefixStr() + comms::accessName(leftInfo.first->field().dslObj().name()) + "::";
+    std::string castType = leftInfo.first->commsCompValueCastType(leftInfo.second, castPrefix);
+    std::string valStr;
+    if (right[0] == strings::interfaceFieldRefPrefix()) {
+        auto rightInfo = findInterfaceFieldInternal(generator, right.substr(1));
+        if (rightInfo.first == nullptr) {
+            assert(false); // Should not happen
+            return;
+        }
+
+        valStr = rightInfo.first->commsValueAccessStr(rightInfo.second, interfaceFieldAccStrInternal(*rightInfo.first));
+    }
+    else {
+        valStr = leftInfo.first->commsCompPrepValueStr(leftInfo.second, right);
+    }
+
+    static const std::string Templ = 
+        "Base::#^#ACC#$#.value() = static_cast<typename Base::#^#CAST#$#>(#^#VAL#$#);\n";
+
+    util::ReplacementMap repl = {
+        {"ACC", std::move(leftFieldAccess)},
+        {"CAST", std::move(castType)},
+        {"VAL", std::move(valStr)}
+    };
+
+    code.push_back(util::processTemplate(Templ, repl));
+}
+
+void updateConstructCodeInternal(const CommsGenerator& generator, const commsdsl::parse::OptCond& cond, util::StringsList& code)
+{
+    assert(cond.valid());
+    if (cond.kind() == commsdsl::parse::OptCond::Kind::Expr) {
+        commsdsl::parse::OptCondExpr exprCond(cond);
+        updateConstructExprInternal(generator, exprCond, code);
+        return;
+    }
+
+    assert(cond.kind() == commsdsl::parse::OptCond::Kind::List);
+    commsdsl::parse::OptCondList listCond(cond);
+    assert(listCond.type() == commsdsl::parse::OptCondList::Type::And);
+    auto conditions = listCond.conditions();
+    for (auto& c : conditions) {
+        updateConstructCodeInternal(generator, c, code);
+    }
 }
 
 } // namespace 
@@ -123,6 +257,7 @@ bool CommsMessage::prepareImpl()
         return false;
     }
 
+    readCustomCodeInternal(codePathPrefix + strings::constructFileSuffixStr(), m_customConstruct);
     readCustomCodeInternal(codePathPrefix + strings::incFileSuffixStr(), m_customCode.m_inc);
     readCustomCodeInternal(codePathPrefix + strings::publicFileSuffixStr(), m_customCode.m_public);
     readCustomCodeInternal(codePathPrefix + strings::protectedFileSuffixStr(), m_customCode.m_protected);
@@ -138,6 +273,7 @@ bool CommsMessage::prepareImpl()
         m_bundledRefreshCodes.push_back(m->commsDefBundledRefreshFuncBody(m_commsFields));
     }  
 
+    commsPrepareConstructCodeInternal();
     return true;
 }
 
@@ -455,6 +591,34 @@ std::string CommsMessage::commsDefIncludesInternal() const
     return util::strListToString(includes, "\n", "\n");
 }
 
+std::string CommsMessage::commsDefConstructInternal() const
+{
+    if (!m_customConstruct.empty()) {
+        return m_customConstruct;
+    }    
+
+    if (m_internalConstruct.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "#^#CLASS_NAME#$##^#SUFFIX#$#()\n"
+        "{\n"
+        "    #^#CODE#$#\n"    
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"CODE", m_internalConstruct}
+    };
+
+    if (!m_customCode.m_extend.empty()) {
+        repl["SUFFIX"] = strings::origSuffixStr();
+    }    
+
+    return util::processTemplate(Templ, repl);
+}
+
 std::string CommsMessage::commsDefFieldsCodeInternal() const
 {
     util::StringsList fields;
@@ -543,13 +707,8 @@ std::string CommsMessage::commsDefCustomizationOptInternal() const
 std::string CommsMessage::commsDefExtraOptionsInternal() const
 {
     util::StringsList opts;
-    bool hasGeneratedRead = 
-        std::any_of(
-            m_bundledReadPrepareCodes.begin(), m_bundledReadPrepareCodes.end(),
-            [](const std::string& code)
-            {
-                return !code.empty();
-            });
+
+    // Messages don't need / support comms::option::def::HasCustomRead option
 
     bool hasGeneratedRefresh = 
         std::any_of(
@@ -559,21 +718,23 @@ std::string CommsMessage::commsDefExtraOptionsInternal() const
                 return !code.empty();
             });
 
-    if ((!m_customCode.m_read.empty()) || hasGeneratedRead) {
-        util::addToStrList("comms::option::def::HasCustomRead", opts);
-    }
-
     if ((!m_customCode.m_refresh.empty()) || hasGeneratedRefresh) {
-        return "comms::option::def::HasCustomRefresh";
+        util::addToStrList("comms::option::def::HasCustomRefresh", opts);
     }
 
-    return strings::emptyString();    
+    auto obj = dslObj();
+    if (obj.isFailOnInvalid()) {
+        util::addToStrList("comms::option::def::FailOnInvalid<>", opts);
+    }
+
+    return util::strListToString(opts, ",\n", "");    
 }
 
 std::string CommsMessage::commsDefPublicInternal() const
 {
     static const std::string Templ =
         "public:\n"
+        "    #^#CONSTRUCT#$#\n"
         "    #^#ACCESS#$#\n"
         "    #^#ALIASES#$#\n"
         "    #^#LENGTH_CHECK#$#\n"
@@ -588,6 +749,7 @@ std::string CommsMessage::commsDefPublicInternal() const
 
     auto inputCodePrefix = comms::inputCodePathFor(*this, generator());
     util::ReplacementMap repl = {
+        {"CONSTRUCT", commsDefConstructInternal()},
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
         {"LENGTH_CHECK", commsDefLengthCheckInternal()},
@@ -596,7 +758,7 @@ std::string CommsMessage::commsDefPublicInternal() const
         {"READ", commsDefReadFuncInternal()},
         {"WRITE", m_customCode.m_write},
         {"LENGTH", m_customCode.m_length},
-        {"VALID", m_customCode.m_valid},
+        {"VALID", commsDefValidFuncInternal()},
         {"REFRESH", commsDefRefreshFuncInternal()},
     };
 
@@ -668,18 +830,23 @@ std::string CommsMessage::commsDefPrivateInternal() const
         }
     }
 
-    if (reads.empty() && refreshes.empty() && m_customCode.m_private.empty()) {
+    bool hasPrivateConstruct = 
+        (!m_internalConstruct.empty()) && (!m_customConstruct.empty());
+
+    if (reads.empty() && refreshes.empty() && m_customCode.m_private.empty() && (!hasPrivateConstruct)) {
         return strings::emptyString();
     }
 
     static const std::string Templ = 
         "private:\n"
+        "    #^#CONSTRUCT#$#\n"
         "    #^#READS#$#\n"
         "    #^#REFRESHES#$#\n"
         "    #^#CUSTOM#$#\n"
     ;
 
     util::ReplacementMap repl = {
+        {"CONSTRUCT", commsDefPrivateConstructInternal()},
         {"READS", util::strListToString(reads, "\n", "")},
         {"REFRESHES", util::strListToString(refreshes, "\n", "")},
         {"CUSTOM", m_customCode.m_private}
@@ -876,6 +1043,8 @@ std::string CommsMessage::commsDefReadFuncInternal() const
             break;
         }
 
+        auto readCond = commsDefReadConditionsCodeInternal();
+
         util::StringsList reads;
         assert(m_bundledReadPrepareCodes.size() == m_commsFields.size());
         int prevIdx = -1;
@@ -916,37 +1085,75 @@ std::string CommsMessage::commsDefReadFuncInternal() const
             prevIdx = idx;        
         }
 
-        if (reads.empty()) {
-            // Members dont have bundled reads
+        if (readCond.empty() && reads.empty()) {
             break;
         }
 
-        if (prevIdx < 0) {
-            // Only the first element has readPrepare()
-            reads.push_back("es = Base::doRead(iter, len);\n");
+        std::string readsCode;
+        if (!reads.empty()) {
+            if (prevIdx < 0) {
+                // Only the first element has readPrepare()
+                reads.push_back("es = Base::doRead(iter, len);\n");
+            }
+            else {
+                auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
+                reads.push_back("es = Base::template doReadFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
+            }
+                        
+            static const std::string ReadsTempl = 
+                "#^#UPDATE_VERSION#$#\n"
+                "auto es = comms::ErrorStatus::Success;\n"
+                "do {\n"
+                "    #^#READS#$#\n"
+                "} while (false);\n\n"
+                "#^#FAIL_ON_INVALID#$#\n"
+                "return es;\n";
+
+            util::ReplacementMap readsRepl = {
+                {"READS", util::strListToString(reads, "\n", "")},
+                {"UPDATE_VERSION", generator().schemaOf(*this).versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
+            };                
+
+            if (dslObj().isFailOnInvalid()) {
+                static const std::string FailOnInvalidTempl = 
+                    "if (!#^#VALID_PREFIX#$#doValid()) {\n"
+                    "    es = comms::ErrorStatus::InvalidMsgData;\n"
+                    "}\n";
+
+                util::ReplacementMap failOnInvalidRepl;
+
+                bool hasGeneratedValid = commsDefValidFuncInternal().empty();
+                if (hasGeneratedValid) {
+                    failOnInvalidRepl["VALID_PREFIX"] = "Base::";
+                }
+
+                readsRepl["FAIL_ON_INVALID"] = util::processTemplate(FailOnInvalidTempl, failOnInvalidRepl);
+            }
+
+            readsCode = util::processTemplate(ReadsTempl, readsRepl);
         }
         else {
-            auto prevAcc = comms::accessName(m_commsFields[prevIdx]->field().dslObj().name());
-            reads.push_back("es = Base::template doReadFrom<FieldIdx_" + prevAcc + ">(iter, len);\n");
+            readsCode = "return Base::doRead(iter, len);\n";
         }
+
+        if (readCond.empty() && readsCode.empty()) {
+            break;
+        }
+
 
         static const std::string Templ = 
             "/// @brief Generated read functionality.\n"
             "template <typename TIter>\n"
             "comms::ErrorStatus doRead#^#ORIG#$#(TIter& iter, std::size_t len)\n"
             "{\n"
-            "    #^#UPDATE_VERSION#$#\n"
-            "    auto es = comms::ErrorStatus::Success;\n"
-            "    do {\n"
-            "        #^#READS#$#\n"
-            "    } while (false);\n"
-            "    return es;\n"
+            "    #^#READ_COND#$#\n"
+            "    #^#READS#$#\n"
             "}\n"
             ;        
 
         util::ReplacementMap repl = {
-            {"READS", util::strListToString(reads, "\n", "")},
-            {"UPDATE_VERSION", generator().schemaOf(*this).versionDependentCode() ? "Base::doFieldsVersionUpdate();" : strings::emptyString()},
+            {"READ_COND", std::move(readCond)},
+            {"READS", std::move(readsCode)},
         };
 
         if (!m_customCode.m_read.empty()) {
@@ -1032,6 +1239,30 @@ std::string CommsMessage::commsDefRefreshFuncInternal() const
     };
 
     return util::processTemplate(Templ, repl);    
+}
+
+std::string CommsMessage::commsDefPrivateConstructInternal() const
+{
+    if (m_internalConstruct.empty()) {
+        return strings::emptyString();
+    }
+
+    if (m_customConstruct.empty()) {
+        // The construct code is already in the constructor
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "void constructOrig()\n"
+        "{\n"
+        "    #^#CODE#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CODE", m_internalConstruct}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 bool CommsMessage::commsIsCustomizableInternal() const
@@ -1165,6 +1396,101 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
     return util::strListToString(elems, "\n", "");
 }
 
+std::string CommsMessage::commsDefReadConditionsCodeInternal() const
+{
+    auto readCond = dslObj().readCond();
+    if (!readCond.valid()) {
+        return strings::emptyString();
+    }
+
+    auto& gen = CommsGenerator::cast(generator());
+    auto str = 
+        CommsOptionalField::commsDslCondToString(gen, CommsFieldsList(), readCond, true);
+
+    if (str.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "bool validRead =\n"
+        "    #^#CODE#$#;\n\n"
+        "if (!validRead) {\n"
+        "    return comms::ErrorStatus::InvalidMsgData;\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CODE", std::move(str)},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsDefOrigValidCodeInternal() const
+{
+    auto obj = dslObj();
+
+    if ((!m_customCode.m_valid.empty()) && (!hasOrigCode(obj.validOverride()))) {
+        return strings::emptyString();
+    }
+
+    auto cond = obj.validCond();
+    if (!cond.valid()) {
+        return strings::emptyString();
+    }
+
+    auto& gen = CommsGenerator::cast(generator());
+    auto str = 
+        CommsOptionalField::commsDslCondToString(gen, m_commsFields, cond, true);
+
+    if (str.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "// Generated validity check functionality\n"
+        "bool doValid#^#SUFFIX#$#() const\n"
+        "{\n"
+        "    if (!Base::doValid()) {\n"
+        "        return false;\n"
+        "    }\n\n"
+        "    return\n"
+        "        #^#CODE#$#;\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CODE", std::move(str)},
+    };
+
+    if (!m_customCode.m_valid.empty()) {
+        repl["SUFFIX"] = strings::origSuffixStr();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsDefValidFuncInternal() const
+{
+    auto orig = commsDefOrigValidCodeInternal();
+    if (m_customCode.m_valid.empty()) {
+        return orig;
+    }
+
+    if (orig.empty()) {
+        return m_customCode.m_valid;
+    }
+
+    static const std::string Templ = 
+        "#^#ORIG#$#\n"
+        "#^#CUSTOM#$#\n";
+
+    util::ReplacementMap repl = {
+        {"ORIG", std::move(orig)},
+        {"CUSTOM", m_customCode.m_valid}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 CommsMessage::StringsList CommsMessage::commsClientExtraCustomizationOptionsInternal() const
 {
     auto sender = dslObj().sender();
@@ -1205,6 +1531,23 @@ CommsMessage::StringsList CommsMessage::commsServerExtraCustomizationOptionsInte
         "comms::option::app::NoReadImpl",
         "comms::option::app::NoDispatchImpl"
     };
+}
+
+void CommsMessage::commsPrepareConstructCodeInternal()
+{
+    auto cond = dslObj().construct();
+    if (!cond.valid()) {
+        return;
+    }
+
+    StringsList code;
+    updateConstructCodeInternal(CommsGenerator::cast(generator()), cond, code);
+
+    if (code.empty()) {
+        return;
+    }
+
+    m_internalConstruct = util::strListToString(code, "", "");
 }
 
 } // namespace commsdsl2comms
