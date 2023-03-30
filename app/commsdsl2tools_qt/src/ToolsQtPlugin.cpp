@@ -325,7 +325,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
             "        static_assert(#^#INTERFACE_TYPE#$#::hasVersionInTransportFields(),\n"
             "            \"Interface type is expected to has version in transport fields\");\n"
             "        static const std::size_t VersionIdx = \n"
-            "            #^#INTERFACE_TYPE#$#::InterfaceOptions::VersionInExtraTransportFields;\n"
+            "            #^#INTERFACE_TYPE#$#::versionIdxInTransportFields();\n"
             "        auto& castedMsg = static_cast<#^#INTERFACE_TYPE#$#&>(msg);\n"
             "        std::get<VersionIdx>(castedMsg.transportFields()).value() =\n"
             "            static_cast<#^#INTERFACE_TYPE#$#::VersionType>(m_version);\n"
