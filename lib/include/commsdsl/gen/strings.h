@@ -28,6 +28,7 @@ const std::string& layerNamespaceStr();
 const std::string& checksumNamespaceStr();
 const std::string& optionsNamespaceStr();
 const std::string& dispatchNamespaceStr();
+const std::string& factoryNamespaceStr();
 const std::string& inputNamespaceStr();
 const std::string& pluginNamespaceStr();
 const std::string& includeDirStr();

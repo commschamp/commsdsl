@@ -111,6 +111,12 @@ const std::string& dispatchNamespaceStr()
     return Str;   
 }
 
+const std::string& factoryNamespaceStr()
+{
+    static const std::string Str("factory");
+    return Str;   
+}
+
 const std::string& inputNamespaceStr()
 {
     static const std::string Str("input");
