@@ -55,6 +55,7 @@ const std::string& constructFileSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
 const std::string& fieldBaseClassStr();
 const std::string& defaultOptionsClassStr();
+const std::string& allMessagesDynMemMsgFactoryDefaultOptionsClassStr();
 const std::string& indentStr();
 const std::string& doxygenPrefixStr();
 const std::string& versionOptionalFieldSuffixStr();

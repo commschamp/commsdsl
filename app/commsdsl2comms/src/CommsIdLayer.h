@@ -39,6 +39,7 @@ protected:
     virtual bool commsDefHasInputMessagesImpl() const override;
     virtual bool commsIsCustomizableImpl() const override;    
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
 
 private:
 };

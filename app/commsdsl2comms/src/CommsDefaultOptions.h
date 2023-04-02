@@ -35,6 +35,16 @@ private:
     bool commsWriteServerDefaultOptionsInternal() const;
     bool commsWriteDataViewDefaultOptionsInternal() const;
     bool commsWriteBareMetalDefaultOptionsInternal() const;
+    bool commsWriteMsgFactoryDefaultOptionsInternal() const;
+    bool commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() const;
+    bool commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() const;
+    bool commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() const;
+    bool commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() const;
+    bool commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal() const;
+    bool commsWriteSingleMsgFactoryDefaultOptionsInternal(
+        const std::string& prefix, 
+        const std::string& messagesDesc,
+        const std::string& allocDesc) const;
 
     CommsGenerator& m_generator;
 };

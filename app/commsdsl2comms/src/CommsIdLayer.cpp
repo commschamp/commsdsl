@@ -92,4 +92,12 @@ CommsIdLayer::StringsList CommsIdLayer::commsExtraBareMetalDefaultOptionsImpl() 
         };    
 }
 
+CommsIdLayer::StringsList CommsIdLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
+{
+    return
+        StringsList{
+            "comms::option::app::MsgFactoryTempl<MsgFactory>"
+        };    
+}
+
 } // namespace commsdsl2comms

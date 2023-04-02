@@ -273,6 +273,12 @@ const std::string& defaultOptionsClassStr()
     return Str;    
 }
 
+const std::string& allMessagesDynMemMsgFactoryDefaultOptionsClassStr()
+{
+    static const std::string Str("AllMessagesDynMemMsgFactoryDefaultOptions");
+    return Str;      
+}
+
 const std::string& indentStr()
 {
     static const std::string Str("    ");

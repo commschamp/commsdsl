@@ -38,6 +38,8 @@ namespace commsdsl2comms
 namespace 
 {
 
+const std::string MsgFactoryOptionsSuffix("MsgFactoryDefaultOptions");
+
 using NamespaceOptionsFunc = std::string (CommsNamespace::*)() const;
 std::string optionsBodyInternal(
     CommsGenerator& generator,
@@ -138,6 +140,41 @@ util::ReplacementMap extInitialRepl(CommsGenerator& generator)
     return repl;
 }
 
+const std::string& msgFactoryOptionsTempl()
+{
+    static const std::string Templ = 
+        "#^#GENERATED#$#\n"
+        "/// @file\n"
+        "/// @brief Contains definition of protocol #^#DESC#$# message factory options.\n\n"
+        "#pragma once\n\n"
+        "#include \"#^#PROT_NAMESPACE#$#/factory/#^#NAME#$#MsgFactory.h\"\n"
+        "#include \"#^#PROT_NAMESPACE#$#/options/DefaultOptions.h\"\n\n"
+        "namespace #^#PROT_NAMESPACE#$#\n"
+        "{\n\n"
+        "namespace options\n"
+        "{\n\n"
+        "/// @brief Provided #^#DESC#$# message factory options of the protocol.\n"
+        "/// @details Must be used as the outermost wrapper of the protocol options.\n"
+        "template <typename TBase = #^#DEFAULT_OPTS#$#>\n"
+        "struct #^#NAME#$#MsgFactoryDefaultOptionsT : public TBase\n"
+        "{\n"
+        "    /// @brief Alias to @ref #^#PROT_NAMESPACE#$#::factory::#^#NAME#$#MsgFactory message factory.\n"
+        "    /// @details Exposes the same template parameters as @b comms::MsgFactory.\n"
+        "    template <typename TInterface, typename TAllMessages, typename... TOptions>\n"
+        "    using MsgFactory = #^#PROT_NAMESPACE#$#::factory::#^#NAME#$#MsgFactory<TInterface, #^#NAME#$#MsgFactoryDefaultOptionsT<TBase> >;\n\n"
+        "    #^#BODY#$#\n"
+        "};\n\n"
+        "/// @brief Alias to @ref #^#NAME#$#MsgFactoryDefaultOptionsT with default template parameter.\n"
+        "using #^#NAME#$#MsgFactoryDefaultOptions#^#ORIG#$# = #^#NAME#$#MsgFactoryDefaultOptionsT<>;\n\n"
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
+        "} // namespace options\n\n"
+        "} // namespace #^#PROT_NAMESPACE#$#\n";
+
+    return Templ;
+}
+
+
 } // namespace 
     
 
@@ -159,7 +196,8 @@ bool CommsDefaultOptions::commsWriteInternal() const
         commsWriteClientDefaultOptionsInternal() &&
         commsWriteServerDefaultOptionsInternal() &&
         commsWriteDataViewDefaultOptionsInternal() &&
-        commsWriteBareMetalDefaultOptionsInternal();
+        commsWriteBareMetalDefaultOptionsInternal() &&
+        commsWriteMsgFactoryDefaultOptionsInternal();
 }
 
 bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
@@ -292,6 +330,155 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
     }
 
     writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
+    return true;
+}
+
+bool CommsDefaultOptions::commsWriteMsgFactoryDefaultOptionsInternal() const
+{
+    if (!m_generator.isCurrentProtocolSchema()) {
+        return true;
+    }
+
+    return 
+        commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() &&
+        commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() &&
+        commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() &&
+        commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() &&
+        commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal();
+}
+
+bool CommsDefaultOptions::commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() const
+{
+    return 
+        commsWriteSingleMsgFactoryDefaultOptionsInternal(
+            "AllMessagesDynMem",
+            "all",
+            "dynamic memory"
+        );
+}
+
+bool CommsDefaultOptions::commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() const
+{
+    return 
+        commsWriteSingleMsgFactoryDefaultOptionsInternal(
+            "ClientInputMessagesDynMem",
+            "client input",
+            "dynamic memory"
+        );
+}
+
+bool CommsDefaultOptions::commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() const
+{
+    return 
+        commsWriteSingleMsgFactoryDefaultOptionsInternal(
+            "ServerInputMessagesDynMem",
+            "server input",
+            "dynamic memory"
+        );
+}
+
+bool CommsDefaultOptions::commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() const
+{
+    auto& platforms = m_generator.currentSchema().platformNames();
+    for (auto& p : platforms) {
+        bool result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(p) + "MessagesDynMem",
+                "all \"" + p + "\" platform scpecific",
+                "dynamic memory"
+            );
+
+        if (!result) {
+            return false;
+        }
+
+        result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(p) + "ClientInputMessagesDynMem",
+                "client input \"" + p + "\" platform scpecific",
+                "dynamic memory"
+            );       
+
+        if (!result) {
+            return false;
+        }             
+       
+        result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(p) + "ServerInputMessagesDynMem",
+                "server input \"" + p + "\" platform scpecific",
+                "dynamic memory"
+            );       
+
+        if (!result) {
+            return false;
+        }        
+    };        
+
+    return true;
+}
+
+bool CommsDefaultOptions::commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal() const
+{
+    auto& extraBundles = m_generator.commsExtraMessageBundles();
+    for (auto& b : extraBundles) {        
+        bool result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(b.first) + "MessagesDynMem",
+                "all \"" + b.first + "\" bundle scpecific",
+                "dynamic memory"
+            );
+
+        if (!result) {
+            return false;
+        }
+
+        result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(b.first) + "ClientInputMessagesDynMem",
+                "client input \"" + b.first + "\" bundle scpecific",
+                "dynamic memory"
+            );       
+
+        if (!result) {
+            return false;
+        }             
+       
+        result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(b.first) + "ServerInputMessagesDynMem",
+                "server input \"" + b.first + "\" bundle scpecific",
+                "dynamic memory"
+            );       
+
+        if (!result) {
+            return false;
+        }        
+    };        
+
+    return true;
+}
+
+bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
+    const std::string& prefix, 
+    const std::string& messagesDesc,
+    const std::string& allocDesc) const
+{
+    util::ReplacementMap repl = extInitialRepl(m_generator);
+    auto name = prefix + MsgFactoryOptionsSuffix;
+    repl.insert({
+        {"DESC", messagesDesc + " messages " + allocDesc + " allocation"},
+        {"NAME", prefix},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsMsgFactoryDefaultOptions)},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
+    });
+
+    if (!repl["EXTEND"].empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    writeFileInternal(name, m_generator, util::processTemplate(msgFactoryOptionsTempl(), repl, true));
     return true;
 }
 

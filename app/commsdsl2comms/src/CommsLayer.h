@@ -59,6 +59,7 @@ public:
     std::string commsDefaultOptions() const;
     std::string commsDataViewDefaultOptions() const;
     std::string commsBareMetalDefaultOptions() const;
+    std::string commsMsgFactoryDefaultOptions() const;
 
     const commsdsl::gen::Layer& layer() const
     {
@@ -89,6 +90,7 @@ protected:
     virtual bool commsIsCustomizableImpl() const;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;
+    virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const;
 
     std::string commsDefFieldType() const;
     std::string commsDefExtraOpts() const;
@@ -106,6 +108,7 @@ private:
 
     StringsList commsExtraDataViewDefaultOptionsInternal() const;
     StringsList commsExtraBareMetalDefaultOptionsInternal() const;
+    StringsList commsExtraMsgFactoryDefaultOptionsInternal() const;
     
     commsdsl::gen::Layer& m_layer;
     CommsField* m_commsExternalField = nullptr;

@@ -291,7 +291,7 @@ bool writeFileInternal(
         "        #^#MSG_COUNT_CODE#$#\n"
         "    }\n\n"
         "    /// @brief Compile time inquiry whether all the message classes have unique IDs.\n"
-        "    constexpr bool hasUniqueIds()\n"
+        "    static constexpr bool hasUniqueIds()\n"
         "    {\n"
         "        return #^#HAS_UNIQUE_IDS#$#;\n"
         "    }\n\n"

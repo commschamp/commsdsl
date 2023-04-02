@@ -1,14 +1,18 @@
 #include "cxxtest/TestSuite.h"
 
+#include "comms/iterator.h"
 #include "test6/Message.h"
 #include "test6/message/Msg1.h"
 #include "test6/message/Msg2.h"
+#include "test6/options/AllMessagesDynMemMsgFactoryDefaultOptions.h"
+#include "test6/frame/Frame.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
     void test2();
+    void test3();
 
     using Interface =
         test6::Message<
@@ -54,3 +58,33 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(msg.doMinLength(), 1U);
     TS_ASSERT_EQUALS(msg.doMaxLength(), 2U);
 }
+
+void TestSuite::test3()
+{
+    using Test3_Options = test6::options::AllMessagesDynMemMsgFactoryDefaultOptions;
+    // using Test3_Msg1 = test6::message::Msg1<Interface, Test3_Options>;
+    using Test3_Msg2 = test6::message::Msg2<Interface, Test3_Options>;
+    // using Test3_Msg3 = test6::message::Msg3<Interface, Test3_Options>;
+    // using Test3_Msg4 = test6::message::Msg4<Interface, Test3_Options>;
+    using Test3_Frame = test6::frame::Frame<Interface, test6::input::AllMessages<Interface>, Test3_Options>;
+
+    std::vector<std::uint8_t> buf;
+    Test3_Frame frame;
+    Test3_Msg2 msg2;
+    msg2.field_f1().value() = Test3_Msg2::Field_f1::ValueType::v2;
+    buf.resize(frame.length(msg2));
+
+    auto writeIter = &buf[0];
+    auto es = frame.write(msg2, writeIter, buf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Test3_Frame::MsgPtr readMsg;
+    auto readIter = comms::readIteratorFor<Interface>(&buf[0]);
+    es = frame.read(readMsg, readIter, buf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    TS_ASSERT(readMsg);
+    TS_ASSERT_EQUALS(readMsg->getId(), msg2.doGetId());
+    TS_ASSERT_EQUALS(*(dynamic_cast<Test3_Msg2*>(readMsg.get())), msg2);
+}
+

@@ -92,6 +92,14 @@ std::string CommsFrame::commsBareMetalDefaultOptions() const
             true);
 }
 
+std::string CommsFrame::commsMsgFactoryDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsLayer::commsMsgFactoryDefaultOptions,
+            true);
+}
+
 bool CommsFrame::prepareImpl()
 {
     if (!Base::prepareImpl()) {
