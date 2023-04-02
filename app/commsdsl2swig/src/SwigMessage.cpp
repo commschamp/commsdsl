@@ -81,6 +81,18 @@ void SwigMessage::swigAddCode(StringsList& list) const
     std::string protectedCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::protectedFileSuffixStr());
     std::string privateCode = util::readFileContents(gen.swigInputCodePathFor(*this) + strings::privateFileSuffixStr());
 
+    if (!protectedCode.empty()) {
+        static const std::string TemplTmp = 
+            "protected:\n"
+            "    #^#CODE#$#\n";
+
+        util::ReplacementMap replTmp = {
+            {"CODE", std::move(protectedCode)}
+        };
+
+        protectedCode = util::processTemplate(TemplTmp, replTmp);
+    }     
+
     if (!privateCode.empty()) {
         static const std::string TemplTmp = 
             "private:\n"
@@ -100,12 +112,7 @@ void SwigMessage::swigAddCode(StringsList& list) const
         "public:\n"
         "    #^#FIELDS#$#\n"
         "    #^#PUBLIC#$#\n"
-        "protected:\n"
-        "    virtual void dispatchImpl(#^#MSG_HANDLER#$#& handler) override\n"
-        "    {\n"
-        "        handler.handle(*this);\n"
-        "    }\n\n"
-        "    #^#PROTECTED#$#\n"
+        "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
         "};\n";
 
@@ -117,22 +124,6 @@ void SwigMessage::swigAddCode(StringsList& list) const
     });
 
     list.push_back(util::processTemplate(Templ, repl));    
-}
-
-void SwigMessage::swigAddFwdCode(StringsList& list) const
-{
-    if (!isReferenced()) {
-        return;
-    }
-
-    static const std::string Templ = 
-        "class #^#CLASS_NAME#$#;";
-
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", SwigGenerator::cast(generator()).swigClassName(*this)}
-    };
-
-    list.push_back(util::processTemplate(Templ, repl));
 }
 
 void SwigMessage::swigAddDef(StringsList& list) const
