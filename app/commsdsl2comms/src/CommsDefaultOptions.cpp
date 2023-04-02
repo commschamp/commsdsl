@@ -43,7 +43,8 @@ const std::string MsgFactoryOptionsSuffix("MsgFactoryDefaultOptions");
 using NamespaceOptionsFunc = std::string (CommsNamespace::*)() const;
 std::string optionsBodyInternal(
     CommsGenerator& generator,
-    NamespaceOptionsFunc nsFunc)
+    NamespaceOptionsFunc nsFunc,
+    bool hasBase)
 {
     auto& allNs = generator.currentSchema().namespaces();
     util::StringsList opts;
@@ -63,7 +64,7 @@ std::string optionsBodyInternal(
     }
 
     static const std::string Templ = 
-        "struct #^#NS#$#\n"
+        "struct #^#NS#$##^#EXT#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
         "}; // struct #^#NS#$#\n";
@@ -72,6 +73,10 @@ std::string optionsBodyInternal(
         {"NS", generator.currentSchema().mainNamespace()},
         {"BODY", util::strListToString(opts, "\n", "")}
     };
+
+    if (hasBase) {
+        repl["EXT"] = " : public TBase::" + repl["NS"];
+    }
 
     return util::processTemplate(Templ, repl);
 }
@@ -232,7 +237,7 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", name},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions, false)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     };
@@ -252,7 +257,7 @@ bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
     repl.insert({
         {"DESC", "client"},
         {"NAME", "Client"},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsClientDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsClientDefaultOptions, true)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
@@ -272,7 +277,7 @@ bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
     repl.insert({
         {"DESC", "server"},
         {"NAME", "Server"},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsServerDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsServerDefaultOptions, true)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
@@ -292,7 +297,7 @@ bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
     repl.insert({
         {"DESC", "data view"},
         {"NAME", strings::dataViewStr()},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions, true)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
@@ -319,7 +324,7 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
     repl.insert({
         {"DESC", "bare metal"},
         {"NAME", strings::bareMetalStr()},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsBareMetalDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsBareMetalDefaultOptions, true)},
         {"EXTRA", std::move(extra)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
@@ -469,7 +474,7 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
     repl.insert({
         {"DESC", messagesDesc + " messages " + allocDesc + " allocation"},
         {"NAME", prefix},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsMsgFactoryDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsMsgFactoryDefaultOptions, true)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
