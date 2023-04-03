@@ -134,6 +134,15 @@ bool ToolsQtInputMessages::write(ToolsQtGenerator& generator)
     return obj.testWriteInternal();
 }
 
+std::string ToolsQtInputMessages::toolsRelHeaderPath(const ToolsQtGenerator& generator)
+{
+    return
+        generator.getTopNamespace() + '/' + 
+        util::strReplace(comms::scopeForInput(strings::allMessagesStr(), generator), "::", "/") + 
+        strings::cppHeaderSuffixStr();
+
+}
+
 bool ToolsQtInputMessages::testWriteInternal() const
 {
     return

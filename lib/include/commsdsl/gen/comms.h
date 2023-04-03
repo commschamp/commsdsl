@@ -55,6 +55,12 @@ std::string scopeForInput(
     bool addMainNamespace = true, 
     bool addElement = true);  
 
+std::string scopeForFactory(
+    const std::string& name, 
+    const Generator& generator, 
+    bool addMainNamespace = true, 
+    bool addElement = true);      
+
 std::string scopeForDispatch(
     const std::string& name, 
     const Generator& generator, 

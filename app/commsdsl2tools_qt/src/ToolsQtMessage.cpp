@@ -405,7 +405,7 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesInternal() const
     static const auto MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == CodeType_NumOfValues);
 
-    auto codeType = toolCodeType();
+    auto codeType = toolCodeTypeInternal();
     assert(codeType <= MapSize);
     auto func = Map[codeType];
     return (this->*func)();
@@ -461,7 +461,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
     static const auto MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == CodeType_NumOfValues);
 
-    auto codeType = toolCodeType();
+    auto codeType = toolCodeTypeInternal();
     assert(codeType <= MapSize);
     auto func = Map[codeType];
 
@@ -490,7 +490,7 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesInternal() const
     static const auto MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == CodeType_NumOfValues);
 
-    auto codeType = toolCodeType();
+    auto codeType = toolCodeTypeInternal();
     assert(codeType <= MapSize);
     auto func = Map[codeType];
     auto result = (this->*func)();
@@ -538,7 +538,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
     static const auto MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == CodeType_NumOfValues);
 
-    auto codeType = toolCodeType();
+    auto codeType = toolCodeTypeInternal();
     assert(codeType <= MapSize);
     auto func = Map[codeType];
 
@@ -573,7 +573,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
     return util::processTemplate(func(), repl);    
 }
 
-ToolsQtMessage::CodeType ToolsQtMessage::toolCodeType() const
+ToolsQtMessage::CodeType ToolsQtMessage::toolCodeTypeInternal() const
 {
     auto interfaces = ToolsQtGenerator::cast(generator()).toolsGetSelectedInterfaces();
     assert(!interfaces.empty());

@@ -21,19 +21,17 @@ namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtInputMessages
+class ToolsQtMsgFactory
 {
 public:
     static bool write(ToolsQtGenerator& generator);
-    static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
 
 private:
-    explicit ToolsQtInputMessages(ToolsQtGenerator& generator) : m_generator(generator) {}
+    explicit ToolsQtMsgFactory(ToolsQtGenerator& generator) : m_generator(generator) {}
 
-    bool testWriteInternal() const;
-    bool toolsWriteAllMessagesInternal() const;
-    bool toolsWritePlatformInputMessagesInternal() const;
-    // bool toolsWriteExtraInputMessagesInternal() const;
+    bool toolsWriteInternal() const;
+    bool toolsWriteHeaderInternal() const;
+    std::string toolsHeaderCodeInternal() const;
 
     ToolsQtGenerator& m_generator;
 };

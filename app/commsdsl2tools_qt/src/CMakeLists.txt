@@ -19,6 +19,7 @@ set (
     ToolsQtLayer.cpp
     ToolsQtListField.cpp
     ToolsQtMessage.cpp
+    ToolsQtMsgFactory.cpp
     ToolsQtNamespace.cpp
     ToolsQtOptionalField.cpp
     ToolsQtPayloadLayer.cpp

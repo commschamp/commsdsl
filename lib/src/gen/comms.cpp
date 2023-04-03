@@ -373,6 +373,20 @@ std::string scopeForInput(
     return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
 }
 
+std::string scopeForFactory(
+    const std::string& name, 
+    const Generator& generator, 
+    bool addMainNamespace, 
+    bool addElement)
+{
+    static const std::vector<std::string> SubElems = {
+        strings::factoryNamespaceStr()
+    };
+
+    return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
+}
+
+
 std::string scopeForDispatch(
     const std::string& name, 
     const Generator& generator, 

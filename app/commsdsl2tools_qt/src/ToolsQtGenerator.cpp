@@ -31,6 +31,7 @@
 #include "ToolsQtInterface.h"
 #include "ToolsQtListField.h"
 #include "ToolsQtMessage.h"
+#include "ToolsQtMsgFactory.h"
 #include "ToolsQtNamespace.h"
 #include "ToolsQtOptionalField.h"
 #include "ToolsQtPayloadLayer.h"
@@ -263,7 +264,8 @@ bool ToolsQtGenerator::writeImpl()
     bool result =  
         ToolsQtCmake::write(*this) &&
         ToolsQtInputMessages::write(*this) &&
-        ToolsQtDefaultOptions::write(*this);
+        ToolsQtDefaultOptions::write(*this) &&
+        ToolsQtMsgFactory::write(*this);
 
     if (!result) {
         return false;
