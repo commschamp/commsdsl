@@ -184,7 +184,6 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
 
     static const std::string Templ = 
         "#^#GENERATED#$#\n"
-        "\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#^#INCLUDES#$#\n"
         "#^#NS_BEGIN#$#\n"

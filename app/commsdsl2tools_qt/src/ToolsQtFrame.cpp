@@ -190,6 +190,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
     static const std::string Templ = 
         "#^#GENERATED#$#\n"
         "\n"
+        "#pragma once\n\n"
         "#include <tuple>\n"
         "#include <QtCore/QVariantList>\n"
         "#include \"cc_tools_qt/TransportMessageBase.h\"\n"

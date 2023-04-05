@@ -82,6 +82,8 @@ public:
         return static_cast<const ToolsQtGenerator&>(generator);
     }    
 
+    bool toolsHasMulitpleInterfaces() const;
+
 protected:
     virtual bool prepareImpl() override;
 

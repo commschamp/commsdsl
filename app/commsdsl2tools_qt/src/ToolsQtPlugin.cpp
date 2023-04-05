@@ -282,8 +282,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         {"PROT_NAME", toolsAdjustedNameInternal()},
     };        
 
-    auto allInterfaces = m_generator.toolsGetSelectedInterfaces();
-    if (1U < allInterfaces.size()) {
+    if (m_generator.toolsHasMulitpleInterfaces()) {
         assert(m_interfacePtr != nullptr);
         repl["INTERFACE_TEMPL_PARAM"] = '<' + m_generator.getTopNamespace() + "::" + comms::scopeFor(*m_interfacePtr, m_generator) + '>';
         repl["INTERFACE_INC"] = "#include \"" + m_interfacePtr->toolsHeaderFilePath() + "\"";

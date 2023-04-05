@@ -55,7 +55,7 @@ using MessagesMap = std::map<std::uintmax_t, MessagesAccessList>;
 using CheckFunction = std::function<bool (const commsdsl::gen::Message&)>;
 using CodeFunction = std::function<std::string (const commsdsl::gen::Message&, const CommsGenerator&, int)>;
 
-std::string dynMemAllocCodeFunc(const commsdsl::gen::Message& msg, const CommsGenerator& generator, int idx)
+std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::Message& msg, const CommsGenerator& generator, int idx)
 {
     if (idx < 0) {
         static const std::string Templ = 
@@ -81,7 +81,7 @@ std::string dynMemAllocCodeFunc(const commsdsl::gen::Message& msg, const CommsGe
     return util::processTemplate(Templ, repl);
 }
 
-std::string inPlaceAllocCodeFunc(const commsdsl::gen::Message& msg, const CommsGenerator& generator, int idx)
+std::string commsInPlaceAllocCodeFuncInternal(const commsdsl::gen::Message& msg, const CommsGenerator& generator, int idx)
 {
     static_cast<void>(msg);
     static_cast<void>(generator);
@@ -90,7 +90,7 @@ std::string inPlaceAllocCodeFunc(const commsdsl::gen::Message& msg, const CommsG
     return std::string();
 }
 
-std::string getMsgAllocCode(
+std::string commsGetMsgAllocCodeInternal(
     const MessagesMap& map, 
     const CommsGenerator& generator,
     CodeFunction&& func,
@@ -165,7 +165,7 @@ std::string getMsgAllocCode(
     return util::processTemplate(Templ, repl);
 }
 
-std::string getMsgCountCode(const MessagesMap& map, const CommsGenerator& generator)
+std::string commsGetMsgCountCodeInternal(const MessagesMap& map, const CommsGenerator& generator)
 {
     static const std::string Templ = 
         "switch (id)\n"
@@ -197,7 +197,7 @@ std::string getMsgCountCode(const MessagesMap& map, const CommsGenerator& genera
     return util::processTemplate(Templ, repl);
 }
 
-bool writeFileInternal(
+bool commsWriteFileInternal(
     const std::string& prefix,
     const std::string& desc,
     const CommsGenerator& generator,
@@ -206,11 +206,11 @@ bool writeFileInternal(
 {
     auto* typeStr = &DynMemStr;
     auto* policyStr = &DynMemAllocPolicyStr;
-    auto codeFunc = &dynMemAllocCodeFunc;
+    auto codeFunc = &commsDynMemAllocCodeFuncInternal;
     if (inPlaceAlloc) {
         typeStr = &InPlaceStr;
         policyStr = &InPlacePolicyStr;
-        codeFunc = &inPlaceAllocCodeFunc;
+        codeFunc = &commsInPlaceAllocCodeFuncInternal;
     }
 
     static_cast<void>(codeFunc);
@@ -376,8 +376,8 @@ bool writeFileInternal(
         {"HAS_UNIQUE_IDS", util::boolToString(hasUniqueIds)},
         {"IN_PLACE_ALLOC", util::boolToString(inPlaceAlloc)},
         {"CAN_ALLOCATE", "true"},
-        {"MSG_COUNT_CODE", getMsgCountCode(mappedMessages, generator)},
-        {"CREATE_CODE", getMsgAllocCode(mappedMessages, generator, codeFunc, hasUniqueIds)},
+        {"MSG_COUNT_CODE", commsGetMsgCountCodeInternal(mappedMessages, generator)},
+        {"CREATE_CODE", commsGetMsgAllocCodeInternal(mappedMessages, generator, codeFunc, hasUniqueIds)},
     };
 
     if (!repl["EXTEND"].empty()) {
@@ -428,7 +428,7 @@ bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
         };
 
     auto dynMemWrite = 
-        writeFileInternal(
+        commsWriteFileInternal(
             strings::allMessagesStr(),
             AllMessagesDesc,
             m_generator,
@@ -447,7 +447,7 @@ bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
         };
 
     auto dynMemWrite = 
-        writeFileInternal(
+        commsWriteFileInternal(
             ClientPrefixStr,
             ClientDesc,
             m_generator,
@@ -466,7 +466,7 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
         };
 
     auto dynMemWrite = 
-        writeFileInternal(
+        commsWriteFileInternal(
             ServerPrefixStr,
             ServerDesc,
             m_generator,
@@ -499,7 +499,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             };
 
         auto allDynMemWrite = 
-            writeFileInternal(
+            commsWriteFileInternal(
                 comms::className(p) + "Messages",
                 AllMessagesDesc + " \"" + p + "\" platform specific",
                 m_generator,
@@ -519,7 +519,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             };
 
         auto clientDynMemWrite = 
-            writeFileInternal(
+            commsWriteFileInternal(
                 comms::className(p) + ClientPrefixStr,
                 ClientDesc + " \"" + p + "\" platform specific",
                 m_generator,
@@ -539,7 +539,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
             };
 
         auto serverDynMemWrite = 
-            writeFileInternal(
+            commsWriteFileInternal(
                 comms::className(p) + ServerPrefixStr,
                 ServerDesc + " \"" + p + "\" platform specific",
                 m_generator,
@@ -572,7 +572,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             };
 
         auto allDynMemWrite = 
-            writeFileInternal(
+            commsWriteFileInternal(
                 comms::className(b.first) + "Messages",
                 AllMessagesDesc + " \"" + b.first+ "\" bundle specific",
                 m_generator,
@@ -592,7 +592,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             };
 
         auto clientDynMemWrite = 
-            writeFileInternal(
+            commsWriteFileInternal(
                 comms::className(b.first) + ClientPrefixStr,
                 ClientDesc + " \"" + b.first+ "\" bundle specific",
                 m_generator,
@@ -612,7 +612,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
             };
 
         auto serverDynMemWrite = 
-            writeFileInternal(
+            commsWriteFileInternal(
                 comms::className(b.first) + ServerPrefixStr,
                 ServerDesc + " \"" + b.first + "\" bundle specific",
                 m_generator,

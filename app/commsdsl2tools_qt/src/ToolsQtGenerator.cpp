@@ -88,9 +88,20 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
         auto fResult = ToolsQtFrame::cast(f)->toolsSourceFiles();
         result.reserve(result.size() + fResult.size());
         std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
-    }      
+    }   
+
+    auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this);
+    result.reserve(result.size() + factoryResult.size());
+    std::move(factoryResult.begin(), factoryResult.end(), std::back_inserter(result));       
 
     return result;
+}
+
+bool ToolsQtGenerator::toolsHasMulitpleInterfaces() const
+{
+    auto interfaces = toolsGetSelectedInterfaces();
+    assert(!interfaces.empty());
+    return (1U < interfaces.size());    
 }
 
 bool ToolsQtGenerator::prepareImpl() 

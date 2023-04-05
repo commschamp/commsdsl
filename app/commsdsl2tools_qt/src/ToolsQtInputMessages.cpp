@@ -86,9 +86,7 @@ bool writeFileInternal(
     }
 
     static const std::string Templ =
-        "#^#GENERATED#$#\n"
-        "/// @file\n"
-        "/// @brief Contains definition of the #^#NAME#$# messages bundle.\n\n"
+        "#^#GENERATED#$#\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
         "namespace #^#TOP_NS#$#\n"
