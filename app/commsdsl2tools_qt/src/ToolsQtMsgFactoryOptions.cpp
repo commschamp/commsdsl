@@ -13,9 +13,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "ToolsQtDefaultOptions.h"
+#include "ToolsQtMsgFactoryOptions.h"
 
+#include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
+#include "ToolsQtMsgFactory.h"
+#include "ToolsQtNamespace.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -36,63 +39,34 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx)
-{
-    auto& gen = const_cast<ToolsQtGenerator&>(generator);
-    assert(idx < generator.schemas().size());
+const std::string ClassName("MsgFactoryFrameOptions");
 
-    auto oldIdx = gen.currentSchemaIdx();
-    gen.chooseCurrentSchema(static_cast<unsigned>(idx));
-    auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
-    gen.chooseCurrentSchema(oldIdx);
-
-    if (idx == 0U) {
-        return "::" + scope;
-    }
-
-    static const std::string Templ = 
-        "::#^#SCOPE#$#T<\n"
-        "    #^#NEXT#$#\n"
-        ">";
-
-    util::ReplacementMap repl = {
-        {"SCOPE", std::move(scope)},
-        {"NEXT", toolsBaseCodeInternal(generator, idx - 1U)}
-    };
-    
-    return util::processTemplate(Templ, repl);
-}
 
 } // namespace 
     
 
-std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& generator)
+std::string ToolsQtMsgFactoryOptions::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
     return 
         util::strReplace(toolsScope(generator), "::", "/") + 
         strings::cppHeaderSuffixStr();
 }
 
-std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams)
-{
-    return '<' + toolsScope(generator) + extraParams + '>';
-}
-
-std::string ToolsQtDefaultOptions::toolsScope(const ToolsQtGenerator& generator)
+std::string ToolsQtMsgFactoryOptions::toolsScope(const ToolsQtGenerator& generator)
 {
     return 
         generator.getTopNamespace() + "::" + 
         generator.protocolSchema().mainNamespace() + "::" + 
-        comms::scopeForOptions(strings::defaultOptionsClassStr(), generator, false);
+        comms::scopeForOptions(ClassName, generator, false);
 }    
 
-bool ToolsQtDefaultOptions::write(ToolsQtGenerator& generator)
+bool ToolsQtMsgFactoryOptions::write(ToolsQtGenerator& generator)
 {
-    ToolsQtDefaultOptions obj(generator);
+    ToolsQtMsgFactoryOptions obj(generator);
     return obj.toolsWriteInternal();
 }
 
-bool ToolsQtDefaultOptions::toolsWriteInternal() const
+bool ToolsQtMsgFactoryOptions::toolsWriteInternal() const
 {
     auto filePath = m_generator.getOutputDir() + '/' + toolsRelHeaderPath(m_generator);
 
@@ -113,7 +87,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "/// @file\n"
-        "/// @brief Contains definition of the default options for plugin.\n\n"
+        "/// @brief Contains definition of the options for framing which force usage of message factory.\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
         "#^#EXTRA_INCLUDES#$#\n\n"
@@ -123,8 +97,12 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         "{\n\n"
         "namespace options\n"
         "{\n\n"
-        "using #^#NAME#$# =\n"
-        "    #^#OPTS_BASE#$#;\n\n"
+        "struct #^#NAME#$# : public #^#DEFAULT_OPTS#$#\n"
+        "{\n"
+        "    template <typename TInterface, typename TAllMessages, typename... TOptions>\n"
+        "    using MsgFactory = #^#MSG_FACTORY#$##^#INTERFACE_TEMPL#$#;\n\n"
+        "    #^#CODE#$#\n"
+        "};\n\n"
         "#^#EXTEND#$#\n"
         "#^#APPEND#$#\n"
         "} // namespace options\n\n"
@@ -133,14 +111,10 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
 
     auto codePrefix = m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator);
 
-    util::StringsList includes;
-    auto& schemas = m_generator.schemas();
-    for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        auto& gen = const_cast<ToolsQtGenerator&>(m_generator);
-        gen.chooseCurrentSchema(idx);
-        includes.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), gen));
-    }
-    assert(m_generator.isCurrentProtocolSchema());
+    util::StringsList includes {
+        ToolsQtMsgFactory::toolsRelHeaderPath(m_generator),
+        ToolsQtDefaultOptions::toolsRelHeaderPath(m_generator)
+    };
 
     comms::prepareIncludeStatement(includes);
 
@@ -150,19 +124,60 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         {"EXTRA_INCLUDES", util::readFileContents(codePrefix + strings::incFileSuffixStr())},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
-        {"NAME", strings::defaultOptionsClassStr()},
+        {"NAME", ClassName},
         {"EXTEND", util::readFileContents(codePrefix + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(codePrefix + strings::appendFileSuffixStr())},
-        {"OPTS_BASE", toolsBaseCodeInternal(m_generator, m_generator.schemas().size() - 1U)},
+        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(m_generator)},
+        {"MSG_FACTORY", ToolsQtMsgFactory::toolsClassScope(m_generator)},
+        {"CODE", toolsOptionsCodeInternal()},
     };
 
     if (!repl["EXTEND"].empty()) {
         repl["ORIG"] = strings::origSuffixStr();
     }
 
+    if (m_generator.toolsHasMulitpleInterfaces()) {
+        repl["INTERFACE_TEMPL"] = "<TInterface>";
+    }
+
     stream << util::processTemplate(Templ, repl, true);
     stream.flush();
     return stream.good();    
 }
+
+std::string ToolsQtMsgFactoryOptions::toolsOptionsCodeInternal() const
+{
+    auto& allNs = m_generator.currentSchema().namespaces();
+    util::StringsList opts;
+    for (auto& nsPtr : allNs) {
+        auto elem = ToolsQtNamespace::cast(nsPtr.get())->toolsMsgFactoryOptions();
+        if (!elem.empty()) {
+            opts.push_back(std::move(elem));
+        }
+    }
+
+    if (opts.empty()) {
+        return strings::emptyString();
+    }
+
+    if (!m_generator.toolsHasMainNamespaceInOptions()) {
+        return util::strListToString(opts, "\n", "");
+    }
+
+    static const std::string Templ = 
+        "struct #^#NS#$# : public #^#DEFAULT_OPTS::#^#NS#$#\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}; // struct #^#NS#$#\n";
+
+    util::ReplacementMap repl = {
+        {"NS", m_generator.currentSchema().mainNamespace()},
+        {"BODY", util::strListToString(opts, "\n", "")},
+        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(m_generator)},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 
 } // namespace commsdsl2tools_qt

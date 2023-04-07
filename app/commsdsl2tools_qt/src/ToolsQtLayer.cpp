@@ -177,6 +177,32 @@ std::string ToolsQtLayer::toolsFieldCommsScope() const
         comms::className(m_layer.dslObj().name()) + "::Field";
 }
 
+std::string ToolsQtLayer::toolsMsgFactoryOptions() const
+{
+    util::StringsList extraOpts = toolsMsgFactoryExtraOptionsImpl();
+    if (extraOpts.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ =
+        "using #^#NAME#$# =\n"
+        "    std::tuple<\n"
+        "        #^#OPTS#$#,\n"
+        "        typename #^#DEFAULT_OPTS#$#::#^#SCOPE#$#\n"
+        "    >;\n";    
+
+    auto& gen = ToolsQtGenerator::cast(m_layer.generator());
+
+    util::ReplacementMap repl = {
+        {"NAME", comms::className(m_layer.dslObj().name())},
+        {"OPTS", util::strListToString(extraOpts, ",\n", "")},
+        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(gen)},
+        {"SCOPE", comms::scopeFor(m_layer, gen, gen.toolsHasMainNamespaceInOptions())}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 unsigned ToolsQtLayer::toolsMinFieldLength() const
 {
     auto calcFunc = 
@@ -205,6 +231,11 @@ std::string ToolsQtLayer::toolExtraFieldTemplParamsImpl() const
 std::string ToolsQtLayer::toolsForcedSerHiddenStrImpl() const
 {
     return "false";
+}
+
+ToolsQtLayer::StringsList ToolsQtLayer::toolsMsgFactoryExtraOptionsImpl() const
+{
+    return StringsList();
 }
 
 } // namespace commsdsl2tools_qt

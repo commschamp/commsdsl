@@ -209,7 +209,7 @@ std::string toolsMsgAllocCodeInternal(
         }
 
         static const std::string CaseTempl = 
-            "case #^#ID#$#: \n"
+            "case ::#^#ID#$#: \n"
             "    #^#CODE#$#\n"
             "    break;\n"
             ;
@@ -288,10 +288,13 @@ std::string ToolsQtMsgFactory::toolsRelHeaderPath(const ToolsQtGenerator& genera
 
 ToolsQtMsgFactory::StringsList ToolsQtMsgFactory::toolsSourceFiles(const ToolsQtGenerator& generator)
 {
-    StringsList result = {
-        generator.getTopNamespace() + '/' + 
-        util::strReplace(comms::scopeForFactory(MsgFactoryName, generator), "::", "/") + 
-        strings::cppSourceSuffixStr()
+    StringsList result;
+    auto thisObj = ToolsQtMsgFactory(const_cast<ToolsQtGenerator&>(generator));
+    if (thisObj.toolsIsGeneratedInternal() && thisObj.toolsHasSourceInternal()) {
+        result.push_back(
+            generator.getTopNamespace() + '/' + 
+            util::strReplace(comms::scopeForFactory(MsgFactoryName, generator), "::", "/") + 
+            strings::cppSourceSuffixStr());
     };
 
     return result;
@@ -304,8 +307,7 @@ std::string ToolsQtMsgFactory::toolsClassScope(const ToolsQtGenerator& generator
 
 bool ToolsQtMsgFactory::toolsWriteInternal() const
 {
-    auto& thisSchema = m_generator.currentSchema();
-    if ((!m_generator.isCurrentProtocolSchema()) && (!thisSchema.hasAnyReferencedMessage())) {
+    if (!toolsIsGeneratedInternal()) {
         return true;
     }
 
@@ -443,6 +445,16 @@ bool ToolsQtMsgFactory::toolsHasUniqueIdsInternal() const
     return toolsCheckUniqueIdsInternal(mappedMessages);
 }
 
+bool ToolsQtMsgFactory::toolsIsGeneratedInternal() const
+{
+    return m_generator.isCurrentProtocolSchema() || m_generator.currentSchema().hasAnyReferencedMessage();
+}
+
+bool ToolsQtMsgFactory::toolsHasSourceInternal() const
+{
+    return !m_generator.toolsHasMulitpleInterfaces();
+}
+
 std::string ToolsQtMsgFactory::toolsHeaderCodeInternal() const
 {
     if (m_generator.toolsHasMulitpleInterfaces()) {
@@ -480,7 +492,7 @@ std::string ToolsQtMsgFactory::toolsHeaderSingleInterfaceCodeInternal() const
 
 std::string ToolsQtMsgFactory::toolsHeaderMultipleInterfacesCodeInternal() const
 {
-    // TODO:
+    // TODO: not implemented:
     return std::string();
 }
 

@@ -40,10 +40,13 @@ private:
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSourceInternal() const;
     bool toolsHasUniqueIdsInternal() const;
+    bool toolsIsGeneratedInternal() const;
+    bool toolsHasSourceInternal() const;
     std::string toolsHeaderCodeInternal() const;
     std::string toolsHeaderSingleInterfaceCodeInternal() const;
     std::string toolsHeaderMultipleInterfacesCodeInternal() const;
     std::string toolsSourceCodeInternal() const;
+    
 
     ToolsQtGenerator& m_generator;
 };

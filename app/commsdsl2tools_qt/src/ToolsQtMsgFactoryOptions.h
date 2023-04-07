@@ -15,28 +15,26 @@
 
 #pragma once
 
-#include "commsdsl/gen/Namespace.h"
-#include "commsdsl/gen/util.h"
+#include <string>
 
 namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
-class ToolsQtNamespace final : public commsdsl::gen::Namespace
+class ToolsQtMsgFactoryOptions
 {
-    using Base = commsdsl::gen::Namespace;
 public:
-    using StringsList = commsdsl::gen::util::StringsList;
-    explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent);
+    static bool write(ToolsQtGenerator& generator);
+    static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
+    static std::string toolsScope(const ToolsQtGenerator& generator);
 
-    StringsList toolsSourceFiles() const;
+private:
+    explicit ToolsQtMsgFactoryOptions(ToolsQtGenerator& generator) : m_generator(generator) {}
 
-    std::string toolsMsgFactoryOptions() const;
+    bool toolsWriteInternal() const;
+    std::string toolsOptionsCodeInternal() const;
 
-    static const ToolsQtNamespace* cast(const commsdsl::gen::Namespace* obj)
-    {
-        return static_cast<const ToolsQtNamespace*>(obj);
-    }
+    ToolsQtGenerator& m_generator;
 };
 
 } // namespace commsdsl2tools_qt

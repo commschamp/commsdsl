@@ -83,6 +83,7 @@ public:
     }    
 
     bool toolsHasMulitpleInterfaces() const;
+    bool toolsHasMainNamespaceInOptions() const;
 
 protected:
     virtual bool prepareImpl() override;

@@ -32,6 +32,7 @@
 #include "ToolsQtListField.h"
 #include "ToolsQtMessage.h"
 #include "ToolsQtMsgFactory.h"
+#include "ToolsQtMsgFactoryOptions.h"
 #include "ToolsQtNamespace.h"
 #include "ToolsQtOptionalField.h"
 #include "ToolsQtPayloadLayer.h"
@@ -102,6 +103,16 @@ bool ToolsQtGenerator::toolsHasMulitpleInterfaces() const
     auto interfaces = toolsGetSelectedInterfaces();
     assert(!interfaces.empty());
     return (1U < interfaces.size());    
+}
+
+bool ToolsQtGenerator::toolsHasMainNamespaceInOptions() const
+{
+    if (1U < schemas().size()) {
+        return true;
+    }
+
+    // TODO options:
+    return false;
 }
 
 bool ToolsQtGenerator::prepareImpl() 
@@ -275,8 +286,9 @@ bool ToolsQtGenerator::writeImpl()
     bool result =  
         ToolsQtCmake::write(*this) &&
         ToolsQtInputMessages::write(*this) &&
+        ToolsQtMsgFactory::write(*this) &&
         ToolsQtDefaultOptions::write(*this) &&
-        ToolsQtMsgFactory::write(*this);
+        ToolsQtMsgFactoryOptions::write(*this);
 
     if (!result) {
         return false;
