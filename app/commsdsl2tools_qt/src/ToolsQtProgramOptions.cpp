@@ -47,6 +47,7 @@ const std::string FullCodeInputDirStr("c," + CodeInputDirStr);
 const std::string ProtocolStr("protocol");
 const std::string MultipleSchemasEnabledStr("multiple-schemas-enabled");
 const std::string FullMultipleSchemasEnabledStr("s," + MultipleSchemasEnabledStr);
+const std::string ForceMainNamespaceInOptionsStr("force-main-ns-in-options");
 
 
 } // namespace
@@ -73,6 +74,7 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
         "plugin will be generated. Can be omitted if there is only one frame and one interface types "
         "defined in the schema.", true)    
     (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")            
+    (ForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
     ;
 }
 
@@ -160,5 +162,11 @@ bool ToolsQtProgramOptions::multipleSchemasEnabled() const
 {
     return isOptUsed(MultipleSchemasEnabledStr);
 }
+
+bool ToolsQtProgramOptions::isMainNamespaceInOptionsForced() const
+{
+    return isOptUsed(ForceMainNamespaceInOptionsStr);
+}
+
 
 } // namespace commsdsl2tools_qt

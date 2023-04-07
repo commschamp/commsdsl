@@ -98,6 +98,11 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
     return result;
 }
 
+void ToolsQtGenerator::toolsSetMainNamespaceInOptionsForced(bool value)
+{
+    m_mainNamespaceInOptionsForced = value;
+}
+
 bool ToolsQtGenerator::toolsHasMulitpleInterfaces() const
 {
     auto interfaces = toolsGetSelectedInterfaces();
@@ -111,8 +116,7 @@ bool ToolsQtGenerator::toolsHasMainNamespaceInOptions() const
         return true;
     }
 
-    // TODO options:
-    return false;
+    return m_mainNamespaceInOptionsForced;
 }
 
 bool ToolsQtGenerator::prepareImpl() 

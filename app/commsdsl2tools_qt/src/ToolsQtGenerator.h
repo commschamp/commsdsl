@@ -82,6 +82,7 @@ public:
         return static_cast<const ToolsQtGenerator&>(generator);
     }    
 
+    void toolsSetMainNamespaceInOptionsForced(bool value);
     bool toolsHasMulitpleInterfaces() const;
     bool toolsHasMainNamespaceInOptions() const;
 
@@ -125,6 +126,7 @@ private:
     PluginsList m_plugins;
     InterfacesAccessList m_selectedInterfaces;
     FramesAccessList m_selectedFrames;
+    bool m_mainNamespaceInOptionsForced = false;
 };
 
 } // namespace commsdsl2tools_qt

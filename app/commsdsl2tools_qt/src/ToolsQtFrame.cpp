@@ -16,7 +16,9 @@
 #include "ToolsQtFrame.h"
 
 #include "ToolsQtDefaultOptions.h"
+#include "ToolsQtMsgFactoryOptions.h"
 #include "ToolsQtGenerator.h"
+#include "ToolsQtInputMessages.h"
 #include "ToolsQtInterface.h"
 
 #include "commsdsl/gen/comms.h"
@@ -163,34 +165,47 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
         "#^#GENERATED#$#\n"
         "\n"
         "#pragma once\n\n"
-        "#include \"#^#FRAME_INCLUDE#$#\"\n"
-        "#include \"#^#TOP_NS#$#/#^#MAIN_NS#$#/input/AllMessages.h\"\n"
-        "#^#INTERFACE_INCLUDE#$#\n"
+        "#^#INCLUDES#$#\n"
         "\n"
         "#^#NS_BEGIN#$#\n"
         "#^#INTERFACE_TEMPL_PARAM#$#\n"
         "using #^#CLASS_NAME#$# =\n"
         "    ::#^#FRAME_SCOPE#$#<\n"
         "        #^#INTERFACE#$#,\n"
-        "        #^#TOP_NS#$#::#^#ALL_MESSAGES#$##^#INTERFACE_TEMPL#$#\n"
+        "        #^#TOP_NS#$#::#^#ALL_MESSAGES#$##^#INTERFACE_TEMPL#$#,\n"
+        "        #^#OPTS#$#\n"
         "    >;\n\n"
         "#^#NS_END#$#\n"
     ;
+
+    StringsList includes {
+        comms::relHeaderPathFor(*this, gen),
+        ToolsQtInputMessages::toolsRelHeaderPath(gen),
+        ToolsQtMsgFactoryOptions::toolsRelHeaderPath(gen),
+    };
+
+    auto allInterfaces = gen.toolsGetSelectedInterfaces();    
+    assert(!allInterfaces.empty());
+    if (allInterfaces.size() == 1U) {
+        auto* defaultInterface = static_cast<const ToolsQtInterface*>(allInterfaces.front());
+        includes.push_back(defaultInterface->toolsHeaderFilePath());
+    }
+
+    comms::prepareIncludeStatement(includes);
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
-        {"FRAME_INCLUDE", comms::relHeaderPathFor(*this, gen)},
+        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"FRAME_SCOPE", comms::scopeFor(*this, gen)},
         {"TOP_NS", gen.getTopNamespace()},
         {"MAIN_NS", gen.protocolSchema().mainNamespace()},
         {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), gen)},
+        {"OPTS", ToolsQtMsgFactoryOptions::toolsScope(gen)}
     };
 
-    auto allInterfaces = gen.toolsGetSelectedInterfaces();
-    assert(!allInterfaces.empty());
     if (1U < allInterfaces.size()) {
         repl["INTERFACE_TEMPL_PARAM"] = "template <typename TInterface>";
         repl["INTERFACE"] = "TInterface";
@@ -199,7 +214,6 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
     else {
         auto* defaultInterface = static_cast<const ToolsQtInterface*>(allInterfaces.front());
         assert(defaultInterface != nullptr);
-        repl["INTERFACE_INCLUDE"] = "#include \"" + defaultInterface->toolsHeaderFilePath() + '\"';
         repl["INTERFACE"] = gen.getTopNamespace() + "::" + comms::scopeFor(*defaultInterface, gen);
     }
     
