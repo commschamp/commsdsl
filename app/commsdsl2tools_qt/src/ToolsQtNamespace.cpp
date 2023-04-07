@@ -86,18 +86,44 @@ std::string ToolsQtNamespace::toolsMsgFactoryOptions() const
         addStrFunc(ToolsQtNamespace::cast(nsPtr.get())->toolsMsgFactoryOptions());
     }
 
+    auto& gen = ToolsQtGenerator::cast(generator());    
+    bool hasMainNs = gen.toolsHasMainNamespaceInOptions();
+
+    util::StringsList frameElems;
     for (auto& fPtr : frames()) {
         assert(fPtr);
-        addStrFunc(ToolsQtFrame::cast(fPtr.get())->toolsMsgFactoryOptions());
+        auto opts = ToolsQtFrame::cast(fPtr.get())->toolsMsgFactoryOptions();
+        if (opts.empty()) {
+            continue;
+        }
+
+        frameElems.push_back(std::move(opts));
     }   
+
+    if (!frameElems.empty()) {
+        static const std::string Templ = 
+            "struct frame : public #^#DEFAULT_OPTS#$#::#^#NS#$#frame\n"
+            "{\n"
+            "    #^#OPTS#$#\n"
+            "}; // struct frame\n";
+
+        util::ReplacementMap repl = {
+            {"OPTS", util::strListToString(frameElems, "\n", "")},
+            {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(gen)},
+            {"NS", comms::scopeFor(*this, generator(), hasMainNs)},
+        };        
+
+        if (!repl["NS"].empty()) {
+            repl["NS"].append("::");
+        }
+        addStrFunc(util::processTemplate(Templ, repl));        
+    }
 
     if (elems.empty()) {
         return strings::emptyString();
     }    
 
-    auto& gen = ToolsQtGenerator::cast(generator());
     auto nsName = dslObj().name();
-    bool hasMainNs = gen.toolsHasMainNamespaceInOptions();
     if (nsName.empty() && (!hasMainNs)) {
         return util::strListToString(elems, "\n", "");
     }
