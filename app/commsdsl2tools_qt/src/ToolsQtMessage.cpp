@@ -98,7 +98,7 @@ const std::string& toolsHeaderCodeSingleInterfaceWithFieldsTemplInternal()
     static const std::string Templ = 
         "class #^#CLASS_NAME#$# : public\n"
         "    cc_tools_qt::ProtocolMessageBase<\n"
-        "        ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#>,\n"
+        "        ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#, #^#DEF_OPTIONS#$#>,\n"
         "        #^#CLASS_NAME#$#\n"
         "    >\n"    
         "{\n"

@@ -337,6 +337,9 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
     if (1U == interfaces.size()) {
         includes.push_back(ToolsQtInterface::cast(interfaces.front())->toolsHeaderFilePath());
     }
+    else {
+        includes.push_back(ToolsQtInputMessages::toolsRelHeaderPath(m_generator));        
+    }
 
     comms::prepareIncludeStatement(includes);
 
@@ -492,8 +495,36 @@ std::string ToolsQtMsgFactory::toolsHeaderSingleInterfaceCodeInternal() const
 
 std::string ToolsQtMsgFactory::toolsHeaderMultipleInterfacesCodeInternal() const
 {
-    // TODO: not implemented:
-    return std::string();
+    const std::string Templ = 
+        "template <typename TInterface>\n"
+        "class #^#CLASS_NAME#$#\n"
+        "{\n"
+        "public:\n"
+        "    using Message = TInterface;\n"
+        "    #^#COMMON_TYPES#$#\n"
+        "    MsgPtr createMsg(MsgIdParamType id, unsigned idx = 0U, CreateFailureReason* reason = nullptr) const\n"
+        "    {\n"
+        "        #^#ALLOC_CODE#$#\n"
+        "    }\n\n"
+        "    std::size_t msgCount(MsgIdParamType id) const\n"
+        "    {\n"
+        "        #^#COUNT_CODE#$#\n"
+        "    }\n\n"        
+        "    #^#COMMON_FUNCS#$#\n"
+        "};\n"; 
+
+    auto mappedMessages = toolsCreateMessagesMapInternal(m_generator);
+    bool hasUniqueIds = toolsHasUniqueIdsInternal();
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", MsgFactoryName},
+        {"COMMON_TYPES", toolsCommonHeaderTypesInternal()},
+        {"COMMON_FUNCS", toolsCommonHeaderFuncsInternal(hasUniqueIds)},
+        {"ALLOC_CODE", toolsMsgAllocCodeInternal(mappedMessages, m_generator, hasUniqueIds, true)},
+        {"COUNT_CODE", toolsMsgCountCodeInternal(mappedMessages, m_generator)}
+
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 std::string ToolsQtMsgFactory::toolsSourceCodeInternal() const

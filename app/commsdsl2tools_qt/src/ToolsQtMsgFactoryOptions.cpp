@@ -156,27 +156,7 @@ std::string ToolsQtMsgFactoryOptions::toolsOptionsCodeInternal() const
         }
     }
 
-    if (opts.empty()) {
-        return strings::emptyString();
-    }
-
-    if (!m_generator.toolsHasMainNamespaceInOptions()) {
-        return util::strListToString(opts, "\n", "");
-    }
-
-    static const std::string Templ = 
-        "struct #^#NS#$# : public #^#DEFAULT_OPTS::#^#NS#$#\n"
-        "{\n"
-        "    #^#BODY#$#\n"
-        "}; // struct #^#NS#$#\n";
-
-    util::ReplacementMap repl = {
-        {"NS", m_generator.currentSchema().mainNamespace()},
-        {"BODY", util::strListToString(opts, "\n", "")},
-        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(m_generator)},
-    };
-
-    return util::processTemplate(Templ, repl);
+    return util::strListToString(opts, "\n", "");
 }
 
 
