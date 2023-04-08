@@ -264,9 +264,40 @@ std::string CommsVariantField::commsDefBaseClassImpl() const
     return util::processTemplate(Templ, repl);       
 }
 
+std::string CommsVariantField::commsDefConstructCodeImpl() const
+{
+    auto obj = variantDslObj();
+    auto idx = obj.defaultMemberIdx();
+    if (m_members.size() <= idx) {
+        return strings::emptyString();
+    }
+
+    assert(idx < m_members.size());
+    static const std::string Templ = 
+        "initField_#^#NAME#$#();\n";
+    
+    util::ReplacementMap repl = {
+        {"NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsVariantField::commsDefDestructCodeImpl() const
+{
+    static const std::string Templ = 
+        "reset();\n";
+
+    return Templ;
+}
+
 std::string CommsVariantField::commsDefPublicCodeImpl() const
 {
-    return commsDefAccessCodeInternal() + '\n' + commsDefFieldExecCodeInternal();
+    return 
+        commsDefAccessCodeInternal() + '\n' + 
+        commsDefCopyCodeInternal() + '\n' + 
+        commsDefFieldExecCodeInternal() + '\n' +
+        commsDefResetCodeInternal();
 }
 
 std::string CommsVariantField::commsDefPrivateCodeImpl() const
@@ -376,7 +407,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
         "COMMS_ASSERT(consumedLen <= len);\n"
         "len -= consumedLen;\n\n"
         "switch (commonKeyField.getValue()) {\n"
-        "#^#CASES#$#\n"
+        "    #^#CASES#$#\n"
         "};\n\n"
         "return comms::ErrorStatus::InvalidMsgData;\n";
 
@@ -414,8 +445,8 @@ std::string CommsVariantField::commsDefWriteFuncBodyImpl() const
 
     static const std::string Templ =
         "switch (Base::currentField()) {\n"
-        "#^#CASES#$#\n"
-        "default: break;\n"
+        "    #^#CASES#$#\n"
+        "    default: break;\n"
         "}\n\n"
         "return comms::ErrorStatus::Success;\n"
         ;
@@ -442,8 +473,8 @@ std::string CommsVariantField::commsDefRefreshFuncBodyImpl() const
 
     static const std::string Templ =
         "switch (Base::currentField()) {\n"
-        "#^#CASES#$#\n"
-        "default: break;\n"
+        "    #^#CASES#$#\n"
+        "    default: break;\n"
         "}\n\n"
         "return false;\n"
         ;
@@ -470,8 +501,8 @@ std::string CommsVariantField::commsDefLengthFuncBodyImpl() const
 
     static const std::string Templ =
         "switch (Base::currentField()) {\n"
-        "#^#CASES#$#\n"
-        "default: break;\n"
+        "    #^#CASES#$#\n"
+        "    default: break;\n"
         "}\n\n"
         "return 0U;\n"
         ;
@@ -498,8 +529,8 @@ std::string CommsVariantField::commsDefValidFuncBodyImpl() const
 
     static const std::string Templ =
         "switch (Base::currentField()) {\n"
-        "#^#CASES#$#\n"
-        "default: break;\n"
+        "    #^#CASES#$#\n"
+        "    default: break;\n"
         "}\n\n"
         "return false;\n"
         ;
@@ -579,10 +610,10 @@ std::string CommsVariantField::commsDefFieldOptsInternal() const
 {
     commsdsl::gen::util::StringsList opts;
     commsAddFieldDefOptions(opts);
-    commsAddDefaultIdxOptInternal(opts);
     commsAddCustomReadOptInternal(opts);
     util::addToStrList("comms::option::def::HasCustomWrite", opts);
     util::addToStrList("comms::option::def::HasCustomRefresh", opts);        
+    util::addToStrList("comms::option::def::VariantHasCustomResetOnDestruct", opts);        
     return util::strListToString(opts, ",\n", "");
 }
 
@@ -593,6 +624,154 @@ std::string CommsVariantField::commsDefAccessCodeInternal() const
     }
 
     return commsDefAccessCodeGeneratedInternal();
+}
+
+std::string CommsVariantField::commsDefCopyCodeInternal() const
+{
+    StringsList copyCases;
+    StringsList moveCases;
+    StringsList eqCases;
+    StringsList ltCases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string CopyTempl =
+            "case FieldIdx_#^#MEM_NAME#$#: initField_#^#MEM_NAME#$#() = other.accessField_#^#MEM_NAME#$#(); return *this;";
+
+        static const std::string MoveTempl =
+            "case FieldIdx_#^#MEM_NAME#$#: initField_#^#MEM_NAME#$#() = std::move(other.accessField_#^#MEM_NAME#$#()); return *this;";
+
+        static const std::string EqTempl =
+            "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#() == other.accessField_#^#MEM_NAME#$#();";
+
+        static const std::string LtTempl =
+            "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#() < other.accessField_#^#MEM_NAME#$#();";
+
+        util::ReplacementMap repl = {
+            {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+        };
+
+        copyCases.push_back(util::processTemplate(CopyTempl, repl));
+        moveCases.push_back(util::processTemplate(MoveTempl, repl));
+        eqCases.push_back(util::processTemplate(EqTempl, repl));
+        ltCases.push_back(util::processTemplate(LtTempl, repl));
+    }
+
+    static const std::string Templ = 
+        "/// @brief Copy constructor.\n"
+        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#(const #^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& other)\n"
+        "{"
+        "    *this = other;\n"
+        "}\n\n"
+        "/// @brief Move constructor.\n"
+        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#(#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#&& other)\n"
+        "{"
+        "    *this = std::move(other);\n"
+        "}\n\n"
+        "/// @brief Copy assignment operator.\n"
+        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& operator=(const #^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& other)\n"
+        "{\n"
+        "    if (this == &other) {\n"
+        "        return *this;\n"
+        "    }\n\n"
+        "    reset();\n\n"
+        "    if (!other.currentFieldValid()) {\n"
+        "        return *this;\n"
+        "    }\n\n"        
+        "    switch (other.currentField()) {\n"
+        "        #^#COPY_CASES#$#\n"
+        "        default: break;\n"
+        "    }\n\n"
+        "    COMMS_ASSERT(false); // Should not be reached\n"
+        "    return *this;\n"
+        "}\n\n"
+        "/// @brief Move assignement operator.\n"
+        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& operator=(#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#&& other)\n"
+        "{"
+        "    if (this == &other) {\n"
+        "        return *this;\n"
+        "    }\n\n"
+        "    reset();\n\n"        
+        "    if (!other.currentFieldValid()) {\n"
+        "        return *this;\n"
+        "    }\n\n"
+        "    switch (other.currentField()) {\n"
+        "        #^#MOVE_CASES#$#\n"
+        "        default: break;\n"
+        "    }\n\n"
+        "    COMMS_ASSERT(false); // Should not be reached\n"
+        "    return *this;\n"
+        "}\n\n"
+        "/// @brief Equality comparison operator.\n"
+        "bool operator==(const #^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& other) const\n"
+        "{\n"
+        "    if (this == &other) {\n"
+        "        return true;\n"
+        "    }\n\n"
+        "    if (Base::currentFieldValid() != other.currentFieldValid()) {\n"
+        "        return false;\n"
+        "    }\n\n"
+        "    if (!Base::currentFieldValid()) {\n\n"
+        "        return true;\n"
+        "    }\n\n"
+        "    if (Base::currentField() != other.currentField()) {\n\n"
+        "        return false;\n"
+        "    }\n\n"
+        "    switch(Base::currentField()) {\n"
+        "        #^#EQ_CASES#$#\n"
+        "        default: break;\n"
+        "    }\n\n"
+        "    COMMS_ASSERT(false); // Should not be reached\n"
+        "    return false;\n"
+        "}\n\n" 
+        "/// @brief Inequality comparison operator.\n" 
+        "bool operator!=(const #^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& other) const\n"
+        "{\n" 
+        "    return !(*this == other);\n"        
+        "}\n\n"
+        "/// @brief Order comparison operator.\n" 
+        "bool operator<(const #^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& other) const\n"
+        "{\n" 
+        "    if (!Base::currentFieldValid()) {\n"
+        "        return (!other.currentFieldValid());\n"
+        "    }\n\n"
+        "    if (!other.currentFieldValid()) {\n"
+        "        return false;\n"
+        "    }\n\n"    
+        "    if (Base::currentField() < other.currentField()) {\n"
+        "        return true;\n"
+        "    }\n\n"
+        "    if (Base::currentField() != other.currentField()) {\n"
+        "        return false;\n\n"
+        "    }\n\n"
+        "    if (this == &other) {\n"
+        "        return false;\n"
+        "    }\n"
+        "    switch(Base::currentField()) {\n"
+        "        #^#LT_CASES#$#\n"
+        "        default: break;\n"
+        "    }\n\n"
+        "    COMMS_ASSERT(false); // Should not be reached\n"
+        "    return false;\n"
+        "}\n"            
+        ;
+
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"COPY_CASES", util::strListToString(copyCases, "\n", "")},
+        {"MOVE_CASES", util::strListToString(moveCases, "\n", "")},
+        {"EQ_CASES", util::strListToString(eqCases, "\n", "")},
+        {"LT_CASES", util::strListToString(ltCases, "\n", "")},
+    };
+
+    if (commsIsExtended()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    if (commsIsVersionOptional()) {
+        repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    }    
+
+    return util::processTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsDefAccessCodeByCommsInternal() const
@@ -620,7 +799,7 @@ std::string CommsVariantField::commsDefAccessCodeByCommsInternal() const
         std::string accessStr =
             "///     @li @b FieldIdx_" +  namesList.back() + 
             " index, @b Field_" + namesList.back() + " type,\n"
-            "///         @b initField_" + namesList.back() +
+            "///         @b initField_" + namesList.back() + "(), deinitField_" + namesList.back() +
             "() and @b accessField_" + namesList.back() + "() access functions -\n"
             "///         for " + comms::scopeFor(*mPtr, gen) + " member field.";
         accessDocList.push_back(std::move(accessStr));
@@ -658,6 +837,11 @@ std::string CommsVariantField::commsDefAccessCodeGeneratedInternal() const
             "{\n"
             "    return Base::template initField<FieldIdx_#^#NAME#$#>();\n"
             "}\n\n"    
+           "/// @brief De-initialize #^#DOC_SCOPE#$#\n"
+            "void deinitField_#^#NAME#$#()\n"
+            "{\n"
+            "    Base::template deinitField<FieldIdx_#^#NAME#$#>();\n"
+            "}\n\n"                
             "/// @brief Access as #^#DOC_SCOPE#$#\n"
             "Field_#^#NAME#$#& accessField_#^#NAME#$#()\n"
             "{\n"
@@ -715,12 +899,12 @@ std::string CommsVariantField::commsDefFieldExecCodeInternal() const
         "void currFieldExec(TFunc&& func) #^#CONST#$#\n"
         "{\n"
         "    switch (Base::currentField()) {\n"
-        "    #^#CASES#$#\n"
-        "    default:\n"
-        "        static constexpr bool Invalid_field_execution = false;\n"
-        "        static_cast<void>(Invalid_field_execution);\n"
-        "        COMMS_ASSERT(Invalid_field_execution);\n"
-        "        break;\n"
+        "        #^#CASES#$#\n"
+        "        default:\n"
+        "            static constexpr bool Invalid_field_execution = false;\n"
+        "            static_cast<void>(Invalid_field_execution);\n"
+        "            COMMS_ASSERT(Invalid_field_execution);\n"
+        "            break;\n"
         "    }\n"
         "}\n";
 
@@ -739,14 +923,36 @@ std::string CommsVariantField::commsDefFieldExecCodeInternal() const
     return str;
 }
 
-void CommsVariantField::commsAddDefaultIdxOptInternal(StringsList& opts) const
+std::string CommsVariantField::commsDefResetCodeInternal() const
 {
-    auto obj = variantDslObj();
-    auto idx = obj.defaultMemberIdx();
-    if (idx < m_members.size()) {
-        auto str = "comms::option::def::DefaultVariantIndex<" + util::numToString(idx) + '>';
-        opts.push_back(std::move(str));
+    StringsList cases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string Templ =
+            "case FieldIdx_#^#MEM_NAME#$#: deinitField_#^#MEM_NAME#$#(); return;";
+        util::ReplacementMap repl = {
+            {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+        };
+        cases.push_back(util::processTemplate(Templ, repl));
     }
+
+    static const std::string Templ =
+        "/// @brief Optimized reset functionality.\n"
+        "/// @details Replaces the reset() member function defined\n"
+        "///    by @b comms::field::Variant.\n"
+        "void reset()\n"
+        "{\n"
+        "    switch (Base::currentField()) {\n"
+        "        #^#CASES#$#\n"
+        "        default: break;\n"
+        "    }\n"
+        "    COMMS_ASSERT(false); // Should not be reached\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CASES", util::strListToString(cases, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 void CommsVariantField::commsAddCustomReadOptInternal(StringsList& opts) const

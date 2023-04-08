@@ -43,6 +43,8 @@ protected:
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefMembersCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
+    virtual std::string commsDefConstructCodeImpl() const override;
+    virtual std::string commsDefDestructCodeImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual std::string commsDefPrivateCodeImpl() const override;
     virtual std::string commsDefReadFuncBodyImpl() const override;
@@ -59,12 +61,13 @@ protected:
 private:
     bool commsPrepareInternal();
     std::string commsDefFieldOptsInternal() const;
+    std::string commsDefCopyCodeInternal() const;
     std::string commsDefAccessCodeInternal() const;
     std::string commsDefAccessCodeByCommsInternal() const;
     std::string commsDefAccessCodeGeneratedInternal() const;
     std::string commsDefFieldExecCodeInternal() const;
+    std::string commsDefResetCodeInternal() const;
 
-    void commsAddDefaultIdxOptInternal(StringsList& opts) const;
     void commsAddCustomReadOptInternal(StringsList& opts) const;
     std::string commsOptimizedReadKeyInternal() const;
 

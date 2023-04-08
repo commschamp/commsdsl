@@ -154,7 +154,7 @@ std::string CommsDataField::commsDefBaseClassImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsDataField::commsDefPublicCodeImpl() const
+std::string CommsDataField::commsDefConstructCodeImpl() const
 {
     auto obj = dataDslObj();
     auto& defaultValue = obj.defaultValue();
@@ -163,15 +163,11 @@ std::string CommsDataField::commsDefPublicCodeImpl() const
     }
 
     static const std::string Templ =
-        "/// @brief Default constructor\n"
-        "#^#CLASS_NAME#$##^#SUFFIX#$#()\n"
-        "{\n"
-        "    static const std::uint8_t Data[] = {\n"
-        "        #^#BYTES#$#\n"
-        "    };\n"
-        "    comms::util::assign(Base::value(), std::begin(Data), std::end(Data));\n"
-        "}\n";
-
+        "static const std::uint8_t Data[] = {\n"
+        "    #^#BYTES#$#\n"
+        "};\n"
+        "comms::util::assign(Base::value(), std::begin(Data), std::end(Data));\n"
+        ;
     util::StringsList bytes;
     bytes.reserve(defaultValue.size());
     for (auto& b : defaultValue) {
@@ -184,13 +180,9 @@ std::string CommsDataField::commsDefPublicCodeImpl() const
     bytesStr = util::strMakeMultiline(bytesStr);
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(obj.name())},
         {"BYTES", std::move(bytesStr)}
     };
 
-    if (commsIsExtended()) {
-        repl["SUFFIX"] = strings::origSuffixStr();
-    }
     return util::processTemplate(Templ, repl);
 }
 

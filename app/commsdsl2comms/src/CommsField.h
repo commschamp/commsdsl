@@ -102,6 +102,8 @@ protected:
     virtual std::string commsDefDoxigenDetailsImpl() const;
     virtual std::string commsDefExtraDoxigenImpl() const;
     virtual std::string commsDefBaseClassImpl() const;
+    virtual std::string commsDefConstructCodeImpl() const;
+    virtual std::string commsDefDestructCodeImpl() const;
     virtual std::string commsDefPublicCodeImpl() const;
     virtual std::string commsDefProtectedCodeImpl() const;
     virtual std::string commsDefPrivateCodeImpl() const;
@@ -171,6 +173,9 @@ private:
     std::string commsExtraDocInternal() const;
     std::string commsDeprecatedDocInternal() const;
     std::string commsTemplateParamsInternal() const;
+    std::string commsDefConstructPublicCodeInternal() const;
+    std::string commsDefConstructPrivateCodeInternal() const;
+    std::string commsDefDestructCodeInternal() const;
     std::string commsDefPublicCodeInternal() const;
     std::string commsDefProtectedCodeInternal() const;
     std::string commsDefPrivateCodeInternal() const;

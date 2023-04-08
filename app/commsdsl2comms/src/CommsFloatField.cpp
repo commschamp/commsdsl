@@ -260,6 +260,24 @@ std::string CommsFloatField::commsCommonCodeBodyImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+std::string CommsFloatField::commsDefConstructCodeImpl() const
+{
+    auto obj = floatDslObj();
+    double defaultValue = obj.defaultValue();
+    if (defaultValue == 0) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ =
+        "Base::setValue(#^#VAL#$#);\n";
+
+    util::ReplacementMap repl = {
+        {"VAL", valueToString(defaultValue, obj.type())}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 CommsFloatField::IncludesList CommsFloatField::commsDefIncludesImpl() const
 {
     IncludesList result = {
@@ -327,7 +345,6 @@ std::string CommsFloatField::commsDefPublicCodeImpl() const
         "/// @brief Re-definition of the value type.\n"
         "using ValueType = typename Base::ValueType;\n\n"
         "#^#SPECIAL_VALUE_NAMES_MAP_DEFS#$#\n"
-        "#^#CONSTRUCTOR#$#\n"
         "#^#HAS_SPECIALS#$#\n"
         "#^#SPECIALS#$#\n"
         "#^#SPECIAL_NAMES_MAP#$#\n"
@@ -336,7 +353,6 @@ std::string CommsFloatField::commsDefPublicCodeImpl() const
 
     util::ReplacementMap repl = {
         {"SPECIAL_VALUE_NAMES_MAP_DEFS", commsDefValueNamesMapCodeInternal()},
-        {"CONSTRUCTOR", commsDefConstructorCodeInternal()},
         {"HAS_SPECIALS", commsDefHasSpecialsFuncCodeInternal()},
         {"SPECIALS", commsDefSpecialsCodeInternal()},
         {"SPECIAL_NAMES_MAP", commsDefSpecialNamesMapCodeInternal()},
@@ -624,33 +640,6 @@ std::string CommsFloatField::commsDefValueNamesMapCodeInternal() const
     };
 
     return util::processTemplate(specialNamesMapTempl(), repl);    
-}
-
-std::string CommsFloatField::commsDefConstructorCodeInternal() const
-{
-    auto obj = floatDslObj();
-    double defaultValue = obj.defaultValue();
-    if (defaultValue == 0) {
-        return strings::emptyString();
-    }
-
-    static const std::string Templ =
-        "/// @brief Generated default constructor.\n"
-        "#^#CLASS_NAME#$##^#SUFFIX#$#()\n"
-        "{\n"
-        "    Base::setValue(#^#VAL#$#);\n"
-        "}\n";
-
-    util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(obj.name())},
-        {"VAL", valueToString(defaultValue, obj.type())}
-    };
-
-    if (commsIsExtended()) {
-        repl["SUFFIX"] = strings::origSuffixStr();
-    }
-
-    return util::processTemplate(Templ, repl);
 }
 
 std::string CommsFloatField::commsDefHasSpecialsFuncCodeInternal() const

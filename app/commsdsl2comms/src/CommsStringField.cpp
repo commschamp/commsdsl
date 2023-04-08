@@ -150,7 +150,7 @@ std::string CommsStringField::commsDefBaseClassImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsStringField::commsDefPublicCodeImpl() const
+std::string CommsStringField::commsDefConstructCodeImpl() const
 {
     auto obj = stringDslObj();
     auto& defaultValue = obj.defaultValue();
@@ -159,22 +159,14 @@ std::string CommsStringField::commsDefPublicCodeImpl() const
     }
 
     static const std::string Templ =
-        "/// @brief Default constructor\n"
-        "#^#CLASS_NAME#$##^#SUFFIX#$#()\n"
-        "{\n"
-        "    static const char Str[] = \"#^#STR#$#\";\n"
-        "    static const std::size_t StrSize = std::extent<decltype(Str)>::value;\n"
-        "    Base::setValue(typename Base::ValueType(&Str[0], StrSize - 1));\n"
-        "}\n";
+        "static const char Str[] = \"#^#STR#$#\";\n"
+        "static const std::size_t StrSize = std::extent<decltype(Str)>::value;\n"
+        "Base::setValue(typename Base::ValueType(&Str[0], StrSize - 1));\n";
 
     util::ReplacementMap repl = {
-        {"CLASS_NAME", comms::className(obj.name())},
         {"STR", defaultValue}
     };
 
-    if (commsIsExtended()) {
-        repl["SUFFIX"] = strings::origSuffixStr();
-    }
     return util::processTemplate(Templ, repl);
 }
 

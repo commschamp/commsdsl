@@ -524,6 +524,16 @@ std::string CommsField::commsDefBaseClassImpl() const
     return strings::emptyString();
 }
 
+std::string CommsField::commsDefConstructCodeImpl() const
+{
+    return strings::emptyString();
+}
+
+std::string CommsField::commsDefDestructCodeImpl() const
+{
+    return strings::emptyString();
+}
+
 std::string CommsField::commsDefPublicCodeImpl() const
 {
     return strings::emptyString();
@@ -972,7 +982,7 @@ std::string CommsField::commsFieldDefCodeInternal() const
         "#^#PUBLIC#$#\n"
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
-        "};\n"
+        "};\n\n"
         "#^#EXTEND#$#\n"
     ;
 
@@ -1174,11 +1184,99 @@ std::string CommsField::commsTemplateParamsInternal() const
     return result;    
 }
 
+std::string CommsField::commsDefConstructPublicCodeInternal() const
+{
+    if (!m_customConstruct.empty()) {
+        return m_customConstruct;
+    }
+
+    auto body = commsDefConstructCodeImpl();
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(m_field.dslObj().name())},
+        {"BODY", body}
+    };    
+
+    if (commsIsVersionOptional()) {
+        repl["SUFFIX"] = strings::versionOptionalFieldSuffixStr();
+    }    
+
+    if (commsIsExtended()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }        
+    if (body.empty()) {
+        static const std::string Templ = 
+            "/// @brief Default constructor.\n"
+            "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#() = default;\n";
+        return util::processTemplate(Templ, repl);
+    }
+
+    static const std::string Templ = 
+        "/// @brief Default constructor.\n"
+        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsDefConstructPrivateCodeInternal() const
+{
+    if (m_customConstruct.empty()) {
+        return strings::emptyString();
+    }
+
+    auto body = commsDefConstructCodeImpl();
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "construct#^#ORIG#$#()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(body)},
+        {"ORIG", strings::origSuffixStr()},
+    };    
+
+    return util::processTemplate(Templ, repl);    
+}
+
+std::string CommsField::commsDefDestructCodeInternal() const
+{
+    auto body = commsDefDestructCodeImpl();
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "/// @brief Destructor\n"
+        "~#^#CLASS_NAME#$##^#ORIG#$#()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";    
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(m_field.dslObj().name())},
+        {"BODY", std::move(body)}
+    };    
+
+    if (commsIsExtended()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    return util::processTemplate(Templ, repl);
+}
+
 std::string CommsField::commsDefPublicCodeInternal() const
 {
     static const std::string Templ = {
         "public:\n"
         "    #^#CONSTRUCT#$#\n"
+        "    #^#DESTRUCT#$#\n"
         "    #^#FIELD_DEF#$#\n"
         "    #^#NAME#$#\n"
         "    #^#VALUE#$#\n"
@@ -1191,7 +1289,8 @@ std::string CommsField::commsDefPublicCodeInternal() const
     };
 
     util::ReplacementMap repl = {
-        {"CONSTRUCT", m_customConstruct},
+        {"CONSTRUCT", commsDefConstructPublicCodeInternal()},
+        {"DESTRUCT", commsDefDestructCodeInternal()},
         {"FIELD_DEF", commsDefPublicCodeImpl()},
         {"NAME", commsDefNameFuncCodeInternal()},
         {"VALUE", commsDefValueCodeInternal()},
@@ -1248,19 +1347,25 @@ std::string CommsField::commsDefPrivateCodeInternal() const
 {
     static const std::string Templ = 
         "private:\n"
+        "    #^#CONSTRUCT#$#\n"
         "    #^#FIELD#$#\n"
         "    #^#CUSTOM#$#\n";
 
     util::ReplacementMap repl;
 
+    auto construct = commsDefConstructPrivateCodeInternal();
+    if (!construct.empty()) {
+        repl["CONSTRUCT"] = std::move(construct);
+    }
+
     auto field = commsDefPrivateCodeImpl();
     
     if (!field.empty()) {
-        repl.insert({{"FIELD", std::move(field)}});
+        repl["FIELD"] = std::move(field);
     }
 
     if (!m_customCode.m_private.empty()) {
-        repl.insert({{"CUSTOM", m_customCode.m_private}});
+        repl["CUSTOM"] = m_customCode.m_private;
     }
 
     if (repl.empty()) {
