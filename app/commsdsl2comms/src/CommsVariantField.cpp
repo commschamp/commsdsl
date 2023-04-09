@@ -394,6 +394,7 @@ std::string CommsVariantField::commsDefReadFuncBodyImpl() const
     }
 
     static const std::string Templ =
+        "reset();\n"
         "#^#VERSION_DEP#$#\n"
         "using CommonKeyField=\n"
         "    #^#KEY_FIELD_TYPE#$#;\n"
@@ -657,13 +658,15 @@ std::string CommsVariantField::commsDefCopyCodeInternal() const
 
     static const std::string Templ = 
         "/// @brief Copy constructor.\n"
-        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#(const #^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& other)\n"
-        "{"
+        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#(const #^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#& other) :\n"
+        "    Base()\n"
+        "{\n"
         "    *this = other;\n"
         "}\n\n"
         "/// @brief Move constructor.\n"
-        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#(#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#&& other)\n"
-        "{"
+        "#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#(#^#CLASS_NAME#$##^#SUFFIX#$##^#ORIG#$#&& other) : \n"
+        "    Base()\n"
+        "{\n"
         "    *this = std::move(other);\n"
         "}\n\n"
         "/// @brief Copy assignment operator.\n"
@@ -941,6 +944,9 @@ std::string CommsVariantField::commsDefResetCodeInternal() const
         "///    by @b comms::field::Variant.\n"
         "void reset()\n"
         "{\n"
+        "    if (!Base::currentFieldValid()) {\n"
+        "        return;\n"
+        "    }\n\n"
         "    switch (Base::currentField()) {\n"
         "        #^#CASES#$#\n"
         "        default: break;\n"
