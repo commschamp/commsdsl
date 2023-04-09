@@ -68,7 +68,7 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
     auto* msg = static_cast<const Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 0U);
-    msg->field_f1().currFieldExec(TypeVerifier(0));
+    msg->field_f1().currentFieldExec(TypeVerifier(0));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_p1().field_value().value(), 0x01020304);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 }
@@ -95,7 +95,7 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 
     auto* nonConstMsg = const_cast<Msg1*>(msg);
-    nonConstMsg->field_f1().currFieldExec(TypeVerifier(1));
+    nonConstMsg->field_f1().currentFieldExec(TypeVerifier(1));
 }
 
 void TestSuite::test3()
@@ -116,7 +116,7 @@ void TestSuite::test3()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
     auto* msg = static_cast<const Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 4U);
-    msg->field_f1().currFieldExec(TypeVerifier(5));
+    msg->field_f1().currentFieldExec(TypeVerifier(5));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_any().field_type().value(), 0x05);
     TS_ASSERT_EQUALS(msg->field_f1().accessField_any().field_length().value(), 0x04);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
@@ -153,7 +153,7 @@ void TestSuite::test5()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
     auto* msg = static_cast<Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 0U);
-    msg->field_f1().currFieldExec(TypeVerifier(0));
+    msg->field_f1().currentFieldExec(TypeVerifier(0));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_p1().field_value().value(), 0xff);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 
@@ -185,7 +185,7 @@ void TestSuite::test6()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
     auto* msg = static_cast<Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 2U);
-    msg->field_f1().currFieldExec(TypeVerifier(2));
+    msg->field_f1().currentFieldExec(TypeVerifier(2));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_p3().field_value().value(), Msg1::Field_f1::Field_p3::Field_value::ValueType::V2);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 
@@ -217,7 +217,7 @@ void TestSuite::test7()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M1);
     auto* msg = static_cast<Msg1*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 3U);
-    msg->field_f1().currFieldExec(TypeVerifier(3));
+    msg->field_f1().currentFieldExec(TypeVerifier(3));
     TS_ASSERT(msg->field_f1().accessField_p4().field_value().getBitValue_B0());
     TS_ASSERT(!msg->field_f1().accessField_p4().field_value().getBitValue_B8());
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
@@ -250,7 +250,7 @@ void TestSuite::test8()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M3);
     auto* msg = static_cast<const Msg3*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 0U);
-    msg->field_f1().currFieldExec(TypeVerifier(0));
+    msg->field_f1().currentFieldExec(TypeVerifier(0));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_p1().field_value().value(), 0x01020304);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 }
@@ -275,7 +275,7 @@ void TestSuite::test9()
     TS_ASSERT_EQUALS(msgPtr->getId(), test32::MsgId_M3);
     auto* msg = static_cast<const Msg3*>(msgPtr.get());
     TS_ASSERT_EQUALS(msg->field_f1().currentField(), 4U);
-    msg->field_f1().currFieldExec(TypeVerifier(5));
+    msg->field_f1().currentFieldExec(TypeVerifier(5));
     TS_ASSERT_EQUALS(msg->field_f1().accessField_any().field_value().value().size(), 0x1ff);
     TS_ASSERT_EQUALS(msg->field_f2().value(), 0xabcd);
 }

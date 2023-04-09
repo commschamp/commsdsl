@@ -297,7 +297,9 @@ std::string CommsVariantField::commsDefPublicCodeImpl() const
         commsDefAccessCodeInternal() + '\n' + 
         commsDefCopyCodeInternal() + '\n' + 
         commsDefFieldExecCodeInternal() + '\n' +
-        commsDefResetCodeInternal();
+        commsDefSelectFieldCodeInternal() + '\n' +
+        commsDefResetCodeInternal() + '\n' +
+        commsDefCanWriteCodeInternal();
 }
 
 std::string CommsVariantField::commsDefPrivateCodeImpl() const
@@ -895,11 +897,11 @@ std::string CommsVariantField::commsDefFieldExecCodeInternal() const
     }
 
     static const std::string Templ =
-        "/// @brief Optimized currFieldExec functionality#^#VARIANT#$#.\n"
-        "/// @details Replaces the currFieldExec() member function defined\n"
+        "/// @brief Optimized currentFieldExec functionality#^#VARIANT#$#.\n"
+        "/// @details Replaces the currentFieldExec() member function defined\n"
         "///    by @b comms::field::Variant.\n"
         "template <typename TFunc>\n"
-        "void currFieldExec(TFunc&& func) #^#CONST#$#\n"
+        "void currentFieldExec(TFunc&& func) #^#CONST#$#\n"
         "{\n"
         "    switch (Base::currentField()) {\n"
         "        #^#CASES#$#\n"
@@ -960,6 +962,79 @@ std::string CommsVariantField::commsDefResetCodeInternal() const
 
     return util::processTemplate(Templ, repl);
 }
+
+std::string CommsVariantField::commsDefCanWriteCodeInternal() const
+{
+    StringsList cases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string Templ =
+            "case FieldIdx_#^#MEM_NAME#$#: return accessField_#^#MEM_NAME#$#().canWrite();";
+        util::ReplacementMap repl = {
+            {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+        };
+        cases.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "/// @brief Optimized check ability to write.\n"
+        "/// @details Replaces the canWrite() member function defined\n"
+        "///    by @b comms::field::Variant.\n"
+        "bool canWrite() const\n"
+        "{\n"
+        "    if (!Base::currentFieldValid()) {\n"
+        "        return true;\n"
+        "    }\n\n"
+        "    switch (Base::currentField()) {\n"
+        "        #^#CASES#$#\n"
+        "        default: break;\n"
+        "    }\n"
+        "    COMMS_ASSERT(false); // Should not be reached\n"
+        "    return false;\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CASES", util::strListToString(cases, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsVariantField::commsDefSelectFieldCodeInternal() const
+{
+    StringsList cases;
+    for (auto idx = 0U; idx < m_members.size(); ++idx) {
+        static const std::string Templ =
+            "case FieldIdx_#^#MEM_NAME#$#: initField_#^#MEM_NAME#$#(); return;";
+        util::ReplacementMap repl = {
+            {"MEM_NAME", comms::accessName(m_members[idx]->field().dslObj().name())}
+        };
+        cases.push_back(util::processTemplate(Templ, repl));
+    }
+
+    static const std::string Templ =
+        "/// @brief Optimized runtime selection field functionality.\n"
+        "/// @details Replaces the selectField() member function defined\n"
+        "///    by @b comms::field::Variant.\n"
+        "void selectField(std::size_t idx)\n"
+        "{\n"
+        "    if (Base::currentField() == idx) {\n"
+        "        return;\n"
+        "    }\n\n"
+        "    reset();\n"
+        "    switch (Base::currentField()) {\n"
+        "        #^#CASES#$#\n"
+        "        default: break;\n"
+        "    }\n"
+        "    COMMS_ASSERT(false); // Should not be reached\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"CASES", util::strListToString(cases, "\n", "")}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
 
 void CommsVariantField::commsAddCustomReadOptInternal(StringsList& opts) const
 {

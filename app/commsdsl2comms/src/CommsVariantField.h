@@ -67,6 +67,8 @@ private:
     std::string commsDefAccessCodeGeneratedInternal() const;
     std::string commsDefFieldExecCodeInternal() const;
     std::string commsDefResetCodeInternal() const;
+    std::string commsDefCanWriteCodeInternal() const;
+    std::string commsDefSelectFieldCodeInternal() const;
 
     void commsAddCustomReadOptInternal(StringsList& opts) const;
     std::string commsOptimizedReadKeyInternal() const;
