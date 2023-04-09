@@ -44,6 +44,7 @@
 #include "ToolsQtSyncLayer.h"
 #include "ToolsQtValueLayer.h"
 #include "ToolsQtVariantField.h"
+#include "ToolsQtVersion.h"
 
 #include "commsdsl/version.h"
 
@@ -53,6 +54,13 @@
 
 namespace commsdsl2tools_qt
 {
+
+namespace
+{
+
+const std::string MinToolsQtVersion("4.1.0");    
+
+} // namespace 
 
 const std::string& ToolsQtGenerator::fileGeneratedComment()
 {
@@ -117,6 +125,11 @@ bool ToolsQtGenerator::toolsHasMainNamespaceInOptions() const
     }
 
     return m_mainNamespaceInOptionsForced;
+}
+
+const std::string& ToolsQtGenerator::toolsMinCcToolsQtVersion()
+{
+    return MinToolsQtVersion;
 }
 
 bool ToolsQtGenerator::prepareImpl() 
@@ -292,7 +305,8 @@ bool ToolsQtGenerator::writeImpl()
         ToolsQtInputMessages::write(*this) &&
         ToolsQtMsgFactory::write(*this) &&
         ToolsQtDefaultOptions::write(*this) &&
-        ToolsQtMsgFactoryOptions::write(*this);
+        ToolsQtMsgFactoryOptions::write(*this) &&
+        ToolsQtVersion::write(*this);
 
     if (!result) {
         return false;

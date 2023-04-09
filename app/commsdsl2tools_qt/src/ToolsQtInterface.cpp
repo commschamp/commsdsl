@@ -16,6 +16,7 @@
 #include "ToolsQtInterface.h"
 
 #include "ToolsQtGenerator.h"
+#include "ToolsQtVersion.h"
 
 #include "commsdsl/gen/EnumField.h"
 #include "commsdsl/gen/comms.h"
@@ -120,7 +121,7 @@ bool ToolsQtInterface::writeImpl() const
 
 bool ToolsQtInterface::toolsWriteHeaderInternal() const
 {
-    auto& gen = generator();
+    auto& gen = ToolsQtGenerator::cast(generator());
     auto filePath = gen.getOutputDir() + '/' + toolsHeaderFilePath();
 
     auto& logger = gen.logger();
@@ -142,16 +143,23 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         "#^#GENERATED#$#\n"
         "\n"
         "#pragma once\n\n"
-        "#include \"cc_tools_qt/MessageBase.h\"\n"
-        "#include \"#^#INTERFACE_INCLUDE#$#\"\n\n"
+        "#^#INCLUDES#$#\n"
         "#^#NS_BEGIN#$#\n"
         "#^#DEF#$#\n\n"
         "#^#NS_END#$#\n"
     ;
 
+    util::StringsList includes {
+        "cc_tools_qt/MessageBase.h",
+        comms::relHeaderPathFor(*this, gen),
+        ToolsQtVersion::toolsRelHeaderPath(gen),
+    };
+
+    comms::prepareIncludeStatement(includes);    
+
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
-        {"INTERFACE_INCLUDE", comms::relHeaderPathFor(*this, gen)},
+        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"DEF", toolsHeaderCodeInternal()},
@@ -164,7 +172,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
 
 bool ToolsQtInterface::toolsWriteSrcInternal() const
 {
-    auto& gen = generator();
+    auto& gen = ToolsQtGenerator::cast(generator());
     auto filePath = gen.getOutputDir() + '/' + toolsRelFilePath() + strings::cppSourceSuffixStr();
 
     auto& logger = gen.logger();
@@ -192,6 +200,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
     ;
 
     util::StringsList includes;
+
     for (auto* f : m_toolsFields) {
         auto incs = f->toolsSrcIncludes();
         includes.reserve(includes.size() + incs.size());

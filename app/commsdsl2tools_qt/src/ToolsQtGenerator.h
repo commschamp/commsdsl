@@ -86,6 +86,8 @@ public:
     bool toolsHasMulitpleInterfaces() const;
     bool toolsHasMainNamespaceInOptions() const;
 
+    static const std::string& toolsMinCcToolsQtVersion();
+
 protected:
     virtual bool prepareImpl() override;
 

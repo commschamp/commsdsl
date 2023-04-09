@@ -16,6 +16,7 @@
 #include "ToolsQtDefaultOptions.h"
 
 #include "ToolsQtGenerator.h"
+#include "ToolsQtVersion.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -133,7 +134,10 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
 
     auto codePrefix = m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator);
 
-    util::StringsList includes;
+    util::StringsList includes {
+        ToolsQtVersion::toolsRelHeaderPath(m_generator)
+    };
+    
     auto& schemas = m_generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         auto& gen = const_cast<ToolsQtGenerator&>(m_generator);

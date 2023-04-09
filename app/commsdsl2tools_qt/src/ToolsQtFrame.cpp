@@ -20,6 +20,7 @@
 #include "ToolsQtGenerator.h"
 #include "ToolsQtInputMessages.h"
 #include "ToolsQtInterface.h"
+#include "ToolsQtVersion.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -182,6 +183,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
         comms::relHeaderPathFor(*this, gen),
         ToolsQtInputMessages::toolsRelHeaderPath(gen),
         ToolsQtMsgFactoryOptions::toolsRelHeaderPath(gen),
+        ToolsQtVersion::toolsRelHeaderPath(gen),
     };
 
     auto allInterfaces = gen.toolsGetSelectedInterfaces();    

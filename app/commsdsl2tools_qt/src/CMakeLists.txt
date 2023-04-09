@@ -33,6 +33,7 @@ set (
     ToolsQtSyncLayer.cpp
     ToolsQtValueLayer.cpp
     ToolsQtVariantField.cpp
+    ToolsQtVersion.cpp
     main.cpp
 )
 
