@@ -366,7 +366,7 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
         {"TOP_NS", m_generator.getTopNamespace()},
@@ -430,7 +430,7 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
         {"TOP_NS", m_generator.getTopNamespace()},

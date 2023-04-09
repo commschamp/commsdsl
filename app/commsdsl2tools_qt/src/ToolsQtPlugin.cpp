@@ -133,7 +133,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
@@ -272,7 +272,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     transportMsgHeader.insert(insertIter, suffix.begin(), suffix.end());    
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
@@ -471,7 +471,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
@@ -538,7 +538,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
@@ -715,7 +715,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
@@ -796,7 +796,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},

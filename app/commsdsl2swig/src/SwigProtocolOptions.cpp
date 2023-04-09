@@ -37,7 +37,7 @@ namespace commsdsl2swig
 namespace 
 {
 
-std::string swigCodeInternal(SwigGenerator& generator, std::size_t idx)
+std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
 {
     assert(idx < generator.schemas().size());
 
@@ -90,8 +90,6 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsLis
 
     assert(generator.isCurrentProtocolSchema());
 
-    auto& gen = const_cast<SwigGenerator&>(generator);
-
     const std::string Templ = 
         "using #^#OPT_TYPE#$# =\n"
         "    #^#MSG_FACT_OPTS#$#T<\n"
@@ -101,11 +99,11 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsLis
     auto msgFactOptions = comms::scopeForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator);
     util::ReplacementMap repl = {
         {"OPT_TYPE", swigClassName(generator)},
-        {"CODE", swigCodeInternal(gen, gen.schemas().size() - 1U)},
+        {"CODE", swigCodeInternal(generator, generator.schemas().size() - 1U)},
         {"MSG_FACT_OPTS", std::move(msgFactOptions)}
     };
 
-    gen.chooseProtocolSchema();
+    generator.chooseProtocolSchema();
     list.push_back(util::processTemplate(Templ, repl));
 }
 

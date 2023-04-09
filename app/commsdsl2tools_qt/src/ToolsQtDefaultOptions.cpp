@@ -39,13 +39,12 @@ namespace
 
 std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx)
 {
-    auto& gen = const_cast<ToolsQtGenerator&>(generator);
     assert(idx < generator.schemas().size());
 
-    auto oldIdx = gen.currentSchemaIdx();
-    gen.chooseCurrentSchema(static_cast<unsigned>(idx));
+    auto oldIdx = generator.currentSchemaIdx();
+    generator.chooseCurrentSchema(static_cast<unsigned>(idx));
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
-    gen.chooseCurrentSchema(oldIdx);
+    generator.chooseCurrentSchema(oldIdx);
 
     if (idx == 0U) {
         return "::" + scope;
@@ -137,19 +136,18 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
     util::StringsList includes {
         ToolsQtVersion::toolsRelHeaderPath(m_generator)
     };
-    
+
     auto& schemas = m_generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
-        auto& gen = const_cast<ToolsQtGenerator&>(m_generator);
-        gen.chooseCurrentSchema(idx);
-        includes.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), gen));
+        m_generator.chooseCurrentSchema(idx);
+        includes.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
     }
     assert(m_generator.isCurrentProtocolSchema());
 
     comms::prepareIncludeStatement(includes);
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "")},
         {"EXTRA_INCLUDES", util::readFileContents(codePrefix + strings::incFileSuffixStr())},
         {"TOP_NS", m_generator.getTopNamespace()},

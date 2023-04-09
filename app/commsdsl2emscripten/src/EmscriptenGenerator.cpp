@@ -99,10 +99,9 @@ std::string EmscriptenGenerator::emscriptenScopeNameForRoot(const std::string& n
 std::string EmscriptenGenerator::emscriptenProtocolClassNameForRoot(const std::string& name) const
 {
     auto schemaIdx = currentSchemaIdx();
-    auto* thisGen = const_cast<EmscriptenGenerator*>(this);
-    thisGen->chooseProtocolSchema();
+    chooseProtocolSchema();
     auto str = emscriptenScopeNameForRoot(name);
-    thisGen->chooseCurrentSchema(schemaIdx);
+    chooseCurrentSchema(schemaIdx);
     return str;
 }
 
@@ -129,20 +128,18 @@ std::string EmscriptenGenerator::emscriptenAbsSourceForRoot(const std::string& n
 std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForRoot(const std::string& name) const
 {
     auto schemaIdx = currentSchemaIdx();
-    auto* thisGen = const_cast<EmscriptenGenerator*>(this);
-    thisGen->chooseProtocolSchema();
+    chooseProtocolSchema();
     auto str = emscriptenRelHeaderForRoot(name);
-    thisGen->chooseCurrentSchema(schemaIdx);
+    chooseCurrentSchema(schemaIdx);
     return str;
 }
 
 std::string EmscriptenGenerator::emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const
 {
     auto currSchemaIdx = currentSchemaIdx();
-    auto* thisGen = const_cast<EmscriptenGenerator*>(this);
-    thisGen->chooseCurrentSchema(schemaIdx);
+    chooseCurrentSchema(schemaIdx);
     auto str = emscriptenRelSourceForRoot(name);
-    thisGen->chooseCurrentSchema(currSchemaIdx);
+    chooseCurrentSchema(currSchemaIdx);
     return str;
 }
 

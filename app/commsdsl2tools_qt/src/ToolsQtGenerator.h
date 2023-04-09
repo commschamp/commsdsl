@@ -44,13 +44,13 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using PluginsList = std::vector<ToolsQtPluginPtr>;
 
-    static const std::string& fileGeneratedComment();
-    void setPluginInfosList(PluginInfosList&& value)
+    static const std::string& toolsFileGeneratedComment();
+    void toolsSetPluginInfosList(PluginInfosList&& value)
     {
         m_pluginInfos = std::move(value);
     }
 
-    const PluginInfosList& getPluginInfosList() const
+    const PluginInfosList& toolsGetPluginInfosList() const
     {
         return m_pluginInfos;
     }

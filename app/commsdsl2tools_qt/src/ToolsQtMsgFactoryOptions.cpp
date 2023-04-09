@@ -119,7 +119,7 @@ bool ToolsQtMsgFactoryOptions::toolsWriteInternal() const
     comms::prepareIncludeStatement(includes);
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "")},
         {"EXTRA_INCLUDES", util::readFileContents(codePrefix + strings::incFileSuffixStr())},
         {"TOP_NS", m_generator.getTopNamespace()},

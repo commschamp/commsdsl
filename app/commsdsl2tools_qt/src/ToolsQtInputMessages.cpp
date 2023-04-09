@@ -106,7 +106,7 @@ bool writeFileInternal(
 
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"PROT_NAMESPACE", generator.protocolSchema().mainNamespace()},
         {"NAME", name},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},

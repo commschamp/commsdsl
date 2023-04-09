@@ -109,10 +109,9 @@ std::string SwigGenerator::swigProtocolClassNameForRoot(const std::string& name)
 {
     bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
     auto schemaIdx = currentSchemaIdx();
-    auto* thisGen = const_cast<SwigGenerator*>(this);
-    thisGen->chooseProtocolSchema();
+    chooseProtocolSchema();
     auto str = comms::scopeForRoot(name, *this, addMainNamespace);
-    thisGen->chooseCurrentSchema(schemaIdx);
+    chooseCurrentSchema(schemaIdx);
     return swigScopeToName(str);
 }
 

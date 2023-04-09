@@ -158,7 +158,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
     comms::prepareIncludeStatement(includes);    
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
@@ -209,7 +209,7 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
     comms::prepareIncludeStatement(includes);
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"CLASS_NAME", comms::className(toolsNameInternal())},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},

@@ -66,7 +66,7 @@ bool ToolsQtVersion::writeInternal() const
 
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOOLS_QT_MIN", util::strReplace(ToolsQtGenerator::toolsMinCcToolsQtVersion(), ".", ", ")},
         {"APPEND", util::readFileContents(m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator) + strings::appendFileSuffixStr())},
     };        

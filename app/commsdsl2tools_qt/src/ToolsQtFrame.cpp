@@ -196,7 +196,7 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
     comms::prepareIncludeStatement(includes);
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
@@ -281,7 +281,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
     }
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"FRAME_INCLUDE", comms::relHeaderPathFor(*this, gen)},
@@ -411,7 +411,7 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
     }  
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"CLASS_NAME", comms::className(dslObj().name())},
