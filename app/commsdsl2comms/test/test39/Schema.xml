@@ -14,7 +14,7 @@
         <payload name="Data" />
     </frame>      
     
-    <message name="M1" id="MsgId.M1">
+    <message name="Msg1" id="MsgId.M1">
         <fields>
             <int name="F1" type="uint8" />
             <bitfield name="F2">

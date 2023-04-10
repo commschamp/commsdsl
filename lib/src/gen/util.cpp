@@ -265,6 +265,19 @@ std::string strToUpper(const std::string& str)
     return result;
 }
 
+std::string strToMacroName(const std::string& str)
+{
+    std::string result;
+    for (char ch : str) {
+        if ((!result.empty()) && ('A' <= ch) && (ch <= 'Z')) {
+            result += '_';
+        }
+
+        result += static_cast<char>(std::toupper(ch));
+    }
+    return result;
+}
+
 std::string numToString(std::uintmax_t value, unsigned hexWidth)
 {
     if (hexWidth == 0U) {

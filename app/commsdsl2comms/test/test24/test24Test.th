@@ -21,7 +21,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test24::message::Msg1<Interface>;
+    TEST24_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test24::frame::Frame<Interface>;
 };
 

@@ -24,8 +24,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test1::message::Msg1<Interface>;
-    using Msg2 = test1::message::Msg2<Interface>;
+    TEST1_ALIASES_FOR_ALL_MESSAGES(,,Interface, test1::options::DefaultOptions)
     using Frame = test1::frame::Frame<Interface>;
 
     void polymorphicNameCheck(const Interface& msg, const char* value)

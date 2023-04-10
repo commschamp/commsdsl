@@ -29,13 +29,11 @@ public:
     using BM_Options = test29::options::BareMetalDefaultOptions;
     using DV_Options = test29::options::DataViewDefaultOptions;
 
-    using BM_Msg1 = test29::message::Msg1<Interface, BM_Options>;
-    using BM_Msg2 = test29::message::Msg2<Interface, BM_Options>;    
+    TEST29_ALIASES_FOR_ALL_MESSAGES(BM_,,Interface, BM_Options);
     using BM_AllMessages = test29::input::AllMessages<Interface, BM_Options>;
     using BM_Frame = test29::frame::Frame<Interface, BM_AllMessages, BM_Options>;
 
-    using DV_Msg1 = test29::message::Msg1<Interface, DV_Options>;
-    using DV_Msg2 = test29::message::Msg2<Interface, DV_Options>;    
+    TEST29_ALIASES_FOR_ALL_MESSAGES(DV_,,Interface, DV_Options);
     using DV_AllMessages = test29::input::AllMessages<Interface, DV_Options>;
     using DV_Frame = test29::frame::Frame<Interface, DV_AllMessages, DV_Options>;    
 

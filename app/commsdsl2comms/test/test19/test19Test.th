@@ -38,8 +38,8 @@ public:
     using Frame1 = test19::frame::TestFrame1<Interface1>;
     using Frame2 = test19::frame::TestFrame2<Interface2>;
 
-    using Msg1_1 = test19::message::Msg1<Interface1>;
-    using Msg1_2 = test19::message::Msg1<Interface2>;
+    TEST19_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(, _1, Interface1)
+    TEST19_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(, _2, Interface2)
 };
 
 void TestSuite::test1()

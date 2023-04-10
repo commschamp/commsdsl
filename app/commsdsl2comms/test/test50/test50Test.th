@@ -13,7 +13,8 @@ public:
     using Interface = test50::Message<>;
     using Options = test50::options::DefaultOptionsT<ext1::options::DefaultOptions>;
     using Frame = test50::frame::Frame<Interface, test50::input::AllMessages<Interface, Options>, Options>;
-    using Msg1 = test50::message::Msg1<Interface, Options>;
+
+    TEST50_ALIASES_FOR_ALL_MESSAGES(,,Interface, Options);
 };
 
 void TestSuite::test1()

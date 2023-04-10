@@ -24,9 +24,8 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test2::message::Msg1<Interface>;
-    using Msg2 = test2::message::Msg2<Interface>;
-    using Msg3 = test2::message::Msg3<Interface>;
+    TEST2_ALIASES_FOR_ALL_MESSAGES(,,Interface, test2::options::DefaultOptions)
+
     using Frame = test2::frame::Frame<Interface>;
 
     static_assert(Msg3::MsgMinLen == 10, "Invalid assumption");

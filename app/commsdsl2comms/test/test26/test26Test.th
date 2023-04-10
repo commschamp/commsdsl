@@ -23,9 +23,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1_v1 = test26::message::Msg1_v1<Interface>;
-    using Msg1_v2 = test26::message::Msg1_v2<Interface>;
-    using Msg1_v3 = test26::message::Msg1_v3<Interface>;
+    TEST26_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test26::frame::Frame<Interface>;
 };
 

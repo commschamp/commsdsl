@@ -68,6 +68,7 @@ bool writeFileInternal(
     };
 
     util::StringsList scopes;
+    util::StringsList aliases;
 
     for (auto* m : allMessages) {
         assert(m != nullptr);
@@ -75,8 +76,12 @@ bool writeFileInternal(
             continue;
         }
 
+        auto scopeStr = comms::scopeFor(*m, generator);
+        auto aliasStr = 
+            "using prefix_ ## " + comms::className(m->dslObj().name()) + " ## suffix_ = " + scopeStr + "<interface_, opts_>;";
         includes.push_back(comms::relHeaderPathFor(*m, generator));
-        scopes.push_back(comms::scopeFor(*m, generator) + "<TBase, TOpt>");
+        scopes.push_back(scopeStr + "<TBase, TOpt>");
+        aliases.push_back(std::move(aliasStr));
     }
 
     static const std::string Templ =
@@ -100,7 +105,12 @@ bool writeFileInternal(
         "#^#EXTEND#$#\n"
         "#^#APPEND#$#\n"
         "} // namespace input\n\n"
-        "} // namespace #^#PROT_NAMESPACE#$#\n";
+        "} // namespace #^#PROT_NAMESPACE#$#\n\n"
+        "#define #^#PROT_PREFIX#$#_ALIASES_FOR_#^#MACRO_NAME#$#(prefix_, suffix_, interface_, opts_) \\\n"
+        "    #^#ALIASES#$#\n\n"
+        "#define #^#PROT_PREFIX#$#_ALIASES_FOR_#^#MACRO_NAME#$#_DEFAULT_OPTIONS(prefix_, suffix_, interface_) \\\n"
+        "    #^#PROT_PREFIX#$#_ALIASES_FOR_#^#MACRO_NAME#$#(prefix_, suffix_, interface_, #^#OPTIONS#$#)\n"
+        ;
 
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
@@ -112,6 +122,9 @@ bool writeFileInternal(
         {"MESSAGES", util::strListToString(scopes, ",\n", "")},
         {"EXTEND", util::readFileContents(comms::inputCodePathForInput(name, generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForInput(name, generator) + strings::appendFileSuffixStr())},
+        {"PROT_PREFIX", util::strToUpper(generator.currentSchema().mainNamespace())},
+        {"MACRO_NAME", util::strToMacroName(name)},
+        {"ALIASES", util::strListToString(aliases, " \\\n", "\n")},
     };
 
     if (!repl["EXTEND"].empty()) {

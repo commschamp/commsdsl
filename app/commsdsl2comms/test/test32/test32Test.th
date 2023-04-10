@@ -29,9 +29,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test32::message::Msg1<Interface>;
-    using Msg2 = test32::message::Msg2<Interface>;
-    using Msg3 = test32::message::Msg3<Interface>;
+    TEST32_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test32::frame::Frame<Interface>;
 
     class TypeVerifier

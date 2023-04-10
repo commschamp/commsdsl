@@ -21,7 +21,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test31::message::Msg1<Interface>;
+    TEST31_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using AllMessages = test31::input::AllMessages<Interface>;
     using Frame = test31::frame::Frame<Interface, AllMessages>;
 };
