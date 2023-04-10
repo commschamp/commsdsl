@@ -1,7 +1,6 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test39/Message.h"
-#include "test39/message/M1.h"
 #include "test39/frame/Frame.h"
 #include "test39/dispatch/DispatchMessage.h"
 #include "comms/process.h"
