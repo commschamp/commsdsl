@@ -42,11 +42,24 @@ std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
     assert(idx < generator.schemas().size());
 
     generator.chooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+        if (idx == 0U) {
+            return strings::emptyString();
+        }
+
+        return swigCodeInternal(generator, idx - 1U);
+    }
+
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
 
     if (idx == 0U) {
         return scope;
     }
+
+    auto nextScope = swigCodeInternal(generator, idx - 1U);
+    if (nextScope.empty()) {
+        return scope;
+    }    
 
     static const std::string Templ = 
         "#^#SCOPE#$#T<\n"
@@ -55,7 +68,7 @@ std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
 
     util::ReplacementMap repl = {
         {"SCOPE", std::move(scope)},
-        {"NEXT", swigCodeInternal(generator, idx - 1U)}
+        {"NEXT", std::move(nextScope)}
     };
     
     return util::processTemplate(Templ, repl);
@@ -75,6 +88,9 @@ void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, StringsL
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.chooseCurrentSchema(idx);
+        if (!generator.currentSchema().hasAnyReferencedComponent()) {
+            continue;
+        }        
         list.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator));
     }
 

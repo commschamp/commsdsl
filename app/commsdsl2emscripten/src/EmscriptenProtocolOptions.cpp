@@ -41,9 +41,22 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
     assert(idx < generator.schemas().size());
 
     generator.chooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+        if (idx == 0U) {
+            return strings::emptyString();
+        }
+
+        return emscriptenCodeInternal(generator, idx - 1U);
+    }
+
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
 
     if (idx == 0U) {
+        return scope;
+    }
+
+    auto nextScope = emscriptenCodeInternal(generator, idx - 1U);
+    if (nextScope.empty()) {
         return scope;
     }
 
@@ -54,7 +67,7 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
 
     util::ReplacementMap repl = {
         {"SCOPE", std::move(scope)},
-        {"NEXT", emscriptenCodeInternal(generator, idx - 1U)}
+        {"NEXT", std::move(nextScope)}
     };
     
     return util::processTemplate(Templ, repl);
@@ -186,6 +199,10 @@ std::string EmscriptenProtocolOptions::emscriptenIncludesInternal()
     auto& schemas = m_generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         m_generator.chooseCurrentSchema(idx);
+        if (!m_generator.currentSchema().hasAnyReferencedComponent()) {
+            continue;
+        }
+
         list.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
     }
 

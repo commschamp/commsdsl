@@ -43,12 +43,28 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
 
     auto oldIdx = generator.currentSchemaIdx();
     generator.chooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+        if (idx == 0U) {
+            generator.chooseCurrentSchema(oldIdx);
+            return strings::emptyString();
+        }
+
+        auto result = toolsBaseCodeInternal(generator, idx - 1U);
+        generator.chooseCurrentSchema(oldIdx);
+        return result;
+    }
+
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
     generator.chooseCurrentSchema(oldIdx);
 
     if (idx == 0U) {
         return "::" + scope;
     }
+
+    auto nextScope = toolsBaseCodeInternal(generator, idx - 1U);
+    if (nextScope.empty()) {
+        return "::" + scope;
+    }    
 
     static const std::string Templ = 
         "::#^#SCOPE#$#T<\n"
@@ -57,7 +73,7 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
 
     util::ReplacementMap repl = {
         {"SCOPE", std::move(scope)},
-        {"NEXT", toolsBaseCodeInternal(generator, idx - 1U)}
+        {"NEXT", std::move(nextScope)}
     };
     
     return util::processTemplate(Templ, repl);
@@ -140,6 +156,9 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
     auto& schemas = m_generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         m_generator.chooseCurrentSchema(idx);
+        if (!m_generator.currentSchema().hasAnyReferencedComponent()) {
+            continue;
+        }          
         includes.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
     }
     assert(m_generator.isCurrentProtocolSchema());
