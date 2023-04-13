@@ -805,7 +805,7 @@ std::string CommsVariantField::commsDefAccessCodeByCommsInternal() const
         std::string accessStr =
             "///     @li @b FieldIdx_" +  namesList.back() + 
             " index, @b Field_" + namesList.back() + " type,\n"
-            "///         @b initField_" + namesList.back() + "(), deinitField_" + namesList.back() +
+            "///         @b initField_" + namesList.back() + "(), @b deinitField_" + namesList.back() +
             "() and @b accessField_" + namesList.back() + "() access functions -\n"
             "///         for " + comms::scopeFor(*mPtr, gen) + " member field.";
         accessDocList.push_back(std::move(accessStr));
