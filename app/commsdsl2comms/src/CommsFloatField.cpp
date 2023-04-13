@@ -414,6 +414,34 @@ std::string CommsFloatField::commsDefValidFuncBodyImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+bool CommsFloatField::commsIsVersionDependentImpl() const
+{
+    assert(generator().schemaOf(*this).versionDependentCode());
+    auto obj = floatDslObj();
+    if (!obj.validCheckVersion()) {
+        return false;
+    }
+
+    auto& validRanges = obj.validRanges();
+    if (validRanges.empty()) {
+        return false;
+    }
+
+    unsigned minVersion = obj.sinceVersion();
+    unsigned maxVersion = obj.deprecatedSince();
+    auto iter =
+        std::find_if(
+            validRanges.begin(), validRanges.end(),
+            [minVersion, maxVersion](auto& elem)
+            {
+                return
+                    (minVersion < elem.m_sinceVersion) ||
+                    (elem.m_deprecatedSince < maxVersion);
+            });    
+
+    return (iter != validRanges.end());    
+}
+
 bool CommsFloatField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
     auto obj = floatDslObj();

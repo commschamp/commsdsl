@@ -217,15 +217,6 @@ bool CommsField::commsHasGeneratedReadCode() const
     return !commsDefReadFuncBodyImpl().empty();
 }
 
-bool CommsField::commsIsVersionDependent() const
-{
-    if (!m_field.generator().schemaOf(m_field).versionDependentCode()) {
-        return false;
-    }
-
-    return (commsIsVersionOptional() || commsIsVersionDependentImpl());
-}
-
 std::size_t CommsField::commsMinLength() const
 {
     if (commsIsVersionOptional()) {
@@ -362,6 +353,15 @@ bool CommsField::commsVerifyInnerRef(const std::string refStr) const
 bool CommsField::commsIsVersionOptional() const
 {
     return comms::isVersionOptionalField(m_field, m_field.generator());
+}
+
+bool CommsField::commsIsVersionDependent() const
+{
+    if (!m_field.generator().schemaOf(m_field).versionDependentCode()) {
+        return false;
+    }
+
+    return commsIsVersionOptional() || commsIsVersionDependentImpl();
 }
 
 std::string CommsField::commsDefaultOptions() const

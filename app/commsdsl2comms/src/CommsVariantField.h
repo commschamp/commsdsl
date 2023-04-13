@@ -73,7 +73,7 @@ private:
     void commsAddCustomReadOptInternal(StringsList& opts) const;
     std::string commsOptimizedReadKeyInternal() const;
 
-    CommsFieldsList m_members;
+    CommsFieldsList m_commsMembers;
     std::string m_optimizedReadKey;
 };
 
