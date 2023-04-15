@@ -259,7 +259,7 @@ bool CommsFrame::commsWriteDefInternal() const
         "        #^#FRAME_DEF#$#;\n"
         "public:\n"
         "    /// @brief Allow access to frame definition layers.\n"
-        "    /// @details See definition of @b COMMS_PROTOCOL_LAYERS_ACCESS macro\n"
+        "    /// @details See definition of @b COMMS_PROTOCOL_LAYERS_NAMES macro\n"
         "    ///     from COMMS library for details.\n"
         "    ///\n"
         "    ///     The generated types and functions are:\n"
