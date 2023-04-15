@@ -591,6 +591,11 @@ bool CommsVariantField::commsHasCustomLengthDeepImpl() const
             });
 }
 
+bool CommsVariantField::commsMustDefineDefaultConstructorImpl() const
+{
+    return true;
+}
+
 bool CommsVariantField::commsPrepareInternal()
 {
     m_commsMembers = commsTransformFieldsList(members());
@@ -912,7 +917,15 @@ std::string CommsVariantField::commsDefFieldExecCodeInternal() const
         "            COMMS_ASSERT(Invalid_field_execution);\n"
         "            break;\n"
         "    }\n"
-        "}\n";
+        "}\n\n"
+        "/// @brief The same as currentFieldExec() #^#VARIANT#$#\n"
+        "/// @details Generated for backward comatibility, can be removed in the future.\n"
+        "template <typename TFunc>\n"
+        "void currFieldExec(TFunc&& func) #^#CONST#$#\n"
+        "{\n"
+        "    currentFieldExec(std::forward<TFunc>(func));\n"
+        "}\n"
+        ;
 
     util::ReplacementMap repl = {
         {"CASES", util::strListToString(cases, "\n", "")}

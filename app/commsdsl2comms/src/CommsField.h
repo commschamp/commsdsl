@@ -129,6 +129,7 @@ protected:
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const;
     virtual bool commsHasCustomLengthDeepImpl() const;
     virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const;
+    virtual bool commsMustDefineDefaultConstructorImpl() const;
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;

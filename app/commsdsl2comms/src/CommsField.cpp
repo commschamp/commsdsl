@@ -673,6 +673,11 @@ bool CommsField::commsVerifyInnerRefImpl(const std::string& refStr) const
     return false;
 }
 
+bool CommsField::commsMustDefineDefaultConstructorImpl() const
+{
+    return false;
+}
+
 std::string CommsField::commsCommonNameFuncCode() const
 {
     auto& generator = m_field.generator();
@@ -1191,6 +1196,10 @@ std::string CommsField::commsDefConstructPublicCodeInternal() const
     }
 
     auto body = commsDefConstructCodeImpl();
+    if (body.empty() && (!commsMustDefineDefaultConstructorImpl())) {
+        return strings::emptyString();
+    }
+    
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(m_field.dslObj().name())},
         {"BODY", body}
@@ -1203,6 +1212,7 @@ std::string CommsField::commsDefConstructPublicCodeInternal() const
     if (commsIsExtended()) {
         repl["ORIG"] = strings::origSuffixStr();
     }        
+
     if (body.empty()) {
         static const std::string Templ = 
             "/// @brief Default constructor.\n"
