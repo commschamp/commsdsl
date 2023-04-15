@@ -265,6 +265,19 @@ std::string strToUpper(const std::string& str)
     return result;
 }
 
+std::string strToLower(const std::string& str)
+{
+    std::string result;
+    result.reserve(str.size());
+    std::transform(
+        str.begin(), str.end(), std::back_inserter(result),
+        [](char ch)
+        {
+            return static_cast<char>(std::tolower(ch));
+        });  
+    return result;
+}
+
 std::string strToMacroName(const std::string& str)
 {
     std::string result;
