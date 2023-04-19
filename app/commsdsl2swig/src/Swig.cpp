@@ -120,21 +120,15 @@ std::string Swig::swigCodeBlockInternal()
 
     SwigGenerator::cast(m_generator).swigMainInterface()->swigAddCode(codeElems);
 
-    for (auto* m : m_generator.getAllMessagesFromAllSchemas()) {
-        SwigMessage::cast(m)->swigAddFwdCode(codeElems);
-    }  
-
-    SwigMsgHandler::swigAddClassCode(m_generator, codeElems);
-
     for (auto& sPtr : m_generator.schemas()) {
         auto* schema = SwigSchema::cast(sPtr.get());
         schema->swigAddCodeIncludes(includes);
         schema->swigAddCode(codeElems);
     }
 
-    SwigMsgHandler::swigAddFuncsCode(m_generator, codeElems);
-
     SwigAllMessages::swigAddCode(m_generator, codeElems);
+
+    SwigMsgHandler::swigAddClassCode(m_generator, codeElems);
 
     auto allFrames = m_generator.getAllFramesFromAllSchemas();
     for (auto* fPtr : allFrames) {

@@ -1035,10 +1035,20 @@ void Generator::chooseCurrentSchema(unsigned idx)
     m_impl->chooseCurrentSchema(idx);
 }
 
+void Generator::chooseCurrentSchema(unsigned idx) const
+{
+    const_cast<Generator*>(this)->chooseCurrentSchema(idx);
+}
+
 void Generator::chooseProtocolSchema()
 {
     assert(!schemas().empty());
     chooseCurrentSchema(static_cast<unsigned>(schemas().size() - 1U));
+}
+
+void Generator::chooseProtocolSchema() const
+{
+    const_cast<Generator*>(this)->chooseProtocolSchema();
 }
 
 bool Generator::createDirectory(const std::string& path) const

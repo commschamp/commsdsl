@@ -30,6 +30,13 @@ public:
     explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent);
 
     StringsList toolsSourceFiles() const;
+
+    std::string toolsMsgFactoryOptions() const;
+
+    static const ToolsQtNamespace* cast(const commsdsl::gen::Namespace* obj)
+    {
+        return static_cast<const ToolsQtNamespace*>(obj);
+    }
 };
 
 } // namespace commsdsl2tools_qt

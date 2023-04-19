@@ -92,6 +92,10 @@ bool SwigCmake::swigWriteInternal() const
         "    set (lang_output_dir ${CMAKE_CURRENT_BINARY_DIR}/output_${lang})\n"
         "    swig_add_library(#^#PROJ_NAME#$#_swig_${lang} LANGUAGE ${lang} OUTPUT_DIR ${lang_output_dir} SOURCES ${swig_src_file})\n"
         "    target_link_libraries(#^#PROJ_NAME#$#_swig_${lang} ${OPT_PROTOCOL_TARGET} cc::comms)\n"
+        "    target_compile_options(#^#PROJ_NAME#$#_swig_${lang} PRIVATE\n"
+        "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
+        "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
+        "    )\n"        
         "endforeach()\n\n"
         "#^#APPEND#$#"
         ;      

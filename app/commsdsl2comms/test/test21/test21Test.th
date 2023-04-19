@@ -26,8 +26,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test21::message::Msg1<Interface>;
-    using Msg2 = test21::message::Msg2<Interface>;    
+    TEST21_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test21::frame::Frame<Interface>;
     using ServerFrame = test21::frame::Frame<Interface, test21::input::ServerInputMessages<Interface> >;
 

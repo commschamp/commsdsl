@@ -20,8 +20,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test10::message::Msg1<Interface>;
-    using Msg2 = test10::message::Msg2<Interface>;
+    TEST10_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface)
 };
 
 void TestSuite::test1()

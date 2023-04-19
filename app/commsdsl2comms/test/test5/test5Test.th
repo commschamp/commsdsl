@@ -1,7 +1,7 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test5/Message.h"
-#include "test5/message/Msg1.h"
+#include "test5/input/AllMessages.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
@@ -19,7 +19,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test5::message::Msg1<Interface>;
+    TEST5_ALIASES_FOR_ALL_MESSAGES(,,Interface, test5::options::DefaultOptions)
 
     void polymorphicNameCheck(const Interface& msg, const char* value)
     {

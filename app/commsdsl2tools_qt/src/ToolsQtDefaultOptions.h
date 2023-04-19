@@ -32,7 +32,7 @@ public:
 private:
     explicit ToolsQtDefaultOptions(ToolsQtGenerator& generator) : m_generator(generator) {}
 
-    bool testWriteInternal() const;
+    bool toolsWriteInternal() const;
 
     ToolsQtGenerator& m_generator;
 };

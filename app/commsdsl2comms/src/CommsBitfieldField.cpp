@@ -306,6 +306,7 @@ std::string CommsBitfieldField::commsDefFieldOptsInternal() const
 {
     commsdsl::gen::util::StringsList opts;
     commsAddFieldDefOptions(opts);
+    util::addToStrList("comms::option::def::HasVersionDependentMembers<" + util::boolToString(commsIsVersionDependentImpl()) + ">", opts);        
     return util::strListToString(opts, ",\n", "");
 }
 

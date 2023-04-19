@@ -73,7 +73,8 @@ const std::string& toolsHeaderCodeSinglePimplInterfaceTemplInternal()
         "    #^#CLASS_NAME#$#(#^#CLASS_NAME#$#&&) = delete;\n"
         "    virtual ~#^#CLASS_NAME#$#();\n"
         "    #^#CLASS_NAME#$#& operator=(const #^#CLASS_NAME#$#& other);\n"
-        "    #^#CLASS_NAME#$#& operator=(#^#CLASS_NAME#$#&&);\n\n"
+        "    #^#CLASS_NAME#$#& operator=(#^#CLASS_NAME#$#&&);\n"
+        "    static MsgIdParamType doGetId();\n\n"
         "protected:\n"
         "    virtual const char* nameImpl() const override;\n"
         "    virtual const QVariantList& fieldsPropertiesImpl() const override;\n"
@@ -98,7 +99,7 @@ const std::string& toolsHeaderCodeSingleInterfaceWithFieldsTemplInternal()
     static const std::string Templ = 
         "class #^#CLASS_NAME#$# : public\n"
         "    cc_tools_qt::ProtocolMessageBase<\n"
-        "        ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#>,\n"
+        "        ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#, #^#DEF_OPTIONS#$#>,\n"
         "        #^#CLASS_NAME#$#\n"
         "    >\n"    
         "{\n"
@@ -181,6 +182,10 @@ const std::string& toolsSrcCodeSinglePimplInterfaceTemplInternal()
         "{\n"
         "    *m_pImpl = std::move(*other.m_pImpl);\n"
         "    return *this;\n"
+        "}\n\n"
+        "#^#CLASS_NAME#$#::MsgIdParamType #^#CLASS_NAME#$#::doGetId()\n"
+        "{\n"
+        "    return ::#^#PROT_MESSAGE#$#<#^#TOP_NS#$#::#^#INTERFACE#$#, #^#DEF_OPTIONS#$#>::doGetId();\n"
         "}\n\n"
         "const char* #^#CLASS_NAME#$#::nameImpl() const\n"
         "{\n"
@@ -335,7 +340,7 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
@@ -375,7 +380,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
@@ -405,7 +410,7 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesInternal() const
     static const auto MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == CodeType_NumOfValues);
 
-    auto codeType = toolCodeType();
+    auto codeType = toolCodeTypeInternal();
     assert(codeType <= MapSize);
     auto func = Map[codeType];
     return (this->*func)();
@@ -461,7 +466,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
     static const auto MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == CodeType_NumOfValues);
 
-    auto codeType = toolCodeType();
+    auto codeType = toolCodeTypeInternal();
     assert(codeType <= MapSize);
     auto func = Map[codeType];
 
@@ -490,7 +495,7 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesInternal() const
     static const auto MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == CodeType_NumOfValues);
 
-    auto codeType = toolCodeType();
+    auto codeType = toolCodeTypeInternal();
     assert(codeType <= MapSize);
     auto func = Map[codeType];
     auto result = (this->*func)();
@@ -538,7 +543,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
     static const auto MapSize = std::extent<decltype(Map)>::value;
     static_assert(MapSize == CodeType_NumOfValues);
 
-    auto codeType = toolCodeType();
+    auto codeType = toolCodeTypeInternal();
     assert(codeType <= MapSize);
     auto func = Map[codeType];
 
@@ -573,7 +578,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
     return util::processTemplate(func(), repl);    
 }
 
-ToolsQtMessage::CodeType ToolsQtMessage::toolCodeType() const
+ToolsQtMessage::CodeType ToolsQtMessage::toolCodeTypeInternal() const
 {
     auto interfaces = ToolsQtGenerator::cast(generator()).toolsGetSelectedInterfaces();
     assert(!interfaces.empty());

@@ -364,6 +364,31 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
     return util::processTemplate(Templ, repl);
 }
 
+bool CommsSetField::commsIsVersionDependentImpl() const
+{
+    assert(generator().schemaOf(*this).versionDependentCode());
+    auto obj = setDslObj();
+    if (!obj.validCheckVersion()) {
+        return false;
+    }
+
+    auto& bits = obj.bits();
+
+    unsigned minVersion = obj.sinceVersion();
+    unsigned maxVersion = obj.deprecatedSince();
+    auto iter =
+        std::find_if(
+            bits.begin(), bits.end(),
+            [minVersion, maxVersion](auto& elem)
+            {
+                return
+                    (minVersion < elem.second.m_sinceVersion) ||
+                    (elem.second.m_deprecatedSince < maxVersion);
+            });    
+
+    return (iter != bits.end());     
+}
+
 std::size_t CommsSetField::commsMinLengthImpl() const
 {
     if (setDslObj().availableLengthLimit()) {

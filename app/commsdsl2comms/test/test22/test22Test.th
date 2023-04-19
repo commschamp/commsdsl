@@ -24,9 +24,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test22::message::Msg1<Interface>;
-    using Msg2 = test22::message::Msg2<Interface>;
-    using Msg3 = test22::message::Msg3<Interface>;
+    TEST22_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test22::frame::Frame<Interface>;
 };
 

@@ -26,6 +26,7 @@ public:
 
 void TestSuite::test1()
 {
+    TEST15_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface1)
     using Msg1 = test15::message::Msg1<Interface1>;
     Msg1 msg;
     TS_ASSERT_EQUALS(msg.field_f1().value().size(), 5U);
@@ -43,7 +44,7 @@ void TestSuite::test2()
             ProtOptions
         >;
 
-    using Msg1 = test15::message::Msg1<Interface1, ProtOptions>;
+    TEST15_ALIASES_FOR_ALL_MESSAGES(,,Interface1, ProtOptions);
     Msg1 msg;
 
     using DataVec = std::vector<std::uint8_t>;

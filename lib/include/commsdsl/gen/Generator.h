@@ -150,7 +150,9 @@ public:
 
     unsigned currentSchemaIdx() const;
     void chooseCurrentSchema(unsigned idx);
+    void chooseCurrentSchema(unsigned idx) const;
     void chooseProtocolSchema();
+    void chooseProtocolSchema() const;
 
     bool createDirectory(const std::string& path) const;
 

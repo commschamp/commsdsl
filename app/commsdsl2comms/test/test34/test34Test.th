@@ -21,9 +21,7 @@ public:
         virtual ~Interface() {}
     };
 
-    using Msg1_1 = test34::message::Msg1_1<Interface>;
-    using Msg1_2 = test34::message::Msg1_2<Interface>;
-    using Msg2 = test34::message::Msg2<Interface>;
+    TEST34_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test34::frame::Frame<Interface>;
 
     static_assert(

@@ -471,7 +471,16 @@ std::string SwigField::swigClassCodeInternal() const
         "    #^#PUBLIC#$#\n"
         "#^#PROTECTED#$#\n"
         "#^#PRIVATE#$#\n"
-        "};\n";
+        "};\n\n"
+        "bool operator==(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second)\n"
+        "{\n"
+        "    return static_cast<const #^#COMMS_CLASS#$##^#SUFFIX#$#&>(first) == static_cast<const #^#COMMS_CLASS#$##^#SUFFIX#$#&>(second);\n"
+        "}\n\n"
+        "bool operator<(const #^#CLASS_NAME#$##^#SUFFIX#$#& first, const #^#CLASS_NAME#$##^#SUFFIX#$#& second)\n"
+        "{\n"
+        "    return static_cast<const #^#COMMS_CLASS#$##^#SUFFIX#$#&>(first) < static_cast<const #^#COMMS_CLASS#$##^#SUFFIX#$#&>(second);\n"
+        "}\n"        
+        ;
 
     util::ReplacementMap repl = {
         {"COMMS_CLASS", swigTemplateScope()},

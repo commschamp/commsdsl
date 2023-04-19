@@ -12,7 +12,7 @@ public:
     using Interface = test49::Message<>;
     using Frame = test49::frame::Frame<Interface>;
 
-    using Msg1 = test49::message::Msg1<Interface>;
+    TEST49_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
 };
 
 void TestSuite::test1()

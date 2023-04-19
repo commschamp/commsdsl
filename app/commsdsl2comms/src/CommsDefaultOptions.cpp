@@ -38,10 +38,13 @@ namespace commsdsl2comms
 namespace 
 {
 
+const std::string MsgFactoryOptionsSuffix("MsgFactoryDefaultOptions");
+
 using NamespaceOptionsFunc = std::string (CommsNamespace::*)() const;
 std::string optionsBodyInternal(
     CommsGenerator& generator,
-    NamespaceOptionsFunc nsFunc)
+    NamespaceOptionsFunc nsFunc,
+    bool hasBase)
 {
     auto& allNs = generator.currentSchema().namespaces();
     util::StringsList opts;
@@ -61,7 +64,7 @@ std::string optionsBodyInternal(
     }
 
     static const std::string Templ = 
-        "struct #^#NS#$#\n"
+        "struct #^#NS#$##^#EXT#$#\n"
         "{\n"
         "    #^#BODY#$#\n"
         "}; // struct #^#NS#$#\n";
@@ -70,6 +73,10 @@ std::string optionsBodyInternal(
         {"NS", generator.currentSchema().mainNamespace()},
         {"BODY", util::strListToString(opts, "\n", "")}
     };
+
+    if (hasBase) {
+        repl["EXT"] = " : public TBase::" + repl["NS"];
+    }
 
     return util::processTemplate(Templ, repl);
 }
@@ -138,6 +145,41 @@ util::ReplacementMap extInitialRepl(CommsGenerator& generator)
     return repl;
 }
 
+const std::string& msgFactoryOptionsTempl()
+{
+    static const std::string Templ = 
+        "#^#GENERATED#$#\n"
+        "/// @file\n"
+        "/// @brief Contains definition of protocol #^#DESC#$# message factory options.\n\n"
+        "#pragma once\n\n"
+        "#include \"#^#PROT_NAMESPACE#$#/factory/#^#NAME#$#MsgFactory.h\"\n"
+        "#include \"#^#PROT_NAMESPACE#$#/options/DefaultOptions.h\"\n\n"
+        "namespace #^#PROT_NAMESPACE#$#\n"
+        "{\n\n"
+        "namespace options\n"
+        "{\n\n"
+        "/// @brief Provided #^#DESC#$# message factory options of the protocol.\n"
+        "/// @details Must be used as the outermost wrapper of the protocol options.\n"
+        "template <typename TBase = #^#DEFAULT_OPTS#$#>\n"
+        "struct #^#NAME#$#MsgFactoryDefaultOptionsT : public TBase\n"
+        "{\n"
+        "    /// @brief Alias to @ref #^#PROT_NAMESPACE#$#::factory::#^#NAME#$#MsgFactory message factory.\n"
+        "    /// @details Exposes the same template parameters as @b comms::MsgFactory.\n"
+        "    template <typename TInterface, typename TAllMessages, typename... TOptions>\n"
+        "    using MsgFactory = #^#PROT_NAMESPACE#$#::factory::#^#NAME#$#MsgFactory<TInterface, #^#NAME#$#MsgFactoryDefaultOptionsT<TBase> >;\n\n"
+        "    #^#BODY#$#\n"
+        "};\n\n"
+        "/// @brief Alias to @ref #^#NAME#$#MsgFactoryDefaultOptionsT with default template parameter.\n"
+        "using #^#NAME#$#MsgFactoryDefaultOptions#^#ORIG#$# = #^#NAME#$#MsgFactoryDefaultOptionsT<>;\n\n"
+        "#^#EXTEND#$#\n"
+        "#^#APPEND#$#\n"
+        "} // namespace options\n\n"
+        "} // namespace #^#PROT_NAMESPACE#$#\n";
+
+    return Templ;
+}
+
+
 } // namespace 
     
 
@@ -159,7 +201,8 @@ bool CommsDefaultOptions::commsWriteInternal() const
         commsWriteClientDefaultOptionsInternal() &&
         commsWriteServerDefaultOptionsInternal() &&
         commsWriteDataViewDefaultOptionsInternal() &&
-        commsWriteBareMetalDefaultOptionsInternal();
+        commsWriteBareMetalDefaultOptionsInternal() &&
+        commsWriteMsgFactoryDefaultOptionsInternal();
 }
 
 bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
@@ -194,7 +237,7 @@ bool CommsDefaultOptions::commsWriteDefaultOptionsInternal() const
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", name},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDefaultOptions, false)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     };
@@ -214,7 +257,7 @@ bool CommsDefaultOptions::commsWriteClientDefaultOptionsInternal() const
     repl.insert({
         {"DESC", "client"},
         {"NAME", "Client"},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsClientDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsClientDefaultOptions, true)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
@@ -234,7 +277,7 @@ bool CommsDefaultOptions::commsWriteServerDefaultOptionsInternal() const
     repl.insert({
         {"DESC", "server"},
         {"NAME", "Server"},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsServerDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsServerDefaultOptions, true)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
@@ -254,7 +297,7 @@ bool CommsDefaultOptions::commsWriteDataViewDefaultOptionsInternal() const
     repl.insert({
         {"DESC", "data view"},
         {"NAME", strings::dataViewStr()},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsDataViewDefaultOptions, true)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
     });
@@ -281,7 +324,7 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
     repl.insert({
         {"DESC", "bare metal"},
         {"NAME", strings::bareMetalStr()},
-        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsBareMetalDefaultOptions)},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsBareMetalDefaultOptions, true)},
         {"EXTRA", std::move(extra)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
@@ -292,6 +335,155 @@ bool CommsDefaultOptions::commsWriteBareMetalDefaultOptionsInternal() const
     }
 
     writeFileInternal(name, m_generator, util::processTemplate(extOptionsTempl(), repl, true));
+    return true;
+}
+
+bool CommsDefaultOptions::commsWriteMsgFactoryDefaultOptionsInternal() const
+{
+    if (!m_generator.isCurrentProtocolSchema()) {
+        return true;
+    }
+
+    return 
+        commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() &&
+        commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() &&
+        commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() &&
+        commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() &&
+        commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal();
+}
+
+bool CommsDefaultOptions::commsWriteAllMessagesDynMemMsgFactoryOptionsInternal() const
+{
+    return 
+        commsWriteSingleMsgFactoryDefaultOptionsInternal(
+            "AllMessagesDynMem",
+            "all",
+            "dynamic memory"
+        );
+}
+
+bool CommsDefaultOptions::commsWriteClientInputMessagesDynMemMsgFactoryOptionsInternal() const
+{
+    return 
+        commsWriteSingleMsgFactoryDefaultOptionsInternal(
+            "ClientInputMessagesDynMem",
+            "client input",
+            "dynamic memory"
+        );
+}
+
+bool CommsDefaultOptions::commsWriteServerInputMessagesDynMemMsgFactoryOptionsInternal() const
+{
+    return 
+        commsWriteSingleMsgFactoryDefaultOptionsInternal(
+            "ServerInputMessagesDynMem",
+            "server input",
+            "dynamic memory"
+        );
+}
+
+bool CommsDefaultOptions::commsWritePlatformSpecificDynMemMsgFactoryOptionsInternal() const
+{
+    auto& platforms = m_generator.currentSchema().platformNames();
+    for (auto& p : platforms) {
+        bool result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(p) + "MessagesDynMem",
+                "all \"" + p + "\" platform scpecific",
+                "dynamic memory"
+            );
+
+        if (!result) {
+            return false;
+        }
+
+        result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(p) + "ClientInputMessagesDynMem",
+                "client input \"" + p + "\" platform scpecific",
+                "dynamic memory"
+            );       
+
+        if (!result) {
+            return false;
+        }             
+       
+        result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(p) + "ServerInputMessagesDynMem",
+                "server input \"" + p + "\" platform scpecific",
+                "dynamic memory"
+            );       
+
+        if (!result) {
+            return false;
+        }        
+    };        
+
+    return true;
+}
+
+bool CommsDefaultOptions::commsWriteExtraBundlesDynMemMsgFactoryOptionsInternal() const
+{
+    auto& extraBundles = m_generator.commsExtraMessageBundles();
+    for (auto& b : extraBundles) {        
+        bool result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(b.first) + "MessagesDynMem",
+                "all \"" + b.first + "\" bundle scpecific",
+                "dynamic memory"
+            );
+
+        if (!result) {
+            return false;
+        }
+
+        result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(b.first) + "ClientInputMessagesDynMem",
+                "client input \"" + b.first + "\" bundle scpecific",
+                "dynamic memory"
+            );       
+
+        if (!result) {
+            return false;
+        }             
+       
+        result = 
+            commsWriteSingleMsgFactoryDefaultOptionsInternal(
+                comms::className(b.first) + "ServerInputMessagesDynMem",
+                "server input \"" + b.first + "\" bundle scpecific",
+                "dynamic memory"
+            );       
+
+        if (!result) {
+            return false;
+        }        
+    };        
+
+    return true;
+}
+
+bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
+    const std::string& prefix, 
+    const std::string& messagesDesc,
+    const std::string& allocDesc) const
+{
+    util::ReplacementMap repl = extInitialRepl(m_generator);
+    auto name = prefix + MsgFactoryOptionsSuffix;
+    repl.insert({
+        {"DESC", messagesDesc + " messages " + allocDesc + " allocation"},
+        {"NAME", prefix},
+        {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsMsgFactoryDefaultOptions, true)},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},
+    });
+
+    if (!repl["EXTEND"].empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
+
+    writeFileInternal(name, m_generator, util::processTemplate(msgFactoryOptionsTempl(), repl, true));
     return true;
 }
 

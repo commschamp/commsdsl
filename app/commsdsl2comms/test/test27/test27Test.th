@@ -27,10 +27,8 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using ClientMsg1 = test27::message::Msg1<Interface, test27::options::ClientDefaultOptions>;
-    using ServerMsg1 = test27::message::Msg1<Interface, test27::options::ServerDefaultOptions>;
-    using ClientMsg2 = test27::message::Msg2<Interface, test27::options::ClientDefaultOptions>;
-    using ServerMsg2 = test27::message::Msg2<Interface, test27::options::ServerDefaultOptions>;
+    TEST27_ALIASES_FOR_ALL_MESSAGES(Client,,Interface, test27::options::ClientDefaultOptions);
+    TEST27_ALIASES_FOR_ALL_MESSAGES(Server,,Interface, test27::options::ServerDefaultOptions);
 };
 
 void TestSuite::test1()

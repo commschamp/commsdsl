@@ -504,6 +504,7 @@ std::string CommsBundleField::commsDefFieldOptsInternal() const
     commsAddFieldDefOptions(opts);
     commsAddCustomReadRefreshOptInternal(opts);
     commsAddRemLengthMemberOptInternal(opts);
+    util::addToStrList("comms::option::def::HasVersionDependentMembers<" + util::boolToString(commsIsVersionDependentImpl()) + ">", opts);        
     return util::strListToString(opts, ",\n", "");
 }
 

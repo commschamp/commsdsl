@@ -44,13 +44,13 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using PluginsList = std::vector<ToolsQtPluginPtr>;
 
-    static const std::string& fileGeneratedComment();
-    void setPluginInfosList(PluginInfosList&& value)
+    static const std::string& toolsFileGeneratedComment();
+    void toolsSetPluginInfosList(PluginInfosList&& value)
     {
         m_pluginInfos = std::move(value);
     }
 
-    const PluginInfosList& getPluginInfosList() const
+    const PluginInfosList& toolsGetPluginInfosList() const
     {
         return m_pluginInfos;
     }
@@ -81,6 +81,12 @@ public:
     {
         return static_cast<const ToolsQtGenerator&>(generator);
     }    
+
+    void toolsSetMainNamespaceInOptionsForced(bool value);
+    bool toolsHasMulitpleInterfaces() const;
+    bool toolsHasMainNamespaceInOptions() const;
+
+    static const std::string& toolsMinCcToolsQtVersion();
 
 protected:
     virtual bool prepareImpl() override;
@@ -122,6 +128,7 @@ private:
     PluginsList m_plugins;
     InterfacesAccessList m_selectedInterfaces;
     FramesAccessList m_selectedFrames;
+    bool m_mainNamespaceInOptionsForced = false;
 };
 
 } // namespace commsdsl2tools_qt

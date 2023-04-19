@@ -13,8 +13,7 @@ public:
     using Interface =
         test35::Message<>;
 
-    using Msg1 = test35::message::Msg1<Interface>;
-    using Msg2 = test35::message::Msg2<Interface>;
+    TEST35_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test35::frame::Frame<Interface>;
 };
 

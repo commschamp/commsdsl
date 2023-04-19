@@ -32,10 +32,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test47::message::Msg1<Interface>;
-    using Msg2 = test47::message::Msg2<Interface>;    
-    using Msg3 = test47::message::Msg3<Interface>;    
-    using Msg4 = test47::message::Msg4<Interface>;    
+    TEST47_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
 
     struct Handler
     {

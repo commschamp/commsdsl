@@ -209,6 +209,38 @@ std::string CommsNamespace::commsBareMetalDefaultOptions() const
     return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
 }
 
+std::string CommsNamespace::commsMsgFactoryDefaultOptions() const
+{
+    auto body = 
+        commsOptionsInternal(
+            &CommsNamespace::commsMsgFactoryDefaultOptions,
+            nullptr,
+            nullptr,
+            &CommsFrame::commsMsgFactoryDefaultOptions,
+            true
+        );
+
+    if (body.empty()) {
+        return strings::emptyString();
+    }
+
+    auto& nsName = name();
+    util::ReplacementMap repl = {
+        {"NAME", nsName},
+        {"BODY", std::move(body)},
+    };
+
+    auto& commsGen = static_cast<const CommsGenerator&>(generator());
+    bool hasMainNs = commsGen.commsHasMainNamespaceInOptions(); 
+    auto thisNsScope = comms::scopeFor(*this, generator(), hasMainNs);
+
+    if (!thisNsScope.empty()) {
+        repl["EXT"] = ": public TBase::" + thisNsScope;
+    }
+
+    return util::processTemplate(optsTemplInternal(nsName.empty()), repl);
+}
+
 bool CommsNamespace::commsHasReferencedMsgId() const
 {
     return 

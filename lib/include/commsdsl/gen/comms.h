@@ -55,6 +55,12 @@ std::string scopeForInput(
     bool addMainNamespace = true, 
     bool addElement = true);  
 
+std::string scopeForFactory(
+    const std::string& name, 
+    const Generator& generator, 
+    bool addMainNamespace = true, 
+    bool addElement = true);      
+
 std::string scopeForDispatch(
     const std::string& name, 
     const Generator& generator, 
@@ -97,6 +103,7 @@ std::string headerPathForField(const std::string& name, const Generator& generat
 std::string headerPathForInput(const std::string& name, const Generator& generator); 
 std::string headerPathForOptions(const std::string& name, const Generator& generator); 
 std::string headerPathForDispatch(const std::string& name, const Generator& generator); 
+std::string headerPathForFactory(const std::string& name, const Generator& generator); 
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string headerPathRoot(const std::string& name, const Generator& generator);
 std::string sourcePathRoot(const std::string& name, const Generator& generator);
@@ -107,6 +114,7 @@ std::string inputCodePathForRoot(const std::string& name, const Generator& gener
 std::string inputCodePathForDoc(const std::string& name, const Generator& generator);
 std::string inputCodePathForOptions(const std::string& name, const Generator& generator);
 std::string inputCodePathForInput(const std::string& name, const Generator& generator);
+std::string inputCodePathForFactory(const std::string& name, const Generator& generator);
 
 std::string namespaceBeginFor(
     const Elem& elem, 

@@ -35,6 +35,7 @@ public:
 
     std::string toolsHeaderFilePath() const;
     StringsList toolsSourceFiles() const;
+    std::string toolsMsgFactoryOptions() const;
 
     static const ToolsQtFrame* cast(const commsdsl::gen::Frame* val)
     {

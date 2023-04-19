@@ -37,16 +37,29 @@ namespace commsdsl2swig
 namespace 
 {
 
-std::string swigCodeInternal(SwigGenerator& generator, std::size_t idx)
+std::string swigCodeInternal(const SwigGenerator& generator, std::size_t idx)
 {
     assert(idx < generator.schemas().size());
 
     generator.chooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+        if (idx == 0U) {
+            return strings::emptyString();
+        }
+
+        return swigCodeInternal(generator, idx - 1U);
+    }
+
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
 
     if (idx == 0U) {
         return scope;
     }
+
+    auto nextScope = swigCodeInternal(generator, idx - 1U);
+    if (nextScope.empty()) {
+        return scope;
+    }    
 
     static const std::string Templ = 
         "#^#SCOPE#$#T<\n"
@@ -55,7 +68,7 @@ std::string swigCodeInternal(SwigGenerator& generator, std::size_t idx)
 
     util::ReplacementMap repl = {
         {"SCOPE", std::move(scope)},
-        {"NEXT", swigCodeInternal(generator, idx - 1U)}
+        {"NEXT", std::move(nextScope)}
     };
     
     return util::processTemplate(Templ, repl);
@@ -71,9 +84,13 @@ void SwigProtocolOptions::swigAddCodeIncludes(SwigGenerator& generator, StringsL
 
     assert(generator.isCurrentProtocolSchema());
 
+    list.push_back(comms::relHeaderForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator));
     auto& schemas = generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         generator.chooseCurrentSchema(idx);
+        if (!generator.currentSchema().hasAnyReferencedComponent()) {
+            continue;
+        }        
         list.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator));
     }
 
@@ -89,18 +106,20 @@ void SwigProtocolOptions::swigAddCode(const SwigGenerator& generator, StringsLis
 
     assert(generator.isCurrentProtocolSchema());
 
-    auto& gen = const_cast<SwigGenerator&>(generator);
-
     const std::string Templ = 
-        "using #^#SWIG_TYPE#$# =\n"
-        "    #^#CODE#$#;\n\n";
+        "using #^#OPT_TYPE#$# =\n"
+        "    #^#MSG_FACT_OPTS#$#T<\n"
+        "        #^#CODE#$#\n"
+        "    >;\n\n";
 
+    auto msgFactOptions = comms::scopeForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator);
     util::ReplacementMap repl = {
-        {"SWIG_TYPE", swigClassName(generator)},
-        {"CODE", swigCodeInternal(gen, gen.schemas().size() - 1U)}
+        {"OPT_TYPE", swigClassName(generator)},
+        {"CODE", swigCodeInternal(generator, generator.schemas().size() - 1U)},
+        {"MSG_FACT_OPTS", std::move(msgFactOptions)}
     };
 
-    gen.chooseProtocolSchema();
+    generator.chooseProtocolSchema();
     list.push_back(util::processTemplate(Templ, repl));
 }
 
@@ -115,18 +134,21 @@ std::string SwigProtocolOptions::swigClassName(const SwigGenerator& generator)
 
 bool SwigProtocolOptions::swigIsDefined(const SwigGenerator& generator)
 {
-    auto& schemas = generator.schemas();
-    if (schemas.size() <= 1) {
-        return false;
-    }
+    static_cast<void>(generator);
+    return true;
 
-    for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
-        if (schemas[idx]->hasAnyReferencedComponent()) {
-            return true;
-        }
-    }
+    // auto& schemas = generator.schemas();
+    // if (schemas.size() <= 1) {
+    //     return false;
+    // }
 
-    return false;
+    // for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
+    //     if (schemas[idx]->hasAnyReferencedComponent()) {
+    //         return true;
+    //     }
+    // }
+
+    // return false;
 }
 
 } // namespace commsdsl2swig

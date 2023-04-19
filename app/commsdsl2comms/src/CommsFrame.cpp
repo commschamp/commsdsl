@@ -92,6 +92,14 @@ std::string CommsFrame::commsBareMetalDefaultOptions() const
             true);
 }
 
+std::string CommsFrame::commsMsgFactoryDefaultOptions() const
+{
+    return 
+        commsCustomizationOptionsInternal(
+            &CommsLayer::commsMsgFactoryDefaultOptions,
+            true);
+}
+
 bool CommsFrame::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -251,12 +259,12 @@ bool CommsFrame::commsWriteDefInternal() const
         "        #^#FRAME_DEF#$#;\n"
         "public:\n"
         "    /// @brief Allow access to frame definition layers.\n"
-        "    /// @details See definition of @b COMMS_PROTOCOL_LAYERS_ACCESS macro\n"
+        "    /// @details See definition of @b COMMS_PROTOCOL_LAYERS_NAMES macro\n"
         "    ///     from COMMS library for details.\n"
         "    ///\n"
-        "    ///     The generated functions are:\n"
+        "    ///     The generated types and functions are:\n"
         "    #^#ACCESS_FUNCS_DOC#$#\n"
-        "    COMMS_PROTOCOL_LAYERS_ACCESS(\n"
+        "    COMMS_PROTOCOL_LAYERS_NAMES(\n"
         "        #^#LAYERS_ACCESS_LIST#$#\n"
         "    );\n"
         "    #^#PUBLIC#$#\n"
@@ -428,9 +436,10 @@ std::string CommsFrame::commsDefAccessDocInternal() const
         m_commsLayers.rbegin(), m_commsLayers.rend(), std::back_inserter(lines),
         [&className](auto& l)
         {
+            auto accName = comms::accessName(l->layer().dslObj().name());
             return
-                "///     @li layer_" + comms::accessName(l->layer().dslObj().name()) +
-                "() for @ref " + className + 
+                "///     @li @b Layer_" + accName + " type and @b layer_" + accName + "() function\n"
+                "///         for @ref " + className + 
                 strings::layersSuffixStr() + "::" + comms::className(l->layer().dslObj().name()) + " layer.";
         });
     return util::strListToString(lines, "\n", "");

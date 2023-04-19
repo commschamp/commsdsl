@@ -39,9 +39,11 @@ protected:
     virtual IncludesList commsCommonIncludesImpl() const override;
     virtual std::string commsCommonCodeBodyImpl() const override;
     virtual IncludesList commsDefIncludesImpl() const override;
+    virtual std::string commsDefConstructCodeImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
     virtual std::string commsDefPublicCodeImpl() const override;
     virtual std::string commsDefValidFuncBodyImpl() const override;
+    virtual bool commsIsVersionDependentImpl() const override;
     virtual bool commsVerifyInnerRefImpl(const std::string& refStr) const override;
 
 private:
@@ -51,7 +53,6 @@ private:
     std::string commsCommonSpecialNamesMapCodeInternal() const;
     std::string commsDefFieldOptsInternal() const;
     std::string commsDefValueNamesMapCodeInternal() const;
-    std::string commsDefConstructorCodeInternal() const;
     std::string commsDefHasSpecialsFuncCodeInternal() const;
     std::string commsDefSpecialsCodeInternal() const;
     std::string commsDefSpecialNamesMapCodeInternal() const;

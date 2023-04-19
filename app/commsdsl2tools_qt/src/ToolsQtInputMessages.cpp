@@ -86,9 +86,7 @@ bool writeFileInternal(
     }
 
     static const std::string Templ =
-        "#^#GENERATED#$#\n"
-        "/// @file\n"
-        "/// @brief Contains definition of the #^#NAME#$# messages bundle.\n\n"
+        "#^#GENERATED#$#\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
         "namespace #^#TOP_NS#$#\n"
@@ -108,7 +106,7 @@ bool writeFileInternal(
 
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"PROT_NAMESPACE", generator.protocolSchema().mainNamespace()},
         {"NAME", name},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
@@ -132,6 +130,15 @@ bool ToolsQtInputMessages::write(ToolsQtGenerator& generator)
 {
     ToolsQtInputMessages obj(generator);
     return obj.testWriteInternal();
+}
+
+std::string ToolsQtInputMessages::toolsRelHeaderPath(const ToolsQtGenerator& generator)
+{
+    return
+        generator.getTopNamespace() + '/' + 
+        util::strReplace(comms::scopeForInput(strings::allMessagesStr(), generator), "::", "/") + 
+        strings::cppHeaderSuffixStr();
+
 }
 
 bool ToolsQtInputMessages::testWriteInternal() const

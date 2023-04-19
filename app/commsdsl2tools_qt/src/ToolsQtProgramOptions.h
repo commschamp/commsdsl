@@ -51,6 +51,7 @@ public:
     const std::string& getCodeInputDirectory() const;
     PluginInfosList getPlugins() const;
     bool multipleSchemasEnabled() const;
+    bool isMainNamespaceInOptionsForced() const;
 };
 
 } // namespace commsdsl2tools_qt

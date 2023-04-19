@@ -64,9 +64,9 @@
         <payload name="Data" />
     </frame>      
     
-    <message name="M1" id="MsgId.M1" />
+    <message name="Msg1" id="MsgId.M1" />
 
-    <message name="M2" id="MsgId.M2">
+    <message name="Msg2" id="MsgId.M2">
         <optional name="F1" cond="%Flags.B.B0" defaultMode="missing">
             <int name="ActF1" type="uint8" />
         </optional>
@@ -78,7 +78,7 @@
         </optional>            
     </message>
 
-    <message name="M3" id="MsgId.M3" constructAsReadCond="true" constructAsValidCond="true" failOnInvalid="true">
+    <message name="Msg3" id="MsgId.M3" constructAsReadCond="true" constructAsValidCond="true" failOnInvalid="true">
         <construct>
             <and>
                 <construct value="%Flags.B.B0" />
@@ -88,7 +88,7 @@
         </construct>
     </message>
 
-    <message name="M4" id="MsgId.M4" constructAsValidCond="true">
+    <message name="Msg4" id="MsgId.M4" constructAsValidCond="true">
         <construct>
             <and>
                 <construct value="!%Flags.B.B0" />
@@ -98,7 +98,7 @@
         </construct>
     </message>    
 
-    <message name="M5" id="MsgId.M5" construct="%Flags.B.B1" failOnInvalid="true">
+    <message name="Msg5" id="MsgId.M5" construct="%Flags.B.B1" failOnInvalid="true">
         <fields>
             <int name="F1" type="uint8" />
             <int name="F2" type="uint8" />
@@ -114,7 +114,7 @@
         </validCond>
     </message>   
 
-    <message name="M6" id="MsgId.M6" failOnInvalid="true" constructAsValidCond="true">
+    <message name="Msg6" id="MsgId.M6" failOnInvalid="true" constructAsValidCond="true">
         <fields>
             <optional name="F1" defaultMode="exists" cond="%Flags.B.B0">
                 <int name="ActF1" type="uint8" />

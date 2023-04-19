@@ -22,6 +22,7 @@ set (
     CommsLayer.cpp
     CommsListField.cpp
     CommsMessage.cpp
+    CommsMsgFactory.cpp
     CommsMsgId.cpp
     CommsNamespace.cpp
     CommsOptionalField.cpp

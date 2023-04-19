@@ -1,7 +1,7 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test14/Message.h"
-#include "test14/message/Msg1.h"
+#include "test14/input/AllMessages.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
@@ -19,7 +19,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test14::message::Msg1<Interface>;
+    TEST14_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface)
 };
 
 void TestSuite::test1()

@@ -41,9 +41,22 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
     assert(idx < generator.schemas().size());
 
     generator.chooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+        if (idx == 0U) {
+            return strings::emptyString();
+        }
+
+        return emscriptenCodeInternal(generator, idx - 1U);
+    }
+
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
 
     if (idx == 0U) {
+        return scope;
+    }
+
+    auto nextScope = emscriptenCodeInternal(generator, idx - 1U);
+    if (nextScope.empty()) {
         return scope;
     }
 
@@ -54,7 +67,7 @@ std::string emscriptenCodeInternal(EmscriptenGenerator& generator, std::size_t i
 
     util::ReplacementMap repl = {
         {"SCOPE", std::move(scope)},
-        {"NEXT", emscriptenCodeInternal(generator, idx - 1U)}
+        {"NEXT", std::move(nextScope)}
     };
     
     return util::processTemplate(Templ, repl);
@@ -73,18 +86,22 @@ std::string EmscriptenProtocolOptions::emscriptenClassName(const EmscriptenGener
 
 bool EmscriptenProtocolOptions::emscriptenIsDefined(const EmscriptenGenerator& generator)
 {
-    auto& schemas = generator.schemas();
-    if (schemas.size() <= 1) {
-        return false;
-    }
+    // Always use message factory options.
+    static_cast<void>(generator);
+    return true;
 
-    for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
-        if (schemas[idx]->hasAnyReferencedComponent()) {
-            return true;
-        }
-    }
+    // auto& schemas = generator.schemas();
+    // if (schemas.size() <= 1) {
+    //     return false;
+    // }
 
-    return false;
+    // for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
+    //     if (schemas[idx]->hasAnyReferencedComponent()) {
+    //         return true;
+    //     }
+    // }
+
+    // return false;
 }
 
 void EmscriptenProtocolOptions::emscriptenAddInclude(const EmscriptenGenerator& generator, StringsList& list)
@@ -157,12 +174,16 @@ std::string EmscriptenProtocolOptions::emscriptenTypeDefInternal()
     assert(m_generator.isCurrentProtocolSchema());
 
     const std::string Templ = 
-        "using #^#SWIG_TYPE#$# =\n"
-        "    #^#CODE#$#;\n\n";
+        "using #^#OPT_TYPE#$# =\n"
+        "    #^#MSG_FACT_OPTS#$#T<\n"
+        "        #^#CODE#$#\n"
+        "    >;\n\n";
 
+    auto msgFactOptions = comms::scopeForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator);
     util::ReplacementMap repl = {
-        {"SWIG_TYPE", emscriptenClassName(m_generator)},
-        {"CODE", emscriptenCodeInternal(m_generator, m_generator.schemas().size() - 1U)}
+        {"OPT_TYPE", emscriptenClassName(m_generator)},
+        {"CODE", emscriptenCodeInternal(m_generator, m_generator.schemas().size() - 1U)},
+        {"MSG_FACT_OPTS", std::move(msgFactOptions)}
     };
 
     m_generator.chooseProtocolSchema();
@@ -174,9 +195,14 @@ std::string EmscriptenProtocolOptions::emscriptenIncludesInternal()
     assert(m_generator.isCurrentProtocolSchema());
 
     util::StringsList list;
+    list.push_back(comms::relHeaderForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator));
     auto& schemas = m_generator.schemas();
     for (auto idx = 0U; idx < schemas.size(); ++idx) {
         m_generator.chooseCurrentSchema(idx);
+        if (!m_generator.currentSchema().hasAnyReferencedComponent()) {
+            continue;
+        }
+
         list.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
     }
 

@@ -19,6 +19,8 @@ set (
     ToolsQtLayer.cpp
     ToolsQtListField.cpp
     ToolsQtMessage.cpp
+    ToolsQtMsgFactory.cpp
+    ToolsQtMsgFactoryOptions.cpp
     ToolsQtNamespace.cpp
     ToolsQtOptionalField.cpp
     ToolsQtPayloadLayer.cpp
@@ -31,6 +33,7 @@ set (
     ToolsQtSyncLayer.cpp
     ToolsQtValueLayer.cpp
     ToolsQtVariantField.cpp
+    ToolsQtVersion.cpp
     main.cpp
 )
 

@@ -34,6 +34,7 @@
 #include "CommsIdLayer.h"
 #include "CommsInterface.h"
 #include "CommsMessage.h"
+#include "CommsMsgFactory.h"
 #include "CommsMsgId.h"
 #include "CommsNamespace.h"
 #include "CommsOptionalField.h"
@@ -67,7 +68,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string MinCommsVersion("5.1.0");    
+const std::string MinCommsVersion("5.2.0");    
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {
@@ -292,7 +293,8 @@ bool CommsGenerator::writeImpl()
             CommsVersion::write(*this) &&
             CommsInputMessages::write(*this) &&
             CommsDefaultOptions::write(*this) &&
-            CommsDispatch::write(*this);
+            CommsDispatch::write(*this) &&
+            CommsMsgFactory::write(*this);
 
         if (!result) {
             return false;

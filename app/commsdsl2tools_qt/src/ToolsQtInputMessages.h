@@ -25,6 +25,7 @@ class ToolsQtInputMessages
 {
 public:
     static bool write(ToolsQtGenerator& generator);
+    static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
 
 private:
     explicit ToolsQtInputMessages(ToolsQtGenerator& generator) : m_generator(generator) {}

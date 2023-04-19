@@ -39,6 +39,7 @@ public:
     std::string commsDefaultOptions() const;
     std::string commsDataViewDefaultOptions() const;
     std::string commsBareMetalDefaultOptions() const;
+    std::string commsMsgFactoryDefaultOptions() const;
 
 protected:
     virtual bool prepareImpl() override;

@@ -23,7 +23,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test33::message::Msg1<Interface>;
+    TEST33_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test33::frame::Frame<Interface>;
 };
 

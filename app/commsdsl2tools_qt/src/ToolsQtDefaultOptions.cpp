@@ -16,6 +16,7 @@
 #include "ToolsQtDefaultOptions.h"
 
 #include "ToolsQtGenerator.h"
+#include "ToolsQtVersion.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -32,6 +33,54 @@ namespace util = commsdsl::gen::util;
 
 namespace commsdsl2tools_qt
 {
+
+namespace 
+{
+
+std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx)
+{
+    assert(idx < generator.schemas().size());
+
+    auto oldIdx = generator.currentSchemaIdx();
+    generator.chooseCurrentSchema(static_cast<unsigned>(idx));
+    if (!generator.currentSchema().hasAnyReferencedComponent()) {
+        if (idx == 0U) {
+            generator.chooseCurrentSchema(oldIdx);
+            return strings::emptyString();
+        }
+
+        auto result = toolsBaseCodeInternal(generator, idx - 1U);
+        generator.chooseCurrentSchema(oldIdx);
+        return result;
+    }
+
+    auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
+    generator.chooseCurrentSchema(oldIdx);
+
+    if (idx == 0U) {
+        return "::" + scope;
+    }
+
+    auto nextScope = toolsBaseCodeInternal(generator, idx - 1U);
+    if (nextScope.empty()) {
+        return "::" + scope;
+    }    
+
+    static const std::string Templ = 
+        "::#^#SCOPE#$#T<\n"
+        "    #^#NEXT#$#\n"
+        ">";
+
+    util::ReplacementMap repl = {
+        {"SCOPE", std::move(scope)},
+        {"NEXT", std::move(nextScope)}
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+} // namespace 
+    
 
 std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
@@ -56,10 +105,10 @@ std::string ToolsQtDefaultOptions::toolsScope(const ToolsQtGenerator& generator)
 bool ToolsQtDefaultOptions::write(ToolsQtGenerator& generator)
 {
     ToolsQtDefaultOptions obj(generator);
-    return obj.testWriteInternal();
+    return obj.toolsWriteInternal();
 }
 
-bool ToolsQtDefaultOptions::testWriteInternal() const
+bool ToolsQtDefaultOptions::toolsWriteInternal() const
 {
     auto filePath = m_generator.getOutputDir() + '/' + toolsRelHeaderPath(m_generator);
 
@@ -68,6 +117,8 @@ bool ToolsQtDefaultOptions::testWriteInternal() const
     if (!m_generator.createDirectory(dirPath)) {
         return false;
     }      
+
+    m_generator.logger().info("Generating " + filePath);
 
     std::ofstream stream(filePath);
     if (!stream) {
@@ -80,17 +131,16 @@ bool ToolsQtDefaultOptions::testWriteInternal() const
         "/// @file\n"
         "/// @brief Contains definition of the default options for plugin.\n\n"
         "#pragma once\n\n"
-        "#include \"#^#DEF_OPTIONS_INC#$#\"\n"
-        "#^#INCLUDES#$#\n\n"
+        "#^#INCLUDES#$#\n"
+        "#^#EXTRA_INCLUDES#$#\n\n"
         "namespace #^#TOP_NS#$#\n"
         "{\n\n"        
         "namespace #^#PROT_NAMESPACE#$#\n"
         "{\n\n"
         "namespace options\n"
         "{\n\n"
-        "template <typename TBase = ::#^#DEF_OPTIONS#$#>\n"
-        "struct #^#NAME#$##^#ORIG#$#T : public TBase {};\n\n"
-        "using  #^#NAME#$##^#ORIG#$# =  #^#NAME#$##^#ORIG#$#T<>;\n\n"
+        "using #^#NAME#$# =\n"
+        "    #^#OPTS_BASE#$#;\n\n"
         "#^#EXTEND#$#\n"
         "#^#APPEND#$#\n"
         "} // namespace options\n\n"
@@ -99,16 +149,32 @@ bool ToolsQtDefaultOptions::testWriteInternal() const
 
     auto codePrefix = m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator);
 
+    util::StringsList includes {
+        ToolsQtVersion::toolsRelHeaderPath(m_generator)
+    };
+
+    auto& schemas = m_generator.schemas();
+    for (auto idx = 0U; idx < schemas.size(); ++idx) {
+        m_generator.chooseCurrentSchema(idx);
+        if (!m_generator.currentSchema().hasAnyReferencedComponent()) {
+            continue;
+        }          
+        includes.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
+    }
+    assert(m_generator.isCurrentProtocolSchema());
+
+    comms::prepareIncludeStatement(includes);
+
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
-        {"DEF_OPTIONS_INC", comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator)},
-        {"INCLUDES", util::readFileContents(codePrefix + strings::incFileSuffixStr())},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
+        {"INCLUDES", util::strListToString(includes, "\n", "")},
+        {"EXTRA_INCLUDES", util::readFileContents(codePrefix + strings::incFileSuffixStr())},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
         {"NAME", strings::defaultOptionsClassStr()},
-        {"DEF_OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), m_generator)},
         {"EXTEND", util::readFileContents(codePrefix + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(codePrefix + strings::appendFileSuffixStr())},
+        {"OPTS_BASE", toolsBaseCodeInternal(m_generator, m_generator.schemas().size() - 1U)},
     };
 
     if (!repl["EXTEND"].empty()) {

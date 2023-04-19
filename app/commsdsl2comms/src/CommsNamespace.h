@@ -44,6 +44,7 @@ public:
     std::string commsServerDefaultOptions() const;
     std::string commsDataViewDefaultOptions() const;
     std::string commsBareMetalDefaultOptions() const;
+    std::string commsMsgFactoryDefaultOptions() const;
 
     bool commsHasReferencedMsgId() const;
     bool commsHasAnyGeneratedCode() const;

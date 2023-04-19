@@ -76,12 +76,25 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
         }
 
         static const std::string Templ = 
-            "void handle(#^#MESSAGE#$#& msg) { handle_#^#MESSAGE#$#(msg); }\n"
-            "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg);\n";
+            "void handle(#^#COMMS_MESSAGE#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>& msg)\n"
+            "{\n"
+            "    static_assert(sizeof(#^#COMMS_MESSAGE#$#<#^#INTERFACE#$##^#PROT_OPTS#$#>) == sizeof(#^#MESSAGE#$#), \"Invalid cast\");\n"
+            "    handle_#^#MESSAGE#$#(static_cast<#^#MESSAGE#$#&>(msg));\n"
+            "}\n\n"
+            "virtual void handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg)\n"
+            "{\n"
+            "    handle_#^#INTERFACE#$#(static_cast<#^#INTERFACE#$#&>(msg));\n"
+            "}\n";
 
         util::ReplacementMap repl = {
             {"MESSAGE", generator.swigClassName(*m)},
+            {"COMMS_MESSAGE", comms::scopeFor(*m, generator)},
+            {"INTERFACE", interfaceClassName},
         };
+
+        if (SwigProtocolOptions::swigIsDefined(generator)) {
+            repl["PROT_OPTS"] = ", " + SwigProtocolOptions::swigClassName(generator);
+        }
 
         handleFuncs.push_back(util::processTemplate(Templ, repl));
     }
@@ -90,10 +103,16 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
         "class #^#CLASS_NAME#$#\n"
         "{\n"
         "public:\n"
-        "     virtual ~#^#CLASS_NAME#$#() = default;\n\n"
-        "     #^#HANDLE_FUNCS#$#\n"
-        "     void handle(#^#INTERFACE#$#& msg) { handle_#^#INTERFACE#$#(msg); }\n"
-        "     virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg) { static_cast<void>(msg); }\n"
+        "    virtual ~#^#CLASS_NAME#$#() = default;\n\n"
+        "    #^#HANDLE_FUNCS#$#\n"
+        "    void handle(#^#INTERFACE#$#& msg)\n"
+        "    {\n"
+        "        handle_#^#INTERFACE#$#(msg);\n"
+        "    }\n\n"
+        "    virtual void handle_#^#INTERFACE#$#(#^#INTERFACE#$#& msg)\n"
+        "    {\n"
+        "        static_cast<void>(msg);\n"
+        "    }\n"
         "};\n";
 
     util::ReplacementMap repl = {
@@ -103,35 +122,6 @@ void SwigMsgHandler::swigAddClassCode(const SwigGenerator& generator, StringsLis
     };
 
     list.push_back(util::processTemplate(Templ, repl));
-}
-
-void SwigMsgHandler::swigAddFuncsCode(const SwigGenerator& generator, StringsList& list)
-{
-    auto* iFace = generator.swigMainInterface();
-    assert(iFace != nullptr);
-    auto interfaceClassName = generator.swigClassName(*iFace);
-
-    auto allMessages = generator.getAllMessagesIdSorted();
-    list.reserve(list.size() + allMessages.size());
-
-    for (auto* m : allMessages) {
-        if (!m->isReferenced()) {
-            continue;
-        }
-
-        static const std::string Templ = 
-            "void #^#CLASS_NAME#$#::handle_#^#MESSAGE#$#(#^#MESSAGE#$#& msg) { handle_#^#INTERFACE#$#(msg); }";
-
-        util::ReplacementMap repl = {
-            {"INTERFACE", interfaceClassName},
-            {"MESSAGE", generator.swigClassName(*m)},
-            {"CLASS_NAME",swigClassName(generator)},
-        };
-
-        list.push_back(util::processTemplate(Templ, repl));
-    }
-
-    list.push_back(strings::emptyString());
 }
 
 void SwigMsgHandler::swigAddDef(const SwigGenerator& generator, StringsList& list)

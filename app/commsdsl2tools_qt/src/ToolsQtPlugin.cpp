@@ -133,7 +133,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
@@ -272,7 +272,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     transportMsgHeader.insert(insertIter, suffix.begin(), suffix.end());    
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
@@ -282,8 +282,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         {"PROT_NAME", toolsAdjustedNameInternal()},
     };        
 
-    auto allInterfaces = m_generator.toolsGetSelectedInterfaces();
-    if (1U < allInterfaces.size()) {
+    if (m_generator.toolsHasMulitpleInterfaces()) {
         assert(m_interfacePtr != nullptr);
         repl["INTERFACE_TEMPL_PARAM"] = '<' + m_generator.getTopNamespace() + "::" + comms::scopeFor(*m_interfacePtr, m_generator) + '>';
         repl["INTERFACE_INC"] = "#include \"" + m_interfacePtr->toolsHeaderFilePath() + "\"";
@@ -325,7 +324,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
             "        static_assert(#^#INTERFACE_TYPE#$#::hasVersionInTransportFields(),\n"
             "            \"Interface type is expected to has version in transport fields\");\n"
             "        static const std::size_t VersionIdx = \n"
-            "            #^#INTERFACE_TYPE#$#::InterfaceOptions::VersionInExtraTransportFields;\n"
+            "            #^#INTERFACE_TYPE#$#::versionIdxInTransportFields();\n"
             "        auto& castedMsg = static_cast<#^#INTERFACE_TYPE#$#&>(msg);\n"
             "        std::get<VersionIdx>(castedMsg.transportFields()).value() =\n"
             "            static_cast<#^#INTERFACE_TYPE#$#::VersionType>(m_version);\n"
@@ -472,7 +471,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
@@ -539,7 +538,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
@@ -716,7 +715,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
@@ -797,7 +796,7 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
     ;
 
     util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::fileGeneratedComment()},
+        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},

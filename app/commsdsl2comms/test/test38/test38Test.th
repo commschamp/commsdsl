@@ -26,12 +26,7 @@ public:
             comms::option::app::Handler<Handler>
         >;
 
-    using Msg1 = test38::message::M1<Interface>;
-    using Msg2 = test38::message::M2<Interface>;
-    using Msg3 = test38::message::M3<Interface>;
-    using Msg4 = test38::message::M4<Interface>;
-    using Msg5 = test38::message::M5<Interface>;
-    using Msg6 = test38::message::M6<Interface>;
+    TEST38_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test38::frame::Frame<Interface>;
 
     class Handler

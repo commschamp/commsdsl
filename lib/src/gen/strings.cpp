@@ -111,6 +111,12 @@ const std::string& dispatchNamespaceStr()
     return Str;   
 }
 
+const std::string& factoryNamespaceStr()
+{
+    static const std::string Str("factory");
+    return Str;   
+}
+
 const std::string& inputNamespaceStr()
 {
     static const std::string Str("input");
@@ -265,6 +271,12 @@ const std::string& defaultOptionsClassStr()
 {
     static const std::string Str("DefaultOptions");
     return Str;    
+}
+
+const std::string& allMessagesDynMemMsgFactoryDefaultOptionsClassStr()
+{
+    static const std::string Str("AllMessagesDynMemMsgFactoryDefaultOptions");
+    return Str;      
 }
 
 const std::string& indentStr()

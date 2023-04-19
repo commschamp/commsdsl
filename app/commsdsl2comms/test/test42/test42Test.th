@@ -23,8 +23,7 @@ public:
             comms::option::app::Handler<Handler>
         >;
 
-    using Msg1 = test42::message::Msg1<Interface>;
-    using Msg2 = test42::message::Msg2<Interface>;
+    TEST42_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test42::frame::Frame<Interface>;
 
     class Handler

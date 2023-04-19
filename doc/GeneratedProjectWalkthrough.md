@@ -38,6 +38,11 @@ All the available compile time configuration options of the protocol reside in t
 [options](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/options)
 folder / namespace.
 
+All the available auxiliary `switch` statement based message factory classes (suitable
+for the replacement of the **comms::MsgFactory**) are defined in various files in the 
+[factory](https://github.com/commschamp/cc.demo1.generated/tree/master/include/demo1/factory) 
+folder / namespace.
+
 ### Protocol Documentation
 The configuration of the doxygen documentation resides in the
 [doc](https://github.com/commschamp/cc.demo1.generated/tree/master/doc)
@@ -75,7 +80,7 @@ cmake -DOPT_REQUIRE_COMMS_LIB=OFF ...
 ```
 
 Also note that if search for the [COMMS Library](https://github.com/commschamp/comms) is **NOT**
-excluded than it's directory should be listed in **CMAKE_PREFIX_PATH** variable
+excluded, it's directory should be listed in **CMAKE_PREFIX_PATH** variable
 
 ```
 cmake -DCMAKE_PREFIX_PATH=/path/to/comms/install/dir ...

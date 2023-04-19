@@ -22,8 +22,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    using Msg1 = test16::message::Msg1<Interface>;
-    using Msg2 = test16::message::Msg2<Interface>;
+    TEST16_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface)
 
     using Frame = test16::frame::Frame<Interface>;
 };

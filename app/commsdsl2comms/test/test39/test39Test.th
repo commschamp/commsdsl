@@ -1,7 +1,6 @@
 #include "cxxtest/TestSuite.h"
 
 #include "test39/Message.h"
-#include "test39/message/M1.h"
 #include "test39/frame/Frame.h"
 #include "test39/dispatch/DispatchMessage.h"
 #include "comms/process.h"
@@ -23,7 +22,7 @@ public:
             comms::option::app::Handler<Handler>
         >;
 
-    using Msg1 = test39::message::M1<Interface>;
+    TEST39_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
     using Frame = test39::frame::Frame<Interface>;
 
     class Handler

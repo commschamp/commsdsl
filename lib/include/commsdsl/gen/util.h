@@ -21,6 +21,8 @@ std::string strInsertIndent(const std::string& str);
 unsigned strToUnsigned(const std::string& str);
 bool strStartsWith(const std::string& str, const std::string& prefix);
 std::string strToUpper(const std::string& str);
+std::string strToLower(const std::string& str);
+std::string strToMacroName(const std::string& str);
 std::string numToString(std::uintmax_t value, unsigned hexWidth = 0U);
 std::string numToString(std::intmax_t value);
 std::string numToString(unsigned value, unsigned hexWidth = 0U);

@@ -65,7 +65,7 @@ private:
     IncludesList toolsSrcIncludesSingleInterfaceWithFieldsInternal() const;
     std::string toolsSrcCodeInternal() const;
 
-    CodeType toolCodeType() const;
+    CodeType toolCodeTypeInternal() const;
     ToolsQtFieldsList m_toolsFields;
     bool m_exists = true;
 };

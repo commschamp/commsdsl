@@ -38,6 +38,8 @@ public:
     std::string toolsPropsFunc() const;
     std::string toolsCreatePropsInvocation() const;
     std::string toolsFieldCommsScope() const;
+    std::string toolsMsgFactoryOptions() const;
+
     unsigned toolsMinFieldLength() const;
 
     const commsdsl::gen::Layer& layer() const
@@ -48,6 +50,7 @@ public:
 protected:
     virtual std::string toolExtraFieldTemplParamsImpl() const;
     virtual std::string toolsForcedSerHiddenStrImpl() const;
+    virtual StringsList toolsMsgFactoryExtraOptionsImpl() const;
 
     const ToolsQtField* toolsExternalField() const
     {

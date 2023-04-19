@@ -35,6 +35,7 @@ protected:
     virtual bool prepareImpl() override;
 
     // ToolsBase overrides
+    virtual StringsList toolsMsgFactoryExtraOptionsImpl() const override;
 };
 
 } // namespace commsdsl2tools_qt
