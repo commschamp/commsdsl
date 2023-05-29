@@ -104,6 +104,7 @@ protected:
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
+    virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
 
 private:
     using StrToValueFieldConvertFunc = std::function<bool (const FieldImpl& f, const std::string& ref)>;

@@ -46,6 +46,8 @@ public:
     void test37();
     void test38();
     void test39();
+    void test40();
+    void test41();
 };
 
 void OptionalTestSuite::setUp()
@@ -1110,4 +1112,37 @@ void OptionalTestSuite::test39()
 
     auto& f2 = fields[1];
     TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);    
+}
+
+void OptionalTestSuite::test40()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema40.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 1U);
+
+    auto& m1 = messages[0];
+    auto fields = m1.fields();
+    TS_ASSERT_EQUALS(fields.size(), 3U);
+
+    auto& f2 = fields[1];
+    TS_ASSERT_EQUALS(f2.kind(), commsdsl::parse::Field::Kind::Optional);    
+
+    auto& f3 = fields[2];
+    TS_ASSERT_EQUALS(f3.kind(), commsdsl::parse::Field::Kind::Optional);    
+}
+
+void OptionalTestSuite::test41()
+{
+    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    m_status.m_expValidateResult = false;
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema41.xml");
+    TS_ASSERT(protocol);
 }

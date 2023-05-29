@@ -274,8 +274,7 @@ bool OptCondExprImpl::verifySiblingBitCheck(const OptCondImpl::FieldsList& field
 
     auto& logger = protocol.logger();
     logError(logger) << XmlWrap::logPrefix(node) <<
-        "The \"" << m_right << "\" string is expected to dereference existing bit in existing <" <<
-        common::setStr() << "> field or <" << common::refStr() << "> to it.";
+        "The \"" << m_right << "\" string is not valid condition reference.";
     return false;
 }
 

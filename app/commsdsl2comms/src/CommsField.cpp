@@ -644,7 +644,6 @@ void CommsField::commsCompOptChecksImpl(const std::string& accStr, StringsList& 
     static_cast<void>(accStr);
     static_cast<void>(checks);
     static_cast<void>(prefix);
-    assert(accStr.empty());
 }
 
 std::string CommsField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const

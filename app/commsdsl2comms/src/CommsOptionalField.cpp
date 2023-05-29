@@ -271,7 +271,10 @@ std::string CommsOptionalField::commsDslCondToString(
         }
 
         auto rightAccName = comms::accessName(rightField->field().dslObj().name());
-        return op + getFieldAccessPrefixInternal(*rightField) + rightAccName + "()" + rightField->commsValueAccessStr(accStr);
+        auto checks = rightField->commsCompOptChecks(accStr, getFieldAccessPrefixInternal(*rightField) + rightAccName + "()");
+        checks.push_back(op + getFieldAccessPrefixInternal(*rightField) + rightAccName + "()" + rightField->commsValueAccessStr(accStr));
+
+        return util::strListToString(checks, " &&\n", "");
     }
 
     if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
@@ -481,16 +484,71 @@ std::size_t CommsOptionalField::commsMaxLengthImpl() const
     return m_commsMemberField->commsMaxLength();
 }
 
+std::string CommsOptionalField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsValueAccessStrImpl(accStr, prefix);
+    }
+
+    auto* field = m_commsExternalField;
+    if (field == nullptr) {
+        field = m_commsMemberField;
+    }
+
+    assert(field != nullptr);
+    auto remAccStr = commsMemberAccessStringInternal(accStr);
+    return field->commsValueAccessStr(remAccStr, prefix + ".field()");
+}
+
 void CommsOptionalField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
 {
     checks.push_back(prefix + ".doesExist()");
 
-    if (m_commsExternalField != nullptr) {
-        m_commsExternalField->commsCompOptChecks(accStr, checks, prefix + ".field()");
+    if (accStr.empty()) {
+        CommsBase::commsCompOptChecksImpl(accStr, checks, prefix);
+        return;
     }
 
-    assert(m_commsMemberField != nullptr);
-    m_commsMemberField->commsCompOptChecks(accStr, checks, prefix + ".field()");   
+    auto* field = m_commsExternalField;
+    if (field == nullptr) {
+        field = m_commsMemberField;
+    }
+
+    assert(field != nullptr);
+    auto remAccStr = commsMemberAccessStringInternal(accStr);
+    field->commsCompOptChecks(remAccStr, checks, prefix + ".field()");
+}
+
+std::string CommsOptionalField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsCompValueCastTypeImpl(accStr, prefix);
+    }
+
+    auto* field = m_commsExternalField;
+    if (field == nullptr) {
+        field = m_commsMemberField;
+    }
+
+    assert(field != nullptr);
+    auto remAccStr = commsMemberAccessStringInternal(accStr);
+    return field->commsCompValueCastType(remAccStr, prefix + "Field::");
+}
+
+std::string CommsOptionalField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsCompPrepValueStrImpl(accStr, value);
+    }
+
+    auto* field = m_commsExternalField;
+    if (field == nullptr) {
+        field = m_commsMemberField;
+    }
+
+    assert(field != nullptr);
+    auto remAccStr = commsMemberAccessStringInternal(accStr);
+    return field->commsCompPrepValueStr(remAccStr, value);
 }
 
 bool CommsOptionalField::commsCheckCondSupportedInternal() const
@@ -604,6 +662,27 @@ std::string CommsOptionalField::commsDslCondToStringInternal(
     bool bracketsWrap) const 
 {
     return commsDslCondToString(CommsGenerator::cast(generator()), siblings, cond, bracketsWrap);
+}
+
+std::string CommsOptionalField::commsMemberAccessStringInternal(const std::string& accStr) const
+{
+    auto sepPos = accStr.find('.');
+    std::string remAccStr;
+    if (sepPos < accStr.size()) {
+        remAccStr = accStr.substr(sepPos + 1);
+    }
+
+#ifndef NDEBUG    
+    auto* field = m_commsExternalField;
+    if (field == nullptr) {
+        field = m_commsMemberField;
+    }
+
+    assert(field != nullptr);
+    assert(accStr.substr(0, sepPos) == field->field().dslObj().name());
+#endif    
+
+    return remAccStr;
 }
 
 std::string CommsOptionalField::commsDslCondToStringFieldValueCompInternal(
