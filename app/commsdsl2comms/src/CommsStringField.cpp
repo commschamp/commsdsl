@@ -461,7 +461,8 @@ void CommsStringField::commsAddTermSuffixOptInternal(StringsList& opts) const
         "    comms::field::IntValue<\n"
         "        #^#PROT_NAMESPACE#$#::field::FieldBase<>,\n"
         "        std::uint8_t,\n"
-        "        comms::option::def::ValidNumValueRange<0, 0>\n"
+        "        comms::option::def::ValidNumValueRange<0, 0>,\n"
+        "        comms::option::def::FailOnInvalid<>\n"
         "    >\n"
         ">";
 
