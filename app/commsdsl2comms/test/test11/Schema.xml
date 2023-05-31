@@ -10,6 +10,7 @@
             <validValue name="M6" val="6" />
             <validValue name="M7" val="7" />
             <validValue name="M8" val="8" />
+            <validValue name="M9" val="9" />
         </enum>
 
         <int name="I1" type="uint8" />        
@@ -148,7 +149,6 @@
         </fields>
     </message>                     
 
-
     <message name="Msg8" id="MsgId.M8">
         <description>
             Testing referencing another optional in cond
@@ -173,6 +173,26 @@
             <optional name="F4" cond="$F3.ActF3 = 1" defaultMode="missing">
                 <int name="ActF4" type="uint8" />
             </optional>
+        </fields>
+    </message>     
+
+    <message name="Msg9" id="MsgId.M9">
+        <description>
+            Testing referencing version dependent field in optional condition
+        </description>
+        <fields>
+            <set name="F1" length="1" sinceVersion="2">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+
+            <optional name="F2" cond="$F1.B0" defaultMode="missing" sinceVersion="3">
+                <set name="ActF2" length="1">
+                    <bit name="B0" idx="0" />
+                    <bit name="B1" idx="1" />
+                </set>
+            </optional>
+
         </fields>
     </message>                     
 
