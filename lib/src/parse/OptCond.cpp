@@ -90,6 +90,16 @@ const std::string& OptCondExpr::right() const
     return castExpr(m_pImpl)->right();
 }
 
+OptCondExpr::OperandInfo OptCondExpr::leftInfo() const
+{
+    return castExpr(m_pImpl)->leftInfo();
+}
+
+OptCondExpr::OperandInfo OptCondExpr::rightInfo() const
+{
+    return castExpr(m_pImpl)->rightInfo();
+}
+
 OptCondList::OptCondList(const OptCondListImpl* impl)
   : Base(impl)
 {

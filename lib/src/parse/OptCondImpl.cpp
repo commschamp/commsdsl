@@ -55,6 +55,51 @@ void discardNonFieldReferences(FieldImpl::FieldRefInfosList& infos)
         infos.end());
 }
 
+OptCondExprImpl::OperandInfo operandInfoInternal(const std::string& val)
+{
+    OptCondExprImpl::OperandInfo result;
+    if (val.empty()) {
+        return result;
+    }
+
+    if ((val[0] != common::siblingRefPrefix()) && (val[0] != common::interfaceRefPrefix())) {
+        result.m_type = OptCondExprImpl::OperandType::Value;
+        result.m_access = val;
+        return result;
+    }
+
+    if (val[0] == common::siblingRefPrefix()) {
+        result.m_type = OptCondExprImpl::OperandType::SiblingRef;
+    }
+    else {
+        assert(val[0] == common::interfaceRefPrefix());
+        result.m_type = OptCondExprImpl::OperandType::InterfaceRef;
+    }
+
+    auto restPos = 1U;
+    do {
+        if (val.size() <= 1U) {
+            break;
+        }
+
+        if (val[restPos] == '#') {
+            result.m_mode = OptCondExprImpl::AccMode::Size;
+            ++restPos;
+            break;
+        }   
+
+        if (val[restPos] == '?') {
+            result.m_mode = OptCondExprImpl::AccMode::Exists;
+            ++restPos;
+            break;
+        }             
+
+    } while (false);
+
+    result.m_access = val.substr(restPos);
+    return result;
+}
+
 } // namespace
 
 OptCondImpl::OptCondImpl() :
@@ -81,6 +126,16 @@ bool OptCondExprImpl::parse(const std::string& expr, ::xmlNodePtr node, const Pr
         checkComparison(expr, "<", node, protocol) &&
         checkBool(expr, node, protocol) &&
         hasUpdatedValue();
+}
+
+OptCondExprImpl::OperandInfo OptCondExprImpl::leftInfo() const
+{
+    return operandInfoInternal(m_left);
+}
+
+OptCondExprImpl::OperandInfo OptCondExprImpl::rightInfo() const
+{
+    return operandInfoInternal(m_right);
 }
 
 OptCondImpl::Kind OptCondExprImpl::kindImpl() const

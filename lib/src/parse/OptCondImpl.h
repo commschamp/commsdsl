@@ -78,6 +78,10 @@ private:
 class OptCondExprImpl final: public OptCondImpl
 {
 public:
+    using OperandType = OptCondExpr::OperandType;
+    using AccMode = OptCondExpr::AccMode;
+    using OperandInfo = OptCondExpr::OperandInfo;
+
     OptCondExprImpl() = default;
     OptCondExprImpl(const OptCondExprImpl&) = default;
     OptCondExprImpl(OptCondExprImpl&&) = default;
@@ -98,6 +102,9 @@ public:
     {
         return m_right;
     }
+
+    OperandInfo leftInfo() const;
+    OperandInfo rightInfo() const;
 
 protected:
     virtual Kind kindImpl() const override;

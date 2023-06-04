@@ -48,6 +48,8 @@ public:
         FieldRefType_Invalid,
         FieldRefType_Field,
         FieldRefType_InnerValue,
+        FieldRefType_Size,
+        FieldRefType_Exists,
         FieldRefType_ValuesLimit
     };
 
@@ -288,6 +290,7 @@ public:
     FieldRefInfo processInnerRef(const std::string& refStr) const;
 
     bool isValidInnerRef(const std::string& refStr) const;
+    bool isValidRefType(FieldRefType type) const;
 
 protected:
     FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
@@ -348,6 +351,7 @@ protected:
     virtual const XmlWrap::NamesList& supportedMemberTypesImpl() const;
     virtual const FieldsList& membersImpl() const;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const;
+    virtual bool isValidRefTypeImpl(FieldRefType type) const;
 
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
     bool validateNoPropInstance(const std::string& str);
