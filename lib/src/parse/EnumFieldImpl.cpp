@@ -238,6 +238,11 @@ EnumFieldImpl::FieldRefInfo EnumFieldImpl::processInnerRefImpl(const std::string
     return info;
 }
 
+bool EnumFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_InnerValue);
+}
+
 bool EnumFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);

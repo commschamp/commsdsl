@@ -509,6 +509,11 @@ IntFieldImpl::FieldRefInfo IntFieldImpl::processInnerRefImpl(const std::string& 
     return info;
 }
 
+bool IntFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_InnerValue);
+}
+
 bool IntFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);

@@ -121,6 +121,7 @@ private:
     bool verifyComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifySiblingComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifyInterfaceComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifyValidSizeValueComparison() const;
 
     std::string m_left;
     std::string m_op;

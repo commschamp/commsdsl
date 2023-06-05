@@ -251,6 +251,11 @@ OptionalFieldImpl::FieldRefInfo OptionalFieldImpl::processInnerRefImpl(const std
     return m_field->processInnerRef(restStr);
 }
 
+bool OptionalFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_Exists);
+}
+
 bool OptionalFieldImpl::updateMode()
 {
     if (!validateSinglePropInstance(common::defaultModeStr())) {

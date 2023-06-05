@@ -373,20 +373,28 @@ FieldImpl::FieldRefInfo FieldImpl::processSiblingRef(const FieldsList& siblings,
 
     if ((!refStr.empty()) && ((refStr[0] == '#') || (refStr[0] == '?'))) {
         info = processSiblingRef(siblings, refStr.substr(1));
-        if ((info.m_field == nullptr) || 
-            (info.m_refType != FieldRefType::FieldRefType_Field)) {
+        do {
+            if ((info.m_field == nullptr) || 
+                (info.m_refType != FieldRefType::FieldRefType_Field)) {
+                info = FieldRefInfo();
+                break;
+            }
+
+            if (refStr[0] == '#') {
+                info.m_refType = FieldRefType::FieldRefType_Size;
+                break;
+            }
+
+            assert(refStr[0] == '?');
+            info.m_refType = FieldRefType::FieldRefType_Exists;
+            break;
+        } while (false);
+
+        if ((info.m_field != nullptr) && (!info.m_field->isValidRefType(info.m_refType))) {
             info = FieldRefInfo();
-            return info;
         }
 
-        if (refStr[0] == '#') {
-            info.m_refType = FieldRefType::FieldRefType_Size;
-            return info;
-        }
-
-        assert(refStr[0] == '?');
-        info.m_refType = FieldRefType::FieldRefType_Exists;
-        return info;        
+        return info;
     }
 
     auto dotPos = refStr.find_first_of('.');
@@ -453,7 +461,6 @@ bool FieldImpl::isValidRefType(FieldRefType type) const
         return true;
     }
 
-    // TODO: implement
     return isValidRefTypeImpl(type);
 }
 

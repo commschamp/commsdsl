@@ -247,6 +247,11 @@ SetFieldImpl::FieldRefInfo SetFieldImpl::processInnerRefImpl(const std::string& 
     return info;    
 }
 
+bool SetFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_InnerValue);
+}
+
 bool SetFieldImpl::updateEndian()
 {
     if (!validateSinglePropInstance(common::endianStr())) {

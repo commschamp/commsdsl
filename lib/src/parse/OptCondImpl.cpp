@@ -381,21 +381,35 @@ bool OptCondExprImpl::verifySiblingComparison(const OptCondImpl::FieldsList& fie
     assert(m_left[0] == Deref);
 
     auto& logger = protocol.logger();
+    auto reportInvalidSiblingRef = 
+        [node, &logger](const std::string& refStr)
+        {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The \"" << refStr << "\" string is expected to dereference existing sibling field.";
+
+        };
+
     auto leftInfo = FieldImpl::processSiblingRef(fields, m_left.substr(1));
-    if ((leftInfo.m_field == nullptr) || 
-        (leftInfo.m_refType != FieldImpl::FieldRefType_Field)) {
-        logError(logger) << XmlWrap::logPrefix(node) <<
-            "The \"" << m_left << "\" string is expected to dereference existing sibling field.";
+    if (leftInfo.m_field == nullptr) {
+        reportInvalidSiblingRef(m_left);
         return false;
-    }    
+    } 
+
+    if (leftInfo.m_refType == FieldImpl::FieldRefType_Size) {
+        return verifyValidSizeValueComparison();
+    }
+
+    if (leftInfo.m_refType != FieldImpl::FieldRefType_Field) {
+        reportInvalidSiblingRef(m_left);
+        return false;
+    }
 
     if (m_right[0] == Deref) {
         auto rightInfo = FieldImpl::processSiblingRef(fields, m_right.substr(1));
 
         if ((rightInfo.m_field == nullptr) || 
             (rightInfo.m_refType != FieldImpl::FieldRefType_Field)) {
-            logError(logger) << XmlWrap::logPrefix(node) <<
-                "The \"" << m_right << "\" string is expected to dereference existing sibling field.";
+            reportInvalidSiblingRef(m_right);
             return false;
         }         
 
@@ -535,6 +549,19 @@ bool OptCondExprImpl::verifyInterfaceComparison(const FieldsList& fields, ::xmlN
     }
 
     return true;    
+}
+
+bool OptCondExprImpl::verifyValidSizeValueComparison() const
+{
+    try {
+        auto val = std::stoll(m_right);
+        static_cast<void>(val);
+        return true;
+    } catch (...) {
+        // Do nothing
+    }
+
+    return false;
 }
 
 OptCondListImpl::OptCondListImpl(const OptCondListImpl& other)

@@ -105,6 +105,7 @@ protected:
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
     virtual bool verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const override;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
+    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
 
 private:
     bool updateType();
