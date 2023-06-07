@@ -115,8 +115,8 @@ private:
     bool hasUpdatedValue();
     bool checkComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, const ProtocolImpl& protocol);
     bool checkBool(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol);
-    bool verifyBitCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
-    bool verifySiblingBitCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifySingleElementCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifySiblingSingleElementCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifyInterfaceBitCheck(::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifyComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifySiblingComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;

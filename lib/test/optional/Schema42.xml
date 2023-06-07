@@ -1,8 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema42" endian="big" dslVersion="6">
+<schema name="Schema42" endian="big" dslVersion="6" version="5">
     <description>
         Performing size and exists checks in optional conditions
     </description>
+
+    <interface name="Message">
+        <int name="Version" type="uint8" semanticType="version" />
+        <data name="Data">
+            <lengthPrefix>
+                <int name="Length" type="uint8" />
+            </lengthPrefix>
+        </data>
+    </interface>
 
     <message name="Msg1" id="1">
         <string name="F1" defaultValue="hello">
@@ -16,5 +25,27 @@
                 <bit name="B1" idx="1" />
             </set>
         </optional>
+        <optional name="F3" cond="$?F2">
+            <set name="ActF3" length="1">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </optional>        
     </message>
+
+    <message name="Msg2" id="2">
+        <int name="F1" type="uint8" sinceVersion="2" />
+        <optional name="F2" cond="!$?F1" sinceVersion="3">
+            <set name="ActF2" length="1">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </optional>
+    </message>   
+
+    <message name="Msg3" id="3">
+        <optional name="F1" cond="%#Data = 1" sinceVersion="3">
+            <int name="ActF1" type="uint8" />
+        </optional>
+    </message>      
 </schema>

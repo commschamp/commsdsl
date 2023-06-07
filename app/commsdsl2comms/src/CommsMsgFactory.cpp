@@ -385,7 +385,7 @@ bool commsWriteFileInternal(
     }
 
     if (inPlaceAlloc) {
-        // TODO update CAN_ALLOCATE:
+        // TODO: impelement
         assert(false); // Not implemented
     }
 
