@@ -355,6 +355,13 @@ std::size_t CommsDataField::commsMaxLengthImpl() const
     return comms::maxPossibleLength();    
 }
 
+std::string CommsDataField::commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+    return prefix + ".getValue().size()";
+}
+
 std::string CommsDataField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;

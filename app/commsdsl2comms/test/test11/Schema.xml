@@ -11,6 +11,7 @@
             <validValue name="M7" val="7" />
             <validValue name="M8" val="8" />
             <validValue name="M9" val="9" />
+            <validValue name="M10" val="10" />
         </enum>
 
         <int name="I1" type="uint8" />        
@@ -50,6 +51,8 @@
                 </members>        
             </bundle> 
         </optional>  
+
+        <string name="S1" lengthPrefix="I1" />
 
     </fields>
     
@@ -193,6 +196,52 @@
                 </set>
             </optional>
 
+        </fields>
+    </message>      
+
+    <message name="Msg10" id="MsgId.M10">
+        <description>
+            Testing check of the size in optionals
+        </description>
+        <fields>
+            <string name="F1">
+                <lengthPrefix>
+                    <int name="Length" type="uint8" />
+                </lengthPrefix>
+            </string>
+
+            <data name="F2">
+                <lengthPrefix>
+                    <int name="Length" type="uint8" />
+                </lengthPrefix>
+            </data>
+
+            <list name="F3">
+                <countPrefix>
+                    <int name="Length" type="uint8" />
+                </countPrefix>
+                <element>
+                    <int name="Element" type="uint16" />
+                </element>
+            </list>      
+
+            <ref name="F4" field="S1" />                    
+
+            <optional name="O1" cond="$#F1 = 0" defaultMode="exists">
+                <int name="ActO1" type="uint8" />
+            </optional>
+
+            <optional name="O2" cond="$#F2 != 0" defaultMode="missing">
+                <int name="ActO2" type="uint8" />
+            </optional>
+
+            <optional name="O3" cond="$#F3 = 1" defaultMode="missing">
+                <int name="ActO3" type="uint8" />
+            </optional>
+
+            <optional name="O4" cond="$#F4 = 5" defaultMode="missing">
+                <int name="ActO4" type="uint8" />
+            </optional>            
         </fields>
     </message>                     
 

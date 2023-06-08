@@ -420,6 +420,24 @@ std::string CommsBundleField::commsValueAccessStrImpl(const std::string& accStr,
     return memInfo.first->commsValueAccessStr(memInfo.second, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "()");
 }
 
+std::string CommsBundleField::commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    if (accStr.empty()) {
+        return CommsBase::commsSizeAccessStrImpl(accStr, prefix);
+    }
+
+    auto memInfo = parseMemRefInternal(accStr);
+
+    if (memInfo.first == nullptr) {
+        static const bool Should_not_happen = false;
+        static_cast<void>(Should_not_happen);
+        assert(Should_not_happen);
+        return strings::unexpectedValueStr();
+    }
+
+    return memInfo.first->commsSizeAccessStr(memInfo.second, prefix + ".field_" + comms::accessName(memInfo.first->field().dslObj().name()) + "()");
+}
+
 void CommsBundleField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
 {
     if (accStr.empty()) {
