@@ -12,6 +12,7 @@
             <validValue name="M8" val="8" />
             <validValue name="M9" val="9" />
             <validValue name="M10" val="10" />
+            <validValue name="M11" val="11" />
         </enum>
 
         <int name="I1" type="uint8" />        
@@ -243,7 +244,42 @@
                 <int name="ActO4" type="uint8" />
             </optional>            
         </fields>
-    </message>                     
+    </message>   
+
+    <message name="Msg11" id="MsgId.M11">
+        <description>
+            Testing check of the exist in optionals
+        </description>
+        <fields>
+            <set name="F1" length="1">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+                <bit name="B2" idx="2" />
+                <bit name="B3" idx="3" />
+            </set>    
+
+            <optional name="O1" cond="$F1.B0" defaultMode="missing">
+                <int name="ActO1" type="uint8" />
+            </optional>
+
+            <optional name="O2" cond="$?O1" defaultMode="missing">
+                <int name="ActO2" type="uint8" />
+            </optional>
+
+            <ref name="O3" field="O1" />
+
+            <optional name="O4" cond="$?O3" defaultMode="exists">
+                <int name="ActO4" type="uint8" />
+            </optional>   
+
+            <int name="F5" type="uint8" sinceVersion="3" />         
+
+            <optional name="O6" cond="$?F5" defaultMode="exists" sinceVersion="4">
+                <int name="ActO6" type="uint8" />
+            </optional>   
+
+        </fields>
+    </message>                        
 
     <frame name="Frame">
         <id name="ID" field="MsgId" />

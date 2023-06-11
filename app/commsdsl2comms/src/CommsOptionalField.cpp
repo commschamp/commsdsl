@@ -279,7 +279,7 @@ std::string CommsOptionalField::commsDslCondToString(
             remRight = rightInfo.m_access.substr(rightSepPos + 1);
         }        
 
-        if (leftInfo.m_mode == AccMode::Exists) {
+        if (rightInfo.m_mode == AccMode::Exists) {
             return commsDslCondToStringFieldExistsCompInternal(rightField, remRight, op);
         }          
 
@@ -849,12 +849,33 @@ std::string CommsOptionalField::commsDslCondToStringFieldSizeCompInternal(
 }
 
 std::string CommsOptionalField::commsDslCondToStringFieldExistsCompInternal(
-    [[maybe_unused]] const CommsField* field, 
-    [[maybe_unused]] const std::string& accStr,
-    [[maybe_unused]] const std::string& op)
+    const CommsField* field, 
+    const std::string& accStr,
+    const std::string& op)
 {
-    assert(false); // TODO: implement
-    return strings::emptyString();
+
+    auto accName = comms::accessName(field->field().dslObj().name());
+    auto prefix = getFieldAccessPrefixInternal(*field) + accName + "()";
+    auto optConds = field->commsCompOptChecks(accStr, prefix);
+
+    if (optConds.empty()) {
+        return strings::emptyString();
+    }
+
+    auto condsStr = util::strListToString(optConds, " &&\n", "");
+    if (op.empty()) {
+        return condsStr;
+    }
+    
+
+    static const std::string Templ = 
+        "!(#^#COND#$#)";
+    
+    util::ReplacementMap repl = {
+        {"COND", std::move(condsStr)},
+    };
+
+    return util::processTemplate(Templ, repl);       
 }
 
 } // namespace commsdsl2comms
