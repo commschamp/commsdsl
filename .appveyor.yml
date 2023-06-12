@@ -19,7 +19,7 @@ configuration:
 
 environment:
     COMMS_BRANCH: develop
-    CC_TOOLS_QT_BRANCH: v4.2
+    CC_TOOLS_QT_BRANCH: develop
     matrix:
         - CPP_STD: 11
         - CPP_STD: 14
