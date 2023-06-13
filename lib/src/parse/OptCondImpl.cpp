@@ -358,6 +358,12 @@ bool OptCondExprImpl::verifySiblingSingleElementCheck(const OptCondImpl::FieldsL
         return false;
     }
 
+    if (!protocol.isExistsCheckInConditionalsSupported()) {
+        logError(logger) << XmlWrap::logPrefix(node) <<
+            "The optional mode check in the optional condition is not supported for the selected DSL version.";
+        return false;
+    }
+
     return true;
 }
 
@@ -424,6 +430,12 @@ bool OptCondExprImpl::verifySiblingComparison(const OptCondImpl::FieldsList& fie
     } 
 
     if (leftInfo.m_refType == FieldImpl::FieldRefType_Size) {
+        if (!protocol.isSizeCompInConditionalsSupported()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The size comparison check in the optional condition is not supported for the selected DSL version.";
+            return false;
+        }   
+
         return verifyValidSizeValueComparison();
     }
 
@@ -498,6 +510,12 @@ bool OptCondExprImpl::verifyInterfaceComparison(const FieldsList& fields, ::xmlN
     discardNonSizeReferences(leftSizeChecks);
 
     if (!leftSizeChecks.empty()) {
+        if (!protocol.isSizeCompInConditionalsSupported()) {
+            logError(logger) << XmlWrap::logPrefix(node) <<
+                "The size comparison check in the optional condition is not supported for the selected DSL version.";
+            return false;
+        }  
+                
         return verifyValidSizeValueComparison();
     }
 
