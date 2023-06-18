@@ -88,6 +88,7 @@ protected:
     virtual std::size_t maxLengthImpl() const override;
     virtual bool isComparableToValueImpl(const std::string& val) const override;
     virtual bool strToStringImpl(const std::string& ref, std::string& val) const override;
+    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
 
 private:
     bool updateDefaultValue();

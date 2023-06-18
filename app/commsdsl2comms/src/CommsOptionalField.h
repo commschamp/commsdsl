@@ -53,7 +53,12 @@ protected:
     virtual bool commsIsVersionDependentImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual std::size_t commsMaxLengthImpl() const override;
+    virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
+    virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const override;
     virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const override;
+    virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const override;
+    virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const override;
+
 
 private:
     bool commsCheckCondSupportedInternal() const;
@@ -65,6 +70,7 @@ private:
     void commsAddMissingOnInvalidOptInternal(StringsList& opts) const;
 
     std::string commsDslCondToStringInternal(const CommsFieldsList& siblings, const commsdsl::parse::OptCond& cond, bool bracketsWrap = false) const;
+    std::string commsMemberAccessStringInternal(const std::string& accStr) const;
     static std::string commsDslCondToStringFieldValueCompInternal(
         const CommsField* field, 
         const std::string& accStr,
@@ -76,8 +82,19 @@ private:
         const std::string& leftAccStr,
         const std::string& op, 
         const CommsField* rightField, 
-        const std::string& rightAccStr);        
+        const std::string& rightAccStr);  
 
+    static std::string commsDslCondToStringFieldSizeCompInternal(
+        const CommsField* field, 
+        const std::string& accStr,
+        const std::string& op, 
+        const std::string& value);   
+
+    static std::string commsDslCondToStringFieldExistsCompInternal(
+        const CommsField* field, 
+        const std::string& accStr,
+        const std::string& op);
+          
     CommsField* m_commsExternalField = nullptr;
     CommsField* m_commsMemberField = nullptr;
 };

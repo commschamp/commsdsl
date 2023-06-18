@@ -103,6 +103,7 @@ protected:
     virtual bool strToBoolImpl(const std::string& ref, bool& val) const override;
     virtual bool validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const override;
     virtual FieldRefInfo processInnerRefImpl(const std::string& refStr) const override;
+    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
 
 private:
     bool updateEndian();

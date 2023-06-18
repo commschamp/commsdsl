@@ -171,6 +171,12 @@ std::string CommsRefField::commsValueAccessStrImpl(const std::string& accStr, co
     return m_commsReferencedField->commsValueAccessStr(accStr, prefix);
 }
 
+std::string CommsRefField::commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsSizeAccessStr(accStr, prefix);
+}
+
 void CommsRefField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
 {
     assert(m_commsReferencedField != nullptr);

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema44" endian="big" dslVersion="6" version="5">
+    <description>
+        Performing invalid size check in the optional condition.
+    </description>
+
+    <message name="Msg1" id="1">
+        <string name="F1" defaultValue="hello">
+            <lengthPrefix>
+                <int name="Length" type="uint8" />
+            </lengthPrefix>
+        </string>
+        <optional name="F2" cond="$#F1">
+            <set name="ActF2" length="1">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </optional>
+    </message>
+</schema>

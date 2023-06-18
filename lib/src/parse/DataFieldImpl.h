@@ -81,6 +81,7 @@ protected:
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
     virtual bool strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const override;
+    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
 
 private:
     bool updateDefaultValue();

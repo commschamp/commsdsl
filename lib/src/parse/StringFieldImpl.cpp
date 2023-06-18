@@ -217,6 +217,11 @@ bool StringFieldImpl::strToStringImpl(const std::string& ref, std::string& val) 
     return false;
 }
 
+bool StringFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_Size);
+}
+
 bool StringFieldImpl::updateDefaultValue()
 {
     auto& propName = common::defaultValueStr();

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema41" endian="big" dslVersion="6">
+    <description>
+        Referencing optional members in cond, invalid reference supposed to fail
+    </description>
+
+    <message name="Msg1" id="1">
+        <set name="F1" length="1">
+            <bit name="B0" idx="0" />
+            <bit name="B1" idx="1" />
+        </set>
+
+        <optional name="F2" cond="$F1 != 0">
+            <set name="ActF2" length="1">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+        </optional>
+
+        <optional name="F3" cond="$F2.F2.B0">
+            <int name="ActF3" type="uint8" />
+        </optional>
+    </message>
+</schema>

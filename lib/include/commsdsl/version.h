@@ -23,7 +23,7 @@
 #define COMMSDSL_MAJOR_VERSION 6U
 
 /// @brief Minor verion of the library
-#define COMMSDSL_MINOR_VERSION 1U
+#define COMMSDSL_MINOR_VERSION 2U
 
 /// @brief Patch level of the library
 #define COMMSDSL_PATCH_VERSION 0U

@@ -31,7 +31,7 @@
                 <string name="Element" zeroTermSuffix="true" />
             </element>
             <termSuffix>
-                <int name="TermSuffix" type="uint8" />
+                <int name="TermSuffix" type="uint8" defaultValidValue="0" failOnInvalid="true" />
             </termSuffix>
         </list>
     </fields>

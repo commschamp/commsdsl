@@ -47,6 +47,7 @@ public:
     using ContentsList = XmlWrap::ContentsList;
     using ImplFieldsList = std::vector<FieldImpl*>;
     using FieldRefInfo = FieldImpl::FieldRefInfo;
+    using FieldRefType = FieldImpl::FieldRefType;
 
     InterfaceImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     InterfaceImpl(const InterfaceImpl&) = delete;

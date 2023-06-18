@@ -184,6 +184,11 @@ bool DataFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8
     return true;
 }
 
+bool DataFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_Size);
+}
+
 bool DataFieldImpl::updateDefaultValue()
 {
     if (!validateSinglePropInstance(common::defaultValueStr())) {

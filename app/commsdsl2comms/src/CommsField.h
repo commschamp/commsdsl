@@ -57,6 +57,8 @@ public:
 
     std::string commsFieldAccessStr(const std::string& accStr, const std::string& prefix = std::string()) const;
     std::string commsValueAccessStr(const std::string& accStr, const std::string& prefix = std::string()) const;
+    std::string commsSizeAccessStr(const std::string& accStr, const std::string& prefix = std::string()) const;
+    std::string commsExistsCheckStr(const std::string& accStr, const std::string& prefix = std::string()) const;
     StringsList commsCompOptChecks(const std::string& accStr, const std::string& prefix = std::string()) const;
     void commsCompOptChecks(const std::string& accStr, StringsList& checks, const std::string& prefix = std::string()) const;
     std::string commsCompValueCastType(const std::string& accStr, const std::string& prefix = std::string()) const;
@@ -124,6 +126,7 @@ protected:
     virtual std::size_t commsMinLengthImpl() const;
     virtual std::size_t commsMaxLengthImpl() const;    
     virtual std::string commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const;
+    virtual std::string commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const;
     virtual void commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const;
     virtual std::string commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const;
     virtual std::string commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const;

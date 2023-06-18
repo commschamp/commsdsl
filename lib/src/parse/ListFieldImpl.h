@@ -154,6 +154,7 @@ protected:
     virtual bool verifySiblingsImpl(const FieldsList& fields) const override;
     virtual std::size_t minLengthImpl() const override;
     virtual std::size_t maxLengthImpl() const override;
+    virtual bool isValidRefTypeImpl(FieldRefType type) const override;
 
 private:
     void cloneFields(const ListFieldImpl& other);

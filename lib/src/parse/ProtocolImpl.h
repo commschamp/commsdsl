@@ -114,6 +114,8 @@ public:
     bool isMultiSchemaSupported() const;
     bool isInterfaceFieldReferenceSupported() const;
     bool isFailOnInvalidInMessageSupported() const;
+    bool isSizeCompInConditionalsSupported() const;
+    bool isExistsCheckInConditionalsSupported() const;
 
     void setMultipleSchemasEnabled(bool value)
     {

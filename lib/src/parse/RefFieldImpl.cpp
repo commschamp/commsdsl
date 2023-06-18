@@ -218,6 +218,12 @@ RefFieldImpl::FieldRefInfo RefFieldImpl::processInnerRefImpl(const std::string& 
     return m_field->processInnerRef(refStr);
 }
 
+bool RefFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    assert(m_field != nullptr);
+    return m_field->isValidRefType(type);
+}
+
 bool RefFieldImpl::updateBitLength()
 {
     if (!validateSinglePropInstance(common::bitLengthStr())) {

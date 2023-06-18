@@ -78,6 +78,10 @@ private:
 class OptCondExprImpl final: public OptCondImpl
 {
 public:
+    using OperandType = OptCondExpr::OperandType;
+    using AccMode = OptCondExpr::AccMode;
+    using OperandInfo = OptCondExpr::OperandInfo;
+
     OptCondExprImpl() = default;
     OptCondExprImpl(const OptCondExprImpl&) = default;
     OptCondExprImpl(OptCondExprImpl&&) = default;
@@ -99,6 +103,9 @@ public:
         return m_right;
     }
 
+    OperandInfo leftInfo() const;
+    OperandInfo rightInfo() const;
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -108,12 +115,13 @@ private:
     bool hasUpdatedValue();
     bool checkComparison(const std::string& expr, const std::string& op, ::xmlNodePtr node, const ProtocolImpl& protocol);
     bool checkBool(const std::string& expr, ::xmlNodePtr node, const ProtocolImpl& protocol);
-    bool verifyBitCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
-    bool verifySiblingBitCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifySingleElementCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifySiblingSingleElementCheck(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifyInterfaceBitCheck(::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifyComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifySiblingComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
     bool verifyInterfaceComparison(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const;
+    bool verifyValidSizeValueComparison() const;
 
     std::string m_left;
     std::string m_op;

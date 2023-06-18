@@ -232,6 +232,30 @@ bool OptionalFieldImpl::strToDataImpl(const std::string& ref, std::vector<std::u
             });
 }
 
+OptionalFieldImpl::FieldRefInfo OptionalFieldImpl::processInnerRefImpl(const std::string& refStr) const
+{
+    assert(!refStr.empty());
+
+    auto fieldName = refStr;
+    std::string restStr;
+    auto sepPos = refStr.find('.');
+    if (sepPos < refStr.size()) {
+        fieldName = refStr.substr(0, sepPos);
+        restStr = refStr.substr(sepPos + 1);
+    }
+
+    if (fieldName != m_field->name()) {
+        return FieldRefInfo();
+    }
+
+    return m_field->processInnerRef(restStr);
+}
+
+bool OptionalFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_Exists);
+}
+
 bool OptionalFieldImpl::updateMode()
 {
     if (!validateSinglePropInstance(common::defaultModeStr())) {

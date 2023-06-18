@@ -55,12 +55,38 @@ class COMMSDSL_API OptCondExpr : public OptCond
 {
     using Base = OptCond;
 public:
+    enum class OperandType
+    {
+        Invalid,
+        Value,
+        SiblingRef,
+        InterfaceRef,
+        NumOfValues
+    };
+
+    enum class AccMode
+    {
+        Itself,
+        Size,
+        Exists,
+        NumOfValues
+    };
+
+    struct OperandInfo
+    {
+        OperandType m_type = OperandType::Invalid;
+        AccMode m_mode = AccMode::Itself;
+        std::string m_access;
+    };
+
     OptCondExpr(const OptCondExprImpl* impl);
     OptCondExpr(OptCond cond);
 
     const std::string& left() const;
     const std::string& op() const;
     const std::string& right() const;
+    OperandInfo leftInfo() const;
+    OperandInfo rightInfo() const;
 };
 
 class OptCondListImpl;

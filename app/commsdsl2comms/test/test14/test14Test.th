@@ -26,4 +26,17 @@ void TestSuite::test1()
 {
     Msg1 msg;
     TS_ASSERT_EQUALS(msg.field_f1().value(), "hello");
+    msg.field_f4().value() = "bla";
+
+    std::vector<std::uint8_t> buf;
+    buf.resize(msg.length());
+    auto writeIter = &buf[0];
+    auto es = msg.write(writeIter, buf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    const auto* readIter = &buf[0];
+    Msg1 msg2;
+    es = msg2.read(readIter, buf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msg, msg2);
 }

@@ -370,6 +370,33 @@ std::string FieldImpl::schemaPos() const
 FieldImpl::FieldRefInfo FieldImpl::processSiblingRef(const FieldsList& siblings, const std::string& refStr)
 {
     FieldRefInfo info;
+
+    if ((!refStr.empty()) && ((refStr[0] == '#') || (refStr[0] == '?'))) {
+        info = processSiblingRef(siblings, refStr.substr(1));
+        do {
+            if ((info.m_field == nullptr) || 
+                (info.m_refType != FieldRefType::FieldRefType_Field)) {
+                info = FieldRefInfo();
+                break;
+            }
+
+            if (refStr[0] == '#') {
+                info.m_refType = FieldRefType::FieldRefType_Size;
+                break;
+            }
+
+            assert(refStr[0] == '?');
+            info.m_refType = FieldRefType::FieldRefType_Exists;
+            break;
+        } while (false);
+
+        if ((info.m_field != nullptr) && (!info.m_field->isValidRefType(info.m_refType))) {
+            info = FieldRefInfo();
+        }
+
+        return info;
+    }
+
     auto dotPos = refStr.find_first_of('.');
     std::string fieldName(refStr, 0, dotPos);
     if (fieldName.empty()) {
@@ -417,6 +444,24 @@ bool FieldImpl::isValidInnerRef(const std::string& refStr) const
 {
     auto info = processInnerRef(refStr);
     return info.m_field != nullptr;
+}
+
+bool FieldImpl::isValidRefType(FieldRefType type) const
+{
+    if (type == FieldRefType_Invalid) {
+        return false;
+    }
+
+    if (type == FieldRefType_Field) {
+        return true;
+    }
+
+    if ((type == FieldRefType_Exists) && 
+        ((getSinceVersion() > 0U) || (getDeprecated() < Protocol::notYetDeprecated()))) {
+        return true;
+    }
+
+    return isValidRefTypeImpl(type);
 }
 
 FieldImpl::FieldImpl(::xmlNodePtr node, ProtocolImpl& protocol)
@@ -627,6 +672,12 @@ FieldImpl::FieldRefInfo FieldImpl::processInnerRefImpl(const std::string& refStr
     assert(!refStr.empty());
     FieldRefInfo info;
     return info;
+}
+
+bool FieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    static_cast<void>(type);
+    return false;
 }
 
 bool FieldImpl::validateSinglePropInstance(const std::string& str, bool mustHave)

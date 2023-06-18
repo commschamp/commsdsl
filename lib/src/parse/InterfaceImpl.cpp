@@ -154,6 +154,32 @@ InterfaceImpl::ImplFieldsList InterfaceImpl::allImplFields() const
 
 InterfaceImpl::FieldRefInfo InterfaceImpl::processInnerFieldRef(const std::string refStr) const
 {
+    if ((!refStr.empty()) && ((refStr[0] == '#') || (refStr[0] == '?'))) {
+        auto info = processInnerFieldRef(refStr.substr(1));
+        do {
+            if ((info.m_field == nullptr) || 
+                (info.m_refType != FieldRefType::FieldRefType_Field)) {
+                info = FieldRefInfo();
+                break;
+            }
+
+            if (refStr[0] == '#') {
+                info.m_refType = FieldRefType::FieldRefType_Size;
+                break;
+            }
+
+            assert(refStr[0] == '?');
+            info.m_refType = FieldRefType::FieldRefType_Exists;
+            break;
+        } while (false);
+
+        if ((info.m_field != nullptr) && (!info.m_field->isValidRefType(info.m_refType))) {
+            info = FieldRefInfo();
+        }
+
+        return info;
+    }
+
     auto dotPos = refStr.find_first_of(".");
     const auto fieldName = refStr.substr(0, dotPos);
     auto iter = 
@@ -168,12 +194,12 @@ InterfaceImpl::FieldRefInfo InterfaceImpl::processInnerFieldRef(const std::strin
         return FieldRefInfo();
     }
 
-    auto nextPos = dotPos;
+    std::string nextRef;
     if (dotPos < refStr.size()) {
-        nextPos = dotPos + 1U;
+        nextRef = refStr.substr(dotPos + 1U);
     }
 
-    return (*iter)->processInnerRef(refStr.substr(nextPos));
+    return (*iter)->processInnerRef(nextRef);
 
 }
 

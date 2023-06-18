@@ -265,6 +265,11 @@ FloatFieldImpl::FieldRefInfo FloatFieldImpl::processInnerRefImpl(const std::stri
     return info;
 }
 
+bool FloatFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_InnerValue);
+}
+
 bool FloatFieldImpl::updateType()
 {
     bool mustHave = (m_state.m_type == Type::NumOfValues);

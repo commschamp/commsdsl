@@ -86,7 +86,7 @@ protected:
     virtual IncludesList commsDefIncludesImpl() const;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const;
     virtual bool commsDefHasInputMessagesImpl() const;
-    virtual StringsList commsDefExtraOptsImpl() const; // TODO: check if needed
+    virtual StringsList commsDefExtraOptsImpl() const; 
     virtual bool commsIsCustomizableImpl() const;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;

@@ -308,6 +308,15 @@ std::string CommsField::commsValueAccessStr(const std::string& accStr, const std
     return commsValueAccessStrImpl(accStr, prefix + optPrefix);
 }
 
+std::string CommsField::commsSizeAccessStr(const std::string& accStr, const std::string& prefix) const
+{
+    std::string optPrefix;
+    if (commsIsVersionOptional()) {
+        optPrefix = ".field()";
+    }
+    return commsSizeAccessStrImpl(accStr, prefix + optPrefix);
+}
+
 CommsField::StringsList CommsField::commsCompOptChecks(const std::string& accStr, const std::string& prefix) const
 {
     StringsList checks;
@@ -639,12 +648,19 @@ std::string CommsField::commsValueAccessStrImpl(const std::string& accStr, const
     return prefix + ".getValue()";
 }
 
+std::string CommsField::commsSizeAccessStrImpl(
+    [[maybe_unused]] const std::string& accStr, 
+    [[maybe_unused]] const std::string& prefix) const
+{
+    assert(false); // Should not be called
+    return strings::emptyString();
+}
+
 void CommsField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
 {
     static_cast<void>(accStr);
     static_cast<void>(checks);
     static_cast<void>(prefix);
-    assert(accStr.empty());
 }
 
 std::string CommsField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const

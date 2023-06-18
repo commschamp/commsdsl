@@ -329,6 +329,13 @@ CommsStringField::StringsList CommsStringField::commsExtraBareMetalDefaultOption
         };    
 }
 
+std::string CommsStringField::commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+{
+    static_cast<void>(accStr);
+    assert(accStr.empty());
+    return prefix + ".getValue().size()";
+}
+
 std::size_t CommsStringField::commsMaxLengthImpl() const
 {
     auto obj = stringDslObj();
@@ -397,6 +404,7 @@ std::string CommsStringField::commsCompPrepValueStrImpl(const std::string& accSt
     return CommsBase::commsCompPrepValueStrImpl(accStr, '\"' + valueTmp + '\"');
 }
 
+
 std::string CommsStringField::commsDefFieldOptsInternal() const
 {
     util::StringsList opts;
@@ -461,7 +469,8 @@ void CommsStringField::commsAddTermSuffixOptInternal(StringsList& opts) const
         "    comms::field::IntValue<\n"
         "        #^#PROT_NAMESPACE#$#::field::FieldBase<>,\n"
         "        std::uint8_t,\n"
-        "        comms::option::def::ValidNumValueRange<0, 0>\n"
+        "        comms::option::def::ValidNumValueRange<0, 0>,\n"
+        "        comms::option::def::FailOnInvalid<>\n"
         "    >\n"
         ">";
 

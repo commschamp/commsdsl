@@ -215,6 +215,11 @@ std::size_t ListFieldImpl::maxLengthImpl() const
     return common::maxPossibleLength();
 }
 
+bool ListFieldImpl::isValidRefTypeImpl(FieldRefType type) const
+{
+    return (type == FieldRefType_Size);
+}
+
 void ListFieldImpl::cloneFields(const ListFieldImpl& other)
 {
     if (other.m_elementField) {
