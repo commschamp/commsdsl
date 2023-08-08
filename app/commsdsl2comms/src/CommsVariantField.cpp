@@ -1035,7 +1035,7 @@ std::string CommsVariantField::commsDefSelectFieldCodeInternal() const
         "        return;\n"
         "    }\n\n"
         "    reset();\n"
-        "    switch (Base::currentField()) {\n"
+        "    switch (idx) {\n"
         "        #^#CASES#$#\n"
         "        default: break;\n"
         "    }\n"
