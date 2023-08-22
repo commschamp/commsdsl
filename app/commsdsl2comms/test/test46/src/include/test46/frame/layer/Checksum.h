@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <limits>
 
 #include "comms/protocol/ChecksumLayer.h"

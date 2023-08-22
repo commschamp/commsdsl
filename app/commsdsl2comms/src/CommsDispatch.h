@@ -19,6 +19,7 @@
 
 #include "commsdsl/gen/Message.h"
 
+#include <cstdint>
 #include <functional>
 #include <map>
 

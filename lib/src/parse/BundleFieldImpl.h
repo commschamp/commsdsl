@@ -19,6 +19,8 @@
 #include "FieldImpl.h"
 #include "AliasImpl.h"
 
+#include <cstdint>
+
 namespace commsdsl
 {
 
