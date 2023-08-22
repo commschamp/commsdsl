@@ -484,7 +484,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
         auto platformCheckFunc = 
             [&p](const commsdsl::gen::Message& msg)
             {
-                auto& msgPlatforms = msg.dslObj().platforms();
+                const auto msgPlatforms = msg.dslObj().platforms();
                 if (msgPlatforms.empty()) {
                     return true;
                 }

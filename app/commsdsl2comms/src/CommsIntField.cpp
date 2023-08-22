@@ -421,8 +421,8 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
         // nothing to do
     }
 
-    auto& specials = intDslObj().specialValues();
-    auto iter = specials.find(value);
+    const auto specials = intDslObj().specialValues();
+    const auto iter = specials.find(value);
     if (iter != specials.end()) {
         return valToString(iter->second.m_value);
     }

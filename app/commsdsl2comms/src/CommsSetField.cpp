@@ -404,8 +404,8 @@ std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, co
         return CommsBase::commsValueAccessStrImpl(accStr, prefix);
     }
 
-    auto& bits = setDslObj().bits();
-    auto iter = bits.find(accStr);
+    const auto bits = setDslObj().bits();
+    const auto iter = bits.find(accStr);
     if (iter == bits.end()) {
         generator().logger().error("Failed to find bit reference " + accStr + " for field " + comms::scopeFor(*this, generator()));
         assert(false);
@@ -417,7 +417,7 @@ std::string CommsSetField::commsValueAccessStrImpl(const std::string& accStr, co
 
 bool CommsSetField::commsVerifyInnerRefImpl(const std::string& refStr) const
 {
-    auto& bits = setDslObj().bits();
+    const auto bits = setDslObj().bits();
     return bits.find(refStr) != bits.end();
 }
 

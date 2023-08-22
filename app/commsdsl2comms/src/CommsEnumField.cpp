@@ -528,8 +528,8 @@ std::string CommsEnumField::commsCompPrepValueStrImpl(const std::string& accStr,
     }
 
     auto& castedOtherEnum = static_cast<const CommsEnumField&>(*otherEnum);
-    auto& otherValues = castedOtherEnum.enumDslObj().values();
-    auto otherIter = otherValues.find(std::string(value, lastDot + 1));
+    const auto otherValues = castedOtherEnum.enumDslObj().values();
+    const auto otherIter = otherValues.find(std::string(value, lastDot + 1));
     if (otherIter == otherValues.end()) {
         static constexpr bool Should_not_happen = false;
         static_cast<void>(Should_not_happen);
