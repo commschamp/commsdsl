@@ -59,7 +59,11 @@ macro (commsdsl_compile)
                 list (APPEND extra_flags_list
                     "-Wduplicated-branches" 
                 )
-            endif()                        
+            endif()   
+            
+            if(CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL "13.0")
+                list (APPEND extra_flags_list "-Wno-dangling-reference")
+            endif() 
 
         endif ()
 
