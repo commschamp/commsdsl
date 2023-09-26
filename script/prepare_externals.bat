@@ -7,6 +7,7 @@ rem COMMS_REPO - (Optional) Repository of the COMMS library
 rem COMMS_TAG - (Optional) Tag of the COMMS library
 rem CC_TOOLS_QT_REPO - (Optional) Repository of the cc_tools_qt
 rem CC_TOOLS_QT_TAG - (Optional) Tag of the cc_tools_qt
+rem CC_TOOLS_QT_MAJOR_QT_VERSION - (Optional) Major version of the Qt library
 rem COMMON_INSTALL_DIR - (Optional) Common directory to perform installations
 rem COMMON_BUILD_TYPE - (Optional) CMake build type
 rem COMMON_CXX_STANDARD - (Optional) CMake C++ standard
@@ -38,6 +39,9 @@ set CC_TOOLS_QT_SRC_DIR=%EXTERNALS_DIR%/cc_tools_qt
 set CC_TOOLS_QT_BUILD_DIR=%BUILD_DIR%/externals/cc_tools_qt/build
 set CC_TOOLS_QT_INSTALL_DIR=%CC_TOOLS_QT_BUILD_DIR%/install
 if NOT [%COMMON_INSTALL_DIR%] == [] set CC_TOOLS_QT_INSTALL_DIR=%COMMON_INSTALL_DIR%
+set CC_TOOLS_QT_VERSION_OPT=
+if NOT [%CC_TOOLS_QT_MAJOR_QT_VERSION%] == [] set CC_TOOLS_QT_VERSION_OPT="-DCC_TOOLS_QT_MAJOR_QT_VERSION=%CC_TOOLS_QT_MAJOR_QT_VERSION%"
+
 
 rem ----------------------------------------------------
 
@@ -59,7 +63,8 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 echo "Building COMMS library..."
 mkdir "%COMMS_BUILD_DIR%"
 cd %COMMS_BUILD_DIR%
-cmake -G %GENERATOR% -S %COMMS_SRC_DIR% -B %COMMS_BUILD_DIR% -DCMAKE_INSTALL_PREFIX=%COMMS_INSTALL_DIR% -DCMAKE_BUILD_TYPE=%COMMON_BUILD_TYPE% -DCMAKE_CXX_STANDARD=%COMMON_CXX_STANDARD%
+cmake -G %GENERATOR% -S %COMMS_SRC_DIR% -B %COMMS_BUILD_DIR% -DCMAKE_INSTALL_PREFIX=%COMMS_INSTALL_DIR% ^
+    -DCMAKE_BUILD_TYPE=%COMMON_BUILD_TYPE% -DCMAKE_CXX_STANDARD=%COMMON_CXX_STANDARD%
 if %errorlevel% neq 0 exit /b %errorlevel%
 cmake --build %COMMS_BUILD_DIR% --config %COMMON_BUILD_TYPE% --target install
 if %errorlevel% neq 0 exit /b %errorlevel%
@@ -80,7 +85,9 @@ git checkout %CC_TOOLS_QT_TAG%
 echo "Building cc_tools_qt ..."
 mkdir "%CC_TOOLS_QT_BUILD_DIR%"
 cd %CC_TOOLS_QT_BUILD_DIR%
-cmake -G %GENERATOR% -S %CC_TOOLS_QT_SRC_DIR% -B %CC_TOOLS_QT_BUILD_DIR% -DCMAKE_INSTALL_PREFIX=%CC_TOOLS_QT_INSTALL_DIR% -DCMAKE_BUILD_TYPE=%COMMON_BUILD_TYPE% -DCC_TOOLS_QT_BUILD_APPS=OFF -DCMAKE_PREFIX_PATH=%COMMS_INSTALL_DIR%;%QTDIR% -DCMAKE_CXX_STANDARD=%COMMON_CXX_STANDARD%
+cmake -G %GENERATOR% -S %CC_TOOLS_QT_SRC_DIR% -B %CC_TOOLS_QT_BUILD_DIR% -DCMAKE_INSTALL_PREFIX=%CC_TOOLS_QT_INSTALL_DIR% ^
+    -DCMAKE_BUILD_TYPE=%COMMON_BUILD_TYPE% -DCC_TOOLS_QT_BUILD_APPS=OFF -DCMAKE_PREFIX_PATH=%COMMS_INSTALL_DIR%;%QTDIR% ^
+    -DCMAKE_CXX_STANDARD=%COMMON_CXX_STANDARD% %CC_TOOLS_QT_VERSION_OPT%
 if %errorlevel% neq 0 exit /b %errorlevel%
 cmake --build %CC_TOOLS_QT_BUILD_DIR% --config %COMMON_BUILD_TYPE% --target install
 if %errorlevel% neq 0 exit /b %errorlevel%
