@@ -152,7 +152,7 @@ jobs:
       
     - name: Install Packages
       run: |
-        sudo apt install libqt${{qt_ver}}gui${{qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} \
+        sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev doxygen gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}} \
         python3 libpython3-dev swig default-jdk default-jre emscripten nodejs
 
     - name: Create Build Environment
@@ -171,7 +171,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_BRANCH}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}}
-        CC_TOOLS_QT_MAJOR_QT_VERSION: ${{qt_ver}}
+        CC_TOOLS_QT_MAJOR_QT_VERSION: ${{matrix.qt_ver}}
 
     - name: Configure CMake
       shell: bash
@@ -179,7 +179,7 @@ jobs:
       run: |
         cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
-        -DCOMMSDSL_TESTS_QT_VERSION=${{qt_ver}} \
+        -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} \
         -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON -DCMAKE_IGNORE_PATH=/usr/local/bin \
         -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON
@@ -352,7 +352,7 @@ jobs:
       
     - name: Install Packages
       run: |
-        sudo apt install libqt${{qt_ver}}gui${{qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev clang-${{matrix.cc_ver}} \
+        sudo apt install libqt${{matrix.qt_ver}}gui${{matrix.qt_ver}} qtbase5-dev qt6-base-dev libxml2-dev clang-${{matrix.cc_ver}} \
         python3 libpython3-dev swig default-jdk default-jre emscripten nodejs
 
     - name: Create Build Environment
@@ -371,7 +371,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_BRANCH}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}} 
-        CC_TOOLS_QT_MAJOR_QT_VERSION: ${{qt_ver}}
+        CC_TOOLS_QT_MAJOR_QT_VERSION: ${{matrix.qt_ver}}
 
     - name: Configure CMake
       shell: bash
@@ -379,7 +379,7 @@ jobs:
       run: |
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
           -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
-          -DCOMMSDSL_TESTS_QT_VERSION=${{qt_ver}} \
+          -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} \
           -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCMAKE_IGNORE_PATH=/usr/local/bin \
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON
