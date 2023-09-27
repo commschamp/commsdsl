@@ -10,6 +10,7 @@
 # CC_TOOLS_QT_REPO - (Optional) Repository of the cc_tools_qt
 # CC_TOOLS_QT_TAG - (Optional) Tag of the cc_tools_qt
 # CC_TOOLS_QT_SKIP - (Optional) Skip build of cc_tools_qt
+# CC_TOOLS_QT_MAJOR_QT_VERSION - (Optional) Major version of the Qt library
 # COMMON_INSTALL_DIR - (Optional) Common directory to perform installations
 # COMMON_BUILD_TYPE - (Optional) CMake build type
 # COMMON_CXX_STANDARD - (Optional) CMake C++ standard
@@ -58,6 +59,10 @@ CC_TOOLS_QT_INSTALL_DIR=${CC_TOOLS_QT_BUILD_DIR}/install
 if [ -n "${COMMON_INSTALL_DIR}" ]; then
     CC_TOOLS_QT_INSTALL_DIR=${COMMON_INSTALL_DIR}
 fi
+CC_TOOLS_QT_VERSION_OPT=
+if [ -n "${CC_TOOLS_QT_MAJOR_QT_VERSION}" ]; then
+    CC_TOOLS_QT_VERSION_OPT="-DCC_TOOLS_QT_MAJOR_QT_VERSION=${CC_TOOLS_QT_MAJOR_QT_VERSION}"
+fi
 
 procs=$(nproc)
 if [ -n "${procs}" ]; then
@@ -98,7 +103,9 @@ function build_cc_tools_qt() {
 
     echo "Building cc_tools_qt ..."
     mkdir -p ${CC_TOOLS_QT_BUILD_DIR}
-    cmake -S ${CC_TOOLS_QT_SRC_DIR} -B ${CC_TOOLS_QT_BUILD_DIR} -DCMAKE_INSTALL_PREFIX=${CC_TOOLS_QT_INSTALL_DIR} -DCMAKE_BUILD_TYPE=${COMMON_BUILD_TYPE} -DCC_TOOLS_QT_BUILD_APPS=OFF -DCMAKE_PREFIX_PATH=${COMMS_INSTALL_DIR} -DCMAKE_CXX_STANDARD=${COMMON_CXX_STANDARD}
+    cmake -S ${CC_TOOLS_QT_SRC_DIR} -B ${CC_TOOLS_QT_BUILD_DIR} -DCMAKE_INSTALL_PREFIX=${CC_TOOLS_QT_INSTALL_DIR} \
+        -DCMAKE_BUILD_TYPE=${COMMON_BUILD_TYPE} -DCC_TOOLS_QT_BUILD_APPS=OFF -DCMAKE_PREFIX_PATH=${COMMS_INSTALL_DIR} \
+        -DCMAKE_CXX_STANDARD=${COMMON_CXX_STANDARD} ${CC_TOOLS_QT_VERSION_OPT}
     cmake --build ${CC_TOOLS_QT_BUILD_DIR} --config ${COMMON_BUILD_TYPE} --target install ${procs_param}
 }
 

@@ -104,6 +104,7 @@ foreach (name ${tests})
             -DCMAKE_CXX_STANDARD=${COMMSDSL_TESTS_CXX_STANDARD}
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DCMAKE_PREFIX_PATH=${build_prefix_path_str}
+            -DOPT_QT_MAJOR_VERSION=${COMMSDSL_TESTS_QT_VERSION}
     )    
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt})     

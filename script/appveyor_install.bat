@@ -65,6 +65,6 @@ IF NOT EXIST %QTDIR% (
     set QTDIR=%QTDIR_PREFIX%/msvc2015%QTDIR_SUFFIX%
 )
 
-echo Using Qt5 from %QTDIR%
+echo Using Qt from %QTDIR%
 
 

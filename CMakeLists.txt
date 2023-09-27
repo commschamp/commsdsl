@@ -29,6 +29,7 @@ option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Wind
 # COMMSDSL_TESTS_C_COMPILER - C compiler to build unittests
 # COMMSDSL_TESTS_CXX_COMPILER - C++ compiler to build unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
+set (COMMSDSL_TESTS_QT_VERSION 5 CACHE STRING "The major Qt version for tests")
 
 # Deprecated options for backward compatibility, use the ones above for new builds.
 # ---------------------------
