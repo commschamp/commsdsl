@@ -38,6 +38,8 @@ protected:
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
     virtual bool commsDefHasInputMessagesImpl() const override;
     virtual bool commsIsCustomizableImpl() const override;
+    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const override;
 
 private:
 
