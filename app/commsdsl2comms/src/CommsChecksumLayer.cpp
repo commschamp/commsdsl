@@ -71,8 +71,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
 
     auto idx = static_cast<std::size_t>(obj.alg());
     if (ChecksumMapSize <= idx) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         idx = 0U;
     }
@@ -136,8 +135,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
     auto idx = static_cast<std::size_t>(alg);
 
     if (ClassMapSize <= idx) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         idx = 0U;
     }

@@ -194,8 +194,7 @@ std::string CommsStringField::commsDefBundledReadPrepareFuncBodyImpl(const Comms
             });
 
     if (iter == siblings.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
     }
@@ -257,8 +256,7 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
             });
 
     if (iter == siblings.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
     }

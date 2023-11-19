@@ -187,8 +187,7 @@ std::size_t IntFieldImpl::maxTypeLength(Type t)
                   "Invalid map");
 
     if (MapSize <= util::toUnsigned(t)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return 0U;
     }
@@ -216,8 +215,7 @@ std::intmax_t IntFieldImpl::minTypeValue(Type t)
     static_assert(MapSize == util::toUnsigned(IntFieldImpl::Type::NumOfValues), "Invalid map");
 
     if (MapSize <= util::toUnsigned(t)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return maxValueForType<std::intmax_t>();
     }
@@ -246,8 +244,7 @@ std::intmax_t IntFieldImpl::maxTypeValue(Type t)
                   "Invalid map");
 
     if (MapSize <= util::toUnsigned(t)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return minValueForType<std::intmax_t>();
     }

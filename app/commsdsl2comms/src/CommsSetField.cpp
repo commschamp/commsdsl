@@ -244,8 +244,7 @@ std::string CommsSetField::commsDefValidFuncBodyImpl() const
             auto& bitName = iter->second;
             auto bitIter = bits.find(bitName);
             if (bitIter == bits.end()) {
-                static constexpr bool Should_not_happen = false;
-                static_cast<void>(Should_not_happen);
+                [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 continue;
             }
@@ -553,8 +552,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
     for (auto& bitInfo : obj.revBits()) {
         auto idx = bitInfo.first;
         if (MaxBits <= idx) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             continue;
         }
@@ -666,8 +664,7 @@ std::string CommsSetField::commsDefBitsAccessCodeInternal() const
         {
             auto iter = bits.find(n);
             if (iter == bits.end()) {
-                static constexpr bool Should_not_happen = false;
-                static_cast<void>(Should_not_happen);
+                [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 return strings::emptyString();
             }
@@ -723,8 +720,7 @@ void CommsSetField::commsAddDefaultValueOptInternal(commsdsl::gen::util::Strings
 
     for (auto& bitInfo : obj.bits()) {
         if (MaxBits <= bitInfo.second.m_idx) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             continue;
         }
@@ -790,8 +786,7 @@ void CommsSetField::commsAddReservedBitsOptInternal(commsdsl::gen::util::Strings
 
     for (auto& bitInfo : obj.bits()) {
         if (MaxBits <= bitInfo.second.m_idx) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             continue;
         }

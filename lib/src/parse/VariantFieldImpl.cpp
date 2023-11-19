@@ -282,8 +282,7 @@ bool VariantFieldImpl::updateMembers()
             std::string memKind(reinterpret_cast<const char*>(memNode->name));
             auto mem = FieldImpl::create(memKind, memNode, protocol());
             if (!mem) {
-                static constexpr bool Should_not_happen = false;
-                static_cast<void>(Should_not_happen);
+                [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 logError() << XmlWrap::logPrefix(getNode()) <<
                               "Internal error, failed to create objects for member fields.";

@@ -200,8 +200,7 @@ std::string CommsBitfieldField::commsValueAccessStrImpl(const std::string& accSt
     auto memInfo = parseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
-        static const bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static const bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::unexpectedValueStr();
     }
@@ -218,8 +217,7 @@ std::string CommsBitfieldField::commsSizeAccessStrImpl(const std::string& accStr
     auto memInfo = parseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
-        static const bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static const bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::unexpectedValueStr();
     }
@@ -237,8 +235,7 @@ void CommsBitfieldField::commsCompOptChecksImpl(const std::string& accStr, Strin
     auto memInfo = parseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
-        static const bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static const bool Should_not_happen = false;
         assert(Should_not_happen);
         return;
     }
@@ -255,8 +252,7 @@ std::string CommsBitfieldField::commsCompValueCastTypeImpl(const std::string& ac
     auto memInfo = parseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
-        static const bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static const bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::unexpectedValueStr();
     }
@@ -274,8 +270,7 @@ std::string CommsBitfieldField::commsCompPrepValueStrImpl(const std::string& acc
     auto memInfo = parseMemRefInternal(accStr);
 
     if (memInfo.first == nullptr) {
-        static const bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static const bool Should_not_happen = false;
         assert(Should_not_happen);
         return value;
     }

@@ -362,8 +362,7 @@ bool BundleFieldImpl::updateMembers()
             std::string memKind(reinterpret_cast<const char*>(memNode->name));
             auto mem = FieldImpl::create(memKind, memNode, protocol());
             if (!mem) {
-                static constexpr bool Should_not_happen = false;
-                static_cast<void>(Should_not_happen);
+                [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 logError() << XmlWrap::logPrefix(getNode()) <<
                               "Internal error, failed to create objects for member fields.";
@@ -460,8 +459,7 @@ bool BundleFieldImpl::updateAliases()
     for (auto* aNode : aliasNodes) {
         auto alias = AliasImpl::create(aNode, protocol());
         if (!alias) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             logError() << XmlWrap::logPrefix(alias->getNode()) <<
                   "Internal error, failed to create objects for member aliases.";

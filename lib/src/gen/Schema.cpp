@@ -105,8 +105,7 @@ public:
 
         if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
             m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return nullptr;
         }
@@ -119,8 +118,7 @@ public:
         auto result = (*nsIter)->findField(remStr);
         if (result == nullptr) {
             m_generator.logger().error("Internal error: unknown external reference \"" + externalRef + "\" in schema " + m_dslObj.name());
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
         return result;        
@@ -150,8 +148,7 @@ public:
 
         if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
             m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return nullptr;
         }
@@ -164,8 +161,7 @@ public:
         auto result = (*nsIter)->findMessage(remStr);
         if (result == nullptr) {
             m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
         return result;        
@@ -195,8 +191,7 @@ public:
 
         if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
             m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return nullptr;
         }
@@ -209,8 +204,7 @@ public:
         auto result = (*nsIter)->findFrame(remStr);
         if (result == nullptr) {
             m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
         return result;        
@@ -234,8 +228,7 @@ public:
 
         if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
             m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return nullptr;
         }
@@ -248,8 +241,7 @@ public:
         auto result = (*nsIter)->findInterface(remStr);
         if (result == nullptr) {
             m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
         }
         return result;        

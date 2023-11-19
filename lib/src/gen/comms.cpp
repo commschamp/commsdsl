@@ -835,8 +835,7 @@ std::string cppIntChangedSignTypeFor(commsdsl::parse::IntField::Type value, std:
     auto str = cppIntTypeFor(value, len);
     assert(str.find("std::") == 0U);
     if (str.size() < 6) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return str;
     }
@@ -864,8 +863,7 @@ const std::string& cppFloatTypeFor(commsdsl::parse::FloatField::Type value)
 
     std::size_t idx = static_cast<std::size_t>(value);
     if (TypeMapSize <= idx) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
     }
@@ -985,8 +983,7 @@ const std::string& dslEndianToOpt(commsdsl::parse::Endian value)
         "Invalid map");
 
     if (commsdsl::parse::Endian_NumOfValues <= value) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         value = commsdsl::parse::Endian_Little;
     }
@@ -997,8 +994,7 @@ const std::string& dslEndianToOpt(commsdsl::parse::Endian value)
 const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
 {
     if (commsdsl::parse::Units::NumOfValues <= value) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
     }

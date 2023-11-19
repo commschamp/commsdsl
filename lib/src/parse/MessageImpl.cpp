@@ -784,8 +784,7 @@ bool MessageImpl::replaceFields()
         std::string memKind(reinterpret_cast<const char*>(fieldNode->name));
         auto field = FieldImpl::create(memKind, fieldNode, m_protocol);
         if (!field) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
                 "Internal error, failed to create objects for fields to replace.";
@@ -950,8 +949,7 @@ bool MessageImpl::updateFields()
             std::string fKind(reinterpret_cast<const char*>(fNode->name));
             auto field = FieldImpl::create(fKind, fNode, m_protocol);
             if (!field) {
-                static constexpr bool Should_not_happen = false;
-                static_cast<void>(Should_not_happen);
+                [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 logError() << XmlWrap::logPrefix(getNode()) <<
                       "Internal error, failed to create objects for member fields.";
@@ -1008,8 +1006,7 @@ bool MessageImpl::updateAliases()
     for (auto* aNode : aliasNodes) {
         auto alias = AliasImpl::create(aNode, m_protocol);
         if (!alias) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             logError() << XmlWrap::logPrefix(alias->getNode()) <<
                   "Internal error, failed to create objects for member aliases.";

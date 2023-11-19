@@ -838,8 +838,7 @@ void CommsIntField::commsAddScalingOptInternal(StringsList& opts) const
     }
 
     if ((num == 0) || (denom == 0)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return;
     }

@@ -48,8 +48,7 @@ public:
         if (!dslField.valid()) {
             if (m_dslObj.kind() != commsdsl::parse::Layer::Kind::Payload) {
                 m_generator.logger().error("Layer field definition is missing.");
-                static constexpr bool Should_not_happen = false;
-                static_cast<void>(Should_not_happen);
+                [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 return false;
             }

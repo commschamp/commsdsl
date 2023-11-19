@@ -66,8 +66,7 @@ commsdsl::gen::util::StringsList CommsEnumField::commsEnumValues() const
     for (auto& v : revValues) {
         auto iter = values.find(*v.second);
         if (iter == values.end()) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             continue;
         }
@@ -513,16 +512,14 @@ std::string CommsEnumField::commsCompPrepValueStrImpl(const std::string& accStr,
 
     auto lastDot = value.find_last_of(".");
     if (lastDot == std::string::npos) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return CommsBase::commsCompPrepValueStrImpl(accStr, value);
     }
 
     auto* otherEnum = generator().findField(std::string(value, 0, lastDot));
     if ((otherEnum == nullptr) || (otherEnum->dslObj().kind() != commsdsl::parse::Field::Kind::Enum)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return CommsBase::commsCompPrepValueStrImpl(accStr, value);
     }
@@ -531,8 +528,7 @@ std::string CommsEnumField::commsCompPrepValueStrImpl(const std::string& accStr,
     auto& otherValues = castedOtherEnum.enumDslObj().values();
     auto otherIter = otherValues.find(std::string(value, lastDot + 1));
     if (otherIter == otherValues.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return CommsBase::commsCompPrepValueStrImpl(accStr, value);
     }    

@@ -55,8 +55,7 @@ std::uintmax_t maxTypeValueInternal(commsdsl::parse::EnumField::Type val)
             "Invalid map");
 
     if (commsdsl::parse::EnumField::Type::NumOfValues <= val) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         val = commsdsl::parse::EnumField::Type::Uint64;
     }
