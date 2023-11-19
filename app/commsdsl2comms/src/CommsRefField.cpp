@@ -130,17 +130,18 @@ std::string CommsRefField::commsDefBaseClassImpl() const
 
     assert(m_commsReferencedField != nullptr);
 
-    // std::string templOpt;
-    // if (!comms::isInterfaceDeepMemberField(*this)) {
-    //     templOpt = "TOpt";
-    // }
-    
     util::ReplacementMap repl = {
         {"REF_FIELD", comms::scopeFor(m_commsReferencedField->field(), generator())},
         {"FIELD_OPTS", commsDefFieldOptsInternal()}
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+bool CommsRefField::commsIsLimitedCustomizableImpl() const
+{
+    assert(m_commsReferencedField != nullptr);
+    return m_commsReferencedField->commsIsFieldCustomizable();
 }
 
 bool CommsRefField::commsDefHasNameFuncImpl() const
