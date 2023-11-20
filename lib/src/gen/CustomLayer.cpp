@@ -56,8 +56,7 @@ bool CustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) c
             });
 
     if (iter == layers.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         success = false;
         return false;
@@ -75,8 +74,7 @@ bool CustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) c
                 });
 
         if (untilIter == layers.end()) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             success = false;
             return false;
@@ -94,8 +92,7 @@ bool CustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) c
 
     auto& fromStr = obj.checksumFromLayer();
     if (fromStr.empty()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         generator().logger().error("Info on custom checksum layer is missing");
         success = false;
@@ -112,8 +109,7 @@ bool CustomLayer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) c
 
 
     if (fromIter == layers.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         success = false;
         return false;

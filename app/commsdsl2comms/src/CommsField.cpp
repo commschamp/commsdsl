@@ -478,6 +478,25 @@ const CommsField* CommsField::commsFindSibling(const std::string& name) const
     return nullptr;
 }
 
+bool CommsField::commsIsFieldCustomizable() const
+{
+    auto& generator = static_cast<CommsGenerator&>(m_field.generator());
+    auto level = generator.commsGetCustomizationLevel();
+    if (level == CommsGenerator::CustomizationLevel::Full) {
+        return true;
+    }
+
+    if (m_field.dslObj().isCustomizable()) {
+        return true;
+    }
+
+    if (level == CommsGenerator::CustomizationLevel::None) {
+        return false;
+    }
+
+    return commsIsLimitedCustomizableImpl();
+}
+
 CommsField::IncludesList CommsField::commsCommonIncludesImpl() const
 {
     return IncludesList();
@@ -806,25 +825,6 @@ void CommsField::commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts)
     }   
 
     util::addToStrList(util::processTemplate(Templ, repl), opts);                                 
-}
-
-bool CommsField::commsIsFieldCustomizable() const
-{
-    auto& generator = static_cast<CommsGenerator&>(m_field.generator());
-    auto level = generator.commsGetCustomizationLevel();
-    if (level == CommsGenerator::CustomizationLevel::Full) {
-        return true;
-    }
-
-    if (m_field.dslObj().isCustomizable()) {
-        return true;
-    }
-
-    if (level == CommsGenerator::CustomizationLevel::None) {
-        return false;
-    }
-
-    return commsIsLimitedCustomizableImpl();
 }
 
 bool CommsField::commsIsExtended() const

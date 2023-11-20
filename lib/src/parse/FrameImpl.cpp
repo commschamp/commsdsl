@@ -254,8 +254,7 @@ bool FrameImpl::updateLayers()
         std::string lKind(reinterpret_cast<const char*>(lNode->name));
         auto layer = LayerImpl::create(lKind, lNode, m_protocol);
         if (!layer) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             logError() << XmlWrap::logPrefix(getNode()) <<
                   "Internal error, failed to create objects for layers.";

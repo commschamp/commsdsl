@@ -109,8 +109,7 @@ bool hasInterfaceReferenceInternal(const commsdsl::parse::OptCond& cond)
     }
 
     if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return false;
     }    
@@ -196,8 +195,7 @@ std::string CommsOptionalField::commsDslCondToString(
             }
             
             if (leftField == nullptr) {
-                static constexpr bool Should_not_happen = false;
-                static_cast<void>(Should_not_happen);
+                [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 return strings::emptyString();
             }
@@ -231,8 +229,7 @@ std::string CommsOptionalField::commsDslCondToString(
             }
             
             if (rightField == nullptr) {
-                static constexpr bool Should_not_happen = false;
-                static_cast<void>(Should_not_happen);
+                [[maybe_unused]] static constexpr bool Should_not_happen = false;
                 assert(Should_not_happen);
                 return strings::emptyString();
             }
@@ -248,8 +245,7 @@ std::string CommsOptionalField::commsDslCondToString(
         // Reference to bit in "set".
         if ((rightInfo.m_type != OperandType::InterfaceRef) &&
             (rightInfo.m_type != OperandType::SiblingRef)) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return strings::emptyString();
         }
@@ -266,8 +262,7 @@ std::string CommsOptionalField::commsDslCondToString(
         }        
 
         if (rightField == nullptr) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return strings::emptyString();
         }
@@ -291,8 +286,7 @@ std::string CommsOptionalField::commsDslCondToString(
     }
 
     if ((cond.kind() != commsdsl::parse::OptCond::Kind::List)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
     }
@@ -662,8 +656,7 @@ void CommsOptionalField::commsAddModeOptInternal(StringsList& opts) const
     auto mode = obj.defaultMode();
     auto idx = static_cast<std::size_t>(mode);
     if (MapSize <= idx) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         idx = 0U;
     }

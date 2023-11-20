@@ -78,8 +78,7 @@ double minValueForType(FloatFieldImpl::Type value)
     static_assert(ValuesSize == util::toUnsigned(FloatFieldImpl::Type::NumOfValues), "Invalid map");
 
     if (ValuesSize <= util::toUnsigned(value)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         value = FloatFieldImpl::Type::Float;
     }
@@ -99,8 +98,7 @@ double maxValueForType(FloatFieldImpl::Type value)
     static_assert(ValuesSize == util::toUnsigned(FloatFieldImpl::Type::NumOfValues), "Invalid map");
 
     if (ValuesSize <= util::toUnsigned(value)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         value = FloatFieldImpl::Type::Float;
     }
@@ -344,8 +342,7 @@ bool FloatFieldImpl::updateLength()
     static_assert(sizeof(double) == 8U, "Invalid size assumption");
 
     if (MapSize <= util::toUnsigned(m_state.m_type)) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return false;
     }

@@ -87,4 +87,29 @@ bool CommsCustomLayer::commsIsCustomizableImpl() const
     return true;
 }
 
+CommsCustomLayer::StringsList CommsCustomLayer::commsExtraBareMetalDefaultOptionsImpl() const
+{
+    if (commsDefHasInputMessagesImpl()) {
+        return
+            StringsList{
+                "comms::option::app::InPlaceAllocation"
+            };    
+    }
+
+    return CommsBase::commsExtraBareMetalDefaultOptionsImpl();
+}
+
+CommsCustomLayer::StringsList CommsCustomLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
+{
+    if (commsDefHasInputMessagesImpl()) {
+        return
+            StringsList{
+                "comms::option::app::MsgFactoryTempl<MsgFactory>"
+            };    
+    }
+
+    return CommsBase::commsExtraMsgFactoryDefaultOptionsImpl();
+}
+
+
 } // namespace commsdsl2comms

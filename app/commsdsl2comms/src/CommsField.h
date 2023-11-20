@@ -92,6 +92,8 @@ public:
     bool commsHasCustomLength(bool deepCheck = true) const;
     const CommsField* commsFindSibling(const std::string& name) const;
 
+    bool commsIsFieldCustomizable() const;
+
 protected:
     virtual IncludesList commsCommonIncludesImpl() const;
     virtual std::string commsCommonCodeBaseClassImpl() const;
@@ -138,7 +140,6 @@ protected:
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
     void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
     void commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const;
-    bool commsIsFieldCustomizable() const;
     bool commsIsExtended() const;
 
 private:

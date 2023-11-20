@@ -210,8 +210,7 @@ std::string CommsDataField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFi
             });
 
     if (iter == siblings.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
     }
@@ -273,8 +272,7 @@ std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
             });
 
     if (iter == siblings.end()) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return strings::emptyString();
     }

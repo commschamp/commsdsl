@@ -42,6 +42,7 @@ protected:
     virtual std::string commsCommonMembersBaseClassImpl() const override;
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseClassImpl() const override;
+    virtual bool commsIsLimitedCustomizableImpl() const override;
     virtual bool commsDefHasNameFuncImpl() const override;
     virtual std::size_t commsMinLengthImpl() const override;
     virtual std::size_t commsMaxLengthImpl() const override;

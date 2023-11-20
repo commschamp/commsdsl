@@ -288,8 +288,7 @@ bool FieldImpl::isComparableToField(const FieldImpl& field) const
         auto& refField = static_cast<const RefFieldImpl&>(field);
         auto* referee = refField.fieldImpl();
         if (referee == nullptr) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return false;
         }
@@ -508,11 +507,9 @@ const XmlWrap::NamesList&FieldImpl::extraChildrenNamesImpl() const
     return Names;
 }
 
-bool FieldImpl::reuseImpl(const FieldImpl& other)
+bool FieldImpl::reuseImpl([[maybe_unused]] const FieldImpl& other)
 {
-    static_cast<void>(other);
-    static constexpr bool Should_not_happen = false;
-    static_cast<void>(Should_not_happen);
+    [[maybe_unused]] static constexpr bool Should_not_happen = false;
     assert(Should_not_happen);
     return false;
 }
@@ -1120,8 +1117,7 @@ bool FieldImpl::checkReplace()
         std::string fieldKind(reinterpret_cast<const char*>(fieldNode->name));
         auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
         if (!field) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             logError() << XmlWrap::logPrefix(replaceNodes.front()) <<
                 "Internal error, failed to create objects for member fields to replace.";

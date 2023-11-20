@@ -378,8 +378,7 @@ bool DataFieldImpl::checkPrefixAsChild()
 
     auto field = FieldImpl::create(fieldKind, fieldNode, protocol());
     if (!field) {
-        static constexpr bool Should_not_happen = false;
-        static_cast<void>(Should_not_happen);
+        [[maybe_unused]] static constexpr bool Should_not_happen = false;
         assert(Should_not_happen);
         return false;
     }
@@ -457,8 +456,7 @@ bool DataFieldImpl::strToValue(const std::string& str, ValueType& val) const
             byteStr.clear();
         }
         catch (...) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             return false;
         }

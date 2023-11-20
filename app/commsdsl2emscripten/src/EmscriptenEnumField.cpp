@@ -75,8 +75,7 @@ std::string EmscriptenEnumField::emscriptenBindValues() const
     for (auto& v : revValues) {
         auto iter = values.find(*v.second);
         if (iter == values.end()) {
-            static constexpr bool Should_not_happen = false;
-            static_cast<void>(Should_not_happen);
+            [[maybe_unused]] static constexpr bool Should_not_happen = false;
             assert(Should_not_happen);
             continue;
         }
