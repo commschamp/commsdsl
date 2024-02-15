@@ -29,7 +29,11 @@ option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Wind
 # COMMSDSL_TESTS_C_COMPILER - C compiler to build unittests
 # COMMSDSL_TESTS_CXX_COMPILER - C++ compiler to build unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
-set (COMMSDSL_TESTS_QT_VERSION 5 CACHE STRING "The major Qt version for tests")
+# COMMSDSL_TESTS_QT_VERSION - The major Qt version for tests, defaults to 5
+# COMMSDSL_TESTS_CXX_STANDARD - The C++ standard to use in tests, defaults to 11
+
+# Other used CMake variables
+# CMAKE_CXX_STANDARD - The C++ standard to use during the compilation, defaults to 17 (min)
 
 # Deprecated options for backward compatibility, use the ones above for new builds.
 # ---------------------------
@@ -52,9 +56,17 @@ commsdsl_negate_option(COMMSDSL_NO_TESTS COMMSDSL_BUILD_UNIT_TESTS)
 
 ################################################
 
-set(CMAKE_CXX_STANDARD 17 CACHE STRING "The C++ standard to use")
-set(COMMSDSL_TESTS_CXX_STANDARD 11 CACHE STRING "The C++ standard to use in tests")
+if ("${COMMSDSL_TESTS_QT_VERSION}" STREQUAL "")
+    set (COMMSDSL_TESTS_QT_VERSION 5)
+endif ()
 
+if ("${CMAKE_CXX_STANDARD}" STREQUAL "")
+    set (CMAKE_CXX_STANDARD 17)
+endif ()
+
+if ("${COMMSDSL_TESTS_CXX_STANDARD}" STREQUAL "")
+    set (COMMSDSL_TESTS_CXX_STANDARD 11)
+endif ()
 
 if (NOT COMMSDSL_TESTS_C_COMPILER)
     set (COMMSDSL_TESTS_C_COMPILER ${CMAKE_C_COMPILER})
