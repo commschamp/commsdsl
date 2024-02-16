@@ -1,6 +1,7 @@
 rem Input
 rem BUILD_DIR - Main build directory
 rem GENERATOR - CMake generator
+rem PLATFORM - CMake generator platform
 rem QTDIR - Path to Qt installation
 rem EXTERNALS_DIR - (Optional) Directory where externals need to be located
 rem COMMS_REPO - (Optional) Repository of the COMMS library
@@ -17,6 +18,8 @@ rem -----------------------------------------------------
 if [%BUILD_DIR%] == [] echo "BUILD_DIR hasn't been specified" & exit /b 1
 
 if [%GENERATOR%] == [] set GENERATOR="NMake Makefiles"
+
+if NOT [%PLATFORM%] == [] set PLATFORM_PARAM=-A %PLATFORM%
 
 if [%EXTERNALS_DIR%] == [] set EXTERNALS_DIR=%BUILD_DIR%/externals
 
@@ -64,7 +67,7 @@ else (
 echo "Building COMMS library..."
 mkdir "%COMMS_BUILD_DIR%"
 cd %COMMS_BUILD_DIR%
-cmake -G %GENERATOR% -S %COMMS_SRC_DIR% -B %COMMS_BUILD_DIR% -DCMAKE_INSTALL_PREFIX=%COMMS_INSTALL_DIR% ^
+cmake -G %GENERATOR% %PLATFORM_PARAM% -S %COMMS_SRC_DIR% -B %COMMS_BUILD_DIR% -DCMAKE_INSTALL_PREFIX=%COMMS_INSTALL_DIR% ^
     -DCMAKE_BUILD_TYPE=%COMMON_BUILD_TYPE% -DCMAKE_CXX_STANDARD=%COMMON_CXX_STANDARD%
 if %errorlevel% neq 0 exit /b %errorlevel%
 cmake --build %COMMS_BUILD_DIR% --config %COMMON_BUILD_TYPE% --target install
@@ -94,7 +97,7 @@ else (
 echo "Building cc_tools_qt ..."
 mkdir "%CC_TOOLS_QT_BUILD_DIR%"
 cd %CC_TOOLS_QT_BUILD_DIR%
-cmake -G %GENERATOR% -S %CC_TOOLS_QT_SRC_DIR% -B %CC_TOOLS_QT_BUILD_DIR% -DCMAKE_INSTALL_PREFIX=%CC_TOOLS_QT_INSTALL_DIR% ^
+cmake -G %GENERATOR% %PLATFORM_PARAM% -S %CC_TOOLS_QT_SRC_DIR% -B %CC_TOOLS_QT_BUILD_DIR% -DCMAKE_INSTALL_PREFIX=%CC_TOOLS_QT_INSTALL_DIR% ^
     -DCMAKE_BUILD_TYPE=%COMMON_BUILD_TYPE% -DCC_TOOLS_QT_BUILD_APPS=OFF -DCMAKE_PREFIX_PATH=%COMMS_INSTALL_DIR%;%QTDIR% ^
     -DCMAKE_CXX_STANDARD=%COMMON_CXX_STANDARD% %CC_TOOLS_QT_VERSION_OPT%
 if %errorlevel% neq 0 exit /b %errorlevel%
