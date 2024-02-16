@@ -64,8 +64,12 @@ if ("${CMAKE_CXX_STANDARD}" STREQUAL "")
     set (CMAKE_CXX_STANDARD 17)
 endif ()
 
+if ("${CMAKE_CXX_STANDARD}" VERSION_LESS "17")
+    message (FATAL_ERROR "Use C++17 or later to compile this project.")
+endif()
+
 if ("${COMMSDSL_TESTS_CXX_STANDARD}" STREQUAL "")
-    set (COMMSDSL_TESTS_CXX_STANDARD 11)
+    set (COMMSDSL_TESTS_CXX_STANDARD ${CMAKE_CXX_STANDARD})
 endif ()
 
 if (NOT COMMSDSL_TESTS_C_COMPILER)
