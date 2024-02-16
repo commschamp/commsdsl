@@ -19,7 +19,7 @@ configuration:
 
 environment:
     COMMS_BRANCH: v5.2.2
-    CC_TOOLS_QT_BRANCH: v4.2.3
+    CC_TOOLS_QT_BRANCH: develop
     matrix:
         - CPP_STD: 11
           EXTRA_CONFIG: -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=OFF
