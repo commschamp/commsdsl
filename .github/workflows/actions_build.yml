@@ -49,6 +49,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_BRANCH}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_BRANCH}}
+        CC_TOOLS_QT_SKIP: 1
 
     - name: Configure CMake
       shell: bash
@@ -257,10 +258,12 @@ jobs:
           -DCMAKE_EXE_LINKER_FLAGS=-fuse-ld=gold -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
           -DCOMMSDSL_TESTS_C_COMPILER=clang-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=clang++-${{matrix.cc_ver}} \
           -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF \
-          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}}
       env:
         CC: clang-6.0
         CXX: clang++-6.0
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -321,10 +324,12 @@ jobs:
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
           -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
           -DCOMMSDSL_BUILD_UNIT_TESTS=ON \
-          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}}
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -386,10 +391,13 @@ jobs:
           -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} \
           -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCMAKE_IGNORE_PATH=/usr/local/bin \
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
-          -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON
+          -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}}
+          
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
