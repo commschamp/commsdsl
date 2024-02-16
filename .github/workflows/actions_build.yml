@@ -122,7 +122,7 @@ jobs:
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
-        BUILD_TOOLS_QT_UNIT_TESTS: "${{ ${{matrix.cpp}} >= 17 && 'ON' || 'OFF' }}"
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -189,7 +189,7 @@ jobs:
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
-        BUILD_TOOLS_QT_UNIT_TESTS: "${{ ${{matrix.cpp}} >= 17 && 'ON' || 'OFF' }}"
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
