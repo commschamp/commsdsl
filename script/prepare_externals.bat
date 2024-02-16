@@ -46,20 +46,21 @@ if NOT [%CC_TOOLS_QT_MAJOR_QT_VERSION%] == [] set CC_TOOLS_QT_VERSION_OPT="-DCC_
 rem ----------------------------------------------------
 
 mkdir "%EXTERNALS_DIR%"
-if exist %COMMS_SRC_DIR%/.git goto comms_update
-echo "Cloning COMMS library..."
-git clone -b %COMMS_TAG% %COMMS_REPO% %COMMS_SRC_DIR%
-if %errorlevel% neq 0 exit /b %errorlevel%
-goto comms_build
+if exist %COMMS_SRC_DIR%/.git (
+    echo "Updating COMMS library..."
+    cd "%COMMS_SRC_DIR%"
+    git fetch --all
+    git checkout .    
+    git checkout %COMMS_TAG%
+    git pull --all
+    if %errorlevel% neq 0 exit /b %errorlevel%    
+)
+else (
+    echo "Cloning COMMS library..."
+    git clone -b %COMMS_TAG% %COMMS_REPO% %COMMS_SRC_DIR%
+    if %errorlevel% neq 0 exit /b %errorlevel%
+)
 
-:comms_update
-echo "Updating COMMS library..."
-cd "%COMMS_SRC_DIR%"
-git pull
-git checkout %COMMS_TAG%
-if %errorlevel% neq 0 exit /b %errorlevel%
-
-:comms_build
 echo "Building COMMS library..."
 mkdir "%COMMS_BUILD_DIR%"
 cd %COMMS_BUILD_DIR%
@@ -69,19 +70,27 @@ if %errorlevel% neq 0 exit /b %errorlevel%
 cmake --build %COMMS_BUILD_DIR% --config %COMMON_BUILD_TYPE% --target install
 if %errorlevel% neq 0 exit /b %errorlevel%
 
-if exist %CC_TOOLS_QT_SRC_DIR%/.git goto cc_tools_qt_update
-echo "Cloning cc_tools_qt ..."
-git clone -b %CC_TOOLS_QT_TAG% %CC_TOOLS_QT_REPO% %CC_TOOLS_QT_SRC_DIR%
-if %errorlevel% neq 0 exit /b %errorlevel%
-goto cc_tools_qt_build
+rem ----------------------------------------------------
 
-:cc_tools_qt_update
-echo "Updating cc_tools_qt..."
-cd %CC_TOOLS_QT_SRC_DIR%
-git pull
-git checkout %CC_TOOLS_QT_TAG%
+if %COMMON_CXX_STANDARD% LSS 17 (
+    echo "Skipping build of cc_tools_qt due to old C++ standard"
+    goto cc_tools_qt_end
+)
 
-:cc_tools_qt_build
+if exist %CC_TOOLS_QT_SRC_DIR%/.git (
+    echo "Updating cc_tools_qt..."
+    cd %CC_TOOLS_QT_SRC_DIR%
+    git fetch --all
+    git checkout .    
+    git checkout %CC_TOOLS_QT_TAG%
+    git pull --all    
+)
+else (
+    echo "Cloning cc_tools_qt ..."
+    git clone -b %CC_TOOLS_QT_TAG% %CC_TOOLS_QT_REPO% %CC_TOOLS_QT_SRC_DIR%
+    if %errorlevel% neq 0 exit /b %errorlevel%
+)
+
 echo "Building cc_tools_qt ..."
 mkdir "%CC_TOOLS_QT_BUILD_DIR%"
 cd %CC_TOOLS_QT_BUILD_DIR%
@@ -91,3 +100,4 @@ cmake -G %GENERATOR% -S %CC_TOOLS_QT_SRC_DIR% -B %CC_TOOLS_QT_BUILD_DIR% -DCMAKE
 if %errorlevel% neq 0 exit /b %errorlevel%
 cmake --build %CC_TOOLS_QT_BUILD_DIR% --config %COMMON_BUILD_TYPE% --target install
 if %errorlevel% neq 0 exit /b %errorlevel%
+:cc_tools_qt_end
