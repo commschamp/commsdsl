@@ -486,9 +486,8 @@ std::size_t CommsEnumField::commsMinLengthImpl() const
     return CommsBase::commsMinLengthImpl();
 }
 
-std::string CommsEnumField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+std::string CommsEnumField::commsCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
-    static_cast<void>(accStr);
     assert(accStr.empty());
 
     if (value.empty()) {

@@ -433,9 +433,8 @@ std::string CommsOptionalField::commsDefBaseClassImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsOptionalField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
+std::string CommsOptionalField::commsDefBundledReadPrepareFuncBodyImpl([[maybe_unused]] const CommsFieldsList& siblings) const
 {
-    static_cast<void>(siblings);
     auto c = optionalDslObj().cond();
     if (!c.valid()) {
         return strings::emptyString();

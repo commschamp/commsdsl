@@ -475,8 +475,7 @@ const Field* Namespace::findMessageIdField() const
 
         if ((f->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) &&
             (f->dslObj().kind() != commsdsl::parse::Field::Kind::Int)) {
-            static constexpr bool Unexpected_kind = false;
-            static_cast<void>(Unexpected_kind);
+            [[maybe_unused]] static constexpr bool Unexpected_kind = false;
             assert(Unexpected_kind);  
             return nullptr;
         }

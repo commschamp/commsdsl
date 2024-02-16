@@ -780,8 +780,7 @@ Generator::FieldsAccessList Generator::getAllFieldsFromAllSchemas() const
 bool Generator::prepare(const FilesList& files)
 {
     // Make sure the logger is created
-    auto& l = logger();
-    static_cast<void>(l);
+    [[maybe_unused]] auto& l = logger();
 
     auto createCompleteFunc = 
         [this]()

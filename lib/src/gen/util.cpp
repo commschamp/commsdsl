@@ -165,7 +165,6 @@ void cleanNewLinesBeforeCloseBracket(std::string& code)
 
 void doTidyCode(std::string& code)
 {
-    static_cast<void>(code);
     cleanSpaces(code);
     cleanExtraNewLines(code);
     cleanNewLinesBeforeCloseBracket(code);
@@ -403,8 +402,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
         static const std::string Suffix("#$#");
         auto suffixPos = templ.find(Suffix, prefixPos + Prefix.size());
         if (suffixPos == std::string::npos) {
-            static constexpr bool Incorrect_template = false;
-            static_cast<void>(Incorrect_template);
+            [[maybe_unused]] static constexpr bool Incorrect_template = false;
             assert(Incorrect_template);            
             templPos = templ.size();
             break;
@@ -445,8 +443,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
 
             auto nextNewLinePos = templ.find_first_of('\n', suffixPos + Suffix.size());
             if (nextNewLinePos == std::string::npos) {
-                static constexpr bool Incorrect_template = false;
-                static_cast<void>(Incorrect_template);
+                [[maybe_unused]] static constexpr bool Incorrect_template = false;
                 assert(Incorrect_template);  
                 break;
             }

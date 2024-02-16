@@ -50,9 +50,8 @@ CommsPayloadLayer::IncludesList CommsPayloadLayer::commsDefIncludesImpl() const
     return result;
 }
 
-std::string CommsPayloadLayer::commsDefBaseTypeImpl(const std::string& prevName) const
+std::string CommsPayloadLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::string& prevName) const
 {
-    static_cast<void>(prevName);
     assert(prevName.empty());
 
     static const std::string Templ =

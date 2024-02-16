@@ -84,24 +84,10 @@ std::string EmscriptenProtocolOptions::emscriptenClassName(const EmscriptenGener
     return generator.protocolSchema().mainNamespace() + "_ProtocolOptions";
 }
 
-bool EmscriptenProtocolOptions::emscriptenIsDefined(const EmscriptenGenerator& generator)
+bool EmscriptenProtocolOptions::emscriptenIsDefined([[maybe_unused]] const EmscriptenGenerator& generator)
 {
     // Always use message factory options.
-    static_cast<void>(generator);
     return true;
-
-    // auto& schemas = generator.schemas();
-    // if (schemas.size() <= 1) {
-    //     return false;
-    // }
-
-    // for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
-    //     if (schemas[idx]->hasAnyReferencedComponent()) {
-    //         return true;
-    //     }
-    // }
-
-    // return false;
 }
 
 void EmscriptenProtocolOptions::emscriptenAddInclude(const EmscriptenGenerator& generator, StringsList& list)

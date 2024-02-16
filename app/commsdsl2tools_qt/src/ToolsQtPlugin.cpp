@@ -77,7 +77,6 @@ std::string ToolsQtPlugin::toolsProtocolName() const
 
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsProtClassNameInternal()) + strings::cppHeaderSuffixStr();
 
@@ -160,7 +159,6 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
 
 bool ToolsQtPlugin::toolsWriteProtocolSrcInternal() 
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsProtClassNameInternal()) + strings::cppSourceSuffixStr();
 
@@ -428,7 +426,6 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
 
 bool ToolsQtPlugin::toolsWritePluginHeaderInternal() 
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + strings::cppHeaderSuffixStr();
 
@@ -496,7 +493,6 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
 
 bool ToolsQtPlugin::toolsWritePluginSrcInternal() 
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + strings::cppSourceSuffixStr();
 
@@ -582,7 +578,6 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
 
 bool ToolsQtPlugin::toolsWritePluginJsonInternal()
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + ".json";
 
@@ -628,7 +623,6 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
 
 bool ToolsQtPlugin::toolsWritePluginConfigInternal()
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + 
         toolsRelFilePath(toolsProtocolName()) + ".cfg";
@@ -670,7 +664,6 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
         return true;
     }
 
-    static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppHeaderSuffixStr();
 
@@ -738,7 +731,6 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
         return true;
     }
 
-    static_cast<void>(m_generator);
     auto filePath = 
         m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppSourceSuffixStr();
 

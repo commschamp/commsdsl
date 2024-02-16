@@ -132,23 +132,9 @@ std::string SwigProtocolOptions::swigClassName(const SwigGenerator& generator)
     return generator.protocolSchema().mainNamespace() + "_ProtocolOptions";
 }
 
-bool SwigProtocolOptions::swigIsDefined(const SwigGenerator& generator)
+bool SwigProtocolOptions::swigIsDefined([[maybe_unused]] const SwigGenerator& generator)
 {
-    static_cast<void>(generator);
     return true;
-
-    // auto& schemas = generator.schemas();
-    // if (schemas.size() <= 1) {
-    //     return false;
-    // }
-
-    // for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
-    //     if (schemas[idx]->hasAnyReferencedComponent()) {
-    //         return true;
-    //     }
-    // }
-
-    // return false;
 }
 
 } // namespace commsdsl2swig

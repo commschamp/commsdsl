@@ -615,8 +615,7 @@ bool OptCondExprImpl::verifyInterfaceComparison(const FieldsList& fields, ::xmlN
 bool OptCondExprImpl::verifyValidSizeValueComparison() const
 {
     try {
-        auto val = std::stoll(m_right);
-        static_cast<void>(val);
+        [[maybe_unused]] auto val = std::stoll(m_right);
         return true;
     } catch (...) {
         // Do nothing

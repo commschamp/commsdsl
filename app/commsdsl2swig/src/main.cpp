@@ -60,9 +60,6 @@ std::vector<std::string> getFilesList(
 
 int main(int argc, const char* argv[])
 {
-    static_cast<void>(argc);
-    static_cast<void>(argv);
-
     try {
         commsdsl2swig::SwigProgramOptions options;
         options.parse(argc, argv);

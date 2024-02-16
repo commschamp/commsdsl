@@ -45,7 +45,6 @@ bool ToolsQtCmake::write(ToolsQtGenerator& generator)
 
 bool ToolsQtCmake::testWriteInternal() const
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         util::pathAddElem(
             m_generator.getOutputDir(), strings::cmakeListsFileStr());    

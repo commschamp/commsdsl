@@ -110,8 +110,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::parse::Field dslobj, El
 
     auto idx = static_cast<std::size_t>(dslobj.kind());
     if (MapSize <= idx) {
-        static constexpr bool Unexpected_kind = false;
-        static_cast<void>(Unexpected_kind);
+        [[maybe_unused]] static constexpr bool Unexpected_kind = false;
         assert(Unexpected_kind);          
         return Ptr();
     }
@@ -289,9 +288,8 @@ void Field::setReferencedImpl()
 {
 }
 
-Field::FieldRefInfo Field::processInnerRefImpl(const std::string& refStr) const
+Field::FieldRefInfo Field::processInnerRefImpl([[maybe_unused]] const std::string& refStr) const
 {
-    static_cast<void>(refStr);
     assert(!refStr.empty());
     FieldRefInfo info;
     return info;

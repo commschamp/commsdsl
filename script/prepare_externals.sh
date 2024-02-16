@@ -95,9 +95,11 @@ function build_comms() {
 }
 
 function build_cc_tools_qt() {
-    if [ -n "${COMMON_CXX_STANDARD}" -a "${COMMON_CXX_STANDARD}" -lt "17" ]; then
-        echo "Skipping build of cc_tools_qt due to old C++ standard"
-        return;
+    if [ -n "${COMMON_CXX_STANDARD}" ]; then
+        if [ ${COMMON_CXX_STANDARD} -lt 17 ]; then
+            echo "Skipping build of cc_tools_qt due to old C++ standard"
+            return;
+        fi
     fi
 
     if [ -e ${CC_TOOLS_QT_SRC_DIR}/.git ]; then

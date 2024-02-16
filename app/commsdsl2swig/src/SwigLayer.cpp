@@ -185,9 +185,8 @@ std::string SwigLayer::swigMemberFieldDeclImpl() const
     return strings::emptyString();
 }
 
-void SwigLayer::swigAddCodeImpl(StringsList& list) const
+void SwigLayer::swigAddCodeImpl([[maybe_unused]] StringsList& list) const
 {
-    static_cast<void>(list);
 }
 
 std::string SwigLayer::swigFieldTypeImpl() const

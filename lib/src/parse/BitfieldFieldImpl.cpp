@@ -190,9 +190,8 @@ bool BitfieldFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
     return strToBoolOnFields(ref, m_members, val);
 }
 
-bool BitfieldFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+bool BitfieldFieldImpl::verifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
 {
-    static_cast<void>(node);
     if ((type == SemanticType::Length) &&
         (protocol().isSemanticTypeLengthSupported()) && 
         (protocol().isNonIntSemanticTypeLengthSupported())) {

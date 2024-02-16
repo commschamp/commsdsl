@@ -43,7 +43,6 @@ bool TestCmake::write(TestGenerator& generator)
 
 bool TestCmake::testWriteInternal() const
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         commsdsl::gen::util::pathAddElem(
             m_generator.getOutputDir(), commsdsl::gen::strings::cmakeListsFileStr());    

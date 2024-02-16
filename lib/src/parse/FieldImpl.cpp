@@ -274,8 +274,7 @@ bool FieldImpl::isComparableToValue(const std::string& val) const
 
     if (iter != std::end(NumericSemanticTypes)) {
         bool ok = false;
-        auto value = common::strToIntMax(val, &ok);
-        static_cast<void>(value);
+        [[maybe_unused]] auto value = common::strToIntMax(val, &ok);
         return ok;        
     }
 
@@ -346,8 +345,7 @@ bool FieldImpl::verifySemanticType(::xmlNodePtr node, SemanticType type) const
         return false;
     }
 
-    static constexpr bool Unexpected_semantic_type = false;
-    static_cast<void>(Unexpected_semantic_type);
+    [[maybe_unused]] static constexpr bool Unexpected_semantic_type = false;
     assert(Unexpected_semantic_type);
     return true;
 }
@@ -519,17 +517,15 @@ bool FieldImpl::parseImpl()
     return true;
 }
 
-bool FieldImpl::replaceMembersImpl(FieldsList& members)
+bool FieldImpl::replaceMembersImpl([[maybe_unused]] FieldsList& members)
 {
-    static_cast<void>(members);
     logError() << XmlWrap::logPrefix(m_node) <<
         "The field of kind \"" << kindStr() << "\" does not support replacing its members.";
     return false;
 }
 
-bool FieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const
+bool FieldImpl::verifySiblingsImpl([[maybe_unused]] const FieldImpl::FieldsList& fields) const
 {
-    static_cast<void>(fields);
     return true;
 }
 
@@ -543,24 +539,21 @@ std::size_t FieldImpl::bitLengthImpl() const
     return 0U;
 }
 
-bool FieldImpl::isComparableToValueImpl(const std::string& val) const
+bool FieldImpl::isComparableToValueImpl([[maybe_unused]] const std::string& val) const
 {
-    static_cast<void>(val);
     return false;
 }
 
-bool FieldImpl::isComparableToFieldImpl(const FieldImpl& field) const
+bool FieldImpl::isComparableToFieldImpl([[maybe_unused]] const FieldImpl& field) const
 {
-    static_cast<void>(field);
     return false;
 }
 
-bool FieldImpl::strToNumericImpl(const std::string& ref, std::intmax_t& val, bool& isBigUnsigned) const
+bool FieldImpl::strToNumericImpl(
+    [[maybe_unused]] const std::string& ref, 
+    [[maybe_unused]] std::intmax_t& val, 
+    [[maybe_unused]] bool& isBigUnsigned) const
 {
-    static_cast<void>(ref);
-    static_cast<void>(val);
-    static_cast<void>(isBigUnsigned);
-
     if (protocol().isFieldValueReferenceSupported()) {
         logWarning() <<
             "Extracting integral numeric value from \"" << kindStr() <<
@@ -587,11 +580,8 @@ bool FieldImpl::strToFpImpl(const std::string& ref, double& val) const
     return true;
 }
 
-bool FieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
+bool FieldImpl::strToBoolImpl([[maybe_unused]] const std::string& ref, [[maybe_unused]] bool& val) const
 {
-    static_cast<void>(ref);
-    static_cast<void>(val);
-
     if (protocol().isFieldValueReferenceSupported()) {
         logWarning() <<
             "Extracting boolean value from \"" << kindStr() <<
@@ -601,11 +591,8 @@ bool FieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
     return false;
 }
 
-bool FieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
+bool FieldImpl::strToStringImpl([[maybe_unused]] const std::string& ref, [[maybe_unused]] std::string& val) const
 {
-    static_cast<void>(ref);
-    static_cast<void>(val);
-
     if (protocol().isFieldValueReferenceSupported()) {
         logWarning() <<
             "Extracting string value from \"" << kindStr() <<
@@ -615,11 +602,8 @@ bool FieldImpl::strToStringImpl(const std::string& ref, std::string& val) const
     return false;
 }
 
-bool FieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>& val) const
+bool FieldImpl::strToDataImpl([[maybe_unused]] const std::string& ref, [[maybe_unused]] std::vector<std::uint8_t>& val) const
 {
-    static_cast<void>(ref);
-    static_cast<void>(val);
-
     if (protocol().isFieldValueReferenceSupported()) {
         logWarning() <<
             "Extracting data value from \"" << kindStr() <<
@@ -629,25 +613,21 @@ bool FieldImpl::strToDataImpl(const std::string& ref, std::vector<std::uint8_t>&
     return false;
 }
 
-bool FieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bitLength) const
+bool FieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, [[maybe_unused]] std::size_t bitLength) const
 {
-    static_cast<void>(bitLength);
     logError() << XmlWrap::logPrefix(node) <<
         "The field of kind \"" << kindStr() << "\" cannot be used or referenced as a member of \"" <<
         common::bitfieldStr() << "\".";    
     return false;
 }
 
-bool FieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+bool FieldImpl::verifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, [[maybe_unused]] SemanticType type) const
 {
-    static_cast<void>(node);
-    static_cast<void>(type);
     return false;
 }
 
-bool FieldImpl::verifyAliasedMemberImpl(const std::string& fieldName) const
+bool FieldImpl::verifyAliasedMemberImpl([[maybe_unused]] const std::string& fieldName) const
 {
-    static_cast<void>(fieldName);
     return false;
 }
 
@@ -663,17 +643,15 @@ const FieldImpl::FieldsList& FieldImpl::membersImpl() const
     return List;
 }
 
-FieldImpl::FieldRefInfo FieldImpl::processInnerRefImpl(const std::string& refStr) const
+FieldImpl::FieldRefInfo FieldImpl::processInnerRefImpl([[maybe_unused]] const std::string& refStr) const
 {
-    static_cast<void>(refStr);
     assert(!refStr.empty());
     FieldRefInfo info;
     return info;
 }
 
-bool FieldImpl::isValidRefTypeImpl(FieldRefType type) const
+bool FieldImpl::isValidRefTypeImpl([[maybe_unused]] FieldRefType type) const
 {
-    static_cast<void>(type);
     return false;
 }
 

@@ -170,9 +170,8 @@ void EmscriptenField::emscriptenAddSourceFiles(StringsList& sources) const
     sources.push_back(gen.emscriptenRelSourceFor(m_field));
 }
 
-void EmscriptenField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+void EmscriptenField::emscriptenHeaderAddExtraIncludesImpl([[maybe_unused]] StringsList& incs) const
 {
-    static_cast<void>(incs);
 }
 
 std::string EmscriptenField::emscriptenHeaderExtraCodePrefixImpl() const

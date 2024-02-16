@@ -35,7 +35,6 @@ namespace commsdsl2comms
 CommsLayer::CommsLayer(commsdsl::gen::Layer& layer) :
     m_layer(layer)
 {
-    static_cast<void>(m_layer);
 }
     
 CommsLayer::~CommsLayer() = default;
@@ -215,9 +214,8 @@ CommsLayer::IncludesList CommsLayer::commsDefIncludesImpl() const
     return IncludesList();
 }
 
-std::string CommsLayer::commsDefBaseTypeImpl(const std::string& prevName) const
+std::string CommsLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::string& prevName) const
 {
-    static_cast<void>(prevName);
     assert(false); // Not implemented in derived class
     return strings::emptyString();
 }

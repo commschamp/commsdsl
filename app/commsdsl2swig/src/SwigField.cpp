@@ -273,14 +273,12 @@ std::string SwigField::swigPublicDeclImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-void SwigField::swigAddDefImpl(StringsList& list) const
+void SwigField::swigAddDefImpl([[maybe_unused]] StringsList& list) const
 {
-    static_cast<void>(list);
 }
 
-void SwigField::swigAddMembersCodeImpl(StringsList& list) const
+void SwigField::swigAddMembersCodeImpl([[maybe_unused]] StringsList& list) const
 {
-    static_cast<void>(list);
 }
 
 std::string SwigField::swigCommonPublicFuncsDecl() const

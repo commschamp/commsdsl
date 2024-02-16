@@ -477,9 +477,8 @@ bool IntFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bit
     return true;
 }
 
-bool IntFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+bool IntFieldImpl::verifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
 {
-    static_cast<void>(node);
     if (type == SemanticType::Version) {
         return true;
     }

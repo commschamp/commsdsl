@@ -217,9 +217,8 @@ bool EnumFieldImpl::validateBitLengthValueImpl(::xmlNodePtr node, std::size_t bi
     return true;
 }
 
-bool EnumFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+bool EnumFieldImpl::verifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
 {
-    static_cast<void>(node);
     return type == SemanticType::MessageId;
 }
 
@@ -460,10 +459,8 @@ bool EnumFieldImpl::updateValues()
             return false;
         }
 
-        auto extraAttr = XmlWrap::getExtraAttributes(vNode, PropNames, protocol());
-        static_cast<void>(extraAttr);
-        auto extraChildren = XmlWrap::getExtraChildren(vNode, PropNames, protocol());
-        static_cast<void>(extraChildren);
+        [[maybe_unused]] auto extraAttr = XmlWrap::getExtraAttributes(vNode, PropNames, protocol());
+        [[maybe_unused]] auto extraChildren = XmlWrap::getExtraChildren(vNode, PropNames, protocol());
 
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());

@@ -37,7 +37,6 @@ namespace commsdsl2tools_qt
 ToolsQtField::ToolsQtField(commsdsl::gen::Field& field) :
     m_field(field)
 {
-    static_cast<void>(m_field);
 }
 
 ToolsQtField::~ToolsQtField() = default;

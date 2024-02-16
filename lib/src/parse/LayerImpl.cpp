@@ -173,9 +173,8 @@ bool LayerImpl::parseImpl()
     return true;
 }
 
-bool LayerImpl::verifyImpl(const LayerImpl::LayersList& layers)
+bool LayerImpl::verifyImpl([[maybe_unused]] const LayerImpl::LayersList& layers)
 {
-    static_cast<void>(layers);
     return true;
 }
 

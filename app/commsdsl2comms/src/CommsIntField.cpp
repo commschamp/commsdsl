@@ -391,9 +391,8 @@ std::size_t CommsIntField::commsMinLengthImpl() const
     return CommsBase::commsMinLengthImpl();
 }
 
-std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+std::string CommsIntField::commsCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
-    static_cast<void>(accStr);
     assert(accStr.empty());
 
     auto valToString = 
@@ -458,8 +457,7 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
     } while (false);
 
     gen.logger().error("Unknown value comparison string \"" + value + "\" for field " + comms::scopeFor(*this, gen));
-    static constexpr bool Not_yet_implemented = false;
-    static_cast<void>(Not_yet_implemented);
+    [[maybe_unused]] static constexpr bool Not_yet_implemented = false;
     assert(Not_yet_implemented);
     return strings::unexpectedValueStr();
 }
@@ -923,10 +921,8 @@ void CommsIntField::commsAddValidRangesOptInternal(StringsList& opts) const
 
 
             auto needToMergeCheck =
-                [](auto min1, auto max1, auto min2, auto max2) -> bool
+                []([[maybe_unused]] auto min1, auto max1, auto min2, [[maybe_unused]] auto max2) -> bool
                 {
-                    static_cast<void>(min1);
-                    static_cast<void>(max2);
                     assert(min1 <= min2);
                     if (min2 <= (max1 + 1)) {
                         assert(max1 <= max2);

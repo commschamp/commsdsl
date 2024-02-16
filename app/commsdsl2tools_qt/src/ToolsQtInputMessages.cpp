@@ -152,9 +152,8 @@ bool ToolsQtInputMessages::testWriteInternal() const
 bool ToolsQtInputMessages::toolsWriteAllMessagesInternal() const
 {
     auto checkFunc = 
-        [](const commsdsl::gen::Message& msg) noexcept
+        []([[maybe_unused]] const commsdsl::gen::Message& msg) noexcept
         {
-            static_cast<void>(msg);
             return true;
         };
 
