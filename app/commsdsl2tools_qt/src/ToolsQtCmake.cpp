@@ -58,7 +58,7 @@ bool ToolsQtCmake::testWriteInternal() const
     }
 
     static const std::string Template =
-        "cmake_minimum_required (VERSION 3.1)\n"
+        "cmake_minimum_required (VERSION 3.10)\n"
         "project (\"#^#MAIN_NS#$#_cc_tools_qt_plugin\")\n\n"
         "# Configuration variables\n"
         "# OPT_QT_MAJOR_VERSION - The major Qt version, defaults to 5\n\n"

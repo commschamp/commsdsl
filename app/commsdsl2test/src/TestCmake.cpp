@@ -82,7 +82,7 @@ bool TestCmake::testWriteInternal() const
     };
 
     static const std::string Template =
-        "cmake_minimum_required (VERSION 3.1)\n"
+        "cmake_minimum_required (VERSION 3.10)\n"
         "project (\"#^#PROJ_NAME#$#_test\")\n\n"
         "option (OPT_WARN_AS_ERR \"Treat warning as error\" ON)\n"
         "option (OPT_USE_CCACHE \"Use of ccache on UNIX system\" ON)\n"

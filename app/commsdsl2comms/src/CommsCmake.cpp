@@ -58,7 +58,7 @@ bool CommsCmake::commsWriteInternal() const
     }
 
     const std::string Templ = 
-        "cmake_minimum_required (VERSION 3.1)\n"
+        "cmake_minimum_required (VERSION 3.10)\n"
         "project (\"#^#NAME#$#\")\n\n"
         "option (OPT_REQUIRE_COMMS_LIB \"Require COMMS library, find it and set as dependency to the protocol library\" ON)\n\n"
         "# Other parameters:\n"
