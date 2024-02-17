@@ -123,6 +123,7 @@ private:
     bool toolsPrepareDefaultInterfaceInternal();
     bool toolsPrepareSelectedInterfacesInternal();
     bool toolsPrepareSelectedFramesInternal();
+    bool toolsWriteExtraFilesInternal() const;
 
     PluginInfosList m_pluginInfos;
     PluginsList m_plugins;

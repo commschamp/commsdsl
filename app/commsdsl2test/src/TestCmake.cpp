@@ -24,6 +24,10 @@
 #include <fstream>
 #include <cassert>
 
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
+
 namespace commsdsl2test
 {
 
@@ -78,6 +82,7 @@ bool TestCmake::testWriteInternal() const
         {"FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)},
         {"OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)},
         {"INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator)},
+        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
 
     static const std::string Template =
@@ -102,7 +107,10 @@ bool TestCmake::testWriteInternal() const
         "include(GNUInstallDirs)\n"
         "######################################################################\n"
         "function (define_test name)\n"
-        "    set (src ${name}.cpp)\n"
+        "    set (src\n"
+        "        ${name}.cpp\n"
+        "        #^#EXTRA_SOURCES#$#\n"
+        "    )\n\n"
         "    add_executable(${name} ${src})\n"
         "    target_link_libraries(${name} PRIVATE cc::#^#PROJ_NS#$# cc::comms)\n"
         "    set (extra_defs)\n"
@@ -175,7 +183,7 @@ bool TestCmake::testWriteInternal() const
         "string (REPLACE \"::\" \"/\" OPT_TEST_INPUT_MESSAGES_HEADER \"${OPT_TEST_INPUT_MESSAGES}.h\")\n\n"
         "define_test(#^#PROJ_NS#$#_input_test)\n";
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
+    auto str = util::processTemplate(Template, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {

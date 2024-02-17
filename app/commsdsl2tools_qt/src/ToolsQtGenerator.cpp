@@ -47,10 +47,18 @@
 #include "ToolsQtVersion.h"
 
 #include "commsdsl/version.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <algorithm>
 #include <cassert>
+#include <filesystem>
+#include <fstream>
 #include <iterator>
+
+namespace fs = std::filesystem;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2tools_qt
 {
@@ -312,13 +320,19 @@ bool ToolsQtGenerator::writeImpl()
         return false;
     }
 
-    return 
+    result = 
         std::all_of(
             m_plugins.begin(), m_plugins.end(),
             [](auto& pluginPtr)
             {
                 return pluginPtr->write();
             });
+
+    if (!result) {
+        return false;
+    }
+
+    return toolsWriteExtraFilesInternal();            
 }
 
 bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
@@ -397,6 +411,22 @@ bool ToolsQtGenerator::toolsPrepareSelectedFramesInternal()
     }
 
     return true;    
+}
+
+bool ToolsQtGenerator::toolsWriteExtraFilesInternal() const
+{
+    const std::vector<std::string> ReservedExt = {
+        strings::replaceFileSuffixStr(),
+        strings::extendFileSuffixStr(),
+        strings::publicFileSuffixStr(),
+        strings::protectedFileSuffixStr(),
+        strings::privateFileSuffixStr(),
+        strings::incFileSuffixStr(),
+        strings::appendFileSuffixStr(),
+        strings::sourcesFileSuffixStr(),
+    }; 
+
+    return copyExtraSourceFiles(ReservedExt);
 }
 
 } // namespace commsdsl2tools_qt

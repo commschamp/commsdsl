@@ -87,7 +87,8 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
         "    find_package(${OPT_PROTOCOL_NAME} REQUIRED)\n"
         "endif ()\n\n"
         "set (src\n"
-        "   #^#SOURCES#$#\n"
+        "    #^#SOURCES#$#\n"
+        "    #^#EXTRA_SOURCES#$#\n"
         ")\n\n"
         "set (extra_link_opts)\n"
         "if (OPT_MODULARIZE)\n"
@@ -127,7 +128,8 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
     util::ReplacementMap repl = {
         {"PROJ_NAME", m_generator.protocolSchema().mainNamespace()},
         {"APPEND", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::appendFileSuffixStr())},
-        {"SOURCES", util::strListToString(sources, "\n", "")}
+        {"SOURCES", util::strListToString(sources, "\n", "")},
+        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);

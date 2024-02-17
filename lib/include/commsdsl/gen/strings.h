@@ -52,6 +52,7 @@ const std::string& prependFileSuffixStr();
 const std::string& prependLangFileSuffixStr();
 const std::string& bindFileSuffixStr();
 const std::string& constructFileSuffixStr();
+const std::string& sourcesFileSuffixStr();
 const std::string& forceEmptyDisplayNameStr();
 const std::string& fieldBaseClassStr();
 const std::string& defaultOptionsClassStr();

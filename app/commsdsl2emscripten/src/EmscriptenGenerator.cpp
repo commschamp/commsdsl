@@ -413,107 +413,18 @@ EmscriptenGenerator::LayerPtr EmscriptenGenerator::createChecksumLayerImpl(comms
 
 bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const
 {
-    auto& inputDir = getCodeDir();
-    if (inputDir.empty()) {
-        return true;
-    }
+    const std::vector<std::string> ReservedExt = {
+        strings::replaceFileSuffixStr(),
+        strings::extendFileSuffixStr(),
+        strings::publicFileSuffixStr(),
+        strings::incFileSuffixStr(),
+        strings::appendFileSuffixStr(),
+        strings::prependFileSuffixStr(),
+        strings::bindFileSuffixStr(),
+        strings::sourcesFileSuffixStr(),
+    }; 
 
-    auto& outputDir = getOutputDir();
-    auto pos = inputDir.size();
-    auto endIter = fs::recursive_directory_iterator();
-    for (auto iter = fs::recursive_directory_iterator(inputDir); iter != endIter; ++iter) {
-        if (!iter->is_regular_file()) {
-            continue;
-        }
-        
-
-        auto srcPath = iter->path();
-        auto ext = srcPath.extension().string();
-
-        static const std::string ReservedExt[] = {
-            strings::replaceFileSuffixStr(),
-            strings::extendFileSuffixStr(),
-            strings::publicFileSuffixStr(),
-            strings::incFileSuffixStr(),
-            strings::appendFileSuffixStr(),
-            strings::prependFileSuffixStr(),
-            strings::bindFileSuffixStr(),
-        };        
-        auto extIter = std::find(std::begin(ReservedExt), std::end(ReservedExt), ext);
-        if (extIter != std::end(ReservedExt)) {
-            continue;
-        }
-
-        auto pathStr = srcPath.string();
-        auto posTmp = pos;
-        while (posTmp < pathStr.size()) {
-            if (pathStr[posTmp] == fs::path::preferred_separator) {
-                ++posTmp;
-                continue;
-            }
-            break;
-        }
-
-        if (pathStr.size() <= posTmp) {
-            continue;
-        }
-
-        std::string relPath(pathStr, posTmp);
-        auto& protSchema = protocolSchema();
-        auto schemaNs = util::strToName(protSchema.schemaName());
-        do {
-            if (protSchema.mainNamespace() == schemaNs) {
-                break;
-            }
-
-            auto srcPrefix = (fs::path(strings::includeDirStr()) / schemaNs).string();
-            if (!util::strStartsWith(relPath, srcPrefix)) {
-                break;
-            }
-
-            auto dstPrefix = (fs::path(strings::includeDirStr()) / protSchema.mainNamespace()).string();
-            relPath = dstPrefix + std::string(relPath, srcPrefix.size());
-        } while (false);
-
-        auto destPath = fs::path(outputDir) / relPath;
-        logger().info("Copying " + destPath.string());
-
-        if (!createDirectory(destPath.parent_path().string())) {
-            return false;
-        }
-
-        std::error_code ec;
-        fs::copy_file(srcPath, destPath, fs::copy_options::overwrite_existing, ec);
-        if (ec) {
-            logger().error("Failed to copy with reason: " + ec.message());
-            return false;
-        }
-
-        if (protSchema.mainNamespace() != schemaNs) {
-            // The namespace has changed
-
-            auto destStr = destPath.string();
-            std::ifstream stream(destStr);
-            if (!stream) {
-                logger().error("Failed to open " + destStr + " for modification.");
-                return false;
-            }
-
-            std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
-            stream.close();
-
-            util::strReplace(content, "namespace " + schemaNs, "namespace " + protSchema.mainNamespace());
-            std::ofstream outStream(destStr, std::ios_base::trunc);
-            if (!outStream) {
-                logger().error("Failed to modify " + destStr + ".");
-                return false;
-            }
-
-            outStream << content;
-            logger().info("Updated " + destStr + " to have proper main namespace.");
-        }
-    }
-    return true;
+    return copyExtraSourceFiles(ReservedExt);    
 }
 
 bool EmscriptenGenerator::emscriptenPrepareDefaultInterfaceInternal()

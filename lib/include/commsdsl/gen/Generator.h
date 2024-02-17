@@ -200,6 +200,8 @@ protected:
 
     Namespace* addDefaultNamespace();
 
+    bool copyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
+
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    
 };

@@ -113,6 +113,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Protocol_${protocol}.cpp\n"
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.cpp\n"
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.h\n"
+        "        #^#EXTRA_SOURCES#$#\n"        
         "    )\n\n"
         "    if (has_config_widget)\n"
         "        list (APPEND src #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/ConfigWidget_${protocol}.cpp)\n"
@@ -155,12 +156,12 @@ bool ToolsQtCmake::testWriteInternal() const
         pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" " + (p->toolsHasConfigWidget() ? "TRUE" : "FALSE") + ")");
     }
 
-
     util::ReplacementMap repl = {
         {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
         {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
+        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
