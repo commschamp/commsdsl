@@ -1,0 +1,23 @@
+Plugin_test21::Plugin_test21()
+{
+    pluginProperties()
+        .setGuiActionsCreateFunc(
+            []()
+            {
+                cc_tools_qt::PluginProperties::ListOfGuiActions actions;
+                auto* messageAction = new QAction("BLA");
+                QObject::connect(
+                    messageAction, &QAction::triggered,
+                    [](bool checked)
+                    {
+                        static_cast<void>(checked);
+                        QMessageBox box(QMessageBox::Information, "Title", "Contents", QMessageBox::Ok);
+                        box.exec();
+                    });
+                actions.append(messageAction);
+                return actions;
+            })
+    ;
+}
+
+Plugin_test21::~Plugin_test21() = default;

@@ -1,0 +1,2 @@
+Protocol_test21::Protocol_test21() = default;
+Protocol_test21::~Protocol_test21() = default;

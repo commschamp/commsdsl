@@ -1,0 +1,7 @@
+class Protocol_test21 : public Protocol_test21Orig
+{
+    using Base = Protocol_test21Orig;
+public:
+    Protocol_test21();
+    virtual ~Protocol_test21();
+};
