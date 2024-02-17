@@ -324,8 +324,9 @@ bool CommsDispatch::commsWriteInternal() const
 bool CommsDispatch::commsWriteDispatchInternal() const
 {
     auto checkFunc = 
-        []([[maybe_unused]] const commsdsl::gen::Message& msg) noexcept
+        [](const commsdsl::gen::Message& msg) noexcept
         {
+            static_cast<void>(msg);
             return true;
         };
 

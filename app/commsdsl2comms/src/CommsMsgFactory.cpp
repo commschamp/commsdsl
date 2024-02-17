@@ -419,8 +419,9 @@ bool CommsMsgFactory::commsWriteInternal() const
 bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
 {
     auto checkFunc = 
-        []([[maybe_unused]] const commsdsl::gen::Message& msg) noexcept
+        [](const commsdsl::gen::Message& msg) noexcept
         {
+            static_cast<void>(msg);
             return true;
         };
 
