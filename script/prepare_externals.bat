@@ -87,8 +87,7 @@ if exist %CC_TOOLS_QT_SRC_DIR%/.git (
     git checkout .    
     git checkout %CC_TOOLS_QT_TAG%
     git pull --all    
-)
-else (
+) else (
     echo "Cloning cc_tools_qt ..."
     git clone -b %CC_TOOLS_QT_TAG% %CC_TOOLS_QT_REPO% %CC_TOOLS_QT_SRC_DIR%
     if %errorlevel% neq 0 exit /b %errorlevel%
