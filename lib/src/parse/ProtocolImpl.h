@@ -141,8 +141,9 @@ private:
     using DocsList = std::vector<XmlDocPtr>;
     using StrToValueConvertFunc = std::function<bool (const NamespaceImpl& ns, const std::string& ref)>;
 
-    static void cbXmlErrorFunc(void* userData, const xmlErrorPtr err);
-    void handleXmlError(const xmlErrorPtr err);
+    static void cbXmlErrorFunc(void* userData, const xmlError* err);
+    static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
+    void handleXmlError(const xmlError* err);
     bool validateDoc(::xmlDocPtr doc);
     bool validateSchema(::xmlNodePtr node);
     bool validatePlatforms(::xmlNodePtr root);
