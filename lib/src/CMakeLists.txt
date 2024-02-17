@@ -176,6 +176,11 @@ add_library(cc::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
 add_dependencies(${PROJECT_NAME} LibXml2::LibXml2)
 target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 
+if (WIN32 AND COMMSDSL_WIN_ALLOW_LIBXML_BUILD)
+    message (STATUS "Forcing LIBXML_STATIC compile definition")
+    target_compile_definitions(${PROJECT_NAME} PUBLIC "/DLIBXML_STATIC");
+endif ()
+
 if ((CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX) AND
     (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "9.0"))
     target_link_libraries(${PROJECT_NAME} PUBLIC stdc++fs)
