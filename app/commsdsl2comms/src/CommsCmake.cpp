@@ -128,7 +128,7 @@ bool CommsCmake::commsWriteInternal() const
         "    (NOT \"${minor_ver}\" STREQUAL \"\") AND\n"
         "    (NOT \"${patch_ver}\" STREQUAL \"\"))\n"
         "    set (#^#CAP_NAME#$#_VERSION \"${major_ver}.${minor_ver}.${patch_ver}\")\n\n"
-        "    message (STATUS \"Detected version ${#^#CAP_NAME#$#_VERSION} of the protocol\")\n"
+        "    message (STATUS \"Detected version ${#^#CAP_NAME#$#_VERSION} of the protocol library.\")\n"
         "    include(CMakePackageConfigHelpers)\n"
         "    write_basic_package_version_file(\n"
         "        ${CMAKE_BINARY_DIR}/${OPT_CMAKE_EXPORT_CONFIG_NAME}ConfigVersion.cmake\n"
