@@ -377,12 +377,12 @@ bool ProtocolImpl::isExistsCheckInConditionalsSupported() const
     return isFeatureSupported(6U);
 }
 
-void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
+void ProtocolImpl::cbXmlErrorFunc(void* userData, const xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);
 }
 
-void ProtocolImpl::handleXmlError(xmlErrorPtr err)
+void ProtocolImpl::handleXmlError(const xmlErrorPtr err)
 {
     static const ErrorLevel Map[] = {
         /* XML_ERR_NONE */ ErrorLevel_Debug,
