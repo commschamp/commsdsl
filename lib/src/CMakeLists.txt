@@ -46,7 +46,7 @@ while (TRUE)
     set (LIBXML2_FOUND TRUE)
     set (LIBXML2_INCLUDE_DIR "${LIBXML2_INSTALL_DIR}/include/libxml2")
     set (LIBXML2_LIBRARIES "${LIBXML2_INSTALL_DIR}/lib/libxml2sd.lib")
-    set (LIBXML2_DEFINITIONS "/DLIBXML_STATIC")
+    set (LIBXML2_DEFINITIONS "LIBXML_STATIC")
     file(MAKE_DIRECTORY ${LIBXML2_INCLUDE_DIR})
 
     add_library(libxml2 STATIC IMPORTED GLOBAL)
@@ -178,7 +178,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE LibXml2::LibXml2)
 
 if (WIN32 AND COMMSDSL_WIN_ALLOW_LIBXML_BUILD)
     message (STATUS "Forcing LIBXML_STATIC compile definition")
-    target_compile_definitions(${PROJECT_NAME} PUBLIC "/DLIBXML_STATIC");
+    target_compile_definitions(${PROJECT_NAME} PUBLIC "/DLIBXML_STATIC")
 endif ()
 
 if ((CMAKE_COMPILER_IS_GNUCC OR CMAKE_COMPILER_IS_GNUCXX) AND
