@@ -182,7 +182,7 @@ jobs:
       run: |
         cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
-        -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} \
+        -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} \
         -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON -DCMAKE_IGNORE_PATH=/usr/local/bin \
         -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
@@ -191,6 +191,7 @@ jobs:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
         BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
+        TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -323,13 +324,14 @@ jobs:
       run: |
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
           -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
-          -DCOMMSDSL_BUILD_UNIT_TESTS=ON \
+          -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}}
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
         BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
+        TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -395,7 +397,7 @@ jobs:
       run: |
           cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
           -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
-          -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} \
+          -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} \
           -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCMAKE_IGNORE_PATH=/usr/local/bin \
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
@@ -405,6 +407,7 @@ jobs:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
         BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
+        TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build

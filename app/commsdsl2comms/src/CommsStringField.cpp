@@ -144,7 +144,7 @@ std::string CommsStringField::commsDefBaseClassImpl() const
     };
 
     if (!repl["FIELD_OPTS"].empty()) {
-        repl["COMMA"] = ",";
+        repl["COMMA"] = std::string(",");
     }
 
     return util::processTemplate(Templ, repl);

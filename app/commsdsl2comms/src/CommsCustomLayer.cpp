@@ -71,7 +71,7 @@ std::string CommsCustomLayer::commsDefBaseTypeImpl(const std::string& prevName) 
     }
 
     if (!repl["EXTRA_OPT"].empty()) {
-        repl["COMMA"] = ",";
+        repl["COMMA"] = std::string(",");
     }
 
     return util::processTemplate(Templ, repl);

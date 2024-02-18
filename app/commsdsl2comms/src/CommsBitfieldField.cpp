@@ -152,7 +152,7 @@ std::string CommsBitfieldField::commsDefBaseClassImpl() const
     };
 
     if (!repl["FIELD_OPTS"].empty()) {
-        repl["COMMA"] = ",";
+        repl["COMMA"] = std::string(",");
     }
 
     if (comms::isGlobalField(*this)) {

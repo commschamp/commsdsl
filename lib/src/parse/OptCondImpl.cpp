@@ -312,7 +312,7 @@ bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, cons
 
     } while (false);
 
-    m_op = "!";
+    m_op = std::string("!");
     m_right.assign(expr.begin() + valPos, expr.end());
     return true;
 }

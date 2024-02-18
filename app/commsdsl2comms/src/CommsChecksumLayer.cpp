@@ -104,7 +104,7 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
     };
 
     if (!repl["EXTRA_OPT"].empty()) {
-        repl["COMMA"] = ",";
+        repl["COMMA"] = std::string(",");
     }
 
     if (!checksumDslObj().untilLayer().empty()) {

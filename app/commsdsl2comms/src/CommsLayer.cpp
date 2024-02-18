@@ -274,7 +274,7 @@ std::string CommsLayer::commsDefFieldType() const
         };
 
         if (!repl["EXTRA_OPTS"].empty()) {
-            repl["COMMA"] = ",";
+            repl["COMMA"] = std::string(",");
         }
         return util::processTemplate(Templ, repl);
     }
