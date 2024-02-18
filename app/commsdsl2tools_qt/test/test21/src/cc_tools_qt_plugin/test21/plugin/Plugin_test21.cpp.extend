@@ -2,8 +2,9 @@ Plugin_test21::Plugin_test21()
 {
     pluginProperties()
         .setGuiActionsCreateFunc(
-            []()
+            [this]()
             {
+                static_cast<void>(this);
                 cc_tools_qt::PluginProperties::ListOfGuiActions actions;
                 auto* messageAction = new QAction("BLA");
                 QObject::connect(
