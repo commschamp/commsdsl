@@ -26,6 +26,7 @@ while (TRUE)
         STAMP_DIR "${LIBXML2_DIR}/stamp"
         GIT_REPOSITORY "https://github.com/GNOME/libxml2.git"
         GIT_TAG "v2.12.5"
+        GIT_SHALLOW 1
         UPDATE_DISCONNECTED 1
         CMAKE_GENERATOR ${CMAKE_GENERATOR}
         CMAKE_GENERATOR_PLATFORM ${CMAKE_GENERATOR_PLATFORM}
