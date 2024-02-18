@@ -47,7 +47,9 @@ while (TRUE)
     set (LIBXML2_FOUND TRUE)
     set (LIBXML2_INCLUDE_DIR "${LIBXML2_INSTALL_DIR}/include/libxml2")
     set (LIBXML2_LIBRARIES "${LIBXML2_INSTALL_DIR}/lib/libxml2sd.lib")
-    if (("${CMAKE_BUILD_TYPE}" STREQUAL "Release") OR ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel"))
+    if (("${CMAKE_BUILD_TYPE}" STREQUAL "Release") OR 
+        ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel") OR
+        ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"))
         set (LIBXML2_LIBRARIES "${LIBXML2_INSTALL_DIR}/lib/libxml2s.lib")
     endif ()
     set (LIBXML2_DEFINITIONS "LIBXML_STATIC")
