@@ -108,7 +108,7 @@ section above).
 
 ## Custom Code
 As was already mentioned earlier, **commsdsl2tools_qt** utility allows injection
-of custom code snippets in the generated code. The
+of custom code snippets in the generated code.
 The [CommsChampion Tools](https://github.com/commschamp/cc_tools_qt) themselves
 use C++17 (or later). It is recommended to also use C++17 code snippets for the
 [custom code injection](#injecting-custom-code) (using `-c` command line option
@@ -124,7 +124,8 @@ which reside in the `cc_tools_qt_plugin/<name>/plugin` folder of the generated
 project.
 
 Similar to the [custom code injection defined for the commsdsl2comms](Manual_commsdsl2comms.md##custom-code)
-the relevant code snippets are expected to have specific extensions:
+the relevant code snippets are expected to reside in the same relative path as the
+generated and to have specific extensions:
 
 - **.inc** - Add extra include statements to the file.
 - **.extend** - Extend the defined original class.
@@ -161,7 +162,7 @@ private:
 
 The **commsdsl2tools_qt** utility will also copy all the files, residing in the
 source directory and not having any of the special suffixes (**.extend**, **.replace**,
-**.inc**, etc...), as-is without modification into the output directory
+**.inc**, etc...) as-is without modification into the output directory
 preserving their relative path.
 
 Using such copy of the extra files it is possible to add any extra functionality
@@ -187,5 +188,6 @@ set (CMAKE_AUTOUIC ON)
 set (CMAKE_AUTORCC ON)
 ```
 It allows having all the necessary files listed in the sources (including **.ui** and **.qrc** files)
-and there is no need to list headers which use `Q_OBJECT` macro, the moc-ing will
+and there is no need to list headers which use `Q_OBJECT` macro (but only if there is
+related **.cpp** added to the sources), the moc-ing will
 be done automatically.
