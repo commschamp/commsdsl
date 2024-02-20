@@ -12,6 +12,8 @@
   **commsdsl2test** code generator and its available command line options.
 - [Manual_commsdsl2swig.md](Manual_commsdsl2swig.md) - Manual of the
   **commsdsl2swig** code generator and its available command line options.
+- [Manual_commsdsl2emscripten.md](Manual_commsdsl2emscripten.md) - Manual of the
+  **commsdsl2emscripten** code generator and its available command line options.
 
 
 # Dealing With Generated Code
