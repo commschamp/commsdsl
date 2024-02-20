@@ -2,12 +2,14 @@
 
 - [BUILD.md](BUILD.md) - Instructions how build this project.
 
-# Tool Manuals
+# Manuals
 
 - [Manual_commsdsl2comms.md](Manual_commsdsl2comms.md) - Manual of the 
   **commsdsl2comms** code generator and its available command line options.
 - [Manual_commsdsl2tools_qt.md](Manual_commsdsl2tools_qt.md) - Manual of the
   **commsdsl2tools_qt** code generator and its available command line options.
+- [Manual_commsdsl2test.md](Manual_commsdsl2test.md) - Manual of the
+  **commsdsl2test** code generator and its available command line options.
 
 
 # Dealing With Generated Code
