@@ -57,8 +57,7 @@ if exist %COMMS_SRC_DIR%/.git (
     git checkout %COMMS_TAG%
     git pull --all
     if %errorlevel% neq 0 exit /b %errorlevel%    
-)
-else (
+) else (
     echo "Cloning COMMS library..."
     git clone -b %COMMS_TAG% %COMMS_REPO% %COMMS_SRC_DIR%
     if %errorlevel% neq 0 exit /b %errorlevel%
