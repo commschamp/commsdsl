@@ -139,7 +139,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "    virtual cc_tools_qt::MessagePtr createInvalidMessageImpl() override;\n"
         "    virtual cc_tools_qt::MessagePtr createRawDataMessageImpl() override;\n"
         "    virtual cc_tools_qt::MessagePtr createExtraInfoMessageImpl() override;\n\n"
-        "private:\n"
+        "#^#PRIVATE#$#:\n"
         "    std::unique_ptr<#^#CLASS_NAME#$#Impl> m_pImpl;\n"
         "};\n\n"
         "#^#EXTEND#$#\n"
@@ -155,10 +155,12 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         {"CLASS_NAME", toolsProtClassNameInternal()},
         {"EXTEND", extendCode},
         {"INC", incCode},
+        {"PRIVATE", "private"},
     };   
 
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
+        repl["PRIVATE"] = "protected";
     }
 
     if (toolsHasConfigWidgetInternal()) {
@@ -821,9 +823,9 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
         "    {\n"
         "        m_versionUpdateCb = std::forward<TFunc>(func);\n"
         "    }\n\n"
-        "private slots:\n"
+        "#^#PRIVATE#$# slots:\n"
         "    void versionChanged(int value);\n\n"
-        "private:\n"
+        "#^#PRIVATE#$#:\n"
         "    VersionUpdateCb m_versionUpdateCb;"
         "};\n\n"
         "#^#EXTEND#$#\n\n"
@@ -839,10 +841,12 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
         {"EXTEND", extendCode},
         {"INC", incCode},
+        {"PRIVATE", "private"},
     };        
 
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
+        repl["PRIVATE"] = "protected";
     }    
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
