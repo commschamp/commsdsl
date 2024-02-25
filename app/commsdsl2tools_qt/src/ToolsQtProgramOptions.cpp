@@ -161,7 +161,7 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
         resInfo.m_interface = values[ValueIdx_Interface];
         resInfo.m_name = values[ValueIdx_Name];
         resInfo.m_desc = values[ValueIdx_Desc];
-        resInfo.m_pluginId = values[ValueIdx_NumOfValues];
+        resInfo.m_pluginId = values[ValueIdx_PluginId];
     }
     return result;
 }
