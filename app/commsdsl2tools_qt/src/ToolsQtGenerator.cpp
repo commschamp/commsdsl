@@ -143,13 +143,8 @@ const std::string& ToolsQtGenerator::toolsMinCcToolsQtVersion()
 bool ToolsQtGenerator::prepareImpl() 
 {
     chooseProtocolSchema();
-    bool result = 
-        Base::prepareImpl() &&
-        toolsPrepareDefaultInterfaceInternal() &&
-        toolsPrepareSelectedInterfacesInternal() &&
-        toolsPrepareSelectedFramesInternal();
-
-    if (!result) {
+    if ((!Base::prepareImpl()) || 
+        (!toolsPrepareDefaultInterfaceInternal())) {
         return false;
     }
 
@@ -190,6 +185,14 @@ bool ToolsQtGenerator::prepareImpl()
         }
 
         m_plugins.push_back(std::make_unique<ToolsQtPlugin>(*this, info.m_frame, info.m_interface, info.m_name, info.m_desc));
+    }
+
+    bool result = 
+        toolsPrepareSelectedInterfacesInternal() &&
+        toolsPrepareSelectedFramesInternal();
+
+    if (!result) {
+        return false;
     }
 
     return 
