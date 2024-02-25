@@ -708,7 +708,9 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
     if (!util::strEndsWith(name, ProtocolSuffix)) {
         name += ' ' + ProtocolSuffix;
     }
-    auto desc = util::strMakeMultiline(m_description, 60, false);
+
+    auto desc = util::strReplace(m_description, "\\n", "\n");
+    desc = util::strMakeMultiline(desc, 60, false);
     if (!desc.empty()) {
         desc = '\"' + desc + '\"';
         desc = util::strReplace(desc, "\n", "\",\n\"");
