@@ -65,14 +65,21 @@ files).
 To provide the necessary information use `--protocol` command line option:
 
 ```
-$> /path/to/commsdsl2tools_qt --protocol "frame_id:interface_id:protocol_name:description"
+$> /path/to/commsdsl2tools_qt --protocol "frame_id:interface_id:protocol_name:description:plugin_id"
 ```
 
 In case there is only one `<frame>` and/or only one `<interface>` (implicit or explicit)
 the relevant id can be omitted. For example:
 
 ```
-$> /path/to/commsdsl2tools_qt --protocol "::My Protocol:My Protocol Description"
+$> /path/to/commsdsl2tools_qt --protocol "::My Protocol:My Protocol Description:my_protocol_id"
+```
+
+Colon (:) separated elements at the end can be omitted. In such case the **commsdsl2tools_qt** code
+generator comes up with some default values.
+
+```
+$> /path/to/commsdsl2tools_qt --protocol "SomeFrame:SomeInterface:My Protocol"
 ```
 
 It is possible to add support for multiple protocol plugins (with different frames / interfaces)
