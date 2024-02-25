@@ -147,6 +147,7 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
             ValueIdx_Interface,
             ValueIdx_Name,
             ValueIdx_Desc,
+            ValueIdx_PluginId,
             ValueIdx_NumOfValues
         };
 
@@ -158,6 +159,7 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
         resInfo.m_interface = values[ValueIdx_Interface];
         resInfo.m_name = values[ValueIdx_Name];
         resInfo.m_desc = values[ValueIdx_Desc];
+        resInfo.m_pluginId = values[ValueIdx_NumOfValues];
     }
     return result;
 }

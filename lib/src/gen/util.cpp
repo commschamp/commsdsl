@@ -251,6 +251,15 @@ bool strStartsWith(const std::string& str, const std::string& prefix)
     return std::equal(prefix.begin(), prefix.end(), str.begin());
 }
 
+bool strEndsWith(const std::string& str, const std::string& suffix)
+{
+    if (str.size() < suffix.size()) {
+        return false;
+    }
+
+    return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
+}
+
 std::string strToUpper(const std::string& str)
 {
     std::string result;

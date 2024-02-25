@@ -531,12 +531,13 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         "} // namespace #^#TOP_NS#$#\n\n"
     ;
 
+    assert(!m_pluginId.empty());
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
-        {"ID", toolsAdjustedNameInternal()},
+        {"ID", m_pluginId},
         {"PRIVATE", "private"},
         {"EXTEND", extendCode},
         {"INC", incCode},
@@ -702,11 +703,15 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         "    \"type\" : \"protocol\"\n"
         "}\n";
 
-    auto name = toolsAdjustedNameInternal() + " Protocol";
+    const std::string ProtocolSuffix("Protocol");
+    auto name = toolsAdjustedNameInternal();
+    if (!util::strEndsWith(name, ProtocolSuffix)) {
+        name += ' ' + ProtocolSuffix;
+    }
     auto desc = util::strMakeMultiline(m_description);
     if (!desc.empty()) {
         desc = '\"' + desc + '\"';
-        util::strReplace(desc, "\n", "\",\n\"");
+        desc = util::strReplace(desc, "\n", "\",\n\"");
     }        
 
     util::ReplacementMap repl = {

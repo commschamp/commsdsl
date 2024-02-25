@@ -1331,7 +1331,7 @@ bool Generator::copyExtraSourceFiles(const std::vector<std::string>& reservedExt
             std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
             stream.close();
 
-            util::strReplace(content, "namespace " + schemaNs, "namespace " + protSchema.mainNamespace());
+            content = util::strReplace(content, "namespace " + schemaNs, "namespace " + protSchema.mainNamespace());
             std::ofstream outStream(destStr, std::ios_base::trunc);
             if (!outStream) {
                 logger().error("Failed to modify " + destStr + ".");

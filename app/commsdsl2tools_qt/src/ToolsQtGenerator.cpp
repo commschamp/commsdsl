@@ -184,7 +184,13 @@ bool ToolsQtGenerator::prepareImpl()
             info.m_desc = "Protocol " + schema.schemaName();
         }
 
-        m_plugins.push_back(std::make_unique<ToolsQtPlugin>(*this, info.m_frame, info.m_interface, info.m_name, info.m_desc));
+        if (info.m_pluginId.empty()) {
+            info.m_pluginId = info.m_name;
+        }        
+
+        m_plugins.push_back(
+            std::make_unique<ToolsQtPlugin>(
+                *this, info.m_frame, info.m_interface, info.m_name, info.m_desc, info.m_pluginId));
     }
 
     bool result = 

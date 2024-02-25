@@ -33,6 +33,7 @@ public:
         std::string m_interface;
         std::string m_name;
         std::string m_desc;
+        std::string m_pluginId;
     };
     using PluginInfosList = std::vector<PluginInfo>;
     

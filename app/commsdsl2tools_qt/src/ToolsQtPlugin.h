@@ -35,12 +35,14 @@ public:
         const std::string& frame,
         const std::string& interface,
         const std::string& name,
-        const std::string& description) :
+        const std::string& description,
+        const std::string& pluginId) :
         m_generator(generator),
         m_frame(frame),
         m_interface(interface),
         m_name(name),
-        m_description(description)
+        m_description(description),
+        m_pluginId(pluginId)
     {
     }        
 
@@ -77,6 +79,7 @@ private:
     std::string m_interface;
     std::string m_name;
     std::string m_description;
+    std::string m_pluginId;
 
     const ToolsQtFrame* m_framePtr = nullptr;
     const ToolsQtInterface* m_interfacePtr = nullptr;
