@@ -537,6 +537,22 @@ std::string strMakeMultiline(const std::string& value, unsigned len)
             break;
         }
 
+        auto insertFunc =
+            [&result, &pos, &value](std::size_t newPos)
+            {
+                assert(pos <= newPos);
+                assert(newPos <= value.size());
+                result.insert(result.end(), value.begin() + pos, value.begin() + newPos);
+                result.push_back('\n');
+                pos = newPos + 1;
+            };        
+
+        auto newLinePos = value.find_last_of("\n", nextPos);
+        if ((newLinePos != std::string::npos) && (pos <= newLinePos)) {
+            insertFunc(newLinePos);
+            continue;
+        }        
+
         static const std::string WhiteSpace(" \t\r");
         auto prePos = value.find_last_of(WhiteSpace, nextPos);
         if ((prePos == std::string::npos) || (prePos < pos)) {
@@ -552,15 +568,6 @@ std::string strMakeMultiline(const std::string& value, unsigned len)
             break;
         }
 
-        auto insertFunc =
-            [&result, &pos, &value](std::size_t newPos)
-            {
-                assert(pos <= newPos);
-                assert(newPos <= value.size());
-                result.insert(result.end(), value.begin() + pos, value.begin() + newPos);
-                result.push_back('\n');
-                pos = newPos + 1;
-            };
 
         if (prePos <= pos) {
             insertFunc(postPos);
