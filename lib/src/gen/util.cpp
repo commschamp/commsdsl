@@ -530,7 +530,7 @@ void addToStrList(const std::string& value, StringsList& list)
     }
 }
 
-std::string strMakeMultiline(const std::string& value, unsigned len)
+std::string strMakeMultiline(const std::string& value, unsigned len, bool dropReplacedWhiteChar)
 {
     if (value.size() <= len) {
         return value;
@@ -547,11 +547,14 @@ std::string strMakeMultiline(const std::string& value, unsigned len)
         }
 
         auto insertFunc =
-            [&result, &pos, &value](std::size_t newPos)
+            [&result, &pos, &value, dropReplacedWhiteChar](std::size_t newPos)
             {
                 assert(pos <= newPos);
                 assert(newPos <= value.size());
                 result.insert(result.end(), value.begin() + pos, value.begin() + newPos);
+                if ((!dropReplacedWhiteChar) && (newPos < value.size())) {
+                    result.push_back(value[newPos]);
+                }
                 result.push_back('\n');
                 pos = newPos + 1;
             };        
@@ -562,7 +565,7 @@ std::string strMakeMultiline(const std::string& value, unsigned len)
             continue;
         }        
 
-        static const std::string WhiteSpace(" \t\r");
+        static const std::string WhiteSpace(" \t");
         auto prePos = value.find_last_of(WhiteSpace, nextPos);
         if ((prePos == std::string::npos) || (prePos < pos)) {
             prePos = pos;
@@ -576,7 +579,6 @@ std::string strMakeMultiline(const std::string& value, unsigned len)
         if ((prePos <= pos) && (value.size() <= postPos)) {
             break;
         }
-
 
         if (prePos <= pos) {
             insertFunc(postPos);

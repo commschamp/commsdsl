@@ -43,7 +43,7 @@ std::string strListToString(
 void addToStrList(std::string&& value, StringsList& list);
 void addToStrList(const std::string& value, StringsList& list);
 
-std::string strMakeMultiline(const std::string& value, unsigned len = 60);
+std::string strMakeMultiline(const std::string& value, unsigned len = 60, bool dropReplacedWhiteChar = true);
 
 std::string readFileContents(const std::string& filePath);
 bool isFileReadable(const std::string& filePath);
