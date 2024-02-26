@@ -64,8 +64,8 @@ environment:
 matrix:
     fast_finish: false
     exclude:
-        - image: Visual Studio 2017
-          CPP_STD: 20                           
+        - platform: x86
+          QT_MAJOR: 6                         
         
 install:
     - call script\appveyor_install.bat
