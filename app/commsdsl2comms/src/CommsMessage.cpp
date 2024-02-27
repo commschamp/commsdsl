@@ -331,7 +331,7 @@ bool CommsMessage::commsPrepareOverrideInternal(
     if (customCode.empty() && isOverrideCodeRequired(type)) {
         generator().logger().error(
             "Overriding \"" + name + "\" operation is not provided in injected code for message \"" +
-            dslObj().externalRef() + "\".");
+            dslObj().externalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
         return false;
     }
 
