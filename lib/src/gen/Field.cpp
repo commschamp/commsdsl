@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -110,8 +110,7 @@ Field::Ptr Field::create(Generator& generator, commsdsl::parse::Field dslobj, El
 
     auto idx = static_cast<std::size_t>(dslobj.kind());
     if (MapSize <= idx) {
-        static constexpr bool Unexpected_kind = false;
-        static_cast<void>(Unexpected_kind);
+        [[maybe_unused]] static constexpr bool Unexpected_kind = false;
         assert(Unexpected_kind);          
         return Ptr();
     }
@@ -289,9 +288,8 @@ void Field::setReferencedImpl()
 {
 }
 
-Field::FieldRefInfo Field::processInnerRefImpl(const std::string& refStr) const
+Field::FieldRefInfo Field::processInnerRefImpl([[maybe_unused]] const std::string& refStr) const
 {
-    static_cast<void>(refStr);
     assert(!refStr.empty());
     FieldRefInfo info;
     return info;

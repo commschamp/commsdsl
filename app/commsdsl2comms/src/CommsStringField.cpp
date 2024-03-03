@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -144,7 +144,7 @@ std::string CommsStringField::commsDefBaseClassImpl() const
     };
 
     if (!repl["FIELD_OPTS"].empty()) {
-        repl["COMMA"] = ",";
+        repl["COMMA"] = std::string(",");
     }
 
     return util::processTemplate(Templ, repl);
@@ -327,9 +327,8 @@ CommsStringField::StringsList CommsStringField::commsExtraBareMetalDefaultOption
         };    
 }
 
-std::string CommsStringField::commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+std::string CommsStringField::commsSizeAccessStrImpl([[maybe_unused]] const std::string& accStr, const std::string& prefix) const
 {
-    static_cast<void>(accStr);
     assert(accStr.empty());
     return prefix + ".getValue().size()";
 }
@@ -344,11 +343,11 @@ std::size_t CommsStringField::commsMaxLengthImpl() const
     return comms::maxPossibleLength();
 }
 
-std::string CommsStringField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+std::string CommsStringField::commsCompValueCastTypeImpl(
+    [[maybe_unused]] const std::string& accStr, 
+    [[maybe_unused]] const std::string& prefix) const
 {
     assert(accStr.empty());
-    static_cast<void>(accStr);
-    static_cast<void>(prefix);
     return strings::emptyString();
 }
 

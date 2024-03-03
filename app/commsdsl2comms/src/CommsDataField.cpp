@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -148,7 +148,7 @@ std::string CommsDataField::commsDefBaseClassImpl() const
     };
 
     if (!repl["FIELD_OPTS"].empty()) {
-        repl["COMMA"] = ",";
+        repl["COMMA"] = std::string(",");
     }
 
     return util::processTemplate(Templ, repl);
@@ -353,9 +353,8 @@ std::size_t CommsDataField::commsMaxLengthImpl() const
     return comms::maxPossibleLength();    
 }
 
-std::string CommsDataField::commsSizeAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+std::string CommsDataField::commsSizeAccessStrImpl([[maybe_unused]] const std::string& accStr, const std::string& prefix) const
 {
-    static_cast<void>(accStr);
     assert(accStr.empty());
     return prefix + ".getValue().size()";
 }

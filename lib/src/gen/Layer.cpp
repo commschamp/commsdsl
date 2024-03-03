@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -152,8 +152,7 @@ Layer::Ptr Layer::create(Generator& generator, commsdsl::parse::Layer dslobj, El
 
     auto idx = static_cast<std::size_t>(dslobj.kind());
     if (MapSize <= idx) {
-        static constexpr bool Unexpected_kind = false;
-        static_cast<void>(Unexpected_kind);
+        [[maybe_unused]] static constexpr bool Unexpected_kind = false;
         assert(Unexpected_kind);          
         return Ptr();
     }
@@ -232,9 +231,8 @@ std::string Layer::templateScopeOfComms(const std::string& iFaceStr, const std::
     auto result = optLevelScope + optionsParams + commsScope.substr(optLevelScope.size());
 
     auto* frame = static_cast<const Frame*>(parent);
-    bool success = true;
+    [[maybe_unused]] bool success = true;
     auto allLayers = frame->getCommsOrderOfLayers(success);
-    static_cast<void>(success);
     assert(success);
 
     auto iter = 
@@ -301,9 +299,8 @@ bool Layer::writeImpl() const
     return true;
 }
 
-bool Layer::forceCommsOrderImpl(LayersAccessList& layers, bool& success) const
+bool Layer::forceCommsOrderImpl([[maybe_unused]] LayersAccessList& layers, bool& success) const
 {
-    static_cast<void>(layers);
     success = true;
     return false;
 }

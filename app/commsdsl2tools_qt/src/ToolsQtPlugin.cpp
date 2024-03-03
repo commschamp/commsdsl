@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -77,9 +77,8 @@ std::string ToolsQtPlugin::toolsProtocolName() const
 
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
 {
-    static_cast<void>(m_generator);
-    auto filePath = 
-        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsProtClassNameInternal()) + strings::cppHeaderSuffixStr();
+    auto relPath = toolsRelFilePath(toolsProtClassNameInternal()) + strings::cppHeaderSuffixStr();
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -95,11 +94,27 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         return false;
     }
 
+    auto replacePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
+    auto replaceCode = util::readFileContents(replacePath);    
+
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();        
+    }
+
+    auto extendPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::extendFileSuffixStr());
+    auto extendCode = util::readFileContents(extendPath);
+
+    auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
+    auto incCode = util::readFileContents(incPath);    
+
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#include <memory>\n\n"
         "#include \"cc_tools_qt/Protocol.h\"\n\n"
+        "#^#INC#$#\n\n"
         "namespace #^#TOP_NS#$#\n"
         "{\n\n"
         "namespace #^#MAIN_NS#$#\n"
@@ -107,11 +122,11 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "namespace plugin\n"
         "{\n\n"
         "class #^#CLASS_NAME#$#Impl;\n"
-        "class #^#CLASS_NAME#$# : public cc_tools_qt::Protocol\n"
+        "class #^#CLASS_NAME#$##^#ORIG#$# : public cc_tools_qt::Protocol\n"
         "{\n"
         "public:\n"
-        "    #^#CLASS_NAME#$#();\n"
-        "    virtual ~#^#CLASS_NAME#$#();\n\n"
+        "    #^#CLASS_NAME#$##^#ORIG#$#();\n"
+        "    virtual ~#^#CLASS_NAME#$##^#ORIG#$#();\n\n"
         "    #^#VERSION_API#$#\n"
         "protected:\n"
         "    virtual const QString& nameImpl() const override;\n"
@@ -124,9 +139,10 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "    virtual cc_tools_qt::MessagePtr createInvalidMessageImpl() override;\n"
         "    virtual cc_tools_qt::MessagePtr createRawDataMessageImpl() override;\n"
         "    virtual cc_tools_qt::MessagePtr createExtraInfoMessageImpl() override;\n\n"
-        "private:\n"
+        "#^#PRIVATE#$#:\n"
         "    std::unique_ptr<#^#CLASS_NAME#$#Impl> m_pImpl;\n"
         "};\n\n"
+        "#^#EXTEND#$#\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
         "} // namespace #^#TOP_NS#$#\n\n"
@@ -137,8 +153,15 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
+        {"EXTEND", extendCode},
+        {"INC", incCode},
+        {"PRIVATE", "private"},
     };   
 
+    if (!extendCode.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+        repl["PRIVATE"] = "protected";
+    }
 
     if (toolsHasConfigWidgetInternal()) {
         std::string verApi =
@@ -160,9 +183,8 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
 
 bool ToolsQtPlugin::toolsWriteProtocolSrcInternal() 
 {
-    static_cast<void>(m_generator);
-    auto filePath = 
-        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsProtClassNameInternal()) + strings::cppSourceSuffixStr();
+    auto relPath = toolsRelFilePath(toolsProtClassNameInternal()) + strings::cppSourceSuffixStr();
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);    
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -172,6 +194,21 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         return false;
     }
 
+    auto replacePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
+    auto replaceCode = util::readFileContents(replacePath);    
+
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();        
+    }
+
+    auto extendPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::extendFileSuffixStr());
+    auto extendCode = util::readFileContents(extendPath);
+
+    auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
+    auto incCode = util::readFileContents(incPath);
+
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
@@ -180,6 +217,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "#^#INTERFACE_INC#$#\n"
         "#include \"#^#FRAME_HEADER#$#\"\n"
         "#include \"#^#TRANSPORT_MESSAGE_HEADER#$#\"\n\n"
+        "#^#INC#$#\n\n"
         "namespace #^#TOP_NS#$#\n"
         "{\n\n"
         "namespace #^#MAIN_NS#$#\n"
@@ -198,7 +236,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "            #^#TOP_NS#$#::#^#FRAME#$#TransportMessage#^#INTERFACE_TEMPL_PARAM#$#\n"
         "        >;\n"
         "public:\n"
-        "    friend class #^#TOP_NS#$#::#^#MAIN_NS#$#::plugin::#^#CLASS_NAME#$#;\n\n"
+        "    friend class #^#TOP_NS#$#::#^#MAIN_NS#$#::plugin::#^#CLASS_NAME#$##^#ORIG#$#;\n\n"
         "    #^#CLASS_NAME#$#Impl() = default;\n"
         "    virtual ~#^#CLASS_NAME#$#Impl() = default;\n\n"
         "    #^#VERSION_IMPL_PUBLIC#$#\n"
@@ -214,52 +252,53 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "    using Base::createExtraInfoMessageImpl;\n\n"
         "#^#VERSION_IMPL_PRIVATE#$#\n"
         "};\n\n"
-        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#()\n"
+        "#^#CLASS_NAME#$##^#ORIG#$#::#^#CLASS_NAME#$##^#ORIG#$#()\n"
         "  : m_pImpl(new #^#CLASS_NAME#$#Impl())\n"
         "{\n"
         "}\n\n"
-        "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
+        "#^#CLASS_NAME#$##^#ORIG#$#::~#^#CLASS_NAME#$##^#ORIG#$#() = default;\n\n"
         "#^#VERSION_API#$#\n"
-        "const QString& #^#CLASS_NAME#$#::nameImpl() const\n"
+        "const QString& #^#CLASS_NAME#$##^#ORIG#$#::nameImpl() const\n"
         "{\n"
         "    return m_pImpl->name();\n"
         "}\n\n"
-        "#^#CLASS_NAME#$#::MessagesList #^#CLASS_NAME#$#::readImpl(const cc_tools_qt::DataInfo& dataInfo, bool final)\n"
+        "#^#CLASS_NAME#$##^#ORIG#$#::MessagesList #^#CLASS_NAME#$##^#ORIG#$#::readImpl(const cc_tools_qt::DataInfo& dataInfo, bool final)\n"
         "{\n"
         "    return m_pImpl->read(dataInfo, final);\n"
         "}\n\n"
-        "cc_tools_qt::DataInfoPtr #^#CLASS_NAME#$#::writeImpl(cc_tools_qt::Message& msg)\n"
+        "cc_tools_qt::DataInfoPtr #^#CLASS_NAME#$##^#ORIG#$#::writeImpl(cc_tools_qt::Message& msg)\n"
         "{\n"
         "    return m_pImpl->write(msg);\n"
         "}\n\n"
-        "#^#CLASS_NAME#$#::MessagesList #^#CLASS_NAME#$#::createAllMessagesImpl()\n"
+        "#^#CLASS_NAME#$##^#ORIG#$#::MessagesList #^#CLASS_NAME#$##^#ORIG#$#::createAllMessagesImpl()\n"
         "{\n"
         "    return m_pImpl->createAllMessages();\n"
         "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$#::createMessageImpl(const QString& idAsString, unsigned idx)\n"
+        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::createMessageImpl(const QString& idAsString, unsigned idx)\n"
         "{\n"
         "    return static_cast<cc_tools_qt::Protocol*>(m_pImpl.get())->createMessage(idAsString, idx);\n"
         "}\n\n"
-        "#^#CLASS_NAME#$#::UpdateStatus #^#CLASS_NAME#$#::updateMessageImpl(cc_tools_qt::Message& msg)\n"
+        "#^#CLASS_NAME#$##^#ORIG#$#::UpdateStatus #^#CLASS_NAME#$##^#ORIG#$#::updateMessageImpl(cc_tools_qt::Message& msg)\n"
         "{\n"
         "    return m_pImpl->updateMessage(msg);\n"
         "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$#::cloneMessageImpl(const cc_tools_qt::Message& msg)\n"
+        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::cloneMessageImpl(const cc_tools_qt::Message& msg)\n"
         "{\n"
         "    return m_pImpl->cloneMessage(msg);\n"
         "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$#::createInvalidMessageImpl()\n"
+        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::createInvalidMessageImpl()\n"
         "{\n"
         "    return m_pImpl->createInvalidMessageImpl();\n"
         "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$#::createRawDataMessageImpl()\n"
+        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::createRawDataMessageImpl()\n"
         "{\n"
         "    return m_pImpl->createRawDataMessageImpl();\n"
         "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$#::createExtraInfoMessageImpl()\n"
+        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::createExtraInfoMessageImpl()\n"
         "{\n"
         "    return m_pImpl->createExtraInfoMessageImpl();\n"
-        "}\n\n"        
+        "}\n\n"  
+        "#^#EXTEND#$#\n"      
         "} // namespace plugin\n\n"       
         "} // namespace #^#MAIN_NS#$#\n\n"
         "} // namespace #^#TOP_NS#$#\n\n"
@@ -280,7 +319,13 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         {"TRANSPORT_MESSAGE_HEADER", transportMsgHeader},
         {"FRAME", comms::scopeFor(*m_framePtr, m_generator)},
         {"PROT_NAME", toolsAdjustedNameInternal()},
-    };        
+        {"INC", incCode},
+        {"EXTEND", extendCode},
+    };    
+
+    if (!extendCode.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }        
 
     if (m_generator.toolsHasMulitpleInterfaces()) {
         assert(m_interfacePtr != nullptr);
@@ -428,9 +473,8 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
 
 bool ToolsQtPlugin::toolsWritePluginHeaderInternal() 
 {
-    static_cast<void>(m_generator);
-    auto filePath = 
-        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + strings::cppHeaderSuffixStr();
+    auto relPath = toolsRelFilePath(toolsPluginClassNameInternal()) + strings::cppHeaderSuffixStr();
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -440,6 +484,20 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         return false;
     }
 
+    auto replaceFilePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
+    auto replaceCode = util::readFileContents(replaceFilePath);
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();
+    }    
+
+    auto extendPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::extendFileSuffixStr());
+    auto extendCode = util::readFileContents(extendPath);
+
+    auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
+    auto incCode = util::readFileContents(incPath);
+
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
@@ -447,36 +505,50 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         "#include <QtCore/QtPlugin>\n"
         "#include \"cc_tools_qt/Plugin.h\"\n"
         "#include \"cc_tools_qt/Protocol.h\"\n\n"
+        "#^#INC#$#\n\n"
         "namespace #^#TOP_NS#$#\n"
         "{\n\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"    
         "namespace plugin\n"
         "{\n\n"    
-        "class #^#CLASS_NAME#$# : public cc_tools_qt::Plugin\n"
+        "class #^#CLASS_NAME#$##^#ORIG#$# : public cc_tools_qt::Plugin\n"
         "{\n"
-        "    Q_OBJECT\n"
-        "    Q_PLUGIN_METADATA(IID \"#^#ID#$#\" FILE \"#^#CLASS_NAME#$#.json\")\n"
-        "    Q_INTERFACES(cc_tools_qt::Plugin)\n\n"
+        "    #^#EXTEND_COMMENT#$#\n"
+        "    #^#COMMENT#$#Q_OBJECT\n"
+        "    #^#COMMENT#$#Q_PLUGIN_METADATA(IID \"#^#ID#$#\" FILE \"#^#CLASS_NAME#$#.json\")\n"
+        "    #^#COMMENT#$#Q_INTERFACES(cc_tools_qt::Plugin)\n\n"
         "public:\n"
-        "    #^#CLASS_NAME#$#();\n"
-        "    virtual ~#^#CLASS_NAME#$#();\n"
-        "private:\n"
+        "    #^#CLASS_NAME#$##^#ORIG#$#();\n"
+        "    virtual ~#^#CLASS_NAME#$##^#ORIG#$#();\n\n"
+        "#^#PRIVATE#$#:\n"
         "    cc_tools_qt::ProtocolPtr m_protocol;\n"
         "    #^#VERSION_STORAGE#$#\n"
         "};\n\n"
+        "#^#EXTEND#$#\n\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
         "} // namespace #^#TOP_NS#$#\n\n"
     ;
 
+    assert(!m_pluginId.empty());
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
-        {"ID", toolsAdjustedNameInternal()},
+        {"ID", m_pluginId},
+        {"PRIVATE", "private"},
+        {"EXTEND", extendCode},
+        {"INC", incCode},
     };        
+
+    if (!extendCode.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+        repl["EXTEND_COMMENT"] = "// Make sure to add the following lines in the actual deriving class.";
+        repl["COMMENT"] = "// ";
+        repl["PRIVATE"] = "protected";
+    }
 
     if (toolsHasConfigWidgetInternal()) {
         auto verStr = "int m_version = " + util::numToString(m_generator.currentSchema().schemaVersion()) + ";";
@@ -496,9 +568,8 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
 
 bool ToolsQtPlugin::toolsWritePluginSrcInternal() 
 {
-    static_cast<void>(m_generator);
-    auto filePath = 
-        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + strings::cppSourceSuffixStr();
+    auto relPath = toolsRelFilePath(toolsPluginClassNameInternal()) + strings::cppSourceSuffixStr();
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -508,18 +579,33 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         return false;
     }
 
+    auto replaceFilePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
+    auto replaceCode = util::readFileContents(replaceFilePath);
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();
+    }     
+
+    auto extendPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::extendFileSuffixStr());
+    auto extendCode = util::readFileContents(extendPath);
+
+    auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
+    auto incCode = util::readFileContents(incPath);    
+
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"#^#PROTOCOL_CLASS_NAME#$#.h\"\n\n"
-        "#^#WIDGET_INCLUDE#$#\n"
+        "#^#WIDGET_INCLUDE#$#\n\n"
+        "#^#INC#$#\n\n"
         "namespace #^#TOP_NS#$#\n"
         "{\n\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"    
         "namespace plugin\n"
         "{\n\n"    
-        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() :\n"
+        "#^#CLASS_NAME#$##^#ORIG#$#::#^#CLASS_NAME#$##^#ORIG#$#() :\n"
         "    m_protocol(new #^#PROTOCOL_CLASS_NAME#$#())\n"
         "{\n"
         "    pluginProperties()\n"
@@ -528,10 +614,11 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         "            {\n"
         "                return m_protocol;\n"
         "            })\n"
-        "        #^#CONFIG_WIDGET_FUNC#$#"
+        "        #^#CONFIG_WIDGET_FUNC#$#\n"
         "    ;\n"
         "}\n\n"
-        "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
+        "#^#CLASS_NAME#$##^#ORIG#$#::~#^#CLASS_NAME#$##^#ORIG#$#() = default;\n\n"
+        "#^#EXTEND#$#\n\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
         "} // namespace #^#TOP_NS#$#\n\n"
@@ -543,7 +630,13 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"PROTOCOL_CLASS_NAME", toolsProtClassNameInternal()},
+        {"EXTEND", extendCode},
+        {"INC", incCode},
     };        
+
+    if (!extendCode.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }         
 
     if (toolsHasConfigWidgetInternal()) {
         static const std::string WidgetTempl =
@@ -582,9 +675,8 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
 
 bool ToolsQtPlugin::toolsWritePluginJsonInternal()
 {
-    static_cast<void>(m_generator);
-    auto filePath = 
-        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsPluginClassNameInternal()) + ".json";
+    auto relPath = toolsRelFilePath(toolsPluginClassNameInternal()) + ".json";
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -593,6 +685,14 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
+
+    auto replaceFilePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
+    auto replaceCode = util::readFileContents(replaceFilePath);
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();
+    }     
 
     static const std::string Templ =
         "{\n"
@@ -603,11 +703,17 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
         "    \"type\" : \"protocol\"\n"
         "}\n";
 
-    auto name = toolsAdjustedNameInternal() + " Protocol";
-    auto desc = util::strMakeMultiline(m_description);
+    const std::string ProtocolSuffix("Protocol");
+    auto name = toolsAdjustedNameInternal();
+    if (!util::strEndsWith(name, ProtocolSuffix)) {
+        name += ' ' + ProtocolSuffix;
+    }
+
+    auto desc = util::strReplace(m_description, "\\n", "\n");
+    desc = util::strMakeMultiline(desc, 60, false);
     if (!desc.empty()) {
         desc = '\"' + desc + '\"';
-        util::strReplace(desc, "\n", "\",\n\"");
+        desc = util::strReplace(desc, "\n", "\",\n\"");
     }        
 
     util::ReplacementMap repl = {
@@ -628,11 +734,9 @@ bool ToolsQtPlugin::toolsWritePluginJsonInternal()
 
 bool ToolsQtPlugin::toolsWritePluginConfigInternal()
 {
-    static_cast<void>(m_generator);
-    auto filePath = 
-        m_generator.getOutputDir() + '/' + 
-        toolsRelFilePath(toolsProtocolName()) + ".cfg";
-
+    auto relPath = toolsRelFilePath(toolsProtocolName()) + ".cfg";
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);
+        
     m_generator.logger().info("Generating " + filePath);
 
     std::ofstream stream(filePath);
@@ -640,6 +744,14 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
         m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
         return false;
     }
+
+    auto replaceFilePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
+    auto replaceCode = util::readFileContents(replaceFilePath);
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();
+    }      
 
     static const std::string Templ =
         "{\n"
@@ -670,9 +782,8 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
         return true;
     }
 
-    static_cast<void>(m_generator);
-    auto filePath = 
-        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppHeaderSuffixStr();
+    auto relPath = toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppHeaderSuffixStr();
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);    
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -682,33 +793,49 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
         return false;
     }
 
+    auto replaceFilePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
+    auto replaceCode = util::readFileContents(replaceFilePath);
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();
+    }   
+
+    auto extendPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::extendFileSuffixStr());
+    auto extendCode = util::readFileContents(extendPath);
+
+    auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
+    auto incCode = util::readFileContents(incPath);        
+
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
         "#include <functional>\n"
         "#include <QtWidgets/QWidget>\n\n"
+        "#^#INC\n\n#$#"
         "namespace #^#TOP_NS#$#\n"
         "{\n\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"    
         "namespace plugin\n"
         "{\n\n"    
-        "class #^#CLASS_NAME#$# : public QWidget\n"
+        "class #^#CLASS_NAME#$##^#ORIG#$# : public QWidget\n"
         "{\n"
         "    Q_OBJECT\n"
         "public:\n"
         "    using VersionUpdateCb = std::function<void (int)>;\n\n"
-        "    explicit #^#CLASS_NAME#$#(int version);\n\n"
+        "    explicit #^#CLASS_NAME#$##^#ORIG#$#(int version);\n\n"
         "    template <typename TFunc>\n"
         "    void setVersionUpdateCb(TFunc&& func)\n"
         "    {\n"
         "        m_versionUpdateCb = std::forward<TFunc>(func);\n"
         "    }\n\n"
-        "private slots:\n"
+        "#^#PRIVATE#$# slots:\n"
         "    void versionChanged(int value);\n\n"
-        "private:\n"
+        "#^#PRIVATE#$#:\n"
         "    VersionUpdateCb m_versionUpdateCb;"
         "};\n\n"
+        "#^#EXTEND#$#\n\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
         "} // namespace #^#TOP_NS#$#\n\n"
@@ -719,7 +846,15 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal()
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
+        {"EXTEND", extendCode},
+        {"INC", incCode},
+        {"PRIVATE", "private"},
     };        
+
+    if (!extendCode.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+        repl["PRIVATE"] = "protected";
+    }    
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
@@ -738,9 +873,8 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
         return true;
     }
 
-    static_cast<void>(m_generator);
-    auto filePath = 
-        m_generator.getOutputDir() + '/' + toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppSourceSuffixStr();
+    auto relPath = toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppSourceSuffixStr();
+    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);    
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -750,6 +884,20 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
         return false;
     }
 
+    auto replaceFilePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
+    auto replaceCode = util::readFileContents(replaceFilePath);
+    if (!replaceCode.empty()) {
+        stream << replaceCode;
+        stream.flush();
+        return stream.good();
+    }   
+
+    auto extendPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::extendFileSuffixStr());
+    auto extendCode = util::readFileContents(extendPath);
+
+    auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
+    auto incCode = util::readFileContents(incPath);        
+
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
@@ -758,13 +906,14 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
         "#include <QtWidgets/QSpacerItem>\n"
         "#include <QtWidgets/QSpinBox>\n"
         "#include <QtWidgets/QVBoxLayout>\n\n"
+        "#^#INC#$#\n\n"
         "namespace #^#TOP_NS#$#\n"
         "{\n\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"    
         "namespace plugin\n"
         "{\n\n"    
-        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(int version)"
+        "#^#CLASS_NAME#$##^#ORIG#$#::#^#CLASS_NAME#$##^#ORIG#$#(int version)"
         "{\n"
         "    auto* versionLabel = new QLabel(\"Default Version:\");\n"
         "    auto* versionSpinBox = new QSpinBox;\n"
@@ -784,12 +933,13 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
         "        versionSpinBox, SIGNAL(valueChanged(int)),\n"
         "        this, SLOT(versionChanged(int)));\n"
         "}\n\n"
-        "void #^#CLASS_NAME#$#::versionChanged(int value)\n"
+        "void #^#CLASS_NAME#$##^#ORIG#$#::versionChanged(int value)\n"
         "{\n"
         "    if (m_versionUpdateCb) {\n"
         "        m_versionUpdateCb(value);\n"
         "    }\n"
         "}\n\n"
+        "#^#EXTEND#$#\n\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
         "} // namespace #^#TOP_NS#$#\n\n"
@@ -800,7 +950,13 @@ bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal()
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
+        {"EXTEND", extendCode},
+        {"INC", incCode},
     };        
+
+    if (!extendCode.empty()) {
+        repl["ORIG"] = strings::origSuffixStr();
+    }
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;

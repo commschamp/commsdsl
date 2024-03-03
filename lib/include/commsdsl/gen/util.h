@@ -20,6 +20,7 @@ std::vector<std::string> strSplitByAnyChar(const std::string& str, const std::st
 std::string strInsertIndent(const std::string& str);
 unsigned strToUnsigned(const std::string& str);
 bool strStartsWith(const std::string& str, const std::string& prefix);
+bool strEndsWith(const std::string& str, const std::string& suffix);
 std::string strToUpper(const std::string& str);
 std::string strToLower(const std::string& str);
 std::string strToMacroName(const std::string& str);
@@ -42,7 +43,7 @@ std::string strListToString(
 void addToStrList(std::string&& value, StringsList& list);
 void addToStrList(const std::string& value, StringsList& list);
 
-std::string strMakeMultiline(const std::string& value, unsigned len = 60);
+std::string strMakeMultiline(const std::string& value, unsigned len = 60, bool dropReplacedWhiteChar = true);
 
 std::string readFileContents(const std::string& filePath);
 bool isFileReadable(const std::string& filePath);

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -273,14 +273,12 @@ std::string SwigField::swigPublicDeclImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-void SwigField::swigAddDefImpl(StringsList& list) const
+void SwigField::swigAddDefImpl([[maybe_unused]] StringsList& list) const
 {
-    static_cast<void>(list);
 }
 
-void SwigField::swigAddMembersCodeImpl(StringsList& list) const
+void SwigField::swigAddMembersCodeImpl([[maybe_unused]] StringsList& list) const
 {
-    static_cast<void>(list);
 }
 
 std::string SwigField::swigCommonPublicFuncsDecl() const

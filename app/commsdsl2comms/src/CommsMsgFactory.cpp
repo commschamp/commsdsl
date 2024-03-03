@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2022 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -81,11 +81,11 @@ std::string commsDynMemAllocCodeFuncInternal(const commsdsl::gen::Message& msg, 
     return util::processTemplate(Templ, repl);
 }
 
-std::string commsInPlaceAllocCodeFuncInternal(const commsdsl::gen::Message& msg, const CommsGenerator& generator, int idx)
+std::string commsInPlaceAllocCodeFuncInternal(
+    [[maybe_unused]] const commsdsl::gen::Message& msg, 
+    [[maybe_unused]] const CommsGenerator& generator, 
+    [[maybe_unused]] int idx)
 {
-    static_cast<void>(msg);
-    static_cast<void>(generator);
-    static_cast<void>(idx);
     assert(false); // Not implemented
     return std::string();
 }
@@ -206,14 +206,12 @@ bool commsWriteFileInternal(
 {
     auto* typeStr = &DynMemStr;
     auto* policyStr = &DynMemAllocPolicyStr;
-    auto codeFunc = &commsDynMemAllocCodeFuncInternal;
+    [[maybe_unused]] auto codeFunc = &commsDynMemAllocCodeFuncInternal;
     if (inPlaceAlloc) {
         typeStr = &InPlaceStr;
         policyStr = &InPlacePolicyStr;
         codeFunc = &commsInPlaceAllocCodeFuncInternal;
     }
-
-    static_cast<void>(codeFunc);
 
     auto name = prefix + *typeStr + MsgFactorySuffixStr;
     auto filePath = comms::headerPathForFactory(name, generator);

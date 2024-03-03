@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -104,7 +104,7 @@ std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName
     };
 
     if (!repl["EXTRA_OPT"].empty()) {
-        repl["COMMA"] = ",";
+        repl["COMMA"] = std::string(",");
     }
 
     if (!checksumDslObj().untilLayer().empty()) {

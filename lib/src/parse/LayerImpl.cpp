@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -173,9 +173,8 @@ bool LayerImpl::parseImpl()
     return true;
 }
 
-bool LayerImpl::verifyImpl(const LayerImpl::LayersList& layers)
+bool LayerImpl::verifyImpl([[maybe_unused]] const LayerImpl::LayersList& layers)
 {
-    static_cast<void>(layers);
     return true;
 }
 

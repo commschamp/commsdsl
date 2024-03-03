@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -54,7 +54,7 @@ ProtocolImpl::ProtocolImpl()
         }
     )
 {
-    xmlSetStructuredErrorFunc(this, &ProtocolImpl::cbXmlErrorFunc);
+    xmlSetStructuredErrorFunc(this, static_cast<xmlStructuredErrorFunc>(&ProtocolImpl::cbXmlErrorFunc));
     m_logger.setMinLevel(m_minLevel);
 }
 
@@ -377,12 +377,17 @@ bool ProtocolImpl::isExistsCheckInConditionalsSupported() const
     return isFeatureSupported(6U);
 }
 
+void ProtocolImpl::cbXmlErrorFunc(void* userData, const xmlError* err)
+{
+    reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, xmlErrorPtr err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);
 }
 
-void ProtocolImpl::handleXmlError(xmlErrorPtr err)
+void ProtocolImpl::handleXmlError(const xmlError* err)
 {
     static const ErrorLevel Map[] = {
         /* XML_ERR_NONE */ ErrorLevel_Debug,

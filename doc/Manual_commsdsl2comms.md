@@ -10,7 +10,7 @@ can be used to install all the necessary files (protocol definition
 headers as well as CMake confiugration files) into the installation directory.
 
 ## Command Line Arguments
-The **commsds2comms** utility has multiple command line arguments, please
+The **commsdsl2comms** utility has multiple command line arguments, please
 use `-h` option for the full list as well as default option values. 
 
 ```
@@ -22,7 +22,7 @@ Below is a summary of most important ones.
 In case there are only few schema files, it is possible to pass them 
 at the end of the arguments list.
 ```
-$> /path/to/commsdsl2comms schema1.xml schema2.xml schema3.xml ...
+$> /path/to/commsdsl2comms <args> schema1.xml schema2.xml schema3.xml ...
 ```
 The schema files will be processed **in order** of their listing.
 
@@ -30,14 +30,14 @@ In case there are lots of schema files (for example every message
 is defined in separate schema file), it is recommended to create a separate
 text file with list of all schema files and use `-i` option.
 ```
-$> /path/to/commsdsl2comms -i schemas_list.txt
+$> /path/to/commsdsl2comms -i schemas_list.txt ...
 ```
 The schemas in the list file may use use *absolute* or *relative* path. In case
 of the latter please also provide absolute path prefix using `-p` option. The
 prefix will be prepended to every relative path inside the list file to locate
 the schema file.
 ```
-$> /path/to/commsdsl2comms -i schemas_list.txt -p /path/to/schemas/dir
+$> /path/to/commsdsl2comms -i schemas_list.txt -p /path/to/schemas/dir ...
 ```
 
 ### Output Directory
@@ -125,7 +125,7 @@ $> /path/to/commsdsl2comms --extra-messages-bundle=Set1:extra-set1.txt,Set2:extr
 ```
 
 ## Custom Code
-As was already mentioned earlier, **commsds2comms** utility allows injection
+As was already mentioned earlier, **commsdsl2comms** utility allows injection
 of custom C++11 code snippets in the generated code. The 
 [Injecting Custom Code](#injecting-custom-code) section above described `-c`
 option that can be used to specify directory with custom code snippets. 

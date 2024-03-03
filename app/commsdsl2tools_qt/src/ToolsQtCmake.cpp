@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,6 @@ bool ToolsQtCmake::write(ToolsQtGenerator& generator)
 
 bool ToolsQtCmake::testWriteInternal() const
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         util::pathAddElem(
             m_generator.getOutputDir(), strings::cmakeListsFileStr());    
@@ -58,18 +57,32 @@ bool ToolsQtCmake::testWriteInternal() const
     }
 
     static const std::string Template =
-        "cmake_minimum_required (VERSION 3.1)\n"
+        "cmake_minimum_required (VERSION 3.10)\n"
         "project (\"#^#MAIN_NS#$#_cc_tools_qt_plugin\")\n\n"
-        "set (OPT_QT_MAJOR_VERSION 5 CACHE STRING \"The major Qt version\")\n\n"
+        "# Configuration variables\n"
+        "# OPT_QT_MAJOR_VERSION - The major Qt version, defaults to 5\n\n"
+        "######################################################################\n\n"
+        "if (\"${OPT_QT_MAJOR_VERSION}\" STREQUAL \"\")\n"
+        "    set(OPT_QT_MAJOR_VERSION 5)\n"
+        "endif()\n\n"
+        "if (\"${CMAKE_CXX_STANDARD}\" STREQUAL \"\")\n"
+        "    set(CMAKE_CXX_STANDARD 17)\n"
+        "endif()\n\n"
+        "if (\"${CMAKE_CXX_STANDARD}\" VERSION_LESS \"17\")\n"
+        "    message (FATAL_ERROR \"Use C++17 or later (instead of C++${CMAKE_CXX_STANDARD}) to compile this project.\")\n"
+        "endif()\n\n"
         "find_package(LibComms REQUIRED)\n"
         "find_package(#^#MAIN_NS#$# REQUIRED)\n"
         "find_package(cc_tools_qt REQUIRED)\n"
-        "find_package(Qt${OPT_QT_MAJOR_VERSION} REQUIRED COMPONENTS Widgets Core)\n"
+        "find_package(Qt${OPT_QT_MAJOR_VERSION} REQUIRED COMPONENTS Widgets Core)\n\n"
+        "set (CMAKE_AUTOMOC ON)\n"
+        "set (CMAKE_AUTOUIC ON)\n"
+        "set (CMAKE_AUTORCC ON)\n\n"
         "include(${LibComms_DIR}/CC_Compile.cmake)\n"
         "cc_compile(WARN_AS_ERR)\n"
         "cc_msvc_force_warn_opt(/W4)\n\n"
         "include(GNUInstallDirs)\n\n"
-        "set (CORE_LIB_NAME \"#^#MAIN_NS#$#_cc_tools_qt_plugin_core\")\n\n"
+        "set (CORE_LIB_NAME \"cc_tools_qt_plugin_#^#MAIN_NS#$#_protocol_core\")\n\n"
         "######################################################################\n\n"
         "function (cc_plugin_core)\n"
         "    set (name ${CORE_LIB_NAME})\n"
@@ -87,7 +100,10 @@ bool ToolsQtCmake::testWriteInternal() const
         "endfunction()\n\n"
         "######################################################################\n\n"
         "function (cc_plugin protocol has_config_widget)\n"
-        "    string(TOLOWER \"cc_plugin_${protocol}\" name)\n\n"
+        "    string(TOLOWER \"cc_tools_plugin_${protocol}\" name)\n\n"
+        "    if (NOT \"${name}\" MATCHES \".*_protocol$\")\n"
+        "        string(APPEND name \"_protocol\")\n"
+        "    endif ()\n\n"
         "    set (meta_file \"${CMAKE_CURRENT_SOURCE_DIR}/#^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.json\")\n"
         "    set (stamp_file \"${CMAKE_CURRENT_BINARY_DIR}/${protocol}_refresh_stamp.txt\")\n\n"
         "    if ((NOT EXISTS ${stamp_file}) OR (${meta_file} IS_NEWER_THAN ${stamp_file}))\n"
@@ -99,18 +115,11 @@ bool ToolsQtCmake::testWriteInternal() const
         "    set (src\n"
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Protocol_${protocol}.cpp\n"
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.cpp\n"
-        "    )\n\n"
-        "    set (hdr\n"
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.h\n"
+        "        #^#EXTRA_SOURCES#$#\n"        
         "    )\n\n"
         "    if (has_config_widget)\n"
         "        list (APPEND src #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/ConfigWidget_${protocol}.cpp)\n"
-        "        list (APPEND hdr #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/ConfigWidget_${protocol}.h)\n"
-        "    endif ()\n\n"
-        "    if (${OPT_QT_MAJOR_VERSION} EQUAL 5)\n"
-        "        qt5_wrap_cpp(moc ${hdr})\n"
-        "    elseif (${OPT_QT_MAJOR_VERSION} EQUAL 6)\n"
-        "        qt6_wrap_cpp(moc ${hdr})\n"
         "    endif ()\n\n"
         "    set(extra_link_opts)\n"
         "    if (CMAKE_COMPILER_IS_GNUCC)\n"
@@ -150,12 +159,12 @@ bool ToolsQtCmake::testWriteInternal() const
         pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" " + (p->toolsHasConfigWidget() ? "TRUE" : "FALSE") + ")");
     }
 
-
     util::ReplacementMap repl = {
         {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
         {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
+        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Template, repl, true);

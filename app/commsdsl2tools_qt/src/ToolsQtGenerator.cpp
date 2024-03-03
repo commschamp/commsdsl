@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,10 +47,18 @@
 #include "ToolsQtVersion.h"
 
 #include "commsdsl/version.h"
+#include "commsdsl/gen/strings.h"
+#include "commsdsl/gen/util.h"
 
 #include <algorithm>
 #include <cassert>
+#include <filesystem>
+#include <fstream>
 #include <iterator>
+
+namespace fs = std::filesystem;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2tools_qt
 {
@@ -58,7 +66,7 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-const std::string MinToolsQtVersion("4.2.3");    
+const std::string MinToolsQtVersion("5.1.0");    
 
 } // namespace 
 
@@ -135,42 +143,62 @@ const std::string& ToolsQtGenerator::toolsMinCcToolsQtVersion()
 bool ToolsQtGenerator::prepareImpl() 
 {
     chooseProtocolSchema();
+    if ((!Base::prepareImpl()) || 
+        (!toolsPrepareDefaultInterfaceInternal())) {
+        return false;
+    }
+
+    auto& schema = protocolSchema();
+    m_pluginInfos.resize(std::max(m_pluginInfos.size(), std::size_t(1U)));
+
+    for (auto& info : m_pluginInfos) {
+        if (info.m_interface.empty()) {
+            auto allInterfaces = schema.getAllInterfaces();
+            assert(!allInterfaces.empty());
+            auto* interfacePtr = allInterfaces.front();
+            assert(interfacePtr != nullptr);
+
+            if (interfacePtr->dslObj().valid()) {
+                info.m_interface = interfacePtr->dslObj().externalRef();    
+            }
+            else {
+                info.m_interface = interfacePtr->name();
+            }
+        }
+
+        if (info.m_frame.empty()) {
+            auto allFrames = getAllFrames();
+            assert(!allFrames.empty());
+            info.m_frame = allFrames.front()->dslObj().externalRef();
+        }
+
+        if (info.m_name.empty()) {
+            info.m_name = schema.schemaName();
+        }
+
+        if (info.m_desc.empty()) {
+            info.m_desc = schema.dslObj().description();
+        }
+
+        if (info.m_desc.empty()) {
+            info.m_desc = "Protocol " + schema.schemaName();
+        }
+
+        if (info.m_pluginId.empty()) {
+            info.m_pluginId = info.m_name;
+        }        
+
+        m_plugins.push_back(
+            std::make_unique<ToolsQtPlugin>(
+                *this, info.m_frame, info.m_interface, info.m_name, info.m_desc, info.m_pluginId));
+    }
+
     bool result = 
-        Base::prepareImpl() &&
-        toolsPrepareDefaultInterfaceInternal() &&
         toolsPrepareSelectedInterfacesInternal() &&
         toolsPrepareSelectedFramesInternal();
 
     if (!result) {
         return false;
-    }
-
-    auto& schema = protocolSchema();
-    if (m_pluginInfos.empty()) {
-        m_pluginInfos.resize(1U);
-        auto& pInfo = m_pluginInfos.back();
-
-        auto allInterfaces = schema.getAllInterfaces();
-        assert(!allInterfaces.empty());
-        auto allFrames = getAllFrames();
-        assert(!allFrames.empty());
-        auto* interfacePtr = allInterfaces.front();
-        assert(interfacePtr != nullptr);
-
-        pInfo.m_frame = allFrames.front()->dslObj().externalRef();
-        
-        if (interfacePtr->dslObj().valid()) {
-            pInfo.m_interface = interfacePtr->dslObj().externalRef();    
-        }
-        else {
-            pInfo.m_interface = interfacePtr->name();
-        }
-        pInfo.m_name = schema.schemaName();
-        pInfo.m_desc = "Protocol " + schema.schemaName();
-    }
-
-    for (auto& info : m_pluginInfos) {
-        m_plugins.push_back(std::make_unique<ToolsQtPlugin>(*this, info.m_frame, info.m_interface, info.m_name, info.m_desc));
     }
 
     return 
@@ -312,13 +340,19 @@ bool ToolsQtGenerator::writeImpl()
         return false;
     }
 
-    return 
+    result = 
         std::all_of(
             m_plugins.begin(), m_plugins.end(),
             [](auto& pluginPtr)
             {
                 return pluginPtr->write();
             });
+
+    if (!result) {
+        return false;
+    }
+
+    return toolsWriteExtraFilesInternal();            
 }
 
 bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
@@ -397,6 +431,22 @@ bool ToolsQtGenerator::toolsPrepareSelectedFramesInternal()
     }
 
     return true;    
+}
+
+bool ToolsQtGenerator::toolsWriteExtraFilesInternal() const
+{
+    const std::vector<std::string> ReservedExt = {
+        strings::replaceFileSuffixStr(),
+        strings::extendFileSuffixStr(),
+        strings::publicFileSuffixStr(),
+        strings::protectedFileSuffixStr(),
+        strings::privateFileSuffixStr(),
+        strings::incFileSuffixStr(),
+        strings::appendFileSuffixStr(),
+        strings::sourcesFileSuffixStr(),
+    }; 
+
+    return copyExtraSourceFiles(ReservedExt);
 }
 
 } // namespace commsdsl2tools_qt

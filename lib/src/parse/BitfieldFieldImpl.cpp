@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -190,9 +190,8 @@ bool BitfieldFieldImpl::strToBoolImpl(const std::string& ref, bool& val) const
     return strToBoolOnFields(ref, m_members, val);
 }
 
-bool BitfieldFieldImpl::verifySemanticTypeImpl(::xmlNodePtr node, SemanticType type) const
+bool BitfieldFieldImpl::verifySemanticTypeImpl([[maybe_unused]] ::xmlNodePtr node, SemanticType type) const
 {
-    static_cast<void>(node);
     if ((type == SemanticType::Length) &&
         (protocol().isSemanticTypeLengthSupported()) && 
         (protocol().isNonIntSemanticTypeLengthSupported())) {

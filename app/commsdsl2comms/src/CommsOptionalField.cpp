@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -433,9 +433,8 @@ std::string CommsOptionalField::commsDefBaseClassImpl() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string CommsOptionalField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
+std::string CommsOptionalField::commsDefBundledReadPrepareFuncBodyImpl([[maybe_unused]] const CommsFieldsList& siblings) const
 {
-    static_cast<void>(siblings);
     auto c = optionalDslObj().cond();
     if (!c.valid()) {
         return strings::emptyString();

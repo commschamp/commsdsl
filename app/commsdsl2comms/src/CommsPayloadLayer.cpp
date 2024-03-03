@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -50,9 +50,8 @@ CommsPayloadLayer::IncludesList CommsPayloadLayer::commsDefIncludesImpl() const
     return result;
 }
 
-std::string CommsPayloadLayer::commsDefBaseTypeImpl(const std::string& prevName) const
+std::string CommsPayloadLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::string& prevName) const
 {
-    static_cast<void>(prevName);
     assert(prevName.empty());
 
     static const std::string Templ =

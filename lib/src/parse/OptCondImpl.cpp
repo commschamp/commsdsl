@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -312,7 +312,7 @@ bool OptCondExprImpl::checkBool(const std::string& expr, ::xmlNodePtr node, cons
 
     } while (false);
 
-    m_op = "!";
+    m_op = std::string("!");
     m_right.assign(expr.begin() + valPos, expr.end());
     return true;
 }
@@ -615,8 +615,7 @@ bool OptCondExprImpl::verifyInterfaceComparison(const FieldsList& fields, ::xmlN
 bool OptCondExprImpl::verifyValidSizeValueComparison() const
 {
     try {
-        auto val = std::stoll(m_right);
-        static_cast<void>(val);
+        [[maybe_unused]] auto val = std::stoll(m_right);
         return true;
     } catch (...) {
         // Do nothing

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,10 +69,16 @@ ToolsQtProgramOptions::ToolsQtProgramOptions()
     (FullCodeInputDirStr, "Directory with code updates.", true)
     (ProtocolStr, 
         "Protocol information for plugin generation. Exepected to be in the following format:\n"
-        "\"frame_id:interface_id:protocol_name:description\".\nUse comma separation for multiple plugins. If not provided, "
+        "\"frame_id:interface_id:protocol_name:description:plugin_id\".\nUse comma separation for multiple plugins. If not provided, "
         "one frame and one interface from the schema will be chosen and code for only one protocol "
-        "plugin will be generated. Can be omitted if there is only one frame and one interface types "
-        "defined in the schema.", true)    
+        "plugin will be generated.\n"
+        "  * frame_id - Full reference id of the frame. Can be empty if there is only one frame.\n"
+        "  * interface_id - Full reference id of the interface. Can be empty if there is only one interface.\n"
+        "  * name - Name of the plugin to be desplayed in the tools.\n"
+        "  * description - Description of the plugin.\n"
+        "  * plugin_id - ID of the plugin to be used in the saved configuration file. When empty or "
+        "omitted same as \"name\" value is assumed.\n"
+        , true)    
     (FullMultipleSchemasEnabledStr, "Allow having multiple schemas with different names.")            
     (ForceMainNamespaceInOptionsStr, "Force having main namespace struct in generated options.")
     ;
@@ -143,6 +149,7 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
             ValueIdx_Interface,
             ValueIdx_Name,
             ValueIdx_Desc,
+            ValueIdx_PluginId,
             ValueIdx_NumOfValues
         };
 
@@ -154,6 +161,7 @@ ToolsQtProgramOptions::PluginInfosList ToolsQtProgramOptions::getPlugins() const
         resInfo.m_interface = values[ValueIdx_Interface];
         resInfo.m_name = values[ValueIdx_Name];
         resInfo.m_desc = values[ValueIdx_Desc];
+        resInfo.m_pluginId = values[ValueIdx_PluginId];
     }
     return result;
 }

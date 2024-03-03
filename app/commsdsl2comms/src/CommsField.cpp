@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -587,9 +587,8 @@ CommsField::StringsList CommsField::commsDefReadMsvcSuppressWarningsImpl() const
     return StringsList();
 }
 
-std::string CommsField::commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const
+std::string CommsField::commsDefBundledReadPrepareFuncBodyImpl([[maybe_unused]] const CommsFieldsList& siblings) const
 {
-    static_cast<void>(siblings);
     return strings::emptyString();
 }
 
@@ -603,9 +602,8 @@ std::string CommsField::commsDefRefreshFuncBodyImpl() const
     return strings::emptyString();
 }
 
-std::string CommsField::commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const
+std::string CommsField::commsDefBundledRefreshFuncBodyImpl([[maybe_unused]] const CommsFieldsList& siblings) const
 {
-    static_cast<void>(siblings);
     return strings::emptyString();
 }
 
@@ -634,9 +632,8 @@ bool CommsField::commsDefHasNameFuncImpl() const
     return true;
 }
 
-std::string CommsField::commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const
+std::string CommsField::commsMembersCustomizationOptionsBodyImpl([[maybe_unused]] FieldOptsFunc fieldOptsFunc) const
 {
-    static_cast<void>(fieldOptsFunc);
     return strings::emptyString();
 }
 
@@ -660,9 +657,8 @@ std::size_t CommsField::commsMaxLengthImpl() const
     return m_field.dslObj().maxLength();
 }
 
-std::string CommsField::commsValueAccessStrImpl(const std::string& accStr, const std::string& prefix) const
+std::string CommsField::commsValueAccessStrImpl([[maybe_unused]] const std::string& accStr, const std::string& prefix) const
 {
-    static_cast<void>(accStr);
     assert(accStr.empty());
     return prefix + ".getValue()";
 }
@@ -675,24 +671,21 @@ std::string CommsField::commsSizeAccessStrImpl(
     return strings::emptyString();
 }
 
-void CommsField::commsCompOptChecksImpl(const std::string& accStr, StringsList& checks, const std::string& prefix) const
+void CommsField::commsCompOptChecksImpl(
+    [[maybe_unused]] const std::string& accStr, 
+    [[maybe_unused]] StringsList& checks, 
+    [[maybe_unused]] const std::string& prefix) const
 {
-    static_cast<void>(accStr);
-    static_cast<void>(checks);
-    static_cast<void>(prefix);
 }
 
-std::string CommsField::commsCompValueCastTypeImpl(const std::string& accStr, const std::string& prefix) const
+std::string CommsField::commsCompValueCastTypeImpl([[maybe_unused]] const std::string& accStr, const std::string& prefix) const
 {
-    static_cast<void>(accStr);
-    static_cast<void>(prefix);
     assert(accStr.empty());
     return prefix + "ValueType";
 }
 
-std::string CommsField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+std::string CommsField::commsCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
-    static_cast<void>(accStr);
     assert(accStr.empty());
     return value;
 }
@@ -702,9 +695,8 @@ bool CommsField::commsHasCustomLengthDeepImpl() const
     return false;
 }
 
-bool CommsField::commsVerifyInnerRefImpl(const std::string& refStr) const
+bool CommsField::commsVerifyInnerRefImpl([[maybe_unused]] const std::string& refStr) const
 {
-    static_cast<void>(refStr);
     return false;
 }
 
@@ -886,7 +878,7 @@ bool CommsField::commsPrepareOverrideInternal(
     if (customCode.empty() && isOverrideCodeRequired(type)) {
         m_field.generator().logger().error(
             "Overriding \"" + name + "\" operation is not provided in injected code for field \"" +
-            m_field.dslObj().externalRef() + "\".");
+            m_field.dslObj().externalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
         return false;
     }
 

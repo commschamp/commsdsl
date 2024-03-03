@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -391,9 +391,8 @@ std::size_t CommsIntField::commsMinLengthImpl() const
     return CommsBase::commsMinLengthImpl();
 }
 
-std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, const std::string& value) const
+std::string CommsIntField::commsCompPrepValueStrImpl([[maybe_unused]] const std::string& accStr, const std::string& value) const
 {
-    static_cast<void>(accStr);
     assert(accStr.empty());
 
     auto valToString = 
@@ -458,8 +457,7 @@ std::string CommsIntField::commsCompPrepValueStrImpl(const std::string& accStr, 
     } while (false);
 
     gen.logger().error("Unknown value comparison string \"" + value + "\" for field " + comms::scopeFor(*this, gen));
-    static constexpr bool Not_yet_implemented = false;
-    static_cast<void>(Not_yet_implemented);
+    [[maybe_unused]] static constexpr bool Not_yet_implemented = false;
     assert(Not_yet_implemented);
     return strings::unexpectedValueStr();
 }

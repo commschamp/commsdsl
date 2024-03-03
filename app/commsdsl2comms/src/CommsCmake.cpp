@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -45,7 +45,6 @@ bool CommsCmake::write(CommsGenerator& generator)
 
 bool CommsCmake::commsWriteInternal() const
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         util::pathAddElem(
             m_generator.getOutputDir(), strings::cmakeListsFileStr());    
@@ -58,7 +57,7 @@ bool CommsCmake::commsWriteInternal() const
     }
 
     const std::string Templ = 
-        "cmake_minimum_required (VERSION 3.1)\n"
+        "cmake_minimum_required (VERSION 3.10)\n"
         "project (\"#^#NAME#$#\")\n\n"
         "option (OPT_REQUIRE_COMMS_LIB \"Require COMMS library, find it and set as dependency to the protocol library\" ON)\n\n"
         "# Other parameters:\n"
@@ -129,7 +128,7 @@ bool CommsCmake::commsWriteInternal() const
         "    (NOT \"${minor_ver}\" STREQUAL \"\") AND\n"
         "    (NOT \"${patch_ver}\" STREQUAL \"\"))\n"
         "    set (#^#CAP_NAME#$#_VERSION \"${major_ver}.${minor_ver}.${patch_ver}\")\n\n"
-        "    message (STATUS \"Detected version ${#^#CAP_NAME#$#_VERSION} of the protocol\")\n"
+        "    message (STATUS \"Detected version ${#^#CAP_NAME#$#_VERSION} of the protocol library.\")\n"
         "    include(CMakePackageConfigHelpers)\n"
         "    write_basic_package_version_file(\n"
         "        ${CMAKE_BINARY_DIR}/${OPT_CMAKE_EXPORT_CONFIG_NAME}ConfigVersion.cmake\n"

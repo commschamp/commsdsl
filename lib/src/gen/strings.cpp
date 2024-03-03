@@ -255,6 +255,12 @@ const std::string& constructFileSuffixStr()
     return Str;     
 }
 
+const std::string& sourcesFileSuffixStr()
+{
+    static const std::string Str(".sources");
+    return Str;     
+}
+
 const std::string& forceEmptyDisplayNameStr()
 {
     static const std::string Str("_");

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -475,8 +475,7 @@ const Field* Namespace::findMessageIdField() const
 
         if ((f->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) &&
             (f->dslObj().kind() != commsdsl::parse::Field::Kind::Int)) {
-            static constexpr bool Unexpected_kind = false;
-            static_cast<void>(Unexpected_kind);
+            [[maybe_unused]] static constexpr bool Unexpected_kind = false;
             assert(Unexpected_kind);  
             return nullptr;
         }

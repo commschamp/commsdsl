@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,6 +24,10 @@
 #include <fstream>
 #include <cassert>
 
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
+
+
 namespace commsdsl2test
 {
 
@@ -43,7 +47,6 @@ bool TestCmake::write(TestGenerator& generator)
 
 bool TestCmake::testWriteInternal() const
 {
-    static_cast<void>(m_generator);
     auto filePath = 
         commsdsl::gen::util::pathAddElem(
             m_generator.getOutputDir(), commsdsl::gen::strings::cmakeListsFileStr());    
@@ -79,10 +82,11 @@ bool TestCmake::testWriteInternal() const
         {"FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)},
         {"OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)},
         {"INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator)},
+        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
 
     static const std::string Template =
-        "cmake_minimum_required (VERSION 3.1)\n"
+        "cmake_minimum_required (VERSION 3.10)\n"
         "project (\"#^#PROJ_NAME#$#_test\")\n\n"
         "option (OPT_WARN_AS_ERR \"Treat warning as error\" ON)\n"
         "option (OPT_USE_CCACHE \"Use of ccache on UNIX system\" ON)\n"
@@ -97,14 +101,16 @@ bool TestCmake::testWriteInternal() const
         "# OPT_TEST_INPUT_MESSAGES - All input messages bundle for test applications,\n"
         "#       defaults to #^#INPUT_SCOPE#$#.\n"
         "# OPT_MSVC_FORCE_WARN_LEVEL - Force msvc warning level\n\n"
-        "if (CMAKE_TOOLCHAIN_FILE AND EXISTS ${CMAKE_TOOLCHAIN_FILE})\n"
-        "    message(STATUS \"Loading toolchain from ${CMAKE_TOOLCHAIN_FILE}\")\n"
+        "if (\"${CMAKE_CXX_STANDARD}\" STREQUAL \"\")\n"
+        "    set(CMAKE_CXX_STANDARD 11)\n"
         "endif()\n\n"
-        "set(CMAKE_CXX_STANDARD 11 CACHE STRING \"The C++ standard to use\")\n\n"
         "include(GNUInstallDirs)\n"
         "######################################################################\n"
         "function (define_test name)\n"
-        "    set (src ${name}.cpp)\n"
+        "    set (src\n"
+        "        ${name}.cpp\n"
+        "        #^#EXTRA_SOURCES#$#\n"
+        "    )\n\n"
         "    add_executable(${name} ${src})\n"
         "    target_link_libraries(${name} PRIVATE cc::#^#PROJ_NS#$# cc::comms)\n"
         "    set (extra_defs)\n"
@@ -177,7 +183,7 @@ bool TestCmake::testWriteInternal() const
         "string (REPLACE \"::\" \"/\" OPT_TEST_INPUT_MESSAGES_HEADER \"${OPT_TEST_INPUT_MESSAGES}.h\")\n\n"
         "define_test(#^#PROJ_NS#$#_input_test)\n";
 
-    auto str = commsdsl::gen::util::processTemplate(Template, repl, true);
+    auto str = util::processTemplate(Template, repl, true);
     stream << str;
     stream.flush();
     if (!stream.good()) {

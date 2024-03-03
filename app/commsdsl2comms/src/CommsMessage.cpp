@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -331,7 +331,7 @@ bool CommsMessage::commsPrepareOverrideInternal(
     if (customCode.empty() && isOverrideCodeRequired(type)) {
         generator().logger().error(
             "Overriding \"" + name + "\" operation is not provided in injected code for message \"" +
-            dslObj().externalRef() + "\".");
+            dslObj().externalRef() + "\". Expected overriding file is \"" + codePathPrefix + suffix + ".");
         return false;
     }
 

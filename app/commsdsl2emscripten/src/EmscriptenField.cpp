@@ -1,5 +1,5 @@
 //
-// Copyright 2022 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2022 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -170,9 +170,8 @@ void EmscriptenField::emscriptenAddSourceFiles(StringsList& sources) const
     sources.push_back(gen.emscriptenRelSourceFor(m_field));
 }
 
-void EmscriptenField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs) const
+void EmscriptenField::emscriptenHeaderAddExtraIncludesImpl([[maybe_unused]] StringsList& incs) const
 {
-    static_cast<void>(incs);
 }
 
 std::string EmscriptenField::emscriptenHeaderExtraCodePrefixImpl() const

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -87,10 +87,14 @@ bool SwigCmake::swigWriteInternal() const
         "    PROPERTIES\n"
         "        CPLUSPLUS ON\n"
         ")\n\n"
+        "set (src\n"
+        "    ${swig_src_file}\n"
+        "    #^#EXTRA_SOURCES#$#\n"
+        ")\n\n"
         "foreach (lang ${OPT_SWIG_LANGUAGES})\n"
         "    #^#PREPEND_LANG#$#\n"
         "    set (lang_output_dir ${CMAKE_CURRENT_BINARY_DIR}/output_${lang})\n"
-        "    swig_add_library(#^#PROJ_NAME#$#_swig_${lang} LANGUAGE ${lang} OUTPUT_DIR ${lang_output_dir} SOURCES ${swig_src_file})\n"
+        "    swig_add_library(#^#PROJ_NAME#$#_swig_${lang} LANGUAGE ${lang} OUTPUT_DIR ${lang_output_dir} SOURCES ${src})\n"
         "    target_link_libraries(#^#PROJ_NAME#$#_swig_${lang} ${OPT_PROTOCOL_TARGET} cc::comms)\n"
         "    target_compile_options(#^#PROJ_NAME#$#_swig_${lang} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
@@ -105,6 +109,7 @@ bool SwigCmake::swigWriteInternal() const
         {"PREPEND", swigPrependInternal()},
         {"PREPEND_LANG", swigPrependLangInternal()},
         {"APPEND", swigAppendInternal()},
+        {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);

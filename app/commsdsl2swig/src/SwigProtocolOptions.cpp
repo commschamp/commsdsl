@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -132,23 +132,9 @@ std::string SwigProtocolOptions::swigClassName(const SwigGenerator& generator)
     return generator.protocolSchema().mainNamespace() + "_ProtocolOptions";
 }
 
-bool SwigProtocolOptions::swigIsDefined(const SwigGenerator& generator)
+bool SwigProtocolOptions::swigIsDefined([[maybe_unused]] const SwigGenerator& generator)
 {
-    static_cast<void>(generator);
     return true;
-
-    // auto& schemas = generator.schemas();
-    // if (schemas.size() <= 1) {
-    //     return false;
-    // }
-
-    // for (auto idx = 0U; idx < (schemas.size() - 1); ++idx) {
-    //     if (schemas[idx]->hasAnyReferencedComponent()) {
-    //         return true;
-    //     }
-    // }
-
-    // return false;
 }
 
 } // namespace commsdsl2swig

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -185,9 +185,8 @@ std::string SwigLayer::swigMemberFieldDeclImpl() const
     return strings::emptyString();
 }
 
-void SwigLayer::swigAddCodeImpl(StringsList& list) const
+void SwigLayer::swigAddCodeImpl([[maybe_unused]] StringsList& list) const
 {
-    static_cast<void>(list);
 }
 
 std::string SwigLayer::swigFieldTypeImpl() const

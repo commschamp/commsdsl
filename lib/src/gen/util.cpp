@@ -165,7 +165,6 @@ void cleanNewLinesBeforeCloseBracket(std::string& code)
 
 void doTidyCode(std::string& code)
 {
-    static_cast<void>(code);
     cleanSpaces(code);
     cleanExtraNewLines(code);
     cleanNewLinesBeforeCloseBracket(code);
@@ -250,6 +249,15 @@ bool strStartsWith(const std::string& str, const std::string& prefix)
     }
 
     return std::equal(prefix.begin(), prefix.end(), str.begin());
+}
+
+bool strEndsWith(const std::string& str, const std::string& suffix)
+{
+    if (str.size() < suffix.size()) {
+        return false;
+    }
+
+    return std::equal(suffix.rbegin(), suffix.rend(), str.rbegin());
 }
 
 std::string strToUpper(const std::string& str)
@@ -403,8 +411,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
         static const std::string Suffix("#$#");
         auto suffixPos = templ.find(Suffix, prefixPos + Prefix.size());
         if (suffixPos == std::string::npos) {
-            static constexpr bool Incorrect_template = false;
-            static_cast<void>(Incorrect_template);
+            [[maybe_unused]] static constexpr bool Incorrect_template = false;
             assert(Incorrect_template);            
             templPos = templ.size();
             break;
@@ -445,8 +452,7 @@ std::string processTemplate(const std::string& templ, const ReplacementMap& repl
 
             auto nextNewLinePos = templ.find_first_of('\n', suffixPos + Suffix.size());
             if (nextNewLinePos == std::string::npos) {
-                static constexpr bool Incorrect_template = false;
-                static_cast<void>(Incorrect_template);
+                [[maybe_unused]] static constexpr bool Incorrect_template = false;
                 assert(Incorrect_template);  
                 break;
             }
@@ -524,7 +530,7 @@ void addToStrList(const std::string& value, StringsList& list)
     }
 }
 
-std::string strMakeMultiline(const std::string& value, unsigned len)
+std::string strMakeMultiline(const std::string& value, unsigned len, bool dropReplacedWhiteChar)
 {
     if (value.size() <= len) {
         return value;
@@ -540,7 +546,26 @@ std::string strMakeMultiline(const std::string& value, unsigned len)
             break;
         }
 
-        static const std::string WhiteSpace(" \t\r");
+        auto insertFunc =
+            [&result, &pos, &value, dropReplacedWhiteChar](std::size_t newPos)
+            {
+                assert(pos <= newPos);
+                assert(newPos <= value.size());
+                result.insert(result.end(), value.begin() + pos, value.begin() + newPos);
+                if ((!dropReplacedWhiteChar) && (newPos < value.size())) {
+                    result.push_back(value[newPos]);
+                }
+                result.push_back('\n');
+                pos = newPos + 1;
+            };        
+
+        auto newLinePos = value.find_last_of("\n", nextPos);
+        if ((newLinePos != std::string::npos) && (pos <= newLinePos)) {
+            insertFunc(newLinePos);
+            continue;
+        }        
+
+        static const std::string WhiteSpace(" \t");
         auto prePos = value.find_last_of(WhiteSpace, nextPos);
         if ((prePos == std::string::npos) || (prePos < pos)) {
             prePos = pos;
@@ -554,16 +579,6 @@ std::string strMakeMultiline(const std::string& value, unsigned len)
         if ((prePos <= pos) && (value.size() <= postPos)) {
             break;
         }
-
-        auto insertFunc =
-            [&result, &pos, &value](std::size_t newPos)
-            {
-                assert(pos <= newPos);
-                assert(newPos <= value.size());
-                result.insert(result.end(), value.begin() + pos, value.begin() + newPos);
-                result.push_back('\n');
-                pos = newPos + 1;
-            };
 
         if (prePos <= pos) {
             insertFunc(postPos);

@@ -152,7 +152,7 @@ public:
             }
 
             
-            right += util::strReplace(util::strMakeMultiline(optPtr->m_desc, 40), "\n", Ind);
+            right += util::strReplace(util::strMakeMultiline(optPtr->m_desc, 60), "\n", Ind);
             opts.push_back(left + right);
         }
 

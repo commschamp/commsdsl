@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -141,8 +141,9 @@ private:
     using DocsList = std::vector<XmlDocPtr>;
     using StrToValueConvertFunc = std::function<bool (const NamespaceImpl& ns, const std::string& ref)>;
 
+    static void cbXmlErrorFunc(void* userData, const xmlError* err);
     static void cbXmlErrorFunc(void* userData, xmlErrorPtr err);
-    void handleXmlError(xmlErrorPtr err);
+    void handleXmlError(const xmlError* err);
     bool validateDoc(::xmlDocPtr doc);
     bool validateSchema(::xmlNodePtr node);
     bool validatePlatforms(::xmlNodePtr root);

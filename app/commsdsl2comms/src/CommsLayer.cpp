@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -35,7 +35,6 @@ namespace commsdsl2comms
 CommsLayer::CommsLayer(commsdsl::gen::Layer& layer) :
     m_layer(layer)
 {
-    static_cast<void>(m_layer);
 }
     
 CommsLayer::~CommsLayer() = default;
@@ -215,9 +214,8 @@ CommsLayer::IncludesList CommsLayer::commsDefIncludesImpl() const
     return IncludesList();
 }
 
-std::string CommsLayer::commsDefBaseTypeImpl(const std::string& prevName) const
+std::string CommsLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::string& prevName) const
 {
-    static_cast<void>(prevName);
     assert(false); // Not implemented in derived class
     return strings::emptyString();
 }
@@ -276,7 +274,7 @@ std::string CommsLayer::commsDefFieldType() const
         };
 
         if (!repl["EXTRA_OPTS"].empty()) {
-            repl["COMMA"] = ",";
+            repl["COMMA"] = std::string(",");
         }
         return util::processTemplate(Templ, repl);
     }

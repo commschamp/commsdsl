@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -540,10 +540,8 @@ bool SetFieldImpl::updateBits()
             return false;
         }
 
-        auto extraAttr = XmlWrap::getExtraAttributes(b, PropNames, protocol());
-        static_cast<void>(extraAttr);
-        auto extraChildren = XmlWrap::getExtraChildren(b, PropNames, protocol());
-        static_cast<void>(extraChildren);        
+        [[maybe_unused]] auto extraAttr = XmlWrap::getExtraAttributes(b, PropNames, protocol());
+        [[maybe_unused]] auto extraChildren = XmlWrap::getExtraChildren(b, PropNames, protocol());
 
         auto nameIter = props.find(common::nameStr());
         assert(nameIter != props.end());

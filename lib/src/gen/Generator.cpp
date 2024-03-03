@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -44,8 +44,11 @@
 #include <cassert>
 #include <algorithm>
 #include <filesystem>
+#include <fstream>
 #include <map>
 #include <system_error>
+
+namespace fs = std::filesystem;
 
 namespace commsdsl
 {
@@ -65,7 +68,7 @@ public:
 
     explicit GeneratorImpl(Generator& generator) :
         m_generator(generator),
-        m_outputDir(std::filesystem::current_path().string())
+        m_outputDir(fs::current_path().string())
     {
     }
 
@@ -780,8 +783,7 @@ Generator::FieldsAccessList Generator::getAllFieldsFromAllSchemas() const
 bool Generator::prepare(const FilesList& files)
 {
     // Make sure the logger is created
-    auto& l = logger();
-    static_cast<void>(l);
+    [[maybe_unused]] auto& l = logger();
 
     auto createCompleteFunc = 
         [this]()
@@ -1058,12 +1060,12 @@ bool Generator::createDirectory(const std::string& path) const
     }
 
     std::error_code ec;
-    if (std::filesystem::is_directory(path, ec)) {
+    if (fs::is_directory(path, ec)) {
         m_impl->recordCreatedDirectory(path);
         return true;
     }
 
-    std::filesystem::create_directories(path, ec);
+    fs::create_directories(path, ec);
     if (ec) {
         logger().error("Failed to create directory \"" + path + "\" with error: " + ec.message());
         return false;
@@ -1246,6 +1248,101 @@ Generator::LoggerPtr Generator::createLoggerImpl()
 Namespace* Generator::addDefaultNamespace()
 {
     return currentSchema().addDefaultNamespace();
+}
+
+bool Generator::copyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const
+{
+    auto& inputDir = getCodeDir();
+    if (inputDir.empty()) {
+        return true;
+    }
+
+    auto& outputDir = getOutputDir();
+    auto pos = inputDir.size();
+    auto endIter = fs::recursive_directory_iterator();
+    for (auto iter = fs::recursive_directory_iterator(inputDir); iter != endIter; ++iter) {
+        if (!iter->is_regular_file()) {
+            continue;
+        }
+        
+        auto srcPath = iter->path();
+        auto ext = srcPath.extension().string();
+
+        auto extIter = std::find(reservedExtensions.begin(), reservedExtensions.end(), ext);
+        if (extIter != reservedExtensions.end()) {
+            continue;
+        }
+
+        auto pathStr = srcPath.string();
+        auto posTmp = pos;
+        while (posTmp < pathStr.size()) {
+            if (pathStr[posTmp] == fs::path::preferred_separator) {
+                ++posTmp;
+                continue;
+            }
+            break;
+        }
+
+        if (pathStr.size() <= posTmp) {
+            continue;
+        }
+
+        std::string relPath(pathStr, posTmp);
+        auto& protSchema = protocolSchema();
+        auto schemaNs = util::strToName(protSchema.schemaName());
+        do {
+            if (protSchema.mainNamespace() == schemaNs) {
+                break;
+            }
+
+            auto srcPrefix = (fs::path(strings::includeDirStr()) / schemaNs).string();
+            if (!util::strStartsWith(relPath, srcPrefix)) {
+                break;
+            }
+
+            auto dstPrefix = (fs::path(strings::includeDirStr()) / protSchema.mainNamespace()).string();
+            relPath = dstPrefix + std::string(relPath, srcPrefix.size());
+        } while (false);
+
+        auto destPath = fs::path(outputDir) / relPath;
+        logger().info("Copying " + destPath.string());
+
+        if (!createDirectory(destPath.parent_path().string())) {
+            return false;
+        }
+
+        std::error_code ec;
+        fs::copy_file(srcPath, destPath, fs::copy_options::overwrite_existing, ec);
+        if (ec) {
+            logger().error("Failed to copy with reason: " + ec.message());
+            return false;
+        }
+
+        if (protSchema.mainNamespace() != schemaNs) {
+            // The namespace has changed
+
+            auto destStr = destPath.string();
+            std::ifstream stream(destStr);
+            if (!stream) {
+                logger().error("Failed to open " + destStr + " for modification.");
+                return false;
+            }
+
+            std::string content((std::istreambuf_iterator<char>(stream)), std::istreambuf_iterator<char>());
+            stream.close();
+
+            content = util::strReplace(content, "namespace " + schemaNs, "namespace " + protSchema.mainNamespace());
+            std::ofstream outStream(destStr, std::ios_base::trunc);
+            if (!outStream) {
+                logger().error("Failed to modify " + destStr + ".");
+                return false;
+            }
+
+            outStream << content;
+            logger().info("Updated " + destStr + " to have proper main namespace.");
+        }
+    }
+    return true;    
 }
 
 } // namespace gen

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2023 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -199,6 +199,8 @@ protected:
     virtual LoggerPtr createLoggerImpl();
 
     Namespace* addDefaultNamespace();
+
+    bool copyExtraSourceFiles(const std::vector<std::string>& reservedExtensions) const;
 
 private:
     std::unique_ptr<GeneratorImpl> m_impl;    
