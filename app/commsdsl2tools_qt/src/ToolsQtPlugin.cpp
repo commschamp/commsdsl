@@ -762,7 +762,7 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
         "}\n";
 
     util::ReplacementMap repl = {
-        {"ID", toolsAdjustedNameInternal()},
+        {"ID", m_pluginId},
     };        
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
