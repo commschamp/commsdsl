@@ -3,7 +3,7 @@ name: Github Actions Build
 on: [push]
 
 env:
-  COMMS_BRANCH: v5.2.2
+  COMMS_BRANCH: v5.2.3
   CC_TOOLS_QT_BRANCH: v5.2
 
 jobs:

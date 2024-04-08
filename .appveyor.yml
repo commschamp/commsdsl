@@ -17,7 +17,7 @@ configuration:
     - Release
 
 environment:
-    COMMS_BRANCH: v5.2.2
+    COMMS_BRANCH: v5.2.3
     CC_TOOLS_QT_BRANCH: v5.2
     matrix:
         - CPP_STD: 11
