@@ -477,7 +477,7 @@ jobs:
         cmake %GITHUB_WORKSPACE% -A ${{matrix.arch}} -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install ^
           -DCMAKE_PREFIX_PATH="${{runner.workspace}}/build/install;${{env.QTDIR}}" ^
           -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} ^
-          -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} ^  
+          -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} ^
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON -DCOMMSDSL_BUILD_UNIT_TESTS=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}}
       env:
