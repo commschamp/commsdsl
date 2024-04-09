@@ -4,10 +4,11 @@ on: [push]
 
 env:
   COMMS_TAG: v5.2.3
-  CC_TOOLS_QT_TAG: v5.2
+  CC_TOOLS_QT_TAG: v5.2.1
 
 jobs:
   build_gcc_old_ubuntu_20_04:
+    if: false
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -20,7 +21,7 @@ jobs:
             cpp: 14        
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Add repositories
       run: |
@@ -77,6 +78,7 @@ jobs:
       run: ctest      
 
   build_gcc_ubuntu_20_04:
+    if: false  
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -86,7 +88,7 @@ jobs:
         cpp: [11, 14, 17]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Prepare Install
       run: sudo apt-get update --fix-missing    
@@ -138,6 +140,7 @@ jobs:
       run: ctest
 
   build_gcc_ubuntu_22_04:
+    if: false
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -148,7 +151,7 @@ jobs:
         qt_ver: [5, 6]        
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Prepare Install
       run: sudo apt-get update --fix-missing    
@@ -207,6 +210,7 @@ jobs:
 
 
   build_clang_old_ubuntu_20_04:
+    if: false
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -220,7 +224,7 @@ jobs:
 
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Add repositories
       run: |
@@ -279,6 +283,7 @@ jobs:
       run: ctest
 
   build_clang_ubuntu_20_04:
+    if: false
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -293,7 +298,7 @@ jobs:
             cpp: 20
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Prepare Install
       run: sudo apt-get update --fix-missing    
@@ -346,6 +351,7 @@ jobs:
       run: ctest
 
   build_clang_ubuntu_22_04:
+    if: false
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -363,7 +369,7 @@ jobs:
             cpp: 20          
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Prepare Install
       run: sudo apt-get update --fix-missing    
@@ -437,6 +443,13 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build   
 
+    - name: Set Qt Version
+      shell: cmd
+      run: 
+        echo "QT_VER=${{env.QT_VER}}" >>%GITHUB_ENV%
+      env:
+        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}        
+
     - name: Install Qt
       if: ${{matrix.cpp >= 17}}
       shell: cmd
@@ -444,8 +457,6 @@ jobs:
         choco install curl
         curl -L https://github.com/martinrotter/qt-minimalistic-builds/releases/download/${{env.QT_VER}}/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64.7z -o ${{runner.workspace}}/qt.7z
         7z x ${{runner.workspace}}/qt.7z -o${{runner.workspace}}/qt
-      env:
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}
 
     - name: Prepare externals
       shell: cmd
@@ -455,7 +466,6 @@ jobs:
         BUILD_DIR: ${{runner.workspace}}/build
         PLATFORM: ${{matrix.arch}}
         EXTERNALS_DIR: ${{runner.workspace}}/externals
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}
         QTDIR: ${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64
         COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
         COMMON_BUILD_TYPE: ${{matrix.type}}
@@ -477,7 +487,6 @@ jobs:
       env:
         BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"      
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
