@@ -443,13 +443,6 @@ jobs:
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build   
 
-    - name: Set Qt Version
-      shell: cmd
-      run: 
-        echo "QT_VER=${{env.QT_VER}}" >>%GITHUB_ENV%
-      env:
-        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}        
-
     - name: Install Qt
       if: ${{matrix.cpp >= 17}}
       shell: cmd
@@ -457,6 +450,10 @@ jobs:
         choco install curl
         curl -L https://github.com/martinrotter/qt-minimalistic-builds/releases/download/${{env.QT_VER}}/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64.7z -o ${{runner.workspace}}/qt.7z
         7z x ${{runner.workspace}}/qt.7z -o${{runner.workspace}}/qt
+        echo QT_VER=${{env.QT_VER}} >>%GITHUB_ENV%
+        echo QTDIR=${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64 >>%GITHUB_ENV%
+      env:
+        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}        
 
     - name: Prepare externals
       shell: cmd
@@ -466,7 +463,6 @@ jobs:
         BUILD_DIR: ${{runner.workspace}}/build
         PLATFORM: ${{matrix.arch}}
         EXTERNALS_DIR: ${{runner.workspace}}/externals
-        QTDIR: ${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64
         COMMON_INSTALL_DIR: ${{runner.workspace}}/build/install
         COMMON_BUILD_TYPE: ${{matrix.type}}
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
@@ -479,7 +475,7 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       run: |
         cmake %GITHUB_WORKSPACE% -A ${{matrix.arch}} -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install ^
-          -DCMAKE_PREFIX_PATH="${{runner.workspace}}/build/install;${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64" ^
+          -DCMAKE_PREFIX_PATH="${{runner.workspace}}/build/install;${{env.QTDIR}}" ^
           -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} ^
           -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} ^  
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON -DCOMMSDSL_BUILD_UNIT_TESTS=ON ^
