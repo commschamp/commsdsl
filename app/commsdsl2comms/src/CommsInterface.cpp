@@ -152,10 +152,11 @@ bool CommsInterface::prepareImpl()
         m_name = strings::messageClassStr();
     }
 
-    m_constructCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::constructFileSuffixStr());
-    m_publicCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::publicFileSuffixStr());
-    m_protectedCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::protectedFileSuffixStr());
-    m_privateCode = util::readFileContents(comms::inputCodePathFor(*this, generator()) + strings::privateFileSuffixStr());
+    auto inputCodePrefix = comms::inputCodePathFor(*this, generator());
+    m_constructCode = util::readFileContents(inputCodePrefix + strings::constructFileSuffixStr());
+    m_publicCode = util::readFileContents(inputCodePrefix + strings::publicFileSuffixStr());
+    m_protectedCode = util::readFileContents(inputCodePrefix + strings::protectedFileSuffixStr());
+    m_privateCode = util::readFileContents(inputCodePrefix + strings::privateFileSuffixStr());
     m_commsFields = CommsField::commsTransformFieldsList(fields());
 
     return true;
@@ -251,8 +252,8 @@ bool CommsInterface::commsWriteDefInternal() const
             return stream.good();
         };
     
-    auto genFilePath = comms::headerPathRoot(m_name, gen);
-    auto codePathPrefix = comms::inputCodePathForRoot(m_name, gen);
+    auto genFilePath = comms::headerPathFor(*this, gen);
+    auto codePathPrefix = comms::inputCodePathFor(*this, gen);
     auto replaceContent = util::readFileContents(codePathPrefix + strings::replaceFileSuffixStr());
     if (!replaceContent.empty()) {
         return writeFunc(genFilePath, replaceContent);
@@ -268,8 +269,8 @@ bool CommsInterface::commsWriteDefInternal() const
         {"DOC_DETAILS", commsDefDocDetailsInternal()},
         {"BASE", commsDefBaseClassInternal()},
         {"HEADERFILE", comms::relHeaderPathFor(*this, gen)},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForRoot(m_name, gen) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForRoot(m_name, gen) + strings::appendFileSuffixStr())}
+        {"EXTEND", util::readFileContents(codePathPrefix + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(codePathPrefix + strings::appendFileSuffixStr())}
     };
 
     if (!repl["EXTEND"].empty()) {
@@ -477,7 +478,6 @@ std::string CommsInterface::commsDefPublicInternal() const
         "    #^#EXTRA#$#\n"
     ;
 
-    auto inputCodePrefix = comms::inputCodePathFor(*this, generator());
     util::ReplacementMap repl = {
         {"CONSTRUCT", m_constructCode},
         {"ACCESS", commsDefFieldsAccessInternal()},
