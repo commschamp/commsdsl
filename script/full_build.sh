@@ -15,6 +15,7 @@ ROOT_DIR=$( dirname ${SCRIPT_DIR} )
 export BUILD_DIR="${ROOT_DIR}/build.full.${CC}.${COMMON_BUILD_TYPE}"
 export COMMON_INSTALL_DIR=${BUILD_DIR}/install
 export EXTERNALS_DIR=${ROOT_DIR}/externals
+export COMMON_USE_CCACHE=ON
 mkdir -p ${BUILD_DIR}
 
 CXX_STANDARD_PARAM=

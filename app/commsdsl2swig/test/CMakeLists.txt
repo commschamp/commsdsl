@@ -97,6 +97,8 @@ foreach (name ${tests})
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DCMAKE_PREFIX_PATH=${build_prefix_path_str}
             -DOPT_SWIG_LANGUAGES=${languages_str}
+            -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
+            -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}                 
         INSTALL_COMMAND
             ${CMAKE_COMMAND} -E echo "Skipping install"
     )     
