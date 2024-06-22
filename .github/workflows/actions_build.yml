@@ -3,8 +3,8 @@ name: Github Actions Build
 on: [push]
 
 env:
-  COMMS_TAG: v5.2.3
-  CC_TOOLS_QT_TAG: v5.2.1
+  COMMS_TAG: v5.2.4
+  CC_TOOLS_QT_TAG: v5.3.0
 
 jobs:
   build_gcc_old_ubuntu_20_04:
