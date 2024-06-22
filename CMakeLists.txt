@@ -25,12 +25,12 @@ option (COMMSDSL_FORCE_INTERNAL_LIBXML_BUILD "Force internal build of libxml2 wh
 
 # Additional variables to be used if needed
 # ---------------------------
-# COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
+# COMMSDSL_TESTS_CXX_STANDARD - The C++ standard to use in tests, defaults to 11
 # COMMSDSL_TESTS_C_COMPILER - C compiler to build unittests
 # COMMSDSL_TESTS_CXX_COMPILER - C++ compiler to build unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
 # COMMSDSL_TESTS_QT_VERSION - The major Qt version for tests, defaults to 5
-# COMMSDSL_TESTS_CXX_STANDARD - The C++ standard to use in tests, defaults to 11
+# COMMSDSL_CCACHE_EXECUTABLE - Path to ccache executable
 
 # Other used CMake variables
 # CMAKE_CXX_STANDARD - The C++ standard to use during the compilation, defaults to 17 (min)
@@ -95,9 +95,11 @@ if (COMMSDSL_WARN_AS_ERR)
     list (APPEND extra_opts WARN_AS_ERR)
 endif ()
 
-set (ccache_opt)
 if (COMMSDSL_USE_CCACHE)
     list (APPEND extra_opts USE_CCACHE)
+    if (NOT "${COMMSDSL_CCACHE_EXECUTABLE}" STREQUAL "")
+        list (APPEND extra_opts CCACHE_EXECUTABLE "${COMMSDSL_CCACHE_EXECUTABLE}")
+    endif ()
 endif ()
 
 commsdsl_compile(${extra_opts})

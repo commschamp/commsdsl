@@ -5,6 +5,7 @@
 #     commsdsl_compile(
 #         [WARN_AS_ERR]
 #         [USE_CCACHE]
+#         [CCACHE_EXECUTABLE /path/to/ccache]
 #     )
 #
 # - WARN_AS_ERR - Treat warnings as errors.
@@ -100,10 +101,13 @@ macro (commsdsl_compile)
     endif ()   
 
     if (COMMSDSL_COMPILE_USE_CCACHE)
-        find_program(CCACHE_EXECUTABLE ccache)
-        if (CCACHE_EXECUTABLE)
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE_EXECUTABLE})
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${CCACHE_EXECUTABLE})
+        if (NOT COMMSDSL_COMPILE_CCACHE_EXECUTABLE)
+            find_program(COMMSDSL_COMPILE_CCACHE_EXECUTABLE ccache)
+        endif ()
+
+        if (COMMSDSL_COMPILE_CCACHE_EXECUTABLE)
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${COMMSDSL_COMPILE_CCACHE_EXECUTABLE})
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${COMMSDSL_COMPILE_CCACHE_EXECUTABLE})
         endif ()
     endif ()      
 endmacro()
