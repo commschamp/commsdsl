@@ -21,7 +21,7 @@ option (COMMSDSL_BUILD_COMMSDSL2TEST_TESTS "Build commsdsl2test unittests." ${CO
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
 option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ON)
 option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
-option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
+option (COMMSDSL_FORCE_INTERNAL_LIBXML_BUILD "Force internal build of libxml2 when external one is not found" OFF)
 
 # Additional variables to be used if needed
 # ---------------------------
@@ -40,6 +40,7 @@ option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Wind
 # option (COMMSDSL_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 # option (COMMSDSL_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 # option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
+# option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
 
 ################################################
 
@@ -53,6 +54,10 @@ include (${CMAKE_SCIPTS_DIR}/CommsdslCompile.cmake)
 commsdsl_negate_option(COMMSDSL_NO_WARN_AS_ERR COMMSDSL_WARN_AS_ERR)
 commsdsl_negate_option(COMMSDSL_NO_CCACHE COMMSDSL_USE_CCACHE)
 commsdsl_negate_option(COMMSDSL_NO_TESTS COMMSDSL_BUILD_UNIT_TESTS)
+
+if (WIN32 AND COMMSDSL_WIN_ALLOW_LIBXML_BUILD)
+    set (COMMSDSL_FORCE_INTERNAL_LIBXML_BUILD ON)
+endif ()
 
 ################################################
 
