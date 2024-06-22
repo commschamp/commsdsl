@@ -9,6 +9,7 @@ rem COMMS_TAG - (Optional) Tag of the COMMS library
 rem CC_TOOLS_QT_REPO - (Optional) Repository of the cc_tools_qt
 rem CC_TOOLS_QT_TAG - (Optional) Tag of the cc_tools_qt
 rem CC_TOOLS_QT_MAJOR_QT_VERSION - (Optional) Major version of the Qt library
+rem CC_TOOLS_QT_SKIP - (Optional) Skip build of cc_tools_qt
 rem COMMON_INSTALL_DIR - (Optional) Common directory to perform installations
 rem COMMON_BUILD_TYPE - (Optional) CMake build type
 rem COMMON_CXX_STANDARD - (Optional) CMake C++ standard
@@ -76,6 +77,11 @@ rem ----------------------------------------------------
 
 if %COMMON_CXX_STANDARD% LSS 17 (
     echo "Skipping build of cc_tools_qt due to old C++ standard"
+    goto cc_tools_qt_end
+)
+
+if %CC_TOOLS_QT_SKIP% GTR 0 (
+    echo "Skipping build of cc_tools_qt"
     goto cc_tools_qt_end
 )
 
