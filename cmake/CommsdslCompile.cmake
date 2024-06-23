@@ -4,6 +4,7 @@
 # Set predefined compilation flags
 #     commsdsl_compile(
 #         [WARN_AS_ERR]
+#         [DEFAULT_SANITIZERS]
 #         [USE_CCACHE]
 #         [CCACHE_EXECUTABLE /path/to/ccache]
 #     )
@@ -22,7 +23,7 @@
 
 macro (commsdsl_compile)
     set (_prefix COMMSDSL_COMPILE)
-    set (_options WARN_AS_ERR STATIC_RUNTIME USE_CCACHE)
+    set (_options WARN_AS_ERR STATIC_RUNTIME USE_CCACHE DEFAULT_SANITIZERS)
     set (_oneValueArgs)
     set (_mutiValueArgs)
     cmake_parse_arguments(${_prefix} "${_options}" "${_oneValueArgs}" "${_mutiValueArgs}" ${ARGN})
@@ -71,6 +72,14 @@ macro (commsdsl_compile)
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             list (APPEND extra_flags_list "-Wno-dangling-field -Wno-unused-command-line-argument")
         endif ()
+
+        if (COMMSDSL_COMPILE_DEFAULT_SANITIZERS)
+            list (APPEND extra_flags_list
+                -fno-omit-frame-pointer 
+                -fsanitize=address
+                -fsanitize=undefined
+                -fno-sanitize-recover=all)        
+        endif ()        
         
         if (COMMSDSL_COMPILE_WARN_AS_ERR)
             list (APPEND extra_flags_list "-Werror")
