@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test51" endian="big">
+    <description>
+        Testing interface in the namespace
+    </description>
+    <ns name="ns1">
+        <fields>
+            <enum name="MsgId" type="uint8" semanticType="messageId" >
+                <validValue name="M1" val="1" />
+            </enum>
+        </fields>
+
+        <interface name="Message">
+            <int name="F2" type="uint8" />
+        </interface>
+
+        <message name="Msg1" id="ns1.MsgId.M1">
+            <int name="F1" type="uint16" />
+        </message>
+
+        <frame name="Frame">
+            <size name="Size">
+                <int name="Length" type="uint16" />
+            </size>
+            <id name="Id" field="ns1.MsgId" />
+            <payload name="Data" />
+        </frame>
+    </ns>
+</schema>

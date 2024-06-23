@@ -1,23 +1,29 @@
 set (INTERNAL_LIBXML_TGT)
 
 while (TRUE)
-    if ((NOT WIN32) OR (NOT COMMSDSL_WIN_ALLOW_LIBXML_BUILD))
-        # Use libxml2 from system / external repositories
-        break()
-    endif ()
-
-    find_package(LibXml2 QUIET)
-    if (LIBXML2_FOUND)
-        # Find again just to display info
-        find_package(LibXml2 REQUIRED) 
-        break()
+    if (NOT COMMSDSL_FORCE_INTERNAL_LIBXML_BUILD)
+        find_package(LibXml2 QUIET) 
+        if (LIBXML2_FOUND)
+            # Find again just to display info
+            find_package(LibXml2 REQUIRED) 
+            break()
+        endif ()    
     endif ()
 
     set (INTERNAL_LIBXML_TGT "libxml2_tgt")
     set (LIBXML2_DIR "${CMAKE_CURRENT_BINARY_DIR}/libxml2")
     set (LIBXML2_SRC_DIR "${LIBXML2_DIR}/src")
-    set (LIBXML2_BIN_DIR "${LIBXML2_SRC_DIR}/win32")
+    set (LIBXML2_BIN_DIR "${LIBXML2_DIR}/build")
     set (LIBXML2_INSTALL_DIR "${LIBXML2_BIN_DIR}/install")
+    set (LIBXML2_LIB_NAME libxml2.a)
+    if (WIN32)
+        set (LIBXML2_LIB_NAME libxml2sd.lib)
+        if (("${CMAKE_BUILD_TYPE}" STREQUAL "Release") OR 
+            ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel") OR
+            ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"))
+            set (LIBXML2_LIB_NAME libxml2s.lib)
+        endif ()          
+    endif ()
 
     include(ExternalProject)
     ExternalProject_Add(
@@ -41,17 +47,13 @@ while (TRUE)
         BINARY_DIR "${LIBXML2_BIN_DIR}"
         INSTALL_DIR "${LIBXML2_INSTALL_DIR}"
         # BUILD_BYPRODUCTS needed by Ninja
-        BUILD_BYPRODUCTS <INSTALL_DIR>/lib/libxml2_a.lib
+        BUILD_BYPRODUCTS <INSTALL_DIR>/lib/${LIBXML2_LIB_NAME}
     )
 
     set (LIBXML2_FOUND TRUE)
     set (LIBXML2_INCLUDE_DIR "${LIBXML2_INSTALL_DIR}/include/libxml2")
-    set (LIBXML2_LIBRARIES "${LIBXML2_INSTALL_DIR}/lib/libxml2sd.lib")
-    if (("${CMAKE_BUILD_TYPE}" STREQUAL "Release") OR 
-        ("${CMAKE_BUILD_TYPE}" STREQUAL "MinSizeRel") OR
-        ("${CMAKE_BUILD_TYPE}" STREQUAL "RelWithDebInfo"))
-        set (LIBXML2_LIBRARIES "${LIBXML2_INSTALL_DIR}/lib/libxml2s.lib")
-    endif ()
+    set (LIBXML2_LIBRARIES "${LIBXML2_INSTALL_DIR}/lib/${LIBXML2_LIB_NAME}")
+
     set (LIBXML2_DEFINITIONS "LIBXML_STATIC")
     file(MAKE_DIRECTORY ${LIBXML2_INCLUDE_DIR})
 
@@ -68,10 +70,6 @@ while (TRUE)
     break()
 endwhile ()
 
-if (NOT LIBXML2_FOUND)
-    find_package(LibXml2 REQUIRED)
-endif ()
-
 if (LIBXML2_FOUND AND (NOT TARGET LibXml2::LibXml2))
     # Older versions of cmake may not define LibXml2::LibXml2 target
     add_library(LibXml2::LibXml2 UNKNOWN IMPORTED)
@@ -80,6 +78,10 @@ if (LIBXML2_FOUND AND (NOT TARGET LibXml2::LibXml2))
         IMPORTED_IMPLIB ${LIBXML2_LIBRARIES}
         INTERFACE_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIRS}"
     )
+endif ()
+
+if (NOT TARGET LibXml2::LibXml2)
+    message (FATAL_ERROR "LibXml2 dependency is not found and not built internally" )
 endif ()
 
 set (

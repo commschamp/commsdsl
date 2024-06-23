@@ -4,7 +4,9 @@
 # Set predefined compilation flags
 #     commsdsl_compile(
 #         [WARN_AS_ERR]
+#         [DEFAULT_SANITIZERS]
 #         [USE_CCACHE]
+#         [CCACHE_EXECUTABLE /path/to/ccache]
 #     )
 #
 # - WARN_AS_ERR - Treat warnings as errors.
@@ -21,7 +23,7 @@
 
 macro (commsdsl_compile)
     set (_prefix COMMSDSL_COMPILE)
-    set (_options WARN_AS_ERR STATIC_RUNTIME USE_CCACHE)
+    set (_options WARN_AS_ERR STATIC_RUNTIME USE_CCACHE DEFAULT_SANITIZERS)
     set (_oneValueArgs)
     set (_mutiValueArgs)
     cmake_parse_arguments(${_prefix} "${_options}" "${_oneValueArgs}" "${_mutiValueArgs}" ${ARGN})
@@ -70,6 +72,14 @@ macro (commsdsl_compile)
         if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
             list (APPEND extra_flags_list "-Wno-dangling-field -Wno-unused-command-line-argument")
         endif ()
+
+        if (COMMSDSL_COMPILE_DEFAULT_SANITIZERS)
+            list (APPEND extra_flags_list
+                -fno-omit-frame-pointer 
+                -fsanitize=address
+                -fsanitize=undefined
+                -fno-sanitize-recover=all)        
+        endif ()        
         
         if (COMMSDSL_COMPILE_WARN_AS_ERR)
             list (APPEND extra_flags_list "-Werror")
@@ -100,10 +110,13 @@ macro (commsdsl_compile)
     endif ()   
 
     if (COMMSDSL_COMPILE_USE_CCACHE)
-        find_program(CCACHE_EXECUTABLE ccache)
-        if (CCACHE_EXECUTABLE)
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE_EXECUTABLE})
-            set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${CCACHE_EXECUTABLE})
+        if (NOT COMMSDSL_COMPILE_CCACHE_EXECUTABLE)
+            find_program(COMMSDSL_COMPILE_CCACHE_EXECUTABLE ccache)
+        endif ()
+
+        if (COMMSDSL_COMPILE_CCACHE_EXECUTABLE)
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${COMMSDSL_COMPILE_CCACHE_EXECUTABLE})
+            set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ${COMMSDSL_COMPILE_CCACHE_EXECUTABLE})
         endif ()
     endif ()      
 endmacro()

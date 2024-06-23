@@ -74,7 +74,9 @@ const std::string& toolsHeaderCodeSinglePimplInterfaceTemplInternal()
         "    virtual ~#^#CLASS_NAME#$#();\n"
         "    #^#CLASS_NAME#$#& operator=(const #^#CLASS_NAME#$#& other);\n"
         "    #^#CLASS_NAME#$#& operator=(#^#CLASS_NAME#$#&&);\n"
-        "    static MsgIdParamType doGetId();\n\n"
+        "    static MsgIdParamType doGetId();\n"
+        "    static constexpr bool hasStaticMsgId() { return true; }\n"
+        "    static constexpr MsgIdType staticMsgId() { return static_cast<MsgIdType>(#^#MSG_ID#$#); }\n\n"
         "protected:\n"
         "    virtual const char* nameImpl() const override;\n"
         "    virtual const QVariantList& fieldsPropertiesImpl() const override;\n"
@@ -479,6 +481,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
         {"INTERFACE", comms::scopeFor(*interfaces.front(), gen)},
         {"PROT_MESSAGE", comms::scopeFor(*this, gen)},
         {"DEF_OPTIONS", ToolsQtDefaultOptions::toolsScope(gen)},
+        {"MSG_ID", util::numToString(dslObj().id())},
     };
 
     return util::processTemplate(func(), repl);

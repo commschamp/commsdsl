@@ -15,15 +15,15 @@ ROOT_DIR=$( dirname ${SCRIPT_DIR} )
 export BUILD_DIR="${ROOT_DIR}/build.full.${CC}.${COMMON_BUILD_TYPE}"
 export COMMON_INSTALL_DIR=${BUILD_DIR}/install
 export EXTERNALS_DIR=${ROOT_DIR}/externals
+export COMMON_USE_CCACHE=ON
 mkdir -p ${BUILD_DIR}
 
-CXX_STANDARD_PARAM=
-if [ -n "${COMMON_CXX_STANDARD}" ]; then
-    CXX_STANDARD_PARAM="-DCMAKE_CXX_STANDARD=${COMMON_CXX_STANDARD}"
+if [ -z "${COMMON_CXX_STANDARD}" ]; then
+    export COMMON_CXX_STANDARD="17"
 fi
 
-${SCRIPT_DIR}/prepare_externals.sh ${CXX_STANDARD_PARAM}
-${SCRIPT_DIR}/env_dev.sh -DCMAKE_PREFIX_PATH=${COMMON_INSTALL_DIR} ${CXX_STANDARD_PARAM} "$@"
+${SCRIPT_DIR}/prepare_externals.sh 
+${SCRIPT_DIR}/env_dev.sh -DCMAKE_PREFIX_PATH=${COMMON_INSTALL_DIR} "$@"
 
 procs=$(nproc)
 if [ -n "${procs}" ]; then

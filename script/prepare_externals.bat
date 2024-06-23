@@ -9,6 +9,7 @@ rem COMMS_TAG - (Optional) Tag of the COMMS library
 rem CC_TOOLS_QT_REPO - (Optional) Repository of the cc_tools_qt
 rem CC_TOOLS_QT_TAG - (Optional) Tag of the cc_tools_qt
 rem CC_TOOLS_QT_MAJOR_QT_VERSION - (Optional) Major version of the Qt library
+rem CC_TOOLS_QT_SKIP - (Optional) Skip build of cc_tools_qt
 rem COMMON_INSTALL_DIR - (Optional) Common directory to perform installations
 rem COMMON_BUILD_TYPE - (Optional) CMake build type
 rem COMMON_CXX_STANDARD - (Optional) CMake C++ standard
@@ -31,7 +32,11 @@ if [%CC_TOOLS_QT_REPO%] == [] set CC_TOOLS_QT_REPO="https://github.com/commscham
 
 if [%CC_TOOLS_QT_TAG%] == [] set CC_TOOLS_QT_TAG="master"
 
+if [%CC_TOOLS_QT_SKIP%] == [] set CC_TOOLS_QT_SKIP=0
+
 if [%COMMON_BUILD_TYPE%] == [] set COMMON_BUILD_TYPE=Debug
+
+if [%COMMON_CXX_STANDARD%] == [] set COMMON_CXX_STANDARD=11
 
 set COMMS_SRC_DIR=%EXTERNALS_DIR%/comms
 set COMMS_BUILD_DIR=%BUILD_DIR%/externals/comms/build
@@ -44,7 +49,6 @@ set CC_TOOLS_QT_INSTALL_DIR=%CC_TOOLS_QT_BUILD_DIR%/install
 if NOT [%COMMON_INSTALL_DIR%] == [] set CC_TOOLS_QT_INSTALL_DIR=%COMMON_INSTALL_DIR%
 set CC_TOOLS_QT_VERSION_OPT=
 if NOT [%CC_TOOLS_QT_MAJOR_QT_VERSION%] == [] set CC_TOOLS_QT_VERSION_OPT="-DCC_TOOLS_QT_MAJOR_QT_VERSION=%CC_TOOLS_QT_MAJOR_QT_VERSION%"
-
 
 rem ----------------------------------------------------
 
@@ -76,6 +80,11 @@ rem ----------------------------------------------------
 
 if %COMMON_CXX_STANDARD% LSS 17 (
     echo "Skipping build of cc_tools_qt due to old C++ standard"
+    goto cc_tools_qt_end
+)
+
+if %CC_TOOLS_QT_SKIP% GTR 0 (
+    echo "Skipping build of cc_tools_qt"
     goto cc_tools_qt_end
 )
 

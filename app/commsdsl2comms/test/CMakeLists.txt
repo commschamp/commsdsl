@@ -129,6 +129,7 @@ set (CMAKE_CXX_STANDARD ${COMMSDSL_TESTS_CXX_STANDARD})
 
 set (COMMSDSL_SANITIZER_OPTS)
 if (COMMSDSL_TEST_USE_SANITIZERS AND
+    (NOT COMMSDSL_BUILD_WITH_SANITIZERS) AND
     ((CMAKE_COMPILER_IS_GNUCC) OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")))
     set (COMMSDSL_SANITIZER_OPTS 
         -fno-omit-frame-pointer 
@@ -209,3 +210,4 @@ test_func (test47)
 test_func (test48)
 test_func (test49)
 test_func (test50)
+test_func (test51)

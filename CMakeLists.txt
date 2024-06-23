@@ -2,7 +2,7 @@ cmake_minimum_required (VERSION 3.10)
 project ("commsdsl")
 
 option (COMMSDSL_WARN_AS_ERR "Treat warning as error" ON)
-option (COMMSDSL_USE_CCACHE "Use ccache on UNIX systems if it's available" ON)
+option (COMMSDSL_USE_CCACHE "Use ccache on UNIX systems if it's available" OFF)
 option (COMMSDSL_INSTALL_LIBRARY "Install commdsl library" OFF )
 option (COMMSDSL_INSTALL_LIBRARY_HEADERS "Install commdsl library headers" ${COMMSDSL_INSTALL_LIBRARY})
 option (COMMSDSL_BUILD_COMMSDSL2COMMS "Build commsdsl2comms" ON)
@@ -10,6 +10,7 @@ option (COMMSDSL_BUILD_COMMSDSL2TEST "Build commsdsl2test" OFF)
 option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT "Build commsdsl2tools_qt" OFF)
 option (COMMSDSL_BUILD_COMMSDSL2SWIG "Build commsdsl2swig" OFF)
 option (COMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN "Build commsdsl2emscripten" OFF)
+option (COMMSDSL_BUILD_WITH_SANITIZERS "Build with sanitizers enables" OFF)
 option (COMMSDSL_INSTALL_APPS "Install applications" ON)
 option (COMMSDSL_BUILD_UNIT_TESTS "Build unittests." OFF)
 option (COMMSDSL_BUILD_COMMSDSL2COMMS_TESTS "Build commsdsl2comms unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
@@ -21,16 +22,16 @@ option (COMMSDSL_BUILD_COMMSDSL2TEST_TESTS "Build commsdsl2test unittests." ${CO
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
 option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ON)
 option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
-option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
+option (COMMSDSL_FORCE_INTERNAL_LIBXML_BUILD "Force internal build of libxml2 when external one is not found" OFF)
 
 # Additional variables to be used if needed
 # ---------------------------
-# COMMSDSL_TESTS_CXX_STANDARD - C++ standard to use in unittests
+# COMMSDSL_TESTS_CXX_STANDARD - The C++ standard to use in tests, defaults to 11
 # COMMSDSL_TESTS_C_COMPILER - C compiler to build unittests
 # COMMSDSL_TESTS_CXX_COMPILER - C++ compiler to build unittests
 # COMMSDSL_EXTERNALS_DIR - Directory to contain sources for external projects, defaults to ${PROJECT_SOURCE_DIR}/externals.
 # COMMSDSL_TESTS_QT_VERSION - The major Qt version for tests, defaults to 5
-# COMMSDSL_TESTS_CXX_STANDARD - The C++ standard to use in tests, defaults to 11
+# COMMSDSL_CCACHE_EXECUTABLE - Path to ccache executable
 
 # Other used CMake variables
 # CMAKE_CXX_STANDARD - The C++ standard to use during the compilation, defaults to 17 (min)
@@ -40,6 +41,7 @@ option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Wind
 # option (COMMSDSL_NO_WARN_AS_ERR "Do NOT treat warning as error" OFF)
 # option (COMMSDSL_NO_CCACHE "Disable use of ccache on UNIX system" OFF)
 # option (COMMSDSL_NO_TESTS "Disable unittesting" OFF)
+# option (COMMSDSL_WIN_ALLOW_LIBXML_BUILD "Allow internal build of libxml2 on Windows platforms" ON)
 
 ################################################
 
@@ -53,6 +55,10 @@ include (${CMAKE_SCIPTS_DIR}/CommsdslCompile.cmake)
 commsdsl_negate_option(COMMSDSL_NO_WARN_AS_ERR COMMSDSL_WARN_AS_ERR)
 commsdsl_negate_option(COMMSDSL_NO_CCACHE COMMSDSL_USE_CCACHE)
 commsdsl_negate_option(COMMSDSL_NO_TESTS COMMSDSL_BUILD_UNIT_TESTS)
+
+if (WIN32 AND COMMSDSL_WIN_ALLOW_LIBXML_BUILD)
+    set (COMMSDSL_FORCE_INTERNAL_LIBXML_BUILD ON)
+endif ()
 
 ################################################
 
@@ -85,17 +91,23 @@ if (NOT COMMSDSL_EXTERNALS_DIR)
 endif ()
 
 # Compiler options
-set (warn_opt)
+set (extra_opts)
 if (COMMSDSL_WARN_AS_ERR)
-    set (warn_opt WARN_AS_ERR)
+    list (APPEND extra_opts WARN_AS_ERR)
 endif ()
 
-set (ccache_opt)
-if ((UNIX) AND (COMMSDSL_USE_CCACHE))
-    set (ccache_opt USE_CCACHE)
+if (COMMSDSL_USE_CCACHE)
+    list (APPEND extra_opts USE_CCACHE)
+    if (NOT "${COMMSDSL_CCACHE_EXECUTABLE}" STREQUAL "")
+        list (APPEND extra_opts CCACHE_EXECUTABLE "${COMMSDSL_CCACHE_EXECUTABLE}")
+    endif ()
 endif ()
 
-commsdsl_compile(${warn_opt} ${ccache_opt})
+if (COMMSDSL_BUILD_WITH_SANITIZERS)
+    list (APPEND extra_opts DEFAULT_SANITIZERS)
+endif ()
+
+commsdsl_compile(${extra_opts})
 commsdsl_msvc_force_warn_opt("/W4")
 set (COMMSDSL_FOUND_COMMS_INTERNAL OFF CACHE INTERNAL "Mark COMMS library found" FORCE)
 function (commsdsl_mark_comms_found)

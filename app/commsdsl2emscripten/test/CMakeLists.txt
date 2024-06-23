@@ -93,6 +93,8 @@ foreach (name ${tests})
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DOPT_MODULARIZE=ON
             -DOPT_EXTRA_INCLUDE_DIRS=${extra_includes_path_str}
+            -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
+            -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}            
     )     
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt})     

@@ -88,6 +88,9 @@ foreach (name ${tests})
             -DCMAKE_INSTALL_PREFIX=${install_dir}
             -DCMAKE_PREFIX_PATH=${build_prefix_path_str}
             ${options_param}
+            -DOPT_WARN_AS_ERR=ON 
+            -DOPT_USE_CCACHE=${COMMSDSL_USE_CCACHE}
+            -DOPT_CCACHE_EXECUTABLE=${COMMSDSL_CCACHE_EXECUTABLE}            
     )  
 
     add_dependencies(${APP_NAME}.all_tests ${build_tgt}) 
