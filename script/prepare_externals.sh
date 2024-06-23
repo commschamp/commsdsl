@@ -50,6 +50,10 @@ if [ -z "${COMMON_BUILD_TYPE}" ]; then
     COMMON_BUILD_TYPE=Debug
 fi
 
+if [ -z "${COMMON_CXX_STANDARD}" ]; then
+    COMMON_CXX_STANDARD="11"
+fi
+
 COMMS_SRC_DIR=${EXTERNALS_DIR}/comms
 COMMS_BUILD_DIR=${BUILD_DIR}/externals/comms/build
 COMMS_INSTALL_DIR=${COMMS_BUILD_DIR}/install
@@ -62,14 +66,6 @@ CC_TOOLS_QT_BUILD_DIR=${BUILD_DIR}/externals/cc_tools_qt/build
 CC_TOOLS_QT_INSTALL_DIR=${CC_TOOLS_QT_BUILD_DIR}/install
 if [ -n "${COMMON_INSTALL_DIR}" ]; then
     CC_TOOLS_QT_INSTALL_DIR=${COMMON_INSTALL_DIR}
-fi
-CC_TOOLS_QT_VERSION_OPT=
-if [ -n "${CC_TOOLS_QT_MAJOR_QT_VERSION}" ]; then
-    CC_TOOLS_QT_VERSION_OPT="-DCC_TOOLS_QT_MAJOR_QT_VERSION=${CC_TOOLS_QT_MAJOR_QT_VERSION}"
-fi
-
-if [ -z "${COMMON_USE_CCACHE}" ]; then
-    COMMON_USE_CCACHE="OFF"
 fi
 
 procs=$(nproc)
@@ -101,11 +97,9 @@ function build_comms() {
 }
 
 function build_cc_tools_qt() {
-    if [ -n "${COMMON_CXX_STANDARD}" ]; then
-        if [ ${COMMON_CXX_STANDARD} -lt 17 ]; then
-            echo "Skipping build of cc_tools_qt due to old C++ standard"
-            return;
-        fi
+    if [ ${COMMON_CXX_STANDARD} -lt 17 ]; then
+        echo "Skipping build of cc_tools_qt due to old C++ standard"
+        return;
     fi
 
     if [ -e ${CC_TOOLS_QT_SRC_DIR}/.git ]; then
@@ -123,11 +117,12 @@ function build_cc_tools_qt() {
     mkdir -p ${CC_TOOLS_QT_BUILD_DIR}
     cmake -S ${CC_TOOLS_QT_SRC_DIR} -B ${CC_TOOLS_QT_BUILD_DIR} \
         ${COMMON_CMAKE_GENERATOR:+"-G ${COMMON_CMAKE_GENERATOR}"} ${COMMON_CMAKE_PLATFORM:+"-A ${COMMON_CMAKE_PLATFORM}"} \
+        -DCMAKE_INSTALL_PREFIX=${CC_TOOLS_QT_INSTALL_DIR} -DCMAKE_BUILD_TYPE=${COMMON_BUILD_TYPE} \
+        -DCMAKE_PREFIX_PATH=${COMMS_INSTALL_DIR} -DCMAKE_CXX_STANDARD=${COMMON_CXX_STANDARD} \
         ${COMMON_USE_CCACHE:+"-DCC_TOOLS_QT_USE_CCACHE=${COMMON_USE_CCACHE}"} \
         ${COMMON_CCACHE_EXECUTABLE:+"-DCC_TOOLS_QT_CCACHE_EXECUTABLE=${COMMON_CCACHE_EXECUTABLE}"} \
-        -DCMAKE_INSTALL_PREFIX=${CC_TOOLS_QT_INSTALL_DIR} \
-        -DCMAKE_BUILD_TYPE=${COMMON_BUILD_TYPE} -DCC_TOOLS_QT_BUILD_APPS=OFF -DCMAKE_PREFIX_PATH=${COMMS_INSTALL_DIR} \
-        -DCMAKE_CXX_STANDARD=${COMMON_CXX_STANDARD} ${CC_TOOLS_QT_VERSION_OPT}
+        ${CC_TOOLS_QT_MAJOR_QT_VERSION:+"-DCC_TOOLS_QT_MAJOR_QT_VERSION=${CC_TOOLS_QT_MAJOR_QT_VERSION}"} \
+        -DCC_TOOLS_QT_BUILD_APPS=OFF  
     cmake --build ${CC_TOOLS_QT_BUILD_DIR} --config ${COMMON_BUILD_TYPE} --target install ${procs_param}
 }
 
