@@ -46,8 +46,12 @@ while (TRUE)
         SOURCE_DIR "${LIBXML2_SRC_DIR}"
         BINARY_DIR "${LIBXML2_BIN_DIR}"
         INSTALL_DIR "${LIBXML2_INSTALL_DIR}"
-        # BUILD_BYPRODUCTS needed by Ninja
+
+        # BUILD_BYPRODUCTS are needed by Ninja
         BUILD_BYPRODUCTS <INSTALL_DIR>/lib/${LIBXML2_LIB_NAME}
+
+        # On Windows CMAKE_BUILD_TYPE in the configuration can get ignored, requires seperate build command
+        BUILD_COMMAND ${CMAKE_COMMAND} --build "${LIBXML2_BIN_DIR}" --config ${CMAKE_BUILD_TYPE} --target all
     )
 
     set (LIBXML2_FOUND TRUE)
