@@ -116,6 +116,7 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "RECURSIVE              = YES\n"
         "EXCLUDE                = \n"
         "EXCLUDE_SYMBOLS        = *details\n"
+        "GENERATE_LATEX         = NO\n"
         "PREDEFINED             = FOR_DOXYGEN_DOC_ONLY COMMS_MSVC_WARNING_PUSH= COMMS_MSVC_WARNING_POP= COMMS_MSVC_WARNING_DISABLE(x)=\n"
         "HAVE_DOT               = NO\n"
         "#^#APPEND#$#\n"
