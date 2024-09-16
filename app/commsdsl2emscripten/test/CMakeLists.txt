@@ -75,7 +75,7 @@ foreach (name ${tests})
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}_build)
     set (install_dir ${build_dir}/install)
-    set (prot_include_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}/build/install/include")
+    set (prot_include_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}_install/include")
     set (extra_includes_path ${prot_include_dir} ${comms_include_dirs})
     string (REPLACE ";" "|" extra_includes_path_str "${extra_includes_path}")    
 

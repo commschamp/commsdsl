@@ -65,7 +65,7 @@ foreach (name ${tests})
         set (options_param "-DOPT_TEST_OPTIONS=TestDefaultOptions")
     endif()            
 
-    set (dep_install_dir ${dep_prefix_path}/${name}/build/install)
+    set (dep_install_dir ${dep_prefix_path}/${name}_install)
     set (build_prefix_path ${CMAKE_PREFIX_PATH} ${dep_install_dir})
     string (REPLACE ";" "|" build_prefix_path_str "${build_prefix_path}")    
 
