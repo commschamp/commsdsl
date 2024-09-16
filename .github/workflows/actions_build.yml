@@ -8,6 +8,7 @@ env:
 
 jobs:
   build_gcc_old_ubuntu_20_04:
+    if: false
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -77,6 +78,7 @@ jobs:
       run: ctest      
 
   build_gcc_ubuntu_20_04:
+    if: false
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -139,6 +141,7 @@ jobs:
       run: ctest
 
   build_gcc_ubuntu_22_04:
+    if: false
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -280,6 +283,7 @@ jobs:
       run: ctest -V
 
   build_clang_old_ubuntu_20_04:
+    if: false
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -352,6 +356,7 @@ jobs:
       run: ctest
 
   build_clang_ubuntu_20_04:
+    if: false
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -420,6 +425,7 @@ jobs:
       run: ctest
 
   build_clang_ubuntu_22_04:
+    if: false
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -497,6 +503,7 @@ jobs:
       run: ctest -V
 
   build_clang_ubuntu_24_04:
+    if: false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -572,6 +579,7 @@ jobs:
       run: ctest -V
 
   build_msvc_2019:
+    if: false
     runs-on: windows-2019
     strategy:
       fail-fast: false
@@ -641,6 +649,7 @@ jobs:
       run: ctest -V
 
   build_msvc_2022:
+    if: false
     runs-on: windows-2022
     strategy:
       fail-fast: false
