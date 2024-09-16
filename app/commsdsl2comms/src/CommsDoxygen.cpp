@@ -113,6 +113,7 @@ bool CommsDoxygen::commsWriteConfInternal() const
         "WARN_IF_DOC_ERROR      = YES\n"
         "WARN_NO_PARAMDOC       = YES\n"
         "WARN_AS_ERROR          = YES\n"
+        "INPUT                  = doc include\n"
         "RECURSIVE              = YES\n"
         "EXCLUDE                = \n"
         "EXCLUDE_SYMBOLS        = *details\n"
