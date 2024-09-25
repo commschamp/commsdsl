@@ -113,7 +113,7 @@ bool SwigCmake::swigWriteInternal() const
         "    target_link_libraries(#^#PROJ_NAME#$#_swig_${lang} ${OPT_PROTOCOL_TARGET} cc::comms)\n"
         "    target_compile_options(#^#PROJ_NAME#$#_swig_${lang} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
-        "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
+        "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -fbracket-depth=2048>\n"
         "    )\n"        
         "endforeach()\n\n"
         "#^#APPEND#$#"
