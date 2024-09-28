@@ -40,8 +40,8 @@ function (test_func name)
     endif ()      
 
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
-    set (build_dir ${output_dir}/build)
-    set (install_dir ${build_dir}/install)
+    set (build_dir ${output_dir}_build)
+    set (install_dir ${output_dir}_install)
 
     execute_process (
         COMMAND ${CMAKE_COMMAND} -E make_directory "${build_dir}")

@@ -84,7 +84,7 @@ foreach (name ${tests})
         COMMAND ${CMAKE_COMMAND} -E touch "${output_dir}/dummy.txt")        
 
     set (prot_tgt "commsdsl2comms.${name}_build_tgt")
-    set (prot_install_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}/build/install")
+    set (prot_install_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}_install")
     set (build_prefix_path ${CMAKE_PREFIX_PATH} ${prot_install_dir})
     string (REPLACE ";" "|" build_prefix_path_str "${build_prefix_path}")
 

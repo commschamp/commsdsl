@@ -46,7 +46,8 @@ while (TRUE)
         SOURCE_DIR "${LIBXML2_SRC_DIR}"
         BINARY_DIR "${LIBXML2_BIN_DIR}"
         INSTALL_DIR "${LIBXML2_INSTALL_DIR}"
-        # BUILD_BYPRODUCTS needed by Ninja
+
+        # BUILD_BYPRODUCTS are needed by Ninja
         BUILD_BYPRODUCTS <INSTALL_DIR>/lib/${LIBXML2_LIB_NAME}
     )
 

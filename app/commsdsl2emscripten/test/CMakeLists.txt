@@ -26,6 +26,15 @@ file(GLOB tests RELATIVE ${tests_path} ${tests_path}/test*)
 
 find_program (NODE_EXECUTABLE NAMES node nodejs REQUIRED)
 message (STATUS "Found node: ${NODE_EXECUTABLE}")
+execute_process(
+    COMMAND ${NODE_EXECUTABLE} --version
+    OUTPUT_VARIABLE NODE_VERSION_OUT)
+
+string(REGEX REPLACE "^v" "" NODE_VERSION ${NODE_VERSION_OUT})
+set (extra_node_params)
+if ("${NODE_VERSION}" VERSION_GREATER_EQUAL "18")
+    list (APPEND extra_node_params "--no-experimental-fetch")
+endif ()
 
 foreach (name ${tests})
     set (test_dir "${tests_path}/${name}")
@@ -66,7 +75,7 @@ foreach (name ${tests})
     set (build_tgt ${APP_NAME}.${name}_build_tgt)
     set (build_dir ${output_dir}_build)
     set (install_dir ${build_dir}/install)
-    set (prot_include_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}/build/install/include")
+    set (prot_include_dir "${PROJECT_BINARY_DIR}/app/commsdsl2comms/test/${name}_install/include")
     set (extra_includes_path ${prot_include_dir} ${comms_include_dirs})
     string (REPLACE ";" "|" extra_includes_path_str "${extra_includes_path}")    
 
@@ -102,7 +111,7 @@ foreach (name ${tests})
     if (EXISTS ${this_test_dir}/emscripten_${name}.js)
         add_test(
             NAME ${APP_NAME}.${name}
-            COMMAND ${NODE_EXECUTABLE} ${this_test_dir}/emscripten_${name}.js
+            COMMAND ${NODE_EXECUTABLE} ${extra_node_params} ${this_test_dir}/emscripten_${name}.js
             WORKING_DIRECTORY ${build_dir}
         )    
 
