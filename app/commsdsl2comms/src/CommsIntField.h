@@ -68,6 +68,7 @@ private:
 
     void commsAddLengthOptInternal(StringsList& opts) const;
     void commsAddSerOffsetOptInternal(StringsList& opts) const;
+    void commsAddDisplayOffsetOptInternal(StringsList& opts) const;
     void commsAddScalingOptInternal(StringsList& opts) const;
     void commsAddUnitsOptInternal(StringsList& opts) const;
     void commsAddDefaultValueOptInternal(StringsList& opts) const;
