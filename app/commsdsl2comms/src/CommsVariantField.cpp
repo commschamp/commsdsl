@@ -158,7 +158,11 @@ bool CommsVariantField::writeImpl() const
 
 CommsVariantField::IncludesList CommsVariantField::commsCommonIncludesImpl() const
 {
-    IncludesList result;
+    IncludesList result = {
+        "<type_traits>",
+        "<utility>",
+    };
+
     for (auto* m : m_commsMembers) {
         assert(m != nullptr);
         auto incList = m->commsCommonIncludes();
@@ -170,7 +174,19 @@ CommsVariantField::IncludesList CommsVariantField::commsCommonIncludesImpl() con
 
 std::string CommsVariantField::commsCommonCodeBodyImpl() const
 {
-    return commsCommonNameFuncCode();
+    static const std::string Templ = 
+        "#^#MEMBER_NAME_MAP_DEF#$#\n"
+        "#^#NAME_FUNC#$#\n"
+        "#^#MEMBER_NAMES_FUNCS#$#\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"MEMBER_NAME_MAP_DEF", commsCommonMemberNameMapInternal()},
+        {"NAME_FUNC", commsCommonNameFuncCode()},
+        {"MEMBER_NAMES_FUNCS", commsCommonMemberNameFuncsCodeInternal()},
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 std::string CommsVariantField::commsCommonMembersCodeImpl() const
@@ -294,12 +310,14 @@ std::string CommsVariantField::commsDefDestructCodeImpl() const
 std::string CommsVariantField::commsDefPublicCodeImpl() const
 {
     return 
+        commsDefMemberNamesTypesInternal() + '\n' +
         commsDefAccessCodeInternal() + '\n' + 
         commsDefCopyCodeInternal() + '\n' + 
         commsDefFieldExecCodeInternal() + '\n' +
         commsDefSelectFieldCodeInternal() + '\n' +
         commsDefResetCodeInternal() + '\n' +
-        commsDefCanWriteCodeInternal();
+        commsDefCanWriteCodeInternal() + '\n' + 
+        commsDefMemberNamesFuncsInternal();
 }
 
 std::string CommsVariantField::commsDefPrivateCodeImpl() const
@@ -1104,6 +1122,93 @@ std::string CommsVariantField::commsOptimizedReadKeyInternal() const
 
     result = propKeyTypeInternal(*propKey);
     return result;
+}
+
+const std::string& CommsVariantField::commsCommonMemberNameMapInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Single member name info entry\n"
+        "using MemberNameInfo = const char*;\n\n"
+        "/// @brief Type returned from @ref memberNamesMap() member function.\n"
+        "/// @details The @b first value of the pair is pointer to the map array,\n"
+        "///     The @b second value of the pair is the size of the array.\n"
+        "using MemberNamesMapInfo = std::pair<const MemberNameInfo*, std::size_t>;\n";
+
+    return Templ;
+}
+
+std::string CommsVariantField::commsCommonMemberNameFuncsCodeInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Retrieve name of the member\n"
+        "static const char* memberName(std::size_t idx)\n"
+        "{\n"
+        "    auto namesMapInfo = memberNamesMap();\n"
+        "    if (namesMapInfo.second <= idx) {\n"
+        "        return nullptr;\n"
+        "    }\n\n"
+        "    return namesMapInfo.first[idx];\n"
+        "}\n\n"
+        "/// @brief Retrieve map of members names\n"
+        "static MemberNamesMapInfo memberNamesMap()\n"
+        "{\n"
+        "    static const MemberNameInfo Map[] = {\n"
+        "        #^#MEMBERS#$#\n"
+        "    };\n"
+        "    static const std::size_t MapSize = std::extent<decltype(Map)>::value;\n\n"
+        "    return std::make_pair(&Map[0], MapSize);\n"
+        "}\n";
+
+    auto membersPrefix = comms::className(dslObj().name()) + strings::membersSuffixStr() + strings::commonSuffixStr();
+    util::StringsList names;
+    for (auto& fPtr : members()) {
+        assert(fPtr);
+        names.push_back(membersPrefix + "::" + comms::className(fPtr->dslObj().name()) + strings::commonSuffixStr() + "::name()");
+    }
+
+    util::ReplacementMap repl = {
+        {"MEMBERS", util::strListToString(names, ",\n", "")}
+    };
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsVariantField::commsDefMemberNamesTypesInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Single member name info entry\n"
+        "using MemberNameInfo = #^#COMMON_SCOPE#$#::MemberNameInfo;\n\n"
+        "/// @brief Type returned from @ref memberNamesMap() member function.\n"
+        "/// @see @ref #^#COMMON_SCOPE#$#::MemberNamesMapInfo.\n"
+        "using MemberNamesMapInfo = #^#COMMON_SCOPE#$#::MemberNamesMapInfo;\n";
+
+    util::ReplacementMap repl = {
+        {"COMMON_SCOPE", comms::commonScopeFor(*this, generator())}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsVariantField::commsDefMemberNamesFuncsInternal() const
+{
+    static const std::string Templ = 
+        "/// @brief Retrieve name of the member\n"
+        "/// @see @ref #^#COMMON_SCOPE#$#::memberName().\n"
+        "static const char* memberName(std::size_t idx)\n"
+        "{\n"
+        "    return #^#COMMON_SCOPE#$#::memberName(idx);\n"
+        "}\n\n"
+        "/// @brief Retrieve map of members names\n"
+        "/// @see @ref #^#COMMON_SCOPE#$#::memberNamesMap().\n"
+        "static MemberNamesMapInfo memberNamesMap()\n"
+        "{\n"
+        "    return #^#COMMON_SCOPE#$#::memberNamesMap();\n"
+        "}\n";    
+
+
+    util::ReplacementMap repl = {
+        {"COMMON_SCOPE", comms::commonScopeFor(*this, generator())}
+    };
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2comms
