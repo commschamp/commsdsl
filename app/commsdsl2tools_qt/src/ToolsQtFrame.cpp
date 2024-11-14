@@ -401,15 +401,6 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
     }
     comms::prepareIncludeStatement(includes);
 
-    util::StringsList fieldsProps;
-    util::StringsList appends;
-    fieldsProps.reserve(m_toolsLayers.size());
-    appends.reserve(m_toolsLayers.size());
-    for (auto* l : m_toolsLayers) {
-        fieldsProps.push_back(l->toolsPropsFunc());
-        appends.push_back("props.append(" + l->toolsCreatePropsInvocation() + ");");
-    }  
-
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
@@ -417,8 +408,6 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"SUFFIX", strings::transportMessageSuffixStr()},
         {"INCLUDES", util::strListToString(includes, "\n", "")},
-        {"FIELDS_PROPS", util::strListToString(fieldsProps, "\n", "")},
-        {"APPENDS", util::strListToString(appends, "\n", "")},
     };
 
     auto allInterfaces = gen.toolsGetSelectedInterfaces();

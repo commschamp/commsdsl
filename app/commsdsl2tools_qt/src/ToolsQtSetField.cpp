@@ -17,17 +17,6 @@
 
 #include "ToolsQtGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
-#include "commsdsl/gen/util.h"
-
-#include <algorithm>
-#include <cassert>
-
-namespace comms = commsdsl::gen::comms;
-namespace strings = commsdsl::gen::strings;
-namespace util = commsdsl::gen::util;
-
 namespace commsdsl2tools_qt
 {
 
@@ -35,43 +24,6 @@ ToolsQtSetField::ToolsQtSetField(ToolsQtGenerator& generator, commsdsl::parse::F
     Base(generator, dslObj, parent),
     ToolsBase(static_cast<Base&>(*this))
 {
-}
-
-bool ToolsQtSetField::writeImpl() const
-{
-    return toolsWrite();
-}
-
-std::string ToolsQtSetField::toolsExtraPropsImpl() const
-{
-    util::StringsList props;
-    auto obj = setDslObj();
-    auto& bits = obj.bits();
-    auto& revBits = obj.revBits();
-    props.reserve(bits.size());
-    unsigned prevBitIdx = std::numeric_limits<unsigned>::max();
-    for (auto& rBit : revBits) {
-        if (prevBitIdx == rBit.first) {
-            continue;
-        }
-
-        auto iter = bits.find(rBit.second);
-        assert(iter != bits.end());
-        auto& b = *iter;
-
-        if (!generator().doesElementExist(b.second.m_sinceVersion, b.second.m_deprecatedSince, true)) {
-            continue;
-        }
-
-        prevBitIdx = rBit.first;
-
-        auto* bitName = &b.second.m_displayName;
-        if (bitName->empty()) {
-            bitName = &b.first;
-        }
-        props.push_back(".add(" + util::numToString(rBit.first) + ", \"" + *bitName + "\")");
-    }
-    return util::strListToString(props, "\n", ""); 
 }
 
 } // namespace commsdsl2tools_qt

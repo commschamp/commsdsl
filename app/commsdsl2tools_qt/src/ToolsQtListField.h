@@ -29,22 +29,6 @@ class ToolsQtListField final : public commsdsl::gen::ListField, public ToolsQtFi
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtListField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;   
-
-    // ToolsBase overrides 
-    virtual IncludesList toolsExtraSrcIncludesImpl() const override;
-    virtual std::string toolsExtraPropsImpl() const override;
-    virtual std::string toolsDefMembersImpl() const override;
-
-private:
-    std::string toolsPrefixNameInternal() const;
-
-    ToolsQtField* m_toolsMemberElementField = nullptr;
-    ToolsQtField* m_toolsExternalElementField = nullptr;
 };
 
 } // namespace commsdsl2tools_qt

@@ -29,15 +29,6 @@ class ToolsQtSetField final : public commsdsl::gen::SetField, public ToolsQtFiel
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtSetField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // Base overrides
-    virtual bool writeImpl() const override;    
-
-    // ToolsBase overrides
-    virtual std::string toolsExtraPropsImpl() const override;
-
-private:
 };
 
 } // namespace commsdsl2tools_qt

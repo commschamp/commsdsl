@@ -39,40 +39,14 @@ public:
         return m_field;
     }
 
-    bool toolsWrite() const;
-
-    // void commsSetForcePseudo()
-    // {
-    //     m_forcedPseudo = true;
-    // }
-
     bool toolsIsPseudo() const;
 
-    IncludesList toolsHeaderIncludes() const;
-    IncludesList toolsSrcIncludes() const;
-    std::string toolsDeclSig() const;
-    std::string toolsDefFunc() const;
-    std::string toolsDefMembers() const;
     std::string toolsCommsScope(const std::string& extraTemplParams = std::string()) const;
 
-    std::string toolsRelDeclHeaderFile() const;
-    std::string toolsRelDefSrcFile() const;
-
-    StringsList toolsSourceFiles() const;    
-
-protected:
-    virtual IncludesList toolsExtraSrcIncludesImpl() const;    
-    virtual std::string toolsDefFuncBodyImpl() const;
-    virtual std::string toolsExtraPropsImpl() const;
-    virtual std::string toolsDefMembersImpl() const;
-
 private:
-    bool toolsWriteHeaderInternal() const;
-    bool toolsWriteSrcInternal() const;
     std::string toolsDeclSigInternal(bool defaultSerHidden = true) const;
     std::string toolsRelPathInternal() const;
     std::string toolsSerHiddenParamInternal() const;
-    std::string toolsDefAnonimousInternal() const;
 
     commsdsl::gen::Field& m_field;
     bool m_forcedPseudo = false;

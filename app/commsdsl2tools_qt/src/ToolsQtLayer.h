@@ -36,7 +36,6 @@ public:
 
     IncludesList toolsSrcIncludes() const;
     std::string toolsPropsFunc() const;
-    std::string toolsCreatePropsInvocation() const;
     std::string toolsFieldCommsScope() const;
     std::string toolsMsgFactoryOptions() const;
 

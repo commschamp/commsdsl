@@ -29,19 +29,6 @@ class ToolsQtBitfieldField final : public commsdsl::gen::BitfieldField, public T
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtBitfieldField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
-
-    // ToolsBase overrides
-    virtual IncludesList toolsExtraSrcIncludesImpl() const override;
-    virtual std::string toolsExtraPropsImpl() const override;
-    virtual std::string toolsDefMembersImpl() const override;
-
-private:
-    ToolsQtFieldsList m_members;
 };
 
 } // namespace commsdsl2tools_qt

@@ -182,7 +182,7 @@ bool ToolsQtCmake::testWriteInternal() const
 
     util::ReplacementMap repl = {
         {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
-        {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
+        //{"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")}, // TODO implement
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
         {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},

@@ -29,15 +29,6 @@ class ToolsQtEnumField final : public commsdsl::gen::EnumField, public ToolsQtFi
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtEnumField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // Base overrides
-    virtual bool writeImpl() const override;    
-
-    // ToolsBase overrides
-    virtual std::string toolsExtraPropsImpl() const override;
-
-private:
 };
 
 } // namespace commsdsl2tools_qt

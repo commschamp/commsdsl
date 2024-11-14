@@ -44,7 +44,6 @@ public:
     }
 
 protected:
-    virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
 
 private:
@@ -54,8 +53,6 @@ private:
     std::string toolsSrcCodeInternal() const;
     const std::string& toolsNameInternal() const;
     std::string toolsRelFilePath() const;
-
-    ToolsQtFieldsList m_toolsFields;
 };
 
 } // namespace commsdsl2tools_qt

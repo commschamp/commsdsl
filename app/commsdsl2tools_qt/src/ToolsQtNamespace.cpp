@@ -53,13 +53,6 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles() const
             std::move(list.begin(), list.end(), std::back_inserter(result));
         };
 
-    for (auto& fPtr : fields()) {
-        assert(fPtr);
-        auto* toolsField = dynamic_cast<const ToolsQtField*>(fPtr.get());
-        assert(toolsField != nullptr);
-        addToResult(toolsField->toolsSourceFiles());
-    }
-
     for (auto& mPtr : messages()) {
         assert(mPtr);
         auto* toolsMessage = static_cast<const ToolsQtMessage*>(mPtr.get());

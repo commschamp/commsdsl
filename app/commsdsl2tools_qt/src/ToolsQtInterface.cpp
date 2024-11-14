@@ -53,31 +53,6 @@ unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Generator& generator)
     return enumMsgIdField->hexWidth();
 }
 
-const std::string& toolsAliasTemplateInternal()
-{
-    static const std::string Templ = 
-        "using #^#CLASS_NAME#$# =\n"
-        "    cc_tools_qt::MessageBase<\n"
-        "        ::#^#INTERFACE#$#\n"
-        "    >;\n";
-    return Templ;
-}
-
-const std::string& toolsClassTemplateInternal()
-{
-    static const std::string Templ = 
-        "class #^#CLASS_NAME#$# : public\n"
-        "    cc_tools_qt::MessageBase<\n"
-        "        ::#^#INTERFACE#$#\n"
-        "    >\n"
-        "{\n"
-        "protected:\n"
-        "    #^#ID_FUNC#$#\n"
-        "    virtual const QVariantList& extraTransportFieldsPropertiesImpl() const override;\n"
-        "};\n";
-    return Templ;
-}
-
 } // namespace 
     
 
@@ -94,16 +69,6 @@ std::string ToolsQtInterface::toolsHeaderFilePath() const
 ToolsQtInterface::StringsList ToolsQtInterface::toolsSourceFiles() const
 {
     return StringsList{toolsRelFilePath() + strings::cppSourceSuffixStr()};
-}
-
-bool ToolsQtInterface::prepareImpl()
-{
-    if (!Base::prepareImpl()) {
-        return false;
-    }
-
-    m_toolsFields = ToolsQtField::toolsTransformFieldsList(fields());
-    return true;
 }
 
 bool ToolsQtInterface::writeImpl() const
@@ -150,7 +115,7 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
     ;
 
     util::StringsList includes {
-        "cc_tools_qt/MessageBase.h",
+        "cc_tools_qt/ToolsMessage.h",
         comms::relHeaderPathFor(*this, gen),
         ToolsQtVersion::toolsRelHeaderPath(gen),
     };
@@ -193,20 +158,10 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
     static const std::string Templ = 
         "#^#GENERATED#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
-        "#^#INCLUDES#$#\n"
         "#^#NS_BEGIN#$#\n"
         "#^#DEF#$#\n\n"
         "#^#NS_END#$#\n"
     ;
-
-    util::StringsList includes;
-
-    for (auto* f : m_toolsFields) {
-        auto incs = f->toolsSrcIncludes();
-        includes.reserve(includes.size() + incs.size());
-        std::move(incs.begin(), incs.end(), std::back_inserter(includes));
-    }
-    comms::prepareIncludeStatement(includes);
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
@@ -214,7 +169,6 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"DEF", toolsSrcCodeInternal()},
-        {"INCLUDES", util::strListToString(includes, "\n", "\n")}
     };
     
     stream << util::processTemplate(Templ, repl, true);
@@ -224,75 +178,51 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
 
 std::string ToolsQtInterface::toolsHeaderCodeInternal() const
 {
-    auto hexWidth = getHexMsgIdWidthInternal(generator());
-    auto* templ = &toolsAliasTemplateInternal();
-    if ((!m_toolsFields.empty()) || (0U < hexWidth)) {
-        templ = &toolsClassTemplateInternal();
-    }
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsMessage\n"
+        "{\n"
+        "public:\n"
+        "    template <typename... TOptions>\n"
+        "    using ProtMsgBase = ::#^#INTERFACE#$#<TOptions...>;\n\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    virtual ~#^#CLASS_NAME#$#() noexcept;\n\n"
+        "#^#PROTECTED#$#\n"
+        "    #^#ID_FUNC#$#\n"
+        "};\n";
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(toolsNameInternal())},
         {"INTERFACE", comms::scopeFor(*this, generator())}
     };
 
+    auto hexWidth = getHexMsgIdWidthInternal(generator());
     if (0U < hexWidth) {
         repl["ID_FUNC"] = "virtual QString idAsStringImpl() const override;";
+        repl["PROTECTED"] = "protected:";
     }
 
-    return util::processTemplate(*templ, repl);
+    return util::processTemplate(Templ, repl);
 }
 
 std::string ToolsQtInterface::toolsSrcCodeInternal() const
 {
-    auto hexWidth = getHexMsgIdWidthInternal(generator());
-    if ((m_toolsFields.empty()) && (hexWidth == 0U)) {
-        return strings::emptyString();
-    }    
-
     static const std::string Templ = 
-        "namespace\n"
-        "{\n\n"    
-        "#^#FIELDS_PROPS#$#\n"
-        "QVariantList createProps()\n"
-        "{\n"
-        "    QVariantList props;\n"
-        "    #^#PROPS_APPENDS#$#\n"
-        "    return props;\n"
-        "}\n\n"
-        "} // namespace \n\n"
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() = default;\n\n"
+        "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() noexcept = default;\n\n"
         "#^#ID_FUNC#$#\n"
-        "const QVariantList& #^#CLASS_NAME#$#::extraTransportFieldsPropertiesImpl() const\n"
-        "{\n"
-        "    static const QVariantList Props = createProps();\n"
-        "    return Props;\n"
-        "}\n";   
-
-    util::StringsList fieldsProps;
-    util::StringsList appends;
-    fieldsProps.reserve(m_toolsFields.size());
-    appends.reserve(m_toolsFields.size());
-    for (auto* f : m_toolsFields) {
-        auto membersStr = f->toolsDefMembers();
-        if (!membersStr.empty()) {
-            fieldsProps.push_back(std::move(membersStr));
-        }
-
-        fieldsProps.push_back(f->toolsDefFunc());
-        appends.push_back("props.append(createProps_" + comms::accessName(f->field().dslObj().name()) + "(true));");
-    }   
+        ;
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(toolsNameInternal())},
-        {"FIELDS_PROPS", util::strListToString(fieldsProps, "\n", "")},
-        {"PROPS_APPENDS", util::strListToString(appends, "\n", "")}
     };
 
+
+    auto hexWidth = getHexMsgIdWidthInternal(generator());
     if (0U < hexWidth) {
         auto func =
             "QString " + comms::className(toolsNameInternal()) + "::idAsStringImpl() const\n"
             "{\n"
-            "    return \"0x\" + QString(\"%1\").arg(static_cast<unsigned long long>(getId()), " +
-            std::to_string(hexWidth) + ", 16, QChar('0')).toUpper();\n"
+            "    return QString(\"0x%1\").arg(numericIdImpl(), " + std::to_string(hexWidth) + ", 16, QChar('0')).toUpper();\n"
             "}\n";
         repl["ID_FUNC"] = std::move(func);
     }    

@@ -29,20 +29,6 @@ class ToolsQtRefField final : public commsdsl::gen::RefField, public ToolsQtFiel
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtRefField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
-
-    // ToolsBase overrides
-    virtual IncludesList toolsExtraSrcIncludesImpl() const override;
-    virtual std::string toolsDefFuncBodyImpl() const override;
-
-private:
-    std::string toolsExtraPropsInternal() const;
-    
-    ToolsQtField* m_toolsReferenceField = nullptr;
 };
 
 } // namespace commsdsl2tools_qt

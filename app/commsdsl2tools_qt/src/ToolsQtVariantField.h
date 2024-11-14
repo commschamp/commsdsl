@@ -29,19 +29,6 @@ class ToolsQtVariantField final : public commsdsl::gen::VariantField, public Too
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtVariantField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;    
-
-    // ToolsBase overrides
-    virtual IncludesList toolsExtraSrcIncludesImpl() const override;
-    virtual std::string toolsExtraPropsImpl() const override;
-    virtual std::string toolsDefMembersImpl() const override;
-
-private:
-    ToolsQtFieldsList m_members;
 };
 
 } // namespace commsdsl2tools_qt

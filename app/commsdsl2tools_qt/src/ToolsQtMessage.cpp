@@ -502,12 +502,6 @@ ToolsQtMessage::IncludesList ToolsQtMessage::toolsSrcIncludesInternal() const
     assert(codeType <= MapSize);
     auto func = Map[codeType];
     auto result = (this->*func)();
-    for (auto* f : m_toolsFields) {
-        auto incs = f->toolsSrcIncludes();
-        result.reserve(result.size() + incs.size());
-        std::move(incs.begin(), incs.end(), std::back_inserter(result));
-    }   
-
     return result; 
 }
 
@@ -554,28 +548,12 @@ std::string ToolsQtMessage::toolsSrcCodeInternal() const
     auto interfaces = gen.toolsGetSelectedInterfaces();
     assert(!interfaces.empty());
 
-    util::StringsList fieldsProps;
-    util::StringsList appends;
-    fieldsProps.reserve(m_toolsFields.size());
-    appends.reserve(m_toolsFields.size());
-    for (auto* f : m_toolsFields) {
-        auto membersStr = f->toolsDefMembers();
-        if (!membersStr.empty()) {
-            fieldsProps.push_back(std::move(membersStr));
-        }
-
-        fieldsProps.push_back(f->toolsDefFunc());
-        appends.push_back("props.append(createProps_" + comms::accessName(f->field().dslObj().name()) + "(false));");
-    }    
-
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"PROT_MESSAGE", comms::scopeFor(*this, gen)},
         {"DEF_OPTIONS", ToolsQtDefaultOptions::toolsScope(gen)},
         {"TOP_NS", generator().getTopNamespace()},
         {"INTERFACE", comms::scopeFor(*interfaces.front(), generator())},
-        {"FIELDS_PROPS", util::strListToString(fieldsProps, "\n", "")},
-        {"PROPS_APPENDS", util::strListToString(appends, "\n", "")}
     };
 
     return util::processTemplate(func(), repl);    

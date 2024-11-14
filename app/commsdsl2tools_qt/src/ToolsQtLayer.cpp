@@ -47,115 +47,15 @@ bool ToolsQtLayer::prepare()
 
 ToolsQtLayer::IncludesList ToolsQtLayer::toolsSrcIncludes() const
 {
+    // TODO: remove
     IncludesList result;
-
-    auto addIncsFunc = 
-        [&result](const ToolsQtField* f)
-        {
-            if (f == nullptr) {
-                return;
-            }
-
-            if (comms::isGlobalField(f->field())) {
-                result.push_back(f->toolsRelDeclHeaderFile());
-            }
-            auto incs = f->toolsSrcIncludes();
-            result.reserve(result.size() + incs.size());
-            std::move(incs.begin(), incs.end(), std::back_inserter(result));
-        };
-
-    addIncsFunc(m_toolsExternalField);
-    addIncsFunc(m_toolsMemberField);
     return result;
 }
 
 std::string ToolsQtLayer::toolsPropsFunc() const
 {
-    std::string fieldFunc;
-    do {
-        if (m_toolsMemberField != nullptr) {
-            fieldFunc = m_toolsMemberField->toolsDefMembers();
-            if (!fieldFunc.empty()) {
-                fieldFunc.push_back('\n');
-            }
-
-            fieldFunc.append(m_toolsMemberField->toolsDefFunc());
-            break;
-        }
-
-        if (m_toolsExternalField != nullptr) {
-            static const std::string FieldTempl =
-                "static QVariantMap createProps_#^#NAME#$#(bool serHidden)\n"
-                "{\n"
-                "    return #^#TOP_NS#$#::#^#SCOPE#$#::createProps_#^#NAME#$#(\"#^#DISP_NAME#$#\", serHidden);\n"
-                "}\n";        
-
-            auto fieldDslObj = m_toolsExternalField->field().dslObj();
-            util::ReplacementMap fieldRepl = {
-                {"TOP_NS", m_layer.generator().getTopNamespace()},
-                {"SCOPE", comms::scopeFor(m_toolsExternalField->field(), m_layer.generator(), true, false)},
-                {"NAME", comms::accessName(fieldDslObj.name())},
-                {"DISP_NAME", util::displayName(fieldDslObj.displayName(), fieldDslObj.name())}
-            };
-            fieldFunc = util::processTemplate(FieldTempl, fieldRepl);
-            break;
-        }
-
-        static const std::string FieldTempl =
-            "static QVariantMap createProps_#^#NAME#$#(bool serHidden)\n"
-            "{\n"
-            "    return cc_tools_qt::property::field::ArrayList().name(\"#^#DISP_NAME#$#\").serialisedHidden(serHidden).asMap();\n"
-            "}\n";    
-
-        util::ReplacementMap fieldRepl = {
-            {"NAME", comms::accessName(m_layer.dslObj().name())},
-            {"DISP_NAME", m_layer.dslObj().name()}
-        };
-
-        fieldFunc = util::processTemplate(FieldTempl, fieldRepl);
-    } while (false);
-
-    static const std::string Templ = 
-        "struct #^#NAME#$#Layer\n"
-        "{\n"
-        "    #^#FUNC#$#\n"
-        "}; // struct #^#NAME#$#Layer\n";
-
-    util::ReplacementMap repl = {
-        {"NAME", comms::className(m_layer.dslObj().name())},
-        {"FUNC", std::move(fieldFunc)}
-    };
-
-    return util::processTemplate(Templ, repl);
-}
-
-std::string ToolsQtLayer::toolsCreatePropsInvocation() const
-{
-    static const std::string Templ = 
-        "#^#NAME#$#Layer::createProps_#^#FIELD_NAME#$#(#^#SER_HIDDEN#$#)";
-
-    std::string fieldName;
-    do {
-        if (m_toolsExternalField != nullptr) {
-            fieldName = m_toolsExternalField->field().dslObj().name();
-            break;
-        }
-
-        if (m_toolsMemberField != nullptr) {
-            fieldName = m_toolsMemberField->field().dslObj().name();
-            break;
-        }
-
-        fieldName = m_layer.dslObj().name();
-    } while (false);
-    
-    util::ReplacementMap repl = {
-        {"NAME", comms::className(m_layer.dslObj().name())},
-        {"FIELD_NAME", comms::accessName(fieldName)},
-        {"SER_HIDDEN", toolsForcedSerHiddenStrImpl()},
-    };
-
-    return util::processTemplate(Templ, repl);
+    // TODO: remove
+    return std::string();
 }
 
 std::string ToolsQtLayer::toolsFieldCommsScope() const

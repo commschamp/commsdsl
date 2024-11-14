@@ -17,17 +17,6 @@
 
 #include "ToolsQtGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
-#include "commsdsl/gen/util.h"
-
-#include <algorithm>
-#include <cassert>
-
-namespace comms = commsdsl::gen::comms;
-namespace strings = commsdsl::gen::strings;
-namespace util = commsdsl::gen::util;
-
 namespace commsdsl2tools_qt
 {
 
@@ -35,46 +24,6 @@ ToolsQtEnumField::ToolsQtEnumField(ToolsQtGenerator& generator, commsdsl::parse:
     Base(generator, dslObj, parent),
     ToolsBase(static_cast<Base&>(*this))
 {
-}
-
-bool ToolsQtEnumField::writeImpl() const
-{
-    return toolsWrite();
-}
-
-std::string ToolsQtEnumField::toolsExtraPropsImpl() const
-{
-    util::StringsList props;
-    auto& revValues = sortedRevValues();
-    auto obj = enumDslObj();
-    auto& values = obj.values();
-
-    props.reserve(revValues.size());
-    std::intmax_t prevValue = 0;
-    bool prevValueValid = false;
-    for (auto& rVal : revValues) {
-        if ((prevValueValid) && (prevValue == rVal.first)) {
-            continue;
-        }
-
-        auto iter = values.find(*rVal.second);
-        assert(iter != values.end());
-        auto& v = *iter;
-
-        if (!generator().doesElementExist(v.second.m_sinceVersion, v.second.m_deprecatedSince, true)) {
-            continue;
-        }
-
-        prevValueValid = true;
-        prevValue = rVal.first;
-
-        auto* valName = &v.second.m_displayName;
-        if (valName->empty()) {
-            valName = &v.first;
-        }
-        props.push_back(".add(\"" + *valName + "\", " + util::numToString(v.second.m_value) + ")");
-    }
-    return util::strListToString(props, "\n", "");   
 }
 
 

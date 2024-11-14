@@ -29,20 +29,6 @@ class ToolsQtOptionalField final : public commsdsl::gen::OptionalField, public T
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtOptionalField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // Base overrides
-    virtual bool prepareImpl() override;
-    virtual bool writeImpl() const override;   
-
-    // ToolsBase overrides 
-    virtual IncludesList toolsExtraSrcIncludesImpl() const override;
-    virtual std::string toolsExtraPropsImpl() const override;
-    virtual std::string toolsDefMembersImpl() const override;
-
-private:
-    ToolsQtField* m_toolsMemberField = nullptr;
-    ToolsQtField* m_toolsExternalField = nullptr;
 };
 
 } // namespace commsdsl2tools_qt

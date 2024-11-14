@@ -29,11 +29,6 @@ class ToolsQtStringField final : public commsdsl::gen::StringField, public Tools
     using ToolsBase = ToolsQtField;
 public:
     explicit ToolsQtStringField(ToolsQtGenerator& generator, commsdsl::parse::Field dslObj, commsdsl::gen::Elem* parent);
-
-protected:
-    // Base overrides
-    virtual bool writeImpl() const override;    
-
 };
 
 } // namespace commsdsl2tools_qt

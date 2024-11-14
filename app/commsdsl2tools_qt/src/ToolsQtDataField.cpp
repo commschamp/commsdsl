@@ -17,14 +17,6 @@
 
 #include "ToolsQtGenerator.h"
 
-#include "commsdsl/gen/comms.h"
-#include "commsdsl/gen/strings.h"
-#include "commsdsl/gen/util.h"
-
-namespace comms = commsdsl::gen::comms;
-namespace strings = commsdsl::gen::strings;
-namespace util = commsdsl::gen::util;
-
 namespace commsdsl2tools_qt
 {
 
@@ -32,11 +24,6 @@ ToolsQtDataField::ToolsQtDataField(ToolsQtGenerator& generator, commsdsl::parse:
     Base(generator, dslObj, parent),
     ToolsBase(static_cast<Base&>(*this))
 {
-}
-
-bool ToolsQtDataField::writeImpl() const
-{
-    return toolsWrite();
 }
 
 } // namespace commsdsl2tools_qt
