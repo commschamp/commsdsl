@@ -53,12 +53,17 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles() const
             std::move(list.begin(), list.end(), std::back_inserter(result));
         };
 
-    for (auto& mPtr : messages()) {
-        assert(mPtr);
-        auto* toolsMessage = static_cast<const ToolsQtMessage*>(mPtr.get());
-        assert(toolsMessage != nullptr);
-        addToResult(toolsMessage->toolsSourceFiles());
-    }    
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto& allInterfaces = gen.toolsGetSelectedInterfaces();
+    for (auto* iFace : allInterfaces) {        
+        assert(iFace != nullptr);
+        for (auto& mPtr : messages()) {
+            assert(mPtr);
+            auto* toolsMessage = static_cast<const ToolsQtMessage*>(mPtr.get());
+            assert(toolsMessage != nullptr);
+            addToResult(toolsMessage->toolsSourceFiles(*iFace));
+        }    
+    }
 
     return result;
 }

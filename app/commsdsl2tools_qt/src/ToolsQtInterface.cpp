@@ -15,6 +15,7 @@
 
 #include "ToolsQtInterface.h"
 
+#include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
 #include "ToolsQtVersion.h"
 
@@ -116,8 +117,10 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
 
     util::StringsList includes {
         "cc_tools_qt/ToolsMessage.h",
+        "cc_tools_qt/ToolsProtMsgInterface.h",
         comms::relHeaderPathFor(*this, gen),
         ToolsQtVersion::toolsRelHeaderPath(gen),
+        ToolsQtDefaultOptions::toolsRelHeaderPath(gen)
     };
 
     comms::prepareIncludeStatement(includes);    
@@ -182,17 +185,19 @@ std::string ToolsQtInterface::toolsHeaderCodeInternal() const
         "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsMessage\n"
         "{\n"
         "public:\n"
-        "    template <typename... TOptions>\n"
-        "    using ProtMsgBase = ::#^#INTERFACE#$#<TOptions...>;\n\n"
+        "    using ProtInterface = cc_tools_qt::ToolsProtMsgInterface<::#^#INTERFACE#$#>;\n"
+        "    using ProtOptions = #^#OPTIONS#$#;\n"
         "    #^#CLASS_NAME#$#();\n"
         "    virtual ~#^#CLASS_NAME#$#() noexcept;\n\n"
         "#^#PROTECTED#$#\n"
         "    #^#ID_FUNC#$#\n"
         "};\n";
 
+    auto& gen = ToolsQtGenerator::cast(generator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(toolsNameInternal())},
-        {"INTERFACE", comms::scopeFor(*this, generator())}
+        {"INTERFACE", comms::scopeFor(*this, gen)},
+        {"OPTIONS", ToolsQtDefaultOptions::toolsScope(gen)},
     };
 
     auto hexWidth = getHexMsgIdWidthInternal(generator());
@@ -242,7 +247,8 @@ const std::string& ToolsQtInterface::toolsNameInternal() const
 std::string ToolsQtInterface::toolsRelFilePath() const
 {
     auto scope = comms::scopeFor(*this, generator());
-    return generator().getTopNamespace() + '/' + util::strReplace(scope, "::", "/");
+    auto iFaceScope = comms::scopeFor(*this, generator(), false, true);
+    return generator().getTopNamespace() + '/' + util::strReplace(iFaceScope, "::", "/") + '/' + util::strReplace(scope, "::", "/");
 }
 
 } // namespace commsdsl2tools_qt

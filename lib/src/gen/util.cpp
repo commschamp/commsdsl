@@ -396,6 +396,26 @@ std::string pathUp(const std::string& path)
     return path.substr(0, sepPos);
 }
 
+std::string nameToNs(const std::string& value)
+{
+    std::string result;
+    for (auto ch : value) {
+        auto lowCh = static_cast<char>(std::tolower(ch));
+        if (lowCh == ch) {
+            result += ch;
+            continue;
+        }
+
+        if (!result.empty()) {
+            result += '_';
+        }
+
+        result += lowCh;
+    }
+
+    return result;
+}
+
 std::string processTemplate(const std::string& templ, const ReplacementMap& repl, bool tidyCode)
 {
     std::string result;

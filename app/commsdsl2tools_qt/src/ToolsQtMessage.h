@@ -36,36 +36,21 @@ public:
 
     explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Message dslObj, commsdsl::gen::Elem* parent);
 
-    StringsList toolsSourceFiles() const;
+    StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
 
 protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
 
 private:
-    enum CodeType : unsigned
-    {
-        CodeType_MultipleInterfaces,
-        CodeType_SinglePimplInterface,
-        CodeType_SingleInterfaceWithFields,
-        CodeType_NumOfValues
-    };
-
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSrcInternal() const;
-    std::string toolsRelPathInternal() const;
+    std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
     IncludesList toolsHeaderIncludesInternal() const;
-    IncludesList toolsHeaderIncludesMultipleInterfacesInternal() const;
-    IncludesList toolsHeaderIncludesSinglePimplInterfaceInternal() const;
-    IncludesList toolsHeaderIncludesSingleInterfaceWithFieldsInternal() const;
     std::string toolsHeaderCodeInternal() const;
-    IncludesList toolsSrcIncludesInternal() const;
-    IncludesList toolsSrcIncludesMultipleInterfacesInternal() const;
-    IncludesList toolsSrcIncludesSinglePimplInterfaceInternal() const;
-    IncludesList toolsSrcIncludesSingleInterfaceWithFieldsInternal() const;
-    std::string toolsSrcCodeInternal() const;
+    IncludesList toolsSrcIncludesInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsSrcCodeInternal(const commsdsl::gen::Interface& iFace) const;
 
-    CodeType toolCodeTypeInternal() const;
     ToolsQtFieldsList m_toolsFields;
     bool m_exists = true;
 };

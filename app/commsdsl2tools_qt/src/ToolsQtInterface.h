@@ -43,6 +43,11 @@ public:
         return static_cast<const ToolsQtInterface*>(val);
     }
 
+    static const ToolsQtInterface& cast(const commsdsl::gen::Interface& val)
+    {
+        return static_cast<const ToolsQtInterface&>(val);
+    }    
+
 protected:
     virtual bool writeImpl() const override;    
 

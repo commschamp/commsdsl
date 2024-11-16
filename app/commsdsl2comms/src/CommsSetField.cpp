@@ -686,12 +686,16 @@ std::string CommsSetField::commsDefBitNameFuncCodeInternal() const
     static const std::string Templ =
         "/// @brief Retrieve name of the bit.\n"
         "/// @see @ref #^#COMMON#$#::bitName().\n"
+        "static const char* bitName(std::size_t idx)\n"
+        "{\n"
+        "    return #^#COMMON#$#::bitName(idx);\n"
+        "}\n\n"
+        "/// @brief Retrieve name of the bit.\n"
+        "/// @see @ref #^#COMMON#$#::bitName().\n"
         "static const char* bitName(BitIdx idx)\n"
         "{\n"
-        "    return\n"
-        "        #^#COMMON#$#::bitName(\n"
-        "            static_cast<std::size_t>(idx));\n"
-        "}\n";
+        "    return bitName(static_cast<std::size_t>(idx));\n"
+        "}\n";;
 
     util::ReplacementMap repl = {
         {"COMMON", comms::commonScopeFor(*this, generator())}

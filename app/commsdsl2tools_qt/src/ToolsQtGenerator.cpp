@@ -82,17 +82,16 @@ const std::string& ToolsQtGenerator::toolsFileGeneratedComment()
 ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
 {
     StringsList result;
-    // TODO: implement
-    // for (auto& s : schemas()) {
-    //     auto& nsList = s->namespaces();
-    //     for (auto& nsPtr : nsList) {
-    //         assert(nsPtr);
+    for (auto& s : schemas()) {
+        auto& nsList = s->namespaces();
+        for (auto& nsPtr : nsList) {
+            assert(nsPtr);
 
-    //         auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles();
-    //         result.reserve(result.size() + nsResult.size());
-    //         std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
-    //     }
-    // }
+            auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles();
+            result.reserve(result.size() + nsResult.size());
+            std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
+        }
+    }
 
     auto interfaces = toolsGetSelectedInterfaces();
     for (auto& i : interfaces) {
