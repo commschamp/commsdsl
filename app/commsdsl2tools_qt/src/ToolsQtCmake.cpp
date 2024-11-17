@@ -17,12 +17,14 @@
 
 #include "ToolsQtGenerator.h"
 
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
 #include <cassert>
 #include <fstream>
 
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
@@ -33,6 +35,7 @@ namespace
 {
 
 using ReplacementMap = commsdsl::gen::util::ReplacementMap;
+using StringsList = commsdsl::gen::util::StringsList;
 
 } // namespace 
     
@@ -40,10 +43,10 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 bool ToolsQtCmake::write(ToolsQtGenerator& generator)
 {
     ToolsQtCmake obj(generator);
-    return obj.testWriteInternal();
+    return obj.toolsWriteInternal();
 }
 
-bool ToolsQtCmake::testWriteInternal() const
+bool ToolsQtCmake::toolsWriteInternal() const
 {
     auto filePath = 
         util::pathAddElem(
@@ -101,22 +104,9 @@ bool ToolsQtCmake::testWriteInternal() const
         "cc_compile(${extra_opts})\n"
         "cc_msvc_force_warn_opt(/W4)\n\n"
         "include(GNUInstallDirs)\n\n"
-        "set (CORE_LIB_NAME \"cc_tools_qt_plugin_#^#MAIN_NS#$#_protocol_core\")\n\n"
+        "set (INTERFACE_LIB_PREFIX \"cc_tools_qt_plugin_#^#MAIN_NS#$#\")\n\n"
         "######################################################################\n\n"
-        "function (cc_plugin_core)\n"
-        "    set (name ${CORE_LIB_NAME})\n"
-        "    set (src\n"
-        "        #^#CORE_FILES#$#\n"
-        "    )\n\n"
-        "    add_library (${name} STATIC ${src})\n"
-        "    target_link_libraries (${name} PUBLIC cc::#^#MAIN_NS#$# cc::comms cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Widgets Qt${OPT_QT_MAJOR_VERSION}::Core)\n"
-        "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR})\n"
-        "    target_compile_options(${name} PRIVATE\n"
-        "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
-        "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -Wno-unused-local-typedefs>\n"
-        "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -fbracket-depth=2048 -Wno-unused-local-typedefs>\n"
-        "    )\n\n"
-        "endfunction()\n\n"
+        "#^#PER_INTERFACE_FUNCS#$#\n"
         "######################################################################\n\n"
         "function (cc_plugin protocol has_config_widget)\n"
         "    string(TOLOWER \"cc_tools_plugin_${protocol}\" name)\n\n"
@@ -145,7 +135,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "        set(extra_link_opts \"-Wl,--no-undefined\")\n"
         "    endif ()\n\n"
         "    add_library (${name} MODULE ${src} ${moc})\n"
-        "    target_link_libraries (${name} ${CORE_LIB_NAME} cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Widgets Qt${OPT_QT_MAJOR_VERSION}::Core ${extra_link_opts})\n"
+        "    target_link_libraries (${name} ${INTERFACE_LIB_PREFIX} cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Widgets Qt${OPT_QT_MAJOR_VERSION}::Core ${extra_link_opts})\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
@@ -169,7 +159,7 @@ bool ToolsQtCmake::testWriteInternal() const
         "    # Global include is required for \"moc\"\n"
         "    include_directories (${cc_inc})\n"
         "endif ()\n\n"
-        "cc_plugin_core()\n\n"
+        "#^#PER_INTERFACE_CALLS#$#\n"
         "#^#PLUGINS_LIST#$#\n"
     ;
 
@@ -181,7 +171,8 @@ bool ToolsQtCmake::testWriteInternal() const
     }
 
     util::ReplacementMap repl = {
-        {"CORE_FILES", util::strListToString(m_generator.toolsSourceFiles(), "\n", "")},
+        {"PER_INTERFACE_FUNCS", toolsPerInterfaceFuncsInternal()},
+        {"PER_INTERFACE_CALLS", toolsPerInterfaceCallsInternal()},
         //{"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")}, // TODO implement
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
@@ -197,6 +188,68 @@ bool ToolsQtCmake::testWriteInternal() const
     }
     
     return true;    
+}
+
+std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
+{
+    const std::string Templ = 
+        "function (cc_plugin_#^#INTERFACE#$#)\n"
+        "    set (name ${INTERFACE_LIB_PREFIX}_#^#INTERFACE#$#)\n"
+        "    set (src\n"
+        "        #^#CORE_FILES#$#\n"
+        "    )\n\n"
+        "    add_library (${name} STATIC ${src})\n"
+        "    target_link_libraries (${name} PUBLIC cc::#^#MAIN_NS#$# cc::comms cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Core)\n"
+        "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/#^#INTERFACE_PATH#$#)\n"
+        "    target_compile_options(${name} PRIVATE\n"
+        "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
+        "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -Wno-unused-local-typedefs>\n"
+        "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -fbracket-depth=2048 -Wno-unused-local-typedefs>\n"
+        "    )\n\n"
+        "endfunction()\n";
+
+    StringsList result;
+    auto& allInterfaces = m_generator.toolsGetSelectedInterfaces();
+    for (auto* i : allInterfaces) {
+        assert(i != nullptr);
+        auto& iFace = ToolsQtInterface::cast(*i);
+        auto iFaceScope = comms::scopeFor(iFace, m_generator, false, true);
+        auto iFaceName = util::strReplace(iFaceScope, "::", "_");
+        auto iFacePath = util::strReplace(iFaceScope, "::", "/");
+
+        util::ReplacementMap repl = {
+            {"CORE_FILES", util::strListToString(m_generator.toolsSourceFilesForInterface(iFace), "\n", "")},
+            {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
+            {"INTERFACE", iFaceName},
+            {"INTERFACE_PATH", iFacePath},
+        };        
+
+        result.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(result, "\n", "");
+}
+
+std::string ToolsQtCmake::toolsPerInterfaceCallsInternal() const
+{
+    const std::string Templ = "cc_plugin_#^#INTERFACE#$#()\n";
+
+    StringsList result;
+    auto& allInterfaces = m_generator.toolsGetSelectedInterfaces();
+    for (auto* i : allInterfaces) {
+        assert(i != nullptr);
+        auto& iFace = ToolsQtInterface::cast(*i);
+        auto iFaceScope = comms::scopeFor(iFace, m_generator, false, true);
+        auto iFaceName = util::strReplace(iFaceScope, "::", "_");
+
+        util::ReplacementMap repl = {
+            {"INTERFACE", iFaceName},
+        };        
+
+        result.push_back(util::processTemplate(Templ, repl));
+    }
+
+    return util::strListToString(result, "\n", "");
 }
 
 } // namespace commsdsl2tools_qt

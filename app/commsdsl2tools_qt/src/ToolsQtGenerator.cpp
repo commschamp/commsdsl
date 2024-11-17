@@ -82,23 +82,54 @@ const std::string& ToolsQtGenerator::toolsFileGeneratedComment()
 ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
 {
     StringsList result;
+    // for (auto& s : schemas()) {
+    //     auto& nsList = s->namespaces();
+    //     for (auto& nsPtr : nsList) {
+    //         assert(nsPtr);
+
+    //         auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles();
+    //         result.reserve(result.size() + nsResult.size());
+    //         std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
+    //     }
+    // }
+
+    // auto interfaces = toolsGetSelectedInterfaces();
+    // for (auto& i : interfaces) {
+    //     auto iResult = ToolsQtInterface::cast(i)->toolsSourceFiles();
+    //     result.reserve(result.size() + iResult.size());
+    //     std::move(iResult.begin(), iResult.end(), std::back_inserter(result));
+    // }    
+
+    // TODO: implement
+    // auto frames = toolsGetSelectedFrames();
+    // for (auto& f : frames) {
+    //     auto fResult = ToolsQtFrame::cast(f)->toolsSourceFiles();
+    //     result.reserve(result.size() + fResult.size());
+    //     std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
+    // }   
+
+    // TODO: implement
+    // auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this);
+    // result.reserve(result.size() + factoryResult.size());
+    // std::move(factoryResult.begin(), factoryResult.end(), std::back_inserter(result));       
+
+    return result;
+}
+
+ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFilesForInterface(const ToolsQtInterface& interface) const
+{
+    StringsList result = interface.toolsSourceFiles();
+
     for (auto& s : schemas()) {
         auto& nsList = s->namespaces();
         for (auto& nsPtr : nsList) {
             assert(nsPtr);
 
-            auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles();
+            auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles(interface);
             result.reserve(result.size() + nsResult.size());
             std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
         }
     }
-
-    auto interfaces = toolsGetSelectedInterfaces();
-    for (auto& i : interfaces) {
-        auto iResult = ToolsQtInterface::cast(i)->toolsSourceFiles();
-        result.reserve(result.size() + iResult.size());
-        std::move(iResult.begin(), iResult.end(), std::back_inserter(result));
-    }    
 
     // TODO: implement
     // auto frames = toolsGetSelectedFrames();

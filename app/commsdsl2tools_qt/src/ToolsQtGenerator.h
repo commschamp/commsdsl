@@ -56,6 +56,7 @@ public:
     }
 
     StringsList toolsSourceFiles() const;
+    StringsList toolsSourceFilesForInterface(const ToolsQtInterface& interface) const;
 
     const PluginsList& toolsPlugins() const
     {

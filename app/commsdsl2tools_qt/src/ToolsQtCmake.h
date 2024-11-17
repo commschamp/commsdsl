@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace commsdsl2tools_qt
 {
 
@@ -27,8 +29,10 @@ public:
 private:
     explicit ToolsQtCmake(ToolsQtGenerator& generator) : m_generator(generator) {}
 
-    bool testWriteInternal() const;
-    
+    bool toolsWriteInternal() const;
+    std::string toolsPerInterfaceFuncsInternal() const;
+    std::string toolsPerInterfaceCallsInternal() const;
+
 private:
     ToolsQtGenerator& m_generator;
 };

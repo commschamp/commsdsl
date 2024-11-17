@@ -22,6 +22,8 @@ namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
+class ToolsQtInterface;
+
 class ToolsQtNamespace final : public commsdsl::gen::Namespace
 {
     using Base = commsdsl::gen::Namespace;
@@ -29,7 +31,7 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent);
 
-    StringsList toolsSourceFiles() const;
+    StringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
 
     std::string toolsMsgFactoryOptions() const;
 
