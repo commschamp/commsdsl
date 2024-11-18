@@ -27,6 +27,7 @@
 #include "commsdsl/parse/Endian.h"
 
 #include <memory>
+#include <vector>
 
 namespace commsdsl
 {

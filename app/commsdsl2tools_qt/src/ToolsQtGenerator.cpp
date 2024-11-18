@@ -32,7 +32,6 @@
 #include "ToolsQtListField.h"
 #include "ToolsQtMessage.h"
 #include "ToolsQtMsgFactory.h"
-#include "ToolsQtMsgFactoryOptions.h"
 #include "ToolsQtNamespace.h"
 #include "ToolsQtOptionalField.h"
 #include "ToolsQtPayloadLayer.h"
@@ -139,12 +138,22 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFilesForInterface(con
     //     std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
     // }   
 
-    // TODO: implement
-    // auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this);
-    // result.reserve(result.size() + factoryResult.size());
-    // std::move(factoryResult.begin(), factoryResult.end(), std::back_inserter(result));       
+    auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this, interface);
+    result.reserve(result.size() + factoryResult.size());
+    std::move(factoryResult.begin(), factoryResult.end(), std::back_inserter(result));       
 
     return result;
+}
+
+const ToolsQtGenerator::FramesAccessList& ToolsQtGenerator::toolsGetSelectedFramesForInterface(const commsdsl::gen::Interface& interface)
+{
+    auto iter = m_selectedFramesPerInterface.find(&interface);
+    if (iter == m_selectedFramesPerInterface.end()) {
+        static const FramesAccessList EmptyList;
+        return EmptyList;
+    }
+
+    return iter->second;
 }
 
 void ToolsQtGenerator::toolsSetMainNamespaceInOptionsForced(bool value)
@@ -366,7 +375,6 @@ bool ToolsQtGenerator::writeImpl()
         ToolsQtInputMessages::write(*this) &&
         ToolsQtMsgFactory::write(*this) &&
         ToolsQtDefaultOptions::write(*this) &&
-        ToolsQtMsgFactoryOptions::write(*this) &&
         ToolsQtVersion::write(*this);
 
     if (!result) {
@@ -427,10 +435,40 @@ bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()
         }
 
         m_selectedInterfaces.push_back(iFace);
+
+        std::vector<std::string> frameNames;
+        for (auto& info : m_pluginInfos) {
+            if (info.m_interface == iName) {
+                frameNames.push_back(info.m_frame);
+            }
+        }
+
+        std::sort(frameNames.begin(), frameNames.end());
+        frameNames.erase(
+            std::unique(frameNames.begin(), frameNames.end()),
+            frameNames.end()
+        );
+
+        for (auto& fName : frameNames) {
+            auto* frame = findFrame(fName);
+            if (frame == nullptr) {
+                logger().error("Selected frame \"" + fName + "\" cannot be found");
+                return false;
+            }
+
+            m_selectedFramesPerInterface[iFace].push_back(frame);
+        }
+
+        if (m_selectedFramesPerInterface[iFace].empty()) {
+            m_selectedFramesPerInterface[iFace] = getAllFrames();
+        }
     }
 
     if (m_selectedInterfaces.empty()) {
         m_selectedInterfaces = getAllInterfaces();
+        for (auto* i : m_selectedInterfaces) {
+            m_selectedFramesPerInterface[i] = getAllFrames();
+        }
     }
 
     return true;    

@@ -200,7 +200,7 @@ std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
         "    )\n\n"
         "    add_library (${name} STATIC ${src})\n"
         "    target_link_libraries (${name} PUBLIC cc::#^#MAIN_NS#$# cc::comms cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Core)\n"
-        "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/#^#INTERFACE_PATH#$#)\n"
+        "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR})\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -Wno-unused-local-typedefs>\n"

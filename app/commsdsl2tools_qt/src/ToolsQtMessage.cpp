@@ -40,6 +40,11 @@ ToolsQtMessage::ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Mes
 {
 }
 
+std::string ToolsQtMessage::toolsHeaderPath(const commsdsl::gen::Interface& iFace) const
+{
+    return toolsRelPathInternal(iFace) + strings::cppHeaderSuffixStr();
+}
+
 ToolsQtMessage::StringsList ToolsQtMessage::toolsSourceFiles(const commsdsl::gen::Interface& iFace) const
 {
     return StringsList{toolsRelPathInternal(iFace) + strings::cppSourceSuffixStr()};

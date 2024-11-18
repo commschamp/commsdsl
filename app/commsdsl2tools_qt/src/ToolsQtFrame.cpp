@@ -16,7 +16,6 @@
 #include "ToolsQtFrame.h"
 
 #include "ToolsQtDefaultOptions.h"
-#include "ToolsQtMsgFactoryOptions.h"
 #include "ToolsQtGenerator.h"
 #include "ToolsQtInputMessages.h"
 #include "ToolsQtInterface.h"
@@ -137,6 +136,7 @@ bool ToolsQtFrame::writeImpl() const
     }
 
     return 
+        // TODO: convert
         toolsWriteHeaderInternal() &&
         toolsWriteTransportMsgHeaderInternal() &&
         toolsWriteTransportMsgSrcInternal();
@@ -182,7 +182,6 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
     StringsList includes {
         comms::relHeaderPathFor(*this, gen),
         ToolsQtInputMessages::toolsRelHeaderPath(gen),
-        ToolsQtMsgFactoryOptions::toolsRelHeaderPath(gen),
         ToolsQtVersion::toolsRelHeaderPath(gen),
     };
 
@@ -205,7 +204,6 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
         {"TOP_NS", gen.getTopNamespace()},
         {"MAIN_NS", gen.protocolSchema().mainNamespace()},
         {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), gen)},
-        {"OPTS", ToolsQtMsgFactoryOptions::toolsScope(gen)}
     };
 
     if (1U < allInterfaces.size()) {

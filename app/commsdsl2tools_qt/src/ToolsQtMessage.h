@@ -36,7 +36,18 @@ public:
 
     explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Message dslObj, commsdsl::gen::Elem* parent);
 
+    std::string toolsHeaderPath(const commsdsl::gen::Interface& iFace) const;
     StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
+
+    static ToolsQtMessage& cast(commsdsl::gen::Message& msg)
+    {
+        return static_cast<ToolsQtMessage&>(msg);
+    }
+
+    static const ToolsQtMessage& cast(const commsdsl::gen::Message& msg)
+    {
+        return static_cast<const ToolsQtMessage&>(msg);
+    }    
 
 protected:
     virtual bool prepareImpl() override;

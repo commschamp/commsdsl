@@ -25,6 +25,8 @@
 #include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/util.h"
 
+#include <map>
+
 namespace commsdsl2tools_qt 
 {
 
@@ -43,6 +45,7 @@ public:
     using PluginInfosList = ToolsQtProgramOptions::PluginInfosList;
     using StringsList = commsdsl::gen::util::StringsList;
     using PluginsList = std::vector<ToolsQtPluginPtr>;
+    using FramesPerInterfaceMap = std::map<const commsdsl::gen::Interface*, FramesAccessList>;
 
     static const std::string& toolsFileGeneratedComment();
     void toolsSetPluginInfosList(PluginInfosList&& value)
@@ -72,6 +75,8 @@ public:
     {
         return m_selectedFrames;
     }    
+
+    const FramesAccessList& toolsGetSelectedFramesForInterface(const commsdsl::gen::Interface& interface);
 
     static ToolsQtGenerator& cast(commsdsl::gen::Generator& generator)
     {
@@ -130,6 +135,7 @@ private:
     PluginsList m_plugins;
     InterfacesAccessList m_selectedInterfaces;
     FramesAccessList m_selectedFrames;
+    FramesPerInterfaceMap m_selectedFramesPerInterface;
     bool m_mainNamespaceInOptionsForced = false;
 };
 
