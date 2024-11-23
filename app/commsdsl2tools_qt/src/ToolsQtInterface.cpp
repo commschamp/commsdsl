@@ -62,6 +62,11 @@ ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse:
 {
 }
 
+std::string ToolsQtInterface::toolsScope() const
+{
+    return generator().getTopNamespace() + "::" + comms::scopeFor(*this, generator());
+}
+
 std::string ToolsQtInterface::toolsHeaderFilePath() const
 {
     return toolsRelFilePath() + strings::cppHeaderSuffixStr();

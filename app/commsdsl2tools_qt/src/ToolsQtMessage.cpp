@@ -214,6 +214,7 @@ std::string ToolsQtMessage::toolsHeaderCodeInternal() const
         "    virtual ~#^#CLASS_NAME#$#();\n"
         "    #^#CLASS_NAME#$#& operator=(const #^#CLASS_NAME#$#& other);\n"
         "    #^#CLASS_NAME#$#& operator=(#^#CLASS_NAME#$#&&);\n"
+        "\n"
         "protected:\n"
         "    virtual const char* nameImpl() const override;\n"
         "    virtual bool refreshMsgImpl() override;\n"
@@ -354,8 +355,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::Interface&
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"PROT_MESSAGE", comms::scopeFor(*this, gen)},
-        {"TOP_NS", generator().getTopNamespace()},
-        {"INTERFACE", comms::scopeFor(iFace, gen)},
+        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsScope()},
     };
 
     return util::processTemplate(Templ, repl);    

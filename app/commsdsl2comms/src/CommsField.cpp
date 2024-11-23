@@ -755,6 +755,8 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
         opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), gen.commsHasMainNamespaceInOptions(), true));
     }
 
+    util::addToStrList("comms::option::def::HasName", opts);
+
     do {
         auto checkFieldTypeFunc = 
             [this, &opts]()
@@ -1058,7 +1060,8 @@ std::string CommsField::commsOptionalDefCodeInternal() const
         "    comms::field::Optional<\n"
         "        #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#,\n"
         "        comms::option::def::#^#DEFAULT_MODE_OPT#$#,\n"
-        "        comms::option::def::#^#VERSIONS_OPT#$#\n"
+        "        comms::option::def::#^#VERSIONS_OPT#$#,\n"
+        "        comms::option::def::HasName"
         "    >\n"
         "{\n"
         "    /// @brief Name of the field.\n"

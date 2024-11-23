@@ -35,6 +35,7 @@ public:
 
     explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::Interface dslObj, commsdsl::gen::Elem* parent);
 
+    std::string toolsScope() const;
     std::string toolsHeaderFilePath() const;
     StringsList toolsSourceFiles() const;
 

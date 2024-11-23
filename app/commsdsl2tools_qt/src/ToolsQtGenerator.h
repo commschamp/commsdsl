@@ -76,6 +76,11 @@ public:
         return m_selectedFrames;
     }    
 
+    const FramesPerInterfaceMap& toolsGetSelectedFramesPerInterface() const
+    {
+        return m_selectedFramesPerInterface;
+    }
+
     const FramesAccessList& toolsGetSelectedFramesForInterface(const commsdsl::gen::Interface& interface);
 
     static ToolsQtGenerator& cast(commsdsl::gen::Generator& generator)

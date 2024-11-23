@@ -17,6 +17,7 @@
 
 #include "ToolsQtLayer.h"
 
+#include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/util.h"
 
@@ -34,7 +35,7 @@ public:
     explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent);
 
     std::string toolsHeaderFilePath() const;
-    StringsList toolsSourceFiles() const;
+    StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
     std::string toolsMsgFactoryOptions() const;
 
     static const ToolsQtFrame* cast(const commsdsl::gen::Frame* val)
@@ -47,6 +48,7 @@ protected:
     virtual bool writeImpl() const override;    
 
 private:
+    bool toolsWriteProtTransportMsgHeaderInternal() const;
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteTransportMsgHeaderInternal() const;
     bool toolsWriteTransportMsgSrcInternal() const;
@@ -54,6 +56,11 @@ private:
     std::string toolsTransportMessageSrcFilePathInternal() const;
     unsigned toolsCalcBackPayloadOffsetInternal() const;
     std::string toolsRelFilePath() const;
+    std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsProtTransportMsgDefInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsTransportMsgHeaderDefInternal() const;
+    std::string toolsTransportMsgSrcDefInternal(const commsdsl::gen::Interface& iFace) const;
 
     ToolsQtLayersList m_toolsLayers;
 };

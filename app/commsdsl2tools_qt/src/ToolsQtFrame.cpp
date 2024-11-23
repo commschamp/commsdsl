@@ -41,6 +41,8 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
+const std::string ProtTransportMsgSuffix("ProtTransportMessage");
+
 ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::Frame::LayersList& layers)
 {
     ToolsQtFrame::ToolsQtLayersList result;
@@ -75,9 +77,25 @@ std::string ToolsQtFrame::toolsHeaderFilePath() const
     return toolsRelFilePath() + strings::cppHeaderSuffixStr();
 }
 
-ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles() const
+ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::Interface& iFace) const
 {
-    return StringsList{toolsTransportMessageSrcFilePathInternal()};
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
+    auto iter = selectedFrames.find(&iFace);
+    if (iter == selectedFrames.end()) {
+        return StringsList();
+    }
+
+    auto frameIter = std::find(iter->second.begin(), iter->second.end(), this);
+    if (frameIter == iter->second.end()) {
+        return StringsList();
+    }
+
+    return 
+        StringsList{
+            toolsRelPathInternal(iFace) + strings::transportMessageSuffixStr() + strings::cppSourceSuffixStr(),
+            // TODO: src
+        };
 }
 
 std::string ToolsQtFrame::toolsMsgFactoryOptions() const
@@ -136,10 +154,77 @@ bool ToolsQtFrame::writeImpl() const
     }
 
     return 
-        // TODO: convert
-        toolsWriteHeaderInternal() &&
+        toolsWriteProtTransportMsgHeaderInternal() &&
         toolsWriteTransportMsgHeaderInternal() &&
-        toolsWriteTransportMsgSrcInternal();
+        toolsWriteTransportMsgSrcInternal() &&
+        // TODO: convert
+        toolsWriteHeaderInternal();
+}
+
+bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
+{
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto& logger = gen.logger();
+
+    auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
+    for (auto& info : selectedFrames) {
+        auto iter = std::find(info.second.begin(), info.second.end(), this);
+        if (iter == info.second.end()) {
+            continue;
+        }
+
+        auto filePath = gen.getOutputDir() + '/' + toolsRelPathInternal(*info.first) + ProtTransportMsgSuffix + strings::cppHeaderSuffixStr();
+
+        logger.info("Generating " + filePath);
+
+        auto dirPath = util::pathUp(filePath);
+        assert(!dirPath.empty());
+        if (!gen.createDirectory(dirPath)) {
+            return false;
+        }     
+
+        std::ofstream stream(filePath);
+        if (!stream) {
+            logger.error("Failed to open \"" + filePath + "\" for writing.");
+            return false;
+        }  
+
+        util::StringsList includes = {
+            "<tuple>",
+            "cc_tools_qt/ToolsTransportProtMessageBase.h",
+            comms::relHeaderPathFor(*this, gen),
+        };
+
+        comms::prepareIncludeStatement(includes);
+
+        static const std::string Templ = 
+            "#^#GENERATED#$#\n"
+            "\n"
+            "#pragma once\n\n"
+            "#^#INCLUDES#$#\n"
+            "\n"
+            "#^#NS_BEGIN#$#\n"
+            "#^#DEF#$#\n"
+            "#^#NS_END#$#\n"
+            ;
+
+        util::ReplacementMap repl = {
+            {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
+            {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
+            {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"INCLUDES", util::strListToString(includes, "\n", "\n")},
+            {"DEF", toolsProtTransportMsgDefInternal(*info.first)},
+        };
+
+        stream << util::processTemplate(Templ, repl, true);
+        stream.flush();
+        if (!stream.good()) {
+            logger.error("Write to \"" + filePath + "\" is unsuccessful.");
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool ToolsQtFrame::toolsWriteHeaderInternal() const
@@ -225,298 +310,120 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
 bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
 {
     auto& gen = ToolsQtGenerator::cast(generator());
-    auto filePath = gen.getOutputDir() + '/' + toolsTransportMessageHeaderFilePathInternal();
-
     auto& logger = gen.logger();
-    logger.info("Generating " + filePath);
 
-    std::ofstream stream(filePath);
-    if (!stream) {
-        logger.error("Failed to open \"" + filePath + "\" for writing.");
-        return false;
+    auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
+    for (auto& info : selectedFrames) {
+        auto iter = std::find(info.second.begin(), info.second.end(), this);
+        if (iter == info.second.end()) {
+            continue;
+        }
+
+        auto filePath = gen.getOutputDir() + '/' + toolsRelPathInternal(*info.first) + strings::transportMessageSuffixStr() + strings::cppHeaderSuffixStr();
+
+        logger.info("Generating " + filePath);
+
+        std::ofstream stream(filePath);
+        if (!stream) {
+            logger.error("Failed to open \"" + filePath + "\" for writing.");
+            return false;
+        }
+
+        static const std::string Templ = 
+            "#^#GENERATED#$#\n"
+            "\n"
+            "#pragma once\n\n"
+            "#include <memory>\n"
+            "#include \"cc_tools_qt/ToolsMessage.h\"\n"
+            "\n"
+            "#^#NS_BEGIN#$#\n"
+            "#^#DEF#$#\n\n"
+            "#^#NS_END#$#\n"
+        ;
+
+        util::StringsList fields;
+        for (auto* l : m_toolsLayers) {
+            fields.push_back("::" + l->toolsFieldCommsScope());
+        }
+
+        util::ReplacementMap repl = {
+            {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
+            {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
+            {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"DEF", toolsTransportMsgHeaderDefInternal()},
+        };
+        
+        stream << util::processTemplate(Templ, repl, true);
+        stream.flush();
+        if (!stream.good()) {
+            logger.error("Write to \"" + filePath + "\" is unsuccessful.");
+            return false;
+        }
     }
 
-    static const std::string Templ = 
-        "#^#GENERATED#$#\n"
-        "\n"
-        "#pragma once\n\n"
-        "#include <tuple>\n"
-        "#include <QtCore/QVariantList>\n"
-        "#include \"cc_tools_qt/TransportMessageBase.h\"\n"
-        "#include \"#^#DEF_OPETIONS_INC#$#\"\n"
-        "#include \"#^#FRAME_INCLUDE#$#\"\n"
-        "#^#INTERFACE_INCLUDE#$#\n"
-        "\n"
-        "#^#NS_BEGIN#$#\n"
-        "struct #^#CLASS_NAME#$##^#SUFFIX#$#Fields\n"
-        "{\n"
-        "    using All =\n"
-        "        std::tuple<\n"
-        "            #^#FIELDS#$#\n"
-        "        >;\n"
-        "    static const QVariantList& props();\n"
-        "    #^#READ_FUNC#$#\n"
-        "};\n\n"
-        "#^#INTERFACE_TEMPL_PARAM#$#\n"
-        "class #^#CLASS_NAME#$##^#SUFFIX#$# : public\n"
-        "    cc_tools_qt::TransportMessageBase<\n"
-        "        #^#INTERFACE#$#,\n"
-        "        #^#CLASS_NAME#$##^#SUFFIX#$#Fields::All\n"
-        "    >\n"
-        "{\n"
-        "    #^#BASE_DEF#$#\n"
-        "protected:\n"
-        "    virtual const QVariantList& fieldsPropertiesImpl() const override#^#SEMICOLON#$#\n"
-        "    #^#PROPS_BODY#$#\n"
-        "    #^#READ_FUNC_DECL#$#\n"
-        "};\n\n"
-        "#^#NS_END#$#\n"
-    ;
-
-    util::StringsList fields;
-    for (auto* l : m_toolsLayers) {
-        fields.push_back("::" + l->toolsFieldCommsScope());
-    }
-
-    util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
-        {"NS_END", comms::namespaceEndFor(*this, gen)},
-        {"FRAME_INCLUDE", comms::relHeaderPathFor(*this, gen)},
-        {"CLASS_NAME", comms::className(dslObj().name())},
-        {"SUFFIX", strings::transportMessageSuffixStr()},
-        {"FIELDS", util::strListToString(fields, ",\n", "")},
-        {"DEF_OPETIONS_INC", ToolsQtDefaultOptions::toolsRelHeaderPath(gen)},
-    };
-
-    auto allInterfaces = gen.toolsGetSelectedInterfaces();
-    assert(!allInterfaces.empty());
-    auto payloadOffset = toolsCalcBackPayloadOffsetInternal();
-
-    if (1U < allInterfaces.size()) {
-        std::string propsBody =
-            "{\n"
-            "    return " + comms::className(dslObj().name()) + strings::transportMessageSuffixStr() + strings::fieldsSuffixStr() + "::props();\n"
-            "}\n";
-
-        std::string baseDef = 
-            "using Base =\n"
-            "    cc_tools_qt::TransportMessageBase<\n"
-            "        TInterface,\n"
-            "        " + comms::className(dslObj().name())  + strings::transportMessageSuffixStr() + strings::fieldsSuffixStr() + "::All\n"
-            "    >;";
-
-        repl.insert({
-            {"INTERFACE_TEMPL_PARAM", "template <typename TInterface>"},
-            {"INTERFACE", "TInterface"},
-            {"INTERFACE_TEMPL", "<TInterface>"},
-            {"BASE_DEF", std::move(baseDef)},
-            {"PROPS_BODY", std::move(propsBody)}
-        });
-
-        if (payloadOffset != 0U) {
-            std::string readMemFunc =
-                "using typename Base::ReadIterator;\n"
-                "virtual comms::ErrorStatus readImpl(ReadIterator& iter, std::size_t len) override\n"
-                "{\n"
-                "    return " + comms::className(dslObj().name()) + strings::transportMessageSuffixStr() + strings::fieldsSuffixStr() + "::read(Base::fields(), iter, len);\n"
-                "}\n";
-            repl["READ_FUNC"] = "static comms::ErrorStatus read(All& fields, const std::uint8_t*& iter, std::size_t len);";
-            repl["READ_FUNC_DECL"] = std::move(readMemFunc);
-        }        
-    }
-    else {
-        auto* defaultInterface = static_cast<const ToolsQtInterface*>(allInterfaces.front());
-        assert(defaultInterface != nullptr);
-        repl["INTERFACE_INCLUDE"] = "#include \"" + defaultInterface->toolsHeaderFilePath() + '\"';
-        repl["INTERFACE"] = gen.getTopNamespace() + "::" + comms::scopeFor(*defaultInterface, gen);
-
-        if (payloadOffset != 0U) {
-            repl["READ_FUNC_DECL"] = "virtual comms::ErrorStatus readImpl(ReadIterator& iter, std::size_t len) override;";
-        }        
-    }
-
-    if (repl["PROPS_BODY"].empty()) {
-        repl["SEMICOLON"] = ";";
-    }
-    
-    stream << util::processTemplate(Templ, repl, true);
-    stream.flush();
-    return stream.good();
+    return true;
 }
 
 bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
 {
     auto& gen = ToolsQtGenerator::cast(generator());
-    auto filePath = gen.getOutputDir() + '/' + toolsTransportMessageSrcFilePathInternal();
-
     auto& logger = gen.logger();
-    logger.info("Generating " + filePath);
 
-    std::ofstream stream(filePath);
-    if (!stream) {
-        logger.error("Failed to open \"" + filePath + "\" for writing.");
-        return false;
+    auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
+    for (auto& info : selectedFrames) {
+        auto iter = std::find(info.second.begin(), info.second.end(), this);
+        if (iter == info.second.end()) {
+            continue;
+        }
+
+        auto filePath = gen.getOutputDir() + '/' + toolsRelPathInternal(*info.first) + strings::transportMessageSuffixStr() + strings::cppSourceSuffixStr();
+
+        logger.info("Generating " + filePath);
+
+        std::ofstream stream(filePath);
+        if (!stream) {
+            logger.error("Failed to open \"" + filePath + "\" for writing.");
+            return false;
+        }
+
+        static const std::string Templ = 
+            "#^#GENERATED#$#\n"
+            "\n"
+            "#include \"#^#CLASS_NAME#$##^#SUFFIX#$#.h\"\n\n"
+            "#^#INCLUDES#$#\n"
+            "\n"
+            "#^#NS_BEGIN#$#\n"
+            "#^#DEF#$#\n\n"
+            "#^#NS_END#$#\n"
+        ;
+
+        util::StringsList includes = {
+            "cc_tools_qt/ToolsTransportMessageBase.h",
+            toolsRelPathInternal(*info.first) + ProtTransportMsgSuffix + strings::cppHeaderSuffixStr(),
+            ToolsQtInterface::cast(*info.first).toolsHeaderFilePath(),
+        };
+
+        comms::prepareIncludeStatement(includes);
+
+        util::ReplacementMap repl = {
+            {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
+            {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
+            {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"CLASS_NAME", comms::className(dslObj().name())},
+            {"SUFFIX", strings::transportMessageSuffixStr()},
+            {"INCLUDES", util::strListToString(includes, "\n", "")},
+            {"DEF", toolsTransportMsgSrcDefInternal(*info.first)},
+        };
+
+        stream << util::processTemplate(Templ, repl, true);
+        stream.flush();
+        if (!stream.good()) {
+            logger.error("Write to \"" + filePath + "\" is unsuccessful.");
+            return false;
+        }
     }
-
-    static const std::string Templ = 
-        "#^#GENERATED#$#\n"
-        "\n"
-        "#include \"#^#CLASS_NAME#$##^#SUFFIX#$#.h\"\n\n"
-        "#^#INCLUDES#$#\n"
-        "\n"
-        "#^#NS_BEGIN#$#\n"
-        "#^#FIELDS_PROPS#$#\n"
-        "namespace\n"
-        "{\n\n"
-        "QVariantList createProps()\n"
-        "{\n"
-        "     QVariantList props;\n"
-        "     #^#APPENDS#$#\n"
-        "     return props;\n"
-        "}\n\n"
-        "} // namespace\n\n"
-        "const QVariantList& #^#CLASS_NAME#$##^#SUFFIX#$#Fields::props()\n"
-        "{\n"
-        "    static const QVariantList Props = createProps();\n"
-        "    return Props;\n"
-        "}\n\n"
-        "#^#PROPS_FUNC#$#\n"
-        "#^#READ_FUNC#$#\n"
-        "#^#PROPS_IMPL_FUNC#$#\n"
-        "#^#READ_IMPL_FUNC#$#\n"
-        "#^#NS_END#$#\n"
-    ;
-
-    util::StringsList includes = {
-        "cc_tools_qt/property/field.h"
-    };
-
-    for (auto* l : m_toolsLayers) {
-        auto lIncs = l->toolsSrcIncludes();
-        includes.reserve(lIncs.size());
-        std::move(lIncs.begin(), lIncs.end(), std::back_inserter(includes));
-    }
-    comms::prepareIncludeStatement(includes);
-
-    util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
-        {"NS_END", comms::namespaceEndFor(*this, gen)},
-        {"CLASS_NAME", comms::className(dslObj().name())},
-        {"SUFFIX", strings::transportMessageSuffixStr()},
-        {"INCLUDES", util::strListToString(includes, "\n", "")},
-    };
-
-    auto allInterfaces = gen.toolsGetSelectedInterfaces();
-    assert(!allInterfaces.empty());
-    auto payloadOffset = toolsCalcBackPayloadOffsetInternal();
-    auto readIdxCalcFunc = 
-        [this]()
-        {
-            auto payloadIter =
-                std::find_if(
-                    m_toolsLayers.begin(), m_toolsLayers.end(),
-                    [](auto* l)
-                    {
-                        return l->layer().dslObj().kind() == commsdsl::parse::Layer::Kind::Payload;
-                    });
-            assert(payloadIter != m_toolsLayers.end());
-            return static_cast<unsigned>(std::distance(m_toolsLayers.begin(), payloadIter)) + 1U;
-        };        
-
-    auto readOverrideFile = gen.getCodeDir() + '/' + toolsTransportMessageSrcFilePathInternal() + strings::readFileSuffixStr();
-    auto readCode = util::readFileContents(readOverrideFile);
-
-    do {
-        // Handle multiple interfaces;
-        if (allInterfaces.size() <= 1U) {
-            break;
-        }
-
-        if (!readCode.empty()) {
-            repl["READ_FUNC"] = std::move(readCode);  
-            break;
-        }
-
-        if (payloadOffset == 0U) {
-            // Nothing to do
-            break;
-        }
-
-        auto readUntilIdx = readIdxCalcFunc();
-        std::string readFunc = 
-            "comms::ErrorStatus " + comms::className(dslObj().name()) + strings::transportMessageSuffixStr() + "Fields::read(All& fields, const std::uint8_t*& iter, std::size_t len)\n"
-            "{\n"
-            "    len -= " + util::numToString(payloadOffset) + ";\n"
-            "    auto es = comms::ErrorStatus::NumOfErrorStatuses;\n";
-        auto addToReadFunc = 
-            [&readFunc](unsigned idx)
-            {
-                auto idxStr = std::to_string(idx);
-                readFunc += 
-                    "    auto& field" + idxStr + " = std::get<" + idxStr + ">(fields);\n"
-                    "    es = field" + idxStr + ".read(iter, len);\n"
-                    "    if (es != comms::ErrorStatus::Success) {\n"
-                    "        return es;\n"
-                    "    }\n"
-                    "    len -= field" + idxStr + ".length();\n\n";
-
-            };
-        for (auto idx = 0U; idx < readUntilIdx; ++idx) {
-            addToReadFunc(idx);
-        }
-        readFunc += "    len += " + util::numToString(payloadOffset) + ";\n";
-        for (auto idx = readUntilIdx; idx < m_toolsLayers.size(); ++idx) {
-            addToReadFunc(idx);
-        }
-
-        readFunc += "    return comms::ErrorStatus::Success;\n}\n";
-        repl["READ_FUNC"] = std::move(readFunc);          
-    } while (false);
-
-    do {
-        // Handle single interface
-        if (1U < allInterfaces.size()) {
-            break;
-        }
-
-        const std::string PropsImplFuncTempl = 
-            "const QVariantList& #^#CLASS_NAME#$##^#SUFFIX#$#::fieldsPropertiesImpl() const\n"
-            "{\n"
-            "    return #^#CLASS_NAME#$##^#SUFFIX#$#Fields::props();\n"
-            "}\n";  
-
-        repl["PROPS_IMPL_FUNC"] = util::processTemplate(PropsImplFuncTempl, repl);             
-
-        if (!readCode.empty()) {
-            repl["READ_IMPL_FUNC"] = std::move(readCode);  
-            break;
-        }
-
-        if (payloadOffset == 0U) {        
-            break;
-        }
-
-        auto readUntilIdx = readIdxCalcFunc();
-
-        std::string readFunc = 
-            "comms::ErrorStatus " + comms::className(dslObj().name()) + strings::transportMessageSuffixStr() + "::readImpl(ReadIterator& iter, std::size_t len)\n"
-            "{\n"
-            "    len -= " + util::numToString(payloadOffset) + ";\n"
-            "    auto es = doReadUntilAndUpdateLen<" + util::numToString(readUntilIdx) + ">(iter, len);\n"
-            "    if (es == comms::ErrorStatus::Success) {\n"
-            "        len += " + util::numToString(payloadOffset) + ";\n"
-            "        es = doReadFrom<" + util::numToString(readUntilIdx) + ">(iter, len);\n"
-            "    }\n\n"
-            "    return es;\n"
-            "}\n";
-        repl["READ_IMPL_FUNC"] = std::move(readFunc);        
-    } while (false);
-
-    stream << util::processTemplate(Templ, repl, true);
-    stream.flush();
-    return stream.good();
+    
+    return true;
 }
 
 std::string ToolsQtFrame::toolsTransportMessageHeaderFilePathInternal() const
@@ -556,5 +463,314 @@ std::string ToolsQtFrame::toolsRelFilePath() const
     return generator().getTopNamespace() + '/' + util::strReplace(scope, "::", "/");
 }
 
+std::string ToolsQtFrame::toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const
+{
+    auto scope = comms::scopeFor(*this, generator());
+    auto iFaceScope = comms::scopeFor(iFace, generator(), false, true);
+    return generator().getTopNamespace() + '/' + util::strReplace(iFaceScope, "::", "/") + '/' + util::strReplace(scope, "::", "/");
+}
+
+std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::Interface& iFace) const
+{
+    static const std::string Templ = 
+        "template <typename TOpt>\n"
+        "struct #^#CLASS_NAME#$##^#SUFFIX#$##^#FIELDS_SUFFIX#$#\n"
+        "{\n"
+        "    using All =\n"
+        "        std::tuple<\n"
+        "            #^#FIELDS_LIST#$#\n"
+        "        >;\n"
+        "};\n\n"
+        "template <typename TMsgBase, typename TOpt>\n"
+        "class #^#CLASS_NAME#$##^#SUFFIX#$# : public\n"
+        "    #^#BASE#$#\n"
+        "{\n"
+        "    using Base =\n"
+        "        #^#BASE#$#;\n"
+        "public:\n"
+        "    COMMS_MSG_FIELDS_NAMES(\n"
+        "        #^#FIELDS_NAMES#$#\n"
+        "    );\n\n"
+        "    #^#READ_FUNC#$#\n"
+        "};\n"
+        ;
+
+    auto layersScope = "::" + comms::scopeFor(*this, generator()) + strings::layersSuffixStr();
+    util::StringsList fields;
+    util::StringsList names;
+    for (auto* l : m_toolsLayers) {
+        assert(l != nullptr);
+        names.push_back(comms::accessName(l->layer().dslObj().name()));
+
+        auto* externalField = l->layer().externalField();
+        if (externalField != nullptr) {
+            fields.push_back("::" + comms::scopeFor(*externalField, generator()) + "<TOpt>");
+            continue;
+        }
+
+        auto lScope = "typename " + layersScope + "<TOpt>::" + comms::className(l->layer().dslObj().name());
+        auto* memberField = l->layer().memberField();
+        if (memberField != nullptr) {
+            fields.push_back(lScope + strings::membersSuffixStr() + "::" + comms::className(memberField->dslObj().name()));
+            continue;
+        }
+
+        fields.push_back(lScope + "::Field");  
+    }
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"SUFFIX", ProtTransportMsgSuffix},
+        {"FIELDS_SUFFIX", strings::fieldsSuffixStr()},
+        {"FIELDS_LIST", util::strListToString(fields, ",\n", "")},
+        {"FIELDS_NAMES", util::strListToString(names, ",\n", "")},
+        {"READ_FUNC", toolsProtTransportMsgReadFuncInternal(iFace)},
+    };
+
+    static const std::string BaseTempl = 
+        "cc_tools_qt::ToolsTransportProtMessageBase<\n"
+        "    TMsgBase,\n"
+        "    typename #^#CLASS_NAME#$##^#SUFFIX#$##^#FIELDS_SUFFIX#$#<TOpt>::All,\n"
+        "    #^#CLASS_NAME#$##^#SUFFIX#$#<TMsgBase, TOpt>\n"
+        ">";
+    repl["BASE"] = util::processTemplate(BaseTempl, repl);
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::Interface& iFace) const
+{
+    std::string readCode;
+    do {
+        auto readOverrideFile = generator().getCodeDir() + '/' + toolsRelPathInternal(iFace) + strings::cppHeaderSuffixStr() + strings::readFileSuffixStr();
+        readCode = util::readFileContents(readOverrideFile);
+        if (!readCode.empty()) {
+            break;
+        }
+
+        auto payloadIter =
+            std::find_if(
+                m_toolsLayers.begin(), m_toolsLayers.end(),
+                [](auto* l)
+                {
+                    return l->layer().dslObj().kind() == commsdsl::parse::Layer::Kind::Payload;
+                });
+
+        assert(payloadIter != m_toolsLayers.end());
+        auto readUntilIdx = static_cast<unsigned>(std::distance(m_toolsLayers.begin(), payloadIter)) + 1U;
+        if (m_toolsLayers.size() <= readUntilIdx) {
+            break;
+        }
+
+        auto payloadOffset = toolsCalcBackPayloadOffsetInternal();
+        if (payloadOffset == 0U) {
+            assert(false); // Should not happen
+            break;
+        }
+
+        static const std::string Templ = 
+            "template <typename TIter>\n"
+            "comms::ErrorStatus read(TIter& iter, std::size_t len)\n"
+            "{\n"
+            "    len -= #^#OFFSET#$#;\n"
+            "    auto es = Base::template doReadUntilAndUpdateLen<#^#IDX#$#>(iter, len);\n"
+            "    if (es == comms::ErrorStatus::Success) {\n"
+            "        len += #^#OFFSET#$#;\n"
+            "        es = Base::template doReadFrom<#^#IDX#$#>(iter, len);\n"
+            "    }\n\n"
+            "    return es;\n"
+            "}\n";
+
+        util::ReplacementMap repl = {
+            {"OFFSET", util::numToString(payloadOffset)},
+            {"IDX", util::numToString(readUntilIdx)},
+        };
+
+        readCode = util::processTemplate(Templ, repl);  
+    } while (false);
+
+    return readCode;
+}
+
+std::string ToolsQtFrame::toolsTransportMsgHeaderDefInternal() const
+{
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#Impl;\n"
+        "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsMessage\n"
+        "{\n"
+        "public:\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#&) = delete;\n"
+        "    #^#CLASS_NAME#$#(#^#CLASS_NAME#$#&&) = delete;\n"
+        "    virtual ~#^#CLASS_NAME#$#();\n"
+        "    #^#CLASS_NAME#$#& operator=(const #^#CLASS_NAME#$#& other);\n"
+        "    #^#CLASS_NAME#$#& operator=(#^#CLASS_NAME#$#&&);\n"
+        "\n"
+        "protected:\n"
+        "    virtual const char* nameImpl() const override;\n"
+        "    virtual bool refreshMsgImpl() override;\n"
+        "    virtual qlonglong numericIdImpl() const override;\n"
+        "    virtual QString idAsStringImpl() const override;\n"
+        "    virtual void resetImpl() override;\n"
+        "    virtual bool assignImpl(const cc_tools_qt::ToolsMessage& other) override;\n"
+        "    virtual bool isValidImpl() const override;\n"
+        "    virtual DataSeq encodeDataImpl() const override;\n"
+        "    virtual bool decodeDataImpl(const DataSeq& data) override;\n"
+        "    virtual Ptr cloneImpl() const override;\n"
+        "    virtual void assignProtMessageImpl(void* protMsg) override;\n"
+        "    virtual DataSeq encodeFramedImpl(cc_tools_qt::ToolsFrame& frame) const override;\n"
+        "    virtual FieldsList transportFieldsImpl() override;\n"
+        "    virtual FieldsList payloadFieldsImpl() override;\n"
+        "\n"
+        "private:\n"
+        "    using ImplPtr = std::unique_ptr<#^#CLASS_NAME#$#Impl>;\n\n"
+        "    #^#CLASS_NAME#$#(ImplPtr&& impl);\n\n"
+        "    ImplPtr m_pImpl;\n"
+        "};";    
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name()) + strings::transportMessageSuffixStr()},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::Interface& iFace) const
+{
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#Impl : public\n"
+        "    cc_tools_qt::ToolsTransportMessageBase<\n"
+        "        #^#INTERFACE#$#,\n"
+        "        #^#TRANSPORT_MESSAGE#$#,\n"
+        "        #^#CLASS_NAME#$#Impl\n"
+        "    >\n"
+        "{\n"
+        "public:\n"
+        "    #^#CLASS_NAME#$#Impl() = default;\n"
+        "    #^#CLASS_NAME#$#Impl(const #^#CLASS_NAME#$#Impl&) = default;\n"
+        "    #^#CLASS_NAME#$#Impl(#^#CLASS_NAME#$#Impl&&) = default;\n"
+        "    virtual ~#^#CLASS_NAME#$#Impl() = default;\n"
+        "    #^#CLASS_NAME#$#Impl& operator=(const #^#CLASS_NAME#$#Impl&) = default;\n"
+        "    #^#CLASS_NAME#$#Impl& operator=(#^#CLASS_NAME#$#Impl&&) = default;\n\n"
+        "protected:\n"
+        "    #^#ID_FUNC#$#\n"
+        "};\n\n"
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() : m_pImpl(new #^#CLASS_NAME#$#Impl) {}\n"
+        "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n\n"
+        "#^#CLASS_NAME#$#& #^#CLASS_NAME#$#::operator=(const #^#CLASS_NAME#$#& other)\n"
+        "{\n"
+        "    *m_pImpl = *other.m_pImpl;\n"
+        "    return *this;\n"
+        "}\n\n"
+        "#^#CLASS_NAME#$#& #^#CLASS_NAME#$#::operator=(#^#CLASS_NAME#$#&& other)\n"
+        "{\n"
+        "    *m_pImpl = std::move(*other.m_pImpl);\n"
+        "    return *this;\n"
+        "}\n\n"
+        "const char* #^#CLASS_NAME#$#::nameImpl() const\n"
+        "{\n"
+        "    return m_pImpl->name();\n"
+        "}\n\n"
+        "bool #^#CLASS_NAME#$#::refreshMsgImpl()\n"
+        "{\n"
+        "    return m_pImpl->refreshMsg();\n"
+        "}\n\n"        
+        "qlonglong #^#CLASS_NAME#$#::numericIdImpl() const\n"
+        "{\n"
+        "    return m_pImpl->numericId();\n"
+        "}\n\n"
+        "QString #^#CLASS_NAME#$#::idAsStringImpl() const\n"
+        "{\n"
+        "    return m_pImpl->idAsString();\n"
+        "}\n\n"
+        "void #^#CLASS_NAME#$#::resetImpl()\n"
+        "{\n"
+        "    m_pImpl->reset();\n"
+        "}\n\n"
+        "bool #^#CLASS_NAME#$#::assignImpl(const cc_tools_qt::ToolsMessage& other)\n"
+        "{\n"
+        "    auto* castedOther = dynamic_cast<const #^#CLASS_NAME#$#*>(&other);\n"
+        "    if (castedOther == nullptr) {\n"
+        "        return false;\n"
+        "    }\n"
+        "    return m_pImpl->assign(*castedOther->m_pImpl);\n"
+        "}\n\n"
+        "bool #^#CLASS_NAME#$#::isValidImpl() const\n"
+        "{\n"
+        "    return m_pImpl->isValid();\n"
+        "}\n\n"
+        "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::encodeDataImpl() const\n"
+        "{\n"
+        "    return m_pImpl->encodeData();\n"
+        "}\n\n"    
+        "bool #^#CLASS_NAME#$#::decodeDataImpl(const DataSeq& data)\n"
+        "{\n"
+        "    return m_pImpl->decodeData(data);\n"
+        "}\n\n"    
+        "#^#CLASS_NAME#$#::Ptr #^#CLASS_NAME#$#::cloneImpl() const\n"
+        "{\n"
+        "    ImplPtr impl(static_cast<#^#CLASS_NAME#$#Impl*>(m_pImpl->clone().release()));\n"
+        "    return Ptr(new #^#CLASS_NAME#$#(std::move(impl)));\n"
+        "}\n\n" 
+        "void #^#CLASS_NAME#$#::assignProtMessageImpl(void* protMsg)\n"
+        "{\n"
+        "    m_pImpl->assignProtMessage(protMsg);\n"
+        "}\n\n"   
+        "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::encodeFramedImpl(cc_tools_qt::ToolsFrame& frame) const\n"
+        "{\n"
+        "    return m_pImpl->encodeFramed(frame);\n"
+        "}\n\n"     
+        "#^#CLASS_NAME#$#::FieldsList #^#CLASS_NAME#$#::transportFieldsImpl()\n"
+        "{\n"
+        "    return m_pImpl->transportFields();\n"
+        "}\n\n"     
+        "#^#CLASS_NAME#$#::FieldsList #^#CLASS_NAME#$#::payloadFieldsImpl()\n"
+        "{\n"
+        "    return m_pImpl->payloadFields();\n"
+        "}\n\n" 
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#(ImplPtr&& impl) :\n"
+        "    m_pImpl(std::move(impl))\n"
+        "{\n"
+        "}\n\n"
+        ;    
+
+    auto& gen = ToolsQtGenerator::cast(generator());
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name()) + strings::transportMessageSuffixStr()},
+        {"TRANSPORT_MESSAGE", comms::scopeFor(*this, gen) + ProtTransportMsgSuffix},
+        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsScope()},
+    };
+
+    auto idLayerIter = 
+        std::find_if(
+            m_toolsLayers.begin(), m_toolsLayers.end(),
+            [](auto* l)
+            {
+                using Kind = commsdsl::parse::Layer::Kind;
+                auto kind = l->layer().dslObj().kind();
+                if (kind == Kind::Id) {
+                    return true;
+                }
+
+                if (kind != Kind::Custom) {
+                    return false;
+                }
+
+                auto customKind = commsdsl::parse::CustomLayer(l->layer().dslObj()).semanticLayerType();
+                return (customKind == Kind::Id);
+            });
+
+    if (idLayerIter != m_toolsLayers.end()) {
+        auto idName = comms::accessName((*idLayerIter)->layer().dslObj().name());
+        repl["ID_FUNC"] = 
+            "virtual qlonglong numericIdImpl() const override\n"
+            "{\n"
+            "    return static_cast<qlonglong>(msg().field_" + idName + "().value());\n"
+            "}\n";
+    }
+
+    return util::processTemplate(Templ, repl);    
+}
 
 } // namespace commsdsl2tools_qt

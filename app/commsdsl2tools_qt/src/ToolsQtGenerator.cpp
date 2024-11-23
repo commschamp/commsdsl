@@ -130,13 +130,12 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFilesForInterface(con
         }
     }
 
-    // TODO: implement
-    // auto frames = toolsGetSelectedFrames();
-    // for (auto& f : frames) {
-    //     auto fResult = ToolsQtFrame::cast(f)->toolsSourceFiles();
-    //     result.reserve(result.size() + fResult.size());
-    //     std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
-    // }   
+    auto frames = toolsGetSelectedFrames();
+    for (auto& f : frames) {
+        auto fResult = ToolsQtFrame::cast(f)->toolsSourceFiles(interface);
+        result.reserve(result.size() + fResult.size());
+        std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
+    }   
 
     auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this, interface);
     result.reserve(result.size() + factoryResult.size());
