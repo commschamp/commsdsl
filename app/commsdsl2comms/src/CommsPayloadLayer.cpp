@@ -90,13 +90,14 @@ std::string CommsPayloadLayer::commsCustomDefMembersCodeImpl() const
         "    };\n"
         "};\n";
 
+    auto& gen = CommsGenerator::cast(generator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"SUFFIX", strings::membersSuffixStr()},
         {"PROT_NAMESPACE", generator().schemaOf(*this).mainNamespace()},
-        {"OPTS", "typename TOpt::" + comms::scopeFor(*this, generator(), false, true) + strings::membersSuffixStr() + "::Field"},
+        {"OPTS", "typename TOpt::" + comms::scopeFor(*this, gen, gen.commsHasMainNamespaceInOptions(), true) + strings::membersSuffixStr() + "::Field"},
         {"NAME", dslObj().name()},
-        {"SCOPE", comms::scopeFor(*this, generator())}
+        {"SCOPE", comms::scopeFor(*this, gen)}
     };     
 
     return util::processTemplate(Templ, repl);

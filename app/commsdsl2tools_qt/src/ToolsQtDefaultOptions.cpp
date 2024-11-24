@@ -37,7 +37,7 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx)
+std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx, bool wrapWithFactoryOpts = true)
 {
     assert(idx < generator.schemas().size());
 
@@ -52,6 +52,21 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
         auto result = toolsBaseCodeInternal(generator, idx - 1U);
         generator.chooseCurrentSchema(oldIdx);
         return result;
+    }
+
+    if (wrapWithFactoryOpts && generator.currentSchema().hasAnyReferencedMessage()) {
+        static const std::string Templ = 
+            "::#^#SCOPE#$#T<\n"
+            "    #^#NEXT#$#\n"
+            ">";
+
+        util::ReplacementMap repl = {
+            {"SCOPE", comms::scopeForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator)},
+            {"NEXT", toolsBaseCodeInternal(generator, idx, false)}
+        };        
+
+        generator.chooseCurrentSchema(oldIdx);
+        return util::processTemplate(Templ, repl);
     }
 
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
@@ -158,7 +173,12 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         m_generator.chooseCurrentSchema(idx);
         if (!m_generator.currentSchema().hasAnyReferencedComponent()) {
             continue;
-        }          
+        }       
+
+        if (m_generator.currentSchema().hasAnyReferencedMessage()) {
+            includes.push_back(comms::relHeaderForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator));    
+        }
+        
         includes.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
     }
     assert(m_generator.isCurrentProtocolSchema());
