@@ -19,6 +19,7 @@
 #include "ToolsQtGenerator.h"
 #include "ToolsQtInputMessages.h"
 #include "ToolsQtInterface.h"
+#include "ToolsQtMsgFactory.h"
 #include "ToolsQtVersion.h"
 
 #include "commsdsl/gen/comms.h"
@@ -77,6 +78,11 @@ std::string ToolsQtFrame::toolsHeaderFilePath() const
     return toolsRelFilePath() + strings::cppHeaderSuffixStr();
 }
 
+std::string ToolsQtFrame::toolsHeaderFilePath(const commsdsl::gen::Interface& iFace) const
+{
+    return toolsRelPathInternal(iFace) + strings::cppHeaderSuffixStr();
+}
+
 ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::Interface& iFace) const
 {
     auto& gen = ToolsQtGenerator::cast(generator());
@@ -94,7 +100,7 @@ ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::In
     return 
         StringsList{
             toolsRelPathInternal(iFace) + strings::transportMessageSuffixStr() + strings::cppSourceSuffixStr(),
-            // TODO: src
+            toolsRelPathInternal(iFace) + strings::cppSourceSuffixStr(),
         };
 }
 
@@ -157,8 +163,8 @@ bool ToolsQtFrame::writeImpl() const
         toolsWriteProtTransportMsgHeaderInternal() &&
         toolsWriteTransportMsgHeaderInternal() &&
         toolsWriteTransportMsgSrcInternal() &&
-        // TODO: convert
-        toolsWriteHeaderInternal();
+        toolsWriteHeaderInternal() &&
+        toolsWriteSrcInternal();
 }
 
 bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
@@ -230,81 +236,128 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
 bool ToolsQtFrame::toolsWriteHeaderInternal() const
 {
     auto& gen = ToolsQtGenerator::cast(generator());
-    auto filePath = gen.getOutputDir() + '/' + toolsHeaderFilePath();
-
     auto& logger = gen.logger();
-    logger.info("Generating " + filePath);
 
-    auto dirPath = util::pathUp(filePath);
-    assert(!dirPath.empty());
-    if (!gen.createDirectory(dirPath)) {
-        return false;
+    auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
+    for (auto& info : selectedFrames) {
+        auto iter = std::find(info.second.begin(), info.second.end(), this);
+        if (iter == info.second.end()) {
+            continue;
+        }
+
+        assert(info.first != nullptr);
+        auto filePath = gen.getOutputDir() + '/' + toolsHeaderFilePath(*info.first);
+        logger.info("Generating " + filePath);
+
+        auto dirPath = util::pathUp(filePath);
+        assert(!dirPath.empty());
+        if (!gen.createDirectory(dirPath)) {
+            return false;
+        }
+
+        std::ofstream stream(filePath);
+        if (!stream) {
+            logger.error("Failed to open \"" + filePath + "\" for writing.");
+            return false;
+        }
+
+        static const std::string Templ = 
+            "#^#GENERATED#$#\n"
+            "\n"
+            "#pragma once\n\n"
+            "#include <memory>\n\n"
+            "#include \"cc_tools_qt/ToolsFrame.h\"\n"
+            "\n"
+            "#^#NS_BEGIN#$#\n"
+            "#^#DEF#$#\n"
+            "#^#NS_END#$#\n"
+        ;
+
+        util::ReplacementMap repl = {
+            {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
+            {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
+            {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"DEF", toolsFrameHeaderDefInternal()},
+        };
+
+        stream << util::processTemplate(Templ, repl, true);
+        stream.flush();
+        if (!stream.good()) {
+            logger.error("Write to \"" + filePath + "\" is unsuccessful.");
+            return false;
+        }
     }
+    return true;
+}
 
-    std::ofstream stream(filePath);
-    if (!stream) {
-        logger.error("Failed to open \"" + filePath + "\" for writing.");
-        return false;
+bool ToolsQtFrame::toolsWriteSrcInternal() const
+{
+    auto& gen = ToolsQtGenerator::cast(generator());
+    auto& logger = gen.logger();
+
+    auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
+    for (auto& info : selectedFrames) {
+        auto iter = std::find(info.second.begin(), info.second.end(), this);
+        if (iter == info.second.end()) {
+            continue;
+        }
+
+        assert(info.first != nullptr);
+        auto filePath = gen.getOutputDir() + '/' + toolsRelPathInternal(*info.first) + strings::cppSourceSuffixStr();
+        logger.info("Generating " + filePath);
+
+        auto dirPath = util::pathUp(filePath);
+        assert(!dirPath.empty());
+        if (!gen.createDirectory(dirPath)) {
+            return false;
+        }
+
+        std::ofstream stream(filePath);
+        if (!stream) {
+            logger.error("Failed to open \"" + filePath + "\" for writing.");
+            return false;
+        }
+
+        static const std::string Templ = 
+            "#^#GENERATED#$#\n"
+            "\n"
+            "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+            "#^#INCLUDES#$#\n"
+            "\n"
+            "#^#NS_BEGIN#$#\n"
+            "#^#DEF#$#\n"
+            "#^#NS_END#$#\n"
+        ;
+
+        StringsList includes {
+            "cc_tools_qt/ToolsFrameBase.h",
+            comms::relHeaderPathFor(*this, gen),
+            toolsRelPathInternal(*info.first) + strings::transportMessageSuffixStr() + strings::cppHeaderSuffixStr(),
+            ToolsQtDefaultOptions::toolsRelHeaderPath(gen),
+            ToolsQtVersion::toolsRelHeaderPath(gen),
+            ToolsQtMsgFactory::toolsRelHeaderPath(gen, *info.first),
+            ToolsQtInterface::cast(info.first)->toolsHeaderFilePath(),
+        };
+
+        comms::prepareIncludeStatement(includes);
+
+        util::ReplacementMap repl = {
+            {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
+            {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
+            {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"DEF", toolsFrameSrcDefInternal(*info.first)},
+            {"CLASS_NAME", comms::className(dslObj().name())},
+            {"INCLUDES", util::strListToString(includes, "\n", "")},
+        };
+
+        stream << util::processTemplate(Templ, repl, true);
+        stream.flush();
+        if (!stream.good()) {
+            logger.error("Write to \"" + filePath + "\" is unsuccessful.");
+            return false;
+        }
     }
-
-    static const std::string Templ = 
-        "#^#GENERATED#$#\n"
-        "\n"
-        "#pragma once\n\n"
-        "#^#INCLUDES#$#\n"
-        "\n"
-        "#^#NS_BEGIN#$#\n"
-        "#^#INTERFACE_TEMPL_PARAM#$#\n"
-        "using #^#CLASS_NAME#$# =\n"
-        "    ::#^#FRAME_SCOPE#$#<\n"
-        "        #^#INTERFACE#$#,\n"
-        "        #^#TOP_NS#$#::#^#ALL_MESSAGES#$##^#INTERFACE_TEMPL#$#,\n"
-        "        #^#OPTS#$#\n"
-        "    >;\n\n"
-        "#^#NS_END#$#\n"
-    ;
-
-    StringsList includes {
-        comms::relHeaderPathFor(*this, gen),
-        ToolsQtInputMessages::toolsRelHeaderPath(gen),
-        ToolsQtVersion::toolsRelHeaderPath(gen),
-    };
-
-    auto allInterfaces = gen.toolsGetSelectedInterfaces();    
-    assert(!allInterfaces.empty());
-    if (allInterfaces.size() == 1U) {
-        auto* defaultInterface = static_cast<const ToolsQtInterface*>(allInterfaces.front());
-        includes.push_back(defaultInterface->toolsHeaderFilePath());
-    }
-
-    comms::prepareIncludeStatement(includes);
-
-    util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
-        {"NS_END", comms::namespaceEndFor(*this, gen)},
-        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
-        {"CLASS_NAME", comms::className(dslObj().name())},
-        {"FRAME_SCOPE", comms::scopeFor(*this, gen)},
-        {"TOP_NS", gen.getTopNamespace()},
-        {"MAIN_NS", gen.protocolSchema().mainNamespace()},
-        {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), gen)},
-    };
-
-    if (1U < allInterfaces.size()) {
-        repl["INTERFACE_TEMPL_PARAM"] = "template <typename TInterface>";
-        repl["INTERFACE"] = "TInterface";
-        repl["INTERFACE_TEMPL"] = "<TInterface>";
-    }
-    else {
-        auto* defaultInterface = static_cast<const ToolsQtInterface*>(allInterfaces.front());
-        assert(defaultInterface != nullptr);
-        repl["INTERFACE"] = gen.getTopNamespace() + "::" + comms::scopeFor(*defaultInterface, gen);
-    }
-    
-    stream << util::processTemplate(Templ, repl, true);
-    stream.flush();
-    return stream.good();
+    return true;
 }
 
 bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
@@ -771,6 +824,109 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::I
     }
 
     return util::processTemplate(Templ, repl);    
+}
+
+std::string ToolsQtFrame::toolsFrameHeaderDefInternal() const
+{
+    static const std::string Templ = 
+        "class #^#CLASS_NAME#$#Impl;\n"
+        "class #^#CLASS_NAME#$# : public cc_tools_qt::ToolsFrame\n"
+        "{\n"
+        "public:\n"
+        "    #^#CLASS_NAME#$#();\n"
+        "    virtual ~#^#CLASS_NAME#$#();\n"
+        "\n"
+        "protected:\n"
+        "    virtual cc_tools_qt::ToolsMessagesList readDataImpl(const cc_tools_qt::ToolsDataInfo& dataInfo, bool final) override;\n"
+        "    virtual void updateMessageImpl(cc_tools_qt::ToolsMessage& msg) override;\n"
+        "    virtual cc_tools_qt::ToolsMessagePtr createInvalidMessageImpl() override;\n"
+        "    virtual cc_tools_qt::ToolsMessagePtr createRawDataMessageImpl() override;\n"
+        "    virtual cc_tools_qt::ToolsMessagePtr createExtraInfoMessageImpl() override;\n"
+        "    virtual cc_tools_qt::ToolsMessagesList createAllMessagesImpl() override;\n"
+        "    virtual cc_tools_qt::ToolsMessagePtr createMessageImpl(const QString& idAsString, unsigned idx) override;\n"
+        "\n"
+        "private:\n"
+        "    std::unique_ptr<#^#CLASS_NAME#$#Impl> m_pImpl;\n"
+        "};\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())}
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::Interface& iFace) const
+{
+    static const std::string Templ = 
+        "namespace\n"
+        "{\n"
+        "using Prot#^#CLASS_NAME#$# =\n"
+        "    ::#^#SCOPE#$#<\n"
+        "        #^#INTERFACE#$#::ProtInterface,\n"
+        "        ::#^#INPUT#$#<#^#INTERFACE#$#::ProtInterface, #^#OPTS#$#>,\n"
+        "        #^#OPTS#$#\n"
+        "     >;\n"
+        "\n"
+        "}// namespace\n\n"
+        "class #^#CLASS_NAME#$#Impl : public\n"
+        "   cc_tools_qt::ToolsFrameBase<\n"
+        "       #^#INTERFACE#$#,\n"
+        "       Prot#^#CLASS_NAME#$#,\n" 
+        "       #^#MSG_FACTORY#$#,\n"
+        "       #^#TRANSPORT_MSG#$#\n"
+        "   >\n"
+        "{\n"
+        "};\n\n"
+        "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() :\n"
+        "    m_pImpl(new #^#CLASS_NAME#$#Impl)"
+        "{\n"
+        "}\n\n"
+        "#^#CLASS_NAME#$#::~#^#CLASS_NAME#$#() = default;\n"
+        "\n"
+        "cc_tools_qt::ToolsMessagesList #^#CLASS_NAME#$#::readDataImpl(const cc_tools_qt::ToolsDataInfo& dataInfo, bool final)\n"
+        "{\n"
+        "    return m_pImpl->readData(dataInfo, final);\n"
+        "}\n\n"
+        "void #^#CLASS_NAME#$#::updateMessageImpl(cc_tools_qt::ToolsMessage& msg)\n"
+        "{\n"
+        "    return m_pImpl->updateMessage(msg);\n"
+        "}\n\n"
+        "cc_tools_qt::ToolsMessagePtr #^#CLASS_NAME#$#::createInvalidMessageImpl()\n"
+        "{\n"
+        "    return m_pImpl->createInvalidMessage();\n"
+        "}\n\n"
+        "cc_tools_qt::ToolsMessagePtr #^#CLASS_NAME#$#::createRawDataMessageImpl()\n"
+        "{\n"
+        "    return m_pImpl->createRawDataMessage();\n"
+        "}\n\n"
+        "cc_tools_qt::ToolsMessagePtr #^#CLASS_NAME#$#::createExtraInfoMessageImpl()\n"
+        "{\n"
+        "    return m_pImpl->createExtraInfoMessage();\n"
+        "}\n\n"
+        "cc_tools_qt::ToolsMessagesList #^#CLASS_NAME#$#::createAllMessagesImpl()\n"
+        "{\n"
+        "    return m_pImpl->createAllMessages();\n"
+        "}\n\n"        
+        "cc_tools_qt::ToolsMessagePtr #^#CLASS_NAME#$#::createMessageImpl(const QString& idAsString, unsigned idx)\n"
+        "{\n"
+        "    return m_pImpl->createMessage(idAsString, idx);\n"
+        "}\n\n"          
+        ;
+
+    auto& gen = ToolsQtGenerator::cast(generator());
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsScope()},
+        {"MSG_FACTORY", ToolsQtMsgFactory::toolsClassScope(gen)},
+        {"TRANSPORT_MSG",  generator().getTopNamespace() + "::" + comms::scopeFor(*this, gen) + strings::transportMessageSuffixStr()},
+        {"SCOPE", comms::scopeFor(*this, gen)},
+        {"INPUT", comms::scopeForInput(strings::allMessagesStr(), gen)},
+        {"OPTS", ToolsQtDefaultOptions::toolsScope(gen)}
+    };
+
+    return util::processTemplate(Templ, repl);
 }
 
 } // namespace commsdsl2tools_qt
