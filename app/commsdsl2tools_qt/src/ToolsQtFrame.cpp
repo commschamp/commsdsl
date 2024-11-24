@@ -139,6 +139,11 @@ std::string ToolsQtFrame::toolsMsgFactoryOptions() const
     return util::processTemplate(Templ, repl); 
 }
 
+std::string ToolsQtFrame::toolsClassScope() const
+{
+    return generator().getTopNamespace() + "::" + comms::scopeFor(*this, generator());
+}
+
 bool ToolsQtFrame::prepareImpl()
 {
     if (!Base::prepareImpl()) {

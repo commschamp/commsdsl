@@ -38,6 +38,7 @@ public:
     std::string toolsHeaderFilePath(const commsdsl::gen::Interface& iFace) const;
     StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
     std::string toolsMsgFactoryOptions() const;
+    std::string toolsClassScope() const;
 
     static const ToolsQtFrame* cast(const commsdsl::gen::Frame* val)
     {

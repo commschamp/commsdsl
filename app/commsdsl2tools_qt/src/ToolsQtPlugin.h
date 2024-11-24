@@ -50,11 +50,7 @@ public:
     bool write();
 
     std::string toolsProtocolName() const;
-
-    bool toolsHasConfigWidget() const
-    {
-        return toolsHasConfigWidgetInternal();
-    }
+    std::string toolsInterfaceName() const;
 
 private:
 
@@ -64,14 +60,10 @@ private:
     bool toolsWritePluginSrcInternal();
     bool toolsWritePluginJsonInternal();
     bool toolsWritePluginConfigInternal();
-    bool toolsWriteConfigWidgetHeaderInternal();
-    bool toolsWriteConfigWidgetSrcInternal();
     
     const std::string& toolsAdjustedNameInternal() const;
     std::string toolsProtClassNameInternal() const;
     std::string toolsPluginClassNameInternal() const;
-    std::string toolsConfigWidgetClassNameInternal() const;
-    bool toolsHasConfigWidgetInternal() const;
     std::string toolsRelFilePath(const std::string& name) const;
 
     ToolsQtGenerator& m_generator;

@@ -108,7 +108,7 @@ bool ToolsQtCmake::toolsWriteInternal() const
         "######################################################################\n\n"
         "#^#PER_INTERFACE_FUNCS#$#\n"
         "######################################################################\n\n"
-        "function (cc_plugin protocol has_config_widget)\n"
+        "function (cc_plugin protocol interface)\n"
         "    string(TOLOWER \"cc_tools_plugin_${protocol}\" name)\n\n"
         "    if (NOT \"${name}\" MATCHES \".*_protocol$\")\n"
         "        string(APPEND name \"_protocol\")\n"
@@ -127,20 +127,18 @@ bool ToolsQtCmake::toolsWriteInternal() const
         "        #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/Plugin_${protocol}.h\n"
         "        #^#EXTRA_SOURCES#$#\n"        
         "    )\n\n"
-        "    if (has_config_widget)\n"
-        "        list (APPEND src #^#TOP_NS#$#/#^#MAIN_NS#$#/plugin/ConfigWidget_${protocol}.cpp)\n"
-        "    endif ()\n\n"
         "    set(extra_link_opts)\n"
-        "    if (CMAKE_COMPILER_IS_GNUCC)\n"
+        "    if ((CMAKE_COMPILER_IS_GNUCC) OR (\"${CMAKE_CXX_COMPILER_ID}\" MATCHES \"Clang\"))\n"
         "        set(extra_link_opts \"-Wl,--no-undefined\")\n"
         "    endif ()\n\n"
-        "    add_library (${name} MODULE ${src} ${moc})\n"
-        "    target_link_libraries (${name} ${INTERFACE_LIB_PREFIX} cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Widgets Qt${OPT_QT_MAJOR_VERSION}::Core ${extra_link_opts})\n"
+        "    add_library (${name} MODULE ${src})\n"
+        "    target_link_libraries (${name} ${INTERFACE_LIB_PREFIX}_${interface} cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Core ${extra_link_opts})\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096>\n"
         "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -fbracket-depth=2048>\n"
-        "    )\n\n"
+        "    )\n"
+        "    target_include_directories (${name} PRIVATE ${PROJECT_SOURCE_DIR})\n\n"
         "    install (\n"
         "        TARGETS ${name}\n"
         "        DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}/cc_tools_qt/plugin)\n\n"
@@ -167,13 +165,13 @@ bool ToolsQtCmake::toolsWriteInternal() const
     util::StringsList pluginInvokes;
     for (auto& p : plugins) {
         assert(p);
-        pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" " + (p->toolsHasConfigWidget() ? "TRUE" : "FALSE") + ")");
+        pluginInvokes.push_back("cc_plugin (\"" + p->toolsProtocolName() + "\" \"" + p->toolsInterfaceName() + "\")");
     }
 
     util::ReplacementMap repl = {
         {"PER_INTERFACE_FUNCS", toolsPerInterfaceFuncsInternal()},
         {"PER_INTERFACE_CALLS", toolsPerInterfaceCallsInternal()},
-        //{"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")}, // TODO implement
+        {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
         {"TOP_NS", m_generator.getTopNamespace()},
         {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
         {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
@@ -199,13 +197,14 @@ std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
         "        #^#CORE_FILES#$#\n"
         "    )\n\n"
         "    add_library (${name} STATIC ${src})\n"
+        "    set_target_properties(${name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)\n"
         "    target_link_libraries (${name} PUBLIC cc::#^#MAIN_NS#$# cc::comms cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Core)\n"
         "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR})\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
         "        $<$<CXX_COMPILER_ID:GNU>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -Wno-unused-local-typedefs>\n"
         "        $<$<CXX_COMPILER_ID:Clang>:-ftemplate-depth=2048 -fconstexpr-depth=4096 -fbracket-depth=2048 -Wno-unused-local-typedefs>\n"
-        "    )\n\n"
+        "    )\n"
         "endfunction()\n";
 
     StringsList result;
