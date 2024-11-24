@@ -91,6 +91,10 @@ protected:
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const;
     virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const;
     virtual StringsList commsExtraMsgFactoryDefaultOptionsImpl() const;
+    virtual std::string commsCustomDefMembersCodeImpl() const;
+    virtual std::string commsCustomFieldOptsImpl() const;
+    virtual std::string commsCustomFieldDataViewOptsImpl() const;
+    virtual std::string commsCustomFieldBareMetalOptsImpl() const;
 
     std::string commsDefFieldType() const;
     std::string commsDefExtraOpts() const;
@@ -104,7 +108,8 @@ private:
     std::string commsCustomizationOptionsInternal(
         FieldOptsFunc fieldOptsFunc, 
         ExtraLayerOptsFunc extraLayerOptsFunc,
-        bool hasBase) const;  
+        bool hasBase,
+        const std::string& customFieldOpts) const;  
 
     StringsList commsExtraDataViewDefaultOptionsInternal() const;
     StringsList commsExtraBareMetalDefaultOptionsInternal() const;

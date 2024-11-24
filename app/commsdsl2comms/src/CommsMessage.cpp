@@ -1351,7 +1351,7 @@ std::string CommsMessage::commsCustomizationOptionsInternal(
         }        
 
         if (extraOpts.empty() && (!hasBase)) {
-            extraOpts.push_back("comms::option::EmptyOption");
+            extraOpts.push_back("comms::option::app::EmptyOption");
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {

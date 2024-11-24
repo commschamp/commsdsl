@@ -175,7 +175,8 @@ std::string CommsLayer::commsDefaultOptions() const
         commsCustomizationOptionsInternal(
             &CommsField::commsDefaultOptions,
             nullptr,
-            false
+            false,
+            commsCustomFieldOptsImpl()
         );
 }
 
@@ -185,7 +186,8 @@ std::string CommsLayer::commsDataViewDefaultOptions() const
         commsCustomizationOptionsInternal(
             &CommsField::commsDataViewDefaultOptions,
             &CommsLayer::commsExtraDataViewDefaultOptionsInternal,
-            true
+            true,
+            commsCustomFieldDataViewOptsImpl()
         );
 }
 
@@ -195,7 +197,8 @@ std::string CommsLayer::commsBareMetalDefaultOptions() const
         commsCustomizationOptionsInternal(
             &CommsField::commsBareMetalDefaultOptions,
             &CommsLayer::commsExtraBareMetalDefaultOptionsInternal,
-            true
+            true,
+            commsCustomFieldBareMetalOptsImpl()
         );
 }
 
@@ -205,7 +208,8 @@ std::string CommsLayer::commsMsgFactoryDefaultOptions() const
         commsCustomizationOptionsInternal(
             nullptr,
             &CommsLayer::commsExtraMsgFactoryDefaultOptionsInternal,
-            true
+            true,
+            std::string()
         );
 }
 
@@ -248,6 +252,26 @@ CommsLayer::StringsList CommsLayer::commsExtraBareMetalDefaultOptionsImpl() cons
 CommsLayer::StringsList CommsLayer::commsExtraMsgFactoryDefaultOptionsImpl() const
 {
     return StringsList();
+}
+
+std::string CommsLayer::commsCustomDefMembersCodeImpl() const
+{
+    return std::string();
+}
+
+std::string CommsLayer::commsCustomFieldOptsImpl() const
+{
+    return std::string();
+}
+
+std::string CommsLayer::commsCustomFieldDataViewOptsImpl() const
+{
+    return std::string();
+}
+
+std::string CommsLayer::commsCustomFieldBareMetalOptsImpl() const
+{
+    return std::string();
 }
 
 std::string CommsLayer::commsDefFieldType() const
@@ -300,6 +324,11 @@ std::string CommsLayer::commsDefExtraOpts() const
 
 std::string CommsLayer::commsDefMembersCodeInternal() const
 {
+    auto code = commsCustomDefMembersCodeImpl();
+    if (!code.empty()) {
+        return code;
+    }
+
     if (m_commsMemberField == nullptr) {
         return strings::emptyString();
     }
@@ -338,12 +367,18 @@ std::string CommsLayer::commsDefDocInternal() const
 std::string CommsLayer::commsCustomizationOptionsInternal(
     FieldOptsFunc fieldOptsFunc, 
     ExtraLayerOptsFunc extraLayerOptsFunc,
-    bool hasBase) const
+    bool hasBase,
+    const std::string& customFieldOpts) const
 {
     util::StringsList elems;
 
     // Field portion
     do {
+        if (!customFieldOpts.empty()) {
+            elems.push_back(customFieldOpts);
+            break;
+        }
+
         if ((m_commsMemberField == nullptr) || (fieldOptsFunc == nullptr)) {
             break;
         }
@@ -393,7 +428,7 @@ std::string CommsLayer::commsCustomizationOptionsInternal(
         }        
 
         if (extraOpts.empty() && (!hasBase)) {
-            extraOpts.push_back("comms::option::EmptyOption");
+            extraOpts.push_back("comms::option::app::EmptyOption");
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {

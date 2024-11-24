@@ -56,34 +56,117 @@ std::string CommsPayloadLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::
 
     static const std::string Templ =
         "comms::protocol::MsgDataLayer<\n"
-        "    #^#EXTRA_OPT#$#\n"
+        "    comms::option::def::FieldType<typename #^#CLASS_NAME#$##^#SUFFIX#$#::Field>\n"
         ">";
     
     util::ReplacementMap repl {
-        {"EXTRA_OPT", commsDefExtraOpts()}
+        {"SUFFIX", strings::membersSuffixStr()},
+        {"CLASS_NAME", comms::className(dslObj().name())},
     };
+
     return util::processTemplate(Templ, repl);    
 }
 
-bool CommsPayloadLayer::commsIsCustomizableImpl() const
+std::string CommsPayloadLayer::commsCustomDefMembersCodeImpl() const
 {
-    return true;
+    static const std::string Templ = 
+        "/// @brief Scope for field(s) of @ref #^#CLASS_NAME#$# layer.\n"
+        "struct #^#CLASS_NAME#$##^#SUFFIX#$#\n"
+        "{\n"
+        "    /// @brief Custom field for @ref #^#SCOPE#$# layer\n"
+        "    class Field : public\n"
+        "        comms::field::ArrayList<\n"
+        "            #^#PROT_NAMESPACE#$#::field::FieldBase<>,\n"
+        "            std::uint8_t,\n"
+        "            #^#OPTS#$#,\n"
+        "            comms::option::def::HasName\n"
+        "        >\n"
+        "    {\n"
+        "    public:\n"
+        "        static const char* name()\n"
+        "        {\n"
+        "            return \"#^#NAME#$#\";\n"
+        "        }\n"
+        "    };\n"
+        "};\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"SUFFIX", strings::membersSuffixStr()},
+        {"PROT_NAMESPACE", generator().schemaOf(*this).mainNamespace()},
+        {"OPTS", "typename TOpt::" + comms::scopeFor(*this, generator(), false, true) + strings::membersSuffixStr() + "::Field"},
+        {"NAME", dslObj().name()},
+        {"SCOPE", comms::scopeFor(*this, generator())}
+    };     
+
+    return util::processTemplate(Templ, repl);
 }
 
-CommsPayloadLayer::StringsList CommsPayloadLayer::commsExtraDataViewDefaultOptionsImpl() const
+std::string CommsPayloadLayer::commsCustomFieldOptsImpl() const
 {
-    return
-        StringsList{
-            "comms::option::app::OrigDataView"
-        };    
+    static const std::string Templ = 
+        "/// @brief Extra options for @ref\n"
+        "///     #^#SCOPE#$##^#SUFFIX#$#::Field field.\n"
+        "struct #^#CLASS_NAME#$##^#SUFFIX#$#\n"
+        "{\n"
+        "    using Field = comms::option::app::EmptyOption;\n"
+        "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"SUFFIX", strings::membersSuffixStr()},
+        {"SCOPE", comms::scopeFor(*this, generator())}
+    };     
+
+    return util::processTemplate(Templ, repl);        
 }
 
-CommsPayloadLayer::StringsList CommsPayloadLayer::commsExtraBareMetalDefaultOptionsImpl() const
+std::string CommsPayloadLayer::commsCustomFieldDataViewOptsImpl() const
 {
-    return
-        StringsList{
-            "comms::option::app::FixedSizeStorage<DEFAULT_SEQ_FIXED_STORAGE_SIZE * 8>"
-        };    
+    static const std::string Templ = 
+        "/// @brief Extra options for @ref\n"
+        "///     #^#SCOPE#$##^#SUFFIX#$#::Field field.\n"
+        "struct #^#CLASS_NAME#$##^#SUFFIX#$# : public TBase::#^#OPT_SCOPE#$#\n"
+        "{\n"
+        "    using Field =\n"
+        "        std::tuple<\n"
+        "            comms::option::app::OrigDataView,\n"
+        "            typename TBase::#^#OPT_SCOPE#$#::Field\n"
+        "        >;\n"
+        "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"SUFFIX", strings::membersSuffixStr()},
+        {"SCOPE", comms::scopeFor(*this, generator())},
+        {"OPT_SCOPE", comms::scopeFor(*this, generator(), false, true)}
+    };     
+
+    return util::processTemplate(Templ, repl);  
+}
+
+std::string CommsPayloadLayer::commsCustomFieldBareMetalOptsImpl() const
+{
+    static const std::string Templ = 
+        "/// @brief Extra options for @ref\n"
+        "///     #^#SCOPE#$##^#SUFFIX#$#::Field field.\n"
+        "struct #^#CLASS_NAME#$##^#SUFFIX#$# : public TBase::#^#OPT_SCOPE#$#\n"
+        "{\n"
+        "    using Field =\n"
+        "        std::tuple<\n"
+        "            comms::option::app::FixedSizeStorage<DEFAULT_SEQ_FIXED_STORAGE_SIZE * 8>,\n"
+        "            typename TBase::#^#OPT_SCOPE#$#::Field\n"
+        "        >;\n"
+        "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
+
+    util::ReplacementMap repl = {
+        {"CLASS_NAME", comms::className(dslObj().name())},
+        {"SUFFIX", strings::membersSuffixStr()},
+        {"SCOPE", comms::scopeFor(*this, generator())},
+        {"OPT_SCOPE", comms::scopeFor(*this, generator(), false, true)}
+    };     
+
+    return util::processTemplate(Templ, repl);  
 }
 
 } // namespace commsdsl2comms

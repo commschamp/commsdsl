@@ -36,9 +36,10 @@ protected:
     // CommsBase overrides
     virtual IncludesList commsDefIncludesImpl() const override;
     virtual std::string commsDefBaseTypeImpl(const std::string& prevName) const override;
-    virtual bool commsIsCustomizableImpl() const override;
-    virtual StringsList commsExtraDataViewDefaultOptionsImpl() const override;
-    virtual StringsList commsExtraBareMetalDefaultOptionsImpl() const override;
+    virtual std::string commsCustomDefMembersCodeImpl() const override;
+    virtual std::string commsCustomFieldOptsImpl() const override;
+    virtual std::string commsCustomFieldDataViewOptsImpl() const override;
+    virtual std::string commsCustomFieldBareMetalOptsImpl() const override;    
 };
 
 } // namespace commsdsl2comms
