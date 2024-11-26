@@ -39,10 +39,8 @@ bool ToolsQtVersion::write(ToolsQtGenerator& generator)
 
 std::string ToolsQtVersion::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
-    return 
-        generator.getTopNamespace() + '/' + 
-        util::strReplace(comms::scopeForRoot(strings::versionFileNameStr(), generator), "::", "/") + 
-        strings::cppHeaderSuffixStr();
+    auto scope = generator.toolsScopePrefix() + comms::scopeForRoot(strings::versionFileNameStr(), generator);
+    return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
 }
 
 bool ToolsQtVersion::writeInternal() const

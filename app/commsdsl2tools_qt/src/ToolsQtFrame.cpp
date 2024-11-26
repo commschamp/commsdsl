@@ -17,7 +17,6 @@
 
 #include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
-#include "ToolsQtInputMessages.h"
 #include "ToolsQtInterface.h"
 #include "ToolsQtMsgFactory.h"
 #include "ToolsQtVersion.h"
@@ -71,11 +70,6 @@ ToolsQtFrame::ToolsQtLayersList toolsTransformLayersList(const commsdsl::gen::Fr
 ToolsQtFrame::ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent) :
     Base(generator, dslObj, parent)
 {
-}
-
-std::string ToolsQtFrame::toolsHeaderFilePath() const
-{
-    return toolsRelFilePath() + strings::cppHeaderSuffixStr();
 }
 
 std::string ToolsQtFrame::toolsHeaderFilePath(const commsdsl::gen::Interface& iFace) const
@@ -133,15 +127,16 @@ std::string ToolsQtFrame::toolsMsgFactoryOptions() const
         {"NAME", comms::className(dslObj().name())},
         {"SUFFIX", strings::layersSuffixStr()},
         {"LAYERS_OPTS", util::strListToString(elems, "\n", "\n")},
-        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(gen)}
+        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)}
     };
 
     return util::processTemplate(Templ, repl); 
 }
 
-std::string ToolsQtFrame::toolsClassScope() const
+std::string ToolsQtFrame::toolsClassScope(const commsdsl::gen::Interface& iFace) const
 {
-    return generator().getTopNamespace() + "::" + comms::scopeFor(*this, generator());
+    auto& gen = ToolsQtGenerator::cast(generator());
+    return gen.toolsScopePrefixForInterface(iFace) + comms::scopeFor(*this, gen);    
 }
 
 bool ToolsQtFrame::prepareImpl()
@@ -214,15 +209,19 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
             "#pragma once\n\n"
             "#^#INCLUDES#$#\n"
             "\n"
+            "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
             "#^#DEF#$#\n"
             "#^#NS_END#$#\n"
+            "#^#TOP_NS_END#$#\n"
             ;
 
         util::ReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
             {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*info.first)},
+            {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
             {"INCLUDES", util::strListToString(includes, "\n", "\n")},
             {"DEF", toolsProtTransportMsgDefInternal(*info.first)},
         };
@@ -273,15 +272,19 @@ bool ToolsQtFrame::toolsWriteHeaderInternal() const
             "#include <memory>\n\n"
             "#include \"cc_tools_qt/ToolsFrame.h\"\n"
             "\n"
+            "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
             "#^#DEF#$#\n"
             "#^#NS_END#$#\n"
+            "#^#TOP_NS_END#$#\n"
         ;
 
         util::ReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
             {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*info.first)},
+            {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
             {"DEF", toolsFrameHeaderDefInternal()},
         };
 
@@ -329,9 +332,11 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
             "#include \"#^#CLASS_NAME#$#.h\"\n\n"
             "#^#INCLUDES#$#\n"
             "\n"
+            "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
             "#^#DEF#$#\n"
             "#^#NS_END#$#\n"
+            "#^#TOP_NS_END#$#\n"
         ;
 
         StringsList includes {
@@ -350,6 +355,8 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
             {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*info.first)},
+            {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
             {"DEF", toolsFrameSrcDefInternal(*info.first)},
             {"CLASS_NAME", comms::className(dslObj().name())},
             {"INCLUDES", util::strListToString(includes, "\n", "")},
@@ -394,9 +401,11 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
             "#include <memory>\n"
             "#include \"cc_tools_qt/ToolsMessage.h\"\n"
             "\n"
+            "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
             "#^#DEF#$#\n\n"
             "#^#NS_END#$#\n"
+            "#^#TOP_NS_END#$#\n"
         ;
 
         util::StringsList fields;
@@ -408,6 +417,8 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
             {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*info.first)},
+            {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
             {"DEF", toolsTransportMsgHeaderDefInternal()},
         };
         
@@ -450,9 +461,11 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
             "#include \"#^#CLASS_NAME#$##^#SUFFIX#$#.h\"\n\n"
             "#^#INCLUDES#$#\n"
             "\n"
+            "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
             "#^#DEF#$#\n\n"
             "#^#NS_END#$#\n"
+            "#^#TOP_NS_END#$#\n"
         ;
 
         util::StringsList includes = {
@@ -467,6 +480,8 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
             {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*info.first)},
+            {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
             {"CLASS_NAME", comms::className(dslObj().name())},
             {"SUFFIX", strings::transportMessageSuffixStr()},
             {"INCLUDES", util::strListToString(includes, "\n", "")},
@@ -484,15 +499,6 @@ bool ToolsQtFrame::toolsWriteTransportMsgSrcInternal() const
     return true;
 }
 
-std::string ToolsQtFrame::toolsTransportMessageHeaderFilePathInternal() const
-{
-    return toolsRelFilePath() + strings::transportMessageSuffixStr() + strings::cppHeaderSuffixStr();
-}
-
-std::string ToolsQtFrame::toolsTransportMessageSrcFilePathInternal() const
-{
-    return toolsRelFilePath() + strings::transportMessageSuffixStr() + strings::cppSourceSuffixStr();
-}
 
 unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
 {
@@ -515,17 +521,9 @@ unsigned ToolsQtFrame::toolsCalcBackPayloadOffsetInternal() const
                 }));
 }
 
-std::string ToolsQtFrame::toolsRelFilePath() const
-{
-    auto scope = comms::scopeFor(*this, generator());
-    return generator().getTopNamespace() + '/' + util::strReplace(scope, "::", "/");
-}
-
 std::string ToolsQtFrame::toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const
 {
-    auto scope = comms::scopeFor(*this, generator());
-    auto iFaceScope = comms::scopeFor(iFace, generator(), false, true);
-    return generator().getTopNamespace() + '/' + util::strReplace(iFaceScope, "::", "/") + '/' + util::strReplace(scope, "::", "/");
+    return util::strReplace(toolsClassScope(iFace), "::", "/");
 }
 
 std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::Interface& iFace) const
@@ -600,7 +598,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
 {
     std::string readCode;
     do {
-        auto readOverrideFile = generator().getCodeDir() + '/' + toolsRelPathInternal(iFace) + strings::cppHeaderSuffixStr() + strings::readFileSuffixStr();
+        auto readOverrideFile = generator().getCodeDir() + '/' + toolsRelPathInternal(iFace) + ProtTransportMsgSuffix + strings::cppHeaderSuffixStr() + strings::readFileSuffixStr();
         readCode = util::readFileContents(readOverrideFile);
         if (!readCode.empty()) {
             break;
@@ -797,7 +795,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::I
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name()) + strings::transportMessageSuffixStr()},
         {"TRANSPORT_MESSAGE", comms::scopeFor(*this, gen) + ProtTransportMsgSuffix},
-        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsScope()},
+        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
     };
 
     auto idLayerIter = 
@@ -923,12 +921,12 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::Interfac
     auto& gen = ToolsQtGenerator::cast(generator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
-        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsScope()},
-        {"MSG_FACTORY", ToolsQtMsgFactory::toolsClassScope(gen)},
-        {"TRANSPORT_MSG",  generator().getTopNamespace() + "::" + comms::scopeFor(*this, gen) + strings::transportMessageSuffixStr()},
+        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
+        {"MSG_FACTORY", ToolsQtMsgFactory::toolsClassScope(gen, iFace)},
+        {"TRANSPORT_MSG",  toolsClassScope(iFace) + strings::transportMessageSuffixStr()},
         {"SCOPE", comms::scopeFor(*this, gen)},
         {"INPUT", comms::scopeForInput(strings::allMessagesStr(), gen)},
-        {"OPTS", ToolsQtDefaultOptions::toolsScope(gen)}
+        {"OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)}
     };
 
     return util::processTemplate(Templ, repl);

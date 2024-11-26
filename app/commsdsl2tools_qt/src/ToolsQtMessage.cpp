@@ -50,6 +50,12 @@ ToolsQtMessage::StringsList ToolsQtMessage::toolsSourceFiles(const commsdsl::gen
     return StringsList{toolsRelPathInternal(iFace) + strings::cppSourceSuffixStr()};
 }
 
+std::string ToolsQtMessage::toolsClassScope(const commsdsl::gen::Interface& iFace) const
+{
+    auto& gen = ToolsQtGenerator::cast(generator());
+    return gen.toolsScopePrefixForInterface(iFace) + comms::scopeFor(*this, gen);
+}
+
 bool ToolsQtMessage::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -112,9 +118,11 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
             "\n"
             "#pragma once\n\n"
             "#^#INCLUDES#$#\n"
+            "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
             "#^#DEF#$#\n\n"
-            "#^#NS_END#$#\n"
+            "#^#NS_END#$#\n\n"
+            "#^#TOP_NS_END#$#\n"
         ;
 
         util::ReplacementMap repl = {
@@ -122,6 +130,8 @@ bool ToolsQtMessage::toolsWriteHeaderInternal() const
             {"INCLUDES", util::strListToString(includes, "\n", "\n")},
             {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
             {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*iFace)},
+            {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*iFace)},
             {"DEF", toolsHeaderCodeInternal()},
         };
         
@@ -162,9 +172,11 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
             "\n"
             "#include \"#^#CLASS_NAME#$#.h\"\n\n"
             "#^#INCLUDES#$#\n"
+            "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
             "#^#DEF#$#\n\n"
             "#^#NS_END#$#\n"
+            "#^#TOP_NS_END#$#\n"
         ;
 
         util::ReplacementMap repl = {
@@ -172,6 +184,8 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
             {"INCLUDES", util::strListToString(includes, "\n", "\n")},
             {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
             {"NS_END", comms::namespaceEndFor(*this, gen)},
+            {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*iFace)},
+            {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*iFace)},
             {"CLASS_NAME", comms::className(dslObj().name())},
             {"DEF", toolsSrcCodeInternal(*iFace)},
         };
@@ -188,9 +202,7 @@ bool ToolsQtMessage::toolsWriteSrcInternal() const
 
 std::string ToolsQtMessage::toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const
 {
-    auto scope = comms::scopeFor(*this, generator());
-    auto iFaceScope = comms::scopeFor(iFace, generator(), false, true);
-    return generator().getTopNamespace() + '/' + util::strReplace(iFaceScope, "::", "/") + '/' + util::strReplace(scope, "::", "/");
+    return util::strReplace(toolsClassScope(iFace), "::", "/");
 }
 
 ToolsQtMessage::IncludesList ToolsQtMessage::toolsHeaderIncludesInternal() const
@@ -355,7 +367,7 @@ std::string ToolsQtMessage::toolsSrcCodeInternal(const commsdsl::gen::Interface&
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"PROT_MESSAGE", comms::scopeFor(*this, gen)},
-        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsScope()},
+        {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
     };
 
     return util::processTemplate(Templ, repl);    

@@ -61,17 +61,15 @@ ToolsQtMsgFactory::StringsList ToolsQtMsgFactory::toolsSourceFiles(const ToolsQt
     return result;
 }
 
-std::string ToolsQtMsgFactory::toolsClassScope(const ToolsQtGenerator& generator)
+std::string ToolsQtMsgFactory::toolsClassScope(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace)
 {
-    return generator.getTopNamespace() + "::" + comms::scopeForFactory(MsgFactoryName, generator);
+    auto& gen = ToolsQtGenerator::cast(generator);
+    return gen.toolsScopePrefixForInterface(iFace) + comms::scopeForFactory(MsgFactoryName, gen);
 }
 
 std::string ToolsQtMsgFactory::toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const
 {
-    auto iFaceScope = comms::scopeFor(iFace, m_generator, false, true);
-    return 
-        m_generator.getTopNamespace() + '/' + util::strReplace(iFaceScope, "::", "/") + '/' + 
-        util::strReplace(comms::scopeForFactory(MsgFactoryName, m_generator), "::", "/"); 
+    return util::strReplace(toolsClassScope(m_generator, iFace), "::", "/");
 }
 
 bool ToolsQtMsgFactory::toolsWriteInternal() const
@@ -114,8 +112,7 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
             "#^#GENERATED#$#\n"
             "#pragma once\n\n"
             "#^#INCLUDES#$#\n"
-            "namespace #^#TOP_NS#$#\n"
-            "{\n\n"        
+            "#^#TOP_NS_BEGIN#$#\n"
             "namespace #^#PROT_NAMESPACE#$#\n"
             "{\n\n"
             "namespace factory\n"
@@ -123,14 +120,15 @@ bool ToolsQtMsgFactory::toolsWriteHeaderInternal() const
             "#^#DEF#$#\n\n"
             "} // namespace factory\n\n"
             "} // namespace #^#PROT_NAMESPACE#$#\n\n"
-            "} // namespace #^#TOP_NS#$#\n";
+            "#^#TOP_NS_END#$#\n"
         ;
 
         util::ReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"INCLUDES", util::strListToString(includes, "\n", "\n")},
             {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
-            {"TOP_NS", m_generator.getTopNamespace()},
+            {"TOP_NS_BEGIN", m_generator.toolsNamespaceBeginForInterface(*iFace)},
+            {"TOP_NS_END", m_generator.toolsNamespaceEndForInterface(*iFace)},
             {"DEF", toolsHeaderCodeInternal()},
         };
         
@@ -174,8 +172,7 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
             "\n"
             "#include \"#^#CLASS_NAME#$#.h\"\n\n"
             "#^#INCLUDES#$#\n"
-            "namespace #^#TOP_NS#$#\n"
-            "{\n\n"        
+            "#^#TOP_NS_BEGIN#$#\n"        
             "namespace #^#PROT_NAMESPACE#$#\n"
             "{\n\n"
             "namespace factory\n"
@@ -183,16 +180,17 @@ bool ToolsQtMsgFactory::toolsWriteSourceInternal() const
             "#^#CODE#$#\n\n"
             "} // namespace factory\n\n"
             "} // namespace #^#PROT_NAMESPACE#$#\n\n"
-            "} // namespace #^#TOP_NS#$#\n";
+            "#^#TOP_NS_END#$#\n"
         ;
 
         util::ReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"INCLUDES", toolsSourceIncludesInternal(*iFace)},
             {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
-            {"TOP_NS", m_generator.getTopNamespace()},
-            {"CODE", toolsSourceCodeInternal()},
-            {"CLASS_NAME", MsgFactoryName}
+            {"CODE", toolsSourceCodeInternal(*iFace)},
+            {"CLASS_NAME", MsgFactoryName},
+            {"TOP_NS_BEGIN", m_generator.toolsNamespaceBeginForInterface(*iFace)},
+            {"TOP_NS_END", m_generator.toolsNamespaceEndForInterface(*iFace)},
         };
         
         stream << util::processTemplate(Templ, repl, true);
@@ -225,7 +223,7 @@ std::string ToolsQtMsgFactory::toolsHeaderCodeInternal() const
     return util::processTemplate(Templ, repl);
 }
 
-std::string ToolsQtMsgFactory::toolsSourceCodeInternal() const
+std::string ToolsQtMsgFactory::toolsSourceCodeInternal(const commsdsl::gen::Interface& iFace) const
 {
     const std::string Templ = 
         "#^#CLASS_NAME#$#::#^#CLASS_NAME#$#() = default;\n"
@@ -244,8 +242,7 @@ std::string ToolsQtMsgFactory::toolsSourceCodeInternal() const
     for (auto* m : allMessages) {
         assert(m != nullptr);
 
-        auto scope = m_generator.getTopNamespace() + "::" + comms::scopeFor(*m, m_generator);
-        scopes.push_back("cc_tools_qt::ToolsMessagePtr(new " + scope + ")");
+        scopes.push_back("cc_tools_qt::ToolsMessagePtr(new " + ToolsQtMessage::cast(*m).toolsClassScope(iFace) + ")");
     }    
 
     util::ReplacementMap repl = {

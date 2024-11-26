@@ -34,11 +34,10 @@ public:
 
     explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent);
 
-    std::string toolsHeaderFilePath() const; // TODO: Remove
     std::string toolsHeaderFilePath(const commsdsl::gen::Interface& iFace) const;
     StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
     std::string toolsMsgFactoryOptions() const;
-    std::string toolsClassScope() const;
+    std::string toolsClassScope(const commsdsl::gen::Interface& iFace) const;
 
     static const ToolsQtFrame* cast(const commsdsl::gen::Frame* val)
     {
@@ -55,10 +54,7 @@ private:
     bool toolsWriteSrcInternal() const;
     bool toolsWriteTransportMsgHeaderInternal() const;
     bool toolsWriteTransportMsgSrcInternal() const;
-    std::string toolsTransportMessageHeaderFilePathInternal() const;
-    std::string toolsTransportMessageSrcFilePathInternal() const;
     unsigned toolsCalcBackPayloadOffsetInternal() const;
-    std::string toolsRelFilePath() const; // TODO: remove
     std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
     std::string toolsProtTransportMsgDefInternal(const commsdsl::gen::Interface& iFace) const;
     std::string toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::Interface& iFace) const;

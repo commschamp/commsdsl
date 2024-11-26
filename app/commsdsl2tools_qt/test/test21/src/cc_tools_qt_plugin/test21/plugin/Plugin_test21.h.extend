@@ -3,9 +3,12 @@ class Plugin_test21 : public Plugin_test21Orig
 {
     Q_OBJECT
     Q_PLUGIN_METADATA(IID "test21" FILE "Plugin_test21.json")
-    Q_INTERFACES(cc_tools_qt::Plugin)
+    Q_INTERFACES(cc_tools_qt::ToolsPlugin)
 
 public:
     Plugin_test21();
     virtual ~Plugin_test21();
+
+protected:
+    virtual ListOfGuiActions createGuiActionsImpl() override;    
 };

@@ -58,7 +58,6 @@ public:
         return m_pluginInfos;
     }
 
-    StringsList toolsSourceFiles() const;
     StringsList toolsSourceFilesForInterface(const ToolsQtInterface& interface) const;
 
     const PluginsList& toolsPlugins() const
@@ -98,6 +97,15 @@ public:
     bool toolsHasMainNamespaceInOptions() const;
 
     static const std::string& toolsMinCcToolsQtVersion();
+
+    static const std::string& toolsNamespaceBegin();
+    static const std::string& toolsNamespaceEnd();
+
+    std::string toolsNamespaceBeginForInterface(const commsdsl::gen::Interface& interface) const;
+    std::string toolsNamespaceEndForInterface(const commsdsl::gen::Interface& interface) const;    
+
+    static const std::string& toolsScopePrefix();
+    std::string toolsScopePrefixForInterface(const commsdsl::gen::Interface& interface) const;
 
 protected:
     virtual bool prepareImpl() override;

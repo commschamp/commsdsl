@@ -100,19 +100,19 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
 std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
     return 
-        util::strReplace(toolsScope(generator), "::", "/") + 
+        util::strReplace(toolsClassScope(generator), "::", "/") + 
         strings::cppHeaderSuffixStr();
 }
 
 std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams)
 {
-    return '<' + toolsScope(generator) + extraParams + '>';
+    return '<' + toolsClassScope(generator) + extraParams + '>';
 }
 
-std::string ToolsQtDefaultOptions::toolsScope(const ToolsQtGenerator& generator)
+std::string ToolsQtDefaultOptions::toolsClassScope(const ToolsQtGenerator& generator)
 {
     return 
-        generator.getTopNamespace() + "::" + 
+        generator.toolsScopePrefix() + 
         generator.protocolSchema().mainNamespace() + "::" + 
         comms::scopeForOptions(strings::defaultOptionsClassStr(), generator, false);
 }    
@@ -148,8 +148,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
         "#^#EXTRA_INCLUDES#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"        
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#PROT_NAMESPACE#$#\n"
         "{\n\n"
         "namespace options\n"
@@ -160,7 +159,8 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         "#^#APPEND#$#\n"
         "} // namespace options\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n";
+        "#^#TOP_NS_END#$#\n"
+    ;
 
     auto codePrefix = m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator);
 
@@ -189,7 +189,8 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "")},
         {"EXTRA_INCLUDES", util::readFileContents(codePrefix + strings::incFileSuffixStr())},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
         {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
         {"NAME", strings::defaultOptionsClassStr()},
         {"EXTEND", util::readFileContents(codePrefix + strings::extendFileSuffixStr())},

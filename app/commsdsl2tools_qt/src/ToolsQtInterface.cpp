@@ -62,9 +62,10 @@ ToolsQtInterface::ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse:
 {
 }
 
-std::string ToolsQtInterface::toolsScope() const
+std::string ToolsQtInterface::toolsClassScope() const
 {
-    return generator().getTopNamespace() + "::" + comms::scopeFor(*this, generator());
+    auto& gen = ToolsQtGenerator::cast(generator());
+    return gen.toolsScopePrefixForInterface(*this) + comms::scopeFor(*this, gen);
 }
 
 std::string ToolsQtInterface::toolsHeaderFilePath() const
@@ -115,9 +116,11 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         "\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "#^#NS_BEGIN#$#\n"
         "#^#DEF#$#\n\n"
         "#^#NS_END#$#\n"
+        "#^#TOP_NS_END#$#\n"
     ;
 
     util::StringsList includes {
@@ -135,6 +138,8 @@ bool ToolsQtInterface::toolsWriteHeaderInternal() const
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
+        {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*this)},
+        {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*this)},
         {"DEF", toolsHeaderCodeInternal()},
     };
     
@@ -166,9 +171,11 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
     static const std::string Templ = 
         "#^#GENERATED#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "#^#NS_BEGIN#$#\n"
         "#^#DEF#$#\n\n"
         "#^#NS_END#$#\n"
+        "#^#TOP_NS_END#$#\n"
     ;
 
     util::ReplacementMap repl = {
@@ -176,6 +183,8 @@ bool ToolsQtInterface::toolsWriteSrcInternal() const
         {"CLASS_NAME", comms::className(toolsNameInternal())},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
+        {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*this)},
+        {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*this)},
         {"DEF", toolsSrcCodeInternal()},
     };
     
@@ -202,7 +211,7 @@ std::string ToolsQtInterface::toolsHeaderCodeInternal() const
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(toolsNameInternal())},
         {"INTERFACE", comms::scopeFor(*this, gen)},
-        {"OPTIONS", ToolsQtDefaultOptions::toolsScope(gen)},
+        {"OPTIONS", ToolsQtDefaultOptions::toolsClassScope(gen)},
     };
 
     auto hexWidth = getHexMsgIdWidthInternal(generator());
@@ -251,9 +260,7 @@ const std::string& ToolsQtInterface::toolsNameInternal() const
 
 std::string ToolsQtInterface::toolsRelFilePath() const
 {
-    auto scope = comms::scopeFor(*this, generator());
-    auto iFaceScope = comms::scopeFor(*this, generator(), false, true);
-    return generator().getTopNamespace() + '/' + util::strReplace(iFaceScope, "::", "/") + '/' + util::strReplace(scope, "::", "/");
+    return util::strReplace(toolsClassScope(), "::", "/");
 }
 
 } // namespace commsdsl2tools_qt

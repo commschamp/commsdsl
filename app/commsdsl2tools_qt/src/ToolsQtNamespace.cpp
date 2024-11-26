@@ -102,7 +102,7 @@ std::string ToolsQtNamespace::toolsMsgFactoryOptions() const
 
         util::ReplacementMap repl = {
             {"OPTS", util::strListToString(frameElems, "\n", "")},
-            {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(gen)},
+            {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)},
             {"NS", comms::scopeFor(*this, generator(), hasMainNs)},
         };        
 
@@ -134,7 +134,7 @@ std::string ToolsQtNamespace::toolsMsgFactoryOptions() const
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", util::strListToString(elems, "\n", "")},
-        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(gen)},
+        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)},
         {"NS", comms::scopeFor(*this, generator(), hasMainNs)},
     };
 

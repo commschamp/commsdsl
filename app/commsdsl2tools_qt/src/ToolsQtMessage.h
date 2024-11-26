@@ -38,6 +38,7 @@ public:
 
     std::string toolsHeaderPath(const commsdsl::gen::Interface& iFace) const;
     StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsClassScope(const commsdsl::gen::Interface& iFace) const;
 
     static ToolsQtMessage& cast(commsdsl::gen::Message& msg)
     {

@@ -117,8 +117,7 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "#pragma once\n\n"
         "#include \"cc_tools_qt/ToolsProtocol.h\"\n\n"
         "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"        
         "namespace plugin\n"
@@ -135,12 +134,13 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
         "#^#EXTEND#$#\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
+        "#^#TOP_NS_END#$#\n\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
         {"EXTEND", extendCode},
@@ -201,8 +201,7 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "#^#INCLUDES#$#\n"
         "\n"
         "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"
         "namespace plugin\n"
@@ -220,21 +219,16 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
         "#^#EXTEND#$#\n"      
         "} // namespace plugin\n\n"       
         "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
+        "#^#TOP_NS_END#$#\n"
     ;
-
-    auto frameHeader = m_framePtr->toolsHeaderFilePath();
-    auto transportMsgHeader = frameHeader;
-    auto& suffix = strings::transportMessageSuffixStr();
-    auto insertIter = transportMsgHeader.begin() + (frameHeader.size() - strings::cppHeaderSuffixStr().size());
-    transportMsgHeader.insert(insertIter, suffix.begin(), suffix.end());    
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
-        {"FRAME", m_framePtr->toolsClassScope()},
+        {"FRAME", m_framePtr->toolsClassScope(*m_interfacePtr)},
         {"PROT_NAME", toolsAdjustedNameInternal()},
         {"INCLUDES", util::strListToString(includes, "\n", "")},
         {"INC", incCode},
@@ -290,8 +284,7 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         "#include <QtCore/QObject>\n"
         "#include <QtCore/QtPlugin>\n"
         "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"    
         "namespace plugin\n"
@@ -312,13 +305,14 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         "#^#EXTEND#$#\n\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
+        "#^#TOP_NS_END#$#\n"
     ;
 
     assert(!m_pluginId.empty());
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},        
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"ID", m_pluginId},
@@ -375,8 +369,7 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"#^#PROTOCOL_CLASS_NAME#$#.h\"\n\n"
         "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"    
         "namespace plugin\n"
@@ -393,12 +386,13 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         "#^#EXTEND#$#\n\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
+        "#^#TOP_NS_END#$#\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},  
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"PROTOCOL_CLASS_NAME", toolsProtClassNameInternal()},
@@ -545,8 +539,9 @@ std::string ToolsQtPlugin::toolsPluginClassNameInternal() const
 
 std::string ToolsQtPlugin::toolsRelFilePath(const std::string& name) const
 {
+    auto prefix = util::strReplace(m_generator.toolsScopePrefix(), "::", "/");
     return 
-        m_generator.getTopNamespace() + '/' + m_generator.protocolSchema().mainNamespace() + '/' + 
+        prefix + m_generator.protocolSchema().mainNamespace() + '/' + 
         strings::pluginNamespaceStr() + '/' + name;
 }
 

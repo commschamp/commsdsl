@@ -32,7 +32,7 @@ public:
     static bool write(ToolsQtGenerator& generator);
     static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace);
     static StringsList toolsSourceFiles(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace); 
-    static std::string toolsClassScope(const ToolsQtGenerator& generator);
+    static std::string toolsClassScope(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace);
 
 private:
     explicit ToolsQtMsgFactory(const ToolsQtGenerator& generator) : m_generator(generator) {}
@@ -42,7 +42,7 @@ private:
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSourceInternal() const;
     std::string toolsHeaderCodeInternal() const;
-    std::string toolsSourceCodeInternal() const;
+    std::string toolsSourceCodeInternal(const commsdsl::gen::Interface& iFace) const;
     std::string toolsSourceIncludesInternal(const commsdsl::gen::Interface& iFace) const;
 
     const ToolsQtGenerator& m_generator;

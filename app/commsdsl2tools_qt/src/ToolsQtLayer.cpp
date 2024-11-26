@@ -96,7 +96,7 @@ std::string ToolsQtLayer::toolsMsgFactoryOptions() const
     util::ReplacementMap repl = {
         {"NAME", comms::className(m_layer.dslObj().name())},
         {"OPTS", util::strListToString(extraOpts, ",\n", "")},
-        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(gen)},
+        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)},
         {"SCOPE", comms::scopeFor(m_layer, gen, gen.toolsHasMainNamespaceInOptions())}
     };
 

@@ -13,7 +13,6 @@ set (
     ToolsQtFrame.cpp
     ToolsQtGenerator.cpp
     ToolsQtIdLayer.cpp
-    ToolsQtInputMessages.cpp
     ToolsQtIntField.cpp
     ToolsQtInterface.cpp
     ToolsQtLayer.cpp

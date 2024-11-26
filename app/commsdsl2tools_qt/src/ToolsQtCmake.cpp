@@ -172,7 +172,7 @@ bool ToolsQtCmake::toolsWriteInternal() const
         {"PER_INTERFACE_FUNCS", toolsPerInterfaceFuncsInternal()},
         {"PER_INTERFACE_CALLS", toolsPerInterfaceCallsInternal()},
         {"PLUGINS_LIST", util::strListToString(pluginInvokes, "\n", "")},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS", "cc_tools_qt_plugin"},
         {"MAIN_NS", m_generator.protocolSchema().mainNamespace()},
         {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
@@ -198,7 +198,7 @@ std::string ToolsQtCmake::toolsPerInterfaceFuncsInternal() const
         "    )\n\n"
         "    add_library (${name} STATIC ${src})\n"
         "    set_target_properties(${name} PROPERTIES POSITION_INDEPENDENT_CODE TRUE)\n"
-        "    target_link_libraries (${name} PUBLIC cc::#^#MAIN_NS#$# cc::comms cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Core)\n"
+        "    target_link_libraries (${name} PUBLIC cc::#^#MAIN_NS#$# cc::comms cc::cc_tools_qt Qt${OPT_QT_MAJOR_VERSION}::Widgets Qt${OPT_QT_MAJOR_VERSION}::Core)\n"
         "    target_include_directories (${name} PUBLIC ${PROJECT_SOURCE_DIR})\n"
         "    target_compile_options(${name} PRIVATE\n"
         "        $<$<CXX_COMPILER_ID:MSVC>:/bigobj /wd4127 /wd5054>\n"
