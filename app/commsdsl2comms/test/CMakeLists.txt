@@ -17,23 +17,14 @@ function (test_func name)
         set (extra_bundle_param --extra-messages-bundle "${extra_bundle_param_value}")
     endif()    
 
-    set (rm_tmp_tgt ${APP_NAME}.${name}_rm_tmp_tgt)
-    add_custom_target(${rm_tmp_tgt}
-        COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-    )
-
-    add_custom_command(
-        OUTPUT ${output_dir}.tmp
-        DEPENDS ${schema_files} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_files}
-    )
-
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
+        COMMAND $<TARGET_FILE:${APP_NAME}> -d -s --warn-as-err -o ${output_dir}.tmp ${code_input_param} ${extra_bundle_param} ${schema_files}
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="doc\;include" 
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
-        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
+        DEPENDS "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} $<TARGET_FILE:${APP_NAME}>)
 
     if ("${CMAKE_VERSION}" VERSION_GREATER_EQUAL 3.15)
         set_target_properties(${output_tgt} PROPERTIES ADDITIONAL_CLEAN_FILES "${output_dir}.tmp;${output_dir}")

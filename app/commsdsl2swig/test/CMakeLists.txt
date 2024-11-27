@@ -29,23 +29,14 @@ foreach (name ${tests})
 
     set (output_dir ${CMAKE_CURRENT_BINARY_DIR}/${name})
 
-    set (rm_tmp_tgt ${APP_NAME}.${name}_rm_tmp_tgt)
-    add_custom_target(${rm_tmp_tgt}
-        COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
-    )
-
-    add_custom_command(
-        OUTPUT ${output_dir}.tmp
-        DEPENDS ${schema_files} ${APP_NAME} ${rm_tmp_tgt}
-        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
-    )
-
     set (output_tgt ${APP_NAME}.${name}_output_tgt)
     add_custom_target(${output_tgt} ALL
+        COMMAND ${CMAKE_COMMAND} -E remove_directory ${output_dir}.tmp
+        COMMAND $<TARGET_FILE:${APP_NAME}> -s --warn-as-err ${code_input_param} -o ${output_dir}.tmp ${schema_files}
         COMMAND ${CMAKE_COMMAND}
             -DGENERATED="${output_dir}.tmp" -DOUTPUT="${output_dir}" -DCLEANUP_DIRS="."
             -P "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake"
-        DEPENDS ${output_dir}.tmp "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} ${APP_NAME})
+        DEPENDS "${PROJECT_SOURCE_DIR}/cmake/CopyGenerated.cmake" ${schema_files} $<TARGET_FILE:${APP_NAME}>)
 
     add_custom_command(
         OUTPUT ${output_dir}/${name}.i
