@@ -106,7 +106,6 @@ private:
     std::string commsDefRefreshFuncInternal() const;
     std::string commsDefPrivateConstructInternal() const;
     bool commsIsCustomizableInternal() const;
-    // bool commsMustGenerateReadRefresh() const;
     std::string commsCustomizationOptionsInternal(
         FieldOptsFunc fieldOptsFunc,
         ExtraMessageOptsFunc extraMessageOptsFunc,

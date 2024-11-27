@@ -15,33 +15,21 @@
 
 #include "ToolsQtGenerator.h"
 
-#include "ToolsQtBitfieldField.h"
-#include "ToolsQtBundleField.h"
 #include "ToolsQtChecksumLayer.h"
 #include "ToolsQtCmake.h"
 #include "ToolsQtCustomLayer.h"
-#include "ToolsQtDataField.h"
 #include "ToolsQtDefaultOptions.h"
-#include "ToolsQtEnumField.h"
-#include "ToolsQtFloatField.h"
 #include "ToolsQtFrame.h"
 #include "ToolsQtIdLayer.h"
-#include "ToolsQtIntField.h"
 #include "ToolsQtInterface.h"
-#include "ToolsQtListField.h"
 #include "ToolsQtMessage.h"
 #include "ToolsQtMsgFactory.h"
 #include "ToolsQtNamespace.h"
-#include "ToolsQtOptionalField.h"
 #include "ToolsQtPayloadLayer.h"
 #include "ToolsQtPlugin.h"
-#include "ToolsQtRefField.h"
-#include "ToolsQtSetField.h"
 #include "ToolsQtSizeLayer.h"
-#include "ToolsQtStringField.h"
 #include "ToolsQtSyncLayer.h"
 #include "ToolsQtValueLayer.h"
-#include "ToolsQtVariantField.h"
 #include "ToolsQtVersion.h"
 
 #include "commsdsl/version.h"
@@ -298,66 +286,6 @@ ToolsQtGenerator::MessagePtr ToolsQtGenerator::createMessageImpl(commsdsl::parse
 ToolsQtGenerator::FramePtr ToolsQtGenerator::createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtFrame>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtIntField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtEnumField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtSetField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtFloatField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtBitfieldField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtBundleField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtStringField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtDataField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtListField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtRefField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtOptionalField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtVariantField>(*this, dslObj, parent);
 }
 
 ToolsQtGenerator::LayerPtr ToolsQtGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)

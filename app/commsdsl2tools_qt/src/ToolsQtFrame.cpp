@@ -408,11 +408,6 @@ bool ToolsQtFrame::toolsWriteTransportMsgHeaderInternal() const
             "#^#TOP_NS_END#$#\n"
         ;
 
-        util::StringsList fields;
-        for (auto* l : m_toolsLayers) {
-            fields.push_back("::" + l->toolsFieldCommsScope());
-        }
-
         util::ReplacementMap repl = {
             {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
             {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},

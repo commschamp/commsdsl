@@ -71,8 +71,7 @@ bool ToolsQtMessage::prepareImpl()
     if (!m_exists) {
         return true;
     }
-
-    m_toolsFields = ToolsQtField::toolsTransformFieldsList(fields());
+    
     return true;
 }
 

@@ -16,7 +16,6 @@
 #include "ToolsQtNamespace.h"
 
 #include "ToolsQtDefaultOptions.h"
-#include "ToolsQtField.h"
 #include "ToolsQtFrame.h"
 #include "ToolsQtGenerator.h"
 #include "ToolsQtInterface.h"

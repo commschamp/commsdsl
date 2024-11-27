@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "ToolsQtField.h"
-
 #include "commsdsl/gen/Layer.h"
 #include "commsdsl/gen/util.h"
 
@@ -34,9 +32,6 @@ public:
 
     bool prepare();
 
-    IncludesList toolsSrcIncludes() const;
-    std::string toolsPropsFunc() const;
-    std::string toolsFieldCommsScope() const;
     std::string toolsMsgFactoryOptions() const;
 
     unsigned toolsMinFieldLength() const;
@@ -47,24 +42,10 @@ public:
     }
 
 protected:
-    virtual std::string toolExtraFieldTemplParamsImpl() const;
-    virtual std::string toolsForcedSerHiddenStrImpl() const;
     virtual StringsList toolsMsgFactoryExtraOptionsImpl() const;
-
-    const ToolsQtField* toolsExternalField() const
-    {
-        return m_toolsExternalField;
-    }
-
-    const ToolsQtField* toolsMemberField() const
-    {
-        return m_toolsMemberField;
-    }    
 
 private:
     commsdsl::gen::Layer& m_layer ;
-    ToolsQtField* m_toolsExternalField = nullptr;
-    ToolsQtField* m_toolsMemberField = nullptr;
 };
 
 } // namespace commsdsl2tools_qt

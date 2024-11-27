@@ -1284,17 +1284,6 @@ bool CommsMessage::commsIsCustomizableInternal() const
     return dslObj().sender() != commsdsl::parse::Message::Sender::Both;
 }
 
-// bool CommsMessage::commsMustGenerateReadRefresh() const
-// {
-//     return 
-//         std::any_of(
-//             m_commsFields.begin(), m_commsFields.end(),
-//             [](auto* f)
-//             {
-//                 return f->doesRequireGeneratedReadRefresh();
-//             });
-// }
-
 std::string CommsMessage::commsCustomizationOptionsInternal(
     FieldOptsFunc fieldOptsFunc,
     ExtraMessageOptsFunc extraMessageOptsFunc,

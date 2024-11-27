@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "ToolsQtField.h"
-
 #include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/util.h"
 
@@ -30,8 +28,6 @@ class ToolsQtInterface final : public commsdsl::gen::Interface
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
-
-    using ToolsQtFieldsList = ToolsQtField::ToolsQtFieldsList;
 
     explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::Interface dslObj, commsdsl::gen::Elem* parent);
 

@@ -15,7 +15,6 @@
 
 #pragma once
 
-#include "ToolsQtField.h"
 #include "ToolsQtInterface.h"
 
 #include "commsdsl/gen/Message.h"
@@ -31,8 +30,6 @@ class ToolsQtMessage final : public commsdsl::gen::Message
 public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
-
-    using ToolsQtFieldsList = ToolsQtField::ToolsQtFieldsList;
 
     explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Message dslObj, commsdsl::gen::Elem* parent);
 
@@ -63,7 +60,6 @@ private:
     IncludesList toolsSrcIncludesInternal(const commsdsl::gen::Interface& iFace) const;
     std::string toolsSrcCodeInternal(const commsdsl::gen::Interface& iFace) const;
 
-    ToolsQtFieldsList m_toolsFields;
     bool m_exists = true;
 };
 

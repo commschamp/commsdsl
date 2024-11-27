@@ -40,41 +40,7 @@ ToolsQtLayer::ToolsQtLayer(commsdsl::gen::Layer& layer) :
 
 bool ToolsQtLayer::prepare()
 {
-    m_toolsExternalField = dynamic_cast<ToolsQtField*>(m_layer.externalField());
-    m_toolsMemberField = dynamic_cast<ToolsQtField*>(m_layer.memberField());
     return true;
-}
-
-ToolsQtLayer::IncludesList ToolsQtLayer::toolsSrcIncludes() const
-{
-    // TODO: remove
-    IncludesList result;
-    return result;
-}
-
-std::string ToolsQtLayer::toolsPropsFunc() const
-{
-    // TODO: remove
-    return std::string();
-}
-
-std::string ToolsQtLayer::toolsFieldCommsScope() const
-{
-    if (m_toolsExternalField != nullptr) {
-        return m_toolsExternalField->toolsCommsScope(toolExtraFieldTemplParamsImpl());
-    }
-
-    if (m_toolsMemberField != nullptr) {
-        return m_toolsMemberField->toolsCommsScope();
-    }
-
-    auto* frameElem = m_layer.getParent();
-    assert(frameElem != nullptr);
-    auto& gen = static_cast<const ToolsQtGenerator&>(m_layer.generator());
-    return 
-        comms::scopeFor(*frameElem, gen) + 
-        strings::layersSuffixStr() + ToolsQtDefaultOptions::toolsTemplParam(gen) + "::" +
-        comms::className(m_layer.dslObj().name()) + "::Field";
 }
 
 std::string ToolsQtLayer::toolsMsgFactoryOptions() const
@@ -106,31 +72,23 @@ std::string ToolsQtLayer::toolsMsgFactoryOptions() const
 unsigned ToolsQtLayer::toolsMinFieldLength() const
 {
     auto calcFunc = 
-        [](const ToolsQtField& f)
+        [](const commsdsl::gen::Field& f)
         {
-            return static_cast<unsigned>(f.field().dslObj().minLength());
+            return static_cast<unsigned>(f.dslObj().minLength());
         };
 
-    if (m_toolsExternalField !=  nullptr) {
-        return calcFunc(*m_toolsExternalField);
+    auto* externalField = m_layer.externalField();
+    if (externalField !=  nullptr) {
+        return calcFunc(*externalField);
     }
 
-    if (m_toolsMemberField !=  nullptr) {
-        return calcFunc(*m_toolsMemberField);
+    auto* memberField = m_layer.memberField();
+    if (memberField !=  nullptr) {
+        return calcFunc(*memberField);
     }    
 
     assert(false); // should not happen;
     return 0U;
-}
-
-std::string ToolsQtLayer::toolExtraFieldTemplParamsImpl() const
-{
-    return strings::emptyString();
-}
-
-std::string ToolsQtLayer::toolsForcedSerHiddenStrImpl() const
-{
-    return "false";
 }
 
 ToolsQtLayer::StringsList ToolsQtLayer::toolsMsgFactoryExtraOptionsImpl() const
