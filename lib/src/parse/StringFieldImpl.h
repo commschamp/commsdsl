@@ -100,6 +100,7 @@ protected:
 
 private:
     bool updateDefaultValue();
+    bool updateDefaultValidValue();
     bool updateEncoding();
     bool updateLength();
     bool updatePrefix();

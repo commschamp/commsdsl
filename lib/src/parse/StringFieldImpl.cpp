@@ -71,6 +71,7 @@ const XmlWrap::NamesList& StringFieldImpl::extraPropsNamesImpl() const
         common::encodingStr(),
         common::zeroTermSuffixStr(),
         common::defaultValueStr(),
+        common::defaultValidValueStr(),
         common::validValueStr(),
     };
 
@@ -118,6 +119,7 @@ bool StringFieldImpl::parseImpl()
         updatePrefix() &&
         updateZeroTerm() &&
         updateDefaultValue() &&
+        updateDefaultValidValue() &&
         updateValidValues();
 }
 
@@ -252,6 +254,44 @@ bool StringFieldImpl::updateDefaultValue()
     return true;
 }
 
+bool StringFieldImpl::updateDefaultValidValue()
+{
+    auto& propName = common::defaultValidValueStr();
+    if (!validateSinglePropInstance(propName)) {
+        return false;
+    }
+
+    auto iter = props().find(propName);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isValidValueInStringAndDataSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << 
+            "Property \"" << common::defaultValidValueStr() << "\" for <string> field is not supported for DSL version " << protocol().currSchema().dslVersion() << ", ignoring...";        
+        return true;
+    }     
+
+    if (!strToValue(iter->second, m_state.m_defaultValue)) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }    
+
+    if ((m_state.m_length != 0U) && (m_state.m_length < m_state.m_defaultValue.size())) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "The default value (" << m_state.m_defaultValue << ") is too long "
+            "for proper serialisation.";
+    }    
+
+    ValidValueInfo info;
+    info.m_value = m_state.m_defaultValue;
+    info.m_sinceVersion = getSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+    m_state.m_validValues.push_back(std::move(info));
+
+    return true;
+}
+
 bool StringFieldImpl::updateEncoding()
 {
     if (!validateSinglePropInstance(common::encodingStr())) {
@@ -375,7 +415,7 @@ bool StringFieldImpl::updateZeroTerm()
 
 bool StringFieldImpl::updateValidValues()
 {
-    if (!checkValidValueAsAttr(props())) {
+    if (!checkValidValueAsAttr(XmlWrap::parseNodeProps(getNode()))) {
         return false;
     }
 
