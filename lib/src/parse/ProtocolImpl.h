@@ -117,6 +117,7 @@ public:
     bool isFailOnInvalidInMessageSupported() const;
     bool isSizeCompInConditionalsSupported() const;
     bool isExistsCheckInConditionalsSupported() const;
+    bool isValidValueInStringAndDataSupported() const;
 
     void setMultipleSchemasEnabled(bool value)
     {

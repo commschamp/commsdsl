@@ -20,6 +20,7 @@
 #include <vector>
 
 #include "commsdsl/parse/Endian.h"
+#include "commsdsl/parse/StringField.h"
 #include "FieldImpl.h"
 
 namespace commsdsl
@@ -32,6 +33,8 @@ class StringFieldImpl final : public FieldImpl
 {
     using Base = FieldImpl;
 public:
+    using ValidValueInfo = StringField::ValidValueInfo;
+    using ValidValuesList = StringField::ValidValuesList;
 
     StringFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     StringFieldImpl(const StringFieldImpl& other);
@@ -75,6 +78,11 @@ public:
         return m_state.m_haxZeroSuffix;
     }
 
+    const ValidValuesList& validValues() const
+    {
+        return m_state.m_validValues;
+    }
+
 protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
@@ -96,8 +104,11 @@ private:
     bool updateLength();
     bool updatePrefix();
     bool updateZeroTerm();
+    bool updateValidValues();
     bool checkPrefixFromRef();
     bool checkPrefixAsChild();
+    bool checkValidValueAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidValueAsChild(::xmlNodePtr child);    
     const FieldImpl* getPrefixField() const;
     bool strToValue(const std::string& str, std::string& val) const;
 
@@ -108,6 +119,7 @@ private:
         std::size_t m_length = 0U;
         const FieldImpl* m_extPrefixField = nullptr;
         std::string m_detachedPrefixField;
+        ValidValuesList m_validValues;
         bool m_haxZeroSuffix = false;
     };
 

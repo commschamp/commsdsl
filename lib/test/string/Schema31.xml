@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema31" endian="big" version="5" dslVersion="7">
+    <description>
+        Testing multiple valid values of string
+    </description>
+    <fields>
+        <string name="String1" validValue="bla3">
+            <validValue value="bla2" sinceVersion="3"/>
+            <validValue value="bla1" sinceVersion="1" deprecated="4"/>
+        </string>
+    </fields>
+</schema>

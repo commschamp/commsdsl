@@ -15,7 +15,10 @@
 
 #pragma once
 
-#include "Field.h"
+#include "commsdsl/parse/Field.h"
+#include "commsdsl/parse/Protocol.h"
+
+#include <vector>
 
 namespace commsdsl
 {
@@ -29,6 +32,15 @@ class COMMSDSL_API StringField : public Field
     using Base = Field;
 public:
 
+    struct ValidValueInfo
+    {
+        std::string m_value;
+        unsigned m_sinceVersion = 0;
+        unsigned m_deprecatedSince = Protocol::notYetDeprecated();
+    };
+
+    using ValidValuesList = std::vector<ValidValueInfo>;
+
     explicit StringField(const StringFieldImpl* impl);
     explicit StringField(Field field);
 
@@ -39,6 +51,7 @@ public:
     Field lengthPrefixField() const;
     bool hasZeroTermSuffix() const;
     const std::string& detachedPrefixFieldName() const;
+    const ValidValuesList& validValues() const;
 };
 
 } // namespace parse

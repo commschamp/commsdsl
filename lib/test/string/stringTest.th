@@ -37,6 +37,7 @@ public:
     void test28();
     void test29();
     void test30();
+    void test31();
 };
 
 void StringTestSuite::setUp()
@@ -615,4 +616,34 @@ void StringTestSuite::test30()
 
     commsdsl::parse::StringField stringField(field);
     TS_ASSERT_EQUALS(stringField.defaultValue(), "bla");
+}
+
+void StringTestSuite::test31()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema31.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "String1");
+
+    commsdsl::parse::StringField stringField(field);
+    auto& validValues = stringField.validValues();
+    TS_ASSERT_EQUALS(validValues.size(), 3U)
+    TS_ASSERT_EQUALS(validValues[0].m_value, "bla1");
+    TS_ASSERT_EQUALS(validValues[0].m_sinceVersion, 1);
+    TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
+    TS_ASSERT_EQUALS(validValues[1].m_value, "bla2");
+    TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
+    TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->notYetDeprecated());    
+    TS_ASSERT_EQUALS(validValues[2].m_value, "bla3");
+    TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->notYetDeprecated());        
 }
