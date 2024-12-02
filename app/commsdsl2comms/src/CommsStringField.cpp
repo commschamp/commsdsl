@@ -99,6 +99,14 @@ CommsStringField::IncludesList CommsStringField::commsDefIncludesImpl() const
             });
         }
 
+        auto& validValues = obj.validValues();
+        if (!validValues.empty()) {
+            result.insert(result.end(), {
+                "<algorithm>",
+                "<iterator>"
+            });            
+        }        
+
         if (m_commsMemberPrefixField != nullptr) {
             auto extraIncs = m_commsMemberPrefixField->commsDefIncludes();
             result.reserve(result.size() + extraIncs.size());
@@ -117,6 +125,7 @@ CommsStringField::IncludesList CommsStringField::commsDefIncludesImpl() const
                 "<limits>"
             });
         }
+
     } while (false);
     return result;
 }
@@ -282,6 +291,41 @@ std::string CommsStringField::commsDefBundledRefreshFuncBodyImpl(const CommsFiel
         {"LEN_VALUE", (*iter)->commsValueAccessStr(accRest, sibPrefix)},
         {"LEN_FIELD", (*iter)->commsFieldAccessStr(accRest, sibPrefix)},
         {"STR_FIELD", commsFieldAccessStr(std::string(), fieldPrefix)},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsStringField::commsDefValidFuncBodyImpl() const
+{
+    auto& validValues = stringDslObj().validValues();
+    if (validValues.empty()) {
+        return std::string();
+    }
+
+    util::StringsList values;
+    for (auto& info : validValues) {
+        if (!generator().doesElementExist(info.m_sinceVersion, info.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        values.push_back("\"" + info.m_value + "\"");
+    }
+
+    static const std::string Templ = 
+        "if (!Base::valid()) {\n"
+        "    return false;\n"
+        "}\n\n"
+        "static const typename Base::ValueType Map[] = {\n"
+        "    #^#VALUES#$#\n"
+        "};\n"
+        "\n"
+        "auto iter = std::lower_bound(std::begin(Map), std::end(Map), Base::getValue());\n"
+        "return (iter != std::end(Map)) && ((*iter) == Base::getValue());\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"VALUES", util::strListToString(values, ",\n", "")}
     };
 
     return util::processTemplate(Templ, repl);

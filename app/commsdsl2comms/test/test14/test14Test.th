@@ -7,6 +7,7 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
 
     using Interface =
         test14::Message<
@@ -40,3 +41,17 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(msg, msg2);
 }
+
+void TestSuite::test2()
+{
+    Msg2 msg;
+    TS_ASSERT_EQUALS(msg.field_f1().value(), "bla1");
+    TS_ASSERT(msg.field_f1().valid());
+
+    msg.field_f1().setValue("bla2");
+    TS_ASSERT(msg.field_f1().valid());
+
+    msg.field_f1().setValue("bla6");
+    TS_ASSERT(!msg.field_f1().valid());
+}
+

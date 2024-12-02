@@ -18,6 +18,13 @@
             </lengthPrefix>
         </string>
         <string name="S4" zeroTermSuffix="true" />
+        <string name="S5" defaultValidValue="bla1">
+            <lengthPrefix>
+                <int name="length" type="uint8" />
+            </lengthPrefix>        
+            <validValue value="bla2" />
+            <validValue value="bla3" />
+        </string>
     </fields>
     
     <interface name="Message">
@@ -36,6 +43,10 @@
             </lengthPrefix>
         </string>
                 
+    </message>
+
+    <message name="Msg2" id="MsgId.M2">
+        <ref name="f1" field="S5" />
     </message>
     <frame name="Frame">
         <id name="ID" field="MsgId" />
