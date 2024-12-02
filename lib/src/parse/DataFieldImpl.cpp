@@ -70,6 +70,7 @@ const XmlWrap::NamesList& DataFieldImpl::extraPropsNamesImpl() const
     static const XmlWrap::NamesList List = {
         common::lengthStr(),
         common::defaultValueStr(),
+        common::defaultValidValueStr(),
         common::validValueStr(),
     };
 
@@ -115,6 +116,7 @@ bool DataFieldImpl::parseImpl()
         updateLength() &&
         updatePrefix() &&
         updateDefaultValue() &&
+        updateDefaultValidValue() &&
         updateValidValues();
 }
 
@@ -212,12 +214,48 @@ bool DataFieldImpl::updateDefaultValue()
         }
 
     } while (false);
-    if ((m_state.m_length != 0U) &&
-        (m_state.m_length < m_state.m_defaultValue.size())) {
+
+    if ((m_state.m_length != 0U) && (m_state.m_length < m_state.m_defaultValue.size())) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "The default value is too long "
-            "for proper serialisation.";
+            "The default value is too long for proper serialisation.";
     }
+
+    return true;
+}
+
+bool DataFieldImpl::updateDefaultValidValue()
+{
+    auto& propName = common::defaultValidValueStr();
+    if (!validateSinglePropInstance(propName)) {
+        return false;
+    }
+
+    auto iter = props().find(propName);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isValidValueInStringAndDataSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << 
+            "Property \"" << common::defaultValidValueStr() << "\" for <data> field is not supported for DSL version " << protocol().currSchema().dslVersion() << ", ignoring...";        
+        return true;
+    }     
+
+    if (!strToValue(iter->second, m_state.m_defaultValue)) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }    
+
+    if ((m_state.m_length != 0U) && (m_state.m_length < m_state.m_defaultValue.size())) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "The default value is too long for proper serialisation.";
+    }
+
+    ValidValueInfo info;
+    info.m_value = m_state.m_defaultValue;
+    info.m_sinceVersion = getSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+    m_state.m_validValues.push_back(std::move(info));
 
     return true;
 }

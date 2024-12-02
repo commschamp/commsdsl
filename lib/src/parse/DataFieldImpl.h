@@ -90,6 +90,7 @@ protected:
 
 private:
     bool updateDefaultValue();
+    bool updateDefaultValidValue();
     bool updateLength();
     bool updatePrefix();
     bool updateValidValues();    

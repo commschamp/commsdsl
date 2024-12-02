@@ -4,7 +4,7 @@
         Testing valid values of data field
     </description>
     <fields>
-        <data name="Data1" validValue="05 06">
+        <data name="Data1" defaultValidValue="05 06">
             <validValue value="0304" sinceVersion="3" />
             <validValue value="01 02" sinceVersion="1" deprecated="4" />
         </data>
