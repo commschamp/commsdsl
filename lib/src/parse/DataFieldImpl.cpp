@@ -69,7 +69,8 @@ const XmlWrap::NamesList& DataFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
         common::lengthStr(),
-        common::defaultValueStr()
+        common::defaultValueStr(),
+        common::validValueStr(),
     };
 
     return List;
@@ -113,7 +114,8 @@ bool DataFieldImpl::parseImpl()
     return
         updateLength() &&
         updatePrefix() &&
-        updateDefaultValue();
+        updateDefaultValue() &&
+        updateValidValues();
 }
 
 bool DataFieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const
@@ -272,6 +274,28 @@ bool DataFieldImpl::updatePrefix()
     return true;
 }
 
+bool DataFieldImpl::updateValidValues()
+{
+    if (!checkValidValueAsAttr(XmlWrap::parseNodeProps(getNode()))) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validValueStr());
+    for (auto* c : children) {
+        if (!checkValidValueAsChild(c)) {
+            return false;
+        }
+    }
+
+    std::sort(
+        m_state.m_validValues.begin(), m_state.m_validValues.end(),
+        [](auto& elem1, auto& elem2) {
+            return elem1.m_value < elem2.m_value;
+        });
+
+    return true;    
+}
+
 bool DataFieldImpl::checkPrefixFromRef()
 {
     if (!validateSinglePropInstance(common::lengthPrefixStr())) {
@@ -400,6 +424,68 @@ bool DataFieldImpl::checkPrefixAsChild()
     m_state.m_detachedPrefixField.clear();
     return true;
 }
+
+
+bool DataFieldImpl::checkValidValueAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validValueStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    if (!protocol().isValidValueInStringAndDataSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << 
+            "Property \"" << common::validValueStr() << "\" for <data> field is not supported for DSL version " << protocol().currSchema().dslVersion() << ", ignoring...";        
+        return true;
+    }    
+
+    ValidValueInfo info;
+    if (!strToValue(iter->second, info.m_value)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Property value \"" << common::validValueStr() << "\" of <data> element \"" <<
+                      name() << "\" cannot be properly parsed.";
+        return false;
+    }    
+
+    info.m_sinceVersion = getSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    m_state.m_validValues.push_back(std::move(info));
+    return true;
+}
+
+bool DataFieldImpl::checkValidValueAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    if (!protocol().isValidValueInStringAndDataSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << 
+            "Property \"" << common::validValueStr() << "\" for <data> field is not supported for DSL version " << protocol().currSchema().dslVersion() << ", ignoring...";        
+        return true;
+    }        
+
+    ValidValueInfo info;
+    if (!strToValue(str, info.m_value)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Property value \"" << common::validValueStr() << "\" of <data> element \"" <<
+                      name() << "\" cannot be properly parsed.";
+        return false;
+    }    
+
+    info.m_sinceVersion = getSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_state.m_validValues.push_back(std::move(info));
+    return true;
+}
+
 
 const FieldImpl* DataFieldImpl::getPrefixField() const
 {

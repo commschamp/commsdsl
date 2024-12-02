@@ -72,6 +72,11 @@ const std::string& DataField::detachedPrefixFieldName() const
     return cast(m_pImpl)->detachedPrefixFieldName();
 }
 
+const DataField::ValidValuesList& DataField::validValues() const
+{
+    return cast(m_pImpl)->validValues();
+}
+
 } // namespace parse
 
 } // namespace commsdsl

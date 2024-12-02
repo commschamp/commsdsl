@@ -29,6 +29,7 @@ public:
     void test20();
     void test21();
     void test22();
+    void test23();
 };
 
 void DataTestSuite::setUp()
@@ -454,4 +455,37 @@ void DataTestSuite::test22()
     commsdsl::parse::DataField dataField(field);
     commsdsl::parse::DataField::ValueType expDefaultValue{0xab, 0xcd};
     TS_ASSERT_EQUALS(dataField.defaultValue(), expDefaultValue);
+}
+
+
+void DataTestSuite::test23()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema23.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    TS_ASSERT_EQUALS(fields.size(), 1U);
+
+    auto& field = fields.front();
+    TS_ASSERT_EQUALS(field.name(), "Data1");
+    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Data);
+
+    using ValueType = commsdsl::parse::DataField::ValueType;
+    commsdsl::parse::DataField dataField(field);
+    auto& validValues = dataField.validValues();
+    TS_ASSERT_EQUALS(validValues.size(), 3U);
+    TS_ASSERT_EQUALS(validValues[0].m_value, ValueType({0x01, 0x02}));
+    TS_ASSERT_EQUALS(validValues[0].m_sinceVersion, 1);
+    TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
+    TS_ASSERT_EQUALS(validValues[1].m_value, ValueType({0x03, 0x04}));
+    TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
+    TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->notYetDeprecated());    
+    TS_ASSERT_EQUALS(validValues[2].m_value, ValueType({0x05, 0x06}));
+    TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
+    TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->notYetDeprecated());        
 }
