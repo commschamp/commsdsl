@@ -45,6 +45,7 @@ protected:
     virtual std::string commsDefConstructCodeImpl() const override;
     virtual std::string commsDefBundledReadPrepareFuncBodyImpl(const CommsFieldsList& siblings) const override;
     virtual std::string commsDefBundledRefreshFuncBodyImpl(const CommsFieldsList& siblings) const override;
+    virtual std::string commsDefValidFuncBodyImpl() const override;
     virtual bool commsIsLimitedCustomizableImpl() const override;
     virtual std::string commsMembersCustomizationOptionsBodyImpl(FieldOptsFunc fieldOptsFunc) const override;
     virtual StringsList commsExtraDataViewDefaultOptionsImpl() const override;

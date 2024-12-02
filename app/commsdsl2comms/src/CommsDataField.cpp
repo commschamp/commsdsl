@@ -34,6 +34,26 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2comms
 {
 
+namespace 
+{
+
+std::string bytesToString(const std::vector<std::uint8_t> value)
+{
+    util::StringsList bytes;
+    bytes.reserve(value.size());
+    for (auto& b : value) {
+        std::stringstream stream;
+        stream << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<unsigned>(b);
+        bytes.push_back(stream.str());
+    }
+
+    std::string bytesStr = util::strListToString(bytes, ", ", "");
+    return util::strMakeMultiline(bytesStr);    
+}
+
+} // namespace 
+    
+
 CommsDataField::CommsDataField(
     CommsGenerator& generator, 
     commsdsl::parse::Field dslObj, 
@@ -102,6 +122,14 @@ CommsDataField::IncludesList CommsDataField::commsDefIncludesImpl() const
             });            
         }   
 
+        auto& validValues = obj.validValues();
+        if (!validValues.empty()) {
+            result.insert(result.end(), {
+                "<algorithm>",
+                "<iterator>"
+            });            
+        }            
+
         if (m_commsMemberPrefixField != nullptr) {
             auto extraIncs = m_commsMemberPrefixField->commsDefIncludes();
             result.reserve(result.size() + extraIncs.size());
@@ -168,19 +196,9 @@ std::string CommsDataField::commsDefConstructCodeImpl() const
         "};\n"
         "comms::util::assign(Base::value(), std::begin(Data), std::end(Data));\n"
         ;
-    util::StringsList bytes;
-    bytes.reserve(defaultValue.size());
-    for (auto& b : defaultValue) {
-        std::stringstream stream;
-        stream << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<unsigned>(b);
-        bytes.push_back(stream.str());
-    }
-
-    std::string bytesStr = util::strListToString(bytes, ", ", "");
-    bytesStr = util::strMakeMultiline(bytesStr);
 
     util::ReplacementMap repl = {
-        {"BYTES", std::move(bytesStr)}
+        {"BYTES", bytesToString(defaultValue)}
     };
 
     return util::processTemplate(Templ, repl);
@@ -298,6 +316,42 @@ std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
         {"LEN_VALUE", (*iter)->commsValueAccessStr(accRest, sibPrefix)},
         {"LEN_FIELD", (*iter)->commsFieldAccessStr(accRest, sibPrefix)},
         {"DATA_FIELD", commsFieldAccessStr(std::string(), fieldPrefix)},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsDataField::commsDefValidFuncBodyImpl() const
+{
+    auto& validValues = dataDslObj().validValues();
+    if (validValues.empty()) {
+        return std::string();
+    }
+
+    util::StringsList values;
+    for (auto& info : validValues) {
+        if (!generator().doesElementExist(info.m_sinceVersion, info.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        
+        values.push_back("{" + bytesToString(info.m_value) + "}");
+    }
+
+    static const std::string Templ = 
+        "if (!Base::valid()) {\n"
+        "    return false;\n"
+        "}\n\n"
+        "static const typename Base::ValueType Map[] = {\n"
+        "    #^#VALUES#$#\n"
+        "};\n"
+        "\n"
+        "auto iter = std::lower_bound(std::begin(Map), std::end(Map), Base::getValue());\n"
+        "return (iter != std::end(Map)) && ((*iter) == Base::getValue());\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"VALUES", util::strListToString(values, ",\n", "")}
     };
 
     return util::processTemplate(Templ, repl);

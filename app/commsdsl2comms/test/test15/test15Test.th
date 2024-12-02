@@ -11,6 +11,7 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
 
     using Interface1 =
         test15::Message<
@@ -22,12 +23,15 @@ public:
             comms::option::app::NameInterface,
             comms::option::app::RefreshInterface
         >;    
+
+    using DataViewProtOptions = test15::options::DataViewDefaultOptions;        
+
+    TEST15_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface1)        
+    TEST15_ALIASES_FOR_ALL_MESSAGES(Test2,,Interface1, DataViewProtOptions);
 };
 
 void TestSuite::test1()
 {
-    TEST15_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface1)
-    using Msg1 = test15::message::Msg1<Interface1>;
     Msg1 msg;
     TS_ASSERT_EQUALS(msg.field_f1().value().size(), 5U);
     TS_ASSERT(msg.field_f10().doesExist());
@@ -36,16 +40,15 @@ void TestSuite::test1()
 
 void TestSuite::test2()
 {
-    using ProtOptions = test15::options::DataViewDefaultOptions;
     using Frame = 
         test15::frame::Frame<
             Interface1,
             test15::input::AllMessages<Interface1>,
-            ProtOptions
+            DataViewProtOptions
         >;
 
-    TEST15_ALIASES_FOR_ALL_MESSAGES(,,Interface1, ProtOptions);
-    Msg1 msg;
+    
+    Test2Msg1 msg;
 
     using DataVec = std::vector<std::uint8_t>;
     static const DataVec Data1 = {
@@ -68,4 +71,21 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT(static_cast<bool>(recvMsg));
     TS_ASSERT_EQUALS(recvMsg->getId(), msg.doGetId());
+}
+
+void TestSuite::test3()
+{
+    using DataVec = std::vector<std::uint8_t>;
+
+    Msg2 msg;
+    TS_ASSERT_EQUALS(msg.field_f1().value(), DataVec({0x01, 0x02}));
+    TS_ASSERT(msg.field_f1().valid());
+
+    DataVec data2({0x03, 0x04});
+    comms::util::assign(msg.field_f1().value(), data2.begin(), data2.end());
+    TS_ASSERT(msg.field_f1().valid());
+
+    DataVec data3({0x01, 0x02, 0x09});
+    comms::util::assign(msg.field_f1().value(), data3.begin(), data3.end());
+    TS_ASSERT(!msg.field_f1().valid());    
 }
