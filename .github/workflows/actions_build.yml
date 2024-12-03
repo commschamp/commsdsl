@@ -270,7 +270,7 @@ jobs:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
         BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
-        BUILD_TEST_DOCS: "${{ matrix.cpp == 11 && matrix.cc_ver == 14 && matrix.qt_ver == 5 && 'ON' || 'OFF' }}"
+        BUILD_TEST_DOCS: "${{ matrix.type == 'Debug' && matrix.cpp == 11 && matrix.cc_ver == 14 && matrix.qt_ver == 5 && 'ON' || 'OFF' }}"
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
 
     - name: Build Target 

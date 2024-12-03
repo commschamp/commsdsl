@@ -8,5 +8,9 @@
             <validValue value="bla2" sinceVersion="3"/>
             <validValue value="bla1" sinceVersion="1" deprecated="4"/>
         </string>
+
+        <string name="String2" reuse="String1">
+            <validValue value="bla4" />
+        </string>        
     </fields>
 </schema>

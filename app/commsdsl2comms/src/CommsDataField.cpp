@@ -328,20 +328,34 @@ std::string CommsDataField::commsDefValidFuncBodyImpl() const
         return std::string();
     }
 
+    util::StringsList defs;
     util::StringsList values;
-    for (auto& info : validValues) {
+    for (auto idx = 0U; idx < validValues.size(); ++idx) {
+        auto& info = validValues[idx];
         if (!generator().doesElementExist(info.m_sinceVersion, info.m_deprecatedSince, true)) {
             continue;
         }
 
-        
-        values.push_back("{" + bytesToString(info.m_value) + "}");
+        static const std::string DefTempl = 
+            "static const std::uint8_t #^#NAME#$#[] = {\n"
+            "    #^#BYTES#$#\n"
+            "};\n";
+
+        auto name = "ValidValue" + std::to_string(idx);
+        util::ReplacementMap defRepl = {
+            {"NAME", name},
+            {"BYTES", bytesToString(info.m_value)},
+        };
+
+        defs.push_back(util::processTemplate(DefTempl, defRepl));
+        values.push_back("typename Base::ValueType(std::begin(" + name + "), std::end(" + name + "))");
     }
 
     static const std::string Templ = 
         "if (!Base::valid()) {\n"
         "    return false;\n"
         "}\n\n"
+        "#^#DEFS#$#\n"
         "static const typename Base::ValueType Map[] = {\n"
         "    #^#VALUES#$#\n"
         "};\n"
@@ -351,6 +365,7 @@ std::string CommsDataField::commsDefValidFuncBodyImpl() const
         ;
 
     util::ReplacementMap repl = {
+        {"DEFS", util::strListToString(defs, "\n", "")},
         {"VALUES", util::strListToString(values, ",\n", "")}
     };
 

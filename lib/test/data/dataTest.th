@@ -469,23 +469,51 @@ void DataTestSuite::test23()
     TS_ASSERT(ns.name().empty());
 
     auto fields = ns.fields();
-    TS_ASSERT_EQUALS(fields.size(), 1U);
 
-    auto& field = fields.front();
-    TS_ASSERT_EQUALS(field.name(), "Data1");
-    TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Data);
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
 
-    using ValueType = commsdsl::parse::DataField::ValueType;
-    commsdsl::parse::DataField dataField(field);
-    auto& validValues = dataField.validValues();
-    TS_ASSERT_EQUALS(validValues.size(), 3U);
-    TS_ASSERT_EQUALS(validValues[0].m_value, ValueType({0x01, 0x02}));
-    TS_ASSERT_EQUALS(validValues[0].m_sinceVersion, 1);
-    TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
-    TS_ASSERT_EQUALS(validValues[1].m_value, ValueType({0x03, 0x04}));
-    TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
-    TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->notYetDeprecated());    
-    TS_ASSERT_EQUALS(validValues[2].m_value, ValueType({0x05, 0x06}));
-    TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
-    TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->notYetDeprecated());        
+        auto& field = fields.front();
+        TS_ASSERT_EQUALS(field.name(), "Data1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Data);
+
+        using ValueType = commsdsl::parse::DataField::ValueType;
+        commsdsl::parse::DataField dataField(field);
+        auto& validValues = dataField.validValues();
+        TS_ASSERT_EQUALS(validValues.size(), 3U);
+        TS_ASSERT_EQUALS(validValues[0].m_value, ValueType({0x01, 0x02}));
+        TS_ASSERT_EQUALS(validValues[0].m_sinceVersion, 1);
+        TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
+        TS_ASSERT_EQUALS(validValues[1].m_value, ValueType({0x03, 0x04}));
+        TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
+        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->notYetDeprecated());    
+        TS_ASSERT_EQUALS(validValues[2].m_value, ValueType({0x05, 0x06}));
+        TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
+        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->notYetDeprecated());        
+    }
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
+
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Data2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Data);
+
+        using ValueType = commsdsl::parse::DataField::ValueType;
+        commsdsl::parse::DataField dataField(field);
+        auto& validValues = dataField.validValues();
+        TS_ASSERT_EQUALS(validValues.size(), 4U);
+        TS_ASSERT_EQUALS(validValues[0].m_value, ValueType({0x01, 0x02}));
+        TS_ASSERT_EQUALS(validValues[0].m_sinceVersion, 1);
+        TS_ASSERT_EQUALS(validValues[0].m_deprecatedSince, 4);
+        TS_ASSERT_EQUALS(validValues[1].m_value, ValueType({0x03, 0x04}));
+        TS_ASSERT_EQUALS(validValues[1].m_sinceVersion, 3);
+        TS_ASSERT_EQUALS(validValues[1].m_deprecatedSince, protocol->notYetDeprecated());    
+        TS_ASSERT_EQUALS(validValues[2].m_value, ValueType({0x05, 0x06}));
+        TS_ASSERT_EQUALS(validValues[2].m_sinceVersion, 0);
+        TS_ASSERT_EQUALS(validValues[2].m_deprecatedSince, protocol->notYetDeprecated());      
+        TS_ASSERT_EQUALS(validValues[3].m_value, ValueType({0x07, 0x08}));
+        TS_ASSERT_EQUALS(validValues[3].m_sinceVersion, 0);
+        TS_ASSERT_EQUALS(validValues[3].m_deprecatedSince, protocol->notYetDeprecated());             
+    }    
 }

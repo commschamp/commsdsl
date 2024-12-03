@@ -12,6 +12,8 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
+    void test5();
 
     using Interface1 =
         test15::Message<
@@ -27,7 +29,7 @@ public:
     using DataViewProtOptions = test15::options::DataViewDefaultOptions;        
 
     TEST15_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface1)        
-    TEST15_ALIASES_FOR_ALL_MESSAGES(Test2,,Interface1, DataViewProtOptions);
+    TEST15_ALIASES_FOR_ALL_MESSAGES(DataView,,Interface1, DataViewProtOptions);
 };
 
 void TestSuite::test1()
@@ -48,7 +50,7 @@ void TestSuite::test2()
         >;
 
     
-    Test2Msg1 msg;
+    DataViewMsg1 msg;
 
     using DataVec = std::vector<std::uint8_t>;
     static const DataVec Data1 = {
@@ -88,4 +90,59 @@ void TestSuite::test3()
     DataVec data3({0x01, 0x02, 0x09});
     comms::util::assign(msg.field_f1().value(), data3.begin(), data3.end());
     TS_ASSERT(!msg.field_f1().valid());    
+}
+
+void TestSuite::test4()
+{
+    // Testing failure to read invalid message for Msg2.f2
+    using DataVec = std::vector<std::uint8_t>;
+
+    Msg2 msg;
+    TS_ASSERT(msg.valid());
+    DataVec data({0x01, 0x02, 0x09});
+    comms::util::assign(msg.field_f2().value(), data.begin(), data.end());
+    TS_ASSERT(!msg.valid());    
+
+    std::vector<std::uint8_t> outBuf;
+    auto writeIter = std::back_inserter(outBuf);
+    auto es = msg.doWrite(writeIter, outBuf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    auto readIter = outBuf.data();
+    es = msg.doRead(readIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);    
+}
+
+void TestSuite::test5()
+{
+    using Frame = 
+        test15::frame::Frame<
+            Interface1,
+            test15::input::AllMessages<Interface1>,
+            DataViewProtOptions
+        >;
+    
+    DataViewMsg2 msg;
+    TS_ASSERT(msg.valid());
+
+    using DataVec = std::vector<std::uint8_t>;
+    static const DataVec Data1 = {
+        0x03, 0x04
+    };
+
+    comms::util::assign(msg.field_f1().value(), Data1.begin(), Data1.end());
+
+    Frame frame;
+    std::vector<std::uint8_t> outBuf;
+    outBuf.resize(frame.length(msg));
+    auto iter = &outBuf[0];
+    auto es = frame.write(msg, iter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    Frame::MsgPtr recvMsg;
+    auto readIter = comms::readIteratorFor<Interface1>(&outBuf[0]);
+    es = frame.read(recvMsg, readIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(static_cast<bool>(recvMsg));
+    TS_ASSERT_EQUALS(recvMsg->getId(), msg.doGetId());
 }

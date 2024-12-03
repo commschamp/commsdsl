@@ -8,5 +8,9 @@
             <validValue value="0304" sinceVersion="3" />
             <validValue value="01 02" sinceVersion="1" deprecated="4" />
         </data>
+
+        <data name="Data2" reuse="Data1" >
+            <validValue value="0708" />
+        </data>        
     </fields>
 </schema>
