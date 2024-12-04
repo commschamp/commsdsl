@@ -126,7 +126,7 @@ void TestSuite::test5()
     TS_ASSERT(msg.valid());
 
     using DataVec = std::vector<std::uint8_t>;
-    static const DataVec Data1 = {
+    DataVec Data1 = {
         0x03, 0x04
     };
 

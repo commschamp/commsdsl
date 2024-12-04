@@ -117,8 +117,8 @@ CommsDataField::IncludesList CommsDataField::commsDefIncludesImpl() const
         auto obj = dataDslObj();
         if (!obj.defaultValue().empty()) {
             result.insert(result.end(), {
+                "<iterator>",  
                 "comms/util/assign.h",
-                "<iterator>"                
             });            
         }   
 
@@ -126,7 +126,8 @@ CommsDataField::IncludesList CommsDataField::commsDefIncludesImpl() const
         if (!validValues.empty()) {
             result.insert(result.end(), {
                 "<algorithm>",
-                "<iterator>"
+                "<iterator>",
+                "comms/util/ArrayView.h",
             });            
         }            
 
@@ -348,7 +349,7 @@ std::string CommsDataField::commsDefValidFuncBodyImpl() const
         };
 
         defs.push_back(util::processTemplate(DefTempl, defRepl));
-        values.push_back("typename Base::ValueType(std::begin(" + name + "), std::end(" + name + "))");
+        values.push_back("MapElem(std::begin(" + name + "), std::end(" + name + "))");
     }
 
     static const std::string Templ = 
@@ -356,12 +357,25 @@ std::string CommsDataField::commsDefValidFuncBodyImpl() const
         "    return false;\n"
         "}\n\n"
         "#^#DEFS#$#\n"
-        "static const typename Base::ValueType Map[] = {\n"
+        "using MapElem = comms::util::ArrayView<std::uint8_t>;\n"
+        "static const MapElem Map[] = {\n"
         "    #^#VALUES#$#\n"
         "};\n"
         "\n"
-        "auto iter = std::lower_bound(std::begin(Map), std::end(Map), Base::getValue());\n"
-        "return (iter != std::end(Map)) && ((*iter) == Base::getValue());\n"
+        "auto& val = Base::getValue();\n"
+        "auto iter =\n"
+        "    std::lower_bound(\n"
+        "        std::begin(Map), std::end(Map), val,\n"
+        "        [](const MapElem& first, const typename Base::ValueType& second)\n"
+        "        {\n"
+        "            return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end());\n"
+        "        });\n"
+        "\n"
+        "if ((iter == std::end(Map)) || (iter->size() != val.size())) {\n"
+        "    return false;\n"
+        "}\n"
+        "\n"
+        "return std::equal(val.begin(), val.end(), iter->begin());\n"
         ;
 
     util::ReplacementMap repl = {
