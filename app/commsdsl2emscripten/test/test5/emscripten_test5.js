@@ -25,7 +25,7 @@ function allocHandler(instance)
 }
 
 function test1(instance) {
-    console.log("!!! test1");
+    console.log("test1");
     var msg1 = new instance.message_Msg1();
     var frame = new instance.frame_Frame();
     var handler = allocHandler(instance);
@@ -50,7 +50,7 @@ function test1(instance) {
 }
 
 function test2(instance) {
-    console.log("!!! test2");
+    console.log("test2");
     var jsArray = new Uint8Array([0x01, 0x00, 0x02, 0x05, 0x00, 0x0a, 0x03]);
     var buf = instance.jsArrayToDataBuf(jsArray);
     var frame = new instance.frame_Frame();

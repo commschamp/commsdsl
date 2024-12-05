@@ -115,22 +115,22 @@ void TestSuite::test4()
 
 void TestSuite::test5()
 {
+    DataViewMsg2 msg;
+    TS_ASSERT(msg.valid());
+
+    using DataVec = std::vector<std::uint8_t>;
+    static const DataVec Data1 = {
+        0x03, 0x04
+    };
+
+    comms::util::assign(msg.field_f1().value(), Data1.begin(), Data1.end());
+
     using Frame = 
         test15::frame::Frame<
             Interface1,
             test15::input::AllMessages<Interface1>,
             DataViewProtOptions
         >;
-    
-    DataViewMsg2 msg;
-    TS_ASSERT(msg.valid());
-
-    using DataVec = std::vector<std::uint8_t>;
-    DataVec Data1 = {
-        0x03, 0x04
-    };
-
-    comms::util::assign(msg.field_f1().value(), Data1.begin(), Data1.end());
 
     Frame frame;
     std::vector<std::uint8_t> outBuf;

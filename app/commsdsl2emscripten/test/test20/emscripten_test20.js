@@ -35,7 +35,7 @@ function allocHandler(instance)
 }
 
 function test1(instance) {
-    console.log("!!! test1");
+    console.log("test1");
     var msg2 = new instance.message_Msg2();
     var frame = new instance.frame_Frame();
     var handler = allocHandler(instance);
