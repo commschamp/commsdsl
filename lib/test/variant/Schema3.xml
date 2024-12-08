@@ -3,7 +3,7 @@
         id="1"
         endian="big">
     <fields>
-        <variant name="Variant1" defaultMember="1" displayIdxReadOnlyHidden="0" >
+        <variant name="Variant1" defaultMember="1" >
             <bundle name="P1">
                 <int name="type" type="uint8" validValue="0" failOnInvalid="true" />
                 <int name="value" type="uint32" />

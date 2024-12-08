@@ -17,7 +17,7 @@
             </bundle>
         </variant>
 
-        <variant name="Variant2" reuse="Variant1" defaultMember="P1" displayIdxReadOnlyHidden="true" />
+        <variant name="Variant2" reuse="Variant1" defaultMember="P1" />
 
         <int name="VariantType" type="uint8" failOnInvalid="true"  />
         <variant name="Variant3">

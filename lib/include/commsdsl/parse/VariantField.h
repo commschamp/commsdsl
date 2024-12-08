@@ -36,7 +36,6 @@ public:
 
     Members members() const;
     std::size_t defaultMemberIdx() const;
-    bool displayIdxReadOnlyHidden() const;
 
 };
 

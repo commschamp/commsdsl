@@ -392,7 +392,8 @@ bool VariantFieldImpl::updateDefaultMember()
     
 bool VariantFieldImpl::updateIdxHidden()
 {
-    return validateAndUpdateBoolPropValue(common::displayIdxReadOnlyHiddenStr(), m_state.m_idxHidden);
+    checkAndReportDeprecatedPropertyValue(common::displayIdxReadOnlyHiddenStr());
+    return true;
 }
 
 } // namespace parse

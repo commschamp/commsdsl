@@ -57,11 +57,6 @@ std::size_t VariantField::defaultMemberIdx() const
     return cast(m_pImpl)->defaultMemberIdx();
 }
 
-bool VariantField::displayIdxReadOnlyHidden() const
-{
-    return cast(m_pImpl)->displayIdxReadOnlyHidden();
-}
-
 } // namespace parse
 
 } // namespace commsdsl

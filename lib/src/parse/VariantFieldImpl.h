@@ -42,11 +42,6 @@ public:
         return m_state.m_defaultIdx;
     }
 
-    bool displayIdxReadOnlyHidden() const
-    {
-        return m_state.m_idxHidden;
-    }
-
 protected:
 
     virtual Kind kindImpl() const override;
@@ -74,7 +69,6 @@ private:
     struct ReusableState
     {
         std::size_t m_defaultIdx = std::numeric_limits<std::size_t>::max();
-        bool m_idxHidden = false;
     };
 
     ReusableState m_state;
