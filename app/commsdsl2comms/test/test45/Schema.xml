@@ -8,7 +8,7 @@
             <validValue name="M0" val="0" />
         </enum>
 
-        <int name="VariantType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
+        <int name="VariantType" type="uint8" failOnInvalid="true" />
 
         <variant name="Variant1">
             <bundle name="P0">

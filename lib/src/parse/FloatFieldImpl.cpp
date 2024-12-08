@@ -701,7 +701,8 @@ bool FloatFieldImpl::updateDisplayDecimals()
 
 bool FloatFieldImpl::updateDisplaySpecials()
 {
-    return validateAndUpdateBoolPropValue(common::displaySpecialsStr(), m_state.m_displaySpecials);
+    checkAndReportDeprecatedPropertyValue(common::displaySpecialsStr());
+    return true;
 }
 
 bool FloatFieldImpl::checkFullRangeAsAttr(const FieldImpl::PropsMap& xmlAttrs)

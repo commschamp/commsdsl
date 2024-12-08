@@ -38,7 +38,7 @@
             </enum>
         </bitfield>          
 
-        <int name="VariantType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
+        <int name="VariantType" type="uint8" failOnInvalid="true" />
 
         <variant name="Variant1">
             <bundle name="P0">

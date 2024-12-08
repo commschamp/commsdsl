@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test33"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test33" endian="big" version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
@@ -14,8 +11,8 @@
             <validValue name="P2" val="1" />
         </enum>
         
-        <int name="PropType" type="uint8" failOnInvalid="true"  displayReadOnly="true" />
-        <int name="PropLength" type="uint8" displayName="Length" displayReadOnly="true" semanticType="length"/>
+        <int name="PropType" type="uint8" failOnInvalid="true"  />
+        <int name="PropLength" type="uint8" displayName="Length" semanticType="length"/>
         
         <variant name="Variant1">
             <bundle name="P1">

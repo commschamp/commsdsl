@@ -115,11 +115,6 @@ public:
         return m_state.m_signExt;
     }
 
-    bool displaySpecials() const
-    {
-        return m_state.m_displaySpecials;
-    }
-
     bool availableLengthLimit() const
     {
         return m_state.m_availableLengthLimit;
@@ -217,7 +212,6 @@ private:
         bool m_validCheckVersion = false;
         bool m_signExt = true;
         bool m_nonUniqueSpecialsAllowed = false;
-        bool m_displaySpecials = true;
         bool m_availableLengthLimit = false;
     };
 

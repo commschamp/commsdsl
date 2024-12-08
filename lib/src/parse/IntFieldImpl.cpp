@@ -1250,7 +1250,8 @@ bool IntFieldImpl::updateSignExt()
 
 bool IntFieldImpl::updateDisplaySpecials()
 {
-    return validateAndUpdateBoolPropValue(common::displaySpecialsStr(), m_state.m_displaySpecials);
+    checkAndReportDeprecatedPropertyValue(common::displaySpecialsStr());
+    return true;
 }
 
 bool IntFieldImpl::updateAvailableLengthLimit()

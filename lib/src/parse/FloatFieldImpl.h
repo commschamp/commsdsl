@@ -84,11 +84,6 @@ public:
         return m_state.m_displayDecimals;
     }
 
-    bool displaySpecials() const
-    {
-        return m_state.m_displaySpecials;
-    }
-
     bool hasNonUniqueSpecials() const;
 
 protected:
@@ -154,7 +149,6 @@ private:
         unsigned m_displayDecimals = 0U;
         bool m_validCheckVersion = false;
         bool m_nonUniqueSpecialsAllowed = false;
-        bool m_displaySpecials = true;
     };
 
     State m_state;

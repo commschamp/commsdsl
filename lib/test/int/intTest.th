@@ -1025,7 +1025,6 @@ void IntTestSuite::test11()
     TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Int);
 
     commsdsl::parse::IntField intField(field);
-    TS_ASSERT(!intField.displaySpecials());
     auto scaling = intField.scaling();
     auto& validRanges = intField.validRanges();
     auto& specialValues = intField.specialValues();
@@ -1842,7 +1841,6 @@ void IntTestSuite::test40()
     TS_ASSERT_EQUALS(intField.defaultValue(), 1);
     auto& specialValues = intField.specialValues();
     TS_ASSERT_EQUALS(specialValues.find("S1")->second.m_value, 10);
-    TS_ASSERT(intField.displaySpecials());
 }
 
 void IntTestSuite::test41()

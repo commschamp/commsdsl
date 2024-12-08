@@ -30,7 +30,7 @@
         </size>
         <id name="ID" field="MsgId" />
         <value name="Version" interfaceFieldName="Version" pseudo="true">
-            <ref field="Version" displayHidden="true" />
+            <ref field="Version" />
         </value>
         <payload name="Data" />
     </frame>       

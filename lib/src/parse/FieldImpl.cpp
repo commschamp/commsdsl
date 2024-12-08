@@ -701,6 +701,11 @@ void FieldImpl::reportUnexpectedPropertyValue(const std::string& propName, const
 
 void FieldImpl::checkAndReportDeprecatedPropertyValue(const std::string& propName)
 {
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        return;
+    }
+
     if (m_protocol.isPropertyDeprecated(propName)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
             "Property \"" << propName << "\" is deprecated in DSL version " << protocol().currSchema().dslVersion();                

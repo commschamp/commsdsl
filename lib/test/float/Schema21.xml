@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema21"
-        id="1"
-        endian="big"
-        version="2"
-        dslVersion="2">
+<schema name="Schema21" endian="big" version="2" dslVersion="2">
     <fields>
         <variant name="F1">
             <bundle name="P1">
