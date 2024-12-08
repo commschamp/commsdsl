@@ -108,16 +108,6 @@ public:
         return m_state.m_pseudo;
     }
 
-    bool isDisplayReadOnly() const
-    {
-        return m_state.m_displayReadOnly;
-    }    
-
-    bool isDisplayHidden() const
-    {
-        return m_state.m_displayHidden;
-    }    
-
     bool isCustomizable() const
     {
         return m_state.m_customizable;
@@ -362,6 +352,7 @@ protected:
             bool mustHave = false,
             bool allowDeref = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
+    void checkAndReportDeprecatedPropertyValue(const std::string& propName);
     bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
     bool validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value);
 
@@ -424,8 +415,6 @@ private:
         OverrideType m_nameOverride = OverrideType_Any;
         std::string m_copyCodeFrom;
         bool m_pseudo = false;
-        bool m_displayReadOnly = false;
-        bool m_displayHidden = false;
         bool m_customizable = false;
         bool m_failOnInvalid = false;
         bool m_forceGen = false;

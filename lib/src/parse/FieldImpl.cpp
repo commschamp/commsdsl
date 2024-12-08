@@ -699,6 +699,14 @@ void FieldImpl::reportUnexpectedPropertyValue(const std::string& propName, const
     XmlWrap::reportUnexpectedPropertyValue(m_node, name(), propName, propValue, protocol().logger());
 }
 
+void FieldImpl::checkAndReportDeprecatedPropertyValue(const std::string& propName)
+{
+    if (m_protocol.isPropertyDeprecated(propName)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "Property \"" << propName << "\" is deprecated in DSL version " << protocol().currSchema().dslVersion();                
+    }
+}
+
 bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
 {
     if (!validateSinglePropInstance(propName, mustHave)) {
@@ -712,7 +720,7 @@ bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool
 
     if (!m_protocol.isPropertySupported(propName)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
-            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().currSchema().dslVersion();                
+            "Property \"" << propName << "\" is not available for DSL version " << protocol().currSchema().dslVersion();                
         return true;
     }
 
@@ -1257,12 +1265,14 @@ bool FieldImpl::updatePseudo()
 
 bool FieldImpl::updateDisplayReadOnly()
 {
-    return validateAndUpdateBoolPropValue(common::displayReadOnlyStr(), m_state.m_displayReadOnly);
+    checkAndReportDeprecatedPropertyValue(common::displayReadOnlyStr());
+    return true;
 }
 
 bool FieldImpl::updateDisplayHidden()
 {
-    return validateAndUpdateBoolPropValue(common::displayHiddenStr(), m_state.m_displayHidden);
+    checkAndReportDeprecatedPropertyValue(common::displayHiddenStr());
+    return true;
 }
 
 bool FieldImpl::updateCustomizable()

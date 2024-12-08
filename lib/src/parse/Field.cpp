@@ -116,18 +116,6 @@ bool Field::isPseudo() const
     return m_pImpl->isPseudo();
 }
 
-bool Field::isDisplayReadOnly() const
-{
-    assert(m_pImpl != nullptr);
-    return m_pImpl->isDisplayReadOnly();
-}
-
-bool Field::isDisplayHidden() const
-{
-    assert(m_pImpl != nullptr);
-    return m_pImpl->isDisplayHidden();
-}
-
 bool Field::isCustomizable() const
 {
     assert(m_pImpl != nullptr);

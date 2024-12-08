@@ -102,7 +102,9 @@ public:
     }
 
     bool isFeatureSupported(unsigned minDslVersion) const;
+    bool isFeatureDeprecated(unsigned deprecatedVersion) const;
     bool isPropertySupported(const std::string& name) const;    
+    bool isPropertyDeprecated(const std::string& name) const;    
     bool isFieldValueReferenceSupported() const;
     bool isSemanticTypeLengthSupported() const;
     bool isSemanticTypeRefInheritanceSupported() const;

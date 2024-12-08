@@ -80,8 +80,6 @@ public:
     bool isDeprecatedRemoved() const;
     std::string externalRef(bool schemaRef = true) const;
     bool isPseudo() const;
-    bool isDisplayReadOnly() const;
-    bool isDisplayHidden() const;
     bool isCustomizable() const;
     bool isFailOnInvalid() const;
     bool isForceGen() const;

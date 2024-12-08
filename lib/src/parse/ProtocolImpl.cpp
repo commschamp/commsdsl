@@ -278,6 +278,16 @@ bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
     return minDslVersion <= currDslVersion;
 }
 
+bool ProtocolImpl::isFeatureDeprecated(unsigned deprecatedVersion) const
+{
+    auto currDslVersion = currSchema().dslVersion();
+    if (currDslVersion == 0U) {
+        return true;
+    }
+
+    return currDslVersion <= deprecatedVersion;
+}
+
 bool ProtocolImpl::isPropertySupported(const std::string& name) const
 {
     static const std::map<std::string, unsigned> Map = {
@@ -305,6 +315,21 @@ bool ProtocolImpl::isPropertySupported(const std::string& name) const
     }
 
     return isFeatureSupported(iter->second);
+}
+
+bool ProtocolImpl::isPropertyDeprecated(const std::string& name) const
+{
+    static const std::map<std::string, unsigned> Map = {
+        {common::displayReadOnlyStr(), 7U},
+        {common::displayHiddenStr(), 7U},
+    };
+
+    auto iter = Map.find(name);
+    if (iter == Map.end()) {
+        return true;
+    }
+
+    return isFeatureDeprecated(iter->second);
 }
 
 bool ProtocolImpl::isFieldValueReferenceSupported() const
