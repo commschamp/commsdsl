@@ -741,7 +741,7 @@ std::string CommsVariantField::commsDefCopyCodeInternal() const
         "    if (!Base::currentFieldValid()) {\n\n"
         "        return true;\n"
         "    }\n\n"
-        "    if (Base::currentField() != other.currentField()) {\n\n"
+        "    if (Base::currentField() != other.currentField()) {\n"
         "        return false;\n"
         "    }\n\n"
         "    switch(Base::currentField()) {\n"

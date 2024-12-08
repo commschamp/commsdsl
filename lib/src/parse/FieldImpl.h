@@ -108,6 +108,11 @@ public:
         return m_state.m_pseudo;
     }
 
+    bool isFixedValue() const
+    {
+        return m_state.m_fixedValue;
+    }    
+
     bool isCustomizable() const
     {
         return m_state.m_customizable;
@@ -415,6 +420,7 @@ private:
         OverrideType m_nameOverride = OverrideType_Any;
         std::string m_copyCodeFrom;
         bool m_pseudo = false;
+        bool m_fixedValue = false;
         bool m_customizable = false;
         bool m_failOnInvalid = false;
         bool m_forceGen = false;
@@ -428,6 +434,7 @@ private:
     bool updateVersions();
     bool updateSemanticType();
     bool updatePseudo();
+    bool updateFixedValue();
     bool updateDisplayReadOnly();
     bool updateDisplayHidden();
     bool updateCustomizable();

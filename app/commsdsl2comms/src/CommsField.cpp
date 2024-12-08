@@ -744,7 +744,7 @@ std::string CommsField::commsFieldBaseParams(commsdsl::parse::Endian endian) con
     return comms::dslEndianToOpt(endian);
 }
 
-void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const
+void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts, bool tempFieldObj) const
 {
     if (comms::isGlobalField(m_field)) {
         opts.push_back("TExtraOpts...");
@@ -755,7 +755,9 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
         opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), gen.commsHasMainNamespaceInOptions(), true));
     }
 
-    util::addToStrList("comms::option::def::HasName", opts);
+    if (!tempFieldObj) {
+        util::addToStrList("comms::option::def::HasName", opts);
+    }
 
     do {
         auto checkFieldTypeFunc = 
@@ -794,6 +796,10 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
 
     if (m_forcedPseudo || m_field.dslObj().isPseudo()) {
         util::addToStrList("comms::option::def::EmptySerialization", opts);
+    }
+
+    if (m_field.dslObj().isFixedValue()) {
+        util::addToStrList("comms::option::def::FixedValue", opts);
     }
 }
 

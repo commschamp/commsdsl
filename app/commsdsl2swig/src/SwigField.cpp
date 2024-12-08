@@ -238,10 +238,14 @@ std::string SwigField::swigValueTypeDeclImpl() const
 
 std::string SwigField::swigValueAccDeclImpl() const
 {
-    return std::string(
-        "const ValueType& getValue() const;\n"
-        "void setValue(const ValueType&);\n"
-    );
+    std::string result = 
+        "const ValueType& getValue() const;\n";
+
+    if (!m_field.dslObj().isFixedValue()) {
+        result += "void setValue(const ValueType&);\n";
+    }
+
+    return result;
 }
 
 std::string SwigField::swigExtraPublicFuncsDeclImpl() const
@@ -330,34 +334,43 @@ std::string SwigField::swigCommonPublicFuncsCode() const
 
 std::string SwigField::swigSemanticTypeLengthValueAccDecl() const
 {
-    static const std::string Templ = 
+    std::string templ = 
         "#^#SIZE_T#$# getValue() const;\n"
-        "void setValue(#^#SIZE_T#$# val);\n";
+        ;
+
+    if (!m_field.dslObj().isFixedValue()) {
+        templ += "void setValue(#^#SIZE_T#$# val);\n";
+    }
 
     util::ReplacementMap repl = {
         {"SIZE_T", SwigGenerator::cast(m_field.generator()).swigConvertCppType("std::size_t")},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::processTemplate(templ, repl);
 }
 
 std::string SwigField::swigSemanticTypeLengthValueAccCode() const
 {
-    static const std::string Templ = 
+    std::string templ = 
         "#^#SIZE_T#$# getValue() const\n"
         "{\n"
         "    return static_cast<#^#SIZE_T#$#>(Base::getValue());\n"
-        "}\n\n"
-        "void setValue(#^#SIZE_T#$# val)\n"
-        "{\n"
-        "    Base::setValue(val);\n"
         "}\n";
+
+    if (!m_field.dslObj().isFixedValue()) {
+        templ += 
+            "\n"
+            "void setValue(#^#SIZE_T#$# val)\n"
+            "{\n"
+            "    Base::setValue(val);\n"
+            "}\n";        
+    }
 
     util::ReplacementMap repl = {
         {"SIZE_T", SwigGenerator::cast(m_field.generator()).swigConvertCppType("std::size_t")},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::processTemplate(templ, repl);
 }
 
 std::string SwigField::swigClassDeclInternal() const

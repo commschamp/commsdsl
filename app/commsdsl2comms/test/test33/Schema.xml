@@ -11,7 +11,7 @@
             <validValue name="P2" val="1" />
         </enum>
         
-        <int name="PropType" type="uint8" failOnInvalid="true"  />
+        <int name="PropType" type="uint8" failOnInvalid="true" fixedValue="true" />
         <int name="PropLength" type="uint8" displayName="Length" semanticType="length"/>
         
         <variant name="Variant1">

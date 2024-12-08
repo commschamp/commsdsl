@@ -116,6 +116,12 @@ bool Field::isPseudo() const
     return m_pImpl->isPseudo();
 }
 
+bool Field::isFixedValue() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->isFixedValue();
+}
+
 bool Field::isCustomizable() const
 {
     assert(m_pImpl != nullptr);

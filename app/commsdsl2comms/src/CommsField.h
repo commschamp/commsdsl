@@ -138,7 +138,7 @@ protected:
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
-    void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
+    void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts, bool tempFieldObj = false) const;
     void commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsExtended() const;
 

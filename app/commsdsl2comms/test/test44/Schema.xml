@@ -7,7 +7,7 @@
             <validValue name="M3" val="3" />
         </enum>
 
-        <int name="VariantType" type="uint8" failOnInvalid="true" />
+        <int name="VariantType" type="uint8" failOnInvalid="true" fixedValue="true" />
 
         <variant name="Variant1">
             <description>

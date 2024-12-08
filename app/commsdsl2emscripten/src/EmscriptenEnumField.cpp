@@ -128,30 +128,44 @@ std::string EmscriptenEnumField::emscriptenHeaderExtraPublicFuncsImpl() const
         "typename std::underlying_type<ValueType>::type getValueConstant() const\n"
         "{\n"
         "    return asConstant(getValue());\n"
-        "}\n\n"  
+        "}\n"  
+        ;      
+
+    if (field().dslObj().isFixedValue()) {
+        return Templ;
+    }
+
+    static const std::string SetTempl = 
+        "\n"
         "void setValueConstant(typename std::underlying_type<ValueType>::type val)\n"               
         "{\n"
         "    return setValue(static_cast<ValueType>(val));\n"
-        "}\n"          
-        ;       
-    return Templ;
+        "}\n";
+
+    return Templ + SetTempl;
 }
 
 std::string EmscriptenEnumField::emscriptenSourceBindFuncsImpl() const
 {
-    static const std::string Templ = 
+    std::string templ = 
         ".class_function(\"valueNameOf\", &#^#CLASS_NAME#$#::valueNameOf)\n"
         ".function(\"valueName\", &#^#CLASS_NAME#$#::valueName)\n"
         ".class_function(\"asConstant\", &#^#CLASS_NAME#$#::asConstant)\n"
-        ".function(\"getValueConstant\", &#^#CLASS_NAME#$#::getValueConstant)\n"
-        ".function(\"setValueConstant\", &#^#CLASS_NAME#$#::setValueConstant)"
+        ".function(\"getValueConstant\", &#^#CLASS_NAME#$#::getValueConstant)"
         ;
+
+    if (!field().dslObj().isFixedValue()) {
+        templ += 
+            "\n"
+            ".function(\"setValueConstant\", &#^#CLASS_NAME#$#::setValueConstant)"
+            ;
+    }        
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", emscriptenBindClassName()}
     };
     
-    return util::processTemplate(Templ, repl);
+    return util::processTemplate(templ, repl);
 }
 
 std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const

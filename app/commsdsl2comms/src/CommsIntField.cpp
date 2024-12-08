@@ -589,7 +589,7 @@ std::string CommsIntField::commsDefFieldOptsInternal(bool variantPropKey) const
 {
     util::StringsList opts;
 
-    commsAddFieldDefOptions(opts);
+    commsAddFieldDefOptions(opts, variantPropKey);
     commsAddLengthOptInternal(opts);
     commsAddSerOffsetOptInternal(opts);
     commsAddDisplayOffsetOptInternal(opts);
@@ -1085,7 +1085,8 @@ void CommsIntField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) c
 
 bool CommsIntField::commsRequiresFailOnInvalidRefreshInternal() const
 {
-    if (!dslObj().isFailOnInvalid()) {
+    if ((!dslObj().isFailOnInvalid()) ||
+        (dslObj().isFixedValue())) {
         return false;
     }
 

@@ -22,7 +22,7 @@
             <validValue name="K6" val="25" />
         </enum>
         
-        <int name="PropKeyCommon" type="uint8" failOnInvalid="true"/>
+        <int name="PropKeyCommon" type="uint8" failOnInvalid="true" />
         
         <variant name="KeyValueProp">
             <bundle name="Prop1">

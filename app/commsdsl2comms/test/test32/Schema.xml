@@ -12,7 +12,7 @@
             <validValue name="P3" val="2" />
             <validValue name="P4" val="3" />
         </enum>
-        <int name="PropType" type="uint8" failOnInvalid="true" />
+        <int name="PropType" type="uint8" failOnInvalid="true" fixedValue="true" />
         <variant name="Variant1">
             <bundle name="P1">
                 <int name="Type" reuse="PropType" defaultValidValue="Prop.P1"/>
@@ -44,7 +44,7 @@
                 </set>
             </bundle>            
             <bundle name="Any">
-                <int name="Type" type="uint8"/>
+                <int name="Type" type="uint8" />
                 <int name="Length" type="uint8" semanticType="length" />
                 <data name="Value" />
             </bundle>

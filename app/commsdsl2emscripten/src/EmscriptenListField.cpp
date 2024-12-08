@@ -74,7 +74,7 @@ void EmscriptenListField::emscriptenHeaderAddExtraIncludesImpl(StringsList& incs
 
 std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
 {
-    static const std::string Templ = 
+    std::string templ = 
         "using ValueType = std::vector<#^#ELEMENT#$#>;\n\n"
         "ValueType* value()\n"
         "{\n"
@@ -83,11 +83,18 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
         "const ValueType* getValue() const\n"
         "{\n"
         "    return reinterpret_cast<const ValueType*>(&Base::getValue());\n"
-        "}\n\n"
-        "void setValue(const ValueType& val)\n"
-        "{\n"
-        "    Base::setValue(*reinterpret_cast<const Base::ValueType*>(&val));\n"
-        "}\n";        
+        "}\n"
+        ;   
+
+    if (!field().dslObj().isFixedValue()) {
+        templ += 
+            "\n"
+            "void setValue(const ValueType& val)\n"
+            "{\n"
+            "    Base::setValue(*reinterpret_cast<const Base::ValueType*>(&val));\n"
+            "}\n"
+            ;              
+    }             
 
     assert(m_element != nullptr);
     auto& gen = EmscriptenGenerator::cast(generator());
@@ -96,7 +103,7 @@ std::string EmscriptenListField::emscriptenHeaderValueAccImpl() const
         {"STORAGE", emscriptenHeaderValueStorageAccByPointer()},
     };
 
-    return util::processTemplate(Templ, repl);
+    return util::processTemplate(templ, repl);
 }
 
 std::string EmscriptenListField::emscriptenSourceBindValueAccImpl() const

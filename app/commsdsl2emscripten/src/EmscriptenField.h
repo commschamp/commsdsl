@@ -77,11 +77,11 @@ protected:
 
     void emscriptenAssignMembers(const commsdsl::gen::Field::FieldsList& fields);
     void emscriptenAddMember(commsdsl::gen::Field* field);
-    static std::string emscriptenHeaderValueAccByRef();
-    static std::string emscriptenHeaderValueAccByValue();
-    static std::string emscriptenHeaderValueAccLengthField();
-    static std::string emscriptenHeaderValueAccByPointer();
-    static std::string emscriptenHeaderValueStorageAccByPointer();
+    std::string emscriptenHeaderValueAccByRef() const;
+    std::string emscriptenHeaderValueAccByValue() const;
+    std::string emscriptenHeaderValueAccLengthField() const;
+    std::string emscriptenHeaderValueAccByPointer() const;
+    std::string emscriptenHeaderValueStorageAccByPointer() const;
     std::string emscriptenSourceBindValueAcc() const;
     std::string emscriptenSourceBindValueAccByPointer() const;
     std::string emscriptenSourceBindValueStorageAccByPointer() const;

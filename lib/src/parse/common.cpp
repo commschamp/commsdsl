@@ -590,6 +590,12 @@ const std::string& pseudoStr()
     return Str;
 }
 
+const std::string& fixedValueStr()
+{
+    static const std::string Str("fixedValue");
+    return Str;
+}
+
 const std::string& customStr()
 {
     static const std::string Str("custom");

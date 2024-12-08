@@ -126,6 +126,7 @@ const std::string& verifyBeforeReadStr();
 const std::string& interfaceFieldNameStr();
 const std::string& valueStr();
 const std::string& pseudoStr();
+const std::string& fixedValueStr();
 const std::string& customStr();
 const std::string& semanticTypeStr();
 const std::string& noneStr();

@@ -181,6 +181,10 @@ void BundleTestSuite::test7()
     commsdsl::parse::BundleField bundleP2Field(p2);
     auto p2Members = bundleP2Field.members();
     TS_ASSERT_EQUALS(p2Members.size(), 2U);
+
+    auto& p2Key = p2Members[0];
+    TS_ASSERT_EQUALS(p2Key.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT(p2Key.isFixedValue());    
     
     auto& p2Val = p2Members[1];
     TS_ASSERT_EQUALS(p2Val.kind(), commsdsl::parse::Field::Kind::Int);
