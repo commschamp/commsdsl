@@ -62,11 +62,6 @@ OptCond OptionalField::cond() const
     return cast(m_pImpl)->wrappedCondition();
 }
 
-bool OptionalField::externalModeCtrl() const
-{
-    return cast(m_pImpl)->externalModeCtrl();
-}
-
 bool OptionalField::missingOnReadFail() const
 {
     return cast(m_pImpl)->missingOnReadFail();

@@ -292,7 +292,8 @@ bool OptionalFieldImpl::updateMode()
 
 bool OptionalFieldImpl::updateExternalModeCtrl()
 {
-    return validateAndUpdateBoolPropValue(common::displayExtModeCtrlStr(), m_state.m_externalModeCtrl);
+    checkAndReportDeprecatedPropertyValue(common::displayExtModeCtrlStr());
+    return true;
 }
 
 bool OptionalFieldImpl::updateMissingOnReadFail()

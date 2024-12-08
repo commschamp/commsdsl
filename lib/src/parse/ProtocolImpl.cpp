@@ -323,6 +323,7 @@ bool ProtocolImpl::isPropertyDeprecated(const std::string& name) const
         {common::displayReadOnlyStr(), 7U},
         {common::displayHiddenStr(), 7U},
         {common::displaySpecialsStr(), 7U},
+        {common::displayExtModeCtrlStr(), 7U}
     };
 
     auto iter = Map.find(name);

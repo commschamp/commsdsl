@@ -44,11 +44,6 @@ public:
         return m_state.m_mode;
     }
 
-    bool externalModeCtrl() const
-    {
-        return m_state.m_externalModeCtrl;
-    }
-
     bool missingOnReadFail() const
     {
         return m_state.m_missingOnReadFail;
@@ -130,7 +125,6 @@ private:
     {
         Mode m_mode = Mode::Tentative;
         const FieldImpl* m_extField = nullptr;
-        bool m_externalModeCtrl = false;
         bool m_missingOnReadFail = false;
         bool m_missingOnInvalid = false;
     };
