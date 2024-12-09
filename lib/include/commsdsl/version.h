@@ -20,13 +20,13 @@
 #pragma once
 
 /// @brief Major verion of the library
-#define COMMSDSL_MAJOR_VERSION 6U
+#define COMMSDSL_MAJOR_VERSION 7U
 
 /// @brief Minor verion of the library
-#define COMMSDSL_MINOR_VERSION 3U
+#define COMMSDSL_MINOR_VERSION 0U
 
 /// @brief Patch level of the library
-#define COMMSDSL_PATCH_VERSION 5U
+#define COMMSDSL_PATCH_VERSION 0U
 
 /// @brief Macro to create numeric version as single unsigned number
 #define COMMSDSL_MAKE_VERSION(major_, minor_, patch_) \
