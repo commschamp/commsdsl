@@ -4,7 +4,7 @@
         endian="big">
     <fields>
         <int name="DataLen" type="uint8" />
-        <data name="Data1">
+        <data name="Data1" validateMinLength="1">
             <lengthPrefix>DataLen</lengthPrefix>
         </data>
     </fields>

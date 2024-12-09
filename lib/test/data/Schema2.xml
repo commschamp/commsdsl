@@ -5,6 +5,7 @@
     <fields>
         <data name="Data1" defaultValue="aa bb cc dd ee">
             <length value="4" />
+            <validateMinLength value="4" />
         </data>
     </fields>
 </schema>

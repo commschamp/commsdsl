@@ -273,6 +273,7 @@ public:
     bool verifySemanticType() const;
     bool verifySemanticType(::xmlNodePtr node, SemanticType type) const;
     bool verifyAliasedMember(const std::string& fieldName);
+    bool verifyMinLength() const;
 
     std::string schemaPos() const;
 
@@ -419,6 +420,7 @@ private:
         OverrideType m_validOverride = OverrideType_Any;
         OverrideType m_nameOverride = OverrideType_Any;
         std::string m_copyCodeFrom;
+        int m_validateMinLength = -1;
         bool m_pseudo = false;
         bool m_fixedValue = false;
         bool m_customizable = false;
@@ -448,6 +450,7 @@ private:
     bool updateValidOverride();
     bool updateNameOverride();
     bool updateCopyOverrideCodeFrom();
+    bool updateValidateMinLength();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

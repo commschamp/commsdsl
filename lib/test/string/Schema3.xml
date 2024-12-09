@@ -4,7 +4,7 @@
         endian="big">
     <fields>
         <int name="StrLen" type="uint8" />
-        <string name="String1">
+        <string name="String1" validateMinLength="1">
             <lengthPrefix>StrLen</lengthPrefix>
         </string>
     </fields>

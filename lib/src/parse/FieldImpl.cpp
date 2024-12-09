@@ -119,7 +119,8 @@ bool FieldImpl::parse()
         updateLengthOverride() &&
         updateValidOverride() &&
         updateNameOverride() &&
-        updateCopyOverrideCodeFrom();
+        updateCopyOverrideCodeFrom() &&
+        updateValidateMinLength();
 
     if (!result) {
         return false;
@@ -130,7 +131,8 @@ bool FieldImpl::parse()
     }
 
     if ((!verifySemanticType()) ||
-        (!verifyName())) {
+        (!verifyName()) ||
+        (!verifyMinLength())) {
         return false;
     }
 
@@ -358,6 +360,23 @@ bool FieldImpl::verifyAliasedMember(const std::string& fieldName)
     }
 
     return verifyAliasedMemberImpl(fieldName);
+}
+
+bool FieldImpl::verifyMinLength() const
+{
+    if (m_state.m_validateMinLength < 0) {
+        return true;
+    }
+
+    auto len = minLength();
+    if (static_cast<unsigned>(m_state.m_validateMinLength) != len) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The calculated minimal length of the field is " << len <<
+            " while expected is " << m_state.m_validateMinLength << " (specified with \"" << common::validateMinLengthStr() << "\" property).";                
+        return false;
+    }    
+
+    return true;
 }
 
 std::string FieldImpl::schemaPos() const
@@ -804,6 +823,7 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::nameOverrideStr(),
         common::copyCodeFromStr(),
         common::reuseCodeStr(),
+        common::validateMinLengthStr(),
     };
 
     return CommonNames;
@@ -1364,6 +1384,33 @@ bool FieldImpl::updateCopyOverrideCodeFrom()
     }
 
     m_state.m_copyCodeFrom = iter->second;
+    return true;
+}
+
+bool FieldImpl::updateValidateMinLength()
+{
+    auto& propStr = common::validateMinLengthStr();
+    if (!validateSinglePropInstance(propStr)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propStr);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.isValidateMinLengthForFieldsSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << propStr << "\" for fields is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_validateMinLength = static_cast<decltype(m_state.m_validateMinLength)>(common::strToUnsigned(iter->second, &ok));
+    if (!ok) {
+        reportUnexpectedPropertyValue(propStr, iter->second);
+        return false;
+    }    
     return true;
 }
 

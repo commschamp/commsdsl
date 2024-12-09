@@ -120,6 +120,7 @@ public:
     bool isSizeCompInConditionalsSupported() const;
     bool isExistsCheckInConditionalsSupported() const;
     bool isValidValueInStringAndDataSupported() const;
+    bool isValidateMinLengthForFieldsSupported() const;
 
     void setMultipleSchemasEnabled(bool value)
     {
