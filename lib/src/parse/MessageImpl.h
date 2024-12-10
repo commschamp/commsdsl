@@ -72,12 +72,12 @@ public:
 
     std::uintmax_t id() const
     {
-        return m_id;
+        return m_state.m_id;
     }
 
     unsigned order() const
     {
-        return m_order;
+        return m_state.m_order;
     }
 
     std::size_t minLength() const;
@@ -101,78 +101,104 @@ public:
 
     const PlatformsList& platforms() const
     {
-        return m_platforms;
+        return m_state.m_platforms;
     }
 
     bool isCustomizable() const
     {
-        return m_customizable;
+        return m_state.m_customizable;
     }
 
     bool isFailOnInvalid() const
     {
-        return m_failOnInvalid;
+        return m_state.m_failOnInvalid;
     }       
 
     Sender sender() const
     {
-        return m_sender;
+        return m_state.m_sender;
     }
 
     OverrideType readOverride() const
     {
-        return m_readOverride;
+        return m_state.m_readOverride;
     }
 
     OverrideType writeOverride() const
     {
-        return m_writeOverride;
+        return m_state.m_writeOverride;
     }    
 
     OverrideType refreshOverride() const
     {
-        return m_refreshOverride;
+        return m_state.m_refreshOverride;
     }
 
     OverrideType lengthOverride() const
     {
-        return m_lengthOverride;
+        return m_state.m_lengthOverride;
     }
 
     OverrideType validOverride() const
     {
-        return m_validOverride;
+        return m_state.m_validOverride;
     }
 
     OverrideType nameOverride() const
     {
-        return m_nameOverride;
+        return m_state.m_nameOverride;
     }        
 
     const std::string& copyCodeFrom() const
     {
-        return m_copyCodeFrom;
+        return m_state.m_copyCodeFrom;
     }
 
     OptCond construct() const
     {
-        return OptCond(m_construct.get());
+        return OptCond(m_state.m_construct.get());
     }
 
     OptCond readCond() const
     {
-        return OptCond(m_readCond.get());
+        return OptCond(m_state.m_readCond.get());
     }  
 
     OptCond validCond() const
     {
-        return OptCond(m_validCond.get());
+        return OptCond(m_state.m_validCond.get());
     }          
 
 protected:
     virtual ObjKind objKindImpl() const override;
 
 private:
+    struct ReusableState
+    {
+        std::string m_name;
+        std::string m_displayName;
+        std::string m_description;
+        std::uintmax_t m_id = 0;
+        unsigned m_order = 0;
+        int m_validateMinLength = -1;
+        std::vector<FieldImplPtr> m_fields;
+        std::vector<AliasImplPtr> m_aliases;
+        PlatformsList m_platforms;
+        Sender m_sender = Sender::Both;
+        OverrideType m_readOverride = OverrideType_Any;
+        OverrideType m_writeOverride = OverrideType_Any;
+        OverrideType m_refreshOverride = OverrideType_Any;
+        OverrideType m_lengthOverride = OverrideType_Any;
+        OverrideType m_validOverride = OverrideType_Any;
+        OverrideType m_nameOverride = OverrideType_Any;    
+        std::string m_copyCodeFrom;
+        OptCondImplPtr m_construct;
+        OptCondImplPtr m_readCond;
+        OptCondImplPtr m_validCond;
+        bool m_customizable = false;
+        bool m_failOnInvalid = false;
+    };
+
     LogWrapper logError() const;
     LogWrapper logWarning() const;
     LogWrapper logInfo() const;
@@ -240,31 +266,9 @@ private:
     PropsMap m_props;
     PropsMap m_extraAttrs;
     ContentsList m_extraChildren;
-
-    std::string m_name;
-    std::string m_displayName;
-    std::string m_description;
-    std::uintmax_t m_id = 0;
-    unsigned m_order = 0;
-    int m_validateMinLength = -1;
-    std::vector<FieldImplPtr> m_fields;
-    std::vector<AliasImplPtr> m_aliases;
-    PlatformsList m_platforms;
-    Sender m_sender = Sender::Both;
     const MessageImpl* m_copyFieldsFromMsg = nullptr;
-    const BundleFieldImpl* m_copyFieldsFromBundle = nullptr;
-    OverrideType m_readOverride = OverrideType_Any;
-    OverrideType m_writeOverride = OverrideType_Any;
-    OverrideType m_refreshOverride = OverrideType_Any;
-    OverrideType m_lengthOverride = OverrideType_Any;
-    OverrideType m_validOverride = OverrideType_Any;
-    OverrideType m_nameOverride = OverrideType_Any;    
-    std::string m_copyCodeFrom;
-    OptCondImplPtr m_construct;
-    OptCondImplPtr m_readCond;
-    OptCondImplPtr m_validCond;
-    bool m_customizable = false;
-    bool m_failOnInvalid = false;
+    const BundleFieldImpl* m_copyFieldsFromBundle = nullptr;    
+    ReusableState m_state;
 };
 
 using MessageImplPtr = MessageImpl::Ptr;
