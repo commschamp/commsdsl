@@ -38,6 +38,7 @@ public:
     void test29();
     void test30();
     void test31();
+    void test32();
 };
 
 void MessageTestSuite::setUp()
@@ -666,4 +667,38 @@ void MessageTestSuite::test31()
     TS_ASSERT(msg1.isFailOnInvalid());
     auto msg1ValidCond = msg1.validCond();
     TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::List);
+}
+
+void MessageTestSuite::test32()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, messages.size());
+
+        auto& msg1 = messages[0];
+        TS_ASSERT(msg1.isFailOnInvalid());
+        TS_ASSERT_EQUALS(msg1.fields().size(), 2U);
+        auto msg1ValidCond = msg1.validCond();
+        TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::List);
+    }
+    
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, messages.size());
+
+        auto& msg2 = messages[1];
+        TS_ASSERT(msg2.isFailOnInvalid());
+        TS_ASSERT_EQUALS(msg2.fields().size(), 3U);
+        TS_ASSERT_EQUALS(msg2.copyCodeFrom(), "Msg1");
+        auto msg1ValidCond = msg2.validCond();
+        TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::List);
+    }    
 }

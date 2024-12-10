@@ -96,6 +96,7 @@ bool MessageImpl::parse()
     }    
 
     return
+        checkReuse() &&
         updateName() &&
         updateDisplayName() &&
         updateDescription() &&
@@ -361,6 +362,8 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::constructAsReadCondStr(),
         common::constructAsValidCondStr(),
         common::failOnInvalidStr(),
+        common::reuseStr(),
+        common::reuseCodeStr(),
     };
 
     return CommonNames;
@@ -399,6 +402,62 @@ XmlWrap::NamesList MessageImpl::allNames()
     names.push_back(common::aliasStr());
     names.push_back(common::replaceStr());
     return names;
+}
+
+bool MessageImpl::checkReuse()
+{
+    auto& propStr = common::reuseStr();
+    if (!validateSinglePropInstance(propStr)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propStr);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.isMessageReuseSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+        return true;
+    }
+
+    auto& valueStr = iter->second;
+    auto* msg = m_protocol.findMessage(valueStr);
+    if (msg == nullptr) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "The message \"" << valueStr << "\" hasn't been recorded yet.";
+        return false;
+    }
+
+    assert(msg != this);
+    Base::reuseState(*msg);
+    m_state = msg->m_state;
+
+    do {
+        auto& codeProp = common::reuseCodeStr();
+        if (!validateSinglePropInstance(codeProp, false)) {
+            return false;
+        }
+
+        m_state.m_copyCodeFrom.clear();
+        auto codeIter = m_props.find(codeProp);
+        if (codeIter == m_props.end()) {
+            break;
+        }  
+
+        bool copyCode = false;
+        if (!validateAndUpdateBoolPropValue(codeProp, copyCode)) {
+            return false;
+        }
+
+        if (!copyCode) {
+            break;
+        }
+
+        m_state.m_copyCodeFrom = valueStr; 
+    } while (false);
+    return true;
 }
 
 bool MessageImpl::updateName()

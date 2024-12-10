@@ -121,6 +121,7 @@ public:
     bool isExistsCheckInConditionalsSupported() const;
     bool isValidValueInStringAndDataSupported() const;
     bool isValidateMinLengthForFieldsSupported() const;
+    bool isMessageReuseSupported() const;
 
     void setMultipleSchemasEnabled(bool value)
     {

@@ -1076,6 +1076,7 @@ bool FieldImpl::checkReuse()
             return false;
         }
 
+        m_state.m_copyCodeFrom.clear();
         auto codeIter = m_props.find(codeProp);
         if (codeIter == m_props.end()) {
             break;

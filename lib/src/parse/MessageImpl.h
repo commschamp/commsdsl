@@ -15,10 +15,12 @@
 
 #pragma once
 
+#include <cstdint>
 #include <memory>
 #include <map>
 #include <string>
-#include <cstdint>
+#include <tuple>
+#include <utility>
 
 #include "commsdsl/parse/Message.h"
 
@@ -197,6 +199,74 @@ private:
         OptCondImplPtr m_validCond;
         bool m_customizable = false;
         bool m_failOnInvalid = false;
+
+        ReusableState() = default;
+        ReusableState(ReusableState&&) = default;
+
+        auto basicForwardAsTuple()
+        {
+            return 
+                std::forward_as_tuple(
+                    m_name,
+                    m_displayName,
+                    m_description,
+                    m_id = 0,
+                    m_order,
+                    m_validateMinLength,
+                    // m_fields,
+                    // m_aliases,
+                    m_platforms,
+                    m_sender,
+                    m_readOverride,
+                    m_writeOverride,
+                    m_refreshOverride,
+                    m_lengthOverride,
+                    m_validOverride,
+                    m_nameOverride,
+                    m_copyCodeFrom,
+                    // m_construct,
+                    // m_readCond,
+                    // m_validCond,
+                    m_customizable,
+                    m_failOnInvalid
+                );
+        }
+
+        auto basicForwardAsTuple() const
+        {
+            return const_cast<ReusableState*>(this)->basicForwardAsTuple();
+        }
+
+        ReusableState& operator=(const ReusableState& other)
+        {
+            basicForwardAsTuple() = other.basicForwardAsTuple();
+
+            m_fields.clear();
+            m_fields.reserve(other.m_fields.size());
+            for (auto& f : other.m_fields) {
+                m_fields.push_back(f->clone());
+            }
+
+            m_aliases.clear();
+            m_aliases.reserve(other.m_aliases.size());
+            for (auto& a : other.m_aliases) {
+                m_aliases.push_back(a->clone());
+            }            
+
+            if (other.m_construct) {
+                m_construct = other.m_construct->clone();
+            }
+
+            if (other.m_readCond) {
+                m_readCond = other.m_readCond->clone();
+            }    
+
+            if (other.m_validCond) {
+                m_validCond = other.m_validCond->clone();
+            }    
+
+            return *this;          
+        }
     };
 
     LogWrapper logError() const;
@@ -214,6 +284,7 @@ private:
     bool validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value);
     bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
+    bool checkReuse();
     bool updateName();
     bool updateDescription();
     bool updateDisplayName();
