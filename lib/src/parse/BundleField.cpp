@@ -36,8 +36,8 @@ const BundleFieldImpl* cast(const FieldImpl* ptr)
 
 } // namespace
 
-BundleField::BundleField(const BundleFieldImpl* impl)
-  : Base(impl)
+BundleField::BundleField(const BundleFieldImpl* impl) :
+    Base(impl)
 {
 }
 
@@ -55,6 +55,11 @@ BundleField::Members BundleField::members() const
 BundleField::Aliases BundleField::aliases() const
 {
     return cast(m_pImpl)->aliasesList();
+}
+
+OptCond BundleField::validCond() const
+{
+    return cast(m_pImpl)->validCond();
 }
 
 } // namespace parse

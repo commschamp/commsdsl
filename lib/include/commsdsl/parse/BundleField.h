@@ -15,8 +15,9 @@
 
 #pragma once
 
-#include "Field.h"
 #include "Alias.h"
+#include "OptCond.h"
+#include "Field.h"
 
 namespace commsdsl
 {
@@ -38,6 +39,7 @@ public:
 
     Members members() const;
     Aliases aliases() const;
+    OptCond validCond() const;    
 };
 
 } // namespace parse

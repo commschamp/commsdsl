@@ -21,6 +21,7 @@ public:
     void test12();
     void test13();
     void test14();
+    void test15();
 };
 
 void BundleTestSuite::setUp()
@@ -369,6 +370,7 @@ void BundleTestSuite::test12()
         TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
 
         commsdsl::parse::BundleField bundleField(field);
+        TS_ASSERT(!bundleField.validCond().valid());        
         auto members = bundleField.members();
         TS_ASSERT_EQUALS(members.size(), 3U);
         auto& mem1 = members[0];
@@ -411,5 +413,59 @@ void BundleTestSuite::test14()
     auto& field = fields[1];
     TS_ASSERT_EQUALS(field.name(), "Bundle2");
     TS_ASSERT(field.copyCodeFrom().empty());
+}
+
+void BundleTestSuite::test15()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema15.xml");
+    TS_ASSERT(protocol);
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
+
+        auto& field = fields[0];
+        TS_ASSERT_EQUALS(field.name(), "Bundle1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto validCond = bundleField.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+
+        commsdsl::parse::OptCondList validCondList(validCond);
+        TS_ASSERT_EQUALS(validCondList.type(), commsdsl::parse::OptCondList::Type::Or);
+    }
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
+
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Bundle2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto validCond = bundleField.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+    }    
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(3U, fields.size());
+
+        auto& field = fields[2];
+        TS_ASSERT_EQUALS(field.name(), "Bundle3");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bundle);
+
+        commsdsl::parse::BundleField bundleField(field);
+        auto validCond = bundleField.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    }      
 }
 

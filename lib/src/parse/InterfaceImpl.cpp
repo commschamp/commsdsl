@@ -47,9 +47,7 @@ const XmlWrap::NamesList& interfaceSupportedTypes()
 
 InterfaceImpl::InterfaceImpl(::xmlNodePtr node, ProtocolImpl& protocol)
   : m_node(node),
-    m_protocol(protocol),
-    m_name(&common::emptyString()),
-    m_description(&common::emptyString())
+    m_protocol(protocol)
 {
 }
 
@@ -62,6 +60,7 @@ bool InterfaceImpl::parse()
     }
 
     return
+        checkReuse() &&
         updateName() &&
         updateDescription() &&
         copyFields() &&
@@ -74,22 +73,25 @@ bool InterfaceImpl::parse()
 
 const std::string& InterfaceImpl::name() const
 {
-    assert(m_name != nullptr);
-    return *m_name;
+    return m_state.m_name;
 }
 
 const std::string& InterfaceImpl::description() const
 {
-    assert(m_description != nullptr);
-    return *m_description;
+    return m_state.m_description;
+}
+
+const std::string& InterfaceImpl::copyCodeFrom() const
+{
+    return m_state.m_copyCodeFrom;
 }
 
 InterfaceImpl::FieldsList InterfaceImpl::fieldsList() const
 {
     FieldsList result;
-    result.reserve(m_fields.size());
+    result.reserve(m_state.m_fields.size());
     std::transform(
-        m_fields.begin(), m_fields.end(), std::back_inserter(result),
+        m_state.m_fields.begin(), m_state.m_fields.end(), std::back_inserter(result),
         [](auto& f)
         {
             return Field(f.get());
@@ -100,9 +102,9 @@ InterfaceImpl::FieldsList InterfaceImpl::fieldsList() const
 InterfaceImpl::AliasesList InterfaceImpl::aliasesList() const
 {
     AliasesList result;
-    result.reserve(m_aliases.size());
+    result.reserve(m_state.m_aliases.size());
     std::transform(
-        m_aliases.begin(), m_aliases.end(), std::back_inserter(result),
+        m_state.m_aliases.begin(), m_state.m_aliases.end(), std::back_inserter(result),
         [](auto& a)
         {
             return Alias(a.get());
@@ -129,23 +131,23 @@ std::size_t InterfaceImpl::findFieldIdx(const std::string& name) const
 {
     auto iter =
         std::find_if(
-            m_fields.begin(), m_fields.end(),
+            m_state.m_fields.begin(), m_state.m_fields.end(),
             [&name](auto& fPtr)
             {
                 return fPtr->name() == name;
             });
-    if (iter == m_fields.end()) {
+    if (iter == m_state.m_fields.end()) {
         return std::numeric_limits<std::size_t>::max();
     }
 
-    return static_cast<std::size_t>(std::distance(m_fields.begin(), iter));
+    return static_cast<std::size_t>(std::distance(m_state.m_fields.begin(), iter));
 }
 
 InterfaceImpl::ImplFieldsList InterfaceImpl::allImplFields() const
 {
     ImplFieldsList result;
-    result.reserve(m_fields.size());
-    for (auto& fPtr : m_fields) {
+    result.reserve(m_state.m_fields.size());
+    for (auto& fPtr : m_state.m_fields) {
         result.push_back(fPtr.get());
     }
 
@@ -184,13 +186,13 @@ InterfaceImpl::FieldRefInfo InterfaceImpl::processInnerFieldRef(const std::strin
     const auto fieldName = refStr.substr(0, dotPos);
     auto iter = 
         std::find_if(
-            m_fields.begin(), m_fields.end(),
+            m_state.m_fields.begin(), m_state.m_fields.end(),
             [&fieldName](auto& fieldPtr)
             {
                 return fieldName == fieldPtr->name();
             });
 
-    if (iter == m_fields.end()) {
+    if (iter == m_state.m_fields.end()) {
         return FieldRefInfo();
     }
 
@@ -228,9 +230,36 @@ bool InterfaceImpl::validateSinglePropInstance(const std::string& str, bool must
     return XmlWrap::validateSinglePropInstance(m_node, m_props, str, m_protocol.logger(), mustHave);
 }
 
+bool InterfaceImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
+{
+    if (!validateSinglePropInstance(propName, mustHave)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.isPropertySupported(propName)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "Property \"" << common::availableLengthLimitStr() << "\" is not available for dslVersion= " << m_protocol.currSchema().dslVersion();                
+        return true;
+    }
+
+    bool ok = false;
+    value = common::strToBool(iter->second, &ok);
+    if (!ok) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }
+
+    return true;
+}
+
 bool InterfaceImpl::validateAndUpdateStringPropValue(
     const std::string& str,
-    const std::string*& valuePtr,
+    std::string& value,
     bool mustHave)
 {
     if (!validateSinglePropInstance(str, mustHave)) {
@@ -239,7 +268,7 @@ bool InterfaceImpl::validateAndUpdateStringPropValue(
 
     auto iter = m_props.find(str);
     if (iter != m_props.end()) {
-        valuePtr = &iter->second;
+        value = iter->second;
     }
 
     assert(iter != m_props.end() || (!mustHave));
@@ -258,6 +287,8 @@ const XmlWrap::NamesList& InterfaceImpl::commonProps()
         common::descriptionStr(),
         common::copyFieldsFromStr(),
         common::copyFieldsAliasesStr(),
+        common::reuseStr(),
+        common::reuseCodeStr(),
     };
 
     return CommonNames;
@@ -273,17 +304,72 @@ XmlWrap::NamesList InterfaceImpl::allNames()
     return names;
 }
 
-bool InterfaceImpl::updateName()
+bool InterfaceImpl::checkReuse()
 {
-    assert(m_name != nullptr);
-    bool mustHave = m_name->empty();
-    if (!validateAndUpdateStringPropValue(common::nameStr(), m_name, mustHave)) {
+    auto& propStr = common::reuseStr();
+    if (!validateSinglePropInstance(propStr)) {
         return false;
     }
 
-    if (!common::isValidName(*m_name)) {
+    auto iter = m_props.find(propStr);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.isInterfaceReuseSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << propStr << "\" is not supported for <interface> in DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+        return true;
+    }
+
+    auto& valueStr = iter->second;
+    auto* iFace = m_protocol.findInterface(valueStr);
+    if (iFace == nullptr) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Invalid value for name property \"" << *m_name << "\".";
+                      "The message \"" << valueStr << "\" hasn't been recorded yet.";
+        return false;
+    }
+
+    assert(iFace != this);
+    Base::reuseState(*iFace);
+    m_state = iFace->m_state;
+
+    do {
+        auto& codeProp = common::reuseCodeStr();
+        if (!validateSinglePropInstance(codeProp, false)) {
+            return false;
+        }
+
+        m_state.m_copyCodeFrom.clear();
+        auto codeIter = m_props.find(codeProp);
+        if (codeIter == m_props.end()) {
+            break;
+        }  
+
+        bool copyCode = false;
+        if (!validateAndUpdateBoolPropValue(codeProp, copyCode)) {
+            return false;
+        }
+
+        if (!copyCode) {
+            break;
+        }
+
+        m_state.m_copyCodeFrom = valueStr; 
+    } while (false);    
+    return true;
+}
+
+bool InterfaceImpl::updateName()
+{
+    bool mustHave = m_state.m_name.empty();
+    if (!validateAndUpdateStringPropValue(common::nameStr(), m_state.m_name, mustHave)) {
+        return false;
+    }
+
+    if (!common::isValidName(m_state.m_name)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Invalid value for name property \"" << m_state.m_name << "\".";
         return false;
     }
 
@@ -292,7 +378,7 @@ bool InterfaceImpl::updateName()
 
 bool InterfaceImpl::updateDescription()
 {
-    return validateAndUpdateStringPropValue(common::descriptionStr(), m_description);
+    return validateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description);
 }
 
 bool InterfaceImpl::copyFields()
@@ -305,6 +391,12 @@ bool InterfaceImpl::copyFields()
     if (iter == props().end()) {
         return true;
     }
+
+    if (!m_state.m_fields.empty()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Copying fields from multiple sources using various properties is not supported";
+        return false;
+    }    
 
     do {
         m_copyFieldsFromInterface = m_protocol.findInterface(iter->second);
@@ -383,7 +475,7 @@ bool InterfaceImpl::updateFields()
             // fieldsTypes is updated with the list from <fields>
         }
 
-        m_fields.reserve(m_fields.size() + fieldsTypes.size());
+        m_state.m_fields.reserve(m_state.m_fields.size() + fieldsTypes.size());
         for (auto* fNode : fieldsTypes) {
             std::string fKind(reinterpret_cast<const char*>(fNode->name));
             auto field = FieldImpl::create(fKind, fNode, m_protocol);
@@ -400,14 +492,14 @@ bool InterfaceImpl::updateFields()
                 return false;
             }
 
-            if (!field->verifySiblings(m_fields)) {
+            if (!field->verifySiblings(m_state.m_fields)) {
                 return false;
             }
 
-            m_fields.push_back(std::move(field));
+            m_state.m_fields.push_back(std::move(field));
         }
 
-        if (!FieldImpl::validateMembersNames(m_fields, m_protocol.logger())) {
+        if (!FieldImpl::validateMembersNames(m_state.m_fields, m_protocol.logger())) {
             return false;
         }
 
@@ -464,58 +556,58 @@ bool InterfaceImpl::copyAliases()
         return true;
     }
 
-    if (!m_aliases.empty()) {
-        m_aliases.erase(
+    if (!m_state.m_aliases.empty()) {
+        m_state.m_aliases.erase(
             std::remove_if(
-                m_aliases.begin(), m_aliases.end(),
+                m_state.m_aliases.begin(), m_state.m_aliases.end(),
                 [this](auto& alias)
                 {
                     auto& fieldName = alias->fieldName();
                     assert(!fieldName.empty());
                     auto fieldIter =
                         std::find_if(
-                            m_fields.begin(), m_fields.end(),
+                            m_state.m_fields.begin(), m_state.m_fields.end(),
                             [&fieldName](auto& f)
                             {
                                 return fieldName == f->name();
                             });
 
-                    return fieldIter == m_fields.end();
+                    return fieldIter == m_state.m_fields.end();
                 }),
-            m_aliases.end());
+            m_state.m_aliases.end());
     }
     return true;
 }
 
 void InterfaceImpl::cloneFieldsFrom(const InterfaceImpl& other)
 {
-    m_fields.reserve(other.m_fields.size());
-    for (auto& f : other.m_fields) {
-        m_fields.push_back(f->clone());
+    m_state.m_fields.reserve(other.m_state.m_fields.size());
+    for (auto& f : other.m_state.m_fields) {
+        m_state.m_fields.push_back(f->clone());
     }
 }
 
 void InterfaceImpl::cloneFieldsFrom(const BundleFieldImpl& other)
 {
-    m_fields.reserve(other.members().size());
+    m_state.m_fields.reserve(other.members().size());
     for (auto& f : other.members()) {
-        m_fields.push_back(f->clone());
+        m_state.m_fields.push_back(f->clone());
     }
 }
 
 void InterfaceImpl::cloneAliasesFrom(const InterfaceImpl& other)
 {
-    m_aliases.reserve(other.m_aliases.size());
-    for (auto& a : other.m_aliases) {
-        m_aliases.push_back(a->clone());
+    m_state.m_aliases.reserve(other.m_state.m_aliases.size());
+    for (auto& a : other.m_state.m_aliases) {
+        m_state.m_aliases.push_back(a->clone());
     }
 }
 
 void InterfaceImpl::cloneAliasesFrom(const BundleFieldImpl& other)
 {
-    m_aliases.reserve(other.aliases().size());
+    m_state.m_aliases.reserve(other.aliases().size());
     for (auto& a : other.aliases()) {
-        m_aliases.push_back(a->clone());
+        m_state.m_aliases.push_back(a->clone());
     }
 }
 
@@ -534,7 +626,7 @@ bool InterfaceImpl::updateAliases()
         return false;
     }
 
-    m_aliases.reserve(m_aliases.size() + aliasNodes.size());
+    m_state.m_aliases.reserve(m_state.m_aliases.size() + aliasNodes.size());
     for (auto* aNode : aliasNodes) {
         auto alias = AliasImpl::create(aNode, m_protocol);
         if (!alias) {
@@ -549,11 +641,11 @@ bool InterfaceImpl::updateAliases()
             return false;
         }
 
-        if (!alias->verifyAlias(m_aliases, m_fields)) {
+        if (!alias->verifyAlias(m_state.m_aliases, m_state.m_fields)) {
             return false;
         }
 
-        m_aliases.push_back(std::move(alias));
+        m_state.m_aliases.push_back(std::move(alias));
     }
 
     return true;

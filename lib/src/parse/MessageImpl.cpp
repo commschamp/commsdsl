@@ -302,7 +302,6 @@ bool MessageImpl::validateAndUpdateOverrideTypePropValue(const std::string& prop
     return true;
 }
 
-
 bool MessageImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
 {
     if (!validateSinglePropInstance(propName, mustHave)) {
@@ -418,7 +417,7 @@ bool MessageImpl::checkReuse()
 
     if (!m_protocol.isMessageReuseSupported()) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
-            "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+            "Property \"" << propStr << "\" is not supported for <message> in DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
         return true;
     }
 
@@ -765,6 +764,12 @@ bool MessageImpl::copyFields()
         return true;
     }
 
+    if (!m_state.m_fields.empty()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Copying fields from multiple sources using various properties is not supported";
+        return false;
+    }
+    
     do {
         m_copyFieldsFromMsg = m_protocol.findMessage(iter->second);
         if (m_copyFieldsFromMsg != nullptr) {

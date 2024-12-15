@@ -170,6 +170,13 @@ bool OptCondExprImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNod
     return verifyComparison(fields, node, protocol);
 }
 
+bool OptCondExprImpl::hasInterfaceReferenceImpl() const
+{
+    return 
+        ((!m_left.empty()) && (m_left[0] == IfaceDeref)) ||
+        ((!m_right.empty()) && (m_right[0] == IfaceDeref));
+}
+
 bool OptCondExprImpl::hasUpdatedValue()
 {
     return (!m_left.empty()) ||
@@ -737,7 +744,15 @@ bool OptCondListImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNod
         });
 }
 
-
+bool OptCondListImpl::hasInterfaceReferenceImpl() const
+{
+    return std::any_of(
+        m_conds.begin(), m_conds.end(),
+        [](auto& c)
+        {
+            return c->hasInterfaceReference();
+        });
+}
 
 } // namespace parse
 

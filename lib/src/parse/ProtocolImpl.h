@@ -122,6 +122,8 @@ public:
     bool isValidValueInStringAndDataSupported() const;
     bool isValidateMinLengthForFieldsSupported() const;
     bool isMessageReuseSupported() const;
+    bool isInterfaceReuseSupported() const;
+    bool isValidCondSupportedInCompositeFields() const;
 
     void setMultipleSchemasEnabled(bool value)
     {

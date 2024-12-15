@@ -421,6 +421,16 @@ bool ProtocolImpl::isMessageReuseSupported() const
     return isFeatureSupported(7U);
 }
 
+bool ProtocolImpl::isInterfaceReuseSupported() const
+{
+    return isMessageReuseSupported();
+}
+
+bool ProtocolImpl::isValidCondSupportedInCompositeFields() const
+{
+    return isFeatureSupported(7U);
+}
+
 void ProtocolImpl::cbXmlErrorFunc(void* userData, const xmlError* err)
 {
     reinterpret_cast<ProtocolImpl*>(userData)->handleXmlError(err);

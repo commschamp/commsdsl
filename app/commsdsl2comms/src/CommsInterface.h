@@ -54,7 +54,17 @@ protected:
     virtual bool writeImpl() const override;
 
 private:
+    struct CustomCode
+    {
+        std::string m_inc;
+        std::string m_public;
+        std::string m_protected;
+        std::string m_private;
+        std::string m_extend;
+        std::string m_append;
+    };
 
+    bool copyCodeFromInternal();
     bool commsWriteCommonInternal() const;  
     bool commsWriteDefInternal() const;  
     std::string commsCommonIncludesInternal() const;
@@ -72,10 +82,11 @@ private:
 
     std::string m_name;
     std::string m_constructCode;
-    std::string m_publicCode;
-    std::string m_protectedCode;
-    std::string m_privateCode;
+    // std::string m_publicCode;
+    // std::string m_protectedCode;
+    // std::string m_privateCode;
     CommsFieldsList m_commsFields;  
+    CustomCode m_customCode;
 };
 
 } // namespace commsdsl2comms

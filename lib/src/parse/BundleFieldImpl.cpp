@@ -45,6 +45,7 @@ XmlWrap::NamesList getExtraNames()
     auto names = bundleSupportedTypes();
     names.push_back(common::membersStr());
     names.push_back(common::aliasStr());
+    names.push_back(common::validCondStr());
     return names;
 }
 
@@ -103,7 +104,16 @@ FieldImpl::Ptr BundleFieldImpl::cloneImpl() const
 const XmlWrap::NamesList& BundleFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
-        common::reuseAliasesStr()
+        common::reuseAliasesStr(),
+    };
+
+    return List;
+}
+
+const XmlWrap::NamesList& BundleFieldImpl::extraPossiblePropsNamesImpl() const
+{
+    static const XmlWrap::NamesList List = {
+        common::validCondStr(),
     };
 
     return List;
@@ -153,6 +163,10 @@ bool BundleFieldImpl::reuseImpl(const FieldImpl& other)
         assert(m_aliases.size() == castedOther.m_aliases.size());
     } while (false);
 
+    if (castedOther.m_validCond) {
+        m_validCond = castedOther.m_validCond->clone();
+    }     
+
     return true;
 }
 
@@ -160,7 +174,9 @@ bool BundleFieldImpl::parseImpl()
 {
     return
         updateMembers() &&
-        updateAliases();
+        updateAliases() &&
+        updateSingleValidCond() &&
+        updateMultiValidCond();
 }
 
 bool BundleFieldImpl::replaceMembersImpl(FieldsList& members)
@@ -476,6 +492,113 @@ bool BundleFieldImpl::updateAliases()
         m_aliases.push_back(std::move(alias));
     }
 
+    return true;
+}
+
+bool BundleFieldImpl::updateSingleValidCond()
+{
+    return updateSingleCondInternal(common::validCondStr(), m_validCond);
+}
+
+bool BundleFieldImpl::updateMultiValidCond()
+{
+    return updateMultiCondInternal(common::validCondStr(), m_validCond);
+}
+
+bool BundleFieldImpl::updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond)
+{
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto iter = props().find(prop);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isValidCondSupportedInCompositeFields()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "The property \"" << prop << "\" is not supported for <bundle> field in dslVersion=" << 
+                protocol().currSchema().dslVersion() << ".";        
+        return true;
+    }          
+
+    auto newCond = std::make_unique<OptCondExprImpl>();
+    if (!newCond->parse(iter->second, getNode(), protocol())) {
+        return false;
+    }
+
+    if (newCond->hasInterfaceReference()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The condition \"" << prop << "\" in fields cannot reference interface fields.";           
+        return false;
+    }
+
+    if (!newCond->verify(m_members, getNode(), protocol())) {
+        return false;
+    }   
+
+    cond = std::move(newCond);
+    return true; 
+}
+
+bool BundleFieldImpl::updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond)
+{
+    auto condNodes = XmlWrap::getChildren(getNode(), prop, true);
+    if (condNodes.empty()) {
+        return true;
+    }
+
+    if (!protocol().isValidCondSupportedInCompositeFields()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "The property \"" << prop << "\" is not supported for <bundle> field in dslVersion=" << 
+                protocol().currSchema().dslVersion() << ".";        
+        return true;
+    }      
+
+    if (condNodes.size() > 1U) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot use more that one child to the \"" << prop << "\" element.";        
+        return false;
+    }
+
+    static const XmlWrap::NamesList ElemNames = {
+        common::andStr(),
+        common::orStr()
+    };
+
+    auto condChildren = XmlWrap::getChildren(condNodes.front(), ElemNames);
+    if (condChildren.size() != condNodes.size()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Only single \"" << common::andStr() << "\" or \"" << common::orStr() << "\" child of the \"" << prop << "\" element is supported.";           
+        return false;
+    }    
+
+    auto iter = props().find(prop);
+    if (iter != props().end()) {
+        logError() << XmlWrap::logPrefix(condNodes.front()) <<
+            "Only single \"" << prop << "\" property is supported";
+
+        return false;
+    }    
+
+    auto newCond = std::make_unique<OptCondListImpl>();
+    newCond->overrideCondStr(prop);
+    if (!newCond->parse(condChildren.front(), protocol())) {
+        return false;
+    }
+
+    if (newCond->hasInterfaceReference()) {
+        logError() << XmlWrap::logPrefix(condNodes.front()) <<
+            "The condition \"" << prop << "\" in fields cannot reference interface fields.";           
+        return false;
+    }    
+
+    if (!newCond->verify(m_members, condChildren.front(), protocol())) {
+        return false;
+    }    
+
+    cond = std::move(newCond);
     return true;
 }
 

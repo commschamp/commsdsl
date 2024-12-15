@@ -306,7 +306,6 @@ bool CommsMessage::copyCodeFromInternal()
     return true;
 }
 
-
 bool CommsMessage::commsPrepareOverrideInternal(
     commsdsl::parse::OverrideType type, 
     std::string& codePathPrefix, 

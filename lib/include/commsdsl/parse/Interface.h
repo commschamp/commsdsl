@@ -48,6 +48,7 @@ public:
     FieldsList fields() const;
     AliasesList aliases() const;
     std::string externalRef(bool schemaRef = true) const;
+    const std::string& copyCodeFrom() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

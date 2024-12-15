@@ -61,10 +61,16 @@ public:
         m_condStr = str;
     }
 
+    bool hasInterfaceReference() const
+    {
+        return hasInterfaceReferenceImpl();
+    }
+
 protected:
     virtual Kind kindImpl() const = 0;
     virtual Ptr cloneImpl() const = 0;
     virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const = 0;
+    virtual bool hasInterfaceReferenceImpl() const = 0;
 
     const std::string& condStr() const
     {
@@ -110,6 +116,7 @@ protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const override;
+    virtual bool hasInterfaceReferenceImpl() const override;
 
 private:
     bool hasUpdatedValue();
@@ -155,6 +162,7 @@ protected:
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual bool verifyImpl(const FieldsList& fields, ::xmlNodePtr node, const ProtocolImpl& protocol) const override;
+    virtual bool hasInterfaceReferenceImpl() const override;
 
 private:
     List m_conds;

@@ -68,6 +68,12 @@ std::string Interface::externalRef(bool schemaRef) const
     return m_pImpl->externalRef(schemaRef);
 }
 
+const std::string& Interface::copyCodeFrom() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->copyCodeFrom();
+}
+
 const Interface::AttributesMap& Interface::extraAttributes() const
 {
     assert(m_pImpl != nullptr);

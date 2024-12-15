@@ -16,8 +16,10 @@
 #pragma once
 
 #include "commsdsl/parse/BundleField.h"
-#include "FieldImpl.h"
+
 #include "AliasImpl.h"
+#include "FieldImpl.h"
+#include "OptCondImpl.h"
 
 #include <cstdint>
 
@@ -44,11 +46,17 @@ public:
         return m_aliases;
     }
 
+    OptCond validCond() const
+    {
+        return OptCond(m_validCond.get());
+    }    
+
 protected:
 
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl &other) override;
     virtual bool parseImpl() override;
@@ -68,9 +76,15 @@ protected:
 private:
     bool updateMembers();
     bool updateAliases();
+    bool updateSingleValidCond();
+    bool updateMultiValidCond();
+
+    bool updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond);
+    bool updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond);    
 
     FieldsList m_members;
     std::vector<AliasImplPtr> m_aliases;
+    OptCondImplPtr m_validCond;    
 };
 
 } // namespace parse
