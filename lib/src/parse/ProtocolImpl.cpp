@@ -308,6 +308,7 @@ bool ProtocolImpl::isPropertySupported(const std::string& name) const
         {common::constructAsReadCondStr(), 6U},
         {common::constructAsValidCondStr(), 6U},
         {common::fixedValueStr(), 7U},
+        {common::copyValidCondFromStr(), 7U},
     };
 
     auto iter = Map.find(name);

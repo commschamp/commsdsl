@@ -37,5 +37,14 @@
             <validCond value="$Enum1 = 1" />
         </bundle>
 
+        <bundle name="Bundle4" copyValidCondFrom="Bundle3">
+            <enum name="Enum1" type="uint8" defaultValue="V1" >
+                <validValue name="V1" val="1" />
+                <validValue name="V2" val="2" />
+            </enum> 
+
+            <int name="Int1" type="uint32" />           
+        </bundle>
+
     </fields>
 </schema>

@@ -105,6 +105,7 @@ const XmlWrap::NamesList& BundleFieldImpl::extraPropsNamesImpl() const
 {
     static const XmlWrap::NamesList List = {
         common::reuseAliasesStr(),
+        common::copyValidCondFromStr(),
     };
 
     return List;
@@ -175,6 +176,7 @@ bool BundleFieldImpl::parseImpl()
     return
         updateMembers() &&
         updateAliases() &&
+        copyValidCond() &&
         updateSingleValidCond() &&
         updateMultiValidCond();
 }
@@ -498,6 +500,59 @@ bool BundleFieldImpl::updateAliases()
 bool BundleFieldImpl::updateSingleValidCond()
 {
     return updateSingleCondInternal(common::validCondStr(), m_validCond);
+}
+
+bool BundleFieldImpl::copyValidCond()
+{
+    auto& prop = common::copyValidCondFromStr();
+    if (!validateSinglePropInstance(prop)) {
+        return false;
+    }
+
+    auto& copySrc = common::getStringProp(props(), prop);
+    if (copySrc.empty()) {
+        return true;
+    }
+
+    if (!protocol().isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                protocol().currSchema().dslVersion() << ".";        
+        return true;
+    }  
+
+    auto* field = protocol().findField(copySrc);
+    if (field == nullptr) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Field referenced by \"" << prop << "\" property (" + copySrc + ") is not found.";
+        return false;        
+    }     
+
+    if (field->kind() != kind()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot reference field of other cond in property \"" << prop << "\".";
+        return false;
+    }      
+
+    if (m_validCond) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Cannot use \"" << prop << "\" property when the validity condition is copied from other field by other means";        
+        return false;
+    }
+
+    auto* otherBundle = static_cast<const BundleFieldImpl*>(field);
+    if (!otherBundle->m_validCond) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Field referenced by the \"" << prop << "\" property (" << copySrc << ") does not specify any validity conditions";        
+        return true;
+    }
+
+    m_validCond = otherBundle->m_validCond->clone();
+    if (!m_validCond->verify(m_members, getNode(), protocol())) {
+        return false;
+    }   
+
+    return true;
 }
 
 bool BundleFieldImpl::updateMultiValidCond()

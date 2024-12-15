@@ -1172,8 +1172,8 @@ bool MessageImpl::updateCopyOverrideCodeFrom()
         return true;
     }    
 
-    auto* field = m_protocol.findMessage(iter->second);
-    if (field == nullptr) {
+    auto* msg = m_protocol.findMessage(iter->second);
+    if (msg == nullptr) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
         return false;        

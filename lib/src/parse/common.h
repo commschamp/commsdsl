@@ -175,6 +175,7 @@ const std::string& readCondStr();
 const std::string& validCondStr();
 const std::string& constructAsReadCondStr();
 const std::string& constructAsValidCondStr();
+const std::string& copyValidCondFromStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

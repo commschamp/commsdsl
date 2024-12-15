@@ -884,6 +884,12 @@ const std::string& constructAsValidCondStr()
     return Str;       
 }
 
+const std::string& copyValidCondFromStr()
+{
+    static const std::string Str("copyValidCondFrom");
+    return Str;      
+}
+
 char siblingRefPrefix()
 {
     return '$';

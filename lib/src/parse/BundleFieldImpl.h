@@ -78,6 +78,7 @@ private:
     bool updateAliases();
     bool updateSingleValidCond();
     bool updateMultiValidCond();
+    bool copyValidCond();
 
     bool updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond);
     bool updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond);    
