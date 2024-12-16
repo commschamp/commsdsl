@@ -16,6 +16,7 @@
 #include "CommsBundleField.h"
 
 #include "CommsGenerator.h"
+#include "CommsOptionalField.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/util.h"
@@ -331,6 +332,35 @@ std::string CommsBundleField::commsDefRefreshFuncBodyImpl() const
         {"FIELDS", util::strListToString(fields, "\n", "")}
     };
     return util::processTemplate(Templ, repl);
+}
+
+std::string CommsBundleField::commsDefValidFuncBodyImpl() const
+{
+    auto validCond = bundleDslObj().validCond();
+    if (!validCond.valid()) {
+        return strings::emptyString();
+    }
+
+    auto& gen = CommsGenerator::cast(generator());
+    auto str = CommsOptionalField::commsDslCondToString(gen, m_members, validCond, true);    
+
+    if (str.empty()) {
+        return strings::emptyString();
+    }
+
+    static const std::string Templ = 
+        "if (!Base::valid()) {\n"
+        "    return false;\n"
+        "}\n\n"
+        "return\n"
+        "    #^#CODE#$#;\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"CODE", std::move(str)},
+    };
+
+    return util::processTemplate(Templ, repl);    
 }
 
 bool CommsBundleField::commsPrepareInternal()

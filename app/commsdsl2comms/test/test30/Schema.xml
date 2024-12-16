@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="test30"
-        id="1"
-        endian="big"
-        version="5">
+<schema name="test30" endian="big" version="5">
     <fields>
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
         
         <bundle name="B1">
@@ -17,6 +15,19 @@
                 </lengthPrefix>
             </string>
         </bundle>
+
+        <bundle name="B2" failOnInvalid="true">
+            <members>
+                <int name="M1" type="uint8" />
+                <int name="M2" type="uint8" />
+            </members>
+            <validCond>
+                <or>
+                    <validCond value="$M1 = 0" />
+                    <validCond value="$M2 != 0" />
+                </or>
+            </validCond>
+        </bundle>          
     </fields>
     
     <message name="Msg1" id="MsgId.M1">
@@ -27,6 +38,10 @@
     <message name="Msg2" id="MsgId.M2">
         <bundle name="F1" reuse="B1" />
         <int name="F2" type="uint16" />
+    </message>    
+
+    <message name="Msg3" id="MsgId.M3">
+        <ref field="B2" name="F1" failOnInvalid="true"/>
     </message>    
     
     <frame name="Frame">

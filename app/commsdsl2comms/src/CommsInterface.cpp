@@ -191,6 +191,10 @@ bool CommsInterface::writeImpl() const
 bool CommsInterface::copyCodeFromInternal()
 {
     auto obj = dslObj();
+    if (!obj.valid()) {
+        return true;
+    }
+    
     auto& copyFrom = obj.copyCodeFrom();
     if (copyFrom.empty()) {
         return true;
