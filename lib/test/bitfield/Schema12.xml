@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema12"
-        id="1"
-        endian="big">
+<schema name="Schema12" endian="big">
     <fields>
         <bitfield name="F1" semanticType="length">
             <int name="M1" type="uint16" bitLength="14" />

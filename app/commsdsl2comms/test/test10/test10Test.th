@@ -8,6 +8,7 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
 
     using Interface =
         test10::Message<
@@ -46,3 +47,14 @@ void TestSuite::test2()
     TS_ASSERT_EQUALS(msg.field_f1().field_year().value(), 2127);
 }
 
+void TestSuite::test3()
+{
+    Msg3 msg;
+    TS_ASSERT(msg.valid());
+
+    msg.field_f1().field_m1().setValue(1);
+    TS_ASSERT(!msg.valid());
+
+    msg.field_f1().field_m2().setValue(1);
+    TS_ASSERT(msg.valid());
+}

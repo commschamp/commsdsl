@@ -502,6 +502,12 @@ bool BundleFieldImpl::updateSingleValidCond()
     return updateSingleCondInternal(common::validCondStr(), m_validCond);
 }
 
+bool BundleFieldImpl::updateMultiValidCond()
+{
+    return updateMultiCondInternal(common::validCondStr(), m_validCond);
+}
+
+
 bool BundleFieldImpl::copyValidCond()
 {
     auto& prop = common::copyValidCondFromStr();
@@ -553,11 +559,6 @@ bool BundleFieldImpl::copyValidCond()
     }   
 
     return true;
-}
-
-bool BundleFieldImpl::updateMultiValidCond()
-{
-    return updateMultiCondInternal(common::validCondStr(), m_validCond);
 }
 
 bool BundleFieldImpl::updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond)

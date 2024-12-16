@@ -15,9 +15,9 @@
 
 #pragma once
 
-#include "Alias.h"
-#include "OptCond.h"
-#include "Field.h"
+#include "commsdsl/parse/Alias.h"
+#include "commsdsl/parse/OptCond.h"
+#include "commsdsl/parse/Field.h"
 
 namespace commsdsl
 {

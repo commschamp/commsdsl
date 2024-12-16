@@ -36,8 +36,8 @@ const BitfieldFieldImpl* cast(const FieldImpl* ptr)
 
 } // namespace
 
-BitfieldField::BitfieldField(const BitfieldFieldImpl* impl)
-  : Base(impl)
+BitfieldField::BitfieldField(const BitfieldFieldImpl* impl) :
+    Base(impl)
 {
 }
 
@@ -55,6 +55,11 @@ Endian BitfieldField::endian() const
 BitfieldField::Members BitfieldField::members() const
 {
     return cast(m_pImpl)->membersList();
+}
+
+OptCond BitfieldField::validCond() const
+{
+    return cast(m_pImpl)->validCond();
 }
 
 } // namespace parse

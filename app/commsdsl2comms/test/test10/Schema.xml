@@ -4,13 +4,27 @@
         <enum name="MsgId" type="uint8" semanticType="messageId" >
             <validValue name="M1" val="1" />
             <validValue name="M2" val="2" />
+            <validValue name="M3" val="3" />
         </enum>
 
         <int name="I1" type="uint8" />        
         <bitfield name="B1">
             <int name="m1" reuse="I1" bitLength="3" validRange="[0,5]" />
             <int name="m2" type="uint8" bitLength="5" />
-        </bitfield>   
+        </bitfield>  
+
+        <bitfield name="B2" failOnInvalid="true">
+            <members>
+                <int name="m1" type="uint8" bitLength="4" />
+                <int name="m2" type="uint8" bitLength="4" />
+            </members>
+            <validCond>
+                <or>
+                    <validCond value="$m1 = 0" />
+                    <validCond value="$m2 != 0" />
+                </or>
+            </validCond>
+        </bitfield> 
 
         <bitfield name="Date">
             <int name="Year" type="int16" serOffset="-2000" defaultValue="2000" bitLength="7" signExt="false" />
@@ -33,7 +47,11 @@
 
     <message name="Msg2" id="MsgId.M2">
         <ref name="f1" field="Date" />
-    </message>    
+    </message>   
+
+    <message name="Msg3" id="MsgId.M3">
+        <ref name="f1" field="B2" failOnInvalid="true" />
+    </message>       
     
     <frame name="Frame">
         <id name="ID" field="MsgId" />

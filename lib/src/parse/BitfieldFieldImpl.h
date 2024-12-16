@@ -15,9 +15,11 @@
 
 #pragma once
 
+#include "FieldImpl.h"
+#include "OptCondImpl.h"
+
 #include "commsdsl/parse/Endian.h"
 #include "commsdsl/parse/BitfieldField.h"
-#include "FieldImpl.h"
 
 namespace commsdsl
 {
@@ -42,11 +44,17 @@ public:
 
     static const XmlWrap::NamesList& supportedTypes();
 
+    OptCond validCond() const
+    {
+        return OptCond(m_validCond.get());
+    }       
+
 protected:
 
     virtual Kind kindImpl() const override;
     virtual Ptr cloneImpl() const override;
     virtual const XmlWrap::NamesList& extraPropsNamesImpl() const override;
+    virtual const XmlWrap::NamesList& extraPossiblePropsNamesImpl() const override;
     virtual const XmlWrap::NamesList& extraChildrenNamesImpl() const override;
     virtual bool reuseImpl(const FieldImpl &other) override;
     virtual bool parseImpl() override;
@@ -63,9 +71,16 @@ protected:
 private:
     bool updateEndian();
     bool updateMembers();
+    bool updateSingleValidCond();
+    bool updateMultiValidCond();
+    bool copyValidCond();
+
+    bool updateSingleCondInternal(const std::string& prop, OptCondImplPtr& cond);
+    bool updateMultiCondInternal(const std::string& prop, OptCondImplPtr& cond);    
 
     Endian m_endian = Endian_NumOfValues;
     FieldsList m_members;
+    OptCondImplPtr m_validCond;
 };
 
 } // namespace parse

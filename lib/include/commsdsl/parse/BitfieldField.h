@@ -17,6 +17,7 @@
 
 #include "commsdsl/parse/Endian.h"
 #include "commsdsl/parse/Field.h"
+#include "commsdsl/parse/OptCond.h"
 
 namespace commsdsl
 {
@@ -37,6 +38,7 @@ public:
 
     Endian endian() const;
     Members members() const;
+    OptCond validCond() const;    
 };
 
 } // namespace parse
