@@ -456,6 +456,7 @@ bool MessageImpl::checkReuse()
 
         m_state.m_copyCodeFrom = valueStr; 
     } while (false);
+
     return true;
 }
 
@@ -1297,12 +1298,6 @@ bool MessageImpl::updateSingleCondInternal(const std::string& prop, OptCondImplP
         return true;
     }          
 
-    if (cond) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-            "Only single \"" << prop << "\" property is supported";
-        return false;
-    }
-
     auto newCond = std::make_unique<OptCondExprImpl>();
     if (!newCond->parse(iter->second, m_node, m_protocol)) {
         return false;
@@ -1354,7 +1349,8 @@ bool MessageImpl::updateMultiCondInternal(const std::string& prop, OptCondImplPt
         return false;
     }    
 
-    if (cond) {
+    auto iter = props().find(prop);
+    if (iter != props().end()) {
         logError() << XmlWrap::logPrefix(condNodes.front()) <<
             "Only single \"" << prop << "\" property is supported";
         return false;
@@ -1384,8 +1380,9 @@ bool MessageImpl::copyCondInternal(
     const std::string& copyProp,
     const std::string& fromProp, 
     const OptCondImplPtr& fromCond, 
-    const std::string& toProp, 
-    OptCondImplPtr& toCond)
+    const std::string& toProp,
+    OptCondImplPtr& toCond,
+    bool allowOverride)
 {
     if (!validateSinglePropInstance(copyProp)) {
         return false;
@@ -1420,7 +1417,7 @@ bool MessageImpl::copyCondInternal(
         return false;            
     }
 
-    if (toCond) {
+    if (toCond && (!allowOverride)) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Set of the \"" << copyProp << "\" property overrides existing \"" << toProp << "\" setting.";          
         return false;

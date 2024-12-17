@@ -210,7 +210,7 @@ private:
                     m_name,
                     m_displayName,
                     m_description,
-                    m_id = 0,
+                    m_id,
                     m_order,
                     m_validateMinLength,
                     // m_fields,
@@ -330,7 +330,8 @@ private:
         const std::string& fromProp, 
         const OptCondImplPtr& fromCond, 
         const std::string& toProp, 
-        OptCondImplPtr& toCond);
+        OptCondImplPtr& toCond,
+        bool allowOverride = true);
 
     ::xmlNodePtr m_node = nullptr;
     ProtocolImpl& m_protocol;

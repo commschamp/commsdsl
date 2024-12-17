@@ -247,7 +247,7 @@ bool SchemaImpl::validateAllMessages()
 
         if (!allowNonUniquIds) {
             logError(m_protocol.logger()) << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same id.";
+                          nextIter->externalRef() << "\" have the same id: " << iter->id();
             return false;
         }
 
