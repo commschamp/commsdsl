@@ -121,6 +121,11 @@ bool OptionalFieldImpl::reuseImpl(const FieldImpl& other)
     else {
         assert(!m_field);
     }
+
+    if (castedOther.m_cond) {
+        m_cond = castedOther.m_cond->clone();
+    }
+
     return true;
 }
 
@@ -333,12 +338,6 @@ bool OptionalFieldImpl::updateSingleCondition()
         return true;
     }
 
-    if (m_cond) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-            "Overriding non-empty condition(s) is not allowed";
-        return false;
-    }
-
     if ((!isBundleMember()) && (!isMessageMember())) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "Condition for existing mode are applicable only to members of \"" <<
@@ -380,9 +379,10 @@ bool OptionalFieldImpl::updateMultiCondition()
         return false;
     }
 
-    if (m_cond) {
-        logError() << XmlWrap::logPrefix(getNode()) <<
-            "Overriding non-empty condition(s) is not allowed";
+    auto iter = props().find(common::condStr());
+    if (iter != props().end()) {
+        logError() << XmlWrap::logPrefix(multiChildren.front()) <<
+            "Multiple definitions of existance conditions are not allowed";
         return false;
     }
 

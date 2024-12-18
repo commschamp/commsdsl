@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema18"
-        id="1"
-        endian="big">
+<schema name="Schema18" endian="big">
     <fields>
         <bundle name="Bundle1">
             <float name="Mem1" type="float" defaultValue="nan"/>
