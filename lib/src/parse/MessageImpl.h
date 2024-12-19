@@ -312,6 +312,9 @@ private:
     bool updateValidOverride();
     bool updateNameOverride();    
     bool updateCopyOverrideCodeFrom();    
+    bool copyConstruct();
+    bool copyReadCond();
+    bool copyValidCond();
     bool updateSingleConstruct();
     bool updateMultiConstruct();
     bool updateSingleReadCond();

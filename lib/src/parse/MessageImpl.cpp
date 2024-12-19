@@ -119,7 +119,10 @@ bool MessageImpl::parse()
         updateLengthOverride() &&
         updateValidOverride() &&
         updateNameOverride() &&   
-        updateCopyOverrideCodeFrom() &&     
+        updateCopyOverrideCodeFrom() && 
+        copyConstruct() && 
+        copyReadCond() &&  
+        copyValidCond() &&
         updateSingleConstruct() &&
         updateMultiConstruct() && 
         updateSingleReadCond() &&
@@ -363,6 +366,9 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::failOnInvalidStr(),
         common::reuseStr(),
         common::reuseCodeStr(),
+        common::copyConstructFromStr(),
+        common::copyReadCondFromStr(),
+        common::copyValidCondFromStr(),
     };
 
     return CommonNames;
@@ -1181,6 +1187,162 @@ bool MessageImpl::updateCopyOverrideCodeFrom()
     }
 
     m_state.m_copyCodeFrom = iter->second;
+    return true;
+}
+
+bool MessageImpl::copyConstruct()
+{
+    auto& prop = common::copyConstructFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.currSchema().dslVersion() << ".";        
+        return true;
+    }    
+
+    auto* msg = m_protocol.findMessage(iter->second);
+    if (msg == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+        return false;        
+    }
+
+    if (!msg->m_state.m_construct) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") does not specify construction conditions.";
+        return false;        
+    }
+
+    auto newConstruct = msg->m_state.m_construct->clone();
+    if (!newConstruct->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Copied construct conditions cannot be applied to this message.";
+        return false;
+    }    
+
+    m_state.m_construct = std::move(newConstruct);
+    return true;
+}
+
+bool MessageImpl::copyReadCond()
+{
+    auto& prop = common::copyReadCondFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.currSchema().dslVersion() << ".";        
+        return true;
+    }    
+
+    auto* msg = m_protocol.findMessage(iter->second);
+    if (msg == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+        return false;        
+    }
+
+    if (!msg->m_state.m_readCond) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") does not specify read conditions.";
+        return false;        
+    }
+
+    auto newReadCond = msg->m_state.m_readCond->clone();
+    if (!newReadCond->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Copied read conditions cannot be applied to this message.";
+        return false;
+    }    
+
+    m_state.m_readCond = std::move(newReadCond);
+    return true;
+}
+
+bool MessageImpl::copyValidCond()
+{
+    auto& prop = common::copyValidCondFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.currSchema().dslVersion() << ".";        
+        return true;
+    }    
+
+    const MessageImpl* msg = nullptr;
+    const BundleFieldImpl* bundle = nullptr;
+    do {
+        msg = m_protocol.findMessage(iter->second);
+        if (msg != nullptr) {
+            break;
+        }
+
+        auto otherField = m_protocol.findField(iter->second);
+        if (otherField == nullptr) {
+            logError() << XmlWrap::logPrefix(m_node) <<
+                "Neither message nor bundle field referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+            return false;
+        }
+
+        if (otherField->kind() != FieldImpl::Kind::Bundle) {
+            logError() << XmlWrap::logPrefix(m_node) <<
+                "The \"" << prop << "\" property (" + iter->second + ") can reference only other message or a bundle field.";
+            return false;
+        }
+
+        bundle = static_cast<const BundleFieldImpl*>(otherField);
+    } while (false);
+
+    assert((msg != nullptr) || (bundle != nullptr));
+
+    const OptCondImpl* srcCondPtr = nullptr;
+    if (msg != nullptr) {
+        srcCondPtr = msg->m_state.m_validCond.get();
+    }
+    else if (bundle != nullptr) {
+        srcCondPtr = bundle->validCondImpl().get();
+    }
+
+    if (srcCondPtr == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message / bundle referenced by \"" << prop << "\" property (" + iter->second + ") does not specify validity conditions.";
+        return false;        
+    }
+
+    auto newCond = srcCondPtr->clone();
+    if (!newCond->verify(m_state.m_fields, m_node, m_protocol)) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Copied validity conditions cannot be applied to this message.";
+        return false;
+    }    
+
+    m_state.m_validCond = std::move(newCond);
     return true;
 }
 

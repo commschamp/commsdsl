@@ -51,6 +51,12 @@ public:
         return OptCond(m_validCond.get());
     }    
 
+    const OptCondImplPtr& validCondImpl() const
+    {
+        return m_validCond;
+    }    
+
+
 protected:
 
     virtual Kind kindImpl() const override;

@@ -884,6 +884,18 @@ const std::string& constructAsValidCondStr()
     return Str;       
 }
 
+const std::string& copyConstructFromStr()
+{
+    static const std::string Str("copyConstructFrom");
+    return Str;      
+}
+
+const std::string& copyReadCondFromStr()
+{
+    static const std::string Str("copyReadCondFrom");
+    return Str;      
+}
+
 const std::string& copyValidCondFromStr()
 {
     static const std::string Str("copyValidCondFrom");
