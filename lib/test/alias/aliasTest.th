@@ -24,6 +24,8 @@ public:
     void test15();
     void test16();
     void test17();
+    void test18();
+    void test19();
 };
 
 void AliasTestSuite::setUp()
@@ -365,4 +367,46 @@ void AliasTestSuite::test17()
 
     TS_ASSERT_EQUALS(a0.name(), "A2");
     TS_ASSERT_EQUALS(a0.fieldName(), "F2");
+}
+
+void AliasTestSuite::test18()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto interfaces = ns.interfaces();
+    TS_ASSERT_EQUALS(interfaces.size(), 2U);
+
+    auto& i2 = interfaces.back();
+    TS_ASSERT_EQUALS(i2.name(), "I2");
+
+    auto aliases = i2.aliases();
+    TS_ASSERT(aliases.empty());
+}
+
+void AliasTestSuite::test19()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema19.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    TS_ASSERT_EQUALS(messages.size(), 2U);
+
+    auto& msg2 = messages.back();
+    TS_ASSERT_EQUALS(msg2.name(), "Msg2");
+
+    auto aliases = msg2.aliases();
+    TS_ASSERT(aliases.empty());
 }

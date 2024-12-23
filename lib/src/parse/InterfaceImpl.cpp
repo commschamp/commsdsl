@@ -289,6 +289,7 @@ const XmlWrap::NamesList& InterfaceImpl::commonProps()
         common::copyFieldsAliasesStr(),
         common::reuseStr(),
         common::reuseCodeStr(),
+        common::reuseAliasesStr(),
     };
 
     return CommonNames;
@@ -333,6 +334,19 @@ bool InterfaceImpl::checkReuse()
     assert(iFace != this);
     Base::reuseState(*iFace);
     m_state = iFace->m_state;
+
+    do {
+        bool reuseAliases = true;
+        if (!validateAndUpdateBoolPropValue(common::reuseAliasesStr(), reuseAliases)) {
+            return false;
+        }
+
+        if (reuseAliases) {
+            break;
+        }
+
+        m_state.m_aliases.clear();
+    } while (false);     
 
     do {
         auto& codeProp = common::reuseCodeStr();

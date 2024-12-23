@@ -366,6 +366,7 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::failOnInvalidStr(),
         common::reuseStr(),
         common::reuseCodeStr(),
+        common::reuseAliasesStr(),
         common::copyConstructFromStr(),
         common::copyReadCondFromStr(),
         common::copyValidCondFromStr(),
@@ -438,6 +439,19 @@ bool MessageImpl::checkReuse()
     assert(msg != this);
     Base::reuseState(*msg);
     m_state = msg->m_state;
+
+    do {
+        bool reuseAliases = true;
+        if (!validateAndUpdateBoolPropValue(common::reuseAliasesStr(), reuseAliases)) {
+            return false;
+        }
+
+        if (reuseAliases) {
+            break;
+        }
+
+        m_state.m_aliases.clear();
+    } while (false);    
 
     do {
         auto& codeProp = common::reuseCodeStr();
