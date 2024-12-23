@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema33" endian="Big" dslVersion="7">
+    <description>
+        Testing copyConstructFrom, copyReadCondFrom, copyValidCondFrom
+    </description>
+    <fields>
+        <string name="Msg1Name" defaultValue="Message 1" />
+        <string name="Msg2Name" defaultValue="Message 2" />
+        <string name="Msg3Name" defaultValue="Message 3" />
+        <string name="Msg4Name" defaultValue="Message 4" />
+        <string name="Msg5Name" defaultValue="Message 5" />
+
+        <enum name="MsgId" type="uint8">
+            <validValue name="Msg1" val="0" displayName="^Msg1Name" />
+            <validValue name="Msg2" val="1" displayName="^Msg2Name" />
+            <validValue name="Msg3" val="2" displayName="^Msg3Name" />
+            <validValue name="Msg4" val="3" displayName="^Msg4Name" />
+            <validValue name="Msg5" val="4" displayName="^Msg5Name" />
+        </enum>
+
+        <bundle name="B1">
+            <members>
+                <int name="F1" type="uint8" />
+                <int name="F2" type="uint8" />
+            </members>
+            <validCond>
+                <or>
+                    <validCond value="$F1 = 0" />
+                    <validCond value="$F2 != 0" />
+                </or>
+            </validCond>
+        </bundle>
+    </fields>
+
+    <interface name="Message">
+        <bitfield name="Flags">
+            <set name="M1" bitLength="2">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+            <int name="M2" type="uint8" bitLength="3" />
+            <int name="M3" type="uint8" bitLength="3" />
+        </bitfield>
+    </interface>
+
+    <message name="Msg1" id="MsgId.Msg1" displayName="^Msg1Name" >
+        <fields>
+            <int name="F1" type="uint8" />
+            <int name="F2" type="uint8" />
+        </fields>
+        <construct>
+            <and>
+                <construct value="%Flags.M1.B0" />
+                <construct value="%Flags.M1.B1" />
+            </and>
+        </construct>
+        <constructAsReadCond value="true" />
+        <constructAsValidCond value="true" />
+    </message>
+
+    <message name="Msg2" id="MsgId.Msg2" displayName="^Msg2Name" copyConstructFrom="Msg1">
+        <int name="F1" type="uint8" />
+    </message>
+
+    <message name="Msg3" id="MsgId.Msg3" displayName="^Msg3Name" copyReadCondFrom="Msg1">
+        <int name="F1" type="uint8" />
+    </message>    
+
+    <message name="Msg4" id="MsgId.Msg4" copyValidCondFrom="Msg1">
+        <int name="F1" type="uint8" />
+    </message>
+
+    <message name="Msg5" id="MsgId.Msg5" copyFieldsFrom="B1" copyValidCondFrom="B1" />
+</schema>
