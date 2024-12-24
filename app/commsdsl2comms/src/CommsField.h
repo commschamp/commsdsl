@@ -162,13 +162,22 @@ private:
         std::string m_append;
     };
 
+    using BodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
+
     bool copyCodeFromInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::OverrideType type, 
         std::string& codePathPrefix, 
         const std::string& suffix,
         std::string& customCode,
-        const std::string& name);
+        const std::string& name,
+        BodyCustomCodeFunc bodyFunc = nullptr);
+    static std::string commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomLengthFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix);
     bool commsWriteCommonInternal() const;
     bool commsWriteDefInternal() const;
     std::string commsFieldDefCodeInternal() const;

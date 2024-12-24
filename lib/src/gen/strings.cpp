@@ -153,6 +153,12 @@ const std::string& nameFileSuffixStr()
     return Str;     
 }
 
+const std::string& nameBodyFileSuffixStr()
+{
+    static const std::string Str = nameFileSuffixStr() + bodyFileSuffixStr();
+    return Str;     
+}
+
 const std::string& valueFileSuffixStr()
 {
     static const std::string Str(".value");
@@ -165,15 +171,33 @@ const std::string& readFileSuffixStr()
     return Str;     
 }
 
+const std::string& readBodyFileSuffixStr()
+{
+    static const std::string Str = readFileSuffixStr() + bodyFileSuffixStr();
+    return Str;     
+}
+
 const std::string& refreshFileSuffixStr()
 {
     static const std::string Str(".refresh");
     return Str;     
 }
 
+const std::string& refreshBodyFileSuffixStr()
+{
+    static const std::string Str = refreshFileSuffixStr() + bodyFileSuffixStr();
+    return Str;     
+}
+
 const std::string& writeFileSuffixStr()
 {
     static const std::string Str(".write");
+    return Str;     
+}
+
+const std::string& writeBodyFileSuffixStr()
+{
+    static const std::string Str = writeFileSuffixStr() + bodyFileSuffixStr();
     return Str;     
 }
 
@@ -207,9 +231,21 @@ const std::string& lengthFileSuffixStr()
     return Str;     
 }
 
+const std::string& lengthBodyFileSuffixStr()
+{
+    static const std::string Str = lengthFileSuffixStr() + bodyFileSuffixStr();
+    return Str;     
+}
+
 const std::string& validFileSuffixStr()
 {
     static const std::string Str(".valid");
+    return Str;     
+}
+
+const std::string& validBodyFileSuffixStr()
+{
+    static const std::string Str = validFileSuffixStr() + bodyFileSuffixStr();
     return Str;     
 }
 
@@ -391,6 +427,12 @@ const std::string& fieldAccessPrefixStr()
 {
     static const std::string Str("field_");
     return Str;    
+}
+
+const std::string& bodyFileSuffixStr()
+{
+    static const std::string Str("_body");
+    return Str;     
 }
 
 char siblingRefPrefix()

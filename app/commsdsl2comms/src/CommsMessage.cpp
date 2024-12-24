@@ -246,12 +246,12 @@ bool CommsMessage::prepareImpl()
     auto codePathPrefix = comms::inputCodePathFor(*this, generator());
     auto obj = dslObj();
     bool overrides = 
-        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read") &&
-        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write") &&
-        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh") &&
-        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length") &&
-        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid") &&
-        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name");
+        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read", &CommsMessage::commsPrepareCustomReadFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write", &CommsMessage::commsPrepareCustomWriteFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh", &CommsMessage::commsPrepareCustomRefreshFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length", &CommsMessage::commsPrepareCustomLengthFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid", &CommsMessage::commsPrepareCustomValidFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name", &CommsMessage::commsPrepareCustomNameFromBodyInternal);
 
     if (!overrides) {
         return false;
@@ -311,7 +311,8 @@ bool CommsMessage::commsPrepareOverrideInternal(
     std::string& codePathPrefix, 
     const std::string& suffix,
     std::string& customCode,
-    const std::string& name)
+    const std::string& name,
+    BodyCustomCodeFunc bodyFunc)
 {
     do {
         if (!isOverrideCodeAllowed(type)) {
@@ -320,11 +321,16 @@ bool CommsMessage::commsPrepareOverrideInternal(
         }
 
         auto contents = util::readFileContents(codePathPrefix + suffix);
-        if (contents.empty()) {
+        if (!contents.empty()) {
+            customCode = std::move(contents);
             break;
         }
 
-        customCode = std::move(contents);
+        if (bodyFunc == nullptr) {
+            break;
+        }
+
+        customCode = bodyFunc(codePathPrefix);
     } while (false);
     
     if (customCode.empty() && isOverrideCodeRequired(type)) {
@@ -335,6 +341,135 @@ bool CommsMessage::commsPrepareOverrideInternal(
     }
 
     return true;
+}
+
+
+std::string CommsMessage::commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::readBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom read functionality\n"
+        "template <typename TIter>\n"
+        "comms::ErrorStatus doRead(TIter& iter, std::size_t len)\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::writeBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom write functionality\n"
+        "template <typename TIter>\n"
+        "comms::ErrorStatus doWrite(TIter& iter, std::size_t len) const\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::refreshBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom refresh functionality\n"
+        "bool doRefresh()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsPrepareCustomLengthFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::lengthBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom length calculation functionality\n"
+        "std::size_t doLength() const\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::validBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom validity check functionality\n"
+        "bool doValid() const\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsMessage::commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::nameBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Name of the message.\n"
+        "static const char* doName()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
 }
 
 bool CommsMessage::commsWriteCommonInternal() const
