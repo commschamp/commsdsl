@@ -99,6 +99,20 @@ to just clone the sources of this repository and use it without
 any extra manipulations of looking for the latest stable version among the tags and
 checking it out.
 
+# Asking For Help
+With time the [CommsChampion Ecosystem](https://commschamp.github.io) has grown with both
+features and complexity. Sometimes it can become challenging, especially for first time users,
+to find a proper way to define the required binary protocol, especially quite complex ones.
+The most efficient way to ask for help would be:
+
+1. forking the official [tutorial](https://github.com/commschamp/cc_tutorial/) project on github
+2. create a separate folder (say **howto100**) where the minimal portion of
+the required protocol which exposes the encountered problem is defined.
+3. [get in touch](#contact-information) providing an info on the forked project and encountered problem.
+
+The suggested resolution will be provided by a pull request and/or a comment. After the problem
+is resolved, the forked project can be deleted.
+
 # Contact Information
 For bug reports, feature requests, or any other question you may open an issue
 here in **github** or e-mail me directly to: **arobenko@gmail.com**. I usually
