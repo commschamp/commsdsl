@@ -57,6 +57,7 @@ private:
     unsigned toolsCalcBackPayloadOffsetInternal() const;
     std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
     std::string toolsProtTransportMsgDefInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::Interface& iFace) const;
     std::string toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::Interface& iFace) const;
     std::string toolsTransportMsgHeaderDefInternal() const;
     std::string toolsTransportMsgSrcDefInternal(const commsdsl::gen::Interface& iFace) const;

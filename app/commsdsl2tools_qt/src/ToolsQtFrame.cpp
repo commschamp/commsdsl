@@ -208,6 +208,7 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
             "\n"
             "#pragma once\n\n"
             "#^#INCLUDES#$#\n"
+            "#^#INC#$#\n"
             "\n"
             "#^#TOP_NS_BEGIN#$#\n"
             "#^#NS_BEGIN#$#\n"
@@ -223,6 +224,7 @@ bool ToolsQtFrame::toolsWriteProtTransportMsgHeaderInternal() const
             {"TOP_NS_BEGIN", gen.toolsNamespaceBeginForInterface(*info.first)},
             {"TOP_NS_END", gen.toolsNamespaceEndForInterface(*info.first)},
             {"INCLUDES", util::strListToString(includes, "\n", "\n")},
+            {"INC", toolsProtTransportMsgHeaderExtraIncInternal(*info.first)},
             {"DEF", toolsProtTransportMsgDefInternal(*info.first)},
         };
 
@@ -587,6 +589,12 @@ std::string ToolsQtFrame::toolsProtTransportMsgDefInternal(const commsdsl::gen::
     repl["BASE"] = util::processTemplate(BaseTempl, repl);
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtFrame::toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::Interface& iFace) const
+{
+    auto incFile = generator().getCodeDir() + '/' + toolsRelPathInternal(iFace) + ProtTransportMsgSuffix + strings::cppHeaderSuffixStr() + strings::incFileSuffixStr();
+    return util::readFileContents(incFile);
 }
 
 std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::Interface& iFace) const
