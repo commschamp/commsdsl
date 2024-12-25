@@ -629,7 +629,7 @@ std::string ToolsQtFrame::toolsProtTransportMsgReadFuncInternal(const commsdsl::
 
         static const std::string Templ = 
             "template <typename TIter>\n"
-            "comms::ErrorStatus read(TIter& iter, std::size_t len)\n"
+            "comms::ErrorStatus doRead(TIter& iter, std::size_t len)\n"
             "{\n"
             "    len -= #^#OFFSET#$#;\n"
             "    auto es = Base::template doReadUntilAndUpdateLen<#^#IDX#$#>(iter, len);\n"
