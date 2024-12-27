@@ -825,7 +825,7 @@ std::string ToolsQtFrame::toolsTransportMsgSrcDefInternal(const commsdsl::gen::I
         repl["ID_FUNC"] = 
             "virtual qlonglong numericIdImpl() const override\n"
             "{\n"
-            "    return static_cast<qlonglong>(msg().field_" + idName + "().value());\n"
+            "    return static_cast<qlonglong>(msg().field_" + idName + "().getValue());\n"
             "}\n";
     }
 
