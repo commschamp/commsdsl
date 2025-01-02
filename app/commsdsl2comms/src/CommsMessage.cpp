@@ -330,7 +330,11 @@ bool CommsMessage::commsPrepareOverrideInternal(
             break;
         }
 
-        customCode = bodyFunc(codePathPrefix);
+        auto bodyContents = bodyFunc(codePathPrefix);
+        if (!bodyContents.empty()) {
+            customCode = std::move(bodyContents);
+            break;
+        }       
     } while (false);
     
     if (customCode.empty() && isOverrideCodeRequired(type)) {
