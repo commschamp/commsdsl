@@ -71,7 +71,9 @@ public:
             [](auto& f)
             {
                 bool result = f->prepare();
-                f->setReferenced();
+                if (result) {
+                    f->setReferenced();
+                }
                 return result;
             });
     }
