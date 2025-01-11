@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -278,6 +278,16 @@ bool ProtocolImpl::isFeatureSupported(unsigned minDslVersion) const
     return minDslVersion <= currDslVersion;
 }
 
+bool ProtocolImpl::isFeatureDeprecated(unsigned deprecatedVersion) const
+{
+    auto currDslVersion = currSchema().dslVersion();
+    if (currDslVersion == 0U) {
+        return false;
+    }
+
+    return deprecatedVersion <= currDslVersion;
+}
+
 bool ProtocolImpl::isPropertySupported(const std::string& name) const
 {
     static const std::map<std::string, unsigned> Map = {
@@ -297,6 +307,10 @@ bool ProtocolImpl::isPropertySupported(const std::string& name) const
         {common::validCondStr(), 6U},
         {common::constructAsReadCondStr(), 6U},
         {common::constructAsValidCondStr(), 6U},
+        {common::fixedValueStr(), 7U},
+        {common::copyConstructFromStr(), 7U},
+        {common::copyReadCondFromStr(), 7U},
+        {common::copyValidCondFromStr(), 7U},
     };
 
     auto iter = Map.find(name);
@@ -305,6 +319,24 @@ bool ProtocolImpl::isPropertySupported(const std::string& name) const
     }
 
     return isFeatureSupported(iter->second);
+}
+
+bool ProtocolImpl::isPropertyDeprecated(const std::string& name) const
+{
+    static const std::map<std::string, unsigned> Map = {
+        {common::displayReadOnlyStr(), 7U},
+        {common::displayHiddenStr(), 7U},
+        {common::displaySpecialsStr(), 7U},
+        {common::displayExtModeCtrlStr(), 7U},
+        {common::displayIdxReadOnlyHiddenStr(), 7U},
+    };
+
+    auto iter = Map.find(name);
+    if (iter == Map.end()) {
+        return true;
+    }
+
+    return isFeatureDeprecated(iter->second);
 }
 
 bool ProtocolImpl::isFieldValueReferenceSupported() const
@@ -375,6 +407,31 @@ bool ProtocolImpl::isSizeCompInConditionalsSupported() const
 bool ProtocolImpl::isExistsCheckInConditionalsSupported() const
 {
     return isFeatureSupported(6U);
+}
+
+bool ProtocolImpl::isValidValueInStringAndDataSupported() const 
+{
+    return isFeatureSupported(7U);
+}
+
+bool ProtocolImpl::isValidateMinLengthForFieldsSupported() const
+{
+    return isFeatureSupported(7U);
+}
+
+bool ProtocolImpl::isMessageReuseSupported() const
+{
+    return isFeatureSupported(7U);
+}
+
+bool ProtocolImpl::isInterfaceReuseSupported() const
+{
+    return isMessageReuseSupported();
+}
+
+bool ProtocolImpl::isValidCondSupportedInCompositeFields() const
+{
+    return isFeatureSupported(7U);
 }
 
 void ProtocolImpl::cbXmlErrorFunc(void* userData, const xmlError* err)

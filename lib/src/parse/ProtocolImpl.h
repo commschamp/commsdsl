@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -102,7 +102,9 @@ public:
     }
 
     bool isFeatureSupported(unsigned minDslVersion) const;
+    bool isFeatureDeprecated(unsigned deprecatedVersion) const;
     bool isPropertySupported(const std::string& name) const;    
+    bool isPropertyDeprecated(const std::string& name) const;    
     bool isFieldValueReferenceSupported() const;
     bool isSemanticTypeLengthSupported() const;
     bool isSemanticTypeRefInheritanceSupported() const;
@@ -117,6 +119,11 @@ public:
     bool isFailOnInvalidInMessageSupported() const;
     bool isSizeCompInConditionalsSupported() const;
     bool isExistsCheckInConditionalsSupported() const;
+    bool isValidValueInStringAndDataSupported() const;
+    bool isValidateMinLengthForFieldsSupported() const;
+    bool isMessageReuseSupported() const;
+    bool isInterfaceReuseSupported() const;
+    bool isValidCondSupportedInCompositeFields() const;
 
     void setMultipleSchemasEnabled(bool value)
     {

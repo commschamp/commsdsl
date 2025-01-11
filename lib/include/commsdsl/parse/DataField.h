@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +15,11 @@
 
 #pragma once
 
-#include <vector>
-#include <cstdint>
+#include "commsdsl/parse/Field.h"
+#include "commsdsl/parse/Protocol.h"
 
-#include "Field.h"
+#include <cstdint>
+#include <vector>
 
 namespace commsdsl
 {
@@ -31,8 +32,16 @@ class COMMSDSL_API DataField : public Field
 {
     using Base = Field;
 public:
-
     using ValueType = std::vector<std::uint8_t>;
+
+    struct ValidValueInfo
+    {
+        ValueType m_value;
+        unsigned m_sinceVersion = 0;
+        unsigned m_deprecatedSince = Protocol::notYetDeprecated();
+    };
+
+    using ValidValuesList = std::vector<ValidValueInfo>;    
 
     explicit DataField(const DataFieldImpl* impl);
     explicit DataField(Field field);
@@ -42,6 +51,7 @@ public:
     bool hasLengthPrefixField() const;
     Field lengthPrefixField() const;
     const std::string& detachedPrefixFieldName() const;
+    const ValidValuesList& validValues() const;
 };
 
 } // namespace parse

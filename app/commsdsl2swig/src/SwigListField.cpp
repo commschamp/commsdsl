@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -97,7 +97,7 @@ std::string SwigListField::swigValueAccDeclImpl() const
 
 std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
 {
-    static const std::string Templ = 
+    std::string templ = 
         "using ValueType = std::vector<#^#ELEM#$#>;\n\n"
         "ValueType& value()\n"
         "{\n"
@@ -106,11 +106,16 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
         "const ValueType& getValue() const\n"
         "{\n"
         "    return reinterpret_cast<const ValueType&>(Base::getValue());\n"
-        "}\n\n"
-        "void setValue(const ValueType& val)\n"
-        "{\n"
-        "    Base::setValue(reinterpret_cast<const Base::ValueType&>(val));\n"
         "}\n";
+
+    if (!field().dslObj().isFixedValue()) {
+        templ += 
+            "\n"
+            "void setValue(const ValueType& val)\n"
+            "{\n"
+            "    Base::setValue(reinterpret_cast<const Base::ValueType&>(val));\n"
+            "}\n";        
+    }
 
     auto* elem = memberElementField();
     if (elem == nullptr) {
@@ -123,7 +128,7 @@ std::string SwigListField::swigExtraPublicFuncsCodeImpl() const
         {"ELEM", SwigGenerator::cast(generator()).swigClassName(*elem)}
     };
 
-    return util::processTemplate(Templ, repl);        
+    return util::processTemplate(templ, repl);        
 }
 
 void SwigListField::swigAddDefImpl(StringsList& list) const

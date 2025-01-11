@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -392,7 +392,8 @@ bool VariantFieldImpl::updateDefaultMember()
     
 bool VariantFieldImpl::updateIdxHidden()
 {
-    return validateAndUpdateBoolPropValue(common::displayIdxReadOnlyHiddenStr(), m_state.m_idxHidden);
+    checkAndReportDeprecatedPropertyValue(common::displayIdxReadOnlyHiddenStr());
+    return true;
 }
 
 } // namespace parse

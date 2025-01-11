@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include "ToolsQtLayer.h"
 
+#include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/util.h"
 
@@ -33,9 +34,10 @@ public:
 
     explicit ToolsQtFrame(ToolsQtGenerator& generator, commsdsl::parse::Frame dslObj, commsdsl::gen::Elem* parent);
 
-    std::string toolsHeaderFilePath() const;
-    StringsList toolsSourceFiles() const;
+    std::string toolsHeaderFilePath(const commsdsl::gen::Interface& iFace) const;
+    StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
     std::string toolsMsgFactoryOptions() const;
+    std::string toolsClassScope(const commsdsl::gen::Interface& iFace) const;
 
     static const ToolsQtFrame* cast(const commsdsl::gen::Frame* val)
     {
@@ -47,13 +49,20 @@ protected:
     virtual bool writeImpl() const override;    
 
 private:
+    bool toolsWriteProtTransportMsgHeaderInternal() const;
     bool toolsWriteHeaderInternal() const;
+    bool toolsWriteSrcInternal() const;
     bool toolsWriteTransportMsgHeaderInternal() const;
     bool toolsWriteTransportMsgSrcInternal() const;
-    std::string toolsTransportMessageHeaderFilePathInternal() const;
-    std::string toolsTransportMessageSrcFilePathInternal() const;
     unsigned toolsCalcBackPayloadOffsetInternal() const;
-    std::string toolsRelFilePath() const;
+    std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsProtTransportMsgDefInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsProtTransportMsgHeaderExtraIncInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsProtTransportMsgReadFuncInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsTransportMsgHeaderDefInternal() const;
+    std::string toolsTransportMsgSrcDefInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsFrameHeaderDefInternal() const;
+    std::string toolsFrameSrcDefInternal(const commsdsl::gen::Interface& iFace) const;
 
     ToolsQtLayersList m_toolsLayers;
 };

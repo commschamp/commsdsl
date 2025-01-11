@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -138,7 +138,7 @@ protected:
 
     std::string commsCommonNameFuncCode() const;
     std::string commsFieldBaseParams(commsdsl::parse::Endian endian) const;
-    void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const;
+    void commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts, bool tempFieldObj = false) const;
     void commsAddFieldTypeOption(commsdsl::gen::util::StringsList& opts) const;
     bool commsIsExtended() const;
 
@@ -162,13 +162,22 @@ private:
         std::string m_append;
     };
 
+    using BodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
+
     bool copyCodeFromInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::OverrideType type, 
         std::string& codePathPrefix, 
         const std::string& suffix,
         std::string& customCode,
-        const std::string& name);
+        const std::string& name,
+        BodyCustomCodeFunc bodyFunc = nullptr);
+    static std::string commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomLengthFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix);
     bool commsWriteCommonInternal() const;
     bool commsWriteDefInternal() const;
     std::string commsFieldDefCodeInternal() const;

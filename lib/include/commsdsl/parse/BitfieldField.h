@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,6 +17,7 @@
 
 #include "commsdsl/parse/Endian.h"
 #include "commsdsl/parse/Field.h"
+#include "commsdsl/parse/OptCond.h"
 
 namespace commsdsl
 {
@@ -37,6 +38,7 @@ public:
 
     Endian endian() const;
     Members members() const;
+    OptCond validCond() const;    
 };
 
 } // namespace parse

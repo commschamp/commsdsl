@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema7" endian="big">
+    <description>
+        Testing reuse between interfaces
+    </description>
+    <interface name="I1" >
+        <fields>
+            <int name="version" type="uint32" semanticType="version" />
+        </fields>
+    </interface>
+    <interface name="I2" reuse="I1">
+        <description>
+            Second interface
+        </description>
+        <fields>
+            <int name="bla" type="uint32" />
+        </fields>
+    </interface>
+</schema>

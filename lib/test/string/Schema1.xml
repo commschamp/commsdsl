@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema1"
-        id="1"
-        endian="big">
+<schema name="Schema1" endian="big">
     <fields>
-        <string name="String1" />
+        <string name="String1" validateMinLength="0" />
     </fields>
 </schema>

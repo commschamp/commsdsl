@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,7 +36,6 @@ namespace
 
 const std::string ProtPrefix("Protocol_");
 const std::string PluginPrefix("Plugin_");
-const std::string WidgetPrefix("ConfigWidget_");
 
 } // namespace    
 
@@ -65,14 +64,18 @@ bool ToolsQtPlugin::write()
         toolsWritePluginHeaderInternal() &&
         toolsWritePluginSrcInternal() &&
         toolsWritePluginJsonInternal() &&
-        toolsWritePluginConfigInternal() &&
-        toolsWriteConfigWidgetHeaderInternal() &&
-        toolsWriteConfigWidgetSrcInternal();
+        toolsWritePluginConfigInternal();
 }
 
 std::string ToolsQtPlugin::toolsProtocolName() const
 {
     return util::strToName(toolsAdjustedNameInternal());
+}
+
+std::string ToolsQtPlugin::toolsInterfaceName() const
+{
+    auto iFaceScope = comms::scopeFor(*m_interfacePtr, m_generator, false, true);
+    return util::strReplace(iFaceScope, "::", "_");
 }
 
 bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal() 
@@ -112,63 +115,41 @@ bool ToolsQtPlugin::toolsWriteProtocolHeaderInternal()
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
-        "#include <memory>\n\n"
-        "#include \"cc_tools_qt/Protocol.h\"\n\n"
+        "#include \"cc_tools_qt/ToolsProtocol.h\"\n\n"
         "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"        
         "namespace plugin\n"
         "{\n\n"
-        "class #^#CLASS_NAME#$#Impl;\n"
-        "class #^#CLASS_NAME#$##^#ORIG#$# : public cc_tools_qt::Protocol\n"
+        "class #^#CLASS_NAME#$##^#ORIG#$# : public cc_tools_qt::ToolsProtocol\n"
         "{\n"
+        "    using Base = cc_tools_qt::ToolsProtocol;\n"
         "public:\n"
         "    #^#CLASS_NAME#$##^#ORIG#$#();\n"
         "    virtual ~#^#CLASS_NAME#$##^#ORIG#$#();\n\n"
-        "    #^#VERSION_API#$#\n"
         "protected:\n"
         "    virtual const QString& nameImpl() const override;\n"
-        "    virtual MessagesList readImpl(const cc_tools_qt::DataInfo& dataInfo, bool final) override;\n"
-        "    virtual cc_tools_qt::DataInfoPtr writeImpl(cc_tools_qt::Message& msg) override;\n"
-        "    virtual MessagesList createAllMessagesImpl() override;\n"
-        "    virtual cc_tools_qt::MessagePtr createMessageImpl(const QString& idAsString, unsigned idx) override;\n"
-        "    virtual UpdateStatus updateMessageImpl(cc_tools_qt::Message& msg) override;\n"
-        "    virtual cc_tools_qt::MessagePtr cloneMessageImpl(const cc_tools_qt::Message& msg) override;\n"
-        "    virtual cc_tools_qt::MessagePtr createInvalidMessageImpl() override;\n"
-        "    virtual cc_tools_qt::MessagePtr createRawDataMessageImpl() override;\n"
-        "    virtual cc_tools_qt::MessagePtr createExtraInfoMessageImpl() override;\n\n"
-        "#^#PRIVATE#$#:\n"
-        "    std::unique_ptr<#^#CLASS_NAME#$#Impl> m_pImpl;\n"
         "};\n\n"
         "#^#EXTEND#$#\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
+        "#^#TOP_NS_END#$#\n\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
         {"EXTEND", extendCode},
         {"INC", incCode},
-        {"PRIVATE", "private"},
     };   
 
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
-        repl["PRIVATE"] = "protected";
     }
-
-    if (toolsHasConfigWidgetInternal()) {
-        std::string verApi =
-            "int getVersion() const;\n"
-            "void setVersion(int value);\n";
-        repl["VERSION_API"] = std::move(verApi);
-    }         
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
@@ -209,116 +190,47 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
     auto incCode = util::readFileContents(incPath);
 
+    util::StringsList includes = {
+        m_framePtr->toolsHeaderFilePath(*m_interfacePtr)
+    };
+    comms::prepareIncludeStatement(includes);
+
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
-        "#include <cassert>\n"
-        "#include \"cc_tools_qt/ProtocolBase.h\"\n"
-        "#^#INTERFACE_INC#$#\n"
-        "#include \"#^#FRAME_HEADER#$#\"\n"
-        "#include \"#^#TRANSPORT_MESSAGE_HEADER#$#\"\n\n"
+        "#^#INCLUDES#$#\n"
+        "\n"
         "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"
         "namespace plugin\n"
         "{\n\n"
-        "class #^#CLASS_NAME#$#Impl : public\n"
-        "    cc_tools_qt::ProtocolBase<\n"
-        "        #^#TOP_NS#$#::#^#FRAME#$##^#INTERFACE_TEMPL_PARAM#$#,\n"
-        "        #^#TOP_NS#$#::#^#FRAME#$#TransportMessage#^#INTERFACE_TEMPL_PARAM#$#\n"
-        "    >\n"
-        "{\n"
-        "    using Base =\n"
-        "        cc_tools_qt::ProtocolBase<\n"
-        "            #^#TOP_NS#$#::#^#FRAME#$##^#INTERFACE_TEMPL_PARAM#$#,\n"
-        "            #^#TOP_NS#$#::#^#FRAME#$#TransportMessage#^#INTERFACE_TEMPL_PARAM#$#\n"
-        "        >;\n"
-        "public:\n"
-        "    friend class #^#TOP_NS#$#::#^#MAIN_NS#$#::plugin::#^#CLASS_NAME#$##^#ORIG#$#;\n\n"
-        "    #^#CLASS_NAME#$#Impl() = default;\n"
-        "    virtual ~#^#CLASS_NAME#$#Impl() = default;\n\n"
-        "    #^#VERSION_IMPL_PUBLIC#$#\n"
-        "protected:\n"
-        "    virtual const QString& nameImpl() const override\n"
-        "    {\n"
-        "        static const QString Str(\"#^#PROT_NAME#$#\");\n"
-        "        return Str;\n"
-        "    }\n\n"
-        "    #^#VERSION_IMPL_PROTECTED#$#\n"
-        "    using Base::createInvalidMessageImpl;\n"
-        "    using Base::createRawDataMessageImpl;\n"
-        "    using Base::createExtraInfoMessageImpl;\n\n"
-        "#^#VERSION_IMPL_PRIVATE#$#\n"
-        "};\n\n"
-        "#^#CLASS_NAME#$##^#ORIG#$#::#^#CLASS_NAME#$##^#ORIG#$#()\n"
-        "  : m_pImpl(new #^#CLASS_NAME#$#Impl())\n"
+        "#^#CLASS_NAME#$##^#ORIG#$#::#^#CLASS_NAME#$##^#ORIG#$#() :\n"
+        "    Base(std::make_unique<#^#FRAME#$#>())\n"
         "{\n"
         "}\n\n"
         "#^#CLASS_NAME#$##^#ORIG#$#::~#^#CLASS_NAME#$##^#ORIG#$#() = default;\n\n"
-        "#^#VERSION_API#$#\n"
         "const QString& #^#CLASS_NAME#$##^#ORIG#$#::nameImpl() const\n"
         "{\n"
-        "    return m_pImpl->name();\n"
+        "        static const QString Str(\"#^#PROT_NAME#$#\");\n"
+        "        return Str;\n"
         "}\n\n"
-        "#^#CLASS_NAME#$##^#ORIG#$#::MessagesList #^#CLASS_NAME#$##^#ORIG#$#::readImpl(const cc_tools_qt::DataInfo& dataInfo, bool final)\n"
-        "{\n"
-        "    return m_pImpl->read(dataInfo, final);\n"
-        "}\n\n"
-        "cc_tools_qt::DataInfoPtr #^#CLASS_NAME#$##^#ORIG#$#::writeImpl(cc_tools_qt::Message& msg)\n"
-        "{\n"
-        "    return m_pImpl->write(msg);\n"
-        "}\n\n"
-        "#^#CLASS_NAME#$##^#ORIG#$#::MessagesList #^#CLASS_NAME#$##^#ORIG#$#::createAllMessagesImpl()\n"
-        "{\n"
-        "    return m_pImpl->createAllMessages();\n"
-        "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::createMessageImpl(const QString& idAsString, unsigned idx)\n"
-        "{\n"
-        "    return static_cast<cc_tools_qt::Protocol*>(m_pImpl.get())->createMessage(idAsString, idx);\n"
-        "}\n\n"
-        "#^#CLASS_NAME#$##^#ORIG#$#::UpdateStatus #^#CLASS_NAME#$##^#ORIG#$#::updateMessageImpl(cc_tools_qt::Message& msg)\n"
-        "{\n"
-        "    return m_pImpl->updateMessage(msg);\n"
-        "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::cloneMessageImpl(const cc_tools_qt::Message& msg)\n"
-        "{\n"
-        "    return m_pImpl->cloneMessage(msg);\n"
-        "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::createInvalidMessageImpl()\n"
-        "{\n"
-        "    return m_pImpl->createInvalidMessageImpl();\n"
-        "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::createRawDataMessageImpl()\n"
-        "{\n"
-        "    return m_pImpl->createRawDataMessageImpl();\n"
-        "}\n\n"
-        "cc_tools_qt::MessagePtr #^#CLASS_NAME#$##^#ORIG#$#::createExtraInfoMessageImpl()\n"
-        "{\n"
-        "    return m_pImpl->createExtraInfoMessageImpl();\n"
-        "}\n\n"  
         "#^#EXTEND#$#\n"      
         "} // namespace plugin\n\n"       
         "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
+        "#^#TOP_NS_END#$#\n"
     ;
-
-    auto frameHeader = m_framePtr->toolsHeaderFilePath();
-    auto transportMsgHeader = frameHeader;
-    auto& suffix = strings::transportMessageSuffixStr();
-    auto insertIter = transportMsgHeader.begin() + (frameHeader.size() - strings::cppHeaderSuffixStr().size());
-    transportMsgHeader.insert(insertIter, suffix.begin(), suffix.end());    
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsProtClassNameInternal()},
-        {"FRAME_HEADER", frameHeader},
-        {"TRANSPORT_MESSAGE_HEADER", transportMsgHeader},
-        {"FRAME", comms::scopeFor(*m_framePtr, m_generator)},
+        {"FRAME", m_framePtr->toolsClassScope(*m_interfacePtr)},
         {"PROT_NAME", toolsAdjustedNameInternal()},
+        {"INCLUDES", util::strListToString(includes, "\n", "")},
         {"INC", incCode},
         {"EXTEND", extendCode},
     };    
@@ -326,139 +238,6 @@ bool ToolsQtPlugin::toolsWriteProtocolSrcInternal()
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
     }        
-
-    if (m_generator.toolsHasMulitpleInterfaces()) {
-        assert(m_interfacePtr != nullptr);
-        repl["INTERFACE_TEMPL_PARAM"] = '<' + m_generator.getTopNamespace() + "::" + comms::scopeFor(*m_interfacePtr, m_generator) + '>';
-        repl["INTERFACE_INC"] = "#include \"" + m_interfacePtr->toolsHeaderFilePath() + "\"";
-    }    
-
-    if (toolsHasConfigWidgetInternal()) {
-        const std::string VerImplPubTempl =
-            "int getVersion() const\n"
-            "{\n"
-            "    return m_version;\n"
-            "}\n\n"
-            "void setVersion(int value)\n"
-            "{\n"
-            "    m_version = value;\n"
-            "    #^#UPDATE_FRAME#$#\n"
-            "}\n";
-
-        const std::string verImplProtected =
-            "virtual MessagesList createAllMessagesImpl() override\n"
-            "{\n"
-            "    auto list = Base::createAllMessagesImpl();\n"
-            "    for (auto& mPtr : list) {\n"
-            "        updateMessageWithVersion(*mPtr);\n"
-            "    }\n"
-            "    return list;\n"
-            "}\n\n"
-            "virtual cc_tools_qt::MessagePtr createMessageImpl(const QString& idAsString, unsigned idx) override\n"
-            "{\n"
-            "    auto mPtr = Base::createMessageImpl(idAsString, idx);\n"
-            "    updateMessageWithVersion(*mPtr);\n"
-            "    return mPtr;\n"
-            "}\n\n";
-
-        const std::string VerImplPrivateTempl =
-            "private:\n"
-            "    void updateMessageWithVersion(cc_tools_qt::Message& msg)\n"
-            "    {\n"
-            "        assert(dynamic_cast<#^#INTERFACE_TYPE#$#*>(&msg) != nullptr);\n"
-            "        static_assert(#^#INTERFACE_TYPE#$#::hasVersionInTransportFields(),\n"
-            "            \"Interface type is expected to has version in transport fields\");\n"
-            "        static const std::size_t VersionIdx = \n"
-            "            #^#INTERFACE_TYPE#$#::versionIdxInTransportFields();\n"
-            "        auto& castedMsg = static_cast<#^#INTERFACE_TYPE#$#&>(msg);\n"
-            "        std::get<VersionIdx>(castedMsg.transportFields()).value() =\n"
-            "            static_cast<#^#INTERFACE_TYPE#$#::VersionType>(m_version);\n"
-            "        castedMsg.refresh();\n"
-            "        updateMessage(msg);\n"
-            "    }\n\n"
-            "    #^#UPDATE_FRAME#$#\n"
-            "    int m_version = #^#DEFAULT_VERSION#$#;\n";
-
-        const std::string VerApiTempl =
-            "int #^#CLASS_NAME#$#::getVersion() const\n"
-            "{\n"
-            "    return m_pImpl->getVersion();\n"
-            "}\n\n"
-            "void #^#CLASS_NAME#$#::setVersion(int value)\n"
-            "{\n"
-            "    m_pImpl->setVersion(value);\n"
-            "}\n"; 
-
-        util::ReplacementMap replVerImplPub;
-
-        util::ReplacementMap replVerImplPrivate = {
-            {"DEFAULT_VERSION", util::numToString(m_generator.currentSchema().schemaVersion())},
-            {"INTERFACE_TYPE", m_generator.getTopNamespace() + "::" + comms::scopeFor(*m_interfacePtr, m_generator)}
-        };
-
-        std::vector<std::string> versionFields;
-        for (auto& fPtr : m_interfacePtr->fields()) {
-            assert(fPtr);
-            if (fPtr->dslObj().semanticType() == commsdsl::parse::Field::SemanticType::Version) {
-                versionFields.push_back(fPtr->dslObj().name());
-            }
-        }
-
-        std::vector<std::string> pseudoLayers;
-        for (auto& lPtr : m_framePtr->layers()) {
-            assert(lPtr);
-
-            auto checkVersionField = 
-                [&pseudoLayers, &lPtr](const commsdsl::gen::Field* f)
-                {
-                    if (f == nullptr) {
-                        return;
-                    }
-
-                    if ((f->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::Version) ||
-                        (!f->dslObj().isPseudo())) {
-                        return;
-                    }
-
-                    pseudoLayers.push_back(lPtr->dslObj().name());
-                };
-
-            checkVersionField(lPtr->externalField());
-            checkVersionField(lPtr->memberField());
-        }  
-
-        util::StringsList pseudoUpdates;
-        for (auto& l : pseudoLayers) {
-            auto layerTypeStr = "LayerType_" + comms::className(l);
-            auto layerAccStr = "layer_" + comms::accessName(l);
-            auto str =
-                "auto& " + layerAccStr + " = protocolStack()." + layerAccStr + "();\n"
-                "using " + layerTypeStr + " = typename std::decay<decltype(" + layerAccStr + ")>::type;\n" +
-                layerAccStr + ".pseudoField().value() =\n"
-                "    static_cast<" + layerTypeStr + "::Field::ValueType>(m_version);\n";
-            pseudoUpdates.push_back(std::move(str));
-        }    
-
-        if (!pseudoUpdates.empty()) {
-            static const std::string UpdateFrameTempl =
-                "void updateFrame()\n"
-                "{\n"
-                "    #^#UPDATES#$#\n"
-                "}\n";
-
-            util::ReplacementMap replUpdateFrame = {
-                {"UPDATES", util::strListToString(pseudoUpdates, "", "")}
-            };
-
-            replVerImplPrivate["UPDATE_FRAME"] = util::processTemplate(UpdateFrameTempl, replUpdateFrame);
-            replVerImplPub["UPDATE_FRAME"] = "updateFrame();";
-        }          
-
-        repl["VERSION_IMPL_PUBLIC"] = util::processTemplate(VerImplPubTempl, replVerImplPub);
-        repl["VERSION_IMPL_PROTECTED"] = std::move(verImplProtected);
-        repl["VERSION_IMPL_PRIVATE"] = util::processTemplate(VerImplPrivateTempl, replVerImplPrivate);
-        repl["VERSION_API"] = util::processTemplate(VerApiTempl, repl);
-    }
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
@@ -501,44 +280,42 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
     static const std::string Templ =
         "#^#GENERATED#$#\n"
         "#pragma once\n\n"
+        "#include \"cc_tools_qt/ToolsPlugin.h\"\n\n"
         "#include <QtCore/QObject>\n"
         "#include <QtCore/QtPlugin>\n"
-        "#include \"cc_tools_qt/Plugin.h\"\n"
-        "#include \"cc_tools_qt/Protocol.h\"\n\n"
         "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"    
         "namespace plugin\n"
         "{\n\n"    
-        "class #^#CLASS_NAME#$##^#ORIG#$# : public cc_tools_qt::Plugin\n"
+        "class #^#CLASS_NAME#$##^#ORIG#$# : public cc_tools_qt::ToolsPlugin\n"
         "{\n"
         "    #^#EXTEND_COMMENT#$#\n"
         "    #^#COMMENT#$#Q_OBJECT\n"
         "    #^#COMMENT#$#Q_PLUGIN_METADATA(IID \"#^#ID#$#\" FILE \"#^#CLASS_NAME#$#.json\")\n"
-        "    #^#COMMENT#$#Q_INTERFACES(cc_tools_qt::Plugin)\n\n"
+        "    #^#COMMENT#$#Q_INTERFACES(cc_tools_qt::ToolsPlugin)\n"
+        "    using Base = cc_tools_qt::ToolsPlugin;\n\n"
         "public:\n"
         "    #^#CLASS_NAME#$##^#ORIG#$#();\n"
         "    virtual ~#^#CLASS_NAME#$##^#ORIG#$#();\n\n"
-        "#^#PRIVATE#$#:\n"
-        "    cc_tools_qt::ProtocolPtr m_protocol;\n"
-        "    #^#VERSION_STORAGE#$#\n"
+        "protected:\n"
+        "    virtual cc_tools_qt::ToolsProtocolPtr createProtocolImpl() override;\n"
         "};\n\n"
         "#^#EXTEND#$#\n\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
+        "#^#TOP_NS_END#$#\n"
     ;
 
     assert(!m_pluginId.empty());
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},        
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"ID", m_pluginId},
-        {"PRIVATE", "private"},
         {"EXTEND", extendCode},
         {"INC", incCode},
     };        
@@ -547,12 +324,6 @@ bool ToolsQtPlugin::toolsWritePluginHeaderInternal()
         repl["ORIG"] = strings::origSuffixStr();
         repl["EXTEND_COMMENT"] = "// Make sure to add the following lines in the actual deriving class.";
         repl["COMMENT"] = "// ";
-        repl["PRIVATE"] = "protected";
-    }
-
-    if (toolsHasConfigWidgetInternal()) {
-        auto verStr = "int m_version = " + util::numToString(m_generator.currentSchema().schemaVersion()) + ";";
-        repl["VERSION_STORAGE"] = std::move(verStr);
     }
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
@@ -597,36 +368,31 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
         "#^#GENERATED#$#\n"
         "#include \"#^#CLASS_NAME#$#.h\"\n\n"
         "#include \"#^#PROTOCOL_CLASS_NAME#$#.h\"\n\n"
-        "#^#WIDGET_INCLUDE#$#\n\n"
         "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#MAIN_NS#$#\n"
         "{\n\n"    
         "namespace plugin\n"
         "{\n\n"    
         "#^#CLASS_NAME#$##^#ORIG#$#::#^#CLASS_NAME#$##^#ORIG#$#() :\n"
-        "    m_protocol(new #^#PROTOCOL_CLASS_NAME#$#())\n"
+        "    Base(Type_Protocol)\n"
         "{\n"
-        "    pluginProperties()\n"
-        "        .setProtocolCreateFunc(\n"
-        "            [this]() noexcept -> cc_tools_qt::ProtocolPtr\n"
-        "            {\n"
-        "                return m_protocol;\n"
-        "            })\n"
-        "        #^#CONFIG_WIDGET_FUNC#$#\n"
-        "    ;\n"
         "}\n\n"
         "#^#CLASS_NAME#$##^#ORIG#$#::~#^#CLASS_NAME#$##^#ORIG#$#() = default;\n\n"
+        "cc_tools_qt::ToolsProtocolPtr #^#CLASS_NAME#$##^#ORIG#$#::createProtocolImpl()\n"
+        "{\n"
+        "    return cc_tools_qt::ToolsProtocolPtr(new #^#PROTOCOL_CLASS_NAME#$#());\n"
+        "}\n\n"
         "#^#EXTEND#$#\n\n"
         "} // namespace plugin\n\n"
         "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
+        "#^#TOP_NS_END#$#\n"
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},  
         {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
         {"CLASS_NAME", toolsPluginClassNameInternal()},
         {"PROTOCOL_CLASS_NAME", toolsProtClassNameInternal()},
@@ -637,30 +403,6 @@ bool ToolsQtPlugin::toolsWritePluginSrcInternal()
     if (!extendCode.empty()) {
         repl["ORIG"] = strings::origSuffixStr();
     }         
-
-    if (toolsHasConfigWidgetInternal()) {
-        static const std::string WidgetTempl =
-            ".setConfigWidgetCreateFunc(\n"
-            "    [this]() -> QWidget*\n"
-            "    {\n"
-            "        auto* w =\n"
-            "            new #^#WIDGET_CLASS#$#(\n"
-            "                static_cast<#^#PROT_CLASS#$#*>(m_protocol.get())->getVersion());\n"
-            "        w->setVersionUpdateCb(\n"
-            "            [this](int value) {\n"
-            "                static_cast<#^#PROT_CLASS#$#*>(m_protocol.get())->setVersion(value);\n"
-            "            });\n"
-            "        return w;\n"
-            "    })\n";
-
-        util::ReplacementMap widgetRepl = {
-            {"WIDGET_CLASS", toolsConfigWidgetClassNameInternal()},
-            {"PROT_CLASS", toolsProtClassNameInternal()}
-        };
-
-        repl["WIDGET_INCLUDE"] = "#include \"" + toolsConfigWidgetClassNameInternal() + ".h\"";
-        repl["CONFIG_WIDGET_FUNC"] = util::processTemplate(WidgetTempl, widgetRepl);
-    }
 
     auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
     stream << str;
@@ -776,199 +518,6 @@ bool ToolsQtPlugin::toolsWritePluginConfigInternal()
     return true;   
 }
 
-bool ToolsQtPlugin::toolsWriteConfigWidgetHeaderInternal() 
-{
-    if (!toolsHasConfigWidgetInternal()) {
-        return true;
-    }
-
-    auto relPath = toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppHeaderSuffixStr();
-    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);    
-
-    m_generator.logger().info("Generating " + filePath);
-
-    std::ofstream stream(filePath);
-    if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
-        return false;
-    }
-
-    auto replaceFilePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
-    auto replaceCode = util::readFileContents(replaceFilePath);
-    if (!replaceCode.empty()) {
-        stream << replaceCode;
-        stream.flush();
-        return stream.good();
-    }   
-
-    auto extendPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::extendFileSuffixStr());
-    auto extendCode = util::readFileContents(extendPath);
-
-    auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
-    auto incCode = util::readFileContents(incPath);        
-
-    static const std::string Templ =
-        "#^#GENERATED#$#\n"
-        "#pragma once\n\n"
-        "#include <functional>\n"
-        "#include <QtWidgets/QWidget>\n\n"
-        "#^#INC\n\n#$#"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
-        "namespace #^#MAIN_NS#$#\n"
-        "{\n\n"    
-        "namespace plugin\n"
-        "{\n\n"    
-        "class #^#CLASS_NAME#$##^#ORIG#$# : public QWidget\n"
-        "{\n"
-        "    Q_OBJECT\n"
-        "public:\n"
-        "    using VersionUpdateCb = std::function<void (int)>;\n\n"
-        "    explicit #^#CLASS_NAME#$##^#ORIG#$#(int version);\n\n"
-        "    template <typename TFunc>\n"
-        "    void setVersionUpdateCb(TFunc&& func)\n"
-        "    {\n"
-        "        m_versionUpdateCb = std::forward<TFunc>(func);\n"
-        "    }\n\n"
-        "#^#PRIVATE#$# slots:\n"
-        "    void versionChanged(int value);\n\n"
-        "#^#PRIVATE#$#:\n"
-        "    VersionUpdateCb m_versionUpdateCb;"
-        "};\n\n"
-        "#^#EXTEND#$#\n\n"
-        "} // namespace plugin\n\n"
-        "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
-    ;
-
-    util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
-        {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
-        {"EXTEND", extendCode},
-        {"INC", incCode},
-        {"PRIVATE", "private"},
-    };        
-
-    if (!extendCode.empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
-        repl["PRIVATE"] = "protected";
-    }    
-
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
-    stream << str;
-    stream.flush();
-    if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
-        return false;
-    }
-    
-    return true;    
-}
-
-bool ToolsQtPlugin::toolsWriteConfigWidgetSrcInternal() 
-{
-    if (!toolsHasConfigWidgetInternal()) {
-        return true;
-    }
-
-    auto relPath = toolsRelFilePath(toolsConfigWidgetClassNameInternal()) + strings::cppSourceSuffixStr();
-    auto filePath = util::pathAddElem(m_generator.getOutputDir(), relPath);    
-
-    m_generator.logger().info("Generating " + filePath);
-
-    std::ofstream stream(filePath);
-    if (!stream) {
-        m_generator.logger().error("Failed to open \"" + filePath + "\" for writing.");
-        return false;
-    }
-
-    auto replaceFilePath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::replaceFileSuffixStr());
-    auto replaceCode = util::readFileContents(replaceFilePath);
-    if (!replaceCode.empty()) {
-        stream << replaceCode;
-        stream.flush();
-        return stream.good();
-    }   
-
-    auto extendPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::extendFileSuffixStr());
-    auto extendCode = util::readFileContents(extendPath);
-
-    auto incPath = util::pathAddElem(m_generator.getCodeDir(), relPath + strings::incFileSuffixStr());
-    auto incCode = util::readFileContents(incPath);        
-
-    static const std::string Templ =
-        "#^#GENERATED#$#\n"
-        "#include \"#^#CLASS_NAME#$#.h\"\n\n"
-        "#include <QtWidgets/QHBoxLayout>\n"
-        "#include <QtWidgets/QLabel>\n"
-        "#include <QtWidgets/QSpacerItem>\n"
-        "#include <QtWidgets/QSpinBox>\n"
-        "#include <QtWidgets/QVBoxLayout>\n\n"
-        "#^#INC#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"
-        "namespace #^#MAIN_NS#$#\n"
-        "{\n\n"    
-        "namespace plugin\n"
-        "{\n\n"    
-        "#^#CLASS_NAME#$##^#ORIG#$#::#^#CLASS_NAME#$##^#ORIG#$#(int version)"
-        "{\n"
-        "    auto* versionLabel = new QLabel(\"Default Version:\");\n"
-        "    auto* versionSpinBox = new QSpinBox;\n"
-        "    versionSpinBox->setMaximum(99999999);\n"
-        "    versionSpinBox->setValue(version);\n"
-        "    auto* versionSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);\n"
-        "    auto* versionLayoutLayout = new QHBoxLayout();\n"
-        "    versionLayoutLayout->addWidget(versionLabel);\n"
-        "    versionLayoutLayout->addWidget(versionSpinBox);\n"
-        "    versionLayoutLayout->addItem(versionSpacer);\n\n"
-        "    auto* verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);\n\n"
-        "    auto* verticalLayout = new QVBoxLayout(this);\n"
-        "    verticalLayout->addLayout(versionLayoutLayout);\n"
-        "    verticalLayout->addItem(verticalSpacer);\n\n"
-        "    setLayout(verticalLayout);\n\n"
-        "    connect(\n"
-        "        versionSpinBox, SIGNAL(valueChanged(int)),\n"
-        "        this, SLOT(versionChanged(int)));\n"
-        "}\n\n"
-        "void #^#CLASS_NAME#$##^#ORIG#$#::versionChanged(int value)\n"
-        "{\n"
-        "    if (m_versionUpdateCb) {\n"
-        "        m_versionUpdateCb(value);\n"
-        "    }\n"
-        "}\n\n"
-        "#^#EXTEND#$#\n\n"
-        "} // namespace plugin\n\n"
-        "} // namespace #^#MAIN_NS#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n\n"
-    ;
-
-    util::ReplacementMap repl = {
-        {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
-        {"TOP_NS", m_generator.getTopNamespace()},
-        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
-        {"CLASS_NAME", toolsConfigWidgetClassNameInternal()},
-        {"EXTEND", extendCode},
-        {"INC", incCode},
-    };        
-
-    if (!extendCode.empty()) {
-        repl["ORIG"] = strings::origSuffixStr();
-    }
-
-    auto str = commsdsl::gen::util::processTemplate(Templ, repl, true);
-    stream << str;
-    stream.flush();
-    if (!stream.good()) {
-        m_generator.logger().error("Failed to write \"" + filePath + "\".");
-        return false;
-    }
-    
-    return true;    
-}
-
 const std::string& ToolsQtPlugin::toolsAdjustedNameInternal() const
 {
     auto* nameToUse = &m_name;
@@ -988,21 +537,11 @@ std::string ToolsQtPlugin::toolsPluginClassNameInternal() const
     return PluginPrefix + toolsProtocolName();
 }
 
-std::string ToolsQtPlugin::toolsConfigWidgetClassNameInternal() const
-{
-    return WidgetPrefix + toolsProtocolName();
-}
-
-bool ToolsQtPlugin::toolsHasConfigWidgetInternal() const
-{
-    assert(m_interfacePtr != nullptr);
-    return (m_interfacePtr->hasVersionField());
-}
-
 std::string ToolsQtPlugin::toolsRelFilePath(const std::string& name) const
 {
+    auto prefix = util::strReplace(m_generator.toolsScopePrefix(), "::", "/");
     return 
-        m_generator.getTopNamespace() + '/' + m_generator.protocolSchema().mainNamespace() + '/' + 
+        prefix + m_generator.protocolSchema().mainNamespace() + '/' + 
         strings::pluginNamespaceStr() + '/' + name;
 }
 

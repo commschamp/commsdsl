@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,40 +39,6 @@ ToolsQtValueLayer::ToolsQtValueLayer(ToolsQtGenerator& generator, commsdsl::pars
 bool ToolsQtValueLayer::prepareImpl() 
 {
     return Base::prepareImpl() && ToolsBase::prepare();
-}
-
-std::string ToolsQtValueLayer::toolExtraFieldTemplParamsImpl() const
-{
-    if (!toolsIsForcedPseudoInternal()) {
-        return strings::emptyString();
-    }
-
-    return ", comms::option::def::EmptySerialization";
-}
-
-std::string ToolsQtValueLayer::toolsForcedSerHiddenStrImpl() const
-{
-    if (!toolsIsForcedPseudoInternal()) {
-        return ToolsBase::toolsForcedSerHiddenStrImpl();
-    }
-
-    return "true";
-}
-
-bool ToolsQtValueLayer::toolsIsForcedPseudoInternal() const
-{
-    auto* field = toolsExternalField();
-    if (field == nullptr) {
-        field = toolsMemberField();
-    }
-
-    assert(field != nullptr);
-    if (field->field().dslObj().isPseudo()) {
-        // Already pseudo
-        return false;
-    }
-
-    return valueDslObj().pseudo();
 }
 
 } // namespace commsdsl2tools_qt

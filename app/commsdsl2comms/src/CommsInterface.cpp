@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -47,6 +47,7 @@ const std::string& aliasTempl()
         "#pragma once\n"
         "\n"
         "#^#INCLUDES#$#\n"
+        "#^#CUSTOM_INCLUDES#$#\n\n"
         "#^#NS_BEGIN#$#\n"
         "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"</b> common interface class.\n"
         "#^#DOC_DETAILS#$#\n"
@@ -72,6 +73,7 @@ const std::string& classTempl()
         "#pragma once\n"
         "\n"
         "#^#INCLUDES#$#\n"
+        "#^#CUSTOM_INCLUDES#$#\n\n"
         "#^#NS_BEGIN#$#\n"
         "#^#FIELDS_DEF#$#\n"
         "/// @brief Definition of <b>\"#^#CLASS_NAME#$#\"</b> common interface class.\n"
@@ -93,6 +95,15 @@ const std::string& classTempl()
         "#^#NS_END#$#\n";
 
     return Templ;
+}
+
+void readCustomCodeInternal(const std::string& codePath, std::string& code)
+{
+    if (!util::isFileReadable(codePath)) {
+        return;
+    }
+
+    code = util::readFileContents(codePath);
 }
 
 } // namespace 
@@ -144,6 +155,10 @@ bool CommsInterface::prepareImpl()
         return false;
     }
 
+    if (!copyCodeFromInternal()) {
+        return false;
+    }    
+
     if (dslObj().valid()) {
         m_name = comms::className(dslObj().name());
     }
@@ -153,10 +168,14 @@ bool CommsInterface::prepareImpl()
     }
 
     auto inputCodePrefix = comms::inputCodePathFor(*this, generator());
-    m_constructCode = util::readFileContents(inputCodePrefix + strings::constructFileSuffixStr());
-    m_publicCode = util::readFileContents(inputCodePrefix + strings::publicFileSuffixStr());
-    m_protectedCode = util::readFileContents(inputCodePrefix + strings::protectedFileSuffixStr());
-    m_privateCode = util::readFileContents(inputCodePrefix + strings::privateFileSuffixStr());
+
+    readCustomCodeInternal(inputCodePrefix + strings::constructFileSuffixStr(), m_constructCode);
+    readCustomCodeInternal(inputCodePrefix + strings::incFileSuffixStr(), m_customCode.m_inc);
+    readCustomCodeInternal(inputCodePrefix + strings::publicFileSuffixStr(), m_customCode.m_public);
+    readCustomCodeInternal(inputCodePrefix + strings::protectedFileSuffixStr(), m_customCode.m_protected);
+    readCustomCodeInternal(inputCodePrefix + strings::privateFileSuffixStr(), m_customCode.m_private);
+    readCustomCodeInternal(inputCodePrefix + strings::extendFileSuffixStr(), m_customCode.m_extend);
+    readCustomCodeInternal(inputCodePrefix + strings::appendFileSuffixStr(), m_customCode.m_append);
     m_commsFields = CommsField::commsTransformFieldsList(fields());
 
     return true;
@@ -167,6 +186,32 @@ bool CommsInterface::writeImpl() const
     return 
         commsWriteCommonInternal() &&
         commsWriteDefInternal();
+}
+
+bool CommsInterface::copyCodeFromInternal()
+{
+    auto obj = dslObj();
+    if (!obj.valid()) {
+        return true;
+    }
+    
+    auto& copyFrom = obj.copyCodeFrom();
+    if (copyFrom.empty()) {
+        return true;
+    }
+
+    auto* origIface = generator().findInterface(copyFrom);
+    if (origIface == nullptr) {
+        generator().logger().error(
+            "Failed to find referenced field \"" + copyFrom + "\" for copying overriding code.");
+        assert(false); // Should not happen
+        return false;
+    }
+
+    auto* commsIface = dynamic_cast<const CommsInterface*>(origIface);
+    assert(commsIface != nullptr);
+    m_customCode = commsIface->m_customCode;
+    return true;
 }
 
 bool CommsInterface::commsWriteCommonInternal() const
@@ -264,13 +309,14 @@ bool CommsInterface::commsWriteDefInternal() const
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"CLASS_NAME", m_name},
         {"INCLUDES", commsDefIncludesInternal()},
+        {"CUSTOM_INCLUDES", m_customCode.m_inc},
         {"NS_BEGIN", comms::namespaceBeginFor(*this, gen)},
         {"NS_END", comms::namespaceEndFor(*this, gen)},
         {"DOC_DETAILS", commsDefDocDetailsInternal()},
         {"BASE", commsDefBaseClassInternal()},
         {"HEADERFILE", comms::relHeaderPathFor(*this, gen)},
-        {"EXTEND", util::readFileContents(codePathPrefix + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(codePathPrefix + strings::appendFileSuffixStr())}
+        {"EXTEND", m_customCode.m_extend},
+        {"APPEND", m_customCode.m_append}
     };
 
     if (!repl["EXTEND"].empty()) {
@@ -280,9 +326,9 @@ bool CommsInterface::commsWriteDefInternal() const
     bool useClass = 
         (!m_commsFields.empty()) ||
         (!m_constructCode.empty()) ||
-        (!m_publicCode.empty()) ||
-        (!m_protectedCode.empty()) ||
-        (!m_privateCode.empty());
+        (!m_customCode.m_public.empty()) ||
+        (!m_customCode.m_protected.empty()) ||
+        (!m_customCode.m_private.empty());
 
     const std::string* templ = &(aliasTempl());
     if (useClass) {
@@ -482,7 +528,7 @@ std::string CommsInterface::commsDefPublicInternal() const
         {"CONSTRUCT", m_constructCode},
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
-        {"EXTRA", m_publicCode},
+        {"EXTRA", m_customCode.m_protected},
     };
 
     return util::processTemplate(Templ, repl);
@@ -490,7 +536,7 @@ std::string CommsInterface::commsDefPublicInternal() const
 
 std::string CommsInterface::commsDefProtectedInternal() const
 {
-    if (m_protectedCode.empty()) {
+    if (m_customCode.m_protected.empty()) {
         return strings::emptyString();
     }
 
@@ -500,7 +546,7 @@ std::string CommsInterface::commsDefProtectedInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"CUSTOM", m_protectedCode}
+        {"CUSTOM", m_customCode.m_protected}
     };
     
     return util::processTemplate(Templ, repl);
@@ -508,7 +554,7 @@ std::string CommsInterface::commsDefProtectedInternal() const
 
 std::string CommsInterface::commsDefPrivateInternal() const
 {
-    if (m_privateCode.empty()) {
+    if (m_customCode.m_private.empty()) {
         return strings::emptyString();
     }
 
@@ -518,7 +564,7 @@ std::string CommsInterface::commsDefPrivateInternal() const
     ;
 
     util::ReplacementMap repl = {
-        {"CUSTOM", m_privateCode}
+        {"CUSTOM", m_customCode.m_private}
     };
     
     return util::processTemplate(Templ, repl);

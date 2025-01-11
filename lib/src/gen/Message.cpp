@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -81,7 +81,9 @@ public:
             [](auto& f)
             {
                 bool result = f->prepare();
-                f->setReferenced();
+                if (result) {
+                    f->setReferenced();
+                }
                 return result;
             });        
     }

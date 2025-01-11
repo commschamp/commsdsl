@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -39,10 +39,8 @@ bool ToolsQtVersion::write(ToolsQtGenerator& generator)
 
 std::string ToolsQtVersion::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
-    return 
-        generator.getTopNamespace() + '/' + 
-        util::strReplace(comms::scopeForRoot(strings::versionFileNameStr(), generator), "::", "/") + 
-        strings::cppHeaderSuffixStr();
+    auto scope = generator.toolsScopePrefix() + comms::scopeForRoot(strings::versionFileNameStr(), generator);
+    return util::strReplace(scope, "::", "/") + strings::cppHeaderSuffixStr();
 }
 
 bool ToolsQtVersion::writeInternal() const

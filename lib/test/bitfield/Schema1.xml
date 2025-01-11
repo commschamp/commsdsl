@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema1"
-        id="1"
-        endian="big">
+<schema name="Schema1" endian="big">
     <fields>
-        <bitfield name="Bitfield1">
+        <bitfield name="Bitfield1" validateMinLength="1" >
             <enum name="Enum1" type="uint8" bitLength="2">
                 <validValue name="V1" val="1" />
                 <validValue name="V2" val="2" />

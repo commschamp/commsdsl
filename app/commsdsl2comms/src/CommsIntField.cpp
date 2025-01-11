@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -589,9 +589,10 @@ std::string CommsIntField::commsDefFieldOptsInternal(bool variantPropKey) const
 {
     util::StringsList opts;
 
-    commsAddFieldDefOptions(opts);
+    commsAddFieldDefOptions(opts, variantPropKey);
     commsAddLengthOptInternal(opts);
     commsAddSerOffsetOptInternal(opts);
+    commsAddDisplayOffsetOptInternal(opts);
     commsAddScalingOptInternal(opts);
     commsAddUnitsOptInternal(opts);
     if (!variantPropKey) {
@@ -820,6 +821,21 @@ void CommsIntField::commsAddSerOffsetOptInternal(StringsList& opts) const
     auto str =
         "comms::option::def::NumValueSerOffset<" +
         util::numToString(serOffset) +
+        '>';
+    util::addToStrList(std::move(str), opts);
+}
+
+void CommsIntField::commsAddDisplayOffsetOptInternal(StringsList& opts) const
+{
+    auto obj = intDslObj();
+    auto displayOffset = obj.displayOffset();
+    if (displayOffset == 0) {
+        return;
+    }
+
+    auto str =
+        "comms::option::def::DisplayOffset<" +
+        util::numToString(displayOffset) +
         '>';
     util::addToStrList(std::move(str), opts);
 }
@@ -1069,7 +1085,8 @@ void CommsIntField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) c
 
 bool CommsIntField::commsRequiresFailOnInvalidRefreshInternal() const
 {
-    if (!dslObj().isFailOnInvalid()) {
+    if ((!dslObj().isFailOnInvalid()) ||
+        (dslObj().isFixedValue())) {
         return false;
     }
 

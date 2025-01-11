@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -106,6 +106,7 @@ bool FieldImpl::parse()
         updateVersions() &&
         updateSemanticType() &&
         updatePseudo() &&
+        updateFixedValue() &&
         updateDisplayReadOnly() &&
         updateDisplayHidden() &&
         updateCustomizable() &&
@@ -118,7 +119,8 @@ bool FieldImpl::parse()
         updateLengthOverride() &&
         updateValidOverride() &&
         updateNameOverride() &&
-        updateCopyOverrideCodeFrom();
+        updateCopyOverrideCodeFrom() &&
+        updateValidateMinLength();
 
     if (!result) {
         return false;
@@ -129,7 +131,8 @@ bool FieldImpl::parse()
     }
 
     if ((!verifySemanticType()) ||
-        (!verifyName())) {
+        (!verifyName()) ||
+        (!verifyMinLength())) {
         return false;
     }
 
@@ -357,6 +360,23 @@ bool FieldImpl::verifyAliasedMember(const std::string& fieldName)
     }
 
     return verifyAliasedMemberImpl(fieldName);
+}
+
+bool FieldImpl::verifyMinLength() const
+{
+    if (m_state.m_validateMinLength < 0) {
+        return true;
+    }
+
+    auto len = minLength();
+    if (static_cast<unsigned>(m_state.m_validateMinLength) != len) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "The calculated minimal length of the field is " << len <<
+            " while expected is " << m_state.m_validateMinLength << " (specified with \"" << common::validateMinLengthStr() << "\" property).";                
+        return false;
+    }    
+
+    return true;
 }
 
 std::string FieldImpl::schemaPos() const
@@ -699,6 +719,19 @@ void FieldImpl::reportUnexpectedPropertyValue(const std::string& propName, const
     XmlWrap::reportUnexpectedPropertyValue(m_node, name(), propName, propValue, protocol().logger());
 }
 
+void FieldImpl::checkAndReportDeprecatedPropertyValue(const std::string& propName)
+{
+    auto iter = m_props.find(propName);
+    if (iter == m_props.end()) {
+        return;
+    }
+
+    if (m_protocol.isPropertyDeprecated(propName)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "Property \"" << propName << "\" is deprecated in DSL version " << protocol().currSchema().dslVersion();                
+    }
+}
+
 bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
 {
     if (!validateSinglePropInstance(propName, mustHave)) {
@@ -712,7 +745,7 @@ bool FieldImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool
 
     if (!m_protocol.isPropertySupported(propName)) {
         logWarning() << XmlWrap::logPrefix(m_node) <<
-            "Property \"" << common::availableLengthLimitStr() << "\" is not available for DSL version " << protocol().currSchema().dslVersion();                
+            "Property \"" << propName << "\" is not available for DSL version " << protocol().currSchema().dslVersion();                
         return true;
     }
 
@@ -775,6 +808,7 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::reuseStr(),
         common::semanticTypeStr(),
         common::pseudoStr(),
+        common::fixedValueStr(),
         common::displayReadOnlyStr(),
         common::displayHiddenStr(),
         common::customizableStr(),
@@ -789,6 +823,7 @@ const XmlWrap::NamesList& FieldImpl::commonProps()
         common::nameOverrideStr(),
         common::copyCodeFromStr(),
         common::reuseCodeStr(),
+        common::validateMinLengthStr(),
     };
 
     return CommonNames;
@@ -1041,6 +1076,7 @@ bool FieldImpl::checkReuse()
             return false;
         }
 
+        m_state.m_copyCodeFrom.clear();
         auto codeIter = m_props.find(codeProp);
         if (codeIter == m_props.end()) {
             break;
@@ -1255,14 +1291,21 @@ bool FieldImpl::updatePseudo()
     return validateAndUpdateBoolPropValue(common::pseudoStr(), m_state.m_pseudo);
 }
 
+bool FieldImpl::updateFixedValue()
+{
+    return validateAndUpdateBoolPropValue(common::fixedValueStr(), m_state.m_fixedValue);
+}
+
 bool FieldImpl::updateDisplayReadOnly()
 {
-    return validateAndUpdateBoolPropValue(common::displayReadOnlyStr(), m_state.m_displayReadOnly);
+    checkAndReportDeprecatedPropertyValue(common::displayReadOnlyStr());
+    return true;
 }
 
 bool FieldImpl::updateDisplayHidden()
 {
-    return validateAndUpdateBoolPropValue(common::displayHiddenStr(), m_state.m_displayHidden);
+    checkAndReportDeprecatedPropertyValue(common::displayHiddenStr());
+    return true;
 }
 
 bool FieldImpl::updateCustomizable()
@@ -1342,6 +1385,33 @@ bool FieldImpl::updateCopyOverrideCodeFrom()
     }
 
     m_state.m_copyCodeFrom = iter->second;
+    return true;
+}
+
+bool FieldImpl::updateValidateMinLength()
+{
+    auto& propStr = common::validateMinLengthStr();
+    if (!validateSinglePropInstance(propStr)) {
+        return false;
+    }
+
+    auto iter = m_props.find(propStr);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.isValidateMinLengthForFieldsSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << propStr << "\" for fields is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+        return true;
+    }
+
+    bool ok = false;
+    m_state.m_validateMinLength = static_cast<decltype(m_state.m_validateMinLength)>(common::strToUnsigned(iter->second, &ok));
+    if (!ok) {
+        reportUnexpectedPropertyValue(propStr, iter->second);
+        return false;
+    }    
     return true;
 }
 

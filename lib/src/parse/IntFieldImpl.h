@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -115,11 +115,6 @@ public:
         return m_state.m_signExt;
     }
 
-    bool displaySpecials() const
-    {
-        return m_state.m_displaySpecials;
-    }
-
     bool availableLengthLimit() const
     {
         return m_state.m_availableLengthLimit;
@@ -217,7 +212,6 @@ private:
         bool m_validCheckVersion = false;
         bool m_signExt = true;
         bool m_nonUniqueSpecialsAllowed = false;
-        bool m_displaySpecials = true;
         bool m_availableLengthLimit = false;
     };
 

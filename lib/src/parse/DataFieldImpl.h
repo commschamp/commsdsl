@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,8 +33,9 @@ class DataFieldImpl final : public FieldImpl
 {
     using Base = FieldImpl;
 public:
-
     using ValueType = DataField::ValueType;
+    using ValidValueInfo = DataField::ValidValueInfo;
+    using ValidValuesList = DataField::ValidValuesList;    
 
     DataFieldImpl(::xmlNodePtr node, ProtocolImpl& protocol);
     DataFieldImpl(const DataFieldImpl& other);
@@ -68,6 +69,10 @@ public:
         return m_state.m_detachedPrefixField;
     }
 
+    const ValidValuesList& validValues() const
+    {
+        return m_state.m_validValues;
+    }
 
 protected:
     virtual Kind kindImpl() const override;
@@ -85,10 +90,14 @@ protected:
 
 private:
     bool updateDefaultValue();
+    bool updateDefaultValidValue();
     bool updateLength();
     bool updatePrefix();
+    bool updateValidValues();    
     bool checkPrefixFromRef();
     bool checkPrefixAsChild();
+    bool checkValidValueAsAttr(const PropsMap& xmlAttrs);
+    bool checkValidValueAsChild(::xmlNodePtr child);        
     const FieldImpl* getPrefixField() const;
 
     bool strToValue(const std::string& str, ValueType& val) const;
@@ -99,6 +108,7 @@ private:
         std::size_t m_length = 0U;
         const FieldImpl* m_extPrefixField = nullptr;
         std::string m_detachedPrefixField;
+        ValidValuesList m_validValues;
     };
 
     State m_state;

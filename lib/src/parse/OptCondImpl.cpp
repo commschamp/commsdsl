@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -168,6 +168,13 @@ bool OptCondExprImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNod
     }
 
     return verifyComparison(fields, node, protocol);
+}
+
+bool OptCondExprImpl::hasInterfaceReferenceImpl() const
+{
+    return 
+        ((!m_left.empty()) && (m_left[0] == IfaceDeref)) ||
+        ((!m_right.empty()) && (m_right[0] == IfaceDeref));
 }
 
 bool OptCondExprImpl::hasUpdatedValue()
@@ -737,7 +744,15 @@ bool OptCondListImpl::verifyImpl(const OptCondImpl::FieldsList& fields, ::xmlNod
         });
 }
 
-
+bool OptCondListImpl::hasInterfaceReferenceImpl() const
+{
+    return std::any_of(
+        m_conds.begin(), m_conds.end(),
+        [](auto& c)
+        {
+            return c->hasInterfaceReference();
+        });
+}
 
 } // namespace parse
 

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -69,6 +69,7 @@ public:
     const std::string& name() const;
     const std::string& displayName() const;
     const std::string& description() const;
+    const std::string& copyCodeFrom() const;
 
     FieldsList fieldsList() const;
     AliasesList aliasesList() const;
@@ -96,6 +97,54 @@ protected:
     virtual ObjKind objKindImpl() const override;
 
 private:
+    struct ReusableState
+    {
+        std::string m_name;
+        std::string m_description;
+        std::vector<FieldImplPtr> m_fields;
+        std::vector<AliasImplPtr> m_aliases;
+        std::string m_copyCodeFrom;
+
+        ReusableState() = default;
+        ReusableState(ReusableState&&) = default;
+
+        auto basicForwardAsTuple()
+        {
+            return 
+                std::forward_as_tuple(
+                    m_name,
+                    m_description,
+                    // m_fields,
+                    // m_aliases,
+                    m_copyCodeFrom
+                );
+        }
+
+        auto basicForwardAsTuple() const
+        {
+            return const_cast<ReusableState*>(this)->basicForwardAsTuple();
+        }
+
+        ReusableState& operator=(const ReusableState& other)
+        {
+            basicForwardAsTuple() = other.basicForwardAsTuple();
+
+            m_fields.clear();
+            m_fields.reserve(other.m_fields.size());
+            for (auto& f : other.m_fields) {
+                m_fields.push_back(f->clone());
+            }
+
+            m_aliases.clear();
+            m_aliases.reserve(other.m_aliases.size());
+            for (auto& a : other.m_aliases) {
+                m_aliases.push_back(a->clone());
+            }            
+
+            return *this;          
+        }
+    };
+
     LogWrapper logError() const;
     LogWrapper logWarning() const;
     LogWrapper logInfo() const;
@@ -103,9 +152,11 @@ private:
     static const XmlWrap::NamesList& commonProps();
     static XmlWrap::NamesList allNames();
 
+    bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
     bool validateSinglePropInstance(const std::string& str, bool mustHave = false);
-    bool validateAndUpdateStringPropValue(const std::string& str, const std::string*& valuePtr, bool mustHave = false);
+    bool validateAndUpdateStringPropValue(const std::string& str, std::string& value, bool mustHave = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
+    bool checkReuse();
     bool updateName();
     bool updateDescription();
     bool copyFields();
@@ -124,13 +175,10 @@ private:
     PropsMap m_props;
     PropsMap m_extraAttrs;
     ContentsList m_extraChildren;
+    ReusableState m_state;
 
-    const std::string* m_name = nullptr;
-    const std::string* m_description = nullptr;
     const InterfaceImpl* m_copyFieldsFromInterface = nullptr;
     const BundleFieldImpl* m_copyFieldsFromBundle = nullptr;
-    std::vector<FieldImplPtr> m_fields;
-    std::vector<AliasImplPtr> m_aliases;
 };
 
 using InterfaceImplPtr = InterfaceImpl::Ptr;

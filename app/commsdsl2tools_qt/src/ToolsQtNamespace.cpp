@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,6 @@
 #include "ToolsQtNamespace.h"
 
 #include "ToolsQtDefaultOptions.h"
-#include "ToolsQtField.h"
 #include "ToolsQtFrame.h"
 #include "ToolsQtGenerator.h"
 #include "ToolsQtInterface.h"
@@ -42,7 +41,7 @@ ToolsQtNamespace::ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse:
 {
 }
 
-ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles() const
+ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles(const ToolsQtInterface& interface) const
 {
     StringsList result;
 
@@ -53,18 +52,11 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles() const
             std::move(list.begin(), list.end(), std::back_inserter(result));
         };
 
-    for (auto& fPtr : fields()) {
-        assert(fPtr);
-        auto* toolsField = dynamic_cast<const ToolsQtField*>(fPtr.get());
-        assert(toolsField != nullptr);
-        addToResult(toolsField->toolsSourceFiles());
-    }
-
     for (auto& mPtr : messages()) {
         assert(mPtr);
         auto* toolsMessage = static_cast<const ToolsQtMessage*>(mPtr.get());
         assert(toolsMessage != nullptr);
-        addToResult(toolsMessage->toolsSourceFiles());
+        addToResult(toolsMessage->toolsSourceFiles(interface));
     }    
 
     return result;
@@ -109,7 +101,7 @@ std::string ToolsQtNamespace::toolsMsgFactoryOptions() const
 
         util::ReplacementMap repl = {
             {"OPTS", util::strListToString(frameElems, "\n", "")},
-            {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(gen)},
+            {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)},
             {"NS", comms::scopeFor(*this, generator(), hasMainNs)},
         };        
 
@@ -141,7 +133,7 @@ std::string ToolsQtNamespace::toolsMsgFactoryOptions() const
     util::ReplacementMap repl = {
         {"NAME", nsName},
         {"BODY", util::strListToString(elems, "\n", "")},
-        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsScope(gen)},
+        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)},
         {"NS", comms::scopeFor(*this, generator(), hasMainNs)},
     };
 

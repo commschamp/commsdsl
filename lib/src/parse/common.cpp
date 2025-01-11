@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -590,6 +590,12 @@ const std::string& pseudoStr()
     return Str;
 }
 
+const std::string& fixedValueStr()
+{
+    static const std::string Str("fixedValue");
+    return Str;
+}
+
 const std::string& customStr()
 {
     static const std::string Str("custom");
@@ -876,6 +882,24 @@ const std::string& constructAsValidCondStr()
 {
     static const std::string Str("constructAsValidCond");
     return Str;       
+}
+
+const std::string& copyConstructFromStr()
+{
+    static const std::string Str("copyConstructFrom");
+    return Str;      
+}
+
+const std::string& copyReadCondFromStr()
+{
+    static const std::string Str("copyReadCondFrom");
+    return Str;      
+}
+
+const std::string& copyValidCondFromStr()
+{
+    static const std::string Str("copyValidCondFrom");
+    return Str;      
 }
 
 char siblingRefPrefix()

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -73,13 +73,22 @@ private:
         std::string m_append;
     };
 
+    using BodyCustomCodeFunc = std::string (*)(const std::string& codePathPrefix);
+
     bool copyCodeFromInternal();
     bool commsPrepareOverrideInternal(
         commsdsl::parse::OverrideType type, 
         std::string& codePathPrefix, 
         const std::string& suffix,
         std::string& customCode,
-        const std::string& name);
+        const std::string& name,
+        BodyCustomCodeFunc bodyFunc);
+    static std::string commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomLengthFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix);
+    static std::string commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix);
     bool commsWriteCommonInternal() const;
     bool commsWriteDefInternal() const;  
     std::string commsCommonIncludesInternal() const;
@@ -106,7 +115,6 @@ private:
     std::string commsDefRefreshFuncInternal() const;
     std::string commsDefPrivateConstructInternal() const;
     bool commsIsCustomizableInternal() const;
-    // bool commsMustGenerateReadRefresh() const;
     std::string commsCustomizationOptionsInternal(
         FieldOptsFunc fieldOptsFunc,
         ExtraMessageOptsFunc extraMessageOptsFunc,

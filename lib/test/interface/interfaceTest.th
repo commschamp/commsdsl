@@ -13,6 +13,7 @@ public:
     void test4();
     void test5();
     void test6();
+    void test7();
 };
 
 void InterfaceTestSuite::setUp()
@@ -116,4 +117,34 @@ void InterfaceTestSuite::test6()
     m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema6.xml");
     TS_ASSERT(protocol);
+}
+
+void InterfaceTestSuite::test7()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema7.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto interfaces = ns.interfaces();
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, interfaces.size());
+
+        auto& int1 = interfaces[0];
+        TS_ASSERT_EQUALS(int1.name(), "I1");
+        TS_ASSERT_EQUALS(int1.fields().size(), 1U);
+    }
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, interfaces.size());
+
+        auto& int2 = interfaces[1];
+        TS_ASSERT_EQUALS(int2.name(), "I2");
+        TS_ASSERT_EQUALS(int2.fields().size(), 2U);
+        TS_ASSERT(!int2.description().empty());
+    }    
 }

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +20,7 @@
 #include "commsdsl/gen/util.h"
 
 #include "commsdsl/parse/Protocol.h"
+#include "commsdsl/version.h"
 
 #include <cassert>
 #include <algorithm>
@@ -35,7 +36,7 @@ namespace gen
 namespace 
 {
 
-const unsigned MaxDslVersion = 6U;
+const unsigned MaxDslVersion = COMMSDSL_MAJOR_VERSION;
 
 } // namespace 
 

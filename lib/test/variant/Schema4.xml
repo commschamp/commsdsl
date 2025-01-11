@@ -1,19 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema4"
-        id="1"
-        endian="big">
+<schema name="Schema4" endian="big">
     <fields>
-        <variant name="Variant1" defaultMember="P1" displayIdxReadOnlyHidden="true" >
+        <variant name="Variant1" defaultMember="P1" >
             <bundle name="P1">
-                <int name="type" type="uint8" validValue="0" failOnInvalid="true" />
+                <int name="type" type="uint8" validValue="0" fixedValue="true" failOnInvalid="true" />
                 <int name="value" type="uint32" />
             </bundle>
             <bundle name="P2">
-                <int name="type" type="uint8" validValue="1" defaultValue="1" failOnInvalid="true" />
+                <int name="type" type="uint8" validValue="1" defaultValue="1" fixedValue="true" failOnInvalid="true" />
                 <int name="value" type="uint8" />
             </bundle>
         </variant>
         
-        <variant reuse="Variant1" name="Variant2" defaultMember="-1" displayIdxReadOnlyHidden="0" />
+        <variant reuse="Variant1" name="Variant2" defaultMember="-1" />
     </fields>
 </schema>

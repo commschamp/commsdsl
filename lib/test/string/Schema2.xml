@@ -5,6 +5,7 @@
     <fields>
         <string name="String1" defaultValue="hello">
             <length value="4" />
+            <validateMinLength value="4" />
         </string>
     </fields>
 </schema>

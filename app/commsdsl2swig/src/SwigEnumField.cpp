@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -159,23 +159,28 @@ std::string SwigEnumField::swigExtraPublicFuncsCodeImpl() const
     };
 
     if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
-        const std::string ValTempl = 
+        std::string valTempl = 
             "#^#TYPE#$#\n"
             "const ValueType& getValue() const\n"
             "{\n"
             "    static_assert(sizeof(ValueType) == sizeof(Base::ValueType), \"Invalid assumption\");\n"
             "    return *(reinterpret_cast<const ValueType*>(&Base::getValue()));\n"
-            "}\n\n"
-            "void setValue(const ValueType& val)\n"
-            "{\n"
-            "    Base::setValue(static_cast<Base::ValueType>(val));\n"
             "}\n";
+
+        if (!field().dslObj().isFixedValue()) {
+            valTempl += 
+                "\n"
+                "void setValue(const ValueType& val)\n"
+                "{\n"
+                "    Base::setValue(static_cast<Base::ValueType>(val));\n"
+                "}\n";            
+        }
 
         util::ReplacementMap valRepl = {
             {"TYPE", swigValueTypeDeclImpl()},
         };
 
-        repl["VALUE_TYPE"] = util::processTemplate(ValTempl, valRepl);
+        repl["VALUE_TYPE"] = util::processTemplate(valTempl, valRepl);
     }
 
     return util::processTemplate(Templ, repl);

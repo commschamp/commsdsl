@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -93,7 +93,7 @@ int main(int argc, const char* argv[])
 
         generator.setOutputDir(options.getOutputDirectory());
         generator.setCodeDir(options.getCodeInputDirectory());
-        generator.setTopNamespace("cc_tools_qt_plugin");
+        //generator.setTopNamespace("cc_tools_qt_plugin");
         generator.setMultipleSchemasEnabled(options.multipleSchemasEnabled());
         generator.toolsSetPluginInfosList(options.getPlugins());
         generator.toolsSetMainNamespaceInOptionsForced(options.isMainNamespaceInOptionsForced());

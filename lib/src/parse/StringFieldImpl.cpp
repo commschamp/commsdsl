@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,7 +70,9 @@ const XmlWrap::NamesList& StringFieldImpl::extraPropsNamesImpl() const
         common::lengthStr(),
         common::encodingStr(),
         common::zeroTermSuffixStr(),
-        common::defaultValueStr()
+        common::defaultValueStr(),
+        common::defaultValidValueStr(),
+        common::validValueStr(),
     };
 
     return List;
@@ -116,7 +118,9 @@ bool StringFieldImpl::parseImpl()
         updateLength() &&
         updatePrefix() &&
         updateZeroTerm() &&
-        updateDefaultValue();
+        updateDefaultValue() &&
+        updateDefaultValidValue() &&
+        updateValidValues();
 }
 
 bool StringFieldImpl::verifySiblingsImpl(const FieldImpl::FieldsList& fields) const
@@ -250,6 +254,44 @@ bool StringFieldImpl::updateDefaultValue()
     return true;
 }
 
+bool StringFieldImpl::updateDefaultValidValue()
+{
+    auto& propName = common::defaultValidValueStr();
+    if (!validateSinglePropInstance(propName)) {
+        return false;
+    }
+
+    auto iter = props().find(propName);
+    if (iter == props().end()) {
+        return true;
+    }
+
+    if (!protocol().isValidValueInStringAndDataSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << 
+            "Property \"" << common::defaultValidValueStr() << "\" for <string> field is not supported for DSL version " << protocol().currSchema().dslVersion() << ", ignoring...";        
+        return true;
+    }     
+
+    if (!strToValue(iter->second, m_state.m_defaultValue)) {
+        reportUnexpectedPropertyValue(propName, iter->second);
+        return false;
+    }    
+
+    if ((m_state.m_length != 0U) && (m_state.m_length < m_state.m_defaultValue.size())) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "The default value (" << m_state.m_defaultValue << ") is too long "
+            "for proper serialisation.";
+    }    
+
+    ValidValueInfo info;
+    info.m_value = m_state.m_defaultValue;
+    info.m_sinceVersion = getSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+    m_state.m_validValues.push_back(std::move(info));
+
+    return true;
+}
+
 bool StringFieldImpl::updateEncoding()
 {
     if (!validateSinglePropInstance(common::encodingStr())) {
@@ -368,6 +410,28 @@ bool StringFieldImpl::updateZeroTerm()
     }
 
     m_state.m_haxZeroSuffix = newVal;
+    return true;
+}
+
+bool StringFieldImpl::updateValidValues()
+{
+    if (!checkValidValueAsAttr(XmlWrap::parseNodeProps(getNode()))) {
+        return false;
+    }
+
+    auto children = XmlWrap::getChildren(getNode(), common::validValueStr());
+    for (auto* c : children) {
+        if (!checkValidValueAsChild(c)) {
+            return false;
+        }
+    }
+
+    std::sort(
+        m_state.m_validValues.begin(), m_state.m_validValues.end(),
+        [](auto& elem1, auto& elem2) {
+            return elem1.m_value < elem2.m_value;
+        });
+
     return true;
 }
 
@@ -496,6 +560,66 @@ bool StringFieldImpl::checkPrefixAsChild()
     m_state.m_extPrefixField = nullptr;
     m_state.m_detachedPrefixField.clear();
     m_prefixField = std::move(field);
+    return true;
+}
+
+bool StringFieldImpl::checkValidValueAsAttr(const FieldImpl::PropsMap& xmlAttrs)
+{
+    auto iter = xmlAttrs.find(common::validValueStr());
+    if (iter == xmlAttrs.end()) {
+        return true;
+    }
+
+    if (!protocol().isValidValueInStringAndDataSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << 
+            "Property \"" << common::validValueStr() << "\" for <string> field is not supported for DSL version " << protocol().currSchema().dslVersion() << ", ignoring...";        
+        return true;
+    }    
+
+    ValidValueInfo info;
+    if (!strToValue(iter->second, info.m_value)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Property value \"" << common::validValueStr() << "\" of string element \"" <<
+                      name() << "\" cannot be properly parsed.";
+        return false;
+    }    
+
+    info.m_sinceVersion = getSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    m_state.m_validValues.push_back(std::move(info));
+    return true;
+}
+
+bool StringFieldImpl::checkValidValueAsChild(::xmlNodePtr child)
+{
+    std::string str;
+    if (!XmlWrap::parseNodeValue(child, protocol().logger(), str)) {
+        return false;
+    }
+
+    if (!protocol().isValidValueInStringAndDataSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) << 
+            "Property \"" << common::validValueStr() << "\" for <string> field is not supported for DSL version " << protocol().currSchema().dslVersion() << ", ignoring...";        
+        return true;
+    }        
+
+    ValidValueInfo info;
+    if (!strToValue(str, info.m_value)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Property value \"" << common::validValueStr() << "\" of string element \"" <<
+                      name() << "\" cannot be properly parsed.";
+        return false;
+    }    
+
+    info.m_sinceVersion = getSinceVersion();
+    info.m_deprecatedSince = getDeprecated();
+
+    if (!XmlWrap::getAndCheckVersions(child, name(), info.m_sinceVersion, info.m_deprecatedSince, protocol())) {
+        return false;
+    }
+
+    m_state.m_validValues.push_back(std::move(info));
     return true;
 }
 

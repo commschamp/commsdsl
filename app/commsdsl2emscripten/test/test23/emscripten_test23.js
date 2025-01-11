@@ -55,7 +55,7 @@ function allocHandler(instance)
 }
 
 function test1(instance) {
-    console.log("!!! test1");
+    console.log("test1");
     var msg = new instance.message_Msg4();
     var frame = new instance.frame_Frame();
     var handler = allocHandler(instance);
@@ -80,7 +80,7 @@ function test1(instance) {
 }
 
 function test2(instance) {
-    console.log("!!! test2");
+    console.log("test2");
     var msg = new instance.message_Msg4();
     var frame = new instance.frame_Frame();
     var handler = allocHandler(instance);

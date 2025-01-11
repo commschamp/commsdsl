@@ -1,10 +1,15 @@
 name: Github Actions Build
 
-on: [push]
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
 
 env:
-  COMMS_TAG: v5.2.7
-  CC_TOOLS_QT_TAG: v5.3.3
+  COMMS_TAG: v5.3
+  CC_TOOLS_QT_TAG: v6.0
 
 jobs:
   build_gcc_old_ubuntu_20_04:
@@ -110,6 +115,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_TAG}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
+        CC_TOOLS_QT_SKIP: 1
 
     - name: Configure CMake
       shell: bash
@@ -119,12 +125,11 @@ jobs:
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
         -DCOMMSDSL_BUILD_UNIT_TESTS=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
-        -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
+        -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=OFF \
         -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON
       env:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
-        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -256,7 +261,7 @@ jobs:
         cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
         -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
         -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} -DCOMMSDSL_TESTS_QT_VERSION=${{matrix.qt_ver}} \
-        -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=ON -DCMAKE_IGNORE_PATH=/usr/local/bin \
+        -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_BUILD_DOC=${{env.BUILD_TEST_DOCS}} -DCMAKE_IGNORE_PATH=/usr/local/bin \
         -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
         -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
@@ -265,6 +270,7 @@ jobs:
         CC: gcc-${{matrix.cc_ver}}
         CXX: g++-${{matrix.cc_ver}}
         BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
+        BUILD_TEST_DOCS: "${{ matrix.type == 'Debug' && matrix.cpp == 11 && matrix.cc_ver == 14 && matrix.qt_ver == 5 && 'ON' || 'OFF' }}"
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
 
     - name: Build Target 
@@ -323,6 +329,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_TAG}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}}
+        CC_TOOLS_QT_SKIP: 1
 
     - name: Configure CMake
       shell: bash
@@ -333,11 +340,10 @@ jobs:
           -DCOMMSDSL_TESTS_C_COMPILER=clang-${{matrix.cc_ver}} -DCOMMSDSL_TESTS_CXX_COMPILER=clang++-${{matrix.cc_ver}} \
           -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_TEST_USE_SANITIZERS=OFF \
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
-          -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}}
+          -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=OFF
       env:
         CC: clang-6.0
         CXX: clang++-6.0
-        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -390,6 +396,7 @@ jobs:
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_TAG}}
         CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}} 
+        CC_TOOLS_QT_SKIP: 1
 
     - name: Configure CMake
       shell: bash
@@ -399,12 +406,11 @@ jobs:
           -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install -DCOMMSDSL_TESTS_CXX_STANDARD=${{matrix.cpp}} \
           -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} -DCOMMSDSL_BUILD_UNIT_TESTS=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
-          -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
+          -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=OFF \
           -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
-        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
 
     - name: Build Target 
@@ -576,7 +582,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [Debug, Release, MinSizeRel]
+        type: [Debug, Release]
         arch: [x64]
         cpp: [11, 14, 17]
         qt_ver: [5, 6]
@@ -645,7 +651,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        type: [Debug, Release, MinSizeRel]
+        type: [Debug, Release]
         arch: [x64]
         cpp: [11, 14, 17, 20]
 

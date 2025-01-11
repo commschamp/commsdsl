@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,11 +55,6 @@ VariantField::Members VariantField::members() const
 std::size_t VariantField::defaultMemberIdx() const
 {
     return cast(m_pImpl)->defaultMemberIdx();
-}
-
-bool VariantField::displayIdxReadOnlyHidden() const
-{
-    return cast(m_pImpl)->displayIdxReadOnlyHidden();
 }
 
 } // namespace parse

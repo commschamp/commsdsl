@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -115,11 +115,6 @@ std::intmax_t IntField::displayOffset() const
 bool IntField::signExt() const
 {
     return cast(m_pImpl)->signExt();
-}
-
-bool IntField::displaySpecials() const
-{
-    return cast(m_pImpl)->displaySpecials();
 }
 
 bool IntField::availableLengthLimit() const

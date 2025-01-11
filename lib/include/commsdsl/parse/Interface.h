@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,6 +48,7 @@ public:
     FieldsList fields() const;
     AliasesList aliases() const;
     std::string externalRef(bool schemaRef = true) const;
+    const std::string& copyCodeFrom() const;
 
     const AttributesMap& extraAttributes() const;
     const ElementsList& extraElements() const;

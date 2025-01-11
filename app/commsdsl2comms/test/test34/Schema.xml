@@ -6,7 +6,7 @@
             <validValue name="M2" val="2" />
         </enum>
         
-        <int name="Msg1Type" type="uint8" displayName="type" failOnInvalid="true" displayReadOnly="true" />
+        <int name="Msg1Type" type="uint8" displayName="type" failOnInvalid="true" />
     </fields>
         
     <message name="Msg1_1" id="MsgId.M1" order="0">

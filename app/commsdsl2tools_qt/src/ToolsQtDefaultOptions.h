@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ public:
     static bool write(ToolsQtGenerator& generator);
     static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
     static std::string toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams = std::string());
-    static std::string toolsScope(const ToolsQtGenerator& generator);
+    static std::string toolsClassScope(const ToolsQtGenerator& generator);
 
 private:
     explicit ToolsQtDefaultOptions(ToolsQtGenerator& generator) : m_generator(generator) {}

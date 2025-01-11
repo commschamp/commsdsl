@@ -1,5 +1,0 @@
-// @brief Overriding length function
-std::size_t length() const
-{
-    return Base::length();
-}

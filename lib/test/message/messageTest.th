@@ -38,6 +38,8 @@ public:
     void test29();
     void test30();
     void test31();
+    void test32();
+    void test33();
 };
 
 void MessageTestSuite::setUp()
@@ -666,4 +668,164 @@ void MessageTestSuite::test31()
     TS_ASSERT(msg1.isFailOnInvalid());
     auto msg1ValidCond = msg1.validCond();
     TS_ASSERT_EQUALS(msg1ValidCond.kind(), commsdsl::parse::OptCond::Kind::List);
+}
+
+void MessageTestSuite::test32()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema32.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, messages.size());
+
+        auto& msg1 = messages[0];
+        TS_ASSERT(msg1.isFailOnInvalid());
+        TS_ASSERT_EQUALS(msg1.fields().size(), 2U);
+        auto validCond = msg1.validCond();
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+    }
+    
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, messages.size());
+
+        auto& msg2 = messages[1];
+        TS_ASSERT(msg2.isFailOnInvalid());
+        TS_ASSERT_EQUALS(msg2.fields().size(), 3U);
+        TS_ASSERT_EQUALS(msg2.copyCodeFrom(), "Msg1");
+        auto validCond = msg2.validCond();
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+    }    
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(3U, messages.size());
+
+        auto& msg3 = messages[2];
+        TS_ASSERT_EQUALS(msg3.name(), "Msg3");
+        auto constructCond = msg3.construct();
+        TS_ASSERT(constructCond.valid());
+        TS_ASSERT_EQUALS(constructCond.kind(), commsdsl::parse::OptCond::Kind::List);
+
+        auto validCond = msg3.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+
+        auto readCond = msg3.validCond();
+        TS_ASSERT(readCond.valid());
+        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::OptCond::Kind::List);        
+    }     
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(4U, messages.size());
+
+        auto& msg4 = messages[3];
+        TS_ASSERT_EQUALS(msg4.name(), "Msg4");
+        auto constructCond = msg4.construct();
+        TS_ASSERT(constructCond.valid());
+        TS_ASSERT_EQUALS(constructCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+
+        auto validCond = msg4.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+
+        auto readCond = msg4.readCond();
+        TS_ASSERT(readCond.valid());
+        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::OptCond::Kind::List);        
+    }     
+}
+
+void MessageTestSuite::test33()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema33.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto messages = ns.messages();
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, messages.size());
+
+        auto& msg = messages[0];
+        auto construct = msg.construct();
+        TS_ASSERT(construct.valid());
+        TS_ASSERT_EQUALS(construct.kind(), commsdsl::parse::OptCond::Kind::List);
+
+        auto readCond = msg.readCond();
+        TS_ASSERT(readCond.valid());
+        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::OptCond::Kind::List);   
+
+        auto validCond = msg.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);             
+    }
+    
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, messages.size());
+
+        auto& msg = messages[1];
+        auto construct = msg.construct();
+        TS_ASSERT(construct.valid());
+        TS_ASSERT_EQUALS(construct.kind(), commsdsl::parse::OptCond::Kind::List);
+
+        auto readCond = msg.readCond();
+        TS_ASSERT(!readCond.valid());
+
+        auto validCond = msg.validCond();
+        TS_ASSERT(!validCond.valid());
+    }    
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(3U, messages.size());
+
+        auto& msg = messages[2];
+        auto construct = msg.construct();
+        TS_ASSERT(!construct.valid());
+
+        auto readCond = msg.readCond();
+        TS_ASSERT(readCond.valid());
+        TS_ASSERT_EQUALS(readCond.kind(), commsdsl::parse::OptCond::Kind::List);   
+
+        auto validCond = msg.validCond();
+        TS_ASSERT(!validCond.valid());
+    }     
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(4U, messages.size());
+
+        auto& msg = messages[3];
+        auto construct = msg.construct();
+        TS_ASSERT(!construct.valid());
+
+        auto readCond = msg.readCond();
+        TS_ASSERT(!readCond.valid());
+
+        auto validCond = msg.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);          
+    }    
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(5U, messages.size());
+
+        auto& msg = messages[4];
+        auto construct = msg.construct();
+        TS_ASSERT(!construct.valid());
+
+        auto readCond = msg.readCond();
+        TS_ASSERT(!readCond.valid());
+
+        auto validCond = msg.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);          
+    }      
 }

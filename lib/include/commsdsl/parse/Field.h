@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,8 +80,7 @@ public:
     bool isDeprecatedRemoved() const;
     std::string externalRef(bool schemaRef = true) const;
     bool isPseudo() const;
-    bool isDisplayReadOnly() const;
-    bool isDisplayHidden() const;
+    bool isFixedValue() const;
     bool isCustomizable() const;
     bool isFailOnInvalid() const;
     bool isForceGen() const;

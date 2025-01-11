@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -80,6 +80,11 @@ bool StringField::hasZeroTermSuffix() const
 const std::string& StringField::detachedPrefixFieldName() const
 {
     return cast(m_pImpl)->detachedPrefixFieldName();
+}
+
+const StringField::ValidValuesList& StringField::validValues() const
+{
+    return cast(m_pImpl)->validValues();
 }
 
 } // namespace parse

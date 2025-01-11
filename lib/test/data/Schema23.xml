@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema23" endian="big" dslVersion="7" version="5">
+    <description>
+        Testing valid values of data field
+    </description>
+    <fields>
+        <data name="Data1" defaultValidValue="05 06">
+            <validValue value="0304" sinceVersion="3" />
+            <validValue value="01 02" sinceVersion="1" deprecated="4" />
+        </data>
+
+        <data name="Data2" reuse="Data1" >
+            <validValue value="0708" />
+        </data>        
+    </fields>
+</schema>

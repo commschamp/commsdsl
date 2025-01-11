@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema8"
-        id="1"
-        endian="big">
+<schema name="Schema8" endian="big">
     <fields>
         <bitfield name="Bitfield1" >
             <members>

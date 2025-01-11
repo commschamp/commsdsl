@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -103,12 +103,12 @@ bool CommsField::commsPrepare()
     auto& obj = m_field.dslObj();
     bool overrides = 
         commsPrepareOverrideInternal(obj.valueOverride(), codePathPrefix, strings::valueFileSuffixStr(), m_customCode.m_value, "value") &&
-        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read") &&
-        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write") &&
-        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh") &&
-        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length") &&
-        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid") &&
-        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name");
+        commsPrepareOverrideInternal(obj.readOverride(), codePathPrefix, strings::readFileSuffixStr(), m_customCode.m_read, "read", &CommsField::commsPrepareCustomReadFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.writeOverride(), codePathPrefix, strings::writeFileSuffixStr(), m_customCode.m_write, "write", &CommsField::commsPrepareCustomWriteFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.refreshOverride(), codePathPrefix, strings::refreshFileSuffixStr(), m_customCode.m_refresh, "refresh", &CommsField::commsPrepareCustomRefreshFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.lengthOverride(), codePathPrefix, strings::lengthFileSuffixStr(), m_customCode.m_length, "length", &CommsField::commsPrepareCustomLengthFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.validOverride(), codePathPrefix, strings::validFileSuffixStr(), m_customCode.m_valid, "valid", &CommsField::commsPrepareCustomValidFromBodyInternal) &&
+        commsPrepareOverrideInternal(obj.nameOverride(), codePathPrefix, strings::nameFileSuffixStr(), m_customCode.m_name, "name", &CommsField::commsPrepareCustomNameFromBodyInternal);
 
     if (!overrides) {
         return false;
@@ -744,7 +744,7 @@ std::string CommsField::commsFieldBaseParams(commsdsl::parse::Endian endian) con
     return comms::dslEndianToOpt(endian);
 }
 
-void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts) const
+void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts, bool tempFieldObj) const
 {
     if (comms::isGlobalField(m_field)) {
         opts.push_back("TExtraOpts...");
@@ -753,6 +753,10 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
     if (commsIsFieldCustomizable()) {
         auto& gen = static_cast<const CommsGenerator&>(m_field.generator());
         opts.push_back("typename TOpt::" + comms::scopeFor(m_field, m_field.generator(), gen.commsHasMainNamespaceInOptions(), true));
+    }
+
+    if (!tempFieldObj) {
+        util::addToStrList("comms::option::def::HasName", opts);
     }
 
     do {
@@ -792,6 +796,10 @@ void CommsField::commsAddFieldDefOptions(commsdsl::gen::util::StringsList& opts)
 
     if (m_forcedPseudo || m_field.dslObj().isPseudo()) {
         util::addToStrList("comms::option::def::EmptySerialization", opts);
+    }
+
+    if (m_field.dslObj().isFixedValue()) {
+        util::addToStrList("comms::option::def::FixedValue", opts);
     }
 }
 
@@ -852,7 +860,8 @@ bool CommsField::commsPrepareOverrideInternal(
     std::string& codePathPrefix, 
     const std::string& suffix,
     std::string& customCode,
-    const std::string& name)
+    const std::string& name,
+    BodyCustomCodeFunc bodyFunc)
 {
     if (isOverrideCodeRequired(type) && (!comms::isGlobalField(m_field))) {
         m_field.generator().logger().error(
@@ -868,11 +877,20 @@ bool CommsField::commsPrepareOverrideInternal(
         }
 
         auto contents = util::readFileContents(codePathPrefix + suffix);
-        if (contents.empty()) {
+        if (!contents.empty()) {
+            customCode = std::move(contents);
             break;
         }
 
-        customCode = std::move(contents);
+        if (bodyFunc == nullptr) {
+            break;
+        }
+
+        auto bodyContents = bodyFunc(codePathPrefix);
+        if (!bodyContents.empty()) {
+            customCode = std::move(bodyContents);
+            break;
+        }        
     } while (false);
 
     if (customCode.empty() && isOverrideCodeRequired(type)) {
@@ -883,6 +901,134 @@ bool CommsField::commsPrepareOverrideInternal(
     }
 
     return true;
+}
+
+std::string CommsField::commsPrepareCustomReadFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::readBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom read functionality\n"
+        "template <typename TIter>\n"
+        "comms::ErrorStatus read(TIter& iter, std::size_t len)\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsPrepareCustomWriteFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::writeBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom write functionality\n"
+        "template <typename TIter>\n"
+        "comms::ErrorStatus write(TIter& iter, std::size_t len) const\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsPrepareCustomRefreshFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::refreshBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom refresh functionality\n"
+        "bool refresh()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsPrepareCustomLengthFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::lengthBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom length calculation functionality\n"
+        "std::size_t length() const\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsPrepareCustomValidFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::validBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Custom validity check functionality\n"
+        "bool valid() const\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsField::commsPrepareCustomNameFromBodyInternal(const std::string& codePathPrefix)
+{
+    auto contents = util::readFileContents(codePathPrefix + strings::nameBodyFileSuffixStr());
+    if (contents.empty()) {
+        return std::string();
+    }
+    
+    static const std::string Templ = 
+        "/// @brief Name of the field.\n"
+        "static const char* name()\n"
+        "{\n"
+        "    #^#BODY#$#\n"
+        "}\n";
+
+    util::ReplacementMap repl = {
+        {"BODY", std::move(contents)},
+    };
+    
+    return util::processTemplate(Templ, repl);
 }
 
 bool CommsField::commsWriteCommonInternal() const
@@ -1058,7 +1204,8 @@ std::string CommsField::commsOptionalDefCodeInternal() const
         "    comms::field::Optional<\n"
         "        #^#CLASS_NAME#$#Field#^#FIELD_PARAMS#$#,\n"
         "        comms::option::def::#^#DEFAULT_MODE_OPT#$#,\n"
-        "        comms::option::def::#^#VERSIONS_OPT#$#\n"
+        "        comms::option::def::#^#VERSIONS_OPT#$#,\n"
+        "        comms::option::def::HasName"
         "    >\n"
         "{\n"
         "    /// @brief Name of the field.\n"
@@ -1785,7 +1932,7 @@ std::string CommsField::commsCustomizationOptionsInternal(
         }        
 
         if (extraOpts.empty() && (!hasBase)) {
-            extraOpts.push_back("comms::option::EmptyOption");
+            extraOpts.push_back("comms::option::app::EmptyOption");
         }
 
         if ((!extraOpts.empty()) && (hasBase)) {

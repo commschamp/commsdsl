@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -126,6 +126,7 @@ const std::string& verifyBeforeReadStr();
 const std::string& interfaceFieldNameStr();
 const std::string& valueStr();
 const std::string& pseudoStr();
+const std::string& fixedValueStr();
 const std::string& customStr();
 const std::string& semanticTypeStr();
 const std::string& noneStr();
@@ -174,6 +175,9 @@ const std::string& readCondStr();
 const std::string& validCondStr();
 const std::string& constructAsReadCondStr();
 const std::string& constructAsValidCondStr();
+const std::string& copyConstructFromStr();
+const std::string& copyReadCondFromStr();
+const std::string& copyValidCondFromStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

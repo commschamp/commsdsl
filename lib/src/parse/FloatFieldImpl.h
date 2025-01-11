@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -84,11 +84,6 @@ public:
         return m_state.m_displayDecimals;
     }
 
-    bool displaySpecials() const
-    {
-        return m_state.m_displaySpecials;
-    }
-
     bool hasNonUniqueSpecials() const;
 
 protected:
@@ -154,7 +149,6 @@ private:
         unsigned m_displayDecimals = 0U;
         bool m_validCheckVersion = false;
         bool m_nonUniqueSpecialsAllowed = false;
-        bool m_displaySpecials = true;
     };
 
     State m_state;

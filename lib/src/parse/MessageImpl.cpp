@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -96,6 +96,7 @@ bool MessageImpl::parse()
     }    
 
     return
+        checkReuse() &&
         updateName() &&
         updateDisplayName() &&
         updateDescription() &&
@@ -118,7 +119,10 @@ bool MessageImpl::parse()
         updateLengthOverride() &&
         updateValidOverride() &&
         updateNameOverride() &&   
-        updateCopyOverrideCodeFrom() &&     
+        updateCopyOverrideCodeFrom() && 
+        copyConstruct() && 
+        copyReadCond() &&  
+        copyValidCond() &&
         updateSingleConstruct() &&
         updateMultiConstruct() && 
         updateSingleReadCond() &&
@@ -133,24 +137,24 @@ bool MessageImpl::parse()
 
 const std::string& MessageImpl::name() const
 {
-    return m_name;
+    return m_state.m_name;
 }
 
 const std::string& MessageImpl::displayName() const
 {
-    return m_displayName;
+    return m_state.m_displayName;
 }
 
 const std::string& MessageImpl::description() const
 {
-    return m_description;
+    return m_state.m_description;
 }
 
 std::size_t MessageImpl::minLength() const
 {
     return
         std::accumulate(
-            m_fields.begin(), m_fields.end(), static_cast<std::size_t>(0U),
+            m_state.m_fields.begin(), m_state.m_fields.end(), static_cast<std::size_t>(0U),
                 [this](std::size_t soFar, auto& elem) -> std::size_t
                 {
                     if (this->getSinceVersion() < elem->getSinceVersion()) {
@@ -164,7 +168,7 @@ std::size_t MessageImpl::minLength() const
 std::size_t MessageImpl::maxLength() const
 {
     std::size_t soFar = 0U;
-    for (auto& f : m_fields) {
+    for (auto& f : m_state.m_fields) {
         common::addToLength(f->maxLength(), soFar);
     }
     return soFar;
@@ -173,9 +177,9 @@ std::size_t MessageImpl::maxLength() const
 MessageImpl::FieldsList MessageImpl::fieldsList() const
 {
     FieldsList result;
-    result.reserve(m_fields.size());
+    result.reserve(m_state.m_fields.size());
     std::transform(
-        m_fields.begin(), m_fields.end(), std::back_inserter(result),
+        m_state.m_fields.begin(), m_state.m_fields.end(), std::back_inserter(result),
         [](auto& f)
         {
             return Field(f.get());
@@ -186,9 +190,9 @@ MessageImpl::FieldsList MessageImpl::fieldsList() const
 MessageImpl::AliasesList MessageImpl::aliasesList() const
 {
     AliasesList result;
-    result.reserve(m_aliases.size());
+    result.reserve(m_state.m_aliases.size());
     std::transform(
-        m_aliases.begin(), m_aliases.end(), std::back_inserter(result),
+        m_state.m_aliases.begin(), m_state.m_aliases.end(), std::back_inserter(result),
         [](auto& a)
         {
             return Alias(a.get());
@@ -301,7 +305,6 @@ bool MessageImpl::validateAndUpdateOverrideTypePropValue(const std::string& prop
     return true;
 }
 
-
 bool MessageImpl::validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave)
 {
     if (!validateSinglePropInstance(propName, mustHave)) {
@@ -361,6 +364,12 @@ const XmlWrap::NamesList& MessageImpl::commonProps()
         common::constructAsReadCondStr(),
         common::constructAsValidCondStr(),
         common::failOnInvalidStr(),
+        common::reuseStr(),
+        common::reuseCodeStr(),
+        common::reuseAliasesStr(),
+        common::copyConstructFromStr(),
+        common::copyReadCondFromStr(),
+        common::copyValidCondFromStr(),
     };
 
     return CommonNames;
@@ -401,16 +410,86 @@ XmlWrap::NamesList MessageImpl::allNames()
     return names;
 }
 
-bool MessageImpl::updateName()
+bool MessageImpl::checkReuse()
 {
-    bool mustHave = m_name.empty();
-    if (!validateAndUpdateStringPropValue(common::nameStr(), m_name, mustHave)) {
+    auto& propStr = common::reuseStr();
+    if (!validateSinglePropInstance(propStr)) {
         return false;
     }
 
-    if (!common::isValidName(m_name)) {
+    auto iter = m_props.find(propStr);
+    if (iter == m_props.end()) {
+        return true;
+    }
+
+    if (!m_protocol.isMessageReuseSupported()) {
+        logWarning() << XmlWrap::logPrefix(getNode()) <<
+            "Property \"" << propStr << "\" is not supported for <message> in DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
+        return true;
+    }
+
+    auto& valueStr = iter->second;
+    auto* msg = m_protocol.findMessage(valueStr);
+    if (msg == nullptr) {
         logError() << XmlWrap::logPrefix(getNode()) <<
-                      "Invalid value for name property \"" << m_name << "\".";
+                      "The message \"" << valueStr << "\" hasn't been recorded yet.";
+        return false;
+    }
+
+    assert(msg != this);
+    Base::reuseState(*msg);
+    m_state = msg->m_state;
+
+    do {
+        bool reuseAliases = true;
+        if (!validateAndUpdateBoolPropValue(common::reuseAliasesStr(), reuseAliases)) {
+            return false;
+        }
+
+        if (reuseAliases) {
+            break;
+        }
+
+        m_state.m_aliases.clear();
+    } while (false);    
+
+    do {
+        auto& codeProp = common::reuseCodeStr();
+        if (!validateSinglePropInstance(codeProp, false)) {
+            return false;
+        }
+
+        m_state.m_copyCodeFrom.clear();
+        auto codeIter = m_props.find(codeProp);
+        if (codeIter == m_props.end()) {
+            break;
+        }  
+
+        bool copyCode = false;
+        if (!validateAndUpdateBoolPropValue(codeProp, copyCode)) {
+            return false;
+        }
+
+        if (!copyCode) {
+            break;
+        }
+
+        m_state.m_copyCodeFrom = valueStr; 
+    } while (false);
+
+    return true;
+}
+
+bool MessageImpl::updateName()
+{
+    bool mustHave = m_state.m_name.empty();
+    if (!validateAndUpdateStringPropValue(common::nameStr(), m_state.m_name, mustHave)) {
+        return false;
+    }
+
+    if (!common::isValidName(m_state.m_name)) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+                      "Invalid value for name property \"" << m_state.m_name << "\".";
         return false;
     }
 
@@ -419,12 +498,12 @@ bool MessageImpl::updateName()
 
 bool MessageImpl::updateDescription()
 {
-    return validateAndUpdateStringPropValue(common::descriptionStr(), m_description, false, true);
+    return validateAndUpdateStringPropValue(common::descriptionStr(), m_state.m_description, false, true);
 }
 
 bool MessageImpl::updateDisplayName()
 {
-    return validateAndUpdateStringPropValue(common::displayNameStr(), m_displayName, false, true);
+    return validateAndUpdateStringPropValue(common::displayNameStr(), m_state.m_displayName, false, true);
 }
 
 bool MessageImpl::updateId()
@@ -436,12 +515,12 @@ bool MessageImpl::updateId()
     auto iter = m_props.find(common::idStr());
     std::intmax_t val = 0;
     if (m_protocol.strToEnumValue(iter->second, val)) {
-        m_id = static_cast<decltype(m_id)>(val);
+        m_state.m_id = static_cast<decltype(m_state.m_id)>(val);
         return true;
     }
 
     bool ok = false;
-    m_id = common::strToUintMax(iter->second, &ok);
+    m_state.m_id = common::strToUintMax(iter->second, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::idStr(), iter->second);
         return false;
@@ -458,12 +537,12 @@ bool MessageImpl::updateOrder()
 
     auto iter = m_props.find(common::orderStr());
     if (iter == m_props.end()) {
-        assert(m_order == 0U);
+        assert(m_state.m_order == 0U);
         return true;
     }
 
     bool ok = false;
-    m_order = common::strToUnsigned(iter->second, &ok);
+    m_state.m_order = common::strToUnsigned(iter->second, &ok);
     if (!ok) {
         reportUnexpectedPropertyValue(common::orderStr(), iter->second);
         return false;
@@ -534,7 +613,7 @@ bool MessageImpl::updatePlatforms()
 
     auto iter = m_props.find(common::platformsStr());
     if (iter == m_props.end()) {
-        assert(m_platforms.empty());
+        assert(m_state.m_platforms.empty());
         return true;
     }
 
@@ -594,19 +673,19 @@ bool MessageImpl::updatePlatforms()
     platList.erase(std::unique(platList.begin(), platList.end()), platList.end());
 
     if (op == Plus) {
-        m_platforms = std::move(platList);
+        m_state.m_platforms = std::move(platList);
         return true;
     }
 
     assert(op == Minus);
     assert(platList.size() <= allPlatforms.size());
-    m_platforms.reserve(allPlatforms.size() - platList.size());
+    m_state.m_platforms.reserve(allPlatforms.size() - platList.size());
     std::set_difference(
         allPlatforms.begin(), allPlatforms.end(),
         platList.begin(), platList.end(),
-        std::back_inserter(m_platforms));
+        std::back_inserter(m_state.m_platforms));
 
-    if (m_platforms.empty()) {
+    if (m_state.m_platforms.empty()) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Message \"" << name() << "\" is not supported in any platform.";
         return false;
@@ -617,7 +696,7 @@ bool MessageImpl::updatePlatforms()
 
 bool MessageImpl::updateCustomizable()
 {
-    return validateAndUpdateBoolPropValue(common::customizableStr(), m_customizable);
+    return validateAndUpdateBoolPropValue(common::customizableStr(), m_state.m_customizable);
 }
 
 bool MessageImpl::updateSender()
@@ -647,7 +726,7 @@ bool MessageImpl::updateSender()
         return false;
     }
 
-    m_sender = static_cast<decltype(m_sender)>(std::distance(std::begin(Map), senderIter));
+    m_state.m_sender = static_cast<decltype(m_state.m_sender)>(std::distance(std::begin(Map), senderIter));
     return true;
 }
 
@@ -670,7 +749,7 @@ bool MessageImpl::updateValidateMinLength()
     }
 
     bool ok = false;
-    m_validateMinLength = static_cast<decltype(m_validateMinLength)>(common::strToUnsigned(iter->second, &ok));
+    m_state.m_validateMinLength = static_cast<decltype(m_state.m_validateMinLength)>(common::strToUnsigned(iter->second, &ok));
     if (!ok) {
         reportUnexpectedPropertyValue(propStr, iter->second);
         return false;
@@ -681,14 +760,14 @@ bool MessageImpl::updateValidateMinLength()
 bool MessageImpl::updateFailOnInvalid()
 {
     auto& propStr = common::failOnInvalidStr();
-    if (!validateAndUpdateBoolPropValue(propStr, m_failOnInvalid)) {
+    if (!validateAndUpdateBoolPropValue(propStr, m_state.m_failOnInvalid)) {
         return false;
     }
 
-    if (m_failOnInvalid && (!m_protocol.isFailOnInvalidInMessageSupported())) {
+    if (m_state.m_failOnInvalid && (!m_protocol.isFailOnInvalidInMessageSupported())) {
         logWarning() << XmlWrap::logPrefix(getNode()) <<
             "Property \"" << propStr << "\" is not supported for DSL version " << m_protocol.currSchema().dslVersion() << ", ignoring...";
-        m_failOnInvalid = false;
+        m_state.m_failOnInvalid = false;
         return true;
     }
 
@@ -706,6 +785,12 @@ bool MessageImpl::copyFields()
         return true;
     }
 
+    if (!m_state.m_fields.empty()) {
+        logError() << XmlWrap::logPrefix(getNode()) <<
+            "Copying fields from multiple sources using various properties is not supported";
+        return false;
+    }
+    
     do {
         m_copyFieldsFromMsg = m_protocol.findMessage(iter->second);
         if (m_copyFieldsFromMsg != nullptr) {
@@ -730,19 +815,19 @@ bool MessageImpl::copyFields()
         cloneFieldsFrom(*m_copyFieldsFromBundle);
     } while (false);
 
-    if (!m_fields.empty()) {
-        m_fields.erase(
+    if (!m_state.m_fields.empty()) {
+        m_state.m_fields.erase(
             std::remove_if(
-                m_fields.begin(), m_fields.end(),
+                m_state.m_fields.begin(), m_state.m_fields.end(),
                 [this](auto& elem)
                 {
                     return
                         (elem->isDeprecatedRemoved()) &&
                         (elem->getDeprecated() <= this->getSinceVersion());
                 }),
-            m_fields.end());
+            m_state.m_fields.end());
 
-        for (auto& m : m_fields) {
+        for (auto& m : m_state.m_fields) {
             m->setSinceVersion(std::max(getSinceVersion(), m->getSinceVersion()));
         }
     }
@@ -796,7 +881,7 @@ bool MessageImpl::replaceFields()
             return false;
         }
 
-        if (!field->verifySiblings(m_fields)) {
+        if (!field->verifySiblings(m_state.m_fields)) {
             return false;
         }        
 
@@ -807,14 +892,14 @@ bool MessageImpl::replaceFields()
         assert(field);
         auto iter = 
             std::find_if(
-                m_fields.begin(), m_fields.end(),
+                m_state.m_fields.begin(), m_state.m_fields.end(),
                 [&field](auto& currField)
                 {
                     assert(currField);
                     return field->name() == currField->name();
                 });
 
-        if (iter == m_fields.end()) {
+        if (iter == m_state.m_fields.end()) {
             logError() << XmlWrap::logPrefix(field->getNode()) <<
                 "Cannot find reused field with name \"" << field->name() << "\" to replace.";
             return false;
@@ -871,25 +956,25 @@ bool MessageImpl::copyAliases()
         cloneAliasesFrom(*m_copyFieldsFromBundle);
     }
 
-    if (!m_aliases.empty()) {
-        m_aliases.erase(
+    if (!m_state.m_aliases.empty()) {
+        m_state.m_aliases.erase(
             std::remove_if(
-                m_aliases.begin(), m_aliases.end(),
+                m_state.m_aliases.begin(), m_state.m_aliases.end(),
                 [this](auto& alias)
                 {
                     auto& fieldName = alias->fieldName();
                     assert(!fieldName.empty());
                     auto fieldIter =
                         std::find_if(
-                            m_fields.begin(), m_fields.end(),
+                            m_state.m_fields.begin(), m_state.m_fields.end(),
                             [&fieldName](auto& f)
                             {
                                 return fieldName == f->name();
                             });
 
-                    return fieldIter == m_fields.end();
+                    return fieldIter == m_state.m_fields.end();
                 }),
-            m_aliases.end());
+            m_state.m_aliases.end());
     }
     return true;
 }
@@ -944,7 +1029,7 @@ bool MessageImpl::updateFields()
             // fieldsTypes is updated with the list from <fields>
         }
 
-        m_fields.reserve(m_fields.size() + fieldsTypes.size());
+        m_state.m_fields.reserve(m_state.m_fields.size() + fieldsTypes.size());
         for (auto* fNode : fieldsTypes) {
             std::string fKind(reinterpret_cast<const char*>(fNode->name));
             auto field = FieldImpl::create(fKind, fNode, m_protocol);
@@ -961,23 +1046,23 @@ bool MessageImpl::updateFields()
                 return false;
             }
 
-            if (!field->verifySiblings(m_fields)) {
+            if (!field->verifySiblings(m_state.m_fields)) {
                 return false;
             }
 
-            m_fields.push_back(std::move(field));
+            m_state.m_fields.push_back(std::move(field));
         }
 
-        if (!FieldImpl::validateMembersNames(m_fields, m_protocol.logger())) {
+        if (!FieldImpl::validateMembersNames(m_state.m_fields, m_protocol.logger())) {
             return false;
         }
 
-        if (0 <= m_validateMinLength) {
+        if (0 <= m_state.m_validateMinLength) {
             auto len = minLength();
-            if (static_cast<unsigned>(m_validateMinLength) != len) {
+            if (static_cast<unsigned>(m_state.m_validateMinLength) != len) {
                 logError() << XmlWrap::logPrefix(getNode()) <<
                     "The calculated minimal length of the message is " << len <<
-                    " while expected is " << m_validateMinLength << " (specified with \"" << common::validateMinLengthStr() << "\" property).";                
+                    " while expected is " << m_state.m_validateMinLength << " (specified with \"" << common::validateMinLengthStr() << "\" property).";                
                 return false;
             }
         }
@@ -1002,7 +1087,7 @@ bool MessageImpl::updateAliases()
         return false;
     }
 
-    m_aliases.reserve(m_aliases.size() + aliasNodes.size());
+    m_state.m_aliases.reserve(m_state.m_aliases.size() + aliasNodes.size());
     for (auto* aNode : aliasNodes) {
         auto alias = AliasImpl::create(aNode, m_protocol);
         if (!alias) {
@@ -1017,11 +1102,11 @@ bool MessageImpl::updateAliases()
             return false;
         }
 
-        if (!alias->verifyAlias(m_aliases, m_fields)) {
+        if (!alias->verifyAlias(m_state.m_aliases, m_state.m_fields)) {
             return false;
         }
 
-        m_aliases.push_back(std::move(alias));
+        m_state.m_aliases.push_back(std::move(alias));
     }
 
     return true;
@@ -1029,64 +1114,64 @@ bool MessageImpl::updateAliases()
 
 void MessageImpl::cloneFieldsFrom(const MessageImpl& other)
 {
-    m_fields.reserve(other.m_fields.size());
-    for (auto& f : other.m_fields) {
-        m_fields.push_back(f->clone());
+    m_state.m_fields.reserve(other.m_state.m_fields.size());
+    for (auto& f : other.m_state.m_fields) {
+        m_state.m_fields.push_back(f->clone());
     }
 }
 
 void MessageImpl::cloneFieldsFrom(const BundleFieldImpl& other)
 {
-    m_fields.reserve(other.members().size());
+    m_state.m_fields.reserve(other.members().size());
     for (auto& f : other.members()) {
-        m_fields.push_back(f->clone());
+        m_state.m_fields.push_back(f->clone());
     }
 }
 
 void MessageImpl::cloneAliasesFrom(const MessageImpl& other)
 {
-    m_aliases.reserve(other.m_aliases.size());
-    for (auto& a : other.m_aliases) {
-        m_aliases.push_back(a->clone());
+    m_state.m_aliases.reserve(other.m_state.m_aliases.size());
+    for (auto& a : other.m_state.m_aliases) {
+        m_state.m_aliases.push_back(a->clone());
     }
 }
 
 void MessageImpl::cloneAliasesFrom(const BundleFieldImpl& other)
 {
-    m_aliases.reserve(other.aliases().size());
+    m_state.m_aliases.reserve(other.aliases().size());
     for (auto& a : other.aliases()) {
-        m_aliases.push_back(a->clone());
+        m_state.m_aliases.push_back(a->clone());
     }
 }
 
 bool MessageImpl::updateReadOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::readOverrideStr(), m_readOverride);
+    return validateAndUpdateOverrideTypePropValue(common::readOverrideStr(), m_state.m_readOverride);
 }
 
 bool MessageImpl::updateWriteOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::writeOverrideStr(), m_writeOverride);
+    return validateAndUpdateOverrideTypePropValue(common::writeOverrideStr(), m_state.m_writeOverride);
 }
 
 bool MessageImpl::updateRefreshOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::refreshOverrideStr(), m_refreshOverride);
+    return validateAndUpdateOverrideTypePropValue(common::refreshOverrideStr(), m_state.m_refreshOverride);
 }
 
 bool MessageImpl::updateLengthOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::lengthOverrideStr(), m_lengthOverride);
+    return validateAndUpdateOverrideTypePropValue(common::lengthOverrideStr(), m_state.m_lengthOverride);
 }
 
 bool MessageImpl::updateValidOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::validOverrideStr(), m_validOverride);
+    return validateAndUpdateOverrideTypePropValue(common::validOverrideStr(), m_state.m_validOverride);
 }
 
 bool MessageImpl::updateNameOverride()
 {
-    return validateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_nameOverride);
+    return validateAndUpdateOverrideTypePropValue(common::nameOverrideStr(), m_state.m_nameOverride);
 }
 
 bool MessageImpl::updateCopyOverrideCodeFrom()
@@ -1108,29 +1193,185 @@ bool MessageImpl::updateCopyOverrideCodeFrom()
         return true;
     }    
 
-    auto* field = m_protocol.findMessage(iter->second);
-    if (field == nullptr) {
+    auto* msg = m_protocol.findMessage(iter->second);
+    if (msg == nullptr) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
         return false;        
     }
 
-    m_copyCodeFrom = iter->second;
+    m_state.m_copyCodeFrom = iter->second;
+    return true;
+}
+
+bool MessageImpl::copyConstruct()
+{
+    auto& prop = common::copyConstructFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.currSchema().dslVersion() << ".";        
+        return true;
+    }    
+
+    auto* msg = m_protocol.findMessage(iter->second);
+    if (msg == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+        return false;        
+    }
+
+    if (!msg->m_state.m_construct) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") does not specify construction conditions.";
+        return false;        
+    }
+
+    auto newConstruct = msg->m_state.m_construct->clone();
+    if (!newConstruct->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Copied construct conditions cannot be applied to this message.";
+        return false;
+    }    
+
+    m_state.m_construct = std::move(newConstruct);
+    return true;
+}
+
+bool MessageImpl::copyReadCond()
+{
+    auto& prop = common::copyReadCondFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.currSchema().dslVersion() << ".";        
+        return true;
+    }    
+
+    auto* msg = m_protocol.findMessage(iter->second);
+    if (msg == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+        return false;        
+    }
+
+    if (!msg->m_state.m_readCond) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message referenced by \"" << prop << "\" property (" + iter->second + ") does not specify read conditions.";
+        return false;        
+    }
+
+    auto newReadCond = msg->m_state.m_readCond->clone();
+    if (!newReadCond->verify(OptCondImpl::FieldsList(), m_node, m_protocol)) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Copied read conditions cannot be applied to this message.";
+        return false;
+    }    
+
+    m_state.m_readCond = std::move(newReadCond);
+    return true;
+}
+
+bool MessageImpl::copyValidCond()
+{
+    auto& prop = common::copyValidCondFromStr();
+    if (!validateSinglePropInstance(prop, false)) {
+        return false;
+    }
+
+    auto iter = m_props.find(prop);
+    if (iter == m_props.end()) {
+        return true;
+    }  
+
+    if (!m_protocol.isPropertySupported(prop)) {
+        logWarning() << XmlWrap::logPrefix(m_node) <<
+            "The property \"" << prop << "\" is not supported for dslVersion=" << 
+                m_protocol.currSchema().dslVersion() << ".";        
+        return true;
+    }    
+
+    const MessageImpl* msg = nullptr;
+    const BundleFieldImpl* bundle = nullptr;
+    do {
+        msg = m_protocol.findMessage(iter->second);
+        if (msg != nullptr) {
+            break;
+        }
+
+        auto otherField = m_protocol.findField(iter->second);
+        if (otherField == nullptr) {
+            logError() << XmlWrap::logPrefix(m_node) <<
+                "Neither message nor bundle field referenced by \"" << prop << "\" property (" + iter->second + ") is not found.";
+            return false;
+        }
+
+        if (otherField->kind() != FieldImpl::Kind::Bundle) {
+            logError() << XmlWrap::logPrefix(m_node) <<
+                "The \"" << prop << "\" property (" + iter->second + ") can reference only other message or a bundle field.";
+            return false;
+        }
+
+        bundle = static_cast<const BundleFieldImpl*>(otherField);
+    } while (false);
+
+    assert((msg != nullptr) || (bundle != nullptr));
+
+    const OptCondImpl* srcCondPtr = nullptr;
+    if (msg != nullptr) {
+        srcCondPtr = msg->m_state.m_validCond.get();
+    }
+    else if (bundle != nullptr) {
+        srcCondPtr = bundle->validCondImpl().get();
+    }
+
+    if (srcCondPtr == nullptr) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Message / bundle referenced by \"" << prop << "\" property (" + iter->second + ") does not specify validity conditions.";
+        return false;        
+    }
+
+    auto newCond = srcCondPtr->clone();
+    if (!newCond->verify(m_state.m_fields, m_node, m_protocol)) {
+        logError() << XmlWrap::logPrefix(m_node) <<
+            "Copied validity conditions cannot be applied to this message.";
+        return false;
+    }    
+
+    m_state.m_validCond = std::move(newCond);
     return true;
 }
 
 bool MessageImpl::updateSingleConstruct()
 {
-    if (!updateSingleCondInternal(common::constructStr(), m_construct)) {
+    if (!updateSingleCondInternal(common::constructStr(), m_state.m_construct)) {
         return false;
     }
 
-    if (!m_construct) {
+    if (!m_state.m_construct) {
         return true;
     }
 
-    if (!verifyConstructInternal(OptCond(m_construct.get()))) {
-        m_construct.reset();
+    if (!verifyConstructInternal(OptCond(m_state.m_construct.get()))) {
+        m_state.m_construct.reset();
         logError() << XmlWrap::logPrefix(m_node) <<
             "Only bit checks and equality comparisons are supported in the \"" << common::constructStr() << "\" property.";
         return false;
@@ -1141,16 +1382,16 @@ bool MessageImpl::updateSingleConstruct()
 
 bool MessageImpl::updateMultiConstruct()
 {
-    if (!updateMultiCondInternal(common::constructStr(), m_construct)) {
+    if (!updateMultiCondInternal(common::constructStr(), m_state.m_construct)) {
         return false;
     }
 
-    if (!m_construct) {
+    if (!m_state.m_construct) {
         return true;
     }
 
-    if (!verifyConstructInternal(OptCond(m_construct.get()))) {
-        m_construct.reset();
+    if (!verifyConstructInternal(OptCond(m_state.m_construct.get()))) {
+        m_state.m_construct.reset();
         logError() << XmlWrap::logPrefix(m_node) <<
             "Only \"" << common::andStr() <<  
             "\" of the bit checks and equality comparisons are supported in the \"" << common::constructStr() << "\" element.";
@@ -1162,22 +1403,22 @@ bool MessageImpl::updateMultiConstruct()
 
 bool MessageImpl::updateSingleReadCond()
 {
-    return updateSingleCondInternal(common::readCondStr(), m_readCond);
+    return updateSingleCondInternal(common::readCondStr(), m_state.m_readCond);
 }
 
 bool MessageImpl::updateMultiReadCond()
 {
-    return updateMultiCondInternal(common::readCondStr(), m_readCond);
+    return updateMultiCondInternal(common::readCondStr(), m_state.m_readCond);
 }
 
 bool MessageImpl::updateSingleValidCond()
 {
-    return updateSingleCondInternal(common::validCondStr(), m_validCond, true);
+    return updateSingleCondInternal(common::validCondStr(), m_state.m_validCond, true);
 }
 
 bool MessageImpl::updateMultiValidCond()
 {
-    return updateMultiCondInternal(common::validCondStr(), m_validCond, true);
+    return updateMultiCondInternal(common::validCondStr(), m_state.m_validCond, true);
 }
 
 bool MessageImpl::copyConstructToReadCond()
@@ -1186,9 +1427,9 @@ bool MessageImpl::copyConstructToReadCond()
         copyCondInternal(
             common::constructAsReadCondStr(),
             common::constructStr(),
-            m_construct,
+            m_state.m_construct,
             common::readCondStr(),
-            m_readCond);
+            m_state.m_readCond);
 }
 
 bool MessageImpl::copyConstructToValidCond()
@@ -1197,9 +1438,9 @@ bool MessageImpl::copyConstructToValidCond()
         copyCondInternal(
             common::constructAsValidCondStr(),
             common::constructStr(),
-            m_construct,
+            m_state.m_construct,
             common::validCondStr(),
-            m_validCond);
+            m_state.m_validCond);
 }
 
 bool MessageImpl::updateExtraAttrs()
@@ -1233,12 +1474,6 @@ bool MessageImpl::updateSingleCondInternal(const std::string& prop, OptCondImplP
         return true;
     }          
 
-    if (cond) {
-        logError() << XmlWrap::logPrefix(m_node) <<
-            "Only single \"" << prop << "\" property is supported";
-        return false;
-    }
-
     auto newCond = std::make_unique<OptCondExprImpl>();
     if (!newCond->parse(iter->second, m_node, m_protocol)) {
         return false;
@@ -1247,7 +1482,7 @@ bool MessageImpl::updateSingleCondInternal(const std::string& prop, OptCondImplP
     static const OptCondImpl::FieldsList NoFields;
     auto* fieldsPtr = &NoFields;
     if (allowFieldsAccess) {
-        fieldsPtr = &m_fields;
+        fieldsPtr = &m_state.m_fields;
     }    
 
     if (!newCond->verify(*fieldsPtr, m_node, m_protocol)) {
@@ -1290,7 +1525,8 @@ bool MessageImpl::updateMultiCondInternal(const std::string& prop, OptCondImplPt
         return false;
     }    
 
-    if (cond) {
+    auto iter = props().find(prop);
+    if (iter != props().end()) {
         logError() << XmlWrap::logPrefix(condNodes.front()) <<
             "Only single \"" << prop << "\" property is supported";
         return false;
@@ -1305,7 +1541,7 @@ bool MessageImpl::updateMultiCondInternal(const std::string& prop, OptCondImplPt
     static const OptCondImpl::FieldsList NoFields;
     auto* fieldsPtr = &NoFields;
     if (allowFieldsAccess) {
-        fieldsPtr = &m_fields;
+        fieldsPtr = &m_state.m_fields;
     }
 
     if (!newCond->verify(*fieldsPtr, condChildren.front(), m_protocol)) {
@@ -1320,8 +1556,9 @@ bool MessageImpl::copyCondInternal(
     const std::string& copyProp,
     const std::string& fromProp, 
     const OptCondImplPtr& fromCond, 
-    const std::string& toProp, 
-    OptCondImplPtr& toCond)
+    const std::string& toProp,
+    OptCondImplPtr& toCond,
+    bool allowOverride)
 {
     if (!validateSinglePropInstance(copyProp)) {
         return false;
@@ -1356,7 +1593,7 @@ bool MessageImpl::copyCondInternal(
         return false;            
     }
 
-    if (toCond) {
+    if (toCond && (!allowOverride)) {
         logError() << XmlWrap::logPrefix(m_node) <<
             "Set of the \"" << copyProp << "\" property overrides existing \"" << toProp << "\" setting.";          
         return false;

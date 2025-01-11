@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema11"
-        id="1"
-        endian="big">
+<schema name="Schema11" endian="big">
     <fields>
         <enum name="F1" type="uint8" defaultValue="V1">
             <validValue name="V1" val="1" />

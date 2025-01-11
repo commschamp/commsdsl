@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,6 +68,7 @@ private:
 
     void commsAddLengthOptInternal(StringsList& opts) const;
     void commsAddSerOffsetOptInternal(StringsList& opts) const;
+    void commsAddDisplayOffsetOptInternal(StringsList& opts) const;
     void commsAddScalingOptInternal(StringsList& opts) const;
     void commsAddUnitsOptInternal(StringsList& opts) const;
     void commsAddDefaultValueOptInternal(StringsList& opts) const;

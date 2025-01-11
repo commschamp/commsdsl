@@ -20,6 +20,7 @@ public:
     void test11();
     void test12();
     void test13();
+    void test14();
 };
 
 void BitfieldTestSuite::setUp()
@@ -357,4 +358,59 @@ void BitfieldTestSuite::test13()
 
         TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Enum);
     } while (false);
+}
+
+void BitfieldTestSuite::test14()
+{
+    auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema14.xml");
+    TS_ASSERT(protocol);
+
+    auto namespaces = protocol->lastParsedSchema().namespaces();
+    TS_ASSERT_EQUALS(namespaces.size(), 1U);
+
+    auto& ns = namespaces.front();
+    TS_ASSERT(ns.name().empty());
+
+    auto fields = ns.fields();
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(1U, fields.size());
+
+        auto& field = fields.front();
+        TS_ASSERT_EQUALS(field.name(), "Bitfield1");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+
+        commsdsl::parse::BitfieldField bitfieldField(field);
+        auto validCond = bitfieldField.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+
+        commsdsl::parse::OptCondList validCondList(validCond);
+        TS_ASSERT_EQUALS(validCondList.type(), commsdsl::parse::OptCondList::Type::Or);
+    }
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(2U, fields.size());
+
+        auto& field = fields[1];
+        TS_ASSERT_EQUALS(field.name(), "Bitfield2");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+
+        commsdsl::parse::BitfieldField bitfieldField(field);
+        auto validCond = bitfieldField.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::List);
+    }      
+
+    {
+        TS_ASSERT_LESS_THAN_EQUALS(3U, fields.size());
+
+        auto& field = fields[2];
+        TS_ASSERT_EQUALS(field.name(), "Bitfield3");
+        TS_ASSERT_EQUALS(field.kind(), commsdsl::parse::Field::Kind::Bitfield);
+
+        commsdsl::parse::BitfieldField bitfieldField(field);
+        auto validCond = bitfieldField.validCond();
+        TS_ASSERT(validCond.valid());
+        TS_ASSERT_EQUALS(validCond.kind(), commsdsl::parse::OptCond::Kind::Expr);
+    }      
 }

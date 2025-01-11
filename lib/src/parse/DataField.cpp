@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -70,6 +70,11 @@ Field DataField::lengthPrefixField() const
 const std::string& DataField::detachedPrefixFieldName() const
 {
     return cast(m_pImpl)->detachedPrefixFieldName();
+}
+
+const DataField::ValidValuesList& DataField::validValues() const
+{
+    return cast(m_pImpl)->validValues();
 }
 
 } // namespace parse

@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace commsdsl2tools_qt
 {
 
@@ -27,8 +29,10 @@ public:
 private:
     explicit ToolsQtCmake(ToolsQtGenerator& generator) : m_generator(generator) {}
 
-    bool testWriteInternal() const;
-    
+    bool toolsWriteInternal() const;
+    std::string toolsPerInterfaceFuncsInternal() const;
+    std::string toolsPerInterfaceCallsInternal() const;
+
 private:
     ToolsQtGenerator& m_generator;
 };

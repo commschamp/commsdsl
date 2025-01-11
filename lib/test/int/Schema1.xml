@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schema name="Schema1"
-        id="1"
-        endian="big">
+<schema name="Schema1" endian="big">
     <description>
         Schema1 description
     </description>
     <fields>
-        <int name="Int1" type="uint8"/>
+        <int name="Int1" type="uint8" validateMinLength="1" />
     </fields>
 </schema>

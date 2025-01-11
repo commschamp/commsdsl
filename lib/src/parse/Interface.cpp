@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -66,6 +66,12 @@ std::string Interface::externalRef(bool schemaRef) const
 {
     assert(m_pImpl != nullptr);
     return m_pImpl->externalRef(schemaRef);
+}
+
+const std::string& Interface::copyCodeFrom() const
+{
+    assert(m_pImpl != nullptr);
+    return m_pImpl->copyCodeFrom();
 }
 
 const Interface::AttributesMap& Interface::extraAttributes() const

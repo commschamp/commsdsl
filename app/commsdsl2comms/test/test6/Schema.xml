@@ -87,14 +87,14 @@
             </optional>
             <variant name="m6">
                 <bundle name="p1">
-                    <int name="key" type="uint8" validValue="0" failOnInvalid="true" />
+                    <int name="key" type="uint8" validValue="0" failOnInvalid="true" fixedValue="true" />
                     <enum name="val" type="uint8">
                         <validValue name="v1" val="0" />
                         <validValue name="v2" val="1" />
                     </enum>
                 </bundle>
                 <bundle name="p2">
-                    <int name="key" type="uint8" defaultValue="1" validValue="1" failOnInvalid="true" />
+                    <int name="key" type="uint8" defaultValue="1" validValue="1" failOnInvalid="true" fixedValue="true" />
                     <enum name="val" type="uint8" defaultValue="v1">
                         <validValue name="v1" val="5" />
                         <validValue name="v2" val="6" />

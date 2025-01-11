@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,9 +15,10 @@
 
 #pragma once
 
-#include <string>
-
+#include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/util.h"
+
+#include <string>
 
 namespace commsdsl2tools_qt
 {
@@ -29,26 +30,22 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
 
     static bool write(ToolsQtGenerator& generator);
-    static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator);
-    static StringsList toolsSourceFiles(const ToolsQtGenerator& generator); 
-    static std::string toolsClassScope(const ToolsQtGenerator& generator);
+    static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace);
+    static StringsList toolsSourceFiles(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace); 
+    static std::string toolsClassScope(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace);
 
 private:
-    explicit ToolsQtMsgFactory(ToolsQtGenerator& generator) : m_generator(generator) {}
+    explicit ToolsQtMsgFactory(const ToolsQtGenerator& generator) : m_generator(generator) {}
 
+    std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
     bool toolsWriteInternal() const;
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSourceInternal() const;
-    bool toolsHasUniqueIdsInternal() const;
-    bool toolsIsGeneratedInternal() const;
-    bool toolsHasSourceInternal() const;
     std::string toolsHeaderCodeInternal() const;
-    std::string toolsHeaderSingleInterfaceCodeInternal() const;
-    std::string toolsHeaderMultipleInterfacesCodeInternal() const;
-    std::string toolsSourceCodeInternal() const;
-    
+    std::string toolsSourceCodeInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsSourceIncludesInternal(const commsdsl::gen::Interface& iFace) const;
 
-    ToolsQtGenerator& m_generator;
+    const ToolsQtGenerator& m_generator;
 };
 
 } // namespace commsdsl2tools_qt

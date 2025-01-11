@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
 
 #pragma once
 
-#include "ToolsQtField.h"
 #include "ToolsQtInterface.h"
 
 #include "commsdsl/gen/Message.h"
@@ -32,41 +31,35 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
 
-    using ToolsQtFieldsList = ToolsQtField::ToolsQtFieldsList;
-
     explicit ToolsQtMessage(ToolsQtGenerator& generator, commsdsl::parse::Message dslObj, commsdsl::gen::Elem* parent);
 
-    StringsList toolsSourceFiles() const;
+    std::string toolsHeaderPath(const commsdsl::gen::Interface& iFace) const;
+    StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsClassScope(const commsdsl::gen::Interface& iFace) const;
+
+    static ToolsQtMessage& cast(commsdsl::gen::Message& msg)
+    {
+        return static_cast<ToolsQtMessage&>(msg);
+    }
+
+    static const ToolsQtMessage& cast(const commsdsl::gen::Message& msg)
+    {
+        return static_cast<const ToolsQtMessage&>(msg);
+    }    
 
 protected:
     virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
 
 private:
-    enum CodeType : unsigned
-    {
-        CodeType_MultipleInterfaces,
-        CodeType_SinglePimplInterface,
-        CodeType_SingleInterfaceWithFields,
-        CodeType_NumOfValues
-    };
-
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSrcInternal() const;
-    std::string toolsRelPathInternal() const;
+    std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
     IncludesList toolsHeaderIncludesInternal() const;
-    IncludesList toolsHeaderIncludesMultipleInterfacesInternal() const;
-    IncludesList toolsHeaderIncludesSinglePimplInterfaceInternal() const;
-    IncludesList toolsHeaderIncludesSingleInterfaceWithFieldsInternal() const;
     std::string toolsHeaderCodeInternal() const;
-    IncludesList toolsSrcIncludesInternal() const;
-    IncludesList toolsSrcIncludesMultipleInterfacesInternal() const;
-    IncludesList toolsSrcIncludesSinglePimplInterfaceInternal() const;
-    IncludesList toolsSrcIncludesSingleInterfaceWithFieldsInternal() const;
-    std::string toolsSrcCodeInternal() const;
+    IncludesList toolsSrcIncludesInternal(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsSrcCodeInternal(const commsdsl::gen::Interface& iFace) const;
 
-    CodeType toolCodeTypeInternal() const;
-    ToolsQtFieldsList m_toolsFields;
     bool m_exists = true;
 };
 

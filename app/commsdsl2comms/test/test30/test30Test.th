@@ -11,6 +11,7 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
 
     using Interface =
         test30::Message<
@@ -116,5 +117,16 @@ void TestSuite::test2()
     es = frame.write(*msgPtr, writeIter, outBuf.size());
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT(std::equal(std::begin(ExpBuf), std::end(ExpBuf), outBuf.begin()));
+}
+
+void TestSuite::test3()
+{
+    Msg3 msg;
+    TS_ASSERT(msg.valid());
+
+    msg.field_f1().field_m1().setValue(1);
+    TS_ASSERT(!msg.valid());
+    msg.field_f1().field_m2().setValue(1);
+    TS_ASSERT(msg.valid());
 }
 

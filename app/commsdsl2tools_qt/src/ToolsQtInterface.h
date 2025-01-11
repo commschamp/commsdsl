@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "ToolsQtField.h"
-
 #include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/util.h"
 
@@ -31,10 +29,9 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     using IncludesList = StringsList;
 
-    using ToolsQtFieldsList = ToolsQtField::ToolsQtFieldsList;
-
     explicit ToolsQtInterface(ToolsQtGenerator& generator, commsdsl::parse::Interface dslObj, commsdsl::gen::Elem* parent);
 
+    std::string toolsClassScope() const;
     std::string toolsHeaderFilePath() const;
     StringsList toolsSourceFiles() const;
 
@@ -43,8 +40,12 @@ public:
         return static_cast<const ToolsQtInterface*>(val);
     }
 
+    static const ToolsQtInterface& cast(const commsdsl::gen::Interface& val)
+    {
+        return static_cast<const ToolsQtInterface&>(val);
+    }    
+
 protected:
-    virtual bool prepareImpl() override;
     virtual bool writeImpl() const override;    
 
 private:
@@ -54,8 +55,6 @@ private:
     std::string toolsSrcCodeInternal() const;
     const std::string& toolsNameInternal() const;
     std::string toolsRelFilePath() const;
-
-    ToolsQtFieldsList m_toolsFields;
 };
 
 } // namespace commsdsl2tools_qt

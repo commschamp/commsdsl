@@ -7,6 +7,8 @@ class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
+    void test2();
+    void test3();
 
     using Interface =
         test14::Message<
@@ -40,3 +42,35 @@ void TestSuite::test1()
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(msg, msg2);
 }
+
+void TestSuite::test2()
+{
+    Msg2 msg;
+    TS_ASSERT_EQUALS(msg.field_f1().value(), "bla1");
+    TS_ASSERT(msg.field_f1().valid());
+
+    msg.field_f1().setValue("bla2");
+    TS_ASSERT(msg.field_f1().valid());
+
+    msg.field_f1().setValue("bla6");
+    TS_ASSERT(!msg.field_f1().valid());
+}
+
+void TestSuite::test3()
+{
+    // Testing failure to read invalid value of Msg2.f2
+
+    Msg2 msg;
+    msg.field_f2().setValue("bla6");
+    TS_ASSERT(!msg.doValid());
+
+    std::vector<std::uint8_t> outBuf;
+    auto writeIter = std::back_inserter(outBuf);
+    auto es = msg.doWrite(writeIter, outBuf.max_size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+
+    auto readIter = outBuf.data();
+    es = msg.doRead(readIter, outBuf.size());
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::InvalidMsgData);
+}
+

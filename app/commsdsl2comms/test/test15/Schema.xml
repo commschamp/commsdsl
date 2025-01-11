@@ -14,6 +14,16 @@
                 <int name="length" type="uint8" />
             </lengthPrefix>
         </data>
+
+        <data name="D4" defaultValidValue="01 02">
+            <lengthPrefix>
+                <int name="length" type="uint8" />
+            </lengthPrefix>
+            <validValue value="03 04" />            
+            <validValue value="05 06" />
+        </data>
+
+        <data name="D5" reuse="D4" defaultValue="0304" failOnInvalid="true" />
     </fields>
     
     <interface name="Message">
@@ -30,9 +40,13 @@
                 <int name="length" type="uint8" />
             </lengthPrefix>
         </data>
-                
     </message>
     
+    <message name="Msg2" id="MsgId.M2">
+        <ref name="f1" field="D4" />
+        <ref name="f2" field="D5" failOnInvalid="true" />
+    </message>
+        
     <frame name="Frame">
         <id name="ID" field="MsgId" />
         <payload name="Data" />

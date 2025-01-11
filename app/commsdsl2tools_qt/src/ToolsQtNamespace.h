@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,6 +22,8 @@ namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
+class ToolsQtInterface;
+
 class ToolsQtNamespace final : public commsdsl::gen::Namespace
 {
     using Base = commsdsl::gen::Namespace;
@@ -29,7 +31,7 @@ public:
     using StringsList = commsdsl::gen::util::StringsList;
     explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent);
 
-    StringsList toolsSourceFiles() const;
+    StringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
 
     std::string toolsMsgFactoryOptions() const;
 

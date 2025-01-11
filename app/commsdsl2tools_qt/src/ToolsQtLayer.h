@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -14,8 +14,6 @@
 // limitations under the License.
 
 #pragma once
-
-#include "ToolsQtField.h"
 
 #include "commsdsl/gen/Layer.h"
 #include "commsdsl/gen/util.h"
@@ -34,10 +32,6 @@ public:
 
     bool prepare();
 
-    IncludesList toolsSrcIncludes() const;
-    std::string toolsPropsFunc() const;
-    std::string toolsCreatePropsInvocation() const;
-    std::string toolsFieldCommsScope() const;
     std::string toolsMsgFactoryOptions() const;
 
     unsigned toolsMinFieldLength() const;
@@ -48,24 +42,10 @@ public:
     }
 
 protected:
-    virtual std::string toolExtraFieldTemplParamsImpl() const;
-    virtual std::string toolsForcedSerHiddenStrImpl() const;
     virtual StringsList toolsMsgFactoryExtraOptionsImpl() const;
-
-    const ToolsQtField* toolsExternalField() const
-    {
-        return m_toolsExternalField;
-    }
-
-    const ToolsQtField* toolsMemberField() const
-    {
-        return m_toolsMemberField;
-    }    
 
 private:
     commsdsl::gen::Layer& m_layer ;
-    ToolsQtField* m_toolsExternalField = nullptr;
-    ToolsQtField* m_toolsMemberField = nullptr;
 };
 
 } // namespace commsdsl2tools_qt

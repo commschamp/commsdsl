@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -108,14 +108,9 @@ public:
         return m_state.m_pseudo;
     }
 
-    bool isDisplayReadOnly() const
+    bool isFixedValue() const
     {
-        return m_state.m_displayReadOnly;
-    }    
-
-    bool isDisplayHidden() const
-    {
-        return m_state.m_displayHidden;
+        return m_state.m_fixedValue;
     }    
 
     bool isCustomizable() const
@@ -278,6 +273,7 @@ public:
     bool verifySemanticType() const;
     bool verifySemanticType(::xmlNodePtr node, SemanticType type) const;
     bool verifyAliasedMember(const std::string& fieldName);
+    bool verifyMinLength() const;
 
     std::string schemaPos() const;
 
@@ -362,6 +358,7 @@ protected:
             bool mustHave = false,
             bool allowDeref = false);
     void reportUnexpectedPropertyValue(const std::string& propName, const std::string& propValue);
+    void checkAndReportDeprecatedPropertyValue(const std::string& propName);
     bool validateAndUpdateBoolPropValue(const std::string& propName, bool& value, bool mustHave = false);
     bool validateAndUpdateOverrideTypePropValue(const std::string& propName, OverrideType& value);
 
@@ -423,9 +420,9 @@ private:
         OverrideType m_validOverride = OverrideType_Any;
         OverrideType m_nameOverride = OverrideType_Any;
         std::string m_copyCodeFrom;
+        int m_validateMinLength = -1;
         bool m_pseudo = false;
-        bool m_displayReadOnly = false;
-        bool m_displayHidden = false;
+        bool m_fixedValue = false;
         bool m_customizable = false;
         bool m_failOnInvalid = false;
         bool m_forceGen = false;
@@ -439,6 +436,7 @@ private:
     bool updateVersions();
     bool updateSemanticType();
     bool updatePseudo();
+    bool updateFixedValue();
     bool updateDisplayReadOnly();
     bool updateDisplayHidden();
     bool updateCustomizable();
@@ -452,6 +450,7 @@ private:
     bool updateValidOverride();
     bool updateNameOverride();
     bool updateCopyOverrideCodeFrom();
+    bool updateValidateMinLength();
     bool updateExtraAttrs(const XmlWrap::NamesList& names);
     bool updateExtraChildren(const XmlWrap::NamesList& names);
 

@@ -1,5 +1,5 @@
 //
-// Copyright 2021 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
 //
 
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -27,6 +27,7 @@
 #include "commsdsl/parse/Endian.h"
 
 #include <memory>
+#include <vector>
 
 namespace commsdsl
 {

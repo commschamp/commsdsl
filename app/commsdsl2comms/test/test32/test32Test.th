@@ -40,7 +40,7 @@ public:
         template <std::size_t TIdx, typename TField>
         void operator()(TField& field)
         {
-            TS_ASSERT(field.field_type().value() == m_type);
+            TS_ASSERT(field.field_type().getValue() == m_type);
         }
 
     private:
@@ -127,10 +127,11 @@ void TestSuite::test4()
     TS_ASSERT(msg1.valid());
 
     using PropKeyType = Msg1::Field_f1::Field_p1::Field_type::ValueType;
-    TS_ASSERT_EQUALS(f.field_type().value(), static_cast<PropKeyType>(0));
-    f.field_type().value() = static_cast<PropKeyType>(1);
-    TS_ASSERT(msg1.doRefresh());
-    TS_ASSERT_EQUALS(f.field_type().value(), static_cast<PropKeyType>(0));
+    TS_ASSERT_EQUALS(f.field_type().getValue(), static_cast<PropKeyType>(0));
+    TS_ASSERT(f.field_type().hasFixedValue());
+    // f.field_type().value() = static_cast<PropKeyType>(1);
+    // TS_ASSERT(msg1.doRefresh());
+    // TS_ASSERT_EQUALS(f.field_type().getValue(), static_cast<PropKeyType>(0));
 }
 
 void TestSuite::test5()

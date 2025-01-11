@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -25,6 +25,8 @@
 #include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/util.h"
 
+#include <map>
+
 namespace commsdsl2tools_qt 
 {
 
@@ -43,6 +45,7 @@ public:
     using PluginInfosList = ToolsQtProgramOptions::PluginInfosList;
     using StringsList = commsdsl::gen::util::StringsList;
     using PluginsList = std::vector<ToolsQtPluginPtr>;
+    using FramesPerInterfaceMap = std::map<const commsdsl::gen::Interface*, FramesAccessList>;
 
     static const std::string& toolsFileGeneratedComment();
     void toolsSetPluginInfosList(PluginInfosList&& value)
@@ -55,7 +58,7 @@ public:
         return m_pluginInfos;
     }
 
-    StringsList toolsSourceFiles() const;
+    StringsList toolsSourceFilesForInterface(const ToolsQtInterface& interface) const;
 
     const PluginsList& toolsPlugins() const
     {
@@ -71,6 +74,13 @@ public:
     {
         return m_selectedFrames;
     }    
+
+    const FramesPerInterfaceMap& toolsGetSelectedFramesPerInterface() const
+    {
+        return m_selectedFramesPerInterface;
+    }
+
+    const FramesAccessList& toolsGetSelectedFramesForInterface(const commsdsl::gen::Interface& interface);
 
     static ToolsQtGenerator& cast(commsdsl::gen::Generator& generator)
     {
@@ -88,6 +98,15 @@ public:
 
     static const std::string& toolsMinCcToolsQtVersion();
 
+    static const std::string& toolsNamespaceBegin();
+    static const std::string& toolsNamespaceEnd();
+
+    std::string toolsNamespaceBeginForInterface(const commsdsl::gen::Interface& interface) const;
+    std::string toolsNamespaceEndForInterface(const commsdsl::gen::Interface& interface) const;    
+
+    static const std::string& toolsScopePrefix();
+    std::string toolsScopePrefixForInterface(const commsdsl::gen::Interface& interface) const;
+
 protected:
     virtual bool prepareImpl() override;
 
@@ -95,19 +114,6 @@ protected:
     virtual InterfacePtr createInterfaceImpl(commsdsl::parse::Interface dslObj, Elem* parent) override;
     virtual MessagePtr createMessageImpl(commsdsl::parse::Message dslObj, Elem* parent) override;
     virtual FramePtr createFrameImpl(commsdsl::parse::Frame dslObj, Elem* parent) override;
-
-    virtual FieldPtr createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
-    virtual FieldPtr createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent) override;
 
     virtual LayerPtr createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
     virtual LayerPtr createSyncLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent) override;
@@ -129,6 +135,7 @@ private:
     PluginsList m_plugins;
     InterfacesAccessList m_selectedInterfaces;
     FramesAccessList m_selectedFrames;
+    FramesPerInterfaceMap m_selectedFramesPerInterface;
     bool m_mainNamespaceInOptionsForced = false;
 };
 

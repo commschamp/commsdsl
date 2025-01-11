@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="Schema32" endian="Big" dslVersion="7">
+    <fields>
+        <string name="Msg1Name" defaultValue="Message 1" />
+        <string name="Msg2Name" defaultValue="Message 2" />
+        <string name="Msg3Name" defaultValue="Message 3" />
+        <string name="Msg4Name" defaultValue="Message 4" />
+
+        <enum name="MsgId" type="uint8">
+            <validValue name="Msg1" val="0" displayName="^Msg1Name" />
+            <validValue name="Msg2" val="1" displayName="^Msg2Name" />
+            <validValue name="Msg3" val="2" displayName="^Msg3Name" />
+            <validValue name="Msg4" val="3" displayName="^Msg4Name" />
+        </enum>
+    </fields>
+
+    <interface name="Message">
+        <bitfield name="Flags">
+            <set name="M1" bitLength="2">
+                <bit name="B0" idx="0" />
+                <bit name="B1" idx="1" />
+            </set>
+            <int name="M2" type="uint8" bitLength="3" />
+            <int name="M3" type="uint8" bitLength="3" />
+        </bitfield>
+    </interface>
+
+    <message name="Msg1" id="MsgId.Msg1" displayName="^Msg1Name" failOnInvalid="true">
+        <fields>
+            <int name="F1" type="uint8" />
+            <int name="F2" type="uint8" />
+        </fields>
+        <validCond>
+            <and>
+                <validCond value="%Flags.M2 = 1" />
+                <validCond value="$F1 = $F2" />
+            </and>
+        </validCond>
+    </message>
+
+    <message name="Msg2" reuse="Msg1" reuseCode="true" id="MsgId.Msg2" displayName="^Msg2Name">
+        <int name="F3" type="uint8" />
+    </message>
+
+    <message name="Msg3" id="MsgId.Msg3" displayName="^Msg3Name" constructAsReadCond="true" constructAsValidCond="true">
+        <construct>
+            <and>
+                <construct value="%Flags.M1.B0" />
+                <construct value="%Flags.M2 = 1" />
+            </and>
+        </construct>
+    </message>    
+
+    <message name="Msg4" id="MsgId.Msg4" reuse="Msg3" constructAsValidCond="true">
+        <construct value="%Flags.M3 = 1" />
+        <!-- readCond remains copied from Msg3 -->
+    </message>
+
+</schema>

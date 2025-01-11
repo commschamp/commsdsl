@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx)
+std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t idx, bool wrapWithFactoryOpts = true)
 {
     assert(idx < generator.schemas().size());
 
@@ -52,6 +52,21 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
         auto result = toolsBaseCodeInternal(generator, idx - 1U);
         generator.chooseCurrentSchema(oldIdx);
         return result;
+    }
+
+    if (wrapWithFactoryOpts && generator.currentSchema().hasAnyReferencedMessage()) {
+        static const std::string Templ = 
+            "::#^#SCOPE#$#T<\n"
+            "    #^#NEXT#$#\n"
+            ">";
+
+        util::ReplacementMap repl = {
+            {"SCOPE", comms::scopeForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), generator)},
+            {"NEXT", toolsBaseCodeInternal(generator, idx, false)}
+        };        
+
+        generator.chooseCurrentSchema(oldIdx);
+        return util::processTemplate(Templ, repl);
     }
 
     auto scope = comms::scopeForOptions(strings::defaultOptionsClassStr(), generator);
@@ -85,19 +100,19 @@ std::string toolsBaseCodeInternal(const ToolsQtGenerator& generator, std::size_t
 std::string ToolsQtDefaultOptions::toolsRelHeaderPath(const ToolsQtGenerator& generator)
 {
     return 
-        util::strReplace(toolsScope(generator), "::", "/") + 
+        util::strReplace(toolsClassScope(generator), "::", "/") + 
         strings::cppHeaderSuffixStr();
 }
 
 std::string ToolsQtDefaultOptions::toolsTemplParam(const ToolsQtGenerator& generator, const std::string& extraParams)
 {
-    return '<' + toolsScope(generator) + extraParams + '>';
+    return '<' + toolsClassScope(generator) + extraParams + '>';
 }
 
-std::string ToolsQtDefaultOptions::toolsScope(const ToolsQtGenerator& generator)
+std::string ToolsQtDefaultOptions::toolsClassScope(const ToolsQtGenerator& generator)
 {
     return 
-        generator.getTopNamespace() + "::" + 
+        generator.toolsScopePrefix() + 
         generator.protocolSchema().mainNamespace() + "::" + 
         comms::scopeForOptions(strings::defaultOptionsClassStr(), generator, false);
 }    
@@ -133,8 +148,7 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
         "#^#EXTRA_INCLUDES#$#\n\n"
-        "namespace #^#TOP_NS#$#\n"
-        "{\n\n"        
+        "#^#TOP_NS_BEGIN#$#\n"
         "namespace #^#PROT_NAMESPACE#$#\n"
         "{\n\n"
         "namespace options\n"
@@ -145,7 +159,8 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         "#^#APPEND#$#\n"
         "} // namespace options\n\n"
         "} // namespace #^#PROT_NAMESPACE#$#\n\n"
-        "} // namespace #^#TOP_NS#$#\n";
+        "#^#TOP_NS_END#$#\n"
+    ;
 
     auto codePrefix = m_generator.getCodeDir() + '/' + toolsRelHeaderPath(m_generator);
 
@@ -158,7 +173,12 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         m_generator.chooseCurrentSchema(idx);
         if (!m_generator.currentSchema().hasAnyReferencedComponent()) {
             continue;
-        }          
+        }       
+
+        if (m_generator.currentSchema().hasAnyReferencedMessage()) {
+            includes.push_back(comms::relHeaderForOptions(strings::allMessagesDynMemMsgFactoryDefaultOptionsClassStr(), m_generator));    
+        }
+        
         includes.push_back(comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator));
     }
     assert(m_generator.isCurrentProtocolSchema());
@@ -169,7 +189,8 @@ bool ToolsQtDefaultOptions::toolsWriteInternal() const
         {"GENERATED", ToolsQtGenerator::toolsFileGeneratedComment()},
         {"INCLUDES", util::strListToString(includes, "\n", "")},
         {"EXTRA_INCLUDES", util::readFileContents(codePrefix + strings::incFileSuffixStr())},
-        {"TOP_NS", m_generator.getTopNamespace()},
+        {"TOP_NS_BEGIN", m_generator.toolsNamespaceBegin()},
+        {"TOP_NS_END", m_generator.toolsNamespaceEnd()},
         {"PROT_NAMESPACE", m_generator.protocolSchema().mainNamespace()},
         {"NAME", strings::defaultOptionsClassStr()},
         {"EXTEND", util::readFileContents(codePrefix + strings::extendFileSuffixStr())},

@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
 
 #pragma once
 
-#include "Field.h"
-#include "Alias.h"
+#include "commsdsl/parse/Alias.h"
+#include "commsdsl/parse/OptCond.h"
+#include "commsdsl/parse/Field.h"
 
 namespace commsdsl
 {
@@ -38,6 +39,7 @@ public:
 
     Members members() const;
     Aliases aliases() const;
+    OptCond validCond() const;    
 };
 
 } // namespace parse

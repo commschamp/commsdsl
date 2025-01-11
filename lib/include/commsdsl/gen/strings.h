@@ -1,3 +1,19 @@
+//
+// Copyright 2021 - 2025 (C). Alex Robenko. All rights reserved.
+//
+
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 #pragma once
 
 #include <string>
@@ -35,16 +51,22 @@ const std::string& includeDirStr();
 const std::string& srcDirStr();
 const std::string& docDirStr();
 const std::string& nameFileSuffixStr();
+const std::string& nameBodyFileSuffixStr();
 const std::string& valueFileSuffixStr();
 const std::string& readFileSuffixStr();
+const std::string& readBodyFileSuffixStr();
 const std::string& refreshFileSuffixStr();
+const std::string& refreshBodyFileSuffixStr();
 const std::string& writeFileSuffixStr();
+const std::string& writeBodyFileSuffixStr();
 const std::string& publicFileSuffixStr();
 const std::string& protectedFileSuffixStr();
 const std::string& privateFileSuffixStr();
 const std::string& incFileSuffixStr();
 const std::string& lengthFileSuffixStr();
+const std::string& lengthBodyFileSuffixStr();
 const std::string& validFileSuffixStr();
+const std::string& validBodyFileSuffixStr();
 const std::string& replaceFileSuffixStr();
 const std::string& extendFileSuffixStr();
 const std::string& appendFileSuffixStr();
@@ -75,6 +97,7 @@ const std::string& enumValuesLimitStr();
 const std::string& transportFieldAccessPrefixStr();
 const std::string& transportFieldTypeAccessPrefixStr();
 const std::string& fieldAccessPrefixStr();
+const std::string& bodyFileSuffixStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

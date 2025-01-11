@@ -55,7 +55,6 @@ void BundleTestSuite::test1()
     TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_LESS_THAN_EQUALS(members.size(), variantField.defaultMemberIdx());
-    TS_ASSERT(!variantField.displayIdxReadOnlyHidden());
 }
 
 void BundleTestSuite::test2()
@@ -87,7 +86,6 @@ void BundleTestSuite::test2()
     TS_ASSERT_EQUALS(mem1.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(mem2.kind(), commsdsl::parse::Field::Kind::Bundle);
     TS_ASSERT_EQUALS(variantField.defaultMemberIdx(), 0U);
-    TS_ASSERT(variantField.displayIdxReadOnlyHidden());
 }
 
 void BundleTestSuite::test3()
@@ -112,7 +110,6 @@ void BundleTestSuite::test3()
     auto members = variantField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     TS_ASSERT_EQUALS(variantField.defaultMemberIdx(), 1U);
-    TS_ASSERT(!variantField.displayIdxReadOnlyHidden());
 }
 
 void BundleTestSuite::test4()
@@ -137,7 +134,6 @@ void BundleTestSuite::test4()
     auto members = variantField.members();
     TS_ASSERT_EQUALS(members.size(), 2U);
     TS_ASSERT_LESS_THAN_EQUALS(members.size(), variantField.defaultMemberIdx());
-    TS_ASSERT(!variantField.displayIdxReadOnlyHidden());
 }
 
 void BundleTestSuite::test5()
@@ -185,6 +181,10 @@ void BundleTestSuite::test7()
     commsdsl::parse::BundleField bundleP2Field(p2);
     auto p2Members = bundleP2Field.members();
     TS_ASSERT_EQUALS(p2Members.size(), 2U);
+
+    auto& p2Key = p2Members[0];
+    TS_ASSERT_EQUALS(p2Key.kind(), commsdsl::parse::Field::Kind::Int);
+    TS_ASSERT(p2Key.isFixedValue());    
     
     auto& p2Val = p2Members[1];
     TS_ASSERT_EQUALS(p2Val.kind(), commsdsl::parse::Field::Kind::Int);

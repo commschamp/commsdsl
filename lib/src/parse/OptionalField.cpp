@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,11 +60,6 @@ Field OptionalField::field() const
 OptCond OptionalField::cond() const
 {
     return cast(m_pImpl)->wrappedCondition();
-}
-
-bool OptionalField::externalModeCtrl() const
-{
-    return cast(m_pImpl)->externalModeCtrl();
 }
 
 bool OptionalField::missingOnReadFail() const

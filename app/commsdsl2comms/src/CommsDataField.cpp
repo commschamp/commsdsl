@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -33,6 +33,26 @@ namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl2comms
 {
+
+namespace 
+{
+
+std::string bytesToString(const std::vector<std::uint8_t> value)
+{
+    util::StringsList bytes;
+    bytes.reserve(value.size());
+    for (auto& b : value) {
+        std::stringstream stream;
+        stream << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<unsigned>(b);
+        bytes.push_back(stream.str());
+    }
+
+    std::string bytesStr = util::strListToString(bytes, ", ", "");
+    return util::strMakeMultiline(bytesStr);    
+}
+
+} // namespace 
+    
 
 CommsDataField::CommsDataField(
     CommsGenerator& generator, 
@@ -97,10 +117,19 @@ CommsDataField::IncludesList CommsDataField::commsDefIncludesImpl() const
         auto obj = dataDslObj();
         if (!obj.defaultValue().empty()) {
             result.insert(result.end(), {
+                "<iterator>",  
                 "comms/util/assign.h",
-                "<iterator>"                
             });            
         }   
+
+        auto& validValues = obj.validValues();
+        if (!validValues.empty()) {
+            result.insert(result.end(), {
+                "<algorithm>",
+                "<iterator>",
+                "comms/util/ArrayView.h",
+            });            
+        }            
 
         if (m_commsMemberPrefixField != nullptr) {
             auto extraIncs = m_commsMemberPrefixField->commsDefIncludes();
@@ -168,19 +197,9 @@ std::string CommsDataField::commsDefConstructCodeImpl() const
         "};\n"
         "comms::util::assign(Base::value(), std::begin(Data), std::end(Data));\n"
         ;
-    util::StringsList bytes;
-    bytes.reserve(defaultValue.size());
-    for (auto& b : defaultValue) {
-        std::stringstream stream;
-        stream << std::hex << "0x" << std::setfill('0') << std::setw(2) << static_cast<unsigned>(b);
-        bytes.push_back(stream.str());
-    }
-
-    std::string bytesStr = util::strListToString(bytes, ", ", "");
-    bytesStr = util::strMakeMultiline(bytesStr);
 
     util::ReplacementMap repl = {
-        {"BYTES", std::move(bytesStr)}
+        {"BYTES", bytesToString(defaultValue)}
     };
 
     return util::processTemplate(Templ, repl);
@@ -298,6 +317,70 @@ std::string CommsDataField::commsDefBundledRefreshFuncBodyImpl(const CommsFields
         {"LEN_VALUE", (*iter)->commsValueAccessStr(accRest, sibPrefix)},
         {"LEN_FIELD", (*iter)->commsFieldAccessStr(accRest, sibPrefix)},
         {"DATA_FIELD", commsFieldAccessStr(std::string(), fieldPrefix)},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsDataField::commsDefValidFuncBodyImpl() const
+{
+    auto& validValues = dataDslObj().validValues();
+    if (validValues.empty()) {
+        return std::string();
+    }
+
+    util::StringsList defs;
+    util::StringsList values;
+    for (auto idx = 0U; idx < validValues.size(); ++idx) {
+        auto& info = validValues[idx];
+        if (!generator().doesElementExist(info.m_sinceVersion, info.m_deprecatedSince, true)) {
+            continue;
+        }
+
+        static const std::string DefTempl = 
+            "static const std::uint8_t #^#NAME#$#[] = {\n"
+            "    #^#BYTES#$#\n"
+            "};\n";
+
+        auto name = "ValidValue" + std::to_string(idx);
+        util::ReplacementMap defRepl = {
+            {"NAME", name},
+            {"BYTES", bytesToString(info.m_value)},
+        };
+
+        defs.push_back(util::processTemplate(DefTempl, defRepl));
+        values.push_back("MapElem(std::begin(" + name + "), std::end(" + name + "))");
+    }
+
+    static const std::string Templ = 
+        "if (!Base::valid()) {\n"
+        "    return false;\n"
+        "}\n\n"
+        "#^#DEFS#$#\n"
+        "using MapElem = comms::util::ArrayView<std::uint8_t>;\n"
+        "static const MapElem Map[] = {\n"
+        "    #^#VALUES#$#\n"
+        "};\n"
+        "\n"
+        "auto& val = Base::getValue();\n"
+        "auto iter =\n"
+        "    std::lower_bound(\n"
+        "        std::begin(Map), std::end(Map), val,\n"
+        "        [](const MapElem& first, const typename Base::ValueType& second)\n"
+        "        {\n"
+        "            return std::lexicographical_compare(first.begin(), first.end(), second.begin(), second.end());\n"
+        "        });\n"
+        "\n"
+        "if ((iter == std::end(Map)) || (iter->size() != val.size())) {\n"
+        "    return false;\n"
+        "}\n"
+        "\n"
+        "return std::equal(val.begin(), val.end(), iter->begin());\n"
+        ;
+
+    util::ReplacementMap repl = {
+        {"DEFS", util::strListToString(defs, "\n", "")},
+        {"VALUES", util::strListToString(values, ",\n", "")}
     };
 
     return util::processTemplate(Templ, repl);

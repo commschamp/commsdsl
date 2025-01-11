@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -73,6 +73,10 @@ private:
 
     void commsAddCustomReadOptInternal(StringsList& opts) const;
     std::string commsOptimizedReadKeyInternal() const;
+    const std::string& commsCommonMemberNameMapInternal() const;
+    std::string commsCommonMemberNameFuncsCodeInternal() const;
+    std::string commsDefMemberNamesTypesInternal() const;
+    std::string commsDefMemberNamesFuncsInternal() const;
 
     CommsFieldsList m_commsMembers;
     std::string m_optimizedReadKey;

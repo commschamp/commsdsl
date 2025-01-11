@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string MinCommsVersion("5.2.7");    
+const std::string MinCommsVersion("5.3.0");    
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {
@@ -385,10 +385,15 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
         strings::privateFileSuffixStr(),
         strings::valueFileSuffixStr(),
         strings::readFileSuffixStr(),
+        strings::readBodyFileSuffixStr(),
         strings::writeFileSuffixStr(),
+        strings::writeBodyFileSuffixStr(),
         strings::lengthFileSuffixStr(),
+        strings::lengthBodyFileSuffixStr(),
         strings::validFileSuffixStr(),
+        strings::validBodyFileSuffixStr(),
         strings::refreshFileSuffixStr(),
+        strings::refreshBodyFileSuffixStr(),
         strings::nameFileSuffixStr(),
         strings::incFileSuffixStr(),
         strings::appendFileSuffixStr(),

@@ -1,5 +1,5 @@
 //
-// Copyright 2019 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2019 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,38 +15,25 @@
 
 #include "ToolsQtGenerator.h"
 
-#include "ToolsQtBitfieldField.h"
-#include "ToolsQtBundleField.h"
 #include "ToolsQtChecksumLayer.h"
 #include "ToolsQtCmake.h"
 #include "ToolsQtCustomLayer.h"
-#include "ToolsQtDataField.h"
 #include "ToolsQtDefaultOptions.h"
-#include "ToolsQtEnumField.h"
-#include "ToolsQtFloatField.h"
 #include "ToolsQtFrame.h"
 #include "ToolsQtIdLayer.h"
-#include "ToolsQtInputMessages.h"
-#include "ToolsQtIntField.h"
 #include "ToolsQtInterface.h"
-#include "ToolsQtListField.h"
 #include "ToolsQtMessage.h"
 #include "ToolsQtMsgFactory.h"
-#include "ToolsQtMsgFactoryOptions.h"
 #include "ToolsQtNamespace.h"
-#include "ToolsQtOptionalField.h"
 #include "ToolsQtPayloadLayer.h"
 #include "ToolsQtPlugin.h"
-#include "ToolsQtRefField.h"
-#include "ToolsQtSetField.h"
 #include "ToolsQtSizeLayer.h"
-#include "ToolsQtStringField.h"
 #include "ToolsQtSyncLayer.h"
 #include "ToolsQtValueLayer.h"
-#include "ToolsQtVariantField.h"
 #include "ToolsQtVersion.h"
 
 #include "commsdsl/version.h"
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 
@@ -57,6 +44,7 @@
 #include <iterator>
 
 namespace fs = std::filesystem;
+namespace comms = commsdsl::gen::comms;
 namespace strings = commsdsl::gen::strings;
 namespace util = commsdsl::gen::util;
 
@@ -66,7 +54,7 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-const std::string MinToolsQtVersion("5.3.3");    
+const std::string MinToolsQtVersion("6.0.0");    
 
 } // namespace 
 
@@ -79,39 +67,44 @@ const std::string& ToolsQtGenerator::toolsFileGeneratedComment()
     return Str;
 }
 
-ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFiles() const
+ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFilesForInterface(const ToolsQtInterface& interface) const
 {
-    StringsList result;
+    StringsList result = interface.toolsSourceFiles();
+
     for (auto& s : schemas()) {
         auto& nsList = s->namespaces();
         for (auto& nsPtr : nsList) {
             assert(nsPtr);
 
-            auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles();
+            auto nsResult = static_cast<const ToolsQtNamespace*>(nsPtr.get())->toolsSourceFiles(interface);
             result.reserve(result.size() + nsResult.size());
             std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
         }
     }
 
-    auto interfaces = toolsGetSelectedInterfaces();
-    for (auto& i : interfaces) {
-        auto iResult = ToolsQtInterface::cast(i)->toolsSourceFiles();
-        result.reserve(result.size() + iResult.size());
-        std::move(iResult.begin(), iResult.end(), std::back_inserter(result));
-    }    
-
     auto frames = toolsGetSelectedFrames();
     for (auto& f : frames) {
-        auto fResult = ToolsQtFrame::cast(f)->toolsSourceFiles();
+        auto fResult = ToolsQtFrame::cast(f)->toolsSourceFiles(interface);
         result.reserve(result.size() + fResult.size());
         std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
     }   
 
-    auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this);
+    auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this, interface);
     result.reserve(result.size() + factoryResult.size());
     std::move(factoryResult.begin(), factoryResult.end(), std::back_inserter(result));       
 
     return result;
+}
+
+const ToolsQtGenerator::FramesAccessList& ToolsQtGenerator::toolsGetSelectedFramesForInterface(const commsdsl::gen::Interface& interface)
+{
+    auto iter = m_selectedFramesPerInterface.find(&interface);
+    if (iter == m_selectedFramesPerInterface.end()) {
+        static const FramesAccessList EmptyList;
+        return EmptyList;
+    }
+
+    return iter->second;
 }
 
 void ToolsQtGenerator::toolsSetMainNamespaceInOptionsForced(bool value)
@@ -138,6 +131,71 @@ bool ToolsQtGenerator::toolsHasMainNamespaceInOptions() const
 const std::string& ToolsQtGenerator::toolsMinCcToolsQtVersion()
 {
     return MinToolsQtVersion;
+}
+
+const std::string& ToolsQtGenerator::toolsNamespaceBegin()
+{
+    static const std::string Str("namespace cc_tools_qt_plugin\n{\n\n");
+    return Str;
+}
+
+const std::string& ToolsQtGenerator::toolsNamespaceEnd()
+{
+    static const std::string Str("} // namespace cc_tools_qt_plugin\n\n");
+    return Str;
+}
+
+std::string ToolsQtGenerator::toolsNamespaceBeginForInterface(const commsdsl::gen::Interface& interface) const
+{
+    std::string ref = strings::messageClassStr();
+    if (interface.dslObj().valid()) {
+        ref = interface.dslObj().externalRef(false);
+    }
+    auto elems = util::strSplitByAnyChar(ref, ".");
+    std::string result = toolsNamespaceBegin();
+    for (auto& e : elems) {
+        if (&e != &elems.back()) {
+            result += "namespace " + comms::accessName(e) + "\n{\n\n";
+            continue;
+        }
+
+        result += "namespace " + comms::className(e) + "\n{\n\n";
+    }
+
+    return result;
+}
+
+std::string ToolsQtGenerator::toolsNamespaceEndForInterface(const commsdsl::gen::Interface& interface) const
+{
+    std::string ref = strings::messageClassStr();
+    if (interface.dslObj().valid()) {
+        ref = interface.dslObj().externalRef(false);
+    }
+    auto elems = util::strSplitByAnyChar(ref, ".");
+    std::string result;
+    for (auto& e : elems) {
+        if (&e != &elems.back()) {
+            result += "} // namespace " + comms::accessName(e) + "\n\n";
+            continue;
+        }
+
+        result += "} // namespace " + comms::className(e) + "\n\n";
+    }
+
+    result += toolsNamespaceEnd();
+    return result;
+}
+
+const std::string& ToolsQtGenerator::toolsScopePrefix()
+{
+    static const std::string Str("cc_tools_qt_plugin::");
+    return Str;
+}
+
+std::string ToolsQtGenerator::toolsScopePrefixForInterface(const commsdsl::gen::Interface& interface) const
+{
+    auto scopeStr = comms::scopeFor(interface, *this, false, true);
+    return toolsScopePrefix() + scopeStr + "::";
 }
 
 bool ToolsQtGenerator::prepareImpl() 
@@ -230,66 +288,6 @@ ToolsQtGenerator::FramePtr ToolsQtGenerator::createFrameImpl(commsdsl::parse::Fr
     return std::make_unique<commsdsl2tools_qt::ToolsQtFrame>(*this, dslObj, parent);
 }
 
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createIntFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtIntField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createEnumFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtEnumField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createSetFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtSetField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createFloatFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtFloatField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createBitfieldFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtBitfieldField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createBundleFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtBundleField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createStringFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtStringField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createDataFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtDataField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createListFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtListField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createRefFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtRefField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createOptionalFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtOptionalField>(*this, dslObj, parent);
-}
-
-ToolsQtGenerator::FieldPtr ToolsQtGenerator::createVariantFieldImpl(commsdsl::parse::Field dslObj, Elem* parent)
-{
-    return std::make_unique<commsdsl2tools_qt::ToolsQtVariantField>(*this, dslObj, parent);
-}
-
 ToolsQtGenerator::LayerPtr ToolsQtGenerator::createCustomLayerImpl(commsdsl::parse::Layer dslObj, Elem* parent)
 {
     return std::make_unique<commsdsl2tools_qt::ToolsQtCustomLayer>(*this, dslObj, parent);
@@ -330,10 +328,8 @@ bool ToolsQtGenerator::writeImpl()
     chooseProtocolSchema();
     bool result =  
         ToolsQtCmake::write(*this) &&
-        ToolsQtInputMessages::write(*this) &&
         ToolsQtMsgFactory::write(*this) &&
         ToolsQtDefaultOptions::write(*this) &&
-        ToolsQtMsgFactoryOptions::write(*this) &&
         ToolsQtVersion::write(*this);
 
     if (!result) {
@@ -394,10 +390,40 @@ bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()
         }
 
         m_selectedInterfaces.push_back(iFace);
+
+        std::vector<std::string> frameNames;
+        for (auto& info : m_pluginInfos) {
+            if (info.m_interface == iName) {
+                frameNames.push_back(info.m_frame);
+            }
+        }
+
+        std::sort(frameNames.begin(), frameNames.end());
+        frameNames.erase(
+            std::unique(frameNames.begin(), frameNames.end()),
+            frameNames.end()
+        );
+
+        for (auto& fName : frameNames) {
+            auto* frame = findFrame(fName);
+            if (frame == nullptr) {
+                logger().error("Selected frame \"" + fName + "\" cannot be found");
+                return false;
+            }
+
+            m_selectedFramesPerInterface[iFace].push_back(frame);
+        }
+
+        if (m_selectedFramesPerInterface[iFace].empty()) {
+            m_selectedFramesPerInterface[iFace] = getAllFrames();
+        }
     }
 
     if (m_selectedInterfaces.empty()) {
         m_selectedInterfaces = getAllInterfaces();
+        for (auto* i : m_selectedInterfaces) {
+            m_selectedFramesPerInterface[i] = getAllFrames();
+        }
     }
 
     return true;    

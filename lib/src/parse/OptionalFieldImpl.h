@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -42,11 +42,6 @@ public:
     Mode defaultMode() const
     {
         return m_state.m_mode;
-    }
-
-    bool externalModeCtrl() const
-    {
-        return m_state.m_externalModeCtrl;
     }
 
     bool missingOnReadFail() const
@@ -130,7 +125,6 @@ private:
     {
         Mode m_mode = Mode::Tentative;
         const FieldImpl* m_extField = nullptr;
-        bool m_externalModeCtrl = false;
         bool m_missingOnReadFail = false;
         bool m_missingOnInvalid = false;
     };

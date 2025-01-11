@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -36,8 +36,8 @@ const BundleFieldImpl* cast(const FieldImpl* ptr)
 
 } // namespace
 
-BundleField::BundleField(const BundleFieldImpl* impl)
-  : Base(impl)
+BundleField::BundleField(const BundleFieldImpl* impl) :
+    Base(impl)
 {
 }
 
@@ -55,6 +55,11 @@ BundleField::Members BundleField::members() const
 BundleField::Aliases BundleField::aliases() const
 {
     return cast(m_pImpl)->aliasesList();
+}
+
+OptCond BundleField::validCond() const
+{
+    return cast(m_pImpl)->validCond();
 }
 
 } // namespace parse

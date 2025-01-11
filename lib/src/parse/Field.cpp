@@ -1,5 +1,5 @@
 //
-// Copyright 2018 - 2024 (C). Alex Robenko. All rights reserved.
+// Copyright 2018 - 2025 (C). Alex Robenko. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -116,16 +116,10 @@ bool Field::isPseudo() const
     return m_pImpl->isPseudo();
 }
 
-bool Field::isDisplayReadOnly() const
+bool Field::isFixedValue() const
 {
     assert(m_pImpl != nullptr);
-    return m_pImpl->isDisplayReadOnly();
-}
-
-bool Field::isDisplayHidden() const
-{
-    assert(m_pImpl != nullptr);
-    return m_pImpl->isDisplayHidden();
+    return m_pImpl->isFixedValue();
 }
 
 bool Field::isCustomizable() const
