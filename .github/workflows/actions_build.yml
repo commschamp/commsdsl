@@ -337,7 +337,6 @@ jobs:
         VERBOSE: 1 
 
   build_clang_old_ubuntu_20_04:
-    if: false
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
@@ -633,7 +632,6 @@ jobs:
       run: ctest -V
 
   build_clang_no_sanitize_ubuntu_24_04:
-    if: false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
