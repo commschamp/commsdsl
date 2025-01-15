@@ -328,7 +328,7 @@ bool DataFieldImpl::updateValidValues()
     std::sort(
         m_state.m_validValues.begin(), m_state.m_validValues.end(),
         [](auto& elem1, auto& elem2) {
-            return elem1.m_value < elem2.m_value;
+            return std::lexicographical_compare(elem1.m_value.begin(), elem1.m_value.end(), elem2.m_value.begin(), elem2.m_value.end());
         });
 
     return true;    

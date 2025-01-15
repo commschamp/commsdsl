@@ -285,6 +285,53 @@ jobs:
       shell: bash
       run: ctest -V
 
+  build_gcc_no_sanitize_ubuntu_24_04:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [Release]
+        cc_ver: [13, 14]
+        cpp: [17, 20, 23]
+        qt_ver: [5]    
+        exclude:
+          - cc_ver: 13
+            cpp: 23               
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Prepare Install
+      run: sudo apt-get update --fix-missing    
+      
+    - name: Install Packages
+      run: |
+        sudo apt install libxml2-dev gcc-${{matrix.cc_ver}} g++-${{matrix.cc_ver}}
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build      
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: |
+        cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+        -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
+        -DCMAKE_CXX_STANDARD=${{matrix.cpp}} \
+        -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
+        -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
+        -DCOMMSDSL_BUILD_WITH_SANITIZERS=OFF -DCOMMSDSL_BUILD_UNIT_TESTS=OFF
+      env:
+        CC: gcc-${{matrix.cc_ver}}
+        CXX: g++-${{matrix.cc_ver}}
+
+    - name: Build Target 
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build . --config ${{matrix.type}} --target install
+      env:
+        VERBOSE: 1 
+
   build_clang_old_ubuntu_20_04:
     runs-on: ubuntu-20.04
     strategy:
@@ -576,6 +623,56 @@ jobs:
       working-directory: ${{runner.workspace}}/build
       shell: bash
       run: ctest -V
+
+  build_clang_no_sanitize_ubuntu_24_04:
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        type: [Release]
+        cc_ver: [16, 17, 18]
+        cpp: [17, 20, 23]
+        qt_ver: [5]
+        exclude:
+          - cc_ver: 16
+            cpp: 23
+          - cc_ver: 17
+            cpp: 23        
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Prepare Install
+      run: sudo apt-get update --fix-missing    
+      
+    - name: Install Packages
+      run: |
+        sudo apt install libxml2-dev clang-${{matrix.cc_ver}} 
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{runner.workspace}}/build      
+
+    - name: Configure CMake
+      shell: bash
+      working-directory: ${{runner.workspace}}/build
+      run: |
+          cmake $GITHUB_WORKSPACE -DCMAKE_BUILD_TYPE=${{matrix.type}} -DCMAKE_INSTALL_PREFIX=install \
+          -DCMAKE_PREFIX_PATH=${{runner.workspace}}/build/install \
+          -DCMAKE_CXX_STANDARD=${{matrix.cpp}} \
+          -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
+          -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
+          -DCOMMSDSL_BUILD_WITH_SANITIZERS=OFF -DCOMMSDSL_BUILD_UNIT_TESTS=OFF
+
+      env:
+        CC: clang-${{matrix.cc_ver}}
+        CXX: clang++-${{matrix.cc_ver}}
+
+    - name: Build Target 
+      working-directory: ${{runner.workspace}}/build
+      shell: bash
+      run: cmake --build . --config ${{matrix.type}} --target install
+      env:
+        VERBOSE: 1 
 
   build_msvc_2019:
     runs-on: windows-2019
