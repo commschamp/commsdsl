@@ -127,12 +127,12 @@ std::string CommsPayloadLayer::commsCustomFieldDataViewOptsImpl() const
     static const std::string Templ = 
         "/// @brief Extra options for @ref\n"
         "///     #^#SCOPE#$##^#SUFFIX#$#::Field field.\n"
-        "struct #^#CLASS_NAME#$##^#SUFFIX#$# : public TBase::#^#OPT_SCOPE#$#\n"
+        "struct #^#CLASS_NAME#$##^#SUFFIX#$# : public TBase::#^#OPT_SCOPE#$##^#SUFFIX#$#\n"
         "{\n"
         "    using Field =\n"
         "        std::tuple<\n"
         "            comms::option::app::OrigDataView,\n"
-        "            typename TBase::#^#OPT_SCOPE#$#::Field\n"
+        "            typename TBase::#^#OPT_SCOPE#$##^#SUFFIX#$#::Field\n"
         "        >;\n"
         "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 
@@ -151,12 +151,12 @@ std::string CommsPayloadLayer::commsCustomFieldBareMetalOptsImpl() const
     static const std::string Templ = 
         "/// @brief Extra options for @ref\n"
         "///     #^#SCOPE#$##^#SUFFIX#$#::Field field.\n"
-        "struct #^#CLASS_NAME#$##^#SUFFIX#$# : public TBase::#^#OPT_SCOPE#$#\n"
+        "struct #^#CLASS_NAME#$##^#SUFFIX#$# : public TBase::#^#OPT_SCOPE#$##^#SUFFIX#$#\n"
         "{\n"
         "    using Field =\n"
         "        std::tuple<\n"
         "            comms::option::app::FixedSizeStorage<DEFAULT_SEQ_FIXED_STORAGE_SIZE * 8>,\n"
-        "            typename TBase::#^#OPT_SCOPE#$#::Field\n"
+        "            typename TBase::#^#OPT_SCOPE#$##^#SUFFIX#$#::Field\n"
         "        >;\n"
         "}; // struct #^#CLASS_NAME#$##^#SUFFIX#$#\n";
 

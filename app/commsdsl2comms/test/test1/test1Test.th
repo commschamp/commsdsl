@@ -5,6 +5,8 @@
 #include "test1/frame/Frame.h"
 #include "test1/message/Msg1.h"
 #include "test1/message/Msg2.h"
+#include "test1/options/DataViewDefaultOptions.h"
+#include "test1/options/BareMetalDefaultOptions.h"
 #include "test1/dispatch/DispatchMessage.h"
 
 class TestSuite : public CxxTest::TestSuite
@@ -12,6 +14,8 @@ class TestSuite : public CxxTest::TestSuite
 public:
     void test1();
     void test2();
+    void test3();
+    void test4();
 
     using Interface =
         test1::Message<
@@ -25,7 +29,12 @@ public:
         >;
 
     TEST1_ALIASES_FOR_ALL_MESSAGES(,,Interface, test1::options::DefaultOptions)
+    TEST1_ALIASES_FOR_ALL_MESSAGES(DataView,,Interface, test1::options::DataViewDefaultOptions)
+    TEST1_ALIASES_FOR_ALL_MESSAGES(BareMetal,,Interface, test1::options::BareMetalDefaultOptions)
+
     using Frame = test1::frame::Frame<Interface>;
+    using DataViewFrame = test1::frame::Frame<Interface, test1::input::AllMessages<Interface, test1::options::DataViewDefaultOptions>, test1::options::DataViewDefaultOptions>;
+    using BareMetalFrame = test1::frame::Frame<Interface, test1::input::AllMessages<Interface, test1::options::BareMetalDefaultOptions>, test1::options::BareMetalDefaultOptions>;
 
     void polymorphicNameCheck(const Interface& msg, const char* value)
     {
@@ -82,3 +91,36 @@ void TestSuite::test2()
     test1::dispatch::dispatchMessageDefaultOptions(test1::MsgId_Msg1, *msg, handler);
     TS_ASSERT_EQUALS(handler.m_msg1, 1U);
 }
+
+void TestSuite::test3()
+{
+    DataViewFrame frame;
+    DataViewFrame::AllFields frameFields;
+    DataViewFrame::MsgPtr msg;
+    static const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    auto es = frame.readFieldsCached(frameFields, msg, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msg->getId(), 1U);
+    
+    auto& payload = std::get<1>(frameFields).value();
+    TS_ASSERT(std::equal(payload.begin(), payload.end(), std::begin(Buf) + 1, std::end(Buf)));
+}
+
+void TestSuite::test4()
+{
+    BareMetalFrame frame;
+    BareMetalFrame::AllFields frameFields;
+    BareMetalFrame::MsgPtr msg;
+    static const std::uint8_t Buf[] = {1, 0x1, 0x2, 0x3, 0x4};
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+    auto readIter = comms::readIteratorFor<Interface>(&Buf[0]);
+    auto es = frame.readFieldsCached(frameFields, msg, readIter, BufSize);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT_EQUALS(msg->getId(), 1U);
+    
+    auto& payload = std::get<1>(frameFields).value();
+    TS_ASSERT(std::equal(payload.begin(), payload.end(), std::begin(Buf) + 1, std::end(Buf)));
+}
+
