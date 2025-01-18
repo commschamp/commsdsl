@@ -105,7 +105,8 @@ void TestSuite::test3()
     TS_ASSERT_EQUALS(msg->getId(), 1U);
     
     auto& payload = std::get<1>(frameFields).value();
-    TS_ASSERT(std::equal(payload.begin(), payload.end(), std::begin(Buf) + 1, std::end(Buf)));
+    TS_ASSERT_EQUALS(payload.size(), BufSize - 1U);
+    TS_ASSERT(std::equal(payload.begin(), payload.end(), std::begin(Buf) + 1));
 }
 
 void TestSuite::test4()
@@ -121,6 +122,7 @@ void TestSuite::test4()
     TS_ASSERT_EQUALS(msg->getId(), 1U);
     
     auto& payload = std::get<1>(frameFields).value();
-    TS_ASSERT(std::equal(payload.begin(), payload.end(), std::begin(Buf) + 1, std::end(Buf)));
+    TS_ASSERT_EQUALS(payload.size(), BufSize - 1U);
+    TS_ASSERT(std::equal(payload.begin(), payload.end(), std::begin(Buf) + 1));
 }
 
