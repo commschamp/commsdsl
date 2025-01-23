@@ -395,6 +395,7 @@ bool CommsGenerator::commsWriteExtraFilesInternal() const
         strings::refreshFileSuffixStr(),
         strings::refreshBodyFileSuffixStr(),
         strings::nameFileSuffixStr(),
+        strings::nameBodyFileSuffixStr(),
         strings::incFileSuffixStr(),
         strings::appendFileSuffixStr(),
         strings::constructFileSuffixStr(),
