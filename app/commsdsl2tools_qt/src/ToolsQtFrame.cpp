@@ -850,6 +850,7 @@ std::string ToolsQtFrame::toolsFrameHeaderDefInternal() const
         "    virtual cc_tools_qt::ToolsMessagePtr createExtraInfoMessageImpl() override;\n"
         "    virtual cc_tools_qt::ToolsMessagesList createAllMessagesImpl() override;\n"
         "    virtual cc_tools_qt::ToolsMessagePtr createMessageImpl(const QString& idAsString, unsigned idx) override;\n"
+        "    virtual DataSeq writeProtMsgImpl(const void* protInterface) override;\n"
         "\n"
         "private:\n"
         "    std::unique_ptr<#^#CLASS_NAME#$#Impl> m_pImpl;\n"
@@ -918,7 +919,11 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::Interfac
         "cc_tools_qt::ToolsMessagePtr #^#CLASS_NAME#$#::createMessageImpl(const QString& idAsString, unsigned idx)\n"
         "{\n"
         "    return m_pImpl->createMessage(idAsString, idx);\n"
-        "}\n\n"          
+        "}\n\n" 
+        "#^#CLASS_NAME#$#::DataSeq #^#CLASS_NAME#$#::writeProtMsgImpl(const void* protInterface)\n"         
+        "{\n"
+        "    return m_pImpl->writeProtMsg(protInterface);\n"
+        "}\n\n" 
         ;
 
     auto& gen = ToolsQtGenerator::cast(generator());
