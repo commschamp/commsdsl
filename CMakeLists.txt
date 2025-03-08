@@ -19,6 +19,8 @@ option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK1 "Build chunk1 commsdsl2too
 option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK2 "Build chunk2 commsdsl2tools_qt unittests." ${COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS})
 option (COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS_CHUNK3 "Build chunk3 commsdsl2tools_qt unittests." ${COMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS})
 option (COMMSDSL_BUILD_COMMSDSL2TEST_TESTS "Build commsdsl2test unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
+option (COMMSDSL_BUILD_COMMSDSL2SWIG_TESTS "Build commsdsl2swig unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
+option (COMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN_TESTS "Build commsdsl2swig unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
 option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ON)
 option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
