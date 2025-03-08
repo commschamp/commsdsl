@@ -182,13 +182,14 @@ jobs:
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON \
           -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} \
-          -DCOMMSDSL_BUILD_WITH_SANITIZERS=ON
+          -DCOMMSDSL_BUILD_WITH_SANITIZERS=${{env.SANITIZERS}}
 
       env:
         CC: clang-${{matrix.cc_ver}}
         CXX: clang++-${{matrix.cc_ver}}
         BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"
         TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"
+        SANITIZERS: "${{ matrix.cc_ver >= 12 && 'ON' || 'OFF' }}"
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
@@ -216,6 +217,8 @@ jobs:
             cpp: 20  
           - cc_ver: 14
             cpp: 23   
+          - cc_ver: 15
+            cpp: 20              
           - cc_ver: 15
             cpp: 23                                
           - cc_ver: 16
