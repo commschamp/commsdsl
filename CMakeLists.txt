@@ -22,7 +22,7 @@ option (COMMSDSL_BUILD_COMMSDSL2TEST_TESTS "Build commsdsl2test unittests." ${CO
 option (COMMSDSL_BUILD_COMMSDSL2SWIG_TESTS "Build commsdsl2swig unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
 option (COMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN_TESTS "Build commsdsl2swig unittests." ${COMMSDSL_BUILD_UNIT_TESTS})
 option (COMMSDSL_VALGRIND_TESTS "Enable testing with valgrind (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
-option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ON)
+option (COMMSDSL_TEST_USE_SANITIZERS "Build unittiests with sanitizers (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" ${COMMSDSL_BUILD_WITH_SANITIZERS})
 option (COMMSDSL_TEST_BUILD_DOC "Build documentation target in generated projects (applicable when COMMSDSL_BUILD_UNIT_TESTS is on)" OFF)
 option (COMMSDSL_FORCE_INTERNAL_LIBXML_BUILD "Force internal build of libxml2 when external one is not found" OFF)
 
