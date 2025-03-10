@@ -311,8 +311,6 @@ std::string EmscriptenField::emscriptenHeaderValueAccByPointer() const
         "}\n";              
 
     return Templ + SetTempl;              
-
-    return Templ;
 }
 
 std::string EmscriptenField::emscriptenHeaderValueStorageAccByPointer() const
