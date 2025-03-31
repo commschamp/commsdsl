@@ -8,7 +8,7 @@ on:
       - '**'
 
 env:
-  COMMS_TAG: v5.3
+  COMMS_TAG: develop
   CC_TOOLS_QT_TAG: v6.0.1
 
 jobs:
