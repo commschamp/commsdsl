@@ -44,7 +44,7 @@ bool CommsIdLayer::prepareImpl()
 CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
-        "comms/protocol/MsgIdLayer.h",
+        "comms/frame/MsgIdLayer.h",
         comms::relHeaderForInput(strings::allMessagesStr(), generator())
     };
 
@@ -54,7 +54,7 @@ CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
 std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
     static const std::string Templ = 
-        "comms::protocol::MsgIdLayer<\n"
+        "comms::frame::MsgIdLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    TMessage,\n"
         "    TAllMessages,\n"

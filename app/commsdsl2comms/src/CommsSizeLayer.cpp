@@ -40,7 +40,7 @@ bool CommsSizeLayer::prepareImpl()
 CommsSizeLayer::IncludesList CommsSizeLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
-        "comms/protocol/MsgSizeLayer.h"
+        "comms/frame/MsgSizeLayer.h"
     };
 
     return result;
@@ -50,7 +50,7 @@ std::string CommsSizeLayer::commsDefBaseTypeImpl(const std::string& prevName) co
 {
     assert(!prevName.empty());
     static const std::string Templ = 
-        "comms::protocol::MsgSizeLayer<\n"
+        "comms::frame::MsgSizeLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#PREV_LAYER#$#\n"
         ">";        

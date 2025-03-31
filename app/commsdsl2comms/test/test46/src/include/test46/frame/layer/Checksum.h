@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <limits>
 
-#include "comms/protocol/ChecksumLayer.h"
+#include "comms/frame/ChecksumLayer.h"
 #include "comms/options.h"
-#include "comms/protocol/checksum/BasicSum.h"
-#include "comms/protocol/checksum/Crc.h"
+#include "comms/frame/checksum/BasicSum.h"
+#include "comms/frame/checksum/Crc.h"
 
 #include "test46/field/ChecksumTypeCommon.h"
 
@@ -22,9 +22,9 @@ namespace layer
 /// @brief Customizing the ChecksumLayer
 template<typename TField, typename TNextLayer, typename... TOptions>
 class Checksum : public
-    comms::protocol::ChecksumLayer<
+    comms::frame::ChecksumLayer<
         TField,
-        comms::protocol::checksum::Crc_32, // Not really used, but the parameter needs to be populated
+        comms::frame::checksum::Crc_32, // Not really used, but the parameter needs to be populated
         TNextLayer,
         TOptions...,
         comms::option::def::ExtendingClass<Checksum<TField, TNextLayer, TOptions...> >
@@ -32,9 +32,9 @@ class Checksum : public
 {
     // Repeat base type
     using Base = 
-        comms::protocol::ChecksumLayer<
+        comms::frame::ChecksumLayer<
             TField,
-            comms::protocol::checksum::Crc_32,
+            comms::frame::checksum::Crc_32,
             TNextLayer,
             TOptions...,
             comms::option::def::ExtendingClass<Checksum<TField, TNextLayer, TOptions...> >
@@ -56,17 +56,17 @@ public:
         checksumValid = true;
         auto checksumType = msgPtr->transportField_checksumType().value();
         if (checksumType == test46::field::ChecksumTypeCommon::ValueType::Sum8) {
-            using Calc = comms::protocol::checksum::BasicSum<std::uint8_t>;
+            using Calc = comms::frame::checksum::BasicSum<std::uint8_t>;
             return Calc()(iter, len);
         }
     
         if (checksumType == ChecksumType::Crc16) {
-            using Calc = comms::protocol::checksum::Crc_16;
+            using Calc = comms::frame::checksum::Crc_16;
             return Calc()(iter, len);
         }        
     
         if (checksumType == ChecksumType::Crc32) {
-            using Calc = comms::protocol::checksum::Crc_32;
+            using Calc = comms::frame::checksum::Crc_32;
             return Calc()(iter, len);
         }        
     

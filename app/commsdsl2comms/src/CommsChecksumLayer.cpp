@@ -49,11 +49,11 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     auto obj = checksumDslObj();
     if (!obj.fromLayer().empty()) {
         assert(obj.untilLayer().empty());
-        result.push_back("comms/protocol/ChecksumLayer.h");
+        result.push_back("comms/frame/ChecksumLayer.h");
     }
     else {
         assert(!obj.untilLayer().empty());
-        result.push_back("comms/protocol/ChecksumPrefixLayer.h");
+        result.push_back("comms/frame/ChecksumPrefixLayer.h");
     }
 
     const std::string ChecksumMap[] = {
@@ -77,7 +77,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
     }
 
     if (!ChecksumMap[idx].empty()) {
-        result.push_back("comms/protocol/checksum/" + ChecksumMap[idx] + strings::cppHeaderSuffixStr());
+        result.push_back("comms/frame/checksum/" + ChecksumMap[idx] + strings::cppHeaderSuffixStr());
     }
     else {
         assert(!obj.customAlgName().empty());
@@ -89,7 +89,7 @@ CommsChecksumLayer::IncludesList CommsChecksumLayer::commsDefIncludesImpl() cons
 std::string CommsChecksumLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
     static const std::string Templ = 
-        "comms::protocol::Checksum#^#PREFIX_VAR#$#Layer<\n"
+        "comms::frame::Checksum#^#PREFIX_VAR#$#Layer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#ALG#$#,\n"
         "    #^#PREV_LAYER#$##^#COMMA#$#\n"
@@ -145,7 +145,7 @@ std::string CommsChecksumLayer::commsDefAlgInternal() const
         return comms::scopeForChecksum(obj.customAlgName(), generator());
     }
 
-    auto str = "comms::protocol::checksum::" + ClassMap[idx];
+    auto str = "comms::frame::checksum::" + ClassMap[idx];
     if ((alg != commsdsl::parse::ChecksumLayer::Alg::Sum) &&
         (alg != commsdsl::parse::ChecksumLayer::Alg::Xor)) {
         return str;

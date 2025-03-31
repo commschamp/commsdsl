@@ -45,7 +45,7 @@ bool CommsSyncLayer::prepareImpl()
 CommsSyncLayer::IncludesList CommsSyncLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
-        "comms/protocol/SyncPrefixLayer.h"
+        "comms/frame/SyncPrefixLayer.h"
     };
 
     return result;
@@ -54,7 +54,7 @@ CommsSyncLayer::IncludesList CommsSyncLayer::commsDefIncludesImpl() const
 std::string CommsSyncLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
     static const std::string Templ = 
-        "comms::protocol::SyncPrefixLayer<\n"
+        "comms::frame::SyncPrefixLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#PREV_LAYER#$#\n"
         ">";  

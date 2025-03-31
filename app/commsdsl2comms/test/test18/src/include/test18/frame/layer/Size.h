@@ -1,6 +1,6 @@
 #pragma once
 
-#include "comms/protocol/MsgSizeLayer.h"
+#include "comms/frame/MsgSizeLayer.h"
 
 namespace test18
 {
@@ -15,7 +15,7 @@ template <
     typename TField,
     typename TNextLayer,
     typename... TOptions>
-using Size = comms::protocol::MsgSizeLayer<TField, TNextLayer>;
+using Size = comms::frame::MsgSizeLayer<TField, TNextLayer>;
 
 } // namespace layer
 
