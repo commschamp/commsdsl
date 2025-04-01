@@ -159,7 +159,6 @@ bool CommsGenerator::prepareImpl()
     }
 
     return 
-        commsPrepareDefaultInterfaceInternal() &&
         commsPrepareExtraMessageBundlesInternal();
 }
 
@@ -306,23 +305,6 @@ bool CommsGenerator::writeImpl()
         CommsCmake::write(*this) &&
         CommsDoxygen::write(*this) &&
         commsWriteExtraFilesInternal();
-}
-
-bool CommsGenerator::commsPrepareDefaultInterfaceInternal()
-{
-    auto allInterfaces = getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        return true;
-    }
-
-    auto* defaultNamespace = addDefaultNamespace();
-    auto* interface = defaultNamespace->addDefaultInterface();
-    if (interface == nullptr) {
-        logger().error("Failed to create default interface");
-        return false;
-    }
-
-    return true;
 }
 
 bool CommsGenerator::commsPrepareExtraMessageBundlesInternal()

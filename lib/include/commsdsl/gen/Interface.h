@@ -47,6 +47,8 @@ public:
 
     const FieldsList& fields() const;
     commsdsl::parse::Interface dslObj() const;
+    std::string adjustedExternalRef() const;
+    const std::string& adjustedName() const;
 
     Generator& generator();
     const Generator& generator() const;

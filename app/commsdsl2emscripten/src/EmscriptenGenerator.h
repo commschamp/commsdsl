@@ -121,7 +121,6 @@ protected:
 
 private:
     bool emscriptenWriteExtraFilesInternal() const;
-    bool emscriptenPrepareDefaultInterfaceInternal();
     bool emscriptenReferenceRequestedInterfaceInternal();
     bool emscriptenReferenceRequestedMessagesInternal();
     bool emscriptenProcessMessagesListFileInternal();

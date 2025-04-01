@@ -58,16 +58,10 @@ bool TestCmake::testWriteInternal() const
         return false;
     }
 
-    std::string interfaceScope;
     auto allInterfaces = m_generator.getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        auto* firstInterface = allInterfaces.front();
-        assert(!firstInterface->name().empty());
-        interfaceScope = commsdsl::gen::comms::scopeFor(*firstInterface, m_generator);
-    }
-    else {
-        interfaceScope = commsdsl::gen::comms::scopeForInterface(commsdsl::gen::strings::messageClassStr(), m_generator);
-    }
+    assert(!allInterfaces.empty());
+    auto* firstInterface = allInterfaces.front();
+    auto interfaceScope = commsdsl::gen::comms::scopeFor(*firstInterface, m_generator);
 
     auto allFrames = m_generator.getAllFrames();
     assert(!allFrames.empty());

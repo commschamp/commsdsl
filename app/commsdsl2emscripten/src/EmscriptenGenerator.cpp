@@ -191,12 +191,6 @@ bool EmscriptenGenerator::prepareImpl()
         return false;
     }
 
-    bool result = emscriptenPrepareDefaultInterfaceInternal();
-
-    if (!result) {
-        return false;
-    }
-
     if (m_forcedInterface.empty()) {
         return true;
     }
@@ -425,23 +419,6 @@ bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const
     }; 
 
     return copyExtraSourceFiles(ReservedExt);    
-}
-
-bool EmscriptenGenerator::emscriptenPrepareDefaultInterfaceInternal()
-{
-    auto allInterfaces = getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        return true;
-    }
-
-    auto* defaultNamespace = addDefaultNamespace();
-    auto* interface = defaultNamespace->addDefaultInterface();
-    if (interface == nullptr) {
-        logger().error("Failed to create default interface");
-        return false;
-    }
-
-    return true;
 }
 
 bool EmscriptenGenerator::emscriptenReferenceRequestedInterfaceInternal()

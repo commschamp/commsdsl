@@ -353,16 +353,6 @@ std::string commonScopeFor(
     return commonScopeForInternal(elem, generator, addMainNamespace, addElement, ScopeSep);
 }
 
-std::string scopeForInterface(
-    const std::string& name, 
-    const Generator& generator, 
-    bool addMainNamespace, 
-    bool addElement)
-{
-    static const std::vector<std::string> SubElems;
-    return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
-}
-
 std::string scopeForOptions(
     const std::string& name, 
     const Generator& generator, 

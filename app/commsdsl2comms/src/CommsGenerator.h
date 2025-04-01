@@ -98,7 +98,6 @@ protected:
     virtual bool writeImpl() override;    
 
 private:
-    bool commsPrepareDefaultInterfaceInternal();
     bool commsPrepareExtraMessageBundlesInternal();
     bool commsWriteExtraFilesInternal() const;
     

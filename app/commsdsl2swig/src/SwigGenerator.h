@@ -109,7 +109,6 @@ protected:
 
 private:
     bool swigWriteExtraFilesInternal() const;
-    bool swigPrepareDefaultInterfaceInternal();
     bool swigReferenceRequestedInterfaceInternal();
     bool swigReferenceRequestedMessagesInternal();
     bool swigProcessMessagesListFileInternal();

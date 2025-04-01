@@ -201,8 +201,7 @@ std::string ToolsQtGenerator::toolsScopePrefixForInterface(const commsdsl::gen::
 bool ToolsQtGenerator::prepareImpl() 
 {
     chooseProtocolSchema();
-    if ((!Base::prepareImpl()) || 
-        (!toolsPrepareDefaultInterfaceInternal())) {
+    if (!Base::prepareImpl()) {
         return false;
     }
 
@@ -349,24 +348,6 @@ bool ToolsQtGenerator::writeImpl()
     }
 
     return toolsWriteExtraFilesInternal();            
-}
-
-bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
-{
-    auto& schema = protocolSchema();
-    auto allInterfaces = schema.getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        return true;
-    }
-
-    auto* defaultNamespace = schema.addDefaultNamespace();
-    auto* interface = defaultNamespace->addDefaultInterface();
-    if (interface == nullptr) {
-        logger().error("Failed to create default interface");
-        return false;
-    }
-
-    return true;
 }
 
 bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()

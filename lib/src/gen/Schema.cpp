@@ -228,9 +228,6 @@ public:
                 });
 
         if ((nsIter == m_namespaces.end()) || ((*nsIter)->name() != nsName)) {
-            m_generator.logger().error("Internal error: unknown external reference: " + externalRef);
-            [[maybe_unused]] static constexpr bool Should_not_happen = false;
-            assert(Should_not_happen);
             return nullptr;
         }
 

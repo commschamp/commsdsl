@@ -17,6 +17,7 @@
 #include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/strings.h"
 
 #include <cassert>
 #include <algorithm>
@@ -180,6 +181,28 @@ const Interface::FieldsList& Interface::fields() const
 commsdsl::parse::Interface Interface::dslObj() const
 {
     return m_impl->dslObj();
+}
+
+std::string Interface::adjustedExternalRef() const
+{
+    auto obj = dslObj();
+    if (obj.valid()) {
+        return obj.externalRef();
+    }
+
+    auto* ns = static_cast<const Namespace*>(getParent());
+    assert(ns != nullptr);
+    return ns->adjustedExternalRef() + '.' + strings::messageClassStr();
+}
+
+const std::string& Interface::adjustedName() const
+{
+    auto& str = name();
+    if (!str.empty()) {
+        return str;
+    }
+
+    return strings::messageClassStr();
 }
 
 Generator& Interface::generator()

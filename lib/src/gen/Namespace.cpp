@@ -441,6 +441,21 @@ commsdsl::parse::Namespace Namespace::dslObj() const
     return m_impl->dslObj();
 }
 
+std::string Namespace::adjustedExternalRef() const
+{
+    auto obj = dslObj();
+    if (obj.valid()) {
+        return obj.externalRef();
+    }
+
+    auto* parent = getParent();
+    assert(parent != nullptr);
+    assert(parent->elemType() == Elem::Type_Schema);
+    auto* schema = static_cast<const Schema*>(parent);
+    assert(schema->dslObj().valid());
+    return schema->dslObj().externalRef();
+}
+
 const Namespace::NamespacesList& Namespace::namespaces() const
 {
     return m_impl->namespaces();
@@ -649,10 +664,10 @@ const Interface* Namespace::findInterface(const std::string& externalRef) const
                 ifList.begin(), ifList.end(), externalRef,
                 [](auto& f, auto& n)
                 {
-                    return f->name() < n;
+                    return f->adjustedName() < n;
                 });
 
-        if ((ifIter == ifList.end()) || ((*ifIter)->name() != externalRef)) {
+        if ((ifIter == ifList.end()) || ((*ifIter)->adjustedName() != externalRef)) {
             return nullptr;
         }
 

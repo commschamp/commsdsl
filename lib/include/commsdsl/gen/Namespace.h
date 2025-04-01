@@ -58,6 +58,7 @@ public:
     bool write() const;
 
     commsdsl::parse::Namespace dslObj() const;
+    std::string adjustedExternalRef() const;
 
     const NamespacesList& namespaces() const;
     const FieldsList& fields() const;

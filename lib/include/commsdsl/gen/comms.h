@@ -53,12 +53,6 @@ std::string commonScopeFor(
     bool addMainNamespace = true, 
     bool addElement = true);    
 
-std::string scopeForInterface(
-    const std::string& name, 
-    const Generator& generator, 
-    bool addMainNamespace = true, 
-    bool addElement = true);      
-
 std::string scopeForOptions(
     const std::string& name, 
     const Generator& generator, 

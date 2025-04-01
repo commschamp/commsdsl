@@ -165,13 +165,6 @@ bool SwigGenerator::prepareImpl()
         return false;
     }
 
-    bool result =  
-        swigPrepareDefaultInterfaceInternal();
-
-    if (!result) {
-        return false;
-    }
-
     if (m_forcedInterface.empty()) {
         return true;
     }
@@ -399,24 +392,6 @@ bool SwigGenerator::swigWriteExtraFilesInternal() const
     }; 
 
     return copyExtraSourceFiles(ReservedExt);
-}
-
-
-bool SwigGenerator::swigPrepareDefaultInterfaceInternal()
-{
-    auto allInterfaces = getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        return true;
-    }
-
-    auto* defaultNamespace = addDefaultNamespace();
-    auto* interface = defaultNamespace->addDefaultInterface();
-    if (interface == nullptr) {
-        logger().error("Failed to create default interface");
-        return false;
-    }
-
-    return true;
 }
 
 bool SwigGenerator::swigReferenceRequestedInterfaceInternal()

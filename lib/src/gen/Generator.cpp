@@ -65,6 +65,7 @@ public:
     using NamespacesList = Generator::NamespacesList;
     using PlatformNamesList = Generator::PlatformNamesList;
     using SchemasList = Generator::SchemasList;
+    using InterfacesAccessList = Generator::InterfacesAccessList;
 
     explicit GeneratorImpl(Generator& generator) :
         m_generator(generator),
@@ -150,6 +151,17 @@ public:
     {
         return m_minRemoteVersion;
     }
+
+    InterfacesAccessList getAllInterfaces() const
+    {
+        return currentSchema().getAllInterfaces();
+    }    
+
+    Namespace* addDefaultNamespace()
+    {
+        return currentSchema().addDefaultNamespace();
+    }
+    
 
     void setNamespaceOverride(const std::string& value)
     {
@@ -396,7 +408,11 @@ public:
         if (m_logger->hadWarning()) {
             m_logger->error("Warning treated as error");
             return false;
-        }        
+        }      
+        
+        if (!prepareDefaultInterfaceInternal()) {
+            return false;
+        }
 
         return true;
     }
@@ -497,6 +513,23 @@ private:
         }
 
         return std::make_pair(iter->get(), std::move(restRef));
+    }
+
+    bool prepareDefaultInterfaceInternal()
+    {
+        auto allInterfaces = getAllInterfaces();
+        if (!allInterfaces.empty()) {
+            return true;
+        }
+    
+        auto* defaultNamespace = addDefaultNamespace();
+        auto* interface = defaultNamespace->addDefaultInterface();
+        if (interface == nullptr) {
+            m_logger->error("Failed to create default interface");
+            return false;
+        }
+    
+        return true;        
     }
 
     Generator& m_generator;
