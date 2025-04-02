@@ -9,7 +9,7 @@ on:
 
 env:
   COMMS_TAG: develop
-  CC_TOOLS_QT_TAG: devlop
+  CC_TOOLS_QT_TAG: develop
 
 jobs:
   build_gcc_ubuntu_24_04:
