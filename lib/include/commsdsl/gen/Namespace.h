@@ -65,6 +65,8 @@ public:
     const InterfacesList& interfaces() const;
     const MessagesList& messages() const;
     const FramesList& frames() const;
+    bool hasFramesRecursive() const;
+    bool hasMessagesRecursive() const;
 
     const Field* findMessageIdField() const;
     const Field* findField(const std::string& externalRef) const;
@@ -75,6 +77,7 @@ public:
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;
     MessagesAccessList getAllMessages() const;
+    MessagesAccessList getAllMessagesIdSorted() const;
     FramesAccessList getAllFrames() const;
     FieldsAccessList getAllFields() const;
 

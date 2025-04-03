@@ -34,7 +34,6 @@
 #include "CommsIdLayer.h"
 #include "CommsInterface.h"
 #include "CommsMessage.h"
-#include "CommsMsgFactory.h"
 #include "CommsMsgId.h"
 #include "CommsNamespace.h"
 #include "CommsOptionalField.h"
@@ -291,9 +290,7 @@ bool CommsGenerator::writeImpl()
             CommsFieldBase::write(*this) &&
             CommsVersion::write(*this) &&
             CommsInputMessages::write(*this) &&
-            CommsDefaultOptions::write(*this) &&
-            CommsDispatch::write(*this) &&
-            CommsMsgFactory::write(*this);
+            CommsDefaultOptions::write(*this);
 
         if (!result) {
             return false;

@@ -625,15 +625,15 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
     util::StringsList list;
     util::StringsList dispatcherList;
     auto addToListFunc =
-        [this, &list, &dispatcherList](const std::string& name)
+        [this, &list, &dispatcherList](const std::string& name, const commsdsl::gen::Namespace& ns)
         {
             static const std::string Prefix("Dispatch");
             static const std::string Suffix("Message");
 
             auto accessName = comms::accessName(Prefix + name + Suffix);
-            auto accessScope = comms::scopeForDispatch(accessName, m_generator);
+            auto accessScope = comms::scopeForDispatch(accessName, m_generator, ns);
             auto fileName = comms::className(accessName);
-            auto file = comms::relHeaderForDispatch(fileName, m_generator);
+            auto file = comms::relHeaderForDispatch(fileName, m_generator, ns);
             auto str = "/// @li @ref " + accessScope + 
                 "()\n/// (defined in @b " + file + " header file).";
             list.push_back(std::move(str));
@@ -643,7 +643,7 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
 
             static const std::string DispatcherSuffix("MsgDispatcher");
             auto dispatcherName = comms::className(name) + DispatcherSuffix;
-            auto dispatcherScope = comms::scopeForDispatch(dispatcherName, m_generator);
+            auto dispatcherScope = comms::scopeForDispatch(dispatcherName, m_generator, ns);
             auto dispatcherDefaultScope = dispatcherScope + strings::defaultOptionsStr();
             auto dispatcherStr =
                 "/// @li @ref " + dispatcherScope + "\n/// (defined in @b " + file + " header file).";
@@ -654,16 +654,23 @@ std::string CommsDoxygen::commsDispatchDocInternal() const
         };
 
     auto addPlatformFunc =
-        [&addToListFunc](const std::string& platform)
+        [&addToListFunc](const std::string& platform, const commsdsl::gen::Namespace& ns)
         {
-            addToListFunc(platform);
-            addToListFunc(platform + ServerInputPrefixStr);
-            addToListFunc(platform + ClientInputPrefixStr);
+            addToListFunc(platform, ns);
+            addToListFunc(platform + ServerInputPrefixStr, ns);
+            addToListFunc(platform + ClientInputPrefixStr, ns);
         };
 
-    addPlatformFunc(strings::emptyString());
-    for (auto& p : m_generator.currentSchema().platformNames()) {
-        addPlatformFunc(comms::className(p));
+    auto allNamespaces = m_generator.getAllNamespaces();
+    for (auto& ns : allNamespaces) {
+        if (!ns->hasFramesRecursive()) {
+            continue;
+        }
+        
+        addPlatformFunc(strings::emptyString(), *ns);
+        for (auto& p : m_generator.currentSchema().platformNames()) {
+            addPlatformFunc(comms::className(p), *ns);
+        }
     }
 
     util::ReplacementMap repl = {

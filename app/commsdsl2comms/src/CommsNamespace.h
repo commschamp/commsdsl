@@ -16,9 +16,11 @@
 
 #pragma once
 
+#include "CommsDispatch.h"
 #include "CommsField.h"
 #include "CommsFrame.h"
 #include "CommsMessage.h"
+#include "CommsMsgFactory.h"
 
 #include "commsdsl/gen/Namespace.h"
 
@@ -52,8 +54,13 @@ public:
 
     const CommsField* findValidInterfaceReferencedField(const std::string& refStr) const;
 
+    std::string commsMsgFactoryAliasType() const;
+    std::string commsMsgFactoryAliasDef(const std::string& namePrefix, const std::string& typeSuffix) const;
+    std::string commsRelHeaderPath(const std::string& namePrefix) const;
+
 protected:
     virtual bool prepareImpl() override;    
+    virtual bool writeImpl() const override;
 
 private:
     using NamespaceOptsFunc = std::string (CommsNamespace::*)() const;
@@ -70,6 +77,8 @@ private:
         bool hasBase) const;
 
     CommsFieldsList m_commsFields;        
+    CommsDispatch m_dispatch;
+    CommsMsgFactory m_factory;
 };
 
 } // namespace commsdsl2comms

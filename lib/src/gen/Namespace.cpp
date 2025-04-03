@@ -135,6 +135,36 @@ public:
         return m_frames;
     }
 
+    bool hasFramesRecursive() const
+    {
+        if (!m_frames.empty()) {
+            return true;
+        }
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& ns)
+                {
+                    return ns->hasFramesRecursive();
+                });
+    }
+
+    bool hasMessagesRecursive() const
+    {
+        if (!m_messages.empty()) {
+            return true;
+        }
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& ns)
+                {
+                    return ns->hasMessagesRecursive();
+                });
+    }    
+
     Generator& generator()
     {
         return m_generator;
@@ -481,6 +511,16 @@ const Namespace::FramesList& Namespace::frames() const
     return m_impl->frames();
 }
 
+bool Namespace::hasFramesRecursive() const
+{
+    return m_impl->hasFramesRecursive();
+}
+
+bool Namespace::hasMessagesRecursive() const
+{
+    return m_impl->hasMessagesRecursive();
+}
+
 const Field* Namespace::findMessageIdField() const
 {
     for (auto& f : fields()) {
@@ -739,6 +779,13 @@ Namespace::MessagesAccessList Namespace::getAllMessages() const
         result.emplace_back(i.get());
     }
 
+    return result;
+}
+
+Namespace::MessagesAccessList Namespace::getAllMessagesIdSorted() const
+{
+    auto result = getAllMessages();
+    Generator::sortMessages(result);
     return result;
 }
 

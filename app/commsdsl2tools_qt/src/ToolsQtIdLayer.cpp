@@ -43,7 +43,7 @@ ToolsQtIdLayer::StringsList ToolsQtIdLayer::toolsMsgFactoryExtraOptionsImpl() co
 {
     return
         StringsList{
-            "comms::option::app::MsgFactoryTempl<MsgFactory>"
+            "comms::option::app::MsgFactoryTempl<MsgFactory>" // TODO proper alias type
         };    
 }
 

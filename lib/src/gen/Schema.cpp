@@ -633,19 +633,7 @@ Schema::MessagesAccessList Schema::getAllMessages() const
 Schema::MessagesAccessList Schema::getAllMessagesIdSorted() const
 {
     auto result = getAllMessages();
-    std::sort(
-        result.begin(), result.end(),
-        [](auto* msg1, auto* msg2)
-        {
-            auto id1 = msg1->dslObj().id();
-            auto id2 = msg2->dslObj().id();
-
-            if (id1 != id2) {
-                return id1 < id2;
-            }
-
-            return msg1->dslObj().order() < msg2->dslObj().order();
-        });
+    Generator::sortMessages(result);
     return result;
 }
 

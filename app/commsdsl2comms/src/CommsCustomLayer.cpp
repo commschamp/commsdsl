@@ -104,7 +104,7 @@ CommsCustomLayer::StringsList CommsCustomLayer::commsExtraMsgFactoryDefaultOptio
     if (commsDefHasInputMessagesImpl()) {
         return
             StringsList{
-                "comms::option::app::MsgFactoryTempl<MsgFactory>"
+                "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(getParent()) + ">"
             };    
     }
 

@@ -710,11 +710,10 @@ Generator::MessagesAccessList Generator::getAllMessages() const
     return currentSchema().getAllMessages();
 }
 
-Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
+void Generator::sortMessages(MessagesAccessList& list)
 {
-    auto result = getAllMessages();
     std::sort(
-        result.begin(), result.end(),
+        list.begin(), list.end(),
         [](auto* msg1, auto* msg2)
         {
             auto id1 = msg1->dslObj().id();
@@ -726,6 +725,12 @@ Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
 
             return msg1->dslObj().order() < msg2->dslObj().order();
         });
+}
+
+Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
+{
+    auto result = getAllMessages();
+    sortMessages(result);
     return result;
 }
 
@@ -775,19 +780,7 @@ Generator::MessagesAccessList Generator::getAllMessagesFromAllSchemas() const
 Generator::MessagesAccessList Generator::getAllMessagesIdSortedFromAllSchemas() const
 {
     auto result = getAllMessagesFromAllSchemas();
-    std::sort(
-        result.begin(), result.end(),
-        [](auto* msg1, auto* msg2)
-        {
-            auto id1 = msg1->dslObj().id();
-            auto id2 = msg2->dslObj().id();
-
-            if (id1 != id2) {
-                return id1 < id2;
-            }
-
-            return msg1->dslObj().order() < msg2->dslObj().order();
-        });
+    sortMessages(result);
     return result;    
 }
 

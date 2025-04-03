@@ -96,7 +96,7 @@ CommsIdLayer::StringsList CommsIdLayer::commsExtraMsgFactoryDefaultOptionsImpl()
 {
     return
         StringsList{
-            "comms::option::app::MsgFactoryTempl<MsgFactory>"
+            "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(getParent()) + ">"
         };    
 }
 

@@ -16,7 +16,7 @@
 #include "CommsMsgFactory.h"
 
 #include "CommsGenerator.h"
-#include "CommsSchema.h"
+#include "CommsNamespace.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -40,7 +40,6 @@ namespace
 
 const std::string ClientPrefixStr = "ClientInputMessages";    
 const std::string ServerPrefixStr = "ServerInputMessages";
-const std::string MsgFactorySuffixStr = "MsgFactory";
 const std::string DynMemStr = "DynMem";
 const std::string InPlaceStr = "InPlace";
 const std::string DynMemAllocPolicyStr("dynamic");
@@ -201,6 +200,7 @@ bool commsWriteFileInternal(
     const std::string& prefix,
     const std::string& desc,
     const CommsGenerator& generator,
+    const CommsNamespace& parent,
     CheckFunction&& checkFunc,
     bool inPlaceAlloc)
 {
@@ -213,8 +213,8 @@ bool commsWriteFileInternal(
         codeFunc = &commsInPlaceAllocCodeFuncInternal;
     }
 
-    auto name = prefix + *typeStr + MsgFactorySuffixStr;
-    auto filePath = comms::headerPathForFactory(name, generator);
+    auto name = prefix + *typeStr + strings::msgFactorySuffixStr();
+    auto filePath = comms::headerPathForFactory(name, generator, parent);
     generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -235,8 +235,7 @@ bool commsWriteFileInternal(
         "/// @brief Contains message factory with #^#POLICY#$# memory allocation for #^#DESC#$# messages.\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "namespace #^#PROT_NAMESPACE#$#\n"
-        "{\n\n"
+        "#^#NS_BEGIN#$#\n"
         "namespace #^#FACTORY_NAMESPACE#$#\n"
         "{\n\n"
         "/// @brief Message factory with #^#POLICY#$# memory allocation for #^#DESC#$# messages.\n"
@@ -330,7 +329,7 @@ bool commsWriteFileInternal(
         "#^#EXTEND#$#\n"
         "#^#APPEND#$#\n"
         "} // namespace #^#FACTORY_NAMESPACE#$#\n\n"
-        "} // namespace #^#PROT_NAMESPACE#$#\n";
+        "#^#NS_END#$#\n";
 
     util::StringsList includes = {
         "<memory>",
@@ -363,14 +362,15 @@ bool commsWriteFileInternal(
 
         util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
+        {"NS_BEGIN", comms::namespaceBeginFor(parent, generator)},
+        {"NS_END", comms::namespaceEndFor(parent, generator)},         
         {"FACTORY_NAMESPACE", strings::factoryNamespaceStr()},
         {"NAME", name},
         {"POLICY", *policyStr},
         {"DESC", desc},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForFactory(name, generator) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForFactory(name, generator) + strings::appendFileSuffixStr())},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForFactory(name, generator, parent) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForFactory(name, generator, parent) + strings::appendFileSuffixStr())},
         {"HAS_UNIQUE_IDS", util::boolToString(hasUniqueIds)},
         {"IN_PLACE_ALLOC", util::boolToString(inPlaceAlloc)},
         {"CAN_ALLOCATE", "true"},
@@ -395,18 +395,13 @@ bool commsWriteFileInternal(
 } // namespace 
     
 
-bool CommsMsgFactory::write(CommsGenerator& generator)
+CommsMsgFactory::CommsMsgFactory(CommsGenerator& generator, const CommsNamespace& parent) : 
+    m_generator(generator),
+    m_parent(parent)
 {
-    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage())) {
-        return true;
-    }
-
-    CommsMsgFactory obj(generator);
-    return obj.commsWriteInternal();
 }
 
-bool CommsMsgFactory::commsWriteInternal() const
+bool CommsMsgFactory::commsWrite() const
 {
     return
         commsWriteAllMsgFactoryInternal() &&
@@ -414,6 +409,16 @@ bool CommsMsgFactory::commsWriteInternal() const
         commsWriteServerMsgFactoryInternal() &&
         commsWritePlatformMsgFactoryInternal() &&
         commsWriteExtraMsgFactoryInternal();
+}
+
+std::string CommsMsgFactory::commsScope(const std::string& prefix) const
+{
+    return comms::scopeForFactory(prefix + strings::msgFactorySuffixStr(), m_generator, m_parent);
+}
+
+std::string CommsMsgFactory::commsRelHeaderPath(const std::string& prefix) const
+{
+    return comms::relHeaderForFactory(prefix + strings::msgFactorySuffixStr(), m_generator, m_parent);
 }
 
 bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
@@ -430,6 +435,7 @@ bool CommsMsgFactory::commsWriteAllMsgFactoryInternal() const
             strings::allMessagesStr(),
             AllMessagesDesc,
             m_generator,
+            m_parent,
             checkFunc,
             false);   
 
@@ -449,6 +455,7 @@ bool CommsMsgFactory::commsWriteClientMsgFactoryInternal() const
             ClientPrefixStr,
             ClientDesc,
             m_generator,
+            m_parent,
             checkFunc,
             false);   
 
@@ -468,6 +475,7 @@ bool CommsMsgFactory::commsWriteServerMsgFactoryInternal() const
             ServerPrefixStr,
             ServerDesc,
             m_generator,
+            m_parent,
             checkFunc,
             false);   
 
@@ -501,6 +509,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
                 comms::className(p) + "Messages",
                 AllMessagesDesc + " \"" + p + "\" platform specific",
                 m_generator,
+                m_parent,
                 allCheckFunc,
                 false);  
 
@@ -521,6 +530,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
                 comms::className(p) + ClientPrefixStr,
                 ClientDesc + " \"" + p + "\" platform specific",
                 m_generator,
+                m_parent,
                 clientCheckFunc,
                 false);  
 
@@ -541,6 +551,7 @@ bool CommsMsgFactory::commsWritePlatformMsgFactoryInternal() const
                 comms::className(p) + ServerPrefixStr,
                 ServerDesc + " \"" + p + "\" platform specific",
                 m_generator,
+                m_parent,
                 serverCheckFunc,
                 false);  
 
@@ -574,6 +585,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
                 comms::className(b.first) + "Messages",
                 AllMessagesDesc + " \"" + b.first+ "\" bundle specific",
                 m_generator,
+                m_parent,
                 allCheckFunc,
                 false);  
 
@@ -594,6 +606,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
                 comms::className(b.first) + ClientPrefixStr,
                 ClientDesc + " \"" + b.first+ "\" bundle specific",
                 m_generator,
+                m_parent,
                 clientCheckFunc,
                 false);  
 
@@ -614,6 +627,7 @@ bool CommsMsgFactory::commsWriteExtraMsgFactoryInternal() const
                 comms::className(b.first) + ServerPrefixStr,
                 ServerDesc + " \"" + b.first + "\" bundle specific",
                 m_generator,
+                m_parent,
                 serverCheckFunc,
                 false);  
 
