@@ -536,16 +536,16 @@ std::string CommsDoxygen::commsInterfaceDocInternal() const
 std::string CommsDoxygen::commsFrameDocInternal() const
 {
     const std::string Templ = 
-        "/// @section main_frames Frame (Protocol Stack) Classes\n"
-        "/// The available frame (protocol stack) classes are:\n"
+        "/// @section main_frames Frame Classes\n"
+        "/// The available frame classes are:\n"
         "#^#LIST#$#\n"
         "///\n"
         "/// Every frame class/type definition receives (as a template parameter) a list of\n"
         "/// @b input message types it is expected to recognize. Default defintion\n"
-        "/// uses @ref #^#ALL_MESSAGES#$# (defined in @b #^#ALL_MESSAGES_HEADER#$#).\n"
+        "/// uses @b All messages bundle (for example @ref #^#ALL_MESSAGES#$# defined in @b #^#ALL_MESSAGES_HEADER#$#).\n"
         "/// @n If protocol defines any uni-directional message, then it is recommended to use\n"
-        "/// either @ref #^#SERVER_MESSAGES#$# (from @b #^#SERVER_MESSAGES_HEADER#$#)\n"
-        "/// or @ref #^#CLIENT_MESSAGES#$#  (from @b #^#CLIENT_MESSAGES_HEADER#$#)\n"
+        "/// either @b Server messages bundle (for example @ref #^#SERVER_MESSAGES#$# from @b #^#SERVER_MESSAGES_HEADER#$#)\n"
+        "/// or @b Client messages bundle (for example @ref #^#CLIENT_MESSAGES#$# from @b #^#CLIENT_MESSAGES_HEADER#$#)\n"
         "#^#PLATFORMS#$#\n"
         "/// @b NOTE, that the frame definition does not exactly follow the recommended\n"
         "/// instructions from <b>Protocol Stack Definition Tutorial</b> page of @b COMMS\n"
@@ -568,36 +568,55 @@ std::string CommsDoxygen::commsFrameDocInternal() const
 
     util::StringsList messagesList;
     auto addToMessagesListFunc =
-        [this, &messagesList](const std::string& name)
+        [this, &messagesList](const std::string& name, const commsdsl::gen::Namespace& ns)
         {
-            auto scope = comms::scopeForInput(name, m_generator);
-            auto file = comms::relHeaderForInput(name, m_generator);
+            auto scope = comms::scopeForInput(name, m_generator, ns);
+            auto file = comms::relHeaderForInput(name, m_generator, ns);
             auto str = "/// @li @ref " + scope + " (from @b " + file + " header file).";
             messagesList.push_back(std::move(str));
         };
 
-    addToMessagesListFunc(strings::allMessagesStr());
-    addToMessagesListFunc(ServerInputMessagesStr);
-    addToMessagesListFunc(ClientInputMessagesStr);
+    auto allNamespaces = m_generator.getAllNamespaces();
+    for (auto* ns : allNamespaces) {
+        if ((!ns->hasFramesRecursive()) || 
+            (!ns->hasMessagesRecursive())) {
+            continue;
+        }
+                
+        addToMessagesListFunc(strings::allMessagesStr(), *ns);
+        addToMessagesListFunc(ServerInputMessagesStr, *ns);
+        addToMessagesListFunc(ClientInputMessagesStr, *ns);
 
-    auto& platforms = m_generator.currentSchema().platformNames();
-    for (auto& p : platforms) {
-        addToMessagesListFunc(p + "Messages");
-        addToMessagesListFunc(p + ServerInputMessagesStr);
-        addToMessagesListFunc(p + ClientInputMessagesStr);
-    };
+        auto& platforms = m_generator.currentSchema().platformNames();
+        for (auto& p : platforms) {
+            addToMessagesListFunc(p + "Messages", *ns);
+            addToMessagesListFunc(p + ServerInputMessagesStr, *ns);
+            addToMessagesListFunc(p + ClientInputMessagesStr, *ns);
+        };        
+    }
+
+    auto nsIter = 
+        std::find_if(
+            allNamespaces.begin(), allNamespaces.end(),
+            [](auto* ns)
+            {
+                return !ns->frames().empty();
+            });
+
+    assert (nsIter != allNamespaces.end());
+    auto& exampleNs = **nsIter;    
 
     util::ReplacementMap repl = {
         {"LIST", util::strListToString(list, "\n", "")},
         {"MESSAGES_LIST", util::strListToString(messagesList, "\n", "")},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"PLATFORMS", commsPlatformsDocInternal()},
-        {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), m_generator)},
-        {"ALL_MESSAGES_HEADER", comms::relHeaderForInput(strings::allMessagesStr(), m_generator)},
-        {"SERVER_MESSAGES", comms::scopeForInput(ServerInputMessagesStr, m_generator)},
-        {"SERVER_MESSAGES_HEADER", comms::relHeaderForInput(ServerInputMessagesStr, m_generator)},
-        {"CLIENT_MESSAGES", comms::scopeForInput(ClientInputMessagesStr, m_generator)},
-        {"CLIENT_MESSAGES_HEADER", comms::relHeaderForInput(ClientInputMessagesStr, m_generator)},
+        {"ALL_MESSAGES", comms::scopeForInput(strings::allMessagesStr(), m_generator, exampleNs)},
+        {"ALL_MESSAGES_HEADER", comms::relHeaderForInput(strings::allMessagesStr(), m_generator, exampleNs)},
+        {"SERVER_MESSAGES", comms::scopeForInput(ServerInputMessagesStr, m_generator, exampleNs)},
+        {"SERVER_MESSAGES_HEADER", comms::relHeaderForInput(ServerInputMessagesStr, m_generator, exampleNs)},
+        {"CLIENT_MESSAGES", comms::scopeForInput(ClientInputMessagesStr, m_generator, exampleNs)},
+        {"CLIENT_MESSAGES_HEADER", comms::relHeaderForInput(ClientInputMessagesStr, m_generator, exampleNs)},
     };
 
     return util::processTemplate(Templ, repl);     
@@ -855,19 +874,31 @@ std::string CommsDoxygen::commsPlatformsDocInternal() const
         "///";
 
     util::StringsList list;
-    for (auto& p : platforms) {
-        auto addToListFunc = 
-            [this, &p, &list](const std::string& type)
-            {
-                auto name = comms::className(p) + type + "InputMessages";
-                auto scope = comms::scopeForInput(name, m_generator);
-                auto file = comms::relHeaderForInput(name, m_generator);
-                auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
-                list.push_back(std::move(str));
-            };
+    auto allNamespaces = m_generator.getAllNamespaces();
+    for (auto* ns : allNamespaces) {
+        if ((!ns->hasFramesRecursive()) || 
+            (!ns->hasMessagesRecursive())) {
+            continue;
+        }
+                
+        for (auto& p : platforms) {
+            auto addToListFunc = 
+                [this, &p, &list, ns](const std::string& type)
+                {
+                    auto name = comms::className(p) + type + "InputMessages";
+                    auto scope = comms::scopeForInput(name, m_generator, *ns);
+                    auto file = comms::relHeaderForInput(name, m_generator, *ns);
+                    auto str = "/// @li @ref " + scope + " (from @b " + file + ").";
+                    list.push_back(std::move(str));
+                };
+    
+            addToListFunc("Server");
+            addToListFunc("Client");
+        }   
+    }
 
-        addToListFunc("Server");
-        addToListFunc("Client");
+    if (list.empty()) {
+        return strings::emptyString();
     }
 
     util::ReplacementMap repl = {

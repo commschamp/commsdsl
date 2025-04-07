@@ -589,7 +589,7 @@ std::string CommsDispatch::commsIncludesInternal(const std::string& inputPrefix)
 {
     util::StringsList incs = {
         comms::relHeaderForRoot(strings::msgIdEnumNameStr(), m_generator),
-        comms::relHeaderForInput(inputPrefix + "Messages", m_generator),
+        comms::relHeaderForInput(inputPrefix + "Messages", m_generator, m_parent),
         comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator),
     };
 

@@ -369,14 +369,17 @@ std::string scopeForOptions(
 std::string scopeForInput(
     const std::string& name, 
     const Generator& generator, 
+    const Namespace& ns,
     bool addMainNamespace, 
     bool addElement)
 {
-    static const std::vector<std::string> SubElems = {
-        strings::inputNamespaceStr()
-    };
+    std::vector<std::string> subElems;
+    if (!ns.name().empty()) {
+        subElems.push_back(ns.name());
+    }
+    subElems.push_back(strings::inputNamespaceStr());
 
-    return scopeForElement(name, generator, SubElems, addMainNamespace, addElement);
+    return scopeForElement(name, generator, subElems, addMainNamespace, addElement);
 }
 
 std::string scopeForFactory(
@@ -523,13 +526,16 @@ std::string relHeaderForChecksum(const std::string& name, const Generator& gener
     return scopeForElement(name, generator, SubElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
-std::string relHeaderForInput(const std::string& name, const Generator& generator, bool addMainNamespace)
+std::string relHeaderForInput(const std::string& name, const Generator& generator, const Namespace& ns, bool addMainNamespace)
 {
-    static const std::vector<std::string> SubElems = {
-        strings::inputNamespaceStr()
-    };
+    std::vector<std::string> subElems;
+    if (!ns.name().empty()) {
+        subElems.push_back(ns.name());
+    }
 
-    return scopeForElement(name, generator, SubElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
+    subElems.push_back(strings::inputNamespaceStr());
+
+    return scopeForElement(name, generator, subElems, addMainNamespace, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
 std::string relHeaderForRoot(const std::string& name, const Generator& generator, bool addMainNamespace)
@@ -559,9 +565,9 @@ std::string headerPathForField(const std::string& name, const Generator& generat
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderPathForField(name, generator);
 }
 
-std::string headerPathForInput(const std::string& name, const Generator& generator)
+std::string headerPathForInput(const std::string& name, const Generator& generator, const Namespace& ns)
 {
-    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForInput(name, generator);
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForInput(name, generator, ns);
 }
 
 std::string headerPathForOptions(const std::string& name, const Generator& generator)
@@ -628,12 +634,12 @@ std::string inputCodePathForOptions(const std::string& name, const Generator& ge
         comms::relHeaderForOptions(name, generator, false);
 }
 
-std::string inputCodePathForInput(const std::string& name, const Generator& generator)
+std::string inputCodePathForInput(const std::string& name, const Generator& generator, const Namespace& ns)
 {
     return 
         generator.getCodeDir() + '/' + strings::includeDirStr() + '/' + 
         generator.currentSchema().origNamespace() + '/' +
-        comms::relHeaderForInput(name, generator, false);
+        comms::relHeaderForInput(name, generator, ns, false);
 }
 
 std::string inputCodePathForFactory(const std::string& name, const Generator& generator, const Namespace& ns)

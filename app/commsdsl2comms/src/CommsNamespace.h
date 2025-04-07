@@ -19,6 +19,7 @@
 #include "CommsDispatch.h"
 #include "CommsField.h"
 #include "CommsFrame.h"
+#include "CommsInputMessages.h"
 #include "CommsMessage.h"
 #include "CommsMsgFactory.h"
 
@@ -79,6 +80,7 @@ private:
     CommsFieldsList m_commsFields;        
     CommsDispatch m_dispatch;
     CommsMsgFactory m_factory;
+    CommsInputMessages m_input;
 };
 
 } // namespace commsdsl2comms

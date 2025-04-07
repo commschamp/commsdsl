@@ -21,15 +21,15 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
+class CommsNamespace;
+
 class CommsInputMessages
 {
 public:
-    static bool write(CommsGenerator& generator);
+    CommsInputMessages(CommsGenerator& generator, const CommsNamespace& parent);
+    bool commsWrite() const;
 
 private:
-    explicit CommsInputMessages(CommsGenerator& generator) : m_generator(generator) {}
-
-    bool commsWriteInternal() const;
     bool commsWriteAllMessagesInternal() const;
     bool commsWriteClientInputMessagesInternal() const;
     bool commsWriteServerInputMessagesInternal() const;
@@ -37,6 +37,7 @@ private:
     bool commsWriteExtraInputMessagesInternal() const;
 
     CommsGenerator& m_generator;
+    const CommsNamespace& m_parent;
 };
 
 } // namespace commsdsl2comms

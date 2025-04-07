@@ -63,6 +63,7 @@ std::string scopeForOptions(
 std::string scopeForInput(
     const std::string& name, 
     const Generator& generator, 
+    const Namespace& ns,
     bool addMainNamespace = true, 
     bool addElement = true);  
 
@@ -107,14 +108,14 @@ std::string relHeaderForDispatch(const std::string& name, const Generator& gener
 std::string relHeaderForFactory(const std::string& name, const Generator& generator, const Namespace& ns);
 std::string relHeaderForLayer(const std::string& name, const Generator& generator); 
 std::string relHeaderForChecksum(const std::string& name, const Generator& generator); 
-std::string relHeaderForInput(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
+std::string relHeaderForInput(const std::string& name, const Generator& generator, const Namespace& ns, bool addMainNamespace = true); 
 std::string relHeaderForRoot(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
 std::string relSourceForRoot(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
 
 std::string headerPathFor(const Elem& elem, const Generator& generator);
 std::string sourcePathFor(const Elem& elem, const Generator& generator);
 std::string headerPathForField(const std::string& name, const Generator& generator); 
-std::string headerPathForInput(const std::string& name, const Generator& generator); 
+std::string headerPathForInput(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string headerPathForOptions(const std::string& name, const Generator& generator); 
 std::string headerPathForDispatch(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string headerPathForFactory(const std::string& name, const Generator& generator, const Namespace& ns); 
@@ -127,7 +128,7 @@ std::string inputCodePathFor(const Elem& elem, const Generator& generator);
 std::string inputCodePathForRoot(const std::string& name, const Generator& generator);
 std::string inputCodePathForDoc(const std::string& name, const Generator& generator);
 std::string inputCodePathForOptions(const std::string& name, const Generator& generator);
-std::string inputCodePathForInput(const std::string& name, const Generator& generator);
+std::string inputCodePathForInput(const std::string& name, const Generator& generator, const Namespace& ns);
 std::string inputCodePathForFactory(const std::string& name, const Generator& generator, const Namespace& ns);
 
 std::string namespaceBeginFor(

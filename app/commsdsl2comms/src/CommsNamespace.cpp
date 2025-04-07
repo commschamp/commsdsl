@@ -58,7 +58,8 @@ const std::string& optsTemplInternal(bool defaultNs)
 CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
     Base(generator, dslObj, parent),
     m_dispatch(generator, *this),
-    m_factory(generator, *this)
+    m_factory(generator, *this),
+    m_input(generator, *this)
 {
 }   
 
@@ -421,7 +422,8 @@ bool CommsNamespace::writeImpl() const
 
     return 
         m_dispatch.commsWrite() &&
-        m_factory.commsWrite();
+        m_factory.commsWrite() &&
+        m_input.commsWrite();
 }
 
 std::string CommsNamespace::commsOptionsInternal(

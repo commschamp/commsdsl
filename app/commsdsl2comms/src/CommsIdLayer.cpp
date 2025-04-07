@@ -43,9 +43,14 @@ bool CommsIdLayer::prepareImpl()
 
 CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
 {
+    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Frame);
+    auto& frame = *(static_cast<const commsdsl::gen::Frame*>(getParent()));
+    assert(frame.getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
+    auto& ns = *(static_cast<const commsdsl::gen::Namespace*>(frame.getParent()));
+
     IncludesList result = {
         "comms/frame/MsgIdLayer.h",
-        comms::relHeaderForInput(strings::allMessagesStr(), generator())
+        comms::relHeaderForInput(strings::allMessagesStr(), generator(), ns)
     };
 
     return result;

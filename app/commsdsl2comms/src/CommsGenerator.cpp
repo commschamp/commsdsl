@@ -289,7 +289,6 @@ bool CommsGenerator::writeImpl()
             CommsMsgId::write(*this) &&
             CommsFieldBase::write(*this) &&
             CommsVersion::write(*this) &&
-            CommsInputMessages::write(*this) &&
             CommsDefaultOptions::write(*this);
 
         if (!result) {

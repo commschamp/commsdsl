@@ -334,7 +334,7 @@ bool commsWriteFileInternal(
     util::StringsList includes = {
         "<memory>",
         "comms/MsgFactoryCreateFailureReason.h",
-        comms::relHeaderForInput(prefix, generator),
+        comms::relHeaderForInput(prefix, generator, parent),
         
     };
 
