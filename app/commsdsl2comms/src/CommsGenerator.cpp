@@ -22,7 +22,6 @@
 #include "CommsCustomLayer.h"
 #include "CommsDataField.h"
 #include "CommsDefaultOptions.h"
-#include "CommsDispatch.h"
 #include "CommsDoxygen.h"
 #include "CommsEnumField.h"
 #include "CommsFieldBase.h"
@@ -34,7 +33,6 @@
 #include "CommsIdLayer.h"
 #include "CommsInterface.h"
 #include "CommsMessage.h"
-#include "CommsMsgId.h"
 #include "CommsNamespace.h"
 #include "CommsOptionalField.h"
 #include "CommsPayloadLayer.h"
@@ -286,7 +284,6 @@ bool CommsGenerator::writeImpl()
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
         bool result = 
-            CommsMsgId::write(*this) &&
             CommsFieldBase::write(*this) &&
             CommsVersion::write(*this) &&
             CommsDefaultOptions::write(*this);

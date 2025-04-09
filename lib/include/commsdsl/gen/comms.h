@@ -81,6 +81,13 @@ std::string scopeForDispatch(
     bool addMainNamespace = true, 
     bool addElement = true);    
 
+std::string scopeForMsgId(
+    const std::string& name, 
+    const Generator& generator, 
+    const Namespace& ns,
+    bool addMainNamespace = true, 
+    bool addElement = true);     
+
 std::string scopeForRoot(
     const std::string& name, 
     const Generator& generator, 
@@ -106,6 +113,7 @@ std::string relHeaderPathForField(const std::string& name, const Generator& gene
 std::string relHeaderForOptions(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
 std::string relHeaderForDispatch(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string relHeaderForFactory(const std::string& name, const Generator& generator, const Namespace& ns);
+std::string relHeaderForMsgId(const std::string& name, const Generator& generator, const Namespace& ns);
 std::string relHeaderForLayer(const std::string& name, const Generator& generator); 
 std::string relHeaderForChecksum(const std::string& name, const Generator& generator); 
 std::string relHeaderForInput(const std::string& name, const Generator& generator, const Namespace& ns, bool addMainNamespace = true); 
@@ -119,6 +127,7 @@ std::string headerPathForInput(const std::string& name, const Generator& generat
 std::string headerPathForOptions(const std::string& name, const Generator& generator); 
 std::string headerPathForDispatch(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string headerPathForFactory(const std::string& name, const Generator& generator, const Namespace& ns); 
+std::string headerPathForMsgId(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string headerPathRoot(const std::string& name, const Generator& generator);
 std::string sourcePathRoot(const std::string& name, const Generator& generator);
@@ -156,8 +165,6 @@ unsigned sinceVersionOf(const Elem& elem);
 const std::string& dslEndianToOpt(commsdsl::parse::Endian value);
 
 const std::string& dslUnitsToOpt(commsdsl::parse::Units value);
-
-std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& generator);
 
 std::size_t maxPossibleLength();
 

@@ -17,6 +17,7 @@
 
 #include "CommsGenerator.h"
 #include "CommsEnumField.h"
+#include "CommsNamespace.h"
 #include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
@@ -42,21 +43,15 @@ using ReplacementMap = commsdsl::gen::util::ReplacementMap;
 
 } // namespace 
     
-
-bool CommsMsgId::write(CommsGenerator& generator)
+CommsMsgId::CommsMsgId(CommsGenerator& generator, const CommsNamespace& parent) :
+    m_generator(generator),
+    m_parent(parent)
 {
-    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage()) && (!thisSchema.commsHasReferencedMsgId())) {
-        return true;
-    }
-
-    CommsMsgId obj(generator);
-    return obj.commsWriteInternal();
 }
 
-bool CommsMsgId::commsWriteInternal() const
+bool CommsMsgId::write() const
 {
-    auto filePath = comms::headerPathRoot(strings::msgIdEnumNameStr(), m_generator);
+    auto filePath = comms::headerPathForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent);
 
     m_generator.logger().info("Generating " + filePath);
 
@@ -79,21 +74,22 @@ bool CommsMsgId::commsWriteInternal() const
         "#pragma once\n\n"
         "#include <cstdint>\n"
         "#include \"#^#PROT_NAMESPACE#$#/Version.h\"\n\n"
-        "namespace #^#PROT_NAMESPACE#$#\n"
-        "{\n"
+        "#^#NS_BEGIN#$#\n\n"
         "/// @brief Message ids enumeration.\n"
         "enum MsgId : #^#TYPE#$#\n"
         "{\n"
         "    #^#IDS#$#\n"
         "};\n\n"
-        "} // namespace #^#PROT_NAMESPACE#$#\n\n"        
+        "#^#NS_END#$#\n";
     ;
 
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
         {"PROT_NAMESPACE", m_generator.currentSchema().mainNamespace()},
         {"TYPE", commsTypeInternal()},
-        {"IDS", commsIdsInternal()}
+        {"IDS", commsIdsInternal()},
+        {"NS_BEGIN", comms::namespaceBeginFor(m_parent, m_generator)},
+        {"NS_END", comms::namespaceEndFor(m_parent, m_generator)},           
     };
 
     stream << util::processTemplate(Templ, repl, true);
@@ -108,8 +104,9 @@ bool CommsMsgId::commsWriteInternal() const
 
 std::string CommsMsgId::commsTypeInternal() const
 {
-    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
-    if (msgIdField != nullptr) {
+    auto allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    if (allMsgIdFields.size() == 1U) {
+        auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->enumDslObj();
@@ -145,9 +142,10 @@ std::string CommsMsgId::commsTypeInternal() const
 
 std::string CommsMsgId::commsIdsInternal() const
 {
-    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
     auto& prefix = strings::msgIdPrefixStr();
-    if (msgIdField != nullptr) {
+    auto allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    if (allMsgIdFields.size() == 1U) {    
+        auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const CommsEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->commsEnumValues();

@@ -382,7 +382,7 @@ std::string CommsInterface::commsDefIncludesInternal() const
     util::StringsList includes = {
         "comms/Message.h",
         "comms/options.h",
-        comms::relHeaderForRoot(strings::msgIdEnumNameStr(), gen),
+        comms::relHeaderForMsgId(strings::msgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::Namespace*>(getParent())),
     };
 
     if (!m_commsFields.empty()) {
@@ -470,9 +470,11 @@ std::string CommsInterface::commsDefBaseClassInternal() const
     auto& gen = generator();
     auto& schema = gen.schemaOf(*this);
 
+    assert(getParent() != nullptr);
+    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
     util::ReplacementMap repl = {
         {"ENDIAN", comms::dslEndianToOpt(schema.schemaEndian())},
-        {"MSG_ID_TYPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), gen)},
+        {"MSG_ID_TYPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen, *static_cast<const commsdsl::gen::Namespace*>(getParent()))},
         {"EXTRA_OPTS", commsDefExtraOptionsInternal()}
     };
 

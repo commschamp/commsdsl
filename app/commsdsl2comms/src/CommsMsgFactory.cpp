@@ -105,7 +105,7 @@ std::string commsGetMsgAllocCodeInternal(
         "    };\n\n"
         "#^#CHECK_IDX#$#\n"
         "updateReasonFunc(CreateFailureReason::None);\n"
-        "switch (id) {\n"
+        "switch (static_cast<std::intmax_t>(id)) {\n"
         "    #^#CASES#$#\n"
         "    default: break;\n"
         "}\n\n"
@@ -122,7 +122,7 @@ std::string commsGetMsgAllocCodeInternal(
                 "case #^#ID#$#: #^#CODE#$#";
 
             util::ReplacementMap caseRepl = {
-                {"ID", comms::messageIdStrFor(*elem.second.front(), generator)},
+                {"ID", util::numToStringWithHexComment(elem.first)},
                 {"CODE", func(*elem.second.front(), generator, -1)},
             };
 
@@ -142,7 +142,7 @@ std::string commsGetMsgAllocCodeInternal(
             ;
 
         util::ReplacementMap caseRepl = {
-            {"ID", comms::messageIdStrFor(*elem.second.front(), generator)},
+            {"ID", util::numToStringWithHexComment(elem.first)},
             {"CODE", util::strListToString(allocs, "\n", "")},
         };
 
@@ -164,10 +164,10 @@ std::string commsGetMsgAllocCodeInternal(
     return util::processTemplate(Templ, repl);
 }
 
-std::string commsGetMsgCountCodeInternal(const MessagesMap& map, const CommsGenerator& generator)
+std::string commsGetMsgCountCodeInternal(const MessagesMap& map)
 {
     static const std::string Templ = 
-        "switch (id)\n"
+        "switch (static_cast<std::intmax_t>(id))\n"
         "{\n"
         "    #^#CASES#$#\n"
         "    default: break;\n"
@@ -182,7 +182,7 @@ std::string commsGetMsgCountCodeInternal(const MessagesMap& map, const CommsGene
             "case #^#ID#$#: return #^#SIZE#$#;";
 
         util::ReplacementMap caseRepl = {
-            {"ID", comms::messageIdStrFor(*elem.second.front(), generator)},
+            {"ID", util::numToStringWithHexComment(elem.first)},
             {"SIZE", util::numToString(elem.second.size())},
         };
 
@@ -332,6 +332,7 @@ bool commsWriteFileInternal(
         "#^#NS_END#$#\n";
 
     util::StringsList includes = {
+        "<cstdint>",
         "<memory>",
         "comms/MsgFactoryCreateFailureReason.h",
         comms::relHeaderForInput(prefix, generator, parent),
@@ -374,7 +375,7 @@ bool commsWriteFileInternal(
         {"HAS_UNIQUE_IDS", util::boolToString(hasUniqueIds)},
         {"IN_PLACE_ALLOC", util::boolToString(inPlaceAlloc)},
         {"CAN_ALLOCATE", "true"},
-        {"MSG_COUNT_CODE", commsGetMsgCountCodeInternal(mappedMessages, generator)},
+        {"MSG_COUNT_CODE", commsGetMsgCountCodeInternal(mappedMessages)},
         {"CREATE_CODE", commsGetMsgAllocCodeInternal(mappedMessages, generator, codeFunc, hasUniqueIds)},
     };
 

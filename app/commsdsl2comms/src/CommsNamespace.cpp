@@ -59,7 +59,8 @@ CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::Names
     Base(generator, dslObj, parent),
     m_dispatch(generator, *this),
     m_factory(generator, *this),
-    m_input(generator, *this)
+    m_input(generator, *this),
+    m_msgId(generator, *this)
 {
 }   
 
@@ -403,6 +404,11 @@ std::string CommsNamespace::commsRelHeaderPath(const std::string& namePrefix) co
     return m_factory.commsRelHeaderPath(namePrefix);
 }
 
+bool CommsNamespace::commsHasMsgId() const
+{
+    return (!interfaces().empty());
+}
+
 bool CommsNamespace::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -415,6 +421,11 @@ bool CommsNamespace::prepareImpl()
 
 bool CommsNamespace::writeImpl() const
 {
+    if ((commsHasMsgId()) && 
+        (!m_msgId.write())) {
+        return false;
+    }
+    
     if ((!hasFramesRecursive()) ||
         (!hasMessagesRecursive())) {
         return true;

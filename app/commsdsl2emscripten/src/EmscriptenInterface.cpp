@@ -261,7 +261,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
             {"BASE", emscriptenHeaderBaseInternal()},
             {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
             {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
-            {"MSG_ID", comms::scopeForRoot(strings::msgIdEnumNameStr(), gen)},
+            {"MSG_ID", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen)},
             {"FIELDS", util::strListToString(fields, "\n", "")},
             {"MSG_HANDLER", EmscriptenMsgHandler::emscriptenClassName(gen)},
         };

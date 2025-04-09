@@ -77,7 +77,7 @@ const std::string& dispatchTempl()
         "/// @brief Contains dispatch to handling function(s) for #^#DESC#$# input messages.\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "#^#NS_BEGIN#$#\n"
+        "#^#NS_BEGIN#$#\n\n"
         "namespace #^#DISPATCH_NAMESPACE#$#\n"
         "{\n\n"
         "#^#CODE#$#\n\n"
@@ -125,14 +125,14 @@ const std::string& singleMessagePerIdTempl()
         "///     Every @b handle() function may return a value, but every\n"
         "///     function must return the @b same type.\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
-        "template<typename TProtOptions, typename TMsg, typename THandler>\n"
+        "template<typename TProtOptions, typename TId, typename TMsg, typename THandler>\n"
         "auto dispatch#^#NAME#$#Message(\n"
-        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TId id,\n"
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
         "{\n"
         "    using InterfaceType = typename std::decay<decltype(msg)>::type;\n"
-        "    switch(id) {\n"
+        "    switch(static_cast<std::intmax_t>(id)) {\n"
         "    #^#CASES#$#\n"
         "    default:\n"
         "        break;\n"
@@ -150,9 +150,9 @@ const std::string& singleMessagePerIdTempl()
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see dispatch#^#NAME#$#Message()\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
-        "template<typename TProtOptions, typename TMsg, typename THandler>\n"
+        "template<typename TProtOptions, typename TId, typename TMsg, typename THandler>\n"
         "auto dispatch#^#NAME#$#Message(\n"
-        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TId id,\n"
         "    std::size_t idx,\n"
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
@@ -170,9 +170,9 @@ const std::string& singleMessagePerIdTempl()
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see dispatch#^#NAME#$#Message()\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
-        "template<typename TMsg, typename THandler>\n"
+        "template<typename TId, typename TMsg, typename THandler>\n"
         "auto dispatch#^#NAME#$#MessageDefaultOptions(\n"
-        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TId id,\n"
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
         "{\n"
@@ -187,9 +187,9 @@ const std::string& singleMessagePerIdTempl()
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see dispatch#^#NAME#$#MessageDefaultOptions()\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
-        "template<typename TMsg, typename THandler>\n"
+        "template<typename TId, typename TMsg, typename THandler>\n"
         "auto dispatch#^#NAME#$#MessageDefaultOptions(\n"
-        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TId id,\n"
         "    std::size_t idx,\n"
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
@@ -228,15 +228,15 @@ const std::string& multipleMessagesPerIdTempl()
         "///     Every @b handle() function may return a value, but every\n"
         "///     function must return the @b same type.\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
-        "template<typename TProtOptions, typename TMsg, typename THandler>\n"
+        "template<typename TProtOptions, typename TId, typename TMsg, typename THandler>\n"
         "auto dispatch#^#NAME#$#Message(\n"
-        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TId id,\n"
         "    std::size_t idx,\n"
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
         "{\n"
         "    using InterfaceType = typename std::decay<decltype(msg)>::type;\n"
-        "    switch(id) {\n"
+        "    switch(static_cast<std::intmax_t>(id)) {\n"
         "    #^#CASES#$#\n"
         "    default:\n"
         "        break;\n"
@@ -252,9 +252,9 @@ const std::string& multipleMessagesPerIdTempl()
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see dispatch#^#NAME#$#Message()\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
-        "template<typename TProtOptions, typename TMsg, typename THandler>\n"
+        "template<typename TProtOptions, typename TId, typename TMsg, typename THandler>\n"
         "auto dispatch#^#NAME#$#Message(\n"
-        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TId id,\n"
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
         "{\n"
@@ -269,9 +269,9 @@ const std::string& multipleMessagesPerIdTempl()
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see dispatch#^#NAME#$#Message()\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
-        "template<typename TMsg, typename THandler>\n"
+        "template<typename TId, typename TMsg, typename THandler>\n"
         "auto dispatch#^#NAME#$#MessageDefaultOptions(\n"
-        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TId id,\n"
         "    std::size_t idx,\n"
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
@@ -286,9 +286,9 @@ const std::string& multipleMessagesPerIdTempl()
         "/// @param[in] handler Reference to handling object.\n"
         "/// @see dispatch#^#NAME#$#MessageDefaultOptions()\n"
         "/// @note Defined in #^#HEADERFILE#$#\n"
-        "template<typename TMsg, typename THandler>\n"
+        "template<typename TId, typename TMsg, typename THandler>\n"
         "auto dispatch#^#NAME#$#MessageDefaultOptions(\n"
-        "    #^#MSG_ID_TYPE#$# id,\n"
+        "    TId id,\n"
         "    TMsg& msg,\n"
         "    THandler& handler) -> decltype(handler.handle(msg))\n"
         "{\n"
@@ -588,7 +588,7 @@ bool CommsDispatch::commsWriteExtraDispatchInternal() const
 std::string CommsDispatch::commsIncludesInternal(const std::string& inputPrefix) const
 {
     util::StringsList incs = {
-        comms::relHeaderForRoot(strings::msgIdEnumNameStr(), m_generator),
+        "<cstdint>",
         comms::relHeaderForInput(inputPrefix + "Messages", m_generator, m_parent),
         comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator),
     };
@@ -636,7 +636,6 @@ std::string CommsDispatch::commsDispatchCodeInternal(const std::string& name, Ch
         {"MSG2", secondMsg != nullptr ? comms::scopeFor(*secondMsg, m_generator) : std::string("SomeOtherMessage")},
         {"MSG1_NAME", firstMsg != nullptr ? comms::className(firstMsg->dslObj().name()) : std::string("SomeMessage")},
         {"MSG2_NAME", secondMsg != nullptr ? comms::className(secondMsg->dslObj().name()) : std::string("SomeOtherMessage")},
-        {"MSG_ID_TYPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator)},
         {"CASES", commsCasesCodeInternal(map)},
         {"DISPATCHER", commsMsgDispatcherCodeInternal(name)},
     };
@@ -651,7 +650,7 @@ std::string CommsDispatch::commsCasesCodeInternal(const MessagesMap& map) const
     for (auto& elem : map) {
         auto& msgList = elem.second;
         assert(!msgList.empty());
-        auto idStr = commsMsgIdStringInternal(elem.first);
+        auto idStr = util::numToStringWithHexComment(elem.first);
 
         static const std::string MsgCaseTempl =
             "case #^#MSG_ID#$#:\n"
@@ -699,37 +698,6 @@ std::string CommsDispatch::commsCasesCodeInternal(const MessagesMap& map) const
     }
 
     return util::strListToString(cases, "\n", "");
-}
-
-std::string CommsDispatch::commsMsgIdStringInternal(std::uintmax_t value) const
-{
-    auto numValueFunc =
-        [this, value]()
-        {
-            return
-                "static_cast<" +
-                comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator) +
-                ">(" +
-                util::numToString(value) +
-                ")";
-        };
-
-    auto* idField = m_generator.currentSchema().getMessageIdField();
-    if (idField == nullptr) {
-        return numValueFunc();
-    }
-
-    if (idField->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) {
-        return numValueFunc();
-    }
-
-    auto* castedMsgIdField = static_cast<const commsdsl::gen::EnumField*>(idField);
-    auto valStr = castedMsgIdField->valueName(static_cast<std::intmax_t>(value));
-    if (valStr.empty()) {
-        return numValueFunc();
-    }
-
-    return comms::scopeForRoot(strings::msgIdPrefixStr() + valStr, m_generator);
 }
 
 std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inputPrefix) const

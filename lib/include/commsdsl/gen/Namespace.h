@@ -68,7 +68,7 @@ public:
     bool hasFramesRecursive() const;
     bool hasMessagesRecursive() const;
 
-    const Field* findMessageIdField() const;
+    FieldsAccessList findMessageIdFields() const;
     const Field* findField(const std::string& externalRef) const;
     const Message* findMessage(const std::string& externalRef) const;
     const Frame* findFrame(const std::string& externalRef) const;

@@ -414,6 +414,21 @@ std::string scopeForDispatch(
     return scopeForElement(name, generator, subElems, addMainNamespace, addElement);
 }
 
+std::string scopeForMsgId(
+    const std::string& name, 
+    const Generator& generator, 
+    const Namespace& ns,
+    bool addMainNamespace, 
+    bool addElement)
+{
+    std::vector<std::string> subElems;
+    if (!ns.name().empty()) {
+        subElems.push_back(ns.name());
+    }
+    
+    return scopeForElement(name, generator, subElems, addMainNamespace, addElement);
+}
+
 std::string scopeForRoot(
     const std::string& name, 
     const Generator& generator, 
@@ -506,6 +521,16 @@ std::string relHeaderForFactory(const std::string& name, const Generator& genera
     return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
+std::string relHeaderForMsgId(const std::string& name, const Generator& generator, const Namespace& ns)
+{
+    std::vector<std::string> subElems;
+    if (!ns.name().empty()) {
+        subElems.push_back(ns.name());
+    }
+
+    return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppHeaderSuffixStr();    
+}
+
 std::string relHeaderForLayer(const std::string& name, const Generator& generator)
 {
     static const std::vector<std::string> SubElems = {
@@ -583,6 +608,11 @@ std::string headerPathForDispatch(const std::string& name, const Generator& gene
 std::string headerPathForFactory(const std::string& name, const Generator& generator, const Namespace& ns)
 {
     return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForFactory(name, generator, ns);
+}
+
+std::string headerPathForMsgId(const std::string& name, const Generator& generator, const Namespace& ns)
+{
+    return generator.getOutputDir() + '/' + strings::includeDirStr() + '/' + relHeaderForMsgId(name, generator, ns);
 }
 
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator)
@@ -1072,33 +1102,6 @@ const std::string& dslUnitsToOpt(commsdsl::parse::Units value)
 
     auto idx = static_cast<unsigned>(value);
     return UnitsMap[idx];
-}
-
-std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& generator)
-{
-    auto msgIdField = generator.currentSchema().getMessageIdField();
-    if (msgIdField == nullptr) {
-        return generator.currentSchema().mainNamespace() + "::" + strings::msgIdPrefixStr() + comms::fullNameFor(msg);
-    }
-
-    assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
-    auto* castedEnumField = static_cast<const commsdsl::gen::EnumField*>(msgIdField);
-
-    std::string name;
-    auto obj = castedEnumField->enumDslObj();
-
-    auto& revValues = obj.revValues();
-    auto id = static_cast<std::intmax_t>(msg.dslObj().id());
-    auto iter = revValues.find(id);
-    if (iter != revValues.end()) {
-        name = iter->second;
-    }
-
-    if (!name.empty()) {
-        return generator.currentSchema().mainNamespace() + "::" + strings::msgIdPrefixStr() + name;
-    }
-
-    return util::numToString(id);    
 }
 
 std::size_t maxPossibleLength()

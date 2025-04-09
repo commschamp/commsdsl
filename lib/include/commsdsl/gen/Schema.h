@@ -57,7 +57,7 @@ public:
     parse::Endian schemaEndian() const;
     unsigned schemaVersion() const;
 
-    const Field* getMessageIdField() const;
+    FieldsAccessList getAllMessageIdFields() const;
     const Field* findField(const std::string& externalRef) const;
     Field* findField(const std::string& externalRef);
     const Message* findMessage(const std::string& externalRef) const;
@@ -65,7 +65,6 @@ public:
     const Frame* findFrame(const std::string& externalRef) const;
     const Interface* findInterface(const std::string& externalRef) const;
 
-    const Field* findMessageIdField() const;
     bool anyInterfaceHasVersion() const;
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;

@@ -45,6 +45,7 @@ class SchemaImpl
 public:
     using NamespacesList = Schema::NamespacesList;
     using PlatformNamesList = Schema::PlatformNamesList;
+    using FieldsAccessList = Schema::FieldsAccessList;
 
     explicit SchemaImpl(Generator& generator, commsdsl::parse::Schema dslObj, Elem* parent) :
         m_generator(generator),
@@ -301,7 +302,7 @@ public:
             return false;
         }
 
-        m_messageIdField = findMessageIdField();
+        m_messageIdFields = findMessageIdFields();
         return true;
     }
 
@@ -321,15 +322,14 @@ public:
         return m_generator;
     }
 
-    const Field* findMessageIdField() const
+    FieldsAccessList findMessageIdFields() const
     {
+        FieldsAccessList result;
         for (auto& n : m_namespaces) {
-            auto ptr = n->findMessageIdField();
-            if (ptr != nullptr) {
-                return ptr;
-            }
+            auto nsResult = n->findMessageIdFields();
+            std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
         }
-        return nullptr;
+        return result;
     }  
 
     bool anyInterfaceHasVersion() const
@@ -390,9 +390,9 @@ public:
         return m_origNamespace;
     }    
 
-    const Field* getMessageIdField() const
+    FieldsAccessList getAllMessageIdFields() const
     {
-        return m_messageIdField;
+        return m_messageIdFields;
     }    
 
     void setMainNamespaceOverride(const std::string& value)
@@ -490,7 +490,7 @@ private:
     Elem* m_parent = nullptr;
     NamespacesList m_namespaces;
     int m_forcedSchemaVersion = -1;
-    const Field* m_messageIdField = nullptr;
+    FieldsAccessList m_messageIdFields;
     std::string m_mainNamespace;
     std::string m_origNamespace;
     unsigned m_minRemoteVersion = 0U;
@@ -526,9 +526,9 @@ unsigned Schema::schemaVersion() const
     return m_impl->schemaVersion();
 }
 
-const Field* Schema::getMessageIdField() const
+Schema::FieldsAccessList Schema::getAllMessageIdFields() const
 {
-    return m_impl->getMessageIdField();
+    return m_impl->getAllMessageIdFields();
 }
 
 const Field* Schema::findField(const std::string& externalRef) const
@@ -587,11 +587,6 @@ const Frame* Schema::findFrame(const std::string& externalRef) const
 const Interface* Schema::findInterface(const std::string& externalRef) const
 {
     return m_impl->findInterface(externalRef);
-}
-
-const Field* Schema::findMessageIdField() const
-{
-    return m_impl->findMessageIdField();
 }
 
 bool Schema::anyInterfaceHasVersion() const

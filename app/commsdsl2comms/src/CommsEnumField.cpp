@@ -16,6 +16,7 @@
 #include "CommsEnumField.h"
 
 #include "CommsGenerator.h"
+#include "CommsNamespace.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/util.h"
@@ -175,8 +176,9 @@ CommsEnumField::IncludesList CommsEnumField::commsCommonIncludesImpl() const
         "<utility>"
     };
 
-    if (enumDslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
-        auto inc = comms::relHeaderForRoot(strings::msgIdEnumNameStr(), generator());
+    auto msgIdNs = commsNamespaceForMsgId();
+    if (msgIdNs != nullptr) {
+        auto inc = comms::relHeaderForMsgId(strings::msgIdEnumNameStr(), generator(), *msgIdNs);
         result.push_back(std::move(inc));
     }  
 
@@ -238,8 +240,9 @@ CommsEnumField::IncludesList CommsEnumField::commsDefIncludesImpl() const
 
 std::string CommsEnumField::commsDefExtraDoxigenImpl() const
 {
-    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
-        return "@see @ref " + comms::scopeForRoot(strings::msgIdEnumNameStr(), generator());
+    auto* msgIdNs = commsNamespaceForMsgId();
+    if (msgIdNs != nullptr) {
+        return "@see @ref " + comms::scopeForMsgId(strings::msgIdEnumNameStr(), generator(), *msgIdNs);
     }   
 
     return "@see @ref " + comms::commonScopeFor(*this, generator()) + "::ValueType"; 
@@ -319,22 +322,21 @@ std::string CommsEnumField::commsDefValidFuncBodyImpl() const
 
         util::StringsList valuesStrings;
 
-        bool isMessageId =
-            obj.semanticType() == commsdsl::parse::Field::SemanticType::MessageId;
+        auto* msgIdNs = commsNamespaceForMsgId();
+        std::string prefix;
+        if (msgIdNs != nullptr) {
+            prefix = comms::scopeFor(*msgIdNs, generator()) + "::" + strings::msgIdPrefixStr();
+        }
+        else {
+            prefix = "ValueType::";
+        }
+
         auto& revValues = obj.revValues();
         auto prevIter = revValues.end();
         for (auto iter = revValues.begin(); iter != revValues.end(); ++iter) {
 
             if ((prevIter != revValues.end()) && (prevIter->first == iter->first)) {
                 continue;
-            }
-
-            std::string prefix;
-            if (isMessageId) {
-                 prefix = generator().schemaOf(*this).mainNamespace() + "::" + strings::msgIdPrefixStr();
-            }
-            else {
-                prefix = "ValueType::";
             }
 
             valuesStrings.push_back(prefix + iter->second);
@@ -694,7 +696,8 @@ bool CommsEnumField::commsIsDirectValueNameMappingInternal() const
 std::string CommsEnumField::commsCommonEnumInternal() const
 {
     auto& gen = generator();
-    if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+    auto* msgIdNs = commsNamespaceForMsgId();
+    if (msgIdNs != nullptr) {
         static const std::string Templ =
             "/// @brief Values enumerator for\n"
             "///     @ref #^#SCOPE#$# field.\n"
@@ -702,10 +705,10 @@ std::string CommsEnumField::commsCommonEnumInternal() const
 
         util::ReplacementMap repl = {
             {"SCOPE", comms::scopeFor(*this, gen)},
-            {"MSG_ID", comms::scopeForRoot(strings::msgIdEnumNameStr(), gen)}
+            {"MSG_ID", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen, *msgIdNs)}
         };
-        return util::processTemplate(Templ, repl);
-    }
+        return util::processTemplate(Templ, repl);        
+    } 
 
     static const std::string Templ =
         "/// @brief Values enumerator for\n"
@@ -1029,8 +1032,7 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
     auto& revValues = obj.revValues();
     auto& values = obj.values();
     assert(!revValues.empty());
-    bool isMessageId =
-        obj.semanticType() == commsdsl::parse::Field::SemanticType::MessageId;    
+    auto* msgIdNs = commsNamespaceForMsgId();
 
     bool firstElem = true;
     std::intmax_t lastValue = std::numeric_limits<std::intmax_t>::min();
@@ -1056,10 +1058,10 @@ std::string CommsEnumField::commsCommonValueNameBinSearchPairsInternal() const
             };
 
         auto getValueStrFunc = 
-            [isMessageId, &currSchema](const std::string& s)
+            [this, msgIdNs](const std::string& s)
             {
-                if (isMessageId) {
-                    return currSchema.mainNamespace() + "::" + strings::msgIdPrefixStr() + s;
+                if (msgIdNs != nullptr) {
+                    return comms::scopeFor(*msgIdNs, generator()) + "::" + strings::msgIdPrefixStr() + s;
                 }
 
                 return "ValueType::" + s;
@@ -1384,6 +1386,49 @@ void CommsEnumField::commsAddAvailableLengthLimitOptInternal(StringsList& opts) 
     if (enumDslObj().availableLengthLimit()) {
         util::addToStrList("comms::option::def::AvailableLengthLimit", opts);
     }
+}
+
+const CommsNamespace* CommsEnumField::commsNamespaceForMsgId() const
+{
+    if (dslObj().semanticType() != commsdsl::parse::Field::SemanticType::MessageId) {
+        return nullptr;
+    }
+
+    auto* parentNs = CommsNamespace::cast(parentNamespace());
+    while (parentNs != nullptr) {
+        if (parentNs->commsHasMsgId()) {
+            break;
+        }
+
+        auto* parentTmp = parentNs->getParent();
+        if (parentTmp == nullptr) {
+            parentNs = nullptr;
+            break;
+        }
+
+        if (parentTmp->elemType() != commsdsl::gen::Elem::Type_Namespace) {
+            parentNs = nullptr;
+            break;
+        }
+
+        parentNs = CommsNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parentTmp));
+    }
+
+    if (parentNs == nullptr) {
+        return nullptr;
+    }
+
+    auto allMsgIdFields = parentNs->findMessageIdFields();
+    if (allMsgIdFields.size() != 1U) {
+        return nullptr;
+    }
+
+    assert(allMsgIdFields.front() == this);
+    if (allMsgIdFields.front() != this) {
+        return nullptr;
+    }
+
+    return parentNs;
 }
 
 } // namespace commsdsl2comms

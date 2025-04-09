@@ -521,8 +521,9 @@ bool Namespace::hasMessagesRecursive() const
     return m_impl->hasMessagesRecursive();
 }
 
-const Field* Namespace::findMessageIdField() const
+Namespace::FieldsAccessList Namespace::findMessageIdFields() const
 {
+    FieldsAccessList result;
     for (auto& f : fields()) {
         if (f->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::MessageId) {
             continue;
@@ -532,20 +533,18 @@ const Field* Namespace::findMessageIdField() const
             (f->dslObj().kind() != commsdsl::parse::Field::Kind::Int)) {
             [[maybe_unused]] static constexpr bool Unexpected_kind = false;
             assert(Unexpected_kind);  
-            return nullptr;
+            continue;
         }
 
-        return f.get();
+        result.push_back(f.get());
     }
 
     for (auto& n : namespaces()) {
-        auto ptr = n->findMessageIdField();
-        if (ptr != nullptr) {
-            return ptr;
-        }
+        auto nsResult = n->findMessageIdFields();
+        std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
     }
 
-    return nullptr;
+    return result;
 }
 
 const Field* Namespace::findField(const std::string& externalRef) const

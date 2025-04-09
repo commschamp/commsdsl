@@ -47,7 +47,6 @@ private:
     std::string commsIncludesInternal(const std::string& inputPrefix) const;
     std::string commsDispatchCodeInternal(const std::string& name, CheckMsgFunc&& func) const;
     std::string commsCasesCodeInternal(const MessagesMap& map) const;
-    std::string commsMsgIdStringInternal(std::uintmax_t value) const;
     std::string commsMsgDispatcherCodeInternal(const std::string& inputPrefix) const;
 
     CommsGenerator& m_generator;

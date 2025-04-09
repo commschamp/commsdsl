@@ -365,6 +365,34 @@ std::string numToString(std::intmax_t value)
     return stream.str();
 }
 
+std::string numToStringWithHexComment(std::intmax_t value)
+{
+    std::stringstream stream;
+    if (0 < value) {
+        stream << std::hex << "0x" << value;
+    }  
+    else {
+        stream << std::hex << "-0x" << -value;
+    }
+
+    if ((std::numeric_limits<std::int32_t>::min() <= value) &&
+        (value <= std::numeric_limits<std::int32_t>::max())) {
+        return numToString(value) + " /* " + stream.str() + " */";
+    }  
+    
+    if (value < 0) {
+        stream << "LL";
+        return stream.str();
+    }
+
+    auto unsValue = static_cast<std::uintmax_t>(value);
+    if (unsValue <= std::numeric_limits<std::uint32_t>::max()) {
+        return numToString(unsValue) + " /* " + stream.str() + " */";
+    }
+
+    return numToString(unsValue, 1U);
+}
+
 std::string numToString(unsigned value, unsigned hexWidth)
 {
     return numToString(static_cast<std::uintmax_t>(value), hexWidth);

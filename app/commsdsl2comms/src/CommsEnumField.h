@@ -26,6 +26,8 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
+class CommsNamespace;
+
 class CommsEnumField final : public commsdsl::gen::EnumField, public CommsField
 {
     using Base = commsdsl::gen::EnumField;
@@ -86,6 +88,7 @@ private:
     void commsAddLengthOptInternal(StringsList& opts) const;
     void commsAddValidRangesOptInternal(StringsList& opts) const;
     void commsAddAvailableLengthLimitOptInternal(StringsList& opts) const;
+    const CommsNamespace* commsNamespaceForMsgId() const;
 
     ValidRangesList m_validRanges;
 };
