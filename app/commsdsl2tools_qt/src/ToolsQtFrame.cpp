@@ -98,41 +98,6 @@ ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::In
         };
 }
 
-std::string ToolsQtFrame::toolsMsgFactoryOptions() const
-{
-    util::StringsList elems;
-    for (auto iter = m_toolsLayers.rbegin(); iter != m_toolsLayers.rend(); ++iter) {
-        auto* l = *iter;
-        auto str = l->toolsMsgFactoryOptions();
-        if (!str.empty()) {
-            elems.push_back(std::move(str));
-        }
-    }
-
-    if (elems.empty()) {
-        return strings::emptyString();
-    }
-
-    static const std::string Templ =
-        "struct #^#NAME#$##^#SUFFIX#$# : public #^#DEFAULT_OPTS#$#::#^#SCOPE#$##^#SUFFIX#$#\n"
-        "{\n"
-        "    #^#LAYERS_OPTS#$#\n"
-        "}; // struct #^#NAME#$##^#SUFFIX#$#\n";
-
-    auto& gen = ToolsQtGenerator::cast(generator());
-    bool hasMainNs = gen.toolsHasMainNamespaceInOptions();
-
-    util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeFor(*this, gen, hasMainNs)},
-        {"NAME", comms::className(dslObj().name())},
-        {"SUFFIX", strings::layersSuffixStr()},
-        {"LAYERS_OPTS", util::strListToString(elems, "\n", "\n")},
-        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)}
-    };
-
-    return util::processTemplate(Templ, repl); 
-}
-
 std::string ToolsQtFrame::toolsClassScope(const commsdsl::gen::Interface& iFace) const
 {
     auto& gen = ToolsQtGenerator::cast(generator());

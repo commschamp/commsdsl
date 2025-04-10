@@ -36,8 +36,6 @@ public:
 
     StringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
 
-    std::string toolsMsgFactoryOptions() const;
-
     static const ToolsQtNamespace* cast(const commsdsl::gen::Namespace* obj)
     {
         return static_cast<const ToolsQtNamespace*>(obj);
