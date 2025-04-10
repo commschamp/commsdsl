@@ -17,6 +17,7 @@
 #include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/strings.h"
 
 #include <cassert>
@@ -235,6 +236,14 @@ bool Interface::isReferenced() const
 void Interface::setReferenced(bool value)
 {
     m_impl->setReferenced(value);
+}
+
+const Namespace* Interface::parentNamespace() const
+{
+    auto* parent = getParent();
+    assert(parent != nullptr);
+    assert(parent->elemType() == Elem::Type_Namespace);
+    return static_cast<const Namespace*>(parent);
 }
 
 Elem::Type Interface::elemTypeImpl() const

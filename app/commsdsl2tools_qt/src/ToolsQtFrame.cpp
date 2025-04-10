@@ -18,7 +18,7 @@
 #include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
 #include "ToolsQtInterface.h"
-#include "ToolsQtMsgFactory.h"
+#include "ToolsQtNamespace.h"
 #include "ToolsQtVersion.h"
 
 #include "commsdsl/gen/comms.h"
@@ -305,6 +305,10 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
     auto& gen = ToolsQtGenerator::cast(generator());
     auto& logger = gen.logger();
 
+    auto* parent = getParent();
+    assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::Elem::Type_Namespace));
+    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
+
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
     for (auto& info : selectedFrames) {
         auto iter = std::find(info.second.begin(), info.second.end(), this);
@@ -347,7 +351,7 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
             toolsRelPathInternal(*info.first) + strings::transportMessageSuffixStr() + strings::cppHeaderSuffixStr(),
             ToolsQtDefaultOptions::toolsRelHeaderPath(gen),
             ToolsQtVersion::toolsRelHeaderPath(gen),
-            ToolsQtMsgFactory::toolsRelHeaderPath(gen, *info.first),
+            parentNs->toolsFactoryRelHeaderPath(*info.first),
             ToolsQtInterface::cast(info.first)->toolsHeaderFilePath(),
         };
 
@@ -927,13 +931,16 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::Interfac
         ;
 
     auto& gen = ToolsQtGenerator::cast(generator());
+    auto* parent = getParent();
+    assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::Elem::Type_Namespace));
+    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
-        {"MSG_FACTORY", ToolsQtMsgFactory::toolsClassScope(gen, iFace)},
+        {"MSG_FACTORY", parentNs->toolsFactoryClassScope(iFace)},
         {"TRANSPORT_MSG",  toolsClassScope(iFace) + strings::transportMessageSuffixStr()},
         {"SCOPE", comms::scopeFor(*this, gen)},
-        {"INPUT", comms::scopeForInput(strings::allMessagesStr(), gen)},
+        {"INPUT", comms::scopeForInput(strings::allMessagesStr(), gen, *parentNs)},
         {"OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)}
     };
 

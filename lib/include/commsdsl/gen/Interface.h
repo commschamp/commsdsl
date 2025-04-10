@@ -31,6 +31,8 @@ namespace gen
 {
 
 class InterfaceImpl;
+class Namespace;
+
 class COMMSDSL_API Interface : public Elem
 {
     using Base = Elem;
@@ -57,6 +59,8 @@ public:
 
     bool isReferenced() const;
     void setReferenced(bool value = true);
+
+    const Namespace* parentNamespace() const;
 
 protected:    
     virtual Type elemTypeImpl() const override final;

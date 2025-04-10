@@ -23,7 +23,6 @@
 #include "ToolsQtIdLayer.h"
 #include "ToolsQtInterface.h"
 #include "ToolsQtMessage.h"
-#include "ToolsQtMsgFactory.h"
 #include "ToolsQtNamespace.h"
 #include "ToolsQtPayloadLayer.h"
 #include "ToolsQtPlugin.h"
@@ -88,10 +87,6 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFilesForInterface(con
         result.reserve(result.size() + fResult.size());
         std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
     }   
-
-    auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this, interface);
-    result.reserve(result.size() + factoryResult.size());
-    std::move(factoryResult.begin(), factoryResult.end(), std::back_inserter(result));       
 
     return result;
 }
@@ -327,7 +322,6 @@ bool ToolsQtGenerator::writeImpl()
     chooseProtocolSchema();
     bool result =  
         ToolsQtCmake::write(*this) &&
-        ToolsQtMsgFactory::write(*this) &&
         ToolsQtDefaultOptions::write(*this) &&
         ToolsQtVersion::write(*this);
 

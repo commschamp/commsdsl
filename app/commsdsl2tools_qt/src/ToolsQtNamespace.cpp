@@ -37,7 +37,8 @@ namespace commsdsl2tools_qt
 {
 
 ToolsQtNamespace::ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_factory(generator, *this)
 {
 }
 
@@ -58,6 +59,11 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles(const ToolsQtIn
         assert(toolsMessage != nullptr);
         addToResult(toolsMessage->toolsSourceFiles(interface));
     }    
+
+    if (hasFramesRecursive() &&
+        hasMessagesRecursive()) {
+        addToResult(m_factory.toolsSourceFiles(interface));
+    }
 
     return result;
 }
@@ -138,6 +144,26 @@ std::string ToolsQtNamespace::toolsMsgFactoryOptions() const
     };
 
     return util::processTemplate(Templ, repl);
+}
+
+std::string ToolsQtNamespace::toolsFactoryRelHeaderPath(const commsdsl::gen::Interface& iFace) const
+{
+    return m_factory.toolsRelHeaderPath(iFace);
+}
+
+std::string ToolsQtNamespace::toolsFactoryClassScope(const commsdsl::gen::Interface& iFace) const
+{
+    return m_factory.toolsClassScope(iFace);
+}
+
+bool ToolsQtNamespace::writeImpl() const
+{
+    if ((!hasFramesRecursive()) ||
+        (!hasMessagesRecursive())) {
+        return true;
+    }
+
+    return m_factory.toolsWrite();
 }
 
 } // namespace commsdsl2tools_qt

@@ -19,9 +19,12 @@
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
 #include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/strings.h"
 
 #include <algorithm>
 #include <cassert>
+
+namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl
 {
@@ -698,15 +701,16 @@ const Interface* Namespace::findInterface(const std::string& externalRef) const
 
     auto& ifList = interfaces();
     if (nsName.empty()) {
+        auto& adjustedExternalRef = externalRef.empty() ? strings::messageClassStr() : externalRef;
         auto ifIter =
             std::lower_bound(
-                ifList.begin(), ifList.end(), externalRef,
+                ifList.begin(), ifList.end(), adjustedExternalRef,
                 [](auto& f, auto& n)
                 {
                     return f->adjustedName() < n;
                 });
 
-        if ((ifIter == ifList.end()) || ((*ifIter)->adjustedName() != externalRef)) {
+        if ((ifIter == ifList.end()) || ((*ifIter)->adjustedName() != adjustedExternalRef)) {
             return nullptr;
         }
 
