@@ -92,8 +92,7 @@ bool ProtocolImpl::validate()
         }
     }
 
-    if ((!validateAllMessages()) ||
-        (!validateMessageIds())) {
+    if (!validateAllMessages()) {
         return false;
     }
 
@@ -746,24 +745,6 @@ bool ProtocolImpl::validateAllMessages()
             {
                 return s->validateAllMessages();
             });
-}
-
-bool ProtocolImpl::validateMessageIds()
-{
-    return 
-        std::all_of(
-            m_schemas.begin(), m_schemas.end(),
-            [this](auto& s)
-            {
-                auto messageIdsCount = s->countMessageIds();
-                if (1U < messageIdsCount) {
-                    logError() << "Only single field with \"" << common::messageIdStr() << "\" as semantic type is allowed in schema " << s->name();
-                    return false;
-                }
-                return true;
-            });
-
-
 }
 
 bool ProtocolImpl::strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const

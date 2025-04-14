@@ -25,9 +25,9 @@
 
     <ns name="sub2">
         <fields>
-            <!--enum name="MsgId" type="uint8" semanticType="messageId" >
+            <enum name="MsgId" type="uint8" semanticType="messageId" >
                 <validValue name="M1" val="0" />
-            </enum-->
+            </enum>
         </fields>
 
         <message name="Msg1" id="0">

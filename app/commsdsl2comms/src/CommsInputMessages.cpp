@@ -64,7 +64,7 @@ bool writeFileInternal(
         return false;
     }    
 
-    auto allMessages = generator.getAllMessagesIdSorted();
+    auto allMessages = parent.getAllMessagesIdSorted();
     util::StringsList includes = {
         "<tuple>",
         comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator)
@@ -134,7 +134,7 @@ bool writeFileInternal(
         {"MESSAGES", util::strListToString(scopes, ",\n", "")},
         {"EXTEND", util::readFileContents(comms::inputCodePathForInput(name, generator, parent) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForInput(name, generator, parent) + strings::appendFileSuffixStr())},
-        {"PROT_PREFIX", util::strToUpper(generator.currentSchema().mainNamespace())},
+        {"PROT_PREFIX", util::strToUpper(util::strReplace(comms::scopeFor(parent, generator), "::", "_"))},
         {"MACRO_NAME", util::strToMacroName(name)},
         {"ALIASES", util::strListToString(aliases, " \\\n", "\n")},
         {"DESC", desc},

@@ -1,21 +1,31 @@
 #include "cxxtest/TestSuite.h"
 
-// #include "test52/sub1/Message.h"
-// #include "test52/sub1/frame/Frame.h"
+#include "test52/Message.h"
+#include "test52/sub1/frame/Frame.h"
+#include "test52/sub2/frame/Frame.h"
 
 class TestSuite : public CxxTest::TestSuite
 {
 public:
     void test1();
 
-    // using Interface = test52::sub1::Message<>;
-    // using Frame = test52::sub1::frame::Frame<Interface>;
+    using Interface = test52::Message<
+        comms::option::app::IdInfoInterface,
+        comms::option::app::LengthInfoInterface,
+        comms::option::app::ReadIterator<const std::uint8_t*>,
+        comms::option::app::WriteIterator<std::uint8_t*>,
+        comms::option::app::NameInterface
+    >;
+    using Frame1 = test52::sub1::frame::Frame<Interface>;
+    using Frame2 = test52::sub2::frame::Frame<Interface>;
 
-    // TEST51_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
+
+    TEST52_SUB1_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Sub1,,Interface);
+    TEST52_SUB2_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Sub2,,Interface);
 };
 
 void TestSuite::test1()
 {
-    // Msg1 msg;
-    // static_cast<void>(msg);
+    Sub1Msg1 msg1;
+    Sub2Msg1 msg2;
 }
