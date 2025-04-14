@@ -254,14 +254,17 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
         "    {\n"
         "        Base::dispatch(handler);\n"
         "    }\n"        
-        "};\n";        
+        "};\n";   
+        
+        auto* parentNs = parentNamespace();
+        assert(parentNs != nullptr);
         
         util::ReplacementMap repl = {
             {"CLASS_NAME", gen.emscriptenClassName(*this)},
             {"BASE", emscriptenHeaderBaseInternal()},
             {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
             {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
-            {"MSG_ID", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen)},
+            {"MSG_ID", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen, *parentNs)},
             {"FIELDS", util::strListToString(fields, "\n", "")},
             {"MSG_HANDLER", EmscriptenMsgHandler::emscriptenClassName(gen)},
         };

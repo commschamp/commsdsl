@@ -50,7 +50,8 @@ void emscriptenAddSourceFilesInternal(const TList& list, util::StringsList& sour
     
 
 EmscriptenNamespace::EmscriptenNamespace(EmscriptenGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_msgId(generator, *this)
 {
 }   
 
@@ -63,6 +64,19 @@ void EmscriptenNamespace::emscriptenAddSourceFiles(StringsList& sources) const
     emscriptenAddSourceFilesInternal<EmscriptenInterface>(interfaces(), sources);
     emscriptenAddSourceFilesInternal<EmscriptenMessage>(messages(), sources);
     emscriptenAddSourceFilesInternal<EmscriptenFrame>(frames(), sources);
+
+    if (!interfaces().empty()) {
+        m_msgId.emscriptenAddSourceFiles(sources);
+    }    
+}
+
+bool EmscriptenNamespace::writeImpl() const
+{
+    if (interfaces().empty()) {
+        return true;
+    }
+
+    return m_msgId.emscriptenWrite();
 }
 
 

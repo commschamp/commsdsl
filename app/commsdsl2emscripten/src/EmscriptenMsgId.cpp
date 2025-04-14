@@ -17,6 +17,7 @@
 
 #include "EmscriptenGenerator.h"
 #include "EmscriptenEnumField.h"
+#include "EmscriptenNamespace.h"
 
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -34,33 +35,21 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2emscripten
 {
 
-
-bool EmscriptenMsgId::emscriptenWrite(EmscriptenGenerator& generator)
+EmscriptenMsgId::EmscriptenMsgId(EmscriptenGenerator& generator, const EmscriptenNamespace& parent) :
+    m_generator(generator),
+    m_parent(parent)
 {
-    auto& thisSchema = generator.currentSchema();
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.hasReferencedMessageIdField()) && (!thisSchema.hasAnyReferencedMessage())) {
+}
+
+bool EmscriptenMsgId::emscriptenWrite() const
+{
+    auto& thisSchema = m_generator.currentSchema();
+    if ((!m_generator.isCurrentProtocolSchema()) && (!thisSchema.hasReferencedMessageIdField()) && (!thisSchema.hasAnyReferencedMessage())) {
         return true;
     }
 
-    EmscriptenMsgId obj(generator);
-    return obj.emscriptenWriteSrcInternal();
-}
-
-void EmscriptenMsgId::emscriptenAddSourceFiles(const EmscriptenGenerator& generator, StringsList& sources)
-{
-    auto& thisSchema = generator.currentSchema();
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.hasReferencedMessageIdField()) && (!thisSchema.hasAnyReferencedMessage())) {
-        return;
-    }
-
-    auto name = generator.emscriptenScopeNameForRoot(strings::msgIdEnumNameStr());
-    sources.push_back(generator.emscriptenRelSourceForRoot(name));
-}
-
-bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
-{
-    auto name = m_generator.emscriptenScopeNameForRoot(strings::msgIdEnumNameStr());
-    auto filePath = m_generator.emscriptenAbsSourceForRoot(name);
+    auto name = m_generator.emscriptenScopeNameForMsgId(strings::msgIdEnumNameStr(), m_parent);
+    auto filePath = m_generator.emscriptenAbsSourceForMsgId(name, m_parent);
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -89,9 +78,9 @@ bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"NAME", name},
-        {"SCOPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator)},
+        {"SCOPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent)},
         {"VALUES", emscriptenIdsInternal()},
-        {"HEADER", comms::relHeaderForRoot(strings::msgIdEnumNameStr(), m_generator)},
+        {"HEADER", comms::relHeaderForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent)},
     };
 
     stream << util::processTemplate(Templ, repl, true);
@@ -101,17 +90,23 @@ bool EmscriptenMsgId::emscriptenWriteSrcInternal() const
         return false;
     }
     
-    return true;    
+    return true; 
 }
 
+void EmscriptenMsgId::emscriptenAddSourceFiles(StringsList& sources) const
+{
+    auto name = m_generator.emscriptenScopeNameForMsgId(strings::msgIdEnumNameStr(), m_parent);
+    sources.push_back(m_generator.emscriptenRelSourceForMsgId(name, m_parent));
+}
 
 std::string EmscriptenMsgId::emscriptenIdsInternal() const
 {
-    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
-    if (msgIdField != nullptr) {
+    auto allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    if (allMsgIdFields.size() == 1U) {  
+        auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = EmscriptenEnumField::cast(msgIdField);
-        return castedMsgIdField->emscriptenBindValues();
+        return castedMsgIdField->emscriptenBindValues(&m_parent);        
     }
 
     auto allMessages = m_generator.getAllMessagesIdSorted();
@@ -122,7 +117,7 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
         ".value(\"#^#MSG#$#\", #^#SCOPE#$#_#^#MSG#$#)";
             
     util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator)}   
+        {"SCOPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent)}   
     };
 
     for (auto* m : allMessages) {

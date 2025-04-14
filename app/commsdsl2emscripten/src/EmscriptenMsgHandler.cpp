@@ -173,9 +173,11 @@ std::string EmscriptenMsgHandler::emscriptenHeaderIncludesInternal() const
 {
     auto* iFace = m_generator.emscriptenMainInterface();
     assert(iFace != nullptr);
+    auto* parentNs = iFace->parentNamespace();
+    assert(parentNs != nullptr);
 
     util::StringsList includes = {
-        comms::relHeaderForInput(strings::allMessagesStr(), m_generator),
+        comms::relHeaderForInput(strings::allMessagesStr(), m_generator, *parentNs),
         EmscriptenAllMessages::emscriptenRelFwdHeader(m_generator),
         iFace->emscriptenRelHeader()
     };

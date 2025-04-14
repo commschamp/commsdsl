@@ -17,6 +17,7 @@
 #pragma once
 
 #include "EmscriptenField.h"
+#include "EmscriptenMsgId.h"
 
 #include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/util.h"
@@ -41,6 +42,12 @@ public:
     }
 
     void emscriptenAddSourceFiles(StringsList& sources) const;
+
+protected:
+    virtual bool writeImpl() const override;    
+
+private:
+    EmscriptenMsgId m_msgId;    
 };
 
 } // namespace commsdsl2emscripten

@@ -23,6 +23,8 @@ namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
+class EmscriptenNamespace;
+
 class EmscriptenEnumField final : public commsdsl::gen::EnumField, public EmscriptenField
 {
     using Base = commsdsl::gen::EnumField;
@@ -35,7 +37,7 @@ public:
         return static_cast<const EmscriptenEnumField*>(f);
     }
 
-    std::string emscriptenBindValues() const;
+    std::string emscriptenBindValues(const EmscriptenNamespace* forcedParent = nullptr) const;
 
 protected:
     // Base overrides

@@ -25,6 +25,8 @@ namespace commsdsl2emscripten
 {
 
 class EmscriptenInterface;
+class EmscriptenNamespace;
+
 class EmscriptenGenerator final : public commsdsl::gen::Generator
 {
     using Base = commsdsl::gen::Generator;
@@ -55,12 +57,15 @@ public:
     
     std::string emscriptenClassName(const Elem& elem) const;
     std::string emscriptenScopeNameForRoot(const std::string& name) const;
+    std::string emscriptenScopeNameForMsgId(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenProtocolClassNameForRoot(const std::string& name) const;
 
     std::string emscriptenRelHeaderForRoot(const std::string& name) const;
     std::string emscriptenAbsHeaderForRoot(const std::string& name) const;
     std::string emscriptenRelSourceForRoot(const std::string& name) const;
+    std::string emscriptenRelSourceForMsgId(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenAbsSourceForRoot(const std::string& name) const;
+    std::string emscriptenAbsSourceForMsgId(const std::string& name, const EmscriptenNamespace& parent) const;
     
     std::string emscriptenProtocolRelHeaderForRoot(const std::string& name) const;
     std::string emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const;

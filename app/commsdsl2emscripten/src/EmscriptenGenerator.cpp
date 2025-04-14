@@ -33,7 +33,6 @@
 #include "EmscriptenListField.h"
 #include "EmscriptenMessage.h"
 #include "EmscriptenMsgHandler.h"
-#include "EmscriptenMsgId.h"
 #include "EmscriptenNamespace.h"
 #include "EmscriptenOptionalField.h"
 #include "EmscriptenPayloadLayer.h"
@@ -96,6 +95,13 @@ std::string EmscriptenGenerator::emscriptenScopeNameForRoot(const std::string& n
     return emscriptenScopeToName(str);
 }
 
+std::string EmscriptenGenerator::emscriptenScopeNameForMsgId(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
+    auto str = comms::scopeForMsgId(name, *this, parent, addMainNamespace);
+    return emscriptenScopeToName(str);
+}
+
 std::string EmscriptenGenerator::emscriptenProtocolClassNameForRoot(const std::string& name) const
 {
     auto schemaIdx = currentSchemaIdx();
@@ -120,9 +126,19 @@ std::string EmscriptenGenerator::emscriptenRelSourceForRoot(const std::string& n
     return getTopNamespace() + '/' + comms::relSourceForRoot(name, *this);
 }
 
+std::string EmscriptenGenerator::emscriptenRelSourceForMsgId(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return getTopNamespace() + '/' + comms::relSourceForMsgId(name, *this, parent);
+}
+
 std::string EmscriptenGenerator::emscriptenAbsSourceForRoot(const std::string& name) const
 {
     return getOutputDir() + '/' + emscriptenRelSourceForRoot(name);
+}
+
+std::string EmscriptenGenerator::emscriptenAbsSourceForMsgId(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return getOutputDir() + '/' + emscriptenRelSourceForMsgId(name, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForRoot(const std::string& name) const
@@ -209,7 +225,6 @@ bool EmscriptenGenerator::writeImpl()
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
         bool result = 
-            EmscriptenMsgId::emscriptenWrite(*this) &&
             EmscriptenVersion::emscriptenWrite(*this);
 
         if (!result) {

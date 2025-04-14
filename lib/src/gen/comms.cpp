@@ -531,6 +531,16 @@ std::string relHeaderForMsgId(const std::string& name, const Generator& generato
     return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
+std::string relSourceForMsgId(const std::string& name, const Generator& generator, const Namespace& ns)
+{
+    std::vector<std::string> subElems;
+    if (!ns.name().empty()) {
+        subElems.push_back(ns.name());
+    }
+
+    return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppSourceSuffixStr();    
+}
+
 std::string relHeaderForLayer(const std::string& name, const Generator& generator)
 {
     static const std::vector<std::string> SubElems = {

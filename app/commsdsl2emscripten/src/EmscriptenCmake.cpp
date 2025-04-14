@@ -19,7 +19,6 @@
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
 #include "EmscriptenMsgHandler.h"
-#include "EmscriptenMsgId.h"
 #include "EmscriptenSchema.h"
 #include "EmscriptenVersion.h"
 
@@ -130,7 +129,6 @@ bool EmscriptenCmake::emscriptenWriteInternal() const
     EmscriptenComms::emscriptenAddSourceFiles(m_generator, sources);
     EmscriptenDataBuf::emscriptenAddSourceFiles(m_generator, sources);
     EmscriptenMsgHandler::emscriptenAddSourceFiles(m_generator, sources);
-    EmscriptenMsgId::emscriptenAddSourceFiles(m_generator, sources);
     EmscriptenVersion::emscriptenAddSourceFiles(m_generator, sources);
 
     for (auto& sPtr : m_generator.schemas()) {

@@ -114,6 +114,7 @@ std::string relHeaderForOptions(const std::string& name, const Generator& genera
 std::string relHeaderForDispatch(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string relHeaderForFactory(const std::string& name, const Generator& generator, const Namespace& ns);
 std::string relHeaderForMsgId(const std::string& name, const Generator& generator, const Namespace& ns);
+std::string relSourceForMsgId(const std::string& name, const Generator& generator, const Namespace& ns);
 std::string relHeaderForLayer(const std::string& name, const Generator& generator); 
 std::string relHeaderForChecksum(const std::string& name, const Generator& generator); 
 std::string relHeaderForInput(const std::string& name, const Generator& generator, const Namespace& ns, bool addMainNamespace = true); 
