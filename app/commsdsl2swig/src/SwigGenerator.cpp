@@ -33,7 +33,6 @@
 #include "SwigListField.h"
 #include "SwigMessage.h"
 #include "SwigMsgHandler.h"
-#include "SwigMsgId.h"
 #include "SwigNamespace.h"
 #include "SwigOptionalField.h"
 #include "SwigPayloadLayer.h"
@@ -102,6 +101,13 @@ std::string SwigGenerator::swigScopeNameForRoot(const std::string& name) const
 {
     bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
     auto str = comms::scopeForRoot(name, *this, addMainNamespace);
+    return swigScopeToName(str);
+}
+
+std::string SwigGenerator::swigScopeNameForMsgId(const std::string& name, const SwigNamespace& parent) const
+{
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
+    auto str = comms::scopeForMsgId(name, *this, parent, addMainNamespace);
     return swigScopeToName(str);
 }
 
@@ -183,7 +189,6 @@ bool SwigGenerator::writeImpl()
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
         bool result = 
-            SwigMsgId::swigWrite(*this) &&
             SwigVersion::swigWrite(*this);
 
         if (!result) {

@@ -23,7 +23,6 @@
 #include "SwigInterface.h"
 #include "SwigMessage.h"
 #include "SwigMsgHandler.h"
-#include "SwigMsgId.h"
 #include "SwigProtocolOptions.h"
 #include "SwigSchema.h"
 #include "SwigVersion.h"
@@ -111,7 +110,6 @@ std::string Swig::swigCodeBlockInternal()
 
     SwigComms::swigAddCode(m_generator, codeElems);
     SwigDataBuf::swigAddCode(m_generator, codeElems);
-    SwigMsgId::swigAddCode(m_generator, codeElems);
     SwigVersion::swigAddCode(m_generator, codeElems);
 
     SwigProtocolOptions::swigAddCode(m_generator, codeElems);
@@ -171,7 +169,6 @@ std::string Swig::swigDefInternal()
 
     SwigComms::swigAddDef(defs);
     SwigDataBuf::swigAddDef(m_generator, defs);
-    SwigMsgId::swigAddDef(m_generator, defs);
     SwigVersion::swigAddDef(m_generator, defs);
 
     for (auto& sPtr : m_generator.schemas()) {
