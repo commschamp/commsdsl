@@ -68,6 +68,10 @@ bool TestCmake::testWriteInternal() const
     auto* firstFrame = allFrames.front();
     assert(!firstFrame->name().empty());
 
+    auto* interfaceParent = firstInterface->getParent();
+    assert(interfaceParent != nullptr);
+    assert(interfaceParent->elemType() == commsdsl::gen::Elem::Type_Namespace);
+    auto* interfaceParentNs = static_cast<const commsdsl::gen::Namespace*>(interfaceParent);
 
     ReplacementMap repl = {
         {"PROJ_NAME", m_generator.currentSchema().schemaName()},
@@ -75,7 +79,7 @@ bool TestCmake::testWriteInternal() const
         {"INTERFACE_SCOPE", std::move(interfaceScope)},
         {"FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)},
         {"OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)},
-        {"INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator)},
+        {"INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator, *interfaceParentNs)},
         {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
 

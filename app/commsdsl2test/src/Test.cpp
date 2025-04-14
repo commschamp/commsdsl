@@ -19,10 +19,15 @@
 
 #include "TestGenerator.h"
 
+#include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
 #include "commsdsl/gen/EnumField.h"
 #include "commsdsl/gen/IntField.h"
+
+namespace comms = commsdsl::gen::comms;
+namespace strings = commsdsl::gen::strings;
+namespace util = commsdsl::gen::util;
 
 namespace commsdsl2test
 {
@@ -60,7 +65,12 @@ bool Test::writeInputTest() const
     };
     
     std::string idType;
-    auto* idField = m_generator.currentSchema().getMessageIdField();
+    auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
+    const commsdsl::gen::Field* idField = nullptr;
+    if (allMsgIds.size() == 1U) {
+        idField = allMsgIds.front();
+    }
+
     if ((idField != nullptr) && (idField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum)) {
         auto* enumMsgIdField = static_cast<const commsdsl::gen::EnumField*>(idField);
         if (enumMsgIdField->isUnsignedUnderlyingType()) {
@@ -86,7 +96,7 @@ bool Test::writeInputTest() const
         }
     }
     else {
-        idType = m_generator.currentSchema().mainNamespace() + "::" + commsdsl::gen::strings::msgIdEnumNameStr();
+        idType = "std::intmax_t";
     }
 
     repl.insert(std::make_pair("ID_TYPE", idType));
