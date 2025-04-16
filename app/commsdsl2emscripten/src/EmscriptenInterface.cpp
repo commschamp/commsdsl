@@ -17,7 +17,7 @@
 
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
-#include "EmscriptenMsgHandler.h"
+#include "EmscriptenNamespace.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -145,12 +145,15 @@ bool EmscriptenInterface::emscriptenWriteSourceInternal() const
         "#^#CODE#$#\n"
     ;
 
+    auto* parentNs = parentNamespace();
+    assert(parentNs != nullptr);
+
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
         {"HEADER", gen.emscriptenRelHeaderFor(*this)},
         {"FIELDS", emscriptenSourceFieldsInternal()},
         {"CODE", emscriptenSourceCodeInternal()},
-        {"MSG_HANDLER", EmscriptenMsgHandler::emscriptenRelHeader(gen)},
+        {"MSG_HANDLER", EmscriptenNamespace::cast(parentNs)->emscriptenHandlerRelHeader()},
     };
     
     stream << util::processTemplate(Templ, repl, true);
@@ -266,7 +269,7 @@ std::string EmscriptenInterface::emscriptenHeaderClassInternal() const
             {"JS_ARRAY_FUNC", EmscriptenDataBuf::emscriptenJsArrayToDataBufFuncName()},
             {"MSG_ID", comms::scopeForMsgId(strings::msgIdEnumNameStr(), gen, *parentNs)},
             {"FIELDS", util::strListToString(fields, "\n", "")},
-            {"MSG_HANDLER", EmscriptenMsgHandler::emscriptenClassName(gen)},
+            {"MSG_HANDLER", EmscriptenNamespace::cast(parentNs)->emscriptenHandlerClassName()},
         };
     return util::processTemplate(Templ, repl);
 }
@@ -285,11 +288,12 @@ std::string EmscriptenInterface::emscriptenHeaderBaseInternal() const
         "    comms::option::app::Handler<#^#MSG_HANDLER#$#>\n"
         ">";
 
+    auto* parentNs = parentNamespace();
     auto& gen = EmscriptenGenerator::cast(generator());
     util::ReplacementMap repl = {
         {"COMMS_CLASS", comms::scopeFor(*this, gen)},
         {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
-        {"MSG_HANDLER", EmscriptenMsgHandler::emscriptenClassName(gen)},
+        {"MSG_HANDLER", EmscriptenNamespace::cast(parentNs)->emscriptenHandlerClassName()},
     };
     return util::processTemplate(Templ, repl);
 }

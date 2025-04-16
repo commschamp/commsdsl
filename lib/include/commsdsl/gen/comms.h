@@ -88,6 +88,13 @@ std::string scopeForMsgId(
     bool addMainNamespace = true, 
     bool addElement = true);     
 
+std::string scopeForNamespaceMember(
+    const std::string& name, 
+    const Generator& generator, 
+    const Namespace& ns,
+    bool addMainNamespace = true, 
+    bool addElement = true);      
+
 std::string scopeForRoot(
     const std::string& name, 
     const Generator& generator, 
@@ -114,7 +121,8 @@ std::string relHeaderForOptions(const std::string& name, const Generator& genera
 std::string relHeaderForDispatch(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string relHeaderForFactory(const std::string& name, const Generator& generator, const Namespace& ns);
 std::string relHeaderForMsgId(const std::string& name, const Generator& generator, const Namespace& ns);
-std::string relSourceForMsgId(const std::string& name, const Generator& generator, const Namespace& ns);
+std::string relHeaderForNamespaceMember(const std::string& name, const Generator& generator, const Namespace& ns);
+std::string relSourceForNamespaceMember(const std::string& name, const Generator& generator, const Namespace& ns);
 std::string relHeaderForLayer(const std::string& name, const Generator& generator); 
 std::string relHeaderForChecksum(const std::string& name, const Generator& generator); 
 std::string relHeaderForInput(const std::string& name, const Generator& generator, const Namespace& ns, bool addMainNamespace = true); 

@@ -15,10 +15,11 @@
 
 #include "EmscriptenLayer.h"
 
-#include "EmscriptenAllMessages.h"
 #include "EmscriptenField.h"
+#include "EmscriptenFrame.h"
 #include "EmscriptenGenerator.h"
 #include "EmscriptenInterface.h"
+#include "EmscriptenNamespace.h"
 #include "EmscriptenProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -148,10 +149,20 @@ std::string EmscriptenLayer::emscriptenTemplateScope() const
     auto& gen = EmscriptenGenerator::cast(m_layer.generator());
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
+
+    auto* frame = layer().getParent();
+    assert(frame->elemType() == commsdsl::gen::Elem::Type_Frame);
+
+    auto* ns = EmscriptenFrame::cast(static_cast<const commsdsl::gen::Frame*>(frame))->emscriptenFindInputNamespace();
+    if (ns == nullptr) {
+        ns = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>((iFace->parentNamespace())));
+        assert(ns->emscriptenHasInput());
+    }
+
     return 
         m_layer.templateScopeOfComms(
             gen.emscriptenClassName(*iFace), 
-            EmscriptenAllMessages::emscriptenClassName(gen), 
+            EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(ns))->emscriptenInputClassName(), 
             EmscriptenProtocolOptions::emscriptenClassName(gen));
 }
 

@@ -368,7 +368,7 @@ std::string numToString(std::intmax_t value)
 std::string numToStringWithHexComment(std::intmax_t value)
 {
     std::stringstream stream;
-    if (0 < value) {
+    if (0 <= value) {
         stream << std::hex << "0x" << value;
     }  
     else {

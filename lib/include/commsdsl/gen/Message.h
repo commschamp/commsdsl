@@ -31,6 +31,8 @@ namespace gen
 {
 
 class MessageImpl;
+class Namespace;
+
 class COMMSDSL_API Message : public Elem
 {
     using Base = Elem;

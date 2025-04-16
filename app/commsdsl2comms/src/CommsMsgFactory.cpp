@@ -341,7 +341,7 @@ bool commsWriteFileInternal(
 
     comms::prepareIncludeStatement(includes);
 
-    auto allMessages = generator.getAllMessagesIdSorted();
+    auto allMessages = parent.getAllMessagesIdSorted();
 
     MessagesMap mappedMessages;
 

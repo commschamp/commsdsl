@@ -57,17 +57,21 @@ public:
     
     std::string emscriptenClassName(const Elem& elem) const;
     std::string emscriptenScopeNameForRoot(const std::string& name) const;
-    std::string emscriptenScopeNameForMsgId(const std::string& name, const EmscriptenNamespace& parent) const;
+    std::string emscriptenScopeNameForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenProtocolClassNameForRoot(const std::string& name) const;
 
     std::string emscriptenRelHeaderForRoot(const std::string& name) const;
+    std::string emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
+    std::string emscriptenRelHeaderForInput(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenAbsHeaderForRoot(const std::string& name) const;
+    std::string emscriptenAbsHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenRelSourceForRoot(const std::string& name) const;
-    std::string emscriptenRelSourceForMsgId(const std::string& name, const EmscriptenNamespace& parent) const;
+    std::string emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenAbsSourceForRoot(const std::string& name) const;
-    std::string emscriptenAbsSourceForMsgId(const std::string& name, const EmscriptenNamespace& parent) const;
+    std::string emscriptenAbsSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     
     std::string emscriptenProtocolRelHeaderForRoot(const std::string& name) const;
+    std::string emscriptenProtocolRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const;
     std::string emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const;
 
     std::string emscriptenRelHeaderFor(const Elem& elem) const;

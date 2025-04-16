@@ -226,7 +226,6 @@ const Generator& Message::generator() const
     return m_impl->generator();
 }
 
-
 Elem::Type Message::elemTypeImpl() const
 {
     return Type_Message;

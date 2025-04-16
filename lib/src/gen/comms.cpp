@@ -414,7 +414,18 @@ std::string scopeForDispatch(
     return scopeForElement(name, generator, subElems, addMainNamespace, addElement);
 }
 
+// TODO: remove
 std::string scopeForMsgId(
+    const std::string& name, 
+    const Generator& generator, 
+    const Namespace& ns,
+    bool addMainNamespace, 
+    bool addElement)
+{
+    return scopeForNamespaceMember(name, generator, ns, addMainNamespace, addElement);
+}
+
+std::string scopeForNamespaceMember(
     const std::string& name, 
     const Generator& generator, 
     const Namespace& ns,
@@ -521,7 +532,13 @@ std::string relHeaderForFactory(const std::string& name, const Generator& genera
     return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppHeaderSuffixStr();
 }
 
+// TODO: remove
 std::string relHeaderForMsgId(const std::string& name, const Generator& generator, const Namespace& ns)
+{
+    return relHeaderForNamespaceMember(name, generator, ns);
+}
+
+std::string relHeaderForNamespaceMember(const std::string& name, const Generator& generator, const Namespace& ns)
 {
     std::vector<std::string> subElems;
     if (!ns.name().empty()) {
@@ -531,7 +548,7 @@ std::string relHeaderForMsgId(const std::string& name, const Generator& generato
     return scopeForElement(name, generator, subElems, true, true, PathSep) + strings::cppHeaderSuffixStr();    
 }
 
-std::string relSourceForMsgId(const std::string& name, const Generator& generator, const Namespace& ns)
+std::string relSourceForNamespaceMember(const std::string& name, const Generator& generator, const Namespace& ns)
 {
     std::vector<std::string> subElems;
     if (!ns.name().empty()) {

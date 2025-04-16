@@ -25,6 +25,8 @@ namespace commsdsl2emscripten
 {
 
 class EmscriptenGenerator;
+class EmscriptenNamespace;
+
 class EmscriptenFrame final: public commsdsl::gen::Frame
 {
     using Base = commsdsl::gen::Frame;
@@ -41,6 +43,8 @@ public:
     }        
 
     void emscriptenAddSourceFiles(StringsList& sources) const;
+    const EmscriptenNamespace* emscriptenFindInputNamespace() const;
+
 
 protected:    
     virtual bool prepareImpl() override;

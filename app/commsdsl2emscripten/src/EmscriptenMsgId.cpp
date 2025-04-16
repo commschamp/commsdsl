@@ -48,8 +48,8 @@ bool EmscriptenMsgId::emscriptenWrite() const
         return true;
     }
 
-    auto name = m_generator.emscriptenScopeNameForMsgId(strings::msgIdEnumNameStr(), m_parent);
-    auto filePath = m_generator.emscriptenAbsSourceForMsgId(name, m_parent);
+    auto name = m_generator.emscriptenScopeNameForNamespaceMember(strings::msgIdEnumNameStr(), m_parent);
+    auto filePath = m_generator.emscriptenAbsSourceForNamespaceMember(name, m_parent);
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -95,8 +95,8 @@ bool EmscriptenMsgId::emscriptenWrite() const
 
 void EmscriptenMsgId::emscriptenAddSourceFiles(StringsList& sources) const
 {
-    auto name = m_generator.emscriptenScopeNameForMsgId(strings::msgIdEnumNameStr(), m_parent);
-    sources.push_back(m_generator.emscriptenRelSourceForMsgId(name, m_parent));
+    auto name = m_generator.emscriptenScopeNameForNamespaceMember(strings::msgIdEnumNameStr(), m_parent);
+    sources.push_back(m_generator.emscriptenRelSourceForNamespaceMember(name, m_parent));
 }
 
 std::string EmscriptenMsgId::emscriptenIdsInternal() const

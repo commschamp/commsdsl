@@ -1,5 +1,4 @@
 set (src
-    EmscriptenAllMessages.cpp
     EmscriptenBitfieldField.cpp
     EmscriptenBundleField.cpp
     EmscriptenChecksumLayer.cpp
@@ -14,6 +13,7 @@ set (src
     EmscriptenFrame.cpp
     EmscriptenGenerator.cpp
     EmscriptenIdLayer.cpp
+    EmscriptenInputMessages.cpp
     EmscriptenInterface.cpp
     EmscriptenIntField.cpp
     EmscriptenLayer.cpp
