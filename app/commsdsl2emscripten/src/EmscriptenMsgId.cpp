@@ -101,7 +101,11 @@ void EmscriptenMsgId::emscriptenAddSourceFiles(StringsList& sources) const
 
 std::string EmscriptenMsgId::emscriptenIdsInternal() const
 {
-    auto allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    auto allMsgIdFields = m_parent.findMessageIdFields();
+    if (allMsgIdFields.empty() && m_parent.name().empty()) {
+        allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    }
+
     if (allMsgIdFields.size() == 1U) {  
         auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
@@ -109,7 +113,10 @@ std::string EmscriptenMsgId::emscriptenIdsInternal() const
         return castedMsgIdField->emscriptenBindValues(&m_parent);        
     }
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
+    auto allMessages = m_parent.getAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.name().empty()) {
+        allMessages = m_generator.currentSchema().getAllMessagesIdSorted();
+    }    
     util::StringsList ids;
     ids.reserve(allMessages.size());
 

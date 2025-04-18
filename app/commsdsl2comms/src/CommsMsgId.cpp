@@ -143,7 +143,11 @@ std::string CommsMsgId::commsTypeInternal() const
 std::string CommsMsgId::commsIdsInternal() const
 {
     auto& prefix = strings::msgIdPrefixStr();
-    auto allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    auto allMsgIdFields = m_parent.findMessageIdFields();
+    if (allMsgIdFields.empty() && m_parent.name().empty()) {
+        allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    }
+
     if (allMsgIdFields.size() == 1U) {    
         auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
@@ -162,7 +166,11 @@ std::string CommsMsgId::commsIdsInternal() const
         return util::strListToString(enumValues, "\n", "");
     }
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
+    auto allMessages = m_parent.getAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.name().empty()) {
+        allMessages = m_generator.currentSchema().getAllMessagesIdSorted();
+    }
+
     util::StringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {

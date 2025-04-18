@@ -113,7 +113,7 @@ std::string SwigMsgId::swigClassName() const
 
 std::string SwigMsgId::swigTypeInternal() const
 {
-    auto allMsgIds = m_parent.findMessageIdFields();
+    auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
@@ -153,6 +153,10 @@ std::string SwigMsgId::swigIdsInternal() const
 {
     auto& prefix = strings::msgIdPrefixStr();
     auto allMsgIds = m_parent.findMessageIdFields();
+    if (allMsgIds.empty() && m_parent.name().empty()) {
+        allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
+    }
+
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();    
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
@@ -172,6 +176,10 @@ std::string SwigMsgId::swigIdsInternal() const
     }
 
     auto allMessages = m_parent.getAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.name().empty()) {
+        allMessages = m_generator.currentSchema().getAllMessagesIdSorted();
+    }
+
     util::StringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {
@@ -192,6 +200,10 @@ std::string SwigMsgId::swigCodeInternal() const
     auto scope = comms::scopeForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent);
 
     auto allMsgIds = m_parent.findMessageIdFields();
+    if (allMsgIds.empty() && m_parent.name().empty()) {
+        allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
+    }
+
     if (allMsgIds.size() == 1U) {
         auto* msgIdField = allMsgIds.front();      
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
@@ -223,6 +235,10 @@ std::string SwigMsgId::swigCodeInternal() const
     }
 
     auto allMessages = m_parent.getAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.name().empty()) {
+        allMessages = m_generator.currentSchema().getAllMessagesIdSorted();
+    }
+
     util::StringsList result;
     result.reserve(allMessages.size());
     for (auto* m : allMessages) {
