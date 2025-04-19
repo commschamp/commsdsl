@@ -16,10 +16,10 @@
 #include "common.h"
 
 #include <algorithm>
-#include <iterator>
 #include <cctype>
 #include <cmath>
 #include <cassert>
+#include <iterator>
 #include <limits>
 
 namespace commsdsl

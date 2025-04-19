@@ -15,12 +15,12 @@
 
 #include "AliasImpl.h"
 
+#include "common.h"
+#include "ProtocolImpl.h"
+
 #include <cassert>
 #include <cctype>
 #include <iterator>
-
-#include "common.h"
-#include "ProtocolImpl.h"
 
 namespace commsdsl
 {

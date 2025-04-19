@@ -375,7 +375,7 @@ std::string CommsFrame::commsDefLayersDefInternal() const
     }
 
     static const std::string StackDefTempl =
-        "/// @brief Final protocol stack definition.\n"
+        "/// @brief Final framing layers stack definition.\n"
         "#^#STACK_PARAMS#$#\n"
         "using Stack = #^#LAST_LAYER#$##^#LAST_LAYER_PARAMS#$#;\n";
 

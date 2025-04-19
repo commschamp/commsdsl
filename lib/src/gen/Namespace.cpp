@@ -23,6 +23,7 @@
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
 
 namespace strings = commsdsl::gen::strings;
 

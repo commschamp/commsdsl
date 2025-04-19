@@ -25,6 +25,7 @@
 #include <cassert>
 #include <algorithm>
 #include <filesystem>
+#include <iterator>
 #include <system_error>
 
 namespace commsdsl
