@@ -720,17 +720,17 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
         "    /// @param[in] msg Reference to message object.\n"
         "    /// @param[in] handler Reference to handler object.\n"
         "    /// @return What the @ref dispatch#^#NAME#$#Message() function returns.\n"
-        "    template <typename TMsg, typename THandler>\n"
-        "    static auto dispatch(#^#MAIN_NS#$#::MsgId id, std::size_t idx, TMsg& msg, THandler& handler) ->\n"
-        "        decltype(#^#MAIN_NS#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, idx, msg, handler))\n"
+        "    template <typename TId, typename TMsg, typename THandler>\n"
+        "    static auto dispatch(TId id, std::size_t idx, TMsg& msg, THandler& handler) ->\n"
+        "        decltype(#^#NS_SCOPE#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, idx, msg, handler))\n"
         "    {\n"
-        "        return #^#MAIN_NS#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, idx, msg, handler);\n"
+        "        return #^#NS_SCOPE#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, idx, msg, handler);\n"
         "    }\n\n"
         "    /// @brief Complementary dispatch function.\n"
         "    /// @details Same as other dispatch without @b TAllMessages template parameter,\n"
         "    ///     used by  @b comms::processAllWithDispatchViaDispatcher().\n"
-        "    template <typename TAllMessages, typename TMsg, typename THandler>\n"
-        "    static auto dispatch(#^#MAIN_NS#$#::MsgId id, std::size_t idx, TMsg& msg, THandler& handler) ->\n"
+        "    template <typename TAllMessages, typename TId, typename TMsg, typename THandler>\n"
+        "    static auto dispatch(TId id, std::size_t idx, TMsg& msg, THandler& handler) ->\n"
         "        decltype(dispatch(id, idx, msg, handler))\n"
         "    {\n"
         "        return dispatch(id, idx, msg, handler);\n"
@@ -741,17 +741,17 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
         "    /// @param[in] msg Reference to message object.\n"
         "    /// @param[in] handler Reference to handler object.\n"
         "    /// @return What the @ref dispatch#^#NAME#$#Message() function returns.\n"
-        "    template <typename TMsg, typename THandler>\n"
-        "    static auto dispatch(#^#MAIN_NS#$#::MsgId id, TMsg& msg, THandler& handler) ->\n"
-        "        decltype(#^#MAIN_NS#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, msg, handler))\n"
+        "    template <typename TId, typename TMsg, typename THandler>\n"
+        "    static auto dispatch(TId id, TMsg& msg, THandler& handler) ->\n"
+        "        decltype(#^#NS_SCOPE#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, msg, handler))\n"
         "    {\n"
-        "        return #^#MAIN_NS#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, msg, handler);\n"
+        "        return #^#NS_SCOPE#$#::dispatch::dispatch#^#NAME#$#Message<TProtOptions>(id, msg, handler);\n"
         "    }\n\n"
         "    /// @brief Complementary dispatch function.\n"
         "    /// @details Same as other dispatch without @b TAllMessages template parameter,\n"
         "    ///     used by  @b comms::processAllWithDispatchViaDispatcher().\n"
-        "    template <typename TAllMessages, typename TMsg, typename THandler>\n"
-        "    static auto dispatch(#^#MAIN_NS#$#::MsgId id, TMsg& msg, THandler& handler) ->\n"
+        "    template <typename TAllMessages, typename TId, typename TMsg, typename THandler>\n"
+        "    static auto dispatch(TId id, TMsg& msg, THandler& handler) ->\n"
         "        decltype(dispatch(id, msg, handler))\n"
         "    {\n"
         "        return dispatch(id, msg, handler);\n"
@@ -767,7 +767,7 @@ std::string CommsDispatch::commsMsgDispatcherCodeInternal(const std::string& inp
 
     util::ReplacementMap repl = {
         {"NAME", inputPrefix},
-        {"MAIN_NS", m_generator.currentSchema().mainNamespace()},
+        {"NS_SCOPE", comms::scopeFor(m_parent, m_generator)},
         {"DEFAULT_OPTIONS", comms::scopeForOptions(strings::defaultOptionsStr(), m_generator)},
         {"HEADERFILE", comms::relHeaderForDispatch(getFileName(inputPrefix), m_generator, m_parent)},
     };
