@@ -180,6 +180,8 @@ public:
 
     FieldRefInfosList processInterfaceFieldRef(const std::string& refStr) const;
 
+    bool validateAllMessages(bool allowNonUniquIds);
+
 protected:
     virtual ObjKind objKindImpl() const override;
 

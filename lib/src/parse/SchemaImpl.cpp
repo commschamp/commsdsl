@@ -229,39 +229,14 @@ NamespaceImpl& SchemaImpl::defaultNamespace()
 
 bool SchemaImpl::validateAllMessages()
 {
-    bool allowNonUniquIds = nonUniqueMsgIdAllowed();
-    auto allMsgs = allMessages();
-    if (allMsgs.empty()) {
-        return true;
-    }
-
-    for (auto iter = allMsgs.begin(); iter != (allMsgs.end() - 1); ++iter) {
-        auto nextIter = iter + 1;
-        assert(nextIter != allMsgs.end());
-
-        assert(iter->valid());
-        assert(nextIter->valid());
-        if (iter->id() != nextIter->id()) {
-            continue;
-        }
-
-        if (!allowNonUniquIds) {
-            logError(m_protocol.logger()) << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same id: " << iter->id();
-            return false;
-        }
-
-        if (iter->order() == nextIter->order()) {
-            logError(m_protocol.logger()) << "Messages \"" << iter->externalRef() << "\" and \"" <<
-                          nextIter->externalRef() << "\" have the same \"" <<
-                          common::idStr() << "\" and \"" << common::orderStr() << "\" values.";
-            return false;
-        }
-
-        assert(iter->order() < nextIter->order());
-    }
-
-    return true;
+    return 
+        std::all_of(
+            m_namespaces.begin(), m_namespaces.end(),
+            [this](auto& elem)
+            {
+                assert(elem.second);
+                return elem.second->validateAllMessages(nonUniqueMsgIdAllowed());
+            });
 }
 
 unsigned SchemaImpl::countMessageIds() const
