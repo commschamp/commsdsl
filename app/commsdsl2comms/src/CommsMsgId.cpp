@@ -104,7 +104,7 @@ bool CommsMsgId::write() const
 
 std::string CommsMsgId::commsTypeInternal() const
 {
-    auto allMsgIdFields = m_generator.currentSchema().getAllMessageIdFields();
+    auto allMsgIdFields = m_parent.findMessageIdFields();
     if (allMsgIdFields.size() == 1U) {
         auto* msgIdField = allMsgIdFields.front();
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
@@ -113,7 +113,7 @@ std::string CommsMsgId::commsTypeInternal() const
         return comms::cppIntTypeFor(dslObj.type(), dslObj.maxLength());
     }
 
-    auto allMessages = m_generator.currentSchema().getAllMessages();
+    auto allMessages = m_parent.getAllMessages();
     auto iter = 
         std::max_element(
             allMessages.begin(), allMessages.end(),

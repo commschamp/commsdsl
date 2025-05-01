@@ -111,6 +111,11 @@ std::string SwigMsgId::swigClassName() const
     return m_generator.swigScopeNameForMsgId(strings::msgIdEnumNameStr(), m_parent);
 }
 
+void SwigMsgId::swigAddCodeIncludes(StringsList& list) const
+{
+    list.push_back(comms::relHeaderForNamespaceMember(strings::msgIdEnumNameStr(), m_generator, m_parent));
+}
+
 std::string SwigMsgId::swigTypeInternal() const
 {
     auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
@@ -151,7 +156,7 @@ std::string SwigMsgId::swigTypeInternal() const
 
 std::string SwigMsgId::swigIdsInternal() const
 {
-    auto& prefix = strings::msgIdPrefixStr();
+    auto prefix = swigClassName() + '_';
     auto allMsgIds = m_parent.findMessageIdFields();
     if (allMsgIds.empty() && m_parent.name().empty()) {
         allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
@@ -195,7 +200,7 @@ std::string SwigMsgId::swigIdsInternal() const
 std::string SwigMsgId::swigCodeInternal() const
 {
     static const std::string Templ = 
-        "using #^#SCOPE#$#_#^#NAME#$#;\n";
+        "const auto #^#CLASS_NAME#$#_#^#NAME#$# = #^#SCOPE#$#_#^#NAME#$#;\n";
 
     auto scope = comms::scopeForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent);
 
@@ -224,6 +229,7 @@ std::string SwigMsgId::swigCodeInternal() const
             assert(eqPos < v.size());
 
             util::ReplacementMap repl = {
+                {"CLASS_NAME", swigClassName()},
                 {"SCOPE", scope},
                 {"NAME", v.substr(0, eqPos)}
             };
@@ -247,6 +253,7 @@ std::string SwigMsgId::swigCodeInternal() const
         }
                 
         util::ReplacementMap repl = {
+            {"CLASS_NAME", swigClassName()},
             {"SCOPE", scope},
             {"NAME", comms::fullNameFor(*m)}
         };

@@ -36,6 +36,7 @@ public:
     void swigAddDef(StringsList& list) const;
     void swigAddCode(StringsList& list) const;
     std::string swigClassName() const;
+    void swigAddCodeIncludes(StringsList& list) const;
 
 private:
 

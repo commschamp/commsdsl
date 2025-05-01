@@ -57,6 +57,10 @@ void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
         SwigInterface::cast(i.get())->swigAddCodeIncludes(list);
     }
 
+    if (!interfaces().empty()) {
+        m_msgId.swigAddCodeIncludes(list);
+    }    
+
     for (auto& m : messages()) {
         SwigMessage::cast(m.get())->swigAddCodeIncludes(list);
     }   
@@ -64,6 +68,7 @@ void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
     for (auto& f : frames()) {
         SwigFrame::cast(f.get())->swigAddCodeIncludes(list);
     }    
+    
 }
 
 void SwigNamespace::swigAddCode(StringsList& list) const
