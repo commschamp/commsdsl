@@ -65,6 +65,7 @@ public:
     using NamespacesList = Generator::NamespacesList;
     using PlatformNamesList = Generator::PlatformNamesList;
     using SchemasList = Generator::SchemasList;
+    using InterfacesAccessList = Generator::InterfacesAccessList;
 
     explicit GeneratorImpl(Generator& generator) :
         m_generator(generator),
@@ -150,6 +151,17 @@ public:
     {
         return m_minRemoteVersion;
     }
+
+    InterfacesAccessList getAllInterfaces() const
+    {
+        return currentSchema().getAllInterfaces();
+    }    
+
+    Namespace* addDefaultNamespace()
+    {
+        return currentSchema().addDefaultNamespace();
+    }
+    
 
     void setNamespaceOverride(const std::string& value)
     {
@@ -396,7 +408,11 @@ public:
         if (m_logger->hadWarning()) {
             m_logger->error("Warning treated as error");
             return false;
-        }        
+        }      
+        
+        if (!prepareDefaultInterfaceInternal()) {
+            return false;
+        }
 
         return true;
     }
@@ -497,6 +513,23 @@ private:
         }
 
         return std::make_pair(iter->get(), std::move(restRef));
+    }
+
+    bool prepareDefaultInterfaceInternal()
+    {
+        auto allInterfaces = getAllInterfaces();
+        if (!allInterfaces.empty()) {
+            return true;
+        }
+    
+        auto* defaultNamespace = addDefaultNamespace();
+        auto* interface = defaultNamespace->addDefaultInterface();
+        if (interface == nullptr) {
+            m_logger->error("Failed to create default interface");
+            return false;
+        }
+    
+        return true;        
     }
 
     Generator& m_generator;
@@ -677,11 +710,10 @@ Generator::MessagesAccessList Generator::getAllMessages() const
     return currentSchema().getAllMessages();
 }
 
-Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
+void Generator::sortMessages(MessagesAccessList& list)
 {
-    auto result = getAllMessages();
     std::sort(
-        result.begin(), result.end(),
+        list.begin(), list.end(),
         [](auto* msg1, auto* msg2)
         {
             auto id1 = msg1->dslObj().id();
@@ -693,6 +725,12 @@ Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
 
             return msg1->dslObj().order() < msg2->dslObj().order();
         });
+}
+
+Generator::MessagesAccessList Generator::getAllMessagesIdSorted() const
+{
+    auto result = getAllMessages();
+    sortMessages(result);
     return result;
 }
 
@@ -742,19 +780,7 @@ Generator::MessagesAccessList Generator::getAllMessagesFromAllSchemas() const
 Generator::MessagesAccessList Generator::getAllMessagesIdSortedFromAllSchemas() const
 {
     auto result = getAllMessagesFromAllSchemas();
-    std::sort(
-        result.begin(), result.end(),
-        [](auto* msg1, auto* msg2)
-        {
-            auto id1 = msg1->dslObj().id();
-            auto id2 = msg2->dslObj().id();
-
-            if (id1 != id2) {
-                return id1 < id2;
-            }
-
-            return msg1->dslObj().order() < msg2->dslObj().order();
-        });
+    sortMessages(result);
     return result;    
 }
 

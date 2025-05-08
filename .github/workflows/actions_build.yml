@@ -8,8 +8,8 @@ on:
       - '**'
 
 env:
-  COMMS_TAG: v5.3
-  CC_TOOLS_QT_TAG: v6.0.1
+  COMMS_TAG: v5.4.1
+  CC_TOOLS_QT_TAG: v6.0.2
 
 jobs:
   build_gcc_ubuntu_24_04:

@@ -530,8 +530,9 @@ void EnumTestSuite::test17()
 
 void EnumTestSuite::test18()
 {
-    m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
-    m_status.m_expValidateResult = false;
+    // Since v7.1 multiple messageID fields are supported
+    //m_status.m_expErrors.push_back(commsdsl::parse::ErrorLevel_Error);
+    //m_status.m_expValidateResult = false;
     auto protocol = prepareProtocol(SCHEMAS_DIR "/Schema18.xml");
     TS_ASSERT(protocol);
 }

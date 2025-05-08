@@ -1,0 +1,87 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test52/Message.h"
+#include "test52/sub1/dispatch/DispatchMessage.h"
+#include "test52/sub1/frame/Frame.h"
+#include "test52/sub2/dispatch/DispatchMessage.h"
+#include "test52/sub2/frame/Frame.h"
+
+#include "comms/process.h"
+
+#include <cstdint>
+#include <type_traits>
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+    void test2();
+    void test3();
+
+    struct Handler
+    {
+        template <typename TMsg>
+        void handle(TMsg& msg)
+        {
+            static_cast<void>(msg);
+        }
+    };    
+
+    using Interface = test52::Message<
+        comms::option::app::IdInfoInterface,
+        comms::option::app::LengthInfoInterface,
+        comms::option::app::ReadIterator<const std::uint8_t*>,
+        comms::option::app::WriteIterator<std::uint8_t*>,
+        comms::option::app::NameInterface,
+        comms::option::app::Handler<Handler>
+    >;
+    using Sub1Frame = test52::sub1::frame::Frame<Interface>;
+    using Sub2Frame = test52::sub2::frame::Frame<Interface>;
+
+
+    TEST52_SUB1_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Sub1,,Interface);
+    TEST52_SUB2_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(Sub2,,Interface);
+};
+
+void TestSuite::test1()
+{
+    Sub1Msg1 msg1;
+    Sub2Msg1 msg2;
+}
+
+void TestSuite::test2()
+{
+    static const std::uint8_t Buf[] = {
+        0x0, 0x3, /* size */
+        0x0, /* id */
+        0x01, 0x02, /* payload */
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    using Dispatcher = test52::sub1::dispatch::MsgDispatcherDefaultOptions;
+    Handler handler;
+    Sub1Frame frame;
+    Sub1Frame::MsgPtr m_msgPtr;
+    auto iter = &Buf[0];
+    auto es = comms::processSingleWithDispatchViaDispatcher<Dispatcher>(iter, BufSize, frame, m_msgPtr, handler);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+    TS_ASSERT(m_msgPtr);
+    auto* sub1Msg1 = dynamic_cast<Sub1Msg1*>(m_msgPtr.get());
+    TS_ASSERT_DIFFERS(sub1Msg1, nullptr);
+}
+
+void TestSuite::test3()
+{
+    static const std::uint8_t Buf[] = {
+        0x0, 0x3, /* size */
+        0x01, 0x02, 0x03, 0x04, /* payload */
+    };
+    static const std::size_t BufSize = std::extent<decltype(Buf)>::value;
+
+    Handler handler;
+    Sub2Frame frame;
+    Sub2Frame::MsgPtr m_msgPtr(new Sub2Msg2);
+    auto iter = &Buf[0];
+    auto es = comms::processSingleWithDispatch(iter, BufSize, frame, *m_msgPtr, handler);
+    TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
+}

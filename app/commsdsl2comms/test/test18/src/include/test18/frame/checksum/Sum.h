@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include "comms/protocol/checksum/BasicSum.h"
+#include "comms/frame/checksum/BasicSum.h"
 
 namespace test18
 {
@@ -12,7 +12,7 @@ namespace frame
 namespace checksum
 {
 
-using Sum = comms::protocol::checksum::BasicSum<std::uint8_t>;
+using Sum = comms::frame::checksum::BasicSum<std::uint8_t>;
 
 } // namespace checksum
 

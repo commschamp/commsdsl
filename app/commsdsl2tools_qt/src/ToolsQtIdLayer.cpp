@@ -39,12 +39,4 @@ bool ToolsQtIdLayer::prepareImpl()
     return Base::prepareImpl() && ToolsBase::prepare();
 }
 
-ToolsQtIdLayer::StringsList ToolsQtIdLayer::toolsMsgFactoryExtraOptionsImpl() const
-{
-    return
-        StringsList{
-            "comms::option::app::MsgFactoryTempl<MsgFactory>"
-        };    
-}
-
 } // namespace commsdsl2tools_qt

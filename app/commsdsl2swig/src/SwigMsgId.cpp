@@ -17,6 +17,7 @@
 
 #include "SwigGenerator.h"
 #include "SwigEnumField.h"
+#include "SwigNamespace.h"
 #include "SwigSchema.h"
 
 #include "commsdsl/gen/strings.h"
@@ -35,48 +36,15 @@ namespace strings = commsdsl::gen::strings;
 namespace commsdsl2swig
 {
 
-
-bool SwigMsgId::swigWrite(SwigGenerator& generator)
+SwigMsgId::SwigMsgId(SwigGenerator& generator, const SwigNamespace& parent) :
+    m_generator(generator),
+    m_parent(parent)
 {
-    auto& thisSchema = static_cast<SwigSchema&>(generator.currentSchema());
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.swigHasAnyMessage()) && (!thisSchema.swigHasReferencedMsgId())) {
-        return true;
-    }
-
-    SwigMsgId obj(generator);
-    return obj.swigWriteInternal();
 }
 
-void SwigMsgId::swigAddDef(const SwigGenerator& generator, StringsList& list)
+bool SwigMsgId::swigWrite() const
 {
-    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForRoot(strings::msgIdEnumNameStr(), generator)));
-}
-
-void SwigMsgId::swigAddCode(const SwigGenerator& generator, StringsList& list)
-{
-    const std::string Templ = 
-        "using #^#SWIG_TYPE#$# = #^#COMMS_TYPE#$#;\n";
-
-    auto commsType = comms::scopeForRoot(strings::msgIdEnumNameStr(), generator);
-    util::ReplacementMap repl = {
-        {"SWIG_TYPE", swigClassName(generator)},
-        {"COMMS_TYPE", commsType}
-    };
-
-    list.push_back(util::processTemplate(Templ, repl));
-
-    SwigMsgId obj(const_cast<SwigGenerator&>(generator)); 
-    list.push_back(obj.swigCodeInternal());
-}
-
-std::string SwigMsgId::swigClassName(const SwigGenerator& generator)
-{
-    return generator.swigScopeNameForRoot(strings::msgIdEnumNameStr());
-}
-
-bool SwigMsgId::swigWriteInternal() const
-{
-    auto filePath = comms::headerPathRoot(strings::msgIdEnumNameStr(), m_generator);
+    auto filePath = comms::headerPathForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent);
     m_generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -102,7 +70,7 @@ bool SwigMsgId::swigWriteInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", SwigGenerator::fileGeneratedComment()},
-        {"CLASS_NAME", swigClassName(m_generator)},
+        {"CLASS_NAME", swigClassName()},
         {"TYPE", swigTypeInternal()},
         {"IDS", swigIdsInternal()}
     };
@@ -114,13 +82,45 @@ bool SwigMsgId::swigWriteInternal() const
         return false;
     }
     
-    return true;    
+    return true; 
+}
+
+void SwigMsgId::swigAddDef(StringsList& list) const
+{
+    list.push_back(SwigGenerator::swigDefInclude(comms::relHeaderForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent)));
+}
+
+void SwigMsgId::swigAddCode(StringsList& list) const
+{
+    const std::string Templ = 
+        "using #^#SWIG_TYPE#$# = #^#COMMS_TYPE#$#;\n";
+
+    auto commsType = comms::scopeForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent);
+    util::ReplacementMap repl = {
+        {"SWIG_TYPE", swigClassName()},
+        {"COMMS_TYPE", commsType}
+    };
+
+    list.push_back(util::processTemplate(Templ, repl));
+
+    list.push_back(swigCodeInternal());
+}
+
+std::string SwigMsgId::swigClassName() const
+{
+    return m_generator.swigScopeNameForMsgId(strings::msgIdEnumNameStr(), m_parent);
+}
+
+void SwigMsgId::swigAddCodeIncludes(StringsList& list) const
+{
+    list.push_back(comms::relHeaderForNamespaceMember(strings::msgIdEnumNameStr(), m_generator, m_parent));
 }
 
 std::string SwigMsgId::swigTypeInternal() const
 {
-    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
-    if (msgIdField != nullptr) {
+    auto allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
+    if (allMsgIds.size() == 1U) {
+        auto* msgIdField = allMsgIds.front();
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto dslObj = castedMsgIdField->enumDslObj();
@@ -156,9 +156,14 @@ std::string SwigMsgId::swigTypeInternal() const
 
 std::string SwigMsgId::swigIdsInternal() const
 {
-    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
-    auto& prefix = strings::msgIdPrefixStr();
-    if (msgIdField != nullptr) {
+    auto prefix = swigClassName() + '_';
+    auto allMsgIds = m_parent.findMessageIdFields();
+    if (allMsgIds.empty() && m_parent.name().empty()) {
+        allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
+    }
+
+    if (allMsgIds.size() == 1U) {
+        auto* msgIdField = allMsgIds.front();    
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
@@ -175,7 +180,11 @@ std::string SwigMsgId::swigIdsInternal() const
         return util::strListToString(enumValues, "\n", "");
     }
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
+    auto allMessages = m_parent.getAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.name().empty()) {
+        allMessages = m_generator.currentSchema().getAllMessagesIdSorted();
+    }
+
     util::StringsList ids;
     ids.reserve(allMessages.size());
     for (auto* m : allMessages) {
@@ -191,12 +200,17 @@ std::string SwigMsgId::swigIdsInternal() const
 std::string SwigMsgId::swigCodeInternal() const
 {
     static const std::string Templ = 
-        "using #^#SCOPE#$#_#^#NAME#$#;\n";
+        "const auto #^#CLASS_NAME#$#_#^#NAME#$# = #^#SCOPE#$#_#^#NAME#$#;\n";
 
-    auto scope = comms::scopeForRoot(strings::msgIdEnumNameStr(), m_generator);
+    auto scope = comms::scopeForMsgId(strings::msgIdEnumNameStr(), m_generator, m_parent);
 
-    auto* msgIdField = m_generator.currentSchema().getMessageIdField();
-    if (msgIdField != nullptr) {
+    auto allMsgIds = m_parent.findMessageIdFields();
+    if (allMsgIds.empty() && m_parent.name().empty()) {
+        allMsgIds = m_generator.currentSchema().getAllMessageIdFields();
+    }
+
+    if (allMsgIds.size() == 1U) {
+        auto* msgIdField = allMsgIds.front();      
         assert(msgIdField->dslObj().kind() == commsdsl::parse::Field::Kind::Enum);
         auto* castedMsgIdField = static_cast<const SwigEnumField*>(msgIdField);
         auto enumValues = castedMsgIdField->swigEnumValues();
@@ -215,6 +229,7 @@ std::string SwigMsgId::swigCodeInternal() const
             assert(eqPos < v.size());
 
             util::ReplacementMap repl = {
+                {"CLASS_NAME", swigClassName()},
                 {"SCOPE", scope},
                 {"NAME", v.substr(0, eqPos)}
             };
@@ -225,7 +240,11 @@ std::string SwigMsgId::swigCodeInternal() const
         return util::strListToString(result, "", "");
     }
 
-    auto allMessages = m_generator.getAllMessagesIdSorted();
+    auto allMessages = m_parent.getAllMessagesIdSorted();
+    if (allMessages.empty() && m_parent.name().empty()) {
+        allMessages = m_generator.currentSchema().getAllMessagesIdSorted();
+    }
+
     util::StringsList result;
     result.reserve(allMessages.size());
     for (auto* m : allMessages) {
@@ -234,6 +253,7 @@ std::string SwigMsgId::swigCodeInternal() const
         }
                 
         util::ReplacementMap repl = {
+            {"CLASS_NAME", swigClassName()},
             {"SCOPE", scope},
             {"NAME", comms::fullNameFor(*m)}
         };

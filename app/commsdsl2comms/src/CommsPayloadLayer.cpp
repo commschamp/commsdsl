@@ -44,7 +44,7 @@ bool CommsPayloadLayer::prepareImpl()
 CommsPayloadLayer::IncludesList CommsPayloadLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
-        "comms/protocol/MsgDataLayer.h"
+        "comms/frame/MsgDataLayer.h"
     };
 
     return result;
@@ -55,7 +55,7 @@ std::string CommsPayloadLayer::commsDefBaseTypeImpl([[maybe_unused]] const std::
     assert(prevName.empty());
 
     static const std::string Templ =
-        "comms::protocol::MsgDataLayer<\n"
+        "comms::frame::MsgDataLayer<\n"
         "    comms::option::def::FieldType<typename #^#CLASS_NAME#$##^#SUFFIX#$#::Field>\n"
         ">";
     

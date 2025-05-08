@@ -41,7 +41,7 @@ void TestSuite::test1()
     auto readIter = &buf[0];
     Frame::MsgPtr inMsg;
     auto id = test48::MsgId_ValuesLimit;
-    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    es = frame.read(inMsg, readIter, buf.size(), comms::frame::msgId(id));
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(outMsg.doGetId(), id);
 
@@ -82,7 +82,7 @@ void TestSuite::test2()
     auto readIter = &buf[0];
     Frame::MsgPtr inMsg;
     auto id = test48::MsgId_ValuesLimit;
-    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    es = frame.read(inMsg, readIter, buf.size(), comms::frame::msgId(id));
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(outMsg.doGetId(), id);
 
@@ -115,7 +115,7 @@ void TestSuite::test3()
     auto readIter = &buf[0];
     Frame::MsgPtr inMsg;
     auto id = test48::MsgId_ValuesLimit;
-    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    es = frame.read(inMsg, readIter, buf.size(), comms::frame::msgId(id));
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(outMsg.doGetId(), id);
 
@@ -153,7 +153,7 @@ void TestSuite::test4()
     auto readIter = &buf[0];
     Frame::MsgPtr inMsg;
     auto id = test48::MsgId_ValuesLimit;
-    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    es = frame.read(inMsg, readIter, buf.size(), comms::frame::msgId(id));
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(outMsg.doGetId(), id);
 
@@ -182,7 +182,7 @@ void TestSuite::test5()
     auto readIter = &buf[0];
     Frame::MsgPtr inMsg;
     auto id = test48::MsgId_ValuesLimit;
-    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    es = frame.read(inMsg, readIter, buf.size(), comms::frame::msgId(id));
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(outMsg.doGetId(), id);
 
@@ -206,7 +206,7 @@ void TestSuite::test6()
     auto readIter = &buf[0];
     Frame::MsgPtr inMsg;
     auto id = test48::MsgId_ValuesLimit;
-    es = frame.read(inMsg, readIter, buf.size(), comms::protocol::msgId(id));
+    es = frame.read(inMsg, readIter, buf.size(), comms::frame::msgId(id));
     TS_ASSERT_EQUALS(es, comms::ErrorStatus::Success);
     TS_ASSERT_EQUALS(outMsg.doGetId(), id);
 

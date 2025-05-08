@@ -152,8 +152,7 @@ const std::string& msgFactoryOptionsTempl()
         "/// @file\n"
         "/// @brief Contains definition of protocol #^#DESC#$# message factory options.\n\n"
         "#pragma once\n\n"
-        "#include \"#^#PROT_NAMESPACE#$#/factory/#^#NAME#$#MsgFactory.h\"\n"
-        "#include \"#^#PROT_NAMESPACE#$#/options/DefaultOptions.h\"\n\n"
+        "#^#INCLUDES#$#\n"
         "namespace #^#PROT_NAMESPACE#$#\n"
         "{\n\n"
         "namespace options\n"
@@ -163,10 +162,7 @@ const std::string& msgFactoryOptionsTempl()
         "template <typename TBase = #^#DEFAULT_OPTS#$#>\n"
         "struct #^#NAME#$#MsgFactoryDefaultOptionsT : public TBase\n"
         "{\n"
-        "    /// @brief Alias to @ref #^#PROT_NAMESPACE#$#::factory::#^#NAME#$#MsgFactory message factory.\n"
-        "    /// @details Exposes the same template parameters as @b comms::MsgFactory.\n"
-        "    template <typename TInterface, typename TAllMessages, typename... TOptions>\n"
-        "    using MsgFactory = #^#PROT_NAMESPACE#$#::factory::#^#NAME#$#MsgFactory<TInterface, #^#NAME#$#MsgFactoryDefaultOptionsT<TBase> >;\n\n"
+        "    #^#MSG_FACTORIES#$#\n"
         "    #^#BODY#$#\n"
         "};\n\n"
         "/// @brief Alias to @ref #^#NAME#$#MsgFactoryDefaultOptionsT with default template parameter.\n"
@@ -469,11 +465,45 @@ bool CommsDefaultOptions::commsWriteSingleMsgFactoryDefaultOptionsInternal(
     const std::string& messagesDesc,
     const std::string& allocDesc) const
 {
-    util::ReplacementMap repl = extInitialRepl(m_generator);
     auto name = prefix + MsgFactoryOptionsSuffix;
+
+    util::StringsList includes = {
+        comms::relHeaderForOptions(strings::defaultOptionsClassStr(), m_generator, true),
+    };
+
+    util::StringsList allFactories;
+    auto allNamespaces = m_generator.getAllNamespaces();
+    for (auto* ns : allNamespaces) {
+        auto suffix = "<TInterface, " + name + "T<TBase> >";
+        auto factoryDef = CommsNamespace::cast(ns)->commsMsgFactoryAliasDef(prefix, suffix);
+        if (factoryDef.empty()) {
+            continue;
+        }
+
+        static const std::string AliasTempl = 
+            "/// @brief Alias to actual message factory class.\n"
+            "/// @details Exposes the same template parameters as @b comms::MsgFactory.\n"
+            "template <typename TInterface, typename TAllMessages, typename... TOptions>\n"
+            "#^#DEF#$#\n"
+        ;
+
+        util::ReplacementMap aliasRepl = {
+            {"DEF", std::move(factoryDef)},
+            {"REF", CommsNamespace::cast(ns)->commsMsgFactoryAliasType()},
+        };
+
+        allFactories.push_back(util::processTemplate(AliasTempl, aliasRepl));
+        includes.push_back(CommsNamespace::cast(ns)->commsRelHeaderPath(prefix));
+    }
+
+    comms::prepareIncludeStatement(includes);
+
+    util::ReplacementMap repl = extInitialRepl(m_generator);
     repl.insert({
         {"DESC", messagesDesc + " messages " + allocDesc + " allocation"},
         {"NAME", prefix},
+        {"MSG_FACTORIES", util::strListToString(allFactories, "\n", "\n")},
+        {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"BODY", optionsBodyInternal(m_generator, &CommsNamespace::commsMsgFactoryDefaultOptions, true)},
         {"EXTEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::extendFileSuffixStr())},
         {"APPEND", util::readFileContents(comms::inputCodePathForOptions(name, m_generator) + strings::appendFileSuffixStr())},

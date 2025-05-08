@@ -157,8 +157,6 @@ private:
     bool validateSinglePlatform(::xmlNodePtr node);
     bool validateNamespaces(::xmlNodePtr root);
     bool validateAllMessages();
-    bool validateMessageIds();
-    // unsigned countMessageIds() const;
     bool strToValue(const std::string& ref, bool checkRef, StrToValueConvertFunc&& func) const;
     std::pair<const SchemaImpl*, std::string> parseExternalRef(const std::string& externalRef) const;
 

@@ -56,7 +56,11 @@ const std::string& optsTemplInternal(bool defaultNs)
 
 
 CommsNamespace::CommsNamespace(CommsGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_dispatch(generator, *this),
+    m_factory(generator, *this),
+    m_input(generator, *this),
+    m_msgId(generator, *this)
 {
 }   
 
@@ -363,6 +367,48 @@ const CommsField* CommsNamespace::findValidInterfaceReferencedField(const std::s
     return nullptr;
 }
 
+std::string CommsNamespace::commsMsgFactoryAliasType() const
+{
+    auto result = util::strReplace(comms::scopeFor(*this, generator(), false, true), "::" , "_");
+    if (!name().empty()) {
+        result += "_";
+    }    
+    result += strings::msgFactorySuffixStr();
+    return result;
+}
+
+std::string CommsNamespace::commsMsgFactoryAliasDef(const std::string& namePrefix, const std::string& typeSuffix) const
+{
+    if ((!hasFramesRecursive()) ||
+        (!hasMessagesRecursive())) {
+        return std::string();
+    }
+
+    static const std::string Templ = 
+        "using #^#TYPE#$# =\n"
+        "    #^#SCOPE#$##^#TYPE_SUFFIX#$#;\n"
+    ;
+
+    util::ReplacementMap repl = {
+        {"PREFIX", namePrefix},
+        {"TYPE_SUFFIX", typeSuffix},
+        {"TYPE", commsMsgFactoryAliasType()},
+        {"SCOPE", m_factory.commsScope(namePrefix)},
+    };
+
+    return util::processTemplate(Templ, repl);
+}
+
+std::string CommsNamespace::commsRelHeaderPath(const std::string& namePrefix) const
+{
+    return m_factory.commsRelHeaderPath(namePrefix);
+}
+
+bool CommsNamespace::commsHasMsgId() const
+{
+    return (!interfaces().empty());
+}
+
 bool CommsNamespace::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -371,6 +417,24 @@ bool CommsNamespace::prepareImpl()
 
     m_commsFields = CommsField::commsTransformFieldsList(fields());
     return true;
+}
+
+bool CommsNamespace::writeImpl() const
+{
+    if ((commsHasMsgId()) && 
+        (!m_msgId.write())) {
+        return false;
+    }
+    
+    if ((!hasFramesRecursive()) ||
+        (!hasMessagesRecursive())) {
+        return true;
+    }
+
+    return 
+        m_dispatch.commsWrite() &&
+        m_factory.commsWrite() &&
+        m_input.commsWrite();
 }
 
 std::string CommsNamespace::commsOptionsInternal(

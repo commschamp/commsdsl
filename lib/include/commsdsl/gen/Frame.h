@@ -31,6 +31,8 @@ namespace gen
 {
 
 class FrameImpl;
+class Namespace;
+
 class COMMSDSL_API Frame : public Elem
 {
     using Base = Elem;
@@ -52,6 +54,8 @@ public:
     const Generator& generator() const;
 
     LayersAccessList getCommsOrderOfLayers(bool& success) const;
+
+    const Namespace* parentNamespace() const;
 
 protected:    
     virtual Type elemTypeImpl() const override final;

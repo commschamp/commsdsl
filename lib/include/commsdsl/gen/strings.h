@@ -98,6 +98,7 @@ const std::string& transportFieldAccessPrefixStr();
 const std::string& transportFieldTypeAccessPrefixStr();
 const std::string& fieldAccessPrefixStr();
 const std::string& bodyFileSuffixStr();
+const std::string& msgFactorySuffixStr();
 
 char siblingRefPrefix();
 char stringRefPrefix();

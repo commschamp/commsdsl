@@ -31,6 +31,8 @@ namespace gen
 {
 
 class InterfaceImpl;
+class Namespace;
+
 class COMMSDSL_API Interface : public Elem
 {
     using Base = Elem;
@@ -47,6 +49,8 @@ public:
 
     const FieldsList& fields() const;
     commsdsl::parse::Interface dslObj() const;
+    std::string adjustedExternalRef() const;
+    const std::string& adjustedName() const;
 
     Generator& generator();
     const Generator& generator() const;
@@ -55,6 +59,8 @@ public:
 
     bool isReferenced() const;
     void setReferenced(bool value = true);
+
+    const Namespace* parentNamespace() const;
 
 protected:    
     virtual Type elemTypeImpl() const override final;

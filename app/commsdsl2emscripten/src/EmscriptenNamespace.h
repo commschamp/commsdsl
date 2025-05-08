@@ -17,6 +17,9 @@
 #pragma once
 
 #include "EmscriptenField.h"
+#include "EmscriptenInputMessages.h"
+#include "EmscriptenMsgHandler.h"
+#include "EmscriptenMsgId.h"
 
 #include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/util.h"
@@ -41,6 +44,24 @@ public:
     }
 
     void emscriptenAddSourceFiles(StringsList& sources) const;
+    void emscriptenAddCommsMessageIncludes(StringsList& includes) const;
+    void emscriptenAddInputMessageFwdIncludes(StringsList& includes) const;
+    void emscriptenAddInputMessageIncludes(StringsList& includes) const;
+
+    std::string emscriptenHandlerRelHeader() const;
+    std::string emscriptenHandlerClassName() const;
+    std::string emscriptenInputRelHeader() const;
+    std::string emscriptenInputClassName() const;
+
+    bool emscriptenHasInput() const;
+
+protected:
+    virtual bool writeImpl() const override;    
+
+private:
+    EmscriptenMsgId m_msgId; 
+    EmscriptenMsgHandler m_handler; 
+    EmscriptenInputMessages m_input;  
 };
 
 } // namespace commsdsl2emscripten

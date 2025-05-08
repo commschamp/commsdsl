@@ -42,6 +42,7 @@ std::string strToLower(const std::string& str);
 std::string strToMacroName(const std::string& str);
 std::string numToString(std::uintmax_t value, unsigned hexWidth = 0U);
 std::string numToString(std::intmax_t value);
+std::string numToStringWithHexComment(std::intmax_t value);
 std::string numToString(unsigned value, unsigned hexWidth = 0U);
 const std::string& boolToString(bool value);
 std::string pathAddElem(const std::string& path, const std::string& elem);

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test53" endian="big">
+    <description>
+        Testing namespaces as sub-protocols with proper message ids
+    </description>
+    <ns name="sub1">
+        <fields>
+            <enum name="MsgId" type="uint8" semanticType="messageId" >
+                <validValue name="M1" val="1" />
+            </enum>
+        </fields>
+
+        <message name="Msg1" id="sub1.MsgId.M1">
+            <int name="F1" type="uint16" />
+        </message>
+
+        <frame name="Frame">
+            <size name="Size">
+                <int name="Length" type="uint16" />
+            </size>
+            <id name="Id" field="sub1.MsgId" />
+            <payload name="Data" />
+        </frame>
+
+        <interface name="Interface" />
+    </ns>
+
+    <ns name="sub2">
+        <fields>
+            <enum name="MsgId" type="uint8" semanticType="messageId" >
+                <validValue name="M1" val="1" />
+                <validValue name="M2" val="2" />
+            </enum>
+        </fields>
+
+        <message name="Msg1" id="sub2.MsgId.M1">
+            <int name="F1" type="uint32" />
+        </message>
+
+        <message name="Msg2" id="sub2.MsgId.M2">
+            <int name="F1" type="uint32" />
+        </message>        
+
+        <frame name="Frame">
+            <size name="Size">
+                <int name="Length" type="uint16" />
+            </size>
+            <id name="Id" field="sub2.MsgId" />
+            <payload name="Data" />
+        </frame>
+
+        <interface name="Interface" />        
+    </ns>    
+    
+</schema>

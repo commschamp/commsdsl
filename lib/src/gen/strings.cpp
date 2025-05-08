@@ -451,6 +451,12 @@ const std::string& bodyFileSuffixStr()
     return Str;     
 }
 
+const std::string& msgFactorySuffixStr()
+{
+    static const std::string Str("MsgFactory");
+    return Str;     
+}
+
 char siblingRefPrefix()
 {
     return '$';

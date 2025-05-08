@@ -446,6 +446,62 @@ NamespaceImpl::FieldRefInfosList NamespaceImpl::processInterfaceFieldRef(const s
     return result;
 }
 
+bool NamespaceImpl::validateAllMessages(bool allowNonUniquIds)
+{
+    MessagesList allMsgs = messagesList();
+    for (auto& ns : m_namespaces) {
+        auto nsMsgs = ns.second->messagesList();
+        allMsgs.insert(allMsgs.end(), nsMsgs.begin(), nsMsgs.end());
+    }
+
+    std::sort(
+        allMsgs.begin(), allMsgs.end(),
+        [](const auto& msg1, const auto& msg2)
+        {
+            assert(msg1.valid());
+            assert(msg2.valid());
+            auto id1 = msg1.id();
+            auto id2 = msg2.id();
+            if (id1 != id2) {
+                return id1 < id2;
+            }
+
+            return msg1.order() < msg2.order();
+        });    
+
+    if (allMsgs.empty()) {
+        return true;
+    }
+
+    for (auto iter = allMsgs.begin(); iter != (allMsgs.end() - 1); ++iter) {
+        auto nextIter = iter + 1;
+        assert(nextIter != allMsgs.end());
+
+        assert(iter->valid());
+        assert(nextIter->valid());
+        if (iter->id() != nextIter->id()) {
+            continue;
+        }
+
+        if (!allowNonUniquIds) {
+            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
+                          nextIter->externalRef() << "\" have the same id: " << iter->id();
+            return false;
+        }
+
+        if (iter->order() == nextIter->order()) {
+            logError() << "Messages \"" << iter->externalRef() << "\" and \"" <<
+                          nextIter->externalRef() << "\" have the same \"" <<
+                          common::idStr() << "\" and \"" << common::orderStr() << "\" values.";
+            return false;
+        }
+
+        assert(iter->order() < nextIter->order());
+    }
+
+    return true;
+}
+
 Object::ObjKind NamespaceImpl::objKindImpl() const
 {
     return ObjKind::Namespace;

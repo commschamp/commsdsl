@@ -12,7 +12,7 @@ public:
     using Interface = test51::ns1::Message<>;
     using Frame = test51::ns1::frame::Frame<Interface>;
 
-    TEST51_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
+    TEST51_NS1_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
 };
 
 void TestSuite::test1()

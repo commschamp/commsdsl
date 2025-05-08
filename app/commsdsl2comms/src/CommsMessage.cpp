@@ -713,7 +713,6 @@ std::string CommsMessage::commsDefIncludesInternal() const
     util::StringsList includes = {
         "<tuple>",
         "comms/MessageBase.h",
-        gen.schemaOf(*this).mainNamespace() + '/' + strings::msgIdEnumNameStr() + strings::cppHeaderSuffixStr(),
         comms::relHeaderForOptions(strings::defaultOptionsStr(), gen),
         comms::relCommonHeaderPathFor(*this, gen),
     };
@@ -813,10 +812,9 @@ std::string CommsMessage::commsDefBaseClassInternal() const
         "    #^#EXTRA_OPTIONS#$#\n"
         ">";    
 
-    auto& gen = generator();
     util::ReplacementMap repl = {
         {"CUSTOMIZATION_OPT", commsDefCustomizationOptInternal()},
-        {"MESSAGE_ID", comms::messageIdStrFor(*this, gen)},
+        {"MESSAGE_ID", util::numToStringWithHexComment(dslObj().id())},
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"EXTRA_OPTIONS", commsDefExtraOptionsInternal()},
     };

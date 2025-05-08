@@ -19,9 +19,13 @@
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
 #include "commsdsl/gen/Interface.h"
+#include "commsdsl/gen/strings.h"
 
 #include <algorithm>
 #include <cassert>
+#include <iterator>
+
+namespace strings = commsdsl::gen::strings;
 
 namespace commsdsl
 {
@@ -134,6 +138,36 @@ public:
     {
         return m_frames;
     }
+
+    bool hasFramesRecursive() const
+    {
+        if (!m_frames.empty()) {
+            return true;
+        }
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& ns)
+                {
+                    return ns->hasFramesRecursive();
+                });
+    }
+
+    bool hasMessagesRecursive() const
+    {
+        if (!m_messages.empty()) {
+            return true;
+        }
+
+        return 
+            std::any_of(
+                m_namespaces.begin(), m_namespaces.end(),
+                [](auto& ns)
+                {
+                    return ns->hasMessagesRecursive();
+                });
+    }    
 
     Generator& generator()
     {
@@ -441,6 +475,21 @@ commsdsl::parse::Namespace Namespace::dslObj() const
     return m_impl->dslObj();
 }
 
+std::string Namespace::adjustedExternalRef() const
+{
+    auto obj = dslObj();
+    if (obj.valid()) {
+        return obj.externalRef();
+    }
+
+    auto* parent = getParent();
+    assert(parent != nullptr);
+    assert(parent->elemType() == Elem::Type_Schema);
+    auto* schema = static_cast<const Schema*>(parent);
+    assert(schema->dslObj().valid());
+    return schema->dslObj().externalRef();
+}
+
 const Namespace::NamespacesList& Namespace::namespaces() const
 {
     return m_impl->namespaces();
@@ -466,8 +515,19 @@ const Namespace::FramesList& Namespace::frames() const
     return m_impl->frames();
 }
 
-const Field* Namespace::findMessageIdField() const
+bool Namespace::hasFramesRecursive() const
 {
+    return m_impl->hasFramesRecursive();
+}
+
+bool Namespace::hasMessagesRecursive() const
+{
+    return m_impl->hasMessagesRecursive();
+}
+
+Namespace::FieldsAccessList Namespace::findMessageIdFields() const
+{
+    FieldsAccessList result;
     for (auto& f : fields()) {
         if (f->dslObj().semanticType() != commsdsl::parse::Field::SemanticType::MessageId) {
             continue;
@@ -477,20 +537,18 @@ const Field* Namespace::findMessageIdField() const
             (f->dslObj().kind() != commsdsl::parse::Field::Kind::Int)) {
             [[maybe_unused]] static constexpr bool Unexpected_kind = false;
             assert(Unexpected_kind);  
-            return nullptr;
+            continue;
         }
 
-        return f.get();
+        result.push_back(f.get());
     }
 
     for (auto& n : namespaces()) {
-        auto ptr = n->findMessageIdField();
-        if (ptr != nullptr) {
-            return ptr;
-        }
+        auto nsResult = n->findMessageIdFields();
+        std::move(nsResult.begin(), nsResult.end(), std::back_inserter(result));
     }
 
-    return nullptr;
+    return result;
 }
 
 const Field* Namespace::findField(const std::string& externalRef) const
@@ -644,15 +702,16 @@ const Interface* Namespace::findInterface(const std::string& externalRef) const
 
     auto& ifList = interfaces();
     if (nsName.empty()) {
+        auto& adjustedExternalRef = externalRef.empty() ? strings::messageClassStr() : externalRef;
         auto ifIter =
             std::lower_bound(
-                ifList.begin(), ifList.end(), externalRef,
+                ifList.begin(), ifList.end(), adjustedExternalRef,
                 [](auto& f, auto& n)
                 {
-                    return f->name() < n;
+                    return f->adjustedName() < n;
                 });
 
-        if ((ifIter == ifList.end()) || ((*ifIter)->name() != externalRef)) {
+        if ((ifIter == ifList.end()) || ((*ifIter)->adjustedName() != adjustedExternalRef)) {
             return nullptr;
         }
 
@@ -724,6 +783,13 @@ Namespace::MessagesAccessList Namespace::getAllMessages() const
         result.emplace_back(i.get());
     }
 
+    return result;
+}
+
+Namespace::MessagesAccessList Namespace::getAllMessagesIdSorted() const
+{
+    auto result = getAllMessages();
+    Generator::sortMessages(result);
     return result;
 }
 

@@ -43,9 +43,14 @@ bool CommsIdLayer::prepareImpl()
 
 CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
 {
+    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Frame);
+    auto& frame = *(static_cast<const commsdsl::gen::Frame*>(getParent()));
+    assert(frame.getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
+    auto& ns = *(static_cast<const commsdsl::gen::Namespace*>(frame.getParent()));
+
     IncludesList result = {
-        "comms/protocol/MsgIdLayer.h",
-        comms::relHeaderForInput(strings::allMessagesStr(), generator())
+        "comms/frame/MsgIdLayer.h",
+        comms::relHeaderForInput(strings::allMessagesStr(), generator(), ns)
     };
 
     return result;
@@ -54,7 +59,7 @@ CommsIdLayer::IncludesList CommsIdLayer::commsDefIncludesImpl() const
 std::string CommsIdLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
     static const std::string Templ = 
-        "comms::protocol::MsgIdLayer<\n"
+        "comms::frame::MsgIdLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    TMessage,\n"
         "    TAllMessages,\n"
@@ -96,7 +101,7 @@ CommsIdLayer::StringsList CommsIdLayer::commsExtraMsgFactoryDefaultOptionsImpl()
 {
     return
         StringsList{
-            "comms::option::app::MsgFactoryTempl<MsgFactory>"
+            "comms::option::app::MsgFactoryTempl<" + commsMsgFactoryAliasInOptions(getParent()) + ">"
         };    
 }
 

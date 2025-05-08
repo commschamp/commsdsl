@@ -19,6 +19,7 @@
 #include "commsdsl/gen/Elem.h"
 #include "commsdsl/gen/Generator.h"
 #include "commsdsl/gen/Message.h"
+#include "commsdsl/gen/Namespace.h"
 
 #include "commsdsl/parse/Endian.h"
 #include "commsdsl/parse/IntField.h"
@@ -53,12 +54,6 @@ std::string commonScopeFor(
     bool addMainNamespace = true, 
     bool addElement = true);    
 
-std::string scopeForInterface(
-    const std::string& name, 
-    const Generator& generator, 
-    bool addMainNamespace = true, 
-    bool addElement = true);      
-
 std::string scopeForOptions(
     const std::string& name, 
     const Generator& generator, 
@@ -68,20 +63,37 @@ std::string scopeForOptions(
 std::string scopeForInput(
     const std::string& name, 
     const Generator& generator, 
+    const Namespace& ns,
     bool addMainNamespace = true, 
     bool addElement = true);  
 
 std::string scopeForFactory(
     const std::string& name, 
     const Generator& generator, 
+    const Namespace& ns,
     bool addMainNamespace = true, 
     bool addElement = true);      
 
 std::string scopeForDispatch(
     const std::string& name, 
     const Generator& generator, 
+    const Namespace& ns,
     bool addMainNamespace = true, 
     bool addElement = true);    
+
+std::string scopeForMsgId(
+    const std::string& name, 
+    const Generator& generator, 
+    const Namespace& ns,
+    bool addMainNamespace = true, 
+    bool addElement = true);     
+
+std::string scopeForNamespaceMember(
+    const std::string& name, 
+    const Generator& generator, 
+    const Namespace& ns,
+    bool addMainNamespace = true, 
+    bool addElement = true);      
 
 std::string scopeForRoot(
     const std::string& name, 
@@ -106,20 +118,25 @@ std::string relSourcePathFor(const Elem& elem, const Generator& generator, bool 
 std::string relCommonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string relHeaderPathForField(const std::string& name, const Generator& generator); 
 std::string relHeaderForOptions(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
-std::string relHeaderForDispatch(const std::string& name, const Generator& generator); 
+std::string relHeaderForDispatch(const std::string& name, const Generator& generator, const Namespace& ns); 
+std::string relHeaderForFactory(const std::string& name, const Generator& generator, const Namespace& ns);
+std::string relHeaderForMsgId(const std::string& name, const Generator& generator, const Namespace& ns);
+std::string relHeaderForNamespaceMember(const std::string& name, const Generator& generator, const Namespace& ns);
+std::string relSourceForNamespaceMember(const std::string& name, const Generator& generator, const Namespace& ns);
 std::string relHeaderForLayer(const std::string& name, const Generator& generator); 
 std::string relHeaderForChecksum(const std::string& name, const Generator& generator); 
-std::string relHeaderForInput(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
+std::string relHeaderForInput(const std::string& name, const Generator& generator, const Namespace& ns, bool addMainNamespace = true); 
 std::string relHeaderForRoot(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
 std::string relSourceForRoot(const std::string& name, const Generator& generator, bool addMainNamespace = true); 
 
 std::string headerPathFor(const Elem& elem, const Generator& generator);
 std::string sourcePathFor(const Elem& elem, const Generator& generator);
 std::string headerPathForField(const std::string& name, const Generator& generator); 
-std::string headerPathForInput(const std::string& name, const Generator& generator); 
+std::string headerPathForInput(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string headerPathForOptions(const std::string& name, const Generator& generator); 
-std::string headerPathForDispatch(const std::string& name, const Generator& generator); 
-std::string headerPathForFactory(const std::string& name, const Generator& generator); 
+std::string headerPathForDispatch(const std::string& name, const Generator& generator, const Namespace& ns); 
+std::string headerPathForFactory(const std::string& name, const Generator& generator, const Namespace& ns); 
+std::string headerPathForMsgId(const std::string& name, const Generator& generator, const Namespace& ns); 
 std::string commonHeaderPathFor(const Elem& elem, const Generator& generator);
 std::string headerPathRoot(const std::string& name, const Generator& generator);
 std::string sourcePathRoot(const std::string& name, const Generator& generator);
@@ -129,8 +146,8 @@ std::string inputCodePathFor(const Elem& elem, const Generator& generator);
 std::string inputCodePathForRoot(const std::string& name, const Generator& generator);
 std::string inputCodePathForDoc(const std::string& name, const Generator& generator);
 std::string inputCodePathForOptions(const std::string& name, const Generator& generator);
-std::string inputCodePathForInput(const std::string& name, const Generator& generator);
-std::string inputCodePathForFactory(const std::string& name, const Generator& generator);
+std::string inputCodePathForInput(const std::string& name, const Generator& generator, const Namespace& ns);
+std::string inputCodePathForFactory(const std::string& name, const Generator& generator, const Namespace& ns);
 
 std::string namespaceBeginFor(
     const Elem& elem, 
@@ -157,8 +174,6 @@ unsigned sinceVersionOf(const Elem& elem);
 const std::string& dslEndianToOpt(commsdsl::parse::Endian value);
 
 const std::string& dslUnitsToOpt(commsdsl::parse::Units value);
-
-std::string messageIdStrFor(const commsdsl::gen::Message& msg, const Generator& generator);
 
 std::size_t maxPossibleLength();
 

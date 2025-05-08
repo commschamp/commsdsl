@@ -15,7 +15,6 @@
 
 #include "EmscriptenGenerator.h"
 
-#include "EmscriptenAllMessages.h"
 #include "EmscriptenBitfieldField.h"
 #include "EmscriptenBundleField.h"
 #include "EmscriptenChecksumLayer.h"
@@ -32,8 +31,6 @@
 #include "EmscriptenIntField.h"
 #include "EmscriptenListField.h"
 #include "EmscriptenMessage.h"
-#include "EmscriptenMsgHandler.h"
-#include "EmscriptenMsgId.h"
 #include "EmscriptenNamespace.h"
 #include "EmscriptenOptionalField.h"
 #include "EmscriptenPayloadLayer.h"
@@ -96,6 +93,13 @@ std::string EmscriptenGenerator::emscriptenScopeNameForRoot(const std::string& n
     return emscriptenScopeToName(str);
 }
 
+std::string EmscriptenGenerator::emscriptenScopeNameForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    bool addMainNamespace = m_mainNamespaceInNamesForced || (schemas().size() > 1U); 
+    auto str = comms::scopeForNamespaceMember(name, *this, parent, addMainNamespace);
+    return emscriptenScopeToName(str);
+}
+
 std::string EmscriptenGenerator::emscriptenProtocolClassNameForRoot(const std::string& name) const
 {
     auto schemaIdx = currentSchemaIdx();
@@ -110,9 +114,19 @@ std::string EmscriptenGenerator::emscriptenRelHeaderForRoot(const std::string& n
     return getTopNamespace() + '/' + comms::relHeaderForRoot(name, *this);
 }
 
+std::string EmscriptenGenerator::emscriptenRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return getTopNamespace() + '/' + comms::relHeaderForNamespaceMember(name, *this, parent);
+}
+
 std::string EmscriptenGenerator::emscriptenAbsHeaderForRoot(const std::string& name) const
 {
     return getOutputDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderForRoot(name);
+}
+
+std::string EmscriptenGenerator::emscriptenAbsHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return getOutputDir() + '/' + strings::includeDirStr() + '/' + emscriptenRelHeaderForNamespaceMember(name, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenRelSourceForRoot(const std::string& name) const
@@ -120,9 +134,19 @@ std::string EmscriptenGenerator::emscriptenRelSourceForRoot(const std::string& n
     return getTopNamespace() + '/' + comms::relSourceForRoot(name, *this);
 }
 
+std::string EmscriptenGenerator::emscriptenRelSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return getTopNamespace() + '/' + comms::relSourceForNamespaceMember(name, *this, parent);
+}
+
 std::string EmscriptenGenerator::emscriptenAbsSourceForRoot(const std::string& name) const
 {
     return getOutputDir() + '/' + emscriptenRelSourceForRoot(name);
+}
+
+std::string EmscriptenGenerator::emscriptenAbsSourceForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    return getOutputDir() + '/' + emscriptenRelSourceForNamespaceMember(name, parent);
 }
 
 std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForRoot(const std::string& name) const
@@ -132,6 +156,15 @@ std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForRoot(const std::s
     auto str = emscriptenRelHeaderForRoot(name);
     chooseCurrentSchema(schemaIdx);
     return str;
+}
+
+std::string EmscriptenGenerator::emscriptenProtocolRelHeaderForNamespaceMember(const std::string& name, const EmscriptenNamespace& parent) const
+{
+    auto schemaIdx = currentSchemaIdx();
+    chooseProtocolSchema();
+    auto str = emscriptenRelHeaderForNamespaceMember(name, parent);
+    chooseCurrentSchema(schemaIdx);
+    return str;    
 }
 
 std::string EmscriptenGenerator::emscriptenSchemaRelSourceForRoot(unsigned schemaIdx, const std::string& name) const
@@ -191,12 +224,6 @@ bool EmscriptenGenerator::prepareImpl()
         return false;
     }
 
-    bool result = emscriptenPrepareDefaultInterfaceInternal();
-
-    if (!result) {
-        return false;
-    }
-
     if (m_forcedInterface.empty()) {
         return true;
     }
@@ -215,7 +242,6 @@ bool EmscriptenGenerator::writeImpl()
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
         bool result = 
-            EmscriptenMsgId::emscriptenWrite(*this) &&
             EmscriptenVersion::emscriptenWrite(*this);
 
         if (!result) {
@@ -227,8 +253,6 @@ bool EmscriptenGenerator::writeImpl()
         EmscriptenComms::emscriptenWrite(*this) &&
         EmscriptenDataBuf::emscriptenWrite(*this) &&
         EmscriptenProtocolOptions::emscriptenWrite(*this) &&
-        EmscriptenAllMessages::emscriptenWrite(*this) &&
-        EmscriptenMsgHandler::emscriptenWrite(*this) &&
         EmscriptenCmake::emscriptenWrite(*this) &&
         emscriptenWriteExtraFilesInternal();
 
@@ -425,23 +449,6 @@ bool EmscriptenGenerator::emscriptenWriteExtraFilesInternal() const
     }; 
 
     return copyExtraSourceFiles(ReservedExt);    
-}
-
-bool EmscriptenGenerator::emscriptenPrepareDefaultInterfaceInternal()
-{
-    auto allInterfaces = getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        return true;
-    }
-
-    auto* defaultNamespace = addDefaultNamespace();
-    auto* interface = defaultNamespace->addDefaultInterface();
-    if (interface == nullptr) {
-        logger().error("Failed to create default interface");
-        return false;
-    }
-
-    return true;
 }
 
 bool EmscriptenGenerator::emscriptenReferenceRequestedInterfaceInternal()

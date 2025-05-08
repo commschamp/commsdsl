@@ -48,7 +48,7 @@ bool CommsValueLayer::prepareImpl()
 CommsValueLayer::IncludesList CommsValueLayer::commsDefIncludesImpl() const
 {
     IncludesList result = {
-        "comms/protocol/TransportValueLayer.h"
+        "comms/frame/TransportValueLayer.h"
     };
 
     return result;
@@ -57,7 +57,7 @@ CommsValueLayer::IncludesList CommsValueLayer::commsDefIncludesImpl() const
 std::string CommsValueLayer::commsDefBaseTypeImpl(const std::string& prevName) const
 {
     static const std::string Templ = 
-        "comms::protocol::TransportValueLayer<\n"
+        "comms::frame::TransportValueLayer<\n"
         "    #^#FIELD_TYPE#$#,\n"
         "    #^#INTERFACE_FIELD_IDX#$#,\n"
         "    #^#PREV_LAYER#$##^#COMMA#$#\n"

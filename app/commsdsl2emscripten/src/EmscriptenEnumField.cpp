@@ -16,6 +16,7 @@
 #include "EmscriptenEnumField.h"
 
 #include "EmscriptenGenerator.h"
+#include "EmscriptenNamespace.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -36,20 +37,21 @@ EmscriptenEnumField::EmscriptenEnumField(EmscriptenGenerator& generator, commsds
 {
 }
 
-std::string EmscriptenEnumField::emscriptenBindValues() const
+std::string EmscriptenEnumField::emscriptenBindValues(const EmscriptenNamespace* forcedParent) const
 {
     StringsList result;
 
     auto addValueBind = 
-        [this, &result](const std::string& name)
+        [this, &result, forcedParent](const std::string& name)
         {
-            if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
+            if ((forcedParent != nullptr) && 
+                (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId)) {
                 static const std::string Templ = 
                     ".value(\"#^#NAME#$#\", #^#SCOPE#$#_#^#NAME#$#)";
 
                 util::ReplacementMap repl = {
                     {"NAME", name},
-                    {"SCOPE", comms::scopeForRoot(strings::msgIdEnumNameStr(), generator())}
+                    {"SCOPE", comms::scopeForMsgId(strings::msgIdEnumNameStr(), generator(), *forcedParent)}
                 };                    
 
                 result.push_back(util::processTemplate(Templ, repl));
@@ -178,8 +180,12 @@ std::string EmscriptenEnumField::emscriptenSourceBindExtraImpl() const
     }
 
     if (dslObj().semanticType() == commsdsl::parse::Field::SemanticType::MessageId) {
-        // The bindings for MsgId are created separately
-        return strings::emptyString();    
+        auto* parentNs = EmscriptenNamespace::cast(parentNamespace());
+        auto allMsgIdFields = parentNs->findMessageIdFields();
+        if (allMsgIdFields.size() == 1U) {
+            // The bindings for MsgId are created separately
+            return strings::emptyString();  
+        }
     }
 
     static const std::string Templ = 

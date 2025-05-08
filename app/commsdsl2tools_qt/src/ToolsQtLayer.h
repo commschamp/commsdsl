@@ -32,17 +32,12 @@ public:
 
     bool prepare();
 
-    std::string toolsMsgFactoryOptions() const;
-
     unsigned toolsMinFieldLength() const;
 
     const commsdsl::gen::Layer& layer() const
     {
         return m_layer;
     }
-
-protected:
-    virtual StringsList toolsMsgFactoryExtraOptionsImpl() const;
 
 private:
     commsdsl::gen::Layer& m_layer ;

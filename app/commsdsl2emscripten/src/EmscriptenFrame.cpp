@@ -15,12 +15,11 @@
 
 #include "EmscriptenFrame.h"
 
-#include "EmscriptenAllMessages.h"
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
 #include "EmscriptenInterface.h"
 #include "EmscriptenLayer.h"
-#include "EmscriptenMsgHandler.h"
+#include "EmscriptenNamespace.h"
 #include "EmscriptenProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -53,6 +52,27 @@ void EmscriptenFrame::emscriptenAddSourceFiles(StringsList& sources) const
 
     auto& gen = EmscriptenGenerator::cast(generator());
     sources.push_back(gen.emscriptenRelSourceFor(*this));
+}
+
+const EmscriptenNamespace* EmscriptenFrame::emscriptenFindInputNamespace() const
+{
+    auto* ns = getParent();
+    assert(ns->elemType() == commsdsl::gen::Elem::Type_Namespace);
+
+    while (ns != nullptr) {
+        if (ns->elemType() != commsdsl::gen::Elem::Type_Namespace) {
+            ns = nullptr;
+            break;
+        }
+
+        if (EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(ns))->emscriptenHasInput()) {
+            break;
+        }
+
+        ns = ns->getParent();
+    }
+
+    return EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(ns));
 }
 
 bool EmscriptenFrame::prepareImpl()
@@ -184,12 +204,18 @@ std::string EmscriptenFrame::emscriptenHeaderIncludesInternal() const
     auto& gen = EmscriptenGenerator::cast(generator());
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
+    auto interfaceNs = iFace->parentNamespace();
+    auto* inputNs = emscriptenFindInputNamespace();
+    if (inputNs == nullptr) {
+        inputNs = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(interfaceNs));
+        assert(inputNs->emscriptenHasInput());
+    }    
 
     util::StringsList includes {
         comms::relHeaderPathFor(*this, gen),
         EmscriptenDataBuf::emscriptenRelHeader(gen),
-        EmscriptenMsgHandler::emscriptenRelHeader(gen),
-        EmscriptenAllMessages::emscriptenRelHeader(gen),
+        EmscriptenNamespace::cast(interfaceNs)->emscriptenHandlerRelHeader(),
+        EmscriptenNamespace::cast(inputNs)->emscriptenInputRelHeader(),
         iFace->emscriptenRelHeader(),
     };
 
@@ -285,15 +311,23 @@ std::string EmscriptenFrame::emscriptenHeaderClassInternal() const
     auto& gen = EmscriptenGenerator::cast(generator());
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
+    auto* interfaceNs = iFace->parentNamespace();
+    assert(interfaceNs != nullptr);
+
+    auto* inputNs = emscriptenFindInputNamespace();
+    if (inputNs == nullptr) {
+        inputNs = EmscriptenNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(interfaceNs));
+        assert(inputNs->emscriptenHasInput());
+    }       
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
         {"ACC", emscriptenHeaderLayersAccessInternal()},
         {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
-        {"MSG_HANDER", EmscriptenMsgHandler::emscriptenClassName(gen)},
+        {"MSG_HANDER", EmscriptenNamespace::cast(interfaceNs)->emscriptenHandlerClassName()},
         {"ALL_FIELDS", emscriptenHeaderAllFieldsNameInternal()},
         {"INTERFACE", gen.emscriptenClassName(*iFace)},
-        {"ALL_MESSAGES", EmscriptenAllMessages::emscriptenClassName(gen)},
+        {"ALL_MESSAGES", EmscriptenNamespace::cast(inputNs)->emscriptenInputClassName()},
         {"COMMS_CLASS", comms::scopeFor(*this, gen)},
     };
 
@@ -391,10 +425,10 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
         "        auto len = buf.size() - consumed;\n"
         "        std::size_t idx = 0U;\n"
         "        if (allFields == nullptr) {\n"
-        "            es = m_frame.read(msg, iter, len, comms::protocol::msgIndex(idx));\n"
+        "            es = m_frame.read(msg, iter, len, comms::frame::msgIndex(idx));\n"
         "        }\n"
         "        else {\n"
-        "            es = m_frame.readFieldsCached(frameFields, msg, iter, len, comms::protocol::msgIndex(idx));\n"
+        "            es = m_frame.readFieldsCached(frameFields, msg, iter, len, comms::frame::msgIndex(idx));\n"
         "        }\n\n"
         "        if (es == comms::ErrorStatus::NotEnoughData) {\n"
         "            return consumed;\n"
@@ -444,11 +478,13 @@ std::string EmscriptenFrame::emscriptenSourceCodeInternal() const
     auto& gen = EmscriptenGenerator::cast(generator());
     auto* iFace = gen.emscriptenMainInterface();
     assert(iFace != nullptr);
+    auto* parentNs = iFace->parentNamespace();
+    assert(parentNs != nullptr);    
 
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.emscriptenClassName(*this)},
         {"DATA_BUF", EmscriptenDataBuf::emscriptenClassName(gen)},
-        {"HANDLER", EmscriptenMsgHandler::emscriptenClassName(gen)},
+        {"HANDLER", EmscriptenNamespace::cast(parentNs)->emscriptenHandlerClassName()},
         {"ALL_FIELDS", emscriptenHeaderAllFieldsNameInternal()},
         {"ALL_FIELDS_VALUES", util::strListToString(allFieldsAcc, ",\n", "")},
         {"FRAME_FIELDS_VALUES", util::strListToString(frameFieldsAcc, ",\n", "")},

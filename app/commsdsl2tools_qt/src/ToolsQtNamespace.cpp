@@ -37,7 +37,8 @@ namespace commsdsl2tools_qt
 {
 
 ToolsQtNamespace::ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_factory(generator, *this)
 {
 }
 
@@ -59,85 +60,32 @@ ToolsQtNamespace::StringsList ToolsQtNamespace::toolsSourceFiles(const ToolsQtIn
         addToResult(toolsMessage->toolsSourceFiles(interface));
     }    
 
+    if (hasFramesRecursive() &&
+        hasMessagesRecursive()) {
+        addToResult(m_factory.toolsSourceFiles(interface));
+    }
+
     return result;
 }
 
-std::string ToolsQtNamespace::toolsMsgFactoryOptions() const
+std::string ToolsQtNamespace::toolsFactoryRelHeaderPath(const commsdsl::gen::Interface& iFace) const
 {
-    util::StringsList elems;
-    auto addStrFunc = 
-        [&elems](std::string&& str)
-        {
-            if (!str.empty()) {
-                elems.push_back(std::move(str));
-            }
-        };
+    return m_factory.toolsRelHeaderPath(iFace);
+}
 
-    auto& subNsList = namespaces();
-    for (auto& nsPtr : subNsList) {
-        addStrFunc(ToolsQtNamespace::cast(nsPtr.get())->toolsMsgFactoryOptions());
+std::string ToolsQtNamespace::toolsFactoryClassScope(const commsdsl::gen::Interface& iFace) const
+{
+    return m_factory.toolsClassScope(iFace);
+}
+
+bool ToolsQtNamespace::writeImpl() const
+{
+    if ((!hasFramesRecursive()) ||
+        (!hasMessagesRecursive())) {
+        return true;
     }
 
-    auto& gen = ToolsQtGenerator::cast(generator());    
-    bool hasMainNs = gen.toolsHasMainNamespaceInOptions();
-
-    util::StringsList frameElems;
-    for (auto& fPtr : frames()) {
-        assert(fPtr);
-        auto opts = ToolsQtFrame::cast(fPtr.get())->toolsMsgFactoryOptions();
-        if (opts.empty()) {
-            continue;
-        }
-
-        frameElems.push_back(std::move(opts));
-    }   
-
-    if (!frameElems.empty()) {
-        static const std::string Templ = 
-            "struct frame : public #^#DEFAULT_OPTS#$#::#^#NS#$#frame\n"
-            "{\n"
-            "    #^#OPTS#$#\n"
-            "}; // struct frame\n";
-
-        util::ReplacementMap repl = {
-            {"OPTS", util::strListToString(frameElems, "\n", "")},
-            {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)},
-            {"NS", comms::scopeFor(*this, generator(), hasMainNs)},
-        };        
-
-        if (!repl["NS"].empty()) {
-            repl["NS"].append("::");
-        }
-        addStrFunc(util::processTemplate(Templ, repl));        
-    }
-
-    if (elems.empty()) {
-        return strings::emptyString();
-    }    
-
-    auto nsName = dslObj().name();
-    if (nsName.empty() && (!hasMainNs)) {
-        return util::strListToString(elems, "\n", "");
-    }
-
-    if (nsName.empty()) {
-        nsName = gen.currentSchema().mainNamespace();
-    }
-
-    static const std::string Templ = 
-        "struct #^#NAME#$# : public #^#DEFAULT_OPTS#$#::#^#NS#$#\n"
-        "{\n"
-        "    #^#BODY#$#\n"
-        "}; // struct #^#NAME#$#\n";    
-
-    util::ReplacementMap repl = {
-        {"NAME", nsName},
-        {"BODY", util::strListToString(elems, "\n", "")},
-        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)},
-        {"NS", comms::scopeFor(*this, generator(), hasMainNs)},
-    };
-
-    return util::processTemplate(Templ, repl);
+    return m_factory.toolsWrite();
 }
 
 } // namespace commsdsl2tools_qt

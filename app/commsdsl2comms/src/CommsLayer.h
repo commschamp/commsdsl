@@ -98,6 +98,7 @@ protected:
 
     std::string commsDefFieldType() const;
     std::string commsDefExtraOpts() const;
+    static std::string commsMsgFactoryAliasInOptions(const commsdsl::gen::Elem* parent);
 
 private:
     using FieldOptsFunc = std::string (CommsField::*)() const;

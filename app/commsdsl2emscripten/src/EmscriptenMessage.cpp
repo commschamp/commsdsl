@@ -18,7 +18,7 @@
 #include "EmscriptenDataBuf.h"
 #include "EmscriptenGenerator.h"
 #include "EmscriptenInterface.h"
-#include "EmscriptenMsgHandler.h"
+#include "EmscriptenNamespace.h"
 #include "EmscriptenProtocolOptions.h"
 
 #include "commsdsl/gen/comms.h"
@@ -160,16 +160,17 @@ bool EmscriptenMessage::emscriptenWriteSourceInternal() const
 std::string EmscriptenMessage::emscriptenHeaderIncludesInternal() const
 {
     auto& gen = EmscriptenGenerator::cast(generator());
+    auto* iFace = gen.emscriptenMainInterface();
+    assert(iFace != nullptr);
+    auto* parentNs = iFace->parentNamespace();
+    
     util::StringsList includes = {
         comms::relHeaderPathFor(*this, gen),
-        EmscriptenMsgHandler::emscriptenRelHeader(gen),
+        iFace->emscriptenRelHeader(),
+        EmscriptenNamespace::cast(parentNs)->emscriptenHandlerRelHeader(),
     };
 
     EmscriptenProtocolOptions::emscriptenAddInclude(gen, includes);
-
-    auto* iFace = gen.emscriptenMainInterface();
-    assert(iFace != nullptr);
-    includes.push_back(iFace->emscriptenRelHeader());
 
     if (!m_emscriptenFields.empty()) {
         includes.push_back("<iterator>");

@@ -16,6 +16,7 @@
 #include "CommsInputMessages.h"
 
 #include "CommsGenerator.h"
+#include "CommsNamespace.h"
 #include "CommsSchema.h"
 
 #include "commsdsl/gen/strings.h"
@@ -45,9 +46,10 @@ bool writeFileInternal(
     const std::string& name,
     const std::string& desc,
     CommsGenerator& generator,
+    const CommsNamespace& parent,
     CheckFunction&& func)
 {
-    auto filePath = comms::headerPathForInput(name, generator);
+    auto filePath = comms::headerPathForInput(name, generator, parent);
     generator.logger().info("Generating " + filePath);
 
     auto dirPath = util::pathUp(filePath);
@@ -62,7 +64,7 @@ bool writeFileInternal(
         return false;
     }    
 
-    auto allMessages = generator.getAllMessagesIdSorted();
+    auto allMessages = parent.getAllMessagesIdSorted();
     util::StringsList includes = {
         "<tuple>",
         comms::relHeaderForOptions(strings::defaultOptionsClassStr(), generator)
@@ -91,8 +93,7 @@ bool writeFileInternal(
         "/// @brief Contains definition of the #^#NAME#$# messages bundle.\n\n"
         "#pragma once\n\n"
         "#^#INCLUDES#$#\n"
-        "namespace #^#PROT_NAMESPACE#$#\n"
-        "{\n\n"
+        "#^#NS_BEGIN#$#\n"
         "namespace input\n"
         "{\n\n"
         "/// @brief #^#DESC#$# messages of the protocol in ascending order.\n"
@@ -106,7 +107,7 @@ bool writeFileInternal(
         "#^#EXTEND#$#\n"
         "#^#APPEND#$#\n"
         "} // namespace input\n\n"
-        "} // namespace #^#PROT_NAMESPACE#$#\n\n"
+        "#^#NS_END#$#\n"
         "/// @brief Create type aliases for the #^#LOW_DESC#$# messages of the protocol.\n"
         "/// @param prefix_ Prefix of the alias message type.\n"
         "/// @param suffix_ Suffix of the alias message type.\n"
@@ -125,14 +126,15 @@ bool writeFileInternal(
     comms::prepareIncludeStatement(includes);
     util::ReplacementMap repl = {
         {"GENERATED", CommsGenerator::commsFileGeneratedComment()},
-        {"PROT_NAMESPACE", generator.currentSchema().mainNamespace()},
         {"NAME", name},
+        {"NS_BEGIN", comms::namespaceBeginFor(parent, generator)},
+        {"NS_END", comms::namespaceEndFor(parent, generator)},          
         {"OPTIONS", comms::scopeForOptions(strings::defaultOptionsClassStr(), generator)},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"MESSAGES", util::strListToString(scopes, ",\n", "")},
-        {"EXTEND", util::readFileContents(comms::inputCodePathForInput(name, generator) + strings::extendFileSuffixStr())},
-        {"APPEND", util::readFileContents(comms::inputCodePathForInput(name, generator) + strings::appendFileSuffixStr())},
-        {"PROT_PREFIX", util::strToUpper(generator.currentSchema().mainNamespace())},
+        {"EXTEND", util::readFileContents(comms::inputCodePathForInput(name, generator, parent) + strings::extendFileSuffixStr())},
+        {"APPEND", util::readFileContents(comms::inputCodePathForInput(name, generator, parent) + strings::appendFileSuffixStr())},
+        {"PROT_PREFIX", util::strToUpper(util::strReplace(comms::scopeFor(parent, generator), "::", "_"))},
         {"MACRO_NAME", util::strToMacroName(name)},
         {"ALIASES", util::strListToString(aliases, " \\\n", "\n")},
         {"DESC", desc},
@@ -150,19 +152,13 @@ bool writeFileInternal(
 
 } // namespace 
     
-
-bool CommsInputMessages::write(CommsGenerator& generator)
+CommsInputMessages::CommsInputMessages(CommsGenerator& generator, const CommsNamespace& parent) : 
+    m_generator(generator),
+    m_parent(parent) 
 {
-    auto& thisSchema = static_cast<CommsSchema&>(generator.currentSchema());
-    if ((!generator.isCurrentProtocolSchema()) && (!thisSchema.commsHasAnyMessage())) {
-        return true;
-    }
-
-    CommsInputMessages obj(generator);
-    return obj.commsWriteInternal();
 }
 
-bool CommsInputMessages::commsWriteInternal() const
+bool CommsInputMessages::commsWrite() const
 {
     return
         commsWriteAllMessagesInternal() &&
@@ -186,6 +182,7 @@ bool CommsInputMessages::commsWriteAllMessagesInternal() const
             strings::allMessagesStr(),
             "All",
             m_generator,
+            m_parent,
             checkFunc);
 }
 
@@ -203,6 +200,7 @@ bool CommsInputMessages::commsWriteClientInputMessagesInternal() const
             ClientInputSuffixStr,
             "Client input",
             m_generator,
+            m_parent,
             checkFunc);
 }
 
@@ -219,6 +217,7 @@ bool CommsInputMessages::commsWriteServerInputMessagesInternal() const
             ServerInputSuffixStr,
             "Server input",
             m_generator,
+            m_parent,
             checkFunc);
 }
 
@@ -244,7 +243,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
                 return platformCheckFunc(msg);
             };
 
-        if (!writeFileInternal(comms::className(p) + "Messages", "All " + p + " platform", m_generator, allCheckFunc)) {
+        if (!writeFileInternal(comms::className(p) + "Messages", "All " + p + " platform", m_generator, m_parent, allCheckFunc)) {
             return false;
         }
 
@@ -256,7 +255,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
                     (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
             };
 
-        if (!writeFileInternal(comms::className(p) + ClientInputSuffixStr, "Client input " + p + " platform", m_generator, clientCheckFunc)) {
+        if (!writeFileInternal(comms::className(p) + ClientInputSuffixStr, "Client input " + p + " platform", m_generator, m_parent, clientCheckFunc)) {
             return false;
         }  
 
@@ -268,7 +267,7 @@ bool CommsInputMessages::commsWritePlatformInputMessagesInternal() const
                     (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
             };
 
-        if (!writeFileInternal(comms::className(p) + ServerInputSuffixStr, "Server input " + p + " platform", m_generator, serverCheckFunc)) {
+        if (!writeFileInternal(comms::className(p) + ServerInputSuffixStr, "Server input " + p + " platform", m_generator, m_parent, serverCheckFunc)) {
             return false;
         }                     
     };        
@@ -293,7 +292,7 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
                 return bundleCheckFunc(msg);
             };
 
-        if (!writeFileInternal(comms::className(b.first) + "Messages", "All " + b.first + " bundle", m_generator, allCheckFunc)) {
+        if (!writeFileInternal(comms::className(b.first) + "Messages", "All " + b.first + " bundle", m_generator, m_parent, allCheckFunc)) {
             return false;
         }
 
@@ -305,7 +304,7 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
                     (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Client);
             };
 
-        if (!writeFileInternal(comms::className(b.first) + ClientInputSuffixStr, "Client input " + b.first + " bundle", m_generator, clientCheckFunc)) {
+        if (!writeFileInternal(comms::className(b.first) + ClientInputSuffixStr, "Client input " + b.first + " bundle", m_generator, m_parent, clientCheckFunc)) {
             return false;
         }  
 
@@ -317,7 +316,7 @@ bool CommsInputMessages::commsWriteExtraInputMessagesInternal() const
                     (msg.dslObj().sender() != commsdsl::parse::Message::Sender::Server);
             };
 
-        if (!writeFileInternal(comms::className(b.first) + ServerInputSuffixStr, "Server input " + b.first + " bundle", m_generator, serverCheckFunc)) {
+        if (!writeFileInternal(comms::className(b.first) + ServerInputSuffixStr, "Server input " + b.first + " bundle", m_generator, m_parent, serverCheckFunc)) {
             return false;
         }                     
     };        

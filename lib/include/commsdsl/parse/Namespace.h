@@ -52,6 +52,7 @@ public:
     NamespacesList namespaces() const;
     FieldsList fields() const;
     MessagesList messages() const;
+    bool hasMessages() const;
     InterfacesList interfaces() const;
     FramesList frames() const;
     std::string externalRef(bool schemaRef = true) const;

@@ -29,8 +29,10 @@ namespace commsdsl
 namespace gen
 {
 
-class Generator;
 class FieldImpl;
+class Generator;
+class Namespace;
+
 class COMMSDSL_API Field : public Elem
 {
     using Base = Elem;
@@ -75,6 +77,8 @@ public:
 
     FieldRefInfo processInnerRef(const std::string& refStr) const;
     static FieldRefInfo processMemberRef(const FieldsList& fields, const std::string& refStr);
+
+    const Namespace* parentNamespace() const;
 
 protected:    
     Field(Generator& generator, const commsdsl::parse::Field& dslObj, Elem* parent = nullptr);

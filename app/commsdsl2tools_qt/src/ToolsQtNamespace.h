@@ -15,6 +15,8 @@
 
 #pragma once
 
+#include "ToolsQtMsgFactory.h"
+
 #include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/util.h"
 
@@ -29,16 +31,25 @@ class ToolsQtNamespace final : public commsdsl::gen::Namespace
     using Base = commsdsl::gen::Namespace;
 public:
     using StringsList = commsdsl::gen::util::StringsList;
+
     explicit ToolsQtNamespace(ToolsQtGenerator& generator, commsdsl::parse::Namespace dslObj, commsdsl::gen::Elem* parent);
 
     StringsList toolsSourceFiles(const ToolsQtInterface& interface) const;
-
-    std::string toolsMsgFactoryOptions() const;
 
     static const ToolsQtNamespace* cast(const commsdsl::gen::Namespace* obj)
     {
         return static_cast<const ToolsQtNamespace*>(obj);
     }
+
+    std::string toolsFactoryRelHeaderPath(const commsdsl::gen::Interface& iFace) const;
+    std::string toolsFactoryClassScope(const commsdsl::gen::Interface& iFace) const;
+
+
+protected:
+    virtual bool writeImpl() const override;    
+
+private:
+    ToolsQtMsgFactory m_factory;
 };
 
 } // namespace commsdsl2tools_qt

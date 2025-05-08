@@ -16,7 +16,9 @@
 #include "CommsLayer.h"
 
 #include "CommsGenerator.h"
+#include "CommsNamespace.h"
 
+#include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
 #include "commsdsl/gen/util.h"
@@ -320,6 +322,28 @@ std::string CommsLayer::commsDefExtraOpts() const
     }    
 
     return util::strListToString(opts, ",\n", "");
+}
+
+std::string CommsLayer::commsMsgFactoryAliasInOptions(const commsdsl::gen::Elem* parent)
+{
+    do {
+        if (parent == nullptr) {
+            return std::string();
+        }
+
+        if (parent->elemType() != commsdsl::gen::Elem::Type_Namespace) {
+            break;
+        }
+
+        auto type = CommsNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent))->commsMsgFactoryAliasType();
+        if (type.empty()) {
+            break;
+        }
+
+        return type;
+    } while (false);
+
+    return commsMsgFactoryAliasInOptions(parent->getParent());
 }
 
 std::string CommsLayer::commsDefMembersCodeInternal() const

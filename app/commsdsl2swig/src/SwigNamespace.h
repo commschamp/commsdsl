@@ -17,6 +17,7 @@
 #pragma once
 
 #include "SwigField.h"
+#include "SwigMsgId.h"
 
 #include "commsdsl/gen/Namespace.h"
 #include "commsdsl/gen/util.h"
@@ -45,13 +46,17 @@ public:
         return static_cast<const SwigNamespace*>(ns);
     }
 
+    std::string swigMsgIdClassName() const;
+
 protected:
     virtual bool prepareImpl() override;    
+    virtual bool writeImpl() const override;
 
 private:
     using SwigFieldsList = SwigField::SwigFieldsList;
 
-    SwigFieldsList m_swigFields;        
+    SwigFieldsList m_swigFields;   
+    SwigMsgId m_msgId;     
 };
 
 } // namespace commsdsl2swig

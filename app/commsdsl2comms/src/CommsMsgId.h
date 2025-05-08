@@ -21,19 +21,20 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
+class CommsNamespace;
+
 class CommsMsgId
 {
 public:
-    static bool write(CommsGenerator& generator);
+    CommsMsgId(CommsGenerator& generator, const CommsNamespace& parent);
+    bool write() const;
 
 private:
-    explicit CommsMsgId(CommsGenerator& generator) : m_generator(generator) {}
-
-    bool commsWriteInternal() const;
     std::string commsTypeInternal() const;
     std::string commsIdsInternal() const;
     
     CommsGenerator& m_generator;
+    const CommsNamespace& m_parent;
 };
 
 } // namespace commsdsl2comms

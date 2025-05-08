@@ -17,6 +17,7 @@
 #include "commsdsl/gen/Frame.h"
 #include "commsdsl/gen/Layer.h"
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/Namespace.h"
 
 #include <cassert>
 #include <algorithm>
@@ -181,6 +182,14 @@ Frame::LayersAccessList Frame::getCommsOrderOfLayers(bool& success) const
     }   
 
     return result;    
+}
+
+const Namespace* Frame::parentNamespace() const
+{
+    auto* parent = getParent();
+    assert(parent != nullptr);
+    assert(parent->elemType() == Elem::Type_Namespace);
+    return static_cast<const Namespace*>(parent);
 }
 
 Elem::Type Frame::elemTypeImpl() const

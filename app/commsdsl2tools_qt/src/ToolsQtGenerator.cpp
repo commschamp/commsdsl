@@ -23,7 +23,6 @@
 #include "ToolsQtIdLayer.h"
 #include "ToolsQtInterface.h"
 #include "ToolsQtMessage.h"
-#include "ToolsQtMsgFactory.h"
 #include "ToolsQtNamespace.h"
 #include "ToolsQtPayloadLayer.h"
 #include "ToolsQtPlugin.h"
@@ -54,7 +53,7 @@ namespace commsdsl2tools_qt
 namespace
 {
 
-const std::string MinToolsQtVersion("6.0.1");    
+const std::string MinToolsQtVersion("6.0.2");    
 
 } // namespace 
 
@@ -88,10 +87,6 @@ ToolsQtGenerator::StringsList ToolsQtGenerator::toolsSourceFilesForInterface(con
         result.reserve(result.size() + fResult.size());
         std::move(fResult.begin(), fResult.end(), std::back_inserter(result));
     }   
-
-    auto factoryResult = ToolsQtMsgFactory::toolsSourceFiles(*this, interface);
-    result.reserve(result.size() + factoryResult.size());
-    std::move(factoryResult.begin(), factoryResult.end(), std::back_inserter(result));       
 
     return result;
 }
@@ -201,8 +196,7 @@ std::string ToolsQtGenerator::toolsScopePrefixForInterface(const commsdsl::gen::
 bool ToolsQtGenerator::prepareImpl() 
 {
     chooseProtocolSchema();
-    if ((!Base::prepareImpl()) || 
-        (!toolsPrepareDefaultInterfaceInternal())) {
+    if (!Base::prepareImpl()) {
         return false;
     }
 
@@ -328,7 +322,6 @@ bool ToolsQtGenerator::writeImpl()
     chooseProtocolSchema();
     bool result =  
         ToolsQtCmake::write(*this) &&
-        ToolsQtMsgFactory::write(*this) &&
         ToolsQtDefaultOptions::write(*this) &&
         ToolsQtVersion::write(*this);
 
@@ -349,24 +342,6 @@ bool ToolsQtGenerator::writeImpl()
     }
 
     return toolsWriteExtraFilesInternal();            
-}
-
-bool ToolsQtGenerator::toolsPrepareDefaultInterfaceInternal()
-{
-    auto& schema = protocolSchema();
-    auto allInterfaces = schema.getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        return true;
-    }
-
-    auto* defaultNamespace = schema.addDefaultNamespace();
-    auto* interface = defaultNamespace->addDefaultInterface();
-    if (interface == nullptr) {
-        logger().error("Failed to create default interface");
-        return false;
-    }
-
-    return true;
 }
 
 bool ToolsQtGenerator::toolsPrepareSelectedInterfacesInternal()

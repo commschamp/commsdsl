@@ -36,7 +36,8 @@ namespace commsdsl2swig
 
 
 SwigNamespace::SwigNamespace(SwigGenerator& generator, commsdsl::parse::Namespace dslObj, Elem* parent) :
-    Base(generator, dslObj, parent)
+    Base(generator, dslObj, parent),
+    m_msgId(generator, *this)
 {
 }   
 
@@ -56,6 +57,10 @@ void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
         SwigInterface::cast(i.get())->swigAddCodeIncludes(list);
     }
 
+    if (!interfaces().empty()) {
+        m_msgId.swigAddCodeIncludes(list);
+    }    
+
     for (auto& m : messages()) {
         SwigMessage::cast(m.get())->swigAddCodeIncludes(list);
     }   
@@ -63,10 +68,15 @@ void SwigNamespace::swigAddCodeIncludes(StringsList& list) const
     for (auto& f : frames()) {
         SwigFrame::cast(f.get())->swigAddCodeIncludes(list);
     }    
+    
 }
 
 void SwigNamespace::swigAddCode(StringsList& list) const
 {
+    if (!interfaces().empty()) {
+        m_msgId.swigAddCode(list);
+    }
+
     for (auto* f : m_swigFields) {
         f->swigAddCode(list);
     }
@@ -86,6 +96,10 @@ void SwigNamespace::swigAddCode(StringsList& list) const
 
 void SwigNamespace::swigAddDef(StringsList& list) const
 {
+    if (!interfaces().empty()) {
+        m_msgId.swigAddDef(list);
+    }
+
     for (auto* f : m_swigFields) {
         f->swigAddDef(list);
     }
@@ -107,6 +121,12 @@ void SwigNamespace::swigAddDef(StringsList& list) const
     }    
 }
 
+std::string SwigNamespace::swigMsgIdClassName() const
+{
+    assert(!interfaces().empty());
+    return m_msgId.swigClassName();
+}
+
 bool SwigNamespace::prepareImpl()
 {
     if (!Base::prepareImpl()) {
@@ -115,6 +135,15 @@ bool SwigNamespace::prepareImpl()
 
     m_swigFields = SwigField::swigTransformFieldsList(fields());
     return true;
+}
+
+bool SwigNamespace::writeImpl() const
+{
+    if (interfaces().empty()) {
+        return true;
+    }
+
+    return m_msgId.swigWrite();
 }
 
 

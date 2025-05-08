@@ -17,6 +17,8 @@
 #include "commsdsl/gen/Interface.h"
 #include "commsdsl/gen/Field.h"
 #include "commsdsl/gen/Generator.h"
+#include "commsdsl/gen/Namespace.h"
+#include "commsdsl/gen/strings.h"
 
 #include <cassert>
 #include <algorithm>
@@ -182,6 +184,28 @@ commsdsl::parse::Interface Interface::dslObj() const
     return m_impl->dslObj();
 }
 
+std::string Interface::adjustedExternalRef() const
+{
+    auto obj = dslObj();
+    if (obj.valid()) {
+        return obj.externalRef();
+    }
+
+    auto* ns = static_cast<const Namespace*>(getParent());
+    assert(ns != nullptr);
+    return ns->adjustedExternalRef() + '.' + strings::messageClassStr();
+}
+
+const std::string& Interface::adjustedName() const
+{
+    auto& str = name();
+    if (!str.empty()) {
+        return str;
+    }
+
+    return strings::messageClassStr();
+}
+
 Generator& Interface::generator()
 {
     return m_impl->generator();
@@ -212,6 +236,14 @@ bool Interface::isReferenced() const
 void Interface::setReferenced(bool value)
 {
     m_impl->setReferenced(value);
+}
+
+const Namespace* Interface::parentNamespace() const
+{
+    auto* parent = getParent();
+    assert(parent != nullptr);
+    assert(parent->elemType() == Elem::Type_Namespace);
+    return static_cast<const Namespace*>(parent);
 }
 
 Elem::Type Interface::elemTypeImpl() const

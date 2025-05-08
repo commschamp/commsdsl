@@ -22,7 +22,7 @@ public:
             comms::option::app::RefreshInterface
         >;
 
-    TEST3_ALIASES_FOR_ALL_MESSAGES(,,Interface, test3::options::DefaultOptions)
+    TEST3_NS1_ALIASES_FOR_ALL_MESSAGES(,,Interface, test3::options::DefaultOptions)
     
     using Frame = test3::ns1::frame::Frame<Interface>;
 

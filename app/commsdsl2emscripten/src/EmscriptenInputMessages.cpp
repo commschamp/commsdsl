@@ -13,7 +13,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "EmscriptenAllMessages.h"
+#include "EmscriptenInputMessages.h"
 
 #include "EmscriptenGenerator.h"
 #include "EmscriptenMessage.h"
@@ -38,34 +38,38 @@ namespace
 const std::string FwdSuffix("Fwd");
 
 } // namespace 
-    
 
-bool EmscriptenAllMessages::emscriptenWrite(EmscriptenGenerator& generator)
+EmscriptenInputMessages::EmscriptenInputMessages(EmscriptenGenerator& generator, const EmscriptenNamespace& parent) :
+    m_generator(generator),
+    m_parent(parent)
 {
-    EmscriptenAllMessages obj(generator);
+}
+
+bool EmscriptenInputMessages::emscriptenWrite() const
+{
     return 
-        obj.emscriptenWriteHeaderInternal() && 
-        obj.emscriptenWriteHeaderFwdInternal();
+        emscriptenWriteHeaderInternal() && 
+        emscriptenWriteHeaderFwdInternal();
 }
 
-std::string EmscriptenAllMessages::emscriptenClassName(const EmscriptenGenerator& generator)
+std::string EmscriptenInputMessages::emscriptenClassName() const
 {
-    return generator.emscriptenProtocolClassNameForRoot(strings::allMessagesStr());
+    return m_generator.emscriptenScopeNameForNamespaceMember(strings::allMessagesStr(), m_parent);
 }
 
-std::string EmscriptenAllMessages::emscriptenRelHeader(const EmscriptenGenerator& generator)
+std::string EmscriptenInputMessages::emscriptenRelHeader() const
 {
-    return generator.emscriptenProtocolRelHeaderForRoot(strings::allMessagesStr());
+    return m_generator.emscriptenProtocolRelHeaderForNamespaceMember(strings::allMessagesStr(), m_parent);
 }
 
-std::string EmscriptenAllMessages::emscriptenRelFwdHeader(const EmscriptenGenerator& generator)
+std::string EmscriptenInputMessages::emscriptenRelFwdHeader() const
 {
-    return generator.emscriptenProtocolRelHeaderForRoot(strings::allMessagesStr() + FwdSuffix);
+    return m_generator.emscriptenProtocolRelHeaderForNamespaceMember(strings::allMessagesStr() + FwdSuffix, m_parent);
 }
 
-bool EmscriptenAllMessages::emscriptenWriteHeaderInternal() const
+bool EmscriptenInputMessages::emscriptenWriteHeaderInternal() const
 {
-    auto filePath = m_generator.emscriptenAbsHeaderForRoot(strings::allMessagesStr());
+    auto filePath = m_generator.emscriptenAbsHeaderForNamespaceMember(strings::allMessagesStr(), m_parent);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {
@@ -111,7 +115,7 @@ bool EmscriptenAllMessages::emscriptenWriteHeaderInternal() const
 
     util::ReplacementMap repl = {
         {"GENERATED", EmscriptenGenerator::fileGeneratedComment()},
-        {"CLASS_NAME", emscriptenClassName(m_generator)},
+        {"CLASS_NAME", emscriptenClassName()},
         {"INCLUDES", util::strListToString(includes, "\n", "\n")},
         {"MSGS", util::strListToString(msgs, ",\n", "")},
     };
@@ -127,9 +131,9 @@ bool EmscriptenAllMessages::emscriptenWriteHeaderInternal() const
     return true;
 }
 
-bool EmscriptenAllMessages::emscriptenWriteHeaderFwdInternal() const
+bool EmscriptenInputMessages::emscriptenWriteHeaderFwdInternal() const
 {
-    auto filePath = m_generator.emscriptenAbsHeaderForRoot(strings::allMessagesStr() + FwdSuffix);
+    auto filePath = m_generator.emscriptenAbsHeaderForNamespaceMember(strings::allMessagesStr() + FwdSuffix, m_parent);
     auto dirPath = util::pathUp(filePath);
     assert(!dirPath.empty());
     if (!m_generator.createDirectory(dirPath)) {

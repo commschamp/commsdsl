@@ -69,6 +69,12 @@ Namespace::MessagesList Namespace::messages() const
     return m_pImpl->messagesList();
 }
 
+bool Namespace::hasMessages() const
+{
+    assert(m_pImpl != nullptr);
+    return !m_pImpl->messages().empty();
+}
+
 Namespace::InterfacesList Namespace::interfaces() const
 {
     assert(m_pImpl != nullptr);

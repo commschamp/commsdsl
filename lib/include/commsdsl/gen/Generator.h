@@ -85,6 +85,7 @@ public:
     NamespacesAccessList getAllNamespaces() const;
     InterfacesAccessList getAllInterfaces() const;
     MessagesAccessList getAllMessages() const;
+    static void sortMessages(MessagesAccessList& list);
     MessagesAccessList getAllMessagesIdSorted() const;
     FramesAccessList getAllFrames() const;
     FieldsAccessList getAllFields() const;

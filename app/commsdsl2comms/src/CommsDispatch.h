@@ -15,8 +15,6 @@
 
 #pragma once
 
-#include "CommsNamespace.h"
-
 #include "commsdsl/gen/Message.h"
 
 #include <cstdint>
@@ -27,20 +25,18 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
+class CommsNamespace;
+
 class CommsDispatch
 {
 public:
-    static bool write(CommsGenerator& generator);
+    CommsDispatch(CommsGenerator& generator, const CommsNamespace& parent);
+    bool commsWrite() const;
 
 private:
     using CheckMsgFunc = std::function<bool (const commsdsl::gen::Message& msg)>;
-    using MessagesList = CommsNamespace::MessagesAccessList;
+    using MessagesList = std::vector<const commsdsl::gen::Message*>;
     using MessagesMap = std::map<std::uintmax_t, MessagesList>;
-
-
-    explicit CommsDispatch(CommsGenerator& generator) : m_generator(generator) {}
-
-    bool commsWriteInternal() const;
 
     bool commsWriteDispatchInternal() const;
     bool commsWriteClientDispatchInternal() const;
@@ -51,10 +47,10 @@ private:
     std::string commsIncludesInternal(const std::string& inputPrefix) const;
     std::string commsDispatchCodeInternal(const std::string& name, CheckMsgFunc&& func) const;
     std::string commsCasesCodeInternal(const MessagesMap& map) const;
-    std::string commsMsgIdStringInternal(std::uintmax_t value) const;
     std::string commsMsgDispatcherCodeInternal(const std::string& inputPrefix) const;
 
     CommsGenerator& m_generator;
+    const CommsNamespace& m_parent;
 };
 
 } // namespace commsdsl2comms

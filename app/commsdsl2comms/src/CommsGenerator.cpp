@@ -22,7 +22,6 @@
 #include "CommsCustomLayer.h"
 #include "CommsDataField.h"
 #include "CommsDefaultOptions.h"
-#include "CommsDispatch.h"
 #include "CommsDoxygen.h"
 #include "CommsEnumField.h"
 #include "CommsFieldBase.h"
@@ -34,8 +33,6 @@
 #include "CommsIdLayer.h"
 #include "CommsInterface.h"
 #include "CommsMessage.h"
-#include "CommsMsgFactory.h"
-#include "CommsMsgId.h"
 #include "CommsNamespace.h"
 #include "CommsOptionalField.h"
 #include "CommsPayloadLayer.h"
@@ -68,7 +65,7 @@ namespace util = commsdsl::gen::util;
 namespace commsdsl2comms
 {
 
-const std::string MinCommsVersion("5.3.0");    
+const std::string MinCommsVersion("5.4.1");    
 
 const std::string& CommsGenerator::commsFileGeneratedComment()
 {
@@ -159,7 +156,6 @@ bool CommsGenerator::prepareImpl()
     }
 
     return 
-        commsPrepareDefaultInterfaceInternal() &&
         commsPrepareExtraMessageBundlesInternal();
 }
 
@@ -288,13 +284,9 @@ bool CommsGenerator::writeImpl()
     for (auto idx = 0U; idx < schemas().size(); ++idx) {
         chooseCurrentSchema(idx);
         bool result = 
-            CommsMsgId::write(*this) &&
             CommsFieldBase::write(*this) &&
             CommsVersion::write(*this) &&
-            CommsInputMessages::write(*this) &&
-            CommsDefaultOptions::write(*this) &&
-            CommsDispatch::write(*this) &&
-            CommsMsgFactory::write(*this);
+            CommsDefaultOptions::write(*this);
 
         if (!result) {
             return false;
@@ -306,23 +298,6 @@ bool CommsGenerator::writeImpl()
         CommsCmake::write(*this) &&
         CommsDoxygen::write(*this) &&
         commsWriteExtraFilesInternal();
-}
-
-bool CommsGenerator::commsPrepareDefaultInterfaceInternal()
-{
-    auto allInterfaces = getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        return true;
-    }
-
-    auto* defaultNamespace = addDefaultNamespace();
-    auto* interface = defaultNamespace->addDefaultInterface();
-    if (interface == nullptr) {
-        logger().error("Failed to create default interface");
-        return false;
-    }
-
-    return true;
 }
 
 bool CommsGenerator::commsPrepareExtraMessageBundlesInternal()

@@ -269,6 +269,20 @@ Field::FieldRefInfo Field::processMemberRef(const FieldsList& fields, const std:
     return (*iter)->processInnerRef(refStr.substr(nextPos));
 }
 
+const Namespace* Field::parentNamespace() const
+{
+    auto* parent = getParent();
+    while (parent != nullptr) {
+        if (parent->elemType() == Elem::Type_Namespace) {
+            return static_cast<const Namespace*>(parent);
+        }
+
+        parent = parent->getParent();
+    }
+
+    return static_cast<const Namespace*>(parent);
+}
+
 Elem::Type Field::elemTypeImpl() const
 {
     return Type_Field;

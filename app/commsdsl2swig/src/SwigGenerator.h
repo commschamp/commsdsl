@@ -25,6 +25,8 @@ namespace commsdsl2swig
 {
 
 class SwigInterface;
+class SwigNamespace;
+
 class SwigGenerator final : public commsdsl::gen::Generator
 {
     using Base = commsdsl::gen::Generator;
@@ -57,6 +59,7 @@ public:
     std::string swigInputCodePathForFile(const std::string& name) const;
     std::string swigClassName(const Elem& elem) const;
     std::string swigScopeNameForRoot(const std::string& name) const;
+    std::string swigScopeNameForMsgId(const std::string& name, const SwigNamespace& parent) const;
     std::string swigProtocolClassNameForRoot(const std::string& name) const;
     const std::string& swigConvertCppType(const std::string& str) const;
     const std::string& swigConvertIntType(commsdsl::parse::IntField::Type value, std::size_t len) const;
@@ -109,7 +112,6 @@ protected:
 
 private:
     bool swigWriteExtraFilesInternal() const;
-    bool swigPrepareDefaultInterfaceInternal();
     bool swigReferenceRequestedInterfaceInternal();
     bool swigReferenceRequestedMessagesInternal();
     bool swigProcessMessagesListFileInternal();

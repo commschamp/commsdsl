@@ -18,7 +18,7 @@
 #include "ToolsQtDefaultOptions.h"
 #include "ToolsQtGenerator.h"
 #include "ToolsQtInterface.h"
-#include "ToolsQtMsgFactory.h"
+#include "ToolsQtNamespace.h"
 #include "ToolsQtVersion.h"
 
 #include "commsdsl/gen/comms.h"
@@ -96,41 +96,6 @@ ToolsQtFrame::StringsList ToolsQtFrame::toolsSourceFiles(const commsdsl::gen::In
             toolsRelPathInternal(iFace) + strings::transportMessageSuffixStr() + strings::cppSourceSuffixStr(),
             toolsRelPathInternal(iFace) + strings::cppSourceSuffixStr(),
         };
-}
-
-std::string ToolsQtFrame::toolsMsgFactoryOptions() const
-{
-    util::StringsList elems;
-    for (auto iter = m_toolsLayers.rbegin(); iter != m_toolsLayers.rend(); ++iter) {
-        auto* l = *iter;
-        auto str = l->toolsMsgFactoryOptions();
-        if (!str.empty()) {
-            elems.push_back(std::move(str));
-        }
-    }
-
-    if (elems.empty()) {
-        return strings::emptyString();
-    }
-
-    static const std::string Templ =
-        "struct #^#NAME#$##^#SUFFIX#$# : public #^#DEFAULT_OPTS#$#::#^#SCOPE#$##^#SUFFIX#$#\n"
-        "{\n"
-        "    #^#LAYERS_OPTS#$#\n"
-        "}; // struct #^#NAME#$##^#SUFFIX#$#\n";
-
-    auto& gen = ToolsQtGenerator::cast(generator());
-    bool hasMainNs = gen.toolsHasMainNamespaceInOptions();
-
-    util::ReplacementMap repl = {
-        {"SCOPE", comms::scopeFor(*this, gen, hasMainNs)},
-        {"NAME", comms::className(dslObj().name())},
-        {"SUFFIX", strings::layersSuffixStr()},
-        {"LAYERS_OPTS", util::strListToString(elems, "\n", "\n")},
-        {"DEFAULT_OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)}
-    };
-
-    return util::processTemplate(Templ, repl); 
 }
 
 std::string ToolsQtFrame::toolsClassScope(const commsdsl::gen::Interface& iFace) const
@@ -305,6 +270,10 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
     auto& gen = ToolsQtGenerator::cast(generator());
     auto& logger = gen.logger();
 
+    auto* parent = getParent();
+    assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::Elem::Type_Namespace));
+    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
+
     auto& selectedFrames = gen.toolsGetSelectedFramesPerInterface();
     for (auto& info : selectedFrames) {
         auto iter = std::find(info.second.begin(), info.second.end(), this);
@@ -347,7 +316,7 @@ bool ToolsQtFrame::toolsWriteSrcInternal() const
             toolsRelPathInternal(*info.first) + strings::transportMessageSuffixStr() + strings::cppHeaderSuffixStr(),
             ToolsQtDefaultOptions::toolsRelHeaderPath(gen),
             ToolsQtVersion::toolsRelHeaderPath(gen),
-            ToolsQtMsgFactory::toolsRelHeaderPath(gen, *info.first),
+            parentNs->toolsFactoryRelHeaderPath(*info.first),
             ToolsQtInterface::cast(info.first)->toolsHeaderFilePath(),
         };
 
@@ -927,13 +896,16 @@ std::string ToolsQtFrame::toolsFrameSrcDefInternal(const commsdsl::gen::Interfac
         ;
 
     auto& gen = ToolsQtGenerator::cast(generator());
+    auto* parent = getParent();
+    assert((parent != nullptr) && (parent->elemType() == commsdsl::gen::Elem::Type_Namespace));
+    auto* parentNs = ToolsQtNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
     util::ReplacementMap repl = {
         {"CLASS_NAME", comms::className(dslObj().name())},
         {"INTERFACE", ToolsQtInterface::cast(iFace).toolsClassScope()},
-        {"MSG_FACTORY", ToolsQtMsgFactory::toolsClassScope(gen, iFace)},
+        {"MSG_FACTORY", parentNs->toolsFactoryClassScope(iFace)},
         {"TRANSPORT_MSG",  toolsClassScope(iFace) + strings::transportMessageSuffixStr()},
         {"SCOPE", comms::scopeFor(*this, gen)},
-        {"INPUT", comms::scopeForInput(strings::allMessagesStr(), gen)},
+        {"INPUT", comms::scopeForInput(strings::allMessagesStr(), gen, *parentNs)},
         {"OPTS", ToolsQtDefaultOptions::toolsClassScope(gen)}
     };
 

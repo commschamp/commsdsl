@@ -21,15 +21,17 @@ namespace commsdsl2comms
 {
 
 class CommsGenerator;
+class CommsNamespace;
+
 class CommsMsgFactory
 {
 public:
-    static bool write(CommsGenerator& generator);
+    CommsMsgFactory(CommsGenerator& generator, const CommsNamespace& parent);
+    bool commsWrite() const;
+    std::string commsScope(const std::string& prefix) const;
+    std::string commsRelHeaderPath(const std::string& prefix) const;
 
 private:
-    explicit CommsMsgFactory(CommsGenerator& generator) : m_generator(generator) {}
-
-    bool commsWriteInternal() const;
     bool commsWriteAllMsgFactoryInternal() const;
     bool commsWriteClientMsgFactoryInternal() const;
     bool commsWriteServerMsgFactoryInternal() const;
@@ -37,6 +39,7 @@ private:
     bool commsWriteExtraMsgFactoryInternal() const;
 
     CommsGenerator& m_generator;
+    const CommsNamespace& m_parent;
 };
 
 } // namespace commsdsl2comms

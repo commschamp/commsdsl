@@ -20,6 +20,7 @@
 #include "SwigGenerator.h"
 #include "SwigMsgHandler.h"
 #include "SwigMsgId.h"
+#include "SwigNamespace.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -243,13 +244,18 @@ std::string SwigInterface::swigClassDeclInternal() const
         "    #^#CLASS_NAME#$#(const #^#CLASS_NAME#$#& other);\n"
         "};\n";
 
+    auto* parent = getParent();
+    assert(parent != nullptr);
+    assert(parent->elemType() == commsdsl::gen::Elem::Type_Namespace);
+    auto* parentNs = SwigNamespace::cast(static_cast<const commsdsl::gen::Namespace*>(parent));
+
     auto& gen = SwigGenerator::cast(generator());
     util::ReplacementMap repl = {
         {"CLASS_NAME", gen.swigClassName(*this)},
         {"FIELDS", swigFieldsAccDeclInternal()},
         {"CUSTOM", util::readFileContents(gen.swigInputCodePathFor(*this) + strings::appendFileSuffixStr())},
         {"SIZE_T", gen.swigConvertCppType("std::size_t")},
-        {"MSG_ID", SwigMsgId::swigClassName(gen)},
+        {"MSG_ID", parentNs->swigMsgIdClassName()},
         {"DATA_BUF", SwigDataBuf::swigClassName(gen)},
         {"MSG_HANDLER", SwigMsgHandler::swigClassName(gen)},
         {"ERR_STATUS", SwigComms::swigErrorStatusClassName(gen)}

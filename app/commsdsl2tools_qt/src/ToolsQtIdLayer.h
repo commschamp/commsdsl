@@ -33,9 +33,6 @@ public:
 protected:
     // Base overrides
     virtual bool prepareImpl() override;
-
-    // ToolsBase overrides
-    virtual StringsList toolsMsgFactoryExtraOptionsImpl() const override;
 };
 
 } // namespace commsdsl2tools_qt

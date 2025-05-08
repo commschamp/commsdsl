@@ -23,25 +23,29 @@ namespace commsdsl2swig
 {
 
 class SwigGenerator;
+class SwigNamespace;
+
 class SwigMsgId
 {
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    static bool swigWrite(SwigGenerator& generator);
-    static void swigAddDef(const SwigGenerator& generator, StringsList& list);
-    static void swigAddCode(const SwigGenerator& generator, StringsList& list);
-    static std::string swigClassName(const SwigGenerator& generator);
+    SwigMsgId(SwigGenerator& generator, const SwigNamespace& parent);
+
+    bool swigWrite() const;
+    void swigAddDef(StringsList& list) const;
+    void swigAddCode(StringsList& list) const;
+    std::string swigClassName() const;
+    void swigAddCodeIncludes(StringsList& list) const;
 
 private:
-    explicit SwigMsgId(SwigGenerator& generator) : m_generator(generator) {}
 
-    bool swigWriteInternal() const;
     std::string swigTypeInternal() const;
     std::string swigIdsInternal() const;
     std::string swigCodeInternal() const;
     
     SwigGenerator& m_generator;
+    const SwigNamespace& m_parent;
 };
 
 } // namespace commsdsl2swig

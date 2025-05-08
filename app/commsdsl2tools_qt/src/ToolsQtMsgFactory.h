@@ -24,21 +24,21 @@ namespace commsdsl2tools_qt
 {
 
 class ToolsQtGenerator;
+class ToolsQtNamespace;
+
 class ToolsQtMsgFactory
 {
 public:
     using StringsList = commsdsl::gen::util::StringsList;
 
-    static bool write(ToolsQtGenerator& generator);
-    static std::string toolsRelHeaderPath(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace);
-    static StringsList toolsSourceFiles(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace); 
-    static std::string toolsClassScope(const ToolsQtGenerator& generator, const commsdsl::gen::Interface& iFace);
+    ToolsQtMsgFactory(const ToolsQtGenerator& generator, const ToolsQtNamespace& parent);
+    bool toolsWrite() const;
+    std::string toolsRelHeaderPath(const commsdsl::gen::Interface& iFace) const;
+    StringsList toolsSourceFiles(const commsdsl::gen::Interface& iFace) const; 
+    std::string toolsClassScope(const commsdsl::gen::Interface& iFace) const;
 
 private:
-    explicit ToolsQtMsgFactory(const ToolsQtGenerator& generator) : m_generator(generator) {}
-
     std::string toolsRelPathInternal(const commsdsl::gen::Interface& iFace) const;
-    bool toolsWriteInternal() const;
     bool toolsWriteHeaderInternal() const;
     bool toolsWriteSourceInternal() const;
     std::string toolsHeaderCodeInternal() const;
@@ -46,6 +46,7 @@ private:
     std::string toolsSourceIncludesInternal(const commsdsl::gen::Interface& iFace) const;
 
     const ToolsQtGenerator& m_generator;
+    const ToolsQtNamespace& m_parent;
 };
 
 } // namespace commsdsl2tools_qt

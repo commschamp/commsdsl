@@ -58,22 +58,36 @@ bool TestCmake::testWriteInternal() const
         return false;
     }
 
-    std::string interfaceScope;
     auto allInterfaces = m_generator.getAllInterfaces();
-    if (!allInterfaces.empty()) {
-        auto* firstInterface = allInterfaces.front();
-        assert(!firstInterface->name().empty());
-        interfaceScope = commsdsl::gen::comms::scopeFor(*firstInterface, m_generator);
-    }
-    else {
-        interfaceScope = commsdsl::gen::comms::scopeForInterface(commsdsl::gen::strings::messageClassStr(), m_generator);
-    }
+    assert(!allInterfaces.empty());
+    auto* firstInterface = allInterfaces.front();
+    auto interfaceScope = commsdsl::gen::comms::scopeFor(*firstInterface, m_generator);
 
     auto allFrames = m_generator.getAllFrames();
     assert(!allFrames.empty());
     auto* firstFrame = allFrames.front();
     assert(!firstFrame->name().empty());
 
+    auto* interfaceNs = firstInterface->parentNamespace();
+
+    auto* inputNs = firstFrame->parentNamespace();
+    while (inputNs != nullptr) {
+        if (inputNs->hasMessagesRecursive()) {
+            break;
+        }
+
+        auto* parentNs = inputNs->getParent();
+        if ((parentNs != nullptr) && (parentNs->elemType() != commsdsl::gen::Elem::Type_Namespace)) {
+            inputNs = nullptr;
+            break;
+        }
+
+        inputNs = static_cast<decltype(inputNs)>(parentNs);
+    }
+
+    if (inputNs == nullptr) {
+        inputNs = interfaceNs;
+    }
 
     ReplacementMap repl = {
         {"PROJ_NAME", m_generator.currentSchema().schemaName()},
@@ -81,7 +95,7 @@ bool TestCmake::testWriteInternal() const
         {"INTERFACE_SCOPE", std::move(interfaceScope)},
         {"FRAME_SCOPE", commsdsl::gen::comms::scopeFor(*firstFrame, m_generator)},
         {"OPTIONS_SCOPE", commsdsl::gen::comms::scopeForOptions(commsdsl::gen::strings::defaultOptionsStr(), m_generator)},
-        {"INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator)},
+        {"INPUT_SCOPE", commsdsl::gen::comms::scopeForInput(commsdsl::gen::strings::allMessagesStr(), m_generator, *inputNs)},
         {"EXTRA_SOURCES", util::readFileContents(util::pathAddElem(m_generator.getCodeDir(), strings::cmakeListsFileStr()) + strings::sourcesFileSuffixStr())},
     };
 

@@ -17,6 +17,7 @@
 
 #include "CommsCustomLayer.h"
 #include "CommsGenerator.h"
+#include "CommsNamespace.h"
 
 #include "commsdsl/gen/comms.h"
 #include "commsdsl/gen/strings.h"
@@ -259,12 +260,12 @@ bool CommsFrame::commsWriteDefInternal() const
         "        #^#FRAME_DEF#$#;\n"
         "public:\n"
         "    /// @brief Allow access to frame definition layers.\n"
-        "    /// @details See definition of @b COMMS_PROTOCOL_LAYERS_NAMES macro\n"
+        "    /// @details See definition of @b COMMS_FRAME_LAYERS_NAMES macro\n"
         "    ///     from COMMS library for details.\n"
         "    ///\n"
         "    ///     The generated types and functions are:\n"
         "    #^#ACCESS_FUNCS_DOC#$#\n"
-        "    COMMS_PROTOCOL_LAYERS_NAMES(\n"
+        "    COMMS_FRAME_LAYERS_NAMES(\n"
         "        #^#LAYERS_ACCESS_LIST#$#\n"
         "    );\n"
         "    #^#PUBLIC#$#\n"
@@ -337,10 +338,11 @@ std::string CommsFrame::commsCommonBodyInternal() const
 
 std::string CommsFrame::commsDefIncludesInternal() const
 {
+    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
     auto& gen = generator();
     util::StringsList includes = {
         comms::relHeaderForOptions(strings::defaultOptionsClassStr(), gen),
-        comms::relHeaderForInput(strings::allMessagesStr(), gen)
+        comms::relHeaderForInput(strings::allMessagesStr(), gen, *(static_cast<const commsdsl::gen::Namespace*>(getParent())))
     };
 
     if (m_hasCommonCode) {
@@ -373,7 +375,7 @@ std::string CommsFrame::commsDefLayersDefInternal() const
     }
 
     static const std::string StackDefTempl =
-        "/// @brief Final protocol stack definition.\n"
+        "/// @brief Final framing layers stack definition.\n"
         "#^#STACK_PARAMS#$#\n"
         "using Stack = #^#LAST_LAYER#$##^#LAST_LAYER_PARAMS#$#;\n";
 
@@ -423,8 +425,10 @@ std::string CommsFrame::commsDefInputMessagesParamInternal() const
         return strings::emptyString();
     }
 
+    assert(getParent()->elemType() == commsdsl::gen::Elem::Type_Namespace);
+    auto& ns = *(static_cast<const commsdsl::gen::Namespace*>(getParent()));
     return
-        "typename TAllMessages = " + comms::scopeForInput(strings::allMessagesStr(), generator()) + "<TMessage>,";
+        "typename TAllMessages = " + comms::scopeForInput(strings::allMessagesStr(), generator(), ns) + "<TMessage>,";
 }
 
 std::string CommsFrame::commsDefAccessDocInternal() const

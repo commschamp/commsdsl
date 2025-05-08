@@ -39,13 +39,15 @@ namespace commsdsl2tools_qt
 namespace 
 {
 
-unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Generator& generator)
+unsigned getHexMsgIdWidthInternal(const commsdsl::gen::Interface& interface)
 {
-    auto* msgIdField = generator.currentSchema().getMessageIdField();
-    if (msgIdField == nullptr) {
+    auto* parentNs = interface.parentNamespace();
+    auto allMsgIdFields = parentNs->findMessageIdFields();
+    if (allMsgIdFields.empty()) {
         return 0U;
     }
 
+    auto* msgIdField = allMsgIdFields.front();
     if (msgIdField->dslObj().kind() != commsdsl::parse::Field::Kind::Enum) {
         return 0U;
     }
@@ -214,7 +216,7 @@ std::string ToolsQtInterface::toolsHeaderCodeInternal() const
         {"OPTIONS", ToolsQtDefaultOptions::toolsClassScope(gen)},
     };
 
-    auto hexWidth = getHexMsgIdWidthInternal(generator());
+    auto hexWidth = getHexMsgIdWidthInternal(*this);
     if (0U < hexWidth) {
         repl["ID_FUNC"] = "virtual QString idAsStringImpl() const override;";
         repl["PROTECTED"] = "protected:";
@@ -236,7 +238,7 @@ std::string ToolsQtInterface::toolsSrcCodeInternal() const
     };
 
 
-    auto hexWidth = getHexMsgIdWidthInternal(generator());
+    auto hexWidth = getHexMsgIdWidthInternal(*this);
     if (0U < hexWidth) {
         auto func =
             "QString " + comms::className(toolsNameInternal()) + "::idAsStringImpl() const\n"

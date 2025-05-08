@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test52" endian="big" nonUniqueMsgIdAllowed="true">
+    <description>
+        Testing namespaces as sub-protocols together with stateful sequence
+    </description>
+    <ns name="sub1">
+        <fields>
+            <enum name="MsgId" type="uint8" semanticType="messageId" >
+                <validValue name="M1" val="0" />
+            </enum>
+        </fields>
+
+        <message name="Msg1" id="sub1.MsgId.M1">
+            <int name="F1" type="uint16" />
+        </message>
+
+        <frame name="Frame">
+            <size name="Size">
+                <int name="Length" type="uint16" />
+            </size>
+            <id name="Id" field="sub1.MsgId" />
+            <payload name="Data" />
+        </frame>
+    </ns>
+
+    <ns name="sub2">
+        <fields>
+            <enum name="MsgId" type="uint8" semanticType="messageId" >
+                <validValue name="M1" val="0" />
+            </enum>
+        </fields>
+
+        <message name="Msg1" id="0" order="0">
+            <int name="F1" type="uint32" />
+        </message>
+
+        <message name="Msg2" id="0" order="1">
+            <int name="F1" type="uint32" />
+        </message>        
+
+        <frame name="Frame">
+            <id name="Id">
+                <int name="IdField" type="uint8" pseudo="true" />
+            </id>
+            <payload name="Data" />
+        </frame>
+    </ns>    
+
+    <!--interface name="Interface" /-->
+</schema>

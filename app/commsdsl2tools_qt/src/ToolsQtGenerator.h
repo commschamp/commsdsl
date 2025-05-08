@@ -126,7 +126,6 @@ protected:
     virtual bool writeImpl() override;   
 
 private:
-    bool toolsPrepareDefaultInterfaceInternal();
     bool toolsPrepareSelectedInterfacesInternal();
     bool toolsPrepareSelectedFramesInternal();
     bool toolsWriteExtraFilesInternal() const;
