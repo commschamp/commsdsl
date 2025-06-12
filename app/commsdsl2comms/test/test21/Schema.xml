@@ -56,7 +56,7 @@
         </optional>   
 
     </fields>
-    
+
     <message name="Msg1" id="MsgId.M1" readOverride="extend" writeOverride="replace" lengthOverride="any" validOverride="replace">
         <ref name="f1" field="R1" />
         <ref name="f2" field="I2" />

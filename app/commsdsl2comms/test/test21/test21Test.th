@@ -14,6 +14,7 @@ public:
     void test1();
     void test2();
     void test3();
+    void test4();
 
     using Interface =
         test21::Message<
@@ -112,4 +113,10 @@ void TestSuite::test3()
     auto comsumed = comms::processAllWithDispatchViaDispatcher<Dispatcher>(&outBuf[0], outBuf.size(), frame, handler);
     TS_ASSERT_EQUALS(comsumed, outBuf.size());
     TS_ASSERT(handler.getMsg2Received()); // Make sure that Msg2 is received
+}
+
+void TestSuite::test4()
+{
+    Msg1 msg;
+    msg.pubFunc(); // Testing public function presence
 }
