@@ -462,6 +462,8 @@ jobs:
         COMMON_BUILD_TYPE: ${{matrix.type}}
         COMMON_CXX_STANDARD: ${{matrix.cpp}}
         COMMS_TAG: ${{env.COMMS_TAG}}
+        CC_TOOLS_QT_TAG: ${{env.CC_TOOLS_QT_TAG}} 
+        CC_TOOLS_QT_MAJOR_QT_VERSION: ${{matrix.qt_ver}}        
 
     - name: Configure CMake
       shell: cmd
