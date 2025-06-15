@@ -424,12 +424,25 @@ jobs:
         type: [Debug, Release]
         arch: [x64]
         cpp: [11, 14, 17, 20]
+        qt_ver: [5, 6]        
 
     steps:
     - uses: actions/checkout@v4
 
     - name: Create Build Environment
       run: cmake -E make_directory ${{runner.workspace}}/build   
+
+    - name: Install Qt
+      if: ${{matrix.cpp >= 17}}
+      shell: cmd
+      run: |
+        choco install curl
+        curl -L https://github.com/martinrotter/qt-minimalistic-builds/releases/download/${{env.QT_VER}}/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64.7z -o ${{runner.workspace}}/qt.7z
+        7z x ${{runner.workspace}}/qt.7z -o${{runner.workspace}}/qt
+        echo QT_VER=${{env.QT_VER}} >>%GITHUB_ENV%
+        echo QTDIR=${{runner.workspace}}/qt/qt-${{env.QT_VER}}-dynamic-msvc2019-x86_64 >>%GITHUB_ENV%
+      env:
+        QT_VER: ${{matrix.qt_ver == '5' && '5.15.3' || '6.2.2'}}          
 
     - name: Prepare externals
       shell: cmd
@@ -455,10 +468,13 @@ jobs:
           -DCMAKE_CXX_STANDARD=${{env.TOOLS_CXX_STANDARD}} ^
           -DCOMMSDSL_BUILD_COMMSDSL2TEST=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT=ON ^
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG=ON -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN=ON ^
-          -DCOMMSDSL_BUILD_UNIT_TESTS=ON -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=OFF ^
+          -DCOMMSDSL_BUILD_UNIT_TESTS=ON ^
+          -DCOMMSDSL_BUILD_COMMSDSL2TOOLS_QT_TESTS=${{env.BUILD_TOOLS_QT_UNIT_TESTS}} ^
           -DCOMMSDSL_BUILD_COMMSDSL2SWIG_TESTS=OFF -DCOMMSDSL_BUILD_COMMSDSL2EMSCRIPTEN_TESTS=OFF
+          
       env:
-        TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"      
+        TOOLS_CXX_STANDARD: "${{ matrix.cpp >= 17 && matrix.cpp || '17' }}"    
+        BUILD_TOOLS_QT_UNIT_TESTS: "${{ matrix.cpp >= 17 && 'ON' || 'OFF' }}"          
 
     - name: Build Target 
       working-directory: ${{runner.workspace}}/build
