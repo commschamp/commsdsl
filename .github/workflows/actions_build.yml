@@ -13,7 +13,6 @@ env:
 
 jobs:
   build_gcc_ubuntu_24_04:
-    if: false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -95,7 +94,6 @@ jobs:
       run: ctest -V
 
   build_gcc_no_sanitize_ubuntu_24_04:
-    if: false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -143,7 +141,6 @@ jobs:
         VERBOSE: 1 
 
   build_clang_ubuntu_22_04:
-    if: false
     runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
@@ -215,7 +212,6 @@ jobs:
       run: ctest -V
 
   build_clang_ubuntu_24_04:
-    if: false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -299,7 +295,6 @@ jobs:
       run: ctest -V
 
   build_clang_no_sanitize_ubuntu_24_04:
-    if: false
     runs-on: ubuntu-24.04
     strategy:
       fail-fast: false
@@ -350,7 +345,6 @@ jobs:
         VERBOSE: 1 
 
   build_msvc_2019:
-    if: false
     runs-on: windows-2019
     strategy:
       fail-fast: false
