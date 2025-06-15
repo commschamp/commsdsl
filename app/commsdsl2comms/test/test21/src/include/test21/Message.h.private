@@ -1,0 +1,4 @@
+/// @brief Extra private func
+void privateFunc()
+{
+}

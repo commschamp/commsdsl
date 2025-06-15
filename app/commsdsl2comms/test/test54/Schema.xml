@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema name="test54" endian="big">
+    <description>
+        Testing uint16 enum with big values
+    </description>
+    <fields>
+        <enum name="MsgId" type="uint16" semanticType="messageId" >
+            <validValue name="M1" val="0" />
+            <validValue name="M2" val="1" />
+            <validValue name="M3" val="0xfffe" />
+            <validValue name="M4" val="0xffff" />
+        </enum>
+
+        <enum name="E1" type="uint16" >
+            <validValue name="Val1" val="0" />
+            <validValue name="Val2" val="1" />
+            <validValue name="Val3" val="0xfffe" />
+            <validValue name="Val4" val="0xffff" />
+        </enum>        
+    </fields>
+
+    <message name="Msg1" id="MsgId.M1">
+        <ref name="F1" field="E1" />
+    </message>
+
+    <frame name="Frame">
+        <size name="Size">
+            <int name="Length" type="uint16" />
+        </size>
+        <id name="Id" field="MsgId" />
+        <payload name="Data" />
+    </frame>
+</schema>

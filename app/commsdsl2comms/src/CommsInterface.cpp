@@ -530,7 +530,7 @@ std::string CommsInterface::commsDefPublicInternal() const
         {"CONSTRUCT", m_constructCode},
         {"ACCESS", commsDefFieldsAccessInternal()},
         {"ALIASES", commsDefFieldsAliasesInternal()},
-        {"EXTRA", m_customCode.m_protected},
+        {"EXTRA", m_customCode.m_public},
     };
 
     return util::processTemplate(Templ, repl);

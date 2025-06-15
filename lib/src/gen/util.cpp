@@ -319,39 +319,37 @@ std::string numToString(std::uintmax_t value, unsigned hexWidth)
 {
     if (hexWidth == 0U) {
         if (value <= std::numeric_limits<std::uint16_t>::max()) {
-            return std::to_string(value) + "U";
+            return std::to_string(value);
         }
 
         if (value <= std::numeric_limits<std::uint32_t>::max()) {
-            return std::to_string(value) + "UL";
+            return std::to_string(value) + "U";
         }
     }
 
     std::stringstream stream;
     stream << std::hex << "0x" << std::uppercase <<
               std::setfill('0') << std::setw(hexWidth) << value;
-    if ((0U < hexWidth) && (value <= std::numeric_limits<std::uint16_t>::max())) {
-        stream << "U";
-    }
-    else if ((0U < hexWidth) && (value <= std::numeric_limits<std::uint32_t>::max())) {
-        stream << "UL";
-    }
-    else {
+    do {
+        if ((0U < hexWidth) && (value <= std::numeric_limits<std::uint16_t>::max())) {
+            break;
+        }
+
+        if ((0U < hexWidth) && (value <= std::numeric_limits<std::uint32_t>::max())) {
+            stream << "U";
+            break;
+        }        
+
         stream << "ULL";
-    }
+    } while (false);
     return stream.str();
 }
 
 std::string numToString(std::intmax_t value)
 {
-    if ((std::numeric_limits<std::int16_t>::min() <= value) &&
-        (value <= std::numeric_limits<std::int16_t>::max())) {
-        return std::to_string(value);
-    }
-
     if ((std::numeric_limits<std::int32_t>::min() <= value) &&
         (value <= std::numeric_limits<std::int32_t>::max())) {
-        return std::to_string(value) + "L";
+        return std::to_string(value);
     }
 
     if (0 < value) {

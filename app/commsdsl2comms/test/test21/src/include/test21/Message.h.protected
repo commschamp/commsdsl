@@ -1,0 +1,5 @@
+/// @brief Extra protected func
+void protectedFunc()
+{
+    privateFunc();
+}

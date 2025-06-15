@@ -1,0 +1,44 @@
+#include "cxxtest/TestSuite.h"
+
+#include "test54/Message.h"
+#include "test54/frame/Frame.h"
+
+#include "comms/process.h"
+
+#include <cstdint>
+#include <type_traits>
+
+class TestSuite : public CxxTest::TestSuite
+{
+public:
+    void test1();
+
+    struct Handler
+    {
+        template <typename TMsg>
+        void handle(TMsg& msg)
+        {
+            static_cast<void>(msg);
+        }
+    };    
+
+    using Interface = 
+        test54::Message<
+            comms::option::app::IdInfoInterface,
+            comms::option::app::LengthInfoInterface,
+            comms::option::app::ReadIterator<const std::uint8_t*>,
+            comms::option::app::WriteIterator<std::uint8_t*>,
+            comms::option::app::NameInterface,
+            comms::option::app::Handler<Handler>
+        >;
+
+    using Frame = test54::frame::Frame<Interface>;
+
+
+    TEST54_ALIASES_FOR_ALL_MESSAGES_DEFAULT_OPTIONS(,,Interface);
+};
+
+void TestSuite::test1()
+{
+    Msg1 msg1;
+}
